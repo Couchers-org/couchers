@@ -1,14 +1,15 @@
 import grpc
 import requests
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.config import config
 from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
+from couchers.proto import bugs_pb2, bugs_pb2_grpc
+from couchers.proto.google.api import httpbody_pb2
 from couchers.sql import couchers_select as select
-from proto import bugs_pb2, bugs_pb2_grpc
-from proto.google.api import httpbody_pb2
 
 
 class Bugs(bugs_pb2_grpc.BugsServicer):
@@ -20,7 +21,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
     def ReportBug(self, request, context, session):
         if not config["BUG_TOOL_ENABLED"]:
-            context.abort(grpc.StatusCode.UNAVAILABLE, errors.BUG_TOOL_DISABLED)
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "bug_tool_disabled")
 
         repo = config["BUG_TOOL_GITHUB_REPO"]
         auth = (config["BUG_TOOL_GITHUB_USERNAME"], config["BUG_TOOL_GITHUB_TOKEN"])
@@ -53,7 +54,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
 
         r = requests.post(f"https://api.github.com/repos/{repo}/issues", auth=auth, json=json_body)
         if not r.status_code == 201:
-            context.abort(grpc.StatusCode.INTERNAL, errors.BUG_TOOL_REQUEST_FAILED)
+            context.abort_with_error_code(grpc.StatusCode.INTERNAL, "bug_tool_request_failed")
 
         issue_number = r.json()["number"]
 
@@ -75,3 +76,9 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             content_type="application/octet-stream",
             data=get_descriptors_pb(),
         )
+
+    def GeolocationSearchInfo(self, request, context, session):
+        return empty_pb2.Empty()
+
+    def GeolocationClickInfo(self, request, context, session):
+        return empty_pb2.Empty()

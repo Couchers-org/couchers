@@ -141,7 +141,7 @@ const styledIcon = <C extends React.ComponentType<React.ComponentProps<C>>>(
 const StyledCheckCircleIcon = styledIcon(CheckCircleIcon);
 const StyledErrorIcon = styledIcon(ErrorIcon);
 
-export const AgeAndGenderRenderer = ({ user }: Props) => {
+const AgeAndGenderRenderer = ({ user }: Props) => {
   const {
     birthdateVerificationStatus,
     genderVerificationStatus,
@@ -271,7 +271,9 @@ export const RemainingAboutLabels = ({ user }: Props) => {
       />
       <LabelAndText
         label={t("profile:heading.local_time")}
-        text={dayjs().tz(user.timezone).format("LT")}
+        text={dayjs()
+          .tz(user.timezone || "Etc/UTC")
+          .format("LT")}
       />
     </>
   );

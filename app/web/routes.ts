@@ -12,7 +12,6 @@ export const baseRoute = "/";
 export const githubURL = "https://github.com/Couchers-org/couchers";
 export const instagramURL = "https://www.instagram.com/couchersorg";
 export const redditURL = "https://www.reddit.com/r/couchers/";
-export const blueSkyURL = "https://bsky.app/profile/couchers.bsky.social";
 export const facebookURL = "https://www.facebook.com/Couchers.org";
 export const helpCenterURL = "https://help.couchers.org";
 export const githubUpdatesURL =
@@ -34,11 +33,10 @@ export const donationsRoute = "/donate";
 export const builtWithRoute = "/open-source";
 export const contactRoute = "/contact";
 export const roadmapRoute = "/roadmap";
+export const whatIsCouchSurfingRoute = "/what-is-couch-surfing";
 
 export const loginRoute = "/login";
 export const resetPasswordRoute = "/password-reset";
-export const featurePreviewRoute = "/preview";
-export const confirmChangeEmailRoute = "/confirm-email";
 
 export const signupRoute = "/signup";
 export const inviteRoute = "/invite";
@@ -47,6 +45,7 @@ export const inviteCodesRoute = "/invite-codes";
 export const settingsRoute = "/account-settings";
 export const notificationSettingsRoute = `${settingsRoute}/notifications`;
 export const loginsSettingsRoute = `${settingsRoute}/logins`;
+export const strongVerificationRoute = "/strong-verification";
 
 export const translateRoute = "/translate";
 
@@ -85,9 +84,7 @@ export type MessageType = (typeof messageTypeStrings)[number];
 export const groupChatsRoute = `${messagesRoute}/chats`;
 export const routeToCreateMessage = (username: string) =>
   `${groupChatsRoute}?to=${username}`;
-export const surfingRequestsRoute = `${messagesRoute}/surfing`;
-export const hostingRequestsRoute = `${messagesRoute}/hosting`;
-export const hostRequestRoute = `${messagesRoute}/request`;
+const hostRequestRoute = `${messagesRoute}/request`;
 export const routeToGroupChat = (id: number) => `${groupChatsRoute}/${id}`;
 export const routeToHostRequest = (id: number) => `${hostRequestRoute}/${id}`;
 
@@ -103,8 +100,7 @@ export const referenceTypeRouteStrings = [
   "surfed",
   "hosted",
 ] as const;
-export type ReferenceTypeRouteStrings =
-  (typeof referenceTypeRouteStrings)[number];
+type ReferenceTypeRouteStrings = (typeof referenceTypeRouteStrings)[number];
 export const referenceTypeRoute: Record<
   ReferenceType,
   ReferenceTypeRouteStrings
@@ -126,7 +122,6 @@ export const eventsRoute = "/events";
 export const communitiesRoute = "/communities";
 export const logoutRoute = "/logout";
 export const connectionsRoute = "/connections";
-export const friendsRoute = `${connectionsRoute}/friends`;
 
 export const searchRoute = "/search";
 export const routeToSearch = (filters: SearchFilters) =>
@@ -138,12 +133,10 @@ export const tosRoute = "/terms";
 const placeBaseRoute = "/place";
 export const routeToPlace = (id: number, slug: string) =>
   `${placeBaseRoute}/${id}/${slug}`;
-export const newPlaceRoute = `${placeBaseRoute}/new`;
 
 const guideBaseRoute = "/guide";
 export const routeToGuide = (id: number, slug: string) =>
   `${guideBaseRoute}/${id}/${slug}`;
-export const newGuideRoute = `${guideBaseRoute}/new`;
 
 const groupBaseRoute = "/group";
 export const routeToGroup = (id: number, slug: string) =>
@@ -183,10 +176,9 @@ export const routeToEditCommunityPage = (id: number, slug: string) =>
 export const composingDiscussionHash = "new";
 export const volunteerRoute = "/volunteer";
 
-export const badgesRoute = "/badges";
+const badgesRoute = "/badges";
 export const routeToBadge = (id: string) => `${badgesRoute}/${id}`;
 
-export const strongVerificationURL = `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL}/strong-verification`;
 export function adminPanelUserLink(username: string) {
   return `${process.env.NEXT_PUBLIC_CONSOLE_BASE_URL}/admin/user/${username}`;
 }
@@ -216,10 +208,14 @@ export const helpCenterHowToLeaveGoodReferenceUrl =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1717360836-how-to";
 export const helpCenterCommunityBuilderURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1743977410-what-is-a-community-builder";
-
+export const communityGuidelinesURL =
+  "https://help.couchers.org/hc/couchersorg-help-center/articles/1715121703-couchers-org-community-guidelines";
 // Note: Url must end with financials year digits
 export const latestFinancialsURL =
   "/blog/2025/04/20/couchers-inc-financials-2024";
 
 export const communityCreationFormURL = (username?: string) =>
   `https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1&username=${username || ""}`;
+
+export const volunteerNotAVolunteerFormUrl =
+  "mailto:support@couchers.org?subject=Please%20add%20me%20to%20the%20volunteer%20page";

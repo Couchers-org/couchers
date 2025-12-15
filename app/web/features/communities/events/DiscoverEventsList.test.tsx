@@ -77,8 +77,16 @@ describe("DiscoverEventsList", () => {
       await screen.findByTestId("location-autocomplete"),
     ).toBeInTheDocument();
     expect(
-      await screen.getByText(t("communities:events_empty_state")),
+      screen.getByText((content, element) => {
+        // Match text split across multiple elements by checking the full text content
+        return (
+          element?.textContent ===
+          "No events at the moment. Why don't you create one ✨?"
+        );
+      }),
     ).toBeInTheDocument();
+    // Check that there's a link to create a new event
+    expect(screen.getByRole("link", { name: "create" })).toBeInTheDocument();
   });
 
   it("Renders error message when there is an error", async () => {

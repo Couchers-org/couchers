@@ -56,9 +56,17 @@ describe("My events", () => {
     render(<MyEvents />, { wrapper });
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
 
-    expect(screen.getByText(t("communities:events_empty_state"))).toBeVisible();
-    // Check that there are no events card, in addition to empty state
-    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(
+      screen.getByText((content, element) => {
+        // Match text split across multiple elements by checking the full text content
+        return (
+          element?.textContent ===
+          "No events at the moment. Why don't you create one ✨?"
+        );
+      }),
+    ).toBeVisible();
+    // Check that there's a link to create a new event
+    expect(screen.getByRole("link", { name: "create" })).toBeInTheDocument();
   });
 
   it("shows an error alert if the events failed to load", async () => {
@@ -90,13 +98,13 @@ describe("My events", () => {
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
       expect(screen.getAllByRole("link")).toHaveLength(2);
 
-      const seeMoreEventsButton = screen.getByRole("button", {
-        name: t("communities:see_more_events_label"),
+      const loadMoreButton = screen.getByRole("button", {
+        name: t("dashboard:load_more"),
       });
 
       const user = userEvent.setup();
 
-      await user.click(seeMoreEventsButton);
+      await user.click(loadMoreButton);
 
       expect(await screen.findAllByRole("link")).toHaveLength(3);
       expect(listMyEventsMock).toHaveBeenCalledTimes(2);

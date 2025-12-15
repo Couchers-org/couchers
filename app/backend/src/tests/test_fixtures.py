@@ -1,23 +1,30 @@
 import os
+import re
+from collections.abc import Generator, Sequence
 from concurrent import futures
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
+from typing import Any
 from unittest.mock import patch
 
 import grpc
 import pytest
-from sqlalchemy.orm import close_all_sessions
+from grpc._server import _validate_generic_rpc_handlers
+from sqlalchemy import Connection, Engine, create_engine, update
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_, text
 
 from couchers.config import config
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
+from couchers.context import make_interactive_context
 from couchers.crypto import random_hex
 from couchers.db import _get_base_engine, session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
+    UserAuthInfo,
     _try_get_and_update_user_details,
 )
 from couchers.jobs.worker import process_job
@@ -26,13 +33,12 @@ from couchers.models import (
     FriendRelationship,
     FriendStatus,
     HostingStatus,
-    Language,
     LanguageAbility,
     LanguageFluency,
     MeetupStatus,
     ModerationUserList,
     PassportSex,
-    Region,
+    PhotoGallery,
     RegionLived,
     RegionVisited,
     StrongVerificationAttempt,
@@ -42,33 +48,7 @@ from couchers.models import (
     UserBlock,
     UserSession,
 )
-from couchers.servicers.account import Account, Iris
-from couchers.servicers.admin import Admin
-from couchers.servicers.api import API
-from couchers.servicers.auth import Auth, create_session
-from couchers.servicers.blocking import Blocking
-from couchers.servicers.bugs import Bugs
-from couchers.servicers.communities import Communities
-from couchers.servicers.conversations import Conversations
-from couchers.servicers.discussions import Discussions
-from couchers.servicers.donations import Donations, Stripe
-from couchers.servicers.events import Events
-from couchers.servicers.gis import GIS
-from couchers.servicers.groups import Groups
-from couchers.servicers.jail import Jail
-from couchers.servicers.media import Media, get_media_auth_interceptor
-from couchers.servicers.notifications import Notifications
-from couchers.servicers.pages import Pages
-from couchers.servicers.public import Public
-from couchers.servicers.references import References
-from couchers.servicers.reporting import Reporting
-from couchers.servicers.requests import Requests
-from couchers.servicers.resources import Resources
-from couchers.servicers.search import Search
-from couchers.servicers.threads import Threads
-from couchers.sql import couchers_select as select
-from couchers.utils import create_coordinate, now
-from proto import (
+from couchers.proto import (
     account_pb2_grpc,
     admin_pb2_grpc,
     annotations_pb2,
@@ -80,14 +60,19 @@ from proto import (
     conversations_pb2_grpc,
     discussions_pb2_grpc,
     donations_pb2_grpc,
+    editor_pb2_grpc,
     events_pb2_grpc,
+    galleries_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
     iris_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    moderation_pb2,
+    moderation_pb2_grpc,
     notifications_pb2_grpc,
     pages_pb2_grpc,
+    postal_verification_pb2_grpc,
     public_pb2_grpc,
     references_pb2_grpc,
     reporting_pb2_grpc,
@@ -97,147 +82,259 @@ from proto import (
     stripe_pb2_grpc,
     threads_pb2_grpc,
 )
+from couchers.servicers.account import Account, Iris
+from couchers.servicers.admin import Admin
+from couchers.servicers.api import API
+from couchers.servicers.auth import Auth, create_session
+from couchers.servicers.blocking import Blocking
+from couchers.servicers.bugs import Bugs
+from couchers.servicers.communities import Communities
+from couchers.servicers.conversations import Conversations
+from couchers.servicers.discussions import Discussions
+from couchers.servicers.donations import Donations, Stripe
+from couchers.servicers.editor import Editor
+from couchers.servicers.events import Events
+from couchers.servicers.galleries import Galleries
+from couchers.servicers.gis import GIS
+from couchers.servicers.groups import Groups
+from couchers.servicers.jail import Jail
+from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.moderation import Moderation
+from couchers.servicers.notifications import Notifications
+from couchers.servicers.pages import Pages
+from couchers.servicers.postal_verification import PostalVerification
+from couchers.servicers.public import Public
+from couchers.servicers.references import References
+from couchers.servicers.reporting import Reporting
+from couchers.servicers.requests import Requests
+from couchers.servicers.resources import Resources
+from couchers.servicers.search import Search
+from couchers.servicers.threads import Threads
+from couchers.sql import couchers_select as select
+from couchers.utils import create_coordinate, now
 
 
-def drop_all():
-    """drop everything currently in the database"""
+def create_schema_from_models(engine: Engine | None = None) -> None:
+    """
+    Create everything from the current models, not incrementally
+    through migrations.
+    """
+    if engine is None:
+        engine = _get_base_engine()
+
+    # create sql functions (these are created in migrations otherwise)
+    functions = Path(__file__).parent / "sql_functions.sql"
+    with open(functions) as f, engine.connect() as conn:
+        conn.execute(text(f.read()))
+        conn.commit()
+
+    Base.metadata.create_all(engine)
+
+
+def populate_testing_resources(conn: Connection) -> None:
+    """
+    Testing version of couchers.resources.copy_resources_to_database
+    """
+    conn.execute(
+        text("""
+        INSERT INTO regions (code, name) VALUES
+        ('AUS', 'Australia'),
+        ('CAN', 'Canada'),
+        ('CHE', 'Switzerland'),
+        ('CUB', 'Cuba'),
+        ('CXR', 'Christmas Island'),
+        ('CZE', 'Czechia'),
+        ('DEU', 'Germany'),
+        ('EGY', 'Egypt'),
+        ('ESP', 'Spain'),
+        ('EST', 'Estonia'),
+        ('FIN', 'Finland'),
+        ('FRA', 'France'),
+        ('GBR', 'United Kingdom'),
+        ('GEO', 'Georgia'),
+        ('GHA', 'Ghana'),
+        ('GRC', 'Greece'),
+        ('HKG', 'Hong Kong'),
+        ('IRL', 'Ireland'),
+        ('ISR', 'Israel'),
+        ('ITA', 'Italy'),
+        ('JPN', 'Japan'),
+        ('LAO', 'Laos'),
+        ('MEX', 'Mexico'),
+        ('MMR', 'Myanmar'),
+        ('NAM', 'Namibia'),
+        ('NLD', 'Netherlands'),
+        ('NZL', 'New Zealand'),
+        ('POL', 'Poland'),
+        ('PRK', 'North Korea'),
+        ('REU', 'Réunion'),
+        ('SGP', 'Singapore'),
+        ('SWE', 'Sweden'),
+        ('THA', 'Thailand'),
+        ('TUR', 'Turkey'),
+        ('TWN', 'Taiwan'),
+        ('USA', 'United States'),
+        ('VNM', 'Vietnam');
+    """)
+    )
+
+    # Insert languages as textual SQL
+    conn.execute(
+        text("""
+        INSERT INTO languages (code, name) VALUES
+        ('arb', 'Arabic (Standard)'),
+        ('deu', 'German'),
+        ('eng', 'English'),
+        ('fin', 'Finnish'),
+        ('fra', 'French'),
+        ('heb', 'Hebrew'),
+        ('hun', 'Hungarian'),
+        ('jpn', 'Japanese'),
+        ('pol', 'Polish'),
+        ('swe', 'Swedish'),
+        ('cmn', 'Chinese (Mandarin)')
+    """)
+    )
+
+    with open(Path(__file__).parent / ".." / ".." / "resources" / "timezone_areas.sql-fake", "r") as f:
+        tz_sql = f.read()
+
+    conn.execute(text(tz_sql))
+
+
+def drop_database() -> None:
     with session_scope() as session:
         # postgis is required for all the Geographic Information System (GIS) stuff
-        # pg_trgm is required for trigram based search
+        # pg_trgm is required for trigram-based search
         # btree_gist is required for gist-based exclusion constraints
         session.execute(
             text(
                 "DROP SCHEMA IF EXISTS public CASCADE;"
                 "DROP SCHEMA IF EXISTS logging CASCADE;"
                 "DROP EXTENSION IF EXISTS postgis CASCADE;"
-                "CREATE SCHEMA public;"
-                "CREATE SCHEMA logging;"
+                "CREATE SCHEMA IF NOT EXISTS public;"
+                "CREATE SCHEMA IF NOT EXISTS logging;"
                 "CREATE EXTENSION postgis;"
                 "CREATE EXTENSION pg_trgm;"
                 "CREATE EXTENSION btree_gist;"
             )
         )
 
-    # this resets the database connection pool, which caches some stuff postgres-side about objects and will otherwise
-    # sometimes error out with "ERROR:  no spatial operator found for 'st_contains': opfamily 203699 type 203585"
-    # and similar errors
-    _get_base_engine().dispose()
 
-    close_all_sessions()
-
-
-def create_schema_from_models():
+@contextmanager
+def autocommit_engine(url: str):
     """
-    Create everything from the current models, not incrementally
-    through migrations.
+    An engine that executes every statement in a transaction. Mainly needed
+    because CREATE/DROP DATABASE cannot be executed any other way.
     """
+    engine = create_engine(
+        url,
+        isolation_level="AUTOCOMMIT",
+    )
+    yield engine
+    engine.dispose()
 
-    # create the slugify function
-    functions = Path(__file__).parent / "slugify.sql"
-    with open(functions) as f, session_scope() as session:
-        session.execute(text(f.read()))
 
-    Base.metadata.create_all(_get_base_engine())
-
-
-def populate_testing_resources(session):
+@pytest.fixture(scope="session")
+def postgres_engine() -> Generator[Engine]:
     """
-    Testing version of couchers.resources.copy_resources_to_database
+    SQLAlchemy engine connected to "postgres" database.
     """
-    regions = [
-        ("AUS", "Australia"),
-        ("CAN", "Canada"),
-        ("CHE", "Switzerland"),
-        ("CUB", "Cuba"),
-        ("CXR", "Christmas Island"),
-        ("CZE", "Czechia"),
-        ("DEU", "Germany"),
-        ("EGY", "Egypt"),
-        ("ESP", "Spain"),
-        ("EST", "Estonia"),
-        ("FIN", "Finland"),
-        ("FRA", "France"),
-        ("GBR", "United Kingdom"),
-        ("GEO", "Georgia"),
-        ("GHA", "Ghana"),
-        ("GRC", "Greece"),
-        ("HKG", "Hong Kong"),
-        ("IRL", "Ireland"),
-        ("ISR", "Israel"),
-        ("ITA", "Italy"),
-        ("JPN", "Japan"),
-        ("LAO", "Laos"),
-        ("MEX", "Mexico"),
-        ("MMR", "Myanmar"),
-        ("NAM", "Namibia"),
-        ("NLD", "Netherlands"),
-        ("NZL", "New Zealand"),
-        ("POL", "Poland"),
-        ("PRK", "North Korea"),
-        ("REU", "Réunion"),
-        ("SGP", "Singapore"),
-        ("SWE", "Sweden"),
-        ("THA", "Thailand"),
-        ("TUR", "Turkey"),
-        ("TWN", "Taiwan"),
-        ("USA", "United States"),
-        ("VNM", "Vietnam"),
-    ]
+    dsn = config["DATABASE_CONNECTION_STRING"]
+    if not dsn.endswith("/testdb"):
+        raise RuntimeError(f"DATABASE_CONNECTION_STRING must point to /testdb, but was {dsn}")
 
-    languages = [
-        ("arb", "Arabic (Standard)"),
-        ("deu", "German"),
-        ("eng", "English"),
-        ("fin", "Finnish"),
-        ("fra", "French"),
-        ("heb", "Hebrew"),
-        ("hun", "Hungarian"),
-        ("jpn", "Japanese"),
-        ("pol", "Polish"),
-        ("swe", "Swedish"),
-        ("cmn", "Chinese (Mandarin)"),
-    ]
+    postgres_dsn = re.sub(r"/testdb$", "/postgres", dsn)
 
-    with open(Path(__file__).parent / ".." / ".." / "resources" / "timezone_areas.sql-fake", "r") as f:
-        tz_sql = f.read()
-
-    for code, name in regions:
-        session.add(Region(code=code, name=name))
-
-    for code, name in languages:
-        session.add(Language(code=code, name=name))
-
-    session.execute(text(tz_sql))
+    with autocommit_engine(postgres_dsn) as engine:
+        yield engine
 
 
-def recreate_database():
+@pytest.fixture(scope="session")
+def postgres_conn(postgres_engine: Engine) -> Generator[Connection]:
     """
-    Connect to a running Postgres database, build it using metadata.create_all()
+    Acquiring a connection takes time, so we cache it.
     """
+    with postgres_engine.connect() as conn:
+        yield conn
 
+
+@pytest.fixture(scope="session")
+def template_db(postgres_conn: Connection) -> str:
+    """
+    Creates a template database with all the extensions, tables,
+    and static data (languages, regions.) This is done only once: then
+    we copy this template for every test. It's much faster than creating
+    a database without a template or deleting data from all tables between
+    tests. The tables are created from SQLA metadata, not by running the
+    migrations - again, for speed.
+    """
     # running in non-UTC catches some timezone errors
     os.environ["TZ"] = "America/New_York"
 
-    # drop everything currently in the database
-    drop_all()
+    name = "couchers_template"
 
-    # create everything from the current models, not incrementally through migrations
-    create_schema_from_models()
+    postgres_conn.execute(text(f"DROP DATABASE IF EXISTS {name}"))
+    postgres_conn.execute(text(f"CREATE DATABASE {name}"))
 
-    with session_scope() as session:
-        populate_testing_resources(session)
+    template_dsn = re.sub(
+        r"/testdb$",
+        f"/{name}",
+        config["DATABASE_CONNECTION_STRING"],
+    )
+
+    with autocommit_engine(template_dsn) as engine:
+        with engine.connect() as conn:
+            conn.execute(
+                text(
+                    "CREATE SCHEMA logging;"
+                    "CREATE EXTENSION IF NOT EXISTS postgis;"
+                    "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+                    "CREATE EXTENSION IF NOT EXISTS btree_gist;"
+                )
+            )
+
+            create_schema_from_models(engine)
+            populate_testing_resources(conn)
+
+    return name
 
 
-@pytest.fixture()
-def db():
+@pytest.fixture
+def db(template_db: str, postgres_conn: Connection) -> None:
     """
-    Pytest fixture to connect to a running Postgres database and build it using metadata.create_all()
+    Creates a fresh database for a test by copying a template. The template has
+    the migrations applied and is populated with static data (regions, languages, etc.)
     """
+    postgres_conn.execute(text("DROP DATABASE IF EXISTS testdb WITH (FORCE)"))
+    postgres_conn.execute(text(f"CREATE DATABASE testdb WITH TEMPLATE {template_db}"))
 
-    recreate_database()
+
+@pytest.fixture(scope="class")
+def db_class(template_db: str, postgres_conn: Connection) -> None:
+    """
+    The same as above, but with a different scope. Used in test_communities.py.
+    """
+    postgres_conn.execute(text("DROP DATABASE IF EXISTS testdb WITH (FORCE)"))
+    postgres_conn.execute(text(f"CREATE DATABASE testdb WITH TEMPLATE {template_db}"))
 
 
-def generate_user(*, delete_user=False, complete_profile=True, strong_verification=False, **kwargs):
+class _MockCouchersContext:
+    @property
+    def headers(self):
+        return {}
+
+
+def generate_user(
+    *,
+    delete_user=False,
+    complete_profile=True,
+    strong_verification=False,
+    regions_visited: Sequence[str] = (),
+    regions_lived: Sequence[str] = (),
+    language_abilities: Sequence[tuple[str, LanguageFluency]] = (),
+    **kwargs: Any,
+) -> tuple[User, str]:
     """
     Create a new user, return session token
 
@@ -245,9 +342,11 @@ def generate_user(*, delete_user=False, complete_profile=True, strong_verificati
 
     Use this most of the time
     """
-    auth = Auth()
-
     with session_scope() as session:
+        # Ensure superusers are also editors (DB constraint)
+        if kwargs.get("is_superuser") and "is_editor" not in kwargs:
+            kwargs["is_editor"] = True
+
         # default args
         username = "test_user_" + random_hex(16)
         user_opts = {
@@ -278,35 +377,29 @@ def generate_user(*, delete_user=False, complete_profile=True, strong_verificati
             "geom_radius": 100,
             "onboarding_emails_sent": 1,
             "last_onboarding_email_sent": now(),
-            "has_donated": True,
-        }
-
-        for key, value in kwargs.items():
-            user_opts[key] = value
+            "last_donated": now(),
+        } | kwargs
 
         user = User(**user_opts)
         session.add(user)
         session.flush()
 
-        session.add(RegionVisited(user_id=user.id, region_code="CHE"))
-        session.add(RegionVisited(user_id=user.id, region_code="REU"))
-        session.add(RegionVisited(user_id=user.id, region_code="FIN"))
+        # Create a profile gallery for the user and link it
+        profile_gallery = PhotoGallery(owner_user_id=user.id)
+        session.add(profile_gallery)
+        session.flush()
+        user.profile_gallery_id = profile_gallery.id
 
-        session.add(RegionLived(user_id=user.id, region_code="ESP"))
-        session.add(RegionLived(user_id=user.id, region_code="FRA"))
-        session.add(RegionLived(user_id=user.id, region_code="EST"))
+        for region in regions_visited:
+            session.add(RegionVisited(user_id=user.id, region_code=region))
 
-        session.add(LanguageAbility(user_id=user.id, language_code="fin", fluency=LanguageFluency.fluent))
-        session.add(LanguageAbility(user_id=user.id, language_code="fra", fluency=LanguageFluency.beginner))
+        for region in regions_lived:
+            session.add(RegionLived(user_id=user.id, region_code=region))
+
+        for lang, fluency in language_abilities:
+            session.add(LanguageAbility(user_id=user.id, language_code=lang, fluency=fluency))
 
         # this expires the user, so now it's "dirty"
-        session.commit()
-
-        class _MockCouchersContext:
-            @property
-            def headers(self):
-                return {}
-
         token, _ = create_session(_MockCouchersContext(), session, user, False, set_cookie=False)
 
         # deleted user aborts session creation, hence this follows and necessitates a second commit
@@ -367,13 +460,13 @@ def generate_user(*, delete_user=False, complete_profile=True, strong_verificati
     return user, token
 
 
-def get_user_id_and_token(session, username):
+def get_user_id_and_token(session: Session, username: str) -> tuple[int, str]:
     user_id = session.execute(select(User).where(User.username == username)).scalar_one().id
     token = session.execute(select(UserSession).where(UserSession.user_id == user_id)).scalar_one().token
     return user_id, token
 
 
-def make_friends(user1, user2):
+def make_friends(user1: User, user2: User) -> None:
     with session_scope() as session:
         friend_relationship = FriendRelationship(
             from_user_id=user1.id,
@@ -383,23 +476,22 @@ def make_friends(user1, user2):
         session.add(friend_relationship)
 
 
-def make_user_block(user1, user2):
+def make_user_block(user1: User, user2: User) -> None:
     with session_scope() as session:
         user_block = UserBlock(
             blocking_user_id=user1.id,
             blocked_user_id=user2.id,
         )
         session.add(user_block)
-        session.commit()
 
 
-def make_user_invisible(user_id):
+def make_user_invisible(user_id: int) -> None:
     with session_scope() as session:
-        session.execute(select(User).where(User.id == user_id)).scalar_one().is_banned = True
+        session.execute(update(User).where(User.id == user_id).values(is_banned=True))
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
-def get_friend_relationship(user1, user2):
+def get_friend_relationship(user1: User, user2: User) -> FriendRelationship:
     with session_scope() as session:
         friend_relationship = session.execute(
             select(FriendRelationship).where(
@@ -414,7 +506,7 @@ def get_friend_relationship(user1, user2):
         return friend_relationship
 
 
-def add_users_to_new_moderation_list(users):
+def add_users_to_new_moderation_list(users: list[User]) -> int:
     """Group users as duplicated accounts"""
     with session_scope() as session:
         moderation_user_list = ModerationUserList()
@@ -431,15 +523,28 @@ class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
     Injects the right `cookie: couchers-sesh=...` header into the metadata
     """
 
-    def __init__(self, token):
+    def __init__(self, token: str):
         self.token = token
 
-    def __call__(self, context, callback):
+    def __call__(self, context, callback) -> None:
         callback((("cookie", f"couchers-sesh={self.token}"),), None)
 
 
+class _MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
+    def __init__(self):
+        self.latest_headers = {}
+
+    def intercept_unary_unary(self, continuation, client_call_details, request):
+        call = continuation(client_call_details, request)
+        self.latest_headers = dict(call.initial_metadata())
+        self.latest_header_raw = call.initial_metadata()
+        return call
+
+
 @contextmanager
-def auth_api_session(grpc_channel_options=()):
+def auth_api_session(
+    grpc_channel_options=(),
+) -> Generator[tuple[auth_pb2_grpc.AuthStub, grpc.UnaryUnaryClientInterceptor]]:
     """
     Create an Auth API for testing
 
@@ -455,17 +560,6 @@ def auth_api_session(grpc_channel_options=()):
             with grpc.secure_channel(
                 f"localhost:{port}", grpc.local_channel_credentials(), options=grpc_channel_options
             ) as channel:
-
-                class _MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
-                    def __init__(self):
-                        self.latest_headers = {}
-
-                    def intercept_unary_unary(self, continuation, client_call_details, request):
-                        call = continuation(client_call_details, request)
-                        self.latest_headers = dict(call.initial_metadata())
-                        self.latest_header_raw = call.initial_metadata()
-                        return call
-
                 metadata_interceptor = _MetadataKeeperInterceptor()
                 channel = grpc.intercept_channel(channel, metadata_interceptor)
                 yield auth_pb2_grpc.AuthStub(channel), metadata_interceptor
@@ -478,7 +572,7 @@ def api_session(token):
     """
     Create an API for testing, uses the token for auth
     """
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     api_pb2_grpc.add_APIServicer_to_server(API(), channel)
     yield api_pb2_grpc.APIStub(channel)
 
@@ -526,7 +620,49 @@ def real_admin_session(token):
 
 
 @contextmanager
-def real_account_session(token):
+def real_editor_session(token):
+    """
+    Create an Editor service for testing, using TCP sockets, uses the token for auth
+    """
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        editor_pb2_grpc.add_EditorServicer_to_server(Editor(), server)
+        server.start()
+
+        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield editor_pb2_grpc.EditorStub(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
+def real_moderation_session(token):
+    """
+    Create a Moderation service for testing, using TCP sockets, uses the token for auth
+    """
+    with futures.ThreadPoolExecutor(1) as executor:
+        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
+        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+        moderation_pb2_grpc.add_ModerationServicer_to_server(Moderation(), server)
+        server.start()
+
+        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
+        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
+                yield moderation_pb2_grpc.ModerationStub(channel)
+        finally:
+            server.stop(None).wait()
+
+
+@contextmanager
+def real_account_session(token: str):
     """
     Create a Account service for testing, using TCP sockets, uses the token for auth
     """
@@ -547,7 +683,7 @@ def real_account_session(token):
 
 
 @contextmanager
-def real_jail_session(token):
+def real_jail_session(token: str):
     """
     Create a Jail service for testing, using TCP sockets, uses the token for auth
     """
@@ -569,14 +705,14 @@ def real_jail_session(token):
 
 @contextmanager
 def gis_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), channel)
     yield gis_pb2_grpc.GISStub(channel)
 
 
 @contextmanager
 def public_session():
-    channel = fake_channel()
+    channel = FakeChannel()
     public_pb2_grpc.add_PublicServicer_to_server(Public(), channel)
     yield public_pb2_grpc.PublicStub(channel)
 
@@ -593,7 +729,7 @@ class FakeRpcError(grpc.RpcError):
         return self._details
 
 
-def _check_user_perms(method, user_id, is_jailed, is_superuser, token_expiry):
+def _check_user_perms(method: str, user_id: int, is_jailed: bool, is_editor: bool, is_superuser: bool) -> None:
     # method is of the form "/org.couchers.api.core.API/GetUser"
     _, service_name, method_name = method.split("/")
 
@@ -604,6 +740,7 @@ def _check_user_perms(method, user_id, is_jailed, is_superuser, token_expiry):
         annotations_pb2.AUTH_LEVEL_OPEN,
         annotations_pb2.AUTH_LEVEL_JAILED,
         annotations_pb2.AUTH_LEVEL_SECURE,
+        annotations_pb2.AUTH_LEVEL_EDITOR,
         annotations_pb2.AUTH_LEVEL_ADMIN,
     ]
 
@@ -613,57 +750,87 @@ def _check_user_perms(method, user_id, is_jailed, is_superuser, token_expiry):
         assert not (auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not is_superuser), (
             "Non-superuser tried to call superuser API"
         )
+        assert not (auth_level == annotations_pb2.AUTH_LEVEL_EDITOR and not is_editor), (
+            "Non-editor tried to call editor API"
+        )
         assert not (
             is_jailed and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]
         ), "User is jailed but tried to call non-open/non-jailed API"
 
 
-class FakeChannel:
-    def __init__(self, user_id=None, is_jailed=None, is_superuser=None, token_expiry=None):
-        self.handlers = {}
-        self.user_id = user_id
-        self._is_jailed = is_jailed
-        self._is_superuser = is_superuser
-        self._token_expiry = token_expiry
+class MockGrpcContext:
+    """
+    Pure mock of grpc.ServicerContext for testing.
+    """
 
-    def is_logged_in(self):
-        return self.user_id is not None
+    def __init__(self):
+        self._initial_metadata = []
+        self._invocation_metadata = []
 
     def abort(self, code, details):
         raise FakeRpcError(code, details)
 
+    def invocation_metadata(self):
+        return self._invocation_metadata
+
+    def send_initial_metadata(self, metadata):
+        self._initial_metadata.extend(metadata)
+
+
+class FakeChannel:
+    """
+    Mock gRPC channel for testing that orchestrates context creation.
+
+    This holds test state (token) and creates proper CouchersContext
+    instances when handlers are invoked.
+    """
+
+    def __init__(self, token=None):
+        self.handlers = {}
+        self._token = token
+
     def add_generic_rpc_handlers(self, generic_rpc_handlers):
-        from grpc._server import _validate_generic_rpc_handlers
-
         _validate_generic_rpc_handlers(generic_rpc_handlers)
-
         self.handlers.update(generic_rpc_handlers[0]._method_handlers)
 
     def unary_unary(self, uri, request_serializer, response_deserializer):
         handler = self.handlers[uri]
 
-        _check_user_perms(uri, self.user_id, self._is_jailed, self._is_superuser, self._token_expiry)
-
         def fake_handler(request):
+            auth_info: UserAuthInfo | None = None
+            if self._token:
+                auth_info = _try_get_and_update_user_details(
+                    self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
+                )
+
+            _check_user_perms(
+                uri,
+                auth_info.user_id if auth_info else None,
+                auth_info.is_jailed if auth_info else None,
+                auth_info.is_editor if auth_info else None,
+                auth_info.is_superuser if auth_info else None,
+            )
+
             # Do a full serialization cycle on the request and the
             # response to catch accidental use of unserializable data.
             request = handler.request_deserializer(request_serializer(request))
 
             with session_scope() as session:
-                response = handler.unary_unary(request, self, session)
+                mock_grpc_ctx = MockGrpcContext()
+
+                context = make_interactive_context(
+                    grpc_context=mock_grpc_ctx,
+                    user_id=auth_info.user_id if auth_info else None,
+                    is_api_key=False,
+                    token=self._token if auth_info else None,
+                    ui_language_preference=auth_info.ui_language_preference if auth_info else None,
+                )
+
+                response = handler.unary_unary(request, context, session)
 
             return response_deserializer(handler.response_serializer(response))
 
         return fake_handler
-
-
-def fake_channel(token=None):
-    if token:
-        user_id, is_jailed, is_superuser, token_expiry, ui_language_preference = _try_get_and_update_user_details(
-            token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
-        )
-        return FakeChannel(user_id=user_id, is_jailed=is_jailed, is_superuser=is_superuser, token_expiry=token_expiry)
-    return FakeChannel()
 
 
 @contextmanager
@@ -671,7 +838,7 @@ def conversations_session(token):
     """
     Create a Conversations API for testing, uses the token for auth
     """
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     conversations_pb2_grpc.add_ConversationsServicer_to_server(Conversations(), channel)
     yield conversations_pb2_grpc.ConversationsStub(channel)
 
@@ -681,28 +848,28 @@ def requests_session(token):
     """
     Create a Requests API for testing, uses the token for auth
     """
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), channel)
     yield requests_pb2_grpc.RequestsStub(channel)
 
 
 @contextmanager
 def threads_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), channel)
     yield threads_pb2_grpc.ThreadsStub(channel)
 
 
 @contextmanager
 def discussions_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), channel)
     yield discussions_pb2_grpc.DiscussionsStub(channel)
 
 
 @contextmanager
 def donations_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), channel)
     yield donations_pb2_grpc.DonationsStub(channel)
 
@@ -746,35 +913,35 @@ def real_iris_session():
 
 @contextmanager
 def pages_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
     yield pages_pb2_grpc.PagesStub(channel)
 
 
 @contextmanager
 def communities_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), channel)
     yield communities_pb2_grpc.CommunitiesStub(channel)
 
 
 @contextmanager
 def groups_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), channel)
     yield groups_pb2_grpc.GroupsStub(channel)
 
 
 @contextmanager
 def blocking_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), channel)
     yield blocking_pb2_grpc.BlockingStub(channel)
 
 
 @contextmanager
 def notifications_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     notifications_pb2_grpc.add_NotificationsServicer_to_server(Notifications(), channel)
     yield notifications_pb2_grpc.NotificationsStub(channel)
 
@@ -784,7 +951,7 @@ def account_session(token):
     """
     Create a Account API for testing, uses the token for auth
     """
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     account_pb2_grpc.add_AccountServicer_to_server(Account(), channel)
     yield account_pb2_grpc.AccountStub(channel)
 
@@ -794,7 +961,7 @@ def search_session(token):
     """
     Create a Search API for testing, uses the token for auth
     """
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     search_pb2_grpc.add_SearchServicer_to_server(Search(), channel)
     yield search_pb2_grpc.SearchStub(channel)
 
@@ -804,35 +971,52 @@ def references_session(token):
     """
     Create a References API for testing, uses the token for auth
     """
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     references_pb2_grpc.add_ReferencesServicer_to_server(References(), channel)
     yield references_pb2_grpc.ReferencesStub(channel)
 
 
 @contextmanager
+def galleries_session(token):
+    """
+    Create a Galleries API for testing, uses the token for auth
+    """
+    channel = FakeChannel(token)
+    galleries_pb2_grpc.add_GalleriesServicer_to_server(Galleries(), channel)
+    yield galleries_pb2_grpc.GalleriesStub(channel)
+
+
+@contextmanager
 def reporting_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     reporting_pb2_grpc.add_ReportingServicer_to_server(Reporting(), channel)
     yield reporting_pb2_grpc.ReportingStub(channel)
 
 
 @contextmanager
 def events_session(token):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
     yield events_pb2_grpc.EventsStub(channel)
 
 
 @contextmanager
+def postal_verification_session(token):
+    channel = FakeChannel(token)
+    postal_verification_pb2_grpc.add_PostalVerificationServicer_to_server(PostalVerification(), channel)
+    yield postal_verification_pb2_grpc.PostalVerificationStub(channel)
+
+
+@contextmanager
 def bugs_session(token=None):
-    channel = fake_channel(token)
+    channel = FakeChannel(token)
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
     yield bugs_pb2_grpc.BugsStub(channel)
 
 
 @contextmanager
 def resources_session():
-    channel = fake_channel()
+    channel = FakeChannel()
     resources_pb2_grpc.add_ResourcesServicer_to_server(Resources(), channel)
     yield resources_pb2_grpc.ResourcesStub(channel)
 
@@ -901,6 +1085,8 @@ def testconfig():
         "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
     )
 
+    config["ENABLE_POSTAL_VERIFICATION"] = False
+
     config["SMTP_HOST"] = "localhost"
     config["SMTP_PORT"] = 587
     config["SMTP_USERNAME"] = "username"
@@ -935,6 +1121,16 @@ def testconfig():
     config["RECAPTHCA_PROJECT_ID"] = "..."
     config["RECAPTHCA_API_KEY"] = "..."
     config["RECAPTHCA_SITE_KEY"] = "..."
+
+    config["EXPERIMENTATION_ENABLED"] = False
+    config["EXPERIMENTATION_PASS_ALL_GATES"] = True
+    config["STATSIG_SERVER_SECRET_KEY"] = ""
+    config["STATSIG_ENVIRONMENT"] = "testing"
+
+    # Moderation auto-approval deadline - 0 disables, set in tests that need it
+    config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
+    # Bot user ID for automated moderation - will be set to a real user in tests that need it
+    config["MODERATION_BOT_USER_ID"] = 1
 
     yield None
 
@@ -1000,57 +1196,136 @@ def email_fields(mock, call_ix=0):
     )
 
 
+class Push:
+    """
+    This allows nice access to the push info via e.g. push.title instead of push["title"]
+    """
+
+    def __init__(self, kwargs):
+        self.kwargs = kwargs
+
+    def __getattr__(self, attr):
+        try:
+            return self.kwargs[attr]
+        except KeyError:
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'") from None
+
+    def __repr__(self):
+        kwargs_disp = ", ".join(f"'{key}'='{val}'" for key, val in self.kwargs.items())
+        return f"Push({kwargs_disp})"
+
+
+class PushCollector:
+    def __init__(self):
+        # pairs of (user_id, push)
+        self.pushes = []
+
+    def by_user(self, user_id):
+        return [kwargs for uid, kwargs in self.pushes if uid == user_id]
+
+    def push_to_user(self, session, user_id, **kwargs):
+        self.pushes.append((user_id, Push(kwargs=kwargs)))
+
+    def assert_user_has_count(self, user_id, count):
+        assert len(self.by_user(user_id)) == count
+
+    def assert_user_push_matches_fields(self, user_id, ix=0, **kwargs):
+        push = self.by_user(user_id)[ix]
+        for kwarg in kwargs:
+            assert kwarg in push.kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
+            assert push.kwargs[kwarg] == kwargs[kwarg], (
+                f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
+            )
+
+    def assert_user_has_single_matching(self, user_id, **kwargs):
+        self.assert_user_has_count(user_id, 1)
+        self.assert_user_push_matches_fields(user_id, ix=0, **kwargs)
+
+
 @pytest.fixture
 def push_collector():
     """
     See test_SendTestPushNotification for an example on how to use this fixture
     """
-
-    class Push:
-        """
-        This allows nice access to the push info via e.g. push.title instead of push["title"]
-        """
-
-        def __init__(self, kwargs):
-            self.kwargs = kwargs
-
-        def __getattr__(self, attr):
-            try:
-                return self.kwargs[attr]
-            except KeyError:
-                raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'") from None
-
-        def __repr__(self):
-            kwargs_disp = ", ".join(f"'{key}'='{val}'" for key, val in self.kwargs.items())
-            return f"Push({kwargs_disp})"
-
-    class PushCollector:
-        def __init__(self):
-            # pairs of (user_id, push)
-            self.pushes = []
-
-        def by_user(self, user_id):
-            return [kwargs for uid, kwargs in self.pushes if uid == user_id]
-
-        def push_to_user(self, session, user_id, **kwargs):
-            self.pushes.append((user_id, Push(kwargs=kwargs)))
-
-        def assert_user_has_count(self, user_id, count):
-            assert len(self.by_user(user_id)) == count
-
-        def assert_user_push_matches_fields(self, user_id, ix=0, **kwargs):
-            push = self.by_user(user_id)[ix]
-            for kwarg in kwargs:
-                assert kwarg in push.kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
-                assert push.kwargs[kwarg] == kwargs[kwarg], (
-                    f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
-                )
-
-        def assert_user_has_single_matching(self, user_id, **kwargs):
-            self.assert_user_has_count(user_id, 1)
-            self.assert_user_push_matches_fields(user_id, ix=0, **kwargs)
-
     collector = PushCollector()
 
     with patch("couchers.notifications.push._push_to_user", collector.push_to_user):
         yield collector
+
+
+class Moderator:
+    """
+    A test fixture that provides a moderator user and methods to exercise the moderation API.
+
+    Usage:
+        def test_example(db, moderator):
+            user, token = generate_user()
+            # ... create a host request ...
+            moderator.approve_host_request(host_request_id)
+    """
+
+    def __init__(self, user: User, token: str):
+        self.user = user
+        self.token = token
+
+    def approve_host_request(self, host_request_id: int, reason: str = "Test approval") -> None:
+        """
+        Approve a host request using the moderation API.
+
+        Args:
+            host_request_id: The conversation_id of the host request
+            reason: Optional reason for approval
+        """
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
+                    object_id=host_request_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=reason,
+                )
+            )
+
+    def approve_group_chat(self, group_chat_id: int, reason: str = "Test approval") -> None:
+        """
+        Approve a group chat using the moderation API.
+
+        Args:
+            group_chat_id: The conversation_id of the group chat
+            reason: Optional reason for approval
+        """
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
+                    object_id=group_chat_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=reason,
+                )
+            )
+
+
+@pytest.fixture
+def moderator():
+    """
+    Creates a moderator (superuser) and provides methods to exercise the moderation API.
+
+    Usage:
+        def test_example(db, moderator):
+            # ... create a host request ...
+            moderator.approve_host_request(host_request_id)
+    """
+    user, token = generate_user(is_superuser=True)
+    yield Moderator(user, token)

@@ -12,11 +12,13 @@ const StyledTab = styled(Tab)(({ theme }) => ({
 
   [theme.breakpoints.down("md")]: {
     overflow: "visible",
-    margin: `0 ${theme.spacing(1)}`,
+    margin: `0 ${theme.spacing(0.25)}`,
+    minWidth: "auto",
+    padding: `6px 8px`,
   },
 }));
 
-export interface TabBarProps<T extends Record<string, React.ReactNode>> {
+interface TabBarProps<T extends Record<string, React.ReactNode>> {
   ariaLabel: string;
   labels: T;
   setValue: (value: keyof T) => void;
@@ -41,7 +43,7 @@ export default function TabBar<T extends Record<string, React.ReactNode>>({
       onChange={handleChange}
       indicatorColor="primary"
       textColor="primary"
-      scrollButtons="auto"
+      scrollButtons
       allowScrollButtonsMobile
       variant="scrollable"
       sx={tabListSx}

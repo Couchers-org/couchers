@@ -1,8 +1,11 @@
 import logging
+import typing
+from collections.abc import Sequence
 from datetime import timedelta
+from typing import Any
 
 from google.protobuf import empty_pb2
-from sqlalchemy import Float, Index, Integer, event
+from sqlalchemy import Column, CompoundSelect, Connection, Float, Index, Integer, MetaData, Select, Table, event
 from sqlalchemy.sql import (
     and_,
     case,
@@ -29,6 +32,7 @@ from couchers.models import (
     Base,
     ClusterRole,
     ClusterSubscription,
+    Geom,
     HostRequest,
     Message,
     MessageType,
@@ -41,8 +45,13 @@ logger = logging.getLogger(__name__)
 
 
 def create_materialized_view_with_different_ddl(
-    name, select_selectable, create_selectable, metadata, indexes=None, aliases=None
-):
+    name: str,
+    select_selectable: Select[Any] | CompoundSelect[Any],
+    create_selectable: Select[Any] | CompoundSelect[Any],
+    metadata: MetaData,
+    indexes: Sequence[Index] | None = None,
+    aliases: dict[str, str] | None = None,
+) -> Table:
     """
     Copied wholesale from sqlalchemy_utils (3-clause BSD), with minor tweak in {select,create}_selectable
 
@@ -55,12 +64,12 @@ def create_materialized_view_with_different_ddl(
     event.listen(metadata, "after_create", CreateView(name, create_selectable, materialized=True))
 
     @event.listens_for(metadata, "after_create")
-    def create_indexes(target, connection, **kw):
+    def create_indexes(target: Any, connection: Connection, **kw: Any) -> None:
         for idx in table.indexes:
             idx.create(connection)
 
     event.listen(metadata, "before_drop", DropView(name, materialized=True))
-    return table
+    return typing.cast(Table, table)
 
 
 cluster_subscription_counts_selectable = (
@@ -116,11 +125,11 @@ class ClusterAdminCount(Base):
     __table__ = cluster_admin_counts
 
 
-def make_lite_users_selectable(create=False):
+def make_lite_users_selectable(create: bool = False) -> Select[Any]:
     if create:
         # because this is rendered as a select when emitting the CREATE VIEW, using User.geom would be rendered as
         # `ST_AsEWKB(users.geom)` instead of the literal column, the following fixes it
-        geom_column = literal_column("users.geom")
+        geom_column: Any = literal_column("users.geom")
     else:
         geom_column = User.geom
 
@@ -132,6 +141,7 @@ def make_lite_users_selectable(create=False):
         .subquery(name="sv_subquery")
     )
 
+    # Be sure to modify the LiteUser type if you add/remove columns!
     return (
         sa_select(
             User.id.label("id"),
@@ -141,10 +151,10 @@ def make_lite_users_selectable(create=False):
             User.age.label("age"),
             geom_column.label("geom"),
             User.geom_radius.label("radius"),
-            User.is_visible.label("is_visible"),
+            User.is_visible.label("is_visible"),  # type: ignore[attr-defined]
             Upload.filename.label("avatar_filename"),
-            User.has_completed_profile.label("has_completed_profile"),
-            User.has_completed_my_home.label("has_completed_my_home"),
+            User.has_completed_profile.label("has_completed_profile"),  # type: ignore[attr-defined]
+            User.has_completed_my_home.label("has_completed_my_home"),  # type: ignore[attr-defined]
             func.coalesce(strong_verification_subquery.c.true, False).label("has_strong_verification"),
         )
         .select_from(User)
@@ -163,6 +173,7 @@ lite_users = create_materialized_view_with_different_ddl(
     Base.metadata,
     [
         Index("uq_lite_users_id", lite_users_selectable_create.c.id, unique=True),
+        Index("uq_lite_users_username", lite_users_selectable_create.c.username, unique=True),
         Index(
             "ix_lite_users_id_visible",
             lite_users_selectable_create.c.id,
@@ -182,8 +193,25 @@ lite_users = create_materialized_view_with_different_ddl(
 class LiteUser(Base):
     __table__ = lite_users
 
+    # to allow type annotations without affecting SQLAlchemy
+    __allow_unmapped__ = True
 
-def make_clustered_users_selectable(create=False):
+    # A subset enough to make mypy happy. Taken from "make_lite_users_selectable".
+    id: Column[int]
+    username: Column[str]
+    name: Column[str]
+    city: Column[str]
+    age: Column[int]
+    geom: Column[Geom]
+    radius: Column[float]
+    is_visible: Column[bool]
+    avatar_filename: Column[str]
+    has_completed_profile: Column[bool]
+    has_completed_my_home: Column[bool]
+    has_strong_verification: Column[bool]
+
+
+def make_clustered_users_selectable(create: bool = False) -> CompoundSelect[Any]:
     # emits something along the lines of
     # WITH anon_1 AS (
     #   SELECT id,
@@ -205,8 +233,8 @@ def make_clustered_users_selectable(create=False):
     )
 
     if create:
-        centroid_geom = literal_column("ST_Centroid(ST_Collect(clustered.geom))")
-        cluster_geom = literal_column("clustered.geom")
+        centroid_geom: Any = literal_column("ST_Centroid(ST_Collect(clustered.geom))")
+        cluster_geom: Any = literal_column("clustered.geom")
     else:
         centroid_geom = func.ST_Centroid(func.ST_Collect(cluster_cte.c.geom))
         cluster_geom = cluster_cte.c.geom
@@ -239,7 +267,7 @@ class ClusteredUser(Base):
     __table__ = clustered_users
 
 
-def float_(stmt):
+def float_(stmt: Any) -> Any:
     return func.coalesce(cast(stmt, Float), 0.0)
 
 
@@ -304,7 +332,7 @@ class UserResponseRate(Base):
     __table__ = user_response_rates
 
 
-def refresh_materialized_views(payload: empty_pb2.Empty):
+def refresh_materialized_views(payload: empty_pb2.Empty) -> None:
     logger.info("Refreshing materialized views")
     with session_scope() as session:
         refresh_materialized_view(session, "cluster_subscription_counts", concurrently=True)
@@ -313,7 +341,7 @@ def refresh_materialized_views(payload: empty_pb2.Empty):
         refresh_materialized_view(session, "user_response_rates", concurrently=True)
 
 
-def refresh_materialized_views_rapid(payload: empty_pb2.Empty):
+def refresh_materialized_views_rapid(payload: empty_pb2.Empty) -> None:
     logger.info("Refreshing materialized views (rapid)")
     with session_scope() as session:
         refresh_materialized_view(session, "lite_users", concurrently=True)

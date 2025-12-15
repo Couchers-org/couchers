@@ -1,0 +1,11 @@
+[project]
+name = "github-llm-bots"
+version = "0.1.0"
+description = "GitHub LLM-powered bots for issue triage and PR release notes"
+requires-python = ">=3.13"
+dependencies = [
+    "a5>=0.0.16",
+    "openai>=2.7.1",
+    "pydantic>=2.12.4",
+    "pygithub>=2.8.1",
+]

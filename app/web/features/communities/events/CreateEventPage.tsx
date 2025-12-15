@@ -1,23 +1,32 @@
-import { Typography } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
+import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
+import { BackIcon } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { dashboardRoute, routeToEvent } from "routes";
+import { Event } from "proto/events_pb";
+import { dashboardRoute, eventsRoute, routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
 import { theme } from "theme";
 import dayjs, { TIME_FORMAT } from "utils/dayjs";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-import { Event } from "../../../proto/events_pb";
 import { communityEventsBaseKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
+
+const StyledBackButton = styled(HeaderButton)(() => ({
+  gridArea: "backButton",
+  width: "2.5rem",
+  height: "2.5rem",
+  marginTop: theme.spacing(2),
+}));
 
 export default function CreateEventPage() {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
@@ -110,6 +119,14 @@ export default function CreateEventPage() {
   const { data: accountInfo, isLoading: isAccountInfoLoading } =
     useAccountInfo();
 
+  const handleBackClick = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(eventsRoute);
+    }
+  };
+
   return (
     <>
       <HtmlMeta title={t("communities:create_event_page_title")} />
@@ -118,6 +135,9 @@ export default function CreateEventPage() {
         onClose={() => router.push(dashboardRoute)}
         attempted_action="create_event"
       />
+      <StyledBackButton onClick={handleBackClick}>
+        <BackIcon />
+      </StyledBackButton>
       <EventForm
         error={error}
         isMutationLoading={isPending}

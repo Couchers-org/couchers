@@ -220,6 +220,7 @@ export default function EventForm({
               label={t("communities:location")}
               required={t("communities:location_required")}
               showFullDisplayName
+              autocompleteContext="create-event-form"
             />
           )}
           <StyledIsOnlineCheckboxWrapper>

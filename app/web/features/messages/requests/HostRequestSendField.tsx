@@ -25,7 +25,7 @@ interface MessageFormData {
   text: string;
 }
 
-export interface HostRequestSendFieldProps {
+interface HostRequestSendFieldProps {
   hostRequest: HostRequest.AsObject;
   sendMutation: UseMutationResult<string | undefined | Empty, RpcError, string>;
   respondMutation: UseMutationResult<
@@ -76,7 +76,8 @@ export default function HostRequestSendField({
   const { mutate: handleRespond, isPending: isResponseLoading } =
     respondMutation;
 
-  const { register, handleSubmit, reset } = useForm<MessageFormData>();
+  const { register, handleSubmit, reset, watch } = useForm<MessageFormData>();
+  const messageText = watch("text", "");
   const onSubmit = handleSubmit(async (data: MessageFormData) => {
     handleSend(data.text);
     reset();
@@ -150,19 +151,21 @@ export default function HostRequestSendField({
       <StyledContainer>
         <TextField
           {...register("text")}
-          defaultValue={
-            isRequestClosed ? t("messages:request_closed_message") : ""
+          value={
+            isRequestClosed ? t("messages:request_closed_message") : undefined
           }
           disabled={isRequestClosed}
           fullWidth
           aria-label={t("messages:chat_input.label")}
           label={!isRequestClosed ? t("messages:chat_input.label") : ""}
           id="host-request-message"
-          InputLabelProps={{
-            style: {
-              transform: isRequestClosed ? "none" : undefined,
+          slotProps={{
+            inputLabel: {
+              style: {
+                transform: isRequestClosed ? "none" : undefined,
+              },
+              shrink: isRequestClosed ? false : undefined,
             },
-            shrink: isRequestClosed ? false : undefined,
           }}
           multiline
           onKeyDown={handleKeyDown}
@@ -172,7 +175,7 @@ export default function HostRequestSendField({
         />
         <FieldButton
           callback={onSubmit}
-          disabled={isRequestClosed}
+          disabled={isRequestClosed || !messageText.trim()}
           isLoading={isButtonLoading}
           isSubmit
         >

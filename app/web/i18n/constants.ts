@@ -24,6 +24,10 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "English",
     flagIconCode: "GB",
   },
+  "en-CORP": {
+    name: "American (Corporate)",
+    flagIconCode: "USA",
+  },
   es: {
     name: "Spanish (Spain)",
     flagIconCode: "ES",
@@ -40,9 +44,17 @@ export const LANGUAGE_MAP: LanguageMap = {
     name: "French (Canada)",
     flagIconCode: "CA",
   },
+  he: {
+    name: "Hebrew",
+    flagIconCode: "IL",
+  },
   hi: {
     name: "Hindi",
     flagIconCode: "IN",
+  },
+  hu: {
+    name: "Hungarian",
+    flagIconCode: "HU",
   },
   it: {
     name: "Italian",

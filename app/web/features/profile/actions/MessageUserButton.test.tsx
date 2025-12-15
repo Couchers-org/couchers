@@ -39,6 +39,7 @@ const accountInfo = {
   profilePublicVisibility: 1,
   isVolunteer: false,
   myHomeComplete: false,
+  shouldShowDonationBanner: false,
 };
 
 const incompleteAccountInfo = { ...accountInfo, profileComplete: false };

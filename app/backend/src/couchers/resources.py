@@ -2,14 +2,15 @@ import functools
 import json
 import logging
 from pathlib import Path
+from typing import Any, cast
 
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, text
 
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import Language, Region, TimezoneArea
 from couchers.sql import couchers_select as select
-from proto import resources_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ resources_folder = Path(__file__).parent / ".." / ".." / "resources"
 
 
 @functools.cache
-def get_terms_of_service():
+def get_terms_of_service() -> str:
     """
     Get the latest terms of service
     """
@@ -26,35 +27,23 @@ def get_terms_of_service():
 
 
 @functools.cache
-def get_community_guidelines():
+def get_icon(name: str) -> str:
     """
-    Get the latest Community Guidelines
+    Get an icon SVG by name
     """
-    with open(resources_folder / "community_guidelines.json", "r") as f:
-        community_guidelines = json.load(f)
-    ret = []
-    for cg in community_guidelines:
-        with open(resources_folder / "icons" / cg["icon"], "r") as f:
-            ret.append(
-                resources_pb2.CommunityGuideline(
-                    title=cg["title"],
-                    guideline=cg["guideline"],
-                    icon_svg=f.read(),
-                )
-            )
-    return ret
+    return (resources_folder / "icons" / name).read_text()
 
 
 @functools.cache
-def get_region_dict():
+def get_region_dict() -> dict[str, str]:
     """
-    Get list of allowed regions as a dictionary of {alpha3: name}.
+    Get a list of allowed regions as a dictionary of {alpha3: name}.
     """
     with session_scope() as session:
         return {region.code: region.name for region in session.execute(select(Region)).scalars().all()}
 
 
-def region_is_allowed(code):
+def region_is_allowed(code: str) -> bool:
     """
     Check a region code is valid
     """
@@ -62,47 +51,49 @@ def region_is_allowed(code):
 
 
 @functools.cache
-def get_language_dict():
+def get_language_dict() -> dict[str, str]:
     """
-    Get list of allowed languages as a dictionary of {code: name}.
+    Get a list of allowed languages as a dictionary of {code: name}.
     """
     with session_scope() as session:
         return {language.code: language.name for language in session.execute(select(Language)).scalars().all()}
 
 
 @functools.cache
-def get_badge_data():
+def get_badge_data() -> dict[str, Any]:
     """
-    Get list of profile badges in form {id: Badge}
+    Get a list of profile badges in form {id: Badge}
     """
     with open(resources_folder / "badges.json", "r") as f:
-        return json.load(f)
+        data = json.load(f)
+        return cast(dict[str, Any], data)
 
 
 @functools.cache
-def get_badge_dict():
+def get_badge_dict() -> dict[str, dict[str, Any]]:
     """
-    Get list of profile badges in form {id: Badge}
+    Get a list of profile badges in form {id: Badge}
     """
     return {badge["id"]: badge for badge in get_badge_data()["badges"]}
 
 
 @functools.cache
-def get_static_badge_dict():
+def get_static_badge_dict() -> dict[str, list[int]]:
     """
-    Get list of static badges in form {id: list(user_ids)}
+    Get a list of static badges in form {id: list(user_ids)}
     """
-    return get_badge_data()["static_badges"]
+    data = get_badge_data()["static_badges"]
+    return cast(dict[str, list[int]], data)
 
 
-def language_is_allowed(code):
+def language_is_allowed(code: str) -> bool:
     """
     Check a language code is valid
     """
     return code in get_language_dict()
 
 
-def copy_resources_to_database(session):
+def copy_resources_to_database(session: Session) -> None:
     """
     Syncs the source-of-truth data from files into the database. Call this at the end of a migration.
 

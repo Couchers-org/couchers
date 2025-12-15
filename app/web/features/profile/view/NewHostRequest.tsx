@@ -55,6 +55,8 @@ const StyledSendActions = styled(CardActions)(() => ({
   marginTop: theme.spacing(2),
 }));
 
+const MIN_LENGTH = 250; // Must match backend
+
 interface NewHostRequestProps {
   setIsRequestSuccess: (value: boolean) => void;
   setIsRequesting: (value: boolean) => void;
@@ -170,10 +172,10 @@ export default function NewHostRequest({
             {...register("text", {
               required: t("profile:request_form.request_description_empty"),
               minLength: {
-                value: 250,
+                value: MIN_LENGTH,
                 message: t(
                   "profile:request_form.request_char_length_too_short",
-                  { charactersRemaining: 250 - textField.length },
+                  { charactersRemaining: MIN_LENGTH - textField.length },
                 ),
               },
             })}
@@ -186,15 +188,15 @@ export default function NewHostRequest({
             helperText={
               errors.text?.message
                 ? errors.text.message
-                : 250 - textField.length > 0
+                : MIN_LENGTH - textField.length > 0
                   ? t("profile:request_form.request_char_length_too_short", {
-                      charactersRemaining: 250 - textField.length,
+                      charactersRemaining: MIN_LENGTH - textField.length,
                     })
                   : ""
             }
           />
           <StyledSendActions>
-            <Button onClick={() => setIsRequesting(false)}>
+            <Button onClick={() => setIsRequesting(false)} variant="outlined">
               {t("global:cancel")}
             </Button>
             <Button type="submit" onClick={onSubmit}>

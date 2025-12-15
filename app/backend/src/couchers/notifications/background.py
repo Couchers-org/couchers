@@ -3,23 +3,21 @@ from pathlib import Path
 
 from google.protobuf import empty_pb2
 from jinja2 import Environment, FileSystemLoader
-from sqlalchemy.sql import func
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import exists, func
 
 from couchers import urls
 from couchers.config import config
+from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.email import queue_email
-from couchers.metrics import push_notification_counter, push_notification_disabled_counter
 from couchers.models import (
     Notification,
     NotificationDelivery,
     NotificationDeliveryType,
-    PushNotificationDeliveryAttempt,
-    PushNotificationSubscription,
     User,
 )
 from couchers.notifications.push import push_to_user
-from couchers.notifications.push_api import send_push
 from couchers.notifications.quick_links import (
     generate_do_not_email,
     generate_unsub_topic_action,
@@ -27,10 +25,17 @@ from couchers.notifications.quick_links import (
 )
 from couchers.notifications.render import render_notification
 from couchers.notifications.settings import get_preference
+from couchers.proto.internal import jobs_pb2
 from couchers.sql import couchers_select as select
-from couchers.templates.v2 import add_filters
+from couchers.templates.v2 import (
+    CONTEXT_PLAINTEXT_KEY,
+    CONTEXT_TIMEZONE_DISPLAY_KEY,
+    CONTEXT_TRANSLATION_COMPONENT_KEY,
+    CONTEXT_TRANSLATION_LANGUAGE_KEY,
+    CONTEXT_YEAR_KEY,
+    add_filters,
+)
 from couchers.utils import get_tz_as_text, now
-from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -42,16 +47,17 @@ env = Environment(loader=loader, trim_blocks=True)
 add_filters(env)
 
 
-def _send_email_notification(session, user: User, notification: Notification):
+def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
     rendered = render_notification(user, notification)
     template_args = {
         "user": user,
         "time": notification.created,
+        CONTEXT_TRANSLATION_LANGUAGE_KEY: user.ui_language_preference or "en",
+        CONTEXT_TRANSLATION_COMPONENT_KEY: "notifications",
+        CONTEXT_YEAR_KEY: now().year,
+        CONTEXT_TIMEZONE_DISPLAY_KEY: get_tz_as_text(user.timezone or "Etc/UTC"),
         **rendered.email_template_args,
     }
-
-    template_args["_year"] = now().year
-    template_args["_timezone_display"] = get_tz_as_text(user.timezone or "Etc/UTC")
 
     plain_unsub_section = "\n\n---\n\n"
     if rendered.is_critical:
@@ -79,7 +85,9 @@ def _send_email_notification(session, user: User, notification: Notification):
         html_unsub_section += f'<br /><a href="{dne_link}">Do not email me (disables hosting)</a>.'
 
     plain_tmplt = (template_folder / f"{rendered.email_template_name}.txt").read_text()
-    plain = env.from_string(plain_tmplt + plain_unsub_section).render(template_args)
+    plain_template_args = {**template_args, CONTEXT_PLAINTEXT_KEY: True}  # Strip html from translations.
+    plain = env.from_string(plain_tmplt + plain_unsub_section).render(plain_template_args)
+
     html_tmplt = (template_folder / "generated_html" / f"{rendered.email_template_name}.html").read_text()
     html = env.from_string(html_tmplt.replace("___UNSUB_SECTION___", html_unsub_section)).render(template_args)
 
@@ -112,7 +120,7 @@ def _send_email_notification(session, user: User, notification: Notification):
     )
 
 
-def _send_push_notification(session, user: User, notification: Notification):
+def _send_push_notification(session: Session, user: User, notification: Notification) -> None:
     logger.debug(f"Formatting push notification for {user}")
 
     rendered = render_notification(user, notification)
@@ -134,11 +142,31 @@ def _send_push_notification(session, user: User, notification: Notification):
     )
 
 
-def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
+def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
     with session_scope() as session:
         notification = session.execute(
             select(Notification).where(Notification.id == payload.notification_id)
         ).scalar_one()
+
+        # Check moderation visibility if this notification is linked to moderated content
+        if notification.moderation_state_id:
+            context = make_background_user_context(notification.user_id)
+            content_visible = session.execute(
+                select(
+                    exists(
+                        select(Notification)
+                        .where(Notification.id == notification.id)
+                        .where_moderation_state_column_visible(context, Notification.moderation_state_id)
+                    )
+                )
+            ).scalar_one()
+
+            if not content_visible:
+                # Content not visible to recipient, leave notification for later processing
+                logger.info(
+                    f"Deferring notification {notification.id}: content not visible to user {notification.user_id}"
+                )
+                return
 
         # ignore this notification if the user hasn't enabled new notifications
         user = session.execute(select(User).where(User.id == notification.user_id)).scalar_one()
@@ -146,6 +174,17 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
         topic, action = notification.topic_action.unpack()
         delivery_types = get_preference(session, notification.user.id, notification.topic_action)
         for delivery_type in delivery_types:
+            # Check if delivery already exists for this notification and delivery type
+            # (this can happen if the job was queued multiple times)
+            existing_delivery = session.execute(
+                select(NotificationDelivery)
+                .where(NotificationDelivery.notification_id == notification.id)
+                .where(NotificationDelivery.delivery_type == delivery_type)
+            ).scalar_one_or_none()
+            if existing_delivery:
+                logger.info(f"Skipping {delivery_type} delivery for notification {notification.id}: already delivered")
+                continue
+
             logger.info(f"Should notify by {delivery_type}")
             if delivery_type == NotificationDeliveryType.email:
                 # for emails we don't deliver straight up, wait until the email background worker gets around to it and handles deduplication
@@ -167,7 +206,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
                     )
                 )
             elif delivery_type == NotificationDeliveryType.push:
-                # for push notifications, we send them straight away
+                # for push notifications, we send them straight away (web + mobile)
                 session.add(
                     NotificationDelivery(
                         notification_id=notification.id,
@@ -178,54 +217,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload):
                 _send_push_notification(session, user, notification)
 
 
-def send_raw_push_notification(payload: jobs_pb2.SendRawPushNotificationPayload):
-    if not config["PUSH_NOTIFICATIONS_ENABLED"]:
-        logger.info("Not sending push notification due to push notifications disabled")
-
-    with session_scope() as session:
-        if len(payload.data) > 3072:
-            raise Exception(f"Data too long for push notification to sub {payload.push_notification_subscription_id}")
-        sub = session.execute(
-            select(PushNotificationSubscription).where(
-                PushNotificationSubscription.id == payload.push_notification_subscription_id
-            )
-        ).scalar_one()
-        if sub.disabled_at < now():
-            logger.error(f"Tried to send push to disabled subscription: {sub.id}. Disabled at {sub.disabled_at}.")
-            return
-        # this of requests.response
-        resp = send_push(
-            payload.data,
-            sub.endpoint,
-            sub.auth_key,
-            sub.p256dh_key,
-            config["PUSH_NOTIFICATIONS_VAPID_SUBJECT"],
-            config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"],
-            ttl=payload.ttl,
-        )
-        success = resp.status_code in [200, 201, 202]
-        session.add(
-            PushNotificationDeliveryAttempt(
-                push_notification_subscription_id=sub.id,
-                success=success,
-                status_code=resp.status_code,
-                response=resp.text,
-            )
-        )
-        session.commit()
-        if success:
-            logger.debug(f"Successfully sent push to sub {sub.id} for user {sub.user}")
-            push_notification_counter.inc()
-        elif resp.status_code == 404 or resp.status_code == 410:
-            # gone
-            logger.info(f"Push sub {sub.id} for user {sub.user} is gone! Disabling.")
-            sub.disabled_at = func.now()
-            push_notification_disabled_counter.inc()
-        else:
-            raise Exception(f"Failed to deliver push to {sub.id}, code: {resp.status_code}. Response: {resp.text}")
-
-
-def handle_email_digests(payload: empty_pb2.Empty):
+def handle_email_digests(payload: empty_pb2.Empty) -> None:
     """
     Sends out email digests
 
@@ -248,7 +240,7 @@ def handle_email_digests(payload: empty_pb2.Empty):
             .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
             .where(NotificationDelivery.delivery_type == NotificationDeliveryType.email)
             .where(NotificationDelivery.delivered != None)
-            .group_by(Notification)
+            .group_by(Notification.id)
             .subquery()
         )
 
@@ -268,7 +260,7 @@ def handle_email_digests(payload: empty_pb2.Empty):
                     delivered_email_notifications.c.notification_id == Notification.id,
                 )
                 .where(delivered_email_notifications.c.notification_delivery_id == None)
-                .group_by(User)
+                .group_by(User.id)
             )
             .scalars()
             .all()
@@ -278,12 +270,15 @@ def handle_email_digests(payload: empty_pb2.Empty):
 
         for user in users_to_send_digests_to:
             # digest notifications that haven't been delivered yet
+            # Exclude notifications linked to non-visible moderated content
+            context = make_background_user_context(user.id)
             notifications_and_deliveries = session.execute(
                 select(Notification, NotificationDelivery)
                 .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
                 .where(NotificationDelivery.delivery_type == NotificationDeliveryType.digest)
                 .where(NotificationDelivery.delivered == None)
                 .where(Notification.user_id == user.id)
+                .where_moderation_state_column_visible(context, Notification.moderation_state_id)
                 .order_by(Notification.created)
             ).all()
 

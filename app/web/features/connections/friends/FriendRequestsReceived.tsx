@@ -1,6 +1,5 @@
-import { Box, IconButton } from "@mui/material";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { CheckIcon, CloseIcon } from "components/Icons";
+import { Stack } from "@mui/material";
+import Button from "components/Button";
 import { CONNECTIONS } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { FriendRequest } from "proto/api_pb";
@@ -21,47 +20,49 @@ function RespondToFriendRequestAction({
   friendRequest,
   setMutationError,
 }: RespondToFriendRequestActionProps) {
+  const { t } = useTranslation([CONNECTIONS]);
   const { isPending, isSuccess, reset, respondToFriendRequest } =
     useRespondToFriendRequest();
 
-  return friendRequest.state === FriendRequest.FriendRequestStatus.PENDING ? (
-    <Box>
-      {isPending || isSuccess ? (
-        <CenteredSpinner />
-      ) : (
-        <>
-          <IconButton
-            aria-label="Accept request"
-            onClick={() => {
-              reset();
-              respondToFriendRequest({
-                accept: true,
-                friendRequest,
-                setMutationError,
-              });
-            }}
-            size="large"
-          >
-            <CheckIcon />
-          </IconButton>
-          <IconButton
-            aria-label="Decline request"
-            onClick={() => {
-              reset();
-              respondToFriendRequest({
-                accept: false,
-                friendRequest,
-                setMutationError,
-              });
-            }}
-            size="large"
-          >
-            <CloseIcon />
-          </IconButton>
-        </>
-      )}
-    </Box>
-  ) : null;
+  if (friendRequest.state !== FriendRequest.FriendRequestStatus.PENDING) {
+    return null;
+  }
+
+  const isLoading = isPending || isSuccess;
+
+  return (
+    <Stack direction="row" spacing={1}>
+      <Button
+        aria-label={t("connections:decline")}
+        onClick={() => {
+          reset();
+          respondToFriendRequest({
+            accept: false,
+            friendRequest,
+            setMutationError,
+          });
+        }}
+        variant="outlined"
+        loading={isLoading}
+      >
+        {t("connections:decline")}
+      </Button>
+      <Button
+        aria-label={t("connections:accept")}
+        onClick={() => {
+          reset();
+          respondToFriendRequest({
+            accept: true,
+            friendRequest,
+            setMutationError,
+          });
+        }}
+        loading={isLoading}
+      >
+        {t("connections:accept")}
+      </Button>
+    </Stack>
+  );
 }
 
 function FriendRequestsReceived() {

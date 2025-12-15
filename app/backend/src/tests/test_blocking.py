@@ -2,10 +2,10 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers import errors
-from couchers.models import UserBlock
+from couchers.models import User, UserBlock
+from couchers.proto import blocking_pb2
+from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
-from proto import blocking_pb2
 from tests.test_fixtures import blocking_session, db, generate_user, make_user_block, session_scope, testconfig  # noqa
 
 
@@ -28,14 +28,14 @@ def test_BlockUser(db):
         with pytest.raises(grpc.RpcError) as e:
             user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.CANT_BLOCK_SELF
+        assert e.value.details() == "You can't block yourself."
 
         user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
 
         with pytest.raises(grpc.RpcError) as e:
             user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.USER_ALREADY_BLOCKED
+        assert e.value.details() == "Target user has already been blocked."
 
     with session_scope() as session:
         blocked_user_list = (
@@ -73,7 +73,7 @@ def test_UnblockUser(db):
         with pytest.raises(grpc.RpcError) as e:
             user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=user2.username))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.USER_NOT_BLOCKED
+        assert e.value.details() == "Target user is not blocked."
 
         # Test re-blocking
         user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
@@ -128,3 +128,158 @@ def test_relationships_userblock_dot_user(db):
     assert blocked_user_username == user2.username
     assert blocking_user_name == user1.name
     assert blocked_user_name == user2.name
+
+
+def test_is_not_visible(db):
+    """
+    Comprehensive tests for is_not_visible function covering:
+    1. Normal visible users (not blocked, not banned, not deleted) - should be visible to each other
+    2. User1 blocks User2 - not visible
+    3. User2 blocks User1 - not visible
+    4. Mutual blocking - not visible
+    5. User1 is deleted - not visible
+    6. User2 is deleted - not visible
+    7. Both users deleted - not visible
+    8. User1 is banned - not visible
+    9. User2 is banned - not visible
+    10. Both users banned - not visible
+    11. Mixed: User1 deleted and User2 banned - not visible
+    12. None user_id cases with visible users
+    13. None user_id cases with hidden users (banned/deleted)
+    14. Ensure we have extra users in DB to avoid edge cases with empty database
+    """
+
+    # Create extra users to ensure the database is not empty - these should remain visible
+    extra_user1, _ = generate_user()
+    extra_user2, _ = generate_user()
+    extra_user3, _ = generate_user()
+
+    # Create users for testing - all start as visible
+    normal_user1, _ = generate_user()
+    normal_user2, _ = generate_user()
+
+    # Users for blocking tests
+    blocker_user, _ = generate_user()
+    blockee_user, _ = generate_user()
+
+    # Users for reverse blocking tests
+    reverse_blocker, _ = generate_user()
+    reverse_blockee, _ = generate_user()
+
+    # Users for mutual blocking tests
+    mutual_blocker1, _ = generate_user()
+    mutual_blocker2, _ = generate_user()
+
+    # Users for deletion tests
+    deleted_user1, _ = generate_user()
+    visible_for_deleted, _ = generate_user()
+    deleted_user2, _ = generate_user()
+    both_deleted1, _ = generate_user()
+    both_deleted2, _ = generate_user()
+
+    # Users for ban tests
+    banned_user1, _ = generate_user()
+    visible_for_banned, _ = generate_user()
+    banned_user2, _ = generate_user()
+    both_banned1, _ = generate_user()
+    both_banned2, _ = generate_user()
+
+    # User for mixed test
+    mixed_deleted, _ = generate_user()
+    mixed_banned, _ = generate_user()
+
+    with session_scope() as session:
+        # Test 1: Two normal visible users - should be visible to each other
+        assert not is_not_visible(session, normal_user1.id, normal_user2.id)
+        assert not is_not_visible(session, normal_user2.id, normal_user1.id)
+
+        # Test 2: User1 blocks User2 - should not be visible
+        make_user_block(blocker_user, blockee_user)
+        assert is_not_visible(session, blocker_user.id, blockee_user.id)
+        assert is_not_visible(session, blockee_user.id, blocker_user.id)  # symmetric
+
+        # Test 3: User2 blocks User1 (reverse block) - should not be visible
+        make_user_block(reverse_blockee, reverse_blocker)
+        assert is_not_visible(session, reverse_blocker.id, reverse_blockee.id)
+        assert is_not_visible(session, reverse_blockee.id, reverse_blocker.id)  # symmetric
+
+        # Test 4: Mutual blocking - should not be visible
+        make_user_block(mutual_blocker1, mutual_blocker2)
+        make_user_block(mutual_blocker2, mutual_blocker1)
+        assert is_not_visible(session, mutual_blocker1.id, mutual_blocker2.id)
+        assert is_not_visible(session, mutual_blocker2.id, mutual_blocker1.id)
+
+        # Test 5: User1 is deleted - should not be visible
+        deleted_user1_db = session.get(User, deleted_user1.id)
+        deleted_user1_db.is_deleted = True
+        session.commit()
+        assert is_not_visible(session, deleted_user1.id, visible_for_deleted.id)
+        assert is_not_visible(session, visible_for_deleted.id, deleted_user1.id)
+
+        # Test 6: User2 is deleted - should not be visible
+        deleted_user2_db = session.get(User, deleted_user2.id)
+        deleted_user2_db.is_deleted = True
+        session.commit()
+        assert is_not_visible(session, normal_user1.id, deleted_user2.id)
+        assert is_not_visible(session, deleted_user2.id, normal_user1.id)
+
+        # Test 7: Both users deleted - should not be visible
+        both_deleted1_db = session.get(User, both_deleted1.id)
+        both_deleted2_db = session.get(User, both_deleted2.id)
+        both_deleted1_db.is_deleted = True
+        both_deleted2_db.is_deleted = True
+        session.commit()
+        assert is_not_visible(session, both_deleted1.id, both_deleted2.id)
+        assert is_not_visible(session, both_deleted2.id, both_deleted1.id)
+
+        # Test 8: User1 is banned - should not be visible
+        banned_user1_db = session.get(User, banned_user1.id)
+        banned_user1_db.is_banned = True
+        session.commit()
+        assert is_not_visible(session, banned_user1.id, visible_for_banned.id)
+        assert is_not_visible(session, visible_for_banned.id, banned_user1.id)
+
+        # Test 9: User2 is banned - should not be visible
+        banned_user2_db = session.get(User, banned_user2.id)
+        banned_user2_db.is_banned = True
+        session.commit()
+        assert is_not_visible(session, normal_user2.id, banned_user2.id)
+        assert is_not_visible(session, banned_user2.id, normal_user2.id)
+
+        # Test 10: Both users banned - should not be visible
+        both_banned1_db = session.get(User, both_banned1.id)
+        both_banned2_db = session.get(User, both_banned2.id)
+        both_banned1_db.is_banned = True
+        both_banned2_db.is_banned = True
+        session.commit()
+        assert is_not_visible(session, both_banned1.id, both_banned2.id)
+        assert is_not_visible(session, both_banned2.id, both_banned1.id)
+
+        # Test 11: Mixed - one deleted, one banned - should not be visible
+        mixed_deleted_db = session.get(User, mixed_deleted.id)
+        mixed_banned_db = session.get(User, mixed_banned.id)
+        mixed_deleted_db.is_deleted = True
+        mixed_banned_db.is_banned = True
+        session.commit()
+        assert is_not_visible(session, mixed_deleted.id, mixed_banned.id)
+        assert is_not_visible(session, mixed_banned.id, mixed_deleted.id)
+
+        # Test 12: None user_id cases with visible users - should be visible
+        assert not is_not_visible(session, None, normal_user1.id)
+        assert not is_not_visible(session, normal_user1.id, None)
+        assert not is_not_visible(session, None, None)
+
+        # Test 13: None user_id cases with hidden users (deleted/banned) - should not be visible
+        assert is_not_visible(session, None, deleted_user1.id)
+        assert is_not_visible(session, deleted_user1.id, None)
+        assert is_not_visible(session, None, banned_user1.id)
+        assert is_not_visible(session, banned_user1.id, None)
+
+        # Test 14: Verify extra users are still visible (database not empty)
+        assert not is_not_visible(session, extra_user1.id, extra_user2.id)
+        assert not is_not_visible(session, extra_user2.id, extra_user3.id)
+        assert not is_not_visible(session, extra_user1.id, extra_user3.id)
+
+        # Additional edge case: Check that normal users are still visible to each other after all the above
+        assert not is_not_visible(session, normal_user1.id, normal_user2.id)
+        assert not is_not_visible(session, normal_user1.id, extra_user1.id)

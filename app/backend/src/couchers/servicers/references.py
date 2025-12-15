@@ -10,16 +10,16 @@ from google.protobuf import empty_pb2
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
 
-from couchers import errors
 from couchers.context import make_background_user_context
+from couchers.db import are_friends
 from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.notifications.notify import notify
+from couchers.proto import notification_data_pb2, references_pb2, references_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
 from couchers.tasks import maybe_send_reference_report_email
-from couchers.utils import Timestamp_from_datetime
-from proto import notification_data_pb2, references_pb2, references_pb2_grpc
+from couchers.utils import Timestamp_from_datetime, now
 
 MAX_PAGINATION_LENGTH = 100
 
@@ -60,22 +60,23 @@ def get_host_req_and_check_can_write_ref(session, context, host_request_id):
         select(HostRequest)
         .where_users_column_visible(context, HostRequest.surfer_user_id)
         .where_users_column_visible(context, HostRequest.host_user_id)
+        .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
         .where(HostRequest.conversation_id == host_request_id)
         .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
     ).scalar_one_or_none()
 
     if not host_request:
-        context.abort(grpc.StatusCode.NOT_FOUND, errors.HOST_REQUEST_NOT_FOUND)
+        context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
     if not host_request.can_write_reference:
-        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_WRITE_REFERENCE_FOR_REQUEST)
+        context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_write_reference_for_request")
 
     if session.execute(
         select(Reference)
         .where(Reference.host_request_id == host_request.conversation_id)
         .where(Reference.from_user_id == context.user_id)
     ).scalar_one_or_none():
-        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
+        context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "reference_already_given")
 
     surfed = host_request.surfer_user_id == context.user_id
 
@@ -85,17 +86,19 @@ def get_host_req_and_check_can_write_ref(session, context, host_request_id):
         my_reason = host_request.host_reason_didnt_meetup
 
     if my_reason != None:
-        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_WRITE_REFERENCE_INDICATED_DIDNT_MEETUP)
+        context.abort_with_error_code(
+            grpc.StatusCode.FAILED_PRECONDITION, "cant_write_reference_indicated_didnt_meetup"
+        )
 
     return host_request, surfed
 
 
 def check_valid_reference(request, context):
     if request.rating < 0 or request.rating > 1:
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_INVALID_RATING)
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_invalid_rating")
 
     if request.text.strip() == "":
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REFERENCE_NO_TEXT)
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_no_text")
 
 
 def get_pending_references_to_write(session, context):
@@ -110,6 +113,7 @@ def get_pending_references_to_write(session, context):
         )
         .join(LiteUser, LiteUser.id == HostRequest.host_user_id)
         .where_users_column_visible(context, HostRequest.host_user_id)
+        .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
         .where(Reference.id == None)
         .where(HostRequest.can_write_reference)
         .where(HostRequest.surfer_user_id == context.user_id)
@@ -127,6 +131,7 @@ def get_pending_references_to_write(session, context):
         )
         .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
         .where_users_column_visible(context, HostRequest.surfer_user_id)
+        .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
         .where(Reference.id == None)
         .where(HostRequest.can_write_reference)
         .where(HostRequest.host_user_id == context.user_id)
@@ -154,7 +159,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         next_reference_id = int(request.page_token) if request.page_token else 0
 
         if not request.from_user_id and not request.to_user_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.NEED_TO_SPECIFY_AT_LEAST_ONE_USER)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "need_to_specify_at_least_one_user")
 
         to_users = aliased(User)
         from_users = aliased(User)
@@ -223,7 +228,7 @@ class References(references_pb2_grpc.ReferencesServicer):
 
     def WriteFriendReference(self, request, context, session):
         if context.user_id == request.to_user_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.CANT_REFER_SELF)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_refer_self")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
@@ -232,7 +237,10 @@ class References(references_pb2_grpc.ReferencesServicer):
         if not session.execute(
             select(User).where_users_visible(context).where(User.id == request.to_user_id)
         ).scalar_one_or_none():
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        if not are_friends(session, context, request.to_user_id):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "can_only_refer_friends")
 
         if session.execute(
             select(Reference)
@@ -240,7 +248,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             .where(Reference.to_user_id == request.to_user_id)
             .where(Reference.reference_type == ReferenceType.friend)
         ).scalar_one_or_none():
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.REFERENCE_ALREADY_GIVEN)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "reference_already_given")
 
         reference_text = request.text.strip()
 
@@ -261,6 +269,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             session,
             user_id=request.to_user_id,
             topic_action="reference:receive_friend",
+            key=str(reference.id),
             data=notification_data_pb2.ReferenceReceiveFriend(
                 from_user=user_model_to_pb(user, session, make_background_user_context(user_id=request.to_user_id)),
                 text=reference_text,
@@ -315,6 +324,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             session,
             user_id=reference.to_user_id,
             topic_action="reference:receive_surfed" if surfed else "reference:receive_hosted",
+            key=str(host_request.conversation_id),
             data=notification_data_pb2.ReferenceReceiveHostRequest(
                 host_request_id=host_request.conversation_id,
                 from_user=user_model_to_pb(user, session, make_background_user_context(user_id=reference.to_user_id)),
@@ -347,7 +357,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         if not session.execute(
             select(User).where_users_visible(context).where(User.id == request.to_user_id)
         ).scalar_one_or_none():
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         can_write_friend_reference = (
             session.execute(
@@ -418,4 +428,48 @@ class References(references_pb2_grpc.ReferencesServicer):
                     session, context
                 )
             ],
+        )
+
+    def GetHostRequestReferenceStatus(self, request, context, session):
+        # Compute has_given (whether current user already wrote a reference for this host request)
+        has_given = (
+            session.execute(
+                select(Reference)
+                .where(Reference.host_request_id == request.host_request_id)
+                .where(Reference.from_user_id == context.user_id)
+            ).scalar_one_or_none()
+            is not None
+        )
+
+        host_request = session.execute(
+            select(HostRequest)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
+            .where(HostRequest.conversation_id == request.host_request_id)
+            .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
+        ).scalar_one_or_none()
+
+        can_write = False
+        is_expired = False
+        didnt_stay = False
+
+        if host_request is not None:
+            # Compute expired from end_time_to_write_reference
+            if host_request.end_time_to_write_reference is not None:
+                is_expired = host_request.end_time_to_write_reference < now()
+
+            # Block only if current user indicated didn't meet up
+            didnt_stay = (
+                (host_request.surfer_reason_didnt_meetup is not None)
+                if host_request.surfer_user_id == context.user_id
+                else (host_request.host_reason_didnt_meetup is not None)
+            )
+
+            # You can write only if: host_request allows it, you didn't already give one, and you didn't indicate didn't meet up
+            can_write = bool(host_request.can_write_reference) and (not has_given) and (not didnt_stay)
+
+        return references_pb2.GetHostRequestReferenceStatusRes(
+            has_given=has_given,
+            can_write=can_write,
+            is_expired=is_expired,
+            didnt_stay=didnt_stay,
         )

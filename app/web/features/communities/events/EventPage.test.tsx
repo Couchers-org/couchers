@@ -157,20 +157,46 @@ describe("Event page", () => {
     ).toBeVisible();
   });
 
-  // no way to test "back" with
   it("goes back to the previous page when the back button is clicked", async () => {
     mockRouter.back = jest.fn();
+    // Mock window.history.length to simulate having history
+    Object.defineProperty(window, "history", {
+      value: { length: 2 },
+      writable: true,
+    });
+
     renderEventPage();
     await screen.findByRole("heading", { name: events[0].title });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    // @TODO should be awaited but doesn't work, try again after more package upgrades
-    user.click(
+    await user.click(
       screen.getByRole("button", { name: t("communities:previous_page") }),
     );
 
-    await waitFor(() => expect(mockRouter.back).toBeCalled());
+    await waitFor(() => expect(mockRouter.back).toHaveBeenCalled());
+  });
+
+  it("navigates to events page when back button is clicked with no history", async () => {
+    mockRouter.push = jest.fn();
+    // Mock window.history.length to simulate no history
+    Object.defineProperty(window, "history", {
+      value: { length: 1 },
+      writable: true,
+    });
+
+    renderEventPage();
+    await screen.findByRole("heading", { name: events[0].title });
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    await user.click(
+      screen.getByRole("button", { name: t("communities:previous_page") }),
+    );
+
+    await waitFor(() =>
+      expect(mockRouter.push).toHaveBeenCalledWith("/events"),
+    );
   });
 
   it("shows the 'edit event' button if the user has edit permission", async () => {

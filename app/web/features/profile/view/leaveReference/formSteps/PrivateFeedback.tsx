@@ -21,12 +21,11 @@ import {
   ReferenceContextFormData,
   ReferenceStepProps,
 } from "features/profile/view/leaveReference/ReferenceForm";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
 import { Controller, useForm } from "react-hook-form";
-import { Trans } from "react-i18next";
 import {
   helpCenterPrivateFeedbackUrl,
   leaveReferenceBaseRoute,
@@ -131,7 +130,11 @@ export default function PrivateFeedback({
 
   return (
     <StyledForm onSubmit={onSubmit}>
-      <ReferenceStepHeader name={user.name} referenceType={referenceType} />
+      <ReferenceStepHeader
+        name={user.name}
+        referenceType={referenceType}
+        step="private-feedback"
+      />
       <StyledTextBody>
         {t("profile:leave_reference.appropriate_explanation")}
       </StyledTextBody>
@@ -240,6 +243,20 @@ export default function PrivateFeedback({
                     }}
                     multiline
                     minRows={3}
+                    slotProps={{
+                      inputLabel: {
+                        sx: {
+                          whiteSpace: "normal",
+                          lineHeight: 1.2,
+                          "&.MuiInputLabel-shrink": {
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: "calc(133% - 32px)",
+                          },
+                        },
+                      },
+                    }}
                     sx={{
                       "& > .MuiInputBase-root": {
                         width: "100%",

@@ -46,6 +46,13 @@ export default function useAuthStore() {
           setAuthenticated(false);
           setUserId(null);
           Sentry.setUser({ id: undefined });
+
+          // Notify mobile app if running in embed
+          if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(
+              JSON.stringify({ type: "LOGOUT" }),
+            );
+          }
         } catch (e) {
           Sentry.captureException(e, {
             tags: {
@@ -83,6 +90,17 @@ export default function useAuthStore() {
           //userId to be set.
           setJailed(auth.jailed);
           setAuthenticated(true);
+
+          // Notify mobile app that login succeeded
+          if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(
+              JSON.stringify({
+                type: "LOGIN_SUCCESS",
+                userId: auth.userId,
+                jailed: auth.jailed,
+              }),
+            );
+          }
         } catch (e) {
           Sentry.captureException(e, {
             tags: {
@@ -108,6 +126,17 @@ export default function useAuthStore() {
         Sentry.setUser({ id: res.userId.toString() });
         setJailed(res.jailed);
         setAuthenticated(true);
+
+        // Notify mobile app that signup/login succeeded
+        if (window.ReactNativeWebView) {
+          window.ReactNativeWebView.postMessage(
+            JSON.stringify({
+              type: "LOGIN_SUCCESS",
+              userId: res.userId,
+              jailed: res.jailed,
+            }),
+          );
+        }
       },
       async updateJailStatus() {
         setError(null);

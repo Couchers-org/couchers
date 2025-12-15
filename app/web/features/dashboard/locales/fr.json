@@ -1,7 +1,7 @@
 {
   "upload_photo": "2. Ajouter une photo (en cliquant sur l'avatar sur la page de modification)",
   "edit_profile_button_text": "Modifier votre profil",
-  "please_complete_profile": "Veuillez compléter votre profile afin d'apparaître dans les résultats de recherche :",
+  "please_complete_profile": "Veuillez compléter votre profil afin d'apparaître dans les résultats de recherche :",
   "complete_profile_dialog": {
     "description_1": "Avant de {{action_name}}, il faut <4>écrire un peu au sujet de vous</4> dans votre profile et <7>ajouter une photo de profile</7>.",
     "title": "Vous êtes presque là ; veuillez compléter votre profil afin de continuer !",
@@ -27,7 +27,7 @@
   "member_count_0": "{{count}} membre",
   "member_count_1": "{{count}} membres",
   "member_count_2": "{{count}} membres",
-  "profile_summary_edit": "Modifier",
+  "profile_summary_edit": "Rédiger mon profil",
   "profile_summary_view": "Voir mon profil",
   "your_communities_helper_text2": "Ne voyez-vous pas votre communauté ? <1>Créez la vôtre !</1>",
   "community_builder_form_text": "Créez votre propre communauté locale",
@@ -48,5 +48,16 @@
   "become_a_host": "Devenir un.e hôte",
   "search_input_placeholder": "Rechercher une destination géographique",
   "hero_image_alt": "Montgolfières en Cappadoce",
-  "all_communities_intro": "Vous pouvez parcourir ci-dessous toutes les pages de la communauté existantes jusqu'à maintenant. <strong>Cliquez sur un nom de communauté pour voir les autres sous-communautés qu’elle contient.</strong>"
+  "all_communities_intro": "Vous pouvez parcourir ci-dessous toutes les pages de la communauté existantes jusqu'à maintenant. <strong>Cliquez sur un nom de communauté pour voir les autres sous-communautés qu’elle contient.</strong>",
+  "events_empty_state": "Aucun événement pour le moment. Pourquoi ne pas en <0>créer</0> un ✨ ?",
+  "attendees_count_0": "{{count}} participant.e",
+  "attendees_count_1": "{{count}} participant.e.s",
+  "attendees_count_2": "{{count}} participant.e.s",
+  "find_your_community": "Trouvez votre communauté",
+  "find_your_community_intro_simplified": "Recherchez votre communauté ou parcourez la liste ci-dessous. <1>Vous ne trouvez pas la vôtre ? Demandez-la !</1>",
+  "browse_all_communities": "Parcourir toutes les communautés",
+  "browse_communities_text": "Cliquez sur le nom d'une région pour voir les autres communautés qu'elle contient ci-dessous. Cliquez sur le lien pour accéder à la page de la communauté de cette ville ou de cette région.",
+  "show_all_communities": "Afficher toutes les communautés",
+  "hide_all_communities": "Masquer toutes les communautés",
+  "find_your_community_intro": "Vous pouvez ci-dessous rechercher ou parcourir toutes les pages communautaires existantes. Votre pays ou votre ville manque á l'appel ? <1>Utilisez ce formulaire</1> pour en faire la demande !"
 }

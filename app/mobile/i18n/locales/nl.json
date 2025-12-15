@@ -1,0 +1,14 @@
+{
+    "biometrics": {
+        "cancel_button": "Annuleren",
+        "enable_title": "{{biometricType}} aanzetten?",
+        "enable_button": "Aanzetten",
+        "not_now_button": "Niet nu",
+        "confirm_prompt": "{{biometricType}} bevestigen",
+        "face_id": "Face ID",
+        "biometrics_generic": "biometrie",
+        "login_prompt": "Inloggen bij Couchers",
+        "use_password_button": "Gebruik wachtwoord",
+        "enable_message": "Wil je de volgende keer {{biometricType}} gebruiken om sneller in te loggen?"
+    }
+}

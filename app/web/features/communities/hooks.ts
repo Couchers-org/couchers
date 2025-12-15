@@ -12,15 +12,13 @@ import {
   communityAdminsKey,
   communityDiscussionsKey,
   communityEventsKey,
-  communityGroupsKey,
-  communityGuidesKey,
   communityKey,
   communityMembersKey,
   communityNearbyUsersKey,
-  communityPlacesKey,
   QueryType,
   subCommunitiesKey,
   threadKey,
+  volunteersKey,
 } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useRouter } from "next/router";
@@ -30,18 +28,15 @@ import {
   ListCommunitiesRes,
   ListDiscussionsRes,
   ListEventsRes,
-  ListGroupsRes,
-  ListGuidesRes,
   ListMembersRes,
   ListNearbyUsersRes,
-  ListPlacesRes,
 } from "proto/communities_pb";
+import { Discussion } from "proto/discussions_pb";
+import { GetVolunteersRes } from "proto/public_pb";
 import { GetThreadRes } from "proto/threads_pb";
 import { useEffect } from "react";
 import { routeToCommunity } from "routes";
 import { service } from "service";
-
-import { Discussion } from "../../proto/discussions_pb";
 
 export const useCommunity = (
   id: number,
@@ -94,48 +89,6 @@ export const useListSubCommunities = (communityId: number) =>
       ),
     initialPageParam: undefined,
     enabled: communityId !== undefined,
-    getNextPageParam: (lastPage) =>
-      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-  });
-
-export const useListGroups = (communityId: number) =>
-  useInfiniteQuery<ListGroupsRes.AsObject, RpcError>({
-    queryKey: communityGroupsKey(communityId),
-    queryFn: ({ pageParam }) =>
-      service.communities.listGroups(
-        communityId,
-        pageParam as string | undefined,
-      ),
-    initialPageParam: undefined,
-    enabled: !!communityId,
-    getNextPageParam: (lastPage) =>
-      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-  });
-
-export const useListPlaces = (communityId: number) =>
-  useInfiniteQuery<ListPlacesRes.AsObject, RpcError>({
-    queryKey: communityPlacesKey(communityId),
-    queryFn: ({ pageParam }) =>
-      service.communities.listPlaces(
-        communityId,
-        pageParam as string | undefined,
-      ),
-    initialPageParam: undefined,
-    enabled: !!communityId,
-    getNextPageParam: (lastPage) =>
-      lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
-  });
-
-export const useListGuides = (communityId: number) =>
-  useInfiniteQuery<ListGuidesRes.AsObject, RpcError>({
-    queryKey: communityGuidesKey(communityId),
-    queryFn: ({ pageParam }) =>
-      service.communities.listGuides(
-        communityId,
-        pageParam as string | undefined,
-      ),
-    initialPageParam: undefined,
-    enabled: !!communityId,
     getNextPageParam: (lastPage) =>
       lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
   });
@@ -275,5 +228,17 @@ export const useThread = (
       service.threads.getThread(threadId, pageParam as string | undefined),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
     initialPageParam: undefined,
+    ...options,
+  });
+
+export const useListVolunteers = (
+  options?: Omit<
+    UseQueryOptions<GetVolunteersRes.AsObject, RpcError>,
+    "queryKey" | "queryFn" | "getNextPageParam"
+  >,
+) =>
+  useQuery<GetVolunteersRes.AsObject, RpcError>({
+    queryKey: [volunteersKey],
+    queryFn: () => service.publicApi.getVolunteers(),
     ...options,
   });

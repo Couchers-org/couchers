@@ -11,7 +11,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 
 import { useEventOrganizers } from "./hooks";
 
-export const ORGANIZERS_DIALOG_LABEL_ID = "organizers";
+const ORGANIZERS_DIALOG_LABEL_ID = "organizers";
 
 interface EventOrganizersDialogProps {
   eventId: number;

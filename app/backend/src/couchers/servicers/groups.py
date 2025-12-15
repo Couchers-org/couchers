@@ -5,7 +5,6 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import delete, func
 
-from couchers import errors
 from couchers.db import can_moderate_node, get_node_parents_recursively
 from couchers.models import (
     Cluster,
@@ -18,12 +17,12 @@ from couchers.models import (
     PageType,
     User,
 )
+from couchers.proto import groups_pb2, groups_pb2_grpc
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
-from proto import groups_pb2, groups_pb2_grpc
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +112,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             .where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
 
         return group_to_pb(session, cluster, context)
 
@@ -124,7 +123,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
 
         admins = (
             session.execute(
@@ -152,7 +151,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
 
         members = (
             session.execute(
@@ -179,7 +178,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
         places = (
             cluster.owned_pages.where(Page.type == PageType.place)
             .where(Page.id >= next_page_id)
@@ -199,7 +198,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
         guides = (
             cluster.owned_pages.where(Page.type == PageType.guide)
             .where(Page.id >= next_page_id)
@@ -221,7 +220,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
 
         occurrences = (
             select(EventOccurrence)
@@ -253,7 +252,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         discussions = (
             cluster.owned_discussions.where(Discussion.id >= next_page_id)
             .order_by(Discussion.id)
@@ -270,11 +269,11 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
 
         user_in_group = cluster.members.where(User.id == context.user_id).one_or_none()
         if user_in_group:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_GROUP)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "already_in_group")
 
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
@@ -290,11 +289,11 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
 
         user_in_group = cluster.members.where(User.id == context.user_id).one_or_none()
         if not user_in_group:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_GROUP)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_in_group")
 
         session.execute(
             delete(ClusterSubscription)

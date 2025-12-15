@@ -6,12 +6,14 @@ from urllib.parse import urlencode
 import grpc
 import requests
 from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, update
 from user_agents import parse as user_agents_parse
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.config import config
-from couchers.constants import PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
+from couchers.constants import DONATION_DRIVE_START, PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
+from couchers.context import CouchersContext
 from couchers.crypto import (
     b64decode,
     b64encode,
@@ -23,6 +25,7 @@ from couchers.crypto import (
     verify_password,
     verify_token,
 )
+from couchers.experimentation import check_gate
 from couchers.helpers.geoip import geoip_approximate_location
 from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
 from couchers.jobs.enqueue import queue_job
@@ -52,7 +55,11 @@ from couchers.models import (
 from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
+from couchers.proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
+from couchers.proto.google.api import httpbody_pb2
+from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.servicers.api import lite_user_to_pb
+from couchers.servicers.public import format_volunteer_link
 from couchers.servicers.references import get_pending_references_to_write, reftype2api
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
@@ -70,9 +77,6 @@ from couchers.utils import (
     now,
     to_aware_datetime,
 )
-from proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
-from proto.google.api import httpbody_pb2
-from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -112,7 +116,7 @@ profilepublicitysetting2api = {
 MAX_PAGINATION_LENGTH = 50
 
 
-def mod_note_to_pb(note: ModNote):
+def mod_note_to_pb(note: ModNote) -> account_pb2.ModNote:
     return account_pb2.ModNote(
         note_id=note.id,
         note_content=note.note_content,
@@ -121,34 +125,23 @@ def mod_note_to_pb(note: ModNote):
     )
 
 
-def abort_on_invalid_password(password, context):
+def abort_on_invalid_password(password: str, context: CouchersContext) -> None:
     """
     Internal utility function: given a password, aborts if password is unforgivably insecure
     """
     if len(password) < 8:
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PASSWORD_TOO_SHORT)
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "password_too_short")
 
     if len(password) > 256:
         # Hey, what are you trying to do? Give us a DDOS attack?
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PASSWORD_TOO_LONG)
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "password_too_long")
 
-    # check for most common weak passwords (not meant to be an exhaustive check!)
+    # check for the most common weak passwords (not meant to be an exhaustive check!)
     if password.lower() in ("password", "12345678", "couchers", "couchers1"):
-        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INSECURE_PASSWORD)
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "insecure_password")
 
 
-def _format_volunteer_link(volunteer, username):
-    if volunteer.link_type:
-        return dict(link_type=volunteer.link_type, link_text=volunteer.link_text, link_url=volunteer.link_url)
-    else:
-        return dict(
-            link_type="couchers",
-            link_text=f"@{username}",
-            link_url=urls.user_link(username=username),
-        )
-
-
-def _volunteer_info_to_pb(volunteer, username):
+def _volunteer_info_to_pb(volunteer: Volunteer, username: str) -> account_pb2.GetMyVolunteerInfoRes:
     return account_pb2.GetMyVolunteerInfoRes(
         display_name=volunteer.display_name,
         display_location=volunteer.display_location,
@@ -156,21 +149,32 @@ def _volunteer_info_to_pb(volunteer, username):
         started_volunteering=date_to_api(volunteer.started_volunteering),
         stopped_volunteering=date_to_api(volunteer.stopped_volunteering) if volunteer.stopped_volunteering else None,
         show_on_team_page=volunteer.show_on_team_page,
-        **_format_volunteer_link(volunteer, username),
+        **format_volunteer_link(volunteer, username),
     )
 
 
 class Account(account_pb2_grpc.AccountServicer):
-    def GetAccountInfo(self, request, context, session):
+    def GetAccountInfo(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> account_pb2.GetAccountInfoRes:
         user, volunteer = session.execute(
             select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
         ).one()
+
+        # Test experimentation integration - check if user is in the test gate
+        # Create 'test_statsig_integration' in Statsig console to test
+        test_gate = check_gate(context, "test_statsig_integration")
+        logger.info(f"Experimentation gate 'test_statsig_integration' for user {user.id}: {test_gate}")
+
+        should_show_donation_banner = DONATION_DRIVE_START is not None and (
+            user.last_donated is None or user.last_donated < DONATION_DRIVE_START
+        )
 
         return account_pb2.GetAccountInfoRes(
             username=user.username,
             email=user.email,
             phone=user.phone if (user.phone_is_verified or not user.phone_code_expired) else None,
-            has_donated=user.has_donated,
+            has_donated=user.last_donated is not None,
             phone_verified=user.phone_is_verified,
             profile_complete=user.has_completed_profile,
             my_home_complete=user.has_completed_my_home,
@@ -179,10 +183,13 @@ class Account(account_pb2_grpc.AccountServicer):
             ui_language_preference=user.ui_language_preference,
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
             is_volunteer=volunteer is not None,
+            should_show_donation_banner=should_show_donation_banner,
             **get_strong_verification_fields(session, user),
         )
 
-    def ChangePasswordV2(self, request, context, session):
+    def ChangePasswordV2(
+        self, request: account_pb2.ChangePasswordV2Req, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         """
         Changes the user's password. They have to confirm their old password just in case.
 
@@ -192,7 +199,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         if not verify_password(user.hashed_password, request.old_password):
             # wrong password
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_PASSWORD)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_password")
 
         abort_on_invalid_password(request.new_password, context)
         user.hashed_password = hash_password(request.new_password)
@@ -203,11 +210,14 @@ class Account(account_pb2_grpc.AccountServicer):
             session,
             user_id=user.id,
             topic_action="password:change",
+            key="",
         )
 
         return empty_pb2.Empty()
 
-    def ChangeEmailV2(self, request, context, session):
+    def ChangeEmailV2(
+        self, request: account_pb2.ChangeEmailV2Req, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         """
         Change the user's email address.
 
@@ -222,15 +232,15 @@ class Account(account_pb2_grpc.AccountServicer):
         # check password first
         if not verify_password(user.hashed_password, request.password):
             # wrong password
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_PASSWORD)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_password")
 
         # not a valid email
         if not is_valid_email(request.new_email):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
 
         # email already in use (possibly by this user)
         if session.execute(select(User).where(User.email == request.new_email)).scalar_one_or_none():
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
 
         user.new_email = request.new_email
         user.new_email_token = urlsafe_secure_token()
@@ -244,6 +254,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session,
             user_id=user.id,
             topic_action="email_address:change",
+            key="",
             data=notification_data_pb2.EmailAddressChange(
                 new_email=request.new_email,
             ),
@@ -252,7 +263,9 @@ class Account(account_pb2_grpc.AccountServicer):
         # session autocommit
         return empty_pb2.Empty()
 
-    def ChangeLanguagePreference(self, request, context, session):
+    def ChangeLanguagePreference(
+        self, request: account_pb2.ChangeLanguagePreferenceReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         # select the user from the db
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
@@ -262,7 +275,9 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return empty_pb2.Empty()
 
-    def FillContributorForm(self, request, context, session):
+    def FillContributorForm(
+        self, request: account_pb2.FillContributorFormReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         form = request.contributor_form
@@ -285,22 +300,26 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return empty_pb2.Empty()
 
-    def GetContributorFormInfo(self, request, context, session):
+    def GetContributorFormInfo(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> account_pb2.GetContributorFormInfoRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         return account_pb2.GetContributorFormInfoRes(
             filled_contributor_form=user.filled_contributor_form,
         )
 
-    def ChangePhone(self, request, context, session):
+    def ChangePhone(
+        self, request: account_pb2.ChangePhoneReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         phone = request.phone
         # early quick validation
         if phone and not is_e164_format(phone):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_PHONE)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_phone")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        if not user.has_donated:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_DONATED)
+        if user.last_donated is None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_donated")
 
         if not phone:
             user.phone = None
@@ -310,10 +329,10 @@ class Account(account_pb2_grpc.AccountServicer):
             return empty_pb2.Empty()
 
         if not is_known_operator(phone):
-            context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.UNRECOGNIZED_PHONE_NUMBER)
+            context.abort_with_error_code(grpc.StatusCode.UNIMPLEMENTED, "unrecognized_phone_number")
 
         if now() - user.phone_verification_sent < PHONE_REVERIFICATION_INTERVAL:
-            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.REVERIFICATION_TOO_EARLY)
+            context.abort_with_error_code(grpc.StatusCode.RESOURCE_EXHAUSTED, "reverification_too_early")
 
         token = sms.generate_random_code()
         result = sms.send_sms(phone, sms.format_message(token))
@@ -329,6 +348,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 session,
                 user_id=user.id,
                 topic_action="phone_number:change",
+                key="",
                 data=notification_data_pb2.PhoneNumberChange(
                     phone=phone,
                 ),
@@ -338,24 +358,26 @@ class Account(account_pb2_grpc.AccountServicer):
 
         context.abort(grpc.StatusCode.UNIMPLEMENTED, result)
 
-    def VerifyPhone(self, request, context, session):
+    def VerifyPhone(
+        self, request: account_pb2.VerifyPhoneReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         if not sms.looks_like_a_code(request.token):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.WRONG_SMS_CODE)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "wrong_sms_code")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         if user.phone_verification_token is None:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PENDING_VERIFICATION)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "no_pending_verification")
 
         if now() - user.phone_verification_sent > SMS_CODE_LIFETIME:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NO_PENDING_VERIFICATION)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "no_pending_verification")
 
         if user.phone_verification_attempts > SMS_CODE_ATTEMPTS:
-            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.TOO_MANY_SMS_CODE_ATTEMPTS)
+            context.abort_with_error_code(grpc.StatusCode.RESOURCE_EXHAUSTED, "too_many_sms_code_attempts")
 
         if not verify_token(request.token, user.phone_verification_token):
             user.phone_verification_attempts += 1
             session.commit()
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.WRONG_SMS_CODE)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "wrong_sms_code")
 
         # Delete verifications from everyone else that has this number
         session.execute(
@@ -381,6 +403,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session,
             user_id=user.id,
             topic_action="phone_number:verify",
+            key="",
             data=notification_data_pb2.PhoneNumberVerify(
                 phone=user.phone,
             ),
@@ -388,18 +411,20 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return empty_pb2.Empty()
 
-    def InitiateStrongVerification(self, request, context, session):
+    def InitiateStrongVerification(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> account_pb2.InitiateStrongVerificationRes:
         if not config["ENABLE_STRONG_VERIFICATION"]:
-            context.abort(grpc.StatusCode.UNAVAILABLE, errors.STRONG_VERIFICATION_DISABLED)
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "strong_verification_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        existing_verification = session.execute(
+        existing_verification: StrongVerificationAttempt = session.execute(
             select(StrongVerificationAttempt)
             .where(StrongVerificationAttempt.user_id == user.id)
             .where(StrongVerificationAttempt.is_valid)
         ).scalar_one_or_none()
         if existing_verification:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.STRONG_VERIFICATION_ALREADY_VERIFIED)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "strong_verification_already_verified")
 
         strong_verification_initiations_counter.labels(user.gender).inc()
 
@@ -420,9 +445,11 @@ class Account(account_pb2_grpc.AccountServicer):
             json={
                 "callback_url": f"{config['BACKEND_BASE_URL']}/iris/webhook",
                 "face_verification": False,
+                "passport_only": True,
                 "reference": reference,
             },
             timeout=10,
+            verify="/etc/ssl/certs/ca-certificates.crt",
         )
 
         if response.status_code != 200:
@@ -452,7 +479,9 @@ class Account(account_pb2_grpc.AccountServicer):
             redirect_url=redirect_url,
         )
 
-    def GetStrongVerificationAttemptStatus(self, request, context, session):
+    def GetStrongVerificationAttemptStatus(
+        self, request: account_pb2.GetStrongVerificationAttemptStatusReq, context: CouchersContext, session: Session
+    ) -> account_pb2.GetStrongVerificationAttemptStatusRes:
         verification_attempt = session.execute(
             select(StrongVerificationAttempt)
             .where(StrongVerificationAttempt.user_id == context.user_id)
@@ -460,7 +489,7 @@ class Account(account_pb2_grpc.AccountServicer):
             .where(StrongVerificationAttempt.verification_attempt_token == request.verification_attempt_token)
         ).scalar_one_or_none()
         if not verification_attempt:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.STRONG_VERIFICATION_ATTEMPT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "strong_verification_attempt_not_found")
         status_to_pb = {
             StrongVerificationAttemptStatus.succeeded: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_SUCCEEDED,
             StrongVerificationAttemptStatus.in_progress_waiting_on_user_to_open_app: account_pb2.STRONG_VERIFICATION_ATTEMPT_STATUS_IN_PROGRESS_WAITING_ON_USER_TO_OPEN_APP,
@@ -474,7 +503,9 @@ class Account(account_pb2_grpc.AccountServicer):
             ),
         )
 
-    def DeleteStrongVerificationData(self, request, context, session):
+    def DeleteStrongVerificationData(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         verification_attempts = (
             session.execute(
                 select(StrongVerificationAttempt)
@@ -508,14 +539,16 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return empty_pb2.Empty()
 
-    def DeleteAccount(self, request, context, session):
+    def DeleteAccount(
+        self, request: account_pb2.DeleteAccountReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         """
         Triggers email with token to confirm deletion
 
         Frontend should confirm via unique string (i.e. username) before this is called
         """
         if not request.confirm:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MUST_CONFIRM_ACCOUNT_DELETE)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "must_confirm_account_delete")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
@@ -532,6 +565,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session,
             user_id=user.id,
             topic_action="account_deletion:start",
+            key="",
             data=notification_data_pb2.AccountDeletionStart(
                 deletion_token=token.token,
             ),
@@ -542,7 +576,9 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return empty_pb2.Empty()
 
-    def ListModNotes(self, request, context, session):
+    def ListModNotes(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> account_pb2.ListModNotesRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         notes = (
@@ -553,7 +589,9 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return account_pb2.ListModNotesRes(mod_notes=[mod_note_to_pb(note) for note in notes])
 
-    def ListActiveSessions(self, request, context, session):
+    def ListActiveSessions(
+        self, request: account_pb2.ListActiveSessionsReq, context: CouchersContext, session: Session
+    ) -> account_pb2.ListActiveSessionsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         page_token = dt_from_page_token(request.page_token) if request.page_token else now()
 
@@ -589,7 +627,9 @@ class Account(account_pb2_grpc.AccountServicer):
             next_page_token=dt_to_page_token(user_sessions[-1].last_seen) if len(user_sessions) > page_size else None,
         )
 
-    def LogOutSession(self, request, context, session):
+    def LogOutSession(
+        self, request: account_pb2.LogOutSessionReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         session.execute(
             update(UserSession)
             .where(UserSession.token != context.token)
@@ -602,9 +642,11 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         return empty_pb2.Empty()
 
-    def LogOutOtherSessions(self, request, context, session):
+    def LogOutOtherSessions(
+        self, request: account_pb2.LogOutOtherSessionsReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         if not request.confirm:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MUST_CONFIRM_LOGOUT_OTHER_SESSIONS)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "must_confirm_logout_other_sessions")
 
         session.execute(
             update(UserSession)
@@ -623,7 +665,9 @@ class Account(account_pb2_grpc.AccountServicer):
         user.has_modified_public_visibility = True
         return empty_pb2.Empty()
 
-    def CreateInviteCode(self, request, context, session):
+    def CreateInviteCode(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> account_pb2.CreateInviteCodeRes:
         code = generate_invite_code()
         session.add(InviteCode(id=code, creator_user_id=context.user_id))
 
@@ -632,20 +676,24 @@ class Account(account_pb2_grpc.AccountServicer):
             url=urls.invite_code_link(code=code),
         )
 
-    def DisableInviteCode(self, request, context, session):
+    def DisableInviteCode(
+        self, request: account_pb2.DisableInviteCodeReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         invite = session.execute(
             select(InviteCode).where(InviteCode.id == request.code, InviteCode.creator_user_id == context.user_id)
         ).scalar_one_or_none()
 
         if not invite:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "not_found")
 
         invite.disabled = func.now()
         session.commit()
 
         return empty_pb2.Empty()
 
-    def ListInviteCodes(self, request, context, session):
+    def ListInviteCodes(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> account_pb2.ListInviteCodesRes:
         results = session.execute(
             select(
                 InviteCode.id,
@@ -672,7 +720,9 @@ class Account(account_pb2_grpc.AccountServicer):
             ]
         )
 
-    def GetReminders(self, request, context, session):
+    def GetReminders(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> account_pb2.GetRemindersRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         # responding to reqs comes first in desc order of when they were received
@@ -680,6 +730,7 @@ class Account(account_pb2_grpc.AccountServicer):
             select(HostRequest.conversation_id, LiteUser)
             .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
             .where_users_column_visible(context, HostRequest.surfer_user_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
             .where(HostRequest.host_user_id == context.user_id)
             .where(HostRequest.status == HostRequestStatus.pending)
             .where(HostRequest.start_time > func.now())
@@ -689,7 +740,7 @@ class Account(account_pb2_grpc.AccountServicer):
             account_pb2.Reminder(
                 respond_to_host_request_reminder=account_pb2.RespondToHostRequestReminder(
                     host_request_id=host_request_id,
-                    surfer_user=lite_user_to_pb(lite_user),
+                    surfer_user=lite_user_to_pb(session, lite_user, context),
                 )
             )
             for host_request_id, lite_user in pending_host_requests
@@ -701,7 +752,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 write_reference_reminder=account_pb2.WriteReferenceReminder(
                     host_request_id=host_request_id,
                     reference_type=reftype2api[reference_type],
-                    other_user=lite_user_to_pb(lite_user),
+                    other_user=lite_user_to_pb(session, lite_user, context),
                 )
             )
             for host_request_id, reference_type, _, lite_user in get_pending_references_to_write(session, context)
@@ -717,20 +768,24 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return account_pb2.GetRemindersRes(reminders=reminders)
 
-    def GetMyVolunteerInfo(self, request, context, session):
+    def GetMyVolunteerInfo(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> account_pb2.GetMyVolunteerInfoRes:
         user, volunteer = session.execute(
             select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
         ).one()
         if not volunteer:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.NOT_A_VOLUNTEER)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "not_a_volunteer")
         return _volunteer_info_to_pb(volunteer, user.username)
 
-    def UpdateMyVolunteerInfo(self, request, context, session):
+    def UpdateMyVolunteerInfo(
+        self, request: account_pb2.UpdateMyVolunteerInfoReq, context: CouchersContext, session: Session
+    ) -> account_pb2.GetMyVolunteerInfoRes:
         user, volunteer = session.execute(
             select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
         ).one()
         if not volunteer:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.NOT_A_VOLUNTEER)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "not_a_volunteer")
 
         if request.HasField("display_name"):
             volunteer.display_name = request.display_name.value or None
@@ -756,13 +811,13 @@ class Account(account_pb2_grpc.AccountServicer):
                 link_url = f"https://www.linkedin.com/in/{link_text}/"
             elif link_type == "email":
                 if not is_valid_email(link_text):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
                 link_url = f"mailto:{link_text}"
             elif link_type == "website":
                 if not link_url.startswith("https://") or "/" in link_text or link_text not in link_url:
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_WEBSITE_URL)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_website_url")
             else:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_LINK_TYPE)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_link_type")
             volunteer.link_type = link_type
             volunteer.link_text = link_text
             volunteer.link_url = link_url
@@ -773,7 +828,9 @@ class Account(account_pb2_grpc.AccountServicer):
 
 
 class Iris(iris_pb2_grpc.IrisServicer):
-    def Webhook(self, request, context, session):
+    def Webhook(
+        self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
         json_data = json.loads(request.data)
         reference_payload = verification_pb2.VerificationReferencePayload.FromString(
             simple_decrypt("iris_callback", b64decode(json_data["session_reference"]))

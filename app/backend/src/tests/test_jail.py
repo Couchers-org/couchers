@@ -2,12 +2,12 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers import errors, models
 from couchers.constants import TOS_VERSION
+from couchers.models import users
+from couchers.proto import admin_pb2, api_pb2, jail_pb2
 from couchers.servicers import jail as servicers_jail
 from couchers.utils import create_coordinate, to_aware_datetime
-from proto import admin_pb2, api_pb2, jail_pb2
-from tests.test_fixtures import (  # noqa  # noqa
+from tests.test_fixtures import (  # noqa
     db,
     email_fields,
     fast_passwords,
@@ -99,7 +99,7 @@ def test_AcceptTOS(db):
         with pytest.raises(grpc.RpcError) as e:
             res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=False))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_UNACCEPT_TOS
+        assert e.value.details() == "You cannot revoke acceptance of the Terms of Service."
 
         res = jail.JailInfo(empty_pb2.Empty())
         assert res.jailed
@@ -116,7 +116,7 @@ def test_AcceptTOS(db):
         with pytest.raises(grpc.RpcError) as e:
             res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=False))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_UNACCEPT_TOS
+        assert e.value.details() == "You cannot revoke acceptance of the Terms of Service."
 
     # make them have accepted TOS
     user2, token2 = generate_user()
@@ -130,7 +130,7 @@ def test_AcceptTOS(db):
         with pytest.raises(grpc.RpcError) as e:
             res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=False))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_UNACCEPT_TOS
+        assert e.value.details() == "You cannot revoke acceptance of the Terms of Service."
 
         # accepting again doesn't do anything
         res = jail.AcceptTOS(jail_pb2.AcceptTOSReq(accept=True))
@@ -157,12 +157,12 @@ def test_TOS_increase(db, monkeypatch):
     # now we pretend to update the TOS version
     new_TOS_VERSION = TOS_VERSION + 1
 
-    monkeypatch.setattr(models, "TOS_VERSION", new_TOS_VERSION)
+    monkeypatch.setattr(users, "TOS_VERSION", new_TOS_VERSION)
     monkeypatch.setattr(servicers_jail, "TOS_VERSION", new_TOS_VERSION)
 
     # make sure we're jailed
     with real_api_session(token) as api, pytest.raises(grpc.RpcError) as e:
-        res = api.Ping(api_pb2.PingReq())
+        api.Ping(api_pb2.PingReq())
     assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
 
     with real_jail_session(token) as jail:
@@ -232,7 +232,7 @@ def test_AcceptCommunityGuidelines(db):
         with pytest.raises(grpc.RpcError) as e:
             res = jail.AcceptCommunityGuidelines(jail_pb2.AcceptCommunityGuidelinesReq(accept=False))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_UNACCEPT_COMMUNITY_GUIDELINES
+        assert e.value.details() == "You cannot revoke acceptance of the Community Guidelines."
 
         res = jail.JailInfo(empty_pb2.Empty())
         assert res.jailed
@@ -249,7 +249,7 @@ def test_AcceptCommunityGuidelines(db):
         with pytest.raises(grpc.RpcError) as e:
             res = jail.AcceptCommunityGuidelines(jail_pb2.AcceptCommunityGuidelinesReq(accept=False))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_UNACCEPT_COMMUNITY_GUIDELINES
+        assert e.value.details() == "You cannot revoke acceptance of the Community Guidelines."
 
     # make them have accepted GC
     user2, token2 = generate_user()
@@ -263,7 +263,7 @@ def test_AcceptCommunityGuidelines(db):
         with pytest.raises(grpc.RpcError) as e:
             res = jail.AcceptCommunityGuidelines(jail_pb2.AcceptCommunityGuidelinesReq(accept=False))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_UNACCEPT_COMMUNITY_GUIDELINES
+        assert e.value.details() == "You cannot revoke acceptance of the Community Guidelines."
 
         # accepting again doesn't do anything
         res = jail.AcceptCommunityGuidelines(jail_pb2.AcceptCommunityGuidelinesReq(accept=True))
@@ -324,7 +324,7 @@ def test_modnotes(db, push_collector):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.MOD_NOTE_NEED_TO_ACKNOWELDGE
+        assert e.value.details() == "You need to read and acknolwedge the mod note."
 
         assert res.jailed
         assert res.has_pending_mod_notes
@@ -350,7 +350,7 @@ def test_modnotes(db, push_collector):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.MOD_NOTE_NOT_FOUND
+        assert e.value.details() == "Mod note not found."
 
     with real_account_session(token) as account:
         res = account.ListModNotes(empty_pb2.Empty())

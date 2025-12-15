@@ -12,7 +12,7 @@ import { theme } from "theme";
 
 const mkd = new markdown();
 
-export interface MarkdownPageFrontmatter {
+interface MarkdownPageFrontmatter {
   title: string;
   hide_title?: boolean;
   subtitle?: string;
@@ -174,7 +174,7 @@ export default function MarkdownPage({
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1;
             return isLast ? (
-              <Typography key={crumb.key} color="textPrimary">
+              <Typography key={`${crumb.key}-${index}`} color="textPrimary">
                 {crumb.value}
               </Typography>
             ) : (

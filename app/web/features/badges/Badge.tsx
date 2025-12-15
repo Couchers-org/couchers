@@ -1,8 +1,9 @@
 import { Chip, styled, Tooltip } from "@mui/material";
+import Link from "next/link";
 import { Badge as BadgeType } from "proto/resources_pb";
 import { routeToBadge } from "routes";
 
-export interface BadgeProps {
+interface BadgeProps {
   badge: BadgeType.AsObject;
 }
 
@@ -20,7 +21,7 @@ export default function Badge({ badge }: BadgeProps) {
       <Chip
         label={badge.name}
         href={routeToBadge(badge.id)}
-        component="a"
+        component={Link}
         sx={{ background: badge.color }}
       />
     </StyledTooltip>

@@ -1,5 +1,7 @@
 import logging
 
+from sqlalchemy.orm import Session
+
 from couchers.db import session_scope
 from couchers.models import (
     NotificationDelivery,
@@ -8,13 +10,15 @@ from couchers.models import (
     NotificationTopicAction,
 )
 from couchers.notifications.utils import enum_from_topic_action
+from couchers.proto import notifications_pb2
 from couchers.sql import couchers_select as select
-from proto import notifications_pb2
 
 logger = logging.getLogger(__name__)
 
 
-def get_preference(session, user_id: int, topic_action: NotificationTopicAction) -> list[NotificationDeliveryType]:
+def get_preference(
+    session: Session, user_id: int, topic_action: NotificationTopicAction
+) -> list[NotificationDeliveryType]:
     """
     Gets the user's preference from the DB or otherwise falls back to defaults
 
@@ -36,22 +40,27 @@ def get_preference(session, user_id: int, topic_action: NotificationTopicAction)
 
 
 def get_topic_actions_by_delivery_type(
-    session, user_id: int, delivery_type: NotificationDeliveryType
+    session: Session, user_id: int, delivery_type: NotificationDeliveryType
 ) -> set[NotificationTopicAction]:
     """
     Given push/email/digest, returns notifications that this user has enabled for that type.
     """
-    overrides = dict(
-        session.execute(
-            select(NotificationPreference.topic_action, NotificationPreference.deliver)
-            .where(NotificationPreference.user_id == user_id)
-            .where(NotificationPreference.delivery_type == delivery_type)
-        ).all()
-    )
+    overrides: dict[NotificationTopicAction, bool] = {}
+    for topic_action, deliver in session.execute(
+        select(NotificationPreference.topic_action, NotificationPreference.deliver)
+        .where(NotificationPreference.user_id == user_id)
+        .where(NotificationPreference.delivery_type == delivery_type)
+    ).all():
+        overrides[topic_action] = deliver
     return {t for t in NotificationTopicAction if overrides.get(t, delivery_type in t.defaults)}
 
 
-def reset_preference(session, user_id, topic_action, delivery_type):
+def reset_preference(
+    session: Session,
+    user_id: int,
+    topic_action: NotificationTopicAction,
+    delivery_type: NotificationDeliveryType,
+) -> None:
     current_pref = session.execute(
         select(NotificationPreference)
         .where(NotificationPreference.user_id == user_id)
@@ -67,7 +76,13 @@ class PreferenceNotUserEditableError(Exception):
     pass
 
 
-def set_preference(session, user_id, topic_action: NotificationTopicAction, delivery_type, deliver):
+def set_preference(
+    session: Session,
+    user_id: int,
+    topic_action: NotificationTopicAction,
+    delivery_type: NotificationDeliveryType,
+    deliver: bool,
+) -> None:
     if not topic_action.user_editable:
         raise PreferenceNotUserEditableError()
     current_pref = session.execute(
@@ -284,6 +299,15 @@ settings_layout = [
                     ("sv_success", "Strong Verification succeeds"),
                 ],
             ),
+            (
+                "postal_verification",
+                "Postal Verification",
+                [
+                    ("postcard_sent", "Verification postcard is sent"),
+                    ("success", "Postal Verification succeeds"),
+                    ("failed", "Postal Verification fails"),
+                ],
+            ),
         ],
     ),
     (
@@ -301,9 +325,9 @@ settings_layout = [
 ]
 
 
-def check_settings():
+def check_settings() -> None:
     # check settings contain all actions+topics
-    actions_by_topic = {}
+    actions_by_topic: dict[str, list[str]] = {}
     for t in NotificationTopicAction:
         actions_by_topic[t.topic] = actions_by_topic.get(t.topic, []) + [t.action]
 
@@ -326,7 +350,7 @@ def check_settings():
 check_settings()
 
 
-def get_user_setting_groups(user_id) -> list[notifications_pb2.NotificationGroup]:
+def get_user_setting_groups(user_id: int) -> list[notifications_pb2.NotificationGroup]:
     with session_scope() as session:
         groups = []
         for heading, group in settings_layout:

@@ -2,7 +2,6 @@ import functools
 import secrets
 import string
 from base64 import urlsafe_b64decode, urlsafe_b64encode
-from typing import Optional, Union
 
 import nacl.pwhash
 import nacl.utils
@@ -20,38 +19,38 @@ def b64encode(data: bytes) -> str:
     return urlsafe_b64encode(data).decode("ascii")
 
 
-def b64decode(data: str) -> bytes:
+def b64decode(data: str | bytes) -> bytes:
     return urlsafe_b64decode(data)
 
 
-def b64encode_unpadded(data: str) -> bytes:
+def b64encode_unpadded(data: bytes) -> str:
     return b64encode(data).replace("=", "")
 
 
-def b64decode_unpadded(data: bytes) -> str:
+def b64decode_unpadded(data: bytes) -> bytes:
     return b64decode(data + b"===="[len(data) % 4 :])
 
 
-def _urlsafe_random_b64(length=32) -> str:
+def _urlsafe_random_b64(length: int = 32) -> str:
     return b64encode(random_bytes(length))
 
 
-def urlsafe_secure_token():
+def urlsafe_secure_token() -> str:
     """
     A cryptographically secure random token that can be put in a URL
     """
     return _urlsafe_random_b64(32)
 
 
-def cookiesafe_secure_token():
+def cookiesafe_secure_token() -> str:
     return random_hex(32)
 
 
-def hash_password(password: str):
+def hash_password(password: str) -> bytes:
     return nacl.pwhash.str(password.encode("utf-8"))
 
 
-def verify_password(hashed: bytes, password: str):
+def verify_password(hashed: bytes, password: str) -> bool:
     try:
         correct = nacl.pwhash.verify(hashed, password.encode("utf-8"))
         return correct
@@ -59,14 +58,14 @@ def verify_password(hashed: bytes, password: str):
         return False
 
 
-def random_hex(length=32):
+def random_hex(length: int = 32) -> str:
     """
     Length in binary
     """
     return random_bytes(length).hex()
 
 
-def secure_compare(val1, val2):
+def secure_compare(val1: bytes, val2: bytes) -> bool:
     return sodium_memcmp(val1, val2)
 
 
@@ -81,7 +80,7 @@ def generate_hash_signature(message: bytes, key: bytes) -> bytes:
     return generichash_blake2b_salt_personal(message, key=key, digest_size=32)
 
 
-def simple_hash_signature(message: Union[bytes, str], key_name: str) -> str:
+def simple_hash_signature(message: bytes | str, key_name: str) -> str:
     if isinstance(message, str):
         msg_bytes = message.encode("utf8")
     else:
@@ -98,31 +97,31 @@ def verify_hash_signature(message: bytes, key: bytes, sig: bytes) -> bool:
     return secure_compare(sig, generate_hash_signature(message, key))
 
 
-def generate_random_5digit_string():
+def generate_random_5digit_string() -> str:
     """Return a random 5-digit string"""
     return f"{secrets.randbelow(100000):05d}"
 
 
-def verify_token(a: str, b: str):
+def verify_token(a: str, b: str) -> bool:
     """Return True if strings a and b are equal, in such a way as to
     reduce the risk of timing attacks.
     """
     return secrets.compare_digest(a, b)
 
 
-def stable_secure_uniform(key: bytes, seed: bytes):
-    random_bytes = generate_hash_signature(message=seed, key=key)
-    assert len(random_bytes) > 7
+def stable_secure_uniform(key: bytes, seed: bytes) -> float:
+    random_bytes_val = generate_hash_signature(message=seed, key=key)
+    assert len(random_bytes_val) > 7
     # taken from cpython
-    rr = random_bytes[:7]
+    rr = random_bytes_val[:7]
     # Number of bits in a float
     BPF = 53
-    RECIP_BPF = 2**-BPF
+    RECIP_BPF: float = 2**-BPF
     return (int.from_bytes(rr) >> 3) * RECIP_BPF
 
 
 @functools.lru_cache
-def get_secret(name: str):
+def get_secret(name: str) -> bytes:
     """
     Derives a secret key from the root secret using a key derivation function
     """
@@ -141,15 +140,20 @@ _aead_key_len = crypto_aead.crypto_aead_xchacha20poly1305_ietf_KEYBYTES
 _aead_nonce_len = crypto_aead.crypto_aead_xchacha20poly1305_ietf_NPUBBYTES
 
 
-def aead_generate_nonce():
+def aead_generate_nonce() -> bytes:
     return random_bytes(_aead_nonce_len)
 
 
-def aead_generate_key():
+def aead_generate_key() -> bytes:
     return random_bytes(_aead_key_len)
 
 
-def aead_encrypt(key: bytes, secret_data: bytes, plaintext_data: bytes = b"", nonce: Optional[bytes] = None) -> bytes:
+def aead_encrypt(
+    key: bytes,
+    secret_data: bytes,
+    plaintext_data: bytes = b"",
+    nonce: bytes | None = None,
+) -> tuple[bytes, bytes]:
     if not nonce:
         nonce = aead_generate_nonce()
     encrypted = crypto_aead.crypto_aead_xchacha20poly1305_ietf_encrypt(secret_data, plaintext_data, nonce, key)
@@ -162,21 +166,21 @@ def aead_decrypt(key: bytes, nonce: bytes, encrypted_secret_data: bytes, plainte
 
 def simple_encrypt(key_name: str, data: bytes) -> bytes:
     key = get_secret(key_name)
-    nonce, data = aead_encrypt(key, data)
-    return nonce + data
+    nonce, encrypted = aead_encrypt(key, data)
+    return nonce + encrypted
 
 
 def simple_decrypt(key_name: str, data: bytes) -> bytes:
     key = get_secret(key_name)
-    nonce, data = data[:_aead_nonce_len], data[_aead_nonce_len:]
-    return aead_decrypt(key, nonce, data)
+    nonce, encrypted = data[:_aead_nonce_len], data[_aead_nonce_len:]
+    return aead_decrypt(key, nonce, encrypted)
 
 
-def encrypt_page_token(plaintext_page_token: str):
+def encrypt_page_token(plaintext_page_token: str) -> str:
     return b64encode(simple_encrypt(PAGE_TOKEN_KEY_NAME, plaintext_page_token.encode("utf8")))
 
 
-def decrypt_page_token(encrypted_page_token: str):
+def decrypt_page_token(encrypted_page_token: str) -> str:
     return simple_decrypt(PAGE_TOKEN_KEY_NAME, b64decode(encrypted_page_token)).decode("utf8")
 
 
@@ -191,12 +195,12 @@ def asym_decrypt(private_key: bytes, encrypted_data: bytes) -> bytes:
     return SealedBox(PrivateKey(private_key)).decrypt(encrypted_data)
 
 
-def generate_asym_keypair():
+def generate_asym_keypair() -> tuple[bytes, bytes]:
     skey = PrivateKey.generate()
     return skey.encode(), skey.public_key.encode()
 
 
-def generate_invite_code(length=8):
+def generate_invite_code(length: int = 8) -> str:
     """
     Generates a secure, URL-safe invite code of the given length.
     """

@@ -164,7 +164,7 @@ const DidStay = ({
         <ReferenceStepHeader
           name={user.name}
           referenceType={referenceType}
-          isDidStayStep
+          step="did-stay"
         />
         <StyledButtonContainer>
           <Button

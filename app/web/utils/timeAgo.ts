@@ -2,7 +2,6 @@ import { TFunction } from "i18next";
 
 export const minuteMillis = 60000;
 export const twoMinuteMillis = 120000;
-export const quarterHourMillis = 900000;
 export const hourMillis = 3600000;
 export const twoHourMillis = 7200000;
 export const dayMillis = 86400000;
@@ -16,7 +15,7 @@ export const twoYearMillis = 31557600000 * 2;
 
 export const lessThanHour = "Less than an hour ago";
 
-export interface FuzzySpec {
+interface FuzzySpec {
   millis: number;
   text: string;
 }
@@ -59,7 +58,7 @@ export function timeAgo(input: Date | string, fuzzy?: FuzzySpec) {
   return "" + (diffMillis / yearMillis).toFixed() + " years ago";
 }
 
-export interface FuzzySpecT {
+interface FuzzySpecT {
   millis: number;
   translationKey: Parameters<TFunction<"global", undefined>>[0];
 }
@@ -84,38 +83,32 @@ export function timeAgoI18n({
 
   if (diffMillis < minuteMillis)
     return t("relative_time.less_than_a_minute_ago");
-  if (diffMillis < twoMinuteMillis) return t("relative_time.one_minute_ago");
   if (diffMillis < hourMillis)
     return t("relative_time.x_minutes_ago", {
-      date: (diffMillis / minuteMillis).toFixed(),
+      count: Math.floor(diffMillis / minuteMillis),
     });
 
-  if (diffMillis < twoHourMillis) return t("relative_time.one_hour_ago");
   if (diffMillis < dayMillis)
     return t("relative_time.x_hours_ago", {
-      date: (diffMillis / hourMillis).toFixed(),
+      count: Math.floor(diffMillis / hourMillis),
     });
 
-  if (diffMillis < twoDayMillis) return t("relative_time.one_day_ago");
   if (diffMillis < weekMillis)
     return t("relative_time.x_days_ago", {
-      date: (diffMillis / dayMillis).toFixed(),
+      count: Math.floor(diffMillis / dayMillis),
     });
 
-  if (diffMillis < twoWeekMillis) return t("relative_time.one_week_ago");
   if (diffMillis < monthMillis)
     return t("relative_time.x_weeks_ago", {
-      date: (diffMillis / weekMillis).toFixed(),
+      count: Math.floor(diffMillis / weekMillis),
     });
 
-  if (diffMillis < twoMonthMillis) return t("relative_time.one_month_ago");
   if (diffMillis < yearMillis)
     return t("relative_time.x_months_ago", {
-      date: (diffMillis / monthMillis).toFixed(),
+      count: Math.floor(diffMillis / monthMillis),
     });
 
-  if (diffMillis < twoYearMillis) return t("relative_time.one_year_ago");
   return t("relative_time.x_years_ago", {
-    date: (diffMillis / yearMillis).toFixed(),
+    count: Math.floor(diffMillis / yearMillis),
   });
 }

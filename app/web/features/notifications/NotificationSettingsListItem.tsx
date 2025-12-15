@@ -14,7 +14,7 @@ import { GroupAction, NotificationType } from "./EditNotificationSettingsPage";
 import NotificationSettingsSubListItem from "./NotificationSettingsSubListItem";
 import { mapNotificationSettingsTypeToIcon } from "./utils/constants";
 
-export interface NotificationSettingsListItemProps {
+interface NotificationSettingsListItemProps {
   items: GroupAction[];
   type: NotificationType;
   isExpanded?: boolean;

@@ -9,7 +9,7 @@ import { ControllerRenderProps } from "react-hook-form";
 
 import TextField from "./TextField";
 
-export type AutocompleteProps<
+type AutocompleteProps<
   T,
   Multiple extends boolean | undefined,
   DisableClearable extends boolean | undefined,

@@ -57,7 +57,7 @@ const StyledAvatar = styled(Avatar, {
 
 export const USER_TITLE_SKELETON_TEST_ID = "user-title-skeleton";
 
-export interface UserSummaryProps {
+interface UserSummaryProps {
   children?: React.ReactNode;
   smallAvatar?: boolean;
   nameOnly?: boolean;

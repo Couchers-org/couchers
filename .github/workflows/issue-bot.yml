@@ -1,0 +1,35 @@
+name: Issue Bot
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  process-issue:
+    runs-on: ubuntu-latest
+    if: "github.event.label.name == 'bug: triage needed'"
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: ".github/llm-bot/.python-version"
+      - uses: astral-sh/setup-uv@v6
+      - name: Install dependencies
+        working-directory: .github/llm-bot
+        run: uv sync --locked --all-extras --dev
+      - name: Process issue with LLM
+        working-directory: .github/llm-bot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LLM_API_KEY:  ${{ secrets.BOT_LLM_API_KEY }}
+          LLM_MODEL:  ${{ secrets.BOT_LLM_MODEL }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          REPOSITORY: ${{ github.repository }}
+        run: uv run issue_bot.py

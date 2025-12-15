@@ -22,7 +22,7 @@ import { service } from "service";
 import { ReportInput } from "service/reporting";
 import { theme } from "theme";
 
-export interface FlagButtonProps {
+interface FlagButtonProps {
   contentRef: string;
   authorUser: string | number;
   className?: string;

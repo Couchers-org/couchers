@@ -137,6 +137,7 @@ const initialState: MapSearchState = {
     numGuests: undefined,
     sleepingArrangement: undefined,
     smokesAtHome: undefined,
+    sameGenderOnly: undefined,
   },
   hasActiveFilters: false,
   pageNumber: 1,
@@ -401,6 +402,10 @@ const mapSearchReducer = (
         }
         if (key === "smokesAtHome") {
           updatedFilters.smokesAtHome = action.payload[key];
+        }
+        if (key === "sameGenderOnly") {
+          updatedFilters.sameGenderOnly =
+            action.payload[key] === false ? undefined : action.payload[key];
         }
       }
 

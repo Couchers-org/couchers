@@ -3,10 +3,13 @@ A simple config system
 """
 
 import os
+from typing import Any
+
+CONFIG_T = list[tuple[str, type | list[str]] | tuple[str, type | list[str], str | int]]
 
 # Allowed config options, as tuples (name, type, default).
 # All fields are required
-CONFIG_OPTIONS = [
+CONFIG_OPTIONS: CONFIG_T = [
     # Whether we're in dev mode
     ("DEV", bool),
     # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
@@ -22,6 +25,8 @@ CONFIG_OPTIONS = [
     ("BACKEND_BASE_URL", str),
     # URL of the console, e.g. https://console.couchers.org
     ("CONSOLE_BASE_URL", str),
+    # URL of the merch shop, e.g. https://shop.couchershq.org
+    ("MERCH_SHOP_URL", str),
     # Used to generate a variety of secrets
     ("SECRET", bytes),
     # Domain that cookies should set as their domain value
@@ -45,6 +50,8 @@ CONFIG_OPTIONS = [
     ("IRIS_ID_PUBKEY", str),
     ("IRIS_ID_SECRET", str),
     ("VERIFICATION_DATA_PUBLIC_KEY", bytes),
+    # Postal verification
+    ("ENABLE_POSTAL_VERIFICATION", bool),
     # SMS
     ("ENABLE_SMS", bool),
     ("SMS_SENDER_ID", str),
@@ -100,73 +107,92 @@ CONFIG_OPTIONS = [
     ("RECAPTHCA_SITE_KEY", str),
     # Whether we're in test
     ("IN_TEST", bool, "0"),
+    # Experimentation (feature flags via Statsig)
+    ("EXPERIMENTATION_ENABLED", bool, "0"),
+    # When enabled, all feature gates return True (useful for development/testing)
+    ("EXPERIMENTATION_PASS_ALL_GATES", bool, "0"),
+    # Statsig SDK configuration
+    ("STATSIG_SERVER_SECRET_KEY", str, ""),
+    ("STATSIG_ENVIRONMENT", str, "development"),
+    # Moderation auto-approval deadline in seconds (0 to disable auto-approval)
+    ("MODERATION_AUTO_APPROVE_DEADLINE_SECONDS", int),
+    # User ID of the bot user for automated moderation actions
+    ("MODERATION_BOT_USER_ID", int),
 ]
 
-config = {}
 
-for config_option in CONFIG_OPTIONS:
-    if len(config_option) == 2:
-        name, type_ = config_option
-        optional = False
-    elif len(config_option) == 3:
-        name, type_, default_value = config_option
-        optional = True
-    else:
-        raise ValueError("Invalid CONFIG_OPTIONS")
-
-    value = os.getenv(name)
-
-    if not value:
-        if not optional:
-            # config value not set - will cause a KeyError when trying
-            # to access it.
-            continue
-        else:
-            value = default_value
-
-    if type_ is bool:
-        # 1 is true, 0 is false, everything else is illegal
-        if value not in ["0", "1"]:
-            raise ValueError(f'Invalid bool for {name}, need "0" or "1"')
-        value = value == "1"
-    elif type_ is bytes:
-        # decode from hex
-        value = bytes.fromhex(value)
-    elif isinstance(type_, list):
-        # list of allowed string values
-        if value not in type_:
-            raise ValueError(f"Invalid value for {name}, need one of {', '.join(type_)}")
-    else:
-        value = type_(value)
-
-    config[name] = value
-
-
-## Config checks
-def check_config():
+def check_config(cfg: dict[str, Any]) -> None:
     for name, *_ in CONFIG_OPTIONS:
-        if name not in config:
+        if name not in cfg:
             raise ValueError(f"Required config value {name} not set")
 
-    if not config["DEV"]:
+    if not cfg["DEV"]:
         # checks for prod
-        if "https" not in config["BASE_URL"]:
+        if "https" not in cfg["BASE_URL"]:
             raise Exception("Production site must be over HTTPS")
-        if not config["ENABLE_EMAIL"]:
+        if not cfg["ENABLE_EMAIL"]:
             raise Exception("Production site must have email enabled")
-        if not config["ENABLE_SMS"]:
+        if not cfg["ENABLE_SMS"]:
             raise Exception("Production site must have SMS enabled")
-        if config["IN_TEST"]:
+        if cfg["IN_TEST"]:
             raise Exception("IN_TEST while not DEV")
 
-    if config["ENABLE_DONATIONS"]:
-        if (
-            not config["STRIPE_API_KEY"]
-            or not config["STRIPE_WEBHOOK_SECRET"]
-            or not config["STRIPE_RECURRING_PRODUCT_ID"]
-        ):
+    if cfg["ENABLE_DONATIONS"]:
+        if not cfg["STRIPE_API_KEY"] or not cfg["STRIPE_WEBHOOK_SECRET"] or not cfg["STRIPE_RECURRING_PRODUCT_ID"]:
             raise Exception("No Stripe API key/recurring donation ID but donations enabled")
 
-    if config["ENABLE_STRONG_VERIFICATION"]:
-        if not config["IRIS_ID_PUBKEY"] or not config["IRIS_ID_SECRET"] or not config["VERIFICATION_DATA_PUBLIC_KEY"]:
+    if cfg["ENABLE_STRONG_VERIFICATION"]:
+        if not cfg["IRIS_ID_PUBKEY"] or not cfg["IRIS_ID_SECRET"] or not cfg["VERIFICATION_DATA_PUBLIC_KEY"]:
             raise Exception("No Iris ID pubkey/secret or verification data pubkey but strong verification enabled")
+
+    if cfg["EXPERIMENTATION_ENABLED"]:
+        if not cfg["STATSIG_SERVER_SECRET_KEY"]:
+            raise Exception("No Statsig server secret key but experimentation enabled")
+
+
+def make_config() -> dict[str, Any]:
+    cfg = {}
+
+    for config_option in CONFIG_OPTIONS:
+        if len(config_option) == 2:
+            name, type_ = config_option
+            optional = False
+        elif len(config_option) == 3:
+            name, type_, default_value = config_option
+            optional = True
+        else:
+            raise ValueError("Invalid CONFIG_OPTIONS")
+
+        value: str | int | bytes | None = os.getenv(name)
+
+        if not value:
+            if not optional:
+                # config value not set - will cause a KeyError when trying
+                # to access it.
+                continue
+            else:
+                value = default_value
+
+        if type_ is bool:
+            # 1 is true, 0 is false, everything else is illegal
+            if value not in ["0", "1"]:
+                raise ValueError(f'Invalid bool for {name}, need "0" or "1"')
+            value = value == "1"
+        elif type_ is bytes:
+            # decode from hex
+            if not isinstance(value, str):
+                raise RuntimeError(type(value))
+            value = bytes.fromhex(value)
+        elif isinstance(type_, list):
+            # list of allowed string values
+            if value not in type_:
+                raise ValueError(f"Invalid value for {name}, need one of {', '.join(type_)}")
+        else:
+            value = type_(value)
+
+        cfg[name] = value
+
+    return cfg
+
+
+config = make_config()

@@ -1,12 +1,12 @@
 import grpc
+from sqlalchemy.orm import Session
 
-from couchers import errors
 from couchers.db import can_moderate_at, can_moderate_node, get_parent_node_at_location
 from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, Upload, User
+from couchers.proto import pages_pb2, pages_pb2_grpc
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
-from proto import pages_pb2, pages_pb2_grpc
 
 MAX_PAGINATION_LENGTH = 25
 
@@ -23,7 +23,7 @@ pagetype2api = {
 }
 
 
-def _is_page_owner(page: Page, user_id):
+def _is_page_owner(page: Page, user_id: int) -> bool:
     """
     Checks whether the user can act as an owner of the page
     """
@@ -33,7 +33,7 @@ def _is_page_owner(page: Page, user_id):
     return page.owner_cluster.admins.where(User.id == user_id).one_or_none() is not None
 
 
-def _can_moderate_page(session, page: Page, user_id):
+def _can_moderate_page(session: Session, page: Page, user_id: int) -> bool:
     """
     Checks if the user is allowed to moderate this page
     """
@@ -52,7 +52,7 @@ def _can_moderate_page(session, page: Page, user_id):
     return can_moderate_node(session, user_id, page.parent_node_id)
 
 
-def page_to_pb(session, page: Page, context):
+def page_to_pb(session: Session, page: Page, context) -> pages_pb2.Page:
     first_version = page.versions[0]
     current_version = page.versions[-1]
 
@@ -99,15 +99,15 @@ def page_to_pb(session, page: Page, context):
 class Pages(pages_pb2_grpc.PagesServicer):
     def CreatePlace(self, request, context, session):
         if not request.title:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_TITLE)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_title")
         if not request.content:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_CONTENT)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_content")
         if not request.address:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_ADDRESS)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_address")
         if not request.HasField("location"):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_LOCATION)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_location")
         if request.location.lat == 0 and request.location.lng == 0:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
 
         geom = create_coordinate(request.location.lat, request.location.lng)
 
@@ -115,7 +115,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             request.photo_key
             and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
         ):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
         page = Page(
             parent_node=get_parent_node_at_location(session, geom),
@@ -141,34 +141,34 @@ class Pages(pages_pb2_grpc.PagesServicer):
 
     def CreateGuide(self, request, context, session):
         if not request.title:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_TITLE)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_title")
         if not request.content:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_CONTENT)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_content")
         if request.address and request.HasField("location"):
             address = request.address
             if request.location.lat == 0 and request.location.lng == 0:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
             geom = create_coordinate(request.location.lat, request.location.lng)
         elif not request.address and not request.HasField("location"):
             address = None
             geom = None
         else:
             # you have to have both or neither
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_GUIDE_LOCATION)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_guide_location")
 
         if not request.parent_community_id:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_PARENT)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_parent")
 
         parent_node = session.execute(select(Node).where(Node.id == request.parent_community_id)).scalar_one_or_none()
 
         if not parent_node:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "community_not_found")
 
         if (
             request.photo_key
             and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
         ):
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
         page = Page(
             parent_node=parent_node,
@@ -195,17 +195,17 @@ class Pages(pages_pb2_grpc.PagesServicer):
     def GetPage(self, request, context, session):
         page = session.execute(select(Page).where(Page.id == request.page_id)).scalar_one_or_none()
         if not page:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "page_not_found")
 
         return page_to_pb(session, page, context)
 
     def UpdatePage(self, request, context, session):
         page = session.execute(select(Page).where(Page.id == request.page_id)).scalar_one_or_none()
         if not page:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "page_not_found")
 
         if not _is_page_owner(page, context.user_id) and not _can_moderate_page(session, page, context.user_id):
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_UPDATE_PERMISSION_DENIED)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "page_update_permission_denied")
 
         current_version = page.versions[-1]
 
@@ -221,12 +221,12 @@ class Pages(pages_pb2_grpc.PagesServicer):
 
         if request.HasField("title"):
             if not request.title.value:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_TITLE)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_title")
             page_version.title = request.title.value
 
         if request.HasField("content"):
             if not request.content.value:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_CONTENT)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_content")
             page_version.content = request.content.value
 
         if request.HasField("photo_key"):
@@ -236,12 +236,12 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 if not session.execute(
                     select(Upload).where(Upload.key == request.photo_key.value)
                 ).scalar_one_or_none():
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.PHOTO_NOT_FOUND)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
                 page_version.photo_key = request.photo_key.value
 
         if request.HasField("address"):
             if not request.address.value:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MISSING_PAGE_ADDRESS)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_address")
             page_version.address = request.address.value
 
         if request.HasField("location"):
@@ -257,10 +257,10 @@ class Pages(pages_pb2_grpc.PagesServicer):
         ).scalar_one_or_none()
 
         if not page:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.PAGE_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "page_not_found")
 
         if not _is_page_owner(page, context.user_id) and not _can_moderate_page(session, page, context.user_id):
-            context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.PAGE_TRANSFER_PERMISSION_DENIED)
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "page_transfer_permission_denied")
 
         if request.WhichOneof("new_owner") == "new_owner_group_id":
             cluster = session.execute(
@@ -274,10 +274,10 @@ class Pages(pages_pb2_grpc.PagesServicer):
             ).scalar_one_or_none()
         else:
             # i'm not sure if this needs to be checked
-            context.abort(grpc.StatusCode.UNKNOWN, errors.UNKNOWN_ERROR)
+            context.abort_with_error_code(grpc.StatusCode.UNKNOWN, "unknown_error")
 
         if not cluster:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.GROUP_OR_COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_or_community_not_found")
 
         page.owner_user = None
         page.owner_cluster = cluster

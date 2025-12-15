@@ -7,31 +7,41 @@ It is called "unsubscribe" in some places for historical reasons (it was the fir
 import logging
 
 import grpc
+from google.protobuf.message import Message
+from sqlalchemy.orm import Session
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.constants import DATETIME_INFINITY
-from couchers.context import make_one_off_interactive_user_context
+from couchers.context import CouchersContext, make_one_off_interactive_user_context
 from couchers.crypto import UNSUBSCRIBE_KEY_NAME, b64encode, generate_hash_signature, get_secret, verify_hash_signature
-from couchers.models import GroupChatSubscription, HostingStatus, MeetupStatus, NotificationDeliveryType, User
+from couchers.models import (
+    GroupChat,
+    GroupChatSubscription,
+    HostingStatus,
+    MeetupStatus,
+    Notification,
+    NotificationDeliveryType,
+    User,
+)
 from couchers.notifications import settings
 from couchers.notifications.utils import enum_from_topic_action
+from couchers.proto import auth_pb2, conversations_pb2, requests_pb2
+from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.requests import Requests
 from couchers.sql import couchers_select as select
 from couchers.utils import now
-from proto import conversations_pb2, requests_pb2
-from proto.internal import unsubscribe_pb2
 
 logger = logging.getLogger(__name__)
 
 
-def _generate_quick_link(payload):
-    payload.created.FromDatetime(now())
+def _generate_quick_link(payload: Message) -> str:
+    payload.created.FromDatetime(now())  # type: ignore[attr-defined]
     msg = payload.SerializeToString()
     sig = generate_hash_signature(message=msg, key=get_secret(UNSUBSCRIBE_KEY_NAME))
     return urls.quick_link(payload=b64encode(msg), sig=b64encode(sig))
 
 
-def generate_do_not_email(user):
+def generate_do_not_email(user: User) -> str:
     return _generate_quick_link(
         unsubscribe_pb2.UnsubscribePayload(
             user_id=user.id,
@@ -40,7 +50,7 @@ def generate_do_not_email(user):
     )
 
 
-def generate_unsub_topic_key(notification):
+def generate_unsub_topic_key(notification: Notification) -> str:
     return _generate_quick_link(
         unsubscribe_pb2.UnsubscribePayload(
             user_id=notification.user_id,
@@ -52,7 +62,7 @@ def generate_unsub_topic_key(notification):
     )
 
 
-def generate_unsub_topic_action(notification):
+def generate_unsub_topic_action(notification: Notification) -> str:
     return _generate_quick_link(
         unsubscribe_pb2.UnsubscribePayload(
             user_id=notification.user_id,
@@ -64,7 +74,7 @@ def generate_unsub_topic_action(notification):
     )
 
 
-def generate_quick_decline_link(host_request):
+def generate_quick_decline_link(host_request: requests_pb2.HostRequest) -> str:
     return _generate_quick_link(
         unsubscribe_pb2.UnsubscribePayload(
             user_id=host_request.host_user_id,
@@ -75,12 +85,12 @@ def generate_quick_decline_link(host_request):
     )
 
 
-def respond_quick_link(request, context, session):
+def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContext, session: Session) -> str:
     """
     Returns a response string or uses context.abort upon error
     """
     if not verify_hash_signature(message=request.payload, key=get_secret(UNSUBSCRIBE_KEY_NAME), sig=request.sig):
-        context.abort(grpc.StatusCode.PERMISSION_DENIED, errors.WRONG_SIGNATURE)
+        context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "wrong_signature")
     payload = unsubscribe_pb2.UnsubscribePayload.FromString(request.payload)
     user = session.execute(select(User).where(User.id == payload.user_id)).scalar_one()
     if payload.HasField("do_not_email"):
@@ -88,7 +98,7 @@ def respond_quick_link(request, context, session):
         user.do_not_email = True
         user.hosting_status = HostingStatus.cant_host
         user.meetup_status = MeetupStatus.does_not_want_to_meetup
-        return "You will not receive any non-security emails, and your hosting status has been turned off. You may still receive the newsletter, and need to unsubscribe from it separately."
+        return context.get_localized_string("quick_links", "do_not_email")
     if payload.HasField("topic_action"):
         logger.info(f"User {user.name} unsubscribing from topic_action")
         topic = payload.topic_action.topic
@@ -96,7 +106,7 @@ def respond_quick_link(request, context, session):
         topic_action = enum_from_topic_action[topic, action]
         # disable emails for this type
         settings.set_preference(session, user.id, topic_action, NotificationDeliveryType.email, False)
-        return "You've been unsubscribed from email notifications of that type."
+        return context.get_localized_string("quick_links", "topic_action")
     if payload.HasField("topic_key"):
         logger.info(f"User {user.name} unsubscribing from topic_key")
         topic = payload.topic_key.topic
@@ -106,20 +116,23 @@ def respond_quick_link(request, context, session):
             group_chat_id = int(key)
             subscription = session.execute(
                 select(GroupChatSubscription)
+                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+                .where_moderated_content_visible(context, GroupChat, is_list_operation=False)
                 .where(GroupChatSubscription.group_chat_id == group_chat_id)
                 .where(GroupChatSubscription.user_id == user.id)
                 .where(GroupChatSubscription.left == None)
             ).scalar_one_or_none()
 
-            if not subscription:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.CHAT_NOT_FOUND)
+            if subscription is None:
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
 
+            assert subscription is not None
             subscription.muted_until = DATETIME_INFINITY
-            return "That group chat has been muted."
+            return context.get_localized_string("quick_links", "chat_unsub")
         else:
-            context.abort(grpc.StatusCode.UNIMPLEMENTED, errors.CANT_UNSUB_TOPIC)
+            context.abort_with_error_code(grpc.StatusCode.UNIMPLEMENTED, "cant_unsub_topic")
     if payload.HasField("host_request_quick_decline"):
-        Requests().RespondHostRequest(
+        Requests().RespondHostRequest(  # type: ignore[no-untyped-call]
             request=requests_pb2.RespondHostRequestReq(
                 host_request_id=payload.host_request_quick_decline.host_request_id,
                 status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
@@ -127,4 +140,5 @@ def respond_quick_link(request, context, session):
             context=make_one_off_interactive_user_context(couchers_context=context, user_id=payload.user_id),
             session=session,
         )
-        return "Thank you for responding to the host request!"
+        return context.get_localized_string("quick_links", "host_request_quick_decline")
+    raise Exception("Unhandled quick link type")

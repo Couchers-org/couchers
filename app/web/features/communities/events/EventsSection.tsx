@@ -6,7 +6,7 @@ import HorizontalScroller from "components/HorizontalScroller";
 import { CalendarIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
@@ -31,15 +31,13 @@ const StyledSection = styled("div")(() => ({
 }));
 
 const StyledCardContainer = styled(HorizontalScroller)(() => ({
-  cardContainer: {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: theme.spacing(2),
-    [theme.breakpoints.down("sm")]: {
-      overflowX: "auto",
-      flexWrap: "nowrap",
-    },
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "wrap",
+  gap: theme.spacing(2),
+  [theme.breakpoints.down("sm")]: {
+    overflowX: "auto",
+    flexWrap: "nowrap",
   },
 }));
 
@@ -106,7 +104,17 @@ export default function EventsSection({
           )}
         </>
       ) : (
-        !error && <TextBody>{t("communities:events_empty_state")}</TextBody>
+        !error && (
+          <TextBody>
+            <Trans
+              t={t}
+              i18nKey="communities:events_empty_state"
+              components={[
+                <StyledLink key="create-link" href={routeToNewEvent()} />,
+              ]}
+            />
+          </TextBody>
+        )
       )}
       <StyledSelfCenteredButton
         onClick={() => router.push(routeToNewEvent(community.communityId))}

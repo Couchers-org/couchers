@@ -73,7 +73,7 @@ export default function DiscussionsSection({
 
       <StyledCreateResourceButton
         size="small"
-        component="a"
+        component={Link}
         href={`${routeToCommunity(
           community.communityId,
           community.slug,

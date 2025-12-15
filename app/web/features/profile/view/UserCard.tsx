@@ -29,7 +29,9 @@ export const sectionLabels = (
     references: (
       <Box display="flex" alignItems="center" gap={1}>
         {t("profile:heading.references")}
-        <StyledNumReferences>{user?.numReferences}</StyledNumReferences>
+        {!!user?.numReferences && (
+          <StyledNumReferences>{user?.numReferences}</StyledNumReferences>
+        )}
       </Box>
     ),
     ...(isSuperuser ? { mod: t("global:mod") } : {}),
@@ -81,6 +83,14 @@ export default function UserCard({
           setValue={onTabChange}
           labels={sectionLabels(t, user, accountInfo?.isSuperuser)}
           ariaLabel={t("profile:section_tabs_a11y_label")}
+          tabListSx={{
+            mx: { xs: -2, md: 0 },
+            mt: { xs: -1, md: 0 },
+            "& .MuiTabs-scrollButtons": {
+              "&.Mui-disabled": { opacity: 0.3 },
+              width: { xs: 24, md: 40 },
+            },
+          }}
         />
         {top || null}
         <TabPanel value="about" sx={{ padding: 0 }}>

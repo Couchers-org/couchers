@@ -1,0 +1,29 @@
+{
+    "title": "Mod-Tools",
+    "banned": "Gebannt",
+    "deleted": "Gelöscht",
+    "do_not_email": "Nicht per E-Mail senden",
+    "list_users": {
+        "heading": "Neue Benutzerliste",
+        "none_found": "Keine Benutzer gefunden",
+        "load_more": "Mehr laden"
+    },
+    "actions": {
+        "ban": "Benutzer Bannen",
+        "open_in_console": "Im Konsolenfenster öffnen"
+    },
+    "panel": {
+        "heading": "Mod-Sachen",
+        "user_id": "Benutzer-ID",
+        "email": "E-Mail",
+        "has_strong_verification": "Hat eine starke Verifizierung",
+        "birthdate_verification_status": "Geburtsdatum Verifizierung",
+        "gender_verification_status": "Geschlechts Verifizierung",
+        "pending_mod_notes_count": "Ausstehende Moderationshinweise",
+        "acknowledged_mod_notes_count": "Zur Kenntnis genommene Mod-Notizen",
+        "admin_note": "Admin-Hinweis",
+        "birthdate": "Geburtsdatum",
+        "username": "Benutzername",
+        "has_passport_sex_gender_exception": "Ausnahme beim Geschlechtseintrag im Reisepass?"
+    }
+}

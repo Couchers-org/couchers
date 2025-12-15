@@ -6,6 +6,7 @@ import { GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import React, { useState } from "react";
 import { Control, useController } from "react-hook-form";
+import { service } from "service";
 import { GeocodeResult, useGeocodeQuery } from "utils/hooks";
 
 interface LocationAutocompleteProps {
@@ -24,6 +25,7 @@ interface LocationAutocompleteProps {
   required?: string;
   showFullDisplayName?: boolean;
   disableRegions?: boolean;
+  autocompleteContext: string;
 }
 
 const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
@@ -45,6 +47,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
     required,
     showFullDisplayName = false,
     disableRegions = false,
+    autocompleteContext,
   } = props;
 
   const { t } = useTranslation(GLOBAL);
@@ -82,6 +85,11 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
     if (value === controller.field.value?.simplifiedName) return;
 
     controller.field.onChange(value ?? "");
+    service.bugs.geolocationClickInfo({
+      context: autocompleteContext,
+      formattedResultJson: JSON.stringify(options),
+      searchChoiceJson: JSON.stringify(value),
+    });
   };
 
   const searchSubmit = (

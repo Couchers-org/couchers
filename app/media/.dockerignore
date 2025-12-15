@@ -1,0 +1,11 @@
+# Ignore everything
+**
+**/__pycache__*
+
+# Allow specific files and directories
+!src
+
+# These are not included into the final image, but are still needed here
+# for "--mount=type=bind"
+!uv.lock
+!pyproject.toml

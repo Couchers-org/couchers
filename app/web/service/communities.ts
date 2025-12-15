@@ -3,6 +3,7 @@ import {
   JoinCommunityReq,
   LeaveCommunityReq,
   ListAdminsReq,
+  ListAllCommunitiesReq,
   ListCommunitiesReq,
   ListDiscussionsReq,
   ListGroupsReq,
@@ -11,6 +12,7 @@ import {
   ListNearbyUsersReq,
   ListPlacesReq,
   ListUserCommunitiesReq,
+  SearchCommunitiesReq,
 } from "proto/communities_pb";
 
 import client from "./client";
@@ -137,4 +139,20 @@ export async function listUserCommunities(pageToken?: string) {
   const req = new ListUserCommunitiesReq();
   if (pageToken) req.setPageToken(pageToken);
   return (await client.communities.listUserCommunities(req)).toObject();
+}
+
+export async function searchCommunities(query: string, pageSize?: number) {
+  const req = new SearchCommunitiesReq();
+  req.setQuery(query);
+  if (pageSize) {
+    req.setPageSize(pageSize);
+  }
+  const response = await client.communities.searchCommunities(req);
+  return response.toObject();
+}
+
+export async function listAllCommunities() {
+  const req = new ListAllCommunitiesReq();
+  const response = await client.communities.listAllCommunities(req);
+  return response.toObject();
 }

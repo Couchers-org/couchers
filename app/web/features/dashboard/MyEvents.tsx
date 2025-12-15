@@ -4,13 +4,15 @@ import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
+import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import EventCard from "features/communities/events/EventCard";
 import { myEventsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { COMMUNITIES, DASHBOARD } from "i18n/namespaces";
+import { Trans, useTranslation } from "i18n";
+import { DASHBOARD } from "i18n/namespaces";
 import { ListMyEventsRes } from "proto/events_pb";
+import { routeToNewEvent } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
@@ -68,7 +70,7 @@ const StyledButtonContainer = styled("div")(() => ({
 const PAGE_SIZE = 2;
 
 export default function MyEvents() {
-  const { t } = useTranslation([COMMUNITIES, DASHBOARD]);
+  const { t } = useTranslation([DASHBOARD]);
   const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
@@ -99,7 +101,15 @@ export default function MyEvents() {
             {data.pages
               .flatMap((page) => page.eventsList)
               .map((event) => {
-                return <StyledCard key={event.eventId} event={event} />;
+                return (
+                  <StyledCard
+                    key={event.eventId}
+                    event={event}
+                    attendeesCountFormatter={(count) =>
+                      t("dashboard:attendees_count", { count })
+                    }
+                  />
+                );
               })}
           </StyledCardContainer>
           {hasNextPage && !isBelowSm && (
@@ -117,13 +127,23 @@ export default function MyEvents() {
                   },
                 }}
               >
-                {t("communities:see_more_events_label")}
+                {t("dashboard:load_more")}
               </Button>
             </StyledButtonContainer>
           )}
         </>
       ) : (
-        !error && <TextBody>{t("communities:events_empty_state")}</TextBody>
+        !error && (
+          <TextBody>
+            <Trans
+              t={t}
+              i18nKey="dashboard:events_empty_state"
+              components={[
+                <StyledLink key="create-link" href={routeToNewEvent()} />,
+              ]}
+            />
+          </TextBody>
+        )
       )}
     </StyledWrapper>
   );

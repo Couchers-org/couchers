@@ -3,18 +3,25 @@ template mailer/push notification formatter v2
 """
 
 import logging
-from datetime import date
+import re
+from datetime import date, datetime
 from html import escape
 from pathlib import Path
+from typing import Any
 from zoneinfo import ZoneInfo
 
 import phonenumbers
-from jinja2 import Environment, FileSystemLoader
+from google.protobuf.timestamp_pb2 import Timestamp
+from jinja2 import Environment, FileSystemLoader, pass_context
+from jinja2.runtime import Context
 from markdown_it import MarkdownIt
+from sqlalchemy.orm import Session
 
 from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
+from couchers.i18n.i18n import get_raw_translation_string
+from couchers.models import User
 from couchers.utils import get_tz_as_text, now, to_aware_datetime
 
 logger = logging.getLogger(__name__)
@@ -27,61 +34,112 @@ env = Environment(loader=loader, trim_blocks=True)
 md = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading", "hr", "list", "link", "emphasis"])
 
 
-def v2esc(value):
+# Special context values expected by v2 filters
+CONTEXT_YEAR_KEY = "_year"
+CONTEXT_TIMEZONE_DISPLAY_KEY = "_timezone_display"
+CONTEXT_TRANSLATION_COMPONENT_KEY = "_component"
+CONTEXT_TRANSLATION_LANGUAGE_KEY = "_lang"
+CONTEXT_PLAINTEXT_KEY = "_plain"
+
+
+def v2esc(value: Any) -> str:
     return escape(str(value))
 
 
-def v2multiline(value):
+def v2multiline(value: str) -> str:
     return "<br />".join(value.splitlines())
 
 
-def v2sf(value):
+def v2sf(value: str) -> str:
     return value
 
 
-def v2url(value):
+def v2url(value: str) -> str:
     return value
 
 
-def v2phone(value):
+def v2phone(value: str) -> str:
     return phonenumbers.format_number(phonenumbers.parse(value), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
 
 
-def v2date(value, user):
+def v2date(value: date | str, user: User) -> str:
     # todo: user locale-based date formatting
     if isinstance(value, str):
         value = date.fromisoformat(value)
     return value.strftime("%A %-d %B %Y")
 
 
-def v2time(value, user):
+def v2time(value: datetime, user: User) -> str:
     tz = ZoneInfo(user.timezone or "Etc/UTC")
     return value.astimezone(tz=tz).strftime("%-I:%M %p (%H:%M)")
 
 
-def v2timestamp(value, user):
+def v2timestamp(value: Timestamp, user: User) -> str:
     tz = ZoneInfo(user.timezone or "Etc/UTC")
     return to_aware_datetime(value).astimezone(tz=tz).strftime("%A %-d %B %Y at %-I:%M %p (%H:%M)")
 
 
-def v2avatar(user):
+def v2avatar(user: Any) -> str:
     if not user.avatar_thumbnail_url:
         return urls.icon_url()
-    return user.avatar_thumbnail_url
+    return user.avatar_thumbnail_url  # type: ignore[no-any-return]
 
 
-def v2quote(value):
+def v2quote(value: str) -> str:
     """
     Multiline quote, use in place of markdown in plaintext emails
     """
     return "\n> ".join([""] + value.splitlines())
 
 
-def v2markdown(value):
-    return md.render(value)
+def v2markdown(value: str) -> str:
+    return md.render(value)  # type: ignore[no-any-return]
 
 
-def add_filters(env):
+@pass_context
+def v2translate(context: Context, key: str, **kwargs: Any) -> str:
+    """
+    Jinja2 filter to translate a string key with substitutions.
+
+    Usage in template:
+        {{ "greeting_key"|v2translate(name=user.name) }}
+    """
+
+    lang: str = context[CONTEXT_TRANSLATION_LANGUAGE_KEY]
+    component: str = context[CONTEXT_TRANSLATION_COMPONENT_KEY]
+
+    # Prevent html injection
+    escaped_substitutions = {k: escape(str(v)) for k, v in kwargs.items()}
+
+    translated = get_raw_translation_string(lang, component, key, substitutions=escaped_substitutions)
+
+    # Translations may include simple formatting HTML like <b> or <a>,
+    # but those should not appear in plain text emails.
+    if context.parent.get(CONTEXT_PLAINTEXT_KEY) == True:
+
+        def replace_tag(match: re.Match) -> str:
+            tag = match.group(1)
+            inner_text = match.group(2)
+            if tag.lower() == "a":
+                # <a href="url">text</a> -> <text>
+                return f"<{inner_text}>"
+            else:
+                # <b>hello</b> -> hello
+                return inner_text
+
+        # Doesn't support nesting, but should be sufficient for our needs
+        translated = re.sub(r"<(\w+).*?>(.*?)</\1>", replace_tag, translated)
+        translated = re.sub(r"<br\s*/?>", "\n", translated)
+
+    else:
+        # HTML support, email flavored
+        # mjml rendering converts <br /> to <br>, so prefer that form.
+        translated = translated.replace("\n", "<br>")
+
+    return translated
+
+
+def add_filters(env: Environment) -> None:
     env.filters["v2esc"] = v2esc
     env.filters["v2multiline"] = v2multiline
     env.filters["v2sf"] = v2sf
@@ -93,25 +151,29 @@ def add_filters(env):
     env.filters["v2avatar"] = v2avatar
     env.filters["v2quote"] = v2quote
     env.filters["v2markdown"] = v2markdown
+    env.filters["v2translate"] = v2translate
 
 
 add_filters(env)
 
 
-def send_simple_pretty_email(session, recipient, subject, template_name, template_args):
+def send_simple_pretty_email(
+    session: Session, recipient: str, subject: str, template_name: str, template_args: dict[str, Any]
+) -> None:
     """
     This is a simplified version of couchers.notifications.background._send_email_notification
 
     It's for the few security emails where we don't have a user to email but send directly to an email address.
     """
-    template_args["_year"] = now().year
-    template_args["_timezone_display"] = get_tz_as_text("Etc/UTC")
+    template_args[CONTEXT_YEAR_KEY] = now().year
+    template_args[CONTEXT_TIMEZONE_DISPLAY_KEY] = get_tz_as_text("Etc/UTC")
 
     plain_unsub_section = "\n\n---\n\nThis is a security email, you cannot unsubscribe from it."
     html_unsub_section = "This is a security email, you cannot unsubscribe from it."
 
     plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
     plain = env.from_string(plain_tmplt + plain_unsub_section).render(template_args)
+
     html_tmplt = (template_folder / "generated_html" / f"{template_name}.html").read_text()
     html = env.from_string(html_tmplt.replace("___UNSUB_SECTION___", html_unsub_section)).render(template_args)
 

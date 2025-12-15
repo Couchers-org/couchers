@@ -50,7 +50,7 @@ export default function Markdown({
   allowImages = "none",
 }: MarkdownProps) {
   const rootEl = useRef<HTMLDivElement>(null);
-  const viewer = useRef<ToastUIEditorViewer>();
+  const viewer = useRef<ToastUIEditorViewer>(undefined);
   useEffect(() => {
     let sanitizedSource = increaseMarkdownHeaderLevel(source, topHeaderLevel);
     //remove all html except <br>

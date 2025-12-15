@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from sqlalchemy import update
 
 import couchers.email
 import couchers.jobs.handlers
@@ -18,6 +19,7 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.notify import notify
+from couchers.proto import api_pb2, editor_pb2, events_pb2, notification_data_pb2, notifications_pb2
 from couchers.sql import couchers_select as select
 from couchers.tasks import (
     enforce_community_memberships,
@@ -27,7 +29,6 @@ from couchers.tasks import (
     send_signup_email,
 )
 from couchers.utils import Timestamp_from_datetime, now, timedelta
-from proto import admin_pb2, api_pb2, events_pb2, notification_data_pb2, notifications_pb2
 from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
     api_session,
@@ -40,6 +41,7 @@ from tests.test_fixtures import (  # noqa
     process_jobs,
     push_collector,
     real_admin_session,
+    real_editor_session,
     session_scope,
     testconfig,
 )
@@ -227,6 +229,7 @@ def test_do_not_email_security(db):
                 session,
                 user_id=user.id,
                 topic_action="password_reset:start",
+                key="",
                 data=notification_data_pb2.PasswordResetStart(
                     password_reset_token=password_reset_token,
                 ),
@@ -288,6 +291,7 @@ def test_email_prefix_config(db, monkeypatch):
                 session,
                 user_id=user.id,
                 topic_action="donation:received",
+                key="",
                 data=notification_data_pb2.DonationReceived(
                     amount=20,
                     receipt_url="https://example.com/receipt/12345",
@@ -313,6 +317,7 @@ def test_email_prefix_config(db, monkeypatch):
                 session,
                 user_id=user.id,
                 topic_action="donation:received",
+                key="",
                 data=notification_data_pb2.DonationReceived(
                     amount=20,
                     receipt_url="https://example.com/receipt/12345",
@@ -339,6 +344,7 @@ def test_send_donation_email(db, monkeypatch):
             session,
             user_id=user.id,
             topic_action="donation:received",
+            key="",
             data=notification_data_pb2.DonationReceived(
                 amount=20,
                 receipt_url="https://example.com/receipt/12345",
@@ -439,25 +445,25 @@ def test_email_deleted_users_regression(db):
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
         assert mock.call_count == 1
 
-    with real_admin_session(super_token) as admin:
-        res = admin.ListEventCommunityInviteRequests(admin_pb2.ListEventCommunityInviteRequestsReq())
+    with real_editor_session(super_token) as editor:
+        res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 1
         # this will count everyone
         assert res.requests[0].approx_users_to_notify == 5
 
     with session_scope() as session:
-        session.execute(select(User).where(User.id == ban_user.id)).scalar_one().is_banned = True
-        session.execute(select(User).where(User.id == delete_user.id)).scalar_one().is_deleted = True
+        session.execute(update(User).where(User.id == ban_user.id).values(is_banned=True))
+        session.execute(update(User).where(User.id == delete_user.id).values(is_deleted=True))
 
-    with real_admin_session(super_token) as admin:
-        res = admin.ListEventCommunityInviteRequests(admin_pb2.ListEventCommunityInviteRequestsReq())
+    with real_editor_session(super_token) as editor:
+        res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
         assert len(res.requests) == 1
         # should only notify creating_user, super_user and normal_user
         assert res.requests[0].approx_users_to_notify == 3
 
         with mock_notification_email() as mock:
-            admin.DecideEventCommunityInviteRequest(
-                admin_pb2.DecideEventCommunityInviteRequestReq(
+            editor.DecideEventCommunityInviteRequest(
+                editor_pb2.DecideEventCommunityInviteRequestReq(
                     event_community_invite_request_id=res.requests[0].event_community_invite_request_id,
                     approve=True,
                 )

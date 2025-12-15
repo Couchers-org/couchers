@@ -3,7 +3,7 @@ import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { baseRoute } from "routes";
+import { loginRoute } from "routes";
 
 import { useAuthContext } from "./AuthProvider";
 
@@ -19,7 +19,7 @@ export default function Logout() {
     },
 
     onSuccess: () => {
-      router.push(baseRoute);
+      router.push(loginRoute);
     },
   });
 

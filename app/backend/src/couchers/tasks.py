@@ -1,6 +1,8 @@
 import logging
+from collections.abc import Sequence
 
-from sqlalchemy import insert
+from sqlalchemy import RowMapping, insert
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from couchers import email, urls
@@ -12,12 +14,18 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    ContentReport,
+    ContributorForm,
     EventCommunityInviteRequest,
     Node,
+    RateLimitAction,
     RateLimitViolation,
+    Reference,
+    SignupFlow,
+    StrongVerificationAttempt,
     User,
 )
-from couchers.rate_limits.definitions import RATE_LIMIT_INTERVAL_STRING
+from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.sql import couchers_select as select
 from couchers.templates.v2 import send_simple_pretty_email
 from couchers.utils import now
@@ -25,7 +33,7 @@ from couchers.utils import now
 logger = logging.getLogger(__name__)
 
 
-def send_signup_email(session, flow):
+def send_signup_email(session: Session, flow: SignupFlow) -> None:
     logger.info(f"Sending signup email to {flow.email=}:")
 
     # whether we've sent an email at all yet
@@ -37,7 +45,7 @@ def send_signup_email(session, flow):
         # if the verification email was sent and still is not expired, just resend the verification email
         signup_link = urls.signup_link(token=flow.email_token)
     else:
-        # otherwise send a fresh email with new token
+        # otherwise send a fresh email with a new token
         token = urlsafe_secure_token()
         flow.email_verified = False
         flow.email_token = token
@@ -55,13 +63,19 @@ def send_signup_email(session, flow):
     )
 
 
-def send_email_changed_confirmation_to_new_email(session, user):
+def send_email_changed_confirmation_to_new_email(session: Session, user: User) -> None:
     """
-    Send an email to user's new email address requesting confirmation of email change
+    Send an email to the user's new email address requesting confirmation of email change
     """
     logger.info(
-        f"Sending email changed (confirmation) email to {user=}'s new email address, (old email: {user.email}, new email: {user.new_email=})"
+        f"Sending email changed (confirmation) email to {user=}'s new email address, "
+        f"(old email: {user.email}, new email: {user.new_email=})"
     )
+
+    if not user.new_email_token:
+        raise ValueError(f"No new email token for {user.id}")
+    elif not user.new_email:
+        raise ValueError(f"No new email for {user.id}")
 
     confirmation_link = urls.change_email_link(confirmation_token=user.new_email_token)
     send_simple_pretty_email(
@@ -73,7 +87,7 @@ def send_email_changed_confirmation_to_new_email(session, user):
     )
 
 
-def send_content_report_email(session, content_report):
+def send_content_report_email(session: Session, content_report: ContentReport) -> None:
     logger.info("Sending content report email")
     email.enqueue_system_email(
         session,
@@ -83,7 +97,7 @@ def send_content_report_email(session, content_report):
     )
 
 
-def maybe_send_reference_report_email(session, reference):
+def maybe_send_reference_report_email(session: Session, reference: Reference) -> None:
     if reference.should_report:
         logger.info("Sending reference report email")
         email.enqueue_system_email(
@@ -94,7 +108,12 @@ def maybe_send_reference_report_email(session, reference):
         )
 
 
-def send_rate_limit_violation_report_email(session, rate_limit_violation: RateLimitViolation, events, threshold: int):
+def send_rate_limit_violation_report_email(
+    session: Session,
+    rate_limit_violation: RateLimitViolation,
+    events: dict[RateLimitAction, Sequence[RowMapping]],
+    threshold: int,
+) -> None:
     """Send a report email to the moderation team if a user exceeds a rate limit within a given time frame."""
     logger.info(
         f"Sending rate limit moderation email for user '{rate_limit_violation.user_id}' ({rate_limit_violation.action})"
@@ -108,14 +127,16 @@ def send_rate_limit_violation_report_email(session, rate_limit_violation: RateLi
             "user": user,
             "action": rate_limit_violation.action,
             "threshold": threshold,
-            "time_interval_str": RATE_LIMIT_INTERVAL_STRING,
+            "hours": RATE_LIMIT_HOURS,
             "is_hard_limit": rate_limit_violation.is_hard_limit,
             "events": events,
         },
     )
 
 
-def send_duplicate_strong_verification_email(session, old_attempt, new_attempt):
+def send_duplicate_strong_verification_email(
+    session: Session, old_attempt: StrongVerificationAttempt, new_attempt: StrongVerificationAttempt
+) -> None:
     logger.info("Sending duplicate SV email")
     email.enqueue_system_email(
         session,
@@ -130,7 +151,7 @@ def send_duplicate_strong_verification_email(session, old_attempt, new_attempt):
     )
 
 
-def maybe_send_contributor_form_email(session, form):
+def maybe_send_contributor_form_email(session: Session, form: ContributorForm) -> None:
     if form.should_notify:
         email.enqueue_system_email(
             session,
@@ -140,7 +161,7 @@ def maybe_send_contributor_form_email(session, form):
         )
 
 
-def send_event_community_invite_request_email(session, request: EventCommunityInviteRequest):
+def send_event_community_invite_request_email(session: Session, request: EventCommunityInviteRequest) -> None:
     email.enqueue_system_email(
         session,
         config["MODS_EMAIL_RECIPIENT"],
@@ -148,12 +169,12 @@ def send_event_community_invite_request_email(session, request: EventCommunityIn
         template_args={
             "event_link": urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
             "user_link": urls.user_link(username=request.user.username),
-            "view_link": urls.console_link(page="api/org.couchers.admin.Admin"),
+            "view_link": urls.console_link(page="admin/community-invites"),
         },
     )
 
 
-def send_account_deletion_report_email(session, reason):
+def send_account_deletion_report_email(session: Session, reason: str) -> None:
     logger.info("Sending account deletion report email")
     email.enqueue_system_email(
         session,
@@ -165,7 +186,7 @@ def send_account_deletion_report_email(session, reason):
     )
 
 
-def enforce_community_memberships():
+def enforce_community_memberships() -> None:
     """
     Go through all communities and make sure every user in the polygon is also a member
     """
@@ -196,7 +217,7 @@ def enforce_community_memberships():
                 session.commit()
 
 
-def enforce_community_memberships_for_user(session, user):
+def enforce_community_memberships_for_user(session: Session, user: User) -> None:
     """
     Adds a given user to all the communities they belong in based on their location.
     """

@@ -10,3 +10,4 @@
 pyrightconfig.json
 
 /private/
+.claude

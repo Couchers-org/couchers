@@ -1,2 +1,68 @@
 {
+  "any": "Herhangi biri",
+  "error_loading_users": "Kullanıcıları yüklemede hata oluştu",
+  "filter_dialog": {
+    "search_here_button": "Bu bölgede arama yap",
+    "desktop_title": "Filtreler",
+    "mobile_title": "Ara"
+  },
+  "last_active_options": {
+    "last_week": "Geçen hafta",
+    "last_month": "Geçen ay",
+    "last_3_months": "Son 3 ay",
+    "last_6_months": "Son 6 ay",
+    "last_year": "Geçen yıl"
+  },
+  "form": {
+    "location_field_label": "Yakın konum",
+    "missing_location_validation_error": "Bu filtreyi kullanmak için bir konum belirle",
+    "by_keyword_filter_label": "Anahtar kelime veya isimle",
+    "host_filters": {
+      "age": {
+        "field_label": "Ev Sahibi Yaşı",
+        "min_age": "Minimum yaş",
+        "max_age": "Maksimum yaş"
+      },
+      "hosting_status_field_label": "Ev sahipliği durumu",
+      "meetup_status_field_label": "Buluşma durumu",
+      "complete_profiles_label": "Profilleri tamamla",
+      "last_active_field_label": "En son aktiflik"
+    },
+    "accommodation_filters": {
+      "guests_field_label": "Misafir sayısı",
+      "sleeping_arrangement_filters": {
+        "private": {
+          "label": "Özel alan"
+        },
+        "shared_room": {
+          "label": "Paylaşılan oda"
+        },
+        "common": {
+          "label": "Ortak oda"
+        }
+      },
+      "title": "Konaklama filtreleri",
+      "sleeping_arrangement_label": "Uyku düzeni"
+    },
+    "empty_profile_filters": {
+      "title": "Boş profilleri göster"
+    },
+    "general_filters": {
+      "accepts_last_minute_requests": "Son dakika isteklerini kabul ediyor",
+      "has_strong_verification": "Kuvvetli doğrulamaya sahip"
+    },
+    "rules": {
+      "title": "Kurallar",
+      "alcohol_allowed": "Alkole izin var",
+      "kids_allowed": "Çocuklara izin var",
+      "pets_allowed": "Evcil hayvanlara izin var"
+    },
+    "keywords": {
+      "field_label": "İsim, anahtar kelimeler, veya kullanıcı adı",
+      "clear_field_action_a11y_label": "Aramayı temizle",
+      "search_this_keyword_a11y_label": "Bu anahtar kelimeyi ara"
+    },
+    "by_location_filter_label": "Konuma göre"
+  },
+  "choose_search_criteria": "Aramaya bir konum yaz veya bir filtre uygula."
 }

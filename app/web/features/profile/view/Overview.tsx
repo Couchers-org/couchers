@@ -1,3 +1,4 @@
+import { Edit } from "@mui/icons-material";
 import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -50,8 +51,9 @@ function LoggedInUserActions({ tab }: { tab: UserTab }) {
         component={Link}
         color="primary"
         href={routeToEditProfile(getEditTab(tab))}
+        startIcon={<Edit fontSize="small" sx={{ color: "common.white" }} />}
       >
-        {t("global:edit")}
+        {t("profile:edit")}
       </Button>
       <Button
         component={Link}
@@ -132,7 +134,7 @@ function DefaultActions({
   );
 }
 
-export interface OverviewProps {
+interface OverviewProps {
   setIsRequesting: (value: boolean) => void;
   tab: UserTab;
 }

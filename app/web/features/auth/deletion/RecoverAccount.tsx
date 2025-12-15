@@ -10,7 +10,7 @@ import { useRouter } from "next/router";
 import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-export interface RecoverAccountParams {
+interface RecoverAccountParams {
   token?: string;
 }
 

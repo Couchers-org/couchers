@@ -1,2 +1,34 @@
 {
+  "no_friends": "Arkadaş yok",
+  "add_friend": "Arkadaş ekle",
+  "blocked_list_title": "Engelli kullanıcılar",
+  "block_user": "Kullanıcıyı engelle",
+  "block_user_confirmation_dialog": {
+    "title": "{{name}}'yı engellemek istediğine emin misin?",
+    "message": "Bu kullanıcıdan gelecek mesaj ve istekler engellenecek, senin profilin, etkinliklerin ve yorumların bu kişiye görünmeyecek. Onu engellediğin hakkında bilgilendirilmeyecekler.",
+    "confirm": "Engelle"
+  },
+  "my_connections": "Bağlantılarım",
+  "friends": "Arkadaşlar",
+  "friend_list_title": "Arkadaşların",
+  "friend_requests": "Arkadaş istekleri",
+  "friend_requests_sent": "Yolladığın arkadaşlık istekleri",
+  "no_blocked_users": "Engelli kullanıcı yok",
+  "remove_friend_confirmation_dialog": {
+    "title": "Arkadaşı çıkar",
+    "confirm": "Çıkar",
+    "message": "{{name}}'yı çıkarmak istediğine emin misin? Bu eylemi geri alınamaz."
+  },
+  "unblock_user_confirmation_dialog": {
+    "confirm": "Engeli kaldır",
+    "title": "{{name}}'nın engelini kaldırmak istediğine emin misin?",
+    "message": "Engeli kaldırmak onların senin profilini görmesine ve sana istek yollamalarına izin verecek. Eğer daha önceden arkadaş idiyseniz, arkadaş listene geri dönecekler. Onlara haber verilmeyecek."
+  },
+  "unblock_user": "Kullanıcının engelini kaldır",
+  "no_friend_requests": "Bekleyen arkadaş isteği yok",
+  "accept": "Kabul Et",
+  "no_friend_requests_sent": "Bekleyen arkadaşlık isteği yok",
+  "remove_friend": "Arkadaşı çıkar",
+  "pending": "Bekliyor",
+  "decline": "Reddet"
 }

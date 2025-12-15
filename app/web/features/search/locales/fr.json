@@ -1,1 +1,96 @@
-{}
+{
+  "any": "Tous",
+  "filter_dialog": {
+    "desktop_title": "Filtres",
+    "mobile_title": "Rechercher",
+    "search_here_button": "Rechercher dans cet endroit"
+  },
+  "last_active_options": {
+    "last_week": "La semaine dernière",
+    "last_month": "Le mois dernier",
+    "last_3_months": "Les 3 derniers mois",
+    "last_6_months": "Les 6 derniers mois",
+    "last_year": "L'année dernière"
+  },
+  "form": {
+    "missing_location_validation_error": "Spécifiez un endroit pour utiliser ce filtre",
+    "location_field_label": "Proche de",
+    "keywords": {
+      "field_label": "Nom, mots clés, ou nom d'utilisateur",
+      "clear_field_action_a11y_label": "Effacer la recherche",
+      "search_this_keyword_a11y_label": "Rechercher ce mot-clé"
+    },
+    "by_keyword_filter_label": "Par mot-clé ou nom",
+    "host_filters": {
+      "last_active_field_label": "Dernière connexion",
+      "age": {
+        "field_label": "Âge de l'hôte",
+        "min_age": "Âge minimum",
+        "max_age": "Âge maximum"
+      },
+      "hosting_status_field_label": "Disponibilité pour héberger",
+      "meetup_status_field_label": "Disponibilité pour rencontres",
+      "complete_profiles_label": "Profils complets"
+    },
+    "accommodation_filters": {
+      "title": "Filtres d'hébergement",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "label": "Chambre partagée",
+          "description": " - par exemple chambre à coucher partagée avec son propre espace"
+        },
+        "private": {
+          "label": "Espace privé",
+          "description": " -par ex. propre chambre ou similaire"
+        },
+        "common": {
+          "label": "Pièce commune",
+          "description": " - par ex. canapé dans le salon"
+        }
+      },
+      "guests_field_label": "Nombre d'invités",
+      "sleeping_arrangement_label": "Situation du sommeil"
+    },
+    "empty_profile_filters": {
+      "title": "Afficher les profils vides"
+    },
+    "general_filters": {
+      "has_references": "A des références",
+      "accepts_last_minute_requests": "Accepte les demandes d'hébergement de dernière minute",
+      "has_strong_verification": "Dispose d'une vérification renforcée",
+      "same_gender_only_helper_text": "Seuls les membres fort.e.s et vérifié.e.s peuvent utiliser ce filtre.",
+      "get_strong_verification": "Obtenir une verification renforcée ici (c'est gratuit).",
+      "same_gender_only": "Afficher uniquement le même genre"
+    },
+    "rules": {
+      "alcohol_allowed": "Alcool permis",
+      "kids_allowed": "Enfants permis",
+      "smokes_at_home": "Fume à la maison",
+      "pets_allowed": "Animaux de compagnie permis",
+      "title": "Règles"
+    },
+    "submit_button_label": "Appliquer",
+    "search_filters": "Filtres de recherche",
+    "by_location_filter_label": "Par localisation",
+    "clear_filters": "Effacer tous les filtres"
+  },
+  "choose_search_criteria": "Saisissez un lieu ou appliquez un filtre pour rechercher.",
+  "error_loading_users": "Erreur lors du chargement des utilisateurs.trices",
+  "search_result": {
+    "no_user_result_message": "Aucun membre trouvé. Essayez d'enlever des filtres pour plus de résultats.",
+    "show_user_button_label": "Montrer {{name}} sur la carte",
+    "people_found_message": "{{currentRange}} de {{totalItems}} membres",
+    "few_results_suggestion": "Par défaut, les profils vides ou qui n'hébergent pas sont cachés.",
+    "include_empty_profiles_button": "Afficher tous les profils",
+    "missing_about_description": "{{name}} n'a pas encore rempli son profil"
+  },
+  "views": {
+    "list": "Liste",
+    "map_and_list": "Carte et liste",
+    "choose_map_view": "Choisir la vue carte"
+  },
+  "keyword": "Mot clé",
+  "location": "Localisation",
+  "search_this_area": "Rechercher dans cette zone",
+  "zoom_in_to_select_user": "Zoomer pour sélectionner un.e membre"
+}

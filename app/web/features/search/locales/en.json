@@ -1,4 +1,5 @@
 {
+  "any": "Any",
   "choose_search_criteria": "Type a location or apply a filter to search.",
   "error_loading_users": "Error loading users",
   "filter_dialog": {
@@ -7,7 +8,6 @@
     "mobile_title": "Search"
   },
   "last_active_options": {
-    "any": "Any",
     "last_week": "Last week",
     "last_month": "Last month",
     "last_3_months": "Last 3 months",
@@ -60,7 +60,10 @@
     "general_filters": {
       "accepts_last_minute_requests": "Accepts last minute requests",
       "has_strong_verification": "Has strong verification",
-      "has_references": "Has references"
+      "has_references": "Has references",
+      "same_gender_only": "Show same gender only",
+      "same_gender_only_helper_text": "Only strong verified users can use this filter.",
+      "get_strong_verification": "Get strong verified here (it's free)."
     },
     "rules": {
       "title": "Rules",

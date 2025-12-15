@@ -22,7 +22,7 @@ type PushNotificationPermissionResponse =
   | PushNotificationPermissionSuccessResponse
   | PushNotificationPermissionErrorResponse;
 
-export const onPushNotificationPermissionGranted =
+const onPushNotificationPermissionGranted =
   async (): Promise<PushNotificationPermissionResponse> => {
     try {
       // Check if service workers and push notifications are supported
@@ -93,7 +93,7 @@ export const onPushNotificationPermissionGranted =
     }
   };
 
-export const getCurrentSubscription = async () => {
+const getCurrentSubscription = async () => {
   let registration = await navigator.serviceWorker.getRegistration();
 
   if (!registration) {
@@ -109,14 +109,16 @@ export const getCurrentSubscription = async () => {
 };
 
 export const checkPushEnabled = async () => {
-  if ("serviceWorker" in navigator && "PushManager" in window) {
-    const existingPushSubscription = await getCurrentSubscription();
-    return (
-      Notification.permission === "granted" && existingPushSubscription !== null
-    );
-  } else {
-    throw new Error("Push notifications or service workers not supported");
+  // Return false if service workers or push notifications aren't supported
+  // (e.g., in mobile WebViews, Safari private browsing, etc.)
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    return false;
   }
+
+  const existingPushSubscription = await getCurrentSubscription();
+  return (
+    Notification.permission === "granted" && existingPushSubscription !== null
+  );
 };
 
 export const turnPushNotificationsOn = async (
@@ -165,30 +167,26 @@ export const useMarkAllNotificationsSeen = () => {
         queryKey: [listNotificationsQueryKey],
       });
 
-      const previousData =
-        queryClient.getQueryData<ListNotificationsRes.AsObject>([
-          listNotificationsQueryKey,
-        ]);
+      // Update all notification queries (both "all" and "unread" filters)
+      queryClient.setQueriesData<ListNotificationsRes.AsObject>(
+        {
+          queryKey: [listNotificationsQueryKey],
+        },
+        (previousData) => {
+          if (!previousData) return previousData;
 
-      const newData: ListNotificationsRes.AsObject = {
-        ...previousData,
-        notificationsList: previousData?.notificationsList
-          ? previousData.notificationsList.map((notification) => ({
-              ...notification,
-              isSeen: true,
-            }))
-          : [],
-        nextPageToken: previousData?.nextPageToken ?? "",
-      };
-
-      if (previousData) {
-        queryClient.setQueryData<ListNotificationsRes.AsObject>(
-          [listNotificationsQueryKey],
-          newData,
-        );
-      }
-
-      return { previousData };
+          return {
+            ...previousData,
+            notificationsList: previousData.notificationsList
+              ? previousData.notificationsList.map((notification) => ({
+                  ...notification,
+                  isSeen: true,
+                }))
+              : [],
+            nextPageToken: previousData.nextPageToken ?? "",
+          };
+        },
+      );
     },
     onError: (error) => {
       Sentry.captureException(error, {
@@ -220,31 +218,27 @@ export const useMarkSingleNotificationIsSeen = () => {
         queryKey: [listNotificationsQueryKey],
       });
 
-      const previousData =
-        queryClient.getQueryData<ListNotificationsRes.AsObject>([
-          listNotificationsQueryKey,
-        ]);
+      // Update all notification queries (both "all" and "unread" filters)
+      queryClient.setQueriesData<ListNotificationsRes.AsObject>(
+        {
+          queryKey: [listNotificationsQueryKey],
+        },
+        (previousData) => {
+          if (!previousData) return previousData;
 
-      const newData: ListNotificationsRes.AsObject = {
-        ...previousData,
-        notificationsList: previousData?.notificationsList
-          ? previousData.notificationsList.map((notification) =>
-              notification.notificationId === notificationId
-                ? { ...notification, isSeen: isSeen }
-                : notification,
-            )
-          : [],
-        nextPageToken: previousData?.nextPageToken ?? "",
-      };
-
-      if (previousData) {
-        queryClient.setQueryData<ListNotificationsRes.AsObject>(
-          [listNotificationsQueryKey],
-          newData,
-        );
-      }
-
-      return { previousData };
+          return {
+            ...previousData,
+            notificationsList: previousData.notificationsList
+              ? previousData.notificationsList.map((notification) =>
+                  notification.notificationId === notificationId
+                    ? { ...notification, isSeen: isSeen }
+                    : notification,
+                )
+              : [],
+            nextPageToken: previousData.nextPageToken ?? "",
+          };
+        },
+      );
     },
     onError: (error) => {
       Sentry.captureException(error, {

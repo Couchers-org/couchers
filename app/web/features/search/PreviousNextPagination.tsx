@@ -1,9 +1,9 @@
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Button, Stack, styled } from "@mui/material";
+import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { theme } from "theme";
 
 interface PreviousNextPaginationProps {

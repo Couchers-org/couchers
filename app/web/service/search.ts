@@ -40,6 +40,7 @@ export interface UserSearchFilters {
   pageSize?: number;
   selectedUserId?: number;
   sleepingArrangement?: SleepingArrangementOptions[];
+  sameGenderOnly?: boolean;
   smokesAtHome?: boolean | undefined;
 }
 
@@ -62,6 +63,7 @@ function constructUserSearchReq(
     showEmptyProfile,
     selectedUserId,
     sleepingArrangement,
+    sameGenderOnly,
     smokesAtHome,
   }: UserSearchFilters,
   pageToken = "",
@@ -155,6 +157,10 @@ function constructUserSearchReq(
 
   if (smokesAtHome !== undefined) {
     req.setSmokesAtHome(new BoolValue().setValue(smokesAtHome));
+  }
+
+  if (sameGenderOnly !== undefined) {
+    req.setSameGenderOnly(sameGenderOnly);
   }
 
   return req;

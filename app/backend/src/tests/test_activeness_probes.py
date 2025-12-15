@@ -4,16 +4,16 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import exists
 
-from couchers import errors
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, MeetupStatus
+from couchers.proto import api_pb2, jail_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import now
-from proto import api_pb2, jail_pb2
-from tests.test_fixtures import (  # noqa  # noqa
+from tests.test_fixtures import (  # noqa
     api_session,
     db,
     email_fields,
@@ -122,7 +122,7 @@ def test_activeness_probes_disabled(db, push_collector):
             assert not res.jailed
 
         with session_scope() as session:
-            assert not session.execute(select(ActivenessProbe)).scalar_one_or_none()
+            assert not session.execute(select(exists(ActivenessProbe))).scalar_one()
 
 
 def test_activeness_probes_expiry(db, push_collector):
@@ -153,8 +153,8 @@ def test_activeness_probes_expiry(db, push_collector):
     process_jobs()
 
     with session_scope() as session:
-        probe = session.execute(select(ActivenessProbe)).scalar_one()
-        assert probe.response == ActivenessProbeStatus.expired
+        response = session.execute(select(ActivenessProbe.response)).scalar_one()
+        assert response == ActivenessProbeStatus.expired
 
     with real_jail_session(token) as jail:
         # no such probe
@@ -163,7 +163,7 @@ def test_activeness_probes_expiry(db, push_collector):
                 jail_pb2.RespondToActivenessProbeReq(response=jail_pb2.ACTIVENESS_PROBE_RESPONSE_STILL_ACTIVE)
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.PROBE_NOT_FOUND
+        assert e.value.details() == "You don't currently have an activeness probe."
 
         res = jail.JailInfo(empty_pb2.Empty())
         assert not res.has_pending_activeness_probe

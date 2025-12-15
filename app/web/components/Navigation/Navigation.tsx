@@ -14,6 +14,7 @@ import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
+import { DonationBanner } from "features/donations/DonationBanner";
 import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
 import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import useNotifications from "features/useNotifications";
@@ -44,6 +45,7 @@ import {
 } from "routes";
 import { theme } from "theme";
 
+import { useIsNativeEmbed } from "../../platform/nativeLink";
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
 import NavButton from "./NavButton";
 import ReportDialog from "./ReportDialog";
@@ -222,10 +224,6 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   top: 0,
   boxShadow: "none",
   backgroundColor: theme.palette.common.white,
-  paddingRight: theme.spacing(2),
-  [theme.breakpoints.up("md")]: {
-    paddingRight: 0,
-  },
 }));
 
 const StyledFlexbox = styled("div")(({ theme }) => ({
@@ -258,13 +256,13 @@ const StyledDrawerTitle = styled("div")(({ theme }) => ({
 }));
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
+  justifyContent: "space-between",
+  paddingLeft: 0,
+  paddingRight: theme.spacing(2),
   [theme.breakpoints.up("md")]: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
   },
-  justifyContent: "space-between",
-  paddingLeft: 0,
-  paddingRight: 0,
 }));
 
 const StyledNav = styled("div")(({ theme }) => ({
@@ -282,6 +280,7 @@ const StyledMenuContainer = styled("div")(({ theme }) => ({
 export default function Navigation() {
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isLoginPage = router.pathname === loginRoute;
 
   const [isMounted, setIsMounted] = useState(false);
   const [open, setOpen] = useState(false);
@@ -290,9 +289,19 @@ export default function Navigation() {
   const { data: pingData } = useNotifications();
   const { authState } = useAuthContext();
 
+  const isNativeEmbed = useIsNativeEmbed();
+
   useEffect(() => setIsMounted(true), []);
 
   const { t } = useTranslation(GLOBAL);
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
 
   const drawerItems = (
     <div>
@@ -338,7 +347,7 @@ export default function Navigation() {
             padding: theme.spacing(1, 4),
           }}
         >
-          <LanguagePickerSelect />
+          <LanguagePickerSelect onSelect={handleDrawerClose} />
         </ListItem>
       </List>
     </div>
@@ -348,14 +357,6 @@ export default function Navigation() {
     () => loggedInMenuDropDown(t, pingData),
     [t, pingData],
   );
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
 
   return (
     <StyledAppBar position="sticky" color="inherit">
@@ -441,19 +442,21 @@ export default function Navigation() {
               }}
             >
               {!isMobile && <LanguagePickerSelect />}
-              <Button
-                variant="outlined"
-                size={isMobile ? "medium" : "large"}
-                sx={{
-                  fontSize: "1.3rem",
-                  borderRadius: theme.spacing(1),
-                  border: `1.5px solid ${theme.palette.primary.main}`,
-                }}
-                onClick={() => router.push(loginRoute)}
-              >
-                {t("login")}
-              </Button>
-              {!isMobile && (
+              {!isLoginPage && (
+                <Button
+                  variant="outlined"
+                  size={isMobile ? "medium" : "large"}
+                  sx={{
+                    fontSize: "1.3rem",
+                    borderRadius: theme.spacing(1),
+                    border: `1.5px solid ${theme.palette.primary.main}`,
+                  }}
+                  onClick={() => router.push(loginRoute)}
+                >
+                  {t("login")}
+                </Button>
+              )}
+              {isLoginPage && (
                 <Button
                   variant="contained"
                   size={isMobile ? "medium" : "large"}
@@ -468,7 +471,8 @@ export default function Navigation() {
         </StyledMenuContainer>
       </StyledToolbar>
       <GlobalMessage />
-      <PushNotificationBanner />
+      {authState.authenticated && <DonationBanner />}
+      {!isNativeEmbed && authState.authenticated && <PushNotificationBanner />}
     </StyledAppBar>
   );
 }

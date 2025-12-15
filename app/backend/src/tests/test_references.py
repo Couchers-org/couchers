@@ -4,35 +4,43 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import update
+from sqlalchemy.orm import Session
 
-from couchers import errors
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     Conversation,
+    FriendRelationship,
+    FriendStatus,
     HostRequest,
     HostRequestStatus,
     Message,
     MessageType,
+    ModerationObjectType,
     Reference,
     ReferenceType,
     User,
 )
+from couchers.moderation.utils import create_moderation
+from couchers.proto import conversations_pb2, references_pb2, requests_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now, to_aware_datetime, today
-from proto import conversations_pb2, references_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     account_session,
     db,
     email_fields,
     generate_user,
+    make_friends,
     make_user_block,
     mock_notification_email,
+    moderator,
     push_collector,
     references_session,
     requests_session,
     testconfig,
 )
+from tests.test_requests import valid_request_text
 
 
 @pytest.fixture(autouse=True)
@@ -75,6 +83,14 @@ def create_host_request(
     )
     session.add(message)
     session.flush()
+
+    moderation_state = create_moderation(
+        session,
+        ModerationObjectType.HOST_REQUEST,
+        conversation.id,
+        surfer_user_id,
+    )
+
     host_request = HostRequest(
         conversation_id=conversation.id,
         surfer_user_id=surfer_user_id,
@@ -88,6 +104,7 @@ def create_host_request(
         hosting_city="Test City",
         hosting_location=create_coordinate(0, 0),
         hosting_radius=10,
+        moderation_state_id=moderation_state.id,
     )
     session.add(host_request)
     session.commit()
@@ -117,12 +134,22 @@ def create_host_request_by_date(
         )
     )
 
+    # Unused for now, but every host request must have a message.
     message = Message(
         time=from_date + timedelta(seconds=2),
         conversation_id=conversation.id,
         author_id=surfer_user_id,
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
+    )
+    session.add(message)
+    session.flush()
+
+    moderation_state = create_moderation(
+        session,
+        ModerationObjectType.HOST_REQUEST,
+        conversation.id,
+        surfer_user_id,
     )
 
     host_request = HostRequest(
@@ -137,6 +164,7 @@ def create_host_request_by_date(
         hosting_city="Test City",
         hosting_location=create_coordinate(0, 0),
         hosting_radius=10,
+        moderation_state_id=moderation_state.id,
     )
 
     session.add(host_request)
@@ -184,7 +212,7 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
     return reference.id, actual_host_request_id
 
 
-def create_friend_reference(session, from_user_id, to_user_id, reference_age):
+def create_friend_reference(session: Session, from_user_id: int, to_user_id: int, reference_age: timedelta) -> int:
     reference = Reference(
         time=now() - reference_age,
         from_user_id=from_user_id,
@@ -348,7 +376,7 @@ def test_ListPagination(db):
                 references_pb2.ListReferencesReq(reference_type_filter=[references_pb2.REFERENCE_TYPE_SURFED])
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.NEED_TO_SPECIFY_AT_LEAST_ONE_USER
+        assert e.value.details() == "You need to specify at least one user."
 
     with references_session(token5) as api:
         # from user1 to user2
@@ -381,9 +409,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # ban user2
     with session_scope() as session:
-        user2 = session.execute(select(User).where(User.username == user2.username)).scalar_one()
-        user2.is_banned = True
-        session.commit()
+        session.execute(update(User).where(User.username == user2.username).values(is_banned=True))
 
     # reference to and from banned user is hidden
     with references_session(token1) as api:
@@ -394,9 +420,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # delete user3
     with session_scope() as session:
-        user3 = session.execute(select(User).where(User.username == user3.username)).scalar_one()
-        user3.is_deleted = True
-        session.commit()
+        session.execute(update(User).where(User.username == user3.username).values(is_deleted=True))
 
     # doesn't change; references to and from deleted users remain
     with references_session(token1) as api:
@@ -410,6 +434,9 @@ def test_WriteFriendReference(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
+
+    # Make user1 and user2 friends
+    make_friends(user1, user2)
 
     with references_session(token1) as api:
         # can write normal friend reference
@@ -456,7 +483,7 @@ def test_WriteFriendReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.REFERENCE_ALREADY_GIVEN
+        assert e.value.details() == "Reference already given."
 
     with references_session(token2) as api:
         # can't write a reference about yourself
@@ -470,7 +497,7 @@ def test_WriteFriendReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.CANT_REFER_SELF
+        assert e.value.details() == "You can't refer yourself."
 
 
 def test_WriteFriendReference_with_empty_text(db):
@@ -483,12 +510,15 @@ def test_WriteFriendReference_with_empty_text(db):
                 references_pb2.WriteFriendReferenceReq(to_user_id=user2.id, text="  ", was_appropriate=True, rating=0.8)
             )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.REFERENCE_NO_TEXT
+    assert e.value.details() == "The text of a reference must not be empty"
 
 
 def test_WriteFriendReference_with_private_text(db, push_collector):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
+
+    # Make users friends
+    make_friends(user1, user2)
 
     with references_session(token1) as api:
         with patch("couchers.email.queue_email") as mock1:
@@ -517,7 +547,67 @@ def test_WriteFriendReference_with_private_text(db, push_collector):
     )
 
 
-def test_host_request_states_references(db):
+def test_WriteFriendReference_requires_friendship(db):
+    """Test that users must be friends to write friend references"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    # Try to write friend reference without being friends
+    with references_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(
+                    to_user_id=user2.id,
+                    text="A test reference",
+                    was_appropriate=True,
+                    rating=0.5,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You can only write friend references for confirmed friends."
+
+    # Now make them friends
+    make_friends(user1, user2)
+
+    # Should now be able to write a reference
+    with references_session(token1) as api:
+        res = api.WriteFriendReference(
+            references_pb2.WriteFriendReferenceReq(
+                to_user_id=user2.id,
+                text="A test reference",
+                was_appropriate=True,
+                rating=0.5,
+            )
+        )
+        assert res.from_user_id == user1.id
+        assert res.to_user_id == user2.id
+
+    # Test the unfriending scenario: delete the friendship
+    with session_scope() as session:
+        # Change the friendship status to cancelled (simulating unfriending)
+        session.execute(
+            update(FriendRelationship)
+            .where(FriendRelationship.from_user_id == user1.id, FriendRelationship.to_user_id == user2.id)
+            .values(status=FriendStatus.cancelled)
+        )
+
+    # Try to write another friend reference after unfriending
+    # (Note: This assumes user1 didn't already write a reference, or we test with user2 writing to user1)
+    with references_session(token2) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.WriteFriendReference(
+                references_pb2.WriteFriendReferenceReq(
+                    to_user_id=user1.id,
+                    text="Another test reference",
+                    was_appropriate=True,
+                    rating=0.8,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You can only write friend references for confirmed friends."
+
+
+def test_host_request_states_references(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -532,6 +622,13 @@ def test_host_request_states_references(db):
         hr4 = create_host_request(session, user2.id, user1.id, timedelta(days=10), status=HostRequestStatus.confirmed)
         # can't write ref
         hr5 = create_host_request(session, user2.id, user1.id, timedelta(days=10), status=HostRequestStatus.cancelled)
+
+    # Approve host requests so both participants can see them
+    moderator.approve_host_request(hr1)
+    moderator.approve_host_request(hr2)
+    moderator.approve_host_request(hr3)
+    moderator.approve_host_request(hr4)
+    moderator.approve_host_request(hr5)
 
     with references_session(token1) as api:
         # pending
@@ -565,7 +662,7 @@ def test_host_request_states_references(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+        assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
 
         # confirmed
         with pytest.raises(grpc.RpcError) as e:
@@ -578,7 +675,7 @@ def test_host_request_states_references(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+        assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
 
         # cancelled
         with pytest.raises(grpc.RpcError) as e:
@@ -591,10 +688,10 @@ def test_host_request_states_references(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+        assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
 
 
-def test_WriteHostRequestReference(db):
+def test_WriteHostRequestReference(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -613,6 +710,14 @@ def test_WriteHostRequestReference(db):
         hr5 = create_host_request(session, user4.id, user1.id, timedelta(days=7), host_reason_didnt_meetup="")
         # we will indicate we didn't meet
         hr6 = create_host_request(session, user4.id, user1.id, timedelta(days=8))
+
+    # Approve host requests so both participants can see them
+    moderator.approve_host_request(hr1)
+    moderator.approve_host_request(hr2)
+    moderator.approve_host_request(hr3)
+    moderator.approve_host_request(hr4)
+    moderator.approve_host_request(hr5)
+    moderator.approve_host_request(hr6)
 
     with references_session(token3) as api:
         # can write for this one
@@ -637,7 +742,7 @@ def test_WriteHostRequestReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+        assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
 
         # can't write reference that's more than 2 weeks old
         with pytest.raises(grpc.RpcError) as e:
@@ -650,7 +755,7 @@ def test_WriteHostRequestReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_FOR_REQUEST
+        assert e.value.details() == "You can't write a reference for that host request, or it wasn't found."
 
         # can write for this one
         api.WriteHostRequestReference(
@@ -673,7 +778,7 @@ def test_WriteHostRequestReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.REFERENCE_ALREADY_GIVEN
+        assert e.value.details() == "Reference already given."
 
         # can write for this one too
         api.WriteHostRequestReference(
@@ -696,7 +801,10 @@ def test_WriteHostRequestReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_INDICATED_DIDNT_MEETUP
+        assert (
+            e.value.details()
+            == "You can't write a reference for that host request because you indicated that you didn't meet up."
+        )
 
         # can't write reference for a HR that we indicate we didn't show up for
         api.HostRequestIndicateDidntMeetup(
@@ -716,7 +824,10 @@ def test_WriteHostRequestReference(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_WRITE_REFERENCE_INDICATED_DIDNT_MEETUP
+        assert (
+            e.value.details()
+            == "You can't write a reference for that host request because you indicated that you didn't meet up."
+        )
 
     with references_session(token4) as api:
         # they can still write one
@@ -765,7 +876,99 @@ def test_WriteHostRequestReference_private_text(db, push_collector):
     )
 
 
-def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
+def test_GetHostRequestReferenceStatus(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    # user1 writes; RPC returns has_given True
+    with session_scope() as session:
+        hr1 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
+    moderator.approve_host_request(hr1)
+    with references_session(token1) as api:
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr1, text="Great stay!", was_appropriate=True, rating=0.9
+            )
+        )
+        res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr1))
+        assert res.has_given is True
+
+    # false: no reference written yet
+    with session_scope() as session:
+        hr2 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
+    moderator.approve_host_request(hr2)
+    with references_session(token1) as api:
+        res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr2))
+        assert res.has_given is False
+
+    # false: other user wrote a reference
+    with session_scope() as session:
+        hr3 = create_host_request(session, user1.id, user2.id, timedelta(days=7))
+    moderator.approve_host_request(hr3)
+    with references_session(token2) as api:
+        api.WriteHostRequestReference(
+            references_pb2.WriteHostRequestReferenceReq(
+                host_request_id=hr3, text="Lovely guest!", was_appropriate=True, rating=0.95
+            )
+        )
+    with references_session(token1) as api:
+        res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr3))
+        assert res.has_given is False
+
+    # false: nonexistent host request id
+    with references_session(token1) as api:
+        res = api.GetHostRequestReferenceStatus(references_pb2.GetHostRequestReferenceStatusReq(host_request_id=999999))
+        assert res.has_given is False
+
+    # Additional status flags
+    with session_scope() as session:
+        # expired (too old)
+        hr_expired = create_host_request(session, user2.id, user1.id, timedelta(days=20))
+        # current user (host) indicated didn't meet up
+        hr_didnt_stay_host = create_host_request(
+            session, user2.id, user1.id, timedelta(days=10), host_reason_didnt_meetup=""
+        )
+        # other user (surfer) indicated didn't meet up
+        hr_other_didnt_stay = create_host_request(
+            session, user2.id, user1.id, timedelta(days=10), surfer_reason_didnt_meetup="No show"
+        )
+
+    moderator.approve_host_request(hr_expired)
+    moderator.approve_host_request(hr_didnt_stay_host)
+    moderator.approve_host_request(hr_other_didnt_stay)
+
+    # expired: is_expired true, can_write false, didnt_stay false
+    with references_session(token1) as api:
+        res = api.GetHostRequestReferenceStatus(
+            references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr_expired)
+        )
+        assert res.has_given is False
+        assert res.is_expired is True
+        assert res.can_write is False
+        assert res.didnt_stay is False
+
+    # current user indicated didn't meet up: didnt_stay true, can_write false, not expired
+    with references_session(token1) as api:
+        res = api.GetHostRequestReferenceStatus(
+            references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr_didnt_stay_host)
+        )
+        assert res.has_given is False
+        assert res.is_expired is False
+        assert res.didnt_stay is True
+        assert res.can_write is False
+
+    # other party indicated didn't meet up: didnt_stay false, can_write true (within window), not expired
+    with references_session(token1) as api:
+        res = api.GetHostRequestReferenceStatus(
+            references_pb2.GetHostRequestReferenceStatusReq(host_request_id=hr_other_didnt_stay)
+        )
+        assert res.has_given is False
+        assert res.is_expired is False
+        assert res.didnt_stay is False
+        assert res.can_write is True
+
+
+def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -804,19 +1007,19 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         create_friend_reference(session, user1.id, user2.id, timedelta(days=1))
 
         # user5 deleted, reference won't show up as pending
-        create_host_request(session, user1.id, user5.id, timedelta(days=5))
+        hr_user5 = create_host_request(session, user1.id, user5.id, timedelta(days=5))
 
         # user6 blocked, reference won't show up as pending
-        create_host_request(session, user1.id, user6.id, timedelta(days=5))
+        hr_user6 = create_host_request(session, user1.id, user6.id, timedelta(days=5))
 
         # user7 blocking, reference won't show up as pending
-        create_host_request(session, user1.id, user7.id, timedelta(days=5))
+        hr_user7 = create_host_request(session, user1.id, user7.id, timedelta(days=5))
 
         # hosted but we indicated we didn't meet up, no reason; should not show up
-        create_host_request(session, user8.id, user1.id, timedelta(days=11), host_reason_didnt_meetup="")
+        hr_user8 = create_host_request(session, user8.id, user1.id, timedelta(days=11), host_reason_didnt_meetup="")
 
         # surfed but we indicated we didn't meet up, has reason; should not show up
-        create_host_request(
+        hr_user9 = create_host_request(
             session, user1.id, user9.id, timedelta(days=10), surfer_reason_didnt_meetup="They never showed up!"
         )
 
@@ -828,6 +1031,20 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
             session, user11.id, user1.id, timedelta(days=3), surfer_reason_didnt_meetup="They never showed up!!"
         )
 
+    # Approve all host requests so both participants can see them
+    moderator.approve_host_request(hr1)
+    moderator.approve_host_request(hr2)
+    moderator.approve_host_request(hr3)
+    moderator.approve_host_request(hr4)
+    moderator.approve_host_request(hr5)
+    moderator.approve_host_request(hr_user5)
+    moderator.approve_host_request(hr_user6)
+    moderator.approve_host_request(hr_user7)
+    moderator.approve_host_request(hr_user8)
+    moderator.approve_host_request(hr_user9)
+    moderator.approve_host_request(hr6)
+    moderator.approve_host_request(hr7)
+
     refresh_materialized_views_rapid(None)
 
     with references_session(token1) as api:
@@ -835,19 +1052,19 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
         with pytest.raises(grpc.RpcError) as e:
             api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user5.id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
 
         # can't write reference for blocking user
         with pytest.raises(grpc.RpcError) as e:
             api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user7.id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
 
         # can't write reference for blocked user
         with pytest.raises(grpc.RpcError) as e:
             api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user6.id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
 
         # can't write anything to myself
         res = api.AvailableWriteReferences(references_pb2.AvailableWriteReferencesReq(to_user_id=user1.id))
@@ -946,7 +1163,7 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db):
 
 
 @pytest.mark.parametrize("hs", ["host", "surfer"])
-def test_regression_disappearing_refs(db, hs):
+def test_regression_disappearing_refs(db, hs, moderator):
     """
     Roughly the reproduction steps are:
     * Send a host request, then have both host and surfer accept
@@ -961,15 +1178,18 @@ def test_regression_disappearing_refs(db, hs):
     with requests_session(token1) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=req_start, to_date=req_end, text="Test request"
+                host_user_id=user2.id, from_date=req_start, to_date=req_end, text=valid_request_text()
             )
         )
         host_request_id = res.host_request_id
+
+        moderator.approve_host_request(host_request_id)
+
         assert (
             api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
             .host_requests[0]
             .latest_message.text.text
-            == "Test request"
+            == valid_request_text()
         )
 
     with requests_session(token2) as api:

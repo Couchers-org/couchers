@@ -8,6 +8,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import BetaFlag from "components/BetaFlag";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -192,9 +193,12 @@ const SearchResultListContent = ({
             marginBottom: theme.spacing(2),
           }}
         >
-          <Typography variant="body2">
-            {t("search:search_result.few_results_suggestion")}
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <BetaFlag />
+            <Typography variant="body2">
+              {t("search:search_result.few_results_suggestion")}
+            </Typography>
+          </Box>
           <Button
             variant="contained"
             size="small"

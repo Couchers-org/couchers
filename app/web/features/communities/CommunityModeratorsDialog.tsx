@@ -19,7 +19,7 @@ interface CommunityModeratorsDialogProps {
   open?: boolean;
 }
 
-export const DIALOG_LABEL_ID = "moderator-title";
+const DIALOG_LABEL_ID = "moderator-title";
 
 export default function CommunityModeratorsDialog({
   community,

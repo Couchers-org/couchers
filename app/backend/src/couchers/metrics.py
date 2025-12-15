@@ -1,5 +1,7 @@
 import threading
+from collections.abc import Callable
 from datetime import timedelta
+from typing import Any
 
 from opentelemetry import trace
 from prometheus_client import (
@@ -14,62 +16,75 @@ from prometheus_client import (
 )
 from prometheus_client.registry import CollectorRegistry
 from sqlalchemy.sql import distinct, func
+from sqlalchemy.sql.selectable import Select
 
 from couchers.db import session_scope
 from couchers.models import BackgroundJob, EventOccurrenceAttendee, HostingStatus, HostRequest, Message, Reference, User
+from couchers.models.moderation import (
+    ModerationAction,
+    ModerationObjectType,
+    ModerationQueueItem,
+    ModerationState,
+    ModerationTrigger,
+    ModerationVisibility,
+)
 from couchers.sql import couchers_select as select
 
-trace = trace.get_tracer(__name__)
+tracer = trace.get_tracer(__name__)
 
-registry = CollectorRegistry()
-multiprocess.MultiProcessCollector(registry)
+registry: CollectorRegistry = CollectorRegistry()
+multiprocess.MultiProcessCollector(registry)  # type: ignore[no-untyped-call]
 
-_INF = float("inf")
+_INF: float = float("inf")
 
-jobs_duration_histogram = Histogram(
+jobs_duration_histogram: Histogram = Histogram(
     "couchers_background_jobs_seconds",
     "Durations of background jobs",
     labelnames=["job", "status", "attempt", "exception"],
 )
 
 
-def observe_in_jobs_duration_histogram(job_type, job_state, try_count, exception_name, duration_s):
+def observe_in_jobs_duration_histogram(
+    job_type: str, job_state: str, try_count: int, exception_name: str, duration_s: float
+) -> None:
     jobs_duration_histogram.labels(job_type, job_state, str(try_count), exception_name).observe(duration_s)
 
 
-jobs_queued_histogram = Histogram(
+jobs_queued_histogram: Histogram = Histogram(
     "couchers_background_jobs_queued_seconds",
     "Time background job spent queued before being picked up",
     buckets=(0.01, 0.05, 0.1, 0.5, 1.0, 2.5, 5.0, 10, 20, 30, 40, 50, 60, 90, 120, 300, 600, 1800, 3600, _INF),
 )
 
 
-servicer_duration_histogram = Histogram(
+servicer_duration_histogram: Histogram = Histogram(
     "couchers_servicer_duration_seconds",
     "Durations of processing gRPC calls",
     labelnames=["method", "logged_in", "code", "exception"],
 )
 
 
-def observe_in_servicer_duration_histogram(method, user_id, status_code, exception_type, duration_s):
+def observe_in_servicer_duration_histogram(
+    method: str, user_id: Any, status_code: str, exception_type: str, duration_s: float
+) -> None:
     servicer_duration_histogram.labels(method, user_id is not None, status_code, exception_type).observe(duration_s)
 
 
 # list of gauge names and function to execute to set value to
 # the python prometheus client does not support Gauge.set_function, so instead we hack around it and set each gauge just
 # before collection with this
-_set_hacky_gauges_funcs = []
+_set_hacky_gauges_funcs: list[tuple[Gauge, Callable[[], Any]]] = []
 
 
-def _make_gauge_from_query(name, description, statement):
+def _make_gauge_from_query(name: str, description: str, statement: Select[Any]) -> Gauge:
     """
     Given a name, description and statement that is a sqlalchemy statement, creates a gauge from it
 
     statement should be a sqlalchemy SELECT statement that returns a single number
     """
 
-    def f():
-        with trace.start_as_current_span(f"metric.{name}"):
+    def f() -> Any:
+        with tracer.start_as_current_span(f"metric.{name}"):
             with session_scope() as session:
                 return session.execute(statement).scalar_one()
 
@@ -78,7 +93,7 @@ def _make_gauge_from_query(name, description, statement):
     return gauge
 
 
-active_users_gauges = [
+active_users_gauges: list[Gauge] = [
     _make_gauge_from_query(
         f"couchers_active_users_{name}",
         f"Number of active users in the last {description}",
@@ -94,65 +109,65 @@ active_users_gauges = [
     ]
 ]
 
-users_gauge = _make_gauge_from_query(
+users_gauge: Gauge = _make_gauge_from_query(
     "couchers_users", "Total number of users", select(func.count()).select_from(User).where(User.is_visible)
 )
 
-man_gauge = _make_gauge_from_query(
+man_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_man",
     "Total number of users with gender 'Man'",
     select(func.count()).select_from(User).where(User.is_visible).where(User.gender == "Man"),
 )
 
-woman_gauge = _make_gauge_from_query(
+woman_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_woman",
     "Total number of users with gender 'Woman'",
     select(func.count()).select_from(User).where(User.is_visible).where(User.gender == "Woman"),
 )
 
-nonbinary_gauge = _make_gauge_from_query(
+nonbinary_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_nonbinary",
     "Total number of users with gender 'Non-binary'",
     select(func.count()).select_from(User).where(User.is_visible).where(User.gender == "Non-binary"),
 )
 
-can_host_gauge = _make_gauge_from_query(
+can_host_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_can_host",
     "Total number of users with hosting status 'can_host'",
     select(func.count()).select_from(User).where(User.is_visible).where(User.hosting_status == HostingStatus.can_host),
 )
 
-cant_host_gauge = _make_gauge_from_query(
+cant_host_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_cant_host",
     "Total number of users with hosting status 'cant_host'",
     select(func.count()).select_from(User).where(User.is_visible).where(User.hosting_status == HostingStatus.cant_host),
 )
 
-maybe_gauge = _make_gauge_from_query(
+maybe_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_maybe",
     "Total number of users with hosting status 'maybe'",
     select(func.count()).select_from(User).where(User.is_visible).where(User.hosting_status == HostingStatus.maybe),
 )
 
-completed_profile_gauge = _make_gauge_from_query(
+completed_profile_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_completed_profile",
     "Total number of users with a completed profile",
     select(func.count()).select_from(User).where(User.is_visible).where(User.has_completed_profile),
 )
 
-completed_my_home_gauge = _make_gauge_from_query(
+completed_my_home_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_completed_my_home",
     "Total number of users with a completed my home section",
     select(func.count()).select_from(User).where(User.is_visible).where(User.has_completed_my_home),
 )
 
-sent_message_gauge = _make_gauge_from_query(
+sent_message_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_sent_message",
     "Total number of users who have sent a message",
     (select(func.count(distinct(Message.author_id))).join(User, User.id == Message.author_id).where(User.is_visible)),
 )
 
-sent_request_gauge = _make_gauge_from_query(
+sent_request_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_sent_request",
     "Total number of users who have sent a host request",
     (
@@ -162,7 +177,7 @@ sent_request_gauge = _make_gauge_from_query(
     ),
 )
 
-has_reference_gauge = _make_gauge_from_query(
+has_reference_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_has_reference",
     "Total number of users who have a reference",
     (
@@ -172,7 +187,7 @@ has_reference_gauge = _make_gauge_from_query(
     ),
 )
 
-rsvpd_to_event_gauge = _make_gauge_from_query(
+rsvpd_to_event_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_rsvpd_to_event",
     "Total number of users who have RSVPd to an event",
     (
@@ -182,136 +197,133 @@ rsvpd_to_event_gauge = _make_gauge_from_query(
     ),
 )
 
-background_jobs_ready_to_execute_gauge = _make_gauge_from_query(
+background_jobs_ready_to_execute_gauge: Gauge = _make_gauge_from_query(
     "couchers_background_jobs_ready_to_execute",
     "Total number of background jobs ready to execute",
     select(func.count()).select_from(BackgroundJob).where(BackgroundJob.ready_for_retry),
 )
 
-background_jobs_serialization_errors_counter = Counter(
+background_jobs_serialization_errors_counter: Counter = Counter(
     "couchers_background_jobs_serialization_errors_total",
     "Number of times a bg worker has a serialization error",
 )
 
-background_jobs_no_jobs_counter = Counter(
+background_jobs_no_jobs_counter: Counter = Counter(
     "couchers_background_jobs_no_jobs_total",
     "Number of times a bg worker tries to grab a job but there is none",
 )
 
-background_jobs_got_job_counter = Counter(
+background_jobs_got_job_counter: Counter = Counter(
     "couchers_background_jobs_got_job_total",
     "Number of times a bg worker grabbed a job",
 )
 
 
-signup_initiations_counter = Counter(
+signup_initiations_counter: Counter = Counter(
     "couchers_signup_initiations_total",
     "Number of initiated signups",
 )
-signup_completions_counter = Counter(
+signup_completions_counter: Counter = Counter(
     "couchers_signup_completions_total",
     "Number of completed signups",
     labelnames=["gender"],
 )
-signup_time_histogram = Histogram(
+signup_time_histogram: Histogram = Histogram(
     "couchers_signup_time_seconds",
     "Time taken for a user to sign up",
     labelnames=["gender"],
     buckets=(30, 60, 90, 120, 180, 240, 300, 360, 420, 480, 540, 600, 900, 1200, 1800, 3600, 7200, _INF),
 )
 
-logins_counter = Counter(
+logins_counter: Counter = Counter(
     "couchers_logins_total",
     "Number of logins",
     labelnames=["gender"],
 )
 
-password_reset_initiations_counter = Counter(
+password_reset_initiations_counter: Counter = Counter(
     "couchers_password_reset_initiations_total",
     "Number of password reset initiations",
 )
-password_reset_completions_counter = Counter(
+password_reset_completions_counter: Counter = Counter(
     "couchers_password_reset_completions_total",
     "Number of password reset completions",
 )
 
-account_deletion_initiations_counter = Counter(
+account_deletion_initiations_counter: Counter = Counter(
     "couchers_account_deletion_initiations_total",
     "Number of account deletion initiations",
     labelnames=["gender"],
 )
-account_deletion_completions_counter = Counter(
+account_deletion_completions_counter: Counter = Counter(
     "couchers_account_deletion_completions_total",
     "Number of account deletion completions",
     labelnames=["gender"],
 )
-account_recoveries_counter = Counter(
+account_recoveries_counter: Counter = Counter(
     "couchers_account_recoveries_total",
     "Number of account recoveries",
     labelnames=["gender"],
 )
 
-strong_verification_initiations_counter = Counter(
+strong_verification_initiations_counter: Counter = Counter(
     "couchers_strong_verification_initiations_total",
     "Number of strong verification initiations",
     labelnames=["gender"],
 )
-strong_verification_completions_counter = Counter(
+strong_verification_completions_counter: Counter = Counter(
     "couchers_strong_verification_completions_total",
     "Number of strong verification completions",
 )
-strong_verification_data_deletions_counter = Counter(
+strong_verification_data_deletions_counter: Counter = Counter(
     "couchers_strong_verification_data_deletions_total",
     "Number of strong verification data deletions",
     labelnames=["gender"],
 )
 
-host_requests_sent_counter = Counter(
+host_requests_sent_counter: Counter = Counter(
     "couchers_host_requests_total",
     "Number of host requests sent",
     labelnames=["from_gender", "to_gender"],
 )
-host_request_responses_counter = Counter(
+host_request_responses_counter: Counter = Counter(
     "couchers_host_requests_responses_total",
     "Number of responses to host requests",
     labelnames=["responder_gender", "other_gender", "response_type"],
 )
 
-sent_messages_counter = Counter(
+sent_messages_counter: Counter = Counter(
     "couchers_sent_messages_total",
     "Number of messages sent",
     labelnames=["gender", "message_type"],
 )
 
 
-push_notification_counter = Counter(
+push_notification_counter: Counter = Counter(
     "couchers_push_notification_total",
-    "Number of push notifications sent",
+    "Number of push notification delivery attempts",
+    labelnames=["platform", "outcome"],
 )
-push_notification_disabled_counter = Counter(
-    "couchers_push_notification_disabled_total",
-    "Number of push notifications that were disabled due to failure to send",
-)
-emails_counter = Counter(
+emails_counter: Counter = Counter(
     "couchers_emails_total",
     "Number of emails sent",
 )
 
 
-recaptchas_assessed_counter = Counter(
+recaptchas_assessed_counter: Counter = Counter(
     "couchers_recaptchas_assessed_total",
     "Number of times a recaptcha assessment is created",
     labelnames=["action"],
 )
 
-recaptcha_score_histogram = Histogram(
+recaptcha_score_histogram: Histogram = Histogram(
     "couchers_recaptcha_score",
     "Score of recaptcha assessments",
     labelnames=["action"],
     buckets=tuple(x / 20 for x in range(0, 21)),
 )
 
-host_request_first_response_histogram = Histogram(
+host_request_first_response_histogram: Histogram = Histogram(
     "couchers_host_request_first_response_seconds",
     "Response time to host requests",
     labelnames=["host_gender", "surfer_gender", "response_type"],
@@ -338,7 +350,7 @@ host_request_first_response_histogram = Histogram(
         _INF,
     ),
 )
-account_age_on_host_request_create_histogram = Histogram(
+account_age_on_host_request_create_histogram: Histogram = Histogram(
     "couchers_account_age_on_host_request_create_histogram_seconds",
     "Age of account sending a host request",
     labelnames=["surfer_gender", "host_gender"],
@@ -373,10 +385,158 @@ account_age_on_host_request_create_histogram = Histogram(
 )
 
 
-def create_prometheus_server(port):
+# =============================================================================
+# Moderation metrics
+# =============================================================================
+
+# Gauges: Queue lengths
+moderation_queue_length_gauge: Gauge = _make_gauge_from_query(
+    "couchers_moderation_queue_length",
+    "Total number of unresolved items in the moderation queue",
+    select(func.count()).select_from(ModerationQueueItem).where(ModerationQueueItem.resolved_by_log_id.is_(None)),
+)
+
+moderation_queue_length_by_trigger_gauges: list[Gauge] = [
+    _make_gauge_from_query(
+        f"couchers_moderation_queue_length_{trigger.name.lower()}",
+        f"Number of unresolved items in the moderation queue with trigger {trigger.name}",
+        select(func.count())
+        .select_from(ModerationQueueItem)
+        .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+        .where(ModerationQueueItem.trigger == trigger),
+    )
+    for trigger in ModerationTrigger
+]
+
+moderation_queue_length_by_object_type_gauges: list[Gauge] = [
+    _make_gauge_from_query(
+        f"couchers_moderation_queue_length_{object_type.name.lower()}",
+        f"Number of unresolved items in the moderation queue for {object_type.name}",
+        select(func.count())
+        .select_from(ModerationQueueItem)
+        .join(ModerationState, ModerationQueueItem.moderation_state_id == ModerationState.id)
+        .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+        .where(ModerationState.object_type == object_type),
+    )
+    for object_type in ModerationObjectType
+]
+
+# Gauges: Items in each visibility state by object type
+moderation_visibility_gauges: list[Gauge] = [
+    _make_gauge_from_query(
+        f"couchers_moderation_items_{object_type.name.lower()}_{visibility.name.lower()}",
+        f"Number of {object_type.name} items with visibility {visibility.name}",
+        select(func.count())
+        .select_from(ModerationState)
+        .where(ModerationState.object_type == object_type)
+        .where(ModerationState.visibility == visibility),
+    )
+    for object_type in ModerationObjectType
+    for visibility in ModerationVisibility
+]
+
+# Counters: Moderation actions taken
+moderation_actions_counter: Counter = Counter(
+    "couchers_moderation_actions_total",
+    "Number of moderation actions taken",
+    labelnames=["action", "object_type"],
+)
+
+
+def observe_moderation_action(action: ModerationAction, object_type: ModerationObjectType) -> None:
+    moderation_actions_counter.labels(action.name, object_type.name).inc()
+
+
+# Counters: Visibility state transitions
+moderation_visibility_transitions_counter: Counter = Counter(
+    "couchers_moderation_visibility_transitions_total",
+    "Number of visibility state transitions",
+    labelnames=["from_visibility", "to_visibility", "object_type"],
+)
+
+
+def observe_moderation_visibility_transition(
+    from_visibility: ModerationVisibility, to_visibility: ModerationVisibility, object_type: ModerationObjectType
+) -> None:
+    moderation_visibility_transitions_counter.labels(from_visibility.name, to_visibility.name, object_type.name).inc()
+
+
+# Counters: Auto-approved items
+moderation_auto_approved_counter: Counter = Counter(
+    "couchers_moderation_auto_approved_total",
+    "Number of items that were auto-approved",
+)
+
+
+# Counters: Queue items created
+moderation_queue_items_created_counter: Counter = Counter(
+    "couchers_moderation_queue_items_created_total",
+    "Number of moderation queue items created",
+    labelnames=["trigger", "object_type"],
+)
+
+
+def observe_moderation_queue_item_created(trigger: ModerationTrigger, object_type: ModerationObjectType) -> None:
+    moderation_queue_items_created_counter.labels(trigger.name, object_type.name).inc()
+
+
+# Counters: Queue items resolved
+moderation_queue_items_resolved_counter: Counter = Counter(
+    "couchers_moderation_queue_items_resolved_total",
+    "Number of moderation queue items resolved",
+    labelnames=["trigger", "action", "object_type"],
+)
+
+
+def observe_moderation_queue_item_resolved(
+    trigger: ModerationTrigger, action: ModerationAction, object_type: ModerationObjectType
+) -> None:
+    moderation_queue_items_resolved_counter.labels(trigger.name, action.name, object_type.name).inc()
+
+
+# Histogram: Time to resolve queue items
+moderation_queue_resolution_time_histogram: Histogram = Histogram(
+    "couchers_moderation_queue_resolution_seconds",
+    "Time taken to resolve moderation queue items",
+    labelnames=["trigger", "action", "object_type"],
+    buckets=(
+        0.1,
+        0.25,
+        0.5,
+        1,
+        2.5,
+        5,
+        10,
+        30,
+        60,
+        5 * 60,
+        15 * 60,
+        30 * 60,
+        3_600,
+        2 * 3_600,
+        6 * 3_600,
+        12 * 3_600,
+        86_400,
+        2 * 86_400,
+        3 * 86_400,
+        7 * 86_400,
+        14 * 86_400,
+        30 * 86_400,
+        _INF,
+    ),
+)
+
+
+def observe_moderation_queue_resolution_time(
+    trigger: ModerationTrigger, action: ModerationAction, object_type: ModerationObjectType, duration_s: float
+) -> None:
+    moderation_queue_resolution_time_histogram.labels(trigger.name, action.name, object_type.name).observe(duration_s)
+
+
+def create_prometheus_server(port: int) -> Any:
     """custom start method to fix problem descrbied in https://github.com/prometheus/client_python/issues/155"""
 
-    def app(environ, start_response):
+    def app(environ: Any, start_response: Any) -> Any:
         # set hacky gauges
         for gauge, f in _set_hacky_gauges_funcs:
             gauge.set(f())
@@ -385,7 +545,7 @@ def create_prometheus_server(port):
         start_response("200 OK", [("Content-type", CONTENT_TYPE_LATEST), ("Content-Length", str(len(data)))])
         return [data]
 
-    httpd = exposition.make_server(
+    httpd = exposition.make_server(  # type: ignore[attr-defined]
         "", port, app, exposition.ThreadingWSGIServer, handler_class=exposition._SilentHandler
     )
     t = threading.Thread(target=httpd.serve_forever)

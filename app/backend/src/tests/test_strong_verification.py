@@ -6,11 +6,11 @@ from urllib.parse import urlencode
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import update
 from sqlalchemy.sql import or_
 
 import couchers.jobs.handlers
 import couchers.servicers.account
-from couchers import errors
 from couchers.config import config
 from couchers.crypto import asym_decrypt, b64encode_unpadded
 from couchers.db import session_scope
@@ -24,9 +24,9 @@ from couchers.models import (
     StrongVerificationCallbackEvent,
     User,
 )
+from couchers.proto import account_pb2, admin_pb2, api_pb2
+from couchers.proto.google.api import httpbody_pb2
 from couchers.sql import couchers_select as select
-from proto import account_pb2, admin_pb2, api_pb2
-from proto.google.api import httpbody_pb2
 from tests.test_fixtures import (  # noqa
     account_session,
     api_session,
@@ -100,9 +100,11 @@ def do_and_check_sv(
             json={
                 "callback_url": "http://localhost:8888/iris/webhook",
                 "face_verification": False,
+                "passport_only": True,
                 "reference": ANY,
             },
             timeout=10,
+            verify="/etc/ssl/certs/ca-certificates.crt",
         )
         reference_data = mock.call_args.kwargs["json"]["reference"]
         verification_attempt_token = res.verification_attempt_token
@@ -196,6 +198,7 @@ def do_and_check_sv(
         auth=("dummy_pubkey", "dummy_secret"),
         json={"id": verification_id},
         timeout=10,
+        verify="/etc/ssl/certs/ca-certificates.crt",
     )
 
     with account_session(token) as account:
@@ -316,8 +319,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
 
     # wrong dob = no badge
     with session_scope() as session:
-        user_ = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        user_.birthdate = date(1988, 1, 2)
+        session.execute(update(User).where(User.id == user.id).values(birthdate=date(1988, 1, 2)))
 
     update_badges(empty_pb2.Empty())
     refresh_materialized_views_rapid(None)
@@ -335,9 +337,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
 
     # bad gender-sex correspondence = no badge
     with session_scope() as session:
-        user_ = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        user_.birthdate = date(1988, 1, 1)
-        user_.gender = "Woman"
+        session.execute(update(User).where(User.id == user.id).values(birthdate=date(1988, 1, 1), gender="Woman"))
 
     update_badges(empty_pb2.Empty())
     refresh_materialized_views_rapid(None)
@@ -361,8 +361,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
 
     # back to should have a badge
     with session_scope() as session:
-        user_ = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        user_.gender = "Man"
+        session.execute(update(User).where(User.id == user.id).values(gender="Man"))
 
     update_badges(empty_pb2.Empty())
     refresh_materialized_views_rapid(None)
@@ -668,7 +667,7 @@ def test_strong_verification_disabled(db):
         with pytest.raises(grpc.RpcError) as e:
             account.InitiateStrongVerification(empty_pb2.Empty())
         assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert e.value.details() == errors.STRONG_VERIFICATION_DISABLED
+        assert e.value.details() == "Strong verification is currently disabled."
 
 
 def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_collector):
@@ -790,6 +789,7 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
         auth=("dummy_pubkey", "dummy_secret"),
         json={"id": 5731012934821984},
         timeout=10,
+        verify="/etc/ssl/certs/ca-certificates.crt",
     )
 
     with session_scope() as session:
@@ -940,6 +940,7 @@ def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collecto
         auth=("dummy_pubkey", "dummy_secret"),
         json={"id": 5731012934821984},
         timeout=10,
+        verify="/etc/ssl/certs/ca-certificates.crt",
     )
 
     with session_scope() as session:
@@ -1013,6 +1014,7 @@ def test_strong_verification_non_passport(db, monkeypatch, push_collector):
         auth=("dummy_pubkey", "dummy_secret"),
         json={"id": 5731012934821984},
         timeout=10,
+        verify="/etc/ssl/certs/ca-certificates.crt",
     )
 
     with session_scope() as session:

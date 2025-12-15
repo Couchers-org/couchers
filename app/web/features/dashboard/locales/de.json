@@ -36,7 +36,7 @@
   "upcoming_events": "Anstehende Events",
   "member_count": "{{count}} Mitglied",
   "member_count_plural": "{{count}} Mitglieder",
-  "profile_summary_edit": "Bearbeiten",
+  "profile_summary_edit": "Profil bearbeiten",
   "profile_summary_view": "Mein Profil anzeigen",
   "profile_mobile_summary_view": "Zu Profil gehen",
   "show_map": "Karte anzeigen",
@@ -47,5 +47,15 @@
   "community_missing": "Fehlt dein Land oder deine Stadt? Nutze <1>dieses Formular</1>, um die Community anzufragen!",
   "communities_welcome_title": "Willkommen bei Communitys",
   "communities_intro": "Um Menschen auf der ganzen Welt dabei zu helfen, Events, Diskussionen und Treffen zu organisieren, haben wir Community-Seiten erstellt, die unten aufgeführt sind. <strong>Du wurdest basierend auf deinem Ort automatisch zu einigen Communitys hinzugefügt, aber du kannst jeder Community beitreten!</strong> Deine Communitys sind auf deinem Dashboard aufgeführt.",
-  "community_builder": "Möchtest du Botschafter für deine Community sein und ihr Wachstum unterstützen? Werde ein <1>Community Builder!</1>"
+  "community_builder": "Möchtest du Botschafter für deine Community sein und ihr Wachstum unterstützen? Werde ein <1>Community Builder!</1>",
+  "attendees_count": "{{count}} Teilnehmende Person",
+  "attendees_count_plural": "{{count}} Teilnehmende",
+  "events_empty_state": "Aktuell gibt es keine Events. Warum <0>erstellst</0> du nicht eins ✨?",
+  "find_your_community": "Finde deine Community",
+  "browse_all_communities": "Alle Communitys durchsuchen",
+  "show_all_communities": "Alle Communitys anzeigen",
+  "hide_all_communities": "Alle Communitys verstecken",
+  "find_your_community_intro": "Unten kannst du alle Community-Seiten durchsuchen, die bisher existieren. Fehlt dein Land oder deine Stadt? <1>Nutze dieses Formular</1>, um die Community anzufordern!",
+  "find_your_community_intro_simplified": "Suche nach deiner Community oder stöbere unten. <1>Deine ist nicht dabei? Fordere sie an!</1>",
+  "browse_communities_text": "Klicke auf einen Regionsnamen, um die anderen Communitys innerhalb dieser Region unten anzuzeigen. Klicke auf den Link, um zur Community-Seite dieser Stadt oder Region zu gelangen."
 }

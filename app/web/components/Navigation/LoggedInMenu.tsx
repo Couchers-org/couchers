@@ -1,12 +1,5 @@
 import { NotificationsOutlined } from "@mui/icons-material";
-import {
-  Badge,
-  styled,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
-import MuiLink from "@mui/material/Link";
+import { Box, styled, Tooltip, Typography, useMediaQuery } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import IconButton from "components/IconButton";
@@ -30,7 +23,7 @@ import { theme } from "theme";
 
 import { AccessibleDialogProps } from "../Dialog";
 
-export type LoggedInMenuLinkItem = {
+type LoggedInMenuLinkItem = {
   type: "link";
   name: string;
   hasBottomDivider?: boolean;
@@ -39,7 +32,7 @@ export type LoggedInMenuLinkItem = {
   externalLink?: boolean;
 };
 
-export type LoggedInMenuDialogItem = {
+type LoggedInMenuDialogItem = {
   type: "dialog";
   name: string;
   hasBottomDivider?: boolean;
@@ -73,18 +66,19 @@ const StyledMenuButton = styled(Button)(({ theme }) => ({
     opacity: 0.8,
     backgroundColor: theme.palette.grey[300],
   },
+  [theme.breakpoints.down("lg")]: {
+    padding: theme.spacing(0.75),
+  },
 }));
 
 const StyledAvatar = styled(Avatar)(({ theme }) => ({
   height: "2rem",
   width: "2rem",
   marginLeft: theme.spacing(1),
-}));
-
-const StyledBadge = styled(Badge)(({ theme }) => ({
-  "& .MuiBadge-badge": {
-    right: "-4px",
-    top: "4px",
+  [theme.breakpoints.down("lg")]: {
+    height: "1.75rem",
+    width: "1.75rem",
+    marginLeft: theme.spacing(0.75),
   },
 }));
 
@@ -114,7 +108,7 @@ const styledMenuItem = <C extends React.ComponentType<React.ComponentProps<C>>>(
   }));
 };
 
-const StyledMenuItemLink = styledMenuItem(MuiLink);
+const StyledMenuItemLink = styledMenuItem(Link);
 const StyledMenuItemDialog = styledMenuItem(Button);
 
 function LinkMenuItemView({
@@ -126,23 +120,26 @@ function LinkMenuItemView({
 }: LoggedInMenuLinkItem & { closeMenu: () => unknown }) {
   const linkContent = (
     <span style={{ display: "flex", alignItems: "center" }}>
-      {notificationCount ? (
-        <StyledBadge color="primary" variant="dot">
-          <Typography noWrap>{name}</Typography>
-        </StyledBadge>
-      ) : (
-        <Typography noWrap>{name}</Typography>
-      )}
-
-      {notificationCount ? (
-        <Typography
-          noWrap
-          variant="subtitle2"
-          sx={{ color: theme.palette.grey[500], fontWeight: "bold" }}
+      <Typography noWrap>{name}</Typography>
+      {!!notificationCount && (
+        <Box
+          sx={{
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.common.white,
+            borderRadius: theme.spacing(10),
+            marginLeft: theme.spacing(0.5),
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "0.75rem",
+            fontWeight: 600,
+            height: theme.spacing(2),
+            width: theme.spacing(2),
+          }}
         >
-          {`${notificationCount} unseen`}
-        </Typography>
-      ) : null}
+          {notificationCount > 99 ? "99+" : notificationCount}
+        </Box>
+      )}
     </span>
   );
 
@@ -160,6 +157,7 @@ function LinkMenuItemView({
       ) : (
         <Link
           href={route}
+          onClick={closeMenu}
           style={{
             width: "100%",
             color: theme.palette.text.primary,
@@ -175,30 +173,30 @@ function LinkMenuItemView({
 
 function DialogMenuItemView({
   name,
-  dialogComponent: DialogComponent,
-  dialogLabel,
-}: LoggedInMenuDialogItem & { closeMenu: () => unknown }) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  closeMenu,
+  onOpenDialog,
+}: Omit<LoggedInMenuDialogItem, "dialogComponent" | "dialogLabel"> & {
+  closeMenu: () => unknown;
+  onOpenDialog: () => void;
+}) {
   return (
-    <>
-      <StyledMenuItemDialog
-        onClick={() => {
-          setIsDialogOpen(true);
-        }}
-      >
-        {name}
-      </StyledMenuItemDialog>
-      <DialogComponent
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        aria-labelledby={dialogLabel}
-      />
-    </>
+    <StyledMenuItemDialog
+      onClick={() => {
+        onOpenDialog();
+        closeMenu();
+      }}
+    >
+      {name}
+    </StyledMenuItemDialog>
   );
 }
 
-function MenuItemView(props: LoggedInMenuItem & { closeMenu: () => unknown }) {
+function MenuItemView(
+  props: LoggedInMenuItem & {
+    closeMenu: () => unknown;
+    onOpenDialog?: () => void;
+  },
+) {
   return (
     <MenuItem
       hasNotification={props.type === "link" && !!props.notificationCount}
@@ -207,7 +205,11 @@ function MenuItemView(props: LoggedInMenuItem & { closeMenu: () => unknown }) {
       {props.type === "link" ? (
         <LinkMenuItemView {...props} closeMenu={props.closeMenu} />
       ) : (
-        <DialogMenuItemView {...props} closeMenu={props.closeMenu} />
+        <DialogMenuItemView
+          {...props}
+          closeMenu={props.closeMenu}
+          onOpenDialog={props.onOpenDialog!}
+        />
       )}
     </MenuItem>
   );
@@ -237,6 +239,8 @@ export default function LoggedInMenu({
     useState<HTMLButtonElement | null>(null);
   const isNotificationsFeedOpen = Boolean(notificationsAnchorEl);
 
+  const [openDialogName, setOpenDialogName] = useState<string | null>(null);
+
   const handleNotificationsFeedOpen = (
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
@@ -246,6 +250,11 @@ export default function LoggedInMenu({
   const handleNotificationsFeedClose = () => {
     setNotificationsAnchorEl(null);
   };
+
+  // Find dialog items ("Report a problem")
+  const dialogItems = items.filter(
+    (item): item is LoggedInMenuDialogItem => item.type === "dialog",
+  );
 
   return (
     <>
@@ -262,13 +271,15 @@ export default function LoggedInMenu({
               aria-expanded={isNotificationsFeedOpen ? "true" : undefined}
               sx={{
                 backgroundColor: theme.palette.grey[300],
+                width: { xs: 36, md: 40 },
+                height: { xs: 36, md: 40 },
                 "&:hover": {
                   opacity: 0.8,
                   backgroundColor: theme.palette.grey[300],
                 },
               }}
             >
-              <NotificationsOutlined />
+              <NotificationsOutlined sx={{ fontSize: { xs: 20, md: 24 } }} />
             </IconButton>
           </NotificationBadge>
         </NotificationMenuItemWrapper>
@@ -284,7 +295,12 @@ export default function LoggedInMenu({
         onClick={() => setMenuOpen((prevMenuOpen: boolean) => !prevMenuOpen)}
         ref={menuRef}
       >
-        <MenuIcon sx={{ color: theme.palette.text.primary }} />
+        <MenuIcon
+          sx={{
+            color: theme.palette.text.primary,
+            fontSize: { xs: 20, lg: 24 },
+          }}
+        />
         <StyledAvatar user={user} isProfileLink={false} />
       </StyledMenuButton>
       <StyledMenu
@@ -304,9 +320,25 @@ export default function LoggedInMenu({
             closeMenu={() => {
               setMenuOpen(false);
             }}
+            onOpenDialog={
+              item.type === "dialog"
+                ? () => setOpenDialogName(item.name)
+                : undefined
+            }
           />
         ))}
       </StyledMenu>
+      {dialogItems.map((item) => {
+        const DialogComponent = item.dialogComponent;
+        return (
+          <DialogComponent
+            key={item.name}
+            open={openDialogName === item.name}
+            onClose={() => setOpenDialogName(null)}
+            aria-labelledby={item.dialogLabel}
+          />
+        );
+      })}
     </>
   );
 }

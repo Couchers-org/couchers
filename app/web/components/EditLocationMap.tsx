@@ -6,6 +6,7 @@ import TextField from "components/TextField";
 import { SignupAccountInputs } from "features/auth/signup/AccountForm";
 import { EditProfileFormValues } from "features/profile/edit/EditProfile";
 import { Feature, GeoJsonProperties, Geometry } from "geojson";
+import { useTranslation } from "i18n";
 import {
   GeoJSONSource,
   LngLat,
@@ -15,7 +16,6 @@ import {
 } from "maplibre-gl";
 import React, { useRef, useState } from "react";
 import { ControllerRenderProps, FieldError } from "react-hook-form";
-import { useTranslation } from "react-i18next";
 
 import { GLOBAL } from "../i18n/namespaces";
 

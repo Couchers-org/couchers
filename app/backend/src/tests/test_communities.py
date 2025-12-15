@@ -2,10 +2,11 @@ from datetime import timedelta
 
 import grpc
 import pytest
+from geoalchemy2 import WKBElement
 from google.protobuf import wrappers_pb2
+from sqlalchemy.orm import Session
 
-from couchers import errors
-from couchers.db import session_scope
+from couchers.db import is_user_in_node_geography, session_scope
 from couchers.materialized_views import refresh_materialized_views
 from couchers.models import (
     Cluster,
@@ -18,10 +19,10 @@ from couchers.models import (
     SignupFlow,
     Thread,
 )
+from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
 from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
-from proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
 from tests.test_auth import get_session_cookie_tokens
 from tests.test_fixtures import (  # noqa
     auth_api_session,
@@ -32,7 +33,6 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     get_user_id_and_token,
     pages_session,
-    recreate_database,
     testconfig,
 )
 
@@ -48,12 +48,12 @@ def _(testconfig):
 # mostly fine
 
 
-def create_1d_polygon(lb, ub):
+def create_1d_polygon(lb: int, ub: int) -> WKBElement:
     # given a lower bound and upper bound on x, creates the given interval
     return create_polygon_lat_lng([[lb, 0], [lb, 2], [ub, 2], [ub, 0], [lb, 0]])
 
 
-def create_1d_point(x):
+def create_1d_point(x: int) -> WKBElement:
     return create_coordinate(x, 1)
 
 
@@ -197,25 +197,20 @@ def create_event(token, community_id, group_id, title, content, start_td):
         )
 
 
-def get_community_id(session, community_name):
-    return (
-        session.execute(select(Cluster).where(Cluster.is_official_cluster).where(Cluster.name == community_name))
-        .scalar_one()
-        .parent_node_id
-    )
+def get_community_id(session: Session, community_name: str) -> int:
+    return session.execute(
+        select(Cluster.parent_node_id).where(Cluster.is_official_cluster).where(Cluster.name == community_name)
+    ).scalar_one()
 
 
-def get_group_id(session, group_name):
-    return (
-        session.execute(select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.name == group_name))
-        .scalar_one()
-        .id
-    )
+def get_group_id(session: Session, group_name: str) -> int:
+    return session.execute(
+        select(Cluster.id).where(~Cluster.is_official_cluster).where(Cluster.name == group_name)
+    ).scalar_one()
 
 
 @pytest.fixture(scope="class")
-def testing_communities(testconfig):
-    recreate_database()
+def testing_communities(db_class, testconfig):
     user1, token1 = generate_user(username="user1", geom=create_1d_point(1), geom_radius=0.1)
     user2, token2 = generate_user(username="user2", geom=create_1d_point(2), geom_radius=0.1)
     user3, token3 = generate_user(username="user3", geom=create_1d_point(3), geom_radius=0.1)
@@ -293,7 +288,9 @@ class TestCommunities:
     @staticmethod
     def test_GetCommunity(testing_communities):
         with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
             user2_id, token2 = get_user_id_and_token(session, "user2")
+            user6_id, token6 = get_user_id_and_token(session, "user6")
             w_id = get_community_id(session, "Global")
             c1_id = get_community_id(session, "Country 1")
             c1r1_id = get_community_id(session, "Country 1, Region 1")
@@ -317,14 +314,14 @@ class TestCommunities:
             assert res.parents[0].community.description == "Description for Global"
             assert res.main_page.type == pages_pb2.PAGE_TYPE_MAIN_PAGE
             assert res.main_page.slug == "main-page-for-the-global-community"
-            assert res.main_page.last_editor_user_id == 1
-            assert res.main_page.creator_user_id == 1
+            assert res.main_page.last_editor_user_id == user1_id
+            assert res.main_page.creator_user_id == user1_id
             assert res.main_page.owner_community_id == w_id
             assert res.main_page.title == "Main page for the Global community"
             assert res.main_page.content == "There is nothing here yet..."
             assert not res.main_page.can_edit
             assert not res.main_page.can_moderate
-            assert res.main_page.editor_user_ids == [1]
+            assert res.main_page.editor_user_ids == [user1_id]
             assert res.member
             assert not res.admin
             assert res.member_count == 8
@@ -362,14 +359,14 @@ class TestCommunities:
             assert res.parents[3].community.description == "Description for Country 1, Region 1, City 1"
             assert res.main_page.type == pages_pb2.PAGE_TYPE_MAIN_PAGE
             assert res.main_page.slug == "main-page-for-the-country-1-region-1-city-1-community"
-            assert res.main_page.last_editor_user_id == 2
-            assert res.main_page.creator_user_id == 2
+            assert res.main_page.last_editor_user_id == user2_id
+            assert res.main_page.creator_user_id == user2_id
             assert res.main_page.owner_community_id == c1r1c1_id
             assert res.main_page.title == "Main page for the Country 1, Region 1, City 1 community"
             assert res.main_page.content == "There is nothing here yet..."
             assert res.main_page.can_edit
             assert res.main_page.can_moderate
-            assert res.main_page.editor_user_ids == [2]
+            assert res.main_page.editor_user_ids == [user2_id]
             assert res.member
             assert res.admin
             assert res.member_count == 3
@@ -397,14 +394,14 @@ class TestCommunities:
             assert res.parents[1].community.description == "Description for Country 2"
             assert res.main_page.type == pages_pb2.PAGE_TYPE_MAIN_PAGE
             assert res.main_page.slug == "main-page-for-the-country-2-community"
-            assert res.main_page.last_editor_user_id == 6
-            assert res.main_page.creator_user_id == 6
+            assert res.main_page.last_editor_user_id == user6_id
+            assert res.main_page.creator_user_id == user6_id
             assert res.main_page.owner_community_id == c2_id
             assert res.main_page.title == "Main page for the Country 2 community"
             assert res.main_page.content == "There is nothing here yet..."
             assert not res.main_page.can_edit
             assert not res.main_page.can_moderate
-            assert res.main_page.editor_user_ids == [6]
+            assert res.main_page.editor_user_ids == [user6_id]
             assert not res.member
             assert not res.admin
             assert res.member_count == 2
@@ -582,7 +579,7 @@ class TestCommunities:
             with pytest.raises(grpc.RpcError) as err:
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == errors.NODE_MODERATE_PERMISSION_DENIED
+            assert err.value.details() == "You're not allowed to moderate that community"
 
         with communities_session(token4) as api:
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
@@ -591,12 +588,12 @@ class TestCommunities:
             with pytest.raises(grpc.RpcError) as err:
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user8_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == errors.USER_NOT_MEMBER
+            assert err.value.details() == "That user is not in the community."
 
             with pytest.raises(grpc.RpcError) as err:
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user5_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == errors.USER_ALREADY_ADMIN
+            assert err.value.details() == "That user is already an admin."
 
             api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
@@ -617,7 +614,7 @@ class TestCommunities:
             with pytest.raises(grpc.RpcError) as err:
                 api.AddAdmin(communities_pb2.AddAdminReq(community_id=node_id, user_id=user2_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == errors.NODE_MODERATE_PERMISSION_DENIED
+            assert err.value.details() == "You're not allowed to moderate that community"
 
         with communities_session(token4) as api:
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
@@ -626,12 +623,12 @@ class TestCommunities:
             with pytest.raises(grpc.RpcError) as err:
                 api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user8_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == errors.USER_NOT_MEMBER
+            assert err.value.details() == "That user is not in the community."
 
             with pytest.raises(grpc.RpcError) as err:
                 api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user2_id))
             assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-            assert err.value.details() == errors.USER_NOT_ADMIN
+            assert err.value.details() == "That user is not an admin."
 
             api.RemoveAdmin(communities_pb2.RemoveAdminReq(community_id=node_id, user_id=user5_id))
             res = api.ListAdmins(communities_pb2.ListAdminsReq(community_id=node_id))
@@ -780,12 +777,22 @@ class TestCommunities:
                 assert d.thread.num_responses == 0
 
     @staticmethod
-    def test_node_contained_user_ids_association_proxy(testing_communities):
+    def test_is_user_in_node_geography(testing_communities):
         with session_scope() as session:
             c1_id = get_community_id(session, "Country 1")
-            node = session.execute(select(Node).where(Node.id == c1_id)).scalar_one_or_none()
-            assert node.contained_user_ids == [1, 2, 3, 4, 5]
-            assert len(node.contained_user_ids) == len(node.contained_users)
+
+            user1_id, _ = get_user_id_and_token(session, "user1")
+            user2_id, _ = get_user_id_and_token(session, "user2")
+            user3_id, _ = get_user_id_and_token(session, "user3")
+            user4_id, _ = get_user_id_and_token(session, "user4")
+            user5_id, _ = get_user_id_and_token(session, "user5")
+
+            # All these users should be in Country 1's geography
+            assert is_user_in_node_geography(session, user1_id, c1_id)
+            assert is_user_in_node_geography(session, user2_id, c1_id)
+            assert is_user_in_node_geography(session, user3_id, c1_id)
+            assert is_user_in_node_geography(session, user4_id, c1_id)
+            assert is_user_in_node_geography(session, user5_id, c1_id)
 
     @staticmethod
     def test_ListEvents(testing_communities):
@@ -830,6 +837,187 @@ class TestCommunities:
             ]
             assert not res.next_page_token
 
+    @staticmethod
+    def test_empty_query_aborts(testing_communities):
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+
+        with communities_session(token) as api:
+            with pytest.raises(grpc.RpcError) as err:
+                api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="   "))
+            assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert err.value.details() == "Query must be at least 3 characters long."
+
+    @staticmethod
+    def test_min_length_lt_3_aborts(testing_communities):
+        """
+        len(query) < 3 → return INVALID_ARGUMENT: query_too_short
+        """
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+
+        with communities_session(token) as api:
+            with pytest.raises(grpc.RpcError) as err:
+                api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="zz", page_size=5))
+            assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+            assert err.value.details() == "Query must be at least 3 characters long."
+
+    @staticmethod
+    def test_typo_matches_existing_name(testing_communities):
+        """
+        Word_similarity should match a simple typo in community name.
+        """
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+            c1_id = get_community_id(session, "Country 1")
+
+        with communities_session(token) as api:
+            res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="Coutri 1", page_size=5))
+            ids = [c.community_id for c in res.communities]
+            assert c1_id in ids
+
+    @staticmethod
+    def test_word_similarity_matches_partial_word(testing_communities):
+        """
+        Query 'city' should match 'Country 1, Region 1, City 1'.
+        """
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+            city1_id = get_community_id(session, "Country 1, Region 1, City 1")  # переименовал для ясности
+
+        with communities_session(token) as api:
+            res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="city", page_size=5))
+            ids = [c.community_id for c in res.communities]
+            assert city1_id in ids
+
+    @staticmethod
+    def test_results_sorted_by_similarity(testing_communities):
+        """
+        Results should be ordered by similarity score (best match first).
+        For query 'Country 1, Region', the full region name should rank higher
+        than deeper descendants like 'City 1'.
+        """
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+            region_id = get_community_id(session, "Country 1, Region 1")
+            city_id = get_community_id(session, "Country 1, Region 1, City 1")
+
+        with communities_session(token) as api:
+            res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="Country 1, Region", page_size=5))
+            ids = [c.community_id for c in res.communities]
+
+            assert region_id in ids
+            assert city_id in ids
+            assert ids.index(region_id) < ids.index(city_id)
+
+    @staticmethod
+    def test_no_results_returns_empty(testing_communities):
+        """
+        For a nonsense query that shouldn't meet the similarity threshold, return empty list.
+        """
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+
+        with communities_session(token) as api:
+            res = api.SearchCommunities(communities_pb2.SearchCommunitiesReq(query="qwertyuiopasdf", page_size=5))
+            assert res.communities == []
+
+    @staticmethod
+    def test_ListAllCommunities(testing_communities):
+        """
+        Test that ListAllCommunities returns all communities with proper hierarchy information.
+        """
+        with session_scope() as session:
+            user1_id, token1 = get_user_id_and_token(session, "user1")
+            user2_id, token2 = get_user_id_and_token(session, "user2")
+            user6_id, token6 = get_user_id_and_token(session, "user6")
+            w_id = get_community_id(session, "Global")
+            c1_id = get_community_id(session, "Country 1")
+            c1r1_id = get_community_id(session, "Country 1, Region 1")
+            c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")
+            c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
+            c1r2_id = get_community_id(session, "Country 1, Region 2")
+            c1r2c1_id = get_community_id(session, "Country 1, Region 2, City 1")
+            c2_id = get_community_id(session, "Country 2")
+            c2r1_id = get_community_id(session, "Country 2, Region 1")
+            c2r1c1_id = get_community_id(session, "Country 2, Region 1, City 1")
+
+        # Test with user1 who is a member of multiple communities
+        with communities_session(token1) as api:
+            res = api.ListAllCommunities(communities_pb2.ListAllCommunitiesReq())
+
+            # Should return all 10 communities
+            assert len(res.communities) == 10
+
+            # Get all community IDs
+            community_ids = [c.community_id for c in res.communities]
+            assert set(community_ids) == {
+                w_id,
+                c1_id,
+                c1r1_id,
+                c1r1c1_id,
+                c1r1c2_id,
+                c1r2_id,
+                c1r2c1_id,
+                c2_id,
+                c2r1_id,
+                c2r1c1_id,
+            }
+
+            # Check that each community has the required fields
+            for community in res.communities:
+                assert community.community_id > 0
+                assert len(community.name) > 0
+                assert len(community.slug) > 0
+                assert community.member_count > 0
+                # member field should be a boolean
+                assert isinstance(community.member, bool)
+                # parents should be present for hierarchical ordering
+                assert len(community.parents) >= 1
+                # created timestamp should be present
+                assert community.HasField("created")
+                assert community.created.seconds > 0
+
+            # Find specific communities and verify their data
+            global_community = next(c for c in res.communities if c.community_id == w_id)
+            assert global_community.name == "Global"
+            assert global_community.slug == "global"
+            assert global_community.member  # user1 is a member
+            assert global_community.member_count == 8
+            assert len(global_community.parents) == 1  # Only itself
+
+            c1r1c1_community = next(c for c in res.communities if c.community_id == c1r1c1_id)
+            assert c1r1c1_community.name == "Country 1, Region 1, City 1"
+            assert c1r1c1_community.slug == "country-1-region-1-city-1"
+            assert c1r1c1_community.member  # user1 is a member
+            assert c1r1c1_community.member_count == 3
+            assert len(c1r1c1_community.parents) == 4  # Global, Country 1, Region 1, City 1
+            # Verify parent hierarchy
+            assert c1r1c1_community.parents[0].community.community_id == w_id
+            assert c1r1c1_community.parents[1].community.community_id == c1_id
+            assert c1r1c1_community.parents[2].community.community_id == c1r1_id
+            assert c1r1c1_community.parents[3].community.community_id == c1r1c1_id
+
+        # Test with user6 who has different community memberships
+        with communities_session(token6) as api:
+            res = api.ListAllCommunities(communities_pb2.ListAllCommunitiesReq())
+
+            # Should still return all 10 communities
+            assert len(res.communities) == 10
+
+            # Find Country 2 community - user6 should be a member
+            c2_community = next(c for c in res.communities if c.community_id == c2_id)
+            assert c2_community.member  # user6 is a member
+            assert c2_community.member_count == 2
+
+            # Find Country 1 - user6 should NOT be a member
+            c1_community = next(c for c in res.communities if c.community_id == c1_id)
+            assert not c1_community.member  # user6 is not a member
+
+            # Global - user6 should be a member
+            global_community = next(c for c in res.communities if c.community_id == w_id)
+            assert global_community.member  # user6 is a member
+
 
 def test_JoinCommunity_and_LeaveCommunity(testing_communities):
     # these are separate as they mutate the database
@@ -851,7 +1039,7 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.ALREADY_IN_COMMUNITY
+        assert e.value.details() == "You're already in that community."
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
@@ -863,7 +1051,10 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANNOT_LEAVE_CONTAINING_COMMUNITY
+        assert (
+            e.value.details()
+            == "Your location on your profile is within this community, so you cannot leave it. However, you can adjust your notifications in your account settings."
+        )
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
@@ -878,7 +1069,7 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.NOT_IN_COMMUNITY
+        assert e.value.details() == "You're not in that community."
 
         assert not api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 
@@ -899,7 +1090,7 @@ def test_JoinCommunity_and_LeaveCommunity(testing_communities):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.ALREADY_IN_COMMUNITY
+        assert e.value.details() == "You're already in that community."
 
         assert api.GetCommunity(communities_pb2.GetCommunityReq(community_id=c1_id)).member
 

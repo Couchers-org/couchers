@@ -1,12 +1,18 @@
 import difflib
+import os
 import re
 import subprocess
+from pathlib import Path
 
 import pytest
+from google.protobuf import empty_pb2
 from sqlalchemy.sql import func
 
 from couchers.config import config
 from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
+from couchers.jobs.handlers import DatabaseInconsistencyError, check_database_consistency
+from couchers.models import User
+from couchers.sql import couchers_select as select
 from couchers.utils import (
     is_valid_email,
     is_valid_name,
@@ -15,7 +21,14 @@ from couchers.utils import (
     parse_date,
 )
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
-from tests.test_fixtures import create_schema_from_models, db, drop_all, run_migration_test, testconfig  # noqa
+from tests.test_fixtures import (  # noqa
+    create_schema_from_models,
+    db,
+    drop_database,
+    generate_user,
+    run_migration_test,
+    testconfig,
+)
 
 
 def test_is_valid_user_id():
@@ -126,29 +139,37 @@ def strip_leading_whitespace(lines):
 
 
 @pytest.mark.skipif(not run_migration_test(), reason="Migration test disabled")
-def test_migrations(testconfig):
+def test_migrations(db, testconfig):
     """
-    This test will only run succesfully if you have `pg_dump` installed and everything set up, which only happens if the
+    This test will only run successfully if you have `pg_dump` installed and everything set up, which only happens if the
     test is being run within Gitlab CI where we do all that setup. So we disable it unless explicitly marked to run.
 
     Compares the database schema built up from migrations, with the
     schema built by models.py. Both scenarios are started from an
     empty database, and dumped with pg_dump. Any unexplainable
     differences in the output are reported in unified diff format and
-    fails the test.
+    fail the test.
     """
-    drop_all()
+    drop_database()
     # rebuild it with alembic migrations
     apply_migrations()
 
     with_migrations = pg_dump()
 
-    drop_all()
+    drop_database()
     # create everything from the current models, not incrementally
     # through migrations
     create_schema_from_models()
 
     from_scratch = pg_dump()
+
+    # Save the raw schemas to files for CI artifacts
+    schema_output_dir = os.environ.get("TEST_SCHEMA_OUTPUT_DIR")
+    if schema_output_dir:
+        output_path = Path(schema_output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        (output_path / "schema_from_migrations.sql").write_text(with_migrations)
+        (output_path / "schema_from_models.sql").write_text(from_scratch)
 
     def message(s):
         s = sort_pg_dump_output(s)
@@ -197,3 +218,23 @@ def test_slugify(db):
             ).scalar_one()
             == "a-sentence-that-is-over-64-chars-long-and-where-the-last-thing"
         )
+
+
+def test_database_consistency_check(db, testconfig):
+    """The database consistency check should pass with valid user/gallery setup"""
+    # Create a few users (which auto-creates their profile galleries)
+    generate_user()
+    generate_user()
+    generate_user()
+
+    # This should not raise any exceptions
+    check_database_consistency(empty_pb2.Empty())
+
+    # Now break consistency by removing a user's profile gallery
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.is_deleted == False).limit(1)).scalar_one()
+        user.profile_gallery_id = None
+
+    # This should now raise an exception
+    with pytest.raises(DatabaseInconsistencyError):
+        check_database_consistency(empty_pb2.Empty())

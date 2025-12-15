@@ -6,7 +6,7 @@ import requests
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import delete, func, or_
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.config import config
 from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.context import CouchersContext
@@ -29,12 +29,14 @@ from couchers.models import (
     ContributorForm,
     InviteCode,
     PasswordResetToken,
+    PhotoGallery,
     SignupFlow,
     User,
     UserSession,
 )
 from couchers.notifications.notify import notify
 from couchers.notifications.quick_links import respond_quick_link
+from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.sql import couchers_select as select
@@ -54,7 +56,6 @@ from couchers.utils import (
     parse_date,
     parse_session_cookie,
 )
-from proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -81,9 +82,9 @@ def create_session(
     ```
     """
     if user.is_banned:
-        context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ACCOUNT_SUSPENDED)
+        context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "account_suspended")
 
-    # just double check
+    # just double-check
     assert not user.is_deleted
 
     token = cookiesafe_secure_token()
@@ -178,30 +179,36 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     select(SignupFlow).where(SignupFlow.flow_token == request.email_token)
                 ).scalar_one_or_none()
                 if not flow:
-                    context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+                    context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
         else:
             if not request.flow_token:
                 # fresh signup
                 if not request.HasField("basic"):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.SIGNUP_FLOW_BASIC_NEEDED)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_basic_needed")
                 # TODO: unique across both tables
                 existing_user = session.execute(
                     select(User).where(User.email == request.basic.email)
                 ).scalar_one_or_none()
                 if existing_user:
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_TAKEN)
+                    if not existing_user.is_visible:
+                        context.abort_with_error_code(
+                            grpc.StatusCode.FAILED_PRECONDITION, "signup_email_cannot_be_used"
+                        )
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_taken")
                 existing_flow = session.execute(
                     select(SignupFlow).where(SignupFlow.email == request.basic.email)
                 ).scalar_one_or_none()
                 if existing_flow:
                     send_signup_email(session, existing_flow)
                     session.commit()
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP)
+                    context.abort_with_error_code(
+                        grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_started_signup"
+                    )
 
                 if not is_valid_email(request.basic.email):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_EMAIL)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
                 if not is_valid_name(request.basic.name):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_NAME)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_name")
 
                 flow_token = cookiesafe_secure_token()
 
@@ -214,7 +221,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                         )
                     ).scalar_one_or_none()
                     if not invite_id:
-                        context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_INVITE_CODE)
+                        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_invite_code")
 
                 flow = SignupFlow(
                     flow_token=flow_token,
@@ -231,37 +238,37 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     select(SignupFlow).where(SignupFlow.flow_token == request.flow_token)
                 ).scalar_one_or_none()
                 if not flow:
-                    context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+                    context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
                 if request.HasField("basic"):
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_BASIC_FILLED)
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_basic_filled")
 
             # we've found and/or created a new flow, now sort out other parts
             if request.HasField("account"):
                 if flow.account_is_filled:
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_ACCOUNT_FILLED)
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_account_filled")
 
                 # check username validity
                 if not is_valid_username(request.account.username):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_USERNAME)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_username")
 
                 if not _username_available(session, request.account.username):
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USERNAME_NOT_AVAILABLE)
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "username_not_available")
 
                 abort_on_invalid_password(request.account.password, context)
                 hashed_password = hash_password(request.account.password)
 
                 birthdate = parse_date(request.account.birthdate)
                 if not birthdate or birthdate >= minimum_allowed_birthdate():
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.INVALID_BIRTHDATE)
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "invalid_birthdate")
 
                 if not request.account.hosting_status:
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.HOSTING_STATUS_REQUIRED)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "hosting_status_required")
 
                 if request.account.lat == 0 and request.account.lng == 0:
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
 
                 if not request.account.accept_tos:
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MUST_ACCEPT_TOS)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "must_accept_tos")
 
                 flow.username = request.account.username
                 flow.hashed_password = hashed_password
@@ -277,7 +284,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             if request.HasField("feedback"):
                 if flow.filled_feedback:
-                    context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_FEEDBACK_FILLED)
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_feedback_filled")
                 form = request.feedback
 
                 flow.filled_feedback = True
@@ -291,7 +298,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             if request.HasField("accept_community_guidelines"):
                 if not request.accept_community_guidelines.value:
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.MUST_ACCEPT_COMMUNITY_GUIDELINES)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "must_accept_community_guidelines")
                 flow.accepted_community_guidelines = GUIDELINES_VERSION
                 session.flush()
 
@@ -323,6 +330,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
             )
 
             session.add(user)
+            session.flush()
+
+            # Create profile gallery for the user
+            profile_gallery = PhotoGallery(owner_user_id=user.id)
+            session.add(profile_gallery)
+            session.flush()
+            user.profile_gallery_id = profile_gallery.id
 
             if flow.filled_feedback:
                 form = ContributorForm(
@@ -380,7 +394,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
     def Authenticate(self, request, context, session):
         """
-        Authenticates a classic password based login request.
+        Authenticates a classic password-based login request.
 
         request.user can be any of id/username/email
         """
@@ -398,7 +412,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             else:
                 logger.debug("Wrong password")
                 # wrong password
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_PASSWORD)
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_password")
         else:  # user not found
             # check if this is an email and they tried to sign up but didn't complete
             signup_flow = session.execute(
@@ -407,9 +421,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if signup_flow:
                 send_signup_email(session, signup_flow)
                 session.commit()
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.SIGNUP_FLOW_EMAIL_STARTED_SIGNUP)
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_started_signup")
             logger.debug("Didn't find user")
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.ACCOUNT_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "account_not_found")
 
     def GetAuthState(self, request, context, session):
         if not context.is_logged_in():
@@ -457,6 +471,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session,
                 user_id=user.id,
                 topic_action="password_reset:start",
+                key="",
                 data=notification_data_pb2.PasswordResetStart(
                     password_reset_token=password_reset_token.token,
                 ),
@@ -490,13 +505,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session,
                 user_id=user.id,
                 topic_action="password_reset:complete",
+                key="",
             )
 
             create_session(context, session, user, False)
             password_reset_completions_counter.inc()
             return _auth_res(user)
         else:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
     def ConfirmChangeEmailV2(self, request, context, session):
         user = session.execute(
@@ -507,7 +523,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         ).scalar_one_or_none()
 
         if not user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
         user.email = user.new_email
         user.new_email = None
@@ -519,6 +535,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session,
             user_id=user.id,
             topic_action="email_address:verify",
+            key="",
         )
 
         return empty_pb2.Empty()
@@ -535,7 +552,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         ).one_or_none()
 
         if not res:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
         user, account_deletion_token = res
 
@@ -551,6 +568,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session,
             user_id=user.id,
             topic_action="account_deletion:complete",
+            key="",
             data=notification_data_pb2.AccountDeletionComplete(
                 undelete_token=user.undelete_token,
                 undelete_days=UNDELETE_DAYS,
@@ -570,7 +588,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         ).scalar_one_or_none()
 
         if not user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.INVALID_TOKEN)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
         user.is_deleted = False
         user.undelete_token = None
@@ -580,6 +598,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session,
             user_id=user.id,
             topic_action="account_deletion:recovered",
+            key="",
         )
 
         account_recoveries_counter.labels(user.gender).inc()
@@ -653,7 +672,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         ).scalar_one_or_none()
 
         if not invite:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.INVITE_CODE_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invite_code_not_found")
 
         user = session.execute(select(User).where(User.id == invite.creator_user_id)).scalar_one()
 

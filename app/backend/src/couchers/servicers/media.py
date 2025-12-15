@@ -3,31 +3,30 @@ import logging
 import grpc
 from google.protobuf import empty_pb2
 
-from couchers import errors
 from couchers.crypto import secure_compare
 from couchers.interceptors import MediaInterceptor
 from couchers.models import InitiatedUpload, Upload
+from couchers.proto import media_pb2_grpc
 from couchers.sql import couchers_select as select
-from proto import media_pb2_grpc
 
 logger = logging.getLogger(__name__)
 
 
-def get_media_auth_interceptor(secret_token):
-    def is_authorized(token):
+def get_media_auth_interceptor(secret_token: str) -> MediaInterceptor:
+    def is_authorized(token: str) -> bool:
         return secure_compare(token.encode("ascii"), secret_token.encode("ascii"))
 
     return MediaInterceptor(is_authorized)
 
 
 class Media(media_pb2_grpc.MediaServicer):
-    def UploadConfirmation(self, request, context, session):
+    def UploadConfirmation(self, request, context, session) -> empty_pb2.Empty:
         initiated_upload = session.execute(
             select(InitiatedUpload).where(InitiatedUpload.key == request.key).where(InitiatedUpload.is_valid)
         ).scalar_one_or_none()
 
         if not initiated_upload:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.UPLOAD_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "upload_not_found")
 
         # move it to a completed upload
         upload = Upload(

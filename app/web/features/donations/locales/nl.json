@@ -10,7 +10,25 @@
     "recurrence_aria_label": "periodiek",
     "title": "Donatie",
     "amount_validation_error": "Alleen hele getalen, alsjeblieft.",
-    "action_button_label": "Doorgaan",
-    "validation_message": "Dit veld is verplicht"
-  }
+    "action_button_label": "Volgende",
+    "validation_message": "Dit veld is verplicht",
+    "alert": {
+      "success_message": "Dankjewel voor je donatie aan Couchers.org. We zijn heel blij met je steun! Je krijgt zo een e-mail hierover.",
+      "warning_message": "De betaling is geannuleerd."
+    },
+    "helper_text": "Je wordt doorgestuurd naar onze betalingsdienst Stripe om je donatie te voltooien. Wil je nu, of op een later moment, een bestaande donatie annuleren of bijwerken, <2>klik dan hier om naar het donatieportaal te gaan</2>."
+  },
+  "donations_title": "Jouw donatie helpt ons om dit platform te laten groeien",
+  "donations_title2": "Waar jouw donatie naartoe gaat",
+  "donations_text2": "Jouw donatie zal worden gebruikt voor de dagelijkse werking van Couchers.org, waaronder het betalen van servers om betrouwbare service te garanderen, evenals juridische kosten, administratieve kosten en de financiering van samenwerkingssoftware die ons helpen dit platform te bouwen.\n\nAl het geld dat overblijft, zal - omdat we een non-profitorganisatie zijn - volledig ten goede komen aan het verbeteren van de community. Dit stelt Couchers.org in staat om uit te breiden, door bijvoorbeeld de service te verbeteren, de ontwikkelingssnelheid te verhogen, speciale veiligheidsteams aan te stellen en couchsurfing toegankelijk te maken voor meer mensen en op meer plekken ter wereld.",
+  "donations_info": "Jouw donatie gaat naar <1>{{ legal_name }}</1>, een Amerikaanse 501(c)(3) non-profitorganisatie die de Couchers.org-dienst beheert en het project ondersteunt. Donaties zijn belastingvrij in de VS, ons EIN is 87-1734577.",
+  "benefactor_contact": "Als je meer dan $1000 wilt bijdragen (hoera!), neem dan contact met ons op via <1>{{email}}</1> zodat we een betaling met lagere overboekingskosten kunnen regelen.",
+  "donations_recurrence_explainer": "Een maandelijkse donatie helpt ons vooruit te plannen en onze activiteiten op een stabiele manier voort te zetten.",
+  "donations_use_explainer": "Bekijk onze financiële gegevens van {{ year }}.",
+  "settings_fragment": {
+    "title": "Beheer je donatie(s)",
+    "description": "Klik op de knop hieronder om je periodieke donatie bij te werken of te annuleren, of om eerdere facturen te bekijken.",
+    "button_text": "Ga naar het donatieportaal"
+  },
+  "donations_text": "Couchers.org is een door de community gerunde non-profitorganisatie die wordt gefinancierd door donaties, vergelijkbaar met Wikipedia. Er zijn geen grote investeerders of mensen die winst maken, er zijn alleen maar hardwerkende vrijwilligers die samen iets opbouwen dat de wereld een beetje mooier maakt.\n\nWij geloven dat er genoeg goodwill is binnen de couchsurfing-community om een gezond en bloeiend platform te creëren en in stand te houden dat voor iedereen, voor altijd, gratis is.\n\nMaar **we hebben jouw hulp nodig** om dit te realiseren.\n\nJouw donatie aan Couchers.org is een hele goede investering die rechtstreeks ten goede komt aan de uitgaven die we moeten doen. Waar websites zoals Couchsurfing™ enorme bedragen uitgeven aan personeel en externe diensten, vertrouwen wij op een gepassioneerd team van vrijwilligers en maken we gebruik van open-sourcesoftware, zodat we de impact van elke ontvangen dollar maximaal kunnen benutten.\n\nAls je in deze missie gelooft, vragen we je om te doneren. En we vragen je om na te denken over de waarde van couchsurfing in jouw eigen leven, en hoe belangrijk het is om dat met andere mensen te delen. Overweeg alsjeblieft een donatie van $5, $20, $50, of wat je ook kunt missen, om ons gezamenlijke doel te bereiken.\n\nAlvast bedankt,\n\nAapeli Vuorinen en Itsi Weinstock<br />Oprichters van Couchers.org"
 }

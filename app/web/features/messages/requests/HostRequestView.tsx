@@ -28,6 +28,7 @@ import {
   GetHostRequestMessagesRes,
   RespondHostRequestReq,
 } from "proto/requests_pb";
+import { messagesRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import { firstName } from "utils/names";
@@ -215,7 +216,7 @@ export default function HostRequestView({
 
   const router = useRouter();
 
-  const handleBack = () => router.back();
+  const handleBack = () => router.push(messagesRoute);
 
   const hasError =
     respondMutation.error || sendMutation.error || hostRequestError;

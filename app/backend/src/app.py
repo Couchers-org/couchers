@@ -4,6 +4,8 @@ import sys
 from os import environ
 from tempfile import TemporaryDirectory
 
+from couchers.i18n.i18n import get_translations
+
 # these two lines need to be at the top of the file before we span child processes
 # this temp dir will be destroyed when prometheus_multiproc_dir is destroyed, aka at the end of the program
 prometheus_multiproc_dir = TemporaryDirectory()
@@ -17,13 +19,14 @@ from sqlalchemy.sql import text
 
 from couchers.config import check_config, config
 from couchers.db import apply_migrations, session_scope
+from couchers.experimentation import setup_experimentation
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.metrics import create_prometheus_server
 from couchers.server import create_main_server, create_media_server
 from couchers.tracing import setup_tracing
 from dummy_data import add_dummy_data
 
-check_config()
+check_config(config)
 
 logging.basicConfig(
     format="[%(process)5d:%(thread)20d] %(asctime)s: %(name)s:%(lineno)d: %(message)s", level=logging.INFO
@@ -77,6 +80,8 @@ logger.info("Running DB migrations")
 
 apply_migrations()
 
+get_translations()
+
 if config["ADD_DUMMY_DATA"]:
     add_dummy_data()
 
@@ -90,6 +95,12 @@ if config["ROLE"] in ["worker", "all"]:
         start_jobs_worker()
 
 setup_tracing()
+
+# Initialize experimentation framework for feature flags in the main process.
+# IMPORTANT: This MUST be called AFTER worker processes are spawned (above).
+# The underlying SDK uses internal threading that doesn't survive fork().
+# Worker processes initialize their own instance in _run_forever().
+setup_experimentation()
 
 if config["ROLE"] in ["api", "all"]:
     server = create_main_server(port=1751)

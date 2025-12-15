@@ -4,18 +4,17 @@ import grpc
 import sqlalchemy.exc
 from sqlalchemy.sql import func, select
 
-from couchers import errors
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Comment, Discussion, Event, EventOccurrence, Reply, Thread, User
 from couchers.notifications.notify import notify
+from couchers.proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
+from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
-from proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
-from proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +94,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         session,
                         user_id=user_id,
                         topic_action="event:comment",
-                        key=occurrence.id,
+                        key=str(occurrence.id),
                         data=notification_data_pb2.EventComment(
                             reply=reply,
                             event=event_to_pb(session, occurrence, context),
@@ -120,7 +119,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         session,
                         user_id=user_id,
                         topic_action="discussion:comment",
-                        key=discussion.id,
+                        key=str(discussion.id),
                         data=notification_data_pb2.DiscussionComment(
                             reply=reply,
                             discussion=discussion_to_pb(session, discussion, context),
@@ -175,7 +174,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         session,
                         user_id=user_id,
                         topic_action="thread:reply",
-                        key=occurrence.id,
+                        key=str(occurrence.id),
                         data=notification_data_pb2.ThreadReply(
                             reply=reply,
                             event=event_to_pb(session, occurrence, context),
@@ -190,7 +189,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                         session,
                         user_id=user_id,
                         topic_action="thread:reply",
-                        key=discussion.id,
+                        key=str(discussion.id),
                         data=notification_data_pb2.ThreadReply(
                             reply=reply,
                             discussion=discussion_to_pb(session, discussion, context),
@@ -211,7 +210,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         if depth == 0:
             if not session.execute(select(Thread).where(Thread.id == database_id)).scalar_one_or_none():
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
             res = session.execute(
                 select(Comment, func.count(Reply.id))
@@ -235,7 +234,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         elif depth == 1:
             if not session.execute(select(Comment).where(Comment.id == database_id)).scalar_one_or_none():
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
             res = (
                 session.execute(
@@ -260,7 +259,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             ]
 
         else:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
         if len(res) > page_size:
             # There's more!
@@ -274,7 +273,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         content = request.content.strip()
 
         if content == "":
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COMMENT)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_comment")
 
         database_id, depth = unpack_thread_id(request.thread_id)
         if depth == 0:
@@ -282,12 +281,12 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         elif depth == 1:
             object_to_add = Reply(comment_id=database_id, author_user_id=context.user_id, content=content)
         else:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
         session.add(object_to_add)
         try:
             session.flush()
         except sqlalchemy.exc.IntegrityError:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.THREAD_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
         thread_id = pack_thread_id(object_to_add.id, depth + 1)
 

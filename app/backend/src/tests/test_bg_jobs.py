@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from unittest.mock import call, patch
 
 import pytest
@@ -39,10 +39,12 @@ from couchers.models import (
     MessageType,
     PasswordResetToken,
     UserBadge,
+    UserBlock,
+    Volunteer,
 )
+from couchers.proto import conversations_pb2, requests_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import now, today
-from proto import conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     auth_api_session,
     conversations_session,
@@ -50,12 +52,14 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     make_friends,
     make_user_block,
+    moderator,
     process_jobs,
     push_collector,
     requests_session,
     testconfig,
 )
 from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
+from tests.test_requests import valid_request_text
 
 
 def now_5_min_in_future():
@@ -462,7 +466,7 @@ def test_no_jobs_no_problem(db):
         assert session.execute(select(func.count()).select_from(BackgroundJob)).scalar_one() == 0
 
 
-def test_send_message_notifications_basic(db):
+def test_send_message_notifications_basic(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -484,20 +488,26 @@ def test_send_message_notifications_basic(db):
         )
 
     with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
+        group_chat_id1 = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
         ).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 4"))
+    moderator.approve_group_chat(group_chat_id1)
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 2"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 3"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 4"))
 
     with conversations_session(token3) as c:
-        group_chat_id = c.CreateGroupChat(
+        group_chat_id2 = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
         ).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
+    moderator.approve_group_chat(group_chat_id2)
+
+    with conversations_session(token3) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id2, text="Test message 5"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id2, text="Test message 6"))
 
     send_message_notifications(empty_pb2.Empty())
     process_jobs()
@@ -540,7 +550,7 @@ def test_send_message_notifications_basic(db):
         )
 
 
-def test_send_message_notifications_muted(db):
+def test_send_message_notifications_muted(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -565,6 +575,7 @@ def test_send_message_notifications_muted(db):
         group_chat_id = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
         ).group_chat_id
+    moderator.approve_group_chat(group_chat_id)
 
     with conversations_session(token3) as c:
         # mute it for user 3
@@ -580,6 +591,7 @@ def test_send_message_notifications_muted(db):
         group_chat_id = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
         ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
 
@@ -624,7 +636,7 @@ def test_send_message_notifications_muted(db):
         )
 
 
-def test_send_request_notifications_host_request(db):
+def test_send_request_notifications_host_request(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -642,9 +654,10 @@ def test_send_request_notifications_host_request(db):
     with requests_session(token1) as requests:
         host_request_id = requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
             )
         ).host_request_id
+    moderator.approve_host_request(host_request_id)
 
     with session_scope() as session:
         # delete send_email BackgroundJob created by CreateHostRequest
@@ -715,7 +728,7 @@ def test_send_request_notifications_host_request(db):
         )
 
 
-def test_send_message_notifications_seen(db):
+def test_send_message_notifications_seen(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -736,6 +749,7 @@ def test_send_message_notifications_seen(db):
         group_chat_id = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
         ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
@@ -945,7 +959,7 @@ def test_send_reference_reminders(db):
                 assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
 
 
-def test_send_host_request_reminders(db):
+def test_send_host_request_reminders(db, moderator):
     user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
     user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
     user3, token3 = generate_user(email="user3@couchers.org.invalid", name="User 3")
@@ -1056,6 +1070,15 @@ def test_send_host_request_reminders(db):
             )
         )
 
+    # Approve host requests so they're visible for notifications
+    moderator.approve_host_request(hr1)
+    moderator.approve_host_request(hr2)
+    moderator.approve_host_request(hr3)
+    moderator.approve_host_request(hr4)
+    moderator.approve_host_request(hr5)
+    moderator.approve_host_request(hr6)
+    moderator.approve_host_request(hr7)
+
     send_host_request_reminders(empty_pb2.Empty())
 
     while process_job():
@@ -1155,12 +1178,12 @@ def test_update_recommendation_scores(db):
 
 
 def test_update_badges(db, push_collector):
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
-    user4, _ = generate_user(phone="+15555555555", phone_verification_verified=func.now())
-    user5, _ = generate_user(phone="+15555555556", phone_verification_verified=func.now())
-    user6, _ = generate_user()
+    user1, _ = generate_user(last_donated=None)
+    user2, _ = generate_user(last_donated=None)
+    user3, _ = generate_user(last_donated=None)
+    user4, _ = generate_user(phone="+15555555555", phone_verification_verified=func.now(), last_donated=None)
+    user5, _ = generate_user(phone="+15555555556", phone_verification_verified=func.now(), last_donated=None)
+    user6, _ = generate_user(last_donated=None)
 
     with session_scope() as session:
         session.add(UserBadge(user_id=user5.id, badge_id="board_member"))
@@ -1226,6 +1249,350 @@ def test_update_badges(db, push_collector):
         user5.id,
         ix=1,
         title="The Verified Phone badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
+
+
+def test_send_request_notifications_blocked_users_no_notification(db, moderator):
+    """
+    Regression test: send_request_notifications should not send notifications
+    when the host and surfer are not visible to each other (e.g., one blocked the other).
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    # Create a host request
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
+            )
+        ).host_request_id
+    moderator.approve_host_request(host_request_id)
+
+    with session_scope() as session:
+        # delete send_email BackgroundJob created by CreateHostRequest
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Now user2 (host) blocks user1 (surfer)
+    make_user_block(user2, user1)
+
+    with session_scope() as session:
+        # check send_request_notifications does NOT create background job because users are blocked
+        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+            send_request_notifications(empty_pb2.Empty())
+            process_jobs()
+
+        # Should be 0 emails because the host blocked the surfer
+        assert (
+            session.execute(
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+            ).scalar_one()
+            == 0
+        ), "No notification email should be sent when host has blocked surfer"
+
+    # Also test the reverse direction: surfer sends message to host, host should not get notification
+    # First unblock
+    with session_scope() as session:
+        session.execute(delete(UserBlock).execution_options(synchronize_session=False))
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Host responds
+    with requests_session(token2) as requests:
+        requests.RespondHostRequest(
+            requests_pb2.RespondHostRequestReq(
+                host_request_id=host_request_id,
+                status=conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED,
+                text="Accepting your request",
+            )
+        )
+
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Now user1 (surfer) blocks user2 (host)
+    make_user_block(user1, user2)
+
+    with session_scope() as session:
+        # check send_request_notifications does NOT create background job
+        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+            send_request_notifications(empty_pb2.Empty())
+            process_jobs()
+
+        # Should be 0 emails because the surfer blocked the host
+        assert (
+            session.execute(
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+            ).scalar_one()
+            == 0
+        ), "No notification email should be sent when surfer has blocked host"
+
+
+def test_send_host_request_reminders_blocked_users_no_notification(db, moderator):
+    """
+    send_host_request_reminders should not send notifications when the host and surfer are not visible to each other
+    (e.g., one blocked the other).
+    """
+    user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
+    user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
+
+    with session_scope() as session:
+        # Create a pending host request where the host has not replied
+        hr = create_host_request_by_date(
+            session=session,
+            surfer_user_id=user1.id,
+            host_user_id=user2.id,
+            from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
+            to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
+            status=HostRequestStatus.pending,
+            host_sent_request_reminders=0,
+            last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
+        )
+
+    # Approve the host request so it's visible for notifications
+    moderator.approve_host_request(hr)
+
+    # Verify that without blocking, a reminder would be sent
+    send_host_request_reminders(empty_pb2.Empty())
+
+    while process_job():
+        pass
+
+    with session_scope() as session:
+        emails = session.execute(select(Email)).scalars().all()
+        assert len(emails) == 1, "Expected 1 reminder email before blocking"
+
+        # Clean up emails and background jobs
+        session.execute(delete(Email).execution_options(synchronize_session=False))
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+        # Reset the reminder counter so we can test again
+        from couchers.models import HostRequest
+
+        host_request = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr)).scalar_one()
+        host_request.host_sent_request_reminders = 0
+        host_request.last_sent_request_reminder_time = now() - HOST_REQUEST_REMINDER_INTERVAL
+
+    # Now have the host block the surfer
+    make_user_block(user2, user1)
+
+    send_host_request_reminders(empty_pb2.Empty())
+
+    while process_job():
+        pass
+
+    with session_scope() as session:
+        emails = session.execute(select(Email)).scalars().all()
+        assert len(emails) == 0, "No reminder email should be sent when host has blocked surfer"
+
+
+def test_send_message_notifications_blocked_users_no_notification(db, moderator):
+    """
+    Regression test: send_message_notifications should not send notifications
+    for messages from users who are blocked by the recipient.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    # Create a group chat and send messages
+    with conversations_session(token1) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
+        ).group_chat_id
+
+    # Approve the group chat so it's visible for notifications
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
+
+    # Verify that without blocking, a notification would be sent
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        send_message_notifications(empty_pb2.Empty())
+        process_jobs()
+
+    with session_scope() as session:
+        email_job_count = session.execute(
+            select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+        ).scalar_one()
+        assert email_job_count == 1, "Expected 1 notification email before blocking"
+
+        # Clean up
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Reset the notification state so user2 will receive notifications for old messages again
+    with session_scope() as session:
+        from couchers.models import User
+
+        u2 = session.execute(select(User).where(User.id == user2.id)).scalar_one()
+        u2.last_notified_message_id = 0
+
+    # Now have user2 block user1
+    make_user_block(user2, user1)
+
+    # The existing messages from user1 should now NOT trigger notifications
+    # since user2 has blocked user1
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        send_message_notifications(empty_pb2.Empty())
+        process_jobs()
+
+    with session_scope() as session:
+        email_job_count = session.execute(
+            select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+        ).scalar_one()
+        assert email_job_count == 0, "No notification email should be sent when recipient has blocked sender"
+
+
+def test_update_badges_volunteers(db, push_collector):
+    """Test that volunteer and past_volunteer badges are automatically granted based on Volunteer model."""
+    # Create 6 users - users 1 and 2 get founder/board_member badges from static_badges
+    user1, _ = generate_user(last_donated=None)
+    user2, _ = generate_user(last_donated=None)
+    user3, _ = generate_user(last_donated=None)
+    user4, _ = generate_user(last_donated=None)
+    user5, _ = generate_user(last_donated=None)
+    user6, _ = generate_user(last_donated=None)
+
+    with session_scope() as session:
+        # user3: active volunteer (stopped_volunteering is null)
+        session.add(
+            Volunteer(
+                user_id=user3.id,
+                role="Developer",
+                started_volunteering=date(2020, 1, 1),
+                stopped_volunteering=None,
+            )
+        )
+
+        # user4: past volunteer (stopped_volunteering is set)
+        session.add(
+            Volunteer(
+                user_id=user4.id,
+                role="Designer",
+                started_volunteering=date(2020, 1, 1),
+                stopped_volunteering=date(2023, 6, 1),
+            )
+        )
+
+        # user5: has old volunteer badge that should be removed (not a volunteer anymore)
+        session.add(UserBadge(user_id=user5.id, badge_id="volunteer"))
+
+        # user6: has old past_volunteer badge that should be removed
+        session.add(UserBadge(user_id=user6.id, badge_id="past_volunteer"))
+
+    update_badges(empty_pb2.Empty())
+    process_jobs()
+
+    with session_scope() as session:
+        # Check user3 has volunteer badge
+        user3_badges = session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user3.id)).scalars().all()
+        assert "volunteer" in user3_badges
+        assert "past_volunteer" not in user3_badges
+
+        # Check user4 has past_volunteer badge
+        user4_badges = session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user4.id)).scalars().all()
+        assert "past_volunteer" in user4_badges
+        assert "volunteer" not in user4_badges
+
+        # Check user5 lost the volunteer badge (not in Volunteer table)
+        user5_badges = session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user5.id)).scalars().all()
+        assert "volunteer" not in user5_badges
+
+        # Check user6 lost the past_volunteer badge (not in Volunteer table)
+        user6_badges = session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user6.id)).scalars().all()
+        assert "past_volunteer" not in user6_badges
+
+    # Check notifications for volunteer badge users
+    push_collector.assert_user_has_single_matching(
+        user3.id,
+        title="The Active Volunteer badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
+    push_collector.assert_user_has_single_matching(
+        user4.id,
+        title="The Past Volunteer badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
+    push_collector.assert_user_has_single_matching(
+        user5.id,
+        title="The Active Volunteer badge was removed from your profile",
+        body="You can see all your badges on your profile.",
+    )
+    push_collector.assert_user_has_single_matching(
+        user6.id,
+        title="The Past Volunteer badge was removed from your profile",
+        body="You can see all your badges on your profile.",
+    )
+
+
+def test_update_badges_volunteer_status_change(db, push_collector):
+    """Test that badge is updated when volunteer status changes from active to past."""
+    # Create users - users 1 and 2 get founder/board_member badges from static_badges
+    user1, _ = generate_user(last_donated=None)
+    user2, _ = generate_user(last_donated=None)
+    user3, _ = generate_user(last_donated=None)
+
+    with session_scope() as session:
+        # user3: start as active volunteer
+        session.add(
+            Volunteer(
+                user_id=user3.id,
+                role="Developer",
+                started_volunteering=date(2020, 1, 1),
+                stopped_volunteering=None,
+            )
+        )
+
+    update_badges(empty_pb2.Empty())
+    process_jobs()
+
+    with session_scope() as session:
+        user3_badges = session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user3.id)).scalars().all()
+        assert "volunteer" in user3_badges
+        assert "past_volunteer" not in user3_badges
+
+    push_collector.assert_user_has_single_matching(
+        user3.id,
+        title="The Active Volunteer badge was added to your profile",
+        body="Check out your profile to see the new badge!",
+    )
+
+    # Now change the volunteer to past volunteer
+    with session_scope() as session:
+        volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == user3.id)).scalar_one()
+        volunteer.stopped_volunteering = date(2023, 12, 1)
+
+    update_badges(empty_pb2.Empty())
+    process_jobs()
+
+    with session_scope() as session:
+        user3_badges = session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == user3.id)).scalars().all()
+        assert "volunteer" not in user3_badges
+        assert "past_volunteer" in user3_badges
+
+    # Check both badges were updated
+    push_collector.assert_user_push_matches_fields(
+        user3.id,
+        ix=1,
+        title="The Active Volunteer badge was removed from your profile",
+        body="You can see all your badges on your profile.",
+    )
+    push_collector.assert_user_push_matches_fields(
+        user3.id,
+        ix=2,
+        title="The Past Volunteer badge was added to your profile",
         body="Check out your profile to see the new badge!",
     )
 

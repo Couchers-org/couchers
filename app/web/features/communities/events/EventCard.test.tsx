@@ -29,6 +29,13 @@ describe("Event card", () => {
         }),
       ),
     ).toBeVisible();
+    expect(
+      screen.getByText(
+        t("communities:comments_count", {
+          count: firstEvent.thread?.numResponses,
+        }),
+      ),
+    ).toBeVisible();
     expect(screen.getByText("Be there or be square!")).toBeVisible();
   });
 
@@ -51,6 +58,13 @@ describe("Event card", () => {
         }),
       ),
     ).toBeVisible();
+    expect(
+      screen.getByText(
+        t("communities:comments_count", {
+          count: thirdEvent.thread?.numResponses,
+        }),
+      ),
+    ).toBeVisible();
     expect(screen.getByText(thirdEvent.content)).toBeVisible();
   });
 
@@ -70,6 +84,13 @@ describe("Event card", () => {
       screen.getByText(
         t("communities:attendees_count", {
           count: secondEvent.goingCount + secondEvent.maybeCount,
+        }),
+      ),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        t("communities:comments_count", {
+          count: secondEvent.thread?.numResponses,
         }),
       ),
     ).toBeVisible();

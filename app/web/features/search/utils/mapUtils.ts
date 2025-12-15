@@ -22,7 +22,7 @@ const usersToGeoJSON = (pins: SearchUser.AsObject[]): FeatureCollection => ({
   })),
 });
 
-const clearMapFeatureState = (mapRef: React.RefObject<MapRef>) => {
+const clearMapFeatureState = (mapRef: React.RefObject<MapRef | null>) => {
   const map = mapRef.current?.getMap();
   if (map) {
     map.removeFeatureState({ source: USERS_SOURCE_ID });
@@ -30,7 +30,7 @@ const clearMapFeatureState = (mapRef: React.RefObject<MapRef>) => {
 };
 
 const setMapFeatureState = (
-  mapRef: React.RefObject<MapRef>,
+  mapRef: React.RefObject<MapRef | null>,
   id: string,
   selected: boolean,
 ) => {
@@ -40,7 +40,7 @@ const setMapFeatureState = (
   );
 };
 
-const loadMapUserPins = async (mapRef: React.RefObject<MapRef>) => {
+const loadMapUserPins = async (mapRef: React.RefObject<MapRef | null>) => {
   const image = await mapRef.current?.loadImage(userPin.src);
 
   if (mapRef.current?.hasImage("user-pin")) return;
@@ -73,11 +73,12 @@ const getHasActiveFilters = (
     state.filters.hasStrongVerification !==
       initialState.filters.hasStrongVerification ||
     state.filters.smokesAtHome !== initialState.filters.smokesAtHome ||
-    state.filters.lastActive !== initialState.filters.lastActive
+    state.filters.lastActive !== initialState.filters.lastActive ||
+    state.filters.sameGenderOnly !== initialState.filters.sameGenderOnly
   );
 };
 
-const getMapBounds = (mapRef: React.RefObject<MapRef>) => {
+const getMapBounds = (mapRef: React.RefObject<MapRef | null>) => {
   const mapBounds = mapRef.current?.getMap().getBounds();
   if (!mapBounds) return;
   const ne = mapBounds.getNorthEast();

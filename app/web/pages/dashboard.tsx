@@ -1,7 +1,6 @@
 import { appGetLayout } from "components/AppRoute";
 import Dashboard from "features/dashboard/Dashboard";
 import {
-  AUTH,
   COMMUNITIES,
   DASHBOARD,
   GLOBAL,
@@ -16,7 +15,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
     ...(await serverSideTranslations(
       locale ?? "en",
-      [GLOBAL, DASHBOARD, PROFILE, AUTH, COMMUNITIES, NOTIFICATIONS],
+      [GLOBAL, DASHBOARD, NOTIFICATIONS, PROFILE, COMMUNITIES],
       nextI18nextConfig,
     )),
   },

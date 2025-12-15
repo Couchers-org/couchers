@@ -1,40 +1,96 @@
 {
+  "any": "任何",
   "filter_dialog": {
     "desktop_title": "筛选",
-    "mobile_title": "搜索"
+    "mobile_title": "搜索",
+    "search_here_button": "在此区域搜索"
   },
   "last_active_options": {
-    "any": "任何",
     "last_week": "上周",
     "last_month": "上个月",
-    "last_3_months": "过去三个月"
+    "last_3_months": "过去三个月",
+    "last_6_months": "过去六个月",
+    "last_year": "过去一年"
   },
   "form": {
     "location_field_label": "附近位置",
     "missing_location_validation_error": "指定一个位置以使用此筛选",
     "keywords": {
       "field_label": "名称、关键词或用户名",
-      "clear_field_action_a11y_label": "清除搜索"
+      "clear_field_action_a11y_label": "清除搜索",
+      "search_this_keyword_a11y_label": "搜索此关键词"
     },
     "by_location_filter_label": "按位置",
     "by_keyword_filter_label": "按关键词或名称",
     "host_filters": {
       "last_active_field_label": "最后活跃",
       "hosting_status_field_label": "接待状态",
-      "complete_profiles_label": "完整的资料"
+      "complete_profiles_label": "完整的资料",
+      "age": {
+        "field_label": "沙发主年龄",
+        "min_age": "最低年龄",
+        "max_age": "最大年龄"
+      },
+      "meetup_status_field_label": "见面状态"
     },
     "accommodation_filters": {
       "title": "住宿筛选",
-      "guests_field_label": "客人数"
+      "guests_field_label": "客人数",
+      "sleeping_arrangement_label": "睡眠安排",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "label": "共享房间",
+          "description": " 例如：共用卧室但有自己的睡眠空间"
+        },
+        "private": {
+          "label": "私人空间",
+          "description": " 例如：单独房间或类似设施"
+        },
+        "common": {
+          "label": "公共休息区域",
+          "description": " 例如：客厅的沙发"
+        }
+      }
     },
     "empty_profile_filters": {
-      "title": "筛选掉空白资料"
+      "title": "显示空白档案"
     },
-    "submit_button_label": "应用"
+    "submit_button_label": "应用",
+    "general_filters": {
+      "accepts_last_minute_requests": "接受临时请求",
+      "has_strong_verification": "强身份验证成功",
+      "has_references": "有用户推荐",
+      "same_gender_only_helper_text": "此筛选功能仅对已完成强身份验证的用户开放。",
+      "same_gender_only": "仅显示同性",
+      "get_strong_verification": "点此完成强身份验证(免费)。"
+    },
+    "rules": {
+      "title": "规则",
+      "alcohol_allowed": "允许饮酒",
+      "kids_allowed": "允许儿童",
+      "pets_allowed": "允许携带宠物",
+      "smokes_at_home": "家中是否吸烟"
+    },
+    "search_filters": "搜索筛选条件",
+    "clear_filters": "清除所有筛选条件"
   },
   "search_result": {
-    "no_user_result_message": "未找到用户。",
+    "no_user_result_message": "未找到用户。请尝试移除部分筛选条件以查看更多结果。",
     "show_user_button_label": "在地图上显示{{name}}",
-    "missing_about_description": "{{name}} 还没有介绍自己"
-  }
+    "missing_about_description": "{{name}} 还没有介绍自己",
+    "people_found_message": "{{currentRange}} / {{totalItems}} 人",
+    "include_empty_profiles_button": "显示所有用户资料",
+    "few_results_suggestion": "默认情况下，空白和“无法接待”的个人资料会被隐藏。"
+  },
+  "error_loading_users": "加载用户时出错",
+  "views": {
+    "choose_map_view": "选择地图视图",
+    "list": "列表",
+    "map_and_list": "地图和列表"
+  },
+  "location": "位置",
+  "keyword": "关键词",
+  "search_this_area": "搜索此区域",
+  "zoom_in_to_select_user": "放大以选择用户",
+  "choose_search_criteria": "输入地点或使用筛选条件搜索。"
 }

@@ -1,0 +1,81 @@
+import { Tabs } from "expo-router";
+import { useTranslation } from "react-i18next";
+
+import { TabBarIcon } from "@/components/TabBarIcon";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { theme } from "@/theme";
+
+export default function TabLayout() {
+  const colorScheme = useColorScheme();
+  const { t } = useTranslation();
+
+  const activeTintColor =
+    colorScheme === "dark"
+      ? theme.palette.common.white
+      : theme.palette.primary.main;
+
+  return (
+    <Tabs
+      initialRouteName="dashboard"
+      screenOptions={{
+        tabBarActiveTintColor: activeTintColor,
+        headerShown: false,
+      }}
+    >
+      <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: t("tabs.home"),
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "home" : "home-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="messages"
+        options={{
+          title: t("tabs.messages"),
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "chatbubble" : "chatbubble-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="communities"
+        options={{
+          title: t("tabs.communities"),
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "people" : "people-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          title: t("tabs.search"),
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "search" : "search-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      {/* Additional screens that shouldn't show in tab bar */}
+      <Tabs.Screen name="events" options={{ href: null }} />
+      <Tabs.Screen name="profile" options={{ href: null }} />
+      <Tabs.Screen name="account-settings" options={{ href: null }} />
+      <Tabs.Screen name="md/[...slug]" options={{ href: null }} />
+      <Tabs.Screen name="[...slug]" options={{ href: null }} />
+    </Tabs>
+  );
+}

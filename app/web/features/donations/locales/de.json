@@ -16,7 +16,7 @@
   "donate": "Spenden",
   "donations_banner": {
     "title": "Deine Hilfe wird benötigt, um unsere Mission zu unterstützen",
-    "body": "Du kannst die Zukunft von Couch Surfing mitgestalten"
+    "body": "Du kannst die Zukunft des Couchsurfings mitgestalten"
   },
   "donations_title": "Deine Spende hilft uns, um unsere Plattform wachsen zu lassen",
   "donations_title2": "Wohin deine Spende fließt",
@@ -24,7 +24,7 @@
   "donations_text2": "Deine Spende fließt an die tägliche Aufrechterhaltung von Couchers.org. Dazu gehört die Bezahlung der Server, um zuverlässigen Service zu gewährleisten, aber auch Rechtshilfe, Verwaltungskosten und den Erwerb von Software für die Zusammenarbeit, um diese Plattform weiterzuentwickeln.\n\nSämtliche Einkünfte, die darüber hinausgehen, werden durch unseren gemeinnützigen Charakter direkt in die Verbesserung der Community fließen; dadurch kann Couchers.org auf viele Weisen wachsen, wie beispielsweise durch die Verbesserung des Services, die Beschleunigung der Entwicklung, die Bereitstellung eines Sicherheitsteams und das Bestreben, Couchsurfing mehr Menschen und mehr Orten auf der ganzen Welt zugänglich zu machen.",
   "benefactor_contact": "Falls du über $1000 spenden möchtest, kontaktiere uns bitte über <1>{{email}}</1>, damit wir einen Transfer mit niedrigeren Gebühren in die Wege leiten können.",
   "donations_recurrence_explainer": "Eine monatliche Spende hilft uns, unserer Mission ein stabiles Fundament zu gewährleisten und vorausschauend zu planen.",
-  "donations_info": "Deine Spende geht an 1>{{ legal_name }}</1>, eine nach U.S. 501(c)(3) gemeinnützige Organisation, die den Service von Couchers.org anbietet und das Projekt unterstützt. Spenden sind von Steuern ausgenommen, unsere EIN ist 87-1734577.",
+  "donations_info": "Deine Spende geht an <1>{{ legal_name }}</1>, eine nach U.S. 501(c)(3) gemeinnützige Organisation, die den Service von Couchers.org anbietet und das Projekt unterstützt. Spenden sind von Steuern ausgenommen, unsere EIN ist 87-1734577.",
   "donations_use_explainer": "Siehe unsere Finanzdaten für {{ year }}.",
   "settings_fragment": {
     "title": "Verwalte deine Spenden",

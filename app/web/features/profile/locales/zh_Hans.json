@@ -3,7 +3,8 @@
     "message_label": "信息",
     "accept_friend_label": "接受",
     "decline_friend_label": "拒绝",
-    "request": "请求"
+    "request": "请求",
+    "back_to_dashboard": "回到个人主页"
   },
   "heading": {
     "about_me": "关于我",
@@ -17,8 +18,8 @@
     "hosting_status": "接待状态",
     "joined": "自加入以来",
     "languages_conversational": "能进行会话的语言",
-    "languages_fluent": "流利语言",
-    "last_active": "上次活跃",
+    "languages_fluent": "精通语言",
+    "last_active": "最后活跃",
     "local_time": "本地时间",
     "occupation": "职业",
     "references": "评语",
@@ -110,7 +111,7 @@
   },
   "edit_profile_tab_bar_a11y_label": "编辑个人资料的标签",
   "info_unanswered": "问我",
-  "my_connections": "我的连接",
+  "my_connections": "我的联系人",
   "connection_pending": "待处理",
   "cancel": "取消",
   "more_profile_actions": "...",
@@ -119,7 +120,7 @@
   "report_reason": "原因",
   "report_user": "举报此用户",
   "leave_reference": {
-    "appropriate_explanation": "太棒了——希望你度过了愉快的时光！为了帮助保持社区安全，我们想询问你与这位Coucher的互动。",
+    "appropriate_explanation": "您在本页的私人反馈以及在下一页的公开评价，对于维护社区的安全、可信和友好至关重要。感谢您为社区做出的贡献！",
     "appropriate_question": "你是否觉得与此人的行为互动是安全的？",
     "invalid_reference_type": "无效的评语类型",
     "invalid_step": "无效的表单步骤",
@@ -127,14 +128,14 @@
     "private_answer": "你的回答不会被对方看到，将保持私密。",
     "private_text_label": "你还将提交以下私密回答：",
     "public_answer": "这将公开显示在他们的个人资料的评语部分。",
-    "public_text_label": "你正在为你的Coucher的留言簿留下以下评语：",
-    "rating_label": "你的经历让你感觉像",
-    "rating_how": "我应该如何评价我的经历？",
+    "public_text_label": "您将留下以下公开推荐，该推荐将显示在{{name}}的个人资料上：",
+    "rating_label": "你的经历让你感觉像 ",
+    "rating_how": "您对{{name}}的整体体验如何？",
     "reference_form_heading_friend": "你与{{name}}见面",
     "reference_form_heading_hosted": "你接待了{{name}}",
     "reference_form_heading_surfed": "你与{{name}}一起冲浪",
     "writing_for_text": "你正在为以下人写评语：",
-    "reference_submit_heading": "感谢你留下评语！",
+    "reference_submit_heading": "请查看您的推荐",
     "reference_type_not_available": "此评语类型对该用户不可用。",
     "required": "此步骤是必需的。",
     "text_explanation": "为你的Coucher的留言簿留下便条——说声感谢，或者让其他人知道你是否喜欢和他们在一起。",
@@ -173,7 +174,7 @@
   "accept_friend_label": "接受好友请求",
   "decline_friend_label": "拒绝好友请求",
   "no_references": "还没有此类评语！",
-  "references_filter_a11y_label": "显示评语：",
+  "references_filter_a11y_label": "显示推荐： ",
   "see_more_references": "查看更多评语",
   "write_reference": "写评语",
   "last_active_false": "未知",
@@ -194,5 +195,15 @@
     "header_text": "按 'Enter' 键添加\n<support_link>给我们发邮件</support_link>以添加条目",
     "remove_button_a11y_text": "移除{{tag}}"
   },
-  "view_in_admin_console": "在管理员控制台查看用户"
+  "view_in_admin_console": "在管理员控制台查看用户",
+  "incomplete_dialog": {
+    "title": "资料未完成",
+    "description": "在您完成以下操作之前，您将无法发送请求、消息或创建活动："
+  },
+  "edit": "编辑个人资料",
+  "active": "活跃",
+  "helper_text": {
+    "characters_remaining": "<bold>请至少输入{{count}}个字符以解锁消息和请求。</bold>真实的个人资料有助于建立信任社区。你分享得越多，越容易建立联系！",
+    "missing_profile_photo": "请添加一张照片以完善您的个人资料。"
+  }
 }

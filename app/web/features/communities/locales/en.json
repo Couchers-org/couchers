@@ -39,7 +39,7 @@
   "edit_event": "Edit event",
   "edit_info_page_title": "Edit local info",
   "error_loading_community": "Error loading the community.",
-  "events_empty_state": "No events at the moment.",
+  "events_empty_state": "No events at the moment. Why don't you <0>create</0> one ✨?",
   "find_host": "Find host",
   "finished": "Finished",
   "community_info_page_title": "General information",
@@ -143,5 +143,9 @@
     "title": "Remove as co-organizer",
     "dialog_title": "Remove {{name}} as co-organizer",
     "dialog_text": "Are you sure you want to remove {{name}} as a co-organizer of {{event}}?"
-  }
+  },
+  "search_communities": "Search and visit a community",
+  "search_communities_placeholder": "Search by city or country name...",
+  "search_communities_helper": "Select a community to go to its page",
+  "no_results_found_with_link": "No communities found. <0>Request this community!</0>"
 }

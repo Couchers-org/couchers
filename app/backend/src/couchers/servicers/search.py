@@ -7,7 +7,7 @@ from datetime import timedelta
 import grpc
 from sqlalchemy.sql import and_, func, or_
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.helpers.strong_verification import has_strong_verification
 from couchers.materialized_views import LiteUser, UserResponseRate
@@ -28,6 +28,7 @@ from couchers.models import (
     StrongVerificationAttempt,
     User,
 )
+from couchers.proto import search_pb2, search_pb2_grpc
 from couchers.reranker import reranker
 from couchers.servicers.api import (
     fluency2sql,
@@ -57,7 +58,6 @@ from couchers.utils import (
     now,
     to_aware_datetime,
 )
-from proto import search_pb2, search_pb2_grpc
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 100
@@ -383,13 +383,10 @@ def _user_search_inner(request, context, session):
             raw_dt = to_aware_datetime(request.last_active)
             statement = statement.where(User.last_active >= last_active_coarsen(raw_dt))
 
-        if len(request.gender) > 0:
+        if request.same_gender_only:
             if not has_strong_verification(session, user):
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NEED_STRONG_VERIFICATION)
-            elif user.gender not in request.gender:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.MUST_INCLUDE_OWN_GENDER)
-            else:
-                statement = statement.where(User.gender.in_(request.gender))
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "need_strong_verification")
+            statement = statement.where(User.gender == user.gender)
 
         if len(request.hosting_status_filter) > 0:
             statement = statement.where(
@@ -499,7 +496,7 @@ def _user_search_inner(request, context, session):
             # could do a join here as well, but this is just simpler
             node = session.execute(select(Node).where(Node.id == request.search_in_community_id)).scalar_one_or_none()
             if not node:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
             statement = statement.where(func.ST_Contains(node.geom, User.geom))
 
         if request.only_with_references:
@@ -784,7 +781,7 @@ class Search(search_pb2_grpc.SearchServicer):
             # could do a join here as well, but this is just simpler
             node = session.execute(select(Node).where(Node.id == request.search_in_community_id)).scalar_one_or_none()
             if not node:
-                context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
             statement = statement.where(func.ST_Contains(node.geom, EventOccurrence.geom))
 
         if request.HasField("after"):

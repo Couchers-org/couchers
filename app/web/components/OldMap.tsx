@@ -1,6 +1,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import { styled, Typography } from "@mui/material";
+import { useTranslation } from "i18n";
 import {
   LngLat,
   Map as MaplibreMap,
@@ -8,7 +9,6 @@ import {
   RequestParameters,
 } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 
 import { SEARCH } from "../i18n/namespaces";
 
@@ -36,7 +36,7 @@ const StyledNoMapText = styled("div")({
   height: "100%",
 });
 
-export interface MapProps {
+interface MapProps {
   initialCenter: LngLat | undefined;
   initialZoom: number;
   postMapInitialize?: (map: MaplibreMap) => void;
@@ -78,7 +78,7 @@ export default function Map({
     return { url };
   };
 
-  const mapRef = useRef<MaplibreMap>();
+  const mapRef = useRef<MaplibreMap>(undefined);
 
   useEffect(() => {
     if (!containerRef.current) return;

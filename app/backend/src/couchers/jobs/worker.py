@@ -4,11 +4,13 @@ Background job workers
 
 import logging
 import traceback
+from collections.abc import Callable
 from datetime import timedelta
 from inspect import getmembers, isfunction
 from multiprocessing import Process
 from sched import scheduler
 from time import monotonic, perf_counter_ns, sleep
+from typing import Any
 
 import sentry_sdk
 import sqlalchemy.exc
@@ -17,6 +19,7 @@ from opentelemetry import trace
 
 from couchers.config import config
 from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
+from couchers.experimentation import setup_experimentation
 from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
@@ -32,10 +35,10 @@ from couchers.tracing import setup_tracing
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
-trace = trace.get_tracer(__name__)
+tracer = trace.get_tracer(__name__)
 
-JOBS = {}
-SCHEDULE = []
+JOBS: dict[str, tuple[Any, Callable[[Any], Any]]] = {}
+SCHEDULE: list[tuple[str, timedelta]] = []
 
 for name, func in getmembers(handlers, isfunction):
     if hasattr(func, "PAYLOAD"):
@@ -44,7 +47,7 @@ for name, func in getmembers(handlers, isfunction):
             SCHEDULE.append((name, func.SCHEDULE))
 
 
-def process_job():
+def process_job() -> bool:
     """
     Attempt to process one job from the job queue. Returns False if no job was found, True if a job was processed,
     regardless of failure/success.
@@ -88,7 +91,7 @@ def process_job():
 
         jobs_queued_histogram.observe((now() - job.queued).total_seconds())
         try:
-            with trace.start_as_current_span(job.job_type) as rollspan:
+            with tracer.start_as_current_span(job.job_type) as rollspan:
                 start = perf_counter_ns()
                 ret = func(message_type.FromString(job.payload))
                 finished = perf_counter_ns()
@@ -126,7 +129,7 @@ def process_job():
     return True
 
 
-def service_jobs():
+def service_jobs() -> None:
     """
     Service jobs in an infinite loop
     """
@@ -136,7 +139,7 @@ def service_jobs():
             sleep(1)
 
 
-def _run_job_and_schedule(sched, schedule_id):
+def _run_job_and_schedule(sched: scheduler, schedule_id: int) -> None:
     job_type, frequency = SCHEDULE[schedule_id]
     logger.info(f"Processing job of type {job_type}")
 
@@ -156,7 +159,7 @@ def _run_job_and_schedule(sched, schedule_id):
         queue_job(session, job_type, empty_pb2.Empty())
 
 
-def run_scheduler():
+def run_scheduler() -> None:
     """
     Schedules jobs according to schedule in .definitions
     """
@@ -176,9 +179,12 @@ def run_scheduler():
     sched.run()
 
 
-def _run_forever(func):
+def _run_forever(func: Callable[[], None]) -> None:
+    # Post-fork initialization: these services use threading/async internals that
+    # don't survive fork() and must be initialized fresh in each child process
     db_post_fork()
     setup_tracing()
+    setup_experimentation()  # Must be initialized after fork - see couchers/experimentation.py
 
     while True:
         try:
@@ -190,7 +196,7 @@ def _run_forever(func):
             sleep(60)
 
 
-def start_jobs_scheduler():
+def start_jobs_scheduler() -> Process:
     scheduler = Process(
         target=_run_forever,
         args=(run_scheduler,),
@@ -199,7 +205,7 @@ def start_jobs_scheduler():
     return scheduler
 
 
-def start_jobs_worker():
+def start_jobs_worker() -> Process:
     worker = Process(target=_run_forever, args=(service_jobs,))
     worker.start()
     return worker

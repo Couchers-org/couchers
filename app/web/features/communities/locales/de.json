@@ -32,7 +32,7 @@
   "edit_event": "Event bearbeiten",
   "discussions_title": "Beiträge",
   "error_loading_community": "Fehler beim Laden der Community.",
-  "events_empty_state": "Aktuell gibt es keine Events.",
+  "events_empty_state": "Aktuell gibt es keine Events. Warum <0>erstellst</0> du nicht eins ✨?",
   "find_host": "Host finden",
   "community_info_page_title": "Allgemeine Infos",
   "finished": "Beendet",
@@ -143,5 +143,9 @@
     "dialog_title": "{{name}} als Mitorganisator entfernen",
     "title": "Als Mitorganisator entfernen",
     "dialog_text": "Bist du dir sicher, dass du {{name}} als Mitorganisator von {{event}} entfernen möchtest?"
-  }
+  },
+  "search_communities_helper": "Wähle eine Community aus um zu ihrer Seite zu gehen",
+  "search_communities": "Suche und besuche eine Community",
+  "no_results_found_with_link": "Keine Communitys gefunden. <0>Diese Community anfordern!</0>",
+  "search_communities_placeholder": "Suche nach Stadt- oder Ländernamen..."
 }

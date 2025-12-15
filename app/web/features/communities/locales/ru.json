@@ -54,7 +54,7 @@
   "discussions_title": "Обсуждения",
   "edit_event": "Редактировать мероприятие",
   "edit_info_page_title": "Редактировать локальную информацию",
-  "events_empty_state": "В данный момент нет мероприятий.",
+  "events_empty_state": "В данный момент нет мероприятий. Почему бы вам не <0>создать</0> одно ✨?",
   "find_host": "Найти хоста",
   "finished": "Завершено",
   "community_info_page_title": "Общая информация",
@@ -144,5 +144,9 @@
   "your_events": "Ваши мероприятия",
   "all_events_page_tabs_a11y_label": "Вкладки для страницы списка мероприятий",
   "discover_events_title": "Откройте для себя мероприятия Couchers.org",
-  "created_by_me": "Создано мной"
+  "created_by_me": "Создано мной",
+  "search_communities_placeholder": "Поиск по названию города или страны...",
+  "search_communities_helper": "Выберите сообщество, чтобы перейти на его страницу",
+  "search_communities": "Найдите и посетите сообщество",
+  "no_results_found_with_link": "Сообщества не найдены. <0>Запросить это сообщество!</0>"
 }

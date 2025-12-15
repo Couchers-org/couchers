@@ -5,14 +5,16 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.config import config
+from couchers.constants import GHOST_USERNAME
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
     FriendRelationship,
     FriendStatus,
+    GroupChat,
     GroupChatSubscription,
     HostingStatus,
     HostRequest,
@@ -35,8 +37,11 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
+from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
 from couchers.rate_limits.check import process_rate_limits_and_check_abort
+from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
+from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
 from couchers.sql import is_valid_user_id, is_valid_username
 from couchers.utils import (
@@ -47,7 +52,15 @@ from couchers.utils import (
     is_valid_name,
     now,
 )
-from proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
+
+
+class GhostUserSerializationError(Exception):
+    """
+    Raised when attempting to serialize a ghost user (deleted/banned/blocked)
+    """
+
+    pass
+
 
 MAX_USERS_PER_QUERY = 200
 MAX_PAGINATION_LENGTH = 50
@@ -150,6 +163,7 @@ class API(api_pb2_grpc.APIServicer):
             select(HostRequest.conversation_id, HostRequest.surfer_last_seen_message_id)
             .where(HostRequest.surfer_user_id == context.user_id)
             .where_users_column_visible(context, HostRequest.host_user_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
         ).subquery()
 
         unseen_sent_host_request_count = session.execute(
@@ -166,6 +180,7 @@ class API(api_pb2_grpc.APIServicer):
             select(HostRequest.conversation_id, HostRequest.host_last_seen_message_id)
             .where(HostRequest.host_user_id == context.user_id)
             .where_users_column_visible(context, HostRequest.surfer_user_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
         ).subquery()
 
         unseen_received_host_request_count = session.execute(
@@ -181,6 +196,8 @@ class API(api_pb2_grpc.APIServicer):
         unseen_message_count = session.execute(
             select(func.count(Message.id))
             .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+            .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+            .where_moderated_content_visible(context, GroupChat, is_list_operation=True)
             .where(GroupChatSubscription.user_id == context.user_id)
             .where(Message.time >= GroupChatSubscription.joined)
             .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
@@ -216,40 +233,33 @@ class API(api_pb2_grpc.APIServicer):
         )
 
     def GetUser(self, request, context, session):
-        user = session.execute(
-            select(User).where_users_visible(context).where_username_or_id(request.user)
-        ).scalar_one_or_none()
+        user = session.execute(select(User).where_username_or_id(request.user)).scalar_one_or_none()
 
         if not user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        return user_model_to_pb(user, session, context)
+        return user_model_to_pb(user, session, context, is_get_user_return_ghosts=True)
 
     def GetLiteUser(self, request, context, session):
         lite_user = session.execute(
-            select(LiteUser)
-            .where_users_visible(context, table=LiteUser)
-            .where_username_or_id(request.user, table=LiteUser)
+            select(LiteUser).where_username_or_id(request.user, table=LiteUser)
         ).scalar_one_or_none()
 
         if not lite_user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        return lite_user_to_pb(lite_user)
+        return lite_user_to_pb(session, lite_user, context, is_get_user_return_ghosts=True)
 
     def GetLiteUsers(self, request, context, session):
         if len(request.users) > MAX_USERS_PER_QUERY:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.REQUESTED_TOO_MANY_USERS)
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "requested_too_many_users")
 
         usernames = {u for u in request.users if is_valid_username(u)}
         ids = {u for u in request.users if is_valid_user_id(u)}
 
+        # decomposed where_username_or_id...
         users = (
-            session.execute(
-                select(LiteUser)
-                .where_users_visible(context, table=LiteUser)
-                .where(or_(LiteUser.username.in_(usernames), LiteUser.id.in_(ids)))
-            )
+            session.execute(select(LiteUser).where(or_(LiteUser.username.in_(usernames), LiteUser.id.in_(ids))))
             .scalars()
             .all()
         )
@@ -270,7 +280,9 @@ class API(api_pb2_grpc.APIServicer):
                 api_pb2.LiteUserRes(
                     query=user,
                     not_found=lite_user is None,
-                    user=lite_user_to_pb(lite_user) if lite_user else None,
+                    user=lite_user_to_pb(session, lite_user, context, is_get_user_return_ghosts=True)
+                    if lite_user
+                    else None,
                 )
             )
 
@@ -281,7 +293,7 @@ class API(api_pb2_grpc.APIServicer):
 
         if request.HasField("name"):
             if not is_valid_name(request.name.value):
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_NAME)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_name")
             user.name = request.name.value
 
         if request.HasField("city"):
@@ -295,7 +307,7 @@ class API(api_pb2_grpc.APIServicer):
 
         if request.HasField("lat") and request.HasField("lng"):
             if request.lat.value == 0 and request.lng.value == 0:
-                context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_COORDINATE)
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
             user.geom = create_coordinate(request.lat.value, request.lng.value)
             user.randomized_geom = None
 
@@ -349,12 +361,12 @@ class API(api_pb2_grpc.APIServicer):
 
         if request.hosting_status != api_pb2.HOSTING_STATUS_UNSPECIFIED:
             if user.do_not_email and request.hosting_status != api_pb2.HOSTING_STATUS_CANT_HOST:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DO_NOT_EMAIL_CANNOT_HOST)
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "do_not_email_cannot_host")
             user.hosting_status = hostingstatus2sql[request.hosting_status]
 
         if request.meetup_status != api_pb2.MEETUP_STATUS_UNSPECIFIED:
             if user.do_not_email and request.meetup_status != api_pb2.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP:
-                context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DO_NOT_EMAIL_CANNOT_MEET)
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "do_not_email_cannot_meet")
             user.meetup_status = meetupstatus2sql[request.meetup_status]
 
         if request.HasField("language_abilities"):
@@ -366,7 +378,7 @@ class API(api_pb2_grpc.APIServicer):
             # add the new ones
             for language_ability in request.language_abilities.value:
                 if not language_is_allowed(language_ability.code):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_LANGUAGE)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_language")
                 session.add(
                     LanguageAbility(
                         user=user,
@@ -380,7 +392,7 @@ class API(api_pb2_grpc.APIServicer):
 
             for region in request.regions_visited.value:
                 if not region_is_allowed(region):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_region")
                 session.add(
                     RegionVisited(
                         user_id=user.id,
@@ -393,7 +405,7 @@ class API(api_pb2_grpc.APIServicer):
 
             for region in request.regions_lived.value:
                 if not region_is_allowed(region):
-                    context.abort(grpc.StatusCode.INVALID_ARGUMENT, errors.INVALID_REGION)
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_region")
                 session.add(
                     RegionLived(
                         user_id=user.id,
@@ -536,6 +548,8 @@ class API(api_pb2_grpc.APIServicer):
             else:
                 user.camping_ok = request.camping_ok.value
 
+        user.profile_last_updated = now()
+
         return empty_pb2.Empty()
 
     def ListFriends(self, request, context, session):
@@ -580,7 +594,7 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one_or_none()
 
         if not rel:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_FRIENDS)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_friends")
 
         session.delete(rel)
 
@@ -595,7 +609,7 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one_or_none()
 
         if not user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         q1 = (
             select(FriendRelationship.from_user_id.label("user_id"))
@@ -640,7 +654,7 @@ class API(api_pb2_grpc.APIServicer):
 
     def SendFriendRequest(self, request, context, session):
         if context.user_id == request.user_id:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANT_FRIEND_SELF)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_friend_self")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         to_user = session.execute(
@@ -648,7 +662,7 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one_or_none()
 
         if not to_user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         if (
             session.execute(
@@ -674,13 +688,17 @@ class API(api_pb2_grpc.APIServicer):
             ).scalar_one_or_none()
             is not None
         ):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.FRIENDS_ALREADY_OR_PENDING)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "friends_already_or_pending")
 
         # Check if user has been sending friend requests excessively
         if process_rate_limits_and_check_abort(
             session=session, user_id=context.user_id, action=RateLimitAction.friend_request
         ):
-            context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, errors.FRIEND_REQUEST_RATE_LIMIT)
+            context.abort_with_error_code(
+                grpc.StatusCode.RESOURCE_EXHAUSTED,
+                "friend_request_rate_limit",
+                substitutions={"hours": RATE_LIMIT_HOURS},
+            )
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
 
@@ -692,7 +710,7 @@ class API(api_pb2_grpc.APIServicer):
             session,
             user_id=friend_relationship.to_user_id,
             topic_action="friend_request:create",
-            key=friend_relationship.from_user_id,
+            key=str(friend_relationship.from_user_id),
             data=notification_data_pb2.FriendRequestCreate(
                 other_user=user_model_to_pb(friend_relationship.from_user, session, context),
             ),
@@ -755,7 +773,7 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one_or_none()
 
         if not friend_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "friend_request_not_found")
 
         friend_request.status = FriendStatus.accepted if request.accept else FriendStatus.rejected
         friend_request.time_responded = func.now()
@@ -767,7 +785,7 @@ class API(api_pb2_grpc.APIServicer):
                 session,
                 user_id=friend_request.from_user_id,
                 topic_action="friend_request:accept",
-                key=friend_request.to_user_id,
+                key=str(friend_request.to_user_id),
                 data=notification_data_pb2.FriendRequestAccept(
                     other_user=user_model_to_pb(friend_request.to_user, session, context),
                 ),
@@ -785,7 +803,7 @@ class API(api_pb2_grpc.APIServicer):
         ).scalar_one_or_none()
 
         if not friend_request:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.FRIEND_REQUEST_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "friend_request_not_found")
 
         friend_request.status = FriendStatus.cancelled
         friend_request.time_responded = func.now()
@@ -830,7 +848,7 @@ class API(api_pb2_grpc.APIServicer):
         next_user_id = int(request.page_token) if request.page_token else 0
         badge = get_badge_dict().get(request.badge_id)
         if not badge:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.BADGE_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "badge_not_found")
 
         badge_user_ids = (
             session.execute(
@@ -899,9 +917,26 @@ def get_num_references(session, user_ids):
     )
 
 
-def user_model_to_pb(db_user, session, context):
+def user_model_to_pb(db_user, session, context, *, is_admin_see_ghosts=False, is_get_user_return_ghosts=False):
     # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
+
+    if not is_admin_see_ghosts and is_not_visible(session, context.user_id, db_user.id):
+        # User is not visible (deleted, banned, or blocked)
+        if is_get_user_return_ghosts:
+            # Return an anonymized "ghost" user profile
+            return api_pb2.User(
+                user_id=db_user.id,
+                is_ghost=True,
+                username=GHOST_USERNAME,
+                name=context.get_localized_string("ghost_users", "display_name"),
+                about_me=context.get_localized_string("ghost_users", "about_me"),
+            )
+        raise GhostUserSerializationError(
+            f"Tried to serialize ghost profile in user_model_to_pb without appropriate flags. "
+            f"Context user_id: {context.user_id}, db_user id: {db_user.id} (username: {db_user.username})"
+        )
+
     num_references = get_num_references(session, [db_user.id]).get(db_user.id, 0)
 
     # returns (lat, lng)
@@ -1076,7 +1111,24 @@ def user_model_to_pb(db_user, session, context):
     return user
 
 
-def lite_user_to_pb(lite_user: LiteUser):
+def lite_user_to_pb(
+    session, lite_user: LiteUser, context, *, is_admin_see_ghosts=False, is_get_user_return_ghosts=False
+):
+    if not is_admin_see_ghosts and is_not_visible(session, context.user_id, lite_user.id):
+        # User is not visible (deleted, banned, or blocked)
+        if is_get_user_return_ghosts:
+            # Return an anonymized "ghost" user profile
+            return api_pb2.LiteUser(
+                user_id=lite_user.id,
+                is_ghost=True,
+                username=GHOST_USERNAME,
+                name=context.get_localized_string("ghost_users", "display_name"),
+            )
+        raise GhostUserSerializationError(
+            f"Tried to serialize ghost profile in lite_user_to_pb without appropriate flags. "
+            f"Context user_id: {context.user_id}, lite_user id: {lite_user.id} (username: {lite_user.username})"
+        )
+
     lat, lng = get_coordinates(lite_user.geom) or (0, 0)
 
     return api_pb2.LiteUser(

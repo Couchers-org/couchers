@@ -1,2 +1,57 @@
 {
+  "actions": {
+    "back_to_dashboard": "Göstergeye geri dön",
+    "message_label": "Mesaj",
+    "accept_friend_label": "Kabul et",
+    "decline_friend_label": "Reddet",
+    "request": "İstek"
+  },
+  "heading": {
+    "about_me": "Benim hakkımda",
+    "age_gender": "Yaş / Cinsiyet",
+    "community_standing": "Topluluk İtibarı",
+    "edit": "Düzenle",
+    "edit_profile": "Profili düzenle",
+    "education": "Eğitim",
+    "home": "Evim",
+    "languages_fluent": "Akıcı diller",
+    "last_active": "En son aktiflik",
+    "local_time": "Yerel zaman",
+    "who_section": "Ben kimim",
+    "hobbies_section": "Boş vaktimde neler yaparım",
+    "additional_information_section": "Daha fazla bilgi",
+    "travel_section": "Seyahat ettiği ülkeler",
+    "age_verification_mismatch": "Doğrulanmış doğum tarihi ile kullanıcının verdiği doğum tarihi uymamakta",
+    "gender_verification_verified": "Bu kullanıcı cinsiyetini doğruladı",
+    "occupation": "Meslek",
+    "references": "Referanslar",
+    "overview_section": "Genel Bakış",
+    "lived_section": "Yaşadığı Ülkeler",
+    "map_section": "Yolculuk haritası",
+    "age_verification_verified": "Bu kullanıcı doğum tarihini doğruladı",
+    "hometown": "'da büyüdü",
+    "hosting_status": "Ev sahipliği durumu",
+    "joined": "Koltuk sörfüne başlama tarihi",
+    "languages_conversational": "Dillerde konuşabiliyor",
+    "gender_verification_mismatch": "Doğrulanan cinsiyet ile kullanıcının verdiği cinsiyet uyuşmamakta"
+  },
+  "active": "Aktif",
+  "my_connections": "Bağlantılarım",
+  "cancel": "İptal et",
+  "helper_text": {
+    "missing_profile_photo": "Lütfen profilini tamamlamak için bir fotoğraf ekle."
+  },
+  "section_tabs_a11y_label": "kullanıcı detayları için sekmeler",
+  "incomplete_dialog": {
+    "description": "Şunu tamamlayana dek istekler ve mesajlar göndermeyeceksin ve etkinlikler oluşturamayacaksın:",
+    "continue_editing": "Düzenlemeye devam et"
+  },
+  "edit": "Profili Düzenle",
+  "leave_reference": {
+    "next_step_label": "İleri"
+  },
+  "home_info_headings": {
+    "about_home": "Evim hakkında",
+    "general": "Genel"
+  }
 }

@@ -36,6 +36,9 @@ service References {
   rpc ListPendingReferencesToWrite(google.protobuf.Empty) returns (ListPendingReferencesToWriteRes) {
     // Returns a list of references that you should write about others, e.g. after surfing or hosting
   }
+
+  // Returns status for whether the current user can write a host-request reference for the given request id
+  rpc GetHostRequestReferenceStatus(GetHostRequestReferenceStatusReq) returns (GetHostRequestReferenceStatusRes) {}
 }
 
 enum ReferenceType {
@@ -120,4 +123,17 @@ message AvailableWriteReferencesRes {
 
 message ListPendingReferencesToWriteRes {
   repeated AvailableWriteReferenceType pending_references = 1;
+}
+
+message GetHostRequestReferenceStatusReq {
+  int64 host_request_id = 1;
+}
+
+message GetHostRequestReferenceStatusRes {
+  // True if a reference exists for this host request written by current user
+  bool has_given = 1;
+  bool can_write = 2;
+  // True if the write window is past the 14-day deadline
+  bool is_expired = 3;
+  bool didnt_stay = 4;
 }

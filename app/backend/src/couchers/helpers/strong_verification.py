@@ -1,9 +1,11 @@
-from couchers.models import StrongVerificationAttempt
+from sqlalchemy.orm import Session
+
+from couchers.models import StrongVerificationAttempt, User
+from couchers.proto import api_pb2
 from couchers.sql import couchers_select as select
-from proto import api_pb2
 
 
-def has_strong_verification(session, user):
+def has_strong_verification(session: Session, user: User) -> bool:
     attempt = session.execute(
         select(StrongVerificationAttempt)
         .where(StrongVerificationAttempt.user_id == user.id)
@@ -13,12 +15,12 @@ def has_strong_verification(session, user):
     ).scalar_one_or_none()
     if attempt:
         assert attempt.is_valid
-        return attempt.has_strong_verification(user)
+        return bool(attempt.has_strong_verification(user))
     return False
 
 
-def get_strong_verification_fields(session, db_user):
-    out = dict(
+def get_strong_verification_fields(session: Session, db_user: User) -> dict[str, int | bool]:
+    out: dict[str, int | bool] = dict(
         birthdate_verification_status=api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
         gender_verification_status=api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED,
         has_strong_verification=False,

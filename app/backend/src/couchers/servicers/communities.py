@@ -5,9 +5,9 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.sql import delete, func, or_
 
-from couchers import errors
+from couchers.constants import COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD
 from couchers.crypto import decrypt_page_token, encrypt_page_token
-from couchers.db import can_moderate_node, get_node_parents_recursively
+from couchers.db import can_moderate_node, get_node_parents_recursively, is_user_in_node_geography
 from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
 from couchers.models import (
     Cluster,
@@ -21,13 +21,13 @@ from couchers.models import (
     PageType,
     User,
 )
+from couchers.proto import communities_pb2, communities_pb2_grpc, groups_pb2
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
-from proto import communities_pb2, communities_pb2_grpc, groups_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +119,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
     def GetCommunity(self, request, context, session):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
         return community_to_pb(session, node, context)
 
@@ -143,6 +143,28 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             communities=communities_to_pb(session, nodes[:page_size], context),
             next_page_token=encrypt_page_token(str(offset + page_size)) if len(nodes) > page_size else None,
         )
+
+    def SearchCommunities(self, request, context, session):
+        raw_query = request.query.strip()
+        if len(raw_query) < 3:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "query_too_short")
+
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+
+        word_similarity_score = func.word_similarity(func.unaccent(raw_query), func.immutable_unaccent(Cluster.name))
+
+        query = (
+            select(Node)
+            .join(Cluster, Cluster.parent_node_id == Node.id)
+            .where(Cluster.is_official_cluster)
+            .where(word_similarity_score > COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD)
+            .order_by(word_similarity_score.desc(), Cluster.name.asc(), Node.id.asc())
+            .limit(page_size)
+        )
+
+        rows = session.execute(query).scalars().all()
+
+        return communities_pb2.SearchCommunitiesRes(communities=communities_to_pb(session, rows, context))
 
     def ListGroups(self, request, context, session):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
@@ -169,7 +191,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         next_admin_id = int(request.page_token) if request.page_token else 0
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         admins = (
             session.execute(
                 select(User)
@@ -192,15 +214,15 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
     def AddAdmin(self, request, context, session):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         if not can_moderate_node(session, context.user_id, node.id):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NODE_MODERATE_PERMISSION_DENIED)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "node_moderate_permission_denied")
 
         user = session.execute(
             select(User).where_users_visible(context).where(User.id == request.user_id)
         ).scalar_one_or_none()
         if not user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         subscription = session.execute(
             select(ClusterSubscription)
@@ -209,9 +231,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         ).scalar_one_or_none()
         if not subscription:
             # Can't upgrade a member to admin if they're not already a member
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_MEMBER)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_not_member")
         if subscription.role == ClusterRole.admin:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_ALREADY_ADMIN)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_admin")
 
         subscription.role = ClusterRole.admin
 
@@ -220,15 +242,15 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
     def RemoveAdmin(self, request, context, session):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         if not can_moderate_node(session, context.user_id, node.id):
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NODE_MODERATE_PERMISSION_DENIED)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "node_moderate_permission_denied")
 
         user = session.execute(
             select(User).where_users_visible(context).where(User.id == request.user_id)
         ).scalar_one_or_none()
         if not user:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.USER_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         subscription = session.execute(
             select(ClusterSubscription)
@@ -236,9 +258,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .where(ClusterSubscription.cluster_id == node.official_cluster.id)
         ).scalar_one_or_none()
         if not subscription:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_MEMBER)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_not_member")
         if subscription.role == ClusterRole.member:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.USER_NOT_ADMIN)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_not_admin")
 
         subscription.role = ClusterRole.member
 
@@ -250,7 +272,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
         query = (
             select(User)
@@ -272,7 +294,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         next_nearby_id = int(request.page_token) if request.page_token else 0
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         nearbys = (
             session.execute(
                 select(User)
@@ -295,7 +317,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         next_page_id = int(request.page_token) if request.page_token else 0
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         places = (
             node.official_cluster.owned_pages.where(Page.type == PageType.place)
             .where(Page.id >= next_page_id)
@@ -313,7 +335,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         next_page_id = int(request.page_token) if request.page_token else 0
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         guides = (
             node.official_cluster.owned_pages.where(Page.type == PageType.guide)
             .where(Page.id >= next_page_id)
@@ -333,9 +355,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         if not node.official_cluster.events_enabled:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.EVENTS_NOT_ENABLED)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "events_not_enabled")
 
         if not request.include_parents:
             nodes_clusters_to_search = [(node.id, node.official_cluster)]
@@ -377,9 +399,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         next_page_id = int(request.page_token) if request.page_token else 0
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         if not node.official_cluster.discussions_enabled:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DISCUSSIONS_NOT_ENABLED)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussions_not_enabled")
         discussions = (
             node.official_cluster.owned_discussions.where(or_(Discussion.id <= next_page_id, next_page_id == 0))
             .order_by(Discussion.id.desc())
@@ -394,11 +416,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
     def JoinCommunity(self, request, context, session):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
         current_membership = node.official_cluster.members.where(User.id == context.user_id).one_or_none()
         if current_membership:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.ALREADY_IN_COMMUNITY)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "already_in_community")
 
         node.official_cluster.cluster_subscriptions.append(
             ClusterSubscription(
@@ -412,15 +434,15 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
     def LeaveCommunity(self, request, context, session):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
-            context.abort(grpc.StatusCode.NOT_FOUND, errors.COMMUNITY_NOT_FOUND)
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
         current_membership = node.official_cluster.members.where(User.id == context.user_id).one_or_none()
 
         if not current_membership:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.NOT_IN_COMMUNITY)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_in_community")
 
-        if context.user_id in node.contained_user_ids:
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.CANNOT_LEAVE_CONTAINING_COMMUNITY)
+        if is_user_in_node_geography(session, context.user_id, node.id):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cannot_leave_containing_community")
 
         session.execute(
             delete(ClusterSubscription)
@@ -452,4 +474,42 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         return communities_pb2.ListUserCommunitiesRes(
             communities=communities_to_pb(session, nodes[:page_size], context),
             next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
+        )
+
+    def ListAllCommunities(self, request, context, session):
+        """List all communities ordered hierarchically by parent-child relationships"""
+        # Get all nodes with their clusters, member counts, and user membership in a single query
+        results = session.execute(
+            select(
+                Node,
+                Cluster,
+                ClusterSubscriptionCount.count,
+                ClusterSubscription.cluster_id.label("user_subscription"),
+            )
+            .join(Cluster, Cluster.parent_node_id == Node.id)
+            .outerjoin(
+                ClusterSubscriptionCount,
+                ClusterSubscriptionCount.cluster_id == Cluster.id,
+            )
+            .outerjoin(
+                ClusterSubscription,
+                (ClusterSubscription.cluster_id == Cluster.id) & (ClusterSubscription.user_id == context.user_id),
+            )
+            .where(Cluster.is_official_cluster)
+            .order_by(Node.id)
+        ).all()
+
+        return communities_pb2.ListAllCommunitiesRes(
+            communities=[
+                communities_pb2.CommunitySummary(
+                    community_id=node.id,
+                    name=cluster.name,
+                    slug=cluster.slug,
+                    member=user_subscription is not None,
+                    member_count=member_count or 1,
+                    parents=_parents_to_pb(session, node.id),
+                    created=Timestamp_from_datetime(node.created),
+                )
+                for node, cluster, member_count, user_subscription in results
+            ],
         )

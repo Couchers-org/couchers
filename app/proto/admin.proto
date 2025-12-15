@@ -8,7 +8,6 @@ import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "api.proto";
-import "communities.proto";
 
 service Admin {
   option (auth_level) = AUTH_LEVEL_ADMIN;
@@ -54,15 +53,7 @@ service Admin {
     // it's sent to the user in an email
   }
 
-  rpc CreateCommunity(CreateCommunityReq) returns (org.couchers.api.communities.Community) {}
-
-  rpc UpdateCommunity(UpdateCommunityReq) returns (org.couchers.api.communities.Community) {}
-
   rpc GetChats(GetChatsReq) returns (GetChatsRes) {}
-
-  rpc ListEventCommunityInviteRequests(ListEventCommunityInviteRequestsReq) returns (ListEventCommunityInviteRequestsRes) {}
-
-  rpc DecideEventCommunityInviteRequest(DecideEventCommunityInviteRequestReq) returns (DecideEventCommunityInviteRequestRes) {}
 
   rpc DeleteEvent(DeleteEventReq) returns (google.protobuf.Empty) {}
 
@@ -86,7 +77,7 @@ service Admin {
 
   rpc AccessStats(AccessStatsReq) returns (AccessStatsRes) {}
 
-  rpc SendBlogPostNotification(SendBlogPostNotificationReq) returns (google.protobuf.Empty) {}
+  rpc SetLastDonated(SetLastDonatedReq) returns (UserDetails) {}
 }
 
 message UserDetails {
@@ -255,61 +246,53 @@ message CreateApiKeyReq {
 
 message CreateApiKeyRes {}
 
-message CreateCommunityReq {
-  string name = 1;
-  string description = 3;
-  int64 parent_node_id = 4;
-  repeated int64 admin_ids = 5;
-  string geojson = 6;
-}
-
-message UpdateCommunityReq {
-  int64 community_id = 1;
-  string name = 2;
-  string description = 3;
-  int64 parent_node_id = 4;
-  string geojson = 5;
-}
-
 message GetChatsReq {
   // username, email, or user id
   string user = 1;
 }
 
+message ChatMessage {
+  int64 message_id = 1;
+  UserDetails author = 2;
+  google.protobuf.Timestamp time = 3;
+  string message_type = 4; // e.g. "text", "chat_created", "host_request_status_changed"
+  string text = 5;
+  string host_request_status_target = 6; // if applicable
+  UserDetails target = 7; // for user_invited, user_made_admin, etc.
+}
+
+message GroupChatMember {
+  UserDetails user = 1;
+  google.protobuf.Timestamp joined = 2;
+  google.protobuf.Timestamp left = 3; // not set if still member
+  string role = 4; // e.g. "admin", "participant"
+}
+
+message AdminGroupChat {
+  int64 group_chat_id = 1;
+  string title = 2;
+  bool is_dm = 3;
+  UserDetails creator = 4;
+  repeated GroupChatMember members = 5;
+  repeated ChatMessage messages = 6;
+}
+
+message AdminHostRequest {
+  int64 host_request_id = 1;
+  UserDetails surfer = 2;
+  UserDetails host = 3;
+  string status = 4;
+  string from_date = 5;
+  string to_date = 6;
+  google.protobuf.Timestamp created = 7;
+  repeated ChatMessage messages = 8;
+}
+
 message GetChatsRes {
-  string response = 2;
+  UserDetails user = 1;
+  repeated AdminHostRequest host_requests = 2;
+  repeated AdminGroupChat group_chats = 3;
 }
-
-message ListEventCommunityInviteRequestsReq {
-  uint32 page_size = 1;
-  string page_token = 2;
-}
-
-message EventCommunityInviteRequest {
-  int64 event_community_invite_request_id = 1;
-
-  int64 user_id = 2;
-  string event_url = 3;
-
-  // assuming they have notifs enabled
-  uint32 approx_users_to_notify = 4;
-  int64 community_id = 5;
-}
-
-message ListEventCommunityInviteRequestsRes {
-  repeated EventCommunityInviteRequest requests = 1;
-
-  string next_page_token = 2;
-}
-
-message DecideEventCommunityInviteRequestReq {
-  int64 event_community_invite_request_id = 1;
-
-  // whether to approve or deny it
-  bool approve = 2;
-}
-
-message DecideEventCommunityInviteRequestRes {}
 
 message DeleteEventReq {
   int64 event_id = 1;
@@ -416,8 +399,9 @@ message AccessStatsRes {
   repeated AccessStat stats = 1;
 }
 
-message SendBlogPostNotificationReq {
-  string url = 1;
-  string title = 2;
-  string blurb = 3;
+message SetLastDonatedReq {
+  // username, email, or user id
+  string user = 1;
+  // if not set, clears last_donated (removes donor status)
+  google.protobuf.Timestamp last_donated = 2;
 }

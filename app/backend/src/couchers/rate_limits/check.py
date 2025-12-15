@@ -1,21 +1,20 @@
 import logging
-from typing import TYPE_CHECKING
+from collections.abc import Sequence
 
-from sqlalchemy import exists, select
+from sqlalchemy import RowMapping, exists, select
+from sqlalchemy.orm import Session
 
 from couchers.models import RateLimitAction, RateLimitViolation
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL
 from couchers.tasks import send_rate_limit_violation_report_email
 from couchers.utils import now
 
-if TYPE_CHECKING:
-    from sqlalchemy.orm import Session
-
-
 logger = logging.getLogger(__name__)
 
 
-def _get_user_events_in_past_time_interval(session, user_id: int) -> dict[RateLimitAction, list[dict]]:
+def _get_user_events_in_past_time_interval(
+    session: Session, user_id: int
+) -> dict[RateLimitAction, Sequence[RowMapping]]:
     """Get all relevant events for the user in the last rate limit interval for the mod email."""
     return {
         action: RATE_LIMIT_DEFINITIONS[action].mod_email_information_query(session, user_id)
@@ -24,7 +23,7 @@ def _get_user_events_in_past_time_interval(session, user_id: int) -> dict[RateLi
 
 
 def _save_rate_limit_violation(
-    session: "Session", user_id: int, action: RateLimitAction, is_hard_limit: bool
+    session: Session, user_id: int, action: RateLimitAction, is_hard_limit: bool
 ) -> RateLimitViolation:
     """Save a rate limit violation to the database and return it."""
     violation = RateLimitViolation(
@@ -38,7 +37,7 @@ def _save_rate_limit_violation(
 
 
 def _user_has_violated_rate_limit_in_past_time_interval(
-    session: "Session", user_id: int, action: RateLimitAction, is_hard_limit: bool
+    session: Session, user_id: int, action: RateLimitAction, is_hard_limit: bool
 ) -> bool:
     """Check if a RateLimitViolation for the user for the given action exists in the last RATE_LIMIT_INTERVAL."""
     return session.execute(
@@ -53,14 +52,14 @@ def _user_has_violated_rate_limit_in_past_time_interval(
     ).scalar_one()
 
 
-def process_rate_limits_and_check_abort(session: "Session", user_id: int, action: RateLimitAction) -> bool:
+def process_rate_limits_and_check_abort(session: Session, user_id: int, action: RateLimitAction) -> bool:
     """
     Check if the user has reached a rate limit. Notify the moderation team in a separate background job if so.
 
     Returns True if the user has reached a hard rate limit.
     """
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[action]
-    count_last_interval = rate_limit_definition.count_actions_query(session=session, user_id=user_id)
+    count_last_interval = rate_limit_definition.count_actions_query(session, user_id)
     for limit, is_hard_limit in [
         (rate_limit_definition.hard_limit, True),
         (rate_limit_definition.warning_limit, False),

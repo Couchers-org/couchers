@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import { adminPanelUserLink } from "routes";
 
-export interface AdminPanelUserButtonProps {
+interface AdminPanelUserButtonProps {
   username: string;
 }
 

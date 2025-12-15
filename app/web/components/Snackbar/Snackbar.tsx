@@ -3,7 +3,7 @@ import { ReactNode, useState } from "react";
 
 import { grpcErrorStrings, ObscureGrpcErrorMessages } from "../../appConstants";
 
-export interface SnackbarProps {
+interface SnackbarProps {
   children: ReactNode;
   onClose?: () => void;
   severity: "success" | "error";

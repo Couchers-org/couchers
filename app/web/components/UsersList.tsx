@@ -18,7 +18,7 @@ const StyledUsersDiv = styled("div")(({ theme }) => ({
   rowGap: theme.spacing(1),
 }));
 
-export interface UsersListProps {
+interface UsersListProps {
   userIds: number[] | undefined;
   emptyListChildren?: ReactNode;
   endChildren?: ReactNode;

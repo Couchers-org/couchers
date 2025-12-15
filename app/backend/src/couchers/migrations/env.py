@@ -1,14 +1,17 @@
 from logging.config import fileConfig
+from typing import Any
 
 from alembic import context
+from alembic.config import Config
 from sqlalchemy import engine_from_config, pool
+from sqlalchemy.schema import MetaData
 
 from couchers import models
 from couchers.config import config as couchers_config
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config
+config: Config = context.config
 
 config.set_main_option("sqlalchemy.url", couchers_config["DATABASE_CONNECTION_STRING"])
 
@@ -16,13 +19,15 @@ config.set_main_option("sqlalchemy.url", couchers_config["DATABASE_CONNECTION_ST
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.get_main_option("dont_mess_up_logging", "dont_care") == "dont_care":
+    if not config.config_file_name:
+        raise RuntimeError(config.config_file_name)
     fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = models.Base.metadata
+target_metadata: MetaData = models.Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -30,20 +35,20 @@ target_metadata = models.Base.metadata
 # ... etc.
 
 
-exclude_tables = config.get_section("alembic:exclude").get("tables", "").split(",")
+exclude_tables = config.get_section("alembic:exclude", {}).get("tables", "").split(",")
 
 
-def include_name(name, type_, parent_names):
+def include_name(name: str | None, type_: str, parent_names: Any) -> bool:
     if type_ == "schema":
         return name in [None, "logging"]
     if type_ == "table":
         return name not in exclude_tables
     if type_ == "index":
-        return not (name.startswith("idx_") and name.endswith("_geom"))
+        return not (name is not None and name.startswith("idx_") and name.endswith("_geom"))
     return True
 
 
-def run_migrations_offline():
+def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
     This configures the context with just a URL
@@ -70,7 +75,7 @@ def run_migrations_offline():
         context.run_migrations()
 
 
-def run_migrations_online():
+def run_migrations_online() -> None:
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine
@@ -78,7 +83,7 @@ def run_migrations_online():
 
     """
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
+        config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

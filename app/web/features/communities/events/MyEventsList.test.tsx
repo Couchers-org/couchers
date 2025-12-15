@@ -45,8 +45,16 @@ describe("MyEventsList", () => {
     render(<MyEventsList />, { wrapper });
 
     expect(
-      await screen.findByText(t("communities:events_empty_state")),
+      await screen.findByText((content, element) => {
+        // Match text split across multiple elements by checking the full text content
+        return (
+          element?.textContent ===
+          "No events at the moment. Why don't you create one ✨?"
+        );
+      }),
     ).toBeInTheDocument();
+    // Check that there's a link to create a new event
+    expect(screen.getByRole("link", { name: "create" })).toBeInTheDocument();
   });
 
   it("Renders events list when events are available", async () => {

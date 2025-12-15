@@ -10,7 +10,7 @@ This is the backend for Couchers.org built in Python. The React web frontend and
 
 You need Docker engine installed. Please refer to the [Docker install documentation](https://docs.docker.com/engine/install/) for how to set it up.
 
-Next, run the follwoing commands to get up and running:
+Next, run the following commands to get up and running:
 
 ```sh
 ## Check out the repo and navigate to
@@ -44,15 +44,16 @@ docker compose -f docker-compose.test.yml up --build
 ### Running tests locally
 
 ```sh
-## Start the test database
-cd app
-docker compose -f docker-compose.test.yml up --no-deps postgres_tests
+cd app/backend
 
-## Create a virtual environment and enter it, then install the requirements.
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+## Install uv (if not already installed)
+make setup
+
+## Create a virtual environment and install dependencies
+uv sync --frozen
+
+## Start the test database
+make setup-db
 
 ## Now run the test against the testing postgres database
 make test

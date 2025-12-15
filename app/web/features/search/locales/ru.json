@@ -1,7 +1,8 @@
 {
+  "any": "Любая",
   "form": {
     "rules": {
-      "kids_allowed": "Дети разрешены",
+      "kids_allowed": "Разрешено с детьми",
       "pets_allowed": "Разрешено размещение с домашними животными",
       "smokes_at_home": "Курение в доме",
       "title": "Правила",
@@ -55,7 +56,10 @@
     "general_filters": {
       "has_strong_verification": "Имеет Надёжную Верификацию",
       "has_references": "Есть отзывы",
-      "accepts_last_minute_requests": "Принимает запросы в последнюю минуту"
+      "accepts_last_minute_requests": "Принимает запросы в последнюю минуту",
+      "same_gender_only": "Показывать только пользователей того же пола",
+      "same_gender_only_helper_text": "Только пользователи с Надёжной Верификацией могут использовать этот фильтр.",
+      "get_strong_verification": "Получите Надежную Верификацию здесь (это бесплатно)."
     }
   },
   "search_result": {
@@ -72,7 +76,6 @@
     "search_here_button": "Искать в этом районе"
   },
   "last_active_options": {
-    "any": "Любые",
     "last_month": "В прошлом месяце",
     "last_week": "На прошлой неделе",
     "last_3_months": "Последние 3 месяца",

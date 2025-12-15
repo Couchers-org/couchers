@@ -19,13 +19,6 @@ export type ReferenceContextFormData = {
   privateText?: string;
 };
 
-export type ReferenceFormInputs = {
-  text: string;
-  wasAppropriate: boolean;
-  rating: number;
-  privateText?: string;
-};
-
 export interface ReferenceStepProps {
   referenceData: ReferenceContextFormData;
   setReferenceValues: (values: ReferenceContextFormData) => void;

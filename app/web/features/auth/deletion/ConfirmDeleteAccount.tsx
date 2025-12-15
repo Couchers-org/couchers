@@ -11,7 +11,7 @@ import { logoutRoute } from "routes";
 import { service } from "service";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-export interface ConfirmDeleteAccountParams {
+interface ConfirmDeleteAccountParams {
   token?: string;
 }
 

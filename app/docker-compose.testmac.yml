@@ -1,0 +1,5 @@
+services:
+  postgres_tests:
+    build:
+      context: postgis
+    platform: linux/arm64/v8

@@ -4,13 +4,14 @@ import logging
 import grpc
 import stripe
 
-from couchers import errors, urls
+from couchers import urls
 from couchers.config import config
-from couchers.models import DonationInitiation, DonationType, Invoice, User
+from couchers.helpers.badges import user_add_badge
+from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
 from couchers.notifications.notify import notify
+from couchers.proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
+from couchers.proto.google.api import httpbody_pb2
 from couchers.sql import couchers_select as select
-from proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
-from proto.google.api import httpbody_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -31,13 +32,13 @@ def _create_stripe_customer(session, user):
 class Donations(donations_pb2_grpc.DonationsServicer):
     def InitiateDonation(self, request, context, session):
         if not config["ENABLE_DONATIONS"]:
-            context.abort(grpc.StatusCode.UNAVAILABLE, errors.DONATIONS_DISABLED)
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if request.amount < 2:
             # we don't want to waste *all* of the donation on processing fees
-            context.abort(grpc.StatusCode.FAILED_PRECONDITION, errors.DONATION_TOO_SMALL)
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "donation_too_small")
 
         if not user.stripe_customer_id:
             _create_stripe_customer(session, user)
@@ -88,7 +89,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
     def GetDonationPortalLink(self, request, context, session):
         if not config["ENABLE_DONATIONS"]:
-            context.abort(grpc.StatusCode.UNAVAILABLE, errors.DONATIONS_DISABLED)
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
@@ -119,38 +120,48 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         event_type = event["type"]
         event_id = event["id"]
         data_object = data["object"]
+        metadata = data_object.get("metadata", {})
 
         # Get the type of webhook event sent - used to check the status of PaymentIntents.
         logger.info(f"Got signed Stripe webhook, {event_type=}, {event_id=}")
 
         if event_type == "charge.succeeded":
-            customer_id = data_object["customer"]
-            user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
-            # amount comes in cents
-            amount = int(data_object["amount"]) // 100
-            receipt_url = data_object["receipt_url"]
+            if metadata.get("site_url") == config["MERCH_SHOP_URL"]:
+                # merch shop. look up this email and give them the swagster badge
+                user = session.execute(
+                    select(User).where(User.email == metadata["customer_email"])
+                ).scalar_one_or_none()
+                if user:
+                    user_add_badge(session, user.id, "swagster")
+            else:
+                customer_id = data_object["customer"]
+                user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
+                # amount comes in cents
+                amount = int(data_object["amount"]) // 100
+                receipt_url = data_object["receipt_url"]
+                payment_intent_id = data_object["payment_intent"]
 
-            # may be check for amount to enable phone verify
-            user.has_donated = True
-
-            session.add(
-                Invoice(
+                invoice = Invoice(
                     user_id=user.id,
                     amount=amount,
-                    stripe_payment_intent_id=data_object["payment_intent"],
+                    stripe_payment_intent_id=payment_intent_id,
                     stripe_receipt_url=receipt_url,
+                    invoice_type=InvoiceType.on_platform,
                 )
-            )
+                session.add(invoice)
+                session.flush()
+                user.last_donated = invoice.created
 
-            notify(
-                session,
-                user_id=user.id,
-                topic_action="donation:received",
-                data=notification_data_pb2.DonationReceived(
-                    amount=amount,
-                    receipt_url=receipt_url,
-                ),
-            )
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="donation:received",
+                    key="",
+                    data=notification_data_pb2.DonationReceived(
+                        amount=amount,
+                        receipt_url=receipt_url,
+                    ),
+                )
         else:
             logger.info(f"Unhandled event from Stripe: {event_type}")
 

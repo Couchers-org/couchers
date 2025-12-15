@@ -1,20 +1,13 @@
 import { useEffect, useState } from "react";
 
-export function getReactNativeWebView(): typeof window.ReactNativeWebView {
+function getReactNativeWebView(): typeof window.ReactNativeWebView {
   if (window && window.ReactNativeWebView) {
     return window.ReactNativeWebView;
   }
 }
 
-export function isNativeEmbed(): boolean {
+function isNativeEmbed(): boolean {
   return !!getReactNativeWebView();
-}
-
-export function getNativeData() {
-  const webview = getReactNativeWebView();
-  if (webview && webview.injectedObjectJson()) {
-    return JSON.parse(webview.injectedObjectJson());
-  }
 }
 
 export function useIsNativeEmbed(): boolean {
@@ -29,7 +22,7 @@ export function useIsNativeEmbed(): boolean {
 
 type MessageType = "sendState" | "clearState";
 
-export function sendToNative(type: MessageType, data: any) {
+function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;
   getReactNativeWebView()!.postMessage(
     JSON.stringify({ type: type, data: data }),

@@ -4,18 +4,16 @@ import { ReferenceType } from "proto/references_pb";
 export const languagesKey = "languages";
 export const regionsKey = "regions";
 export const badgesKey = "badges";
-export const blockedUserIdsKey = "blockedUserIds";
 export const blockedUsersKey = "blockedUsers";
 export const friendIdsKey = "friendIds";
-export const contributorFormInfoQueryKey = "contributorFormInfo";
 export const accountInfoQueryKey = "accountInfo";
-export const signupInfoQueryKey = "signupInfo";
 export const doNotEmailQueryKey = "doNotEmail";
 export const tosQueryKey = "tos";
 export const communityGuidelinesQueryKey = "communityGuidelines";
 export const notificationSettingsQueryKey = "notificationSettings";
 export const listNotificationsQueryKey = "listNotifications";
 export const username2Id = "username2Id";
+export const volunteerInfoQueryKey = "volunteerInfo";
 
 export function userKey(userId?: number) {
   return userId === undefined ? ["user"] : ["user", userId];
@@ -41,18 +39,13 @@ export interface ReferencesReceivedKeyInputs {
   userId: number;
   type: ReferenceType | "all";
 }
-export const referencesReceivedKey = ({
-  userId,
-  type,
-}: ReferencesReceivedKeyInputs) => [
-  referencesReceivedBaseKey,
-  { type, userId },
-];
 
 export const availableWriteReferencesKey = (userId: number) => [
   "availableWriteReferences",
   { userId },
 ];
+
+export const hasGivenHostRequestReferenceKey = "hasGivenHostRequestReference";
 
 export type FriendRequestType = "sent" | "received";
 export const friendRequestKey = (type: FriendRequestType) => [
@@ -66,18 +59,7 @@ export const subCommunitiesKey = (communityId: number) => [
   "subCommunities",
   communityId,
 ];
-export const communityGroupsKey = (communityId: number) => [
-  "communityGroups",
-  communityId,
-];
-export const communityGuidesKey = (communityId: number) => [
-  "communityGuides",
-  communityId,
-];
-export const communityPlacesKey = (communityId: number) => [
-  "communityPlaces",
-  communityId,
-];
+
 export const communityDiscussionsKey = (communityId: number) => [
   "communityDiscussions",
   communityId,
@@ -110,13 +92,12 @@ export const communityEventsKey = (communityId: number, type: QueryType) => [
 // events
 export const eventKey = (eventId: number) => ["event", eventId];
 export type EventsType = "upcoming" | "past";
-export const eventsKey = (type: EventsType) => ["events", { type }];
-export interface EventUsersInput {
+interface EventUsersInput {
   eventId: number;
   type: QueryType;
 }
 
-export const eventOrganizersBaseKey = "eventOrganizers";
+const eventOrganizersBaseKey = "eventOrganizers";
 export const eventOrganizersKey = ({ eventId, type }: EventUsersInput) => [
   eventOrganizersBaseKey,
   eventId,
@@ -152,10 +133,6 @@ export const hostRequestMessagesKey = (id?: number) => [
   id,
 ];
 
-// Search
-export const searchQueryKey = (query?: string) =>
-  query ? ["search", query] : ["search"];
-
 // User
 export const userCommunitiesKey = "userCommunities";
 export const myEventsKey = (type: EventsType) => ["myEvents", { type }];
@@ -163,7 +140,7 @@ export const activeLoginsKey = "activeLogins";
 export const inviteCodesKey = "inviteCodes";
 
 // Badges
-export interface BadgeUsersInput {
+interface BadgeUsersInput {
   badgeId: string;
 }
 export const badgeUsersKey = ({ badgeId }: BadgeUsersInput) => [
@@ -173,3 +150,7 @@ export const badgeUsersKey = ({ badgeId }: BadgeUsersInput) => [
 
 // mod
 export const newUsersListKey = "newUsersList";
+
+// Public
+export const volunteersKey = "volunteers";
+export const donationStatsKey = "donationStats";

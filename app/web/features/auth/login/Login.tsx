@@ -62,7 +62,7 @@ export default function Login() {
           >
             {t("auth:login_page.header")}
           </Typography>
-          {error && (
+          {error && error !== "logged_out_message" && (
             <Alert severity="error" sx={{ width: "100%" }}>
               {error}
             </Alert>

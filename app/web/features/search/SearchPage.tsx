@@ -44,6 +44,7 @@ export type FilterOptions = {
   selectedUserId?: number;
   sleepingArrangement?: SleepingArrangementOptions[];
   smokesAtHome?: boolean | undefined;
+  sameGenderOnly?: boolean;
 };
 
 const SearchPageContainer = styled("div")(({ theme }) => ({
@@ -76,6 +77,10 @@ export default function SearchPage() {
     () => ({
       ...mapSearchState.filters,
       ...mapSearchState.search,
+      // Don't send query when bbox is present (location search vs keyword search)
+      query: mapSearchState.search.bbox
+        ? undefined
+        : mapSearchState.search.query,
       selectedUserId: mapSearchState.shouldSearchByUserId
         ? mapSearchState.selectedUserId
         : undefined,

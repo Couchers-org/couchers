@@ -2,12 +2,11 @@ import grpc
 import pytest
 from google.protobuf import wrappers_pb2
 
-from couchers import errors
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread, Upload
+from couchers.proto import pages_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
-from proto import pages_pb2
 from tests.test_communities import create_community
 from tests.test_fixtures import db, generate_user, pages_session, testconfig  # noqa
 
@@ -36,7 +35,7 @@ def test_create_place_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_TITLE
+        assert e.value.details() == "Missing page title."
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -52,7 +51,7 @@ def test_create_place_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_CONTENT
+        assert e.value.details() == "Missing page text."
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -68,7 +67,7 @@ def test_create_place_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_ADDRESS
+        assert e.value.details() == "Missing page address."
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -80,7 +79,7 @@ def test_create_place_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_LOCATION
+        assert e.value.details() == "Missing page geo-location."
 
 
 def test_create_guide_errors(db):
@@ -98,7 +97,7 @@ def test_create_guide_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_TITLE
+        assert e.value.details() == "Missing page title."
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -110,7 +109,7 @@ def test_create_guide_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_CONTENT
+        assert e.value.details() == "Missing page text."
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -121,7 +120,7 @@ def test_create_guide_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_PARENT
+        assert e.value.details() == "Missing page parent."
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -133,7 +132,7 @@ def test_create_guide_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.COMMUNITY_NOT_FOUND
+        assert e.value.details() == "Community not found."
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -146,7 +145,7 @@ def test_create_guide_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_GUIDE_LOCATION
+        assert e.value.details() == "You need to either supply an address and location or neither for a guide."
 
     with pages_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -162,7 +161,7 @@ def test_create_guide_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_GUIDE_LOCATION
+        assert e.value.details() == "You need to either supply an address and location or neither for a guide."
 
 
 def test_create_page_place(db):
@@ -539,7 +538,7 @@ def test_update_page_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_TITLE
+        assert e.value.details() == "Missing page title."
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdatePage(
@@ -549,7 +548,7 @@ def test_update_page_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_CONTENT
+        assert e.value.details() == "Missing page text."
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdatePage(
@@ -559,7 +558,7 @@ def test_update_page_errors(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.MISSING_PAGE_ADDRESS
+        assert e.value.details() == "Missing page address."
 
 
 def test_page_transfer(db):
@@ -705,7 +704,7 @@ def test_page_transfer(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.PAGE_TRANSFER_PERMISSION_DENIED
+        assert e.value.details() == "You're not allowed to transfer that page."
         page1 = api.GetPage(pages_pb2.GetPageReq(page_id=page1.page_id))
         assert page1.owner_community_id == community_id
         assert not page1.can_edit
@@ -753,7 +752,7 @@ def test_page_transfer(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.GROUP_OR_COMMUNITY_NOT_FOUND
+        assert e.value.details() == "Group or community not found."
         page3 = api.GetPage(pages_pb2.GetPageReq(page_id=page3.page_id))
         assert page3.owner_user_id == user1.id
 
@@ -800,7 +799,7 @@ def test_page_transfer(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.PAGE_TRANSFER_PERMISSION_DENIED
+        assert e.value.details() == "You're not allowed to transfer that page."
         page4 = api.GetPage(pages_pb2.GetPageReq(page_id=page4.page_id))
         assert page4.owner_group_id == group_id
 
@@ -853,7 +852,7 @@ def test_page_photo(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.PHOTO_NOT_FOUND
+        assert e.value.details() == "Photo not found."
 
         # can create page with no photo
         res = api.CreatePlace(
@@ -881,7 +880,7 @@ def test_page_photo(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.PHOTO_NOT_FOUND
+        assert e.value.details() == "Photo not found."
 
         key2 = random_hex(32)
         filename2 = random_hex(32)

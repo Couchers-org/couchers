@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { theme } from "theme";
 import { timeAgoI18n } from "utils/timeAgo";
 
-export interface SignupInfo {
+interface SignupInfo {
   userCount: string;
   lastSignup: string | Date;
   lastLocation: string;

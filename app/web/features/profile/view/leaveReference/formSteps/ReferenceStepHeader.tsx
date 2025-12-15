@@ -1,18 +1,19 @@
 import { styled, Typography } from "@mui/material";
 import HeaderButton from "components/HeaderButton";
 import { BackIcon } from "components/Icons";
+import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { ReferenceType } from "proto/references_pb";
-import { referenceTypeRoute } from "routes";
+import { ReferenceStep, referenceTypeRoute, routeToUser } from "routes";
 import { theme } from "theme";
 
-export interface ReferenceStepHeaderProps {
+interface ReferenceStepHeaderProps {
   name?: string;
   referenceType?: string;
   isSubmitStep?: boolean;
-  isDidStayStep?: boolean;
+  step?: ReferenceStep;
 }
 
 const StyledHeader = styled("div")({
@@ -23,18 +24,32 @@ const StyledHeader = styled("div")({
 export default function ReferenceStepHeader({
   name,
   referenceType,
-  isSubmitStep = false,
-  isDidStayStep = false,
+  step,
 }: ReferenceStepHeaderProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const router = useRouter();
+  const user = useProfileUser();
+
+  const isFirstStep =
+    step === "did-stay" ||
+    (step === "private-feedback" &&
+      referenceType ===
+        referenceTypeRoute[ReferenceType.REFERENCE_TYPE_FRIEND]);
+
+  const handleBackClick = () => {
+    if (isFirstStep && user.username) {
+      router.push(routeToUser(user.username));
+    } else {
+      router.back();
+    }
+  };
 
   const returnHeaderText = () => {
-    if (isSubmitStep) {
+    if (step === "submit") {
       return t("profile:leave_reference.reference_submit_heading");
     }
 
-    if (isDidStayStep) {
+    if (step === "did-stay") {
       return referenceType ===
         referenceTypeRoute[ReferenceType.REFERENCE_TYPE_SURFED]
         ? t("profile:leave_reference.reference_form_heading_did_stay_surfed", {
@@ -66,7 +81,7 @@ export default function ReferenceStepHeader({
   return (
     <StyledHeader>
       <HeaderButton
-        onClick={() => router.back()}
+        onClick={handleBackClick}
         aria-label={t("profile:leave_reference.previous_step")}
       >
         <BackIcon />

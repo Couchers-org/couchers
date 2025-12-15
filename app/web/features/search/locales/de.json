@@ -1,7 +1,7 @@
 {
+  "any": "Alle",
   "last_active_options": {
     "last_3_months": "Letzten 3 Monate",
-    "any": "Alle",
     "last_week": "Letzte Woche",
     "last_month": "Letzter Monat",
     "last_6_months": "Letzten 6 Monate",
@@ -59,7 +59,10 @@
     "general_filters": {
       "accepts_last_minute_requests": "Nimmt Last-Minute-Anfragen an",
       "has_strong_verification": "Hat eine starke Verifizierung",
-      "has_references": "Hat Referenzen"
+      "has_references": "Hat Referenzen",
+      "same_gender_only": "Nur gleichgeschlechtlich anzeigen",
+      "same_gender_only_helper_text": "Nur Nutzer mit starker Verifizierung können diesen Filter verwenden.",
+      "get_strong_verification": "Jetzt stark verifizieren (es ist kostenlos)."
     },
     "rules": {
       "title": "Regeln",
@@ -75,7 +78,7 @@
     "no_user_result_message": "Keine Benutzer gefunden. Versuche, einige Filter zu entfernen, um mehr Ergebnisse zu sehen.",
     "show_user_button_label": "{{name}} auf der Karte anzeigen",
     "missing_about_description": "{{name}} hat noch nichts über sich gesagt",
-    "people_found_message": "Es werden {{currentRange}} von {{totalItems}} Personen angezeigt",
+    "people_found_message": "{{currentRange}} von {{totalItems}} Personen",
     "few_results_suggestion": "Standardmäßig werden leere Profile und Profile mit \"kann nicht hosten\" ausgeblendet.",
     "include_empty_profiles_button": "Alle Profile anzeigen"
   },

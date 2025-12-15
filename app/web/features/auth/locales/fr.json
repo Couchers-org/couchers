@@ -56,7 +56,7 @@
       "forgot_password": "Mot de passe oublié ?",
       "remember_me": "Se souvenir de moi",
       "username_field_label": "Mail/Nom d'utilisateur",
-      "no_password_login_prompt": "Verifiez vos mails pour obtenir le lien de connexion ! :)"
+      "no_password_login_prompt": "Vérifiez vos mails pour obtenir le lien de connexion ! :)"
     },
     "no_account_prompt": "Pas encore de compte ? <2>Rejoignez-nous</2>"
   },
@@ -73,7 +73,7 @@
     "caveat": "En activant cette option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
   },
   "reset_password_form": {
-    "success_message": "Verifiez le lien envoyé à votre adresse mail pour réinitialiser votre mot de passe !",
+    "success_message": "Un lien de réinitialiser votre mot de passe a été envoyé à votre adresse mail à ce compte, si elle existe et est active. Veuillez noter que ce mail peut parfois se retrouver dans vos courriers indésirables.",
     "enter_email": "Entrez votre nom d’utilisateur/adresse mail"
   },
   "sign_up_completed_title": "Merci pour votre inscription !",
@@ -129,7 +129,7 @@
     },
     "birthday": {
       "field_label": "Date de naissance",
-      "required_error": "Entrez votre date de naissance",
+      "required_error": "Saisissez votre date de naissance",
       "validation_error": "La date doit être une date passée valide.",
       "too_young_error": "Vous devez avoir au moins de 18 ans pour utiliser Couchers",
       "not_real_date_error": "Veuillez entrer une date de naissance véritable"
@@ -146,14 +146,14 @@
     "validation_error": "Veuillez sélectionner une localisation valide.",
     "field_label": "Votre localisation"
   },
-  "logged_out_message": "Vous avez été déconnecté",
+  "logged_out_message": "Vous avez été déconnecté.e.",
   "jail": {
     "title": "Plus d'information requise",
     "terms_of_service_section": {
       "description": "Les conditions d'utilisations ont été mise à jour. Pour continuer, veuillez lire et accepter les nouvelles <1></1>."
     },
     "location_section": {
-      "title": "Ajouter votre localisation",
+      "title": "Veuillez mettre à jour votre localisation",
       "submit_button": {
         "active_text": "Sauvegarder",
         "inactive_text": "Merci !"
@@ -163,7 +163,7 @@
     },
     "description": "Veuillez vérifier la suite afin de continuer.",
     "activeness_probe": {
-      "title": "Êtes-vous toujours ouvert.e à accueillir des voyageurs ?",
+      "title": "Êtes-vous toujours ouvert.e à accueillir/héberger des voyageurs ?",
       "description": "Nous avons remarqué que vous ne vous êtes pas connecté.e depuis un certain temps et nous voulions savoir si vous êtes toujours disposé.e à accueillir des voyageurs.",
       "still_hosting": "Je veux toujours héberger les voyageurs !",
       "not_hosting": "Je ne peux plus héberger les voyageurs.",
@@ -181,9 +181,49 @@
     "title": "Définir un mot de passe"
   },
   "strong_verification": {
-    "learn_more": "En savoir plus sur la vérification renforcée <a>ici</a>.",
-    "title": "Vérification Renforcée",
-    "subtitle": "La Vérification Renforcée est une fonctionnalité de sécurité supplémentaire qui vous permet de vérifier votre date de naissance et votre genre à l'aide de votre passeport biométrique."
+    "learn_more": "En savoir plus sur la vérification rigoureuse <a>ici</a>.",
+    "title": "Vérification Rigoureuse",
+    "subtitle": "La Vérification Rigoureuse est une fonctionnalité de sécurité supplémentaire qui vous permet de vérifier votre date de naissance et votre genre à l'aide de votre passeport biométrique.",
+    "instructions": {
+      "title": "Comment effectuer une vérification rigoureuse",
+      "warning": "Important : L'étape de la numérisation de la puce du passeport peut être délicate—lisez d'abord toutes les instructions !",
+      "step2": "Cliquez sur <strong>« Démarrer la vérification rigoureuse»</strong> ci-dessous (s’ouvre dans un nouvel onglet)",
+      "step3": "Scannez le code QR avec votre téléphone",
+      "step1": "Télécharger l’application <strong>Iris ID</strong>",
+      "step1_apple_note": "<strong>Utilisateurs.trices Apple :</strong> Vous pouvez ignorer le téléchargement et utiliser votre navigateur à la place de l'application. Cliquez simplement sur « Ouvrir » lorsque vous y êtes invité.e.",
+      "step8": "Vous saurez que la vérification a réussi lorsque vous verrez grâce à l'augmentation des pourcentages et à un indicateur de chargement",
+      "step4": "Si vous êtes demandé.e, ouvrez l’application et scannez à nouveau le code QR",
+      "step5": "Sélectionnez <strong>Passeport</strong> (les cartes d'identité ne sont pas acceptées)",
+      "step6": "Prenez une photo claire de la page du passeport avec les numéros d'identification en bas",
+      "step7": "Placez votre portable contre la page du passeport contenant la puce NFC (voir les conseils ci-dessous)",
+      "download_app_store": "Télécharger sur l’App Store",
+      "download_google_play": "Télécharger-le sur Google Play",
+      "chip_location": {
+        "heading": "Trouver la puce NFC de votre passeport"
+      }
+    },
+    "status": {
+      "enabled_message": "Vous <1>êtes actuellement</1> vérifié.e avec une vérification rigoureuse.",
+      "disabled_message": "Vous <1>n'êtes pas actuellement</1> vérifié.e avec la vérification rigoureuse."
+    },
+    "start_button": "Activer la vérification rigoureuse",
+    "begin_button": "Terminez la vérification rigoureuse avec l'identification par iris (Iris ID)",
+    "information_text1": "Vous aurez besoin d'un <strong>passeport biométrique</strong> (les autres types de pièces d'identité ne fonctionneront pas) et d'un iPhone Apple ou d'un portable Android compatible avec la technologie NFC.",
+    "information_text2": "En cliquant sur le bouton ci-dessous, vous serez redirigé.e vers le site-web d'Iris ID pour compléter le processus de vérification du passeport.",
+    "information_text3": "Vous pouvez en savoir plus sur la façon dont nous et Iris ID traitons et stockons vos données personelles dans nos <2>Conditions d'utilisation</2>. Conformément à la <5>Politique de confidentialité</5> d'Iris ID, vos informations personnelles seront supprimées dans les 24 heures. Vous pouvez demander à tout moment la suppression de ces données de Vérification Rigoureuse (à l'exception du pays émetteur, de la date d'expiration et des trois derniers chiffres du numéro du document) de nos serveurs en un simple clic.",
+    "complete_title": "Nous traitons votre tentative de vérification rigoureuse",
+    "complete_message1": "Votre passeport est en cours de validation. Vous recevrez un mail avec les résultats dans quelques minutes.",
+    "complete_message2": "La vérification rigoureuse expire lorsque votre passeport expire et vous devrez effectuer à nouveau la vérification avec votre nouveau passeport.",
+    "delete_data_title": "Supprimer les données de passeport de votre vérification rigoureuse",
+    "delete_information": "Vous pouvez supprimer vos données de Vérification Rigoureuse (à l'exception du pays d'émetteur, de la date d'expiration et des trois derniers chiffres du numéro du document) de nos serveurs à tout moment.",
+    "delete_information_text2": "Si vous supprimez vos données, vous ne pourrez plus utiliser le même passeport pour une vérification rigoureuse.",
+    "delete_my_data_button": "Supprimer mes données",
+    "delete_button": "Supprimer mes données de vérification rigoureuse",
+    "delete_success": "Les données de votre passeport ont été supprimées.",
+    "donation_title": "Merci d'avoir fait la vérification rigoureuse—vous contribuez à rendre Couchers.org plus sûr pour tout le monde.",
+    "donation_message1": "La vérification rigoureuse est gratuite pour vous, mais elle a un coût pour nous. En tant qu'organisation à but non lucratif gérée par des bénévoles, nous comptons sur les dons pour couvrir des dépenses telles que le maintien de nos serveurs, la vérification rigoureuse et les outils pour les bénévoles et les bâtisseurs.trices de communauté.",
+    "donation_message2": "Si vous le pouvez, veuillez envisager de faire un don pour aider Couchers.org à continuer de fonctionner et de se développer.",
+    "donate_button": "Faire un don pour soutenir Couchers.org"
   },
   "feedback_form": {
     "skip_step_text": "Pas intéressé.e ? <2>Sautez cette étape</2>",
@@ -212,6 +252,60 @@
     "log_out_of_session": "Déconnectez-vous de cette session",
     "log_out_of_all_session": "Déconnectez-vous de toutes les autres sessions",
     "settings_page_text": "Voir où vous êtes connecté.e et déconnectez-vous des autres sessions",
-    "expiry": "Expire le <1>{{expiry_datetime}}</1>"
+    "expiry": "Expire à <1>{{expiry_datetime}}</1>"
+  },
+  "delete_account": {
+    "request": {
+      "reason_explanation": "Veuillez nous aider à améliorer notre plateforme en nous indiquant pourquoi vous avez choisi de supprimer votre compte.",
+      "description": "Pour supprimer votre compte, veuillez suivre les étapes ci-dessous. Nous vous enverrons un mail de confirmation.",
+      "confirm_username_explanation": "Votre nom d'utilisateur est <1>{{ username }}</1>, veuillez le saisir ci-dessous pour confirmer la suppression de votre compte.",
+      "username_mismatch": "Le nom d'utilisateur.trice ne correspond pas.",
+      "confirm_username_label": "Confirmation de votre nom d'utilisateur.trice",
+      "reason_label": "Raison de la suppression de votre compte",
+      "success_message": "Suppression de votre compte initiée. Pour finaliser la suppression de votre compte, veuillez confirmer via le mail que nous vous avons envoyé.",
+      "title": "Supprimer mon compte"
+    },
+    "confirm": {
+      "error_message": "Échec de la confirmation de la suppression de votre compte : {{message}}",
+      "button_text": "Confirmer la suppression de votre compte",
+      "account_deleted": "Compte supprimé. Merci d'avoir utilisé Couchers.org !",
+      "title": "Confirmer la suppression de votre compte"
+    },
+    "recover": {
+      "title": "Récupérez votre compte Couchers.org",
+      "error_message": "Échec de la récupération de votre compte : {{message}}",
+      "button_text": "Récupérer votre compte",
+      "success": "Votre compte a été récupéré, vous pouvez à nouveau vous connecter. Nous sommes ravis de vous retrouver !"
+    },
+    "missing_token": "Erreur"
+  },
+  "profile_visibility": {
+    "visiblility_options": {
+      "map_only": "<1>Sur la carte uniquement</1> : afficher une épingle de carte aléatoire et anonyme sans aucune autre information",
+      "most": "<1>La plupart de détails</1> : afficher la section complète « À propos de moi » sauf « Informations supplémentaires »",
+      "nothing": "<1>Rien</1> : cachez-moi complètement",
+      "limited": "<1>Limité</1> : afficher mon nom, ma localisation, mon statut d’hébergement/rencontre, mes badges, le nombre de références et depuis combien de temps je suis membre de Couchers.org",
+      "full_profile": "<1>Profil complet</1> : afficher mon profil complet (sauf les références)"
+    },
+    "title": "La visibilité de mon profil",
+    "choose": "Choisissez quelles informations seront visibles pour les utilisateurs.trices non connecté.e.s"
+  },
+  "change_phone": {
+    "need_to_donate": "Vous devez <2>faire un don</2> avant de pouvoir terminer la vérification du téléphone.",
+    "no_phone_description": "Vous n'avez pas ajouté de numéro de téléphone à votre compte. Pour en ajouter un, saisissez-le ci-dessous. Nous le vérifierons par un texto.",
+    "phone_label": "Votre numéro de téléphone",
+    "add_button_text": "Ajouter un numéro de téléphone",
+    "add_success": "Téléphone ajouté.",
+    "phone_not_verified_description": "Nous vous avons envoyé un code à <2>{{phone}}</2>. Pour vérifier votre numéro, veuillez saisir le code ci-dessous :",
+    "wrong_code": "Le code est incorrect.",
+    "verify_button_text": "Vérifier le numéro de téléphone",
+    "verify_success": "Téléphone vérifié.",
+    "remove_phone_description": "Votre numéro de téléphone actuel est <2>{{phone}}</2>. Vous pouvez supprimer votre numéro de téléphone ci-dessous.",
+    "remove_button_text": "Supprimer le numéro de téléphone actuel",
+    "remove_success": "Téléphone supprimé.",
+    "change_to_different_description": "Pour changer votre numéro de téléphone, veuillez le saisir ci-dessous.",
+    "change_button_text": "Changer le numéro de téléphone",
+    "code_label": "Code de vérification",
+    "title": "Numéro de téléphone"
   }
 }

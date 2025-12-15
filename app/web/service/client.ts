@@ -30,7 +30,7 @@ const IS_PROD =
   (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
     process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
 
-export const grpcTimeout = 10000; //milliseconds
+const grpcTimeout = 10000; //milliseconds
 
 let _unauthenticatedErrorHandler: (
   e: RpcError,

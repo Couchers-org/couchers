@@ -1,12 +1,13 @@
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from unittest.mock import patch
 
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
+from sqlalchemy import update
 from sqlalchemy.sql import func
 
-from couchers import errors, urls
+from couchers import constants, urls
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -19,24 +20,22 @@ from couchers.models import (
     User,
     Volunteer,
 )
+from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import now, today
-from proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from tests.test_fixtures import (  # noqa
     account_session,
     auth_api_session,
-    db,
     email_fields,
-    fast_passwords,
     generate_user,
     mock_notification_email,
+    moderator,
     process_jobs,
     public_session,
-    push_collector,
     real_account_session,
     requests_session,
-    testconfig,
 )
+from tests.test_requests import valid_request_text
 
 
 @pytest.fixture(autouse=True)
@@ -58,6 +57,106 @@ def test_GetAccountInfo(db, fast_passwords):
         assert not res.is_superuser
         assert res.ui_language_preference == ""
         assert not res.is_volunteer
+
+
+def test_donation_banner_no_drive(db):
+    """Test that the banner is not shown when DONATION_DRIVE_START is None"""
+
+    original_value = constants.DONATION_DRIVE_START
+    try:
+        constants.DONATION_DRIVE_START = None
+
+        # User has donated, but the drive is disabled, so the banner should not show
+        user, token = generate_user()
+
+        with account_session(token) as account:
+            res = account.GetAccountInfo(empty_pb2.Empty())
+            assert not res.should_show_donation_banner
+    finally:
+        constants.DONATION_DRIVE_START = original_value
+
+
+def test_donation_banner_never_donated(db):
+    """Test that banner is shown when user has never donated and drive is active"""
+
+    original_value = constants.DONATION_DRIVE_START
+    try:
+        drive_start = datetime(2025, 11, 1, tzinfo=UTC)
+        constants.DONATION_DRIVE_START = drive_start
+
+        # Explicitly set last_donated=None since generate_user defaults to now()
+        user, token = generate_user(last_donated=None)
+
+        with account_session(token) as account:
+            res = account.GetAccountInfo(empty_pb2.Empty())
+            assert res.should_show_donation_banner
+    finally:
+        constants.DONATION_DRIVE_START = original_value
+
+
+def test_donation_banner_donated_before_drive(db):
+    """Test that banner is shown when user donated before drive start"""
+
+    original_value = constants.DONATION_DRIVE_START
+    try:
+        drive_start = datetime(2025, 11, 1, tzinfo=UTC)
+        constants.DONATION_DRIVE_START = drive_start
+
+        user, token = generate_user()
+
+        # Set donation before drive start
+        with session_scope() as session:
+            last_donated = datetime(2025, 10, 15, tzinfo=UTC)  # Before Nov 1
+            session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
+
+        with account_session(token) as account:
+            res = account.GetAccountInfo(empty_pb2.Empty())
+            assert res.should_show_donation_banner
+    finally:
+        constants.DONATION_DRIVE_START = original_value
+
+
+def test_donation_banner_donated_after_drive(db):
+    """Test that banner is not shown when user donated after drive start"""
+
+    original_value = constants.DONATION_DRIVE_START
+    try:
+        drive_start = datetime(2025, 11, 1, tzinfo=UTC)
+        constants.DONATION_DRIVE_START = drive_start
+
+        user, token = generate_user()
+
+        # Set donation after drive start
+        with session_scope() as session:
+            last_donated = datetime(2025, 11, 15, tzinfo=UTC)  # After Nov 1
+            session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
+
+        with account_session(token) as account:
+            res = account.GetAccountInfo(empty_pb2.Empty())
+            assert not res.should_show_donation_banner
+    finally:
+        constants.DONATION_DRIVE_START = original_value
+
+
+def test_donation_banner_donated_exactly_at_drive_start(db):
+    """Test that banner is not shown when user donated exactly at drive start time"""
+
+    original_value = constants.DONATION_DRIVE_START
+    try:
+        drive_start = datetime(2025, 11, 1, tzinfo=UTC)
+        constants.DONATION_DRIVE_START = drive_start
+
+        user, token = generate_user()
+
+        # Set donation exactly at drive start
+        with session_scope() as session:
+            session.execute(update(User).where(User.id == user.id).values(last_donated=drive_start))
+
+        with account_session(token) as account:
+            res = account.GetAccountInfo(empty_pb2.Empty())
+            assert not res.should_show_donation_banner
+    finally:
+        constants.DONATION_DRIVE_START = original_value
 
 
 def test_GetAccountInfo_regression(db):
@@ -143,7 +242,7 @@ def test_ChangePasswordV2_normal_short_password(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.PASSWORD_TOO_SHORT
+        assert e.value.details() == "The password must be 8 or more characters long."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -165,7 +264,7 @@ def test_ChangePasswordV2_normal_long_password(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.PASSWORD_TOO_LONG
+        assert e.value.details() == "The password must be less than 256 characters."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -187,7 +286,7 @@ def test_ChangePasswordV2_normal_insecure_password(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INSECURE_PASSWORD
+        assert e.value.details() == "The password is insecure. Please use one that is not easily guessable."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -209,7 +308,7 @@ def test_ChangePasswordV2_normal_wrong_password(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_PASSWORD
+        assert e.value.details() == "Wrong password."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -225,7 +324,7 @@ def test_ChangePasswordV2_normal_no_passwords(db, fast_passwords):
         with pytest.raises(grpc.RpcError) as e:
             account.ChangePasswordV2(account_pb2.ChangePasswordV2Req(old_password=old_password))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.PASSWORD_TOO_SHORT
+        assert e.value.details() == "The password must be 8 or more characters long."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -246,7 +345,7 @@ def test_ChangeEmailV2_wrong_password(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_PASSWORD
+        assert e.value.details() == "Wrong password."
 
     with session_scope() as session:
         assert (
@@ -273,7 +372,7 @@ def test_ChangeEmailV2_wrong_email(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_PASSWORD
+        assert e.value.details() == "Wrong password."
 
     with session_scope() as session:
         assert (
@@ -299,7 +398,7 @@ def test_ChangeEmailV2_invalid_email(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_EMAIL
+        assert e.value.details() == "Invalid email."
 
     with session_scope() as session:
         assert (
@@ -326,7 +425,7 @@ def test_ChangeEmailV2_email_in_use(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_EMAIL
+        assert e.value.details() == "Invalid email."
 
     with session_scope() as session:
         assert (
@@ -352,7 +451,7 @@ def test_ChangeEmailV2_no_change(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_EMAIL
+        assert e.value.details() == "Invalid email."
 
     with session_scope() as session:
         assert (
@@ -386,7 +485,7 @@ def test_ChangeEmailV2_wrong_token(db, fast_passwords):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.INVALID_TOKEN
+        assert e.value.details() == "Invalid token."
 
     with session_scope() as session:
         user_updated = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -413,15 +512,14 @@ def test_ChangeEmailV2_tokens_two_hour_window(db):
         )
 
     with session_scope() as session:
-        user = session.execute(select(User).where(User.id == user.id)).scalar_one()
-        new_email_token = user.new_email_token
+        new_email_token = session.execute(select(User.new_email_token).where(User.id == user.id)).scalar_one()
 
     with patch("couchers.servicers.auth.now", one_minute_ago):
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as e:
                 auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == errors.INVALID_TOKEN
+            assert e.value.details() == "Invalid token."
 
             with pytest.raises(grpc.RpcError) as e:
                 auth_api.ConfirmChangeEmailV2(
@@ -430,14 +528,14 @@ def test_ChangeEmailV2_tokens_two_hour_window(db):
                     )
                 )
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == errors.INVALID_TOKEN
+            assert e.value.details() == "Invalid token."
 
     with patch("couchers.servicers.auth.now", two_hours_one_minute_in_future):
         with auth_api_session() as (auth_api, metadata_interceptor):
             with pytest.raises(grpc.RpcError) as e:
                 auth_api.ConfirmChangeEmailV2(auth_pb2.ConfirmChangeEmailV2Req())
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == errors.INVALID_TOKEN
+            assert e.value.details() == "Invalid token."
 
             with pytest.raises(grpc.RpcError) as e:
                 auth_api.ConfirmChangeEmailV2(
@@ -446,7 +544,7 @@ def test_ChangeEmailV2_tokens_two_hour_window(db):
                     )
                 )
             assert e.value.code() == grpc.StatusCode.NOT_FOUND
-            assert e.value.details() == errors.INVALID_TOKEN
+            assert e.value.details() == "Invalid token."
 
 
 def test_ChangeEmailV2(db, fast_passwords, push_collector):
@@ -590,7 +688,7 @@ def test_DeleteAccount_start(db):
         assert email_fields(mock).subject == "[TEST] Confirm your Couchers.org account deletion"
 
     with session_scope() as session:
-        deletion_token = session.execute(
+        deletion_token: AccountDeletionToken = session.execute(
             select(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id)
         ).scalar_one()
 
@@ -621,7 +719,7 @@ def test_full_delete_account_with_recovery(db, push_collector):
         with pytest.raises(grpc.RpcError) as e:
             account.DeleteAccount(account_pb2.DeleteAccountReq())
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.MUST_CONFIRM_ACCOUNT_DELETE
+        assert e.value.details() == "Please confirm your account deletion."
 
         # Check the right email is sent
         with mock_notification_email() as mock:
@@ -883,7 +981,7 @@ def test_LogOutOtherSessions(db, fast_passwords):
         with pytest.raises(grpc.RpcError) as e:
             account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=False))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.MUST_CONFIRM_LOGOUT_OTHER_SESSIONS
+        assert e.value.details() == "Please confirm you want to log out of other sessions."
 
         account.LogOutOtherSessions(account_pb2.LogOutOtherSessionsReq(confirm=True))
         res = account.ListActiveSessions(account_pb2.ListActiveSessionsReq())
@@ -910,7 +1008,6 @@ def test_DisableInviteCode(db):
     code = "TEST1234"
     with session_scope() as session:
         session.add(InviteCode(id=code, creator_user_id=user.id))
-        session.commit()
 
     with account_session(token) as account:
         account.DisableInviteCode(account_pb2.DisableInviteCodeReq(code=code))
@@ -927,9 +1024,7 @@ def test_ListInviteCodes(db):
     code = "LIST1234"
     with session_scope() as session:
         session.add(InviteCode(id=code, creator_user_id=user.id))
-        db_other_user = session.execute(select(User).where(User.id == another_user.id)).scalar_one()
-        db_other_user.invite_code_id = code
-        session.commit()
+        session.execute(update(User).where(User.id == another_user.id).values(invite_code_id=code))
 
     with account_session(token) as account:
         res = account.ListInviteCodes(empty_pb2.Empty())
@@ -939,7 +1034,7 @@ def test_ListInviteCodes(db):
         assert res.invite_codes[0].url == urls.invite_code_link(code=code)
 
 
-def test_reminders(db):
+def test_reminders(db, moderator):
     # the strong verification reminder's absence is tested in test_strong_verification.py
     # reference writing reminders tested in test_AvailableWriteReferences_and_ListPendingReferencesToWrite
     # we use LiteUser, so remember to refresh materialized views
@@ -964,9 +1059,13 @@ def test_reminders(db):
     with requests_session(req_user_token1) as api:
         host_request1_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_user_id=user.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 1"),
             )
         ).host_request_id
+    moderator.approve_host_request(host_request1_id)
 
     with account_session(token) as account:
         reminders = account.GetReminders(empty_pb2.Empty()).reminders
@@ -981,9 +1080,13 @@ def test_reminders(db):
     with requests_session(req_user_token2) as api:
         host_request2_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 2"
+                host_user_id=user.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 2"),
             )
         ).host_request_id
+    moderator.approve_host_request(host_request2_id)
 
     refresh_materialized_views_rapid(None)
     with account_session(token) as account:
@@ -1002,9 +1105,13 @@ def test_reminders(db):
     with requests_session(req_user_token1) as api:
         host_request3_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 3"
+                host_user_id=user.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 3"),
             )
         ).host_request_id
+    moderator.approve_host_request(host_request3_id)
 
     refresh_materialized_views_rapid(None)
     with account_session(token) as account:
@@ -1047,8 +1154,11 @@ def test_reminders(db):
 
 
 def test_volunteer_stuff(db):
+    # taken from couchers/app/backend/resources/badges.json
+    board_member_id = 8347
+
     # with password
-    user, token = generate_user(name="Von Tester", username="tester", city="Amsterdam")
+    user, token = generate_user(name="Von Tester", username="tester", city="Amsterdam", id=board_member_id)
 
     with account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
@@ -1057,12 +1167,16 @@ def test_volunteer_stuff(db):
         with pytest.raises(grpc.RpcError) as e:
             account.GetMyVolunteerInfo(empty_pb2.Empty())
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.NOT_A_VOLUNTEER
+        assert (
+            e.value.details() == "You are currently not registered as a volunteer, if this is wrong, please contact us."
+        )
 
         with pytest.raises(grpc.RpcError) as e:
             account.UpdateMyVolunteerInfo(account_pb2.UpdateMyVolunteerInfoReq())
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.NOT_A_VOLUNTEER
+        assert (
+            e.value.details() == "You are currently not registered as a volunteer, if this is wrong, please contact us."
+        )
 
     with session_scope() as session:
         session.add(

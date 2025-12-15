@@ -4,9 +4,8 @@ from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
-from sqlalchemy.sql import select
 
-from couchers import errors
+from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_view
@@ -15,17 +14,17 @@ from couchers.models import (
     MessageType,
     RateLimitAction,
 )
-from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
-from couchers.sql import couchers_select as select
-from couchers.templates.v2 import v2date
-from couchers.utils import create_coordinate, now, today
-from proto import (
+from couchers.proto import (
     api_pb2,
     auth_pb2,
     conversations_pb2,
     requests_pb2,
 )
-from proto.internal import unsubscribe_pb2
+from couchers.proto.internal import unsubscribe_pb2
+from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
+from couchers.sql import couchers_select as select
+from couchers.templates.v2 import v2date
+from couchers.utils import create_coordinate, now, today
 from tests.test_fixtures import (  # noqa
     api_session,
     auth_api_session,
@@ -33,6 +32,7 @@ from tests.test_fixtures import (  # noqa
     email_fields,
     generate_user,
     mock_notification_email,
+    moderator,
     push_collector,
     requests_session,
     testconfig,
@@ -44,7 +44,17 @@ def _(testconfig):
     pass
 
 
-def test_create_request(db):
+def valid_request_text(text: str = "Test request") -> str:
+    """Pads a request text to a valid length."""
+    # Request lengths are measured in utf-16 code units to match the frontend.
+    utf16_length = len(text.encode("utf-16-le")) // 2
+    if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
+        return text
+    padding_length = HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length
+    return text + ("_" * padding_length)  # Each "_" adds one utf16 code unit.
+
+
+def test_create_request(db, moderator):
     user1, token1 = generate_user()
     hosting_city = "Morningside Heights, New York City"
     hosting_lat = 40.8086
@@ -60,76 +70,90 @@ def test_create_request(db):
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
     today_minus_2 = (today() - timedelta(days=2)).isoformat()
     today_minus_3 = (today() - timedelta(days=3)).isoformat()
+
     with requests_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    host_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.CANT_REQUEST_SELF
+        assert e.value.details() == "Can't request hosting from yourself."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=999, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    host_user_id=999, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date=today_plus_3, to_date=today_plus_2, text="Test request"
+                    host_user_id=user2.id, from_date=today_plus_3, to_date=today_plus_2, text=valid_request_text()
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.DATE_FROM_AFTER_TO
+        assert e.value.details() == "From date can't be after to date."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date=today_minus_3, to_date=today_plus_2, text="Test request"
+                    host_user_id=user2.id, from_date=today_minus_3, to_date=today_plus_2, text=valid_request_text()
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.DATE_FROM_BEFORE_TODAY
+        assert e.value.details() == "From date must be today or later."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date=today_plus_2, to_date=today_minus_2, text="Test request"
+                    host_user_id=user2.id, from_date=today_plus_2, to_date=today_minus_2, text=valid_request_text()
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.DATE_FROM_AFTER_TO
+        assert e.value.details() == "From date can't be after to date."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date="2020-00-06", to_date=today_minus_2, text="Test request"
+                    host_user_id=user2.id, from_date="2020-00-06", to_date=today_minus_2, text=valid_request_text()
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_DATE
+        assert e.value.details() == "Invalid date."
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Too short."
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Host request cannot be shorter than 250 characters."
 
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
-                text="Test request",
+                text=valid_request_text(),
             )
         )
+        host_request_id = res.host_request_id
 
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(token1) as api:
         host_requests = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True)).host_requests
 
         assert len(host_requests) == 1
         hr = host_requests[0]
 
-        assert hr.latest_message.text.text == "Test request"
+        assert hr.latest_message.text.text == valid_request_text()
 
         assert hr.hosting_city == hosting_city
         assert round(hr.hosting_lat, 4) == hosting_lat
@@ -146,11 +170,11 @@ def test_create_request(db):
                 host_user_id=user2.id,
                 from_date=today_plus_one_year_plus_2,
                 to_date=today_plus_one_year_plus_3,
-                text="Test from date after one year",
+                text=valid_request_text("Test from date after one year"),
             )
         )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.DATE_FROM_AFTER_ONE_YEAR
+    assert e.value.details() == "The start date must be within one year from today."
 
     with pytest.raises(grpc.RpcError) as e:
         api.CreateHostRequest(
@@ -158,11 +182,11 @@ def test_create_request(db):
                 host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_one_year_plus_3,
-                text="Test to date one year after from date",
+                text=valid_request_text("Test to date one year after from date"),
             )
         )
     assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-    assert e.value.details() == errors.DATE_TO_AFTER_ONE_YEAR
+    assert e.value.details() == "You cannot request to stay with someone for longer than one year."
 
 
 def test_create_request_incomplete_profile(db):
@@ -174,11 +198,11 @@ def test_create_request_incomplete_profile(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                    host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
                 )
             )
     assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-    assert e.value.details() == errors.INCOMPLETE_PROFILE_SEND_REQUEST
+    assert e.value.details() == "You have to complete your profile before you can send a request."
 
 
 def test_excessive_requests_are_reported(db):
@@ -194,7 +218,10 @@ def test_excessive_requests_are_reported(db):
                 host_user, _ = generate_user()
                 _ = api.CreateHostRequest(
                     requests_pb2.CreateHostRequestReq(
-                        host_user_id=host_user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                        host_user_id=host_user.id,
+                        from_date=today_plus_2,
+                        to_date=today_plus_3,
+                        text=valid_request_text(),
                     )
                 )
 
@@ -205,13 +232,13 @@ def test_excessive_requests_are_reported(db):
                     host_user_id=host_user.id,
                     from_date=today_plus_2,
                     to_date=today_plus_3,
-                    text="Excessive test request",
+                    text=valid_request_text("Excessive test request"),
                 )
             )
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
             )
 
         # Test ban after exceeding HOST_REQUEST_HARD_LIMIT
@@ -220,7 +247,10 @@ def test_excessive_requests_are_reported(db):
                 host_user, _ = generate_user()
                 _ = api.CreateHostRequest(
                     requests_pb2.CreateHostRequestReq(
-                        host_user_id=host_user.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                        host_user_id=host_user.id,
+                        from_date=today_plus_2,
+                        to_date=today_plus_3,
+                        text=valid_request_text(),
                     )
                 )
 
@@ -232,16 +262,19 @@ def test_excessive_requests_are_reported(db):
                         host_user_id=host_user.id,
                         from_date=today_plus_2,
                         to_date=today_plus_3,
-                        text="Excessive test request",
+                        text=valid_request_text("Excessive test request"),
                     )
                 )
             assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-            assert exc_info.value.details() == errors.HOST_REQUEST_RATE_LIMIT
+            assert (
+                exc_info.value.details()
+                == "You have sent a lot of host requests in the past 24 hours. To avoid spam, you can't send any more for now."
+            )
 
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
             )
             assert "The user has been blocked from sending further host requests for now." in email
 
@@ -264,14 +297,17 @@ def test_GetHostRequest(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 1"),
             )
         ).host_request_id
 
         with pytest.raises(grpc.RpcError) as e:
             api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=999))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+        assert e.value.details() == "Couldn't find that host request."
 
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
@@ -281,7 +317,7 @@ def test_GetHostRequest(db):
         assert res.latest_message.text.text == "Test message 1"
 
 
-def test_ListHostRequests(db):
+def test_ListHostRequests(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -290,16 +326,26 @@ def test_ListHostRequests(db):
     with requests_session(token1) as api:
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 1"),
             )
         ).host_request_id
 
         host_request_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user3.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 2"
+                host_user_id=user3.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 2"),
             )
         ).host_request_id
 
+    moderator.approve_host_request(host_request_1)
+    moderator.approve_host_request(host_request_2)
+
+    with requests_session(token1) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
         assert res.no_more
         assert len(res.host_requests) == 2
@@ -308,7 +354,7 @@ def test_ListHostRequests(db):
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.no_more
         assert len(res.host_requests) == 1
-        assert res.host_requests[0].latest_message.text.text == "Test request 1"
+        assert res.host_requests[0].latest_message.text.text == valid_request_text("Test request 1")
         assert res.host_requests[0].surfer_user_id == user1.id
         assert res.host_requests[0].host_user_id == user2.id
         assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
@@ -320,11 +366,16 @@ def test_ListHostRequests(db):
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.host_requests[0].latest_message.text.text == "Test request 1 message 3"
 
-        api.CreateHostRequest(
+        host_request_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 3"
+                host_user_id=user1.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 3"),
             )
-        )
+        ).host_request_id
+
+    moderator.approve_host_request(host_request_3)
 
     add_message(db, "Test request 2 message 1", user1.id, host_request_2)
     add_message(db, "Test request 2 message 2", user3.id, host_request_2)
@@ -343,7 +394,7 @@ def test_ListHostRequests(db):
         assert len(res.host_requests) == 3
 
 
-def test_ListHostRequests_pagination_regression(db):
+def test_ListHostRequests_pagination_regression(db, moderator):
     """
     ListHostRequests was skipping a request when getting multiple pages
     """
@@ -354,29 +405,42 @@ def test_ListHostRequests_pagination_regression(db):
     with requests_session(token1) as api:
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 1"),
             )
         ).host_request_id
 
         host_request_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 2"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 2"),
             )
         ).host_request_id
 
         host_request_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 3"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 3"),
             )
         ).host_request_id
+
+    moderator.approve_host_request(host_request_1)
+    moderator.approve_host_request(host_request_2)
+    moderator.approve_host_request(host_request_3)
 
     with requests_session(token2) as api:
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_received=True))
         assert res.no_more
         assert len(res.host_requests) == 3
-        assert res.host_requests[0].latest_message.text.text == "Test request 3"
-        assert res.host_requests[1].latest_message.text.text == "Test request 2"
-        assert res.host_requests[2].latest_message.text.text == "Test request 1"
+        assert res.host_requests[0].latest_message.text.text == valid_request_text("Test request 3")
+        assert res.host_requests[1].latest_message.text.text == valid_request_text("Test request 2")
+        assert res.host_requests[2].latest_message.text.text == valid_request_text("Test request 1")
 
     with requests_session(token2) as api:
         api.RespondHostRequest(
@@ -428,7 +492,7 @@ def test_ListHostRequests_pagination_regression(db):
         assert res.host_requests[0].latest_message.text.text == "Accepting host request 2"
 
 
-def test_ListHostRequests_active_filter(db):
+def test_ListHostRequests_active_filter(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
@@ -437,9 +501,16 @@ def test_ListHostRequests_active_filter(db):
     with requests_session(token1) as api:
         request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 1"),
             )
         ).host_request_id
+
+    moderator.approve_host_request(request_id)
+
+    with requests_session(token1) as api:
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
                 host_request_id=request_id, status=conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
@@ -453,7 +524,7 @@ def test_ListHostRequests_active_filter(db):
         assert len(res.host_requests) == 0
 
 
-def test_RespondHostRequests(db):
+def test_RespondHostRequests(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -463,9 +534,14 @@ def test_RespondHostRequests(db):
     with requests_session(token1) as api:
         request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 1"),
             )
         ).host_request_id
+
+    moderator.approve_host_request(request_id)
 
     # another user can't access
     with requests_session(token3) as api:
@@ -476,7 +552,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+        assert e.value.details() == "Couldn't find that host request."
 
     with requests_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -486,7 +562,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.NOT_THE_HOST
+        assert e.value.details() == "You are not the host of this request."
 
     with requests_session(token2) as api:
         # non existing id
@@ -506,7 +582,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
+        assert e.value.details() == "You can't set the host request status to that."
         with pytest.raises(grpc.RpcError) as e:
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
@@ -514,7 +590,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
+        assert e.value.details() == "You can't set the host request status to that."
 
         api.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
@@ -543,7 +619,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
+        assert e.value.details() == "You can't set the host request status to that."
 
         # can confirm then cancel
         api.RespondHostRequest(
@@ -566,7 +642,7 @@ def test_RespondHostRequests(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == errors.INVALID_HOST_REQUEST_STATUS
+        assert e.value.details() == "You can't set the host request status to that."
 
     # at this point there should be 7 messages
     # 2 for creation, 2 for the status change with message, 3 for the other status changed
@@ -580,7 +656,7 @@ def test_RespondHostRequests(db):
         assert res.messages[6].WhichOneof("content") == "chat_created"
 
 
-def test_get_host_request_messages(db):
+def test_get_host_request_messages(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
@@ -588,10 +664,15 @@ def test_get_host_request_messages(db):
     with requests_session(token1) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 1"),
             )
         )
         conversation_id = res.host_request_id
+
+    moderator.approve_host_request(conversation_id)
 
     add_message(db, "Test request 1 message 1", user1.id, conversation_id)
     add_message(db, "Test request 1 message 2", user1.id, conversation_id)
@@ -643,11 +724,11 @@ def test_get_host_request_messages(db):
         assert res.messages[1].text.text == "Test request 1 message 3"
         assert res.messages[2].text.text == "Test request 1 message 2"
         assert res.messages[3].text.text == "Test request 1 message 1"
-        assert res.messages[4].text.text == "Test request 1"
+        assert res.messages[4].text.text == valid_request_text("Test request 1")
         assert res.messages[5].WhichOneof("content") == "chat_created"
 
 
-def test_SendHostRequestMessage(db):
+def test_SendHostRequestMessage(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -656,10 +737,16 @@ def test_SendHostRequestMessage(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request 1"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request 1"),
             )
         ).host_request_id
 
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.SendHostRequestMessage(
                 requests_pb2.SendHostRequestMessageReq(host_request_id=999, text="Test message 1")
@@ -669,7 +756,7 @@ def test_SendHostRequestMessage(db):
         with pytest.raises(grpc.RpcError) as e:
             api.SendHostRequestMessage(requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text=""))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_MESSAGE
+        assert e.value.details() == "Invalid message."
 
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
@@ -685,7 +772,7 @@ def test_SendHostRequestMessage(db):
                 requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+        assert e.value.details() == "Couldn't find that host request."
 
     with requests_session(token2) as api:
         api.SendHostRequestMessage(
@@ -733,7 +820,7 @@ def test_SendHostRequestMessage(db):
         )
 
 
-def test_get_updates(db):
+def test_get_updates(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -742,10 +829,16 @@ def test_get_updates(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test message 0"),
             )
         ).host_request_id
 
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(token1) as api:
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
         )
@@ -762,7 +855,10 @@ def test_get_updates(db):
 
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 4"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test message 4"),
             )
         )
 
@@ -772,7 +868,7 @@ def test_get_updates(db):
         assert res.messages[1].host_request_status_changed.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
         assert res.messages[2].text.text == "Test message 2"
         assert res.messages[3].text.text == "Test message 1"
-        assert res.messages[4].text.text == "Test message 0"
+        assert res.messages[4].text.text == valid_request_text("Test message 0")
         message_id_3 = res.messages[0].message_id
         message_id_cancel = res.messages[1].message_id
         message_id_2 = res.messages[2].message_id
@@ -794,7 +890,7 @@ def test_get_updates(db):
         assert res.updates[2].message.text.text == "Test message 3"
         assert res.updates[3].message.WhichOneof("content") == "chat_created"
         assert res.updates[3].status == conversations_pb2.HOST_REQUEST_STATUS_PENDING
-        assert res.updates[4].message.text.text == "Test message 4"
+        assert res.updates[4].message.text.text == valid_request_text("Test message 4")
 
         res = api.GetHostRequestUpdates(requests_pb2.GetHostRequestUpdatesReq(newest_message_id=message_id_1, number=1))
         assert not res.no_more
@@ -808,7 +904,7 @@ def test_get_updates(db):
         assert len(res.updates) == 0
 
 
-def test_archive_host_request(db):
+def test_archive_host_request(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -818,7 +914,10 @@ def test_archive_host_request(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test message 0"),
             )
         ).host_request_id
 
@@ -828,6 +927,9 @@ def test_archive_host_request(db):
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 2")
         )
+
+    moderator.approve_host_request(host_request_id)
+
     # happy path archiving host request
     with requests_session(token1) as api:
         api.RespondHostRequest(
@@ -847,7 +949,7 @@ def test_archive_host_request(db):
         assert len(res.host_requests) == 1
 
 
-def test_mark_last_seen(db):
+def test_mark_last_seen(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -856,16 +958,26 @@ def test_mark_last_seen(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test message 0"),
             )
         ).host_request_id
 
         host_request_id_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test message 0a"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test message 0a"),
             )
         ).host_request_id
 
+    moderator.approve_host_request(host_request_id)
+    moderator.approve_host_request(host_request_id_2)
+
+    with requests_session(token1) as api:
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Test message 1")
         )
@@ -879,6 +991,9 @@ def test_mark_last_seen(db):
                 text="Test message 3",
             )
         )
+
+    moderator.approve_host_request(host_request_id)
+    moderator.approve_host_request(host_request_id_2)
 
     # test Ping unseen host request count, should be automarked after sending
     with api_session(token1) as api:
@@ -903,15 +1018,21 @@ def test_mark_last_seen(db):
                 requests_pb2.MarkLastSeenHostRequestReq(host_request_id=host_request_id, last_seen_message_id=1)
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.CANT_UNSEE_MESSAGES
+        assert e.value.details() == "You can't unsee messages."
 
         # this will be used to test sent request notifications
         host_request_id_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text="Another test request"
+                host_user_id=user1.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Another test request"),
             )
         ).host_request_id
 
+    moderator.approve_host_request(host_request_id_3)
+
+    with requests_session(token2) as api:
         # this should make id_2 all read
         api.SendHostRequestMessage(
             requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id_2, text="Test")
@@ -932,7 +1053,7 @@ def test_mark_last_seen(db):
         assert api.Ping(api_pb2.PingReq()).unseen_sent_host_request_count == 1
 
 
-def test_response_rate(db):
+def test_response_rate(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user(delete_user=True)
@@ -948,7 +1069,7 @@ def test_response_rate(db):
         with pytest.raises(grpc.RpcError) as e:
             api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user3.id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.USER_NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
 
         # no requests: insufficient
         res = api.GetResponseRate(requests_pb2.GetResponseRateReq(user_id=user2.id))
@@ -957,9 +1078,13 @@ def test_response_rate(db):
         # send a request and back date it by 36 hours
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request"),
             )
         ).host_request_id
+        moderator.approve_host_request(host_request_1)
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -975,9 +1100,13 @@ def test_response_rate(db):
         # send a request and back date it by 35 hours
         host_request_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request"),
             )
         ).host_request_id
+        moderator.approve_host_request(host_request_2)
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -993,9 +1122,13 @@ def test_response_rate(db):
         # send a request and back date it by 34 hours
         host_request_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request"),
             )
         ).host_request_id
+        moderator.approve_host_request(host_request_3)
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1070,9 +1203,13 @@ def test_response_rate(db):
         # send a request and back date it by 2 hours
         host_request_4 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request"),
             )
         ).host_request_id
+        moderator.approve_host_request(host_request_4)
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1084,9 +1221,13 @@ def test_response_rate(db):
         # send a request and back date it by 4 hours
         host_request_5 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Test request"
+                host_user_id=user2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test request"),
             )
         ).host_request_id
+        moderator.approve_host_request(host_request_5)
         with session_scope() as session:
             session.execute(
                 select(Message)
@@ -1141,7 +1282,7 @@ def test_response_rate(db):
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
 
 
-def test_request_notifications(db, push_collector):
+def test_request_notifications(db, push_collector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
@@ -1149,15 +1290,17 @@ def test_request_notifications(db, push_collector):
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
     with requests_session(surfer_token) as api:
-        with mock_notification_email() as mock:
-            hr_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=host.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text="can i stay plz",
-                )
-            ).host_request_id
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("can i stay plz"),
+            )
+        ).host_request_id
+
+    with mock_notification_email() as mock:
+        moderator.approve_host_request(hr_id)
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -1215,7 +1358,7 @@ def test_request_notifications(db, push_collector):
     )
 
 
-def test_quick_decline(db, push_collector):
+def test_quick_decline(db, push_collector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
@@ -1223,15 +1366,17 @@ def test_quick_decline(db, push_collector):
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
 
     with requests_session(surfer_token) as api:
-        with mock_notification_email() as mock:
-            hr_id = api.CreateHostRequest(
-                requests_pb2.CreateHostRequestReq(
-                    host_user_id=host.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
-                    text="can i stay plz",
-                )
-            ).host_request_id
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("can i stay plz"),
+            )
+        ).host_request_id
+
+    with mock_notification_email() as mock:
+        moderator.approve_host_request(hr_id)
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -1275,6 +1420,7 @@ def test_quick_decline(db, push_collector):
                         sig=b64decode(params["sig"][0]),
                     )
                 )
+                assert res.response == "Thank you for responding to the host request!"
             break
     else:
         raise Exception("Didn't find link")
@@ -1284,7 +1430,7 @@ def test_quick_decline(db, push_collector):
         assert res.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED
 
 
-def test_host_req_feedback(db):
+def test_host_req_feedback(db, moderator):
     host, host_token = generate_user(complete_profile=True)
     host2, host2_token = generate_user(complete_profile=True)
     host3, host3_token = generate_user(complete_profile=True)
@@ -1299,7 +1445,7 @@ def test_host_req_feedback(db):
                 host_user_id=host.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
-                text="can i stay plz",
+                text=valid_request_text("can i stay plz"),
             )
         ).host_request_id
         hr2_id = api.CreateHostRequest(
@@ -1307,7 +1453,7 @@ def test_host_req_feedback(db):
                 host_user_id=host2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
-                text="can i stay plz",
+                text=valid_request_text("can i stay plz"),
             )
         ).host_request_id
         hr3_id = api.CreateHostRequest(
@@ -1315,9 +1461,13 @@ def test_host_req_feedback(db):
                 host_user_id=host3.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
-                text="can i stay plz",
+                text=valid_request_text("can i stay plz"),
             )
         ).host_request_id
+
+    moderator.approve_host_request(hr_id)
+    moderator.approve_host_request(hr2_id)
+    moderator.approve_host_request(hr3_id)
 
     with requests_session(host_token) as api:
         res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
@@ -1342,7 +1492,7 @@ def test_host_req_feedback(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+        assert e.value.details() == "Couldn't find that host request."
 
     with requests_session(host_token) as api:
         api.SendHostRequestFeedback(
@@ -1363,7 +1513,7 @@ def test_host_req_feedback(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.ALREADY_LEFT_HOST_REQUEST_FEEDBACK
+        assert e.value.details() == "You have already left feedback for this host request!"
 
         res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=hr_id))
         assert not res.need_host_request_feedback
@@ -1382,7 +1532,7 @@ def test_host_req_feedback(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == errors.HOST_REQUEST_NOT_FOUND
+        assert e.value.details() == "Couldn't find that host request."
 
         # null feedback is still feedback
         api.SendHostRequestFeedback(requests_pb2.SendHostRequestFeedbackReq(host_request_id=hr2_id))

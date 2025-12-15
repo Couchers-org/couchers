@@ -14,7 +14,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
-import CatalanFlagIcon from "components/Icons/CatalanFlagIcon";
+import { CatalanFlagIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
@@ -27,7 +27,7 @@ import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
-import { ALMOST_DONE_CUTOFF, HIDDEN_CUTOFF } from "./constants";
+import { ALMOST_DONE_CUTOFF, SELECTOR_CUTOFF } from "./constants";
 
 interface StyledMuiSelectProps {
   displayMode?: "round" | "rect";
@@ -53,7 +53,8 @@ type LanguagePickerSelectProps = {
 
 export default function LanguagePickerSelect({
   displayMode = "round",
-}: LanguagePickerSelectProps) {
+  onSelect,
+}: LanguagePickerSelectProps & { onSelect?: () => void }) {
   const router = useRouter();
   const { asPath, locale, pathname } = router;
   const { authState } = useAuthContext();
@@ -80,6 +81,7 @@ export default function LanguagePickerSelect({
 
     // Push new route with updated locale, keep the current asPath for display
     router.push({ pathname }, asPath, { locale: newLocale });
+    onSelect?.();
   };
 
   const handleTranslationProgressClick = (e: React.MouseEvent) => {
@@ -87,6 +89,7 @@ export default function LanguagePickerSelect({
 
     setIsOpen(false);
     router.push(translateRoute);
+    onSelect?.();
   };
 
   const renderFlag = (flagCode: string, percent?: number) => {
@@ -113,13 +116,13 @@ export default function LanguagePickerSelect({
       />
     );
   };
-  // Languages with < 20% translated are hidden
+  // Languages with < 50% translated are hidden from language selector
   // Languages with < 80% translated are greyed out
   const availableLanguages = languages
     ?.filter(
       (language) =>
         LANGUAGE_MAP[language.code.replace("_", "-")] &&
-        language.translated_percent > HIDDEN_CUTOFF,
+        language.translated_percent >= SELECTOR_CUTOFF,
     )
     // sort by translated percent with the >= 80 grouped at the top, then sorted alphabetically by code
     .sort((a, b) => {

@@ -6,6 +6,7 @@ import {
   StyledEngineProvider,
   ThemeProvider,
 } from "@mui/material";
+import { AppCacheProvider } from "@mui/material-nextjs/v15-pagesRouter";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { EnvironmentBanner } from "components/EnvironmentBanner";
@@ -27,16 +28,10 @@ type AppWithLayoutProps = Omit<AppProps, "Component"> & {
   };
 };
 
-function MyApp({ Component, pageProps }: AppWithLayoutProps) {
+function MyApp(props: AppWithLayoutProps) {
+  const { Component, pageProps } = props;
   const getLayout = Component.getLayout ?? ((page: ReactNode) => page);
   useEffect(() => polyfill(), []);
-  useEffect(() => {
-    // Remove the server-side injected CSS.
-    const jssStyles = document.querySelector("#jss-server-side");
-    if (jssStyles) {
-      jssStyles.parentElement!.removeChild(jssStyles);
-    }
-  }, []);
 
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_COUCHERS_ENV === "prod") {
@@ -44,12 +39,12 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
     }
   }, []);
 
-  /** @TODO(NA) Workaround likely due to old version of Next.js.
-   * Mobile browser is handling 100vh inconsistently, causing layout shift that
-   * 1. Breaks sticky positioning.
-   * 2. Doesn't resize after mobile keyboard retracts.
-   * Replace 100vh with a custom CSS variable to handle dynamic viewport changes and force scroll reset.
-   * TL;DR The sticky positioning of the send bar was not being recognized on first load on mobile. */
+  /**
+   * Mobile viewport workaround (not Next.js related - this is a browser issue).
+   * Mobile browsers include the address bar in 100vh, causing layout issues.
+   * This sets a CSS variable --vh to the actual visible viewport height.
+   * Use `calc(var(--vh, 1vh) * 100)` instead of `100vh` in CSS for consistent behavior.
+   * The resetScroll helps recalibrate sticky positioning after keyboard closes. */
   useEffect(() => {
     const updateVH = () => {
       document.documentElement.style.setProperty(
@@ -75,22 +70,24 @@ function MyApp({ Component, pageProps }: AppWithLayoutProps) {
   }, []);
 
   return (
-    <StyledEngineProvider injectFirst>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <ThemeProvider theme={theme}>
-          <ErrorBoundary isFatal>
-            <ReactQueryClientProvider>
-              <AuthProvider>
-                <CssBaseline />
-                <EnvironmentBanner />
-                <HtmlMeta />
-                {getLayout(<Component {...pageProps} />)}
-              </AuthProvider>
-            </ReactQueryClientProvider>
-          </ErrorBoundary>
-        </ThemeProvider>
-      </LocalizationProvider>
-    </StyledEngineProvider>
+    <AppCacheProvider {...props}>
+      <StyledEngineProvider injectFirst>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <ThemeProvider theme={theme}>
+            <ErrorBoundary isFatal>
+              <ReactQueryClientProvider>
+                <AuthProvider>
+                  <CssBaseline />
+                  <EnvironmentBanner />
+                  <HtmlMeta />
+                  {getLayout(<Component {...pageProps} />)}
+                </AuthProvider>
+              </ReactQueryClientProvider>
+            </ErrorBoundary>
+          </ThemeProvider>
+        </LocalizationProvider>
+      </StyledEngineProvider>
+    </AppCacheProvider>
   );
 }
 

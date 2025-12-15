@@ -23,6 +23,9 @@ const StyledCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== "isCancelled",
 })<{ isCancelled?: boolean }>(({ theme, isCancelled }) => ({
   position: "relative",
+  display: "grid",
+  gridTemplateRows: "1fr auto",
+  overflow: "hidden",
   "&:hover": {
     backgroundColor: theme.palette.grey[50],
   },
@@ -49,12 +52,15 @@ const EventTime = styled(Typography)(({ theme }) => ({
   },
 }));
 
-const Content = styled(Typography)(({ theme }) => ({
+const Content = styled(Typography)({
   display: "-webkit-box",
   WebkitBoxOrient: "vertical",
-  WebkitLineClamp: 5,
+  WebkitLineClamp: 3,
   overflow: "hidden",
-}));
+  textOverflow: "ellipsis",
+  wordBreak: "break-word",
+  maxHeight: "4.5em",
+});
 
 const CancelledChip = styled(Chip)(({ theme }) => ({
   backgroundColor: theme.palette.error.main,
@@ -62,25 +68,66 @@ const CancelledChip = styled(Chip)(({ theme }) => ({
   fontWeight: "bold",
 }));
 
-const FlagButtonWrapper = styled("div")({
+const FlagButtonWrapper = styled("div")(({ theme }) => ({
   position: "absolute",
-  bottom: 8,
-  right: 8,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
+  top: theme.spacing(1),
+  right: theme.spacing(1),
   "& svg": {
     fontSize: 16,
+  },
+}));
+
+const StyledCommentsCount = styled(Typography)(({ theme }) => ({
+  alignSelf: "flex-end",
+  flexShrink: 0,
+  color: theme.palette.primary.main,
+}));
+
+const ContentWrapper = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  flexGrow: 1,
+});
+
+const ActivityStatsWrapper = styled("div")({
+  display: "flex",
+  justifyContent: "space-between",
+  marginTop: "auto",
+});
+
+const StyledLink = styled(Link)({
+  textDecoration: "none",
+  color: "inherit",
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
+  overflow: "hidden",
+});
+
+const StyledCardContent = styled(CardContent)({
+  display: "flex",
+  flexDirection: "column",
+  flexGrow: 1,
+  height: 240,
+  overflow: "hidden",
+  "&:last-child": {
+    paddingBottom: 16, // Override MUI's default last-child padding
   },
 });
 
 export const EVENT_CARD_TEST_ID = "event-card";
-export interface EventCardProps {
+interface EventCardProps {
   event: Event.AsObject;
   className?: string;
+  // Optional formatter to override attendees count text (used by dashboard to avoid loading COMMUNITIES)
+  attendeesCountFormatter?: (count: number) => string;
 }
 
-export default function EventCard({ event, className }: EventCardProps) {
+export default function EventCard({
+  event,
+  className,
+  attendeesCountFormatter,
+}: EventCardProps) {
   const { t } = useTranslation([COMMUNITIES]);
 
   const startTime = dayjs(timestamp2Date(event.startTime!));
@@ -103,10 +150,11 @@ export default function EventCard({ event, className }: EventCardProps) {
       isCancelled={event.isCancelled}
       data-testid={EVENT_CARD_TEST_ID}
     >
-      <Link href={routeToEvent(event.eventId, event.slug)}>
+      <StyledLink href={routeToEvent(event.eventId, event.slug)}>
         <CardMedia
           component="div"
           sx={{
+            position: "relative",
             padding: 1,
             backgroundColor: (theme) => theme.palette.grey[200],
             height: { xs: 80, sm: 100, md: 120 },
@@ -124,8 +172,14 @@ export default function EventCard({ event, className }: EventCardProps) {
               sx={{ borderRadius: 1, fontWeight: "bold" }}
             />
           )}
+          <FlagButtonWrapper>
+            <FlagButton
+              contentRef={`event/${event.eventId}`}
+              authorUser={event.creatorUserId}
+            />
+          </FlagButtonWrapper>
         </CardMedia>
-        <CardContent>
+        <StyledCardContent>
           <EventTime
             variant="body2"
             color="textSecondary"
@@ -134,42 +188,45 @@ export default function EventCard({ event, className }: EventCardProps) {
           >
             {formattedEventDates}
           </EventTime>
-
           <Title variant="h3" gutterBottom>
             {event.title}
           </Title>
-
-          <Typography noWrap variant="body2" gutterBottom>
+          <Typography
+            noWrap
+            variant="body2"
+            gutterBottom
+            sx={{
+              maxWidth: "25em",
+            }}
+          >
             {event.offlineInformation
               ? event.offlineInformation.address
               : t("communities:virtual_event_location_placeholder")}
           </Typography>
-
           {event.isCancelled && (
             <CancelledChip label={t("communities:cancelled")} />
           )}
-
           <Divider spacing={1} />
+          <ContentWrapper>
+            <Content>{strippedContent}</Content>
 
-          <div>
-            <Content variant="body1" paragraph>
-              {strippedContent}
-            </Content>
-
-            <Typography variant="body2" color="textSecondary">
-              {t("communities:attendees_count", {
-                count: event.goingCount + event.maybeCount,
-              })}
-            </Typography>
-          </div>
-        </CardContent>
-      </Link>
-      <FlagButtonWrapper>
-        <FlagButton
-          contentRef={`event/${event.eventId}`}
-          authorUser={event.creatorUserId}
-        />
-      </FlagButtonWrapper>
+            <ActivityStatsWrapper>
+              <Typography variant="body2" color="textSecondary">
+                {attendeesCountFormatter
+                  ? attendeesCountFormatter(event.goingCount + event.maybeCount)
+                  : t("communities:attendees_count", {
+                      count: event.goingCount + event.maybeCount,
+                    })}
+              </Typography>
+              <StyledCommentsCount variant="body2">
+                {t("communities:comments_count", {
+                  count: event.thread?.numResponses,
+                })}
+              </StyledCommentsCount>
+            </ActivityStatsWrapper>
+          </ContentWrapper>
+        </StyledCardContent>
+      </StyledLink>
     </StyledCard>
   );
 }

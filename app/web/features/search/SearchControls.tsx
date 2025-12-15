@@ -13,7 +13,7 @@ import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 interface SearchControlsProps {
   drawerWidth: number;
   mapView: MapViewOptions;
-  mapRef: React.RefObject<MapRef>;
+  mapRef: React.RefObject<MapRef | null>;
   onSetMapView: (view: MapViewOptions) => void;
   onZoomIn: (newZoom: number, center?: LngLatLike) => void;
 }

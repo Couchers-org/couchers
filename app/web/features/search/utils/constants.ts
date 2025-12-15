@@ -1,5 +1,5 @@
 import { TFunction } from "i18n";
-import { HostingStatus, SleepingArrangement } from "proto/api_pb";
+import { SleepingArrangement } from "proto/api_pb";
 import { SearchUser } from "proto/search_pb";
 import { firstName } from "utils/names";
 
@@ -25,20 +25,7 @@ enum lastActiveOptions {
   LAST_ACTIVE_LAST_YEAR = 365,
 }
 
-const selectedUserZoom = 10;
-
 type Coordinates = [number, number, number, number];
-
-type HostingStatusType = Exclude<
-  HostingStatus,
-  | HostingStatus.HOSTING_STATUS_UNKNOWN
-  | HostingStatus.HOSTING_STATUS_UNSPECIFIED
->[];
-
-type HostingStatusOptions =
-  | HostingStatus.HOSTING_STATUS_CANT_HOST
-  | HostingStatus.HOSTING_STATUS_MAYBE
-  | HostingStatus.HOSTING_STATUS_CAN_HOST;
 
 type SleepingArrangementOptions =
   | SleepingArrangement.SLEEPING_ARRANGEMENT_COMMON
@@ -70,14 +57,11 @@ export {
   MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,
   MAX_ZOOM_LEVEL,
   MIN_ZOOM_LEVEL,
-  selectedUserZoom,
   truncateWithEllipsis,
 };
 
 export type {
   Coordinates,
-  HostingStatusOptions,
-  HostingStatusType,
   MapSearchTypes,
   MapViewOptions,
   SleepingArrangementOptions,

@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { service } from "service";
 import {
   filterDuplicatePlaces,
   NominatimPlace,
@@ -102,6 +103,7 @@ const useGeocodeQuery = () => {
         method: "GET",
       };
       try {
+        const startTime = performance.now();
         const response = await fetch(url, fetchOptions);
 
         if (!response.ok) throw Error(await response.text());
@@ -129,6 +131,12 @@ const useGeocodeQuery = () => {
               bbox: result["boundingbox"],
             };
           });
+          service.bugs.geolocationSearchInfo({
+            searchString: value,
+            nominatimResultJson: JSON.stringify(nominatimResults),
+            formattedResultJson: JSON.stringify(formattedResults),
+            durationMs: performance.now() - startTime,
+          });
 
           setResults(formattedResults);
         }
@@ -147,14 +155,6 @@ const useGeocodeQuery = () => {
 
   return { isLoading, error, results, query };
 };
-
-function usePrevious<T>(value: T) {
-  const ref = useRef<T>();
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
-}
 
 function useUnsavedChangesWarning({
   isDirty,
@@ -192,7 +192,6 @@ function useUnsavedChangesWarning({
 export {
   useGeocodeQuery,
   useIsMounted,
-  usePrevious,
   useSafeState,
   useUnsavedChangesWarning,
 };

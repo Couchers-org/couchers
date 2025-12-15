@@ -11,16 +11,17 @@ from couchers.config import config
 from couchers.db import _get_base_engine
 
 
-def setup_tracing():
+def setup_tracing() -> None:
     if config["OPENTELEMETRY_ENDPOINT"] != "":
         ThreadingInstrumentor().instrument()
 
-        grpc_server_instrumentor = GrpcInstrumentorServer()
+        grpc_server_instrumentor = GrpcInstrumentorServer()  # type: ignore[no-untyped-call]
         grpc_server_instrumentor.instrument()
         SQLAlchemyInstrumentor().instrument(engine=_get_base_engine(), enable_commenter=True, commenter_options={})
 
-        trace.set_tracer_provider(TracerProvider(resource=Resource(attributes={"service.name": "backend"})))
-
-        trace.get_tracer_provider().add_span_processor(
+        tracer = TracerProvider(resource=Resource(attributes={"service.name": "backend"}))
+        tracer.add_span_processor(
             BatchSpanProcessor(OTLPSpanExporter(endpoint=config["OPENTELEMETRY_ENDPOINT"], insecure=True))
         )
+
+        trace.set_tracer_provider(tracer)

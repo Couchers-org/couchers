@@ -1,11 +1,14 @@
 import logging
 from dataclasses import dataclass
+from typing import Any
 
 from couchers import urls
+from couchers.i18n.i18n import get_raw_translation_string
+from couchers.models import Notification, User
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
+from couchers.proto import notification_data_pb2
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
 from couchers.utils import now, to_aware_datetime
-from proto import notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +26,13 @@ class RenderedNotification:
     # corresponds to .mjml + .txt file in templates/v2
     email_template_name: str
     # other template args
-    email_template_args: dict
+    email_template_args: dict[str, Any]
     # the link label on the topic_action unsubscribe link
-    email_topic_action_unsubscribe_text: str = None
+    email_topic_action_unsubscribe_text: str | None = None
     # the link label on the topic_key unsubscribe link
-    email_topic_key_unsubscribe_text: str = None
+    email_topic_key_unsubscribe_text: str | None = None
     # url to unsubscribe with one click
-    email_list_unsubscribe_url: str = None
+    email_list_unsubscribe_url: str | None = None
     # push notification title
     push_title: str
     # push notification content
@@ -40,8 +43,13 @@ class RenderedNotification:
     push_url: str
 
 
-def render_notification(user, notification) -> RenderedNotification:
-    data = notification.topic_action.data_type.FromString(notification.data)
+def render_notification(user: User, notification: Notification) -> RenderedNotification:
+    def get_localized_string(component: str, message_id: str, *, substitutions: dict[str, str] | None = None) -> str:
+        return get_raw_translation_string(
+            user.ui_language_preference, component, message_id, substitutions=substitutions
+        )
+
+    data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic == "host_request":
         view_link = urls.host_request(host_request_id=data.host_request.host_request_id)
         if notification.action == "missed_messages":
@@ -357,8 +365,14 @@ def render_notification(user, notification) -> RenderedNotification:
             email_list_unsubscribe_url=generate_unsub_topic_action(notification),
         )
     elif notification.topic_action.display == "donation:received":
-        title = "Thank you for your donation to Couchers.org!"
-        message = f"Thank you so much for your donation of ${data.amount} to Couchers.org."
+        title = get_localized_string("notifications", "donation_received_title")
+        message = get_localized_string(
+            "notifications",
+            "donation_received_thanks_amount",
+            substitutions={
+                "amount": data.amount,
+            },
+        )
         return RenderedNotification(
             is_critical=True,
             email_subject=title,
@@ -869,13 +883,13 @@ def render_notification(user, notification) -> RenderedNotification:
         )
     elif notification.topic_action.display == "verification:sv_fail":
         title = "Strong Verification failed"
-        message: str
+        reason_message: str
         if data.reason == notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
-            message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
+            reason_message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
         elif data.reason == notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
-            message = "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification."
+            reason_message = "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification."
         elif data.reason == notification_data_pb2.SV_FAIL_REASON_DUPLICATE:
-            message = "You tried to verify with a passport that has already been used for verification. Please use another passport."
+            reason_message = "You tried to verify with a passport that has already been used for verification. Please use another passport."
         else:
             raise Exception("Shouldn't get here")
         return RenderedNotification(
@@ -885,13 +899,73 @@ def render_notification(user, notification) -> RenderedNotification:
             email_template_name="security",
             email_template_args={
                 "title": title,
-                "message": message,
+                "message": reason_message,
             },
             push_title=title,
-            push_body=message,
+            push_body=reason_message,
             push_icon=urls.icon_url(),
             push_url=urls.account_settings_link(),
         )
+    elif notification.topic == "postal_verification":
+        if notification.action == "postcard_sent":
+            title = "Your verification postcard is on its way"
+            message = f"We've sent a postcard with your verification code to {data.city}, {data.country}. It should arrive within 1-3 weeks depending on your location. Once it arrives, enter the code on the platform to complete verification."
+            return RenderedNotification(
+                is_critical=True,
+                email_subject=title,
+                email_preview=message,
+                email_template_name="security",
+                email_template_args={
+                    "title": title,
+                    "message": message,
+                },
+                push_title=title,
+                push_body=f"Postcard sent to {data.city}, {data.country}. Expect it within 1-3 weeks.",
+                push_icon=urls.icon_url(),
+                push_url=urls.account_settings_link(),
+            )
+        elif notification.action == "success":
+            title = "Postal Verification succeeded"
+            message = "You have been verified with Postal Verification! Your address has been confirmed."
+            return RenderedNotification(
+                is_critical=True,
+                email_subject=title,
+                email_preview=message,
+                email_template_name="security",
+                email_template_args={
+                    "title": title,
+                    "message": message,
+                },
+                push_title=title,
+                push_body=message,
+                push_icon=urls.icon_url(),
+                push_url=urls.account_settings_link(),
+            )
+        elif notification.action == "failed":
+            title = "Postal Verification failed"
+            reason_message: str
+            if data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED:
+                reason_message = "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can start a new verification attempt."
+            elif data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS:
+                reason_message = "Too many incorrect code attempts. You can start a new verification attempt."
+            else:
+                reason_message = (
+                    "Your postal verification attempt has failed. You can start a new verification attempt."
+                )
+            return RenderedNotification(
+                is_critical=True,
+                email_subject=title,
+                email_preview=title,
+                email_template_name="security",
+                email_template_args={
+                    "title": title,
+                    "message": reason_message,
+                },
+                push_title=title,
+                push_body=reason_message,
+                push_icon=urls.icon_url(),
+                push_url=urls.account_settings_link(),
+            )
     elif notification.topic_action.display == "activeness:probe":
         title = "Are you still open to hosting on Couchers.org?"
         return RenderedNotification(
@@ -924,5 +998,5 @@ def render_notification(user, notification) -> RenderedNotification:
             push_icon=urls.icon_url(),
             push_url=data.url,
         )
-    else:
-        raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
+
+    raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

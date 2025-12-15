@@ -6,6 +6,7 @@ import logging
 from datetime import date, timedelta
 from math import cos, pi, sin, sqrt
 from random import sample
+from typing import Any
 
 import requests
 from google.protobuf import empty_pb2
@@ -23,11 +24,11 @@ from sqlalchemy.sql import (
     literal,
     not_,
     or_,
-    select,
     union_all,
     update,
 )
 
+from couchers import urls
 from couchers.config import config
 from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
@@ -55,7 +56,11 @@ from couchers.materialized_views import (
     refresh_materialized_views,
     refresh_materialized_views_rapid,
 )
-from couchers.metrics import strong_verification_completions_counter
+from couchers.metrics import (
+    moderation_auto_approved_counter,
+    push_notification_counter,
+    strong_verification_completions_counter,
+)
 from couchers.models import (
     AccountDeletionToken,
     ActivenessProbe,
@@ -70,27 +75,42 @@ from couchers.models import (
     HostingStatus,
     HostRequest,
     HostRequestStatus,
-    Invoice,
     LoginToken,
     MeetupStatus,
     Message,
     MessageType,
+    ModerationAction,
+    ModerationLog,
+    ModerationObjectType,
+    ModerationQueueItem,
+    ModerationState,
+    ModerationTrigger,
     PassportSex,
     PasswordResetToken,
+    PhotoGallery,
+    PostalVerificationAttempt,
+    PostalVerificationStatus,
+    PushNotificationDeliveryAttempt,
+    PushNotificationSubscription,
     Reference,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
     User,
     UserBadge,
+    Volunteer,
 )
-from couchers.notifications.background import handle_email_digests, handle_notification, send_raw_push_notification
+from couchers.notifications.background import handle_email_digests, handle_notification
+from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
+from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
+from couchers.postal.postcard_service import send_postcard
+from couchers.proto import moderation_pb2, notification_data_pb2
+from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
-from couchers.servicers.admin import generate_new_blog_post_notifications
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.conversations import generate_message_notifications
 from couchers.servicers.discussions import generate_create_discussion_notifications
+from couchers.servicers.editor import generate_new_blog_post_notifications
 from couchers.servicers.events import (
     event_to_pb,
     generate_event_cancel_notifications,
@@ -98,6 +118,7 @@ from couchers.servicers.events import (
     generate_event_delete_notifications,
     generate_event_update_notifications,
 )
+from couchers.servicers.moderation import Moderation
 from couchers.servicers.requests import host_request_to_pb
 from couchers.servicers.threads import generate_reply_notifications
 from couchers.sql import couchers_select as select
@@ -109,15 +130,14 @@ from couchers.utils import (
     get_coordinates,
     now,
 )
-from proto import notification_data_pb2
-from proto.internal import jobs_pb2, verification_pb2
 
 logger = logging.getLogger(__name__)
+
 
 # these were straight up imported
 handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
 
-send_raw_push_notification.PAYLOAD = jobs_pb2.SendRawPushNotificationPayload
+send_raw_push_notification_v2.PAYLOAD = jobs_pb2.SendRawPushNotificationPayloadV2
 
 handle_email_digests.PAYLOAD = empty_pb2.Empty
 handle_email_digests.SCHEDULE = timedelta(minutes=15)
@@ -145,7 +165,7 @@ refresh_materialized_views_rapid.PAYLOAD = empty_pb2.Empty
 refresh_materialized_views_rapid.SCHEDULE = timedelta(seconds=30)
 
 
-def send_email(payload):
+def send_email(payload: jobs_pb2.SendEmailPayload) -> None:
     logger.info(f"Sending email with subject '{payload.subject}' to '{payload.recipient}'")
     # selects a "sender", which either prints the email to the logger or sends it out with SMTP
     sender = send_smtp_email if config["ENABLE_EMAIL"] else print_dev_email
@@ -167,7 +187,7 @@ def send_email(payload):
 send_email.PAYLOAD = jobs_pb2.SendEmailPayload
 
 
-def purge_login_tokens(payload):
+def purge_login_tokens(payload: empty_pb2.Empty) -> None:
     logger.info("Purging login tokens")
     with session_scope() as session:
         session.execute(delete(LoginToken).where(~LoginToken.is_valid).execution_options(synchronize_session=False))
@@ -177,7 +197,7 @@ purge_login_tokens.PAYLOAD = empty_pb2.Empty
 purge_login_tokens.SCHEDULE = timedelta(hours=24)
 
 
-def purge_password_reset_tokens(payload):
+def purge_password_reset_tokens(payload: empty_pb2.Empty) -> None:
     logger.info("Purging login tokens")
     with session_scope() as session:
         session.execute(
@@ -189,7 +209,7 @@ purge_password_reset_tokens.PAYLOAD = empty_pb2.Empty
 purge_password_reset_tokens.SCHEDULE = timedelta(hours=24)
 
 
-def purge_account_deletion_tokens(payload):
+def purge_account_deletion_tokens(payload: empty_pb2.Empty) -> None:
     logger.info("Purging account deletion tokens")
     with session_scope() as session:
         session.execute(
@@ -203,7 +223,7 @@ purge_account_deletion_tokens.PAYLOAD = empty_pb2.Empty
 purge_account_deletion_tokens.SCHEDULE = timedelta(hours=24)
 
 
-def send_message_notifications(payload):
+def send_message_notifications(payload: empty_pb2.Empty) -> None:
     """
     Sends out email notifications for messages that have been unseen for a long enough time
     """
@@ -217,6 +237,8 @@ def send_message_notifications(payload):
                 select(User)
                 .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+                .where_moderated_content_visible_to_user_column(GroupChat, User.id)
                 .where(not_(GroupChatSubscription.is_muted))
                 .where(User.is_visible)
                 .where(Message.time >= GroupChatSubscription.joined)
@@ -231,6 +253,7 @@ def send_message_notifications(payload):
         )
 
         for user in users:
+            context = make_background_user_context(user_id=user.id)
             # now actually grab all the group chats, not just less than 5 min old
             subquery = (
                 select(
@@ -240,6 +263,8 @@ def send_message_notifications(payload):
                     func.count(Message.id).label("count_unseen"),
                 )
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+                .where_moderated_content_visible(context, GroupChat, is_list_operation=True)
                 .where(GroupChatSubscription.user_id == user.id)
                 .where(not_(GroupChatSubscription.is_muted))
                 .where(Message.id > user.last_notified_message_id)
@@ -247,6 +272,7 @@ def send_message_notifications(payload):
                 .where(Message.time >= GroupChatSubscription.joined)
                 .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
                 .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+                .where_users_column_visible(context, Message.author_id)
                 .group_by(GroupChatSubscription.group_chat_id)
                 .order_by(func.max(Message.id).desc())
                 .subquery()
@@ -256,6 +282,7 @@ def send_message_notifications(payload):
                 select(GroupChat, Message, subquery.c.count_unseen)
                 .join(subquery, subquery.c.message_id == Message.id)
                 .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
+                .where_moderated_content_visible(context, GroupChat, is_list_operation=True)
                 .order_by(subquery.c.message_id.desc())
             ).all()
 
@@ -274,13 +301,14 @@ def send_message_notifications(payload):
                 session,
                 user_id=user.id,
                 topic_action="chat:missed_messages",
+                key="",
                 data=notification_data_pb2.ChatMissedMessages(
                     messages=[
                         notification_data_pb2.ChatMessage(
                             author=user_model_to_pb(
                                 message.author,
                                 session,
-                                make_background_user_context(user_id=user.id),
+                                context,
                             ),
                             message=format_title(message, group_chat, count_unseen),
                             text=message.text,
@@ -297,79 +325,120 @@ send_message_notifications.PAYLOAD = empty_pb2.Empty
 send_message_notifications.SCHEDULE = timedelta(minutes=3)
 
 
-def send_request_notifications(payload):
+def send_request_notifications(payload: empty_pb2.Empty) -> None:
     """
     Sends out email notifications for unseen messages in host requests (as surfer or host)
     """
     logger.info("Sending out email notifications for unseen messages in host requests")
 
     with session_scope() as session:
-        # requests where this user is surfing
-        surfing_reqs = session.execute(
-            select(User, HostRequest, func.max(Message.id))
-            .where(User.is_visible)
-            .join(HostRequest, HostRequest.surfer_user_id == User.id)
-            .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .where(Message.id > HostRequest.surfer_last_seen_message_id)
-            .where(Message.id > User.last_notified_request_message_id)
-            .where(Message.time < now() - timedelta(minutes=5))
-            .where(Message.message_type == MessageType.text)
-            .group_by(User, HostRequest)
-        ).all()
-
-        # where this user is hosting
-        hosting_reqs = session.execute(
-            select(User, HostRequest, func.max(Message.id))
-            .where(User.is_visible)
-            .join(HostRequest, HostRequest.host_user_id == User.id)
-            .join(Message, Message.conversation_id == HostRequest.conversation_id)
-            .where(Message.id > HostRequest.host_last_seen_message_id)
-            .where(Message.id > User.last_notified_request_message_id)
-            .where(Message.time < now() - timedelta(minutes=5))
-            .where(Message.message_type == MessageType.text)
-            .group_by(User, HostRequest)
-        ).all()
-
-        for user, host_request, max_message_id in surfing_reqs:
-            user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
-            session.flush()
-
-            context = make_background_user_context(user_id=user.id)
-            notify(
-                session,
-                user_id=user.id,
-                topic_action="host_request:missed_messages",
-                key=host_request.conversation_id,
-                data=notification_data_pb2.HostRequestMissedMessages(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    user=user_model_to_pb(host_request.host, session, context),
-                    am_host=False,
-                ),
+        # Get all candidate users who might have unseen request messages
+        candidate_user_ids = (
+            session.execute(
+                select(User.id)
+                .where(User.is_visible)
+                .where(
+                    or_(
+                        # Users with unseen messages as surfer
+                        exists(
+                            select(1)
+                            .select_from(HostRequest)
+                            .join(Message, Message.conversation_id == HostRequest.conversation_id)
+                            .where(HostRequest.surfer_user_id == User.id)
+                            .where(Message.id > HostRequest.surfer_last_seen_message_id)
+                            .where(Message.id > User.last_notified_request_message_id)
+                            .where(Message.time < now() - timedelta(minutes=5))
+                            .where(Message.message_type == MessageType.text)
+                        ),
+                        # Users with unseen messages as host
+                        exists(
+                            select(1)
+                            .select_from(HostRequest)
+                            .join(Message, Message.conversation_id == HostRequest.conversation_id)
+                            .where(HostRequest.host_user_id == User.id)
+                            .where(Message.id > HostRequest.host_last_seen_message_id)
+                            .where(Message.id > User.last_notified_request_message_id)
+                            .where(Message.time < now() - timedelta(minutes=5))
+                            .where(Message.message_type == MessageType.text)
+                        ),
+                    )
+                )
             )
+            .scalars()
+            .all()
+        )
 
-        for user, host_request, max_message_id in hosting_reqs:
-            user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
-            session.flush()
+        for user_id in candidate_user_ids:
+            context = make_background_user_context(user_id=user_id)
 
-            context = make_background_user_context(user_id=user.id)
-            notify(
-                session,
-                user_id=user.id,
-                topic_action="host_request:missed_messages",
-                key=host_request.conversation_id,
-                data=notification_data_pb2.HostRequestMissedMessages(
-                    host_request=host_request_to_pb(host_request, session, context),
-                    user=user_model_to_pb(host_request.surfer, session, context),
-                    am_host=True,
-                ),
-            )
+            # requests where this user is surfing
+            surfing_reqs = session.execute(
+                select(User, HostRequest, func.max(Message.id))
+                .where(User.id == user_id)
+                .join(HostRequest, HostRequest.surfer_user_id == User.id)
+                .where_moderated_content_visible_to_user_column(HostRequest, HostRequest.surfer_user_id)
+                .where_users_column_visible(context, HostRequest.host_user_id)
+                .join(Message, Message.conversation_id == HostRequest.conversation_id)
+                .where(Message.id > HostRequest.surfer_last_seen_message_id)
+                .where(Message.id > User.last_notified_request_message_id)
+                .where(Message.time < now() - timedelta(minutes=5))
+                .where(Message.message_type == MessageType.text)
+                .group_by(User, HostRequest)
+            ).all()
+
+            # where this user is hosting
+            hosting_reqs = session.execute(
+                select(User, HostRequest, func.max(Message.id))
+                .where(User.id == user_id)
+                .join(HostRequest, HostRequest.host_user_id == User.id)
+                .where_moderated_content_visible_to_user_column(HostRequest, HostRequest.host_user_id)
+                .where_users_column_visible(context, HostRequest.surfer_user_id)
+                .join(Message, Message.conversation_id == HostRequest.conversation_id)
+                .where(Message.id > HostRequest.host_last_seen_message_id)
+                .where(Message.id > User.last_notified_request_message_id)
+                .where(Message.time < now() - timedelta(minutes=5))
+                .where(Message.message_type == MessageType.text)
+                .group_by(User, HostRequest)
+            ).all()
+
+            for user, host_request, max_message_id in surfing_reqs:
+                user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
+                session.flush()
+
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="host_request:missed_messages",
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.HostRequestMissedMessages(
+                        host_request=host_request_to_pb(host_request, session, context),
+                        user=user_model_to_pb(host_request.host, session, context),
+                        am_host=False,
+                    ),
+                )
+
+            for user, host_request, max_message_id in hosting_reqs:
+                user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
+                session.flush()
+
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="host_request:missed_messages",
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.HostRequestMissedMessages(
+                        host_request=host_request_to_pb(host_request, session, context),
+                        user=user_model_to_pb(host_request.surfer, session, context),
+                        am_host=True,
+                    ),
+                )
 
 
 send_request_notifications.PAYLOAD = empty_pb2.Empty
 send_request_notifications.SCHEDULE = timedelta(minutes=3)
 
 
-def send_onboarding_emails(payload):
+def send_onboarding_emails(payload: empty_pb2.Empty) -> None:
     """
     Sends out onboarding emails
     """
@@ -422,7 +491,7 @@ send_onboarding_emails.PAYLOAD = empty_pb2.Empty
 send_onboarding_emails.SCHEDULE = timedelta(hours=1)
 
 
-def send_reference_reminders(payload):
+def send_reference_reminders(payload: empty_pb2.Empty) -> None:
     """
     Sends out reminders to write references after hosting/staying
     """
@@ -458,13 +527,12 @@ def send_reference_reminders(payload):
                         Reference.from_user_id == HostRequest.surfer_user_id,
                     ),
                 )
-                .where(user.is_visible)
-                .where(other_user.is_visible)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.surfer_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
                 .where(HostRequest.surfer_reason_didnt_meetup == None)
+                .where_users_visible_to_each_other(user, other_user)
             )
 
             # hosts needing to write a ref
@@ -480,13 +548,12 @@ def send_reference_reminders(payload):
                         Reference.from_user_id == HostRequest.host_user_id,
                     ),
                 )
-                .where(user.is_visible)
-                .where(other_user.is_visible)
                 .where(Reference.id == None)
                 .where(HostRequest.can_write_reference)
                 .where(HostRequest.host_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
                 .where(HostRequest.host_reason_didnt_meetup == None)
+                .where_users_visible_to_each_other(user, other_user)
             )
 
             union = union_all(q1, q2).subquery()
@@ -499,32 +566,32 @@ def send_reference_reminders(payload):
             reference_reminders = session.execute(union).all()
 
             for surfed, host_request, user, other_user in reference_reminders:
-                # checked in sql
+                # visibility and blocking already checked in sql
                 assert user.is_visible
-                if not is_not_visible(session, user.id, other_user.id):
-                    context = make_background_user_context(user_id=user.id)
-                    notify(
-                        session,
-                        user_id=user.id,
-                        topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
-                        data=notification_data_pb2.ReferenceReminder(
-                            host_request_id=host_request.conversation_id,
-                            other_user=user_model_to_pb(other_user, session, context),
-                            days_left=reminder_days_left,
-                        ),
-                    )
-                    if surfed:
-                        host_request.surfer_sent_reference_reminders = reminder_number
-                    else:
-                        host_request.host_sent_reference_reminders = reminder_number
-                    session.commit()
+                context = make_background_user_context(user_id=user.id)
+                notify(
+                    session,
+                    user_id=user.id,
+                    topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
+                    key=str(host_request.conversation_id),
+                    data=notification_data_pb2.ReferenceReminder(
+                        host_request_id=host_request.conversation_id,
+                        other_user=user_model_to_pb(other_user, session, context),
+                        days_left=reminder_days_left,
+                    ),
+                )
+                if surfed:
+                    host_request.surfer_sent_reference_reminders = reminder_number
+                else:
+                    host_request.host_sent_reference_reminders = reminder_number
+                session.commit()
 
 
 send_reference_reminders.PAYLOAD = empty_pb2.Empty
 send_reference_reminders.SCHEDULE = timedelta(hours=1)
 
 
-def send_host_request_reminders(payload):
+def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
     with session_scope() as session:
         host_has_sent_message = select(1).where(
             Message.conversation_id == HostRequest.conversation_id, Message.author_id == HostRequest.host_user_id
@@ -533,11 +600,13 @@ def send_host_request_reminders(payload):
         requests = (
             session.execute(
                 select(HostRequest)
+                .where_moderated_content_visible_to_user_column(HostRequest, HostRequest.host_user_id)
                 .where(HostRequest.status == HostRequestStatus.pending)
                 .where(HostRequest.host_sent_request_reminders < HOST_REQUEST_MAX_REMINDERS)
                 .where(HostRequest.start_time > func.now())
                 .where((func.now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
                 .where(~exists(host_has_sent_message))
+                .where_user_columns_visible_to_each_other(HostRequest.host_user_id, HostRequest.surfer_user_id)
             )
             .scalars()
             .all()
@@ -552,10 +621,12 @@ def send_host_request_reminders(payload):
                 session,
                 user_id=host_request.host_user_id,
                 topic_action="host_request:reminder",
+                key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestReminder(
                     host_request=host_request_to_pb(host_request, session, context),
                     surfer=user_model_to_pb(host_request.surfer, session, context),
                 ),
+                moderation_state_id=host_request.moderation_state_id,
             )
 
             session.commit()
@@ -565,7 +636,7 @@ send_host_request_reminders.PAYLOAD = empty_pb2.Empty
 send_host_request_reminders.SCHEDULE = timedelta(minutes=15)
 
 
-def add_users_to_email_list(payload):
+def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
     if not config["LISTMONK_ENABLED"]:
         logger.info("Not adding users to mailing list")
         return
@@ -611,7 +682,7 @@ add_users_to_email_list.PAYLOAD = empty_pb2.Empty
 add_users_to_email_list.SCHEDULE = timedelta(hours=1)
 
 
-def enforce_community_membership(payload):
+def enforce_community_membership(payload: empty_pb2.Empty) -> None:
     tasks_enforce_community_memberships()
 
 
@@ -619,7 +690,7 @@ enforce_community_membership.PAYLOAD = empty_pb2.Empty
 enforce_community_membership.SCHEDULE = timedelta(minutes=15)
 
 
-def update_recommendation_scores(payload):
+def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
     text_fields = [
         User.hometown,
         User.occupation,
@@ -800,10 +871,10 @@ update_recommendation_scores.PAYLOAD = empty_pb2.Empty
 update_recommendation_scores.SCHEDULE = timedelta(hours=24)
 
 
-def update_badges(payload):
+def update_badges(payload: empty_pb2.Empty) -> None:
     with session_scope() as session:
 
-        def update_badge(badge_id: str, members: list[int]):
+        def update_badge(badge_id: str, members: list[int]) -> None:
             badge = get_badge_dict()[badge_id]
             user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge_id)).scalars().all()
             # in case the user ids don't exist in the db
@@ -821,9 +892,7 @@ def update_badges(payload):
         update_badge("founder", get_static_badge_dict()["founder"])
         update_badge("board_member", get_static_badge_dict()["board_member"])
         update_badge("past_board_member", get_static_badge_dict()["past_board_member"])
-        update_badge(
-            "donor", session.execute(select(User.id).join(Invoice, Invoice.user_id == User.id)).scalars().all()
-        )
+        update_badge("donor", session.execute(select(User.id).where(User.last_donated.is_not(None))).scalars().all())
         update_badge("moderator", session.execute(select(User.id).where(User.is_superuser)).scalars().all())
         update_badge("phone_verified", session.execute(select(User.id).where(User.phone_is_verified)).scalars().all())
         # strong verification requires passport on file + gender/sex correspondence and date of birth match
@@ -837,13 +906,25 @@ def update_badges(payload):
             .scalars()
             .all(),
         )
+        # volunteer badge for active volunteers (stopped_volunteering is null)
+        update_badge(
+            "volunteer",
+            session.execute(select(Volunteer.user_id).where(Volunteer.stopped_volunteering.is_(None))).scalars().all(),
+        )
+        # past_volunteer badge for past volunteers (stopped_volunteering is not null)
+        update_badge(
+            "past_volunteer",
+            session.execute(select(Volunteer.user_id).where(Volunteer.stopped_volunteering.is_not(None)))
+            .scalars()
+            .all(),
+        )
 
 
 update_badges.PAYLOAD = empty_pb2.Empty
 update_badges.SCHEDULE = timedelta(minutes=15)
 
 
-def finalize_strong_verification(payload):
+def finalize_strong_verification(payload: "jobs_pb2.FinalizeStrongVerificationPayload") -> None:
     with session_scope() as session:
         verification_attempt = session.execute(
             select(StrongVerificationAttempt)
@@ -855,6 +936,7 @@ def finalize_strong_verification(payload):
             auth=(config["IRIS_ID_PUBKEY"], config["IRIS_ID_SECRET"]),
             json={"id": verification_attempt.iris_session_id},
             timeout=10,
+            verify="/etc/ssl/certs/ca-certificates.crt",
         )
         if response.status_code != 200:
             raise Exception(f"Iris didn't return 200: {response.text}")
@@ -873,6 +955,7 @@ def finalize_strong_verification(payload):
                 session,
                 user_id=verification_attempt.user_id,
                 topic_action="verification:sv_fail",
+                key="",
                 data=notification_data_pb2.VerificationSVFail(
                     reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT
                 ),
@@ -910,6 +993,7 @@ def finalize_strong_verification(payload):
                 session,
                 user_id=verification_attempt.user_id,
                 topic_action="verification:sv_fail",
+                key="",
                 data=notification_data_pb2.VerificationSVFail(reason=notification_data_pb2.SV_FAIL_REASON_DUPLICATE),
             )
             return
@@ -935,12 +1019,13 @@ def finalize_strong_verification(payload):
                 return
 
             user_add_badge(session, user.id, badge_id, do_notify=False)
-            notify(session, user_id=verification_attempt.user_id, topic_action="verification:sv_success")
+            notify(session, user_id=verification_attempt.user_id, topic_action="verification:sv_success", key="")
         else:
             notify(
                 session,
                 user_id=verification_attempt.user_id,
                 topic_action="verification:sv_fail",
+                key="",
                 data=notification_data_pb2.VerificationSVFail(
                     reason=notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER
                 ),
@@ -950,7 +1035,7 @@ def finalize_strong_verification(payload):
 finalize_strong_verification.PAYLOAD = jobs_pb2.FinalizeStrongVerificationPayload
 
 
-def send_activeness_probes(payload):
+def send_activeness_probes(payload: empty_pb2.Empty) -> None:
     with session_scope() as session:
         ## Step 1: create new activeness probes for those who need it and don't have one (if enabled)
 
@@ -1010,7 +1095,7 @@ def send_activeness_probes(payload):
                     session,
                     user_id=probe.user.id,
                     topic_action="activeness:probe",
-                    key=probe.id,
+                    key=str(probe.id),
                     data=notification_data_pb2.ActivenessProbe(
                         reminder_number=probe_number_minus_1 + 1,
                         deadline=Timestamp_from_datetime(probe.probe_initiated + ACTIVENESS_PROBE_EXPIRY_TIME),
@@ -1044,7 +1129,7 @@ send_activeness_probes.PAYLOAD = empty_pb2.Empty
 send_activeness_probes.SCHEDULE = timedelta(minutes=60)
 
 
-def update_randomized_locations(payload):
+def update_randomized_locations(payload: empty_pb2.Empty) -> None:
     """
     We generate for each user a randomized location as follows:
     - Start from a strong random seed (based on the SECRET env var and our key derivation function)
@@ -1055,7 +1140,7 @@ def update_randomized_locations(payload):
     """
     randomization_secret = get_secret(USER_LOCATION_RANDOMIZATION_NAME)
 
-    def gen_randomized_coords(user_id, lat, lng):
+    def gen_randomized_coords(user_id: int, lat: float, lng: float) -> tuple[float, float]:
         radius_u = stable_secure_uniform(randomization_secret, seed=bytes(f"{user_id}|radius", "ascii"))
         angle_u = stable_secure_uniform(randomization_secret, seed=bytes(f"{user_id}|angle", "ascii"))
         radius = 0.02 + 0.08 * radius_u
@@ -1064,7 +1149,7 @@ def update_randomized_locations(payload):
         offset_lat = radius * sin(angle_rad)
         return lat + offset_lat, lng + offset_lng
 
-    user_updates = []
+    user_updates: list[dict[str, Any]] = []
 
     with session_scope() as session:
         users_to_update = session.execute(select(User.id, User.geom).where(User.randomized_geom == None)).all()
@@ -1083,7 +1168,7 @@ update_randomized_locations.PAYLOAD = empty_pb2.Empty
 update_randomized_locations.SCHEDULE = timedelta(hours=1)
 
 
-def send_event_reminders(payload: empty_pb2.Empty):
+def send_event_reminders(payload: empty_pb2.Empty) -> None:
     """
     Sends reminders for events that are 24 hours away to users who marked themselves as attending.
     """
@@ -1115,6 +1200,7 @@ def send_event_reminders(payload: empty_pb2.Empty):
                     session,
                     user_id=user.id,
                     topic_action="event:reminder",
+                    key=str(occurrence.id),
                     data=notification_data_pb2.EventReminder(
                         event=event_to_pb(session, occurrence, context),
                         user=user_model_to_pb(user, session, context),
@@ -1127,3 +1213,378 @@ def send_event_reminders(payload: empty_pb2.Empty):
 
 send_event_reminders.PAYLOAD = empty_pb2.Empty
 send_event_reminders.SCHEDULE = timedelta(hours=1)
+
+
+def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
+    """
+    Check Expo push receipts in batch and update delivery attempts.
+    """
+    MAX_ITERATIONS = 100  # Safety limit: 100 batches * 100 attempts = 10,000 max
+
+    for iteration in range(MAX_ITERATIONS):
+        with session_scope() as session:
+            # Find all delivery attempts that need receipt checking
+            # Wait 15 minutes per Expo's recommendation before checking receipts
+            attempts = (
+                session.execute(
+                    select(PushNotificationDeliveryAttempt)
+                    .where(PushNotificationDeliveryAttempt.expo_ticket_id != None)
+                    .where(PushNotificationDeliveryAttempt.receipt_checked_at == None)
+                    .where(PushNotificationDeliveryAttempt.time < now() - timedelta(minutes=15))
+                    .where(PushNotificationDeliveryAttempt.time > now() - timedelta(hours=24))
+                    .limit(100)
+                )
+                .scalars()
+                .all()
+            )
+
+            if not attempts:
+                logger.debug("No Expo receipts to check")
+                return
+
+            logger.info(f"Checking {len(attempts)} Expo push receipts")
+
+            receipts = get_expo_push_receipts([attempt.expo_ticket_id for attempt in attempts])
+
+            for attempt in attempts:
+                receipt = receipts.get(attempt.expo_ticket_id)
+
+                # Always mark as checked to avoid infinite loops
+                attempt.receipt_checked_at = now()
+
+                if receipt is None:
+                    # Receipt not found after 15min - likely expired (>24h) or never existed
+                    # Per Expo docs: receipts should be available within 15 minutes
+                    attempt.receipt_status = "not_found"
+                    continue
+
+                attempt.receipt_status = receipt.get("status")
+
+                if receipt.get("status") == "error":
+                    details = receipt.get("details", {})
+                    error_code = details.get("error")
+                    attempt.receipt_error_code = error_code
+
+                    if error_code == "DeviceNotRegistered":
+                        # Device token is no longer valid - disable the subscription
+                        sub = session.execute(
+                            select(PushNotificationSubscription).where(
+                                PushNotificationSubscription.id == attempt.push_notification_subscription_id
+                            )
+                        ).scalar_one()
+
+                        if sub.disabled_at > now():
+                            sub.disabled_at = now()
+                            logger.info(f"Disabled push sub {sub.id} due to DeviceNotRegistered in receipt")
+                            push_notification_counter.labels(
+                                platform="expo", outcome="permanent_subscription_failure_receipt"
+                            ).inc()
+                    else:
+                        logger.warning(f"Expo receipt error for ticket {attempt.expo_ticket_id}: {error_code}")
+
+    # If we get here, we've exhausted MAX_ITERATIONS without finishing
+    raise RuntimeError(
+        f"check_expo_push_receipts exceeded {MAX_ITERATIONS} iterations - "
+        "there may be an unusually large backlog of receipts to check"
+    )
+
+
+check_expo_push_receipts.PAYLOAD = empty_pb2.Empty
+check_expo_push_receipts.SCHEDULE = timedelta(minutes=5)
+
+
+def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPostcardPayload) -> None:
+    """
+    Sends the postcard via external API and updates attempt status.
+    """
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PostalVerificationAttempt).where(
+                PostalVerificationAttempt.id == payload.postal_verification_attempt_id
+            )
+        ).scalar_one_or_none()
+
+        if not attempt or attempt.status != PostalVerificationStatus.in_progress:
+            logger.warning(
+                f"Postal verification attempt {payload.postal_verification_attempt_id} not found or wrong state"
+            )
+            return
+
+        user_name = session.execute(select(User.name).where(User.id == attempt.user_id)).scalar_one()
+
+        result = send_postcard(
+            recipient_name=user_name,
+            address_line_1=attempt.address_line_1,
+            address_line_2=attempt.address_line_2,
+            city=attempt.city,
+            state=attempt.state,
+            postal_code=attempt.postal_code,
+            country=attempt.country,
+            verification_code=attempt.verification_code,
+            qr_code_url=urls.postal_verification_link(code=attempt.verification_code),
+        )
+
+        if result.success:
+            attempt.status = PostalVerificationStatus.awaiting_verification
+            attempt.postcard_sent_at = func.now()
+
+            notify(
+                session,
+                user_id=attempt.user_id,
+                topic_action="postal_verification:postcard_sent",
+                key="",
+                data=notification_data_pb2.PostalVerificationPostcardSent(
+                    city=attempt.city,
+                    country=attempt.country,
+                ),
+            )
+        else:
+            # Could retry or fail - for now, fail
+            attempt.status = PostalVerificationStatus.failed
+            logger.error(f"Postcard send failed: {result.error_message}")
+
+
+send_postal_verification_postcard.PAYLOAD = jobs_pb2.SendPostalVerificationPostcardPayload
+
+
+class DatabaseInconsistencyError(Exception):
+    """Raised when database consistency checks fail"""
+
+    pass
+
+
+def check_database_consistency(payload: empty_pb2.Empty) -> None:
+    """
+    Checks database consistency and raises an exception if any issues are found.
+    """
+    logger.info("Checking database consistency")
+    errors = []
+
+    with session_scope() as session:
+        # Check that all non-deleted users have a profile gallery
+        users_without_gallery = session.execute(
+            select(User.id, User.username).where(User.is_deleted == False).where(User.profile_gallery_id.is_(None))
+        ).all()
+        if users_without_gallery:
+            errors.append(f"Users without profile gallery: {users_without_gallery}")
+
+        # Check that all profile galleries point to their owner
+        mismatched_galleries = session.execute(
+            select(User.id, User.username, User.profile_gallery_id, PhotoGallery.owner_user_id)
+            .join(PhotoGallery, User.profile_gallery_id == PhotoGallery.id)
+            .where(User.profile_gallery_id.is_not(None))
+            .where(PhotoGallery.owner_user_id != User.id)
+        ).all()
+        if mismatched_galleries:
+            errors.append(f"Profile galleries with mismatched owner: {mismatched_galleries}")
+
+        # === Moderation System Consistency Checks ===
+
+        # Check all ModerationStates have a known object_type
+        known_object_types = [ModerationObjectType.HOST_REQUEST, ModerationObjectType.GROUP_CHAT]
+        unknown_type_states = session.execute(
+            select(ModerationState.id, ModerationState.object_type).where(
+                ModerationState.object_type.not_in(known_object_types)
+            )
+        ).all()
+        if unknown_type_states:
+            errors.append(f"ModerationStates with unknown object_type: {unknown_type_states}")
+
+        # Check every ModerationState has at least one INITIAL_REVIEW queue item
+        # Skip items with ID < 2000000 as they were created before this check was introduced
+        states_without_initial_review = session.execute(
+            select(ModerationState.id, ModerationState.object_type, ModerationState.object_id).where(
+                ModerationState.id >= 2000000,
+                ~exists(
+                    select(1)
+                    .where(ModerationQueueItem.moderation_state_id == ModerationState.id)
+                    .where(ModerationQueueItem.trigger == ModerationTrigger.INITIAL_REVIEW)
+                ),
+            )
+        ).all()
+        if states_without_initial_review:
+            errors.append(f"ModerationStates without INITIAL_REVIEW queue item: {states_without_initial_review}")
+
+        # Check every ModerationState has a CREATE log entry
+        # Skip items with ID < 2000000 as they were created before this check was introduced
+        states_without_create_log = session.execute(
+            select(ModerationState.id, ModerationState.object_type, ModerationState.object_id).where(
+                ModerationState.id >= 2000000,
+                ~exists(
+                    select(1)
+                    .where(ModerationLog.moderation_state_id == ModerationState.id)
+                    .where(ModerationLog.action == ModerationAction.CREATE)
+                ),
+            )
+        ).all()
+        if states_without_create_log:
+            errors.append(f"ModerationStates without CREATE log entry: {states_without_create_log}")
+
+        # Check resolved queue items point to log entries for the same moderation state
+        resolved_item_log_mismatches = session.execute(
+            select(ModerationQueueItem.id, ModerationQueueItem.moderation_state_id, ModerationLog.moderation_state_id)
+            .join(ModerationLog, ModerationQueueItem.resolved_by_log_id == ModerationLog.id)
+            .where(ModerationQueueItem.resolved_by_log_id.is_not(None))
+            .where(ModerationQueueItem.moderation_state_id != ModerationLog.moderation_state_id)
+        ).all()
+        if resolved_item_log_mismatches:
+            errors.append(f"Resolved queue items with mismatched moderation_state_id: {resolved_item_log_mismatches}")
+
+        # Check every HOST_REQUEST ModerationState has exactly one HostRequest pointing to it
+        hr_states = (
+            session.execute(
+                select(ModerationState.id).where(ModerationState.object_type == ModerationObjectType.HOST_REQUEST)
+            )
+            .scalars()
+            .all()
+        )
+        for state_id in hr_states:
+            hr_count = session.execute(
+                select(func.count()).where(HostRequest.moderation_state_id == state_id)
+            ).scalar_one()
+            if hr_count != 1:
+                errors.append(f"ModerationState {state_id} (HOST_REQUEST) has {hr_count} HostRequests (expected 1)")
+
+        # Check every GROUP_CHAT ModerationState has exactly one GroupChat pointing to it
+        gc_states = (
+            session.execute(
+                select(ModerationState.id).where(ModerationState.object_type == ModerationObjectType.GROUP_CHAT)
+            )
+            .scalars()
+            .all()
+        )
+        for state_id in gc_states:
+            gc_count = session.execute(
+                select(func.count()).where(GroupChat.moderation_state_id == state_id)
+            ).scalar_one()
+            if gc_count != 1:
+                errors.append(f"ModerationState {state_id} (GROUP_CHAT) has {gc_count} GroupChats (expected 1)")
+
+        # Check ModerationState.object_id matches the actual object's ID
+        hr_object_id_mismatches = session.execute(
+            select(ModerationState.id, ModerationState.object_id, HostRequest.conversation_id)
+            .join(HostRequest, HostRequest.moderation_state_id == ModerationState.id)
+            .where(ModerationState.object_type == ModerationObjectType.HOST_REQUEST)
+            .where(ModerationState.object_id != HostRequest.conversation_id)
+        ).all()
+        if hr_object_id_mismatches:
+            errors.append(f"ModerationState object_id mismatch for HOST_REQUEST: {hr_object_id_mismatches}")
+
+        gc_object_id_mismatches = session.execute(
+            select(ModerationState.id, ModerationState.object_id, GroupChat.conversation_id)
+            .join(GroupChat, GroupChat.moderation_state_id == ModerationState.id)
+            .where(ModerationState.object_type == ModerationObjectType.GROUP_CHAT)
+            .where(ModerationState.object_id != GroupChat.conversation_id)
+        ).all()
+        if gc_object_id_mismatches:
+            errors.append(f"ModerationState object_id mismatch for GROUP_CHAT: {gc_object_id_mismatches}")
+
+        # Check reverse mapping: HostRequest's moderation_state points to correct ModerationState
+        hr_reverse_mismatches = session.execute(
+            select(
+                HostRequest.conversation_id,
+                HostRequest.moderation_state_id,
+                ModerationState.object_type,
+                ModerationState.object_id,
+            )
+            .join(ModerationState, HostRequest.moderation_state_id == ModerationState.id)
+            .where(
+                (ModerationState.object_type != ModerationObjectType.HOST_REQUEST)
+                | (ModerationState.object_id != HostRequest.conversation_id)
+            )
+        ).all()
+        if hr_reverse_mismatches:
+            errors.append(f"HostRequest points to ModerationState with wrong type/object_id: {hr_reverse_mismatches}")
+
+        # Check reverse mapping: GroupChat's moderation_state points to correct ModerationState
+        gc_reverse_mismatches = session.execute(
+            select(
+                GroupChat.conversation_id,
+                GroupChat.moderation_state_id,
+                ModerationState.object_type,
+                ModerationState.object_id,
+            )
+            .join(ModerationState, GroupChat.moderation_state_id == ModerationState.id)
+            .where(
+                (ModerationState.object_type != ModerationObjectType.GROUP_CHAT)
+                | (ModerationState.object_id != GroupChat.conversation_id)
+            )
+        ).all()
+        if gc_reverse_mismatches:
+            errors.append(f"GroupChat points to ModerationState with wrong type/object_id: {gc_reverse_mismatches}")
+
+        # Ensure auto-approve deadline isn't being exceeded by a significant margin
+        # The auto-approver runs every 15s, so allow 5 minutes grace before alerting
+        deadline_seconds = config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"]
+        if deadline_seconds > 0:
+            grace_period = timedelta(minutes=5)
+            stale_initial_review_items = session.execute(
+                select(
+                    ModerationQueueItem.id,
+                    ModerationQueueItem.moderation_state_id,
+                    ModerationQueueItem.time_created,
+                )
+                .where(ModerationQueueItem.trigger == ModerationTrigger.INITIAL_REVIEW)
+                .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+                .where(ModerationQueueItem.time_created < now() - timedelta(seconds=deadline_seconds) - grace_period)
+            ).all()
+            if stale_initial_review_items:
+                errors.append(
+                    f"INITIAL_REVIEW items exceeding auto-approve deadline by >5min: {stale_initial_review_items}"
+                )
+
+    if errors:
+        raise DatabaseInconsistencyError("\n".join(errors))
+
+
+check_database_consistency.PAYLOAD = empty_pb2.Empty
+check_database_consistency.SCHEDULE = timedelta(hours=24)
+
+
+def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
+    """
+    Dead man's switch: auto-approves unresolved INITIAL_REVIEW items older than the deadline.
+    Items explicitly actioned by moderators are left alone.
+    """
+    deadline_seconds = config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"]
+    if deadline_seconds <= 0:
+        return
+
+    with session_scope() as session:
+        ctx = make_background_user_context(user_id=config["MODERATION_BOT_USER_ID"])
+
+        items = (
+            Moderation()
+            .GetModerationQueue(
+                request=moderation_pb2.GetModerationQueueReq(
+                    triggers=[moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW],
+                    unresolved_only=True,
+                    page_size=100,
+                    created_before=Timestamp_from_datetime(now() - timedelta(seconds=deadline_seconds)),
+                ),
+                context=ctx,
+                session=session,
+            )
+            .queue_items
+        )
+
+        if not items:
+            return
+
+        logger.info(f"Auto-approving {len(items)} moderation queue items")
+        for item in items:
+            Moderation().ModerateContent(
+                request=moderation_pb2.ModerateContentReq(
+                    moderation_state_id=item.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=f"Auto-approved: moderation deadline of {deadline_seconds} seconds exceeded.",
+                ),
+                context=ctx,
+                session=session,
+            )
+        moderation_auto_approved_counter.inc(len(items))
+
+
+auto_approve_moderation_queue.PAYLOAD = empty_pb2.Empty
+auto_approve_moderation_queue.SCHEDULE = timedelta(seconds=15)

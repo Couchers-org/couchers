@@ -3,17 +3,17 @@ from datetime import timedelta
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
+from sqlalchemy import update
 
-from couchers import errors
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
-from couchers.models import FriendRelationship, FriendStatus, RateLimitAction
-from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL_STRING
+from couchers.models import FriendRelationship, FriendStatus, LanguageFluency, RateLimitAction, User
+from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notifications_pb2
+from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
-from proto import api_pb2, jail_pb2, notifications_pb2
 from tests.test_fixtures import (  # noqa
     api_session,
     blocking_session,
@@ -30,6 +30,7 @@ from tests.test_fixtures import (  # noqa
     real_jail_session,
     testconfig,
 )
+from tests.test_fixtures import real_admin_session as admin_session
 
 
 @pytest.fixture(autouse=True)
@@ -38,7 +39,14 @@ def _(testconfig):
 
 
 def test_ping(db):
-    user, token = generate_user()
+    user, token = generate_user(
+        regions_lived=["ESP", "FRA", "EST"],
+        regions_visited=["CHE", "REU", "FIN"],
+        language_abilities=[
+            ("fin", LanguageFluency.fluent),
+            ("fra", LanguageFluency.beginner),
+        ],
+    )
 
     with real_api_session(token) as api:
         res = api.Ping(api_pb2.PingReq())
@@ -165,6 +173,164 @@ def test_get_user(db):
         assert res.user_id == user2.id
         assert res.username == user2.username
         assert res.name == user2.name
+
+
+@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+def test_user_model_to_pb_ghost_user(db, flag):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user2.id).values(**{flag: True}))
+
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+
+    assert user_pb.user_id == user2.id
+    assert user_pb.is_ghost
+    assert user_pb.username == "ghost"
+    assert user_pb.name == "Ghost"
+    assert (
+        user_pb.about_me
+        == "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
+    )
+
+    assert user_pb.lat == 0
+    assert user_pb.lng == 0
+    assert user_pb.radius == 0
+    assert user_pb.verification == 0.0
+    assert user_pb.community_standing == 0.0
+    assert user_pb.num_references == 0
+    assert user_pb.age == 0
+    assert user_pb.hosting_status == 0
+    assert user_pb.meetup_status == 0
+    assert user_pb.city == ""
+    assert user_pb.hometown == ""
+    assert user_pb.timezone == ""
+    assert user_pb.gender == ""
+    assert user_pb.pronouns == ""
+    assert user_pb.occupation == ""
+    assert user_pb.education == ""
+    assert user_pb.things_i_like == ""
+    assert user_pb.about_place == ""
+    assert user_pb.additional_information == ""
+    assert list(user_pb.language_abilities) == []
+    assert list(user_pb.regions_visited) == []
+    assert list(user_pb.regions_lived) == []
+    assert list(user_pb.badges) == []
+    assert user_pb.friends == api_pb2.User.FriendshipStatus.NOT_FRIENDS
+    assert user_pb.avatar_url == ""
+    assert user_pb.avatar_thumbnail_url == ""
+    assert not user_pb.has_strong_verification
+
+    with api_session(token1) as api:
+        lite_user_pb = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+
+    assert lite_user_pb.user_id == user2.id
+    assert lite_user_pb.is_ghost
+    assert lite_user_pb.username == "ghost"
+    assert lite_user_pb.name == "Ghost"
+    assert lite_user_pb.city == ""
+    assert lite_user_pb.age == 0
+    assert lite_user_pb.avatar_url == ""
+    assert lite_user_pb.avatar_thumbnail_url == ""
+    assert lite_user_pb.lat == 0
+    assert lite_user_pb.lng == 0
+    assert lite_user_pb.radius == 0
+    assert not lite_user_pb.has_strong_verification
+
+
+def test_user_model_to_pb_ghost_user_blocked(db):
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    with blocking_session(token1) as user_blocks:
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
+
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+
+    assert user_pb.user_id == user2.id
+    assert user_pb.is_ghost
+    assert user_pb.username == "ghost"
+    assert user_pb.name == "Ghost"
+    assert (
+        user_pb.about_me
+        == "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
+    )
+
+    assert user_pb.lat == 0
+    assert user_pb.lng == 0
+    assert user_pb.radius == 0
+    assert user_pb.verification == 0.0
+    assert user_pb.community_standing == 0.0
+    assert user_pb.num_references == 0
+    assert user_pb.age == 0
+    assert user_pb.hosting_status == 0
+    assert user_pb.meetup_status == 0
+    assert user_pb.city == ""
+    assert user_pb.hometown == ""
+    assert user_pb.timezone == ""
+    assert user_pb.gender == ""
+    assert user_pb.pronouns == ""
+    assert user_pb.occupation == ""
+    assert user_pb.education == ""
+    assert user_pb.things_i_like == ""
+    assert user_pb.about_place == ""
+    assert user_pb.additional_information == ""
+    assert list(user_pb.language_abilities) == []
+    assert list(user_pb.regions_visited) == []
+    assert list(user_pb.regions_lived) == []
+    assert list(user_pb.badges) == []
+    assert user_pb.friends == api_pb2.User.FriendshipStatus.NOT_FRIENDS
+    assert user_pb.avatar_url == ""
+    assert user_pb.avatar_thumbnail_url == ""
+    assert not user_pb.has_strong_verification
+
+    with api_session(token1) as api:
+        lite_user_pb = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+
+    assert lite_user_pb.user_id == user2.id
+    assert lite_user_pb.is_ghost
+    assert lite_user_pb.username == "ghost"
+    assert lite_user_pb.name == "Ghost"
+    assert lite_user_pb.city == ""
+    assert lite_user_pb.age == 0
+    assert lite_user_pb.avatar_url == ""
+    assert lite_user_pb.avatar_thumbnail_url == ""
+    assert lite_user_pb.lat == 0
+    assert lite_user_pb.lng == 0
+    assert lite_user_pb.radius == 0
+    assert not lite_user_pb.has_strong_verification
+
+
+@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+def test_admin_viewing_ghost_users_sees_full_profile(db, flag):
+    admin, token_admin = generate_user(is_superuser=True)
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(**{flag: True}))
+
+    with admin_session(token_admin) as api:
+        user_pb = api.GetUser(admin_pb2.GetUserReq(user=user.username))
+
+    assert user_pb.user_id == user.id
+    assert user_pb.username == user.username
+    assert user_pb.name == user.name
+    assert user_pb.city == user.city
+    assert user_pb.name != "Ghost"
+    assert user_pb.username != "ghost"
+    assert user_pb.hosting_status in (
+        api_pb2.HOSTING_STATUS_UNKNOWN,
+        api_pb2.HOSTING_STATUS_CAN_HOST,
+        api_pb2.HOSTING_STATUS_MAYBE,
+        api_pb2.HOSTING_STATUS_CANT_HOST,
+    )
 
 
 def test_lite_coords(db):
@@ -316,15 +482,19 @@ def test_GetLiteUsers(db):
         assert res.responses[7].query == "notreal"
         assert res.responses[7].not_found
 
-        # blocked
+        # blocked - should return ghost profile
         assert res.responses[8].query == user4.username
-        assert res.responses[8].not_found
+        assert not res.responses[8].not_found
+        assert res.responses[8].user.user_id == user4.id
+        assert res.responses[8].user.is_ghost
+        assert res.responses[8].user.username == "ghost"
+        assert res.responses[8].user.name == "Ghost"
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.GetLiteUsers(api_pb2.GetLiteUsersReq(users=201 * [user1.username]))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.REQUESTED_TOO_MANY_USERS
+        assert e.value.details() == "You can't request that many users at a time."
 
 
 def test_update_profile(db):
@@ -334,28 +504,28 @@ def test_update_profile(db):
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(api_pb2.UpdateProfileReq(name=wrappers_pb2.StringValue(value="  ")))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_NAME
+        assert e.value.details() == "Name not supported."
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(
                 api_pb2.UpdateProfileReq(lat=wrappers_pb2.DoubleValue(value=0), lng=wrappers_pb2.DoubleValue(value=0))
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_COORDINATE
+        assert e.value.details() == "Invalid coordinate."
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(
                 api_pb2.UpdateProfileReq(regions_visited=api_pb2.RepeatedStringValue(value=["United States"]))
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_REGION
+        assert e.value.details() == "Invalid region."
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(
                 api_pb2.UpdateProfileReq(regions_lived=api_pb2.RepeatedStringValue(value=["United Kingdom"]))
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_REGION
+        assert e.value.details() == "Invalid region."
 
         api.UpdateProfile(
             api_pb2.UpdateProfileReq(
@@ -455,16 +625,21 @@ def test_update_profile_do_not_email(db):
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(api_pb2.UpdateProfileReq(hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.DO_NOT_EMAIL_CANNOT_HOST
+        assert e.value.details() == "You cannot enable hosting while you have emails turned off in your settings."
 
         with pytest.raises(grpc.RpcError) as e:
             api.UpdateProfile(api_pb2.UpdateProfileReq(meetup_status=api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.DO_NOT_EMAIL_CANNOT_MEET
+        assert e.value.details() == "You cannot enable meeting up while you have emails turned off in your settings."
 
 
 def test_language_abilities(db):
-    user, token = generate_user()
+    user, token = generate_user(
+        language_abilities=[
+            ("fin", LanguageFluency.fluent),
+            ("fra", LanguageFluency.beginner),
+        ],
+    )
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -485,7 +660,7 @@ def test_language_abilities(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == errors.INVALID_LANGUAGE
+        assert e.value.details() == "Invalid language."
 
         # can't have multiple languages of the same type
         with pytest.raises(Exception) as e:
@@ -632,7 +807,7 @@ def test_friend_request_flow(db, push_collector):
     user2, token2 = generate_user(complete_profile=True)
     user3, token3 = generate_user()
 
-    # send friend request from user1 to user2
+    # send a friend request from user1 to user2
     with mock_notification_email() as mock:
         with api_session(token1) as api:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
@@ -736,7 +911,7 @@ def test_friend_request_flow(db, push_collector):
         with pytest.raises(grpc.RpcError) as e:
             api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user3.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.NOT_FRIENDS
+        assert e.value.details() == "You aren't friends with that user!"
 
         # we can unfriend
         res = api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user2.id))
@@ -802,7 +977,7 @@ def test_cant_friend_request_twice(db):
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.FRIENDS_ALREADY_OR_PENDING
+        assert e.value.details() == "You are already friends with or have sent a friend request to that user."
 
 
 def test_cant_friend_request_pending(db):
@@ -817,7 +992,7 @@ def test_cant_friend_request_pending(db):
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.FRIENDS_ALREADY_OR_PENDING
+        assert e.value.details() == "You are already friends with or have sent a friend request to that user."
 
 
 def test_cant_friend_request_already_friends(db):
@@ -829,13 +1004,13 @@ def test_cant_friend_request_already_friends(db):
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.FRIENDS_ALREADY_OR_PENDING
+        assert e.value.details() == "You are already friends with or have sent a friend request to that user."
 
     with api_session(token2) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == errors.FRIENDS_ALREADY_OR_PENDING
+        assert e.value.details() == "You are already friends with or have sent a friend request to that user."
 
 
 def test_excessive_friend_requests_are_reported(db):
@@ -856,7 +1031,7 @@ def test_excessive_friend_requests_are_reported(db):
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.warning_limit} friend requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.warning_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
             )
 
         # Test ban after exceeding FRIEND_REQUEST_HARD_LIMIT
@@ -870,12 +1045,15 @@ def test_excessive_friend_requests_are_reported(db):
             with pytest.raises(grpc.RpcError) as exc_info:
                 _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
             assert exc_info.value.code() == grpc.StatusCode.RESOURCE_EXHAUSTED
-            assert exc_info.value.details() == errors.FRIEND_REQUEST_RATE_LIMIT
+            assert (
+                exc_info.value.details()
+                == "You have sent a lot of friend requests in the past 24 hours. To avoid spam, you can't send any more for now."
+            )
 
             assert mock_email.call_count == 1
             email = mock_email.mock_calls[0].kwargs["plain"]
             assert email.startswith(
-                f"User {user.username} has sent {rate_limit_definition.hard_limit} friend requests in the past {RATE_LIMIT_INTERVAL_STRING}."
+                f"User {user.username} has sent {rate_limit_definition.hard_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
             )
             assert "The user has been blocked from sending further friend requests for now." in email
 
@@ -1283,10 +1461,10 @@ def test_hosting_preferences(db):
 
 
 def test_badges(db):
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
-    user4, token = generate_user()
+    user1, _ = generate_user(last_donated=None)
+    user2, _ = generate_user(last_donated=None)
+    user3, _ = generate_user(last_donated=None)
+    user4, token = generate_user(last_donated=None)
 
     update_badges(empty_pb2.Empty())
 
@@ -1305,3 +1483,320 @@ def test_badges(db):
             api_pb2.ListBadgeUsersReq(badge_id=board_member_badge["id"], page_token=res.next_page_token)
         )
         assert res2.user_ids == [2]
+
+
+@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+def test_GetLiteUser_ghost_user_by_username(db, flag):
+    """Test that GetLiteUser returns a ghost profile for deleted/banned users when querying by username."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # Make user2 invisible
+    with session_scope() as session:
+        db_user2 = session.merge(user2)
+        setattr(db_user2, flag, True)
+        session.commit()
+
+    # Refresh the materialized view
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        # Query by username
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+
+        assert lite_user.user_id == user2.id
+        assert lite_user.username == "ghost"
+        assert lite_user.name == "Ghost"
+        assert lite_user.lat == 0
+        assert lite_user.lng == 0
+        assert lite_user.radius == 0
+        assert lite_user.city == ""
+        assert lite_user.age == 0
+        assert lite_user.avatar_url == ""
+        assert lite_user.avatar_thumbnail_url == ""
+        assert not lite_user.has_strong_verification
+
+
+@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+def test_GetLiteUser_ghost_user_by_id(db, flag):
+    """Test that GetLiteUser returns a ghost profile for deleted/banned users when querying by ID."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # Make user2 invisible
+    with session_scope() as session:
+        db_user2 = session.merge(user2)
+        setattr(db_user2, flag, True)
+        session.commit()
+
+    # Refresh the materialized view
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        # Query by ID
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
+
+        assert lite_user.user_id == user2.id
+        assert lite_user.username == "ghost"
+        assert lite_user.name == "Ghost"
+        assert lite_user.lat == 0
+        assert lite_user.lng == 0
+        assert lite_user.radius == 0
+        assert lite_user.city == ""
+        assert lite_user.age == 0
+        assert lite_user.avatar_url == ""
+        assert lite_user.avatar_thumbnail_url == ""
+        assert not lite_user.has_strong_verification
+
+
+def test_GetLiteUser_blocked_user(db):
+    """Test that GetLiteUser returns a ghost profile for blocked users."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # User1 blocks user2
+    make_user_block(user1, user2)
+
+    # Refresh the materialized view
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        # Query by username
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+
+        assert lite_user.user_id == user2.id
+        assert lite_user.is_ghost
+        assert lite_user.username == "ghost"
+        assert lite_user.name == "Ghost"
+
+        # Query by ID
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
+
+        assert lite_user.user_id == user2.id
+        assert lite_user.is_ghost
+        assert lite_user.username == "ghost"
+        assert lite_user.name == "Ghost"
+
+
+def test_GetLiteUser_blocking_user(db):
+    """Test that GetLiteUser returns a ghost profile when the target user has blocked the requester."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # User2 blocks user1
+    make_user_block(user2, user1)
+
+    # Refresh the materialized view
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        # Query by username
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
+
+        assert lite_user.user_id == user2.id
+        assert lite_user.is_ghost
+        assert lite_user.username == "ghost"
+        assert lite_user.name == "Ghost"
+
+        # Query by ID
+        lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
+
+        assert lite_user.user_id == user2.id
+        assert lite_user.is_ghost
+        assert lite_user.username == "ghost"
+        assert lite_user.name == "Ghost"
+
+
+@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+def test_GetLiteUsers_ghost_users(db, flag):
+    """Test that GetLiteUsers returns ghost profiles for deleted/banned users."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user()
+
+    # Make user2 and user4 invisible
+    with session_scope() as session:
+        db_user2 = session.merge(user2)
+        setattr(db_user2, flag, True)
+        db_user4 = session.merge(user4)
+        setattr(db_user4, flag, True)
+        session.commit()
+
+    # Refresh the materialized view
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        res = api.GetLiteUsers(
+            api_pb2.GetLiteUsersReq(
+                users=[
+                    user1.username,  # visible
+                    user2.username,  # ghost
+                    str(user3.id),  # visible
+                    str(user4.id),  # ghost
+                ]
+            )
+        )
+
+        assert len(res.responses) == 4
+
+        # user1 - visible, normal profile
+        assert res.responses[0].query == user1.username
+        assert not res.responses[0].not_found
+        assert res.responses[0].user.user_id == user1.id
+        assert res.responses[0].user.username == user1.username
+        assert res.responses[0].user.name == user1.name
+
+        # user2 - ghost by username
+        assert res.responses[1].query == user2.username
+        assert not res.responses[1].not_found
+        assert res.responses[1].user.user_id == user2.id
+        assert res.responses[1].user.is_ghost
+        assert res.responses[1].user.username == "ghost"
+        assert res.responses[1].user.name == "Ghost"
+
+        # user3 - visible, normal profile
+        assert res.responses[2].query == str(user3.id)
+        assert not res.responses[2].not_found
+        assert res.responses[2].user.user_id == user3.id
+        assert res.responses[2].user.username == user3.username
+        assert res.responses[2].user.name == user3.name
+
+        # user4 - ghost by ID
+        assert res.responses[3].query == str(user4.id)
+        assert not res.responses[3].not_found
+        assert res.responses[3].user.user_id == user4.id
+        assert res.responses[3].user.is_ghost
+        assert res.responses[3].user.username == "ghost"
+        assert res.responses[3].user.name == "Ghost"
+
+
+def test_GetLiteUsers_blocked_users(db):
+    """Test that GetLiteUsers returns ghost profiles for blocked users."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user()
+    user5, _ = generate_user()
+
+    # User1 blocks user2
+    make_user_block(user1, user2)
+    # User4 blocks user1
+    make_user_block(user4, user1)
+
+    # Refresh the materialized view
+    refresh_materialized_views_rapid(None)
+
+    with api_session(token1) as api:
+        res = api.GetLiteUsers(
+            api_pb2.GetLiteUsersReq(
+                users=[
+                    user2.username,  # user1 blocked user2
+                    str(user3.id),  # visible
+                    user4.username,  # user4 blocked user1
+                    str(user5.id),  # visible
+                ]
+            )
+        )
+
+        assert len(res.responses) == 4
+
+        # user2 - blocked by user1, should be ghost
+        assert res.responses[0].query == user2.username
+        assert not res.responses[0].not_found
+        assert res.responses[0].user.user_id == user2.id
+        assert res.responses[0].user.is_ghost
+        assert res.responses[0].user.username == "ghost"
+        assert res.responses[0].user.name == "Ghost"
+
+        # user3 - visible
+        assert res.responses[1].query == str(user3.id)
+        assert not res.responses[1].not_found
+        assert res.responses[1].user.user_id == user3.id
+        assert res.responses[1].user.username == user3.username
+
+        # user4 - user4 blocked user1, should be ghost
+        assert res.responses[2].query == user4.username
+        assert not res.responses[2].not_found
+        assert res.responses[2].user.user_id == user4.id
+        assert res.responses[2].user.is_ghost
+        assert res.responses[2].user.username == "ghost"
+        assert res.responses[2].user.name == "Ghost"
+
+        # user5 - visible
+        assert res.responses[3].query == str(user5.id)
+        assert not res.responses[3].not_found
+        assert res.responses[3].user.user_id == user5.id
+        assert res.responses[3].user.username == user5.username
+
+
+@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+def test_GetUser_ghost_user_by_id(db, flag):
+    """Test that GetUser returns a ghost profile for deleted/banned users when querying by ID."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # Make user2 invisible
+    with session_scope() as session:
+        db_user2 = session.merge(user2)
+        setattr(db_user2, flag, True)
+        session.commit()
+
+    with api_session(token1) as api:
+        # Query by ID
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+
+        assert user_pb.user_id == user2.id
+        assert user_pb.username == "ghost"
+        assert user_pb.name == "Ghost"
+        assert user_pb.city == ""
+        assert user_pb.hosting_status == 0
+        assert user_pb.meetup_status == 0
+
+
+def test_GetUser_blocked_user(db):
+    """Test that GetUser returns a ghost profile for blocked users."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # User1 blocks user2
+    make_user_block(user1, user2)
+
+    with api_session(token1) as api:
+        # Query by username
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+
+        assert user_pb.user_id == user2.id
+        assert user_pb.username == "ghost"
+        assert user_pb.name == "Ghost"
+
+        # Query by ID
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+
+        assert user_pb.user_id == user2.id
+        assert user_pb.username == "ghost"
+        assert user_pb.name == "Ghost"
+
+
+def test_GetUser_blocking_user(db):
+    """Test that GetUser returns a ghost profile when the target user has blocked the requester."""
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+
+    # User2 blocks user1
+    make_user_block(user2, user1)
+
+    with api_session(token1) as api:
+        # Query by username
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
+
+        assert user_pb.user_id == user2.id
+        assert user_pb.username == "ghost"
+        assert user_pb.name == "Ghost"
+
+        # Query by ID
+        user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
+
+        assert user_pb.user_id == user2.id
+        assert user_pb.username == "ghost"
+        assert user_pb.name == "Ghost"

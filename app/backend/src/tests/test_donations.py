@@ -8,10 +8,10 @@ import couchers.servicers.donations
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
-from couchers.models import DonationInitiation, DonationType, Invoice, UserBadge
+from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User, UserBadge
+from couchers.proto import donations_pb2
+from couchers.proto.google.api import httpbody_pb2
 from couchers.sql import couchers_select as select
-from proto import donations_pb2
-from proto.google.api import httpbody_pb2
 from tests.test_fixtures import db, donations_session, generate_user, real_stripe_session, testconfig  # noqa
 
 
@@ -30,6 +30,7 @@ def test_one_time_donation_flow(db, monkeypatch):
     new_config["STRIPE_API_KEY"] = "dummy_api_key"
     new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
     new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1KIbmbIfR5z29g5kFWPEUnC6"
+    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 
@@ -107,6 +108,7 @@ def test_one_time_donation_flow(db, monkeypatch):
         assert invoice.user_id == user_id
         assert invoice.amount == 100
         assert invoice.stripe_payment_intent_id == "pi_3P5El3IfR5z29g5k0N5TNa7R"
+        assert invoice.invoice_type == InvoiceType.on_platform
         assert (
             invoice.stripe_receipt_url
             == "https://pay.stripe.com/receipts/payment/CAcaFwoVYWNjdF8xS0V6QnlJZlI1ejI5ZzVrKIqF7LAGMgbtNxpJulk6LBaePNy_2Q2RzXJsbk7t1jLwK26AQlG05P-4EPhG7AIIcqsQLgC09iDJ2srs"
@@ -116,9 +118,9 @@ def test_one_time_donation_flow(db, monkeypatch):
     update_badges(empty_pb2.Empty())
     with session_scope() as session:
         assert (
-            session.execute(select(UserBadge).where(UserBadge.user_id == user_id, UserBadge.badge_id == "donor"))
-            .scalar_one()
-            .user_id
+            session.execute(
+                select(UserBadge.user_id).where(UserBadge.user_id == user_id, UserBadge.badge_id == "donor")
+            ).scalar_one()
             == user_id
         )
 
@@ -133,6 +135,7 @@ def test_recurring_donation_flow(db, monkeypatch):
     new_config["STRIPE_API_KEY"] = "dummy_api_key"
     new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
     new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
+    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
 
     monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
 
@@ -230,6 +233,7 @@ def test_recurring_donation_flow(db, monkeypatch):
         assert invoice.user_id == user_id
         assert invoice.amount == 25
         assert invoice.stripe_payment_intent_id == "pi_3P5EmzIfR5z29g5k0uVvI3kX"
+        assert invoice.invoice_type == InvoiceType.on_platform
         assert (
             invoice.stripe_receipt_url
             == "https://pay.stripe.com/receipts/invoices/CAcaFwoVYWNjdF8xS0V6QnlJZlI1ejI5ZzVrKIOG7LAGMgYTBIebo2c6LBYFs4BgdV7T4S5nHXQyHt4uh5azZ3_ss_S2wi27m52wbg4yQAoirZ9eBhbH?s=ap"
@@ -239,9 +243,9 @@ def test_recurring_donation_flow(db, monkeypatch):
     update_badges(empty_pb2.Empty())
     with session_scope() as session:
         assert (
-            session.execute(select(UserBadge).where(UserBadge.user_id == user_id, UserBadge.badge_id == "donor"))
-            .scalar_one()
-            .user_id
+            session.execute(
+                select(UserBadge.user_id).where(UserBadge.user_id == user_id, UserBadge.badge_id == "donor")
+            ).scalar_one()
             == user_id
         )
 
@@ -274,6 +278,54 @@ def test_customer_portal_url(db, monkeypatch):
         mock.Customer.create.assert_called_once_with(
             email=user_email, metadata={"user_id": user_id}, api_key="dummy_api_key"
         )
+
+
+def test_merch_invoice_flow(db, monkeypatch):
+    """Test that external shop purchases (e.g., from merch shop) grant swagster badge but don't update last_donated"""
+    user, token = generate_user(email="test@couchers.org.invalid", last_donated=None)
+
+    new_config = config.copy()
+    new_config["STRIPE_API_KEY"] = "dummy_api_key"
+    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
+    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+
+    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+
+    ## Stripe sends a charge.succeeded webhook for a merch purchase
+    fire_stripe_event("evt_merch_charge_succeeded")
+
+    ## Check that no invoice was created, last_donated was not updated, but swagster badge was granted
+    with session_scope() as session:
+        assert not session.execute(select(Invoice.id)).scalar_one_or_none()
+        assert session.execute(select(User.last_donated)).scalar_one() is None
+        # Check that swagster badge was granted
+        badge = session.execute(
+            select(UserBadge).where(UserBadge.user_id == user.id, UserBadge.badge_id == "swagster")
+        ).scalar_one_or_none()
+        assert badge is not None
+
+
+def test_merch_invoice_flow_nonexistent_user(db, monkeypatch):
+    """Test that external shop purchases for non-existent users don't error and don't grant badges"""
+    user, _ = generate_user(last_donated=None)
+
+    new_config = config.copy()
+    new_config["STRIPE_API_KEY"] = "dummy_api_key"
+    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
+    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+
+    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+
+    ## Stripe sends a charge.succeeded webhook for a merch purchase with a non-matching email
+    fire_stripe_event("evt_merch_charge_succeeded")
+
+    ## Check that no invoice was created, last_donated was not updated, and no badge was granted
+    with session_scope() as session:
+        assert not session.execute(select(Invoice.id)).scalar_one_or_none()
+        assert session.execute(select(User.last_donated)).scalar_one() is None
+        # Check that no swagster badge was granted
+        badge_count = session.execute(select(UserBadge).where(UserBadge.badge_id == "swagster")).all()
+        assert len(badge_count) == 0
 
 
 def fire_stripe_event(event_id):
@@ -310,6 +362,8 @@ STRIPE_WEBHOOK_EVENTS = {
     "evt_3P5EmzIfR5z29g5k0bA1H9Vg": '{"id": "evt_3P5EmzIfR5z29g5k0bA1H9Vg", "object": "event", "api_version": "2024-04-10", "created": 1713046274, "data": {"object": {"id": "ch_3P5EmzIfR5z29g5k05Mw6ZV2", "object": "charge", "amount": 2500, "amount_captured": 2500, "amount_refunded": 0, "application": null, "application_fee": null, "application_fee_amount": null, "balance_transaction": "txn_3P5EmzIfR5z29g5k0U5iEbk1", "billing_details": {"address": {"city": null, "country": "US", "line1": null, "line2": null, "postal_code": "10001", "state": null}, "email": "aapeli@couchers.org", "name": "Aapeli Vuorinen", "phone": null}, "calculated_statement_descriptor": "COUCHERS.ORG", "captured": true, "created": 1713046274, "currency": "usd", "customer": "cus_Pv4w8dxBpTVUsQ", "description": "Subscription creation", "destination": null, "dispute": null, "disputed": false, "failure_balance_transaction": null, "failure_code": null, "failure_message": null, "fraud_details": {}, "invoice": "in_1P5EmzIfR5z29g5kNwA5fIXq", "livemode": false, "metadata": {}, "on_behalf_of": null, "order": null, "outcome": {"network_status": "approved_by_network", "reason": null, "risk_level": "normal", "risk_score": 44, "seller_message": "Payment complete.", "type": "authorized"}, "paid": true, "payment_intent": "pi_3P5EmzIfR5z29g5k0uVvI3kX", "payment_method": "pm_1P5EmyIfR5z29g5kAIZoJcSv", "payment_method_details": {"card": {"amount_authorized": 2500, "brand": "visa", "checks": {"address_line1_check": null, "address_postal_code_check": "pass", "cvc_check": "pass"}, "country": "US", "exp_month": 12, "exp_year": 2050, "extended_authorization": {"status": "disabled"}, "fingerprint": "2uVHwVtZ157kRjpi", "funding": "credit", "incremental_authorization": {"status": "unavailable"}, "installments": null, "last4": "4242", "mandate": null, "multicapture": {"status": "unavailable"}, "network": "visa", "network_token": {"used": false}, "overcapture": {"maximum_amount_capturable": 2500, "status": "unavailable"}, "three_d_secure": null, "wallet": null}, "type": "card"}, "radar_options": {}, "receipt_email": "aapeli@couchers.org", "receipt_number": null, "receipt_url": "https://pay.stripe.com/receipts/invoices/CAcaFwoVYWNjdF8xS0V6QnlJZlI1ejI5ZzVrKIOG7LAGMgYTBIebo2c6LBYFs4BgdV7T4S5nHXQyHt4uh5azZ3_ss_S2wi27m52wbg4yQAoirZ9eBhbH?s=ap", "refunded": false, "review": null, "shipping": null, "source": null, "source_transfer": null, "statement_descriptor": null, "statement_descriptor_suffix": null, "status": "succeeded", "transfer_data": null, "transfer_group": null}}, "livemode": false, "pending_webhooks": 2, "request": {"id": "req_x1PqgmCHBOPD0i", "idempotency_key": "44ec8acd-be18-4de0-af2e-715760e96725"}, "type": "charge.succeeded"}',
     "evt_3P5EmzIfR5z29g5k0bxxQl9f": '{"id": "evt_3P5EmzIfR5z29g5k0bxxQl9f", "object": "event", "api_version": "2024-04-10", "created": 1713046273, "data": {"object": {"id": "pi_3P5EmzIfR5z29g5k0uVvI3kX", "object": "payment_intent", "amount": 2500, "amount_capturable": 0, "amount_details": {"tip": {}}, "amount_received": 0, "application": null, "application_fee_amount": null, "automatic_payment_methods": null, "canceled_at": null, "cancellation_reason": null, "capture_method": "automatic", "client_secret": "pi_3P5EmzIfR5z29g5k0uVvI3kX_secret_mw1JYS1lig6dYcy922zoeyzkK", "confirmation_method": "automatic", "created": 1713046273, "currency": "usd", "customer": "cus_Pv4w8dxBpTVUsQ", "description": "Subscription creation", "invoice": "in_1P5EmzIfR5z29g5kNwA5fIXq", "last_payment_error": null, "latest_charge": null, "livemode": false, "metadata": {}, "next_action": null, "on_behalf_of": null, "payment_method": null, "payment_method_configuration_details": null, "payment_method_options": {"card": {"installments": null, "mandate_options": null, "network": null, "request_three_d_secure": "automatic"}, "cashapp": {}}, "payment_method_types": ["card", "cashapp"], "processing": null, "receipt_email": "aapeli@couchers.org", "review": null, "setup_future_usage": "off_session", "shipping": null, "source": null, "statement_descriptor": null, "statement_descriptor_suffix": null, "status": "requires_payment_method", "transfer_data": null, "transfer_group": null}}, "livemode": false, "pending_webhooks": 2, "request": {"id": "req_x1PqgmCHBOPD0i", "idempotency_key": "44ec8acd-be18-4de0-af2e-715760e96725"}, "type": "payment_intent.created"}',
     "evt_3P5EmzIfR5z29g5k0taFsMsl": '{"id": "evt_3P5EmzIfR5z29g5k0taFsMsl", "object": "event", "api_version": "2024-04-10", "created": 1713046274, "data": {"object": {"id": "pi_3P5EmzIfR5z29g5k0uVvI3kX", "object": "payment_intent", "amount": 2500, "amount_capturable": 0, "amount_details": {"tip": {}}, "amount_received": 2500, "application": null, "application_fee_amount": null, "automatic_payment_methods": null, "canceled_at": null, "cancellation_reason": null, "capture_method": "automatic", "client_secret": "pi_3P5EmzIfR5z29g5k0uVvI3kX_secret_mw1JYS1lig6dYcy922zoeyzkK", "confirmation_method": "automatic", "created": 1713046273, "currency": "usd", "customer": "cus_Pv4w8dxBpTVUsQ", "description": "Subscription creation", "invoice": "in_1P5EmzIfR5z29g5kNwA5fIXq", "last_payment_error": null, "latest_charge": "ch_3P5EmzIfR5z29g5k05Mw6ZV2", "livemode": false, "metadata": {}, "next_action": null, "on_behalf_of": null, "payment_method": "pm_1P5EmyIfR5z29g5kAIZoJcSv", "payment_method_configuration_details": null, "payment_method_options": {"card": {"installments": null, "mandate_options": null, "network": null, "request_three_d_secure": "automatic", "setup_future_usage": "off_session"}, "cashapp": {}}, "payment_method_types": ["card", "cashapp"], "processing": null, "receipt_email": "aapeli@couchers.org", "review": null, "setup_future_usage": "off_session", "shipping": null, "source": null, "statement_descriptor": null, "statement_descriptor_suffix": null, "status": "succeeded", "transfer_data": null, "transfer_group": null}}, "livemode": false, "pending_webhooks": 3, "request": {"id": "req_x1PqgmCHBOPD0i", "idempotency_key": "44ec8acd-be18-4de0-af2e-715760e96725"}, "type": "payment_intent.succeeded"}',
+    # External shop purchase event
+    "evt_merch_charge_succeeded": '{"id": "evt_merch_charge_succeeded", "object": "event", "api_version": "2024-04-10", "created": 1713046154, "data": {"object": {"id": "ch_merch_test_12345", "object": "charge", "amount": 5000, "amount_captured": 5000, "amount_refunded": 0, "application": null, "application_fee": null, "application_fee_amount": null, "balance_transaction": "txn_merch_test", "billing_details": {"address": {"city": null, "country": "US", "line1": null, "line2": null, "postal_code": "10001", "state": null}, "email": "test@example.org", "name": "Test User", "phone": null}, "calculated_statement_descriptor": "COUCHERS.ORG", "captured": true, "created": 1713046154, "currency": "usd", "customer": "cus_Pv4uq0gT0rDZWN", "description": null, "destination": null, "dispute": null, "disputed": false, "failure_balance_transaction": null, "failure_code": null, "failure_message": null, "fraud_details": {}, "invoice": null, "livemode": false, "metadata": {"site_url": "https://shop.couchershq.org", "order_id": "12345", "customer_email": "test@couchers.org.invalid"}, "on_behalf_of": null, "order": null, "outcome": {"network_status": "approved_by_network", "reason": null, "risk_level": "normal", "risk_score": 31, "seller_message": "Payment complete.", "type": "authorized"}, "paid": true, "payment_intent": "pi_merch_test_12345", "payment_method": "pm_merch_test", "payment_method_details": {"card": {"amount_authorized": 5000, "brand": "visa", "checks": {"address_line1_check": null, "address_postal_code_check": "pass", "cvc_check": "pass"}, "country": "US", "exp_month": 12, "exp_year": 2050, "extended_authorization": {"status": "disabled"}, "fingerprint": "2uVHwVtZ157kRjpi", "funding": "credit", "incremental_authorization": {"status": "unavailable"}, "installments": null, "last4": "4242", "mandate": null, "multicapture": {"status": "unavailable"}, "network": "visa", "network_token": {"used": false}, "overcapture": {"maximum_amount_capturable": 5000, "status": "unavailable"}, "three_d_secure": null, "wallet": null}, "type": "card"}, "radar_options": {}, "receipt_email": "test@example.org", "receipt_number": null, "receipt_url": "https://pay.stripe.com/receipts/merch_test", "refunded": false, "review": null, "shipping": null, "source": null, "source_transfer": null, "statement_descriptor": null, "statement_descriptor_suffix": null, "status": "succeeded", "transfer_data": null, "transfer_group": null}}, "livemode": false, "pending_webhooks": 2, "request": {"id": "req_merch_test", "idempotency_key": "merch-test-key"}, "type": "charge.succeeded"}',
 }
 
 one_time_STRIPE_SESSION = json.loads(

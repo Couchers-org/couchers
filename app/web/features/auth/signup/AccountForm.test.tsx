@@ -338,6 +338,92 @@ describe("AccountForm", () => {
       );
       await assertErrorAlert("Generic error");
     });
+
+    it("renders the password visibility toggle button", async () => {
+      const toggleButton = await screen.findByLabelText(
+        t("auth:login_page.form.show_password"),
+      );
+      expect(toggleButton).toBeInTheDocument();
+    });
+
+    it("toggles password visibility when clicking the button", async () => {
+      const user = userEvent.setup();
+      const passwordField = screen.getByLabelText(
+        t("auth:account_form.password.field_label"),
+      );
+
+      // Initially password should be hidden
+      expect(passwordField).toHaveAttribute("type", "password");
+
+      // Click to show password
+      const showButton = screen.getByLabelText(
+        t("auth:login_page.form.show_password"),
+      );
+      await user.click(showButton);
+
+      // Password should now be visible
+      await waitFor(() => {
+        expect(passwordField).toHaveAttribute("type", "text");
+      });
+
+      // Click to hide password again
+      const hideButton = screen.getByLabelText(
+        t("auth:login_page.form.hide_password"),
+      );
+      await user.click(hideButton);
+
+      // Password should be hidden again
+      await waitFor(() => {
+        expect(passwordField).toHaveAttribute("type", "password");
+      });
+    });
+
+    it("changes aria-label when toggling password visibility", async () => {
+      const user = userEvent.setup();
+
+      const showButton = screen.getByLabelText(
+        t("auth:login_page.form.show_password"),
+      );
+      expect(showButton).toHaveAttribute(
+        "aria-label",
+        t("auth:login_page.form.show_password"),
+      );
+
+      await user.click(showButton);
+
+      await waitFor(() => {
+        const hideButton = screen.getByLabelText(
+          t("auth:login_page.form.hide_password"),
+        );
+        expect(hideButton).toHaveAttribute(
+          "aria-label",
+          t("auth:login_page.form.hide_password"),
+        );
+      });
+    });
+
+    it("allows typing visible text in the password field when toggled", async () => {
+      const user = userEvent.setup();
+      const passwordField = screen.getByLabelText(
+        t("auth:account_form.password.field_label"),
+      );
+
+      await user.clear(passwordField);
+      await user.type(passwordField, "secretpassword");
+      expect(passwordField).toHaveValue("secretpassword");
+      expect(passwordField).toHaveAttribute("type", "password");
+
+      const showButton = screen.getByLabelText(
+        t("auth:login_page.form.show_password"),
+      );
+      await user.click(showButton);
+
+      // Verify text is still there and type is now text
+      await waitFor(() => {
+        expect(passwordField).toHaveValue("secretpassword");
+        expect(passwordField).toHaveAttribute("type", "text");
+      });
+    });
   });
 
   // Separating as you can't unselect a radio group once clicked

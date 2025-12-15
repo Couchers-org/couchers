@@ -1,12 +1,12 @@
 import { Alert, Button, styled } from "@mui/material";
 import { useAuthContext } from "features/auth/AuthProvider";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { NOTIFICATIONS } from "i18n/namespaces";
 import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect, useState } from "react";
-import { Trans } from "react-i18next";
 import { theme } from "theme";
 
+import { useIsNativeEmbed } from "../../platform/nativeLink";
 import { checkPushEnabled, turnPushNotificationsOn } from "./utils/helpers";
 
 const TIME_BETWEEN_NAGS_MS = 180 * 86400 * 1_000; // 180 days
@@ -19,7 +19,8 @@ const Wrapper = styled("div")({
 });
 
 export function PushNotificationBanner() {
-  const { t } = useTranslation([NOTIFICATIONS]);
+  const { t } = useTranslation(NOTIFICATIONS);
+  const isNativeEmbed = useIsNativeEmbed();
   // the epoch value of the last time this banner was dismissed
   const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
     number | null
@@ -35,6 +36,10 @@ export function PushNotificationBanner() {
   useEffect(() => {
     const checkPush = async () => {
       if (!authenticated) return;
+
+      // Skip push notification check in native embed (WebView doesn't support it)
+      if (isNativeEmbed) return;
+
       try {
         if (!(await checkPushEnabled())) {
           setBannerVisible(
@@ -43,12 +48,20 @@ export function PushNotificationBanner() {
           );
         }
       } catch (error) {
-        console.error("Error checking for push notification state:", error);
+        // Only log errors for web browsers, not mobile WebView
+        if (isNativeEmbed) {
+          console.debug(
+            "Push notifications not available in mobile app:",
+            error,
+          );
+        } else {
+          console.error("Error checking for push notification state:", error);
+        }
       }
     };
 
     checkPush();
-  }, [authenticated, lastDismissedEpoch]);
+  }, [authenticated, lastDismissedEpoch, isNativeEmbed]);
 
   const dismiss = () => {
     setLastDismissedEpoch(new Date().getTime());
@@ -76,7 +89,7 @@ export function PushNotificationBanner() {
 
   return shouldPromptAllow ? (
     <Alert severity="info" onClose={dismiss}>
-      {t("notification_settings.push_notifications.allow_push")}
+      {t("notifications:notification_settings.push_notifications.allow_push")}
     </Alert>
   ) : (
     <Alert
@@ -85,13 +98,13 @@ export function PushNotificationBanner() {
       sx={{ alignItems: "center", ".MuiAlert-message": { width: "100%" } }}
     >
       <Wrapper>
-        <Trans i18nKey="global:push_notification_banner.message" />
+        <Trans i18nKey="notifications:push_notification_banner.message" />
         <Button
           variant="outlined"
           sx={{ backgroundColor: theme.palette.common.white }}
           onClick={turnPushNotificationsOnWrap}
         >
-          {t("global:push_notification_banner.confirm")}
+          {t("notifications:push_notification_banner.confirm")}
         </Button>
       </Wrapper>
     </Alert>

@@ -1,0 +1,29 @@
+{
+    "banned": "Заблокирован",
+    "deleted": "Удалён",
+    "list_users": {
+        "heading": "Список новых пользователей",
+        "none_found": "Пользователи не найдены",
+        "load_more": "Загрузить еще"
+    },
+    "actions": {
+        "open_in_console": "Открыть в консоли",
+        "ban": "Заблокировать пользователя"
+    },
+    "panel": {
+        "username": "Имя пользователя",
+        "user_id": "Идентификатор пользователя",
+        "birthdate": "Дата рождения",
+        "birthdate_verification_status": "Проверка даты рождения",
+        "gender_verification_status": "Проверка пола",
+        "acknowledged_mod_notes_count": "Принято к сведению, модераторские заметки",
+        "admin_note": "Заметка администратора",
+        "heading": "Вещи для модераторов",
+        "pending_mod_notes_count": "Ожидающие модераторские заметки",
+        "email": "Электронная почта",
+        "has_strong_verification": "Имеет Надёжную Верификацию",
+        "has_passport_sex_gender_exception": "Исключение по полу/гендеру в паспорте?"
+    },
+    "title": "Инструменты модератора",
+    "do_not_email": "Не отправлять электронные письма"
+}

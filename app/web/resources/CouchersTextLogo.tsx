@@ -10,7 +10,7 @@ const Logo = styled(SvgIcon)(({ theme }) => ({
   position: "relative",
 }));
 
-export interface CouchersLogoProps {
+interface CouchersLogoProps {
   className?: string;
 }
 

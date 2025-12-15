@@ -5,6 +5,7 @@ stages:
   - preview
   - wait
   - release
+  - deploy
 
 variables:
   # whether to do checks or only build & deploy
@@ -12,7 +13,7 @@ variables:
   # whether to build web since it's very slow
   BUILD_WEB: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
-  GIT_DEPTH: 0
+  GIT_DEPTH: 1  # Speed up the checkout.
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
   RELEASE_BRANCH: develop
@@ -43,10 +44,57 @@ default:
   image: docker
   services:
     - docker:dind
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - export DISPLAY_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.$(git rev-list --count "origin/$RELEASE_BRANCH")"; else echo "${base_ver}-$SLUG"; fi)
-    - echo $DISPLAY_VERSION
+  before_script: |
+    # Error out when accessing an undefined variable
+    set -u
+
+    # All jobs that use this must have full git history to correctly set the version number.
+    if [ "$GIT_DEPTH" == "0" ]; then
+        export DISPLAY_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.$(git rev-list --count "origin/$RELEASE_BRANCH")"; else echo "${base_ver}-$SLUG"; fi)
+        echo $DISPLAY_VERSION
+    fi
+
+    docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+.common_functions: &common_functions |
+    # Build a Docker image using cache from latest "develop" build.
+    # If this is a pipeline on "develop", push Docker build cache to the registry.
+    # Usage:
+    #   build "$BACKEND_TAG" "$BACKEND_RELEASE_TAG" "backend" "1.2.3"
+    #   build "$BACKEND_TAG" "$BACKEND_RELEASE_TAG" "backend" "1.2.3" --arg  # extra args
+    build() {
+      local branch_tag="$1"
+      local release_tag="$2"
+      local path="$3"
+      local version="$4"
+      shift 4 # Remove the N arguments so that the rest can be used in "$@" later
+
+      # A separate image with cached layers.
+      cache_tag="${release_tag}-cache"
+
+      # Push image cache only on develop.
+      local cache_to=""
+      if [ "$CI_COMMIT_BRANCH" = "$RELEASE_BRANCH" ]; then
+        cache_to="--cache-to type=registry,ref=$cache_tag,mode=max"
+      fi
+
+      # Use buildx, as "docker build" does not work with registry cache.
+      docker pull "$cache_tag" || true
+      docker context create my-builder
+      docker buildx create my-builder --driver docker-container --use
+
+      docker buildx build \
+        --push \
+        -t "$branch_tag" \
+        --build-arg display_version="$DISPLAY_VERSION" \
+        --build-arg commit_sha="$COMMIT_SHA" \
+        --build-arg commit_timestamp="$COMMIT_TIMESTAMP" \
+        --build-arg version="$version" \
+        --cache-from "$cache_tag" \
+        ${cache_to} \
+        "$@" \
+        "app/$path/"
+    }
 
 protos:
   needs: []
@@ -64,10 +112,11 @@ protos:
 build:proxy:
   needs: ["protos"]
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $PROXY_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $PROXY_RELEASE_TAG -t $PROXY_TAG app/proxy/
-    - docker push $PROXY_TAG
+    - *common_functions
+    - build "$PROXY_TAG" "$PROXY_RELEASE_TAG" "proxy" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -76,38 +125,44 @@ build:proxy:
       changes:
         - app/proto/**/*
         - app/proxy/**/*
+        - app/.gitlab-ci.yml
 
 build:nginx:
   needs: []
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $NGINX_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $NGINX_RELEASE_TAG -t $NGINX_TAG app/nginx/
-    - docker push $NGINX_TAG
+    - *common_functions
+    - build "$NGINX_TAG" "$NGINX_RELEASE_TAG" "nginx" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
         - app/**/*
+        - app/.gitlab-ci.yml
 
 build:prometheus:
   needs: []
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $PROMETHEUS_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $PROMETHEUS_RELEASE_TAG -t $PROMETHEUS_TAG app/prometheus/
-    - docker push $PROMETHEUS_TAG
+    - *common_functions
+    - build "$PROMETHEUS_TAG" "$PROMETHEUS_RELEASE_TAG" "prometheus" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
         - app/**/*
+        - app/.gitlab-ci.yml
 
 build:backend:
   needs: ["protos"]
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $BACKEND_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $BACKEND_RELEASE_TAG -t $BACKEND_TAG app/backend/
-    - docker push $BACKEND_TAG
+    - *common_functions
+    - build "$BACKEND_TAG" "$BACKEND_RELEASE_TAG" "backend" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -116,14 +171,16 @@ build:backend:
       changes:
         - app/proto/**/*
         - app/backend/**/*
+        - app/.gitlab-ci.yml
 
 build:media:
   needs: ["protos"]
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $MEDIA_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --cache-from $MEDIA_RELEASE_TAG -t $MEDIA_TAG app/media/
-    - docker push $MEDIA_TAG
+    - *common_functions
+    - build "$MEDIA_TAG" "$MEDIA_RELEASE_TAG" "media" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -132,16 +189,16 @@ build:media:
       changes:
         - app/proto/**/*
         - app/media/**/*
+        - app/.gitlab-ci.yml
 
 build:web-dev:
   needs: ["protos"]
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $WEB_DEV_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --build-arg environment=next --cache-from $WEB_DEV_RELEASE_TAG -t $WEB_DEV_TAG -f app/web/Dockerfile app/web/
-    - docker push $WEB_DEV_TAG
-    # creates a new docker container (docker create returns the container name), and copies the /app folder to the host
-    - mkdir -p artifacts && docker cp $(docker create $WEB_DEV_TAG):/app artifacts/web-dev
+    - *common_functions
+    - build "$WEB_DEV_TAG" "$WEB_DEV_RELEASE_TAG" "web" "$SLUG" --build-arg environment=next -f app/web/Dockerfile
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -150,19 +207,19 @@ build:web-dev:
       changes:
         - app/proto/**/*
         - app/web/**/*
-  artifacts:
-    paths:
-      - artifacts/web-dev/
+        - app/.gitlab-ci.yml
   tags:
       - saas-linux-large-amd64
 
 build:web:
   needs: ["protos"]
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $WEB_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG --build-arg environment=production --cache-from $WEB_RELEASE_TAG -t $WEB_TAG -f app/web/Dockerfile.prod app/web/
-    - docker push $WEB_TAG
+    - - *common_functions
+    # Add "--load" so that the image is saved locally for "docker create"
+    - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
@@ -177,6 +234,7 @@ build:web:
       changes:
         - app/proto/**/*
         - app/web/**/*
+        - app/.gitlab-ci.yml
   artifacts:
     paths:
       - artifacts/
@@ -184,10 +242,12 @@ build:web:
 build:web-next:
   needs: ["protos"]
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $WEB_NEXT_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG-next --build-arg environment=next --cache-from $WEB_NEXT_RELEASE_TAG -t $WEB_NEXT_TAG -f app/web/Dockerfile.prod app/web/
-    - docker push $WEB_NEXT_TAG
+    - *common_functions
+    # Add "--load" so that the image is saved locally for "docker create"
+    - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
@@ -202,6 +262,7 @@ build:web-next:
       changes:
         - app/proto/**/*
         - app/web/**/*
+        - app/.gitlab-ci.yml
   artifacts:
     paths:
       - artifacts/
@@ -209,10 +270,11 @@ build:web-next:
 build:nginx-next:
   needs: []
   stage: build
+  variables:
+    GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
-    - docker pull $NGINX_RELEASE_TAG || true
-    - docker build --build-arg display_version=$DISPLAY_VERSION --build-arg commit_sha=$COMMIT_SHA --build-arg commit_timestamp=$COMMIT_TIMESTAMP --build-arg version=$SLUG-next --build-arg environment=preview --cache-from $NGINX_RELEASE_TAG -t $NGINX_NEXT_TAG app/nginx/
-    - docker push $NGINX_NEXT_TAG
+    - *common_functions
+    - build "$NGINX_NEXT_TAG" "$NGINX_RELEASE_TAG" "nginx" "$SLUG-next" --build-arg environment=preview
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:
@@ -221,6 +283,7 @@ build:nginx-next:
       changes:
         - app/proto/**/*
         - app/nginx/**/*
+        - app/.gitlab-ci.yml
 
 test:backend:
   needs: ["build:backend"]
@@ -232,17 +295,30 @@ test:backend:
   services:
     - name: postgis/postgis:17-3.5
       alias: postgres
-      command: ["postgres", "-c", "fsync=off"]
+      command: [
+        "postgres",
+        "-c", "bgwriter_lru_maxpages=0",
+        "-c", "jit=off",
+        "-c", "fsync=off",
+        "-c", "full_page_writes=off",
+        "-c", "synchronous_commit=off",
+        "-c", "wal_level=minimal",
+        "-c", "wal_keep_size=100MB",
+        "-c", "max_wal_senders=0",
+      ]
   variables:
     POSTGRES_PASSWORD: c765064a49d18a95
-    DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/postgres"
+    DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/testdb"
     RUN_MIGRATION_TEST: true
+    TEST_SCHEMA_OUTPUT_DIR: /app/schema_dumps
   before_script:
-    # install latest postgres from their repos to get pg_dump compatible with later postgres
-    - sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-    - wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-    - apt-get update
-    - apt-get -y install postgresql-client
+    # install the latest postgres from their repos to get pg_dump compatible with later postgres
+    - apt-get update -qy && apt-get install -qyy wget gpg
+    - wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /usr/share/keyrings/postgresql-archive-keyring.gpg
+    # "trixie" is taken from backend's dockerfile "python:3.13-slim-trixie"
+    - echo "deb [signed-by=/usr/share/keyrings/postgresql-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt trixie-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+    - apt-get -qy update
+    - apt-get -qyy install postgresql-client
   script:
     - cd /app && pytest --junitxml=junit.xml --cov=src src
   after_script:
@@ -250,6 +326,21 @@ test:backend:
     - cp /app/junit.xml $CI_PROJECT_DIR/
     - cp /app/coverage.xml $CI_PROJECT_DIR/
     - mkdir -p $CI_PROJECT_DIR/artifacts/htmlcov && cp -a /app/htmlcov $CI_PROJECT_DIR/artifacts/
+    # Copy schema dumps if they exist (from migration test)
+    - mkdir -p $CI_PROJECT_DIR/artifacts/schema_dumps
+    - cp /app/schema_dumps/*.sql $CI_PROJECT_DIR/artifacts/schema_dumps/
+    # Create cleaned schema.sql with git hash header
+    - |
+      {
+        echo "-- Couchers.org database schema"
+        echo "-- Generated from migrations at commit $CI_COMMIT_SHA on branch $CI_COMMIT_REF_NAME at $CI_COMMIT_TIMESTAMP"
+        echo ""
+        grep -v '^\\\restrict' /app/schema_dumps/schema_from_migrations.sql \
+          | grep -v '^\\\unrestrict' \
+          | grep -v '^--' \
+          | grep -v 'ALTER .* OWNER TO postgres;' \
+          | cat -s
+      } > $CI_PROJECT_DIR/artifacts/schema_dumps/schema.sql
   coverage: '/^TOTAL.+?(\d+\%)$/'
   artifacts:
     reports:
@@ -259,6 +350,7 @@ test:backend:
       junit: junit.xml
     paths:
       - artifacts/htmlcov
+      - artifacts/schema_dumps
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -385,6 +477,63 @@ test:web-linting:
       changes:
         - app/web/**/*
 
+test:mobile:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npm test -- --ci --coverage
+  after_script:
+    - cp app/mobile/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/ || true
+  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura-coverage.xml
+  rules:
+    - if: $DO_CHECKS == "true"
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+
+test:mobile-linting:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npm run lint
+  rules:
+    - if: $DO_CHECKS == "true"
+      changes:
+        - app/mobile/**/*
+
+test:mobile-typecheck:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npx tsc --noEmit
+  rules:
+    - if: $DO_CHECKS == "true"
+      changes:
+        - app/mobile/**/*
+
 test:proxy:
   needs: ["build:proxy"]
   stage: test
@@ -410,7 +559,7 @@ test:proxy:
         - app/proxy/**/*
 
 
-preview:bcov:
+preview:backend:
   needs: ["test:backend"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
@@ -423,6 +572,12 @@ preview:bcov:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--bcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--bcov.$PREVIEW_DOMAIN/"
+    # Upload schema dumps
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/schema_dumps s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp artifacts/schema_dumps s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, schema dumps available at https://$CI_COMMIT_SHORT_SHA--schema.$PREVIEW_DOMAIN/schema.sql and https://$CI_COMMIT_REF_SLUG--schema.$PREVIEW_DOMAIN/schema.sql"
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -537,7 +692,8 @@ preview:protos:
     - aws s3 cp app/proto/gen/index.html s3://$AWS_PREVIEW_BUCKET/protos/$CI_COMMIT_REF_SLUG/
     - echo "Done, protos available at https://$CI_COMMIT_SHORT_SHA--protos.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--protos.$PREVIEW_DOMAIN/"
 
-# having this here stops us from having to list out all the needs in each release below. list out all that need to be waited for until releasing a new version
+# Having this here frees us from having to list out all the needs in each release below.
+# List out all that need to be waited for until releasing a new version
 wait:before-release:
   stage: wait
   inherit:
@@ -589,6 +745,15 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:web-linting
+      artifacts: false
+      optional: true
+    - job: test:mobile
+      artifacts: false
+      optional: true
+    - job: test:mobile-linting
+      artifacts: false
+      optional: true
+    - job: test:mobile-typecheck
       artifacts: false
       optional: true
 
@@ -696,6 +861,41 @@ release:nginx-next:
     - docker pull $NGINX_NEXT_TAG
     - docker tag $NGINX_NEXT_TAG $NGINX_NEXT_RELEASE_TAG
     - docker push $NGINX_NEXT_RELEASE_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+        - app/**/*
+
+deploy:staging:
+  needs: ["release:web-next", "release:backend"]
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - apt-get update && apt install -y git wget openssh-client
+    - export rev=$(git rev-parse @ | cut -c-8)
+    # Add the SSH key (https://docs.gitlab.com/ci/jobs/ssh_keys)
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_KEY"
+    - ssh-add "$SSH_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    # Deploy
+    - echo "Git hash is ${rev}"
+    - echo "Deploying staging..."
+    - web_next_static="https://${rev}--web-next-static.preview.couchershq.org/static.tar.gz"
+    - wget -q ${web_next_static} -O next-static.tar.gz
+    - mkdir -p next/
+    - tar xf next-static.tar.gz --directory next/
+    - aws s3 sync next/ s3://next-static.couchershq.org/static/_next/static/
+    - ssh ubuntu@next.couchershq.org "cd ~/couchers/app/deployment && ./install.sh && ./post-upgrade.sh"
+    - echo "Done deploying staging, checking https://next.couchershq.org"
+    # Check that it's working
+    - ${CI_PROJECT_DIR}/app/deployment/check_deployment.sh develop-${rev} https://next.couchershq.org
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
       changes:

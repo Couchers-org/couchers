@@ -12,7 +12,7 @@ import stringOrFirstString from "utils/stringOrFirstString";
 
 import { UnsubscribeRes } from "../../proto/auth_pb";
 
-export interface UnsubscribeParams {
+interface UnsubscribeParams {
   payload?: string;
   sig?: string;
 }

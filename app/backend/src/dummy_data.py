@@ -23,6 +23,11 @@ from couchers.models import (
     LanguageFluency,
     Message,
     MessageType,
+    ModerationAction,
+    ModerationLog,
+    ModerationObjectType,
+    ModerationState,
+    ModerationVisibility,
     Node,
     Page,
     PageType,
@@ -33,12 +38,13 @@ from couchers.models import (
     RegionVisited,
     Thread,
     User,
+    Volunteer,
 )
+from couchers.proto.api_pb2 import HostingStatus
 from couchers.servicers.api import hostingstatus2sql
 from couchers.servicers.auth import create_session
 from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, to_multi
-from proto.api_pb2 import HostingStatus
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +87,7 @@ def add_dummy_users():
                 accepted_tos=TOS_VERSION,
                 accepted_community_guidelines=GUIDELINES_VERSION,
                 is_superuser=user.get("is_superuser", False),
+                is_editor=user.get("is_editor", user.get("is_superuser", False)),
             )
             session.add(new_user)
             session.flush()
@@ -150,15 +157,37 @@ def add_dummy_users():
         for group_chat in data["group_chats"]:
             # Create the chat
             creator = group_chat["creator"]
+            creator_id = session.execute(select(User).where(User.username == creator)).scalar_one().id
 
             conversation = Conversation()
             session.add(conversation)
+            session.flush()
+
+            # Create moderation state for UMS (set as VISIBLE since this is dummy data)
+            moderation_state = ModerationState(
+                object_type=ModerationObjectType.GROUP_CHAT,
+                object_id=conversation.id,
+                visibility=ModerationVisibility.VISIBLE,
+            )
+            session.add(moderation_state)
+            session.flush()
+
+            session.add(
+                ModerationLog(
+                    moderation_state_id=moderation_state.id,
+                    action=ModerationAction.CREATE,
+                    moderator_user_id=creator_id,
+                    new_visibility=ModerationVisibility.VISIBLE,
+                    reason="Dummy data: group chat created.",
+                )
+            )
 
             chat = GroupChat(
                 conversation=conversation,
                 title=group_chat["title"],
-                creator_id=session.execute(select(User).where(User.username == creator)).scalar_one().id,
+                creator_id=creator_id,
                 is_dm=group_chat["is_dm"],
+                moderation_state_id=moderation_state.id,
             )
             session.add(chat)
 
@@ -185,6 +214,21 @@ def add_dummy_users():
                         text=message["message"],
                     )
                 )
+
+        session.commit()
+
+        for volunteer in data["volunteers"]:
+            new_volunteer = Volunteer(
+                user_id=session.execute(select(User).where(User.username == volunteer["username"])).scalar_one().id,
+                role=volunteer["role"],
+                started_volunteering=volunteer["started_volunteering"],
+                stopped_volunteering=volunteer["stopped_volunteering"],
+                link_type=volunteer["link_type"],
+                link_text=volunteer["link_text"],
+                link_url=volunteer["link_url"],
+            )
+
+            session.add(new_volunteer)
 
         session.commit()
 
