@@ -66,7 +66,6 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         **rendered.email_template_args,
     }
 
-
     plain_tmplt = (template_folder / f"{rendered.email_template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
     plain_template_args = {**template_args, CONTEXT_PLAINTEXT_KEY: True}  # Strip html from translations.
