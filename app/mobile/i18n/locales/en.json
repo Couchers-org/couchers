@@ -10,6 +10,7 @@
     "confirm_prompt": "Confirm {{biometricType}}",
     "face_id": "Face ID",
     "touch_id": "Touch ID",
+    "biometric_login": "Biometric Login (Fingerprint or Face Unlock)",
     "biometrics_generic": "biometrics",
     "pin_prompt": "Use your device PIN to continue",
     "pin_fallback_label": "Use device PIN"

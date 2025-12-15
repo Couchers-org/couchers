@@ -18,7 +18,11 @@
     },
     "android": {
       "edgeToEdgeEnabled": true,
-      "package": "org.couchers.android"
+      "package": "org.couchers.android",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive_icon_foreground.png",
+        "backgroundColor": "#E47701"
+      }
     },
     "web": {
       "bundler": "metro",

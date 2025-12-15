@@ -1,6 +1,7 @@
+import { useFocusEffect } from "@react-navigation/native";
 import { Href, useRouter } from "expo-router";
-import { useState } from "react";
-import { Alert, Platform, useColorScheme } from "react-native";
+import { useCallback, useState } from "react";
+import { Alert, BackHandler, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
@@ -8,6 +9,7 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import { useTranslation } from "@/i18n";
 import { loginRoute } from "@/routes";
 import { theme } from "@/theme";
+import { getBiometricDisplayName } from "@/app/utils/getBiometricDisplayName";
 
 export default function LoginScreen() {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
@@ -26,6 +28,27 @@ export default function LoginScreen() {
   const colorScheme = useColorScheme();
   const [webViewKey, setWebViewKey] = useState<number>(0);
 
+  // Prevent Android back button from navigating away from login screen
+  // This fixes security bypass where users could press back to access authenticated screens
+  // Using useFocusEffect ensures the handler is only active when this screen is focused
+  // (best practice per React Navigation docs)
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        // Return true to prevent default back behavior (navigating to previous screen)
+        // Users must authenticate to proceed - they can't go back to authenticated screens
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
+
+      return () => subscription.remove();
+    }, []),
+  );
+
   const backgroundColor =
     colorScheme === "dark"
       ? theme.palette.common.black
@@ -34,7 +57,6 @@ export default function LoginScreen() {
   const offerBiometricEnrollment = async () => {
     // Skip if biometrics native module isn't available (e.g., Expo Go)
     if (!biometricsAvailable) {
-      router.replace("/(tabs)/dashboard" as Href);
       return;
     }
 
@@ -50,23 +72,10 @@ export default function LoginScreen() {
       ]);
 
       if (!hasHardware || !isEnrolled) {
-        // Biometrics not available - just navigate
-        router.replace("/(tabs)/dashboard" as Href);
         return;
       }
 
-      const hasFace = supportedTypes.includes(
-        LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION,
-      );
-      const hasFingerprint = supportedTypes.includes(
-        LocalAuthentication.AuthenticationType.FINGERPRINT,
-      );
-      const biometricName =
-        Platform.OS === "ios" && hasFingerprint
-          ? t("biometrics.touch_id")
-          : hasFace
-            ? t("biometrics.face_id")
-            : t("biometrics.biometrics_generic");
+      const biometricName = getBiometricDisplayName({ supportedTypes });
 
       // Prompt user to enable biometrics
       Alert.alert(

@@ -98,6 +98,8 @@ export default function useAuthStore() {
                 type: "LOGIN_SUCCESS",
                 userId: auth.userId,
                 jailed: auth.jailed,
+                email: username,
+                password: password,
               }),
             );
           }
@@ -128,6 +130,8 @@ export default function useAuthStore() {
         setAuthenticated(true);
 
         // Notify mobile app that signup/login succeeded
+        // Note: No credentials sent here since firstLogin is called after signup flow
+        // where we don't have access to the original password
         if (window.ReactNativeWebView) {
           window.ReactNativeWebView.postMessage(
             JSON.stringify({
