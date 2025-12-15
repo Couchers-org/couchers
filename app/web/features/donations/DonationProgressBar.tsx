@@ -30,7 +30,7 @@ const ProgressLabel = styled("span")(({ theme }) => ({
 }));
 
 export default function DonationProgressBar() {
-  const { t } = useTranslation(GLOBAL);
+  const { t, i18n } = useTranslation(GLOBAL);
   const { data: donationStats, isLoading } = useDonationStats();
 
   if (isLoading) {
@@ -57,8 +57,17 @@ export default function DonationProgressBar() {
     100,
   );
 
-  const formattedRaised = donationStats.totalDonatedYtd.toLocaleString();
-  const formattedGoal = donationStats.goal.toLocaleString();
+  const currencyFormatter = new Intl.NumberFormat(i18n.language, {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+
+  const formattedRaised = currencyFormatter.format(
+    donationStats.totalDonatedYtd,
+  );
+  const formattedGoal = currencyFormatter.format(donationStats.goal);
 
   return (
     <ProgressRow>
@@ -70,7 +79,7 @@ export default function DonationProgressBar() {
         />
       </Box>
       <ProgressLabel>
-        ${formattedRaised} / ${formattedGoal}
+        {formattedRaised} / {formattedGoal}
       </ProgressLabel>
     </ProgressRow>
   );
