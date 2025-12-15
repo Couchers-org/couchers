@@ -52,6 +52,13 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     template_args = {
         "user": user,
         "time": notification.created,
+        "_email_is_critical": rendered.is_critical,
+        "_manage_notifications_link": urls.notification_settings_link(),
+        "_notification_topic_action": rendered.email_topic_action_unsubscribe_text,
+        "_notification_topic_action_link": generate_unsub_topic_action(notification),
+        "_notification_topic_key": rendered.email_topic_key_unsubscribe_text,
+        "_notification_topic_key_link": generate_unsub_topic_key(notification),
+        "_do_not_email_link": generate_do_not_email(user),
         CONTEXT_TRANSLATION_LANGUAGE_KEY: user.ui_language_preference or "en",
         CONTEXT_TRANSLATION_COMPONENT_KEY: "notifications",
         CONTEXT_YEAR_KEY: now().year,
@@ -59,37 +66,14 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         **rendered.email_template_args,
     }
 
-    plain_unsub_section = "\n\n---\n\n"
-    if rendered.is_critical:
-        plain_unsub_section += "This is a security email, you cannot unsubscribe from it."
-        html_unsub_section = "This is a security email, you cannot unsubscribe from it."
-    else:
-        manage_link = urls.notification_settings_link()
-        plain_unsub_section += f"Edit your notification settings at <{manage_link}>"
-        html_unsub_section = f'<a href="{manage_link}">Manage notification preferences</a>.'
-        unsub_options = []
-        ta = rendered.email_topic_action_unsubscribe_text
-        tk = rendered.email_topic_key_unsubscribe_text
-        ta_link = generate_unsub_topic_action(notification)
-        tk_link = generate_unsub_topic_key(notification)
-        if ta:
-            plain_unsub_section += f"\n\nTurn off emails for {ta}: <{ta_link}>"
-            unsub_options.append(f'<a href="{ta_link}">{ta}</a>')
-        if tk:
-            plain_unsub_section += f"\n\nTurn off emails for {tk}: <{tk_link}>"
-            unsub_options.append(f'<a href="{tk_link}">{tk}</a>')
-        if unsub_options:
-            html_unsub_section += f"<br />Turn off emails for: {' / '.join(unsub_options)}."
-        dne_link = generate_do_not_email(user)
-        plain_unsub_section += f"\n\nDo not email me (disables hosting): <{dne_link}>"
-        html_unsub_section += f'<br /><a href="{dne_link}">Do not email me (disables hosting)</a>.'
 
     plain_tmplt = (template_folder / f"{rendered.email_template_name}.txt").read_text()
+    plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
     plain_template_args = {**template_args, CONTEXT_PLAINTEXT_KEY: True}  # Strip html from translations.
-    plain = env.from_string(plain_tmplt + plain_unsub_section).render(plain_template_args)
+    plain = env.from_string(plain_tmplt + plain_tmplt_footer).render(plain_template_args)
 
     html_tmplt = (template_folder / "generated_html" / f"{rendered.email_template_name}.html").read_text()
-    html = env.from_string(html_tmplt.replace("___UNSUB_SECTION___", html_unsub_section)).render(template_args)
+    html = env.from_string(html_tmplt).render(template_args)
 
     if user.do_not_email and not rendered.is_critical:
         logger.info(f"Not emailing {user} based on template {rendered.email_template_name} due to emails turned off")

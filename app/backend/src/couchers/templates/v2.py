@@ -167,15 +167,14 @@ def send_simple_pretty_email(
     """
     template_args[CONTEXT_YEAR_KEY] = now().year
     template_args[CONTEXT_TIMEZONE_DISPLAY_KEY] = get_tz_as_text("Etc/UTC")
-
-    plain_unsub_section = "\n\n---\n\nThis is a security email, you cannot unsubscribe from it."
-    html_unsub_section = "This is a security email, you cannot unsubscribe from it."
+    template_args["_email_is_critical"] = True # Results in no unsubscribe footer.
 
     plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
-    plain = env.from_string(plain_tmplt + plain_unsub_section).render(template_args)
+    plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
+    plain = env.from_string(plain_tmplt + plain_tmplt_footer).render(template_args)
 
     html_tmplt = (template_folder / "generated_html" / f"{template_name}.html").read_text()
-    html = env.from_string(html_tmplt.replace("___UNSUB_SECTION___", html_unsub_section)).render(template_args)
+    html = env.from_string(html_tmplt).render(template_args)
 
     queue_email(
         session,

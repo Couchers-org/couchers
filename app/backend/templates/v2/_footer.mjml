@@ -13,7 +13,26 @@
     </mj-wrapper>
     <mj-section>
       <mj-column>
-        <mj-text css-class="unsub" align="center" font-size="10px" line-height="16px" color="#777" padding="0px">___UNSUB_SECTION___</mj-text>
+        <mj-text css-class="unsub" align="center" font-size="10px" line-height="16px" color="#777" padding="0px">
+          {% if _email_is_critical %}
+            This is a security email, you cannot unsubscribe from it.
+          {% else %}
+            <a href="{{_manage_notifications_link}}">Manage notification preferences</a>.
+            {% if _notification_topic_action or _notification_topic_key %}
+              <br />
+              Turn off emails for:
+              {% if _notification_topic_action %}
+                <a href="{{_notification_topic_action_link}}">{{_notification_topic_action}}</a>
+              {% endif %}
+              {% if _notification_topic_key %}
+                {% if _notification_topic_action %} / {% endif %}
+                <a href="{{_notification_topic_key_link}}">{{_notification_topic_key}}</a>
+              {% endif %}
+            {% endif %}
+            <br />
+            <a href="{{_do_not_email_link}}">Do not email me (disables hosting)</a>.
+          {% endif %}
+        </mj-text>
         <mj-image src="attachment_imgs/logo-grey.png" width="50px" padding="0px"></mj-image>
         <mj-text css-class="unsub" align="center" font-size="8px" line-height="16px" color="#777" padding="0px">The happy Couchers couch hopes you have a great rest of the day.</mj-text>
       </mj-column>

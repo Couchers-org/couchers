@@ -481,7 +481,9 @@
                   <tbody>
                     <tr>
                       <td align="center" class="unsub" style="font-size:0px;padding:0px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:16px;text-align:center;color:#777777;">___UNSUB_SECTION___</div>
+                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:16px;text-align:center;color:#777777;">{% if _email_is_critical %} This is a security email, you cannot unsubscribe from it. {% else %} <a href="{{_manage_notifications_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Manage notification preferences</a>. {% if _notification_topic_action or _notification_topic_key %} <br> Turn off emails for: {% if _notification_topic_action %} <a href="{{_notification_topic_action_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{_notification_topic_action}}</a> {% endif %} {% if _notification_topic_key %} {% if _notification_topic_action %} / {% endif %} <a href="{{_notification_topic_key_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{_notification_topic_key}}</a> {% endif %} {% endif %} <br>
+                          <a href="{{_do_not_email_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Do not email me (disables hosting)</a>. {% endif %}
+                        </div>
                       </td>
                     </tr>
                     <tr>
