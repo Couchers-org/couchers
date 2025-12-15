@@ -118,6 +118,8 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("MODERATION_AUTO_APPROVE_DEADLINE_SECONDS", int),
     # User ID of the bot user for automated moderation actions
     ("MODERATION_BOT_USER_ID", int),
+    # Enable development APIs (e.g., SendDevPushNotification)
+    ("ENABLE_DEV_APIS", bool),
 ]
 
 

@@ -6,6 +6,7 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
 
+from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
@@ -1045,6 +1046,101 @@ def test_check_expo_push_receipts_skips_already_checked(db):
     with patch("couchers.notifications.expo_api.requests.post") as mock_post:
         check_expo_push_receipts(empty_pb2.Empty())
         mock_post.assert_not_called()
+
+
+def test_SendDevPushNotification_success(db, push_collector):
+    """Test SendDevPushNotification sends push with all specified parameters."""
+    user, token = generate_user()
+
+    # Enable dev APIs for this test
+    config["ENABLE_DEV_APIS"] = True
+
+    with notifications_session(token) as notifications:
+        notifications.SendDevPushNotification(
+            notifications_pb2.SendDevPushNotificationReq(
+                title="Test Dev Title",
+                body="Test dev notification body",
+                icon="https://example.com/icon.png",
+                url="https://example.com/action",
+                key="test-key",
+                ttl=3600,
+            )
+        )
+
+    push_collector.assert_user_has_single_matching(
+        user.id,
+        title="Test Dev Title",
+        body="Test dev notification body",
+        icon="https://example.com/icon.png",
+        url="https://example.com/action",
+        topic_action="adhoc:testing",
+        key="test-key",
+        ttl=3600,
+    )
+
+
+def test_SendDevPushNotification_minimal(db, push_collector):
+    """Test SendDevPushNotification with minimal parameters."""
+    user, token = generate_user()
+
+    config["ENABLE_DEV_APIS"] = True
+
+    with notifications_session(token) as notifications:
+        notifications.SendDevPushNotification(
+            notifications_pb2.SendDevPushNotificationReq(
+                title="Minimal Title",
+                body="Minimal body",
+            )
+        )
+
+    push_collector.assert_user_has_single_matching(
+        user.id,
+        title="Minimal Title",
+        body="Minimal body",
+        topic_action="adhoc:testing",
+    )
+
+
+def test_SendDevPushNotification_disabled(db, push_collector):
+    """Test SendDevPushNotification fails when ENABLE_DEV_APIS is disabled."""
+    user, token = generate_user()
+
+    # Ensure dev APIs are disabled (default in tests)
+    config["ENABLE_DEV_APIS"] = False
+
+    with notifications_session(token) as notifications:
+        with pytest.raises(grpc.RpcError) as e:
+            notifications.SendDevPushNotification(
+                notifications_pb2.SendDevPushNotificationReq(
+                    title="Should Fail",
+                    body="This should not be sent",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+        assert "Development APIs are not enabled" in e.value.details()
+
+    push_collector.assert_user_has_count(user.id, 0)
+
+
+def test_SendDevPushNotification_push_notifications_disabled(db, push_collector):
+    """Test SendDevPushNotification fails when push notifications are disabled."""
+    user, token = generate_user()
+
+    config["ENABLE_DEV_APIS"] = True
+    config["PUSH_NOTIFICATIONS_ENABLED"] = False
+
+    with notifications_session(token) as notifications:
+        with pytest.raises(grpc.RpcError) as e:
+            notifications.SendDevPushNotification(
+                notifications_pb2.SendDevPushNotificationReq(
+                    title="Should Fail",
+                    body="This should not be sent",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+        assert "Push notifications are currently disabled" in e.value.details()
+
+    push_collector.assert_user_has_count(user.id, 0)
 
 
 def test_check_expo_push_receipts_skips_too_recent(db):
