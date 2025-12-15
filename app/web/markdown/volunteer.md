@@ -49,33 +49,34 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 
 #### Community
 
-- [Community Builder Program Manager](/volunteer/community-builder-program-manager)
+- [Community Builder Program Manager](./volunteer/community-builder-program-manager)
+- [Event Organizer](./volunteer/event-organizer.md)
 
 #### Development
 
-- [Senior Backend Developer (Python)](/volunteer/senior-backend-developer)
-- [Frontend (web) Developer (React/Typescript)](/volunteer/frontend-developer)
-- [Mobile Development Lead](/volunteer/mobile-development-lead)
+- [Senior Backend Developer (Python)](./volunteer/senior-backend-developer)
+- [Frontend (web) Developer (React/Typescript)](./volunteer/frontend-developer)
+- [Mobile Development Lead](./volunteer/mobile-development-lead)
 
 #### Operations
 
-- [Volunteer Coordinator](/volunteer/volunteer-coordinator)
-- [Translator](/volunteer/translator)
+- [Volunteer Coordinator](./volunteer/volunteer-coordinator)
+- [Translator](./volunteer/translator)
 
 #### Design
 
-- [UI/UX Designer](/volunteer/ui-ux-designer)
+- [UI/UX Designer](./volunteer/ui-ux-designer)
 
 #### Marketing
 
-- [Head of Marketing](/volunteer/head-of-marketing)
+- [Head of Marketing](./volunteer/head-of-marketing)
 - [PR Manager](/volunteer/pr-manager)
-- [Social Media Community Manager](/volunteer/social-media-community-manager)
-- [Blog Writer](/volunteer/blog-writer)
+- [Social Media Community Manager](./volunteer/social-media-community-manager)
+- [Blog Writer](./volunteer/blog-writer)
 
 #### Support
 
-- [Technical Support Analyst](/volunteer/technical-support-analyst)
+- [Technical Support Analyst](./volunteer/technical-support-analyst)
 
 ### Community Building
 
