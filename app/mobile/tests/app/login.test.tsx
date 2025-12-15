@@ -15,7 +15,6 @@ jest.mock("@/features/auth/AuthContext", () => ({
   useAuthContext: jest.fn(),
 }));
 
-// WebView mock - captures props for test assertions
 let capturedWebViewProps: {
   source?: { uri: string };
   onMessage?: (event: { nativeEvent: { data: string } }) => void;
@@ -36,13 +35,8 @@ describe("LoginScreen", () => {
     markLoggedOut: jest.fn(),
     setUserId: jest.fn(),
     setJailed: jest.fn(),
-    biometricsEnabled: false,
-    biometricsAvailable: false,
-    enableBiometrics: jest.fn(),
-    enableSecureLogin: jest.fn(),
   };
 
-  // Helper to send WebView messages
   const sendMessage = async (data: object) => {
     await act(async () => {
       capturedWebViewProps.onMessage?.({
@@ -50,15 +44,6 @@ describe("LoginScreen", () => {
       });
     });
   };
-
-  beforeAll(() => {
-    // Suppress expected errors from dynamic import in test environment
-    jest.spyOn(console, "error").mockImplementation();
-  });
-
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -94,20 +79,7 @@ describe("LoginScreen", () => {
       expect(mockAuthContext.setJailed).toHaveBeenCalledWith(true);
     });
 
-    it("navigates to dashboard when biometrics already enabled", async () => {
-      (useAuthContext as jest.Mock).mockReturnValue({
-        ...mockAuthContext,
-        biometricsEnabled: true,
-      });
-
-      render(<LoginScreen />);
-
-      await sendMessage({ type: "LOGIN_SUCCESS", userId: 1 });
-
-      expect(mockRouter.replace).toHaveBeenCalledWith("/(tabs)/dashboard");
-    });
-
-    it("navigates to dashboard when biometrics not available", async () => {
+    it("navigates to dashboard after login", async () => {
       render(<LoginScreen />);
 
       await sendMessage({ type: "LOGIN_SUCCESS", userId: 1 });

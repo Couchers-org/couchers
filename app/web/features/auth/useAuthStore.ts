@@ -98,8 +98,6 @@ export default function useAuthStore() {
                 type: "LOGIN_SUCCESS",
                 userId: auth.userId,
                 jailed: auth.jailed,
-                email: username,
-                password: password,
               }),
             );
           }
