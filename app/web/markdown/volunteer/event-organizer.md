@@ -14,7 +14,7 @@ Event Organizers support the growth and health of the Couchers community by plan
 ### Duties
 
 - Plan and host Couchers events such as meetups, walks, market visits, coffee gatherings, picnics, or cultural activities
-- Prepare and publish clear event descriptions with relevant logistical information
+- Prepare and publish clear event descriptions on Couchers.org that include relevant logistical information
 - Welcome attendees and ensure an open, friendly, and inclusive environment
 - Respond to basic questions from participants before and during the event
 - Coordinate with the Community Builder Team when guidance or support is needed
