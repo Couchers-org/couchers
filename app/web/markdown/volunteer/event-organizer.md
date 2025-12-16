@@ -9,7 +9,7 @@ description: "Organize events for the Couchers.org community!"
 
 **This is a remote volunteer position**
 
-Event Organizers support the growth and health of the Couchers community by planning and hosting small, inclusive events for members. These events help travelers and locals meet, build trust and form meaningful connections. This is a flexible, event-based volunteer role that does not require ongoing community management and is suitable for both residents and travelers who want to contribute by facilitating social gatherings.
+Event Organizers support the growth and health of the Couchers community by planning and hosting local, inclusive, non-profit events for members. These events help travelers and locals meet, build trust and form meaningful connections. This is a flexible, event-based volunteer role that does not require ongoing community management and is suitable for both residents and travelers who want to contribute by facilitating social gatherings.
 
 ### Duties
 
