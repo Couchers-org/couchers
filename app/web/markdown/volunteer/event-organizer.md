@@ -38,5 +38,5 @@ Prior couch surfing community event-planning experience is not required.
 - Must uphold Couchers Community Guidelines, Rules, and Terms of Service, and contribute to a positive, safe community environment that is welcome to all
 - Expected to communicate clearly, follow through reliably, and coordinate with the Community Builder Team when necessary
 
-This role offers a low-responsibility way to contribute and even occasional events are valuable to the community.
+This role offers a low-responsibility way to contribute. Recurring (eg. weekly or monthly) events are great, but even occasional events are valuable to the community!
 
