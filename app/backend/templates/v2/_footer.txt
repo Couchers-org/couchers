@@ -2,16 +2,16 @@
 
 ---
 
-{% if _email_is_critical %}
-  This is a security email, you cannot unsubscribe from it.
+{% if footer_email_is_critical %}
+This is a security email, you cannot unsubscribe from it.
 {% else %}
-  Edit your notification settings at <{{_manage_notifications_link}}>
-  {% if _notification_topic_action %}
-    Turn off emails for {{_notification_topic_action}}: <{{_notification_topic_action_link}}>
-  {% endif %}
-  {% if _notification_topic_key %}
-    Turn off emails for {{_notification_topic_key}}: <{{_notification_topic_key_link}}>
-  {% endif %}
+Edit your notification settings at <{{footer_manage_notifications_link}}>
+{% if footer_notification_topic_action %}
+Turn off emails for {{footer_notification_topic_action}}: <{{footer_notification_topic_action_link}}>
+{% endif %}
+{% if footer_notification_topic_key %}
+Turn off emails for {{footer_notification_topic_key}}: <{{footer_notification_topic_key_link}}>
+{% endif %}
 
-  Do not email me (disables hosting): <{{_do_not_email_link}}>
+Do not email me (disables hosting): <{{footer_do_not_email_link}}>
 {% endif %}

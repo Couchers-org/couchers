@@ -167,7 +167,7 @@ def send_simple_pretty_email(
     """
     template_args[CONTEXT_YEAR_KEY] = now().year
     template_args[CONTEXT_TIMEZONE_DISPLAY_KEY] = get_tz_as_text("Etc/UTC")
-    template_args["_email_is_critical"] = True  # Results in no unsubscribe footer.
+    template_args["footer_email_is_critical"] = True  # Results in no unsubscribe footer.
 
     plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
