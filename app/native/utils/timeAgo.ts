@@ -85,31 +85,31 @@ export function timeAgoI18n({
   if (diffMillis < minuteMillis)
     return t("relative_time.less_than_a_minute_ago");
   if (diffMillis < hourMillis)
-    return t("relative_time.x_minutes_ago", {
+    return t("relative_time.n_minutes_ago", {
       count: Math.floor(diffMillis / minuteMillis),
     });
 
   if (diffMillis < dayMillis)
-    return t("relative_time.x_hours_ago", {
+    return t("relative_time.n_hours_ago", {
       count: Math.floor(diffMillis / hourMillis),
     });
 
   if (diffMillis < weekMillis)
-    return t("relative_time.x_days_ago", {
+    return t("relative_time.n_days_ago", {
       count: Math.floor(diffMillis / dayMillis),
     });
 
   if (diffMillis < monthMillis)
-    return t("relative_time.x_weeks_ago", {
+    return t("relative_time.n_weeks_ago", {
       count: Math.floor(diffMillis / weekMillis),
     });
 
   if (diffMillis < yearMillis)
-    return t("relative_time.x_months_ago", {
+    return t("relative_time.n_months_ago", {
       count: Math.floor(diffMillis / monthMillis),
     });
 
-  return t("relative_time.x_years_ago", {
+  return t("relative_time.n_years_ago", {
     count: Math.floor(diffMillis / yearMillis),
   });
 }
