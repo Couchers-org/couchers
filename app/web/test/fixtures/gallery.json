@@ -1,0 +1,61 @@
+{
+  "galleries": [
+    {
+      "galleryId": 1,
+      "canEdit": true,
+      "photosList": [
+        {
+          "itemId": 1,
+          "fullUrl": "https://example.com/large1.jpg",
+          "thumbnailUrl": "https://example.com/thumb1.jpg",
+          "caption": "First photo",
+          "position": 0
+        },
+        {
+          "itemId": 2,
+          "fullUrl": "https://example.com/large2.jpg",
+          "thumbnailUrl": "https://example.com/thumb2.jpg",
+          "caption": "Second photo",
+          "position": 1
+        },
+        {
+          "itemId": 3,
+          "fullUrl": "https://example.com/large3.jpg",
+          "thumbnailUrl": "https://example.com/thumb3.jpg",
+          "caption": "",
+          "position": 2
+        }
+      ]
+    },
+    {
+      "galleryId": 2,
+      "canEdit": false,
+      "photosList": [
+        {
+          "itemId": 4,
+          "fullUrl": "https://example.com/large4.jpg",
+          "thumbnailUrl": "https://example.com/thumb4.jpg",
+          "caption": "Read-only photo",
+          "position": 0
+        }
+      ]
+    },
+    {
+      "galleryId": 3,
+      "canEdit": true,
+      "photosList": []
+    }
+  ],
+  "editInfo": [
+    {
+      "galleryId": 1,
+      "maxPhotos": 10,
+      "currentPhotoCount": 3
+    },
+    {
+      "galleryId": 3,
+      "maxPhotos": 8,
+      "currentPhotoCount": 0
+    }
+  ]
+}

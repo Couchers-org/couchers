@@ -9,6 +9,7 @@ import * as conversations from "./conversations";
 import * as discussions from "./discussions";
 import * as donations from "./donations";
 import * as events from "./events";
+import * as gallery from "./gallery";
 import * as groups from "./groups";
 import * as jail from "./jail";
 import * as notifications from "./notifications";
@@ -35,6 +36,7 @@ export const service = {
   discussions,
   donations,
   events,
+  gallery,
   groups,
   jail,
   notifications,

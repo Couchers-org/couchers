@@ -17,6 +17,7 @@ import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import EditLocationMap from "components/EditLocationMap";
+import GalleryEditor from "components/GalleryEditor/GalleryEditor";
 import ImageInput from "components/ImageInput";
 import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
@@ -467,6 +468,18 @@ export default function EditProfileForm() {
                   </Typography>
                 </AvatarTextWrapper>
               </AvatarContainer>
+
+              {/* TODO: Need an endpoint to query a gallery for a user via owner_user_id */}
+              <FieldGroup>
+                <GalleryEditor
+                  galleryId={
+                    (user as unknown as { profileGalleryId?: number })
+                      .profileGalleryId
+                  }
+                  title={t("profile:gallery.profile_photos_title")}
+                  description={t("profile:gallery.profile_photos_description")}
+                />
+              </FieldGroup>
 
               <FieldGroup>
                 <StyledProfileTextInput

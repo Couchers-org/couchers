@@ -312,5 +312,23 @@
   "hosting_preferences_success_message": "Hosting preferences saved!",
   "couldnt_read_file": "Couldn't read file",
   "select_an_image": "Select an image",
-  "names_profile_photo": "{{name}}'s profile photo"
+  "names_profile_photo": "{{name}}'s profile photo",
+  "gallery": {
+    "photo": "Photo",
+    "primary": "Primary",
+    "add_photo": "Add photo",
+    "uploading": "Uploading...",
+    "remove_photo": "Remove photo",
+    "select_photo": "Select a photo",
+    "photo_count": "{{current}} / {{max}} photos",
+    "primary_photo_hint": "The first photo will be your main display photo. Drag and drop to reorder.",
+    "empty_title": "Add your first photo",
+    "empty_description": "Click here or the button above to upload a photo",
+    "no_photos": "No photos yet",
+    "add_photo_error": "Failed to add photo. Please try again.",
+    "remove_photo_error": "Failed to remove photo. Please try again.",
+    "move_photo_error": "Failed to reorder photos. Please try again.",
+    "profile_photos_title": "Profile Photos",
+    "profile_photos_description": "Add photos of yourself to help others get to know you"
+  }
 }
