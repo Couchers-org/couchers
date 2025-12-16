@@ -19,6 +19,7 @@ Event Organizers support the growth and health of the Couchers community by plan
 - Respond to basic questions from participants before and during the event
 - Coordinate with the Community Builder Team when guidance or support is needed
 - Provide brief feedback after events to assist with continuous improvement
+- Ensure that events comply with the Community Guidelines, rules, and Terms of Service 
 
 ### Skills & Experience
 
