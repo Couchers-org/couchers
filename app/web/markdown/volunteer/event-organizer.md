@@ -35,7 +35,7 @@ Prior couch surfing community event-planning experience is not required.
 
 - Flexible, event-based commitment with no minimum frequency
 - Events may be organized in the volunteer’s home city or while traveling
-- Must uphold Couchers guidelines and contribute to a positive, safe community environment
+- Must uphold Couchers Community Guidelines, Rules, and Terms of Service, and contribute to a positive, safe community environment that is welcome to all
 - Expected to communicate clearly, follow through reliably, and coordinate with the Community Builder Team when necessary
 
 This role offers a low-responsibility way to contribute and even occasional events are valuable to the community.
