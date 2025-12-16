@@ -29,7 +29,7 @@ Event Organizers support the growth and health of the Couchers community by plan
 - Ability to foster a welcoming and inclusive atmosphere
 - Alignment with Couchers values, including safety, respect, and cultural openness
 
-No prior event-planning experience is required.
+Prior couch surfing community event-planning experience is not required.
 
 ### Expectations/Commitment
 
