@@ -6,6 +6,7 @@ import { GLOBAL } from "i18n/namespaces";
 import { theme } from "theme";
 
 import DonationProgressBar from "./DonationProgressBar";
+import useDonationStats from "./useDonationStats";
 
 export interface DonationDriveBlockProps {
   onClose?: () => void;
@@ -45,12 +46,22 @@ export default function DonationDriveBlock({
   action,
   alwaysShow = false,
 }: DonationDriveBlockProps) {
-  const { t } = useTranslation(GLOBAL);
+  const { t, i18n } = useTranslation(GLOBAL);
   const { data: accountInfo, isLoading } = useAccountInfo();
+  const { data: donationStats } = useDonationStats();
 
   if (!alwaysShow && (isLoading || !accountInfo?.shouldShowDonationBanner)) {
     return null;
   }
+
+  const formattedGoal = donationStats
+    ? new Intl.NumberFormat(i18n.language, {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(donationStats.goal)
+    : "";
 
   return (
     <Alert
@@ -76,7 +87,9 @@ export default function DonationDriveBlock({
       <OuterWrapper>
         <ContentWrapper>
           <DonationProgressBar />
-          <Message>{t("donation_banner.message")}</Message>
+          <Message>
+            {t("donation_banner.message", { goal: formattedGoal })}
+          </Message>
         </ContentWrapper>
         {action}
       </OuterWrapper>
