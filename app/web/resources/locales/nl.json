@@ -135,7 +135,8 @@
             "explainer": "Stuur vertrouwelijk een melding naar het Safety & Trust-team.",
             "title": "Rapporteer content of een gebruiker",
             "profile_title": "Rapporteren of blokkeren",
-            "reason_label": "Reden voor de melding"
+            "reason_label": "Reden voor de melding",
+            "reason_helper": "Waarom rapporteer je deze inhoud?"
         }
     },
     "error_loading_invite_codes": "Kon details van de invite code niet laden"
