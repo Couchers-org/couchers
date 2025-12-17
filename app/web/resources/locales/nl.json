@@ -136,7 +136,10 @@
             "title": "Rapporteer content of een gebruiker",
             "profile_title": "Rapporteren of blokkeren",
             "reason_label": "Reden voor de melding",
-            "reason_helper": "Waarom meld je deze content?"
+            "reason_helper": "Waarom meld je deze content?",
+            "reason_required": "Een reden is verplicht.",
+            "description_required": "Een beschrijving is verplicht.",
+            "profile_reason_required": "Vul de beschrijving in of blokkeer"
         }
     },
     "error_loading_invite_codes": "Kon details van de invite code niet laden"
