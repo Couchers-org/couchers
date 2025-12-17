@@ -3,7 +3,9 @@ import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
+  BackHandler,
   Image,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -36,9 +38,34 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
   const [hasError, setHasError] = useState(false);
+  const [canGoBack, setCanGoBack] = useState(false);
 
   // Track the current WebView URL to detect when it drifts from the expected path
   const currentWebPathRef = useRef<string>(path);
+
+  // Handle Android hardware back button - go back in WebView if possible
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== "android") {
+        return;
+      }
+
+      const onBackPress = () => {
+        if (canGoBack && webviewRef.current) {
+          webviewRef.current.goBack();
+          return true; // Prevent default back behavior
+        }
+        return false; // Let native navigation handle it
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
+
+      return () => subscription.remove();
+    }, [canGoBack]),
+  );
 
   const backgroundColor =
     colorScheme === "dark"
@@ -77,7 +104,10 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   };
 
   const handleNavigationStateChange = (navState: WebViewNavigation) => {
-    const { url, loading } = navState;
+    const { url, loading, canGoBack: webViewCanGoBack } = navState;
+
+    // Track whether WebView can go back (for Android back button handling)
+    setCanGoBack(webViewCanGoBack);
 
     if (!url || loading) {
       return;
@@ -165,6 +195,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         ref={webviewRef}
         style={styles.webview}
         source={{ uri: WEB_BASE_URL + path }}
+        allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled
         cacheEnabled
         cacheMode="LOAD_CACHE_ELSE_NETWORK"

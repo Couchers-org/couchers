@@ -1,14 +1,20 @@
 import { act, render } from "@testing-library/react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 
-import { useAuthContext } from "@/features/auth/AuthContext";
 import LoginScreen from "@/app/login";
+import { useAuthContext } from "@/features/auth/AuthContext";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
 jest.mock("expo-router", () => ({
   ...jest.requireActual("expo-router"),
   useRouter: jest.fn(),
+}));
+
+jest.mock("@react-navigation/native", () => ({
+  ...jest.requireActual("@react-navigation/native"),
+  useFocusEffect: jest.fn(),
 }));
 
 jest.mock("@/features/auth/AuthContext", () => ({
@@ -49,6 +55,7 @@ describe("LoginScreen", () => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (useAuthContext as jest.Mock).mockReturnValue(mockAuthContext);
+    (useFocusEffect as jest.Mock).mockImplementation((callback) => callback());
   });
 
   describe("rendering", () => {

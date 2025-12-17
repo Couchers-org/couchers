@@ -1,4 +1,5 @@
 import "react-native-reanimated";
+import "@/i18n";
 
 import {
   Ubuntu_300Light,
