@@ -383,7 +383,8 @@ Couchers.org Founders
 
 ---
 
-This is a security email, you cannot unsubscribe from it."""
+This is a security email, you cannot unsubscribe from it.
+"""
         )
 
         assert "Thank you so much for your donation of $20 to Couchers.org." in email.html
