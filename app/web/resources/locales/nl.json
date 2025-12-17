@@ -142,7 +142,7 @@
             "profile_reason_required": "Vul de beschrijving in of blokkeer de gebruiker",
             "description_label": "Beschrijf het probleem",
             "description_helper": "Vertel ons waarom je dit wilt melden.",
-            "success": "Bedankt voor je melding en het beter maken van Couchers voor iedereen!"
+            "success": "Bedankt voor je melding en het verbeteren van Couchers voor iedereen!"
         }
     },
     "error_loading_invite_codes": "Kon details van de invite code niet laden"
