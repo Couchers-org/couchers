@@ -120,16 +120,16 @@
             "expect_label": "Wat gebeurde er? Wat had er moeten gebeuren?",
             "expect_helper": "Korte beschrijving van wat je dacht dat er eigenlijk zou gebeuren",
             "success_message": "Bedankt voor het doorgeven van deze bug. Samen maken we Couchers beter! De melding is doorgestuurd naar onze developers. Het bug-nummer is ",
-            "warning_message": "Houd er rekening mee dat deze informatie, evenals diagnostische gegevens zoals op welke pagina je je bevindt, welke webbrowser je gebruikt en wat je gebruikersnaam is worden opgeslagen in een openbare lijst met kinderziektes."
+            "warning_message": "Houd er rekening mee dat deze informatie, samen met diagnostische gegevens zoals op welke pagina je je bevindt, welke webbrowser je gebruikt en wat je gebruikersnaam is, wordt opgeslagen in een openbare lijst met bugs."
         },
         "content": {
             "button_label": "Ongepast gedrag of ongepaste content melden",
             "success_message": "Bedankt voor je melding en voor het beter maken van Couchers voor iedereen!",
-            "dialog_message": "We werken op dit moment aan robuuste meldings- en moderatietools. In de tussentijd, stuur een e-mail naar onderstaand adres. Voeg details toe zoals de betreffende gebruiker, wat ongepast was en waar je het hebt gezien."
+            "dialog_message": "We werken op dit moment aan goede meldings- en moderatietools. In de tussentijd kan je een e-mail sturen naar onderstaand adres. Voeg details toe zoals om welke gebruiker het gaat, wat er ongepast was en waar je het hebt gezien."
         },
         "flag": {
             "block_user": "Blokkeer {{username}}",
-            "block_user_explainer": "Berichten en aanvragen van deze persoon worden geblokkeerd en je profiel, evenementen en reacties zijn niet meer zichtbaar voor deze persoon. Deze persoon wordt niet geïnformeerd dat je hen hebt geblokkeerd."
+            "block_user_explainer": "Berichten en verzoeken van deze gebruiker worden geblokkeerd. Je profiel, events en reacties zijn ook niet meer zichtbaar voor deze persoon. Deze gebruiker wordt niet geïnformeerd dat je hen hebt geblokkeerd."
         }
     },
     "error_loading_invite_codes": "Kon details van de invite code niet laden"
