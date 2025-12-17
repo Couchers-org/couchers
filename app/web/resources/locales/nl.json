@@ -130,7 +130,7 @@
         "flag": {
             "block_user": "Blokkeer {{username}}",
             "block_user_explainer": "Berichten en verzoeken van deze gebruiker worden geblokkeerd. Je profiel, events en reacties zijn ook niet meer zichtbaar voor deze persoon. Deze gebruiker wordt niet geïnformeerd dat je hen hebt geblokkeerd.",
-            "button_aria_label": "Rapporteer inhoud of een gebruiker"
+            "button_aria_label": "Rapporteer content of een gebruiker"
         }
     },
     "error_loading_invite_codes": "Kon details van de invite code niet laden"
