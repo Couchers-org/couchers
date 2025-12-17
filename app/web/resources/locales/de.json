@@ -300,7 +300,9 @@
         "x_minutes_ago_other": "vor {{count}} Minuten",
         "x_months_ago_one": "vor {{count}} Monat",
         "x_months_ago_other": "vor {{count}} Monaten",
-        "less_than_a_minute_ago": "vor weniger als 1 Minute"
+        "less_than_a_minute_ago": "vor weniger als 1 Minute",
+        "n_minutes_ago_one": "vor {{count}} Minute",
+        "n_minutes_ago_other": "vor {{count}} Minuten"
     },
     "location_autocomplete": {
         "more_specific": "Bitte wähle einen genaueren Ort aus",
