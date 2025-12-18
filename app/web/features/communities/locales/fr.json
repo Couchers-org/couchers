@@ -32,5 +32,13 @@
   "community_image_input_alt": "Sélection d'image de la communauté",
   "upload_helper_text_replace": "Cliquez pour changer l'image",
   "community_moderators": "Organisateurs.trices de la communauté",
-  "community_header": "Bienvenue à {{name}}"
+  "community_header": "Bienvenue à {{name}}",
+  "edit_info_page_success_message": "La page de la communauté a été mise à jour avec succès.",
+  "create_new_discussion_title": "Créer une nouvelle publication",
+  "discussions_empty_state": "Il n'y a pas de discussions en ce moment.",
+  "created_at": "Créé le ",
+  "community_tabs_a11y_label": "Onglets pour les sous-pages de la communauté",
+  "discussions_label": "Discussions",
+  "discussions_title": "Discussions",
+  "edit_event": "Éditer l'événement"
 }
