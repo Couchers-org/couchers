@@ -40,5 +40,8 @@
     "community_standing": "Réputation communautaire",
     "submit": "Envoyer",
     "confirm": "Confirmer",
-    "copy": "Copier"
+    "copy": "Copier",
+    "relative_time": {
+        "less_than_one_hour_ago": "Il y a moins d'une heure"
+    }
 }
