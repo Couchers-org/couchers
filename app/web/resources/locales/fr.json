@@ -36,5 +36,6 @@
     "save_changes": "Sauvegarder les changements",
     "retract": "Retirer",
     "uses": "Utilisations",
-    "no_invite_codes": "Aucun code d'invitation"
+    "no_invite_codes": "Aucun code d'invitation",
+    "community_standing": "Réputation communautaire"
 }
