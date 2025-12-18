@@ -1,16 +1,16 @@
 {
   "actions": {
-    "decline_friend_label": "Réfuser",
+    "decline_friend_label": "Refuser",
     "back_to_dashboard": "Retourner au tableau de bord",
     "message_label": "Envoyer un message",
     "accept_friend_label": "Accepter",
-    "request": "Demander"
+    "request": "Envoyer une demande"
   },
   "heading": {
     "home": "Mon logement",
     "hometown": "Grandi.e à/en",
     "hosting_status": "Statut d'acceuil",
-    "about_me": "Au sujet de moi",
+    "about_me": "À propos de moi",
     "age_gender": "Âge / Genre",
     "community_standing": "Réputation communautaire",
     "edit": "Modifier",

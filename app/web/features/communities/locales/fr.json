@@ -19,9 +19,18 @@
   },
   "invite_community_dialog_buttons": {
     "open": "Inviter les membres de la communauté",
-    "confirm": "Confirmer"
+    "confirm": "Confirmer",
+    "close": "Annuler"
   },
   "unknown_user": "Utilisateur.trice inconnu.e",
   "events_empty_state": "Aucun événement pour le moment. Pourquoi ne pas en <0>créer</0> un ✨ ?",
-  "location": "Localisation"
+  "location": "Localisation",
+  "comment": "Commenter",
+  "comments": "Commentaires",
+  "comments_count": "Commentaires | {{count}}",
+  "fill_out_comment": "Vous devez d'abord écrire quelque chose!",
+  "community_image_input_alt": "Sélection d'image de la communauté",
+  "upload_helper_text_replace": "Cliquez pour changer l'image",
+  "community_moderators": "Organisateurs de la communauté",
+  "community_header": "Bienvenue à {{name}}"
 }
