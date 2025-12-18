@@ -28,9 +28,9 @@
   "comment": "Commenter",
   "comments": "Commentaires",
   "comments_count": "Commentaires | {{count}}",
-  "fill_out_comment": "Vous devez d'abord écrire quelque chose!",
+  "fill_out_comment": "Vous devez d'abord écrire quelque chose !",
   "community_image_input_alt": "Sélection d'image de la communauté",
   "upload_helper_text_replace": "Cliquez pour changer l'image",
-  "community_moderators": "Organisateurs de la communauté",
+  "community_moderators": "Organisateurs.trices de la communauté",
   "community_header": "Bienvenue à {{name}}"
 }
