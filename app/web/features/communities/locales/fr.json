@@ -65,5 +65,14 @@
   "details_subheading_colon": "Détails :",
   "details_subheading": "Détails",
   "write_comment_a11y_label": "Rédiger un commentaire",
-  "attendees": "Participant.e.s"
+  "attendees": "Participant.e.s",
+  "create_an_event": "Créer un événement",
+  "create_new_event": "Créer un nouvel événement",
+  "create_event_page_title": "Créer un événement",
+  "end_date": "Date de fin",
+  "end_time": "Heure de fin",
+  "end_date_error": "La date de fin de l'événement doit être après la date de début.",
+  "date_required": "Veuillez entrer une date.",
+  "end_time_error": "L'heure de fin de l'événement doit être après l'heure de début.",
+  "time_required": "Veuillez entrer une heure."
 }
