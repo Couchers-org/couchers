@@ -12,17 +12,15 @@ Couchers.org is built by a global team of skilled volunteers — like you — in
 
 To get started, do the following tasks:
 
-1. Get set up on your new Google @couchers.org account
-    - make sure you can sign in and view the shared Google drive folders
-    - click [this link](https://calendar.google.com/calendar/u/0?cid=Y180cGRkcjRtdDlsMGZwZDFxNW52ZWU2OTl1OEBncm91cC5jYWxlbmRhci5nb29nbGUuY29t) to add yourself to the all-team calendar.
-    - (optional) [forward your emails](https://support.google.com/mail/answer/10957?hl=en#zippy=) to your regular email account. This way you can get all emails and event invitations sent to your regular email address.
-2. Get set up on Slack
-    - [download the app](https://slack.com/downloads) on your desktop and/or phone
+1. Get set up on Slack
+    - download the app on your [computer](https://slack.com/downloads), [iPhone](https://apps.apple.com/us/app/slack/id618783545?ppid=47c2b20b-a853-4a00-9455-dea6e3f4fe06) and/or [Android phone](https://play.google.com/store/apps/details?id=com.Slack&listing=slackmobileweb)
     - upload a photo to your account
     - add your role description to your profile (View profile > Edit profile > "What I do")
-3. Say hi to the team
-    - go to the #introduce-yourself channel and write a description about yourself, your history with the couch surfing community, and what you're going to be doing as a volunteer
-4. Make sure you have a first task to be working on. If you’re not sure who to ask, send Dea or Itsi a message.
+2. Log in to our [internal wiki](https://wiki.couchershq.org/) using slack.
+    - set couchersorg.slack.com as your workspace
+    - use the same email you used for slack
+    - complete the onboarding guide
+   
 
 ## The Couchers.org Vision
 
@@ -56,25 +54,17 @@ Allowing everyone to push things forward means people will make mistakes, and th
 
 We like to welcome our new volunteers with open arms and excitement. Here are some ways we make that happen:
 
-- your Team Lead will send an introductory message on Slack welcoming you on our #announcement channel;
 - we will ask you to take some time to introduce yourself on the #introduce-yourself channel;
-- we will ask you to share a picture so we can introduce you on our social media channels.
-
-#### 🍰 Birthdays
-
-They only come around once a year, so why not make them special? We try to let everyone know it's your birthday to let you know you're appreciated and to feel the love from the team!
-
-- we will wish you a happy birthday on our #chit-chat channel
-- if budget allows us, we will send you some gift merch, such as t-shirt or mug
-- we will add your birthday to an organization-wide calendar, so you can know when to wish everyone else as well!
+- we will ask you to join our weekly zoom meeting to get to know the team.
 
 #### 🎈 Virtual Fun
 
-We have volunteers spread across 10+ countries and 30+ different cities. Since we don't pass each another in the halls, we do our best to find creative ways to connect and build relationships.
+We have volunteers spread across the globe. Since we don't pass each another in the halls, we do our best to find creative ways to connect and build relationships.
 
-- We pair our volunteers up every other week for a **#VirtualCoffee**. A chit-chat for 15-30 mins to connect and talk about their lives. We use the donut app to pair our volunteers together and match them in our #virtual-coffee channel;
-- Answer a **fun question every Wednesday** on the #chit-chat channel. Each question is designed to prompt fun, creative answers that will in turn create an engaging, energetic comment section through which our people can laugh together and enjoy each other's answers;
-- **Share our weekend adventures** every Monday morning in the #chit-chat channel. This is a fun time to learn more about our volunteers and what they are up to while surfing, hosting, enjoying, and exploring life outside their work/volunteer duties.
+- We usually chit-chat a little during our weekly meetings
+- You can reach out to any team member and use our zoom room for meetings with other volunteers
+- Share your stories in our #chit-chat channel on slack and engage with other volunteers
+- Share pictures from Couchers events on social media or upload them to our G-Drive 
 
 ### Our attitude towards Couchsurfing™
 

@@ -56,7 +56,9 @@
       "forgot_password": "Mot de passe oublié ?",
       "remember_me": "Se souvenir de moi",
       "username_field_label": "Mail/Nom d'utilisateur",
-      "no_password_login_prompt": "Vérifiez vos mails pour obtenir le lien de connexion ! :)"
+      "no_password_login_prompt": "Vérifiez vos mails pour obtenir le lien de connexion ! :)",
+      "hide_password": "Masquer le mot de passe",
+      "show_password": "Montrer le mot de passe"
     },
     "no_account_prompt": "Pas encore de compte ? <2>Rejoignez-nous</2>"
   },
@@ -199,7 +201,10 @@
       "download_app_store": "Télécharger sur l’App Store",
       "download_google_play": "Télécharger-le sur Google Play",
       "chip_location": {
-        "heading": "Trouver la puce NFC de votre passeport"
+        "heading": "Trouver la puce NFC de votre passeport",
+        "us_germany_mexico": "<strong>le Brésil, les États-Unis, l'Allemagne (2016), l'Indonésie, le Mexique :</strong> Page en arrière",
+        "finland_germany_new": "<strong>la Finlande, l'Allemagne (2017+), la Russie :</strong> Page de photo",
+        "australia": "<strong>l'Australie :</strong> Page du milieu (marquée avec le symbole + \"nom de la puce\")"
       }
     },
     "status": {
@@ -307,5 +312,20 @@
     "change_button_text": "Changer le numéro de téléphone",
     "code_label": "Code de vérification",
     "title": "Numéro de téléphone"
+  },
+  "quick_links": {
+    "error_message": "Erreur : {{message}}",
+    "missing_payload_or_sig": "URL non valide",
+    "title": "Action rapide par mail",
+    "button_text": "Confirmer l'action"
+  },
+  "volunteer_management": {
+    "title": "Gestion des bénévoles",
+    "description": "Si votre rôle ou vos dates sont incorrects, veuillez nous en informer.",
+    "card_preview_label": "Liste de votre équipe bénévole",
+    "not_a_volunteer_message": "Selon notre base de données, vous n'êtes pas un bénévole actuel ou passé. Si cela est incorrect, veuillez nous en informer en remplissant <1>ce formulaire</1>.",
+    "current_volunteer": "Bénévole depuis {{startDate}}.",
+    "past_volunteer": "Bénévole de {{startDate}} à {{endDate}}.",
+    "shown_on_team_page_current": "Affiché sur la page de l'équipe comme membre d'équipe actuel."
   }
 }

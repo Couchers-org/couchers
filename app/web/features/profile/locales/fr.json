@@ -1,16 +1,16 @@
 {
   "actions": {
-    "decline_friend_label": "Réfuser",
+    "decline_friend_label": "Refuser",
     "back_to_dashboard": "Retourner au tableau de bord",
     "message_label": "Envoyer un message",
     "accept_friend_label": "Accepter",
-    "request": "Demander"
+    "request": "Envoyer une demande"
   },
   "heading": {
     "home": "Mon logement",
     "hometown": "Grandi.e à/en",
     "hosting_status": "Statut d'acceuil",
-    "about_me": "Au sujet de moi",
+    "about_me": "À propos de moi",
     "age_gender": "Âge / Genre",
     "community_standing": "Réputation communautaire",
     "edit": "Modifier",
@@ -106,7 +106,7 @@
     "missing_photo_message": "Ajoutez une photo de profil.",
     "description": "Vous ne pourrez pas envoyer de demandes d'hébérgements, de messages ou créer des événements tant que vous n’aurez pas :",
     "save_anyway": "Enregistrer quand même ?",
-    "continue_editing": "Continuer modifier"
+    "continue_editing": "Continuer la modification"
   },
   "home_info_headings": {
     "host_smoking": "fume chez soi",
