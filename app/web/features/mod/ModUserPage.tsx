@@ -1,6 +1,7 @@
 import { TabPanel } from "@mui/lab";
 import { Button, styled } from "@mui/material";
 import Alert from "components/Alert";
+import { setSkipNextScrollToTop } from "components/AppRoute";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
@@ -99,6 +100,7 @@ export default function ModUserPage({
                   </TabPanel>
                 }
                 onTabChange={(newTab) => {
+                  setSkipNextScrollToTop(true);
                   router.push(routeToModUser(user.username, newTab));
                 }}
               />

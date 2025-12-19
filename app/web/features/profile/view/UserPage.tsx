@@ -1,5 +1,6 @@
 import { Collapse, styled } from "@mui/material";
 import Alert from "components/Alert";
+import { setSkipNextScrollToTop } from "components/AppRoute";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
@@ -73,6 +74,7 @@ export default function UserPage({
             <UserCard
               tab={tab}
               onTabChange={(newTab) => {
+                setSkipNextScrollToTop(true);
                 router.push(routeToUser(user.username, newTab));
               }}
               top={

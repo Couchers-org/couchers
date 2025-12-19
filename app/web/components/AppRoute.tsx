@@ -13,6 +13,12 @@ import { theme } from "theme";
 
 import Navigation from "./Navigation";
 
+// Flag to skip scroll-to-top on next navigation (for tab changes, etc.)
+export let skipNextScrollToTop = false;
+export const setSkipNextScrollToTop = (value: boolean) => {
+  skipNextScrollToTop = value;
+};
+
 interface AppRouteProps {
   isPrivate: boolean;
   noFooter?: boolean;
@@ -96,9 +102,10 @@ function AppRoute({
   }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
 
   useEffect(() => {
-    if (pageWrapperRef.current) {
+    if (pageWrapperRef.current && !skipNextScrollToTop) {
       pageWrapperRef.current.scrollTo(0, 0);
     }
+    skipNextScrollToTop = false;
   }, [router.asPath]); // scroll to top on route change
 
   return (
