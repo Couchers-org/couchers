@@ -33,12 +33,26 @@ while [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; do
 
     # Capture curl output and status
     CURL_OUTPUT=$(curl -s -w "%{http_code}" "$API_URL")
-    HTTP_CODE="${CURL_OUTPUT:(-3)}" # Last 3 chars are HTTP code
-    STATUS_JSON="${CURL_OUTPUT:0:(-3)}" # Everything before the last 3 chars is JSON
+
+    # Check if CURL_OUTPUT is long enough to extract HTTP code
+    if [ ${#CURL_OUTPUT} -ge 3 ]; then
+        # Extract last 3 characters as HTTP code
+        HTTP_CODE="${CURL_OUTPUT: -3}"
+        # Calculate length of JSON portion (total length - 3)
+        JSON_LENGTH=$((${#CURL_OUTPUT} - 3))
+        STATUS_JSON="${CURL_OUTPUT:0:$JSON_LENGTH}"
+    else
+        HTTP_CODE="000"
+        STATUS_JSON=""
+    fi
 
     echo "  HTTP Code: $HTTP_CODE"
     # Print part of response for debugging, but be careful with very large responses
-    echo "  Raw JSON response snippet: ${STATUS_JSON:0:200}..."
+    if [ -n "$STATUS_JSON" ]; then
+        echo "  Raw JSON response snippet: ${STATUS_JSON:0:200}..."
+    else
+        echo "  Raw JSON response snippet: (empty response)"
+    fi
 
     # Initialize variables for this attempt
     VERSION=""
