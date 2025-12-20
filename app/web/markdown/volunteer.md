@@ -55,8 +55,8 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 #### Development
 
 - [Senior Backend Developer (Python)](./volunteer/senior-backend-developer)
-- [Frontend (web) Developer (React/Typescript)](./volunteer/frontend-developer)
-- [Mobile Development Lead](./volunteer/mobile-development-lead)
+- [Mid-level or Senior Frontend (Web) Developer (React/Typescript)](./volunteer/mid-senior-frontend-developer)
+- [Mobile Developer (React Native/Expo)](./volunteer/mobile-developer)
 
 #### Operations
 

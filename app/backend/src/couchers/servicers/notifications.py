@@ -244,3 +244,24 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         )
 
         return empty_pb2.Empty()
+
+    def SendDevPushNotification(self, request, context, session):
+        if not config["ENABLE_DEV_APIS"]:
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "dev_apis_disabled")
+
+        if not config["PUSH_NOTIFICATIONS_ENABLED"]:
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
+
+        push_to_user(
+            session,
+            user_id=context.user_id,
+            topic_action="adhoc:testing",
+            key=request.key or None,
+            title=request.title,
+            body=request.body,
+            icon=request.icon or None,
+            url=request.url or None,
+            ttl=request.ttl,
+        )
+
+        return empty_pb2.Empty()

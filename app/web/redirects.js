@@ -171,5 +171,10 @@ module.exports = {
         "https://forms.monday.com/forms/0354e14aa52a37757e9b5ecf2419fef9?r=use1",
       permanent: false,
     },
+    {
+      source: "/shop",
+      destination: "https://shop.couchershq.org",
+      permanent: false,
+    },
   ],
 };

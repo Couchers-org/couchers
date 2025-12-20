@@ -36,6 +36,7 @@ import {
   planRoute,
   redditURL,
   roadmapRoute,
+  shopRoute,
   teamRoute,
   tosRoute,
   volunteerRoute,
@@ -196,6 +197,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <FooterLink href={newsletterSignupURL}>
               {t("nav.newsletter")}
             </FooterLink>
+            <FooterLink href={shopRoute}>{t("nav.merch_shop")}</FooterLink>
           </div>
           <div>
             <Typography variant="h4" component="h4">
