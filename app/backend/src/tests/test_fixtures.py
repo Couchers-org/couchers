@@ -1132,6 +1132,9 @@ def testconfig():
     # Bot user ID for automated moderation - will be set to a real user in tests that need it
     config["MODERATION_BOT_USER_ID"] = 1
 
+    # Dev APIs disabled by default in tests
+    config["ENABLE_DEV_APIS"] = False
+
     yield None
 
     config.clear()

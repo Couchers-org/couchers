@@ -49,6 +49,7 @@
     "date_from_after_to": "From date can't be after to date.",
     "date_from_before_today": "From date must be today or later.",
     "date_to_after_one_year": "You cannot request to stay with someone for longer than one year.",
+    "dev_apis_disabled": "Development APIs are not enabled on this server.",
     "discussion_not_found": "Discussion not found.",
     "discussions_not_enabled": "Discussions are not enabled in this group or community.",
     "do_not_email_cannot_host": "You cannot enable hosting while you have emails turned off in your settings.",
