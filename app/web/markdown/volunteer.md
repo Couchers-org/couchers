@@ -35,7 +35,11 @@ _If you are software engineer interested in contributing, please read our [Devel
 
 1. Find one of the open positions below and apply via the form!
 
-2. We'll review your application and get back to you as soon as we can. **Please note**: We're a small volunteer team with limited capacity. It may take time for us to respond, and depending on our current needs and capacity, we may not be able to onboard new volunteers immediately. We appreciate your patience and understanding.
+2. We'll review your application and get back to you as soon as we can.
+
+   **If you don't hear back right away**, it could be because:
+   - We're in a busy period and don't have capacity to schedule calls or do onboarding at the moment. We tend to have busy and calm periods depending on the time of year. We may reach out later when things settle down.
+   - It's not clear to us how your skills and experience align with our current needs from your application. For developers, we may not see experience with our tech stack on your LinkedIn or Github, so please make sure to tie that together for us clearly.
 
 3. If we're able to move forward, we'll set up a Zoom call so we can get to know you and you can meet the team.
 
