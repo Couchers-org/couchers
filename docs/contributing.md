@@ -11,7 +11,8 @@ Thank you for your interest in contributing to Couchers.org! We're a small, pass
    - We have capacity to review your contribution
    - The work aligns with current priorities
 
-2. **Commit to 3-6 months minimum** — Onboarding takes significant time and effort from our small team. We need contributors who can commit to staying involved for at least 3-6 months to make the investment worthwhile.
+2. **Ideally commit to 3-6 months minimum** — Onboarding takes significant time and effort from our small team. We need contributors who can commit to staying involved for at least 3-6 months to make the investment worthwhile.
+    - See next section about single issue contributions.
 
 3. **Attend weekly meetings** — We hold video meetings every week where we discuss priorities, architecture, and important details. Attending these meetings is essential to prevent miscommunication and avoid lengthy back-and-forth in PR reviews. Priorities and context shared in these meetings often aren't captured elsewhere.
 
@@ -19,7 +20,10 @@ Thank you for your interest in contributing to Couchers.org! We're a small, pass
 
 ### Single-issue contributions
 
-If you have production-level experience in our stack (React/TypeScript for frontend and/or Python/gRPC for backend) and are confident about best practices, we may accept single contributions for individual issues or tickets. However, you must still write us first or tag @aapeliv (backend) or @nabramow (frontend) to get cleared to work on that issue before starting any work.
+We discuss priorities and details for tickets in our weekly Tuesday dev meetings. We welcome independent contributions if you feel you can work on your own, but please keep in mind:
+
+- **Tag us before starting work**: Tag @aapeliv (backend) or @nabramow (frontend) on the issue first to get cleared on that ticket. While we drive to keep the issues up to date, we're a small team and sometimes the board gets out of date, someone else is already working on it, or there are missing details or outdated designs that aren't captured in the ticket. For the best chance of getting a PR merged, make sure you have the latest details from us.
+- **We may close PRs that require significant rework**: Due to our limited capacity, if a PR is significantly off-base and would require extensive back-and-forth to be mergeable, we may need to close it. This isn't a reflection on your skills—it's simply about managing our review bandwidth effectively.
 
 ## Our current capacity
 
