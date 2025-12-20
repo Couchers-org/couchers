@@ -1461,10 +1461,10 @@ def test_hosting_preferences(db):
 
 
 def test_badges(db):
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
-    user4, token = generate_user()
+    user1, _ = generate_user(last_donated=None)
+    user2, _ = generate_user(last_donated=None)
+    user3, _ = generate_user(last_donated=None)
+    user4, token = generate_user(last_donated=None)
 
     update_badges(empty_pb2.Empty())
 

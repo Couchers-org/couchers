@@ -87,7 +87,7 @@
     "reset_password_success": "Dein Passwort wurde erfolgreich geändert!"
   },
   "reset_password_form": {
-    "success_message": "Überprüfe deine E-Mail-Adresse, für einen Link, um das Passwort zurückzusetzen!",
+    "success_message": "Ein Link zum Zurücksetzen des Passworts wurde an die mit diesem Konto verknüpfte E-Mail-Adresse gesendet, sofern sie existiert und aktiv ist. Bitte beachte, dass die E-Mail möglicherweise im Spam-Ordner landet.",
     "enter_email": "Benutzernamen/E-Mail-Adresse eingeben"
   },
   "login_page": {
@@ -107,7 +107,7 @@
   "basic_sign_up_form": {
     "header": "Lass uns loslegen!",
     "existing_user_prompt": "Du hast bereits einen Account? <2>Einloggen</2>",
-    "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsvereinbarungen</2> zu, inklusive unseren Vereinbarung zur Verwendung von Cookies, E-Mail-Adresse und digitaler Informationen."
+    "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsbedingungen</2> zu, inklusive unseren Bedingungen zur Verwendung von Cookies, E-Mail-Adresse und digitalen Informationen."
   },
   "sign_up_completed_title": "Danke, dass du dich bei uns registriert hast!",
   "sign_up_confirmed_prompt": "Du hast alles erledigt! Falls du nicht weitergeleitet wirst, versuche dich einzuloggen.",
@@ -289,7 +289,7 @@
       "download_app_store": "Im App Store herunterladen",
       "download_google_play": "Bei Google Play herunterladen",
       "chip_location": {
-        "description": "Der Chipstandort variiert je nach Land. Möglicherweise musst du verschiedene Seiten ausprobieren. Hier sind einige Beispiele für Standorte:",
+        "description": "Die Position des Chips variiert je nach Land. Möglicherweise musst du verschiedene Seiten ausprobieren. Hier sind einige Beispiele für Positionen:",
         "heading": "Den NFC-Chip deines Reisepasses finden",
         "us_germany_mexico": "<strong>Brasilien, USA, Deutschland (2016), Indonesien, Mexiko:</strong> Rückseite",
         "finland_germany_new": "<strong>Finnland, Deutschland (2017+), Russland:</strong> Bildseite",
@@ -319,5 +319,46 @@
     "missing_payload_or_sig": "Ungültige URL",
     "title": "E-Mail-Schnellaktion",
     "button_text": "Aktion bestätigen"
+  },
+  "volunteer_management": {
+    "title": "Freiwilligenmanagement",
+    "description": "Wenn deine Rolle oder die Daten nicht korrekt sind, lasse es uns bitte wissen.",
+    "card_preview_label": "Deine Teamseite-Auflistung",
+    "not_a_volunteer_message": "Laut unseren Unterlagen bist du weder derzeit noch in der Vergangenheit Freiwillig tätig gewesen. Falls dies nicht zutrifft, teile uns dies bitte mit, indem du <1>dieses Formular</1> ausfüllst.",
+    "past_volunteer": "Freiwillig tätig von {{startDate}} bis {{endDate}}.",
+    "current_volunteer": "Freiwillig tätig seit {{startDate}}.",
+    "shown_on_team_page_current": "Auf der Teamseite als aktuelles Teammitglied angezeigt.",
+    "shown_on_team_page_past": "Auf der Teamseite unter ehemaligen Freiwilligen angezeigt.",
+    "not_shown_on_team_page": "Auf der Teamseite ausgeblendet.",
+    "update_success": "Deine Freiwilligeninformationen wurden aktualisiert.",
+    "form": {
+      "title": "Aktualisieren deine Freiwilligeninformationen",
+      "override_name_label": "Verwende einen anderen Namen auf der Teamseite (anstelle von \"{{profileName}}\")",
+      "display_name_label": "Anzeigename",
+      "override_location_label": "Verwende einen anderen Ort auf der Teamseite (anstatt \"{{profileLocation}}\")",
+      "display_location_label": "Ort anzeigen",
+      "show_on_team_page_label": "Zeig mich auf der Teamseite",
+      "link_type_label": "Link Typ",
+      "link_type_couchers": "Couchers-Profil",
+      "link_type_email": "E-Mail",
+      "link_type_linkedin": "LinkedIn",
+      "link_type_website": "Webseite",
+      "link_text_label": "Linkwert",
+      "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
+      "link_text_email_placeholder": "deine@email.com",
+      "link_text_email_helper": "Deine E-Mail-Adresse",
+      "link_text_website_helper": "Der anzuzeigende Text für den Link",
+      "link_text_required": "Bitte gib einen Wert für den Link ein",
+      "link_text_email_invalid": "Bitte gib eine giltige E-Mail-Adresse an",
+      "link_text_linkedin_invalid": "Bitte gib einen gültigen LinkedIn-Benutzernamen ein (nur Buchstaben, Zahlen und Bindestriche)",
+      "link_url_label": "Link-URL",
+      "link_url_placeholder": "https://deine-webseite.com",
+      "link_url_helper": "Die vollständige URL, auf die der Link verweisen soll",
+      "link_url_required": "Bitte gib eine URL für die Website ein",
+      "save_button": "Änderungen speichern",
+      "link_text_website_placeholder": "https://deine-webseite.com",
+      "link_text_linkedin_helper": "Der Benutzername aus deiner Profil-URL (z. B. linkedin.com/in/jane-doe-a1b2c3)",
+      "link_url_invalid": "Bitte gib eine gültige URL ein, die mit http:// oder https:// beginnt"
+    }
   }
 }

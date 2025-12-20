@@ -61,8 +61,9 @@ describe("DonationBanner", () => {
     render(<DonationBanner />, { wrapper });
 
     await waitFor(() => {
+      // Check for static part of the message (goal is now dynamically interpolated)
       expect(
-        screen.getByText(t("donation_banner.message")),
+        screen.getByText(/Couchers\.org runs on kindness/),
       ).toBeInTheDocument();
     });
 
@@ -84,7 +85,7 @@ describe("DonationBanner", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(t("donation_banner.message")),
+        screen.getByText(/Couchers\.org runs on kindness/),
       ).toBeInTheDocument();
     });
 
@@ -111,7 +112,7 @@ describe("DonationBanner", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(t("donation_banner.message")),
+        screen.getByText(/Couchers\.org runs on kindness/),
       ).toBeInTheDocument();
     });
 
@@ -120,7 +121,7 @@ describe("DonationBanner", () => {
 
     // Banner should be removed from DOM
     expect(
-      screen.queryByText(t("donation_banner.message")),
+      screen.queryByText(/Couchers\.org runs on kindness/),
     ).not.toBeInTheDocument();
 
     // Verify dismissal timestamp is stored in localStorage
@@ -141,7 +142,7 @@ describe("DonationBanner", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(t("donation_banner.message")),
+        screen.getByText(/Couchers\.org runs on kindness/),
       ).toBeInTheDocument();
     });
 
@@ -149,7 +150,7 @@ describe("DonationBanner", () => {
     await user.click(closeButton);
 
     expect(
-      screen.queryByText(t("donation_banner.message")),
+      screen.queryByText(/Couchers\.org runs on kindness/),
     ).not.toBeInTheDocument();
 
     unmount();
@@ -157,7 +158,7 @@ describe("DonationBanner", () => {
 
     // Banner should NOT appear after remounting within 24 hours
     expect(
-      screen.queryByText(t("donation_banner.message")),
+      screen.queryByText(/Couchers\.org runs on kindness/),
     ).not.toBeInTheDocument();
   });
 
@@ -175,13 +176,15 @@ describe("DonationBanner", () => {
     const user = userEvent.setup({ delay: null });
     const { unmount } = render(<DonationBanner />, { wrapper });
 
-    expect(await screen.findByText(t("donation_banner.message"))).toBeVisible();
+    expect(
+      await screen.findByText(/Couchers\.org runs on kindness/),
+    ).toBeVisible();
 
     const closeButton = screen.getByLabelText("Close");
     await user.click(closeButton);
 
     expect(
-      screen.queryByText(t("donation_banner.message")),
+      screen.queryByText(/Couchers\.org runs on kindness/),
     ).not.toBeInTheDocument();
 
     unmount();
@@ -192,7 +195,9 @@ describe("DonationBanner", () => {
     render(<DonationBanner />, { wrapper });
 
     // Banner should appear again after 24 hours have passed
-    expect(await screen.findByText(t("donation_banner.message"))).toBeVisible();
+    expect(
+      await screen.findByText(/Couchers\.org runs on kindness/),
+    ).toBeVisible();
 
     jest.useRealTimers();
   });
@@ -208,7 +213,7 @@ describe("DonationBanner", () => {
     render(<DonationBanner />, { wrapper });
 
     expect(
-      screen.queryByText(t("donation_banner.message")),
+      screen.queryByText(/Couchers\.org runs on kindness/),
     ).not.toBeInTheDocument();
   });
 
@@ -221,7 +226,7 @@ describe("DonationBanner", () => {
     render(<DonationBanner />, { wrapper });
 
     expect(
-      screen.queryByText(t("donation_banner.message")),
+      screen.queryByText(/Couchers\.org runs on kindness/),
     ).not.toBeInTheDocument();
   });
 
@@ -234,7 +239,7 @@ describe("DonationBanner", () => {
     render(<DonationBanner />, { wrapper });
 
     expect(
-      screen.queryByText(t("donation_banner.message")),
+      screen.queryByText(/Couchers\.org runs on kindness/),
     ).not.toBeInTheDocument();
   });
 
@@ -247,7 +252,7 @@ describe("DonationBanner", () => {
     render(<DonationBanner />, { wrapper });
 
     expect(
-      screen.queryByText(t("donation_banner.message")),
+      screen.queryByText(/Couchers\.org runs on kindness/),
     ).not.toBeInTheDocument();
   });
 
@@ -265,7 +270,9 @@ describe("DonationBanner", () => {
     const user = userEvent.setup({ delay: null });
     const { unmount } = render(<DonationBanner />, { wrapper });
 
-    expect(await screen.findByText(t("donation_banner.message"))).toBeVisible();
+    expect(
+      await screen.findByText(/Couchers\.org runs on kindness/),
+    ).toBeVisible();
 
     const closeButton = screen.getByLabelText("Close");
     await user.click(closeButton);
@@ -279,30 +286,10 @@ describe("DonationBanner", () => {
 
     // Banner should still NOT appear
     expect(
-      screen.queryByText(t("donation_banner.message")),
+      screen.queryByText(/Couchers\.org runs on kindness/),
     ).not.toBeInTheDocument();
 
     jest.useRealTimers();
-  });
-
-  it("does not display when donation stats are not available", () => {
-    mockUseAccountInfo.mockReturnValue({
-      data: {
-        shouldShowDonationBanner: true,
-      },
-      isLoading: false,
-    } as ReturnType<typeof useAccountInfo>);
-
-    mockUseDonationStats.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-    } as ReturnType<typeof useDonationStats>);
-
-    render(<DonationBanner />, { wrapper });
-
-    expect(
-      screen.queryByText(t("donation_banner.message")),
-    ).not.toBeInTheDocument();
   });
 
   it("displays correct progress percentage", async () => {
@@ -325,7 +312,7 @@ describe("DonationBanner", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(t("donation_banner.message")),
+        screen.getByText(/Couchers\.org runs on kindness/),
       ).toBeInTheDocument();
     });
 
@@ -354,7 +341,7 @@ describe("DonationBanner", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(t("donation_banner.message")),
+        screen.getByText(/Couchers\.org runs on kindness/),
       ).toBeInTheDocument();
     });
 

@@ -29,6 +29,7 @@ from tests.test_fixtures import (  # noqa
     email_fields,
     generate_user,
     mock_notification_email,
+    moderator,
     process_jobs,
     public_session,
     real_account_session,
@@ -1033,7 +1034,7 @@ def test_ListInviteCodes(db):
         assert res.invite_codes[0].url == urls.invite_code_link(code=code)
 
 
-def test_reminders(db):
+def test_reminders(db, moderator):
     # the strong verification reminder's absence is tested in test_strong_verification.py
     # reference writing reminders tested in test_AvailableWriteReferences_and_ListPendingReferencesToWrite
     # we use LiteUser, so remember to refresh materialized views
@@ -1064,6 +1065,7 @@ def test_reminders(db):
                 text=valid_request_text("Test request 1"),
             )
         ).host_request_id
+    moderator.approve_host_request(host_request1_id)
 
     with account_session(token) as account:
         reminders = account.GetReminders(empty_pb2.Empty()).reminders
@@ -1084,6 +1086,7 @@ def test_reminders(db):
                 text=valid_request_text("Test request 2"),
             )
         ).host_request_id
+    moderator.approve_host_request(host_request2_id)
 
     refresh_materialized_views_rapid(None)
     with account_session(token) as account:
@@ -1108,6 +1111,7 @@ def test_reminders(db):
                 text=valid_request_text("Test request 3"),
             )
         ).host_request_id
+    moderator.approve_host_request(host_request3_id)
 
     refresh_materialized_views_rapid(None)
     with account_session(token) as account:

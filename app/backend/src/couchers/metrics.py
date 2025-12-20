@@ -20,6 +20,14 @@ from sqlalchemy.sql.selectable import Select
 
 from couchers.db import session_scope
 from couchers.models import BackgroundJob, EventOccurrenceAttendee, HostingStatus, HostRequest, Message, Reference, User
+from couchers.models.moderation import (
+    ModerationAction,
+    ModerationObjectType,
+    ModerationQueueItem,
+    ModerationState,
+    ModerationTrigger,
+    ModerationVisibility,
+)
 from couchers.sql import couchers_select as select
 
 tracer = trace.get_tracer(__name__)
@@ -375,6 +383,154 @@ account_age_on_host_request_create_histogram: Histogram = Histogram(
         _INF,
     ),
 )
+
+
+# =============================================================================
+# Moderation metrics
+# =============================================================================
+
+# Gauges: Queue lengths
+moderation_queue_length_gauge: Gauge = _make_gauge_from_query(
+    "couchers_moderation_queue_length",
+    "Total number of unresolved items in the moderation queue",
+    select(func.count()).select_from(ModerationQueueItem).where(ModerationQueueItem.resolved_by_log_id.is_(None)),
+)
+
+moderation_queue_length_by_trigger_gauges: list[Gauge] = [
+    _make_gauge_from_query(
+        f"couchers_moderation_queue_length_{trigger.name.lower()}",
+        f"Number of unresolved items in the moderation queue with trigger {trigger.name}",
+        select(func.count())
+        .select_from(ModerationQueueItem)
+        .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+        .where(ModerationQueueItem.trigger == trigger),
+    )
+    for trigger in ModerationTrigger
+]
+
+moderation_queue_length_by_object_type_gauges: list[Gauge] = [
+    _make_gauge_from_query(
+        f"couchers_moderation_queue_length_{object_type.name.lower()}",
+        f"Number of unresolved items in the moderation queue for {object_type.name}",
+        select(func.count())
+        .select_from(ModerationQueueItem)
+        .join(ModerationState, ModerationQueueItem.moderation_state_id == ModerationState.id)
+        .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+        .where(ModerationState.object_type == object_type),
+    )
+    for object_type in ModerationObjectType
+]
+
+# Gauges: Items in each visibility state by object type
+moderation_visibility_gauges: list[Gauge] = [
+    _make_gauge_from_query(
+        f"couchers_moderation_items_{object_type.name.lower()}_{visibility.name.lower()}",
+        f"Number of {object_type.name} items with visibility {visibility.name}",
+        select(func.count())
+        .select_from(ModerationState)
+        .where(ModerationState.object_type == object_type)
+        .where(ModerationState.visibility == visibility),
+    )
+    for object_type in ModerationObjectType
+    for visibility in ModerationVisibility
+]
+
+# Counters: Moderation actions taken
+moderation_actions_counter: Counter = Counter(
+    "couchers_moderation_actions_total",
+    "Number of moderation actions taken",
+    labelnames=["action", "object_type"],
+)
+
+
+def observe_moderation_action(action: ModerationAction, object_type: ModerationObjectType) -> None:
+    moderation_actions_counter.labels(action.name, object_type.name).inc()
+
+
+# Counters: Visibility state transitions
+moderation_visibility_transitions_counter: Counter = Counter(
+    "couchers_moderation_visibility_transitions_total",
+    "Number of visibility state transitions",
+    labelnames=["from_visibility", "to_visibility", "object_type"],
+)
+
+
+def observe_moderation_visibility_transition(
+    from_visibility: ModerationVisibility, to_visibility: ModerationVisibility, object_type: ModerationObjectType
+) -> None:
+    moderation_visibility_transitions_counter.labels(from_visibility.name, to_visibility.name, object_type.name).inc()
+
+
+# Counters: Auto-approved items
+moderation_auto_approved_counter: Counter = Counter(
+    "couchers_moderation_auto_approved_total",
+    "Number of items that were auto-approved",
+)
+
+
+# Counters: Queue items created
+moderation_queue_items_created_counter: Counter = Counter(
+    "couchers_moderation_queue_items_created_total",
+    "Number of moderation queue items created",
+    labelnames=["trigger", "object_type"],
+)
+
+
+def observe_moderation_queue_item_created(trigger: ModerationTrigger, object_type: ModerationObjectType) -> None:
+    moderation_queue_items_created_counter.labels(trigger.name, object_type.name).inc()
+
+
+# Counters: Queue items resolved
+moderation_queue_items_resolved_counter: Counter = Counter(
+    "couchers_moderation_queue_items_resolved_total",
+    "Number of moderation queue items resolved",
+    labelnames=["trigger", "action", "object_type"],
+)
+
+
+def observe_moderation_queue_item_resolved(
+    trigger: ModerationTrigger, action: ModerationAction, object_type: ModerationObjectType
+) -> None:
+    moderation_queue_items_resolved_counter.labels(trigger.name, action.name, object_type.name).inc()
+
+
+# Histogram: Time to resolve queue items
+moderation_queue_resolution_time_histogram: Histogram = Histogram(
+    "couchers_moderation_queue_resolution_seconds",
+    "Time taken to resolve moderation queue items",
+    labelnames=["trigger", "action", "object_type"],
+    buckets=(
+        0.1,
+        0.25,
+        0.5,
+        1,
+        2.5,
+        5,
+        10,
+        30,
+        60,
+        5 * 60,
+        15 * 60,
+        30 * 60,
+        3_600,
+        2 * 3_600,
+        6 * 3_600,
+        12 * 3_600,
+        86_400,
+        2 * 86_400,
+        3 * 86_400,
+        7 * 86_400,
+        14 * 86_400,
+        30 * 86_400,
+        _INF,
+    ),
+)
+
+
+def observe_moderation_queue_resolution_time(
+    trigger: ModerationTrigger, action: ModerationAction, object_type: ModerationObjectType, duration_s: float
+) -> None:
+    moderation_queue_resolution_time_histogram.labels(trigger.name, action.name, object_type.name).observe(duration_s)
 
 
 def create_prometheus_server(port: int) -> Any:

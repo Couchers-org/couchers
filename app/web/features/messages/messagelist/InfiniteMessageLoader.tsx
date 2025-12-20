@@ -105,11 +105,19 @@ export default function InfiniteMessageLoader({
     scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
   }, []);
 
-  //**  Keep place or keep at bottom on window resize (i.e. keyboard popup on mobile (hopefully)) **//
+  //**  Keep at bottom on window resize only if user was already near the bottom **//
   useEffect(() => {
     const updateMessagePosition = () => {
       if (!scrollRef.current) return;
-      scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
+
+      // Only auto-scroll if user was already near the bottom
+      // This prevents fighting with mobile keyboard focus behavior
+      const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+
+      if (isNearBottom) {
+        scrollRef.current.scroll(0, scrollRef.current.scrollHeight);
+      }
     };
     window.addEventListener("resize", updateMessagePosition);
     return () => window.removeEventListener("resize", updateMessagePosition);

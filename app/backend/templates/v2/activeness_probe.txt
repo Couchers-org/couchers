@@ -9,9 +9,9 @@ These check-ins help surfers find active hosts more easily and keep response tim
 
 Since you logged in last, we've had some really exciting new updates.
 
-As of July, we are officially out of Beta and into v1, you can read more on our blog here:
+In our Fall Release (v1.1), we launched many new features including same-gender-only search filters, event co-organizers, an invite friends feature, and much more. You can read about all the updates here:
 
-https://couchers.org/blog/2025/07/01/releasing-couchers-v1
+https://couchers.org/blog/2025/10/28/couchers-fall-release
 
 
 Best,

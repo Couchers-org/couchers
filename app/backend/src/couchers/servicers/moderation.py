@@ -1,0 +1,469 @@
+import logging
+
+import grpc
+from sqlalchemy import and_, exists, not_, or_
+
+from couchers.jobs.enqueue import queue_job
+from couchers.metrics import (
+    observe_moderation_action,
+    observe_moderation_queue_item_created,
+    observe_moderation_queue_item_resolved,
+    observe_moderation_queue_resolution_time,
+    observe_moderation_visibility_transition,
+)
+from couchers.models import (
+    GroupChat,
+    HostRequest,
+    Message,
+    MessageType,
+    ModerationAction,
+    ModerationLog,
+    ModerationObjectType,
+    ModerationQueueItem,
+    ModerationState,
+    ModerationTrigger,
+    ModerationVisibility,
+    Notification,
+    NotificationDelivery,
+)
+from couchers.proto import moderation_pb2, moderation_pb2_grpc
+from couchers.proto.internal import jobs_pb2
+from couchers.sql import couchers_select as select
+from couchers.utils import Timestamp_from_datetime, now
+
+logger = logging.getLogger(__name__)
+
+MAX_PAGINATION_LENGTH = 1_000
+
+# Moderation enum mappings
+moderationvisibility2api = {
+    None: moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED,
+    ModerationVisibility.HIDDEN: moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+    ModerationVisibility.SHADOWED: moderation_pb2.MODERATION_VISIBILITY_SHADOWED,
+    ModerationVisibility.VISIBLE: moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+    ModerationVisibility.UNLISTED: moderation_pb2.MODERATION_VISIBILITY_UNLISTED,
+}
+
+moderationvisibility2sql = {
+    moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED: None,
+    moderation_pb2.MODERATION_VISIBILITY_HIDDEN: ModerationVisibility.HIDDEN,
+    moderation_pb2.MODERATION_VISIBILITY_SHADOWED: ModerationVisibility.SHADOWED,
+    moderation_pb2.MODERATION_VISIBILITY_VISIBLE: ModerationVisibility.VISIBLE,
+    moderation_pb2.MODERATION_VISIBILITY_UNLISTED: ModerationVisibility.UNLISTED,
+}
+
+moderationtrigger2api = {
+    None: moderation_pb2.MODERATION_TRIGGER_UNSPECIFIED,
+    ModerationTrigger.INITIAL_REVIEW: moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW,
+    ModerationTrigger.USER_FLAG: moderation_pb2.MODERATION_TRIGGER_USER_FLAG,
+    ModerationTrigger.MACHINE_FLAG: moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
+    ModerationTrigger.MODERATOR_REVIEW: moderation_pb2.MODERATION_TRIGGER_MODERATOR_REVIEW,
+}
+
+moderationtrigger2sql = {
+    moderation_pb2.MODERATION_TRIGGER_UNSPECIFIED: None,
+    moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW: ModerationTrigger.INITIAL_REVIEW,
+    moderation_pb2.MODERATION_TRIGGER_USER_FLAG: ModerationTrigger.USER_FLAG,
+    moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG: ModerationTrigger.MACHINE_FLAG,
+    moderation_pb2.MODERATION_TRIGGER_MODERATOR_REVIEW: ModerationTrigger.MODERATOR_REVIEW,
+}
+
+moderationaction2api = {
+    None: moderation_pb2.MODERATION_ACTION_UNSPECIFIED,
+    ModerationAction.CREATE: moderation_pb2.MODERATION_ACTION_CREATE,
+    ModerationAction.APPROVE: moderation_pb2.MODERATION_ACTION_APPROVE,
+    ModerationAction.HIDE: moderation_pb2.MODERATION_ACTION_HIDE,
+    ModerationAction.FLAG: moderation_pb2.MODERATION_ACTION_FLAG,
+    ModerationAction.UNFLAG: moderation_pb2.MODERATION_ACTION_UNFLAG,
+}
+
+moderationaction2sql = {
+    moderation_pb2.MODERATION_ACTION_UNSPECIFIED: None,
+    moderation_pb2.MODERATION_ACTION_CREATE: ModerationAction.CREATE,
+    moderation_pb2.MODERATION_ACTION_APPROVE: ModerationAction.APPROVE,
+    moderation_pb2.MODERATION_ACTION_HIDE: ModerationAction.HIDE,
+    moderation_pb2.MODERATION_ACTION_FLAG: ModerationAction.FLAG,
+    moderation_pb2.MODERATION_ACTION_UNFLAG: ModerationAction.UNFLAG,
+}
+
+moderationobjecttype2api = {
+    None: moderation_pb2.MODERATION_OBJECT_TYPE_UNSPECIFIED,
+    ModerationObjectType.HOST_REQUEST: moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
+    ModerationObjectType.GROUP_CHAT: moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
+}
+
+moderationobjecttype2sql = {
+    moderation_pb2.MODERATION_OBJECT_TYPE_UNSPECIFIED: None,
+    moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST: ModerationObjectType.HOST_REQUEST,
+    moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT: ModerationObjectType.GROUP_CHAT,
+}
+
+
+def moderation_state_to_pb(state: ModerationState, session):
+    """Convert ModerationState model to proto message"""
+    object_type = state.object_type
+    object_id = state.object_id
+
+    # Get the author user ID
+    if object_type == ModerationObjectType.HOST_REQUEST:
+        author_user_id = session.execute(
+            select(HostRequest.surfer_user_id).where(HostRequest.conversation_id == object_id)
+        ).scalar_one()
+    elif object_type == ModerationObjectType.GROUP_CHAT:
+        author_user_id = session.execute(
+            select(GroupChat.creator_id).where(GroupChat.conversation_id == object_id)
+        ).scalar_one()
+    else:
+        raise ValueError(f"Unsupported moderation object type: {object_type}")
+
+    # Get the first text message for this conversation
+    content = session.execute(
+        select(Message.text)
+        .where(Message.conversation_id == object_id)
+        .where(Message.message_type == MessageType.text)
+        .order_by(Message.id.asc())
+        .limit(1)
+    ).scalar_one_or_none()
+
+    state_pb = moderation_pb2.ModerationStateInfo(
+        moderation_state_id=state.id,
+        object_type=moderationobjecttype2api[state.object_type],
+        object_id=state.object_id,
+        visibility=moderationvisibility2api[state.visibility],
+        created=Timestamp_from_datetime(state.created),
+        updated=Timestamp_from_datetime(state.updated),
+        author_user_id=author_user_id,
+        content=content or "",
+    )
+
+    return state_pb
+
+
+class Moderation(moderation_pb2_grpc.ModerationServicer):
+    def GetModerationQueue(self, request, context, session):
+        """Get moderation queue items with optional filtering"""
+
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+
+        # Build query
+        statement = select(ModerationQueueItem)
+
+        # Apply page token filter based on ordering direction
+        if request.page_token:
+            page_token_id = int(request.page_token)
+            if request.newest_first:
+                # Descending order: get items with smaller IDs
+                statement = statement.where(ModerationQueueItem.id < page_token_id)
+            else:
+                # Ascending order: get items with larger IDs
+                statement = statement.where(ModerationQueueItem.id > page_token_id)
+
+        # Apply filters
+        if request.triggers:
+            internal_triggers = [moderationtrigger2sql[t] for t in request.triggers]
+            statement = statement.where(ModerationQueueItem.trigger.in_(internal_triggers))
+
+        if request.object_type and request.object_type != moderation_pb2.MODERATION_OBJECT_TYPE_UNSPECIFIED:
+            internal_object_type = moderationobjecttype2sql[request.object_type]
+            if internal_object_type:
+                statement = statement.join(ModerationState).where(ModerationState.object_type == internal_object_type)
+
+        if request.unresolved_only:
+            statement = statement.where(ModerationQueueItem.resolved_by_log_id.is_(None))
+
+        if request.HasField("created_before"):
+            created_before = request.created_before.ToDatetime()
+            statement = statement.where(ModerationQueueItem.time_created < created_before)
+
+        if request.HasField("created_after"):
+            created_after = request.created_after.ToDatetime()
+            statement = statement.where(ModerationQueueItem.time_created > created_after)
+
+        if request.item_author_user_id:
+            author_user_id = request.item_author_user_id
+
+            # Use EXISTS for efficient author filtering
+            hr_exists = exists().where(
+                and_(
+                    HostRequest.moderation_state_id == ModerationQueueItem.moderation_state_id,
+                    HostRequest.surfer_user_id == author_user_id,
+                )
+            )
+            gc_exists = exists().where(
+                and_(
+                    GroupChat.moderation_state_id == ModerationQueueItem.moderation_state_id,
+                    GroupChat.creator_id == author_user_id,
+                )
+            )
+            statement = statement.where(or_(hr_exists, gc_exists))
+
+        # Order by time created
+        if request.newest_first:
+            statement = statement.order_by(ModerationQueueItem.time_created.desc(), ModerationQueueItem.id.desc())
+        else:
+            statement = statement.order_by(ModerationQueueItem.time_created.asc(), ModerationQueueItem.id.asc())
+
+        queue_items = session.execute(statement.limit(page_size + 1)).scalars().all()
+
+        # Convert to proto
+        queue_items_pb = []
+        for item in queue_items[:page_size]:
+            # Fetch the moderation state for this queue item
+            mod_state = session.execute(
+                select(ModerationState).where(ModerationState.id == item.moderation_state_id)
+            ).scalar_one()
+
+            queue_item_pb = moderation_pb2.ModerationQueueItemInfo(
+                queue_item_id=item.id,
+                moderation_state_id=item.moderation_state_id,
+                time_created=Timestamp_from_datetime(item.time_created),
+                trigger=moderationtrigger2api[item.trigger],
+                reason=item.reason,
+                is_resolved=item.resolved_by_log_id is not None,
+                resolved_by_log_id=item.resolved_by_log_id or 0,
+                moderation_state=moderation_state_to_pb(mod_state, session),
+            )
+
+            queue_items_pb.append(queue_item_pb)
+
+        return moderation_pb2.GetModerationQueueRes(
+            queue_items=queue_items_pb,
+            # Use the ID of the last returned item (not the extra fetched item) as the cursor
+            next_page_token=str(queue_items[page_size - 1].id) if len(queue_items) > page_size else None,
+        )
+
+    def GetModerationState(self, request, context, session):
+        """Get moderation state by object type and object ID"""
+        object_type = moderationobjecttype2sql[request.object_type]
+        if object_type is None:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Object type must be specified.")
+
+        moderation_state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == object_type)
+            .where(ModerationState.object_id == request.object_id)
+        ).scalar_one_or_none()
+        if moderation_state is None:
+            context.abort(grpc.StatusCode.NOT_FOUND, "Moderation state not found.")
+
+        return moderation_pb2.GetModerationStateRes(
+            moderation_state=moderation_state_to_pb(moderation_state, session),
+        )
+
+    def GetModerationLog(self, request, context, session):
+        """Get moderation log for a specific moderation state"""
+        # Get the moderation state
+        moderation_state = session.execute(
+            select(ModerationState).where(ModerationState.id == request.moderation_state_id)
+        ).scalar_one_or_none()
+        if moderation_state is None:
+            context.abort(grpc.StatusCode.NOT_FOUND, "Moderation state not found.")
+
+        # Get all log entries for this state, ordered by time (most recent first)
+        log_entries = (
+            session.execute(
+                select(ModerationLog)
+                .where(ModerationLog.moderation_state_id == request.moderation_state_id)
+                .order_by(ModerationLog.time.desc(), ModerationLog.id.desc())
+            )
+            .scalars()
+            .all()
+        )
+
+        # Convert moderation state to proto first (while still in session)
+        moderation_state_pb = moderation_state_to_pb(moderation_state, session)
+
+        # Convert to proto
+        log_entries_pb = []
+        for entry in log_entries:
+            log_entry_pb = moderation_pb2.ModerationLogEntryInfo(
+                log_entry_id=entry.id,
+                moderation_state_id=entry.moderation_state_id,
+                time=Timestamp_from_datetime(entry.time),
+                action=moderationaction2api[entry.action],
+                moderator_user_id=entry.moderator_user_id,
+                reason=entry.reason,
+            )
+
+            # Only include changed fields
+            if entry.new_visibility is not None:
+                log_entry_pb.new_visibility = moderationvisibility2api[entry.new_visibility]
+
+            log_entries_pb.append(log_entry_pb)
+
+        return moderation_pb2.GetModerationLogRes(
+            log_entries=log_entries_pb,
+            moderation_state=moderation_state_pb,
+        )
+
+    def ModerateContent(self, request, context, session):
+        """Unified moderation action - takes both action and visibility explicitly"""
+
+        moderation_state = session.execute(
+            select(ModerationState).where(ModerationState.id == request.moderation_state_id)
+        ).scalar_one_or_none()
+        if moderation_state is None:
+            context.abort(grpc.StatusCode.NOT_FOUND, "Moderation state not found.")
+
+        # Convert proto enums to internal enums
+        action = moderationaction2sql[request.action]
+        if action is None:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "action_must_be_specified")
+
+        new_visibility = moderationvisibility2sql[request.visibility]
+        if new_visibility is None:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "visibility_must_be_specified")
+
+        reason = request.reason or "Moderated by admin"
+
+        # Track old visibility for metrics
+        old_visibility = moderation_state.visibility
+
+        # Update visibility
+        moderation_state.visibility = new_visibility
+        moderation_state.updated = now()
+
+        # Log the action
+        log_entry = ModerationLog(
+            moderation_state_id=moderation_state.id,
+            action=action,
+            moderator_user_id=context.user_id,
+            new_visibility=new_visibility,
+            reason=reason,
+        )
+        session.add(log_entry)
+        session.flush()
+
+        # Resolve any pending queue items
+        queue_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == moderation_state.id)
+            .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+            .order_by(ModerationQueueItem.time_created.desc())
+        ).scalar_one_or_none()
+
+        if queue_item:
+            queue_item.resolved_by_log_id = log_entry.id
+            session.flush()
+            observe_moderation_queue_item_resolved(queue_item.trigger, action, moderation_state.object_type)
+            observe_moderation_queue_resolution_time(
+                queue_item.trigger,
+                action,
+                moderation_state.object_type,
+                (now() - queue_item.time_created).total_seconds(),
+            )
+
+        observe_moderation_action(action, moderation_state.object_type)
+        observe_moderation_visibility_transition(old_visibility, new_visibility, moderation_state.object_type)
+
+        # If visibility becomes VISIBLE or UNLISTED, trigger pending notifications
+        if new_visibility in (ModerationVisibility.VISIBLE, ModerationVisibility.UNLISTED):
+            pending_notifications = (
+                session.execute(
+                    select(Notification)
+                    .where(Notification.moderation_state_id == moderation_state.id)
+                    .where(not_(exists().where(NotificationDelivery.notification_id == Notification.id)))
+                )
+                .scalars()
+                .all()
+            )
+
+            for notification in pending_notifications:
+                queue_job(
+                    session,
+                    job_type="handle_notification",
+                    payload=jobs_pb2.HandleNotificationPayload(notification_id=notification.id),
+                )
+
+        return moderation_pb2.ModerateContentRes(
+            moderation_state=moderation_state_to_pb(moderation_state, session),
+        )
+
+    def FlagContentForReview(self, request, context, session):
+        """Flag content for review by adding it to the moderation queue"""
+
+        moderation_state = session.execute(
+            select(ModerationState).where(ModerationState.id == request.moderation_state_id)
+        ).scalar_one_or_none()
+        if not moderation_state:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "moderation_state_not_found")
+
+        trigger = moderationtrigger2sql[request.trigger] or ModerationTrigger.INITIAL_REVIEW
+        reason = request.reason or "Flagged by admin for review"
+
+        # Add to moderation queue
+        queue_item = ModerationQueueItem(
+            moderation_state_id=request.moderation_state_id,
+            trigger=trigger,
+            reason=reason,
+        )
+        session.add(queue_item)
+        session.flush()
+
+        observe_moderation_action(ModerationAction.FLAG, moderation_state.object_type)
+        observe_moderation_queue_item_created(trigger, moderation_state.object_type)
+
+        queue_item_pb = moderation_pb2.ModerationQueueItemInfo(
+            queue_item_id=queue_item.id,
+            moderation_state_id=queue_item.moderation_state_id,
+            time_created=Timestamp_from_datetime(queue_item.time_created),
+            trigger=moderationtrigger2api[queue_item.trigger],
+            reason=queue_item.reason,
+            is_resolved=False,
+            resolved_by_log_id=0,
+            moderation_state=moderation_state_to_pb(moderation_state, session),
+        )
+
+        return moderation_pb2.FlagContentForReviewRes(queue_item=queue_item_pb)
+
+    def UnflagContent(self, request, context, session):
+        """Unflag content by resolving pending queue items"""
+
+        moderation_state = session.execute(
+            select(ModerationState).where(ModerationState.id == request.moderation_state_id)
+        ).scalar_one_or_none()
+        if not moderation_state:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "moderation_state_not_found")
+
+        reason = request.reason or "Unflagged by admin"
+
+        # Update moderation state (inline moderate_content logic)
+        moderation_state.updated = now()
+
+        # Log the unflag action
+        log_entry = ModerationLog(
+            moderation_state_id=moderation_state.id,
+            action=ModerationAction.UNFLAG,
+            moderator_user_id=context.user_id,
+            new_visibility=None,
+            reason=reason,
+        )
+        session.add(log_entry)
+        session.flush()
+
+        # Resolve any pending queue items (inline resolve_queue_item logic)
+        queue_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == moderation_state.id)
+            .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+            .order_by(ModerationQueueItem.time_created.desc())
+        ).scalar_one_or_none()
+
+        if queue_item:
+            queue_item.resolved_by_log_id = log_entry.id
+            session.flush()
+            observe_moderation_queue_item_resolved(
+                queue_item.trigger, ModerationAction.UNFLAG, moderation_state.object_type
+            )
+            observe_moderation_queue_resolution_time(
+                queue_item.trigger,
+                ModerationAction.UNFLAG,
+                moderation_state.object_type,
+                (now() - queue_item.time_created).total_seconds(),
+            )
+
+        observe_moderation_action(ModerationAction.UNFLAG, moderation_state.object_type)
+
+        return moderation_pb2.UnflagContentRes(
+            moderation_state=moderation_state_to_pb(moderation_state, session),
+        )

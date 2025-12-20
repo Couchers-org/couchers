@@ -105,6 +105,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                         get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
                     )
                 )
+                .where_moderation_state_column_visible(context, Notification.moderation_state_id)
                 .order_by(Notification.id.desc())
                 .limit(page_size + 1)
             )

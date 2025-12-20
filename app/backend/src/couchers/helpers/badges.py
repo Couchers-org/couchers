@@ -18,6 +18,7 @@ def user_add_badge(session: Session, user_id: int, badge_id: str, do_notify: boo
             session,
             user_id=user_id,
             topic_action="badge:add",
+            key=badge_id,
             data=notification_data_pb2.BadgeAdd(
                 badge_id=badge["id"],
                 badge_name=context.get_localized_string("badges", f"{badge_id}_name"),
@@ -36,6 +37,7 @@ def user_remove_badge(session: Session, user_id: int, badge_id: str) -> None:
         session,
         user_id=user_id,
         topic_action="badge:remove",
+        key=badge_id,
         data=notification_data_pb2.BadgeRemove(
             badge_id=badge["id"],
             badge_name=context.get_localized_string("badges", f"{badge_id}_name"),

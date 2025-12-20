@@ -84,38 +84,32 @@ export function timeAgoI18n({
 
   if (diffMillis < minuteMillis)
     return t("relative_time.less_than_a_minute_ago");
-  if (diffMillis < twoMinuteMillis) return t("relative_time.one_minute_ago");
   if (diffMillis < hourMillis)
-    return t("relative_time.x_minutes_ago", {
-      date: (diffMillis / minuteMillis).toFixed(),
+    return t("relative_time.n_minutes_ago", {
+      count: Math.floor(diffMillis / minuteMillis),
     });
 
-  if (diffMillis < twoHourMillis) return t("relative_time.one_hour_ago");
   if (diffMillis < dayMillis)
-    return t("relative_time.x_hours_ago", {
-      date: (diffMillis / hourMillis).toFixed(),
+    return t("relative_time.n_hours_ago", {
+      count: Math.floor(diffMillis / hourMillis),
     });
 
-  if (diffMillis < twoDayMillis) return t("relative_time.one_day_ago");
   if (diffMillis < weekMillis)
-    return t("relative_time.x_days_ago", {
-      date: (diffMillis / dayMillis).toFixed(),
+    return t("relative_time.n_days_ago", {
+      count: Math.floor(diffMillis / dayMillis),
     });
 
-  if (diffMillis < twoWeekMillis) return t("relative_time.one_week_ago");
   if (diffMillis < monthMillis)
-    return t("relative_time.x_weeks_ago", {
-      date: (diffMillis / weekMillis).toFixed(),
+    return t("relative_time.n_weeks_ago", {
+      count: Math.floor(diffMillis / weekMillis),
     });
 
-  if (diffMillis < twoMonthMillis) return t("relative_time.one_month_ago");
   if (diffMillis < yearMillis)
-    return t("relative_time.x_months_ago", {
-      date: (diffMillis / monthMillis).toFixed(),
+    return t("relative_time.n_months_ago", {
+      count: Math.floor(diffMillis / monthMillis),
     });
 
-  if (diffMillis < twoYearMillis) return t("relative_time.one_year_ago");
-  return t("relative_time.x_years_ago", {
-    date: (diffMillis / yearMillis).toFixed(),
+  return t("relative_time.n_years_ago", {
+    count: Math.floor(diffMillis / yearMillis),
   });
 }

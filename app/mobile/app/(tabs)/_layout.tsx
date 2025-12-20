@@ -1,4 +1,5 @@
 import { Tabs } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 import { TabBarIcon } from "@/components/TabBarIcon";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -6,6 +7,7 @@ import { theme } from "@/theme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { t } = useTranslation();
 
   const activeTintColor =
     colorScheme === "dark"
@@ -23,7 +25,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: "Home",
+          title: t("tabs.home"),
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "home" : "home-outline"}
@@ -35,7 +37,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="messages"
         options={{
-          title: "Messages",
+          title: t("tabs.messages"),
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "chatbubble" : "chatbubble-outline"}
@@ -47,7 +49,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="communities"
         options={{
-          title: "Communities",
+          title: t("tabs.communities"),
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "people" : "people-outline"}
@@ -59,7 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          title: "Search",
+          title: t("tabs.search"),
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "search" : "search-outline"}

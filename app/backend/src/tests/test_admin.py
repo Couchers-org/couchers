@@ -12,6 +12,7 @@ from couchers.models import (
     EventOccurrence,
     ModerationUserList,
     Reference,
+    User,
     UserSession,
 )
 from couchers.proto import admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
@@ -32,6 +33,7 @@ from tests.test_fixtures import (  # noqa
     real_admin_session,
     references_session,
     reporting_session,
+    requests_session,
     testconfig,
 )
 
@@ -387,7 +389,14 @@ def test_GetChats(db):
 
     with real_admin_session(super_token) as api:
         res = api.GetChats(admin_pb2.GetChatsReq(user=normal_user.username))
-    assert res.response
+    # Check the structured response fields - user field contains full UserDetails
+    assert res.user.user_id == normal_user.id
+    assert res.user.username == normal_user.username
+    assert res.user.name == normal_user.name
+    assert res.user.email == normal_user.email
+    # New user should have no chats
+    assert len(res.host_requests) == 0
+    assert len(res.group_chats) == 0
 
 
 def test_badges(db, push_collector):
@@ -727,6 +736,45 @@ def test_admin_delete_account_url(db, push_collector):
 
     mock.assert_called_once()
     e = email_fields(mock)
+
+
+def test_SetLastDonated(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user(last_donated=None)
+
+    with real_admin_session(super_token) as api:
+        # user starts with no last_donated
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == normal_user.id)).scalar_one()
+            assert user.last_donated is None
+
+        # can set last_donated
+        donation_time = now() - timedelta(days=30)
+        res = api.SetLastDonated(
+            admin_pb2.SetLastDonatedReq(
+                user=normal_user.username,
+                last_donated=Timestamp_from_datetime(donation_time),
+            )
+        )
+
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == normal_user.id)).scalar_one()
+            assert user.last_donated is not None
+            # check timestamp is close (within a second)
+            assert abs((user.last_donated - donation_time).total_seconds()) < 1
+
+        # can clear last_donated by not setting the field
+        res = api.SetLastDonated(admin_pb2.SetLastDonatedReq(user=normal_user.username))
+
+        with session_scope() as session:
+            user = session.execute(select(User).where(User.id == normal_user.id)).scalar_one()
+            assert user.last_donated is None
+
+        # user not found
+        with pytest.raises(grpc.RpcError) as e:
+            api.SetLastDonated(admin_pb2.SetLastDonatedReq(user="nonexistent"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Couldn't find that user."
 
 
 # community invite feature tested in test_events.py

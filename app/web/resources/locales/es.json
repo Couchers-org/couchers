@@ -32,7 +32,7 @@
     "update": "Actualizar",
     "couchers": "Couchers.org",
     "create_account": "Crear cuenta",
-    "join_us": "Únete a nosotros",
+    "join_us": "Unirse",
     "back": "Volver",
     "learn_more": "Saber más",
     "created": "Creado",
@@ -40,8 +40,9 @@
     "sign_up": "Regístrate",
     "legal_name": "Couchers, Inc.",
     "donation_banner": {
-        "message": "Couchers.org funciona gracias a la amabilidad, al igual que el couchsurfing. Esta temporada navideña ayúdanos a que siga siendo así. Estamos recaudando 5000$ para cubrir los costes de funcionamiento de Couchers.org.",
-        "button": "Dona ahora"
+        "message": "Couchers.org funciona gracias a la amabilidad, al igual que el couch surfing. Esta temporada navideña ayúdanos a que siga siendo así. Estamos intentando recaudar {{goal}} para cubrir los costes de funcionamiento de Couchers.org.",
+        "button": "Dona ahora",
+        "progress_label": "Progreso de las donaciones"
     },
     "thanks": "¡Gracias!",
     "error_loading_invite_codes": "No se pudieron obtener los detalles del código de invitación",
@@ -52,9 +53,9 @@
     "cancel": "Cancelar",
     "cookie_message": "Utilizamos cookies para asegurarnos de brindarte la mejor experiencia en nuestro sitio web. Si continúas usando este sitio asumiremos que estás de acuerdo con ello. Puedes leer más sobre nuestros <1>Términos del Servicio</1>.",
     "meetup_status": {
-        "does_not_want_to_meetup": "No puedo reunirme",
-        "open_to_meetup": "Abierto a reunirme",
-        "wants_to_meetup": "Quiero reunirme",
+        "does_not_want_to_meetup": "No puedo quedar",
+        "open_to_meetup": "Abierto a quedar",
+        "wants_to_meetup": "Quiero quedar",
         "unspecified_info": "No lo especificó"
     },
     "terms_of_service": "Términos del servicio",
@@ -151,7 +152,7 @@
         "about": "Acerca de",
         "community": "Comunidad",
         "communities": "Comunidades",
-        "dashboard": "Tablón",
+        "dashboard": "Panel principal",
         "donate": "Donar",
         "events": "Eventos",
         "messages": "Mensajes",
@@ -186,7 +187,25 @@
         "less_than_a_minute_ago": "Hace menos de 1 minuto",
         "one_year_ago": "Hace 1 año",
         "x_years_ago": "Hace {{date}} años",
-        "x_months_ago": "Hace {{date}} meses"
+        "x_months_ago": "Hace {{date}} meses",
+        "n_hours_ago_one": "Hace {{count}} hora",
+        "n_hours_ago_many": "Hace {{count}} horas",
+        "n_hours_ago_other": "Hace {{count}} horas",
+        "n_weeks_ago_one": "Hace {{count}} semana",
+        "n_weeks_ago_many": "Hace {{count}} semanas",
+        "n_weeks_ago_other": "Hace {{count}} semanas",
+        "n_months_ago_one": "Hace {{count}} mes",
+        "n_months_ago_many": "Hace {{count}} meses",
+        "n_months_ago_other": "Hace {{count}} meses",
+        "n_years_ago_one": "Hace {{count}} año",
+        "n_years_ago_many": "Hace {{count}} años",
+        "n_years_ago_other": "Hace {{count}} años",
+        "n_minutes_ago_one": "Hace {{count}} minuto",
+        "n_minutes_ago_many": "Hace {{count}} minutos",
+        "n_minutes_ago_other": "Hace {{count}} minutos",
+        "n_days_ago_one": "Hace {{count}} día",
+        "n_days_ago_many": "Hace {{count}} días",
+        "n_days_ago_other": "Hace {{count}} días"
     },
     "what_is_cs": {
         "description_1": "Couch surfing es un concepto en el que algunos miembros (llamados anfitriones) publican en la plataforma indicando que están dispuestos a alojar a otros miembros (llamados viajeros) que visitan su ciudad.",
@@ -238,7 +257,7 @@
             "everyone": "<bold>Para todo el mundo</bold>: comunidad, cultura, y conexión; no transacciones"
         },
         "tip_text": "¿Nuevo por aquí? Asiste a un evento local y conoce la comunidad: bajo compromiso, alta conexión.",
-        "compare_title": "¿Cómo se compara Couchers.org?",
+        "compare_title": "¿En qué se diferencia Couchers.org de otros?",
         "bottom_cta_subtitle": "Únete a Couchers.org y sé parte de una comunidad global basada en la hospitalidad y la conexión.",
         "join_couchers": "Únete a Couchers.org",
         "is_it_safe": {
@@ -309,7 +328,7 @@
         "lead_backend_developer": "Desarrollador Backend Principal",
         "full_stack_backend_developer": "Desarrollador Full Stack",
         "description": "Somos couch surfers apasionados y profesionales capacitados comprometidos con la creación de una plataforma mejorada, más segura e inclusiva. Estamos construyendo esta plataforma para apoyar y hacer crecer de manera sostenible la comunidad de couch surfing, compartiendo sus valores con el mundo. Si compartes el sentimiento y quieres contribuir, nos encataría saber de ti.",
-        "tap_press_to_flip": " Toca / pulsa para girar",
+        "tap_press_to_flip": "Toca / pulsa para girar",
         "title": "El Equipo",
         "join_the_team": "Únete al equipo",
         "join_our_team": "Únete a nuestro equipo"
@@ -352,7 +371,7 @@
             "map_is_blank": "Faltan las coordenadas, comienza buscando una ubicación con el mapa de arriba",
             "radius_text": "{{radius}} metros",
             "no_location_results_text": "Sin resultados. Intenta buscar solo la ciudad.",
-            "display_location_not_empty": "Por favor informa una dirección para mostrar",
+            "display_location_not_empty": "Por favor introduce una dirección para mostrar",
             "no_map_support": "Tu dispositivo no soporta el mapa. Por favor asegúrate de que WebGL2 está habilitado o prueba otro dispositivo/navegador. ¡Sentimos las molestias!",
             "press_enter_to_search": "Pulsa enter para buscar"
         },

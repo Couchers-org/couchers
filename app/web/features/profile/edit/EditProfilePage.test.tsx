@@ -44,6 +44,12 @@ describe("Edit profile", () => {
     getLanguagesMock.mockImplementation(getLanguages);
   });
 
+  afterEach(() => {
+    updateProfileMock.mockClear();
+    getUserMock.mockClear();
+    uploadFileMock.mockClear();
+  });
+
   it("Should update and show success toast when aboutMe and avatar filled out on first go", async () => {
     // prevent the unsavedChanged pop up by mocking window.confirm
     jest.spyOn(window, "confirm").mockImplementation(() => true);
@@ -61,7 +67,7 @@ describe("Edit profile", () => {
 
     getUserMock.mockImplementation(getUser);
 
-    renderPage();
+    await renderPage();
 
     const user = userEvent.setup();
 
@@ -84,24 +90,18 @@ describe("Edit profile", () => {
     });
     await user.click(saveButton);
 
-    // Check if incomplete profile dialog appears and handle it
-    try {
-      const incompleteDialog = await screen.findByTestId(
-        "incomplete-profile-dialog",
-        {},
-      );
-      if (incompleteDialog) {
-        const saveAnywayButton = await screen.findByRole("button", {
-          name: t("profile:incomplete_dialog.save_anyway"),
-        });
-        await user.click(saveAnywayButton);
-      }
-    } catch {
-      // Dialog didn't appear, which is fine
+    const incompleteDialog = screen.queryByTestId("incomplete-profile-dialog");
+    if (incompleteDialog) {
+      const saveAnywayButton = await screen.findByRole("button", {
+        name: t("profile:incomplete_dialog.save_anyway"),
+      });
+      await user.click(saveAnywayButton);
     }
 
-    expect(updateProfileMock).toHaveBeenCalledWith(
-      expect.objectContaining({ aboutMe: aboutMeText }),
+    await waitFor(() =>
+      expect(updateProfileMock).toHaveBeenCalledWith(
+        expect.objectContaining({ aboutMe: aboutMeText }),
+      ),
     );
 
     await waitFor(() =>
@@ -122,7 +122,7 @@ describe("Edit profile", () => {
       aboutMe: "",
       thingsILike: "",
     }));
-    renderPage();
+    await renderPage();
 
     const user = userEvent.setup();
 
@@ -211,7 +211,7 @@ describe("Edit profile", () => {
       thingsILike: "",
     }));
 
-    renderPage();
+    await renderPage();
 
     const user = userEvent.setup();
 
@@ -255,7 +255,7 @@ describe("Edit profile", () => {
 
     getUserMock.mockImplementation(getUser);
 
-    renderPage();
+    await renderPage();
 
     // Wait for the form to be loaded
     await screen.findByText(t("profile:heading.about_me"));

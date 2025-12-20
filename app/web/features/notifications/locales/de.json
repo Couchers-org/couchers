@@ -14,7 +14,7 @@
                 "chat": "Nachrichten",
                 "event": "Events",
                 "friend_request": "Freundschaftsanfragen",
-                "host_request": "Gastgeberanfragen",
+                "host_request": "Host-Anfragen",
                 "reference": "Referenzen",
                 "discussion": "Beiträge",
                 "reply": "Antworten",
@@ -24,21 +24,21 @@
                 "host_request": {
                     "create": "Jemand sendet dir eine Host-Anfrage",
                     "accept": "Jemand akzeptiert deine Host-anfrage",
-                    "confirm": "Jemand bestätigt seine Gastgeberanfrage",
+                    "confirm": "Jemand bestätigt seine Host-Anfrage",
                     "reject": "Jemand lehnt deine Host-anfrage ab",
-                    "cancel": "Jemand storniert seine Gastgeberanfrage",
-                    "message": "Jemand sendet eine Nachricht in einer Gastgeberanfrage",
-                    "missed_messages": "Du hast Nachrichten in einer Host-anfrage verpasst",
-                    "reminder": "Du hast auf eine ausstehende Host-Anfrage nicht geantwortet"
+                    "cancel": "Jemand storniert seine Host-Anfrage",
+                    "message": "Jemand sendet eine Nachricht in einer Host-Anfrage",
+                    "missed_messages": "Du verpasst Nachrichten in einer Host-Anfrage",
+                    "reminder": "Du antwortest nicht auf eine ausstehende Host-Anfrage"
                 },
                 "chat": {
                     "message": "Jemand sendet dir eine Nachricht",
-                    "missed_messages": "Du hast Nachrichten in einem Chat verpasst"
+                    "missed_messages": "Du verpasst Nachrichten in einem Chat"
                 },
                 "reference": {
                     "receive_hosted": "Du erhältst eine Referenz von jemandem, der dich gehostet hat",
                     "receive_surfed": "Du erhältst eine Referenz von jemandem, den du gehostet hast",
-                    "receive_friend": "Du hast eine Referenz von einem Freund erhalten",
+                    "receive_friend": "Du erhältst eine Referenz von einem Freund",
                     "reminder_hosted": "Erinnerung, eine Referenz für jemanden zu schreiben, der dich gehostet hat",
                     "reminder_surfed": "Erinnerung, eine Referenz für jemanden zu schreiben, mit dem du gesurft hast"
                 },
@@ -57,7 +57,7 @@
                     "reminder": "Erinnerung: Ein Event, zu dem du gehst, findet bald statt"
                 },
                 "onboarding": {
-                    "reminder": "Erinnerung, Ihr Profil nach der Anmeldung zu vervollständigen"
+                    "reminder": "Erinnerung, dein Profil nach der Anmeldung zu vervollständigen"
                 },
                 "badge": {
                     "add": "Ein Abzeichen wird deinem Konto hinzugefügt",
@@ -67,7 +67,7 @@
                     "received": "Deine Spende wurde erhalten"
                 },
                 "password": {
-                    "change": "Ihr Passwort wurde geändert"
+                    "change": "Dein Passwort wurde geändert"
                 },
                 "password_reset": {
                     "start": "Passwortzurücksetzung wurde eingeleitet",
@@ -79,18 +79,18 @@
                 },
                 "account_deletion": {
                     "start": "Du hast die Kontolöschung eingeleitet",
-                    "complete": "Ihr Konto wurde gelöscht",
-                    "recovered": "Ihr Konto wurde wiederhergestellt (nicht gelöscht)"
+                    "complete": "Dein Konto wurde gelöscht",
+                    "recovered": "Dein Konto wurde wiederhergestellt (un-gelöscht)"
                 },
                 "api_key": {
-                    "create": "Ein API-Schlüssel wurde für Ihr Konto erstellt"
+                    "create": "Ein API-Schlüssel wurde für dein Konto erstellt"
                 },
                 "phone_number": {
                     "change": "Deine Telefonnummer wurde geändert",
                     "verify": "Deine Telefonnummer wurde verifiziert"
                 },
                 "birthdate": {
-                    "change": "Ihr Geburtsdatum wurde geändert"
+                    "change": "Dein Geburtsdatum wurde geändert"
                 },
                 "gender": {
                     "change": "Das auf deinem Profil angezeigte Geschlecht wurde geändert"

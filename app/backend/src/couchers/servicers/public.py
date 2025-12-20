@@ -107,7 +107,7 @@ def _get_donation_stats(session):
     )
 
 
-@cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None)
+@cached(cache=TTLCache(maxsize=1, ttl=5), key=lambda _: None)
 def _get_volunteers(session):
     volunteers = session.execute(
         select(Volunteer, LiteUser)

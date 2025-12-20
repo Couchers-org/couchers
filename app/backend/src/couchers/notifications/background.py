@@ -4,10 +4,11 @@ from pathlib import Path
 from google.protobuf import empty_pb2
 from jinja2 import Environment, FileSystemLoader
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func
+from sqlalchemy.sql import exists, func
 
 from couchers import urls
 from couchers.config import config
+from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.email import queue_email
 from couchers.models import (
@@ -26,7 +27,14 @@ from couchers.notifications.render import render_notification
 from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import couchers_select as select
-from couchers.templates.v2 import add_filters
+from couchers.templates.v2 import (
+    CONTEXT_PLAINTEXT_KEY,
+    CONTEXT_TIMEZONE_DISPLAY_KEY,
+    CONTEXT_TRANSLATION_COMPONENT_KEY,
+    CONTEXT_TRANSLATION_LANGUAGE_KEY,
+    CONTEXT_YEAR_KEY,
+    add_filters,
+)
 from couchers.utils import get_tz_as_text, now
 
 logger = logging.getLogger(__name__)
@@ -44,40 +52,27 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     template_args = {
         "user": user,
         "time": notification.created,
-        "_year": now().year,
-        "_timezone_display": get_tz_as_text(user.timezone or "Etc/UTC"),
+        "footer_email_is_critical": rendered.is_critical,
+        "footer_manage_notifications_link": urls.notification_settings_link(),
+        "footer_notification_topic_action": rendered.email_topic_action_unsubscribe_text,
+        "footer_notification_topic_action_link": generate_unsub_topic_action(notification),
+        "footer_notification_topic_key": rendered.email_topic_key_unsubscribe_text,
+        "footer_notification_topic_key_link": generate_unsub_topic_key(notification),
+        "footer_do_not_email_link": generate_do_not_email(user),
+        CONTEXT_TRANSLATION_LANGUAGE_KEY: user.ui_language_preference or "en",
+        CONTEXT_TRANSLATION_COMPONENT_KEY: "notifications",
+        CONTEXT_YEAR_KEY: now().year,
+        CONTEXT_TIMEZONE_DISPLAY_KEY: get_tz_as_text(user.timezone or "Etc/UTC"),
         **rendered.email_template_args,
     }
 
-    plain_unsub_section = "\n\n---\n\n"
-    if rendered.is_critical:
-        plain_unsub_section += "This is a security email, you cannot unsubscribe from it."
-        html_unsub_section = "This is a security email, you cannot unsubscribe from it."
-    else:
-        manage_link = urls.notification_settings_link()
-        plain_unsub_section += f"Edit your notification settings at <{manage_link}>"
-        html_unsub_section = f'<a href="{manage_link}">Manage notification preferences</a>.'
-        unsub_options = []
-        ta = rendered.email_topic_action_unsubscribe_text
-        tk = rendered.email_topic_key_unsubscribe_text
-        ta_link = generate_unsub_topic_action(notification)
-        tk_link = generate_unsub_topic_key(notification)
-        if ta:
-            plain_unsub_section += f"\n\nTurn off emails for {ta}: <{ta_link}>"
-            unsub_options.append(f'<a href="{ta_link}">{ta}</a>')
-        if tk:
-            plain_unsub_section += f"\n\nTurn off emails for {tk}: <{tk_link}>"
-            unsub_options.append(f'<a href="{tk_link}">{tk}</a>')
-        if unsub_options:
-            html_unsub_section += f"<br />Turn off emails for: {' / '.join(unsub_options)}."
-        dne_link = generate_do_not_email(user)
-        plain_unsub_section += f"\n\nDo not email me (disables hosting): <{dne_link}>"
-        html_unsub_section += f'<br /><a href="{dne_link}">Do not email me (disables hosting)</a>.'
-
     plain_tmplt = (template_folder / f"{rendered.email_template_name}.txt").read_text()
-    plain = env.from_string(plain_tmplt + plain_unsub_section).render(template_args)
+    plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
+    plain_template_args = {**template_args, CONTEXT_PLAINTEXT_KEY: True}  # Strip html from translations.
+    plain = env.from_string(plain_tmplt + plain_tmplt_footer).render(plain_template_args)
+
     html_tmplt = (template_folder / "generated_html" / f"{rendered.email_template_name}.html").read_text()
-    html = env.from_string(html_tmplt.replace("___UNSUB_SECTION___", html_unsub_section)).render(template_args)
+    html = env.from_string(html_tmplt).render(template_args)
 
     if user.do_not_email and not rendered.is_critical:
         logger.info(f"Not emailing {user} based on template {rendered.email_template_name} due to emails turned off")
@@ -136,12 +131,43 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
             select(Notification).where(Notification.id == payload.notification_id)
         ).scalar_one()
 
+        # Check moderation visibility if this notification is linked to moderated content
+        if notification.moderation_state_id:
+            context = make_background_user_context(notification.user_id)
+            content_visible = session.execute(
+                select(
+                    exists(
+                        select(Notification)
+                        .where(Notification.id == notification.id)
+                        .where_moderation_state_column_visible(context, Notification.moderation_state_id)
+                    )
+                )
+            ).scalar_one()
+
+            if not content_visible:
+                # Content not visible to recipient, leave notification for later processing
+                logger.info(
+                    f"Deferring notification {notification.id}: content not visible to user {notification.user_id}"
+                )
+                return
+
         # ignore this notification if the user hasn't enabled new notifications
         user = session.execute(select(User).where(User.id == notification.user_id)).scalar_one()
 
         topic, action = notification.topic_action.unpack()
         delivery_types = get_preference(session, notification.user.id, notification.topic_action)
         for delivery_type in delivery_types:
+            # Check if delivery already exists for this notification and delivery type
+            # (this can happen if the job was queued multiple times)
+            existing_delivery = session.execute(
+                select(NotificationDelivery)
+                .where(NotificationDelivery.notification_id == notification.id)
+                .where(NotificationDelivery.delivery_type == delivery_type)
+            ).scalar_one_or_none()
+            if existing_delivery:
+                logger.info(f"Skipping {delivery_type} delivery for notification {notification.id}: already delivered")
+                continue
+
             logger.info(f"Should notify by {delivery_type}")
             if delivery_type == NotificationDeliveryType.email:
                 # for emails we don't deliver straight up, wait until the email background worker gets around to it and handles deduplication
@@ -227,12 +253,15 @@ def handle_email_digests(payload: empty_pb2.Empty) -> None:
 
         for user in users_to_send_digests_to:
             # digest notifications that haven't been delivered yet
+            # Exclude notifications linked to non-visible moderated content
+            context = make_background_user_context(user.id)
             notifications_and_deliveries = session.execute(
                 select(Notification, NotificationDelivery)
                 .join(NotificationDelivery, NotificationDelivery.notification_id == Notification.id)
                 .where(NotificationDelivery.delivery_type == NotificationDeliveryType.digest)
                 .where(NotificationDelivery.delivered == None)
                 .where(Notification.user_id == user.id)
+                .where_moderation_state_column_visible(context, Notification.moderation_state_id)
                 .order_by(Notification.created)
             ).all()
 

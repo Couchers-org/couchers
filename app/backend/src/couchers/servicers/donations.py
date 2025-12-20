@@ -156,6 +156,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                     session,
                     user_id=user.id,
                     topic_action="donation:received",
+                    key="",
                     data=notification_data_pb2.DonationReceived(
                         amount=amount,
                         receipt_url=receipt_url,

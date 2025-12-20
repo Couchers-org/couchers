@@ -1,16 +1,16 @@
 {
   "actions": {
-    "decline_friend_label": "Réfuser",
+    "decline_friend_label": "Refuser",
     "back_to_dashboard": "Retourner au tableau de bord",
     "message_label": "Envoyer un message",
     "accept_friend_label": "Accepter",
-    "request": "Demander"
+    "request": "Envoyer une demande"
   },
   "heading": {
     "home": "Mon logement",
     "hometown": "Grandi.e à/en",
     "hosting_status": "Statut d'acceuil",
-    "about_me": "Au sujet de moi",
+    "about_me": "À propos de moi",
     "age_gender": "Âge / Genre",
     "community_standing": "Réputation communautaire",
     "edit": "Modifier",
@@ -32,7 +32,7 @@
     "who_section": "Qui suis-je ?",
     "hobbies_section": "Ce que je fais pendant mon temps libre",
     "additional_information_section": "Informations supplémentaires",
-    "travel_section": "Voyagé.e à/en",
+    "travel_section": "A voyagé à/en",
     "lived_section": "Habité.e à/en"
   },
   "leave_reference": {
@@ -87,7 +87,18 @@
     "thank_you_donation_prompt": "Envisagez de <2>faire un don</2> ! Couchers.org est une organisation à but non lucratif 501(c)(3) et nous avons besoin de dons pour maintenir nos serveurs en fonctionnement.",
     "was_appropriate_required": "Pour nous aider à garder notre communauté sûre, cette question est obligatoire.",
     "did_stay_explanation": "Sélectionnez « Non » si vous ne vous êtes pas réellement rencontré(e)s. Vous ne pourrez pas écrire de référence publique, mais vous pouvez, si vous le souhaitez, partager des informations <strong>privées</strong> avec nous sur ce qui s'est passé. L'autre membre ne sera pas informée, mais pourra tout de même laisser une référence si il/elle affirme que vous vous êtes rencontré(e)s.",
-    "private_text_explanation_2": "Cette réponse ne sera vue que par notre équipe de sécurité et restera privée. Plus vous donnez de détails, mieux c’est, mais même une brève explication peut beaucoup aider. En savoir plus <2>ici</2>."
+    "private_text_explanation_2": "Cette réponse ne sera vue que par notre équipe de sécurité et restera privée. Plus vous donnez de détails, mieux c’est, mais même une brève explication peut beaucoup aider. En savoir plus <2>ici</2>.",
+    "cant_write_reference_expired": "Le délai pour écrire une référence s'est écoulé (après 14 jours).",
+    "cant_write_reference_didnt_stay": "Vous ne pouvez pas écrire de référence car vous avez indiqué que vous n'avez pas surfé chez ce membre.",
+    "rating_required": "Veuillez déplacer la barre de défilement et évaluer votre expérience.",
+    "rating_neutral": "Neutre",
+    "rating_positive": "Positif",
+    "rating_amazing": "Fantastique !",
+    "rating_negative": "Négatif",
+    "ratings_slider_label": "échelle d'évaluation",
+    "friend_reference_requires_friendship": "Vous ne pouvez écrire de référence d'ami.e qu'aux membres avec lesquels vous êtes ami.e.s.",
+    "already_wrote_reference_for_stay": "Vous avez déjà écrit une référence pour ce membre et ce séjour. Votre référence sera visible dès qu'il/elle vous auront écrit une référence, ou après 14 jours",
+    "already_wrote_friend_reference": "Vous avez déjà écrit une référence d'ami pour ce membre."
   },
   "incomplete_dialog": {
     "title": "Profil incomplet",
@@ -95,11 +106,11 @@
     "missing_photo_message": "Ajoutez une photo de profil.",
     "description": "Vous ne pourrez pas envoyer de demandes d'hébérgements, de messages ou créer des événements tant que vous n’aurez pas :",
     "save_anyway": "Enregistrer quand même ?",
-    "continue_editing": "Continuer modifier"
+    "continue_editing": "Continuer la modification"
   },
   "home_info_headings": {
     "host_smoking": "fume chez soi",
-    "house_rules": "Règles du hébergement",
+    "house_rules": "Règles d'hébergement",
     "housemates": "Colocataires",
     "housemate_details": "Détails des colocataires",
     "kid_details": "Détails des enfants",
@@ -121,7 +132,16 @@
     "space": "Intimité de la situation du sommeil",
     "transportation": "Transport, Parking et Accessibilité",
     "wheelchair": "Accessible en fauteuil roulant",
-    "other_info": "Informations supplémentaires"
+    "other_info": "Informations supplémentaires",
+    "household_details": "Détails de l'habitation",
+    "household_habits": "Habitudes domestiques",
+    "hosting_preferences_subtitle": "Informez vos invités de ce que vous êtes à l'aise",
+    "parking_heading": "Parking",
+    "about_home_subtitle": "Décrivez votre logement à vos invités et à quoi ils peuvent s'attendre",
+    "household_details_subtitle": "Partagez plus de détails à propos de votre logement",
+    "general_subtitle": "Détails supplémentaires à propos de votre logement et du quartier",
+    "home_facilities": "Équipements disponibles",
+    "household_members": "Membres de logement"
   },
   "edit_profile_headings": {
     "regions_lived": "Régions dans lesquelles j'ai habitées",
@@ -134,7 +154,17 @@
     "hometown": "Grandi.e à/en",
     "occupation": "Métier",
     "education": "Éducation",
-    "regions_visited": "Régions que j'ai visitées"
+    "regions_visited": "Régions que j'ai visitées",
+    "basic_information": "Information de base",
+    "basic_information_subtitle": "Commencez en fournissant votre photo, nom et localisation",
+    "preferences": "Préférences",
+    "preferences_subtitle": "Informez les autres de vos préférences d'hébergement et de rencontres",
+    "personal_information": "Informations personnelles",
+    "personal_information_subtitle": "Partagez des détails sur vous-même et votre parcours",
+    "travel_experience": "Expérience de voyage",
+    "travel_experience_subtitle": "Partagez vos expériences de voyage et connexions",
+    "location_subtitle": "Emplacement approximatif de votre logement",
+    "about_me_subtitle": "Présentez-vous et partagez un peu aux autres . C’est comment la confiance commence. Aidez les autres à comprendre qui vous êtes vraiment. Consultez les <1>conseils pour créer un profil excellent</1>."
   },
   "more_profile_actions_a11y_text": "Plus d’actions sur le profil",
   "info_unanswered": "Demandez-moi",
@@ -147,27 +177,27 @@
   "section_tabs_a11y_label": "onglets pour les informations de membre",
   "edit_home_questions": {
     "accept_drinking": "Permet la consommation d'alcool",
-    "accept_pets": "Permet des animaux de compagnie",
-    "accept_smoking": "Permet le tabagisme",
+    "accept_pets": "Permet les animaux de compagnie",
+    "accept_smoking": "Permet de fumer",
     "accept_kids": "Permet les enfants",
     "accept_camping": "Camping sous tente disponible"
   },
   "sleeping_arrangement": {
-    "private": "Espace privé (par ex. propre chambre ou similaire)",
+    "private": "par exemple propre chambre ou similaire",
     "private_short": "Espace privé",
     "common_short": "Espace en commun",
     "shared_room_short": "Espace partagé",
-    "common": "Espace en commun (par ex. canapé dans le salon)",
-    "shared_room": "Espace partagé (par ex. chambre à coucher partagée avec sa propre surface)"
+    "common": "par exemple canapé dans le salon",
+    "shared_room": "par exemple chambre à coucher partagée avec son propre espace"
   },
   "gender": {
     "man": "Homme",
     "woman": "Femme"
   },
   "helper_text": {
-    "characters_remaining_0": "Veuillez écrire {{count}} caractère supplémentaire pour compléter votre profil.",
-    "characters_remaining_1": "Veuillez écrire {{count}} caractères supplémentaires pour compléter votre profil.",
-    "characters_remaining_2": "Veuillez écrire {{count}} caractères supplémentaires pour compléter votre profil.",
+    "characters_remaining_0": "<bold>Veuillez écrire {{count}} caractère supplémentaire pour compléter votre profil.</bold> Les profils authentiques construisent une communauté de confiance. Plus vous partagez, plus il est facile de faire des contacts !",
+    "characters_remaining_1": "<bold>Veuillez écrire {{count}} de caractères supplémentaires pour compléter votre profil.</bold> Les profils authentiques construisent une communauté de confiance. Plus vous partagez, plus il est facile de faire des contacts !",
+    "characters_remaining_2": "<bold>Veuillez écrire {{count}} caractères supplémentaires pour compléter votre profil.</bold> Les profils authentiques construisent une communauté de confiance. Plus vous partagez, plus il est facile de faire des contacts !",
     "missing_profile_photo": "Veuillez ajouter une photo pour compléter votre profil."
   },
   "edit_profile_helper_text": "Cherchez vous de l'inspiration comment commencer ? <2>Consultez notre guide pour créer un profil exceptionnel</2>.",
@@ -179,7 +209,7 @@
     "paid_onsite": "Parking payant sur place"
   },
   "edit_profile_name_required": "Prénom requis",
-  "unspecified_info": "Demandez-moi",
+  "unspecified_info": "-",
   "cancel": "Annuler",
   "pronouns": {
     "man": "il / lui",
@@ -205,7 +235,8 @@
     "stay_type_a11y_text": "type de séjour",
     "success": "Votre demande d'hébergement a été envoyée !",
     "guest_count": "Nombre d'invités",
-    "arrival_date_empty": "Veuillez spécifier une date d'arrivée prévue"
+    "arrival_date_empty": "Veuillez spécifier une date d'arrivée prévue",
+    "request_char_length_too_short": "Veuillez entrer {{charactersRemaining}} caratères supplémentaires pour envoyer une demande d'hébergement."
   },
   "reference_badge_label": {
     "friend": "Ami(e)",
@@ -232,8 +263,8 @@
   },
   "accept_friend_label": "Accepter la demande d'ami",
   "decline_friend_label": "Refuser la demande d’ami",
-  "response_time_text_most": "Normalement de {{p33}} au {{p66}}",
-  "response_time_text_almost_all": "Normalement du {{p33}} au {{p66}}",
+  "response_time_text_most": "Normalement de {{p33}} à {{p66}}",
+  "response_time_text_almost_all": "Normalement de {{p33}} à {{p66}}",
   "no_references": "Aucune référence de ce type pour le moment !",
   "see_more_references": "Voir plus de références",
   "write_reference": "Rédiger une référence",
@@ -259,5 +290,27 @@
   },
   "view_in_admin_console": "Afficher ce membre dans le console d'administration",
   "response_time_text_some": "Peut-être en {{p33}}",
-  "incomplete_profile_haiku": "Un avatar vide,\nMystérieux derrière—\nQui êtes-vous, en fait ?"
+  "incomplete_profile_haiku": "Un avatar vide,\nMystérieux derrière—\nQui êtes-vous, en fait ?",
+  "active": "Actif",
+  "edit": "Modifier mon profil",
+  "what_options_mean": "Que signifient ces options",
+  "write_friend_reference": "Écrivez une référence d'ami",
+  "hosting_status": {
+    "can_host_description": "J'aimerais héberger des surfeurs.euses",
+    "maybe_host_description": "Je pourrais héberger, selon les circonstances",
+    "cannot_host_description": "Je ne peur pas héberger de voyageurs en ce moment"
+  },
+  "search_indicator": "Le début de cette section est visible dans les résultats de recherche lorsque d'autres membres vous cherchent",
+  "meetup_status": {
+    "wants_to_meetup_description": "J'aimerais rencontrer d'autres membres",
+    "open_to_meetup_description": "Je pourrais rencontrer d'autres membres, selon les circonstances",
+    "does_not_want_to_meetup_description": "Je préfère ne pas rencontrer d'autres membres"
+  },
+  "profile_changes_saved_message": "Changements au profil enregistrés !",
+  "hosting_preferences_success_message": "Préférences d'hébergement enregistrés !",
+  "couldnt_read_file": "Impossible de lire le fichier",
+  "select_an_image": "Sélectionner une image",
+  "names_profile_photo": "Photo de profil de {{name}}",
+  "have_pending_reference_text": "Vous avez une référence en attente à rédiger pour ce membre",
+  "avatar_photo_info": "<bold>Une photo de vous est requise pour interagir avec la communauté.</bold> Une photo claire et amicale montrant votre visage inspire confiance, aide les autres à se sentir à l’aise et augmente considérablement vos chances de recevoir une réponse."
 }

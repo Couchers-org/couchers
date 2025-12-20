@@ -22,11 +22,13 @@ from couchers.proto import (
     donations_pb2_grpc,
     editor_pb2_grpc,
     events_pb2_grpc,
+    galleries_pb2_grpc,
     gis_pb2_grpc,
     groups_pb2_grpc,
     iris_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
+    moderation_pb2_grpc,
     notifications_pb2_grpc,
     pages_pb2_grpc,
     postal_verification_pb2_grpc,
@@ -51,10 +53,12 @@ from couchers.servicers.discussions import Discussions
 from couchers.servicers.donations import Donations, Stripe
 from couchers.servicers.editor import Editor
 from couchers.servicers.events import Events
+from couchers.servicers.galleries import Galleries
 from couchers.servicers.gis import GIS
 from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
+from couchers.servicers.moderation import Moderation
 from couchers.servicers.notifications import Notifications
 from couchers.servicers.pages import Pages
 from couchers.servicers.postal_verification import PostalVerification
@@ -81,6 +85,7 @@ def create_main_server(port: int) -> grpc.Server:
     account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
     admin_pb2_grpc.add_AdminServicer_to_server(Admin(), server)
     api_pb2_grpc.add_APIServicer_to_server(API(), server)
+    moderation_pb2_grpc.add_ModerationServicer_to_server(Moderation(), server)
     auth_pb2_grpc.add_AuthServicer_to_server(Auth(), server)
     blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), server)
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), server)
@@ -90,6 +95,7 @@ def create_main_server(port: int) -> grpc.Server:
     donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), server)
     editor_pb2_grpc.add_EditorServicer_to_server(Editor(), server)
     events_pb2_grpc.add_EventsServicer_to_server(Events(), server)
+    galleries_pb2_grpc.add_GalleriesServicer_to_server(Galleries(), server)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), server)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), server)
     iris_pb2_grpc.add_IrisServicer_to_server(Iris(), server)

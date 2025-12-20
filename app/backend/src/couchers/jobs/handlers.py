@@ -56,7 +56,11 @@ from couchers.materialized_views import (
     refresh_materialized_views,
     refresh_materialized_views_rapid,
 )
-from couchers.metrics import push_notification_counter, strong_verification_completions_counter
+from couchers.metrics import (
+    moderation_auto_approved_counter,
+    push_notification_counter,
+    strong_verification_completions_counter,
+)
 from couchers.models import (
     AccountDeletionToken,
     ActivenessProbe,
@@ -71,13 +75,19 @@ from couchers.models import (
     HostingStatus,
     HostRequest,
     HostRequestStatus,
-    Invoice,
     LoginToken,
     MeetupStatus,
     Message,
     MessageType,
+    ModerationAction,
+    ModerationLog,
+    ModerationObjectType,
+    ModerationQueueItem,
+    ModerationState,
+    ModerationTrigger,
     PassportSex,
     PasswordResetToken,
+    PhotoGallery,
     PostalVerificationAttempt,
     PostalVerificationStatus,
     PushNotificationDeliveryAttempt,
@@ -94,7 +104,7 @@ from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
 from couchers.postal.postcard_service import send_postcard
-from couchers.proto import notification_data_pb2
+from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.api import user_model_to_pb
@@ -108,6 +118,7 @@ from couchers.servicers.events import (
     generate_event_delete_notifications,
     generate_event_update_notifications,
 )
+from couchers.servicers.moderation import Moderation
 from couchers.servicers.requests import host_request_to_pb
 from couchers.servicers.threads import generate_reply_notifications
 from couchers.sql import couchers_select as select
@@ -226,6 +237,8 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 select(User)
                 .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+                .where_moderated_content_visible_to_user_column(GroupChat, User.id)
                 .where(not_(GroupChatSubscription.is_muted))
                 .where(User.is_visible)
                 .where(Message.time >= GroupChatSubscription.joined)
@@ -250,6 +263,8 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                     func.count(Message.id).label("count_unseen"),
                 )
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+                .where_moderated_content_visible(context, GroupChat, is_list_operation=True)
                 .where(GroupChatSubscription.user_id == user.id)
                 .where(not_(GroupChatSubscription.is_muted))
                 .where(Message.id > user.last_notified_message_id)
@@ -267,6 +282,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 select(GroupChat, Message, subquery.c.count_unseen)
                 .join(subquery, subquery.c.message_id == Message.id)
                 .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
+                .where_moderated_content_visible(context, GroupChat, is_list_operation=True)
                 .order_by(subquery.c.message_id.desc())
             ).all()
 
@@ -285,6 +301,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 session,
                 user_id=user.id,
                 topic_action="chat:missed_messages",
+                key="",
                 data=notification_data_pb2.ChatMissedMessages(
                     messages=[
                         notification_data_pb2.ChatMessage(
@@ -359,6 +376,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 select(User, HostRequest, func.max(Message.id))
                 .where(User.id == user_id)
                 .join(HostRequest, HostRequest.surfer_user_id == User.id)
+                .where_moderated_content_visible_to_user_column(HostRequest, HostRequest.surfer_user_id)
                 .where_users_column_visible(context, HostRequest.host_user_id)
                 .join(Message, Message.conversation_id == HostRequest.conversation_id)
                 .where(Message.id > HostRequest.surfer_last_seen_message_id)
@@ -373,6 +391,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 select(User, HostRequest, func.max(Message.id))
                 .where(User.id == user_id)
                 .join(HostRequest, HostRequest.host_user_id == User.id)
+                .where_moderated_content_visible_to_user_column(HostRequest, HostRequest.host_user_id)
                 .where_users_column_visible(context, HostRequest.surfer_user_id)
                 .join(Message, Message.conversation_id == HostRequest.conversation_id)
                 .where(Message.id > HostRequest.host_last_seen_message_id)
@@ -390,7 +409,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     session,
                     user_id=user.id,
                     topic_action="host_request:missed_messages",
-                    key=host_request.conversation_id,
+                    key=str(host_request.conversation_id),
                     data=notification_data_pb2.HostRequestMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
                         user=user_model_to_pb(host_request.host, session, context),
@@ -406,7 +425,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                     session,
                     user_id=user.id,
                     topic_action="host_request:missed_messages",
-                    key=host_request.conversation_id,
+                    key=str(host_request.conversation_id),
                     data=notification_data_pb2.HostRequestMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
                         user=user_model_to_pb(host_request.surfer, session, context),
@@ -554,6 +573,7 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                     session,
                     user_id=user.id,
                     topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
+                    key=str(host_request.conversation_id),
                     data=notification_data_pb2.ReferenceReminder(
                         host_request_id=host_request.conversation_id,
                         other_user=user_model_to_pb(other_user, session, context),
@@ -580,6 +600,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
         requests = (
             session.execute(
                 select(HostRequest)
+                .where_moderated_content_visible_to_user_column(HostRequest, HostRequest.host_user_id)
                 .where(HostRequest.status == HostRequestStatus.pending)
                 .where(HostRequest.host_sent_request_reminders < HOST_REQUEST_MAX_REMINDERS)
                 .where(HostRequest.start_time > func.now())
@@ -600,10 +621,12 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
                 session,
                 user_id=host_request.host_user_id,
                 topic_action="host_request:reminder",
+                key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestReminder(
                     host_request=host_request_to_pb(host_request, session, context),
                     surfer=user_model_to_pb(host_request.surfer, session, context),
                 ),
+                moderation_state_id=host_request.moderation_state_id,
             )
 
             session.commit()
@@ -869,9 +892,7 @@ def update_badges(payload: empty_pb2.Empty) -> None:
         update_badge("founder", get_static_badge_dict()["founder"])
         update_badge("board_member", get_static_badge_dict()["board_member"])
         update_badge("past_board_member", get_static_badge_dict()["past_board_member"])
-        update_badge(
-            "donor", session.execute(select(User.id).join(Invoice, Invoice.user_id == User.id)).scalars().all()
-        )
+        update_badge("donor", session.execute(select(User.id).where(User.last_donated.is_not(None))).scalars().all())
         update_badge("moderator", session.execute(select(User.id).where(User.is_superuser)).scalars().all())
         update_badge("phone_verified", session.execute(select(User.id).where(User.phone_is_verified)).scalars().all())
         # strong verification requires passport on file + gender/sex correspondence and date of birth match
@@ -934,6 +955,7 @@ def finalize_strong_verification(payload: "jobs_pb2.FinalizeStrongVerificationPa
                 session,
                 user_id=verification_attempt.user_id,
                 topic_action="verification:sv_fail",
+                key="",
                 data=notification_data_pb2.VerificationSVFail(
                     reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT
                 ),
@@ -971,6 +993,7 @@ def finalize_strong_verification(payload: "jobs_pb2.FinalizeStrongVerificationPa
                 session,
                 user_id=verification_attempt.user_id,
                 topic_action="verification:sv_fail",
+                key="",
                 data=notification_data_pb2.VerificationSVFail(reason=notification_data_pb2.SV_FAIL_REASON_DUPLICATE),
             )
             return
@@ -996,12 +1019,13 @@ def finalize_strong_verification(payload: "jobs_pb2.FinalizeStrongVerificationPa
                 return
 
             user_add_badge(session, user.id, badge_id, do_notify=False)
-            notify(session, user_id=verification_attempt.user_id, topic_action="verification:sv_success")
+            notify(session, user_id=verification_attempt.user_id, topic_action="verification:sv_success", key="")
         else:
             notify(
                 session,
                 user_id=verification_attempt.user_id,
                 topic_action="verification:sv_fail",
+                key="",
                 data=notification_data_pb2.VerificationSVFail(
                     reason=notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER
                 ),
@@ -1071,7 +1095,7 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
                     session,
                     user_id=probe.user.id,
                     topic_action="activeness:probe",
-                    key=probe.id,
+                    key=str(probe.id),
                     data=notification_data_pb2.ActivenessProbe(
                         reminder_number=probe_number_minus_1 + 1,
                         deadline=Timestamp_from_datetime(probe.probe_initiated + ACTIVENESS_PROBE_EXPIRY_TIME),
@@ -1176,6 +1200,7 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
                     session,
                     user_id=user.id,
                     topic_action="event:reminder",
+                    key=str(occurrence.id),
                     data=notification_data_pb2.EventReminder(
                         event=event_to_pb(session, occurrence, context),
                         user=user_model_to_pb(user, session, context),
@@ -1307,6 +1332,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
                 session,
                 user_id=attempt.user_id,
                 topic_action="postal_verification:postcard_sent",
+                key="",
                 data=notification_data_pb2.PostalVerificationPostcardSent(
                     city=attempt.city,
                     country=attempt.country,
@@ -1319,3 +1345,246 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
 
 
 send_postal_verification_postcard.PAYLOAD = jobs_pb2.SendPostalVerificationPostcardPayload
+
+
+class DatabaseInconsistencyError(Exception):
+    """Raised when database consistency checks fail"""
+
+    pass
+
+
+def check_database_consistency(payload: empty_pb2.Empty) -> None:
+    """
+    Checks database consistency and raises an exception if any issues are found.
+    """
+    logger.info("Checking database consistency")
+    errors = []
+
+    with session_scope() as session:
+        # Check that all non-deleted users have a profile gallery
+        users_without_gallery = session.execute(
+            select(User.id, User.username).where(User.is_deleted == False).where(User.profile_gallery_id.is_(None))
+        ).all()
+        if users_without_gallery:
+            errors.append(f"Users without profile gallery: {users_without_gallery}")
+
+        # Check that all profile galleries point to their owner
+        mismatched_galleries = session.execute(
+            select(User.id, User.username, User.profile_gallery_id, PhotoGallery.owner_user_id)
+            .join(PhotoGallery, User.profile_gallery_id == PhotoGallery.id)
+            .where(User.profile_gallery_id.is_not(None))
+            .where(PhotoGallery.owner_user_id != User.id)
+        ).all()
+        if mismatched_galleries:
+            errors.append(f"Profile galleries with mismatched owner: {mismatched_galleries}")
+
+        # === Moderation System Consistency Checks ===
+
+        # Check all ModerationStates have a known object_type
+        known_object_types = [ModerationObjectType.HOST_REQUEST, ModerationObjectType.GROUP_CHAT]
+        unknown_type_states = session.execute(
+            select(ModerationState.id, ModerationState.object_type).where(
+                ModerationState.object_type.not_in(known_object_types)
+            )
+        ).all()
+        if unknown_type_states:
+            errors.append(f"ModerationStates with unknown object_type: {unknown_type_states}")
+
+        # Check every ModerationState has at least one INITIAL_REVIEW queue item
+        # Skip items with ID < 2000000 as they were created before this check was introduced
+        states_without_initial_review = session.execute(
+            select(ModerationState.id, ModerationState.object_type, ModerationState.object_id).where(
+                ModerationState.id >= 2000000,
+                ~exists(
+                    select(1)
+                    .where(ModerationQueueItem.moderation_state_id == ModerationState.id)
+                    .where(ModerationQueueItem.trigger == ModerationTrigger.INITIAL_REVIEW)
+                ),
+            )
+        ).all()
+        if states_without_initial_review:
+            errors.append(f"ModerationStates without INITIAL_REVIEW queue item: {states_without_initial_review}")
+
+        # Check every ModerationState has a CREATE log entry
+        # Skip items with ID < 2000000 as they were created before this check was introduced
+        states_without_create_log = session.execute(
+            select(ModerationState.id, ModerationState.object_type, ModerationState.object_id).where(
+                ModerationState.id >= 2000000,
+                ~exists(
+                    select(1)
+                    .where(ModerationLog.moderation_state_id == ModerationState.id)
+                    .where(ModerationLog.action == ModerationAction.CREATE)
+                ),
+            )
+        ).all()
+        if states_without_create_log:
+            errors.append(f"ModerationStates without CREATE log entry: {states_without_create_log}")
+
+        # Check resolved queue items point to log entries for the same moderation state
+        resolved_item_log_mismatches = session.execute(
+            select(ModerationQueueItem.id, ModerationQueueItem.moderation_state_id, ModerationLog.moderation_state_id)
+            .join(ModerationLog, ModerationQueueItem.resolved_by_log_id == ModerationLog.id)
+            .where(ModerationQueueItem.resolved_by_log_id.is_not(None))
+            .where(ModerationQueueItem.moderation_state_id != ModerationLog.moderation_state_id)
+        ).all()
+        if resolved_item_log_mismatches:
+            errors.append(f"Resolved queue items with mismatched moderation_state_id: {resolved_item_log_mismatches}")
+
+        # Check every HOST_REQUEST ModerationState has exactly one HostRequest pointing to it
+        hr_states = (
+            session.execute(
+                select(ModerationState.id).where(ModerationState.object_type == ModerationObjectType.HOST_REQUEST)
+            )
+            .scalars()
+            .all()
+        )
+        for state_id in hr_states:
+            hr_count = session.execute(
+                select(func.count()).where(HostRequest.moderation_state_id == state_id)
+            ).scalar_one()
+            if hr_count != 1:
+                errors.append(f"ModerationState {state_id} (HOST_REQUEST) has {hr_count} HostRequests (expected 1)")
+
+        # Check every GROUP_CHAT ModerationState has exactly one GroupChat pointing to it
+        gc_states = (
+            session.execute(
+                select(ModerationState.id).where(ModerationState.object_type == ModerationObjectType.GROUP_CHAT)
+            )
+            .scalars()
+            .all()
+        )
+        for state_id in gc_states:
+            gc_count = session.execute(
+                select(func.count()).where(GroupChat.moderation_state_id == state_id)
+            ).scalar_one()
+            if gc_count != 1:
+                errors.append(f"ModerationState {state_id} (GROUP_CHAT) has {gc_count} GroupChats (expected 1)")
+
+        # Check ModerationState.object_id matches the actual object's ID
+        hr_object_id_mismatches = session.execute(
+            select(ModerationState.id, ModerationState.object_id, HostRequest.conversation_id)
+            .join(HostRequest, HostRequest.moderation_state_id == ModerationState.id)
+            .where(ModerationState.object_type == ModerationObjectType.HOST_REQUEST)
+            .where(ModerationState.object_id != HostRequest.conversation_id)
+        ).all()
+        if hr_object_id_mismatches:
+            errors.append(f"ModerationState object_id mismatch for HOST_REQUEST: {hr_object_id_mismatches}")
+
+        gc_object_id_mismatches = session.execute(
+            select(ModerationState.id, ModerationState.object_id, GroupChat.conversation_id)
+            .join(GroupChat, GroupChat.moderation_state_id == ModerationState.id)
+            .where(ModerationState.object_type == ModerationObjectType.GROUP_CHAT)
+            .where(ModerationState.object_id != GroupChat.conversation_id)
+        ).all()
+        if gc_object_id_mismatches:
+            errors.append(f"ModerationState object_id mismatch for GROUP_CHAT: {gc_object_id_mismatches}")
+
+        # Check reverse mapping: HostRequest's moderation_state points to correct ModerationState
+        hr_reverse_mismatches = session.execute(
+            select(
+                HostRequest.conversation_id,
+                HostRequest.moderation_state_id,
+                ModerationState.object_type,
+                ModerationState.object_id,
+            )
+            .join(ModerationState, HostRequest.moderation_state_id == ModerationState.id)
+            .where(
+                (ModerationState.object_type != ModerationObjectType.HOST_REQUEST)
+                | (ModerationState.object_id != HostRequest.conversation_id)
+            )
+        ).all()
+        if hr_reverse_mismatches:
+            errors.append(f"HostRequest points to ModerationState with wrong type/object_id: {hr_reverse_mismatches}")
+
+        # Check reverse mapping: GroupChat's moderation_state points to correct ModerationState
+        gc_reverse_mismatches = session.execute(
+            select(
+                GroupChat.conversation_id,
+                GroupChat.moderation_state_id,
+                ModerationState.object_type,
+                ModerationState.object_id,
+            )
+            .join(ModerationState, GroupChat.moderation_state_id == ModerationState.id)
+            .where(
+                (ModerationState.object_type != ModerationObjectType.GROUP_CHAT)
+                | (ModerationState.object_id != GroupChat.conversation_id)
+            )
+        ).all()
+        if gc_reverse_mismatches:
+            errors.append(f"GroupChat points to ModerationState with wrong type/object_id: {gc_reverse_mismatches}")
+
+        # Ensure auto-approve deadline isn't being exceeded by a significant margin
+        # The auto-approver runs every 15s, so allow 5 minutes grace before alerting
+        deadline_seconds = config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"]
+        if deadline_seconds > 0:
+            grace_period = timedelta(minutes=5)
+            stale_initial_review_items = session.execute(
+                select(
+                    ModerationQueueItem.id,
+                    ModerationQueueItem.moderation_state_id,
+                    ModerationQueueItem.time_created,
+                )
+                .where(ModerationQueueItem.trigger == ModerationTrigger.INITIAL_REVIEW)
+                .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+                .where(ModerationQueueItem.time_created < now() - timedelta(seconds=deadline_seconds) - grace_period)
+            ).all()
+            if stale_initial_review_items:
+                errors.append(
+                    f"INITIAL_REVIEW items exceeding auto-approve deadline by >5min: {stale_initial_review_items}"
+                )
+
+    if errors:
+        raise DatabaseInconsistencyError("\n".join(errors))
+
+
+check_database_consistency.PAYLOAD = empty_pb2.Empty
+check_database_consistency.SCHEDULE = timedelta(hours=24)
+
+
+def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
+    """
+    Dead man's switch: auto-approves unresolved INITIAL_REVIEW items older than the deadline.
+    Items explicitly actioned by moderators are left alone.
+    """
+    deadline_seconds = config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"]
+    if deadline_seconds <= 0:
+        return
+
+    with session_scope() as session:
+        ctx = make_background_user_context(user_id=config["MODERATION_BOT_USER_ID"])
+
+        items = (
+            Moderation()
+            .GetModerationQueue(
+                request=moderation_pb2.GetModerationQueueReq(
+                    triggers=[moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW],
+                    unresolved_only=True,
+                    page_size=100,
+                    created_before=Timestamp_from_datetime(now() - timedelta(seconds=deadline_seconds)),
+                ),
+                context=ctx,
+                session=session,
+            )
+            .queue_items
+        )
+
+        if not items:
+            return
+
+        logger.info(f"Auto-approving {len(items)} moderation queue items")
+        for item in items:
+            Moderation().ModerateContent(
+                request=moderation_pb2.ModerateContentReq(
+                    moderation_state_id=item.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=f"Auto-approved: moderation deadline of {deadline_seconds} seconds exceeded.",
+                ),
+                context=ctx,
+                session=session,
+            )
+        moderation_auto_approved_counter.inc(len(items))
+
+
+auto_approve_moderation_queue.PAYLOAD = empty_pb2.Empty
+auto_approve_moderation_queue.SCHEDULE = timedelta(seconds=15)

@@ -102,7 +102,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="2"</td>
-      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Merchandise Store</td>
+      <td colspan="3" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Merchandise Store</td>
     </tr>
     <tr >
       <td colspan="2"</td>
@@ -134,7 +134,7 @@ hide_title: true
     </tr>
     <tr >
 	  <td colspan="3"</td>
-      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Prepare Android and Apple Apps</td>
+      <td colspan="2" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Prepare Android and Apple Apps</td>
     </tr>
     <tr >
 	  <td colspan="4"</td>
@@ -233,7 +233,7 @@ hide_title: true
       <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Translate Couchers to Spanish</td>
     </tr>
     <tr >
-      <td rowspan="14" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Operations</td>
+      <td rowspan="15" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Operations</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Re-engage Previous Volunteers Through Newsletter</td>
     </tr>
     <tr >
@@ -267,7 +267,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="2"</td>
-      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Offer Merchandise</td>
+      <td colspan="3" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Offer Merchandise</td>
     </tr>
     <tr >
       <td colspan="2"</td>
@@ -283,7 +283,11 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="3"</td>
-      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Create New Page Comparing Couchers</td>
+      <td colspan="2" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Create New Page Comparing Couchers</td>
+    </tr>
+    <tr >
+      <td colspan="3"</td>
+      <td colspan="2" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Reach out to Community Builders</td>
     </tr>
   </tbody>
 </table>
