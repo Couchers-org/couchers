@@ -31,13 +31,15 @@ You can read more about our [Mission & Values here](/mission).
 
 ## How to join us as a volunteer ― our recruitment process
 
-_If you are software engineer, feel free to hop over to [GitHub](https://github.com/Couchers-org/couchers/) and contribute code._
+_If you are software engineer interested in contributing, please read our [Developer Contributor Guide](https://github.com/Couchers-org/couchers/blob/develop/docs/contributing.md) first._
 
 1. Find one of the open positions below and apply via the form!
 
-2. We'll review and get back to you as soon as possible — setting up a Zoom call so we can get to know you and you can meet the team.
+2. We'll review your application and get back to you as soon as we can. **Please note**: We're a small volunteer team with limited capacity. It may take time for us to respond, and depending on our current needs and capacity, we may not be able to onboard new volunteers immediately. We appreciate your patience and understanding.
 
-3. After accepting the position, we'll send you some volunteer agreements and then get you onboarded with the people you're going to directly work with.
+3. If we're able to move forward, we'll set up a Zoom call so we can get to know you and you can meet the team.
+
+4. After accepting the position, we'll send you some volunteer agreements and then get you onboarded with the people you're going to directly work with.
 
 ## Open positions
 

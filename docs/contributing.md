@@ -1,21 +1,55 @@
 # Developer Contributor Guide
 
-We collaborate on code through git, hosted on GitHub. If you are a software engineer (web/mobile/backend), you should request write access to the codebase. If you'd like to contribute regularly, reach out to @aapeliv or @nabramow to join our Slack channel. This is where our main communication happens. We also do video meetings every week where we discuss priorities, architecture, etc.
+Thank you for your interest in contributing to Couchers.org! We're a small, passionate team of volunteers building the future of couch surfing. Before you start, please read this guide carefully to understand our workflow and expectations.
+
+## Important: Before You Start
+
+**We are a small volunteer team with limited review capacity.** To make the most of everyone's time and ensure quality contributions, we ask that you:
+
+1. **Contact us before starting any work** — Tag @nabramow (frontend) or @aapeliv (backend) on GitHub or reach out on Slack to confirm that:
+   - The issue is still relevant and ready to be worked on
+   - We have capacity to review your contribution
+   - The work aligns with current priorities
+
+2. **Commit to 3-6 months minimum** — Onboarding takes significant time and effort from our small team. We need contributors who can commit to staying involved for at least 3-6 months to make the investment worthwhile.
+
+3. **Attend weekly meetings** — We hold video meetings every week where we discuss priorities, architecture, and important details. Attending these meetings is essential to prevent miscommunication and avoid lengthy back-and-forth in PR reviews. Priorities and context shared in these meetings often aren't captured elsewhere.
+
+4. **Join our Slack** — This is where our main communication happens. Reach out to @aapeliv or @nabramow to join or email volunteers@couchers.org.
+
+### Single-issue contributions
+
+If you have production-level experience in our stack (React/TypeScript for frontend and/or Python/gRPC for backend) and are confident about best practices, we may accept single contributions for individual issues or tickets. However, you must still write us first or tag @aapeliv (backend) or @nabramow (frontend) to get cleared to work on that issue before starting any work.
+
+## Our current capacity
+
+We're a bootstrapped team of typically 2-3 engineers doing everything. Depending on our current workload, we may not have capacity to onboard new contributors or may not need someone with your specific skillset at the moment. If you apply to volunteer and don't hear back immediately, please be patient — it may take time for us to respond, and we may need to defer onboarding until we have more capacity.
+
+We collaborate on code through git, hosted on GitHub. If you are a software engineer (web/mobile/backend) who has been onboarded, you should request write access to the codebase.
 
 ## Finding an issue
 
 If you are looking for something to help with related to software development, our [Couchers Engineering](https://github.com/orgs/Couchers-org/projects/6) project board is the best place to look! We keep track of the prioritized issues there.
 
+Tickets that are ready to be picked up are under the "Ready" column. The higher the ticket, the bigger the priority, so try to choose from the top if you can.
 
-Tickets that are ready to be picked up are under the "Ready" column. The higher the ticket, the bigger the priority, so try to choose from the top if you can. Before starting a ticket, it's good to give someone on the dev team a heads up in case there are any details that need to be added or changed. We try to keep the board up-to-date, but we're volunteers and life happens so it's good to check if that ticket is still ready to be worked on. For frontend you can tag @nabramow and backend @aapeli to ask if that's a good ticket to work on.
+**⚠️ Important: Do not start work without approval.** Before starting any ticket:
 
-Once you begin a ticket, please assign yourself to it and move it into the "In Progress" column so we know who is working on what. 
+1. Tag @nabramow (frontend) or @aapeliv (backend) on the GitHub issue to confirm:
+   - The ticket is still relevant and ready to be worked on
+   - There are no important details or context that need to be clarified
 
-If you need clarification on a ticket, you can leave a comment and tag a contributor, or even better, leave a comment on our Slack Channel (reach out to @aapeliv or @nabramow to join).
+2. Our project board can get out of date since we're a small volunteer team. Checking first prevents wasted effort on both sides.
+
+Once you have approval and begin a ticket, please assign yourself to it and move it into the "In Progress" column so we know who is working on what.
+
+If you need clarification on a ticket, you can leave a comment and tag a contributor, or even better, ask on our Slack Channel (reach out to @aapeliv or @nabramow to join).
 
 ## The development process
 
-All our code is in one repository (monorepo). We currently use the pull request model as our git workflow, our main development branch is `develop`. 
+**Note**: This section assumes you've already gotten approval to work on an issue as described above. Do not create PRs without prior discussion and approval.
+
+All our code is in one repository (monorepo). We currently use the pull request model as our git workflow, our main development branch is `develop`.
 
 1. Create a new branch off `develop`:
     - `git switch develop`
