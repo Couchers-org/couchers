@@ -27,6 +27,7 @@ interface UsersListProps {
   getUserMenuItems?: (
     user: LiteUser.AsObject,
   ) => EllipsisMenuItem[] | undefined;
+  showGhosts?: boolean;
 }
 
 /**
@@ -45,6 +46,7 @@ export default function UsersList({
   error,
   titleIsLink = false,
   getUserMenuItems,
+  showGhosts = false,
 }: UsersListProps) {
   const {
     data: users,
@@ -56,7 +58,12 @@ export default function UsersList({
   const foundUsers =
     userIds &&
     (userIds.length > 0
-      ? userIds.map((userId) => users?.get(userId)).filter((user) => !!user)
+      ? userIds
+          .map((userId) => users?.get(userId))
+          .filter(
+            (user): user is LiteUser.AsObject =>
+              !!user && (showGhosts || !user.isGhost),
+          )
       : []);
 
   const inner = () => {
