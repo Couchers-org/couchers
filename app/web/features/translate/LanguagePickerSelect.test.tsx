@@ -73,6 +73,13 @@ describe("LanguagePickerSelect", () => {
   });
 
   it("calls changeLanguage and re-routes with locale on selection", async () => {
+    // Mock document.cookie
+    const cookieSetter = jest.fn();
+    Object.defineProperty(document, "cookie", {
+      set: cookieSetter,
+      configurable: true,
+    });
+
     render(<LanguagePickerSelect />, { wrapper });
 
     expect(mockRouter).toEqual(
@@ -90,6 +97,12 @@ describe("LanguagePickerSelect", () => {
 
     await user.click(spanishOption);
 
+    // Should set cookie client-side for authenticated users too
+    expect(cookieSetter).toHaveBeenCalledWith(
+      "NEXT_LOCALE=es; path=/; max-age=31536000; samesite=lax",
+    );
+
+    // Should also call backend API for authenticated users
     expect(changeLanguageMock).toHaveBeenCalledWith("es");
 
     expect(mockRouter).toEqual(
@@ -101,7 +114,7 @@ describe("LanguagePickerSelect", () => {
     );
   });
 
-  it("sets cookie client-side for logged-out users without calling backend", async () => {
+  it("sets cookie client-side for logged-out users and does not call backend", async () => {
     // Mock logged-out state
     mockAuthState.authenticated = false;
 
@@ -123,15 +136,15 @@ describe("LanguagePickerSelect", () => {
 
     await user.click(frenchOption);
 
-    // Should NOT call backend API for logged-out users
-    expect(changeLanguageMock).not.toHaveBeenCalled();
-
     // Should set cookie client-side
     expect(cookieSetter).toHaveBeenCalledWith(
       "NEXT_LOCALE=fr; path=/; max-age=31536000; samesite=lax",
     );
 
-    // Should still navigate to the new locale
+    // Should NOT call backend API for logged-out users
+    expect(changeLanguageMock).not.toHaveBeenCalled();
+
+    // Should navigate to the new locale
     expect(mockRouter).toEqual(
       expect.objectContaining({
         locale: "fr",
