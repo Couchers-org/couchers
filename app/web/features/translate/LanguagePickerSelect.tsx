@@ -76,10 +76,15 @@ export default function LanguagePickerSelect({
     const newLocale = event.target.value as string;
 
     if (isAuthenticated) {
+      // For authenticated users, backend updates ui_language_preference and sets NEXT_LOCALE cookie
       await changeLanguageMutation(newLocale);
+    } else {
+      // For logged-out users, set NEXT_LOCALE cookie client-side immediately
+      // This ensures middleware respects the language choice on the next request
+      document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; samesite=lax`;
     }
 
-    // Push new route with updated locale, keep the current asPath for display
+    // Navigate to new locale URL
     router.push({ pathname }, asPath, { locale: newLocale });
     onSelect?.();
   };

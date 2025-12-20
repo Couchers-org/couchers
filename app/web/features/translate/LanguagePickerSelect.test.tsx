@@ -10,12 +10,14 @@ import LanguagePickerSelect from "./LanguagePickerSelect";
 
 const { t } = i18n;
 
+const mockAuthState = {
+  authenticated: true,
+};
+
 jest.mock("features/auth/useAuthStore", () => ({
   __esModule: true,
   default: () => ({
-    authState: {
-      authenticated: true,
-    },
+    authState: mockAuthState,
   }),
 }));
 
@@ -43,6 +45,8 @@ const changeLanguageMock = service.account.changeLanguage as MockedService<
 describe("LanguagePickerSelect", () => {
   beforeEach(() => {
     mockRouter.setCurrentUrl("/messages/hosting");
+    mockAuthState.authenticated = true;
+    jest.clearAllMocks();
   });
 
   it("renders the select with the correct options", async () => {
@@ -93,6 +97,44 @@ describe("LanguagePickerSelect", () => {
         asPath: "/messages/hosting",
         pathname: "/messages/hosting",
         locale: "es",
+      }),
+    );
+  });
+
+  it("sets cookie client-side for logged-out users without calling backend", async () => {
+    // Mock logged-out state
+    mockAuthState.authenticated = false;
+
+    // Mock document.cookie
+    const cookieSetter = jest.fn();
+    Object.defineProperty(document, "cookie", {
+      set: cookieSetter,
+      configurable: true,
+    });
+
+    render(<LanguagePickerSelect />, { wrapper });
+
+    const select = screen.getByRole("combobox");
+    const user = userEvent.setup();
+    await user.click(select);
+
+    const listBox = await screen.findByRole("listbox");
+    const frenchOption = within(listBox).getByText("FR");
+
+    await user.click(frenchOption);
+
+    // Should NOT call backend API for logged-out users
+    expect(changeLanguageMock).not.toHaveBeenCalled();
+
+    // Should set cookie client-side
+    expect(cookieSetter).toHaveBeenCalledWith(
+      "NEXT_LOCALE=fr; path=/; max-age=31536000; samesite=lax",
+    );
+
+    // Should still navigate to the new locale
+    expect(mockRouter).toEqual(
+      expect.objectContaining({
+        locale: "fr",
       }),
     );
   });
