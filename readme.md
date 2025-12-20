@@ -14,8 +14,6 @@ The code in this repository is licensed under the [MIT license](license.md).
 
 **Please read our [Developer Contributor Guide](docs/contributing.md) first** — it explains our workflow, expectations, and how to get started. [You can see and apply to our current volunteer positions here.](./app/web/markdown/volunteer.md)
 
-**Before starting any work**, please reach out to @nabramow (frontend) or @aapeliv (backend) to discuss whether we have capacity to review your contributions and whether the work aligns with current priorities.
-
 ---
 
 ## How to contribute
