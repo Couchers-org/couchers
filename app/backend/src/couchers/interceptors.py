@@ -331,7 +331,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 user_id=auth_info.user_id if auth_info else None,
                 is_api_key=is_api_key,
                 token=token,
-                ui_language_preference=auth_info.ui_language_preference if auth_info else None,
+                ui_language_preference=auth_info.ui_language_preference if auth_info else parse_ui_lang_cookie(headers),
             )
             with session_scope() as session:
                 try:
