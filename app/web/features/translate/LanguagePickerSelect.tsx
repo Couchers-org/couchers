@@ -79,8 +79,10 @@ export default function LanguagePickerSelect({
       await changeLanguageMutation(newLocale);
     }
 
-    // Push new route with updated locale, keep the current asPath for display
-    router.push({ pathname }, asPath, { locale: newLocale });
+    // Push new route with updated locale, preserving query parameters (e.g., invite codes, UTM params)
+    router.push({ pathname, query: router.query }, asPath, {
+      locale: newLocale,
+    });
     onSelect?.();
   };
 
