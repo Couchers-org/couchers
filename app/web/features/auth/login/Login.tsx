@@ -46,7 +46,19 @@ export default function Login() {
 
   useEffect(() => {
     if (authenticated) {
-      router.push(redirectTo);
+      // Get the NEXT_LOCALE cookie to use the user's preferred language
+      const nextLocale =
+        typeof document !== "undefined"
+          ? document.cookie
+              .split("; ")
+              .find((row) => row.startsWith("NEXT_LOCALE="))
+              ?.split("=")[1]
+          : null;
+
+      const targetLocale = nextLocale || router.locale || "en";
+
+      // Navigate to destination with user's preferred locale
+      router.push(redirectTo, undefined, { locale: targetLocale });
     }
   }, [authenticated, router, redirectTo]);
 

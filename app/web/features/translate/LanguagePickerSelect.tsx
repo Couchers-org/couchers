@@ -27,7 +27,8 @@ import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
-import { ALMOST_DONE_CUTOFF, SELECTOR_CUTOFF } from "./constants";
+import { ALMOST_DONE_CUTOFF } from "./constants";
+import { getAvailableLanguages } from "./utils";
 
 interface StyledMuiSelectProps {
   displayMode?: "round" | "rect";
@@ -125,30 +126,11 @@ export default function LanguagePickerSelect({
   };
   // Languages with < 50% translated are hidden from language selector
   // Languages with < 80% translated are greyed out
-  const availableLanguages = languages
-    ?.filter(
-      (language) =>
-        LANGUAGE_MAP[language.code.replace("_", "-")] &&
-        language.translated_percent >= SELECTOR_CUTOFF,
-    )
-    // sort by translated percent with the >= 80 grouped at the top, then sorted alphabetically by code
-    .sort((a, b) => {
-      if (
-        a.translated_percent >= ALMOST_DONE_CUTOFF &&
-        b.translated_percent < ALMOST_DONE_CUTOFF
-      )
-        return -1;
-      if (
-        a.translated_percent < ALMOST_DONE_CUTOFF &&
-        b.translated_percent >= ALMOST_DONE_CUTOFF
-      )
-        return 1;
-      return a.code.localeCompare(b.code);
-    });
+  const availableLanguages = getAvailableLanguages(languages);
 
   const menuItems: React.ReactNode[] | undefined = isLoading
     ? []
-    : availableLanguages?.map((language) => {
+    : availableLanguages.map((language) => {
         // language.code has underscore, we need to change to hyphen
         const languageCode = language.code.replace("_", "-");
 

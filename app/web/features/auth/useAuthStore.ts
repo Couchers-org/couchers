@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { userKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
+import { allLanguages } from "i18n/allLanguages";
 import { GLOBAL } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import { clearStorage, usePersistedState } from "platform/usePersistedState";
@@ -8,6 +9,41 @@ import { AuthRes, SignupFlowRes } from "proto/auth_pb";
 import { useMemo, useRef, useState } from "react";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
+
+/**
+ * Sync the NEXT_LOCALE cookie with the user's language preference from the backend
+ */
+async function syncLanguagePreference() {
+  try {
+    const accountInfo = await service.account.getAccountInfo();
+    const userLanguage = accountInfo.uiLanguagePreference;
+
+    const currentCookieLocale =
+      typeof document !== "undefined"
+        ? document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("NEXT_LOCALE="))
+            ?.split("=")[1]
+        : null;
+
+    // Only update cookie if user has a valid language preference and it differs from current cookie
+    if (
+      userLanguage &&
+      allLanguages.includes(userLanguage) &&
+      userLanguage !== currentCookieLocale
+    ) {
+      document.cookie = `NEXT_LOCALE=${userLanguage}; path=/; max-age=31536000; samesite=lax`;
+    }
+  } catch (e) {
+    // Don't fail login if language sync fails, just log the error
+    Sentry.captureException(e, {
+      tags: {
+        component: "auth/useAuthStore",
+        action: "syncLanguagePreference",
+      },
+    });
+  }
+}
 
 export default function useAuthStore() {
   const [authenticated, setAuthenticated] = usePersistedState(
@@ -89,6 +125,10 @@ export default function useAuthStore() {
           //will also cause that query to be background fetched, and it needs
           //userId to be set.
           setJailed(auth.jailed);
+
+          // Sync user's language preference with NEXT_LOCALE cookie
+          await syncLanguagePreference();
+
           setAuthenticated(true);
 
           // Notify mobile app that login succeeded
@@ -125,6 +165,10 @@ export default function useAuthStore() {
         setUserId(res.userId);
         Sentry.setUser({ id: res.userId.toString() });
         setJailed(res.jailed);
+
+        // Sync user's language preference with NEXT_LOCALE cookie
+        await syncLanguagePreference();
+
         setAuthenticated(true);
 
         // Notify mobile app that signup/login succeeded
