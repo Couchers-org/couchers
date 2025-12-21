@@ -172,7 +172,6 @@ describe("Middleware locale detection logic", () => {
   });
 
   describe("shouldBlockIncompleteLanguage", () => {
-    // Import the function we're testing
     let shouldBlockIncompleteLanguage: (
       currentLocale: string,
       cookieLocale: string | undefined,
