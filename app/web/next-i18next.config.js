@@ -16,7 +16,7 @@ module.exports = {
   i18n: {
     defaultLocale: "en",
     locales: allLanguages,
-    localeDetection: true, // Enable automatic locale detection from Accept-Language header
+    localeDetection: false, // Disabled - using custom middleware for locale detection
   },
   fallbackLng,
   defaultNS: "global",

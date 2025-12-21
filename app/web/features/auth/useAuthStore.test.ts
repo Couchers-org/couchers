@@ -13,6 +13,7 @@ const getCurrentUserMock = service.user.getCurrentUser as jest.Mock;
 const passwordLoginMock = service.user.passwordLogin as jest.Mock;
 const getIsJailedMock = service.jail.getIsJailed as jest.Mock;
 const logoutMock = service.user.logout as jest.Mock;
+const getAccountInfoMock = service.account.getAccountInfo as jest.Mock;
 
 describe("usePersistedState hook", () => {
   it("uses a default value", () => {
@@ -96,6 +97,7 @@ describe("passwordLogin action", () => {
   it("sets authenticated correctly", async () => {
     passwordLoginMock.mockResolvedValue({ userId: 1, jailed: false });
     getUserMock.mockResolvedValue(defaultUser);
+    getAccountInfoMock.mockResolvedValue({ uiLanguagePreference: "en" });
     const { result } = renderHook(() => useAuthStore(), {
       wrapper,
     });
@@ -132,6 +134,7 @@ describe("passwordLogin action", () => {
 
 describe("firstLogin action", () => {
   it("sets state correctly", async () => {
+    getAccountInfoMock.mockResolvedValue({ uiLanguagePreference: "en" });
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.error).toBe(null);
     expect(result.current.authState.userId).toBe(null);
@@ -176,6 +179,7 @@ describe("updateSignupState action", () => {
   });
 
   it("sets state correctly if success", async () => {
+    getAccountInfoMock.mockResolvedValue({ uiLanguagePreference: "en" });
     const { result } = renderHook(() => useAuthStore(), { wrapper });
     expect(result.current.authState.error).toBe(null);
     expect(result.current.authState.userId).toBe(null);

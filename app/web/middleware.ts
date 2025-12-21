@@ -70,8 +70,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.rewrite(url);
   }
 
-  // Sync cookie with current locale if needed
-  if (!cookieLocale || cookieLocale !== currentLocale) {
+  // Set cookie if it doesn't exist yet
+  if (!cookieLocale) {
     const response = NextResponse.next();
     response.cookies.set("NEXT_LOCALE", currentLocale, {
       path: "/",
