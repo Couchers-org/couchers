@@ -44,6 +44,14 @@ const VolunteerStatus = styled("div")(() => ({
   gap: theme.spacing(0.5),
 }));
 
+const LocationText = styled(Typography)(() => ({
+  display: "-webkit-box",
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+}));
+
 interface VolunteerCardProps {
   volunteerInfo: GetMyVolunteerInfoRes.AsObject;
 }
@@ -79,7 +87,9 @@ export default function VolunteerCard({ volunteerInfo }: VolunteerCardProps) {
                 <IconText
                   icon={PinIcon}
                   text={
-                    volunteerInfo.displayLocation || currentUser?.city || ""
+                    <LocationText variant="body1">
+                      {volunteerInfo.displayLocation || currentUser?.city || ""}
+                    </LocationText>
                   }
                 />
               )}

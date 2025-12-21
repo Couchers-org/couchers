@@ -73,7 +73,9 @@ export default function UserPage({
             <UserCard
               tab={tab}
               onTabChange={(newTab) => {
-                router.push(routeToUser(user.username, newTab));
+                router.push(routeToUser(user.username, newTab), undefined, {
+                  scroll: false,
+                });
               }}
               top={
                 <Collapse in={isRequesting}>

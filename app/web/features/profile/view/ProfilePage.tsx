@@ -54,7 +54,9 @@ export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
             <UserCard
               tab={tab}
               onTabChange={(newTab) => {
-                router.push(routeToProfile(newTab));
+                router.push(routeToProfile(newTab), undefined, {
+                  scroll: false,
+                });
               }}
             />
           </StyledWrapper>
