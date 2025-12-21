@@ -139,9 +139,11 @@ describe("WebEmbed", () => {
     it("navigates to messages tab when WebView navigates to /messages", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/messages`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages`,
+          loading: false,
+        });
       });
 
       expect(mockRouter.navigate).toHaveBeenCalledWith("/messages");
@@ -150,9 +152,11 @@ describe("WebEmbed", () => {
     it("navigates to search tab when WebView navigates to /search", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/search`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/search`,
+          loading: false,
+        });
       });
 
       expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
@@ -161,9 +165,11 @@ describe("WebEmbed", () => {
     it("navigates to communities tab when WebView navigates to /communities", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/communities`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/communities`,
+          loading: false,
+        });
       });
 
       expect(mockRouter.navigate).toHaveBeenCalledWith("/communities");
@@ -172,9 +178,11 @@ describe("WebEmbed", () => {
     it("navigates to non-tab routes correctly", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/user/123`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/user/123`,
+          loading: false,
+        });
       });
 
       expect(mockRouter.navigate).toHaveBeenCalledWith("/user/123");
@@ -183,9 +191,11 @@ describe("WebEmbed", () => {
     it("does not navigate when URL is still loading", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/messages`,
-        loading: true,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages`,
+          loading: true,
+        });
       });
 
       expect(mockRouter.navigate).not.toHaveBeenCalled();
@@ -194,9 +204,11 @@ describe("WebEmbed", () => {
     it("does not navigate when staying on the same tab", () => {
       render(<WebEmbed path="/messages" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/messages/123`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages/123`,
+          loading: false,
+        });
       });
 
       expect(mockRouter.navigate).not.toHaveBeenCalled();
@@ -205,9 +217,11 @@ describe("WebEmbed", () => {
     it("strips hash fragments from URL", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/search#10/40.7127/-74.006`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/search#10/40.7127/-74.006`,
+          loading: false,
+        });
       });
 
       expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
@@ -216,9 +230,11 @@ describe("WebEmbed", () => {
     it("stops loading for external URLs", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: "https://external-site.com/page",
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: "https://external-site.com/page",
+          loading: false,
+        });
       });
 
       expect(mockWebViewRef.stopLoading).toHaveBeenCalled();
@@ -352,9 +368,11 @@ describe("WebEmbed", () => {
 
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/messages/123`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages/123`,
+          loading: false,
+        });
       });
 
       mockWebViewRef.injectJavaScript.mockClear();
@@ -387,9 +405,11 @@ describe("WebEmbed", () => {
         render(<WebEmbed path="/dashboard" />);
         mockRouter.navigate.mockClear();
 
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}${webPath}`,
-          loading: false,
+        act(() => {
+          capturedWebViewProps.onNavigationStateChange?.({
+            url: `${mockWebBaseUrl}${webPath}`,
+            loading: false,
+          });
         });
 
         if (expectedTab === "dashboard") {
