@@ -75,7 +75,12 @@ export default function LanguagePickerSelect({
   const handleChange = async (event: SelectChangeEvent<unknown>) => {
     const newLocale = event.target.value as string;
 
+    // Set cookie client-side immediately for both authenticated and logged-out users
+    // This ensures the middleware sees the updated locale before navigation
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; samesite=lax`;
+
     if (isAuthenticated) {
+      // For authenticated users, also update backend's ui_language_preference
       await changeLanguageMutation(newLocale);
     }
 
