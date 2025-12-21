@@ -65,6 +65,30 @@ async function isLanguageProductionReady(locale: string): Promise<boolean> {
   );
 }
 
+/**
+ * Determine if a locale should be blocked based on translation completeness.
+ *
+ * @param currentLocale - The locale from the URL
+ * @param cookieLocale - The NEXT_LOCALE cookie value (undefined if not set)
+ * @param isProductionReady - Whether the current locale is >= 80% translated
+ * @returns true if the locale should be blocked (redirect to English)
+ */
+export function shouldBlockIncompleteLanguage(
+  currentLocale: string,
+  cookieLocale: string | undefined,
+  isProductionReady: boolean,
+): boolean {
+  if (currentLocale === "en") {
+    return false;
+  }
+
+  if (cookieLocale) {
+    return false; // User explicitly selected this language
+  }
+
+  return !isProductionReady; // Browser detection: only allow >= 80%
+}
+
 async function getBestLocale(request: NextRequest): Promise<string> {
   // Priority 1: NEXT_LOCALE cookie (set by backend or language picker)
   const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
@@ -92,9 +116,15 @@ export async function middleware(request: NextRequest) {
   const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
   const isAuthenticated = !!request.cookies.get(sessionCookieName);
 
-  // Check if current locale is production-ready (>= 80% translated)
-  // If not, redirect to English
-  if (!(await isLanguageProductionReady(currentLocale))) {
+  // Check if current locale should be blocked
+  const isProductionReady = await isLanguageProductionReady(currentLocale);
+  const shouldBlock = shouldBlockIncompleteLanguage(
+    currentLocale,
+    cookieLocale,
+    isProductionReady,
+  );
+
+  if (shouldBlock) {
     const url = request.nextUrl.clone();
     url.locale = "en";
 
@@ -111,10 +141,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Determine target locale with the following priority:
-  // 1. NEXT_LOCALE cookie (set by backend from ui_language_preference after login, or by client after language change)
-  // 2. Current URL locale (if non-default and no cookie exists)
-  // 3. Browser Accept-Language header detection (for first-time visitors)
+  // Determine target locale: cookie > URL locale > browser detection
   let targetLocale: string;
 
   if (cookieLocale && allLanguages.includes(cookieLocale)) {
@@ -138,7 +165,7 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.redirect(url);
     response.cookies.set("NEXT_LOCALE", targetLocale, {
       path: "/",
-      maxAge: 31536000, // 1 year
+      maxAge: 31536000,
       sameSite: "lax",
     });
     return response;
