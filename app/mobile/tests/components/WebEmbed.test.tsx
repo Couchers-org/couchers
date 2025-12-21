@@ -1,7 +1,7 @@
 import { act, render, screen, userEvent } from "@testing-library/react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import React from "react";
-import { BackHandler, Platform } from "react-native";
+import { BackHandler, Linking, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import WebEmbed from "@/components/WebEmbed";
@@ -42,6 +42,7 @@ let capturedWebViewProps: {
   }) => void;
   onMessage?: (event: { nativeEvent: { data: string } }) => void;
   onError?: (event: { nativeEvent: unknown }) => void;
+  onOpenWindow?: (event: { nativeEvent: { targetUrl: string } }) => void;
 } = {};
 
 // BackHandler mock - captures the hardware back press listener
@@ -139,9 +140,11 @@ describe("WebEmbed", () => {
     it("navigates to messages tab when WebView navigates to /messages", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/messages`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages`,
+          loading: false,
+        });
       });
 
       expect(mockRouter.navigate).toHaveBeenCalledWith("/messages");
@@ -150,9 +153,11 @@ describe("WebEmbed", () => {
     it("navigates to search tab when WebView navigates to /search", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/search`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/search`,
+          loading: false,
+        });
       });
 
       expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
@@ -161,31 +166,38 @@ describe("WebEmbed", () => {
     it("navigates to communities tab when WebView navigates to /communities", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/communities`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/communities`,
+          loading: false,
+        });
       });
 
       expect(mockRouter.navigate).toHaveBeenCalledWith("/communities");
     });
 
-    it("navigates to non-tab routes correctly", () => {
+    it("does not trigger native navigation for non-tab routes", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/user/123`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/user/123`,
+          loading: false,
+        });
       });
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith("/user/123");
+      // WebView handles internal navigation without triggering native router
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
     });
 
     it("does not navigate when URL is still loading", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/messages`,
-        loading: true,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages`,
+          loading: true,
+        });
       });
 
       expect(mockRouter.navigate).not.toHaveBeenCalled();
@@ -194,31 +206,60 @@ describe("WebEmbed", () => {
     it("does not navigate when staying on the same tab", () => {
       render(<WebEmbed path="/messages" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/messages/123`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages/123`,
+          loading: false,
+        });
       });
 
       expect(mockRouter.navigate).not.toHaveBeenCalled();
     });
 
-    it("strips hash fragments from URL", () => {
+    it("strips hash fragments from URL when navigating to main tabs", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/search#10/40.7127/-74.006`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/search#10/40.7127/-74.006`,
+          loading: false,
+        });
       });
 
       expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
     });
 
+    it("does not trigger navigation for query parameter changes", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/user/username?tab=about`,
+          loading: false,
+        });
+      });
+
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/user/username?tab=home`,
+          loading: false,
+        });
+      });
+
+      // Query param change (tab switch) should not trigger native navigation
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+
     it("stops loading for external URLs", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: "https://external-site.com/page",
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: "https://external-site.com/page",
+          loading: false,
+        });
       });
 
       expect(mockWebViewRef.stopLoading).toHaveBeenCalled();
@@ -343,6 +384,24 @@ describe("WebEmbed", () => {
     });
   });
 
+  describe("external link handling", () => {
+    it("opens target='_blank' links in device browser via onOpenWindow", () => {
+      const openURLSpy = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
+
+      render(<WebEmbed path="/dashboard" />);
+
+      capturedWebViewProps.onOpenWindow?.({
+        nativeEvent: {
+          targetUrl: "https://example.com/external",
+        },
+      });
+
+      expect(openURLSpy).toHaveBeenCalledWith("https://example.com/external");
+
+      openURLSpy.mockRestore();
+    });
+  });
+
   describe("focus effect", () => {
     it("navigates WebView back to expected path when drifted", () => {
       let focusCallback: (() => void) | undefined;
@@ -352,9 +411,11 @@ describe("WebEmbed", () => {
 
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onNavigationStateChange?.({
-        url: `${mockWebBaseUrl}/messages/123`,
-        loading: false,
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages/123`,
+          loading: false,
+        });
       });
 
       mockWebViewRef.injectJavaScript.mockClear();
@@ -387,19 +448,22 @@ describe("WebEmbed", () => {
         render(<WebEmbed path="/dashboard" />);
         mockRouter.navigate.mockClear();
 
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}${webPath}`,
-          loading: false,
+        act(() => {
+          capturedWebViewProps.onNavigationStateChange?.({
+            url: `${mockWebBaseUrl}${webPath}`,
+            loading: false,
+          });
         });
 
         if (expectedTab === "dashboard") {
+          // Same tab - no navigation
           expect(mockRouter.navigate).not.toHaveBeenCalled();
         } else if (expectedTab) {
+          // Different main tab - navigate to that tab
           expect(mockRouter.navigate).toHaveBeenCalledWith(`/${expectedTab}`);
         } else {
-          expect(mockRouter.navigate).toHaveBeenCalledWith(
-            webPath.split("?")[0],
-          );
+          // Non-tab route - let WebView handle it internally, don't trigger native navigation
+          expect(mockRouter.navigate).not.toHaveBeenCalled();
         }
       });
     });
