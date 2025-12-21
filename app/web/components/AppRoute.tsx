@@ -7,7 +7,7 @@ import Footer from "components/Footer";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useRouter } from "next/router";
 import { useIsNativeEmbed } from "platform/nativeLink";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
 import { theme } from "theme";
 
@@ -26,7 +26,23 @@ const globalStyles = (
     styles={{
       "html, body": {
         margin: 0,
-        overflow: "hidden", // Prevents whole-page scrolling
+      },
+      "#__next": {
+        minHeight: "calc(var(--vh, 1vh) * 100)", // Use the dynamic --vh value from _app
+        display: "flex",
+        flexDirection: "column",
+      },
+    }}
+  />
+);
+
+// For no-overflow variant (e.g., map/search pages), we need fixed viewport height
+const globalStylesNoOverflow = (
+  <GlobalStyles
+    styles={{
+      "html, body": {
+        margin: 0,
+        overflow: "hidden",
       },
       "#__next": {
         height: "calc(var(--vh, 1vh) * 100)", // Use the dynamic --vh value from _app
@@ -37,12 +53,17 @@ const globalStyles = (
   />
 );
 
-const PageWrapper = styled(Box)({
+const PageWrapper = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "isNoOverflow",
+})<{ isNoOverflow?: boolean }>(({ isNoOverflow }) => ({
   display: "flex",
   flexDirection: "column",
   flex: 1,
-  overflowY: "auto",
-});
+  ...(isNoOverflow && {
+    overflow: "hidden",
+    minHeight: 0,
+  }),
+}));
 
 const ContentWrapper = styled(
   Container,
@@ -55,6 +76,7 @@ const ContentWrapper = styled(
   flex: 1,
   ...(variant === "no-overflow" && {
     overflow: "hidden",
+    minHeight: 0,
   }),
   ...(variant === "standard" && {
     paddingLeft: theme.spacing(2),
@@ -72,7 +94,6 @@ function AppRoute({
 }: AppRouteProps) {
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const pageWrapperRef = useRef<HTMLDivElement>(null);
   const { pathname } = router;
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
@@ -95,24 +116,18 @@ function AppRoute({
     }
   }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
 
-  useEffect(() => {
-    if (pageWrapperRef.current) {
-      pageWrapperRef.current.scrollTo(0, 0);
-    }
-  }, [router.asPath]); // scroll to top on route change
-
   return (
     <ErrorBoundary>
       {isPrivate && (!isMounted || !isAuthenticated) ? (
         <CenteredSpinner minHeight="50vh" />
       ) : (
         <>
-          {globalStyles}
+          {variant === "no-overflow" ? globalStylesNoOverflow : globalStyles}
           <Navigation />
           {/* Temporary container injected for marketing to test dynamic "announcements".
            * Find a better spot to componentise this code once plan is more finalised with this */}
           <div id="announcements"></div>
-          <PageWrapper ref={pageWrapperRef}>
+          <PageWrapper isNoOverflow={variant === "no-overflow"}>
             <ContentWrapper
               disableGutters
               variant={variant}
