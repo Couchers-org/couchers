@@ -67,6 +67,7 @@ export default function LanguagePickerSelect({
   const { data: languages, isLoading, error } = useWeblateStats();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isChangingLanguage, setIsChangingLanguage] = useState(false);
 
   const { mutate: changeLanguageMutation } = useMutation({
     mutationFn: (newLanguage: string) =>
@@ -76,20 +77,33 @@ export default function LanguagePickerSelect({
   const handleChange = async (event: SelectChangeEvent<unknown>) => {
     const newLocale = event.target.value as string;
 
-    // Set cookie client-side immediately for both authenticated and logged-out users
-    // This ensures the middleware sees the updated locale before navigation
-    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; samesite=lax`;
-
-    if (isAuthenticated) {
-      // For authenticated users, also update backend's ui_language_preference
-      await changeLanguageMutation(newLocale);
+    // Prevent rapid consecutive language changes
+    if (isChangingLanguage) {
+      return;
     }
 
-    // Push new route with updated locale, preserving query parameters (e.g., invite codes, UTM params)
-    router.push({ pathname, query: router.query }, asPath, {
-      locale: newLocale,
-    });
-    onSelect?.();
+    setIsChangingLanguage(true);
+
+    try {
+      // Set cookie client-side immediately for both authenticated and logged-out users
+      // This ensures the middleware sees the updated locale before navigation
+      document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; samesite=lax`;
+
+      if (isAuthenticated) {
+        // For authenticated users, also update backend's ui_language_preference
+        await changeLanguageMutation(newLocale);
+      }
+
+      // Use replace instead of push to avoid navigation stack issues in WebView
+      // This prevents race conditions when changing languages rapidly
+      await router.replace({ pathname, query: router.query }, asPath, {
+        locale: newLocale,
+      });
+      onSelect?.();
+    } finally {
+      // Re-enable after navigation completes (or fails)
+      setIsChangingLanguage(false);
+    }
   };
 
   const handleTranslationProgressClick = (e: React.MouseEvent) => {
@@ -235,7 +249,7 @@ export default function LanguagePickerSelect({
               // Use renderValue to display the selected language in collapsed state
               renderValue={renderValue}
               IconComponent={ExpandMoreOutlinedIcon}
-              disabled={isLoading}
+              disabled={isLoading || isChangingLanguage}
               open={isOpen}
               onOpen={() => setIsOpen(true)}
               onClose={() => setIsOpen(false)}
@@ -271,7 +285,7 @@ export default function LanguagePickerSelect({
               value={isLoading ? "" : locale}
               fullWidth={isMobile}
               onChange={handleChange}
-              disabled={isLoading}
+              disabled={isLoading || isChangingLanguage}
               open={isOpen}
               onOpen={() => setIsOpen(true)}
               onClose={() => setIsOpen(false)}
