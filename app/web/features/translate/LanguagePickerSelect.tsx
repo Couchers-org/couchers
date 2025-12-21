@@ -94,9 +94,20 @@ export default function LanguagePickerSelect({
         await changeLanguageMutation(newLocale);
       }
 
-      // Use replace instead of push to avoid navigation stack issues in WebView
-      // This prevents race conditions when changing languages rapidly
-      await router.replace({ pathname, query: router.query }, asPath, {
+      // In WebView (mobile app), use window.location.href for server-side navigation
+      // This triggers middleware which properly handles the locale redirect
+      // Strip current locale prefix from asPath before adding new locale
+      if (typeof window !== "undefined" && window.ReactNativeWebView) {
+        const pathWithoutLocale =
+          locale && asPath.startsWith(`/${locale}`)
+            ? asPath.slice(`/${locale}`.length) || "/"
+            : asPath;
+        window.location.href = `/${newLocale}${pathWithoutLocale}`;
+        return;
+      }
+
+      // On web, pass undefined as the 'as' parameter to let Next.js handle locale routing
+      await router.push({ pathname, query: router.query }, undefined, {
         locale: newLocale,
       });
       onSelect?.();

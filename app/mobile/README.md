@@ -46,10 +46,12 @@ React Native mobile app built with [Expo](https://expo.dev).
 
 ```bash
 # iOS (requires Xcode setup above)
-npx expo run:ios --device
+npx expo run:ios --device # and plug your device in to computer via USB
+   # OR #
+eas build --platform ios --profile staging # leave out "--profile staging" for prod build
 
 # Android (requires Android Studio setup above, and running emulator)
-npx expo run:android
+npx expo run:android --device # and plug your device in to computer via USB
 ```
 
 If you already have a development build and haven't changed any native dependencies, app.json, app icons, or updated the Expo SDK:
@@ -68,11 +70,6 @@ For JavaScript/TypeScript changes (most development), just run Metro and your ch
 **Android Emulator users:** Use localhost mode if you get connection errors:
 ```bash
 npm run start:localhost
-```
-
-**Can't build locally?** Use EAS Build and install via download link:
-```bash
-eas build --platform ios --profile development
 ```
 
 ## Before Opening a PR
