@@ -111,6 +111,83 @@ describe("passwordLogin action", () => {
     );
     expect(result.current.authState.authenticated).toBe(true);
   });
+
+  it("sets NEXT_LOCALE cookie from user's language preference after login", async () => {
+    passwordLoginMock.mockResolvedValue({ userId: 1, jailed: false });
+    getUserMock.mockResolvedValue(defaultUser);
+    getAccountInfoMock.mockResolvedValue({ uiLanguagePreference: "es" });
+
+    // Mock document.cookie getter and setter
+    const cookieGetter = jest.fn(() => "");
+    const cookieSetter = jest.fn();
+    Object.defineProperty(document, "cookie", {
+      get: cookieGetter,
+      set: cookieSetter,
+      configurable: true,
+    });
+
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+
+    await act(() =>
+      result.current.authActions.passwordLogin({
+        password: "pass",
+        username: "user",
+        rememberDevice: true,
+      }),
+    );
+
+    expect(cookieSetter).toHaveBeenCalledWith(
+      "NEXT_LOCALE=es; path=/; max-age=31536000; samesite=lax",
+    );
+  });
+
+  it("does not update NEXT_LOCALE cookie if it matches user's language preference", async () => {
+    passwordLoginMock.mockResolvedValue({ userId: 1, jailed: false });
+    getUserMock.mockResolvedValue(defaultUser);
+    getAccountInfoMock.mockResolvedValue({ uiLanguagePreference: "fr" });
+
+    // Mock document.cookie with existing NEXT_LOCALE=fr
+    const cookieGetter = jest.fn(() => "NEXT_LOCALE=fr");
+    const cookieSetter = jest.fn();
+    Object.defineProperty(document, "cookie", {
+      get: cookieGetter,
+      set: cookieSetter,
+      configurable: true,
+    });
+
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+
+    await act(() =>
+      result.current.authActions.passwordLogin({
+        password: "pass",
+        username: "user",
+        rememberDevice: true,
+      }),
+    );
+
+    // Cookie should not be set since it already matches
+    expect(cookieSetter).not.toHaveBeenCalled();
+  });
+
+  it("handles syncLanguagePreference errors gracefully", async () => {
+    passwordLoginMock.mockResolvedValue({ userId: 1, jailed: false });
+    getUserMock.mockResolvedValue(defaultUser);
+    getAccountInfoMock.mockRejectedValue(new Error("Network error"));
+
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+
+    // Should still authenticate even if language sync fails
+    await act(() =>
+      result.current.authActions.passwordLogin({
+        password: "pass",
+        username: "user",
+        rememberDevice: true,
+      }),
+    );
+
+    expect(result.current.authState.authenticated).toBe(true);
+  });
+
   it("sets error correctly for login fail", async () => {
     passwordLoginMock.mockRejectedValue({
       code: StatusCode.PERMISSION_DENIED,
@@ -150,6 +227,32 @@ describe("firstLogin action", () => {
     expect(result.current.authState.userId).toBe(55);
     expect(result.current.authState.jailed).toBe(false);
     expect(result.current.authState.authenticated).toBe(true);
+  });
+
+  it("sets NEXT_LOCALE cookie from user's language preference on first login", async () => {
+    getAccountInfoMock.mockResolvedValue({ uiLanguagePreference: "de" });
+
+    // Mock document.cookie
+    const cookieGetter = jest.fn(() => "");
+    const cookieSetter = jest.fn();
+    Object.defineProperty(document, "cookie", {
+      get: cookieGetter,
+      set: cookieSetter,
+      configurable: true,
+    });
+
+    const { result } = renderHook(() => useAuthStore(), { wrapper });
+
+    await act(() =>
+      result.current.authActions.firstLogin({
+        userId: 55,
+        jailed: false,
+      }),
+    );
+
+    expect(cookieSetter).toHaveBeenCalledWith(
+      "NEXT_LOCALE=de; path=/; max-age=31536000; samesite=lax",
+    );
   });
 });
 

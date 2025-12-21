@@ -60,13 +60,13 @@ describe("LanguagePickerSelect", () => {
 
     const listBox = await screen.findByRole("listbox");
 
-    // Only languages with > 50% translation should be shown
+    // Only languages with >= 50% translation should be shown
     const expectedLanguages = ["EN", "ES", "FR", "DE"];
     expectedLanguages.forEach((language) => {
       within(listBox).getByText(language);
     });
 
-    // Russian should not be present since it has < 20% translation
+    // Languages < 50% should not be shown
     expect(within(listBox).queryByText("RU")).not.toBeInTheDocument();
     expect(within(listBox).queryByText("IT")).not.toBeInTheDocument();
     expect(within(listBox).queryByText("PT")).not.toBeInTheDocument();
