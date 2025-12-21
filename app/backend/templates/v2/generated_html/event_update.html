@@ -340,7 +340,7 @@
                               </tr>
                               <tr>
                                 <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:12px;text-align:center;color:#333333;">You're receiving this email because you signed up for Couchers.org.<br> You can reach our support team at <a href="mailto:support@couchers.org" style="color: #00a398;">support@couchers.org</a>.<br> All times are in {{ _timezone_display|v2sf }}, based on your profile location.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:12px;text-align:center;color:#333333;">You're receiving this email because you signed up for Couchers.org.<br> You can reach our support team at <a href="mailto:support@couchers.org" style="color: #00a398;">support@couchers.org</a>.<br> All times are in {{ footer_timezone_display|v2sf }}, based on your profile location.</div>
                                 </td>
                               </tr>
                               <tr>
@@ -350,7 +350,7 @@
                               </tr>
                               <tr>
                                 <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:8px;line-height:10px;text-align:center;color:#333333;">&copy; {{ _year|v2sf }} Couchers, Inc.<br> 3120 Winkler Ave, Unit 9. Fort Myers, FL 33916, USA.<br>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:8px;line-height:10px;text-align:center;color:#333333;">&copy; {{ footer_copyright_year|v2sf }} Couchers, Inc.<br> 3120 Winkler Ave, Unit 9. Fort Myers, FL 33916, USA.<br>
                                     <i>Couchers.org is a project of Couchers, Inc. a U.S. 501(c)(3) non-profit, tax-exempt organization.</i>
                                   </div>
                                 </td>
@@ -382,8 +382,8 @@
                   <tbody>
                     <tr>
                       <td align="center" class="unsub" style="font-size:0px;padding:0px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:16px;text-align:center;color:#777777;">{% if footer_email_is_critical %} This is a security email, you cannot unsubscribe from it. {% else %} <a href="{{footer_manage_notifications_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Manage notification preferences</a>. {% if footer_notification_topic_action or footer_notification_topic_key %} <br> Turn off emails for: {% if footer_notification_topic_action %} <a href="{{footer_notification_topic_action_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{footer_notification_topic_action}}</a> {% endif %} {% if footer_notification_topic_key %} {% if footer_notification_topic_action %} / {% endif %} <a href="{{footer_notification_topic_key_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{footer_notification_topic_key}}</a> {% endif %} {% endif %} <br>
-                          <a href="{{footer_do_not_email_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Do not email me (disables hosting)</a>. {% endif %}
+                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:16px;text-align:center;color:#777777;">{% if footer_manage_notifications_link %} <a href="{{footer_manage_notifications_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Manage notification preferences</a>. {% if footer_notification_topic_action or footer_notification_topic_key %} <br> Turn off emails for: {% if footer_notification_topic_action %} <a href="{{footer_notification_topic_action_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{footer_notification_topic_action}}</a> {% endif %} {% if footer_notification_topic_key %} {% if footer_notification_topic_action %} / {% endif %} <a href="{{footer_notification_topic_key_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{footer_notification_topic_key}}</a> {% endif %} {% endif %} <br>
+                          <a href="{{footer_do_not_email_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Do not email me (disables hosting)</a>. {% else %} This is a security email, you cannot unsubscribe from it. {% endif %}
                         </div>
                       </td>
                     </tr>

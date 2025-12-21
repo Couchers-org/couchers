@@ -1,8 +1,7 @@
 import logging
-from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from google.protobuf import empty_pb2
-from jinja2 import Environment, FileSystemLoader
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, func
 
@@ -27,52 +26,13 @@ from couchers.notifications.render import render_notification
 from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import couchers_select as select
-from couchers.templates.v2 import (
-    CONTEXT_PLAINTEXT_KEY,
-    CONTEXT_TIMEZONE_DISPLAY_KEY,
-    CONTEXT_TRANSLATION_COMPONENT_KEY,
-    CONTEXT_TRANSLATION_LANGUAGE_KEY,
-    CONTEXT_YEAR_KEY,
-    add_filters,
-)
-from couchers.utils import get_tz_as_text, now
+from couchers.templates.v2 import NotificationManagement, render_email
 
 logger = logging.getLogger(__name__)
-
-template_folder = Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2"
-
-loader = FileSystemLoader(template_folder)
-env = Environment(loader=loader, trim_blocks=True)
-
-add_filters(env)
 
 
 def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
     rendered = render_notification(user, notification)
-    template_args = {
-        "user": user,
-        "time": notification.created,
-        "footer_email_is_critical": rendered.is_critical,
-        "footer_manage_notifications_link": urls.notification_settings_link(),
-        "footer_notification_topic_action": rendered.email_topic_action_unsubscribe_text,
-        "footer_notification_topic_action_link": generate_unsub_topic_action(notification),
-        "footer_notification_topic_key": rendered.email_topic_key_unsubscribe_text,
-        "footer_notification_topic_key_link": generate_unsub_topic_key(notification),
-        "footer_do_not_email_link": generate_do_not_email(user),
-        CONTEXT_TRANSLATION_LANGUAGE_KEY: user.ui_language_preference or "en",
-        CONTEXT_TRANSLATION_COMPONENT_KEY: "notifications",
-        CONTEXT_YEAR_KEY: now().year,
-        CONTEXT_TIMEZONE_DISPLAY_KEY: get_tz_as_text(user.timezone or "Etc/UTC"),
-        **rendered.email_template_args,
-    }
-
-    plain_tmplt = (template_folder / f"{rendered.email_template_name}.txt").read_text()
-    plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain_template_args = {**template_args, CONTEXT_PLAINTEXT_KEY: True}  # Strip html from translations.
-    plain = env.from_string(plain_tmplt + plain_tmplt_footer).render(plain_template_args)
-
-    html_tmplt = (template_folder / "generated_html" / f"{rendered.email_template_name}.html").read_text()
-    html = env.from_string(html_tmplt).render(template_args)
 
     if user.do_not_email and not rendered.is_critical:
         logger.info(f"Not emailing {user} based on template {rendered.email_template_name} due to emails turned off")
@@ -85,6 +45,35 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     if user.is_deleted and not rendered.allow_deleted:
         logger.info(f"Tried emailing {user} based on template {rendered.email_template_name} but user is deleted")
         return
+
+    template_args = {
+        **rendered.email_template_args,
+        # Common args that email bodies can assume.
+        "user": user,
+        "time": notification.created,
+    }
+
+    notification_management = NotificationManagement(
+        settings_url=urls.notification_settings_link(),
+        topic_action_text=rendered.email_topic_action_unsubscribe_text,
+        topic_action_url=generate_unsub_topic_action(notification),
+        topic_key_text=rendered.email_topic_key_unsubscribe_text,
+        topic_key_url=generate_unsub_topic_key(notification),
+        do_not_email_url=generate_do_not_email(user),
+    )
+
+    def _render_email(plaintext: bool) -> str:
+        return render_email(
+            rendered.email_template_name,
+            template_args,
+            lang=user.ui_language_preference or "en",
+            timezone=ZoneInfo(user.timezone or "Etc/UTC"),
+            notification_management=notification_management,
+            plaintext=plaintext,
+        )
+
+    plain = _render_email(plaintext=True)
+    html = _render_email(html=True)
 
     list_unsubscribe_header = None
     if rendered.email_list_unsubscribe_url:
