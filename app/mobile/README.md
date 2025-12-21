@@ -111,7 +111,7 @@ npx testflight # for production environment version
 
 # OR
 
-eas build --platform ios --profile development --auto-submit # for staging environment version (good if people need to make dummy data)
+eas build --platform ios --profile staging --auto-submit # for staging environment version (good if people need to make dummy data)
 
 ```
 
@@ -140,7 +140,7 @@ eas build --platform android --auto-submit # for production environment version
 
 # OR
 
-eas build --platform android --profile development --auto-submit # for staging environment version (good if people need to make dummy data)
+eas build --platform android --profile staging --auto-submit # for staging environment version (good if people need to make dummy data)
 ```
 
 The `--auto-submit` flag will:
