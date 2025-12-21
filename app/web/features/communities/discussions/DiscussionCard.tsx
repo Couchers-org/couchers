@@ -5,7 +5,7 @@ import CopyOnClick from "features/mod/CopyOnClick";
 import ModVisibleComponent from "features/mod/ModVisibleComponent";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { Discussion } from "proto/discussions_pb";
 import { useMemo } from "react";
@@ -64,7 +64,7 @@ export default function DiscussionCard({
   discussion: Discussion.AsObject;
   className?: string;
 }) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const { data: creator } = useLiteUser(discussion.creatorUserId);
 
   const date = discussion.created
