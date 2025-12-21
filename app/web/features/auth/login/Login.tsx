@@ -55,9 +55,9 @@ export default function Login() {
               ?.split("=")[1]
           : null;
 
-      // Use the cookie's locale if available, otherwise use current router locale
-      const targetLocale = nextLocale || router.locale;
+      const targetLocale = nextLocale || router.locale || "en";
 
+      // Navigate to destination with user's preferred locale
       router.push(redirectTo, undefined, { locale: targetLocale });
     }
   }, [authenticated, router, redirectTo]);

@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import Sentry from "platform/sentry";
 
-interface WeblateLanguage {
+export interface WeblateLanguage {
   code: string;
   name: string;
   translated_percent: number;
 }
 
-const fetchWeblateStats = async (): Promise<WeblateLanguage[]> => {
+export const fetchWeblateStats = async (): Promise<WeblateLanguage[]> => {
   try {
     const response = await fetch(
       "https://cdn.couchers.org/api/projects/couchers/languages/",
