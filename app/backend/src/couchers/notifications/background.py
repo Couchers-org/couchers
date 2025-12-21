@@ -3,6 +3,7 @@ from pathlib import Path
 
 from google.protobuf import empty_pb2
 from jinja2 import Environment, FileSystemLoader
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, func
 
@@ -178,6 +179,13 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                         delivery_type=NotificationDeliveryType.email,
                     )
                 )
+                try:
+                    session.flush()
+                except IntegrityError:
+                    # Race condition: another job already created this delivery
+                    session.rollback()
+                    logger.info(f"Skipping {delivery_type} delivery for notification {notification.id}: race condition")
+                    continue
                 _send_email_notification(session, user, notification)
             elif delivery_type == NotificationDeliveryType.digest:
                 # for digest notifications, add to digest queue
@@ -188,6 +196,13 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                         delivery_type=NotificationDeliveryType.digest,
                     )
                 )
+                try:
+                    session.flush()
+                except IntegrityError:
+                    # Race condition: another job already created this delivery
+                    session.rollback()
+                    logger.info(f"Skipping {delivery_type} delivery for notification {notification.id}: race condition")
+                    continue
             elif delivery_type == NotificationDeliveryType.push:
                 # for push notifications, we send them straight away (web + mobile)
                 session.add(
@@ -197,6 +212,13 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                         delivery_type=NotificationDeliveryType.push,
                     )
                 )
+                try:
+                    session.flush()
+                except IntegrityError:
+                    # Race condition: another job already created this delivery
+                    session.rollback()
+                    logger.info(f"Skipping {delivery_type} delivery for notification {notification.id}: race condition")
+                    continue
                 _send_push_notification(session, user, notification)
 
 
