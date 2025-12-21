@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   BackHandler,
   Image,
+  Linking,
   Platform,
   Pressable,
   StyleSheet,
@@ -121,22 +122,20 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       return;
     }
 
-    // Track the current web path
+    // Track the current web path (strip query params for tab comparison)
     const webPath: string = normalizedUrl.replace(WEB_BASE_URL, "") || "/";
+    const webPathWithoutQuery = webPath.split("?")[0];
     currentWebPathRef.current = webPath;
 
     // Sync native tab highlighting when WebView navigates to a different section
-    const targetTab = getTabNameForPath(webPath);
+    const targetTab = getTabNameForPath(webPathWithoutQuery);
     const currentTab = getTabNameForPath(path);
 
-    if (targetTab !== currentTab) {
-      if (targetTab) {
-        // Navigate to a main tab
-        router.navigate(`/${targetTab}` as Href);
-      } else {
-        // Navigate to non-tab route (deselects all tabs)
-        router.navigate(webPath as Href);
-      }
+    // Only navigate native router when switching between main tabs
+    // Don't navigate for internal web navigation (like tab changes on profile pages)
+    if (targetTab !== currentTab && targetTab) {
+      // Navigate to a main tab (dashboard, messages, search, communities)
+      router.navigate(`/${targetTab}` as Href);
     }
   };
 
@@ -161,6 +160,18 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         console.debug("WebEmbed: Ignoring non-JSON message", error);
       }
     }
+  };
+
+  const handleOpenWindow = (syntheticEvent: {
+    nativeEvent: { targetUrl: string };
+  }) => {
+    const { targetUrl } = syntheticEvent.nativeEvent;
+    // Open target="_blank" links in device's browser (Safari/Chrome)
+    Linking.openURL(targetUrl).catch((err) => {
+      if (__DEV__) {
+        console.error("Failed to open external link:", err);
+      }
+    });
   };
 
   // Show error screen
@@ -210,6 +221,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         )}
         onNavigationStateChange={handleNavigationStateChange}
         injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
+        onOpenWindow={handleOpenWindow}
         onMessage={handleMessage}
         onError={(syntheticEvent) => {
           setHasError(true);

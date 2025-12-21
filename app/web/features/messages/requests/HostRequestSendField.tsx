@@ -42,6 +42,8 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexWrap: "wrap",
   justifyContent: "center",
+  gap: theme.spacing(1),
+  marginTop: theme.spacing(1),
 }));
 
 const StyledButton = styled(Button)<ButtonProps>({

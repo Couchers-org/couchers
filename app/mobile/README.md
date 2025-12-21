@@ -2,101 +2,78 @@
 
 React Native mobile app built with [Expo](https://expo.dev).
 
-## Prerequisites
+## Table of Contents
 
-### For Local Development Builds
+- [First Time Setup](#first-time-setup)
+- [Local Development](#local-development)
+- [Before Opening a PR](#before-opening-a-pr)
+- [Publish Your Changes - TestFlight / Play Store Builds](#publish-your-changes---testflight--play-store-builds)
+- [Submitting Builds for Testing](#submitting-builds-for-testing)
+- [Learn More](#learn-more)
 
-**iOS (macOS only):**
-
-Local iOS builds compile native code on your machine, which requires Apple's development tools.
-
-1. Install **Xcode** from the Mac App Store — Apple's IDE that includes the iOS SDK and simulator
-2. Install **CocoaPods** — dependency manager for iOS native libraries:
-   ```bash
-   brew install cocoapods
-   ```
-
-**Android:**
-
-Local Android builds compile native code on your machine, which requires Google's development tools.
-
-1. Install **[Android Studio](https://developer.android.com/studio)** — Google's IDE that includes the Android SDK and emulator
-2. Add environment variables to `~/.zshrc` — tells your system where to find the SDK tools:
-   ```bash
-   export ANDROID_HOME=$HOME/Library/Android/sdk
-   export PATH=$PATH:$ANDROID_HOME/emulator
-   export PATH=$PATH:$ANDROID_HOME/platform-tools
-   ```
-
-### For Production Builds (TestFlight / Play Store)
-
-No local native tools required—builds run in the cloud via EAS.
-
-```bash
-npm install -g eas-cli
-eas login
-eas credentials  # configure app signing
-```
 
 ## First Time Setup
 
-1. Install dependencies and generate gRPC stubs:
+### Install Development Tools
 
-   ```bash
-   npm install
-   npm run build:protos
-   ```
+**iOS (macOS only):**
+- Install **Xcode** from the Mac App Store
+- Install **CocoaPods**: `brew install cocoapods`
 
-2. Create a local development build (required for native features like push notifications):
+**iOS Physical Device Setup:**
+1. Open `ios/Couchers.xcworkspace` in Xcode
+2. Go to **Signing & Capabilities** tab
+3. Enable **"Automatically manage signing"** and select your Team
+4. Connect your iPhone via USB, enable developer mode
 
-If you are testing on a device where you don't have the phone, you can set up a simulator first:
+**Android:**
+- Install **[Android Studio](https://developer.android.com/studio)**
+- Add to `~/.zshrc`:
+  ```bash
+  export ANDROID_HOME=$HOME/Library/Android/sdk
+  export PATH=$PATH:$ANDROID_HOME/emulator
+  export PATH=$PATH:$ANDROID_HOME/platform-tools
+  ```
 
-   * [Instructions to set up the iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-   * [Instructions to set up the Android Studio Emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+## Local Development
 
-   **Important for Android Emulator:** Make sure the emulator is running before building. Open Android Studio → Device Manager → Start an emulator.
+**First time?** You need a development build installed on your device before you can develop. Run one of these. It will take awhile and ask you to enter your password many times. That's normal.
 
-   ```bash
-   npm run ios      # requires Xcode + CocoaPods
-   npm run android  # requires Android Studio + running emulator
-   ```
-
-   We use local builds for development because they're free and faster to iterate on. They compile the native app directly on your machine. Pods are installed automatically on first build.
-
-   > **Physical device?** You'll need to be added to the Apple Developer team (contact @aapeli) and configure code signing in Xcode:
-   >
-   > 1. Open the workspace in Xcode:
-   >    ```bash
-   >    open ios/Couchers.xcworkspace  # ⚠️ Use .xcworkspace, NOT .xcodeproj
-   >    ```
-   > 2. Select the **Couchers** project (blue icon) → **Couchers** target → **Signing & Capabilities** tab
-   > 3. Check **"Automatically manage signing"** and select your **Team** (sign in with your Apple ID if needed)
-   > 4. Verify Bundle Identifier is `com.couchersorg.mobile` (or use a unique ID like `com.yourname.couchers` for personal testing)
-   > 5. Connect your device via USB, enable developer mode, then run:
-   >    ```bash
-   >    npx expo run:ios --device
-   >    ```
-   >    After initial install, you can disconnect and develop wirelessly. Note: You may be prompted for your password up to 3 times during the build.
-
-## Development
-
-Start the Metro bundler:
+**When do you need a new build?** Only when you:
+- Add/remove native dependencies (`npm install` of native modules)
+- Change `app.json` configuration
+- Update Expo SDK version
 
 ```bash
+# iOS (requires Xcode setup above)
+npx expo run:ios --device
+
+# Android (requires Android Studio setup above, and running emulator)
+npx expo run:android
+```
+
+If you already have a development build and haven't changed any native dependencies, app.json, app icons, or updated the Expo SDK:
+
+```bash
+npm install
+npm run build:protos
 npx expo start
 ```
 
-**For Android Emulator users:** If you're developing on an Android emulator and getting connection errors, use the localhost mode:
+Then scan the QR code with your phone's camera. Your changes will automatically reload on your device as you code.
 
+For JavaScript/TypeScript changes (most development), just run Metro and your changes hot-reload automatically!
+
+
+**Android Emulator users:** Use localhost mode if you get connection errors:
 ```bash
 npm run start:localhost
-# or
-npx expo start --localhost
 ```
 
-Then press `a` to open on the emulator. This uses the special `10.0.2.2` address that Android emulators use to access the host machine.
-
-**For physical devices:** Scan the QR code with your phone's camera (works with the regular `npx expo start` command).
+**Can't build locally?** Use EAS Build and install via download link:
+```bash
+eas build --platform ios --profile development
+```
 
 ## Before Opening a PR
 
@@ -107,9 +84,10 @@ npm run format   # auto-fix lint errors + format code
 npm run lint     # check for remaining lint errors
 npm test         # run tests
 npx expo start   # make sure app starts and click around
+npx expo-doctor  # make sure no errors get flagged for a build
 ```
 
-## TestFlight / Play Store Builds
+## Publish your changes - TestFlight / Play Store Builds
 
 Use [EAS Build](https://expo.dev/eas) for production builds. These build in the cloud so no local native tools are required, but there's a small charge per build.
 
@@ -120,8 +98,6 @@ eas build --platform android
 
 ## Submitting Builds for Testing
 
-**Note:** Delete any local `ios/` and `android/` folders before building. We use Continuous Native Generation (CNG), so EAS Build automatically generates them during cloud builds.
-
 ### iOS (TestFlight)
 
 To submit your iOS app to TestFlight for QA testing:
@@ -131,10 +107,15 @@ To submit your iOS app to TestFlight for QA testing:
 npx expo-doctor
 
 # Build and submit to TestFlight
-npx testflight
+npx testflight # for production environment version
+
+# OR
+
+eas build --platform ios --profile development --auto-submit # for staging environment version (good if people need to make dummy data)
+
 ```
 
-The `testflight` command will:
+The build commands will:
 1. Build your iOS app using EAS
 2. Handle Apple credentials and code signing automatically
 3. Submit the build to TestFlight
@@ -144,7 +125,7 @@ Once submitted, the build will be available in TestFlight after automated review
 - Add tester email addresses (no Apple Developer account needed for testers)
 - Testers receive an email, download the TestFlight app, and install your app
 
-**Note:** TestFlight builds are private and NOT released to the public App Store unless you manually submit for App Store review.
+**Note:** TestFlight builds are private and NOT released to the public App Store unless you manually submit for App Store review. Each one incurs a small charge to Couchers.org.
 
 ### Android (Google Play Internal Testing)
 
@@ -155,7 +136,11 @@ To submit your Android app to Google Play Internal Testing for QA testing:
 npx expo-doctor
 
 # Build and submit to Google Play Internal Testing
-eas build --platform android --auto-submit
+eas build --platform android --auto-submit # for production environment version
+
+# OR
+
+eas build --platform android --profile development --auto-submit # for staging environment version (good if people need to make dummy data)
 ```
 
 The `--auto-submit` flag will:

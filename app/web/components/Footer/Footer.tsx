@@ -300,9 +300,19 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
               }}
             >
               Version{" "}
-              <VersionLink href={version_link}>{version_text}</VersionLink>,
-              last updated{" "}
-              <VersionLink href={updated_ago_link}>
+              <VersionLink
+                href={version_link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {version_text}
+              </VersionLink>
+              , last updated{" "}
+              <VersionLink
+                href={updated_ago_link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {updated_ago_text}
               </VersionLink>
               .
