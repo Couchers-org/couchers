@@ -10,7 +10,6 @@ import {
   timeAgoI18n,
   TimeUnit,
   weekMillis,
-  yearMillis,
 } from "./timeAgo";
 
 beforeEach(() => {
@@ -61,7 +60,7 @@ test("timeAgoI18n function, normal case", () => {
   const now = Date.now();
   const before = new Date(now - 8.5 * hourMillis);
   const timeString = timeAgoI18n({ input: before, t: mockT });
-  expect(timeString).toBe("x_hours_ago,8");
+  expect(timeString).toBe("n_hours_ago,8");
 });
 
 test("timeAgoI18n function with fuzzy", () => {
