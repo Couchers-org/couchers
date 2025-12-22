@@ -3,9 +3,12 @@ import logging
 
 import grpc
 import stripe
+from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 
 from couchers import urls
 from couchers.config import config
+from couchers.context import CouchersContext
 from couchers.helpers.badges import user_add_badge
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
 from couchers.notifications.notify import notify
@@ -30,7 +33,9 @@ def _create_stripe_customer(session, user):
 
 
 class Donations(donations_pb2_grpc.DonationsServicer):
-    def InitiateDonation(self, request, context, session):
+    def InitiateDonation(
+        self, request: donations_pb2.InitiateDonationReq, context: CouchersContext, session: Session
+    ) -> donations_pb2.InitiateDonationRes:
         if not config["ENABLE_DONATIONS"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
@@ -87,7 +92,9 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             stripe_checkout_session_id=checkout_session.id, stripe_checkout_url=checkout_session.url
         )
 
-    def GetDonationPortalLink(self, request, context, session):
+    def GetDonationPortalLink(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> donations_pb2.GetDonationPortalLinkRes:
         if not config["ENABLE_DONATIONS"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 

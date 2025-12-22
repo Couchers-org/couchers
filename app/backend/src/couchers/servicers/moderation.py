@@ -2,7 +2,9 @@ import logging
 
 import grpc
 from sqlalchemy import and_, exists, not_, or_
+from sqlalchemy.orm import Session
 
+from couchers.context import CouchersContext
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
     observe_moderation_action,
@@ -140,7 +142,9 @@ def moderation_state_to_pb(state: ModerationState, session):
 
 
 class Moderation(moderation_pb2_grpc.ModerationServicer):
-    def GetModerationQueue(self, request, context, session):
+    def GetModerationQueue(
+        self, request: moderation_pb2.GetModerationQueueReq, context: CouchersContext, session: Session
+    ) -> moderation_pb2.GetModerationQueueRes:
         """Get moderation queue items with optional filtering"""
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
@@ -232,7 +236,9 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             next_page_token=str(queue_items[page_size - 1].id) if len(queue_items) > page_size else None,
         )
 
-    def GetModerationState(self, request, context, session):
+    def GetModerationState(
+        self, request: moderation_pb2.GetModerationStateReq, context: CouchersContext, session: Session
+    ) -> moderation_pb2.GetModerationStateRes:
         """Get moderation state by object type and object ID"""
         object_type = moderationobjecttype2sql[request.object_type]
         if object_type is None:
@@ -250,7 +256,9 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             moderation_state=moderation_state_to_pb(moderation_state, session),
         )
 
-    def GetModerationLog(self, request, context, session):
+    def GetModerationLog(
+        self, request: moderation_pb2.GetModerationLogReq, context: CouchersContext, session: Session
+    ) -> moderation_pb2.GetModerationLogRes:
         """Get moderation log for a specific moderation state"""
         # Get the moderation state
         moderation_state = session.execute(
@@ -296,7 +304,9 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             moderation_state=moderation_state_pb,
         )
 
-    def ModerateContent(self, request, context, session):
+    def ModerateContent(
+        self, request: moderation_pb2.ModerateContentReq, context: CouchersContext, session: Session
+    ) -> moderation_pb2.ModerateContentRes:
         """Unified moderation action - takes both action and visibility explicitly"""
 
         moderation_state = session.execute(
@@ -379,7 +389,9 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             moderation_state=moderation_state_to_pb(moderation_state, session),
         )
 
-    def FlagContentForReview(self, request, context, session):
+    def FlagContentForReview(
+        self, request: moderation_pb2.FlagContentForReviewReq, context: CouchersContext, session: Session
+    ) -> moderation_pb2.FlagContentForReviewRes:
         """Flag content for review by adding it to the moderation queue"""
 
         moderation_state = session.execute(
@@ -416,7 +428,9 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
         return moderation_pb2.FlagContentForReviewRes(queue_item=queue_item_pb)
 
-    def UnflagContent(self, request, context, session):
+    def UnflagContent(
+        self, request: moderation_pb2.UnflagContentReq, context: CouchersContext, session: Session
+    ) -> moderation_pb2.UnflagContentRes:
         """Unflag content by resolving pending queue items"""
 
         moderation_state = session.execute(
