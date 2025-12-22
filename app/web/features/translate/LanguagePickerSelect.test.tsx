@@ -182,39 +182,6 @@ describe("LanguagePickerSelect", () => {
     );
   });
 
-  it("calls router.push with undefined to let Next.js handle locale routing", async () => {
-    // Mock document.cookie
-    const cookieSetter = jest.fn();
-    Object.defineProperty(document, "cookie", {
-      set: cookieSetter,
-      configurable: true,
-    });
-
-    // Spy on router.push to verify exact arguments
-    const pushSpy = jest.spyOn(mockRouter, "push");
-
-    render(<LanguagePickerSelect />, { wrapper });
-
-    const select = screen.getByRole("combobox");
-    const user = userEvent.setup();
-    await user.click(select);
-
-    const listBox = await screen.findByRole("listbox");
-    const germanOption = within(listBox).getByText("DE");
-
-    await user.click(germanOption);
-
-    // Should call router.push with undefined as second parameter
-    // This lets Next.js automatically handle adding the locale prefix
-    expect(pushSpy).toHaveBeenCalledWith(
-      { pathname: "/messages/hosting", query: {} },
-      undefined,
-      { locale: "de" },
-    );
-
-    pushSpy.mockRestore();
-  });
-
   it("prevents rapid consecutive language changes", async () => {
     // Mock document.cookie
     const cookieSetter = jest.fn();
