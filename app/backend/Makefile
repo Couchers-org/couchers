@@ -6,7 +6,7 @@ ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
 # Generate protobuf implementations. Advise to pull the latest image if the command fails.
 protos:
-	@IMAGE=registry.gitlab.com/couchers/grpc; \
+	@IMAGE=local-grpc; \
 	cmd="docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app $$IMAGE ./generate_protos.sh"; \
 	$$cmd; status=$$?; \
 	if [ $$status -ne 0 ]; then \
