@@ -117,7 +117,7 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
     # but those should not appear in plain text emails.
     if context.parent.get(CONTEXT_PLAINTEXT_KEY) == True:
 
-        def replace_tag(match: re.Match) -> str:
+        def replace_tag(match: re.Match[str]) -> str:
             tag = match.group(1)
             inner_text = match.group(2)
             if tag.lower() == "a":

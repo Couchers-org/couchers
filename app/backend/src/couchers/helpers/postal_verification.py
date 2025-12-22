@@ -1,4 +1,5 @@
 import secrets
+from typing import cast
 
 from sqlalchemy import exists
 from sqlalchemy.orm import Session
@@ -27,7 +28,7 @@ def has_postal_verification(session: Session, user: User) -> bool:
     Similar to strong verification, we query the database rather than
     storing a denormalized flag on the user.
     """
-    return session.execute(
+    result = session.execute(
         select(
             exists(
                 select(PostalVerificationAttempt)
@@ -36,3 +37,5 @@ def has_postal_verification(session: Session, user: User) -> bool:
             )
         )
     ).scalar()
+
+    return cast(bool, result)

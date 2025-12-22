@@ -9,6 +9,7 @@ CouchersContext, and a third parameter, "session: sqlalchemy.orm.Session", is ad
 
 import sys
 import re
+from typing import Callable
 
 
 def add_imports(lines: list[str]) -> list[str]:
@@ -43,7 +44,7 @@ def replace_context_parameter(lines: list[str]) -> list[str]:
     """Replace 'context: _ServicerContext,' with 'context: CouchersContext,\nsession: orm.Session'."""
     new_lines = []
     for line in lines:
-        if 'context: _ServicerContext,' in line:
+        if 'context: grpc.ServicerContext,' in line:
             # Get the indentation
             indent = len(line) - len(line.lstrip())
             # Replace the line
@@ -54,40 +55,40 @@ def replace_context_parameter(lines: list[str]) -> list[str]:
     return new_lines
 
 
-def delete_between_markers(file_path: str, log) -> None:
+def delete_between_markers(file_path: str, log: Callable[..., None]) -> None:
     """Delete content between the marker lines in the file."""
     with open(file_path, 'r') as f:
         lines = f.readlines()
 
     # Find the line numbers for our markers
-    grpc_version_line = None
-    servicer_class_line = None
-
-    for i, line in enumerate(lines):
-        if "GRPC_VERSION: str" in line:
-            grpc_version_line = i
-        if re.search(r'class \w+Servicer\(metaclass=abc\.ABCMeta\):', line):
-            servicer_class_line = i
-            break
-
-    if grpc_version_line is None:
-        log(f"Error: Could not find 'GRPC_VERSION: str' in {file_path}")
-        sys.exit(1)
-
-    if servicer_class_line is None:
-        log(f"Warning: Could not find 'class <Name>Servicer(metaclass=abc.ABCMeta):' in {file_path}")
-        log("File has no Servicer class - skipping (likely an empty/message-only proto)")
-        sys.exit(0)
-
-    log(f"Found 'GRPC_VERSION: str' at line {grpc_version_line + 1}")
-    log(f"Found 'class <Name>Servicer(metaclass=abc.ABCMeta):' at line {servicer_class_line + 1}")
-    log(f"Deleting lines {grpc_version_line + 2} to {servicer_class_line}")
+    # grpc_version_line = None
+    # servicer_class_line = None
+    #
+    # for i, line in enumerate(lines):
+    #     if "GRPC_VERSION: str" in line:
+    #         grpc_version_line = i
+    #     if re.search(r'class \w+Servicer\(metaclass=abc\.ABCMeta\):', line):
+    #         servicer_class_line = i
+    #         break
+    #
+    # if grpc_version_line is None:
+    #     log(f"Error: Could not find 'GRPC_VERSION: str' in {file_path}")
+    #     sys.exit(1)
+    #
+    # if servicer_class_line is None:
+    #     log(f"Warning: Could not find 'class <Name>Servicer(metaclass=abc.ABCMeta):' in {file_path}")
+    #     log("File has no Servicer class - skipping (likely an empty/message-only proto)")
+    #     sys.exit(0)
+    #
+    # log(f"Found 'GRPC_VERSION: str' at line {grpc_version_line + 1}")
+    # log(f"Found 'class <Name>Servicer(metaclass=abc.ABCMeta):' at line {servicer_class_line + 1}")
+    # log(f"Deleting lines {grpc_version_line + 2} to {servicer_class_line}")
 
     # Keep lines up to and including GRPC_VERSION, then skip to the servicer class
-    new_lines = lines[:grpc_version_line + 1] + lines[servicer_class_line:]
+    # new_lines = lines[:grpc_version_line + 1] + lines[servicer_class_line:]
 
     # Add necessary imports
-    new_lines = add_imports(new_lines)
+    new_lines = add_imports(lines)
 
     # Replace context parameter
     new_lines = replace_context_parameter(new_lines)
@@ -96,8 +97,8 @@ def delete_between_markers(file_path: str, log) -> None:
     with open(file_path, 'w') as f:
         f.writelines(new_lines)
 
-    log(f"Successfully deleted content between the markers.")
-    log(f"Added imports and replaced context parameter.")
+    log("Successfully deleted content between the markers.")
+    log("Added imports and replaced context parameter.")
     log(f"File now has {len(new_lines)} lines (was {len(lines)} lines)")
 
 
@@ -107,8 +108,8 @@ def noop(*_, **__):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python delete_lines.py <file_path>")
+        print("Usage: python delete_lines.py <file>")
         sys.exit(1)
 
-    file_path = sys.argv[1]
-    delete_between_markers(file_path, log=print if "--verbose" in sys.argv else noop)
+    file = sys.argv[1]
+    delete_between_markers(file, log=print if "--verbose" in sys.argv else noop)

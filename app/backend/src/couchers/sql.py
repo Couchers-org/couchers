@@ -9,16 +9,11 @@ from couchers.models import GroupChat, HostRequest, ModerationState, ModerationV
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
 
 if TYPE_CHECKING:
-    from typing import Protocol
-
     from couchers.materialized_views import LiteUser
 
     type _UserLike = type[User | LiteUser | SignupFlow]
     type _User = type[User | LiteUser]
-
-    class ModeratedContent(Protocol):
-        moderation_state_id: InstrumentedAttribute[int]
-        __moderation_author_column__: str
+    type _ModeratedContent = type[HostRequest | GroupChat]
 
 
 class CouchersSelect(Select[Any]):
@@ -141,7 +136,7 @@ class CouchersSelect(Select[Any]):
 
     def where_moderated_content_visible_to_user_column(
         self,
-        table: "type[ModeratedContent]",
+        table: _ModeratedContent,
         user_id_column: InstrumentedAttribute[int],
         is_list_operation: bool = False,
     ) -> Self:
@@ -165,7 +160,7 @@ class CouchersSelect(Select[Any]):
     def where_moderated_content_visible(
         self,
         context: CouchersContext,
-        table: "type[ModeratedContent]",
+        table: _ModeratedContent,
         is_list_operation: bool = False,
     ) -> Self:
         aliased_mod_state = aliased(ModerationState)

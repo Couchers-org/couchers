@@ -407,3 +407,9 @@ def get_tz_as_text(tz_name: str) -> str:
 
 def make_logged_out_context() -> SimpleNamespace:
     return SimpleNamespace(user_id=0)
+
+
+def not_none[T](x: T | None) -> T:
+    if x is None:
+        raise ValueError("Expected a value but got None")
+    return x
