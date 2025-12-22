@@ -21,7 +21,7 @@ import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
-import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { translateRoute } from "routes";
 import { service } from "service";
@@ -57,7 +57,7 @@ export default function LanguagePickerSelect({
   onSelect,
 }: LanguagePickerSelectProps & { onSelect?: () => void }) {
   const router = useRouter();
-  const { locale, pathname } = router;
+  const { asPath, locale, pathname, query } = router;
   const { authState } = useAuthContext();
   const isAuthenticated = authState.authenticated;
 
@@ -69,12 +69,12 @@ export default function LanguagePickerSelect({
   const [isOpen, setIsOpen] = useState(false);
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
 
-  const { mutateAsync: changeLanguageMutation } = useMutation({
+  const { mutate: changeLanguageMutation } = useMutation({
     mutationFn: (newLanguage: string) =>
       service.account.changeLanguage(newLanguage),
   });
 
-  const handleChange = async (event: SelectChangeEvent<unknown>) => {
+  const handleChange = (event: SelectChangeEvent<unknown>) => {
     const newLocale = event.target.value as string;
 
     // Prevent rapid consecutive language changes
@@ -84,32 +84,19 @@ export default function LanguagePickerSelect({
 
     setIsChangingLanguage(true);
 
-    try {
-      // Set cookie client-side immediately for both authenticated and logged-out users
-      // This ensures the middleware sees the updated locale before navigation
-      document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; samesite=lax`;
+    // Set cookie client-side immediately for both authenticated and logged-out users
+    // This ensures the middleware sees the updated locale before navigation
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; samesite=lax`;
 
-      if (isAuthenticated) {
-        // For authenticated users, also update backend's ui_language_preference
-        // Wait for the mutation to complete before navigating
-        await changeLanguageMutation(newLocale);
-      }
-
-      // Don't pass asPath as second parameter - let Next.js handle locale routing automatically
-      // This prevents double locale prefixes in the URL
-      await router.push({ pathname, query: router.query }, undefined, {
-        locale: newLocale,
-      });
-      onSelect?.();
-    } catch (error) {
-      // If mutation or navigation fails, log it but don't block the UI
-      if (process.env.NODE_ENV !== "production") {
-        console.error("Language change failed:", error);
-      }
-    } finally {
-      // Re-enable after navigation completes (or fails)
-      setIsChangingLanguage(false);
+    if (isAuthenticated) {
+      // For authenticated users, also update backend's ui_language_preference
+      changeLanguageMutation(newLocale);
     }
+
+    router.push({ pathname, query }, asPath, { locale: newLocale });
+
+    setIsChangingLanguage(false);
+    onSelect?.();
   };
 
   const handleTranslationProgressClick = (e: React.MouseEvent) => {
