@@ -198,7 +198,7 @@ def render_email(
 
     # Fill in footer vars
     args["footer_copyright_year"] = now().year
-    args["footer_timezone_display"] = get_tz_as_text(timezone or "Etc/UTC")
+    args["footer_timezone_display"] = get_tz_as_text(timezone.key)
 
     if notification_management is not None:
         args["footer_manage_notifications_link"] = notification_management.settings_url
