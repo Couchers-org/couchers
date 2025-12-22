@@ -136,7 +136,7 @@ class CouchersSelect(Select[Any]):
 
     def where_moderated_content_visible_to_user_column(
         self,
-        table: _ModeratedContent,
+        table: "_ModeratedContent",
         user_id_column: InstrumentedAttribute[int],
         is_list_operation: bool = False,
     ) -> Self:
@@ -160,7 +160,7 @@ class CouchersSelect(Select[Any]):
     def where_moderated_content_visible(
         self,
         context: CouchersContext,
-        table: _ModeratedContent,
+        table: "_ModeratedContent",
         is_list_operation: bool = False,
     ) -> Self:
         aliased_mod_state = aliased(ModerationState)
