@@ -70,8 +70,19 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="events"
+        options={{
+          title: t("tabs.events"),
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "calendar" : "calendar-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
       {/* Additional screens that shouldn't show in tab bar */}
-      <Tabs.Screen name="events" options={{ href: null }} />
       <Tabs.Screen name="profile" options={{ href: null }} />
       <Tabs.Screen name="account-settings" options={{ href: null }} />
       <Tabs.Screen name="md/[...slug]" options={{ href: null }} />
