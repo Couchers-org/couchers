@@ -92,10 +92,10 @@ class Jail(jail_pb2_grpc.JailServicer):
         ).scalar_one_or_none()
 
         if not note:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "mod_note_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "moderator_note_not_found")
 
         if not request.acknowledge:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "mod_note_need_to_acknoweldge")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "moderator_note_need_to_acknowledge")
 
         note.acknowledged = now()
 

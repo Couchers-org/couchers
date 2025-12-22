@@ -324,7 +324,7 @@ def test_modnotes(db, push_collector):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You need to read and acknolwedge the mod note."
+        assert e.value.details() == "You need to read and acknowledge the moderator note."
 
         assert res.jailed
         assert res.has_pending_mod_notes
@@ -350,7 +350,7 @@ def test_modnotes(db, push_collector):
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Mod note not found."
+        assert e.value.details() == "Moderator note not found."
 
     with real_account_session(token) as account:
         res = account.ListModNotes(empty_pb2.Empty())
