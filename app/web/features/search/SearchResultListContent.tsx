@@ -140,8 +140,8 @@ const SearchResultListContent = ({
         {(users ?? []).length > 0 && (
           <Typography variant="body2">
             {t("search:search_result.people_range_message", {
-              currentRange,
-              totalItems,
+              currentRange: currentRange,
+              count: totalItems, // "count" name enables plurals
             })}
           </Typography>
         )}
