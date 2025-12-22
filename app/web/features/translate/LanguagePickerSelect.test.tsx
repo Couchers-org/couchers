@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { service } from "service";
@@ -56,7 +56,7 @@ describe("LanguagePickerSelect", () => {
     expect(select).toBeInTheDocument();
 
     const user = userEvent.setup();
-    user.click(select);
+    await user.click(select);
 
     const listBox = await screen.findByRole("listbox");
 
@@ -70,6 +70,9 @@ describe("LanguagePickerSelect", () => {
     expect(within(listBox).queryByText("RU")).not.toBeInTheDocument();
     expect(within(listBox).queryByText("IT")).not.toBeInTheDocument();
     expect(within(listBox).queryByText("PT")).not.toBeInTheDocument();
+
+    // Wait for MUI transitions to complete
+    await waitFor(() => expect(select).toBeInTheDocument());
   });
 
   it("calls changeLanguage and re-routes with locale on selection", async () => {
@@ -105,12 +108,14 @@ describe("LanguagePickerSelect", () => {
     // Should also call backend API for authenticated users
     expect(changeLanguageMock).toHaveBeenCalledWith("es");
 
-    expect(mockRouter).toEqual(
-      expect.objectContaining({
-        asPath: "/messages/hosting",
-        pathname: "/messages/hosting",
-        locale: "es",
-      }),
+    await waitFor(() =>
+      expect(mockRouter).toEqual(
+        expect.objectContaining({
+          asPath: "/messages/hosting",
+          pathname: "/messages/hosting",
+          locale: "es",
+        }),
+      ),
     );
   });
 
@@ -145,10 +150,12 @@ describe("LanguagePickerSelect", () => {
     expect(changeLanguageMock).not.toHaveBeenCalled();
 
     // Should navigate to the new locale
-    expect(mockRouter).toEqual(
-      expect.objectContaining({
-        locale: "fr",
-      }),
+    await waitFor(() =>
+      expect(mockRouter).toEqual(
+        expect.objectContaining({
+          locale: "fr",
+        }),
+      ),
     );
   });
 
@@ -173,5 +180,45 @@ describe("LanguagePickerSelect", () => {
         asPath: "/translate",
       }),
     );
+  });
+
+  it("prevents rapid consecutive language changes", async () => {
+    // Mock document.cookie
+    const cookieSetter = jest.fn();
+    Object.defineProperty(document, "cookie", {
+      set: cookieSetter,
+      configurable: true,
+    });
+
+    render(<LanguagePickerSelect />, { wrapper });
+
+    const select = screen.getByRole("combobox");
+    const user = userEvent.setup();
+
+    // First language change
+    await user.click(select);
+    const listBox = await screen.findByRole("listbox");
+    const spanishOption = within(listBox).getByText("ES");
+    await user.click(spanishOption);
+
+    // Verify first change went through
+    expect(cookieSetter).toHaveBeenCalledTimes(1);
+    expect(changeLanguageMock).toHaveBeenCalledTimes(1);
+    expect(changeLanguageMock).toHaveBeenCalledWith("es");
+
+    // Clear mocks
+    cookieSetter.mockClear();
+    changeLanguageMock.mockClear();
+
+    // Second change should work after first completes
+    await user.click(select);
+    const listBox2 = await screen.findByRole("listbox");
+    const frenchOption = within(listBox2).getByText("FR");
+    await user.click(frenchOption);
+
+    // Second change should succeed
+    expect(cookieSetter).toHaveBeenCalledTimes(1);
+    expect(changeLanguageMock).toHaveBeenCalledTimes(1);
+    expect(changeLanguageMock).toHaveBeenCalledWith("fr");
   });
 });

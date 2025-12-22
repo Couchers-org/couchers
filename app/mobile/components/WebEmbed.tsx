@@ -35,7 +35,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const colorScheme = useColorScheme();
   const webviewRef = useRef<WebView>(null);
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
   const [hasError, setHasError] = useState(false);
@@ -95,12 +95,36 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     }, [path, WEB_BASE_URL]),
   );
 
-  // Map web paths to tab names
-  const getTabNameForPath = (webPath: string): string | null => {
-    if (webPath.startsWith("/dashboard")) return "dashboard";
-    if (webPath.startsWith("/messages")) return "messages";
-    if (webPath.startsWith("/search")) return "search";
-    if (webPath.startsWith("/communities")) return "communities";
+  // Extract locale from web path (e.g., "/de/dashboard" -> "de", "/zh-Hans/search" -> "zh-Hans")
+  const extractLocaleFromPath = (webPath: string): string | null => {
+    const match = webPath.match(/^\/([a-z]{2}(-[A-Z][a-z]+)?)\//);
+    return match ? match[1] : null;
+  };
+
+  // Map web paths to native route names
+  const getRouteNameForPath = (webPath: string): string | null => {
+    // Strip locale prefix if present (e.g., "/de/dashboard" -> "/dashboard")
+    const pathWithoutLocale = webPath.replace(
+      /^\/[a-z]{2}(-[A-Z][a-z]+)?\//,
+      "/",
+    );
+
+    // Main tab routes (visible in tab bar)
+    if (pathWithoutLocale.startsWith("/dashboard")) return "dashboard";
+    if (pathWithoutLocale.startsWith("/messages")) return "messages";
+    if (pathWithoutLocale.startsWith("/search")) return "search";
+    if (pathWithoutLocale.startsWith("/communities")) return "communities";
+    if (pathWithoutLocale.startsWith("/events")) return "events";
+
+    // Special routes
+    if (pathWithoutLocale.startsWith("/md/")) return "md/[...slug]";
+
+    // Catch-all for other routes
+    if (pathWithoutLocale.startsWith("/")) {
+      // Return the slug route for any other path
+      return "[...slug]";
+    }
+
     return null;
   };
 
@@ -127,15 +151,34 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     const webPathWithoutQuery = webPath.split("?")[0];
     currentWebPathRef.current = webPath;
 
-    // Sync native tab highlighting when WebView navigates to a different section
-    const targetTab = getTabNameForPath(webPathWithoutQuery);
-    const currentTab = getTabNameForPath(path);
+    // Extract locale from URL and sync with mobile app's i18n
+    const webLocale = extractLocaleFromPath(webPathWithoutQuery);
+    if (webLocale && webLocale !== i18n.language) {
+      i18n.changeLanguage(webLocale).catch((err) => {
+        if (__DEV__) {
+          console.error("Failed to change mobile app language:", err);
+        }
+      });
+    }
 
-    // Only navigate native router when switching between main tabs
-    // Don't navigate for internal web navigation (like tab changes on profile pages)
-    if (targetTab !== currentTab && targetTab) {
-      // Navigate to a main tab (dashboard, messages, search, communities)
-      router.navigate(`/${targetTab}` as Href);
+    // Sync native route when WebView navigates to a different page
+    const targetRoute = getRouteNameForPath(webPathWithoutQuery);
+    const currentRoute = getRouteNameForPath(path);
+
+    // Navigate native router when the route changes
+    // Only sync for main tab routes - catch-all routes don't need native navigation
+    if (
+      targetRoute !== currentRoute &&
+      targetRoute &&
+      targetRoute !== "[...slug]"
+    ) {
+      if (targetRoute === "md/[...slug]") {
+        // For markdown routes, pass the full path including /md/
+        router.navigate(webPathWithoutQuery as Href);
+      } else {
+        // For main tab routes, navigate directly
+        router.navigate(`/${targetRoute}` as Href);
+      }
     }
   };
 
