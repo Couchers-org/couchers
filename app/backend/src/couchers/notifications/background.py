@@ -73,7 +73,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         )
 
     plain = _render_email(plaintext=True)
-    html = _render_email(html=True)
+    html = _render_email(plaintext=False)
 
     list_unsubscribe_header = None
     if rendered.email_list_unsubscribe_url:
