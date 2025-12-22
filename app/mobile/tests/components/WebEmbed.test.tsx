@@ -439,8 +439,8 @@ describe("WebEmbed", () => {
       { webPath: "/search?query=test", expectedTab: "search" },
       { webPath: "/communities", expectedTab: "communities" },
       { webPath: "/communities/456", expectedTab: "communities" },
+      { webPath: "/events", expectedTab: "events" },
       { webPath: "/user/789", expectedTab: null },
-      { webPath: "/events", expectedTab: null },
     ];
 
     testCases.forEach(({ webPath, expectedTab }) => {

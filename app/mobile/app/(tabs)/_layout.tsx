@@ -82,9 +82,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* Additional screens that shouldn't show in tab bar */}
-      <Tabs.Screen name="profile" options={{ href: null }} />
-      <Tabs.Screen name="account-settings" options={{ href: null }} />
+      {/* Catch-all and special routes that shouldn't show in tab bar */}
       <Tabs.Screen name="md/[...slug]" options={{ href: null }} />
       <Tabs.Screen name="[...slug]" options={{ href: null }} />
     </Tabs>
