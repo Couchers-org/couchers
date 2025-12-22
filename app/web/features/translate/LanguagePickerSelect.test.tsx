@@ -182,7 +182,7 @@ describe("LanguagePickerSelect", () => {
     );
   });
 
-  it("calls router.push with undefined as the 'as' parameter", async () => {
+  it("calls router.push with undefined to let Next.js handle locale routing", async () => {
     // Mock document.cookie
     const cookieSetter = jest.fn();
     Object.defineProperty(document, "cookie", {
@@ -205,7 +205,7 @@ describe("LanguagePickerSelect", () => {
     await user.click(germanOption);
 
     // Should call router.push with undefined as second parameter
-    // This lets Next.js handle locale routing automatically
+    // This lets Next.js automatically handle adding the locale prefix
     expect(pushSpy).toHaveBeenCalledWith(
       { pathname: "/messages/hosting", query: {} },
       undefined,

@@ -57,7 +57,7 @@ export default function LanguagePickerSelect({
   onSelect,
 }: LanguagePickerSelectProps & { onSelect?: () => void }) {
   const router = useRouter();
-  const { asPath, locale, pathname } = router;
+  const { locale, pathname } = router;
   const { authState } = useAuthContext();
   const isAuthenticated = authState.authenticated;
 
@@ -69,7 +69,7 @@ export default function LanguagePickerSelect({
   const [isOpen, setIsOpen] = useState(false);
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
 
-  const { mutate: changeLanguageMutation } = useMutation({
+  const { mutateAsync: changeLanguageMutation } = useMutation({
     mutationFn: (newLanguage: string) =>
       service.account.changeLanguage(newLanguage),
   });
@@ -91,26 +91,21 @@ export default function LanguagePickerSelect({
 
       if (isAuthenticated) {
         // For authenticated users, also update backend's ui_language_preference
+        // Wait for the mutation to complete before navigating
         await changeLanguageMutation(newLocale);
       }
 
-      // In WebView (mobile app), use window.location.href for server-side navigation
-      // This triggers middleware which properly handles the locale redirect
-      // Strip current locale prefix from asPath before adding new locale
-      if (typeof window !== "undefined" && window.ReactNativeWebView) {
-        const pathWithoutLocale =
-          locale && asPath.startsWith(`/${locale}`)
-            ? asPath.slice(`/${locale}`.length) || "/"
-            : asPath;
-        window.location.href = `/${newLocale}${pathWithoutLocale}`;
-        return;
-      }
-
-      // On web, pass undefined as the 'as' parameter to let Next.js handle locale routing
+      // Don't pass asPath as second parameter - let Next.js handle locale routing automatically
+      // This prevents double locale prefixes in the URL
       await router.push({ pathname, query: router.query }, undefined, {
         locale: newLocale,
       });
       onSelect?.();
+    } catch (error) {
+      // If mutation or navigation fails, log it but don't block the UI
+      if (process.env.NODE_ENV !== "production") {
+        console.error("Language change failed:", error);
+      }
     } finally {
       // Re-enable after navigation completes (or fails)
       setIsChangingLanguage(false);
