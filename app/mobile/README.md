@@ -6,6 +6,7 @@ React Native mobile app built with [Expo](https://expo.dev).
 
 - [First Time Setup](#first-time-setup)
 - [Local Development](#local-development)
+- [Seeing web or backend changes on the mobile app](#seeing-web-or-backend-changes-on-the-local-mobile-app)
 - [Before Opening a PR](#before-opening-a-pr)
 - [Publish Your Changes - TestFlight / Play Store Builds](#publish-your-changes---testflight--play-store-builds)
 - [Submitting Builds for Testing](#submitting-builds-for-testing)
@@ -71,6 +72,12 @@ For JavaScript/TypeScript changes (most development), just run Metro and your ch
 ```bash
 npm run start:localhost
 ```
+
+## Seeing web or backend changes on the local mobile app
+
+If you're adjusting web or backend code and want to see it on the app, you need to run everything locally and switch out the env vars to your computer's IP address.
+
+[Follow these instructions to run local app on mobile.](./../../docs/run-local-app-on-mobile.md)
 
 ## Before Opening a PR
 
