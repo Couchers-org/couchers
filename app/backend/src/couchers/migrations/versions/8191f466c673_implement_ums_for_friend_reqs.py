@@ -1,8 +1,8 @@
-"""UMS for friend requests
+"""Implement UMS for friend reqs
 
-Revision ID: a1b2c3d4e5f6
+Revision ID: 8191f466c673
 Revises: f8b4ef6e3819
-Create Date: 2025-12-14 00:00:00.000000
+Create Date: 2025-12-23 10:51:21.670999
 
 """
 
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "a1b2c3d4e5f6"
+revision = "8191f466c673"
 down_revision = "f8b4ef6e3819"
 branch_labels = None
 depends_on = None

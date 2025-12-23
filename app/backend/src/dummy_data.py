@@ -138,12 +138,39 @@ def add_dummy_users() -> None:
         session.commit()
 
         for username1, username2 in data["friendships"]:
+            from_user = session.execute(select(User).where(User.username == username1)).scalar_one()
+            to_user = session.execute(select(User).where(User.username == username2)).scalar_one()
+
+            # Create moderation state for UMS (set as VISIBLE since this is accepted dummy data)
+            moderation_state = ModerationState(
+                object_type=ModerationObjectType.FRIEND_REQUEST,
+                object_id=0,  # Placeholder, will be updated below
+                visibility=ModerationVisibility.VISIBLE,
+            )
+            session.add(moderation_state)
+            session.flush()
+
             friend_relationship = FriendRelationship(
-                from_user_id=session.execute(select(User).where(User.username == username1)).scalar_one().id,
-                to_user_id=session.execute(select(User).where(User.username == username2)).scalar_one().id,
+                from_user_id=from_user.id,
+                to_user_id=to_user.id,
                 status=FriendStatus.accepted,
+                moderation_state_id=moderation_state.id,
             )
             session.add(friend_relationship)
+            session.flush()
+
+            # Update moderation state with actual object_id
+            moderation_state.object_id = friend_relationship.id
+
+            session.add(
+                ModerationLog(
+                    moderation_state_id=moderation_state.id,
+                    action=ModerationAction.CREATE,
+                    moderator_user_id=from_user.id,
+                    new_visibility=ModerationVisibility.VISIBLE,
+                    reason="Dummy data: friendship created.",
+                )
+            )
 
         session.commit()
 
