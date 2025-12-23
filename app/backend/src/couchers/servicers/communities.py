@@ -26,6 +26,7 @@ from couchers.models import (
 )
 from couchers.proto import communities_pb2, communities_pb2_grpc, groups_pb2
 from couchers.servicers.discussions import discussion_to_pb
+from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import couchers_select as select
@@ -377,8 +378,6 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
     def ListEvents(
         self, request: communities_pb2.ListEventsReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListEventsRes:
-        from couchers.servicers.events import event_to_pb
-
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
         page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()

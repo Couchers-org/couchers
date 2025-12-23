@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, update
 
 from couchers import urls
-from couchers.context import CouchersContext, make_background_user_context
+from couchers.context import CouchersContext
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
@@ -65,7 +65,6 @@ def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNo
     with session_scope() as session:
         all_users_ids = session.execute(select(User.id).where(User.is_visible)).scalars().all()
         for user_id in all_users_ids:
-            make_background_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,

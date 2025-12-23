@@ -577,11 +577,10 @@ def _user_search_inner(
         .limit(page_size + 1)
     )
     res = session.execute(statement).all()
-    users: list[int]
+    users: list[int] = []
     if res:
         users, rec_scores = zip(*res)  # type: ignore[assignment]
-    else:
-        users = []
+
     next_page_token = encrypt_page_token(str(rec_scores[-1])) if len(users) > page_size else None
     return users[:page_size], next_page_token, total_items
 
