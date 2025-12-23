@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "invite_codes",
         sa.Column("id", sa.String(), primary_key=True),
@@ -32,7 +32,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("signup_flows", "invite_code_id")
     op.drop_column("users", "invite_code_id")
     op.drop_table("invite_codes")

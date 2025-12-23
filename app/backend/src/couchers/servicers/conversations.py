@@ -1,5 +1,7 @@
 import logging
+from collections.abc import Sequence
 from datetime import timedelta
+from typing import Any, cast
 
 import grpc
 from google.protobuf import empty_pb2
@@ -91,7 +93,7 @@ def _message_to_pb(message: Message) -> conversations_pb2.Message:
         )
 
 
-def _get_visible_members_for_subscription(subscription):
+def _get_visible_members_for_subscription(subscription: GroupChatSubscription) -> list[int]:
     """
     If a user leaves a group chat, they shouldn't be able to see who's added
     after they left
@@ -109,7 +111,7 @@ def _get_visible_members_for_subscription(subscription):
         ]
 
 
-def _get_visible_admins_for_subscription(subscription):
+def _get_visible_admins_for_subscription(subscription: GroupChatSubscription) -> list[int]:
     """
     If a user leaves a group chat, they shouldn't be able to see who's added
     after they left
@@ -132,7 +134,7 @@ def _get_visible_admins_for_subscription(subscription):
         ]
 
 
-def _user_can_message(session, context, group_chat: GroupChat) -> bool:
+def _user_can_message(session: Session, context: CouchersContext, group_chat: GroupChat) -> bool:
     """
     If it is a true group chat (not a DM), user can always message. For a DM, user can message if the other participant
     - Is not deleted/banned
@@ -141,18 +143,18 @@ def _user_can_message(session, context, group_chat: GroupChat) -> bool:
     """
     if not group_chat.is_dm:
         return True
-    return session.execute(
-        func.exists(
-            select(GroupChatSubscription)
-            .where_users_column_visible(context=context, column=GroupChatSubscription.user_id)
-            .where(GroupChatSubscription.user_id != context.user_id)
-            .where(GroupChatSubscription.group_chat_id == group_chat.conversation_id)
-            .where(GroupChatSubscription.left == None)
-        )
-    ).scalar_one()
+
+    query = func.exists(
+        select(GroupChatSubscription)
+        .where_users_column_visible(context=context, column=GroupChatSubscription.user_id)
+        .where(GroupChatSubscription.user_id != context.user_id)
+        .where(GroupChatSubscription.group_chat_id == group_chat.conversation_id)
+        .where(GroupChatSubscription.left == None)
+    )
+    return cast(bool, session.execute(query).scalar_one())
 
 
-def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotificationsPayload):
+def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotificationsPayload) -> None:
     """
     Background job to generate notifications for a message sent to a group chat
     """
@@ -167,7 +169,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
 
         if message.message_type != MessageType.text:
             logger.info(f"Not a text message, not notifying. message_id = {payload.message_id}")
-            return []
+            return
 
         context = make_background_user_context(user_id=message.author_id)
         user_ids_to_notify = (
@@ -209,7 +211,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             )
 
 
-def _add_message_to_subscription(session, subscription, **kwargs):
+def _add_message_to_subscription(session: Session, subscription: GroupChatSubscription, **kwargs: Any) -> Message:
     """
     Creates a new message for a subscription, from the user whose subscription that is. Updates last seen message id
 
@@ -233,7 +235,13 @@ def _add_message_to_subscription(session, subscription, **kwargs):
     return message
 
 
-def _create_chat(session, creator_id, recipient_ids, title=None, only_admins_invite=True):
+def _create_chat(
+    session: Session,
+    creator_id: int,
+    recipient_ids: Sequence[int],
+    title: str | None = None,
+    only_admins_invite: bool = True,
+) -> GroupChat:
     conversation = Conversation()
     session.add(conversation)
     session.flush()
@@ -276,7 +284,7 @@ def _create_chat(session, creator_id, recipient_ids, title=None, only_admins_inv
     return chat
 
 
-def _get_message_subscription(session, user_id, conversation_id):
+def _get_message_subscription(session: Session, user_id: int, conversation_id: int) -> GroupChatSubscription:
     subscription = session.execute(
         select(GroupChatSubscription)
         .where(GroupChatSubscription.group_chat_id == conversation_id)
@@ -284,10 +292,12 @@ def _get_message_subscription(session, user_id, conversation_id):
         .where(GroupChatSubscription.left == None)
     ).scalar_one_or_none()
 
-    return subscription
+    return cast(GroupChatSubscription, subscription)
 
 
-def _get_visible_message_subscription(session, context, conversation_id):
+def _get_visible_message_subscription(
+    session: Session, context: CouchersContext, conversation_id: int
+) -> GroupChatSubscription:
     """Get subscription with visibility filtering"""
     subscription = session.execute(
         select(GroupChatSubscription)
@@ -298,20 +308,21 @@ def _get_visible_message_subscription(session, context, conversation_id):
         .where(GroupChatSubscription.left == None)
     ).scalar_one_or_none()
 
-    return subscription
+    return cast(GroupChatSubscription, subscription)
 
 
-def _unseen_message_count(session, subscription_id):
-    return session.execute(
+def _unseen_message_count(session: Session, subscription_id: int) -> int:
+    query = (
         select(func.count())
         .select_from(Message)
         .join(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
         .where(GroupChatSubscription.id == subscription_id)
         .where(Message.id > GroupChatSubscription.last_seen_message_id)
-    ).scalar_one()
+    )
+    return cast(int, session.execute(query).scalar_one())
 
 
-def _mute_info(subscription):
+def _mute_info(subscription: GroupChatSubscription) -> conversations_pb2.MuteInfo:
     (muted, muted_until) = subscription.muted_display()
     return conversations_pb2.MuteInfo(
         muted=muted,
@@ -656,7 +667,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "chat_initiation_rate_limit",
-                substitutions={"hours": RATE_LIMIT_HOURS},
+                substitutions={"hours": str(RATE_LIMIT_HOURS)},
             )
 
         group_chat = _create_chat(

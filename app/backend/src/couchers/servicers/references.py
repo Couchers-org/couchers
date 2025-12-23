@@ -5,6 +5,8 @@
 * References become visible after min{2 weeks, both reciprocal references written}
 """
 
+from datetime import datetime
+
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import Session, aliased
@@ -36,7 +38,7 @@ reftype2api = {
 }
 
 
-def reference_to_pb(reference: Reference, context):
+def reference_to_pb(reference: Reference, context: CouchersContext) -> references_pb2.Reference:
     return references_pb2.Reference(
         reference_id=reference.id,
         from_user_id=reference.from_user_id,
@@ -50,7 +52,9 @@ def reference_to_pb(reference: Reference, context):
     )
 
 
-def get_host_req_and_check_can_write_ref(session, context, host_request_id):
+def get_host_req_and_check_can_write_ref(
+    session: Session, context: CouchersContext, host_request_id: int
+) -> tuple[HostRequest, bool]:
     """
     Checks that this can see the given host req and write a ref for it
 
@@ -93,7 +97,10 @@ def get_host_req_and_check_can_write_ref(session, context, host_request_id):
     return host_request, surfed
 
 
-def check_valid_reference(request, context):
+def check_valid_reference(
+    request: references_pb2.WriteFriendReferenceReq | references_pb2.WriteHostRequestReferenceReq,
+    context: CouchersContext,
+) -> None:
     if request.rating < 0 or request.rating > 1:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_invalid_rating")
 
@@ -101,7 +108,9 @@ def check_valid_reference(request, context):
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_no_text")
 
 
-def get_pending_references_to_write(session, context):
+def get_pending_references_to_write(
+    session: Session, context: CouchersContext
+) -> list[tuple[int, ReferenceType, datetime, LiteUser]]:
     q1 = (
         select(literal(True), HostRequest, LiteUser)
         .outerjoin(
@@ -139,8 +148,8 @@ def get_pending_references_to_write(session, context):
     )
 
     union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
-    union = select(union.c[0].label("surfed"), aliased(HostRequest, union), aliased(LiteUser, union))
-    host_request_references = session.execute(union).all()
+    query = select(union.c[0].label("surfed"), aliased(HostRequest, union), aliased(LiteUser, union))
+    host_request_references = session.execute(query).all()
 
     return [
         (
@@ -207,14 +216,14 @@ class References(references_pb2_grpc.ReferencesServicer):
         if request.to_user_id:
             sub = sub.where(Reference.from_user_id == request.to_user_id)
 
-        sub = sub.subquery()
+        query = sub.subquery()
         statement = (
-            statement.outerjoin(sub, sub.c.host_request_id == Reference.host_request_id)
+            statement.outerjoin(query, query.c.host_request_id == Reference.host_request_id)
             .outerjoin(HostRequest, HostRequest.conversation_id == Reference.host_request_id)
             .where(
                 or_(
                     Reference.reference_type == ReferenceType.friend,
-                    sub.c.sub_id != None,
+                    query.c.sub_id != None,
                     HostRequest.end_time_to_write_reference < func.now(),
                 )
             )
@@ -411,8 +420,8 @@ class References(references_pb2_grpc.ReferencesServicer):
         )
 
         union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
-        union = select(union.c[0].label("surfed"), aliased(HostRequest, union))
-        host_request_references = session.execute(union).all()
+        query = select(union.c[0].label("surfed"), aliased(HostRequest, union))
+        host_request_references = session.execute(query).all()
 
         return references_pb2.AvailableWriteReferencesRes(
             can_write_friend_reference=can_write_friend_reference,

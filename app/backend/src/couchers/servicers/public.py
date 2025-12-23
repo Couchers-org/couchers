@@ -17,7 +17,7 @@ from couchers.resources import get_static_badge_dict
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, make_logged_out_context, now
+from couchers.utils import Timestamp_from_datetime, make_logged_out_context, not_none, now
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +27,8 @@ def format_volunteer_link(volunteer: Volunteer, username: str) -> dict[str, str]
     if volunteer.link_type:
         return dict(
             link_type=volunteer.link_type,
-            link_text=volunteer.link_text,
-            link_url=volunteer.link_url,
+            link_text=not_none(volunteer.link_text),
+            link_url=not_none(volunteer.link_url),
         )
     else:
         return dict(
@@ -39,7 +39,7 @@ def format_volunteer_link(volunteer: Volunteer, username: str) -> dict[str, str]
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=600), key=lambda _: None)
-def _get_public_users(session):
+def _get_public_users(session: Session) -> httpbody_pb2.HttpBody:
     with_geom = (
         select(User.username, User.geom)
         .where(User.is_visible)
@@ -57,11 +57,11 @@ def _get_public_users(session):
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None)
-def _get_signup_page_info(session):
+def _get_signup_page_info(session: Session) -> public_pb2.GetSignupPageInfoRes:
     # last user who signed up
     last_signup, geom = session.execute(
         select(User.joined, User.geom).where(User.is_visible).order_by(User.id.desc()).limit(1)
-    ).one_or_none()
+    ).one()
 
     communities = (
         session.execute(
@@ -95,7 +95,7 @@ def _get_signup_page_info(session):
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None)
-def _get_donation_stats(session):
+def _get_donation_stats(session: Session) -> public_pb2.GetDonationStatsRes:
     """Get year-to-date donation statistics, excluding merch purchases."""
     start_of_year = now().replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
@@ -112,7 +112,7 @@ def _get_donation_stats(session):
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=5), key=lambda _: None)
-def _get_volunteers(session):
+def _get_volunteers(session: Session) -> public_pb2.GetVolunteersRes:
     volunteers = session.execute(
         select(Volunteer, LiteUser)
         .join(LiteUser, LiteUser.id == Volunteer.user_id)
@@ -127,7 +127,7 @@ def _get_volunteers(session):
 
     board_members = set(get_static_badge_dict()["board_member"])
 
-    def format_volunteer(volunteer, lite_user):
+    def format_volunteer(volunteer: Volunteer, lite_user: LiteUser) -> public_pb2.Volunteer:
         return public_pb2.Volunteer(
             name=volunteer.display_name or lite_user.name,
             username=lite_user.username,
@@ -156,7 +156,7 @@ def _get_volunteers(session):
 
 class Public(public_pb2_grpc.PublicServicer):
     """
-    Public (logged out) APIs for getting public info
+    Public (logged-out) APIs for getting public info
     """
 
     def GetPublicUsers(
@@ -238,6 +238,7 @@ class Public(public_pb2_grpc.PublicServicer):
                     badges=[badge.badge_id for badge in user.badges],
                 )
             )
+        raise RuntimeError(user.public_visibility)
 
     def GetSignupPageInfo(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session

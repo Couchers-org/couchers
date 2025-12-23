@@ -16,11 +16,11 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("api_calls", sa.Column("ip_address", sa.String(), nullable=True), schema="logging")
     op.add_column("api_calls", sa.Column("user_agent", sa.String(), nullable=True), schema="logging")
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("api_calls", "user_agent", schema="logging")
     op.drop_column("api_calls", "ip_address", schema="logging")

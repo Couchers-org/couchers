@@ -1,6 +1,9 @@
+from collections.abc import Iterable
 from datetime import timedelta
+from typing import cast
 from urllib.parse import urlencode
 
+import google.protobuf.message
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import Session
@@ -45,13 +48,14 @@ from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
-from couchers.sql import is_valid_user_id, is_valid_username
 from couchers.utils import (
     Duration_from_timedelta,
     Timestamp_from_datetime,
     create_coordinate,
     get_coordinates,
     is_valid_name,
+    is_valid_user_id,
+    is_valid_username,
     now,
 )
 
@@ -713,7 +717,7 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "friend_request_rate_limit",
-                substitutions={"hours": RATE_LIMIT_HOURS},
+                substitutions={"hours": str(RATE_LIMIT_HOURS)},
             )
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
@@ -895,11 +899,11 @@ class API(api_pb2_grpc.APIServicer):
         )
 
 
-def response_rate_to_pb(response_rate: UserResponseRate):
+def response_rate_to_pb(response_rate: UserResponseRate | None) -> dict[str, google.protobuf.message.Message]:
     if not response_rate:
         return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
 
-    # if n is None, the user is new or they have no requests
+    # if n is None, the user is new, or they have no requests
     if response_rate.requests < 3:
         return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
 
@@ -931,20 +935,26 @@ def response_rate_to_pb(response_rate: UserResponseRate):
         }
 
 
-def get_num_references(session, user_ids):
-    return dict(
-        session.execute(
-            select(Reference.to_user_id, func.count(Reference.id))
-            .where(Reference.to_user_id.in_(user_ids))
-            .where(Reference.is_deleted == False)
-            .join(User, User.id == Reference.from_user_id)
-            .where(User.is_visible)
-            .group_by(Reference.to_user_id)
-        ).all()
+def get_num_references(session: Session, user_ids: Iterable[int]) -> dict[int, int]:
+    query = (
+        select(Reference.to_user_id, func.count(Reference.id))
+        .where(Reference.to_user_id.in_(user_ids))
+        .where(Reference.is_deleted == False)
+        .join(User, User.id == Reference.from_user_id)
+        .where(User.is_visible)
+        .group_by(Reference.to_user_id)
     )
+    return cast(dict[int, int], dict(session.execute(query).all()))  # type: ignore[arg-type]
 
 
-def user_model_to_pb(db_user, session, context, *, is_admin_see_ghosts=False, is_get_user_return_ghosts=False):
+def user_model_to_pb(
+    db_user: User,
+    session: Session,
+    context: CouchersContext,
+    *,
+    is_admin_see_ghosts: bool = False,
+    is_get_user_return_ghosts: bool = False,
+) -> api_pb2.User:
     # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
 
@@ -1072,7 +1082,7 @@ def user_model_to_pb(db_user, session, context, *, is_admin_see_ghosts=False, is
         .scalars()
         .all(),
         **get_strong_verification_fields(session, db_user),
-        **response_rate_to_pb(response_rate),
+        **response_rate_to_pb(response_rate),  # type: ignore[arg-type]
     )
 
     if db_user.max_guests is not None:
@@ -1139,8 +1149,13 @@ def user_model_to_pb(db_user, session, context, *, is_admin_see_ghosts=False, is
 
 
 def lite_user_to_pb(
-    session, lite_user: LiteUser, context, *, is_admin_see_ghosts=False, is_get_user_return_ghosts=False
-):
+    session: Session,
+    lite_user: LiteUser,
+    context: CouchersContext,
+    *,
+    is_admin_see_ghosts: bool = False,
+    is_get_user_return_ghosts: bool = False,
+) -> api_pb2.LiteUser:
     if not is_admin_see_ghosts and is_not_visible(session, context.user_id, lite_user.id):
         # User is not visible (deleted, banned, or blocked)
         if is_get_user_return_ghosts:

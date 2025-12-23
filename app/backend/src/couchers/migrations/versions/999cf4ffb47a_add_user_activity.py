@@ -17,7 +17,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "user_activity",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -37,6 +37,6 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index("ix_user_activity_user_id_period_ip_address_user_agent", table_name="user_activity")
     op.drop_table("user_activity")

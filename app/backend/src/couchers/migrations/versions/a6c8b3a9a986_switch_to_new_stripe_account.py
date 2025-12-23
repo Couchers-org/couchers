@@ -16,10 +16,10 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("ALTER TABLE users RENAME COLUMN stripe_customer_id TO stripe_customer_id_old")
     op.add_column("users", sa.Column("stripe_customer_id", sa.String(), nullable=True))
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

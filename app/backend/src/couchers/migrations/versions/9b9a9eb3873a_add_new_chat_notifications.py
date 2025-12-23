@@ -15,10 +15,10 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'generate_message_notifications'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'chat__message'")
 
 
-def downgrade():
+def downgrade() -> None:
     pass

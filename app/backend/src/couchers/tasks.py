@@ -11,6 +11,7 @@ from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
+    AccountDeletionReason,
     Cluster,
     ClusterRole,
     ClusterSubscription,
@@ -174,7 +175,7 @@ def send_event_community_invite_request_email(session: Session, request: EventCo
     )
 
 
-def send_account_deletion_report_email(session: Session, reason: str) -> None:
+def send_account_deletion_report_email(session: Session, reason: AccountDeletionReason) -> None:
     logger.info("Sending account deletion report email")
     email.enqueue_system_email(
         session,

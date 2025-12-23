@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     # this will set the password to a zero-length binary value. it means the hashed password will never verify, so this is the same as having an unguessable password.
     op.execute("UPDATE USERS SET hashed_password = '\\x' WHERE hashed_password IS NULL")
     op.alter_column("users", "hashed_password", existing_type=postgresql.BYTEA(), nullable=False)
@@ -34,5 +34,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

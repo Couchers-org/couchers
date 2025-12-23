@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_index(
         "ix_cluster_subscriptions_admins",
         "cluster_subscriptions",
@@ -60,7 +60,7 @@ def upgrade():
     """)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(
         "ix_users_by_username",
         table_name="users",

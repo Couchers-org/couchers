@@ -15,7 +15,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute(
         """
         CREATE MATERIALIZED VIEW clustered_users AS
@@ -44,5 +44,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute("DROP MATERIALIZED VIEW clustered_users")

@@ -1,5 +1,5 @@
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import grpc
 import requests
@@ -61,13 +61,19 @@ from couchers.utils import (
 logger = logging.getLogger(__name__)
 
 
-def _auth_res(user):
+def _auth_res(user: User) -> auth_pb2.AuthRes:
     return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
 
 
 def create_session(
-    context: CouchersContext, session, user, long_lived, is_api_key=False, duration=None, set_cookie=True
-):
+    context: CouchersContext,
+    session: Session,
+    user: User,
+    long_lived: bool,
+    is_api_key: bool = False,
+    duration: timedelta | None = None,
+    set_cookie: bool = True,
+) -> tuple[str, datetime]:
     """
     Creates a session for the given user and returns the token and expiry.
 
@@ -114,7 +120,7 @@ def create_session(
     return token, user_session.expiry
 
 
-def delete_session(session, token):
+def delete_session(session: Session, token: str) -> bool:
     """
     Deletes the given session (practically logging the user out)
 
@@ -131,7 +137,7 @@ def delete_session(session, token):
         return False
 
 
-def _username_available(session, username):
+def _username_available(session: Session, username: str) -> bool:
     """
     Checks if the given username adheres to our rules and isn't taken already.
     """
@@ -342,7 +348,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user.profile_gallery_id = profile_gallery.id
 
             if flow.filled_feedback:
-                form = ContributorForm(
+                form_ = ContributorForm(
                     user=user,
                     ideas=flow.ideas or None,
                     features=flow.features or None,
@@ -352,11 +358,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     expertise=flow.expertise or None,
                 )
 
-                session.add(form)
+                session.add(form_)
 
-                user.filled_contributor_form = form.is_filled
+                user.filled_contributor_form = form_.is_filled
 
-                maybe_send_contributor_form_email(session, form)
+                maybe_send_contributor_form_email(session, form_)
 
             signup_duration_s = (now() - flow.created).total_seconds()
 

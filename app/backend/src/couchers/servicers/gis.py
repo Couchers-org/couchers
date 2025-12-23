@@ -1,10 +1,13 @@
 import json
 import logging
+from typing import Any
 
 from google.protobuf import empty_pb2
+from sqlalchemy import Function
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
+from sqlalchemy.sql.selectable import GenerativeSelect
 
 from couchers.context import CouchersContext
 from couchers.materialized_views import ClusteredUser, LiteUser
@@ -16,7 +19,7 @@ from couchers.sql import couchers_select as select
 logger = logging.getLogger(__name__)
 
 
-def _build_geojson_select(statement):
+def _build_geojson_select(statement: GenerativeSelect) -> Function[Any]:
     """
     See usages below.
     """
@@ -29,7 +32,7 @@ def _build_geojson_select(statement):
     )
 
 
-def _statement_to_geojson_response(session, statement):
+def _statement_to_geojson_response(session: Session, statement: GenerativeSelect) -> httpbody_pb2.HttpBody:
     json_dict = session.execute(select(_build_geojson_select(statement))).scalar_one_or_none()
     return httpbody_pb2.HttpBody(
         content_type="application/json",

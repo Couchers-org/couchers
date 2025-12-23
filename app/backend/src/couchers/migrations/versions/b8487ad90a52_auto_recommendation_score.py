@@ -15,10 +15,10 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("ALTER TABLE users RENAME COLUMN daily_order_key TO recommendation_score")
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'update_recommendation_scores'")
 
 
-def downgrade():
+def downgrade() -> None:
     pass

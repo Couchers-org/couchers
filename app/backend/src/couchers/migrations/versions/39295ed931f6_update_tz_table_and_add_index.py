@@ -18,7 +18,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     session = Session(bind=op.get_bind())
     copy_resources_to_database(session)
     session.commit()
@@ -28,5 +28,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index("ix_timezone_areas_geom_tzid", table_name="timezone_areas", postgresql_using="gist")

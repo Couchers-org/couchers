@@ -17,7 +17,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         "users", sa.Column("phone_verification_attempts", sa.Integer(), server_default=sa.text("0"), nullable=False)
     )
@@ -53,7 +53,7 @@ def upgrade():
     op.execute("DROP TYPE phonestatus")
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         "users",
         sa.Column(

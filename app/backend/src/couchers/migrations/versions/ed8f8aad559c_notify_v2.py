@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("TRUNCATE TABLE notifications CASCADE")
     op.add_column("notifications", sa.Column("data", sa.LargeBinary(), nullable=False))
     op.drop_column("notifications", "content")
@@ -86,5 +86,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

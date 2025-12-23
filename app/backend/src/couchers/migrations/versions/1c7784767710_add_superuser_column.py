@@ -16,9 +16,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("users", sa.Column("is_superuser", sa.Boolean(), server_default="false", nullable=False))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("users", "is_superuser")

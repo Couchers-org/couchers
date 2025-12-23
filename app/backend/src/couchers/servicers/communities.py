@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Sequence
 from datetime import timedelta
 
 import grpc
@@ -25,7 +26,6 @@ from couchers.models import (
 )
 from couchers.proto import communities_pb2, communities_pb2_grpc, groups_pb2
 from couchers.servicers.discussions import discussion_to_pb
-from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import couchers_select as select
@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 25
 
 
-def _parents_to_pb(session, node_id):
+def _parents_to_pb(session: Session, node_id: int) -> list[groups_pb2.Parent]:
     parents = get_node_parents_recursively(session, node_id)
     return [
         groups_pb2.Parent(
@@ -51,14 +51,16 @@ def _parents_to_pb(session, node_id):
     ]
 
 
-def communities_to_pb(session, nodes: list[Node], context):
+def communities_to_pb(
+    session: Session, nodes: Sequence[Node], context: CouchersContext
+) -> list[communities_pb2.Community]:
     can_moderates = [can_moderate_node(session, context.user_id, node.id) for node in nodes]
 
     official_clusters = [node.official_cluster for node in nodes]
     official_cluster_ids = [cluster.id for cluster in official_clusters]
 
-    member_counts = dict(
-        session.execute(
+    member_counts: dict[int, int] = dict(
+        session.execute(  # type: ignore[arg-type]
             select(ClusterSubscriptionCount.cluster_id, ClusterSubscriptionCount.count).where(
                 ClusterSubscriptionCount.cluster_id.in_(official_cluster_ids)
             )
@@ -74,8 +76,8 @@ def communities_to_pb(session, nodes: list[Node], context):
         .all()
     )
 
-    admin_counts = dict(
-        session.execute(
+    admin_counts: dict[int, int] = dict(
+        session.execute(  # type: ignore[arg-type]
             select(ClusterAdminCount.cluster_id, ClusterAdminCount.count).where(
                 ClusterAdminCount.cluster_id.in_(official_cluster_ids)
             )
@@ -113,7 +115,7 @@ def communities_to_pb(session, nodes: list[Node], context):
     ]
 
 
-def community_to_pb(session, node: Node, context):
+def community_to_pb(session: Session, node: Node, context: CouchersContext) -> communities_pb2.Community:
     return communities_to_pb(session, [node], context)[0]
 
 
@@ -375,6 +377,8 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
     def ListEvents(
         self, request: communities_pb2.ListEventsReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListEventsRes:
+        from couchers.servicers.events import event_to_pb
+
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
         page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
@@ -399,21 +403,21 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             membership_clauses.append(Event.parent_node_id == node_id)
 
         # for communities, we list events owned by this community or for which this is a parent
-        occurrences = (
+        query = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(or_(*membership_clauses))
         )
 
         if request.past:
-            occurrences = occurrences.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
+            query = query.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
                 EventOccurrence.start_time.desc()
             )
         else:
-            occurrences = occurrences.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+            query = query.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
                 EventOccurrence.start_time.asc()
             )
 
-        occurrences = occurrences.limit(page_size + 1)
-        occurrences = session.execute(occurrences).scalars().all()
+        query = query.limit(page_size + 1)
+        occurrences = session.execute(query).scalars().all()
 
         return communities_pb2.ListEventsRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],

@@ -1,9 +1,10 @@
 import logging
+from typing import cast
 
 import grpc
 import sqlalchemy.exc
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func, select
+from sqlalchemy.sql import func
 
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
@@ -28,34 +29,33 @@ def pack_thread_id(database_id: int, depth: int) -> int:
     return database_id * 10 + depth
 
 
-def unpack_thread_id(thread_id: int) -> (int, int):
+def unpack_thread_id(thread_id: int) -> tuple[int, int]:
     """Returns (database_id, depth) tuple."""
     return divmod(thread_id, 10)
 
 
-def total_num_responses(session, database_id):
+def total_num_responses(session: Session, database_id: int) -> int:
     """Return the total number of comments and replies to the thread with
     database id database_id.
     """
-    return (
-        session.execute(select(func.count()).select_from(Comment).where(Comment.thread_id == database_id)).scalar_one()
-        + session.execute(
-            select(func.count())
-            .select_from(Reply)
-            .join(Comment, Comment.id == Reply.comment_id)
-            .where(Comment.thread_id == database_id)
-        ).scalar_one()
+    comments = select(func.count()).select_from(Comment).where(Comment.thread_id == database_id)
+    replies = (
+        select(func.count())
+        .select_from(Reply)
+        .join(Comment, Comment.id == Reply.comment_id)
+        .where(Comment.thread_id == database_id)
     )
+    return cast(int, session.execute(comments).scalar_one() + session.execute(replies).scalar_one())
 
 
-def thread_to_pb(session, database_id):
+def thread_to_pb(session: Session, database_id: int) -> threads_pb2.Thread:
     return threads_pb2.Thread(
         thread_id=pack_thread_id(database_id, 0),
         num_responses=total_num_responses(session, database_id),
     )
 
 
-def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPayload):
+def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPayload) -> None:
     from couchers.servicers.discussions import discussion_to_pb
     from couchers.servicers.events import event_to_pb
 
@@ -282,7 +282,9 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         database_id, depth = unpack_thread_id(request.thread_id)
         if depth == 0:
-            object_to_add = Comment(thread_id=database_id, author_user_id=context.user_id, content=content)
+            object_to_add: Comment | Reply = Comment(
+                thread_id=database_id, author_user_id=context.user_id, content=content
+            )
         elif depth == 1:
             object_to_add = Reply(comment_id=database_id, author_user_id=context.user_id, content=content)
         else:

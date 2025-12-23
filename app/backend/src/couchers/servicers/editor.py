@@ -5,8 +5,9 @@ import grpc
 from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
 from shapely.geometry import shape
+from shapely.geometry.base import BaseGeometry
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import exists, select, update
+from sqlalchemy.sql import exists, update
 
 from couchers import urls
 from couchers.context import CouchersContext, make_background_user_context
@@ -30,7 +31,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 250
 
 
-def load_community_geom(geojson, context):
+def load_community_geom(geojson: str, context: CouchersContext) -> BaseGeometry:
     geom = shape(json.loads(geojson))
 
     if geom.geom_type != "MultiPolygon":
@@ -39,7 +40,7 @@ def load_community_geom(geojson, context):
     return geom
 
 
-def volunteer_to_pb(session, volunteer: Volunteer) -> editor_pb2.Volunteer:
+def volunteer_to_pb(session: Session, volunteer: Volunteer) -> editor_pb2.Volunteer:
     """Convert a Volunteer model to the editor protobuf message."""
     lite_user = session.execute(select(LiteUser).where(LiteUser.id == volunteer.user_id)).scalar_one()
     board_members = set(get_static_badge_dict()["board_member"])
@@ -60,11 +61,11 @@ def volunteer_to_pb(session, volunteer: Volunteer) -> editor_pb2.Volunteer:
     )
 
 
-def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNotificationsPayload):
+def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNotificationsPayload) -> None:
     with session_scope() as session:
         all_users_ids = session.execute(select(User.id).where(User.is_visible)).scalars().all()
         for user_id in all_users_ids:
-            context = make_background_user_context(user_id=user_id)
+            make_background_user_context(user_id=user_id)
             notify(
                 session,
                 user_id=user_id,
@@ -133,7 +134,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
             .all()
         )
 
-        def _request_to_pb(request):
+        def _request_to_pb(request: EventCommunityInviteRequest) -> editor_pb2.EventCommunityInviteRequest:
             users_to_notify, node_id = get_users_to_notify_for_new_event(session, request.occurrence)
             return editor_pb2.EventCommunityInviteRequest(
                 event_community_invite_request_id=request.id,

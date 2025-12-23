@@ -1,8 +1,9 @@
 """
-See //docs/search.md for overview.
+See //docs/search.md for an overview.
 """
 
 from datetime import timedelta
+from typing import Any, cast
 
 import grpc
 from sqlalchemy.orm import Session
@@ -69,7 +70,7 @@ TRI_SIMILARITY_THRESHOLD = 0.6
 TRI_SIMILARITY_WEIGHT = 5
 
 
-def _join_with_space(coalesces):
+def _join_with_space(coalesces: list[Any]) -> Any:
     # the objects in coalesces are not strings, so we can't do " ".join(coalesces). They're SQLAlchemy magic.
     if not coalesces:
         return ""
@@ -79,14 +80,14 @@ def _join_with_space(coalesces):
     return out
 
 
-def _build_tsv(A, B=None, C=None, D=None):
+def _build_tsv(A: list[Any], B: list[Any] | None = None, C: list[Any] | None = None, D: list[Any] | None = None) -> Any:
     """
     Given lists for A, B, C, and D, builds a tsvector from them.
     """
     B = B or []
     C = C or []
     D = D or []
-    tsv = func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in A])), "A")
+    tsv: Any = func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in A])), "A")
     if B:
         tsv = tsv.concat(
             func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in B])), "B")
@@ -102,7 +103,7 @@ def _build_tsv(A, B=None, C=None, D=None):
     return tsv
 
 
-def _build_doc(A, B=None, C=None, D=None):
+def _build_doc(A: list[Any], B: list[Any] | None = None, C: list[Any] | None = None, D: list[Any] | None = None) -> Any:
     """
     Builds the raw document (without to_tsvector and weighting), used for extracting snippet
     """
@@ -119,11 +120,20 @@ def _build_doc(A, B=None, C=None, D=None):
     return doc
 
 
-def _similarity(statement, text):
+def _similarity(statement: Any, text: str) -> Any:
     return func.word_similarity(func.unaccent(statement), func.unaccent(text))
 
 
-def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=None, C=None, D=None):
+def _gen_search_elements(
+    statement: str,
+    title_only: bool,
+    next_rank: float | None,
+    page_size: int,
+    A: list[Any],
+    B: list[Any] | None = None,
+    C: list[Any] | None = None,
+    D: list[Any] | None = None,
+) -> tuple[Any, Any, Any]:
     """
     Given an sql statement and four sets of fields, (A, B, C, D), generates a bunch of postgres expressions for full text search.
 
@@ -148,7 +158,7 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=None,
 
         title = _build_doc(A)
 
-        # trigram based text similarity between title and sql statement string
+        # trigram-based text similarity between title and sql statement string
         sim = _similarity(statement, title)
 
         # ranking algo, weigh the similarity a lot, the text-based ranking less
@@ -157,21 +167,22 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=None,
         # the snippet with results highlighted
         snippet = func.ts_headline(REGCONFIG, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
 
-        def execute_search_statement(session, orig_statement):
+        def execute_search_statement(session: Session, orig_statement: Any) -> list[Any]:
             """
             Does the right search filtering, limiting, and ordering for the initial statement
             """
-            return session.execute(
+            query = (
                 orig_statement.where(or_(tsv.op("@@")(tsq), sim > TRI_SIMILARITY_THRESHOLD))
                 .where(rank <= next_rank if next_rank is not None else True)
                 .order_by(rank.desc())
                 .limit(page_size + 1)
-            ).all()
+            )
+            return cast(list[Any], session.execute(query).all())
 
     else:
         title = _build_doc(A)
 
-        # trigram based text similarity between title and sql statement string
+        # trigram-based text similarity between title and sql statement string
         sim = _similarity(statement, title)
 
         # ranking algo, weigh the similarity a lot, the text-based ranking less
@@ -184,21 +195,30 @@ def _gen_search_elements(statement, title_only, next_rank, page_size, A, B=None,
         # the snippet with results highlighted
         snippet = func.ts_headline(REGCONFIG, doc, tsq, "StartSel=**,StopSel=**").label("snippet")
 
-        def execute_search_statement(session, orig_statement):
+        def execute_search_statement(session: Session, orig_statement: Any) -> list[Any]:
             """
             Does the right search filtering, limiting, and ordering for the initial statement
             """
-            return session.execute(
+            query = (
                 orig_statement.where(sim > TRI_SIMILARITY_THRESHOLD)
                 .where(rank <= next_rank if next_rank is not None else True)
                 .order_by(rank.desc())
                 .limit(page_size + 1)
-            ).all()
+            )
+            return cast(list[Any], session.execute(query).all())
 
     return rank, snippet, execute_search_statement
 
 
-def _search_users(session, search_statement, title_only, next_rank, page_size, context, include_users):
+def _search_users(
+    session: Session,
+    search_statement: str,
+    title_only: bool,
+    next_rank: float | None,
+    page_size: int,
+    context: CouchersContext,
+    include_users: bool,
+) -> list[search_pb2.Result]:
     if not include_users:
         return []
     rank, snippet, execute_search_statement = _gen_search_elements(
@@ -224,7 +244,16 @@ def _search_users(session, search_statement, title_only, next_rank, page_size, c
     ]
 
 
-def _search_pages(session, search_statement, title_only, next_rank, page_size, context, include_places, include_guides):
+def _search_pages(
+    session: Session,
+    search_statement: str,
+    title_only: bool,
+    next_rank: float | None,
+    page_size: int,
+    context: CouchersContext,
+    include_places: bool,
+    include_guides: bool,
+) -> list[search_pb2.Result]:
     rank, snippet, execute_search_statement = _gen_search_elements(
         search_statement,
         title_only,
@@ -269,7 +298,14 @@ def _search_pages(session, search_statement, title_only, next_rank, page_size, c
     ]
 
 
-def _search_events(session, search_statement, title_only, next_rank, page_size, context):
+def _search_events(
+    session: Session,
+    search_statement: str,
+    title_only: bool,
+    next_rank: float | None,
+    page_size: int,
+    context: CouchersContext,
+) -> list[search_pb2.Result]:
     rank, snippet, execute_search_statement = _gen_search_elements(
         search_statement,
         title_only,
@@ -299,8 +335,15 @@ def _search_events(session, search_statement, title_only, next_rank, page_size, 
 
 
 def _search_clusters(
-    session, search_statement, title_only, next_rank, page_size, context, include_communities, include_groups
-):
+    session: Session,
+    search_statement: str,
+    title_only: bool,
+    next_rank: float | None,
+    page_size: int,
+    context: CouchersContext,
+    include_communities: bool,
+    include_groups: bool,
+) -> list[search_pb2.Result]:
     if not include_communities and not include_groups:
         return []
 
@@ -348,7 +391,9 @@ def _search_clusters(
     ]
 
 
-def _user_search_inner(request, context, session):
+def _user_search_inner(
+    request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
+) -> tuple[list[int], str | None, int]:
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
@@ -475,7 +520,8 @@ def _user_search_inner(request, context, session):
                 func.ST_DWithin(
                     # old:
                     # User.geom, search_point, (User.geom_radius + request.search_in_area.radius) / 111111
-                    # this is an optimization that speeds up the db queries since it doesn't need to look up the user's geom radius
+                    # this is an optimization that speeds up the db queries since it doesn't need to look up the
+                    # user's geom radius
                     User.geom,
                     search_point,
                     (1000 + request.search_in_area.radius) / 111111,
@@ -523,7 +569,7 @@ def _user_search_inner(request, context, session):
 
     page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
     next_recommendation_score = float(decrypt_page_token(request.page_token)) if request.page_token else 1e10
-    total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
+    total_items = cast(int, session.execute(select(func.count()).select_from(statement.subquery())).scalar())
 
     statement = (
         statement.where(User.recommendation_score <= next_recommendation_score)
@@ -531,8 +577,9 @@ def _user_search_inner(request, context, session):
         .limit(page_size + 1)
     )
     res = session.execute(statement).all()
+    users: list[int]
     if res:
-        users, rec_scores = zip(*res)
+        users, rec_scores = zip(*res)  # type: ignore[assignment]
     else:
         users = []
     next_page_token = encrypt_page_token(str(rec_scores[-1])) if len(users) > page_size else None
@@ -595,7 +642,11 @@ class Search(search_pb2_grpc.SearchServicer):
     ) -> search_pb2.UserSearchRes:
         user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
 
-        user_ids_to_users = dict(session.execute(select(User.id, User).where(User.id.in_(user_ids_to_return))).all())
+        user_ids_to_users: dict[int, User] = dict(
+            session.execute(  # type: ignore[arg-type]
+                select(User.id, User).where(User.id.in_(user_ids_to_return))
+            ).all()
+        )
 
         return search_pb2.UserSearchRes(
             results=[
@@ -647,7 +698,7 @@ class Search(search_pb2_grpc.SearchServicer):
 
         ref_counts_by_user_id = get_num_references(session, user_ids_to_return)
 
-        def _user_to_search_user(user_id):
+        def _user_to_search_user(user_id: int) -> search_pb2.SearchUser:
             lite_user = LiteUser_by_id[user_id]
 
             about_me, gender, last_active, hosting_status, meetup_status, joined = db_user_data_by_id[user_id]

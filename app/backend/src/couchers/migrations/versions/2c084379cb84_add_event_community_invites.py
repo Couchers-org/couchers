@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "event_community_invite_requests",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -66,5 +66,5 @@ def upgrade():
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__create_approved'")
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")
