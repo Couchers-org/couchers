@@ -360,7 +360,7 @@ test:backend:
         - app/proto/**/*
         - app/backend/**/*
   tags:
-      - saas-linux-medium-amd64
+      - saas-linux-large-amd64
 
 test:backend-format:
   needs: ["build:backend"]
