@@ -13,7 +13,7 @@ EOT
 
 FROM base AS build
 
-ENV UV_VERSION=0.9.8
+ENV UV_VERSION=0.9.10
 
 WORKDIR /deps
 RUN apt-get update -qy && apt-get install -qyy zstd wget build-essential \
@@ -30,22 +30,20 @@ RUN apt-get update -qy && apt-get install -qyy zstd wget build-essential \
 
 WORKDIR /app
 
-# Synchronize DEPENDENCIES without the application itself.
-# This layer is cached until uv.lock or pyproject.toml change, which are
-# only temporarily mounted into the build container since we don't need
-# them in the production one.
+# Copy lockfile and pyproject.toml for dependency resolution, then regenerate
+# lockfile for current Python version (to ensure compatible wheels) and sync.
+COPY uv.lock pyproject.toml /app/
 RUN --mount=type=cache,target=/root/.cache \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    /root/.local/bin/uv lock --upgrade && \
     /root/.local/bin/uv sync \
-        --locked \
+        --frozen \
         --no-install-project
 
 # Now install the rest from `/app`: The APPLICATION w/o dependencies.
 COPY . /app
 RUN --mount=type=cache,target=/root/.cache \
     /root/.local/bin/uv sync \
-        --locked \
+        --frozen \
         --no-editable
 
 # We don't need uv.lock in the final image (it's more than 300Kb!)
