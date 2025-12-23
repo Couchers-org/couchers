@@ -23,6 +23,7 @@ from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
 from couchers.i18n.i18n import get_raw_translation_string
+from couchers.models import User
 from couchers.utils import get_tz_as_text, now, to_aware_datetime
 
 logger = logging.getLogger(__name__)
@@ -67,7 +68,7 @@ def v2phone(value: str) -> str:
     return phonenumbers.format_number(phonenumbers.parse(value), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
 
 
-def v2date(value: date | str) -> str:
+def v2date(value: date | str, user: User | None = None) -> str:
     # todo: user locale-based date formatting
     if isinstance(value, str):
         value = date.fromisoformat(value)

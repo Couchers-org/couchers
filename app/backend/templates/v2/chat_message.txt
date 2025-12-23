@@ -1,6 +1,6 @@
 Hi {{ user.name }},
 
-{{ message }} at {{ time|v2time(user) }}.
+{{ message }} at {{ time|v2time }}.
 
 
 The message is below:
