@@ -1,7 +1,7 @@
 """Implement UMS for friend reqs
 
 Revision ID: 8191f466c673
-Revises: f8b4ef6e3819
+Revises: 5c0e25460ac2
 Create Date: 2025-12-23 10:51:21.670999
 
 """
@@ -11,14 +11,14 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "8191f466c673"
-down_revision = "f8b4ef6e3819"
+down_revision = "5c0e25460ac2"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    # Add FRIEND_REQUEST to the ModerationObjectType enum
-    op.execute("ALTER TYPE moderationobjecttype ADD VALUE IF NOT EXISTS 'FRIEND_REQUEST'")
+    # Add friend_request to the ModerationObjectType enum
+    op.execute("ALTER TYPE moderationobjecttype ADD VALUE IF NOT EXISTS 'friend_request'")
 
     # Add moderation_state_id column as nullable first
     op.add_column("friend_relationships", sa.Column("moderation_state_id", sa.BigInteger(), nullable=True))
@@ -29,9 +29,9 @@ def upgrade():
         INSERT INTO moderation_states (id, object_type, object_id, visibility)
         SELECT
             (SELECT COALESCE(MAX(id), 0) FROM moderation_states WHERE id < 2000000) + ROW_NUMBER() OVER (ORDER BY id),
-            'FRIEND_REQUEST',
+            'friend_request',
             id,
-            'VISIBLE'
+            'visible'
         FROM friend_relationships
     """)
 
@@ -45,12 +45,12 @@ def upgrade():
                 COALESCE((SELECT MAX(id) FROM moderation_log WHERE id < 2000000), 0)
             )) + ROW_NUMBER() OVER (ORDER BY fr.id),
             ms.id,
-            'CREATE',
+            'create',
             fr.from_user_id,
-            'VISIBLE',
+            'visible',
             'Migration: existing friend relationship'
         FROM moderation_states ms
-        JOIN friend_relationships fr ON ms.object_id = fr.id AND ms.object_type = 'FRIEND_REQUEST'
+        JOIN friend_relationships fr ON ms.object_id = fr.id AND ms.object_type = 'friend_request'
     """)
 
     # Update friend_relationships to link to their moderation states
@@ -58,7 +58,7 @@ def upgrade():
         UPDATE friend_relationships
         SET moderation_state_id = moderation_states.id
         FROM moderation_states
-        WHERE moderation_states.object_type = 'FRIEND_REQUEST'
+        WHERE moderation_states.object_type = 'friend_request'
         AND moderation_states.object_id = friend_relationships.id
     """)
 
@@ -94,9 +94,9 @@ def downgrade():
     op.execute("""
         DELETE FROM moderation_log
         WHERE moderation_state_id IN (
-            SELECT id FROM moderation_states WHERE object_type = 'FRIEND_REQUEST'
+            SELECT id FROM moderation_states WHERE object_type = 'friend_request'
         )
     """)
-    op.execute("DELETE FROM moderation_states WHERE object_type = 'FRIEND_REQUEST'")
+    op.execute("DELETE FROM moderation_states WHERE object_type = 'friend_request'")
 
-    # Note: We cannot remove enum values in PostgreSQL easily, so we leave FRIEND_REQUEST in the enum
+    # Note: We cannot remove enum values in PostgreSQL easily, so we leave friend_request in the enum

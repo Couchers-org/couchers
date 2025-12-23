@@ -218,7 +218,9 @@ def moderation_state_column_visible(
     )
     fr_visible = exists(
         where_moderated_content_visible(
-            select(FriendRelationship).where(FriendRelationship.moderation_state_id == column), context, FriendRelationship
+            select(FriendRelationship).where(FriendRelationship.moderation_state_id == column),
+            context,
+            FriendRelationship,
         )
     )
     return or_(column.is_(None), hr_visible, gc_visible, fr_visible)

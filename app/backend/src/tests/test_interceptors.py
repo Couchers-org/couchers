@@ -949,7 +949,7 @@ def test_parse_sofa_cookie_missing():
 
 
 def test_parse_sofa_cookie_no_cookies():
-    headers = {}
+    headers: dict[str, str] = {}
     result = parse_sofa_cookie(headers)
     assert result is None
 
