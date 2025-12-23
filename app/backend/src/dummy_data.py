@@ -32,6 +32,7 @@ from couchers.models import (
     Page,
     PageType,
     PageVersion,
+    PhotoGallery,
     Reference,
     ReferenceType,
     RegionLived,
@@ -91,6 +92,12 @@ def add_dummy_users():
             )
             session.add(new_user)
             session.flush()
+
+            # Create profile gallery for the user (same as in signup flow)
+            profile_gallery = PhotoGallery(owner_user_id=new_user.id)
+            session.add(profile_gallery)
+            session.flush()
+            new_user.profile_gallery_id = profile_gallery.id
 
             for language in user["languages"]:
                 session.add(
