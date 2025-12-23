@@ -3,8 +3,10 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func
 
+from couchers.context import CouchersContext
 from couchers.db import can_moderate_node, get_node_parents_recursively
 from couchers.models import (
     Cluster,
@@ -105,7 +107,7 @@ def group_to_pb(session, cluster: Cluster, context):
 
 
 class Groups(groups_pb2_grpc.GroupsServicer):
-    def GetGroup(self, request, context, session):
+    def GetGroup(self, request: groups_pb2.GetGroupReq, context: CouchersContext, session: Session) -> groups_pb2.Group:
         cluster = session.execute(
             select(Cluster)
             .where(~Cluster.is_official_cluster)  # not an official group
@@ -116,7 +118,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
 
         return group_to_pb(session, cluster, context)
 
-    def ListAdmins(self, request, context, session):
+    def ListAdmins(
+        self, request: groups_pb2.ListAdminsReq, context: CouchersContext, session: Session
+    ) -> groups_pb2.ListAdminsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_admin_id = int(request.page_token) if request.page_token else 0
         cluster = session.execute(
@@ -144,7 +148,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_page_token=str(admins[-1].id) if len(admins) > page_size else None,
         )
 
-    def ListMembers(self, request, context, session):
+    def ListMembers(
+        self, request: groups_pb2.ListMembersReq, context: CouchersContext, session: Session
+    ) -> groups_pb2.ListMembersRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_member_id = int(request.page_token) if request.page_token else 0
         cluster = session.execute(
@@ -171,7 +177,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_page_token=str(members[-1].id) if len(members) > page_size else None,
         )
 
-    def ListPlaces(self, request, context, session):
+    def ListPlaces(
+        self, request: groups_pb2.ListPlacesReq, context: CouchersContext, session: Session
+    ) -> groups_pb2.ListPlacesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
         cluster = session.execute(
@@ -191,7 +199,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_page_token=str(places[-1].id) if len(places) > page_size else None,
         )
 
-    def ListGuides(self, request, context, session):
+    def ListGuides(
+        self, request: groups_pb2.ListGuidesReq, context: CouchersContext, session: Session
+    ) -> groups_pb2.ListGuidesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
         cluster = session.execute(
@@ -211,7 +221,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
         )
 
-    def ListEvents(self, request, context, session):
+    def ListEvents(
+        self, request: groups_pb2.ListEventsReq, context: CouchersContext, session: Session
+    ) -> groups_pb2.ListEventsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
         page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
@@ -245,7 +257,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
         )
 
-    def ListDiscussions(self, request, context, session):
+    def ListDiscussions(
+        self, request: groups_pb2.ListDiscussionsReq, context: CouchersContext, session: Session
+    ) -> groups_pb2.ListDiscussionsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
         cluster = session.execute(
@@ -264,7 +278,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
         )
 
-    def JoinGroup(self, request, context, session):
+    def JoinGroup(
+        self, request: groups_pb2.JoinGroupReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         cluster = session.execute(
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
@@ -284,7 +300,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
 
         return empty_pb2.Empty()
 
-    def LeaveGroup(self, request, context, session):
+    def LeaveGroup(
+        self, request: groups_pb2.LeaveGroupReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         cluster = session.execute(
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
@@ -303,7 +321,9 @@ class Groups(groups_pb2_grpc.GroupsServicer):
 
         return empty_pb2.Empty()
 
-    def ListUserGroups(self, request, context, session):
+    def ListUserGroups(
+        self, request: groups_pb2.ListUserGroupsReq, context: CouchersContext, session: Session
+    ) -> groups_pb2.ListUserGroupsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_cluster_id = int(request.page_token) if request.page_token else 0
         user_id = request.user_id or context.user_id

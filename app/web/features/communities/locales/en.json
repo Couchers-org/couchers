@@ -97,6 +97,7 @@
   "event_link": "Event link",
   "events_label": "Events",
   "events_title": "Events",
+  "event_title_label": "Title",
   "invalid_time": "Time must be in 24-hour format HH:MM.",
   "join_event": "Join event",
   "leave_event": "Leave event",

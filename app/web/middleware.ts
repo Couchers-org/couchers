@@ -116,6 +116,10 @@ export async function middleware(request: NextRequest) {
   const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
   const isAuthenticated = !!request.cookies.get(sessionCookieName);
 
+  // Skip locale redirect if this is a client-side navigation
+  // The Next.js router handles locale changes client-side
+  const isClientNavigation = request.headers.get("x-nextjs-data");
+
   // Check if current locale should be blocked
   const isProductionReady = await isLanguageProductionReady(currentLocale);
   const shouldBlock = shouldBlockIncompleteLanguage(
@@ -153,7 +157,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect to target locale if it differs from current
-  if (currentLocale !== targetLocale) {
+  // BUT only on initial page loads, not during client-side navigations
+  if (currentLocale !== targetLocale && !isClientNavigation) {
     const url = request.nextUrl.clone();
     url.locale = targetLocale;
 

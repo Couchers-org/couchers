@@ -24,7 +24,7 @@ fi
 ### PROD
 echo "Deploying to prod..."
 web_static="https://$rev--web-static.preview.couchershq.org/static.tar.gz"
-wget $web_static -O static.tar.gz
+curl -L -o static.tar.gz "$web_static"
 mkdir -p static/
 tar xf static.tar.gz --directory static/
 aws s3 sync static/ s3://cdn.couchers.org/static/_next/static/

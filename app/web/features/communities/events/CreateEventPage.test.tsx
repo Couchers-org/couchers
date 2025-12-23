@@ -76,7 +76,7 @@ describe("Create event page", () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const titleInput = (await screen.findByLabelText(
-      t("global:title"),
+      t("communities:event_title_label"),
     )) as HTMLInputElement;
 
     await user.type(titleInput, "Test event");
@@ -177,7 +177,7 @@ describe("Create event page", () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const titleInput = (await screen.findByLabelText(
-      t("global:title"),
+      t("communities:event_title_label"),
     )) as HTMLInputElement;
 
     await user.type(titleInput, "Test event");
@@ -270,7 +270,7 @@ describe("Create event page", () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const titleInput = (await screen.findByLabelText(
-      t("global:title"),
+      t("communities:event_title_label"),
     )) as HTMLInputElement;
 
     await user.type(titleInput, "Test event");

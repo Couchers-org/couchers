@@ -1,8 +1,0 @@
-{
-    "panel": {
-        "email": "E-mail",
-        "gender_verification_status": "Ověření pohlaví",
-        "birthdate_verification_status": "Ověření data narození",
-        "birthdate": "Datum narození"
-    }
-}

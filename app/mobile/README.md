@@ -6,6 +6,7 @@ React Native mobile app built with [Expo](https://expo.dev).
 
 - [First Time Setup](#first-time-setup)
 - [Local Development](#local-development)
+- [Seeing web or backend changes on the mobile app](#seeing-web-or-backend-changes-on-the-local-mobile-app)
 - [Before Opening a PR](#before-opening-a-pr)
 - [Publish Your Changes - TestFlight / Play Store Builds](#publish-your-changes---testflight--play-store-builds)
 - [Submitting Builds for Testing](#submitting-builds-for-testing)
@@ -46,10 +47,12 @@ React Native mobile app built with [Expo](https://expo.dev).
 
 ```bash
 # iOS (requires Xcode setup above)
-npx expo run:ios --device
+npx expo run:ios --device # and plug your device in to computer via USB
+   # OR #
+eas build --platform ios --profile staging # leave out "--profile staging" for prod build
 
 # Android (requires Android Studio setup above, and running emulator)
-npx expo run:android
+npx expo run:android --device # and plug your device in to computer via USB
 ```
 
 If you already have a development build and haven't changed any native dependencies, app.json, app icons, or updated the Expo SDK:
@@ -70,10 +73,11 @@ For JavaScript/TypeScript changes (most development), just run Metro and your ch
 npm run start:localhost
 ```
 
-**Can't build locally?** Use EAS Build and install via download link:
-```bash
-eas build --platform ios --profile development
-```
+## Seeing web or backend changes on the local mobile app
+
+If you're adjusting web or backend code and want to see it on the app, you need to run everything locally and switch out the env vars to your computer's IP address.
+
+[Follow these instructions to run local app on mobile.](./../../docs/run-local-app-on-mobile.md)
 
 ## Before Opening a PR
 
@@ -108,10 +112,8 @@ npx expo-doctor
 
 # Build and submit to TestFlight
 npx testflight # for production environment version
-
-# OR
-
-eas build --platform ios --profile development --auto-submit # for staging environment version (good if people need to make dummy data)
+   # OR #
+eas build --platform ios --profile staging --auto-submit # for staging environment version (good if people need to make dummy data)
 
 ```
 
@@ -137,10 +139,8 @@ npx expo-doctor
 
 # Build and submit to Google Play Internal Testing
 eas build --platform android --auto-submit # for production environment version
-
-# OR
-
-eas build --platform android --profile development --auto-submit # for staging environment version (good if people need to make dummy data)
+   # OR #
+eas build --platform android --profile staging --auto-submit # for staging environment version (good if people need to make dummy data)
 ```
 
 The `--auto-submit` flag will:

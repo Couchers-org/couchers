@@ -1,8 +1,11 @@
 import logging
 
 import grpc
+from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
+from couchers.context import CouchersContext
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, ModNote, User
 from couchers.proto import jail_pb2, jail_pb2_grpc
 from couchers.servicers.account import mod_note_to_pb
@@ -43,11 +46,13 @@ class Jail(jail_pb2_grpc.JailServicer):
     fully active
     """
 
-    def JailInfo(self, request, context, session):
+    def JailInfo(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> jail_pb2.JailInfoRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         return _get_jail_info(session, user)
 
-    def AcceptTOS(self, request, context, session):
+    def AcceptTOS(
+        self, request: jail_pb2.AcceptTOSReq, context: CouchersContext, session: Session
+    ) -> jail_pb2.JailInfoRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if not request.accept:
@@ -57,7 +62,9 @@ class Jail(jail_pb2_grpc.JailServicer):
 
         return _get_jail_info(session, user)
 
-    def SetLocation(self, request, context, session):
+    def SetLocation(
+        self, request: jail_pb2.SetLocationReq, context: CouchersContext, session: Session
+    ) -> jail_pb2.JailInfoRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if request.lat == 0 and request.lng == 0:
@@ -71,7 +78,9 @@ class Jail(jail_pb2_grpc.JailServicer):
 
         return _get_jail_info(session, user)
 
-    def AcceptCommunityGuidelines(self, request, context, session):
+    def AcceptCommunityGuidelines(
+        self, request: jail_pb2.AcceptCommunityGuidelinesReq, context: CouchersContext, session: Session
+    ) -> jail_pb2.JailInfoRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if not request.accept:
@@ -81,7 +90,9 @@ class Jail(jail_pb2_grpc.JailServicer):
 
         return _get_jail_info(session, user)
 
-    def AcknowledgePendingModNote(self, request, context, session):
+    def AcknowledgePendingModNote(
+        self, request: jail_pb2.AcknowledgePendingModNoteReq, context: CouchersContext, session: Session
+    ) -> jail_pb2.JailInfoRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         note = session.execute(
@@ -92,16 +103,18 @@ class Jail(jail_pb2_grpc.JailServicer):
         ).scalar_one_or_none()
 
         if not note:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "mod_note_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "moderator_note_not_found")
 
         if not request.acknowledge:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "mod_note_need_to_acknoweldge")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "moderator_note_need_to_acknowledge")
 
         note.acknowledged = now()
 
         return _get_jail_info(session, user)
 
-    def RespondToActivenessProbe(self, request, context, session):
+    def RespondToActivenessProbe(
+        self, request: jail_pb2.RespondToActivenessProbeReq, context: CouchersContext, session: Session
+    ) -> jail_pb2.JailInfoRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         probe = session.execute(
