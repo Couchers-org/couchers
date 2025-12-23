@@ -5,17 +5,18 @@ import grpc
 from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
 from shapely.geometry import shape
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, select, update
 
 from couchers import urls
-from couchers.context import make_background_user_context
+from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.materialized_views import LiteUser
 from couchers.models import EventCommunityInviteRequest, Node, User, Volunteer
 from couchers.notifications.notify import notify
-from couchers.proto import editor_pb2, editor_pb2_grpc, notification_data_pb2
+from couchers.proto import communities_pb2, editor_pb2, editor_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_static_badge_dict
 from couchers.servicers.communities import community_to_pb
@@ -78,7 +79,9 @@ def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNo
 
 
 class Editor(editor_pb2_grpc.EditorServicer):
-    def CreateCommunity(self, request, context, session):
+    def CreateCommunity(
+        self, request: editor_pb2.CreateCommunityReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.Community:
         geom = load_community_geom(request.geojson, context)
 
         parent_node_id = request.parent_node_id if request.parent_node_id != 0 else None
@@ -87,7 +90,9 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         return community_to_pb(session, node, context)
 
-    def UpdateCommunity(self, request, context, session):
+    def UpdateCommunity(
+        self, request: editor_pb2.UpdateCommunityReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.Community:
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
@@ -111,7 +116,9 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         return community_to_pb(session, cluster.parent_node, context)
 
-    def ListEventCommunityInviteRequests(self, request, context, session):
+    def ListEventCommunityInviteRequests(
+        self, request: editor_pb2.ListEventCommunityInviteRequestsReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.ListEventCommunityInviteRequestsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_request_id = int(request.page_token) if request.page_token else 0
         requests = (
@@ -141,7 +148,9 @@ class Editor(editor_pb2_grpc.EditorServicer):
             next_page_token=str(requests[-1].id) if len(requests) > page_size else None,
         )
 
-    def DecideEventCommunityInviteRequest(self, request, context, session):
+    def DecideEventCommunityInviteRequest(
+        self, request: editor_pb2.DecideEventCommunityInviteRequestReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.DecideEventCommunityInviteRequestRes:
         req = session.execute(
             select(EventCommunityInviteRequest).where(
                 EventCommunityInviteRequest.id == request.event_community_invite_request_id
@@ -183,7 +192,9 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         return editor_pb2.DecideEventCommunityInviteRequestRes()
 
-    def SendBlogPostNotification(self, request, context, session):
+    def SendBlogPostNotification(
+        self, request: editor_pb2.SendBlogPostNotificationReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         if len(request.title) > 50:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin_blog_title_too_long")
         if len(request.blurb) > 100:
@@ -199,7 +210,9 @@ class Editor(editor_pb2_grpc.EditorServicer):
         )
         return empty_pb2.Empty()
 
-    def MakeUserVolunteer(self, request, context, session):
+    def MakeUserVolunteer(
+        self, request: editor_pb2.MakeUserVolunteerReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.Volunteer:
         # Check if user exists
         if not session.execute(select(exists().where(User.id == request.user_id))).scalar():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
@@ -227,7 +240,9 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         return volunteer_to_pb(session, volunteer)
 
-    def UpdateVolunteer(self, request, context, session):
+    def UpdateVolunteer(
+        self, request: editor_pb2.UpdateVolunteerReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.Volunteer:
         # Check if volunteer exists
         volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == request.user_id)).scalar_one_or_none()
         if not volunteer:
@@ -263,7 +278,9 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         return volunteer_to_pb(session, volunteer)
 
-    def ListVolunteers(self, request, context, session):
+    def ListVolunteers(
+        self, request: editor_pb2.ListVolunteersReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.ListVolunteersRes:
         # Query volunteers
         query = select(Volunteer).join(LiteUser, LiteUser.id == Volunteer.user_id).where(LiteUser.is_visible)
 

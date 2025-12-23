@@ -1,10 +1,12 @@
 import grpc
 import requests
 from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from couchers import urls
 from couchers.config import config
+from couchers.context import CouchersContext
 from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
@@ -16,10 +18,12 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
     def _version(self):
         return config["VERSION"]
 
-    def Version(self, request, context, session):
+    def Version(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> bugs_pb2.VersionInfo:
         return bugs_pb2.VersionInfo(version=self._version())
 
-    def ReportBug(self, request, context, session):
+    def ReportBug(
+        self, request: bugs_pb2.ReportBugReq, context: CouchersContext, session: Session
+    ) -> bugs_pb2.ReportBugRes:
         if not config["BUG_TOOL_ENABLED"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "bug_tool_disabled")
 
@@ -62,7 +66,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             bug_id=f"#{issue_number}", bug_url=f"https://github.com/{repo}/issues/{issue_number}"
         )
 
-    def Status(self, request, context, session):
+    def Status(self, request: bugs_pb2.StatusReq, context: CouchersContext, session: Session) -> bugs_pb2.StatusRes:
         coucher_count = session.execute(select(func.count()).select_from(User).where(User.is_visible)).scalar_one()
 
         return bugs_pb2.StatusRes(
@@ -71,14 +75,20 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             coucher_count=coucher_count,
         )
 
-    def GetDescriptors(self, request, context, session):
+    def GetDescriptors(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
         return httpbody_pb2.HttpBody(
             content_type="application/octet-stream",
             data=get_descriptors_pb(),
         )
 
-    def GeolocationSearchInfo(self, request, context, session):
+    def GeolocationSearchInfo(
+        self, request: bugs_pb2.GeolocationSearchInfoReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         return empty_pb2.Empty()
 
-    def GeolocationClickInfo(self, request, context, session):
+    def GeolocationClickInfo(
+        self, request: bugs_pb2.GeolocationClickInfoReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         return empty_pb2.Empty()

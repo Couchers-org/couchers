@@ -12,3 +12,5 @@ ed6cdae66d80d46c74b8f29d14c488831d5d6e5c
 81c0f8bf5494e8c92dce72e4baf98a2e8bf5906b
 # Split models.py into multiple files
 2b88cfc3d827781444f3f8f79b1bcc16d72fc486
+# Add types to grpc servicers
+055ef4610f37155d31aa98f8047c329fab250d8f

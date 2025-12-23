@@ -16,6 +16,7 @@ touch client/src/couchers/proto/google/api/__init__.py
 
 # relax_strict_optional_primitives allows passing None to Message.__init__
 MYPY_OUT_OPTS="quiet,relax_strict_optional_primitives"
+MYPY_GRPC_OUT_OPTS="quiet,only_sync"
 
 # generate API protos and grpc stuff
 find proto -name '*.proto' | protoc -I proto \
@@ -27,22 +28,22 @@ find proto -name '*.proto' | protoc -I proto \
   --python_out=proto/gen/python/proto \
   --grpc_python_out=proto/gen/python/proto \
   --mypy_out=${MYPY_OUT_OPTS}:proto/gen/python/proto \
-  --mypy_grpc_out=quiet:proto/gen/python/proto \
+  --mypy_grpc_out=${MYPY_GRPC_OUT_OPTS}:proto/gen/python/proto \
   \
   --python_out=backend/src/couchers/proto \
   --grpc_python_out=backend/src/couchers/proto \
   --mypy_out=${MYPY_OUT_OPTS}:backend/src/couchers/proto \
-  --mypy_grpc_out=quiet:backend/src/couchers/proto \
+  --mypy_grpc_out=${MYPY_GRPC_OUT_OPTS}:backend/src/couchers/proto \
   \
   --python_out=client/src/couchers/proto \
   --grpc_python_out=client/src/couchers/proto \
   --mypy_out=${MYPY_OUT_OPTS}:client/src/couchers/proto \
-  --mypy_grpc_out=quiet:client/src/couchers/proto \
+  --mypy_grpc_out=${MYPY_GRPC_OUT_OPTS}:client/src/couchers/proto \
   \
   --python_out=media/src/media/proto \
   --grpc_python_out=media/src/media/proto \
   --mypy_out=${MYPY_OUT_OPTS}:media/src/media/proto \
-  --mypy_grpc_out=quiet:media/src/media/proto \
+  --mypy_grpc_out=${MYPY_GRPC_OUT_OPTS}:media/src/media/proto \
   \
   --js_out="import_style=commonjs,binary:proto/gen/ts/proto" \
   --grpc-web_out="import_style=commonjs+dts,mode=grpcweb:proto/gen/ts/proto" \
@@ -63,7 +64,7 @@ cp proto/gen/descriptors.pb backend/src/couchers/proto/descriptors.pb
 (cd backend && find proto -name '*.proto' | protoc -I proto \
   --python_out=src/couchers/proto \
   --mypy_out=${MYPY_OUT_OPTS}:src/couchers/proto \
-  --mypy_grpc_out=quiet:src/couchers/proto \
+  --mypy_grpc_out=${MYPY_GRPC_OUT_OPTS}:src/couchers/proto \
   $(xargs))
 
 # fixup python3 relative imports with oneliner from

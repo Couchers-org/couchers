@@ -4,6 +4,7 @@ from datetime import timedelta
 import grpc
 import requests
 from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func, or_
 
 from couchers import urls
@@ -157,7 +158,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
     This class services the Auth service/API.
     """
 
-    def SignupFlow(self, request, context, session):
+    def SignupFlow(
+        self, request: auth_pb2.SignupFlowReq, context: CouchersContext, session: Session
+    ) -> auth_pb2.SignupFlowRes:
         if request.email_token:
             # the email token can either be for verification or just to find an existing signup
             flow = session.execute(
@@ -386,13 +389,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 need_accept_community_guidelines=flow.accepted_community_guidelines < GUIDELINES_VERSION,
             )
 
-    def UsernameValid(self, request, context, session):
+    def UsernameValid(
+        self, request: auth_pb2.UsernameValidReq, context: CouchersContext, session: Session
+    ) -> auth_pb2.UsernameValidRes:
         """
         Runs a username availability and validity check.
         """
         return auth_pb2.UsernameValidRes(valid=_username_available(session, request.username.lower()))
 
-    def Authenticate(self, request, context, session):
+    def Authenticate(self, request: auth_pb2.AuthReq, context: CouchersContext, session: Session) -> auth_pb2.AuthRes:
         """
         Authenticates a classic password-based login request.
 
@@ -425,14 +430,16 @@ class Auth(auth_pb2_grpc.AuthServicer):
             logger.debug("Didn't find user")
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "account_not_found")
 
-    def GetAuthState(self, request, context, session):
+    def GetAuthState(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> auth_pb2.GetAuthStateRes:
         if not context.is_logged_in():
             return auth_pb2.GetAuthStateRes(logged_in=False)
         else:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             return auth_pb2.GetAuthStateRes(logged_in=True, auth_res=_auth_res(user))
 
-    def Deauthenticate(self, request, context, session):
+    def Deauthenticate(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> empty_pb2.Empty:
         """
         Removes an active cookie session.
         """
@@ -448,7 +455,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return empty_pb2.Empty()
 
-    def ResetPassword(self, request, context, session):
+    def ResetPassword(
+        self, request: auth_pb2.ResetPasswordReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         """
         If the user does not exist, do nothing.
 
@@ -483,7 +492,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return empty_pb2.Empty()
 
-    def CompletePasswordResetV2(self, request, context, session):
+    def CompletePasswordResetV2(
+        self, request: auth_pb2.CompletePasswordResetV2Req, context: CouchersContext, session: Session
+    ) -> auth_pb2.AuthRes:
         """
         Completes the password reset: just clears the user's password
         """
@@ -514,7 +525,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         else:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
-    def ConfirmChangeEmailV2(self, request, context, session):
+    def ConfirmChangeEmailV2(
+        self, request: auth_pb2.ConfirmChangeEmailV2Req, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         user = session.execute(
             select(User)
             .where(User.new_email_token == request.change_email_token)
@@ -540,7 +553,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return empty_pb2.Empty()
 
-    def ConfirmDeleteAccount(self, request, context, session):
+    def ConfirmDeleteAccount(
+        self, request: auth_pb2.ConfirmDeleteAccountReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         """
         Confirm account deletion using account delete token
         """
@@ -579,7 +594,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return empty_pb2.Empty()
 
-    def RecoverAccount(self, request, context, session):
+    def RecoverAccount(
+        self, request: auth_pb2.RecoverAccountReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         """
         Recovers a recently deleted account
         """
@@ -605,10 +622,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return empty_pb2.Empty()
 
-    def Unsubscribe(self, request, context, session):
+    def Unsubscribe(
+        self, request: auth_pb2.UnsubscribeReq, context: CouchersContext, session: Session
+    ) -> auth_pb2.UnsubscribeRes:
         return auth_pb2.UnsubscribeRes(response=respond_quick_link(request, context, session))
 
-    def AntiBot(self, request, context, session):
+    def AntiBot(self, request: auth_pb2.AntiBotReq, context: CouchersContext, session: Session) -> auth_pb2.AntiBotRes:
         if not config["RECAPTHCA_ENABLED"]:
             return auth_pb2.AntiBotRes()
 
@@ -655,7 +674,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return auth_pb2.AntiBotRes()
 
-    def AntiBotPolicy(self, request, context, session):
+    def AntiBotPolicy(
+        self, request: auth_pb2.AntiBotPolicyReq, context: CouchersContext, session: Session
+    ) -> auth_pb2.AntiBotPolicyRes:
         if config["RECAPTHCA_ENABLED"]:
             if context.is_logged_in():
                 user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -664,7 +685,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return auth_pb2.AntiBotPolicyRes(should_antibot=False)
 
-    def GetInviteCodeInfo(self, request, context, session):
+    def GetInviteCodeInfo(
+        self, request: auth_pb2.GetInviteCodeInfoReq, context: CouchersContext, session: Session
+    ) -> auth_pb2.GetInviteCodeInfoRes:
         invite = session.execute(
             select(InviteCode).where(
                 InviteCode.id == request.code, or_(InviteCode.disabled == None, InviteCode.disabled > func.now())

@@ -17,7 +17,7 @@ from couchers.notifications.expo_api import send_expo_push_notification
 from couchers.notifications.web_push_api import send_web_push
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import couchers_select as select
-from couchers.utils import now
+from couchers.utils import not_none, now
 
 logger = logging.getLogger(__name__)
 
@@ -88,9 +88,9 @@ def _send_web_push(
 
     resp = send_web_push(
         data,
-        sub.endpoint,
-        sub.auth_key,
-        sub.p256dh_key,
+        not_none(sub.endpoint),
+        not_none(sub.auth_key),
+        not_none(sub.p256dh_key),
         config["PUSH_NOTIFICATIONS_VAPID_SUBJECT"],
         config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"],
         ttl=payload.ttl,
@@ -123,7 +123,7 @@ def _send_expo(
         collapse_key = f"{payload.topic_action}_{payload.key}"
 
     result = send_expo_push_notification(
-        token=sub.token,
+        token=not_none(sub.token),
         title=payload.title,
         body=payload.body,
         data={

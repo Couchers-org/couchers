@@ -7,10 +7,10 @@
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
 
-from couchers.context import make_background_user_context
+from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import are_friends
 from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, Reference, ReferenceType, User
@@ -154,7 +154,9 @@ def get_pending_references_to_write(session, context):
 
 
 class References(references_pb2_grpc.ReferencesServicer):
-    def ListReferences(self, request, context, session):
+    def ListReferences(
+        self, request: references_pb2.ListReferencesReq, context: CouchersContext, session: Session
+    ) -> references_pb2.ListReferencesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_reference_id = int(request.page_token) if request.page_token else 0
 
@@ -226,7 +228,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             next_page_token=str(references[-1].id) if len(references) > page_size else None,
         )
 
-    def WriteFriendReference(self, request, context, session):
+    def WriteFriendReference(
+        self, request: references_pb2.WriteFriendReferenceReq, context: CouchersContext, session: Session
+    ) -> references_pb2.Reference:
         if context.user_id == request.to_user_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_refer_self")
 
@@ -281,7 +285,9 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         return reference_to_pb(reference, context)
 
-    def WriteHostRequestReference(self, request, context, session):
+    def WriteHostRequestReference(
+        self, request: references_pb2.WriteHostRequestReferenceReq, context: CouchersContext, session: Session
+    ) -> references_pb2.Reference:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         check_valid_reference(request, context)
@@ -337,7 +343,9 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         return reference_to_pb(reference, context)
 
-    def HostRequestIndicateDidntMeetup(self, request, context, session):
+    def HostRequestIndicateDidntMeetup(
+        self, request: references_pb2.HostRequestIndicateDidntMeetupReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         host_request, surfed = get_host_req_and_check_can_write_ref(session, context, request.host_request_id)
 
         reason = request.reason_didnt_meetup.strip()
@@ -349,7 +357,9 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         return empty_pb2.Empty()
 
-    def AvailableWriteReferences(self, request, context, session):
+    def AvailableWriteReferences(
+        self, request: references_pb2.AvailableWriteReferencesReq, context: CouchersContext, session: Session
+    ) -> references_pb2.AvailableWriteReferencesRes:
         # can't write anything for ourselves, but let's return empty so this can be used generically on profile page
         if request.to_user_id == context.user_id:
             return references_pb2.AvailableWriteReferencesRes()
@@ -416,7 +426,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             ],
         )
 
-    def ListPendingReferencesToWrite(self, request, context, session):
+    def ListPendingReferencesToWrite(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> references_pb2.ListPendingReferencesToWriteRes:
         return references_pb2.ListPendingReferencesToWriteRes(
             pending_references=[
                 references_pb2.AvailableWriteReferenceType(
@@ -430,7 +442,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             ],
         )
 
-    def GetHostRequestReferenceStatus(self, request, context, session):
+    def GetHostRequestReferenceStatus(
+        self, request: references_pb2.GetHostRequestReferenceStatusReq, context: CouchersContext, session: Session
+    ) -> references_pb2.GetHostRequestReferenceStatusRes:
         # Compute has_given (whether current user already wrote a reference for this host request)
         has_given = (
             session.execute(
