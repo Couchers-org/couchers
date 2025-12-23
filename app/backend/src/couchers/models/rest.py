@@ -93,7 +93,7 @@ class FriendRelationship(Base, kw_only=True):
         init=False, backref="friends_from", foreign_keys="FriendRelationship.from_user_id"
     )
     to_user: Mapped[User] = relationship(init=False, backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
-    moderation_state: Mapped["ModerationState"] = relationship(init=False)
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # Ping looks up pending friend reqs, this speeds that up

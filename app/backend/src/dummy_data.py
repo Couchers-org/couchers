@@ -26,10 +26,7 @@ from couchers.models import (
     LanguageFluency,
     Message,
     MessageType,
-    ModerationAction,
-    ModerationLog,
     ModerationObjectType,
-    ModerationState,
     ModerationVisibility,
     Node,
     Page,
@@ -44,6 +41,7 @@ from couchers.models import (
     User,
     Volunteer,
 )
+from couchers.moderation.utils import create_moderation
 from couchers.proto.api_pb2 import HostingStatus
 from couchers.servicers.api import hostingstatus2sql
 from couchers.servicers.auth import create_session
@@ -141,36 +139,24 @@ def add_dummy_users() -> None:
             from_user = session.execute(select(User).where(User.username == username1)).scalar_one()
             to_user = session.execute(select(User).where(User.username == username2)).scalar_one()
 
-            # Create moderation state for UMS (set as VISIBLE since this is accepted dummy data)
-            moderation_state = ModerationState(
-                object_type=ModerationObjectType.FRIEND_REQUEST,
-                object_id=0,  # Placeholder, will be updated below
-                visibility=ModerationVisibility.VISIBLE,
-            )
-            session.add(moderation_state)
-            session.flush()
-
-            friend_relationship = FriendRelationship(
-                from_user_id=from_user.id,
-                to_user_id=to_user.id,
-                status=FriendStatus.accepted,
-                moderation_state_id=moderation_state.id,
-            )
-            session.add(friend_relationship)
-            session.flush()
-
-            # Update moderation state with actual object_id
-            moderation_state.object_id = friend_relationship.id
-
-            session.add(
-                ModerationLog(
-                    moderation_state_id=moderation_state.id,
-                    action=ModerationAction.CREATE,
-                    moderator_user_id=from_user.id,
-                    new_visibility=ModerationVisibility.VISIBLE,
-                    reason="Dummy data: friendship created.",
+            def create_friend_relationship(
+                moderation_state_id: int, from_user: User = from_user, to_user: User = to_user
+            ) -> int:
+                friend_relationship = FriendRelationship(
+                    from_user_id=from_user.id,
+                    to_user_id=to_user.id,
+                    status=FriendStatus.accepted,
+                    moderation_state_id=moderation_state_id,
                 )
+                session.add(friend_relationship)
+                session.flush()
+                return friend_relationship.id
+
+            moderation_state = create_moderation(
+                session, ModerationObjectType.friend_request, create_friend_relationship, from_user.id
             )
+            moderation_state.visibility = ModerationVisibility.visible
+            session.flush()
 
         session.commit()
 
@@ -201,24 +187,9 @@ def add_dummy_users() -> None:
             session.add(conversation)
             session.flush()
 
-            # Create moderation state for UMS (set as VISIBLE since this is dummy data)
-            moderation_state = ModerationState(
-                object_type=ModerationObjectType.group_chat,
-                object_id=conversation.id,
-                visibility=ModerationVisibility.visible,
-            )
-            session.add(moderation_state)
+            moderation_state = create_moderation(session, ModerationObjectType.group_chat, conversation.id, creator_id)
+            moderation_state.visibility = ModerationVisibility.visible
             session.flush()
-
-            session.add(
-                ModerationLog(
-                    moderation_state_id=moderation_state.id,
-                    action=ModerationAction.create,
-                    moderator_user_id=creator_id,
-                    new_visibility=ModerationVisibility.visible,
-                    reason="Dummy data: group chat created.",
-                )
-            )
 
             chat = GroupChat(
                 conversation_id=conversation.id,

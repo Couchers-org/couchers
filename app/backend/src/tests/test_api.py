@@ -831,17 +831,16 @@ def test_friend_request_flow(db, push_collector: PushCollector, moderator):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
 
     with session_scope() as session:
-        friend_request_id = (
-            session.execute(
-                select(FriendRelationship).where(
-                    FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id
-                )
-            ).scalar_one_or_none()
-        ).id
+        friend_request = session.execute(
+            select(FriendRelationship).where(
+                FriendRelationship.from_user_id == user1.id, FriendRelationship.to_user_id == user2.id
+            )
+        ).scalar_one()
+        friend_request_id = friend_request.id
 
     # Notification is deferred while content is SHADOWED
     # No push notification sent yet
-    push_collector.assert_user_has_count(user2.id, 0)
+    assert push_collector.count_for_user(user2.id) == 0
 
     with api_session(token1) as api:
         # Sender can see their own sent requests (even while SHADOWED)
@@ -909,7 +908,7 @@ def test_friend_request_flow(db, push_collector: PushCollector, moderator):
     # user2 got one push (from the friend request creation)
     # user1 should now have one push (from the friend request acceptance)
     push = push_collector.pop_for_user(user1.id, last=True)
-    assert push.content.title == f"{user2.name} accepted your friend request!"
+    assert push.content.title == f"{user2.name} accepted your friend request"
     assert push.content.body == f"You are now friends with {user2.name}."
 
     mock.assert_called_once()
@@ -1289,9 +1288,9 @@ def test_accept_friend_request(db, moderator):
 
     with session_scope() as session:
         moderation_state = ModerationState(
-            object_type=ModerationObjectType.FRIEND_REQUEST,
+            object_type=ModerationObjectType.friend_request,
             object_id=0,
-            visibility=ModerationVisibility.VISIBLE,
+            visibility=ModerationVisibility.visible,
         )
         session.add(moderation_state)
         session.flush()

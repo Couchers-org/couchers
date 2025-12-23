@@ -28,8 +28,8 @@ from couchers.tasks import (
     send_signup_email,
 )
 from couchers.utils import Timestamp_from_datetime, now
-from tests.fixtures.db import generate_user, make_friends
-from tests.fixtures.misc import email_fields, mock_notification_email, process_jobs
+from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
+from tests.fixtures.misc import Moderator, email_fields, mock_notification_email, process_jobs
 from tests.fixtures.sessions import api_session, events_session, notifications_session, real_editor_session
 from tests.test_communities import create_community
 
@@ -185,6 +185,7 @@ def test_email_patching_fails(db):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=to_user.id))
 
     friend_relationship = get_friend_relationship(from_user, to_user)
+    assert friend_relationship is not None
     moderator.approve_friend_request(friend_relationship.id)
 
     with patch("couchers.email._queue_email", mock_queue_email):
@@ -273,6 +274,7 @@ def test_do_not_email_non_security(db):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
 
     friend_relationship = get_friend_relationship(from_user, user)
+    assert friend_relationship is not None
     moderator.approve_friend_request(friend_relationship.id)
 
     with mock_notification_email() as mock:
@@ -292,6 +294,7 @@ def test_do_not_email_non_security_unsublink(db):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
 
     friend_relationship = get_friend_relationship(from_user, user)
+    assert friend_relationship is not None
     moderator.approve_friend_request(friend_relationship.id)
 
     with mock_notification_email() as mock:
