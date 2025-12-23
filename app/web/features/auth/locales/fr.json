@@ -124,10 +124,11 @@
       "woman": "Femme"
     },
     "username": {
-      "required_error": "Entrez votre nom d’utilisateur",
-      "username_taken_error": "Ce nom d’utilisateur est déjà pris.",
-      "field_label": "Nom d’utilisateur",
-      "validation_error": "Le nom d’utilisateur ne peut contenir que des chiffres, de lettres ou/et commencer par une lettre."
+      "required_error": "Entrez votre nom d'utilisateur",
+      "helper_text": "This is your unique login ID, not your display name.",
+      "username_taken_error": "Ce nom d'utilisateur est déjà pris.",
+      "field_label": "Nom d'utilisateur",
+      "validation_error": "Le nom d'utilisateur ne peut contenir que des chiffres, de lettres ou/et commencer par une lettre."
     },
     "birthday": {
       "field_label": "Date de naissance",

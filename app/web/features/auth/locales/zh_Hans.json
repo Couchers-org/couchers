@@ -65,6 +65,7 @@
     "header": "您的账号详情",
     "username": {
       "field_label": "用户名",
+      "helper_text": "This is your unique login ID, not your display name.",
       "required_error": "输入您的用户名",
       "username_taken_error": "用户名已被占用。",
       "validation_error": "用户名只可以用英文字母开头，之后跟随英文字母、数字或下划线_。"

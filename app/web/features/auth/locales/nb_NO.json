@@ -44,6 +44,7 @@
     "header": "Dine kontodetaljer",
     "username": {
       "field_label": "Brukernavn",
+      "helper_text": "This is your unique login ID, not your display name.",
       "required_error": "Skriv inn brukernavnet ditt",
       "username_taken_error": "Brukernavnet er allerede i bruk.",
       "validation_error": "Brukernavnet kan kun ha tall, eller _, og må begynne med en bokstav."

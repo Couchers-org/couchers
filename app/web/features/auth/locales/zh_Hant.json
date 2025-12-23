@@ -44,6 +44,7 @@
     "header": "您的帳號詳情",
     "username": {
       "field_label": "用戶名稱",
+      "helper_text": "This is your unique login ID, not your display name.",
       "username_taken_error": "該用戶名稱已經被註冊。",
       "required_error": "請輸入您的用戶名稱"
     },

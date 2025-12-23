@@ -37,6 +37,7 @@
     "header": "アカウントの詳細",
     "username": {
       "field_label": "ユーザーネーム",
+      "helper_text": "This is your unique login ID, not your display name.",
       "required_error": "ユーザーネームを入力してください",
       "username_taken_error": "このユーザーネームはすでに使用されています。",
       "validation_error": "ユーザーネームには数字、_、または文字のみが利用可能です。"

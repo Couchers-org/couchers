@@ -45,6 +45,7 @@
     "header": "Podrobnosti o tvém účtu",
     "username": {
       "field_label": "Uživatelské jméno",
+      "helper_text": "This is your unique login ID, not your display name.",
       "required_error": "Zadej své uživatelské jméno",
       "username_taken_error": "Toto uživatelské jméno už používá někdo jiný.",
       "validation_error": "Uživatelské jméno může být složeno pouze z písmen, čísel, _ a musí začínat písmenem."

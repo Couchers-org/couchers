@@ -32,6 +32,7 @@
     },
     "username": {
       "field_label": "उपयोगकर्ता नाम",
+      "helper_text": "This is your unique login ID, not your display name.",
       "required_error": "अपना उपयोगकर्ता नाम दर्ज करें",
       "validation_error": "उपयोगकर्ता नाम में केवल अंक या _ हो सकते हैं, जो एक अक्षर से शुरू होता है।",
       "username_taken_error": "यह उपयोगकर्ता नाम ले लिया गया है।"

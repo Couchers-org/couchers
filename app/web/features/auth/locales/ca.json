@@ -99,9 +99,10 @@
     "header": "Detalls del teu compte",
     "username": {
       "field_label": "Nom d'usuari",
+      "helper_text": "This is your unique login ID, not your display name.",
       "required_error": "Introdueix el teu nom d'usuari",
       "username_taken_error": "Aquest nom d'usuari ja existeix.",
-      "validation_error": "El nom d’usuari només pot contenir números o _, i ha de començar amb una lletra."
+      "validation_error": "El nom d'usuari només pot contenir números o _, i ha de començar amb una lletra."
     },
     "password": {
       "field_label": "Contrasenya",

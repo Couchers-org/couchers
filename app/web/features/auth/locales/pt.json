@@ -40,6 +40,7 @@
   "account_form": {
     "username": {
       "validation_error": "O utilizador apenas pode conter números ou _, devendo começar com uma letra.",
+      "helper_text": "This is your unique login ID, not your display name.",
       "required_error": "Introduz o teu nome de utilizador",
       "field_label": "Nome de utilizador",
       "username_taken_error": "Este nome de utilizador já existe."

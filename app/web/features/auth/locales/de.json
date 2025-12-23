@@ -11,6 +11,7 @@
     "header": "Deine Accountdetails",
     "username": {
       "field_label": "Benutzername",
+      "helper_text": "This is your unique login ID, not your display name.",
       "required_error": "Gib deinen Benutzernamen ein",
       "username_taken_error": "Dieser Benutzername ist bereits vergeben.",
       "validation_error": "Dein Benutzername sollte mit einem Buchstaben beginnen und kann Buchstaben, Nummern und Unterstriche '_' enthalten."

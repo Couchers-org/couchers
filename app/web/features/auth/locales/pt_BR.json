@@ -49,6 +49,7 @@
     "header": "Detalhes da sua conta",
     "username": {
       "field_label": "Nome de usuário",
+      "helper_text": "This is your unique login ID, not your display name.",
       "required_error": "Digite seu nome de usuário",
       "username_taken_error": "Este nome de usuário já existe.",
       "validation_error": "O nome de usuário só pode conter números ou _, e deve começar com uma letra."

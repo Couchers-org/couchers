@@ -50,6 +50,7 @@
   "account_form": {
     "username": {
       "field_label": "Имя пользователя",
+      "helper_text": "This is your unique login ID, not your display name.",
       "required_error": "Введите свое имя пользователя",
       "username_taken_error": "Это имя пользователя уже занято.",
       "validation_error": "Имя пользователя должно начинаться с буквы и содержать только буквы, цифры или символ (_)."

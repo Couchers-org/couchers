@@ -56,6 +56,7 @@
     "header": "I dettagli della tua utenza",
     "username": {
       "required_error": "Inserisci il tuo nome utente",
+      "helper_text": "This is your unique login ID, not your display name.",
       "validation_error": "Un nome utente può contenere solo numeri o _, e deve iniziare con una lettera.",
       "field_label": "Nome utente",
       "username_taken_error": "Questo nome utente è già preso."

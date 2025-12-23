@@ -60,6 +60,7 @@
   },
   "account_form": {
     "username": {
+      "helper_text": "This is your unique login ID, not your display name.",
       "required_error": "Kullanıcı adınızı girin",
       "username_taken_error": "Bu kullanıcı adı alınmış.",
       "validation_error": "Kullanıcı adları sadece harfler, numaralar ve ''_'' içerebilir ve bir harfle başlamalıdır."

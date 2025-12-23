@@ -54,6 +54,7 @@
     "header": "Jouw account details",
     "username": {
       "field_label": "Gebruikersnaam",
+      "helper_text": "This is your unique login ID, not your display name.",
       "required_error": "Vul je gebruikersnaam in",
       "username_taken_error": "Deze gebruikersnaam is al in gebruik.",
       "validation_error": "Een gebruikersnaam kan alleen nummers, letters en _ (underscore) bevatten. Zorg dat je gebruikersnaam begint met een letter."
