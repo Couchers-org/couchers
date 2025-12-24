@@ -8,6 +8,11 @@ from enum import Enum
 
 
 class PluralCategory(Enum):
+    """
+    Unicode CLDR plural categories, as defined on
+    https://cldr.unicode.org/index/cldr-spec/plural-rules
+    """
+
     ZERO = "zero"
     ONE = "one"
     TWO = "two"
