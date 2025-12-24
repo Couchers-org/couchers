@@ -53,6 +53,7 @@ const UserCardsWrapper = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
     display: "flex",
     flexDirection: "column",
+    gap: theme.spacing(1),
   },
 }));
 
@@ -61,7 +62,7 @@ const StyledCardWrapper = styled("div")(({ theme }) => ({
   display: "flex",
 
   [theme.breakpoints.down("md")]: {
-    height: `${DEFAULT_DRAWER_WIDTH - 200}px`,
+    height: "auto",
   },
 }));
 

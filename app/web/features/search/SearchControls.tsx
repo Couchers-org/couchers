@@ -90,34 +90,53 @@ const SearchControls = ({
 
   return (
     <>
-      <MapControlsWrapper
-        drawerWidth={drawerWidth}
-        isDualView={mapView === MapViews.MAP_AND_LIST}
-        isMobile={isMobile}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <CenterAligner>
-          {!isMobile && (
+      {!isMobile && (
+        <MapControlsWrapper
+          drawerWidth={drawerWidth}
+          isDualView={mapView === MapViews.MAP_AND_LIST}
+          isMobile={isMobile}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <CenterAligner>
             <MapViewToggle
               mapView={mapView}
               onMapViewChange={handleMapViewChange}
             />
-          )}
-          <FloatingSearchControls
-            mapRef={mapRef}
-            onClearFilters={resetFilters}
-            onOpenFilters={handleOpenFiltersDialog}
-            onSetSearchType={handleSetSearchType}
-            searchType={searchType}
-            onZoomIn={onZoomIn}
-          />
-        </CenterAligner>
-      </MapControlsWrapper>
+            <FloatingSearchControls
+              mapRef={mapRef}
+              onClearFilters={resetFilters}
+              onOpenFilters={handleOpenFiltersDialog}
+              onSetSearchType={handleSetSearchType}
+              searchType={searchType}
+              onZoomIn={onZoomIn}
+            />
+          </CenterAligner>
+        </MapControlsWrapper>
+      )}
       {isMobile && (
-        <SearchTypeRadioGroup
-          onChange={handleSetSearchType}
-          searchType={searchType}
-        />
+        <>
+          <MapControlsWrapper
+            drawerWidth={drawerWidth}
+            isDualView={mapView === MapViews.MAP_AND_LIST}
+            isMobile={isMobile}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <CenterAligner>
+              <FloatingSearchControls
+                mapRef={mapRef}
+                onClearFilters={resetFilters}
+                onOpenFilters={handleOpenFiltersDialog}
+                onSetSearchType={handleSetSearchType}
+                searchType={searchType}
+                onZoomIn={onZoomIn}
+              />
+            </CenterAligner>
+          </MapControlsWrapper>
+          <SearchTypeRadioGroup
+            onChange={handleSetSearchType}
+            searchType={searchType}
+          />
+        </>
       )}
       <FilterDialog
         filters={filters}
