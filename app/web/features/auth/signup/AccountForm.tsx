@@ -216,7 +216,10 @@ export default function AccountForm() {
             if (!usernameInputRef.current) el?.focus();
             if (el) usernameInputRef.current = el;
           }}
-          helperText={errors?.username?.message ?? " "}
+          helperText={
+            errors?.username?.message ??
+            t("auth:account_form.username.helper_text")
+          }
           error={!!errors?.username?.message}
           autoComplete="username"
         />
