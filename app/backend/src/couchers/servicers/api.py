@@ -881,6 +881,7 @@ class API(api_pb2_grpc.APIServicer):
                 select(UserBadge.user_id)
                 .where(UserBadge.badge_id == badge["id"])
                 .where(UserBadge.user_id >= next_user_id)
+                .where_users_column_visible(context, UserBadge.user_id)
                 .order_by(UserBadge.user_id)
                 .limit(page_size + 1)
             )
