@@ -431,19 +431,43 @@ describe("WebEmbed", () => {
 
   describe("tab mapping", () => {
     const testCases = [
-      { webPath: "/dashboard", expectedTab: "dashboard" },
-      { webPath: "/dashboard/settings", expectedTab: "dashboard" },
-      { webPath: "/messages", expectedTab: "messages" },
-      { webPath: "/messages/123", expectedTab: "messages" },
-      { webPath: "/search", expectedTab: "search" },
-      { webPath: "/search?query=test", expectedTab: "search" },
-      { webPath: "/communities", expectedTab: "communities" },
-      { webPath: "/communities/456", expectedTab: "communities" },
-      { webPath: "/events", expectedTab: "events" },
-      { webPath: "/user/789", expectedTab: null },
+      { webPath: "/dashboard", expectedTab: "dashboard", expectedPath: null },
+      {
+        webPath: "/dashboard/settings",
+        expectedTab: "dashboard",
+        expectedPath: null,
+      },
+      {
+        webPath: "/messages",
+        expectedTab: "messages",
+        expectedPath: "/messages",
+      },
+      {
+        webPath: "/messages/123",
+        expectedTab: "messages",
+        expectedPath: "/messages",
+      },
+      { webPath: "/search", expectedTab: "search", expectedPath: "/search" },
+      {
+        webPath: "/search?query=test",
+        expectedTab: "search",
+        expectedPath: "/search?query=test",
+      },
+      {
+        webPath: "/communities",
+        expectedTab: "communities",
+        expectedPath: "/communities",
+      },
+      {
+        webPath: "/communities/456",
+        expectedTab: "communities",
+        expectedPath: "/communities",
+      },
+      { webPath: "/events", expectedTab: "events", expectedPath: "/events" },
+      { webPath: "/user/789", expectedTab: null, expectedPath: null },
     ];
 
-    testCases.forEach(({ webPath, expectedTab }) => {
+    testCases.forEach(({ webPath, expectedTab, expectedPath }) => {
       it(`maps ${webPath} to tab: ${expectedTab}`, () => {
         render(<WebEmbed path="/dashboard" />);
         mockRouter.navigate.mockClear();
@@ -458,9 +482,9 @@ describe("WebEmbed", () => {
         if (expectedTab === "dashboard") {
           // Same tab - no navigation
           expect(mockRouter.navigate).not.toHaveBeenCalled();
-        } else if (expectedTab) {
-          // Different main tab - navigate to that tab
-          expect(mockRouter.navigate).toHaveBeenCalledWith(`/${expectedTab}`);
+        } else if (expectedPath) {
+          // Different main tab - navigate to that tab (preserving query params)
+          expect(mockRouter.navigate).toHaveBeenCalledWith(expectedPath);
         } else {
           // Non-tab route - let WebView handle it internally, don't trigger native navigation
           expect(mockRouter.navigate).not.toHaveBeenCalled();

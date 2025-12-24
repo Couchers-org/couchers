@@ -32,6 +32,7 @@ const DrawerContainer = styled("div")(({ theme }) => ({
   width: "100%",
   display: "flex",
   flexDirection: "column",
+  minHeight: 0,
 }));
 
 const SpinnerWrapper = styled("div")(({ theme }) => ({

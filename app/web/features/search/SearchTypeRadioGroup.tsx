@@ -47,7 +47,7 @@ const SearchTypeRadioGroup = ({
         <RadioGroup row onChange={handleChange} value={searchType}>
           <FormControlLabel
             value="location"
-            control={<Radio />}
+            control={<Radio sx={{ py: 1 }} />}
             label={
               <Typography variant="body2">
                 {t("search:form.by_location_filter_label")}
@@ -56,7 +56,7 @@ const SearchTypeRadioGroup = ({
           />
           <FormControlLabel
             value="keyword"
-            control={<Radio />}
+            control={<Radio sx={{ py: 0.5 }} />}
             label={
               <Typography variant="body2">
                 {t("search:form.by_keyword_filter_label")}

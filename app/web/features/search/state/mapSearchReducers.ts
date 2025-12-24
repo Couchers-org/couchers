@@ -215,11 +215,6 @@ const mapSearchReducer = (
         shouldSearchByUserId: initialState.shouldSearchByUserId,
       };
     case mapSearchActionTypes.CLEAR_SEARCH_INPUT_VALUE:
-      const meetsCriteriaAfterSearchClear =
-        state.hasActiveFilters ||
-        state.search.query !== undefined ||
-        state.shouldSearchByUserId;
-
       const areDefaultFiltersActive =
         state.filters.showEmptyProfile ||
         (state.filters.hostingStatus?.includes(
@@ -232,10 +227,9 @@ const mapSearchReducer = (
             HostingStatus.HOSTING_STATUS_CANT_HOST,
           ));
 
-      return {
+      const clearedState = {
         ...state,
         ...(areDefaultFiltersActive && {
-          hasActiveFilters: false,
           filters: {
             ...state.filters,
             hostingStatus: undefined,
@@ -248,6 +242,16 @@ const mapSearchReducer = (
         },
         pageNumber: initialState.pageNumber,
         shouldSearchByUserId: state.selectedUserId !== undefined,
+      };
+
+      const meetsCriteriaAfterSearchClear =
+        getHasActiveFilters(clearedState, initialState) ||
+        clearedState.search.query !== undefined ||
+        clearedState.shouldSearchByUserId;
+
+      return {
+        ...clearedState,
+        hasActiveFilters: getHasActiveFilters(clearedState, initialState),
         showSearchThisAreaButton:
           !meetsCriteriaAfterSearchClear &&
           state.uiOnly.zoom >= MAX_MAP_ZOOM_LEVEL_FOR_SEARCH,

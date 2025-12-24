@@ -81,11 +81,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   // When this screen gains focus, ensure WebView shows the correct path
   useFocusEffect(
     useCallback(() => {
-      const expectedPath = path.split("?")[0];
-      const currentPath = currentWebPathRef.current.split("?")[0];
-
-      // If WebView drifted to a different path, navigate it back
-      if (currentPath !== expectedPath) {
+      // Compare full path including query params to handle search filters
+      if (currentWebPathRef.current !== path) {
         const targetUrl = WEB_BASE_URL + path;
         webviewRef.current?.injectJavaScript(
           `window.location.href = "${targetUrl}"; true;`,
@@ -176,8 +173,12 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         // For markdown routes, pass the full path including /md/
         router.navigate(webPathWithoutQuery as Href);
       } else {
-        // For main tab routes, navigate directly
-        router.navigate(`/${targetRoute}` as Href);
+        // For main tab routes, preserve query parameters
+        // Extract query string from the full web path
+        const queryString = webPath.includes("?")
+          ? webPath.substring(webPath.indexOf("?"))
+          : "";
+        router.navigate(`/${targetRoute}${queryString}` as Href);
       }
     }
   };
