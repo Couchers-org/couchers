@@ -137,7 +137,7 @@ describe("Discussion page", () => {
       }),
     ).toBeVisible();
     expect(creatorContainer.getByText("Funny Cat current User")).toBeVisible();
-    expect(creatorContainer.getByText("Created at Jan 01, 2020")).toBeVisible();
+    expect(creatorContainer.getByText("Created on Jan 01, 2020")).toBeVisible();
   });
 
   it("renders a loading skeleton if the user info is still loading", async () => {
@@ -162,7 +162,7 @@ describe("Discussion page", () => {
       screen.queryByText("Funny Cat current User"),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText("Created at Jan 01, 2020"),
+      screen.queryByText("Created on Jan 01, 2020"),
     ).not.toBeInTheDocument();
   });
 
