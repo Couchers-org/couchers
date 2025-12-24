@@ -215,7 +215,10 @@
         "photo_already_in_gallery": "Dieses Foto befindet sich bereits in der Galerie.",
         "gallery_not_found": "Galerie nicht gefunden.",
         "permission_denied_to_edit_gallery": "Du hast keine Berechtigung, diese Galerie zu bearbeiten.",
-        "upload_not_found_or_not_owned": "Upload nicht gefunden oder du besitzt es nicht."
+        "upload_not_found_or_not_owned": "Upload nicht gefunden oder du besitzt es nicht.",
+        "moderator_note_not_found": "Moderatorennotiz nicht gefunden.",
+        "dev_apis_disabled": "Entwicklungs-APIs sind auf diesem Server nicht aktiviert.",
+        "moderator_note_need_to_acknowledge": "Du musst die Moderatorennotiz lesen und bestätigen."
     },
     "quick_links": {
         "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",
