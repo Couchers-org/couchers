@@ -47,7 +47,7 @@ const SearchTypeRadioGroup = ({
         <RadioGroup row onChange={handleChange} value={searchType}>
           <FormControlLabel
             value="location"
-            control={<Radio sx={{ py: 0.5 }} />}
+            control={<Radio sx={{ py: 1 }} />}
             label={
               <Typography variant="body2">
                 {t("search:form.by_location_filter_label")}

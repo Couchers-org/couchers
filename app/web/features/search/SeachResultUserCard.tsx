@@ -2,7 +2,6 @@ import { styled, Tooltip, Typography } from "@mui/material";
 import { FlexboxProps, useMediaQuery } from "@mui/system";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
-import StrongVerificationBadge from "components/StrongVerificationBadge";
 import StyledLink from "components/StyledLink";
 import { ResponseRateText } from "features/profile/view/userLabels";
 import { useTranslation } from "i18n";
@@ -187,7 +186,6 @@ const SearchResultUserCard = ({
                   {user.name}
                 </Typography>
               </StyledLink>
-              {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
             </FlexRow>
             <StyledLink
               aria-label={t("profile:open_profile_new_tab")}
@@ -224,7 +222,11 @@ const SearchResultUserCard = ({
           numberReferences={user.numReferences}
         />
         {generateAboutText(user, t, isMobile)}
-        <FlexRow alignItems="flex-end" justifyContent="space-between">
+        <FlexRow
+          alignItems="flex-end"
+          justifyContent="space-between"
+          sx={{ marginTop: 1.5 }}
+        >
           <UserDetailsRow>
             <Typography variant="body2">
               {user.lastActive

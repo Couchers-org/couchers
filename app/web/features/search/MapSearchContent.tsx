@@ -30,12 +30,16 @@ interface MapSearchContentProps {
   users: SearchUser.AsObject[] | undefined;
 }
 
-const Wrapper = styled("div")({
+const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
   height: "100%",
   width: "100%",
   overflow: "hidden",
-});
+
+  [theme.breakpoints.down("md")]: {
+    flexDirection: "column",
+  },
+}));
 
 const SearchResultsContainer = styled("div", {
   shouldForwardProp: (prop) =>
@@ -48,12 +52,12 @@ const SearchResultsContainer = styled("div", {
 
     ...(!isListOnlyView && {
       [theme.breakpoints.down("md")]: {
-        position: "fixed",
         width: "100%",
-        height: `calc(45% - 54px)`,
-        bottom: 0,
+        height: "45%",
+        minHeight: 0,
+        order: 2,
         boxShadow: "0px -2px 4px rgba(0,0,0,0.1)",
-        zIndex: 1,
+        overflow: "hidden",
       },
     }),
   }),
@@ -79,7 +83,8 @@ const MapContainer = styled("div", {
 
     [theme.breakpoints.down("md")]: {
       width: "100%",
-      height: `calc(55% - 18px)`,
+      height: "55%",
+      order: 1,
       ...(isListOnlyView && {
         width: 0,
         height: 0,
