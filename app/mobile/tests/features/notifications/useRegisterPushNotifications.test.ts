@@ -203,8 +203,12 @@ describe("useRegisterPushNotifications", () => {
 
       await waitFor(() => {
         expect(console.error).toHaveBeenCalledWith(
-          "Failed to register push notification subscription:",
+          "❌ Failed to register push notification subscription:",
           expect.any(Error),
+        );
+        expect(console.error).toHaveBeenCalledWith(
+          "Error details:",
+          "Network error",
         );
       });
     });
