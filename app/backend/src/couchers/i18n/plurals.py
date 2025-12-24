@@ -3,8 +3,8 @@ Implements Unicode CLDR pluralization rules, used by i18next.
 See https://cldr.unicode.org/index/cldr-spec/plural-rules
 """
 
+from collections.abc import Callable
 from enum import Enum
-from typing import Callable  # noqa: UP035
 
 
 class PluralCategory(Enum):
@@ -48,7 +48,7 @@ class PluralRules:
     @staticmethod
     def es(count: int) -> PluralCategory:
         count = abs(count)
-        if count == 1 or count == 1:
+        if count == 1:
             return PluralCategory.ONE  # 1 manzana
         if count > 0 and count % 1_000_000 == 0:
             return PluralCategory.MANY  # 1000000 de manzanas
@@ -60,7 +60,7 @@ class PluralRules:
         count = abs(count)
         if count == 0 or count == 1:
             return PluralCategory.ONE  # 0 pomme, 1 pomme
-        if count > 0 and count % 1_000_000 == 0:
+        if count % 1_000_000 == 0:
             return PluralCategory.MANY  # 1000000 de pommes
 
         return PluralCategory.OTHER  # 2 pommes
