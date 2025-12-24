@@ -43,8 +43,21 @@ def include_name(name: str | None, type_: str, parent_names: Any) -> bool:
         return name in [None, "logging"]
     if type_ == "table":
         return name not in exclude_tables
-    if type_ == "index":
-        return not (name is not None and name.startswith("idx_") and name.endswith("_geom"))
+    return True
+
+
+def include_object(obj: Any, name: str | None, type_: str, reflected: bool, compare_to: Any) -> bool:
+    """
+    Filter objects during autogenerate comparison.
+
+    Unlike include_name (which only filters database reflection), this hook
+    filters BOTH database objects AND model metadata objects, which is needed
+    to properly ignore GeoAlchemy2's auto-generated spatial indexes.
+    """
+    # Filter out GeoAlchemy2 auto-generated spatial indexes (from both DB and metadata)
+    # These indexes are named like: idx_<table>_<column> and use GIST
+    if type_ == "index" and name is not None and name.startswith("idx_") and name.endswith("_geom"):
+        return False
     return True
 
 
@@ -68,6 +81,7 @@ def run_migrations_offline() -> None:
         dialect_opts={"paramstyle": "named"},
         include_schemas=True,
         include_name=include_name,
+        include_object=include_object,
         compare_type=True,
     )
 
@@ -90,7 +104,11 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata, include_schemas=True, include_name=include_name
+            connection=connection,
+            target_metadata=target_metadata,
+            include_schemas=True,
+            include_name=include_name,
+            include_object=include_object,
         )
 
         with context.begin_transaction():

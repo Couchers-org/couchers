@@ -1486,6 +1486,39 @@ def test_badges(db):
 
 
 @pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+def test_ListBadgeUsers_excludes_ghost_users(db, flag):
+    """Test that ListBadgeUsers does not return deleted/banned users."""
+    from couchers.helpers.badges import user_add_badge
+
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+
+    volunteer_badge = get_badge_dict()["volunteer"]
+
+    # Give all three users the volunteer badge
+    with session_scope() as session:
+        user_add_badge(session, user1.id, "volunteer", do_notify=False)
+        user_add_badge(session, user2.id, "volunteer", do_notify=False)
+        user_add_badge(session, user3.id, "volunteer", do_notify=False)
+
+    # Verify all three users appear in the badge list
+    with api_session(token1) as api:
+        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=volunteer_badge["id"]))
+        assert set(res.user_ids) == {user1.id, user2.id, user3.id}
+
+    # Make user2 invisible (deleted or banned)
+    with session_scope() as session:
+        db_user2 = session.execute(select(User).where(User.id == user2.id)).scalar_one()
+        setattr(db_user2, flag, True)
+
+    # Now user2 should not appear in the badge list
+    with api_session(token1) as api:
+        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=volunteer_badge["id"]))
+        assert set(res.user_ids) == {user1.id, user3.id}
+
+
+@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
 def test_GetLiteUser_ghost_user_by_username(db, flag):
     """Test that GetLiteUser returns a ghost profile for deleted/banned users when querying by username."""
     user1, token1 = generate_user()
