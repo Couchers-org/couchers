@@ -37,8 +37,38 @@
     "save_changes": "Değişiklikleri kaydet",
     "submit": "Gönder",
     "learn_more": "Daha fazla öğren",
-    "uses": "İşlevler",
+    "uses": "Kullanım sayısı",
     "previous": "Önceki",
     "next": "İleri",
-    "mod": "Moderasyon"
+    "mod": "Moderasyon",
+    "cookie_message": "Web sitemizde size en iyi deneyimi sunabilmek için çerezleri kullanıyoruz. Bu siteyi kullanmaya devam ederseniz, bundan memnun olduğunuzu varsayacağız. <1>Hizmet Şartlarımız</1> hakkında daha fazla bilgi edinebilirsiniz.",
+    "language_preference": {
+        "translation_progress": {
+            "description": "Farklı dillerde çevirilerimizin ne kadar tamamlandığını görün. Couchers'ı dünyanın dört bir yanındaki daha fazla insan için erişilebilir hale getirmemize yardımcı olun!",
+            "help_translate": "Couchers'ı kendi diline çevirmeye yardımcı ol",
+            "title": "Çeviri İlerlemesi",
+            "loading": "Çeviri ilerlemesi yükleniyor...",
+            "error_loading": "Çeviri ilerlemesi yüklenemedi",
+            "no_data": "Çeviri verisi mevcut değil",
+            "complete": "Tamamlanmış"
+        },
+        "help_translate": "Couchers'ı kendi diline çevirmeye yardım et.",
+        "current_preferred_language": "Dil tercihlerin şu anda ",
+        "form_title": "Dil",
+        "select_language": "Dil seç",
+        "success_message": "Değişikliğiniz kaydedildi.",
+        "error_loading_languages": "Dil seçenekleri yüklenemedi. Lütfen daha sonra tekrar dene."
+    },
+    "donation_banner": {
+        "progress_label": "Bağış ilerlemesi",
+        "button": "Şimdi bağış yap"
+    },
+    "copy": "Kopyala",
+    "hosting_status": {
+        "any": "Herhangi biri",
+        "maybe": "Belki ev sahipliği yapabilir",
+        "can_host": "Ev sahipliği yapabilir",
+        "cant_host": "Ev sahipliği yapamaz",
+        "unspecified_info": "Belirtmemiş"
+    }
 }
