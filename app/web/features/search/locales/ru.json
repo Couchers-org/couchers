@@ -67,7 +67,6 @@
     "few_results_suggestion": "По умолчанию пустые профили и профили с отметкой «не могу принимать гостей» скрыты.",
     "no_user_result_message": "Пользователи не найдены. Попробуйте убрать некоторые фильтры, чтобы увидеть больше результатов.",
     "missing_about_description": "{{name}} ещё ничего не рассказал(a) о себе",
-    "people_found_message": "{{currentRange}} из {{totalItems}} человек",
     "include_empty_profiles_button": "Показать все профили"
   },
   "filter_dialog": {
