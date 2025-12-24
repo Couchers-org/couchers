@@ -55,7 +55,8 @@
     "dm_title": "Neuen Chat erstellen",
     "no_friends_found_message": "Es konnte keine Freunde gefunden werden",
     "user_load_error_message": "(Benutzerladefehler)",
-    "friends_input_label": "Freunde"
+    "friends_input_label": "Freunde",
+    "title_label": "Titel"
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {
