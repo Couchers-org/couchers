@@ -2,7 +2,7 @@
   "expo": {
     "name": "Couchers",
     "slug": "mobile",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "couchers",
@@ -19,6 +19,8 @@
     "android": {
       "edgeToEdgeEnabled": true,
       "package": "org.couchers.android",
+      "googleServicesFile": "./google-services.json",
+      "permissions": ["POST_NOTIFICATIONS"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive_icon_foreground.png",
         "backgroundColor": "#E47701"
