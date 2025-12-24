@@ -19,7 +19,11 @@ export default function SearchPage() {
   const router = useRouter();
 
   const location = router.query.location as string;
-  const bbox = router.query.bbox || undefined;
+
+  // Parse bbox array from URL query params and convert strings to numbers
+  const bbox = Array.isArray(router.query.bbox)
+    ? (router.query.bbox.map((val) => Number(val)) as Coordinates)
+    : undefined;
 
   const hostingStatus = Array.isArray(router.query.hostingStatus)
     ? router.query.hostingStatus.map(
@@ -35,6 +39,7 @@ export default function SearchPage() {
 
   return (
     <MapSearchProvider
+      key={location || "no-location"}
       initialLocationName={location}
       initialBbox={bbox as Coordinates | undefined}
       initialFilters={{
