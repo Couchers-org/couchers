@@ -501,8 +501,6 @@ class ModerationUserListMember(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     moderation_list_id: Mapped[int] = mapped_column(ForeignKey("moderation_user_lists.id"), primary_key=True)
 
-    __table_args__ = (UniqueConstraint("user_id", "moderation_list_id"),)
-
 
 class AntiBotLog(Base):
     __tablename__ = "antibot_logs"
