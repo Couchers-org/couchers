@@ -592,6 +592,7 @@ send_reference_reminders.SCHEDULE = timedelta(hours=1)
 
 
 def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
+    # TODO this is a test comment, remove it if you see it
     with session_scope() as session:
         host_has_sent_message = select(1).where(
             Message.conversation_id == HostRequest.conversation_id, Message.author_id == HostRequest.host_user_id
