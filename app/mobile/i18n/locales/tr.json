@@ -19,6 +19,15 @@
         "try_again": "Tekrar dene"
     },
     "not_found": {
-        "title": "Hay aksi!"
+        "title": "Hay aksi!",
+        "message": "Bu ekran bulunamadı.",
+        "go_home": "Ana sayfaya git!"
+    },
+    "tabs": {
+        "events": "Etkinlikler",
+        "search": "Ara",
+        "home": "Ana Sayfa",
+        "messages": "Mesajlar",
+        "communities": "Topluluklar"
     }
 }
