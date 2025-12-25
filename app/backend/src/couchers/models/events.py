@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 from geoalchemy2 import Geometry
 from psycopg2.extras import DateTimeTZRange
@@ -25,9 +25,6 @@ from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.models.base import Base, Geom, communities_seq
 from couchers.utils import get_coordinates
-
-if TYPE_CHECKING:
-    from couchers.models import User
 
 
 class ClusterEventAssociation(Base):
