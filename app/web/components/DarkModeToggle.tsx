@@ -24,7 +24,17 @@ export default function DarkModeToggle() {
   const { mode, setMode } = useColorScheme();
 
   if (!mode) {
-    return null;
+    return (
+      <StyledToggleButton
+        disabled
+        size="small"
+        aria-label="Loading theme toggle"
+      >
+        <IconWrapper>
+          <LightModeOutlined fontSize="small" sx={{ opacity: 0 }} />
+        </IconWrapper>
+      </StyledToggleButton>
+    );
   }
 
   const isDark = mode === "dark";

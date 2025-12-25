@@ -57,7 +57,7 @@ const ZoomControl = ({
         right: 10,
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "white",
+        backgroundColor: "background.paper",
         borderRadius: 2,
         boxShadow: 3,
         zIndex: 10,

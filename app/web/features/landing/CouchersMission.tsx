@@ -107,12 +107,12 @@ const CouchersMission = () => {
         >
           <Typography
             gutterBottom
-            sx={{
-              color: theme.palette.common.black,
+            sx={(theme) => ({
+              color: theme.palette.text.primary,
               fontSize: "1.2rem",
               fontWeight: 500,
               marginBottom: 0,
-            }}
+            })}
           >
             {t(`landing:${itemName}_title`)}
           </Typography>

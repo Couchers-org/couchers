@@ -84,7 +84,7 @@ const StyledSelect = styled(Select)(({ theme }) => ({
   width: "100%",
 
   "& .MuiInputBase-root": {
-    backgroundColor: theme.palette.common.white,
+    backgroundColor: theme.palette.background.paper,
   },
 }));
 
@@ -94,7 +94,7 @@ const StyledDatepicker = styled(Datepicker)(({ theme }) => ({
   width: "100%",
 
   "& .MuiInputBase-input": {
-    backgroundColor: theme.palette.common.white,
+    backgroundColor: theme.palette.background.paper,
   },
 }));
 
@@ -296,7 +296,9 @@ export default function AccountForm() {
           openTo="year"
           name="birthdate"
           onPostChange={handleBirthdateChange}
-          inputProps={{ sx: { backgroundColor: theme.palette.common.white } }}
+          inputProps={{
+            sx: { backgroundColor: theme.palette.background.paper },
+          }}
         />
         <StyledInputLabel htmlFor="location">
           {t("auth:location.field_label")}

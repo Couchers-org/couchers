@@ -26,8 +26,48 @@ declare module "@mui/material/styles" {
 }
 
 const themeOptions: ThemeOptions = {
+  cssVariables: {
+    colorSchemeSelector: "data-mui-color-scheme",
+  },
   colorSchemes: {
-    dark: true,
+    dark: {
+      palette: {
+        background: {
+          default: "#313539",
+          paper: "#3d4347",
+        },
+        primary: {
+          main: "#6bc4a6",
+          light: "#8fd4ba",
+          dark: "#00a398",
+        },
+        secondary: {
+          main: "#fe982a",
+          light: "#ffad52",
+          dark: "#e47701",
+        },
+        text: {
+          primary: "#fff",
+          secondary: "rgba(255, 255, 255, 0.7)",
+        },
+        divider: "rgba(255, 255, 255, 0.12)",
+        grey: {
+          50: "#2a2e32",
+          100: "#3d4347",
+          200: "#4a5056",
+          500: "#8a8f94",
+          600: "#b0b5ba",
+          900: "#1a1d20",
+        },
+        action: {
+          active: "#fff",
+          hover: "rgba(255, 255, 255, 0.08)",
+          selected: "rgba(255, 255, 255, 0.16)",
+          disabled: "rgba(255, 255, 255, 0.3)",
+          disabledBackground: "rgba(255, 255, 255, 0.12)",
+        },
+      },
+    },
   },
   components: {
     MuiCssBaseline: {
@@ -77,7 +117,6 @@ const themeOptions: ThemeOptions = {
       },
     },
   },
-  cssVariables: true,
   palette: {
     background: {
       default: "#fcfcfc",

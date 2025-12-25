@@ -1,3 +1,4 @@
+import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import {
   documentGetInitialProps,
   DocumentHeadTags,
@@ -41,6 +42,10 @@ export default function MyDocument(
         )}
       </Head>
       <body>
+        <InitColorSchemeScript
+          defaultMode="system"
+          attribute="data-mui-color-scheme"
+        />
         <Main />
         <NextScript />
       </body>

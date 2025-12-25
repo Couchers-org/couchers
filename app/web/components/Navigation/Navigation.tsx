@@ -6,6 +6,7 @@ import {
   List,
   ListItem,
   styled,
+  Theme,
   Toolbar,
   useMediaQuery,
 } from "@mui/material";
@@ -224,7 +225,7 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   bottom: "auto",
   top: 0,
   boxShadow: "none",
-  backgroundColor: theme.palette.common.white,
+  backgroundColor: theme.palette.background.paper,
 }));
 
 const StyledFlexbox = styled("div")(({ theme }) => ({
@@ -319,7 +320,7 @@ export default function Navigation() {
                 border: "none",
 
                 "&:hover": {
-                  backgroundColor: theme.palette.grey[200],
+                  backgroundColor: (theme) => theme.palette.grey[200],
                 },
               }}
             >
@@ -381,7 +382,10 @@ export default function Navigation() {
                 sx={{ marginLeft: theme.spacing(1) }}
               >
                 <MenuIcon
-                  sx={{ color: theme.palette.text.primary, fontSize: 24 }}
+                  sx={{
+                    color: (theme) => theme.palette.text.primary,
+                    fontSize: 24,
+                  }}
                 />
               </IconButton>
               <StyledDrawer
@@ -463,7 +467,8 @@ export default function Navigation() {
                   sx={{
                     fontSize: "1.3rem",
                     borderRadius: theme.spacing(1),
-                    border: `1.5px solid ${theme.palette.primary.main}`,
+                    border: (theme: Theme) =>
+                      `1.5px solid ${theme.palette.primary.main}`,
                   }}
                   onClick={() => router.push(loginRoute)}
                 >

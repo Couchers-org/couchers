@@ -1,6 +1,11 @@
 import { Favorite, Language, Star } from "@mui/icons-material";
-import { Box, Skeleton, Typography, useMediaQuery } from "@mui/material";
-import Divider from "components/Divider";
+import {
+  Box,
+  Divider,
+  Skeleton,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useState } from "react";

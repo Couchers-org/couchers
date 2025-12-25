@@ -161,7 +161,7 @@ const SearchResultListContent = ({
             )}
             sx={{
               fontSize: "24px",
-              backgroundColor: theme.palette.common.white,
+              backgroundColor: theme.palette.background.paper,
               border: `1px solid ${theme.palette.divider}`,
               height: "25px",
               width: "25px",
@@ -171,7 +171,7 @@ const SearchResultListContent = ({
               zIndex: 10,
 
               "&:hover": {
-                backgroundColor: theme.palette.common.white,
+                backgroundColor: theme.palette.background.paper,
               },
             }}
           >

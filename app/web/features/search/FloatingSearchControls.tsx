@@ -50,7 +50,7 @@ const StyledButtonsContainer = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "space-between",
   height: "auto",
-  backgroundColor: theme.palette.common.white,
+  backgroundColor: theme.palette.background.paper,
   borderRadius: "50px",
   boxShadow: theme.shadows[4],
   width: "100%",
@@ -100,7 +100,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 }));
 
 const StyledSelect = styled(Select)(({ theme }) => ({
-  backgroundColor: "white",
+  backgroundColor: theme.palette.background.default,
   borderRadius: "100px",
   border: "none",
   padding: theme.spacing(1),
