@@ -4,6 +4,7 @@ Implements localizing strings stored in the i18next json format.
 
 import re
 from dataclasses import dataclass, field
+from typing import Any
 
 from couchers.i18n.plurals import PluralRule
 

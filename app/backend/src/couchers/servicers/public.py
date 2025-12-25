@@ -8,7 +8,7 @@ from sqlalchemy.sql import func, union_all
 
 from couchers import urls
 from couchers.constants import DONATION_GOAL_USD, DONATION_OFFSET_USD
-from couchers.context import CouchersContext
+from couchers.context import CouchersContext, make_logged_out_context
 from couchers.materialized_views import LiteUser
 from couchers.models import Cluster, Invoice, InvoiceType, Node, ProfilePublicVisibility, Reference, User, Volunteer
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
@@ -17,7 +17,7 @@ from couchers.resources import get_static_badge_dict
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, make_logged_out_context, not_none, now
+from couchers.utils import Timestamp_from_datetime, not_none, now
 
 logger = logging.getLogger(__name__)
 

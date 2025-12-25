@@ -4,7 +4,6 @@ import typing
 from collections.abc import Sequence
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
-from types import SimpleNamespace
 from typing import Any, overload
 from zoneinfo import ZoneInfo
 
@@ -410,10 +409,6 @@ def last_active_coarsen(dt: datetime) -> datetime:
 
 def get_tz_as_text(tz_name: str) -> str:
     return datetime.now(tz=ZoneInfo(tz_name)).strftime("%Z/UTC%z")
-
-
-def make_logged_out_context() -> SimpleNamespace:
-    return SimpleNamespace(user_id=0)
 
 
 def not_none[T](x: T | None) -> T:
