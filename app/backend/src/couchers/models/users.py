@@ -26,7 +26,7 @@ from sqlalchemy import (
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import select as sa_select
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
+from sqlalchemy.orm import DynamicMapped, Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -45,6 +45,7 @@ from couchers.models.uploads import Upload
 from couchers.utils import get_coordinates, last_active_coarsen, now
 
 if TYPE_CHECKING:
+    from couchers.models import UserBadge
     from couchers.models.rest import InviteCode, ModerationUserList
     from couchers.models.uploads import PhotoGallery
 
@@ -329,6 +330,10 @@ class User(Base):
     galleries: Mapped[list["PhotoGallery"]] = relationship(
         "PhotoGallery", foreign_keys="PhotoGallery.owner_user_id", back_populates="owner_user"
     )
+    mod_notes: DynamicMapped["ModNote"] = relationship(
+        "ModNote", foreign_keys="ModNote.user_id", back_populates="user", lazy="dynamic"
+    )
+    badges: Mapped[list["UserBadge"]] = relationship("UserBadge", back_populates="user")
 
     __table_args__ = (
         # Verified phone numbers should be unique
@@ -451,7 +456,7 @@ class User(Base):
     @hybrid_property
     def jailed_pending_mod_notes(self) -> Any:
         # mod_notes come from a backref in ModNote
-        return self.mod_notes.where(ModNote.is_pending).count() > 0  # type: ignore[attr-defined]
+        return self.mod_notes.where(ModNote.is_pending).count() > 0
 
     @hybrid_property
     def jailed_pending_activeness_probe(self) -> Any:
