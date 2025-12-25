@@ -675,20 +675,21 @@ class Events(events_pb2_grpc.EventsServicer):
         # allow editing any event which hasn't ended more than 24 hours before now
         # when editing all future events, we edit all which have not yet ended
 
+        cutoff_time = now() - timedelta(hours=24)
         if request.update_all_future:
             session.execute(
                 update(EventOccurrence)
-                .where(EventOccurrence.end_time >= now() - timedelta(hours=24))
+                .where(EventOccurrence.end_time >= cutoff_time)
                 .where(EventOccurrence.start_time >= occurrence.start_time)
                 .values(occurrence_update)
                 .execution_options(synchronize_session=False)
             )
         else:
-            if occurrence.end_time < now() - timedelta(hours=24):
+            if occurrence.end_time < cutoff_time:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
             session.execute(
                 update(EventOccurrence)
-                .where(EventOccurrence.end_time >= now() - timedelta(hours=24))
+                .where(EventOccurrence.end_time >= cutoff_time)
                 .where(EventOccurrence.id == occurrence.id)
                 .values(occurrence_update)
                 .execution_options(synchronize_session=False)
@@ -819,13 +820,11 @@ class Events(events_pb2_grpc.EventsServicer):
             query = query.where(~EventOccurrence.is_cancelled)
 
         if not request.past:
-            query = query.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.asc()
-            )
+            cutoff = page_token - timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
         else:
-            query = query.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.desc()
-            )
+            cutoff = page_token + timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
 
         query = query.limit(page_size + 1)
         occurrences = session.execute(query).scalars().all()
@@ -1093,13 +1092,11 @@ class Events(events_pb2_grpc.EventsServicer):
             query = query.where(~EventOccurrence.is_cancelled)
 
         if not request.past:
-            query = query.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.asc()
-            )
+            cutoff = page_token - timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
         else:
-            query = query.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.desc()
-            )
+            cutoff = page_token + timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
         # Count the total number of items for pagination
         total_items = session.execute(select(func.count()).select_from(query.subquery())).scalar()
         # Apply pagination by page number
@@ -1127,13 +1124,11 @@ class Events(events_pb2_grpc.EventsServicer):
             query = query.where(~EventOccurrence.is_cancelled)
 
         if not request.past:
-            query = query.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.asc()
-            )
+            cutoff = page_token - timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
         else:
-            query = query.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.desc()
-            )
+            cutoff = page_token + timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
 
         query = query.limit(page_size + 1)
         occurrences = session.execute(query).scalars().all()
