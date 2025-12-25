@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         "event_occurrences", sa.Column("is_cancelled", sa.Boolean(), nullable=False, server_default=sa.text("false"))
     )
@@ -27,7 +27,7 @@ def upgrade():
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'event__delete'")
 
 
-def downgrade():
+def downgrade() -> None:
     # op.drop_column("event_occurrences", "is_deleted")
     # op.drop_column("event_occurrences", "is_cancelled")
     raise Exception("Can't downgrade")

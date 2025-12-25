@@ -19,6 +19,7 @@ from opentelemetry import trace
 
 from couchers.config import config
 from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
+from couchers.experimentation import setup_experimentation
 from couchers.jobs import handlers
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
@@ -179,8 +180,11 @@ def run_scheduler() -> None:
 
 
 def _run_forever(func: Callable[[], None]) -> None:
+    # Post-fork initialization: these services use threading/async internals that
+    # don't survive fork() and must be initialized fresh in each child process
     db_post_fork()
     setup_tracing()
+    setup_experimentation()  # Must be initialized after fork - see couchers/experimentation.py
 
     while True:
         try:

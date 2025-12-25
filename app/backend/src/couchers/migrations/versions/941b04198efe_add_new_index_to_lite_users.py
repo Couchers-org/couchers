@@ -15,9 +15,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("CREATE UNIQUE INDEX uq_lite_users_username ON lite_users(username);")
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute("DROP INDEX uq_lite_users_username;")

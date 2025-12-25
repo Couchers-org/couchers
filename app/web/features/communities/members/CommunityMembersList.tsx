@@ -61,7 +61,7 @@ export default function CommunityMembersList({
       </Box>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading && <CenteredSpinner />}
-      <Box sx={{ width: "450px" }}>
+      <Box sx={{ width: "100%", maxWidth: "450px" }}>
         {data?.pages && data?.pages.length > 0 && (
           <UsersList userIds={currentPage?.memberUserIdsList} titleIsLink />
         )}

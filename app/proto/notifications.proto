@@ -29,6 +29,10 @@ service Notifications {
   rpc RegisterMobilePushNotificationSubscription(RegisterMobilePushNotificationSubscriptionReq) returns (google.protobuf.Empty);
 
   rpc SendTestMobilePushNotification(google.protobuf.Empty) returns (google.protobuf.Empty);
+
+  // Development API: Send an arbitrary push notification to the current user.
+  // Gated behind ENABLE_DEV_APIS config.
+  rpc SendDevPushNotification(SendDevPushNotificationReq) returns (google.protobuf.Empty);
 }
 
 message GetNotificationSettingsReq {}
@@ -142,4 +146,24 @@ message RegisterMobilePushNotificationSubscriptionReq {
 
   // e.g. "ios" or "android"
   string device_type = 3;
+}
+
+message SendDevPushNotificationReq {
+  // Title of the push notification
+  string title = 1;
+
+  // Body text of the push notification
+  string body = 2;
+
+  // Icon URL (optional, defaults to app icon)
+  string icon = 3;
+
+  // URL to open when notification is clicked (optional)
+  string url = 4;
+
+  // Grouping key (optional)
+  string key = 5;
+
+  // Time to live in seconds (optional, 0 = default)
+  uint32 ttl = 6;
 }

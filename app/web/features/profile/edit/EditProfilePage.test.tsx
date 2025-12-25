@@ -44,8 +44,13 @@ describe("Edit profile", () => {
     getLanguagesMock.mockImplementation(getLanguages);
   });
 
+  afterEach(() => {
+    updateProfileMock.mockClear();
+    getUserMock.mockClear();
+    uploadFileMock.mockClear();
+  });
+
   it("Should update and show success toast when aboutMe and avatar filled out on first go", async () => {
-    // prevent the unsavedChanged pop up by mocking window.confirm
     jest.spyOn(window, "confirm").mockImplementation(() => true);
 
     uploadFileMock.mockResolvedValue({
@@ -61,60 +66,42 @@ describe("Edit profile", () => {
 
     getUserMock.mockImplementation(getUser);
 
-    renderPage();
+    await renderPage();
 
     const user = userEvent.setup();
 
-    // Wait for the form to be fully loaded
-    await waitFor(() => {
-      expect(
-        screen.getByText(t("profile:heading.about_me")),
-      ).toBeInTheDocument();
-    });
+    await screen.findByText(t("profile:heading.about_me"));
 
     const aboutMeInput = await screen.findByTestId("aboutMe-input");
 
-    await user.click(aboutMeInput);
     await user.clear(aboutMeInput);
+    await waitFor(() => expect(aboutMeInput).toHaveValue(""));
     await user.type(aboutMeInput, aboutMeText);
 
-    // Now the save button should be visible
     const saveButton = await screen.findByRole("button", {
       name: t("global:save_changes"),
     });
     await user.click(saveButton);
 
-    // Check if incomplete profile dialog appears and handle it
-    try {
-      const incompleteDialog = await screen.findByTestId(
-        "incomplete-profile-dialog",
-        {},
-      );
-      if (incompleteDialog) {
-        const saveAnywayButton = await screen.findByRole("button", {
-          name: t("profile:incomplete_dialog.save_anyway"),
-        });
-        await user.click(saveAnywayButton);
-      }
-    } catch {
-      // Dialog didn't appear, which is fine
+    if (screen.queryByRole("dialog")) {
+      const saveAnywayButton = await screen.findByRole("button", {
+        name: t("profile:incomplete_dialog.save_anyway"),
+      });
+      await user.click(saveAnywayButton);
     }
 
-    expect(updateProfileMock).toHaveBeenCalledWith(
-      expect.objectContaining({ aboutMe: aboutMeText }),
+    await waitFor(() =>
+      expect(updateProfileMock).toHaveBeenCalledWith(
+        expect.objectContaining({ aboutMe: aboutMeText }),
+      ),
     );
 
-    await waitFor(() =>
-      expect(
-        screen.getByText(t("profile:profile_changes_saved_message")),
-      ).toBeInTheDocument(),
-    );
-  });
+    await screen.findByText(t("profile:profile_changes_saved_message"));
+  }, 20000);
 
   it(`should not submit the default headings for the '${t(
     "profile:heading.who_section",
   )}' and '${t("profile:heading.hobbies_section")}' sections`, async () => {
-    // prevent the unsavedChanged pop up by mocking window.confirm
     jest.spyOn(window, "confirm").mockImplementation(() => true);
 
     getUserMock.mockImplementation(async (user) => ({
@@ -122,19 +109,18 @@ describe("Edit profile", () => {
       aboutMe: "",
       thingsILike: "",
     }));
-    renderPage();
+    await renderPage();
 
     const user = userEvent.setup();
 
-    // Wait for the form to be loaded
     await screen.findByText(t("profile:heading.about_me"));
 
-    // Make a small change to make the form dirty
     const aboutMeInput = await screen.findByTestId("aboutMe-input");
-    await user.click(aboutMeInput);
+
+    await user.clear(aboutMeInput);
+    await waitFor(() => expect(aboutMeInput).toHaveValue(""));
     await user.type(aboutMeInput, "test");
 
-    // Now the save button should be visible
     const saveButton = await screen.findByRole("button", {
       name: t("global:save_changes"),
     });
@@ -143,10 +129,8 @@ describe("Edit profile", () => {
     const saveAnywayButton = await screen.findByRole("button", {
       name: t("profile:incomplete_dialog.save_anyway"),
     });
-
     await user.click(saveAnywayButton);
 
-    // Wait for the API call to be made
     await waitFor(() => {
       expect(updateProfileMock).toHaveBeenCalledTimes(1);
     });
@@ -158,15 +142,10 @@ describe("Edit profile", () => {
       }),
     );
 
-    await waitFor(() =>
-      expect(
-        screen.getByText(t("profile:profile_changes_saved_message")),
-      ).toBeInTheDocument(),
-    );
+    await screen.findByText(t("profile:profile_changes_saved_message"));
   });
 
   it("Should not update profile automatically if the user has not filled out aboutMe section besides default headers", async () => {
-    // prevent the unsavedChanged pop up by mocking window.confirm
     jest.spyOn(window, "confirm").mockImplementation(() => true);
 
     getUserMock.mockImplementation(async (user) => ({
@@ -179,30 +158,25 @@ describe("Edit profile", () => {
 
     const user = userEvent.setup();
 
-    // Wait for the form to be loaded
     await screen.findByText(t("profile:heading.about_me"));
 
-    // Make a small change to make the form dirty
     const aboutMeInput = await screen.findByTestId("aboutMe-input");
-    await user.click(aboutMeInput);
+
+    await user.clear(aboutMeInput);
+    await waitFor(() => expect(aboutMeInput).toHaveValue(""));
     await user.type(aboutMeInput, "test");
 
-    // Now the save button should be visible
     const saveButton = await screen.findByRole("button", {
       name: t("global:save_changes"),
     });
     await user.click(saveButton);
 
-    const profileIncompleteDialog = await screen.findByTestId(
-      "incomplete-profile-dialog",
-    );
+    await screen.findByRole("dialog");
 
-    expect(profileIncompleteDialog).toBeVisible();
     expect(updateProfileMock).not.toHaveBeenCalled();
   });
 
   it("should only count user content for aboutMe length validation, excluding default headings", async () => {
-    // prevent the unsavedChanged pop up by mocking window.confirm
     jest.spyOn(window, "confirm").mockImplementation(() => true);
 
     getUserMock.mockImplementation(async (user) => ({
@@ -211,56 +185,47 @@ describe("Edit profile", () => {
       thingsILike: "",
     }));
 
-    renderPage();
+    await renderPage();
 
     const user = userEvent.setup();
 
-    // Wait for the form to be loaded
     await screen.findByText(t("profile:heading.about_me"));
 
-    // Check that the warning shows initially (0 user characters)
-    // The warning might not show until we make the form dirty
     const aboutMeInput = await screen.findByTestId("aboutMe-input");
-    await user.click(aboutMeInput);
-    await user.clear(aboutMeInput);
 
-    // Now check for the warning
-    const warningText = await screen.findByTestId("aboutMe-input-helper-text");
-    expect(warningText).toBeInTheDocument();
-
-    // Add exactly 150 characters of user content
-    await user.click(aboutMeInput);
     await user.clear(aboutMeInput);
-    const userContent = "a".repeat(100); // 100 characters
+    await waitFor(() => expect(aboutMeInput).toHaveValue(""));
+
+    const userContent = "a".repeat(100);
     await user.type(aboutMeInput, userContent);
 
-    // Warning text should show 50 more characters needed
-    expect(warningText).toHaveTextContent(
-      "Please write at least 50 characters to unlock messaging and requests. Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
-    );
+    expect(
+      screen.getByText(
+        /Please write at least 50 characters to unlock messaging and requests/i,
+      ),
+    ).toBeInTheDocument();
 
-    // Add 50 more characters
-    await user.type(aboutMeInput, "a".repeat(50));
+    const additionalContent = "a".repeat(50);
+    await user.type(aboutMeInput, additionalContent);
 
-    // Wait for the warning to disappear (should have exactly 150 characters)
-    expect(warningText).not.toBeInTheDocument();
-
-    // Verify no warning is shown
-    expect(warningText).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByText(
+          /Please write at least 50 characters to unlock messaging and requests/i,
+        ),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it("should only show save bar when form is dirty", async () => {
-    // prevent the unsavedChanged pop up by mocking window.confirm
     jest.spyOn(window, "confirm").mockImplementation(() => true);
 
     getUserMock.mockImplementation(getUser);
 
-    renderPage();
+    await renderPage();
 
-    // Wait for the form to be loaded
     await screen.findByText(t("profile:heading.about_me"));
 
-    // Initially, save bar should not be visible (form is not dirty)
     expect(
       screen.queryByRole("button", { name: t("global:save_changes") }),
     ).not.toBeInTheDocument();

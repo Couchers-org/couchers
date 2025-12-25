@@ -33,8 +33,8 @@ while [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; do
 
     # Capture curl output and status
     CURL_OUTPUT=$(curl -s -w "%{http_code}" "$API_URL")
-    HTTP_CODE="${CURL_OUTPUT:(-3)}" # Last 3 chars are HTTP code
-    STATUS_JSON="${CURL_OUTPUT:0:(-3)}" # Everything before the last 3 chars is JSON
+    HTTP_CODE="${CURL_OUTPUT: -3}" # Last 3 chars are HTTP code (space before -3 for macOS bash compatibility)
+    STATUS_JSON="${CURL_OUTPUT:0:${#CURL_OUTPUT}-3}" # Everything before the last 3 chars is JSON
 
     echo "  HTTP Code: $HTTP_CODE"
     # Print part of response for debugging, but be careful with very large responses

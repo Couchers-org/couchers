@@ -176,6 +176,8 @@ function useUnsavedChangesWarning({
     };
     const handleBrowseAway = () => {
       if (!isDirty || isSubmitted) return;
+      // Note: window.confirm() shows browser's default "The page at [url] says:" title
+      // This cannot be customized as next.js pages router does not offer useBlocker hook
       if (window.confirm(warningMessage)) return;
       router.events.emit("routeChangeError");
       throw Error("Cancelled due to unsaved changes");

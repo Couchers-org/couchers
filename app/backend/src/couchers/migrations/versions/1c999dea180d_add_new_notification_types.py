@@ -17,7 +17,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_index(
         "ix_notification_deliveries_dt_ni_dnull",
         "notification_deliveries",
@@ -43,5 +43,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

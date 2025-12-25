@@ -30,13 +30,13 @@ async function configureAndroidChannel() {
 
 async function getExpoPushToken(): Promise<string | null> {
   if (!Device.isDevice) {
-    console.warn("Push notifications require a physical device");
+    console.warn("❌ Push notifications require a physical device");
     return null;
   }
 
   const hasPermission = await ensureNotificationPermissions();
   if (!hasPermission) {
-    console.warn("Push notification permission not granted");
+    console.warn("❌ Push notification permission not granted");
     return null;
   }
 
@@ -48,12 +48,31 @@ async function getExpoPushToken(): Promise<string | null> {
     process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
 
   if (!projectId) {
-    console.warn("Missing Expo project ID for push notifications");
+    console.error("❌ Missing Expo project ID for push notifications");
+    console.log("Debug - Constants.expoConfig:", Constants.expoConfig);
+    console.log("Debug - Constants.easConfig:", Constants.easConfig);
+    console.log(
+      "Debug - EXPO_PUBLIC_EAS_PROJECT_ID:",
+      process.env.EXPO_PUBLIC_EAS_PROJECT_ID,
+    );
     return null;
   }
 
-  const tokenResult = await Notifications.getExpoPushTokenAsync({ projectId });
-  return tokenResult.data;
+  try {
+    console.log("🔔 Requesting Expo push token with projectId:", projectId);
+    const tokenResult = await Notifications.getExpoPushTokenAsync({
+      projectId,
+    });
+    console.log("✅ Successfully obtained Expo push token:", tokenResult.data);
+    return tokenResult.data;
+  } catch (error) {
+    console.error("❌ Failed to get Expo push token:", error);
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
+    return null;
+  }
 }
 
 async function getDeviceName(): Promise<string | undefined> {
@@ -76,18 +95,22 @@ export function useRegisterPushNotifications() {
 
     async function register() {
       try {
+        console.log("🔔 Starting push notification registration...");
         const token = await getExpoPushToken();
         if (!token || cancelled) {
-          console.log("No token or cancelled", { token, cancelled });
+          console.log("❌ No token or cancelled", { token, cancelled });
           return;
         }
 
         if (lastRegisteredTokenRef.current === token) {
+          console.log("✅ Token already registered, skipping");
           return;
         }
 
         const deviceName = await getDeviceName();
+        console.log("📱 Device info:", { deviceName, deviceType: Platform.OS });
 
+        console.log("📤 Registering token with backend...");
         await registerMobilePushNotificationSubscription({
           token,
           deviceName,
@@ -95,11 +118,15 @@ export function useRegisterPushNotifications() {
         });
 
         lastRegisteredTokenRef.current = token;
+        console.log("✅ Push notification registration complete");
       } catch (error) {
         console.error(
-          "Failed to register push notification subscription:",
+          "❌ Failed to register push notification subscription:",
           error,
         );
+        if (error instanceof Error) {
+          console.error("Error details:", error.message);
+        }
       }
     }
 

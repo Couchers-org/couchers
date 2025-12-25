@@ -198,7 +198,14 @@ class Notification(Base):
     # whether the user has marked this notification as seen or not
     is_seen: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
+    # optional link to moderation state for content that requires moderation approval
+    # if set, notification delivery is deferred until content becomes VISIBLE/UNLISTED
+    moderation_state_id: Mapped[int | None] = mapped_column(
+        ForeignKey("moderation_states.id"), nullable=True, index=True
+    )
+
     user = relationship("User", foreign_keys="Notification.user_id")
+    moderation_state = relationship("ModerationState", foreign_keys="Notification.moderation_state_id")
 
     __table_args__ = (
         # used in looking up which notifications need delivery

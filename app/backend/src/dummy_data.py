@@ -23,10 +23,16 @@ from couchers.models import (
     LanguageFluency,
     Message,
     MessageType,
+    ModerationAction,
+    ModerationLog,
+    ModerationObjectType,
+    ModerationState,
+    ModerationVisibility,
     Node,
     Page,
     PageType,
     PageVersion,
+    PhotoGallery,
     Reference,
     ReferenceType,
     RegionLived,
@@ -86,6 +92,12 @@ def add_dummy_users():
             )
             session.add(new_user)
             session.flush()
+
+            # Create profile gallery for the user (same as in signup flow)
+            profile_gallery = PhotoGallery(owner_user_id=new_user.id)
+            session.add(profile_gallery)
+            session.flush()
+            new_user.profile_gallery_id = profile_gallery.id
 
             for language in user["languages"]:
                 session.add(
@@ -152,15 +164,37 @@ def add_dummy_users():
         for group_chat in data["group_chats"]:
             # Create the chat
             creator = group_chat["creator"]
+            creator_id = session.execute(select(User).where(User.username == creator)).scalar_one().id
 
             conversation = Conversation()
             session.add(conversation)
+            session.flush()
+
+            # Create moderation state for UMS (set as VISIBLE since this is dummy data)
+            moderation_state = ModerationState(
+                object_type=ModerationObjectType.GROUP_CHAT,
+                object_id=conversation.id,
+                visibility=ModerationVisibility.VISIBLE,
+            )
+            session.add(moderation_state)
+            session.flush()
+
+            session.add(
+                ModerationLog(
+                    moderation_state_id=moderation_state.id,
+                    action=ModerationAction.CREATE,
+                    moderator_user_id=creator_id,
+                    new_visibility=ModerationVisibility.VISIBLE,
+                    reason="Dummy data: group chat created.",
+                )
+            )
 
             chat = GroupChat(
                 conversation=conversation,
                 title=group_chat["title"],
-                creator_id=session.execute(select(User).where(User.username == creator)).scalar_one().id,
+                creator_id=creator_id,
                 is_dm=group_chat["is_dm"],
+                moderation_state_id=moderation_state.id,
             )
             session.add(chat)
 

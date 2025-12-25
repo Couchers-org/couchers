@@ -17,7 +17,7 @@ interface MapSearchContentProps {
   hasPreviousPage: boolean | undefined;
   hasNextPage: boolean | undefined;
   isLoading: boolean;
-  mapRef: React.RefObject<MapRef>;
+  mapRef: React.RefObject<MapRef | null>;
   mapView: MapViewOptions;
   currentRange: string;
   onDrawerWidthChange: (width: number) => void;
@@ -30,12 +30,16 @@ interface MapSearchContentProps {
   users: SearchUser.AsObject[] | undefined;
 }
 
-const Wrapper = styled("div")({
+const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
   height: "100%",
   width: "100%",
   overflow: "hidden",
-});
+
+  [theme.breakpoints.down("md")]: {
+    flexDirection: "column",
+  },
+}));
 
 const SearchResultsContainer = styled("div", {
   shouldForwardProp: (prop) =>
@@ -48,31 +52,46 @@ const SearchResultsContainer = styled("div", {
 
     ...(!isListOnlyView && {
       [theme.breakpoints.down("md")]: {
-        position: "fixed",
         width: "100%",
-        height: `calc(45% - 54px)`,
-        bottom: 0,
+        height: "45%",
+        minHeight: 0,
+        order: 2,
         boxShadow: "0px -2px 4px rgba(0,0,0,0.1)",
-        zIndex: 1,
+        overflow: "hidden",
       },
     }),
   }),
 );
 
 const MapContainer = styled("div", {
-  shouldForwardProp: (prop) => prop !== "drawerWidth",
-})<{ drawerWidth: number }>(({ theme, drawerWidth }) => ({
-  width: `calc(100% - ${drawerWidth}px)`,
-  height: "100%",
-  position: "relative",
-  display: "flex",
-  alignItems: "center",
+  shouldForwardProp: (prop) =>
+    prop !== "drawerWidth" && prop !== "isListOnlyView",
+})<{ drawerWidth: number; isListOnlyView: boolean }>(
+  ({ theme, drawerWidth, isListOnlyView }) => ({
+    width: `calc(100% - ${drawerWidth}px)`,
+    height: "100%",
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    ...(isListOnlyView && {
+      width: 0,
+      height: 0,
+      overflow: "hidden",
+      position: "absolute",
+      pointerEvents: "none",
+    }),
 
-  [theme.breakpoints.down("md")]: {
-    width: "100%",
-    height: `calc(55% - 18px)`,
-  },
-}));
+    [theme.breakpoints.down("md")]: {
+      width: "100%",
+      height: "55%",
+      order: 1,
+      ...(isListOnlyView && {
+        width: 0,
+        height: 0,
+      }),
+    },
+  }),
+);
 
 const MapSearchContent = ({
   error,
@@ -139,18 +158,19 @@ const MapSearchContent = ({
           users={users}
         />
       </SearchResultsContainer>
-      {mapView !== MapViews.LIST_ONLY && (
-        <MapContainer drawerWidth={drawerWidth}>
-          <MapView
-            isDrawerExpanded={drawerWidth > DEFAULT_DRAWER_WIDTH}
-            isLoading={isLoading}
-            mapRef={mapRef}
-            onZoomIn={onZoomIn}
-            onZoomOut={onZoomOut}
-            users={users}
-          />
-        </MapContainer>
-      )}
+      <MapContainer
+        drawerWidth={drawerWidth}
+        isListOnlyView={mapView === MapViews.LIST_ONLY}
+      >
+        <MapView
+          isDrawerExpanded={drawerWidth > DEFAULT_DRAWER_WIDTH}
+          isLoading={isLoading}
+          mapRef={mapRef}
+          onZoomIn={onZoomIn}
+          onZoomOut={onZoomOut}
+          users={users}
+        />
+      </MapContainer>
     </Wrapper>
   );
 };

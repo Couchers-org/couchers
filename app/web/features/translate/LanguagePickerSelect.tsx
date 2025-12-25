@@ -21,13 +21,14 @@ import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
-import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
-import { ALMOST_DONE_CUTOFF, SELECTOR_CUTOFF } from "./constants";
+import { ALMOST_DONE_CUTOFF } from "./constants";
+import { getAvailableLanguages } from "./utils";
 
 interface StyledMuiSelectProps {
   displayMode?: "round" | "rect";
@@ -53,9 +54,10 @@ type LanguagePickerSelectProps = {
 
 export default function LanguagePickerSelect({
   displayMode = "round",
-}: LanguagePickerSelectProps) {
+  onSelect,
+}: LanguagePickerSelectProps & { onSelect?: () => void }) {
   const router = useRouter();
-  const { asPath, locale, pathname } = router;
+  const { asPath, locale, pathname, query } = router;
   const { authState } = useAuthContext();
   const isAuthenticated = authState.authenticated;
 
@@ -65,21 +67,36 @@ export default function LanguagePickerSelect({
   const { data: languages, isLoading, error } = useWeblateStats();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isChangingLanguage, setIsChangingLanguage] = useState(false);
 
   const { mutate: changeLanguageMutation } = useMutation({
     mutationFn: (newLanguage: string) =>
       service.account.changeLanguage(newLanguage),
   });
 
-  const handleChange = async (event: SelectChangeEvent<unknown>) => {
+  const handleChange = (event: SelectChangeEvent<unknown>) => {
     const newLocale = event.target.value as string;
 
-    if (isAuthenticated) {
-      await changeLanguageMutation(newLocale);
+    // Prevent rapid consecutive language changes
+    if (isChangingLanguage) {
+      return;
     }
 
-    // Push new route with updated locale, keep the current asPath for display
-    router.push({ pathname }, asPath, { locale: newLocale });
+    setIsChangingLanguage(true);
+
+    // Set cookie client-side immediately for both authenticated and logged-out users
+    // This ensures the middleware sees the updated locale before navigation
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; samesite=lax`;
+
+    if (isAuthenticated) {
+      // For authenticated users, also update backend's ui_language_preference
+      changeLanguageMutation(newLocale);
+    }
+
+    router.push({ pathname, query }, asPath, { locale: newLocale });
+
+    setIsChangingLanguage(false);
+    onSelect?.();
   };
 
   const handleTranslationProgressClick = (e: React.MouseEvent) => {
@@ -87,6 +104,7 @@ export default function LanguagePickerSelect({
 
     setIsOpen(false);
     router.push(translateRoute);
+    onSelect?.();
   };
 
   const renderFlag = (flagCode: string, percent?: number) => {
@@ -115,30 +133,11 @@ export default function LanguagePickerSelect({
   };
   // Languages with < 50% translated are hidden from language selector
   // Languages with < 80% translated are greyed out
-  const availableLanguages = languages
-    ?.filter(
-      (language) =>
-        LANGUAGE_MAP[language.code.replace("_", "-")] &&
-        language.translated_percent >= SELECTOR_CUTOFF,
-    )
-    // sort by translated percent with the >= 80 grouped at the top, then sorted alphabetically by code
-    .sort((a, b) => {
-      if (
-        a.translated_percent >= ALMOST_DONE_CUTOFF &&
-        b.translated_percent < ALMOST_DONE_CUTOFF
-      )
-        return -1;
-      if (
-        a.translated_percent < ALMOST_DONE_CUTOFF &&
-        b.translated_percent >= ALMOST_DONE_CUTOFF
-      )
-        return 1;
-      return a.code.localeCompare(b.code);
-    });
+  const availableLanguages = getAvailableLanguages(languages);
 
   const menuItems: React.ReactNode[] | undefined = isLoading
     ? []
-    : availableLanguages?.map((language) => {
+    : availableLanguages.map((language) => {
         // language.code has underscore, we need to change to hyphen
         const languageCode = language.code.replace("_", "-");
 
@@ -243,7 +242,7 @@ export default function LanguagePickerSelect({
               // Use renderValue to display the selected language in collapsed state
               renderValue={renderValue}
               IconComponent={ExpandMoreOutlinedIcon}
-              disabled={isLoading}
+              disabled={isLoading || isChangingLanguage}
               open={isOpen}
               onOpen={() => setIsOpen(true)}
               onClose={() => setIsOpen(false)}
@@ -279,7 +278,7 @@ export default function LanguagePickerSelect({
               value={isLoading ? "" : locale}
               fullWidth={isMobile}
               onChange={handleChange}
-              disabled={isLoading}
+              disabled={isLoading || isChangingLanguage}
               open={isOpen}
               onOpen={() => setIsOpen(true)}
               onClose={() => setIsOpen(false)}

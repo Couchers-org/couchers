@@ -1,4 +1,3 @@
-import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import {
   documentGetInitialProps,
   DocumentHeadTags,
@@ -12,9 +11,7 @@ import {
   Main,
   NextScript,
 } from "next/document";
-
-// Brand primary color - used for browser theme-color meta tag
-const PRIMARY_COLOR = "#00a398";
+import { theme } from "theme";
 
 export default function MyDocument(
   props: DocumentProps & DocumentHeadTagsProps,
@@ -23,8 +20,9 @@ export default function MyDocument(
     <Html lang={props.locale ?? "en"}>
       <Head>
         <DocumentHeadTags {...props} />
+
         <link rel="preconnect" href="https://cdn.couchers.org" />
-        <meta name="theme-color" content={PRIMARY_COLOR} />
+        <meta name="theme-color" content={theme.palette.primary.main} />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/logo512.png" />
         <link
@@ -43,7 +41,6 @@ export default function MyDocument(
         )}
       </Head>
       <body>
-        <InitColorSchemeScript />
         <Main />
         <NextScript />
       </body>

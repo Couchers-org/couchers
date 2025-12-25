@@ -16,10 +16,11 @@ module.exports = {
   i18n: {
     defaultLocale: "en",
     locales: allLanguages,
+    localeDetection: false, // Disabled - using custom middleware for locale detection
   },
   fallbackLng,
   defaultNS: "global",
-  compatibilityJSON: "v3",
+  compatibilityJSON: "v4",
   debug: process.env.NODE_ENV === "development",
   ns: NAMESPACES,
   returnEmptyString: false,

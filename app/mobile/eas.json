@@ -11,11 +11,44 @@
     "preview": {
       "distribution": "internal"
     },
+    "staging": {
+      "autoIncrement": true,
+      "channel": "staging",
+      "environment": "preview",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://dev-api.couchershq.org",
+        "EXPO_PUBLIC_WEB_BASE_URL": "https://next.couchershq.org",
+        "EXPO_PUBLIC_COUCHERS_ENV": "preview"
+      }
+    },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.couchers.org",
+        "EXPO_PUBLIC_WEB_BASE_URL": "https://couchers.org",
+        "EXPO_PUBLIC_COUCHERS_ENV": "prod"
+      }
     }
   },
   "submit": {
-    "production": {}
+    "staging": {
+      "ios": {
+        "ascAppId": "6623776751"
+      },
+      "android": {
+        "track": "internal",
+        "releaseStatus": "completed"
+      }
+    },
+    "production": {
+      "ios": {
+        "ascAppId": "6623776751"
+      },
+      "android": {
+        "track": "internal",
+        "releaseStatus": "completed"
+      }
+    }
   }
 }

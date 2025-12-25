@@ -16,11 +16,11 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("emails", sa.Column("list_unsubscribe_header", sa.String(), nullable=True))
     op.add_column("emails", sa.Column("source_data", sa.String(), nullable=True))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("emails", "source_data")
     op.drop_column("emails", "list_unsubscribe_header")

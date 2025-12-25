@@ -46,14 +46,14 @@ default:
     - docker:dind
   before_script: |
     # Error out when accessing an undefined variable
-    set -u  
-    
+    set -u
+
     # All jobs that use this must have full git history to correctly set the version number.
-    if [ "$GIT_DEPTH" == "0" ]; then 
+    if [ "$GIT_DEPTH" == "0" ]; then
         export DISPLAY_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.$(git rev-list --count "origin/$RELEASE_BRANCH")"; else echo "${base_ver}-$SLUG"; fi)
         echo $DISPLAY_VERSION
     fi
-    
+
     docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 .common_functions: &common_functions |
@@ -68,10 +68,10 @@ default:
       local path="$3"
       local version="$4"
       shift 4 # Remove the N arguments so that the rest can be used in "$@" later
-      
+
       # A separate image with cached layers.
       cache_tag="${release_tag}-cache"
-  
+
       # Push image cache only on develop.
       local cache_to=""
       if [ "$CI_COMMIT_BRANCH" = "$RELEASE_BRANCH" ]; then
@@ -310,6 +310,7 @@ test:backend:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/testdb"
     RUN_MIGRATION_TEST: true
+    TEST_SCHEMA_OUTPUT_DIR: /app/schema_dumps
   before_script:
     # install the latest postgres from their repos to get pg_dump compatible with later postgres
     - apt-get update -qy && apt-get install -qyy wget gpg
@@ -325,6 +326,21 @@ test:backend:
     - cp /app/junit.xml $CI_PROJECT_DIR/
     - cp /app/coverage.xml $CI_PROJECT_DIR/
     - mkdir -p $CI_PROJECT_DIR/artifacts/htmlcov && cp -a /app/htmlcov $CI_PROJECT_DIR/artifacts/
+    # Copy schema dumps if they exist (from migration test)
+    - mkdir -p $CI_PROJECT_DIR/artifacts/schema_dumps
+    - cp /app/schema_dumps/*.sql $CI_PROJECT_DIR/artifacts/schema_dumps/
+    # Create cleaned schema.sql with git hash header
+    - |
+      {
+        echo "-- Couchers.org database schema"
+        echo "-- Generated from migrations at commit $CI_COMMIT_SHA on branch $CI_COMMIT_REF_NAME at $CI_COMMIT_TIMESTAMP"
+        echo ""
+        grep -v '^\\\restrict' /app/schema_dumps/schema_from_migrations.sql \
+          | grep -v '^\\\unrestrict' \
+          | grep -v '^--' \
+          | grep -v 'ALTER .* OWNER TO postgres;' \
+          | cat -s
+      } > $CI_PROJECT_DIR/artifacts/schema_dumps/schema.sql
   coverage: '/^TOTAL.+?(\d+\%)$/'
   artifacts:
     reports:
@@ -334,6 +350,7 @@ test:backend:
       junit: junit.xml
     paths:
       - artifacts/htmlcov
+      - artifacts/schema_dumps
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -460,6 +477,63 @@ test:web-linting:
       changes:
         - app/web/**/*
 
+test:mobile:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npm test -- --ci --coverage
+  after_script:
+    - cp app/mobile/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/ || true
+  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura-coverage.xml
+  rules:
+    - if: $DO_CHECKS == "true"
+      changes:
+        - app/proto/**/*
+        - app/mobile/**/*
+
+test:mobile-linting:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npm run lint
+  rules:
+    - if: $DO_CHECKS == "true"
+      changes:
+        - app/mobile/**/*
+
+test:mobile-typecheck:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npx tsc --noEmit
+  rules:
+    - if: $DO_CHECKS == "true"
+      changes:
+        - app/mobile/**/*
+
 test:proxy:
   needs: ["build:proxy"]
   stage: test
@@ -485,7 +559,7 @@ test:proxy:
         - app/proxy/**/*
 
 
-preview:bcov:
+preview:backend:
   needs: ["test:backend"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
@@ -498,6 +572,12 @@ preview:bcov:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--bcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--bcov.$PREVIEW_DOMAIN/"
+    # Upload schema dumps
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/schema_dumps s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp artifacts/schema_dumps s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
+    - echo "Done, schema dumps available at https://$CI_COMMIT_SHORT_SHA--schema.$PREVIEW_DOMAIN/schema.sql and https://$CI_COMMIT_REF_SLUG--schema.$PREVIEW_DOMAIN/schema.sql"
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -665,6 +745,15 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:web-linting
+      artifacts: false
+      optional: true
+    - job: test:mobile
+      artifacts: false
+      optional: true
+    - job: test:mobile-linting
+      artifacts: false
+      optional: true
+    - job: test:mobile-typecheck
       artifacts: false
       optional: true
 

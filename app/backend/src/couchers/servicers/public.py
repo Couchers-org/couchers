@@ -2,18 +2,22 @@ import logging
 
 import grpc
 from cachetools import TTLCache, cached
+from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, union_all
 
 from couchers import urls
 from couchers.constants import DONATION_GOAL_USD, DONATION_OFFSET_USD
+from couchers.context import CouchersContext
 from couchers.materialized_views import LiteUser
 from couchers.models import Cluster, Invoice, InvoiceType, Node, ProfilePublicVisibility, Reference, User, Volunteer
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
+from couchers.proto.google.api import httpbody_pb2
 from couchers.resources import get_static_badge_dict
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, make_logged_out_context, now
+from couchers.utils import Timestamp_from_datetime, make_logged_out_context, not_none, now
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +27,8 @@ def format_volunteer_link(volunteer: Volunteer, username: str) -> dict[str, str]
     if volunteer.link_type:
         return dict(
             link_type=volunteer.link_type,
-            link_text=volunteer.link_text,
-            link_url=volunteer.link_url,
+            link_text=not_none(volunteer.link_text),
+            link_url=not_none(volunteer.link_url),
         )
     else:
         return dict(
@@ -35,7 +39,7 @@ def format_volunteer_link(volunteer: Volunteer, username: str) -> dict[str, str]
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=600), key=lambda _: None)
-def _get_public_users(session):
+def _get_public_users(session: Session) -> httpbody_pb2.HttpBody:
     with_geom = (
         select(User.username, User.geom)
         .where(User.is_visible)
@@ -53,11 +57,11 @@ def _get_public_users(session):
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None)
-def _get_signup_page_info(session):
+def _get_signup_page_info(session: Session) -> public_pb2.GetSignupPageInfoRes:
     # last user who signed up
     last_signup, geom = session.execute(
         select(User.joined, User.geom).where(User.is_visible).order_by(User.id.desc()).limit(1)
-    ).one_or_none()
+    ).one()
 
     communities = (
         session.execute(
@@ -91,7 +95,7 @@ def _get_signup_page_info(session):
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None)
-def _get_donation_stats(session):
+def _get_donation_stats(session: Session) -> public_pb2.GetDonationStatsRes:
     """Get year-to-date donation statistics, excluding merch purchases."""
     start_of_year = now().replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
@@ -107,8 +111,8 @@ def _get_donation_stats(session):
     )
 
 
-@cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None)
-def _get_volunteers(session):
+@cached(cache=TTLCache(maxsize=1, ttl=5), key=lambda _: None)
+def _get_volunteers(session: Session) -> public_pb2.GetVolunteersRes:
     volunteers = session.execute(
         select(Volunteer, LiteUser)
         .join(LiteUser, LiteUser.id == Volunteer.user_id)
@@ -123,7 +127,7 @@ def _get_volunteers(session):
 
     board_members = set(get_static_badge_dict()["board_member"])
 
-    def format_volunteer(volunteer, lite_user):
+    def format_volunteer(volunteer: Volunteer, lite_user: LiteUser) -> public_pb2.Volunteer:
         return public_pb2.Volunteer(
             name=volunteer.display_name or lite_user.name,
             username=lite_user.username,
@@ -152,13 +156,17 @@ def _get_volunteers(session):
 
 class Public(public_pb2_grpc.PublicServicer):
     """
-    Public (logged out) APIs for getting public info
+    Public (logged-out) APIs for getting public info
     """
 
-    def GetPublicUsers(self, request, context, session):
+    def GetPublicUsers(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
         return _get_public_users(session)
 
-    def GetPublicUser(self, request, context, session):
+    def GetPublicUser(
+        self, request: public_pb2.GetPublicUserReq, context: CouchersContext, session: Session
+    ) -> public_pb2.GetPublicUserRes:
         user = session.execute(
             select(User)
             .where(User.is_visible)
@@ -230,12 +238,19 @@ class Public(public_pb2_grpc.PublicServicer):
                     badges=[badge.badge_id for badge in user.badges],
                 )
             )
+        raise RuntimeError(user.public_visibility)
 
-    def GetSignupPageInfo(self, request, context, session):
+    def GetSignupPageInfo(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> public_pb2.GetSignupPageInfoRes:
         return _get_signup_page_info(session)
 
-    def GetVolunteers(self, request, context, session):
+    def GetVolunteers(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> public_pb2.GetVolunteersRes:
         return _get_volunteers(session)
 
-    def GetDonationStats(self, request, context, session):
+    def GetDonationStats(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> public_pb2.GetDonationStatsRes:
         return _get_donation_stats(session)

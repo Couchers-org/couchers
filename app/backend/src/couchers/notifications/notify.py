@@ -17,8 +17,9 @@ def notify(
     *,
     user_id: int,
     topic_action: str,
-    key: str = "",
+    key: str,
     data: Message | None = None,
+    moderation_state_id: int | None = None,
 ) -> None:
     """
     Queues a notification given the notification and a target, i.e. a tuple (user_id, topic, key), and an action.
@@ -33,6 +34,12 @@ def notify(
     action might be "add_admin" if the notification was caused by another user adding an admin into the gorup chat.
 
     Each different notification type should have its own action.
+
+    If moderation_state_id is provided, the notification delivery is deferred until the linked content
+    becomes VISIBLE or UNLISTED. This is used for notifications related to moderated content.
+
+    The key parameter is required. Pass key="" for notifications that intentionally don't have a key
+    (e.g., security notifications like password changes, or aggregated notifications like chat:missed_messages).
     """
     logger.info(f"Generating notification of type {topic_action} for user {user_id}")
     topic, action = topic_action.split(":")
@@ -42,6 +49,7 @@ def notify(
         topic_action=enum_from_topic_action[topic, action],
         key=key,
         data=(data or empty_pb2.Empty()).SerializeToString(),
+        moderation_state_id=moderation_state_id,
     )
     session.add(notification)
     session.flush()

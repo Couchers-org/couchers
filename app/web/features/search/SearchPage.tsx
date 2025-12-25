@@ -51,6 +51,18 @@ const SearchPageContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   height: "100%",
+
+  [theme.breakpoints.down("md")]: {
+    display: "grid",
+    gridTemplateRows: "auto 1fr",
+  },
+}));
+
+const SearchControlsWrapper = styled("div")(({ theme }) => ({
+  [theme.breakpoints.down("md")]: {
+    display: "flex",
+    flexDirection: "column",
+  },
 }));
 
 /**
@@ -173,13 +185,15 @@ export default function SearchPage() {
     <SearchPageContainer>
       <MapProvider>
         <HtmlMeta title={t("global:nav.map_search")} />
-        <SearchControls
-          drawerWidth={drawerWidth}
-          mapRef={mapRef}
-          mapView={mapView}
-          onSetMapView={handleSetMapView}
-          onZoomIn={handleZoomIn}
-        />
+        <SearchControlsWrapper>
+          <SearchControls
+            drawerWidth={drawerWidth}
+            mapRef={mapRef}
+            mapView={mapView}
+            onSetMapView={handleSetMapView}
+            onZoomIn={handleZoomIn}
+          />
+        </SearchControlsWrapper>
         <MapSearchContent
           error={error}
           drawerWidth={drawerWidth}

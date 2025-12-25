@@ -1,6 +1,6 @@
 {
   "form": {
-    "submit_button_label": "Solicitar",
+    "submit_button_label": "Aplicar",
     "rules": {
       "title": "Reglas",
       "alcohol_allowed": "Se permite alcohol",
@@ -77,7 +77,6 @@
     "no_user_result_message": "No se han encontrado usuarios. Intenta quitar algunos filtros para ver más resultados.",
     "show_user_button_label": "Mostrar {{name}} en el mapa",
     "missing_about_description": "{{name}} no ha dicho nada sobre sí todavía",
-    "people_found_message": "{{currentRange}} de {{totalItems}} personas",
     "few_results_suggestion": "Por defecto, se ocultan los perfiles vacíos o que \"no pueden alojar\".",
     "include_empty_profiles_button": "Mostrar todos los perfiles"
   },

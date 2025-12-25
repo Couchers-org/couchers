@@ -4,7 +4,7 @@ import { initReactI18next } from "react-i18next";
 
 i18n.use(initReactI18next).init({
   fallbackLng: "en",
-  compatibilityJSON: "v3",
+  compatibilityJSON: "v4",
   debug: process.env.NODE_ENV === "development",
   interpolation: {
     // React does this by default already

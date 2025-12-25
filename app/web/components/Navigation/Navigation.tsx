@@ -282,6 +282,7 @@ export default function Navigation() {
   const router = useRouter();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isLoginPage = router.pathname === loginRoute;
 
   const [isMounted, setIsMounted] = useState(false);
   const [open, setOpen] = useState(false);
@@ -295,6 +296,14 @@ export default function Navigation() {
   useEffect(() => setIsMounted(true), []);
 
   const { t } = useTranslation(GLOBAL);
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
 
   const drawerItems = (
     <div>
@@ -340,7 +349,7 @@ export default function Navigation() {
             padding: theme.spacing(1, 4),
           })}
         >
-          <LanguagePickerSelect />
+          <LanguagePickerSelect onSelect={handleDrawerClose} />
         </ListItem>
       </List>
     </div>
@@ -350,14 +359,6 @@ export default function Navigation() {
     () => loggedInMenuDropDown(t, pingData),
     [t, pingData],
   );
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
 
   return (
     <StyledAppBar position="sticky">
@@ -441,19 +442,21 @@ export default function Navigation() {
               }}
             >
               {!isMobile && <LanguagePickerSelect />}
-              <Button
-                variant="outlined"
-                size={isMobile ? "medium" : "large"}
-                sx={(theme: Theme) => ({
-                  fontSize: "1.3rem",
-                  borderRadius: theme.spacing(1),
-                  border: `1.5px solid ${theme.palette.primary.main}`,
-                })}
-                onClick={() => router.push(loginRoute)}
-              >
-                {t("login")}
-              </Button>
-              {!isMobile && (
+              {!isLoginPage && (
+                <Button
+                  variant="outlined"
+                  size={isMobile ? "medium" : "large"}
+                  sx={{
+                    fontSize: "1.3rem",
+                    borderRadius: theme.spacing(1),
+                    border: `1.5px solid ${theme.palette.primary.main}`,
+                  }}
+                  onClick={() => router.push(loginRoute)}
+                >
+                  {t("login")}
+                </Button>
+              )}
+              {isLoginPage && (
                 <Button
                   variant="contained"
                   size={isMobile ? "medium" : "large"}

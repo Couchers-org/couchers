@@ -1,19 +1,25 @@
+from collections.abc import Iterable
 from datetime import timedelta
+from typing import cast
 from urllib.parse import urlencode
 
+import google.protobuf.message
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
 
 from couchers import urls
 from couchers.config import config
 from couchers.constants import GHOST_USERNAME
+from couchers.context import CouchersContext
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
     FriendRelationship,
     FriendStatus,
+    GroupChat,
     GroupChatSubscription,
     HostingStatus,
     HostRequest,
@@ -42,13 +48,14 @@ from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.blocking import is_not_visible
 from couchers.sql import couchers_select as select
-from couchers.sql import is_valid_user_id, is_valid_username
 from couchers.utils import (
     Duration_from_timedelta,
     Timestamp_from_datetime,
     create_coordinate,
     get_coordinates,
     is_valid_name,
+    is_valid_user_id,
+    is_valid_username,
     now,
 )
 
@@ -154,7 +161,7 @@ fluency2api = {
 
 
 class API(api_pb2_grpc.APIServicer):
-    def Ping(self, request, context, session):
+    def Ping(self, request: api_pb2.PingReq, context: CouchersContext, session: Session) -> api_pb2.PingRes:
         # auth ought to make sure the user exists
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
@@ -162,6 +169,7 @@ class API(api_pb2_grpc.APIServicer):
             select(HostRequest.conversation_id, HostRequest.surfer_last_seen_message_id)
             .where(HostRequest.surfer_user_id == context.user_id)
             .where_users_column_visible(context, HostRequest.host_user_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
         ).subquery()
 
         unseen_sent_host_request_count = session.execute(
@@ -178,6 +186,7 @@ class API(api_pb2_grpc.APIServicer):
             select(HostRequest.conversation_id, HostRequest.host_last_seen_message_id)
             .where(HostRequest.host_user_id == context.user_id)
             .where_users_column_visible(context, HostRequest.surfer_user_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
         ).subquery()
 
         unseen_received_host_request_count = session.execute(
@@ -193,6 +202,8 @@ class API(api_pb2_grpc.APIServicer):
         unseen_message_count = session.execute(
             select(func.count(Message.id))
             .outerjoin(GroupChatSubscription, GroupChatSubscription.group_chat_id == Message.conversation_id)
+            .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+            .where_moderated_content_visible(context, GroupChat, is_list_operation=True)
             .where(GroupChatSubscription.user_id == context.user_id)
             .where(Message.time >= GroupChatSubscription.joined)
             .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
@@ -227,7 +238,7 @@ class API(api_pb2_grpc.APIServicer):
             unseen_notification_count=unseen_notification_count,
         )
 
-    def GetUser(self, request, context, session):
+    def GetUser(self, request: api_pb2.GetUserReq, context: CouchersContext, session: Session) -> api_pb2.User:
         user = session.execute(select(User).where_username_or_id(request.user)).scalar_one_or_none()
 
         if not user:
@@ -235,7 +246,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return user_model_to_pb(user, session, context, is_get_user_return_ghosts=True)
 
-    def GetLiteUser(self, request, context, session):
+    def GetLiteUser(
+        self, request: api_pb2.GetLiteUserReq, context: CouchersContext, session: Session
+    ) -> api_pb2.LiteUser:
         lite_user = session.execute(
             select(LiteUser).where_username_or_id(request.user, table=LiteUser)
         ).scalar_one_or_none()
@@ -245,7 +258,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return lite_user_to_pb(session, lite_user, context, is_get_user_return_ghosts=True)
 
-    def GetLiteUsers(self, request, context, session):
+    def GetLiteUsers(
+        self, request: api_pb2.GetLiteUsersReq, context: CouchersContext, session: Session
+    ) -> api_pb2.GetLiteUsersRes:
         if len(request.users) > MAX_USERS_PER_QUERY:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "requested_too_many_users")
 
@@ -283,7 +298,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return res
 
-    def UpdateProfile(self, request, context, session):
+    def UpdateProfile(
+        self, request: api_pb2.UpdateProfileReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if request.HasField("name"):
@@ -543,9 +560,13 @@ class API(api_pb2_grpc.APIServicer):
             else:
                 user.camping_ok = request.camping_ok.value
 
+        user.profile_last_updated = now()
+
         return empty_pb2.Empty()
 
-    def ListFriends(self, request, context, session):
+    def ListFriends(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> api_pb2.ListFriendsRes:
         rels = (
             session.execute(
                 select(FriendRelationship)
@@ -566,7 +587,9 @@ class API(api_pb2_grpc.APIServicer):
             user_ids=[rel.from_user.id if rel.from_user.id != context.user_id else rel.to_user.id for rel in rels],
         )
 
-    def RemoveFriend(self, request, context, session):
+    def RemoveFriend(
+        self, request: api_pb2.RemoveFriendReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         rel = session.execute(
             select(FriendRelationship)
             .where_users_column_visible(context, FriendRelationship.from_user_id)
@@ -593,7 +616,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return empty_pb2.Empty()
 
-    def ListMutualFriends(self, request, context, session):
+    def ListMutualFriends(
+        self, request: api_pb2.ListMutualFriendsReq, context: CouchersContext, session: Session
+    ) -> api_pb2.ListMutualFriendsRes:
         if context.user_id == request.user_id:
             return api_pb2.ListMutualFriendsRes(mutual_friends=[])
 
@@ -645,7 +670,9 @@ class API(api_pb2_grpc.APIServicer):
             ]
         )
 
-    def SendFriendRequest(self, request, context, session):
+    def SendFriendRequest(
+        self, request: api_pb2.SendFriendRequestReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         if context.user_id == request.user_id:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_friend_self")
 
@@ -690,7 +717,7 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "friend_request_rate_limit",
-                substitutions={"hours": RATE_LIMIT_HOURS},
+                substitutions={"hours": str(RATE_LIMIT_HOURS)},
             )
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
@@ -703,7 +730,7 @@ class API(api_pb2_grpc.APIServicer):
             session,
             user_id=friend_relationship.to_user_id,
             topic_action="friend_request:create",
-            key=friend_relationship.from_user_id,
+            key=str(friend_relationship.from_user_id),
             data=notification_data_pb2.FriendRequestCreate(
                 other_user=user_model_to_pb(friend_relationship.from_user, session, context),
             ),
@@ -711,7 +738,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return empty_pb2.Empty()
 
-    def ListFriendRequests(self, request, context, session):
+    def ListFriendRequests(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> api_pb2.ListFriendRequestsRes:
         # both sent and received
         sent_requests = (
             session.execute(
@@ -756,7 +785,9 @@ class API(api_pb2_grpc.APIServicer):
             ],
         )
 
-    def RespondFriendRequest(self, request, context, session):
+    def RespondFriendRequest(
+        self, request: api_pb2.RespondFriendRequestReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         friend_request = session.execute(
             select(FriendRelationship)
             .where_users_column_visible(context, FriendRelationship.from_user_id)
@@ -778,7 +809,7 @@ class API(api_pb2_grpc.APIServicer):
                 session,
                 user_id=friend_request.from_user_id,
                 topic_action="friend_request:accept",
-                key=friend_request.to_user_id,
+                key=str(friend_request.to_user_id),
                 data=notification_data_pb2.FriendRequestAccept(
                     other_user=user_model_to_pb(friend_request.to_user, session, context),
                 ),
@@ -786,7 +817,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return empty_pb2.Empty()
 
-    def CancelFriendRequest(self, request, context, session):
+    def CancelFriendRequest(
+        self, request: api_pb2.CancelFriendRequestReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         friend_request = session.execute(
             select(FriendRelationship)
             .where_users_column_visible(context, FriendRelationship.to_user_id)
@@ -807,7 +840,9 @@ class API(api_pb2_grpc.APIServicer):
 
         return empty_pb2.Empty()
 
-    def InitiateMediaUpload(self, request, context, session):
+    def InitiateMediaUpload(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> api_pb2.InitiateMediaUploadRes:
         key = random_hex()
 
         created = now()
@@ -836,7 +871,9 @@ class API(api_pb2_grpc.APIServicer):
             expiry=Timestamp_from_datetime(expiry),
         )
 
-    def ListBadgeUsers(self, request, context, session):
+    def ListBadgeUsers(
+        self, request: api_pb2.ListBadgeUsersReq, context: CouchersContext, session: Session
+    ) -> api_pb2.ListBadgeUsersRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_user_id = int(request.page_token) if request.page_token else 0
         badge = get_badge_dict().get(request.badge_id)
@@ -848,6 +885,7 @@ class API(api_pb2_grpc.APIServicer):
                 select(UserBadge.user_id)
                 .where(UserBadge.badge_id == badge["id"])
                 .where(UserBadge.user_id >= next_user_id)
+                .where_users_column_visible(context, UserBadge.user_id)
                 .order_by(UserBadge.user_id)
                 .limit(page_size + 1)
             )
@@ -861,11 +899,11 @@ class API(api_pb2_grpc.APIServicer):
         )
 
 
-def response_rate_to_pb(response_rate: UserResponseRate):
+def response_rate_to_pb(response_rate: UserResponseRate | None) -> dict[str, google.protobuf.message.Message]:
     if not response_rate:
         return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
 
-    # if n is None, the user is new or they have no requests
+    # if n is None, the user is new, or they have no requests
     if response_rate.requests < 3:
         return {"insufficient_data": requests_pb2.ResponseRateInsufficientData()}
 
@@ -897,20 +935,26 @@ def response_rate_to_pb(response_rate: UserResponseRate):
         }
 
 
-def get_num_references(session, user_ids):
-    return dict(
-        session.execute(
-            select(Reference.to_user_id, func.count(Reference.id))
-            .where(Reference.to_user_id.in_(user_ids))
-            .where(Reference.is_deleted == False)
-            .join(User, User.id == Reference.from_user_id)
-            .where(User.is_visible)
-            .group_by(Reference.to_user_id)
-        ).all()
+def get_num_references(session: Session, user_ids: Iterable[int]) -> dict[int, int]:
+    query = (
+        select(Reference.to_user_id, func.count(Reference.id))
+        .where(Reference.to_user_id.in_(user_ids))
+        .where(Reference.is_deleted == False)
+        .join(User, User.id == Reference.from_user_id)
+        .where(User.is_visible)
+        .group_by(Reference.to_user_id)
     )
+    return cast(dict[int, int], dict(session.execute(query).all()))  # type: ignore[arg-type]
 
 
-def user_model_to_pb(db_user, session, context, *, is_admin_see_ghosts=False, is_get_user_return_ghosts=False):
+def user_model_to_pb(
+    db_user: User,
+    session: Session,
+    context: CouchersContext,
+    *,
+    is_admin_see_ghosts: bool = False,
+    is_get_user_return_ghosts: bool = False,
+) -> api_pb2.User:
     # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
 
@@ -1038,7 +1082,7 @@ def user_model_to_pb(db_user, session, context, *, is_admin_see_ghosts=False, is
         .scalars()
         .all(),
         **get_strong_verification_fields(session, db_user),
-        **response_rate_to_pb(response_rate),
+        **response_rate_to_pb(response_rate),  # type: ignore[arg-type]
     )
 
     if db_user.max_guests is not None:
@@ -1105,8 +1149,13 @@ def user_model_to_pb(db_user, session, context, *, is_admin_see_ghosts=False, is
 
 
 def lite_user_to_pb(
-    session, lite_user: LiteUser, context, *, is_admin_see_ghosts=False, is_get_user_return_ghosts=False
-):
+    session: Session,
+    lite_user: LiteUser,
+    context: CouchersContext,
+    *,
+    is_admin_see_ghosts: bool = False,
+    is_get_user_return_ghosts: bool = False,
+) -> api_pb2.LiteUser:
     if not is_admin_see_ghosts and is_not_visible(session, context.user_id, lite_user.id):
         # User is not visible (deleted, banned, or blocked)
         if is_get_user_return_ghosts:

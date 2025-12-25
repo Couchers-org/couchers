@@ -5,7 +5,7 @@ from sqlalchemy.orm import InstrumentedAttribute, aliased
 from sqlalchemy.sql import Select, exists, union
 
 from couchers.context import CouchersContext
-from couchers.models import SignupFlow, User, UserBlock
+from couchers.models import GroupChat, HostRequest, ModerationState, ModerationVisibility, SignupFlow, User, UserBlock
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
 
 if TYPE_CHECKING:
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
     type _UserLike = type[User | LiteUser | SignupFlow]
     type _User = type[User | LiteUser]
+    type _ModeratedContent = type[HostRequest | GroupChat]
 
 
 class CouchersSelect(Select[Any]):
@@ -130,6 +131,88 @@ class CouchersSelect(Select[Any]):
                         )
                     )
                 )
+            )
+        )
+
+    def where_moderated_content_visible_to_user_column(
+        self,
+        table: "_ModeratedContent",
+        user_id_column: InstrumentedAttribute[int],
+        is_list_operation: bool = False,
+    ) -> Self:
+        aliased_mod_state = aliased(ModerationState)
+        conditions = [aliased_mod_state.visibility == ModerationVisibility.VISIBLE]
+
+        # UNLISTED content is visible in single-item operations but not in lists
+        if not is_list_operation:
+            conditions.append(aliased_mod_state.visibility == ModerationVisibility.UNLISTED)
+
+        # Authors can always see their own SHADOWED content
+        conditions.append(
+            and_(
+                aliased_mod_state.visibility == ModerationVisibility.SHADOWED,
+                getattr(table, table.__moderation_author_column__) == user_id_column,
+            )
+        )
+
+        return self.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id).where(or_(*conditions))
+
+    def where_moderated_content_visible(
+        self,
+        context: CouchersContext,
+        table: "_ModeratedContent",
+        is_list_operation: bool = False,
+    ) -> Self:
+        aliased_mod_state = aliased(ModerationState)
+        conditions = [aliased_mod_state.visibility == ModerationVisibility.VISIBLE]
+
+        # UNLISTED content is visible in single-item operations but not in lists
+        if not is_list_operation:
+            conditions.append(aliased_mod_state.visibility == ModerationVisibility.UNLISTED)
+
+        # Authors can always see their own SHADOWED content
+        if context.is_logged_in():
+            conditions.append(
+                and_(
+                    aliased_mod_state.visibility == ModerationVisibility.SHADOWED,
+                    getattr(table, table.__moderation_author_column__) == context.user_id,
+                )
+            )
+
+        return self.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id).where(or_(*conditions))
+
+    def where_moderation_state_column_visible(
+        self,
+        context: CouchersContext,
+        column: InstrumentedAttribute[int | None],
+    ) -> Self:
+        """
+        Filters based on whether the moderation state referenced by the column is visible.
+
+        Use this when you have a moderation_state_id column on a table that's not the moderated
+        content itself (e.g., Notification.moderation_state_id).
+
+        The condition evaluates to True when:
+        - The column is NULL (non-moderated content), OR
+        - The linked content (HostRequest/GroupChat) is visible per where_moderated_content_visible
+
+        TODO: if you use this with a non-null column, check what's going on
+        """
+        hr_visible = exists(
+            couchers_select(HostRequest)
+            .where(HostRequest.moderation_state_id == column)
+            .where_moderated_content_visible(context, HostRequest)
+        )
+        gc_visible = exists(
+            couchers_select(GroupChat)
+            .where(GroupChat.moderation_state_id == column)
+            .where_moderated_content_visible(context, GroupChat)
+        )
+        return self.where(
+            or_(
+                column == None,
+                hr_visible,
+                gc_visible,
             )
         )
 

@@ -21,6 +21,7 @@ export {
   default as CrossIcon,
 } from "@mui/icons-material/CloseOutlined";
 export { default as CommunityLeadersIcon } from "@mui/icons-material/SportsSoccerOutlined";
+export { default as CouchersIcon } from "./CouchersIcon";
 export { default as CouchFilledIcon } from "@mui/icons-material/Weekend";
 export { default as CouchIcon } from "@mui/icons-material/HotelOutlined";
 export { default as DissatisfiedIcon } from "@mui/icons-material/SentimentDissatisfiedOutlined";

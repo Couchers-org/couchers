@@ -128,7 +128,7 @@
                         "os": "En los ajustes de tu dispositivo móvil, ajusta los permisos para permitir notificaciones."
                     }
                 },
-                "platform_settings_description": "¿Todavía tienes problemas tras habilitar las notificaciones push en tu navegador? Puede que necesites modificar tus ajustes de plataforma."
+                "platform_settings_description": "¿Todavía tienes problemas tras habilitar las notificaciones push en tu navegador? Puede que necesites modificar los ajustes de tu sistema."
             },
             "error_unsupported": "Este navegador no soporta notificaciones push o service workers.",
             "title": "Notificaciones Push",

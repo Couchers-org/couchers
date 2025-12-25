@@ -8,11 +8,12 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 
-from couchers.models.base import Base
+from couchers.models.base import Base, Geom
 from couchers.utils import date_in_timezone, now
 
 if TYPE_CHECKING:
     from couchers.models.conversations import Conversation
+    from couchers.models.moderation import ModerationState
     from couchers.models.users import User
 
 
@@ -36,13 +37,17 @@ class HostRequest(Base):
     """
 
     __tablename__ = "host_requests"
+    __moderation_author_column__ = "surfer_user_id"
 
     conversation_id: Mapped[int] = mapped_column("id", ForeignKey("conversations.id"), primary_key=True)
     surfer_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     host_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
+    # Unified Moderation System
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
+
     hosting_city: Mapped[str] = mapped_column(String)
-    hosting_location: Mapped[Geometry] = mapped_column(Geometry("POINT", srid=4326))
+    hosting_location: Mapped[Geom] = mapped_column(Geometry("POINT", srid=4326))
     hosting_radius: Mapped[float] = mapped_column(Float)
 
     # TODO: proper timezone handling
@@ -52,7 +57,7 @@ class HostRequest(Base):
     from_date: Mapped[date] = mapped_column(Date)
     to_date: Mapped[date] = mapped_column(Date)
 
-    # timezone aware start and end times of the request, can be compared to now()
+    # timezone-aware start and end times of the request, can be compared to now()
     start_time = column_property(date_in_timezone(from_date, timezone))  # type: ignore[arg-type]
     end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))  # type: ignore[arg-type]
     start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))  # type: ignore[arg-type]
@@ -86,6 +91,7 @@ class HostRequest(Base):
         "User", backref="host_requests_received", foreign_keys="HostRequest.host_user_id"
     )
     conversation: Mapped["Conversation"] = relationship("Conversation")
+    moderation_state: Mapped["ModerationState"] = relationship("ModerationState")
 
     __table_args__ = (
         # allows fast lookup as to whether they didn't meet up

@@ -43,7 +43,10 @@ def send_expo_push_notification(
             timeout=10,
         )
         response.raise_for_status()
-        return response.json()
+        result = response.json()
+        if not isinstance(result, dict):
+            raise ValueError(f"Expected a dict, but got {result}")
+        return result
     except requests.exceptions.RequestException as exc:
         logger.error("Failed to send Expo push notification: %s", exc)
         sentry_sdk.set_tag("context", "expo_push_api")
@@ -90,7 +93,10 @@ def get_expo_push_receipts(ticket_ids: list[str]) -> dict[str, Any]:
             timeout=10,
         )
         response.raise_for_status()
-        return response.json().get("data", {})
+        result = response.json().get("data", {})
+        if not isinstance(result, dict):
+            raise ValueError(f"Expected a dict, but got {result}")
+        return result
     except requests.exceptions.RequestException as exc:
         logger.error("Failed to fetch Expo push receipts: %s", exc)
         sentry_sdk.set_tag("context", "expo_push_receipts")

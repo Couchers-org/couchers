@@ -107,6 +107,19 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("RECAPTHCA_SITE_KEY", str),
     # Whether we're in test
     ("IN_TEST", bool, "0"),
+    # Experimentation (feature flags via Statsig)
+    ("EXPERIMENTATION_ENABLED", bool, "0"),
+    # When enabled, all feature gates return True (useful for development/testing)
+    ("EXPERIMENTATION_PASS_ALL_GATES", bool, "0"),
+    # Statsig SDK configuration
+    ("STATSIG_SERVER_SECRET_KEY", str, ""),
+    ("STATSIG_ENVIRONMENT", str, "development"),
+    # Moderation auto-approval deadline in seconds (0 to disable auto-approval)
+    ("MODERATION_AUTO_APPROVE_DEADLINE_SECONDS", int),
+    # User ID of the bot user for automated moderation actions
+    ("MODERATION_BOT_USER_ID", int),
+    # Enable development APIs (e.g., SendDevPushNotification)
+    ("ENABLE_DEV_APIS", bool),
 ]
 
 
@@ -133,6 +146,10 @@ def check_config(cfg: dict[str, Any]) -> None:
     if cfg["ENABLE_STRONG_VERIFICATION"]:
         if not cfg["IRIS_ID_PUBKEY"] or not cfg["IRIS_ID_SECRET"] or not cfg["VERIFICATION_DATA_PUBLIC_KEY"]:
             raise Exception("No Iris ID pubkey/secret or verification data pubkey but strong verification enabled")
+
+    if cfg["EXPERIMENTATION_ENABLED"]:
+        if not cfg["STATSIG_SERVER_SECRET_KEY"]:
+            raise Exception("No Statsig server secret key but experimentation enabled")
 
 
 def make_config() -> dict[str, Any]:

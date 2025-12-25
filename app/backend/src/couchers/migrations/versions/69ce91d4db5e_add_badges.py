@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "user_badges",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -33,5 +33,5 @@ def upgrade():
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'badge__remove'")
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

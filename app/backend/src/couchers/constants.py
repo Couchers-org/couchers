@@ -104,3 +104,7 @@ DONATION_DRIVE_START = pytz.UTC.localize(datetime(2025, 11, 1))
 DONATION_GOAL_USD = 5000
 # exclude big donations from Aapeli + Itsi that we're hoping to do without :)
 DONATION_OFFSET_USD = 2000
+
+# Photo gallery limits
+GALLERY_MAX_PHOTOS_NOT_VERIFIED = 1
+GALLERY_MAX_PHOTOS_VERIFIED = 4

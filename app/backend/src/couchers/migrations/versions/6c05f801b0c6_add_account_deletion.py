@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "account_deletion_tokens",
         sa.Column("token", sa.String(), nullable=False),
@@ -47,7 +47,7 @@ def upgrade():
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'purge_password_reset_tokens'")
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint("undelete_nullity")
     op.drop_column("users", "undelete_until")
     op.drop_column("users", "undelete_token")

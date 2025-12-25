@@ -8,7 +8,7 @@ import { theme } from "theme";
 import { MAX_ZOOM_LEVEL, MIN_ZOOM_LEVEL } from "./utils/constants";
 
 interface ZoomControlProps {
-  mapRef: React.RefObject<MapRef>;
+  mapRef: React.RefObject<MapRef | null>;
   onZoomIn: (newZoom: number) => void;
   onZoomOut: (newZoom: number) => void;
   isZoomFromControlRef: React.MutableRefObject<boolean>;

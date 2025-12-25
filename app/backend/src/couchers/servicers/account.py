@@ -25,6 +25,7 @@ from couchers.crypto import (
     verify_password,
     verify_token,
 )
+from couchers.experimentation import check_gate
 from couchers.helpers.geoip import geoip_approximate_location
 from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
 from couchers.jobs.enqueue import queue_job
@@ -160,6 +161,11 @@ class Account(account_pb2_grpc.AccountServicer):
             select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
         ).one()
 
+        # Test experimentation integration - check if user is in the test gate
+        # Create 'test_statsig_integration' in Statsig console to test
+        test_gate = check_gate(context, "test_statsig_integration")
+        logger.info(f"Experimentation gate 'test_statsig_integration' for user {user.id}: {test_gate}")
+
         should_show_donation_banner = DONATION_DRIVE_START is not None and (
             user.last_donated is None or user.last_donated < DONATION_DRIVE_START
         )
@@ -204,6 +210,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session,
             user_id=user.id,
             topic_action="password:change",
+            key="",
         )
 
         return empty_pb2.Empty()
@@ -247,6 +254,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session,
             user_id=user.id,
             topic_action="email_address:change",
+            key="",
             data=notification_data_pb2.EmailAddressChange(
                 new_email=request.new_email,
             ),
@@ -340,6 +348,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 session,
                 user_id=user.id,
                 topic_action="phone_number:change",
+                key="",
                 data=notification_data_pb2.PhoneNumberChange(
                     phone=phone,
                 ),
@@ -394,6 +403,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session,
             user_id=user.id,
             topic_action="phone_number:verify",
+            key="",
             data=notification_data_pb2.PhoneNumberVerify(
                 phone=user.phone,
             ),
@@ -408,7 +418,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "strong_verification_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        existing_verification: StrongVerificationAttempt = session.execute(
+        existing_verification = session.execute(
             select(StrongVerificationAttempt)
             .where(StrongVerificationAttempt.user_id == user.id)
             .where(StrongVerificationAttempt.is_valid)
@@ -544,10 +554,10 @@ class Account(account_pb2_grpc.AccountServicer):
 
         reason = request.reason.strip()
         if reason:
-            reason = AccountDeletionReason(user_id=user.id, reason=reason)
-            session.add(reason)
+            deletion_reason = AccountDeletionReason(user_id=user.id, reason=reason)
+            session.add(deletion_reason)
             session.flush()
-            send_account_deletion_report_email(session, reason)
+            send_account_deletion_report_email(session, deletion_reason)
 
         token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
 
@@ -555,6 +565,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session,
             user_id=user.id,
             topic_action="account_deletion:start",
+            key="",
             data=notification_data_pb2.AccountDeletionStart(
                 deletion_token=token.token,
             ),
@@ -598,7 +609,7 @@ class Account(account_pb2_grpc.AccountServicer):
             .all()
         )
 
-        def _active_session_to_pb(user_session):
+        def _active_session_to_pb(user_session: UserSession) -> account_pb2.ActiveSession:
             user_agent = user_agents_parse(user_session.user_agent or "")
             return account_pb2.ActiveSession(
                 created=Timestamp_from_datetime(user_session.created),
@@ -648,7 +659,9 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         return empty_pb2.Empty()
 
-    def SetProfilePublicVisibility(self, request, context, session):
+    def SetProfilePublicVisibility(
+        self, request: account_pb2.SetProfilePublicVisibilityReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]
         user.has_modified_public_visibility = True
@@ -719,6 +732,7 @@ class Account(account_pb2_grpc.AccountServicer):
             select(HostRequest.conversation_id, LiteUser)
             .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
             .where_users_column_visible(context, HostRequest.surfer_user_id)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
             .where(HostRequest.host_user_id == context.user_id)
             .where(HostRequest.status == HostRequestStatus.pending)
             .where(HostRequest.start_time > func.now())

@@ -96,7 +96,7 @@
 
 <body style="word-spacing:normal;background-color:#eeeeee;">
   <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">{{ preview }}</div>
-  <div style="background-color:#eeeeee;" lang="und" dir="auto">
+  <div aria-label="{{ subject }}" aria-roledescription="email" style="background-color:#eeeeee;" role="article" lang="und" dir="auto">
     <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
     <div style="margin:0px auto;max-width:600px;">
       <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
@@ -110,11 +110,11 @@
       </table>
     </div>
     <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="body-outlook" role="presentation" style="width:600px;" width="600" bgcolor="#ffffff" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
-    <div class="body" style="background:#ffffff;background-color:#ffffff;margin:0px auto;border-radius:5px;max-width:600px;">
-      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#ffffff;background-color:#ffffff;width:100%;border-radius:5px;">
+    <div class="body" style="background:#ffffff;background-color:#ffffff;margin:0px auto;max-width:600px;border-radius:5px;overflow:hidden;">
+      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#ffffff;background-color:#ffffff;width:100%;border-collapse:separate;">
         <tbody>
           <tr>
-            <td style="direction:ltr;font-size:0px;padding:20px;text-align:center;">
+            <td style="border-radius:5px;direction:ltr;font-size:0px;padding:20px;text-align:center;">
               <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:560px;" width="560" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
               <div style="margin:0px auto;max-width:560px;">
                 <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
@@ -167,22 +167,22 @@
                             <tbody>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">Dear {{ user.name|v2esc }},</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ "dear_name"|v2translate(name=user.name) }}</div>
                                 </td>
                               </tr>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">Thank you so much for your donation of ${{ amount|v2esc }} to Couchers.org.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ "donation_received_thanks_amount"|v2translate(amount=amount) }}</div>
                                 </td>
                               </tr>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ "donation_received_purpose"|v2translate }}</div>
                                 </td>
                               </tr>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">You can download an invoice and receipt for the donation here:</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ "donation_received_invoice_receipt_info"|v2translate }}</div>
                                 </td>
                               </tr>
                             </tbody>
@@ -211,7 +211,7 @@
                                       <tr>
                                         <td align="center" bgcolor="#00a398" role="presentation" style="border:none;border-radius:5px;cursor:auto;mso-padding-alt:10px 25px;background:#00a398;" valign="middle">
                                           <a href="{{ receipt_url|v2url }}" style="display: inline-block; background: #00a398; color: white; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 5px;" target="_blank">
-                                            <b>Download invoice</b>
+                                            <b>{{ "donation_received_download_invoice"|v2translate }}</b>
                                           </a>
                                         </td>
                                       </tr>
@@ -240,22 +240,22 @@
                             <tbody>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">If you have any questions about your donation, please email us at <a href="mailto:donations@couchers.org" style="color: #00a398;">donations@couchers.org</a>.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ "donation_received_questions_contact"|v2translate }}</div>
                                 </td>
                               </tr>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">Your generosity will help deliver the platform for everyone.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ "donation_received_generosity_helps"|v2translate }}</div>
                                 </td>
                               </tr>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;"><b>Thank you!</b></div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;"><b>{{ "thank_you"|v2translate }}</b></div>
                                 </td>
                               </tr>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">Aapeli and Itsi,<br>Couchers.org Founders</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">{{ "founders_signature"|v2translate }}</div>
                                 </td>
                               </tr>
                             </tbody>
@@ -329,7 +329,9 @@
                   <tbody>
                     <tr>
                       <td align="center" class="unsub" style="font-size:0px;padding:0px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:16px;text-align:center;color:#777777;">___UNSUB_SECTION___</div>
+                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:16px;text-align:center;color:#777777;">{% if footer_email_is_critical %} This is a security email, you cannot unsubscribe from it. {% else %} <a href="{{footer_manage_notifications_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Manage notification preferences</a>. {% if footer_notification_topic_action or footer_notification_topic_key %} <br> Turn off emails for: {% if footer_notification_topic_action %} <a href="{{footer_notification_topic_action_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{footer_notification_topic_action}}</a> {% endif %} {% if footer_notification_topic_key %} {% if footer_notification_topic_action %} / {% endif %} <a href="{{footer_notification_topic_key_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">{{footer_notification_topic_key}}</a> {% endif %} {% endif %} <br>
+                          <a href="{{footer_do_not_email_link}}" style="color: #777; text-decoration: underline; text-decoration-color: #ccc;">Do not email me (disables hosting)</a>. {% endif %}
+                        </div>
                       </td>
                     </tr>
                     <tr>

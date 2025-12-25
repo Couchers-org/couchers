@@ -23,7 +23,7 @@ import {
 interface MapViewProps {
   isDrawerExpanded: boolean;
   isLoading: boolean;
-  mapRef: React.RefObject<MapRef>;
+  mapRef: React.RefObject<MapRef | null>;
   onZoomIn: (newZoom: number, center?: LngLatLike) => void;
   onZoomOut: (newZoom: number) => void;
   users: SearchUser.AsObject[] | undefined;

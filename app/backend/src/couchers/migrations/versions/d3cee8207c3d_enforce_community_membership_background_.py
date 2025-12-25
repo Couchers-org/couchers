@@ -15,9 +15,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'enforce_community_membership'")
 
 
-def downgrade():
+def downgrade() -> None:
     pass

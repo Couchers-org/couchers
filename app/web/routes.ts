@@ -33,6 +33,7 @@ export const donationsRoute = "/donate";
 export const builtWithRoute = "/open-source";
 export const contactRoute = "/contact";
 export const roadmapRoute = "/roadmap";
+export const shopRoute = "/shop";
 export const whatIsCouchSurfingRoute = "/what-is-couch-surfing";
 
 export const loginRoute = "/login";
@@ -216,3 +217,6 @@ export const latestFinancialsURL =
 
 export const communityCreationFormURL = (username?: string) =>
   `https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1&username=${username || ""}`;
+
+export const volunteerNotAVolunteerFormUrl =
+  "mailto:support@couchers.org?subject=Please%20add%20me%20to%20the%20volunteer%20page";

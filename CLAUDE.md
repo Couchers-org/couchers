@@ -50,6 +50,7 @@ make mypy
 - Do not use `session.get(...)`. Use `session.execute(select(...))` instead
 - For URLs, use `from couchers import urls` and then `urls.whatever()`
 - Always import `from couchers.sql import couchers_select as select` instead of something else
+- To filter out invisible users (deleted/banned/blocked), use the helper methods from `couchers_select`: `where_users_visible(context)` when User is already joined, `where_users_column_visible(context, column)` when you have a user_id column, or `where_users_visible_to_each_other(user1, user2)` for mutual visibility. Never use `User.is_visible` directly in queries
 
 ### Web (TypeScript/React)
 - Uses `nvm` for node version management
@@ -71,6 +72,7 @@ make mypy
 - Use `session_scope()` for database access
 - Use fixtures from `test_fixtures.py` (e.g., `generate_user()`, `push_collector`)
 - Mock external APIs with `unittest.mock.patch`
+- Background jobs don't run automatically in tests - use `process_job()` to manually execute queued jobs
 
 ### Web Tests
 - Use fixture data from `test/fixtures/` when available

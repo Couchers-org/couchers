@@ -365,8 +365,14 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
             email_list_unsubscribe_url=generate_unsub_topic_action(notification),
         )
     elif notification.topic_action.display == "donation:received":
-        title = "Thank you for your donation to Couchers.org!"
-        message = f"Thank you so much for your donation of ${data.amount} to Couchers.org."
+        title = get_localized_string("notifications", "donation_received_title")
+        message = get_localized_string(
+            "notifications",
+            "donation_received_thanks_amount",
+            substitutions={
+                "amount": data.amount,
+            },
+        )
         return RenderedNotification(
             is_critical=True,
             email_subject=title,
@@ -877,7 +883,6 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
         )
     elif notification.topic_action.display == "verification:sv_fail":
         title = "Strong Verification failed"
-        reason_message: str
         if data.reason == notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
             reason_message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
         elif data.reason == notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
@@ -937,7 +942,6 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
             )
         elif notification.action == "failed":
             title = "Postal Verification failed"
-            reason_message: str
             if data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED:
                 reason_message = "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can start a new verification attempt."
             elif data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS:

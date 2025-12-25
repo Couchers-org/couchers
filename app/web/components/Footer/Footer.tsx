@@ -36,6 +36,7 @@ import {
   planRoute,
   redditURL,
   roadmapRoute,
+  shopRoute,
   teamRoute,
   tosRoute,
   volunteerRoute,
@@ -196,6 +197,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <FooterLink href={newsletterSignupURL}>
               {t("nav.newsletter")}
             </FooterLink>
+            <FooterLink href={shopRoute}>{t("nav.merch_shop")}</FooterLink>
           </div>
           <div>
             <Typography variant="h4" component="h4">
@@ -298,9 +300,19 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
               }}
             >
               Version{" "}
-              <VersionLink href={version_link}>{version_text}</VersionLink>,
-              last updated{" "}
-              <VersionLink href={updated_ago_link}>
+              <VersionLink
+                href={version_link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {version_text}
+              </VersionLink>
+              , last updated{" "}
+              <VersionLink
+                href={updated_ago_link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {updated_ago_text}
               </VersionLink>
               .

@@ -184,7 +184,7 @@ export default function EventForm({
           error={!!errors.title}
           fullWidth
           helperText={errors.title?.message || ""}
-          label={t("global:title")}
+          label={t("communities:event_title_label")}
           variant="standard"
         />
         <EventTimeChanger

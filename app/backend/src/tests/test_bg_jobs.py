@@ -52,6 +52,7 @@ from tests.test_fixtures import (  # noqa
     generate_user,
     make_friends,
     make_user_block,
+    moderator,
     process_jobs,
     push_collector,
     requests_session,
@@ -465,7 +466,7 @@ def test_no_jobs_no_problem(db):
         assert session.execute(select(func.count()).select_from(BackgroundJob)).scalar_one() == 0
 
 
-def test_send_message_notifications_basic(db):
+def test_send_message_notifications_basic(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -487,20 +488,26 @@ def test_send_message_notifications_basic(db):
         )
 
     with conversations_session(token1) as c:
-        group_chat_id = c.CreateGroupChat(
+        group_chat_id1 = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
         ).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 4"))
+    moderator.approve_group_chat(group_chat_id1)
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 2"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 3"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id1, text="Test message 4"))
 
     with conversations_session(token3) as c:
-        group_chat_id = c.CreateGroupChat(
+        group_chat_id2 = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
         ).group_chat_id
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
-        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
+    moderator.approve_group_chat(group_chat_id2)
+
+    with conversations_session(token3) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id2, text="Test message 5"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id2, text="Test message 6"))
 
     send_message_notifications(empty_pb2.Empty())
     process_jobs()
@@ -543,7 +550,7 @@ def test_send_message_notifications_basic(db):
         )
 
 
-def test_send_message_notifications_muted(db):
+def test_send_message_notifications_muted(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -568,6 +575,7 @@ def test_send_message_notifications_muted(db):
         group_chat_id = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
         ).group_chat_id
+    moderator.approve_group_chat(group_chat_id)
 
     with conversations_session(token3) as c:
         # mute it for user 3
@@ -583,6 +591,7 @@ def test_send_message_notifications_muted(db):
         group_chat_id = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
         ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 5"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 6"))
 
@@ -627,7 +636,7 @@ def test_send_message_notifications_muted(db):
         )
 
 
-def test_send_request_notifications_host_request(db):
+def test_send_request_notifications_host_request(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -648,6 +657,7 @@ def test_send_request_notifications_host_request(db):
                 host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
             )
         ).host_request_id
+    moderator.approve_host_request(host_request_id)
 
     with session_scope() as session:
         # delete send_email BackgroundJob created by CreateHostRequest
@@ -718,7 +728,7 @@ def test_send_request_notifications_host_request(db):
         )
 
 
-def test_send_message_notifications_seen(db):
+def test_send_message_notifications_seen(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -739,6 +749,7 @@ def test_send_message_notifications_seen(db):
         group_chat_id = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
         ).group_chat_id
+        moderator.approve_group_chat(group_chat_id)
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 3"))
@@ -948,7 +959,7 @@ def test_send_reference_reminders(db):
                 assert find in html, f"Expected to find string {find} in HTML email {subject} to {address}, didn't"
 
 
-def test_send_host_request_reminders(db):
+def test_send_host_request_reminders(db, moderator):
     user1, token1 = generate_user(email="user1@couchers.org.invalid", name="User 1")
     user2, token2 = generate_user(email="user2@couchers.org.invalid", name="User 2")
     user3, token3 = generate_user(email="user3@couchers.org.invalid", name="User 3")
@@ -1059,6 +1070,15 @@ def test_send_host_request_reminders(db):
             )
         )
 
+    # Approve host requests so they're visible for notifications
+    moderator.approve_host_request(hr1)
+    moderator.approve_host_request(hr2)
+    moderator.approve_host_request(hr3)
+    moderator.approve_host_request(hr4)
+    moderator.approve_host_request(hr5)
+    moderator.approve_host_request(hr6)
+    moderator.approve_host_request(hr7)
+
     send_host_request_reminders(empty_pb2.Empty())
 
     while process_job():
@@ -1158,12 +1178,12 @@ def test_update_recommendation_scores(db):
 
 
 def test_update_badges(db, push_collector):
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
-    user4, _ = generate_user(phone="+15555555555", phone_verification_verified=func.now())
-    user5, _ = generate_user(phone="+15555555556", phone_verification_verified=func.now())
-    user6, _ = generate_user()
+    user1, _ = generate_user(last_donated=None)
+    user2, _ = generate_user(last_donated=None)
+    user3, _ = generate_user(last_donated=None)
+    user4, _ = generate_user(phone="+15555555555", phone_verification_verified=func.now(), last_donated=None)
+    user5, _ = generate_user(phone="+15555555556", phone_verification_verified=func.now(), last_donated=None)
+    user6, _ = generate_user(last_donated=None)
 
     with session_scope() as session:
         session.add(UserBadge(user_id=user5.id, badge_id="board_member"))
@@ -1233,7 +1253,7 @@ def test_update_badges(db, push_collector):
     )
 
 
-def test_send_request_notifications_blocked_users_no_notification(db):
+def test_send_request_notifications_blocked_users_no_notification(db, moderator):
     """
     Regression test: send_request_notifications should not send notifications
     when the host and surfer are not visible to each other (e.g., one blocked the other).
@@ -1251,6 +1271,7 @@ def test_send_request_notifications_blocked_users_no_notification(db):
                 host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
             )
         ).host_request_id
+    moderator.approve_host_request(host_request_id)
 
     with session_scope() as session:
         # delete send_email BackgroundJob created by CreateHostRequest
@@ -1310,7 +1331,7 @@ def test_send_request_notifications_blocked_users_no_notification(db):
         ), "No notification email should be sent when surfer has blocked host"
 
 
-def test_send_host_request_reminders_blocked_users_no_notification(db):
+def test_send_host_request_reminders_blocked_users_no_notification(db, moderator):
     """
     send_host_request_reminders should not send notifications when the host and surfer are not visible to each other
     (e.g., one blocked the other).
@@ -1330,6 +1351,9 @@ def test_send_host_request_reminders_blocked_users_no_notification(db):
             host_sent_request_reminders=0,
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
+
+    # Approve the host request so it's visible for notifications
+    moderator.approve_host_request(hr)
 
     # Verify that without blocking, a reminder would be sent
     send_host_request_reminders(empty_pb2.Empty())
@@ -1365,7 +1389,7 @@ def test_send_host_request_reminders_blocked_users_no_notification(db):
         assert len(emails) == 0, "No reminder email should be sent when host has blocked surfer"
 
 
-def test_send_message_notifications_blocked_users_no_notification(db):
+def test_send_message_notifications_blocked_users_no_notification(db, moderator):
     """
     Regression test: send_message_notifications should not send notifications
     for messages from users who are blocked by the recipient.
@@ -1380,6 +1404,11 @@ def test_send_message_notifications_blocked_users_no_notification(db):
         group_chat_id = c.CreateGroupChat(
             conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
         ).group_chat_id
+
+    # Approve the group chat so it's visible for notifications
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(token1) as c:
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
         c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
 
@@ -1429,12 +1458,12 @@ def test_send_message_notifications_blocked_users_no_notification(db):
 def test_update_badges_volunteers(db, push_collector):
     """Test that volunteer and past_volunteer badges are automatically granted based on Volunteer model."""
     # Create 6 users - users 1 and 2 get founder/board_member badges from static_badges
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
-    user4, _ = generate_user()
-    user5, _ = generate_user()
-    user6, _ = generate_user()
+    user1, _ = generate_user(last_donated=None)
+    user2, _ = generate_user(last_donated=None)
+    user3, _ = generate_user(last_donated=None)
+    user4, _ = generate_user(last_donated=None)
+    user5, _ = generate_user(last_donated=None)
+    user6, _ = generate_user(last_donated=None)
 
     with session_scope() as session:
         # user3: active volunteer (stopped_volunteering is null)
@@ -1511,9 +1540,9 @@ def test_update_badges_volunteers(db, push_collector):
 def test_update_badges_volunteer_status_change(db, push_collector):
     """Test that badge is updated when volunteer status changes from active to past."""
     # Create users - users 1 and 2 get founder/board_member badges from static_badges
-    user1, _ = generate_user()
-    user2, _ = generate_user()
-    user3, _ = generate_user()
+    user1, _ = generate_user(last_donated=None)
+    user2, _ = generate_user(last_donated=None)
+    user3, _ = generate_user(last_donated=None)
 
     with session_scope() as session:
         # user3: start as active volunteer

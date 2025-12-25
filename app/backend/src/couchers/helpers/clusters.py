@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from geoalchemy2.shape import from_shape
 from shapely.geometry.base import BaseGeometry
 from sqlalchemy.orm import Session
@@ -8,7 +10,7 @@ DEFAULT_PAGE_CONTENT = "There is nothing here yet..."
 DEFAULT_PAGE_TITLE_TEMPLATE = "Main page for the {name} {type}"
 
 
-def create_node(session: Session, geom: BaseGeometry, parent_node_id: int) -> Node:
+def create_node(session: Session, geom: BaseGeometry, parent_node_id: int | None) -> Node:
     node = Node(geom=from_shape(geom), parent_node_id=parent_node_id)
     session.add(node)
     session.flush()
@@ -21,7 +23,7 @@ def create_cluster(
     name: str,
     description: str,
     creator_user_id: int,
-    admin_ids: list[int],
+    admin_ids: Sequence[int],
     is_community: bool,
 ) -> Cluster:
     cluster_type = "community" if is_community else "group"

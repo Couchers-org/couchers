@@ -1,8 +1,12 @@
-import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { Href, useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
+  BackHandler,
   Image,
+  Linking,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -31,9 +35,38 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const colorScheme = useColorScheme();
   const webviewRef = useRef<WebView>(null);
   const router = useRouter();
+  const { t, i18n } = useTranslation();
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
   const [hasError, setHasError] = useState(false);
+  const [canGoBack, setCanGoBack] = useState(false);
+
+  // Track the current WebView URL to detect when it drifts from the expected path
+  const currentWebPathRef = useRef<string>(path);
+
+  // Handle Android hardware back button - go back in WebView if possible
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== "android") {
+        return;
+      }
+
+      const onBackPress = () => {
+        if (canGoBack && webviewRef.current) {
+          webviewRef.current.goBack();
+          return true; // Prevent default back behavior
+        }
+        return false; // Let native navigation handle it
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
+
+      return () => subscription.remove();
+    }, [canGoBack]),
+  );
 
   const backgroundColor =
     colorScheme === "dark"
@@ -45,10 +78,60 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     webviewRef.current?.reload();
   };
 
-  const handleNavigationStateChange = (navState: WebViewNavigation) => {
-    const { url } = navState;
+  // When this screen gains focus, ensure WebView shows the correct path
+  useFocusEffect(
+    useCallback(() => {
+      // Compare full path including query params to handle search filters
+      if (currentWebPathRef.current !== path) {
+        const targetUrl = WEB_BASE_URL + path;
+        webviewRef.current?.injectJavaScript(
+          `window.location.href = "${targetUrl}"; true;`,
+        );
+        currentWebPathRef.current = path;
+      }
+    }, [path, WEB_BASE_URL]),
+  );
 
-    if (!url) {
+  // Extract locale from web path (e.g., "/de/dashboard" -> "de", "/zh-Hans/search" -> "zh-Hans")
+  const extractLocaleFromPath = (webPath: string): string | null => {
+    const match = webPath.match(/^\/([a-z]{2}(-[A-Z][a-z]+)?)\//);
+    return match ? match[1] : null;
+  };
+
+  // Map web paths to native route names
+  const getRouteNameForPath = (webPath: string): string | null => {
+    // Strip locale prefix if present (e.g., "/de/dashboard" -> "/dashboard")
+    const pathWithoutLocale = webPath.replace(
+      /^\/[a-z]{2}(-[A-Z][a-z]+)?\//,
+      "/",
+    );
+
+    // Main tab routes (visible in tab bar)
+    if (pathWithoutLocale.startsWith("/dashboard")) return "dashboard";
+    if (pathWithoutLocale.startsWith("/messages")) return "messages";
+    if (pathWithoutLocale.startsWith("/search")) return "search";
+    if (pathWithoutLocale.startsWith("/communities")) return "communities";
+    if (pathWithoutLocale.startsWith("/events")) return "events";
+
+    // Special routes
+    if (pathWithoutLocale.startsWith("/md/")) return "md/[...slug]";
+
+    // Catch-all for other routes
+    if (pathWithoutLocale.startsWith("/")) {
+      // Return the slug route for any other path
+      return "[...slug]";
+    }
+
+    return null;
+  };
+
+  const handleNavigationStateChange = (navState: WebViewNavigation) => {
+    const { url, loading, canGoBack: webViewCanGoBack } = navState;
+
+    // Track whether WebView can go back (for Android back button handling)
+    setCanGoBack(webViewCanGoBack);
+
+    if (!url || loading) {
       return;
     }
 
@@ -57,6 +140,46 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     // Prevent navigation to external sites
     if (!normalizedUrl.startsWith(WEB_BASE_URL)) {
       webviewRef.current?.stopLoading();
+      return;
+    }
+
+    // Track the current web path (strip query params for tab comparison)
+    const webPath: string = normalizedUrl.replace(WEB_BASE_URL, "") || "/";
+    const webPathWithoutQuery = webPath.split("?")[0];
+    currentWebPathRef.current = webPath;
+
+    // Extract locale from URL and sync with mobile app's i18n
+    const webLocale = extractLocaleFromPath(webPathWithoutQuery);
+    if (webLocale && webLocale !== i18n.language) {
+      i18n.changeLanguage(webLocale).catch((err) => {
+        if (__DEV__) {
+          console.error("Failed to change mobile app language:", err);
+        }
+      });
+    }
+
+    // Sync native route when WebView navigates to a different page
+    const targetRoute = getRouteNameForPath(webPathWithoutQuery);
+    const currentRoute = getRouteNameForPath(path);
+
+    // Navigate native router when the route changes
+    // Only sync for main tab routes - catch-all routes don't need native navigation
+    if (
+      targetRoute !== currentRoute &&
+      targetRoute &&
+      targetRoute !== "[...slug]"
+    ) {
+      if (targetRoute === "md/[...slug]") {
+        // For markdown routes, pass the full path including /md/
+        router.navigate(webPathWithoutQuery as Href);
+      } else {
+        // For main tab routes, preserve query parameters
+        // Extract query string from the full web path
+        const queryString = webPath.includes("?")
+          ? webPath.substring(webPath.indexOf("?"))
+          : "";
+        router.navigate(`/${targetRoute}${queryString}` as Href);
+      }
     }
   };
 
@@ -72,7 +195,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       } else if (payload?.type === "LOGOUT") {
         // Web app says user logged out - clear mobile state and navigate to login
         markLoggedOut();
-        router.replace("/login");
+        router.replace("/login" as Href);
       }
     } catch (error) {
       // Silently ignore non-JSON messages (expected from browser/WebView internals)
@@ -83,6 +206,18 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     }
   };
 
+  const handleOpenWindow = (syntheticEvent: {
+    nativeEvent: { targetUrl: string };
+  }) => {
+    const { targetUrl } = syntheticEvent.nativeEvent;
+    // Open target="_blank" links in device's browser (Safari/Chrome)
+    Linking.openURL(targetUrl).catch((err) => {
+      if (__DEV__) {
+        console.error("Failed to open external link:", err);
+      }
+    });
+  };
+
   // Show error screen
   if (hasError) {
     return (
@@ -90,18 +225,18 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         <View style={{ height: insets.top, backgroundColor }} />
         <View style={styles.errorContainer}>
           <Image source={errorGraphic} style={styles.errorImage} />
-          <Text style={styles.errorTitle}>Failed to load</Text>
-          <Text style={styles.errorText}>
-            Check your internet connection and try again.
-          </Text>
+          <Text style={styles.errorTitle}>{t("errors.failed_to_load")}</Text>
+          <Text style={styles.errorText}>{t("errors.check_connection")}</Text>
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t("errors.try_again")}
             style={({ pressed }) => [
               styles.retryButton,
               pressed && styles.retryButtonPressed,
             ]}
             onPress={handleRetry}
           >
-            <Text style={styles.retryButtonText}>Try Again</Text>
+            <Text style={styles.retryButtonText}>{t("errors.try_again")}</Text>
           </Pressable>
         </View>
       </View>
@@ -115,6 +250,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         ref={webviewRef}
         style={styles.webview}
         source={{ uri: WEB_BASE_URL + path }}
+        allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled
         cacheEnabled
         cacheMode="LOAD_CACHE_ELSE_NETWORK"
@@ -129,6 +265,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         )}
         onNavigationStateChange={handleNavigationStateChange}
         injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
+        onOpenWindow={handleOpenWindow}
         onMessage={handleMessage}
         onError={(syntheticEvent) => {
           setHasError(true);

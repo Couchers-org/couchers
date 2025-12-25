@@ -15,6 +15,7 @@ from couchers.constants import DATETIME_INFINITY
 from couchers.context import CouchersContext, make_one_off_interactive_user_context
 from couchers.crypto import UNSUBSCRIBE_KEY_NAME, b64encode, generate_hash_signature, get_secret, verify_hash_signature
 from couchers.models import (
+    GroupChat,
     GroupChatSubscription,
     HostingStatus,
     MeetupStatus,
@@ -115,6 +116,8 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
             group_chat_id = int(key)
             subscription = session.execute(
                 select(GroupChatSubscription)
+                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+                .where_moderated_content_visible(context, GroupChat, is_list_operation=False)
                 .where(GroupChatSubscription.group_chat_id == group_chat_id)
                 .where(GroupChatSubscription.user_id == user.id)
                 .where(GroupChatSubscription.left == None)
@@ -129,7 +132,7 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
         else:
             context.abort_with_error_code(grpc.StatusCode.UNIMPLEMENTED, "cant_unsub_topic")
     if payload.HasField("host_request_quick_decline"):
-        Requests().RespondHostRequest(  # type: ignore[no-untyped-call]
+        Requests().RespondHostRequest(
             request=requests_pb2.RespondHostRequestReq(
                 host_request_id=payload.host_request_quick_decline.host_request_id,
                 status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,

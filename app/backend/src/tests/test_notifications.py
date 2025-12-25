@@ -6,6 +6,7 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
 
+from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
@@ -46,6 +47,7 @@ from tests.test_fixtures import (  # noqa
     email_fields,
     generate_user,
     mock_notification_email,
+    moderator,
     notifications_session,
     process_jobs,
     push_collector,
@@ -87,6 +89,7 @@ def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
             session,
             user_id=user.id,
             topic_action=topic_action.display,
+            key="",
             data=notification_data_pb2.BadgeAdd(
                 badge_id="volunteer",
                 badge_name="Active Volunteer",
@@ -164,6 +167,7 @@ def test_unsubscribe(db):
                 session,
                 user_id=user.id,
                 topic_action=topic_action.display,
+                key="",
                 data=notification_data_pb2.BadgeAdd(
                     badge_id="volunteer",
                     badge_name="Active Volunteer",
@@ -213,6 +217,7 @@ def test_unsubscribe(db):
                 session,
                 user_id=user.id,
                 topic_action=topic_action.display,
+                key="",
                 data=notification_data_pb2.BadgeAdd(
                     badge_id="volunteer",
                     badge_name="Active Volunteer",
@@ -325,7 +330,7 @@ def test_set_do_not_email(db):
         assert not user.do_not_email
 
 
-def test_list_notifications(db, push_collector):
+def test_list_notifications(db, push_collector, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -340,7 +345,7 @@ def test_list_notifications(db, push_collector):
 
     assert n.topic == "friend_request"
     assert n.action == "create"
-    assert n.key == "2"
+    assert n.key == str(user2.id)
     assert n.title == f"{user2.name} wants to be your friend"
     assert n.body == f"You've received a friend request from {user2.name}"
     assert n.icon.startswith("http://localhost:5001/img/thumbnail/")
@@ -349,6 +354,7 @@ def test_list_notifications(db, push_collector):
     with conversations_session(token2) as c:
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user1.id]))
         group_chat_id = res.group_chat_id
+        moderator.approve_group_chat(group_chat_id)
         for i in range(17):
             c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text=f"Test message {i}"))
 
@@ -618,6 +624,7 @@ def test_event_reminder_email_sent(db):
                 session,
                 user_id=user.id,
                 topic_action="event:reminder",
+                key="",
                 data=notification_data_pb2.EventReminder(
                     event=events_pb2.Event(
                         event_id=1,
@@ -1039,6 +1046,101 @@ def test_check_expo_push_receipts_skips_already_checked(db):
     with patch("couchers.notifications.expo_api.requests.post") as mock_post:
         check_expo_push_receipts(empty_pb2.Empty())
         mock_post.assert_not_called()
+
+
+def test_SendDevPushNotification_success(db, push_collector):
+    """Test SendDevPushNotification sends push with all specified parameters."""
+    user, token = generate_user()
+
+    # Enable dev APIs for this test
+    config["ENABLE_DEV_APIS"] = True
+
+    with notifications_session(token) as notifications:
+        notifications.SendDevPushNotification(
+            notifications_pb2.SendDevPushNotificationReq(
+                title="Test Dev Title",
+                body="Test dev notification body",
+                icon="https://example.com/icon.png",
+                url="https://example.com/action",
+                key="test-key",
+                ttl=3600,
+            )
+        )
+
+    push_collector.assert_user_has_single_matching(
+        user.id,
+        title="Test Dev Title",
+        body="Test dev notification body",
+        icon="https://example.com/icon.png",
+        url="https://example.com/action",
+        topic_action="adhoc:testing",
+        key="test-key",
+        ttl=3600,
+    )
+
+
+def test_SendDevPushNotification_minimal(db, push_collector):
+    """Test SendDevPushNotification with minimal parameters."""
+    user, token = generate_user()
+
+    config["ENABLE_DEV_APIS"] = True
+
+    with notifications_session(token) as notifications:
+        notifications.SendDevPushNotification(
+            notifications_pb2.SendDevPushNotificationReq(
+                title="Minimal Title",
+                body="Minimal body",
+            )
+        )
+
+    push_collector.assert_user_has_single_matching(
+        user.id,
+        title="Minimal Title",
+        body="Minimal body",
+        topic_action="adhoc:testing",
+    )
+
+
+def test_SendDevPushNotification_disabled(db, push_collector):
+    """Test SendDevPushNotification fails when ENABLE_DEV_APIS is disabled."""
+    user, token = generate_user()
+
+    # Ensure dev APIs are disabled (default in tests)
+    config["ENABLE_DEV_APIS"] = False
+
+    with notifications_session(token) as notifications:
+        with pytest.raises(grpc.RpcError) as e:
+            notifications.SendDevPushNotification(
+                notifications_pb2.SendDevPushNotificationReq(
+                    title="Should Fail",
+                    body="This should not be sent",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+        assert "Development APIs are not enabled" in e.value.details()
+
+    push_collector.assert_user_has_count(user.id, 0)
+
+
+def test_SendDevPushNotification_push_notifications_disabled(db, push_collector):
+    """Test SendDevPushNotification fails when push notifications are disabled."""
+    user, token = generate_user()
+
+    config["ENABLE_DEV_APIS"] = True
+    config["PUSH_NOTIFICATIONS_ENABLED"] = False
+
+    with notifications_session(token) as notifications:
+        with pytest.raises(grpc.RpcError) as e:
+            notifications.SendDevPushNotification(
+                notifications_pb2.SendDevPushNotificationReq(
+                    title="Should Fail",
+                    body="This should not be sent",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+        assert "Push notifications are currently disabled" in e.value.details()
+
+    push_collector.assert_user_has_count(user.id, 0)
 
 
 def test_check_expo_push_receipts_skips_too_recent(db):

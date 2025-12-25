@@ -1,4 +1,5 @@
 import "react-native-reanimated";
+import "@/i18n";
 
 import {
   Ubuntu_300Light,
@@ -17,7 +18,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
-import { Stack } from "expo-router";
+import { Href, Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -57,10 +58,20 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
     return null;
   }
 
+  // Using Stack.Protected with guard prop is the recommended Expo Router pattern
+  // for auth flows. When the guard condition changes, Expo Router automatically:
+  // - Removes screens that are no longer accessible
+  // - Resets the navigation state appropriately
+  // - Prevents back navigation to screens that shouldn't be accessible
+  // This eliminates the need for manual CommonActions.reset or setTimeout hacks
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="login" redirect={authenticated} />
-      <Stack.Screen name="(tabs)" redirect={!authenticated} />
+      <Stack.Protected guard={authenticated}>
+        <Stack.Screen name="(tabs)" />
+      </Stack.Protected>
+      <Stack.Protected guard={!authenticated}>
+        <Stack.Screen name="login" />
+      </Stack.Protected>
     </Stack>
   );
 }
@@ -95,6 +106,32 @@ export default function RootLayout() {
 }
 
 function PushNotificationsRegistrar() {
+  const router = useRouter();
   useRegisterPushNotifications();
+
+  useEffect(() => {
+    // Handle notification taps - navigate to the URL in the notification data
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const url = response.notification.request.content.data?.url as
+          | string
+          | undefined;
+
+        if (url) {
+          try {
+            // Extract path from full URL (e.g., "https://couchers.org/messages/" -> "/messages/")
+            const path = new URL(url).pathname;
+            router.push(`/(tabs)${path}` as Href);
+          } catch {
+            // If URL parsing fails, use as-is
+            router.push(`/(tabs)${url}` as Href);
+          }
+        }
+      },
+    );
+
+    return () => subscription.remove();
+  }, [router]);
+
   return null;
 }

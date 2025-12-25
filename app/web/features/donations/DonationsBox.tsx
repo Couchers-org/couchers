@@ -403,6 +403,7 @@ export default function DonationsBox() {
           components={{
             2: (
               <StyledLink
+                key="portal-link"
                 href="#"
                 onClick={async (e) => {
                   e.preventDefault();

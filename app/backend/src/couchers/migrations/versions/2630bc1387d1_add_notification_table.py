@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "notification_preferences",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -117,7 +117,7 @@ def upgrade():
     op.add_column("users", sa.Column("new_notifications_enabled", sa.Boolean(), server_default="false", nullable=False))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("users", "new_notifications_enabled")
     op.drop_column("users", "last_digest_sent")
     op.drop_index(op.f("ix_notification_deliveries_notification_id"), table_name="notification_deliveries")

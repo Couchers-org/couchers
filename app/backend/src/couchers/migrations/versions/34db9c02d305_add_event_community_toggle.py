@@ -16,13 +16,13 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         "clusters", sa.Column("discussions_enabled", sa.Boolean(), server_default=sa.text("true"), nullable=False)
     )
     op.add_column("clusters", sa.Column("events_enabled", sa.Boolean(), server_default=sa.text("true"), nullable=False))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("clusters", "events_enabled")
     op.drop_column("clusters", "discussions_enabled")

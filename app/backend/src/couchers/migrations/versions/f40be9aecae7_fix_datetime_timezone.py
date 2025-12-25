@@ -17,7 +17,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column(
         "host_requests",
         "last_sent_request_reminder_time",
@@ -28,7 +28,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         "host_requests",
         "last_sent_request_reminder_time",

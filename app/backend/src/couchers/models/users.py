@@ -45,6 +45,7 @@ from couchers.utils import get_coordinates, last_active_coarsen, now
 
 if TYPE_CHECKING:
     from couchers.models.rest import InviteCode, ModerationUserList
+    from couchers.models.uploads import PhotoGallery
 
 
 class HostingStatus(enum.Enum):
@@ -136,6 +137,7 @@ class User(Base):
 
     joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     last_active: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    profile_last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     public_visibility: Mapped[ProfilePublicVisibility] = mapped_column(
         Enum(ProfilePublicVisibility), server_default="map_only"
@@ -154,6 +156,9 @@ class User(Base):
     birthdate: Mapped[date] = mapped_column(Date)  # in the timezone of birthplace
 
     avatar_key: Mapped[str | None] = mapped_column(ForeignKey("uploads.key"), nullable=True)
+
+    # Profile photo gallery for this user (photos about themselves)
+    profile_gallery_id: Mapped[int | None] = mapped_column(ForeignKey("photo_galleries.id"), nullable=True)
 
     hosting_status: Mapped[HostingStatus] = mapped_column(Enum(HostingStatus))
     meetup_status: Mapped[MeetupStatus] = mapped_column(Enum(MeetupStatus), server_default="open_to_meetup")
@@ -299,6 +304,9 @@ class User(Base):
     do_not_email: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     avatar: Mapped[Upload | None] = relationship("Upload", foreign_keys="User.avatar_key")
+    profile_gallery: Mapped["PhotoGallery | None"] = relationship(
+        "PhotoGallery", foreign_keys="User.profile_gallery_id"
+    )
 
     admin_note: Mapped[str] = mapped_column(String, server_default=text("''"))
 
@@ -317,6 +325,9 @@ class User(Base):
         "ModerationUserList", secondary="moderation_user_list_members", back_populates="users"
     )
     language_abilities: Mapped[list["LanguageAbility"]] = relationship("LanguageAbility", back_populates="user")
+    galleries: Mapped[list["PhotoGallery"]] = relationship(
+        "PhotoGallery", foreign_keys="PhotoGallery.owner_user_id", back_populates="owner_user"
+    )
 
     __table_args__ = (
         # Verified phone numbers should be unique
@@ -467,7 +478,7 @@ class User(Base):
         return ~(cls.is_banned | cls.is_deleted)
 
     @property
-    def coordinates(self) -> tuple[int, int] | None:
+    def coordinates(self) -> tuple[float, float]:
         return get_coordinates(self.geom)
 
     @property

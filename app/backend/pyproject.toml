@@ -38,6 +38,7 @@ dependencies = [
     "stripe>=13.1.0",
     "ua-parser>=1.0.1",
     "user-agents>=2.2.0",
+    "statsig-python-core>=0.8.0",
 ]
 
 [dependency-groups]
@@ -54,6 +55,8 @@ dev = [
     "types-requests>=2.32.4.20250913",
     "types-pyyaml>=6.0.12.20250915",
     "types-boto3>=1.40.69",
+    "types-cachetools",
+    "types-psycopg2",
 ]
 
 [tool.ruff]
@@ -95,6 +98,7 @@ strict = true
 exclude = [
     "src/couchers/jobs/handlers.py",
     "src/couchers/proto/*",
+    "src/couchers/migrations/versions/*",
 ]
 
 [[tool.mypy.overrides]]
@@ -104,9 +108,8 @@ disable_error_code = [
     "no-redef",
 ]
 
-
 [[tool.mypy.overrides]]
-module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*"]
+module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "statsig_python_core", "user_agents"]
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true
 

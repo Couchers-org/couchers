@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     # Create new enums
     push_notification_platform = sa.Enum("web_push", "expo", name="pushnotificationplatform")
     push_notification_platform.create(op.get_bind())
@@ -122,7 +122,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     # Drop Expo receipt checking columns
     op.drop_column("push_notification_delivery_attempt", "receipt_error_code")
     op.drop_column("push_notification_delivery_attempt", "receipt_status")

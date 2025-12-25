@@ -5,12 +5,14 @@
 * References become visible after min{2 weeks, both reciprocal references written}
 """
 
+from datetime import datetime
+
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
 
-from couchers.context import make_background_user_context
+from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import are_friends
 from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, Reference, ReferenceType, User
@@ -36,7 +38,7 @@ reftype2api = {
 }
 
 
-def reference_to_pb(reference: Reference, context):
+def reference_to_pb(reference: Reference, context: CouchersContext) -> references_pb2.Reference:
     return references_pb2.Reference(
         reference_id=reference.id,
         from_user_id=reference.from_user_id,
@@ -50,7 +52,9 @@ def reference_to_pb(reference: Reference, context):
     )
 
 
-def get_host_req_and_check_can_write_ref(session, context, host_request_id):
+def get_host_req_and_check_can_write_ref(
+    session: Session, context: CouchersContext, host_request_id: int
+) -> tuple[HostRequest, bool]:
     """
     Checks that this can see the given host req and write a ref for it
 
@@ -60,6 +64,7 @@ def get_host_req_and_check_can_write_ref(session, context, host_request_id):
         select(HostRequest)
         .where_users_column_visible(context, HostRequest.surfer_user_id)
         .where_users_column_visible(context, HostRequest.host_user_id)
+        .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
         .where(HostRequest.conversation_id == host_request_id)
         .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
     ).scalar_one_or_none()
@@ -92,7 +97,10 @@ def get_host_req_and_check_can_write_ref(session, context, host_request_id):
     return host_request, surfed
 
 
-def check_valid_reference(request, context):
+def check_valid_reference(
+    request: references_pb2.WriteFriendReferenceReq | references_pb2.WriteHostRequestReferenceReq,
+    context: CouchersContext,
+) -> None:
     if request.rating < 0 or request.rating > 1:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_invalid_rating")
 
@@ -100,7 +108,9 @@ def check_valid_reference(request, context):
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "reference_no_text")
 
 
-def get_pending_references_to_write(session, context):
+def get_pending_references_to_write(
+    session: Session, context: CouchersContext
+) -> list[tuple[int, ReferenceType, datetime, LiteUser]]:
     q1 = (
         select(literal(True), HostRequest, LiteUser)
         .outerjoin(
@@ -112,6 +122,7 @@ def get_pending_references_to_write(session, context):
         )
         .join(LiteUser, LiteUser.id == HostRequest.host_user_id)
         .where_users_column_visible(context, HostRequest.host_user_id)
+        .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
         .where(Reference.id == None)
         .where(HostRequest.can_write_reference)
         .where(HostRequest.surfer_user_id == context.user_id)
@@ -129,6 +140,7 @@ def get_pending_references_to_write(session, context):
         )
         .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
         .where_users_column_visible(context, HostRequest.surfer_user_id)
+        .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
         .where(Reference.id == None)
         .where(HostRequest.can_write_reference)
         .where(HostRequest.host_user_id == context.user_id)
@@ -136,8 +148,8 @@ def get_pending_references_to_write(session, context):
     )
 
     union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
-    union = select(union.c[0].label("surfed"), aliased(HostRequest, union), aliased(LiteUser, union))
-    host_request_references = session.execute(union).all()
+    query = select(union.c[0].label("surfed"), aliased(HostRequest, union), aliased(LiteUser, union))
+    host_request_references = session.execute(query).all()
 
     return [
         (
@@ -151,7 +163,9 @@ def get_pending_references_to_write(session, context):
 
 
 class References(references_pb2_grpc.ReferencesServicer):
-    def ListReferences(self, request, context, session):
+    def ListReferences(
+        self, request: references_pb2.ListReferencesReq, context: CouchersContext, session: Session
+    ) -> references_pb2.ListReferencesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_reference_id = int(request.page_token) if request.page_token else 0
 
@@ -202,14 +216,14 @@ class References(references_pb2_grpc.ReferencesServicer):
         if request.to_user_id:
             sub = sub.where(Reference.from_user_id == request.to_user_id)
 
-        sub = sub.subquery()
+        query = sub.subquery()
         statement = (
-            statement.outerjoin(sub, sub.c.host_request_id == Reference.host_request_id)
+            statement.outerjoin(query, query.c.host_request_id == Reference.host_request_id)
             .outerjoin(HostRequest, HostRequest.conversation_id == Reference.host_request_id)
             .where(
                 or_(
                     Reference.reference_type == ReferenceType.friend,
-                    sub.c.sub_id != None,
+                    query.c.sub_id != None,
                     HostRequest.end_time_to_write_reference < func.now(),
                 )
             )
@@ -223,7 +237,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             next_page_token=str(references[-1].id) if len(references) > page_size else None,
         )
 
-    def WriteFriendReference(self, request, context, session):
+    def WriteFriendReference(
+        self, request: references_pb2.WriteFriendReferenceReq, context: CouchersContext, session: Session
+    ) -> references_pb2.Reference:
         if context.user_id == request.to_user_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_refer_self")
 
@@ -266,6 +282,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             session,
             user_id=request.to_user_id,
             topic_action="reference:receive_friend",
+            key=str(reference.id),
             data=notification_data_pb2.ReferenceReceiveFriend(
                 from_user=user_model_to_pb(user, session, make_background_user_context(user_id=request.to_user_id)),
                 text=reference_text,
@@ -277,7 +294,9 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         return reference_to_pb(reference, context)
 
-    def WriteHostRequestReference(self, request, context, session):
+    def WriteHostRequestReference(
+        self, request: references_pb2.WriteHostRequestReferenceReq, context: CouchersContext, session: Session
+    ) -> references_pb2.Reference:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         check_valid_reference(request, context)
@@ -320,6 +339,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             session,
             user_id=reference.to_user_id,
             topic_action="reference:receive_surfed" if surfed else "reference:receive_hosted",
+            key=str(host_request.conversation_id),
             data=notification_data_pb2.ReferenceReceiveHostRequest(
                 host_request_id=host_request.conversation_id,
                 from_user=user_model_to_pb(user, session, make_background_user_context(user_id=reference.to_user_id)),
@@ -332,7 +352,9 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         return reference_to_pb(reference, context)
 
-    def HostRequestIndicateDidntMeetup(self, request, context, session):
+    def HostRequestIndicateDidntMeetup(
+        self, request: references_pb2.HostRequestIndicateDidntMeetupReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         host_request, surfed = get_host_req_and_check_can_write_ref(session, context, request.host_request_id)
 
         reason = request.reason_didnt_meetup.strip()
@@ -344,7 +366,9 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         return empty_pb2.Empty()
 
-    def AvailableWriteReferences(self, request, context, session):
+    def AvailableWriteReferences(
+        self, request: references_pb2.AvailableWriteReferencesReq, context: CouchersContext, session: Session
+    ) -> references_pb2.AvailableWriteReferencesRes:
         # can't write anything for ourselves, but let's return empty so this can be used generically on profile page
         if request.to_user_id == context.user_id:
             return references_pb2.AvailableWriteReferencesRes()
@@ -396,8 +420,8 @@ class References(references_pb2_grpc.ReferencesServicer):
         )
 
         union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
-        union = select(union.c[0].label("surfed"), aliased(HostRequest, union))
-        host_request_references = session.execute(union).all()
+        query = select(union.c[0].label("surfed"), aliased(HostRequest, union))
+        host_request_references = session.execute(query).all()
 
         return references_pb2.AvailableWriteReferencesRes(
             can_write_friend_reference=can_write_friend_reference,
@@ -411,7 +435,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             ],
         )
 
-    def ListPendingReferencesToWrite(self, request, context, session):
+    def ListPendingReferencesToWrite(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> references_pb2.ListPendingReferencesToWriteRes:
         return references_pb2.ListPendingReferencesToWriteRes(
             pending_references=[
                 references_pb2.AvailableWriteReferenceType(
@@ -425,7 +451,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             ],
         )
 
-    def GetHostRequestReferenceStatus(self, request, context, session):
+    def GetHostRequestReferenceStatus(
+        self, request: references_pb2.GetHostRequestReferenceStatusReq, context: CouchersContext, session: Session
+    ) -> references_pb2.GetHostRequestReferenceStatusRes:
         # Compute has_given (whether current user already wrote a reference for this host request)
         has_given = (
             session.execute(
@@ -438,6 +466,7 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         host_request = session.execute(
             select(HostRequest)
+            .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
             .where(HostRequest.conversation_id == request.host_request_id)
             .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
         ).scalar_one_or_none()

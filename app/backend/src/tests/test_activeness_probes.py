@@ -13,7 +13,7 @@ from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatu
 from couchers.proto import api_pb2, jail_pb2
 from couchers.sql import couchers_select as select
 from couchers.utils import now
-from tests.test_fixtures import (  # noqa  # noqa
+from tests.test_fixtures import (  # noqa
     api_session,
     db,
     email_fields,

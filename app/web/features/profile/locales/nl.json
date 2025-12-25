@@ -80,8 +80,48 @@
     "meetup_status": "Meetup status",
     "hosting_status": "Hosting status",
     "name": "Naam",
-    "pronouns": "Voornaamwoorden"
+    "pronouns": "Voornaamwoorden",
+    "hometown": "Opgegroeid in",
+    "occupation": "Beroep",
+    "education": "Opleiding"
   },
   "cancel": "Annuleren",
-  "edit": "Profiel bewerken"
+  "edit": "Profiel bewerken",
+  "gender": {
+    "woman": "Vrouw",
+    "man": "Man"
+  },
+  "edit_home_questions": {
+    "accept_pets": "Huisdieren welkom",
+    "accept_smoking": "Okay met roken",
+    "accept_kids": "Hosts kinderen",
+    "accept_camping": "Kamperen mogelijk",
+    "accept_drinking": "Okay met alcohol drinken"
+  },
+  "unspecified_info": "-",
+  "smoking_location": {
+    "no": "Nee",
+    "outside": "Buiten",
+    "yes": "Ja",
+    "window": "Raam"
+  },
+  "sleeping_arrangement": {
+    "private_short": "Eigen kamer",
+    "common_short": "Gemeenschappelijke ruimte",
+    "shared_room_short": "Gedeelde kamer",
+    "private": "bijv. eigen kamer",
+    "shared_room": "bijv. eigen slaapplek in een gedeelde kamer",
+    "common": "bijv. een bank in de woonkamer"
+  },
+  "parking_details": {
+    "free_onsite": "Gratis parkeerplaats bij huis",
+    "free_offsite": "Gratis parkeren in de buurt",
+    "paid_onsite": "Betaald parkeren bij huis",
+    "paid_offsite": "Betaald parkeren in de buurt"
+  },
+  "pronouns": {
+    "man": "hij / hem",
+    "woman": "zij / haar"
+  },
+  "edit_profile_name_required": "Naam verplicht"
 }

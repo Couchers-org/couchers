@@ -18,7 +18,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     # required for gist-based exclusion constraints
     op.execute("CREATE EXTENSION IF NOT EXISTS btree_gist")
 
@@ -185,5 +185,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

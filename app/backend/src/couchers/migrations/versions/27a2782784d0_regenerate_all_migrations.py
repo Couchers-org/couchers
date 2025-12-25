@@ -17,7 +17,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm")
     op.execute("CREATE EXTENSION IF NOT EXISTS unaccent")
     op.execute(
@@ -712,7 +712,7 @@ def upgrade():
     op.create_index(op.f("ix_page_versions_page_id"), "page_versions", ["page_id"], unique=False)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(op.f("ix_page_versions_page_id"), table_name="page_versions")
     op.drop_index(op.f("ix_page_versions_editor_user_id"), table_name="page_versions")
     op.drop_table("page_versions")
