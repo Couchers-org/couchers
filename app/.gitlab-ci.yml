@@ -370,7 +370,7 @@ test:backend-format:
     # no docker login
     default: false
   script:
-    - cd app/backend
+    - cd /app
     - ruff check .
     - ruff check --diff .
     - ruff format --diff .
@@ -391,7 +391,7 @@ test:backend-mypy:
     # no docker login
     default: false
   script:
-    - cd app/backend
+    - cd /app
     - mypy src/couchers
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
