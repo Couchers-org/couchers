@@ -4,7 +4,6 @@ Implements localizing strings stored in the i18next json format.
 
 import re
 from dataclasses import dataclass, field
-from typing import Any
 
 from couchers.i18n.plurals import PluralRule
 
@@ -25,7 +24,9 @@ class I18Next:
         self.languages_by_code[code] = language
         return language
 
-    def find_string(self, key: str, language_code: str, substitutions: dict[str, Any] | None = None) -> "String | None":
+    def find_string(
+        self, key: str, language_code: str, substitutions: dict[str, str | int] | None = None
+    ) -> "String | None":
         """Find the string that will be localized, applying fallbacks and variant selection."""
         language = self.languages_by_code.get(language_code, self.fallback_language)
         while True:
@@ -42,7 +43,7 @@ class I18Next:
 
             return string
 
-    def localize(self, string_key: str, language_code: str, substitutions: dict[str, Any] | None = None) -> str:
+    def localize(self, string_key: str, language_code: str, substitutions: dict[str, str | int] | None = None) -> str:
         if string := self.find_string(string_key, language_code, substitutions):
             return string.render(substitutions)
         else:
@@ -76,7 +77,7 @@ class Language:
     def add_string(self, key: str, value: str):
         self.strings_by_key[key] = String(key, StringTemplate.parse(value))
 
-    def find_string(self, key: str, substitutions: dict[str, Any] | None = None) -> "String | None":
+    def find_string(self, key: str, substitutions: dict[str, str | int] | None = None) -> "String | None":
         # if we have a numerical "count" substitution,
         # i18next will first search for a key with a suffix
         # based on the plural category suggested by the count
@@ -90,7 +91,7 @@ class Language:
                         return string
         return self.strings_by_key.get(key)
 
-    def localize(self, string_key: str, substitutions: dict[str, Any] | None = None) -> str:
+    def localize(self, string_key: str, substitutions: dict[str, str | int] | None = None) -> str:
         string = self.find_string(string_key, substitutions)
         if string is None:
             raise LocalizationError(language_code=self.code, string_key=string_key)
@@ -104,7 +105,7 @@ class String:
     key: str
     template: "StringTemplate"
 
-    def render(self, substitutions: dict[str, Any] | None) -> str:
+    def render(self, substitutions: dict[str, str | int] | None) -> str:
         return self.template.render(substitutions)
 
 
@@ -114,14 +115,14 @@ class StringTemplate:
 
     segments: "list[StringSegment]"
 
-    def can_render(self, substitutions: dict[str, Any] | None) -> bool:
+    def can_render(self, substitutions: dict[str, str | int] | None) -> bool:
         for segment in self.segments:
             if segment.is_variable:
                 if not substitutions or substitutions.get(segment.text) is None:
                     return False
         return True
 
-    def render(self, substitutions: dict[str, Any] | None) -> str:
+    def render(self, substitutions: dict[str, str | int] | None) -> str:
         substrings: list[str] = []
         for segment in self.segments:
             if segment.is_variable:

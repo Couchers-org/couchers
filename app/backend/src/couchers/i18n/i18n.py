@@ -96,7 +96,7 @@ def get_translations() -> dict[str, dict[str, dict[str, str]]]:
 
 
 def get_raw_translation_string(
-    lang: str | None, component: str, string_name: str, *, substitutions: dict[str, str] | None = None
+    lang: str | None, component: str, string_name: str, *, substitutions: dict[str, str | int] | None = None
 ) -> str:
     """
     Retrieves a translated string from the all_langs_all_strings dictionary
@@ -107,7 +107,7 @@ def get_raw_translation_string(
         lang: Language code (e.g., "en", "pt-BR"). If None, defaults to the default fallback language ("en")
         component: Component name (e.g., "errors")
         string_name: The key for the specific string
-        substitutions: Dictionary of variable substitutions for the string (e.g., {"hours": "24"})
+        substitutions: Dictionary of variable substitutions for the string (e.g., {"hours": 24})
 
     Returns:
         The translated string with substitutions applied
