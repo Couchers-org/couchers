@@ -26,6 +26,9 @@ declare module "@mui/material/styles" {
 }
 
 const themeOptions: ThemeOptions = {
+  colorSchemes: {
+    dark: true,
+  },
   components: {
     MuiCssBaseline: {
       styleOverrides: {

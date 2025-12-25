@@ -10,6 +10,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import Button from "components/Button";
+import DarkModeToggle from "components/DarkModeToggle";
 import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
@@ -349,6 +350,15 @@ export default function Navigation() {
         >
           <LanguagePickerSelect onSelect={handleDrawerClose} />
         </ListItem>
+        <ListItem
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            padding: theme.spacing(1, 4),
+          }}
+        >
+          <DarkModeToggle />
+        </ListItem>
       </List>
     </div>
   );
@@ -426,12 +436,15 @@ export default function Navigation() {
         </StyledNav>
         <StyledMenuContainer>
           {authState.authenticated && isMounted ? (
-            <LoggedInMenu
-              menuOpen={menuOpen}
-              notificationCount={pingData?.unseenNotificationCount}
-              setMenuOpen={setMenuOpen}
-              items={loggedInMenuItems}
-            />
+            <>
+              <DarkModeToggle />
+              <LoggedInMenu
+                menuOpen={menuOpen}
+                notificationCount={pingData?.unseenNotificationCount}
+                setMenuOpen={setMenuOpen}
+                items={loggedInMenuItems}
+              />
+            </>
           ) : (
             <Box
               sx={{
@@ -441,6 +454,7 @@ export default function Navigation() {
                 gap: 2,
               }}
             >
+              <DarkModeToggle />
               {!isMobile && <LanguagePickerSelect />}
               {!isLoginPage && (
                 <Button
