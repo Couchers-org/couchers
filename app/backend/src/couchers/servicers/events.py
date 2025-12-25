@@ -607,7 +607,6 @@ class Events(events_pb2_grpc.EventsServicer):
         if request.HasField("title"):
             notify_updated.append("title")
             event.title = request.title.value
-            event.last_edited = now()
 
         if request.HasField("content"):
             notify_updated.append("content")
