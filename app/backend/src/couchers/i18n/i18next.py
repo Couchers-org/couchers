@@ -61,8 +61,8 @@ class Language:
     strings_by_key: "dict[str, String]" = field(default_factory=dict)
     fallback: "Language | None" = None
 
-    def load_json_dict(self, json_dict: dict):
-        def add_strings(json_dict: dict, key_prefix: str | None):
+    def load_json_dict(self, json_dict: dict[str, Any]) -> None:
+        def add_strings(json_dict: dict[str, Any], key_prefix: str | None) -> None:
             for k, v in json_dict.items():
                 full_key = f"{key_prefix}.{k}" if key_prefix else k
                 if isinstance(v, str):
@@ -74,7 +74,7 @@ class Language:
 
         add_strings(json_dict, key_prefix=None)
 
-    def add_string(self, key: str, value: str):
+    def add_string(self, key: str, value: str) -> None:
         self.strings_by_key[key] = String(key, StringTemplate.parse(value))
 
     def find_string(self, key: str, substitutions: dict[str, str | int] | None = None) -> "String | None":
@@ -126,7 +126,7 @@ class StringTemplate:
         substrings: list[str] = []
         for segment in self.segments:
             if segment.is_variable:
-                if segment.text in substitutions:
+                if substitutions is not None and segment.text in substitutions:
                     substrings.append(str(substitutions[segment.text]))
                 else:
                     raise ValueError(f"Missing substitution for variable '{segment.text}'")
@@ -135,7 +135,7 @@ class StringTemplate:
         return "".join(substrings)
 
     @staticmethod
-    def parse(value: str) -> "list[StringSegment]":
+    def parse(value: str) -> "StringTemplate":
         last_index = 0
         segments: list[StringSegment] = []
         for match in re.finditer(r"\{\{([^\}]+)\}\}", value):
