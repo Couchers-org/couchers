@@ -24,7 +24,9 @@ class I18Next:
         self.languages_by_code[code] = language
         return language
 
-    def find_string(self, key: str, language_code: str, substitutions: dict[str, str | int] | None = None) -> "String | None":
+    def find_string(
+        self, key: str, language_code: str, substitutions: dict[str, str | int] | None = None
+    ) -> "String | None":
         """Find the string that will be localized, applying fallbacks and variant selection."""
         language = self.languages_by_code.get(language_code, self.fallback_language)
         while True:
