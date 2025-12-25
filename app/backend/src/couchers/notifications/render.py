@@ -44,7 +44,7 @@ class RenderedNotification:
 
 
 def render_notification(user: User, notification: Notification) -> RenderedNotification:
-    def get_localized_string(component: str, message_id: str, *, substitutions: dict[str, str] | None = None) -> str:
+    def get_localized_string(component: str, message_id: str, *, substitutions: dict[str, str | int] | None = None) -> str:
         return get_raw_translation_string(
             user.ui_language_preference, component, message_id, substitutions=substitutions
         )
