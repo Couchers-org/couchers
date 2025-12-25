@@ -53,7 +53,7 @@ def _can_moderate_page(session: Session, page: Page, user_id: int) -> bool:
     return can_moderate_node(session, user_id, page.parent_node_id)
 
 
-def page_to_pb(session: Session, page: Page, context) -> pages_pb2.Page:
+def page_to_pb(session: Session, page: Page, context: CouchersContext) -> pages_pb2.Page:
     first_version = page.versions[0]
     current_version = page.versions[-1]
 

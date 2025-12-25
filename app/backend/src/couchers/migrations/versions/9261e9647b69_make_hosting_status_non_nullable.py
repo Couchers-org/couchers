@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("UPDATE users SET hosting_status = 'cant_host' WHERE hosting_status IS NULL")
     op.execute("UPDATE users SET meetup_status = 'does_not_want_to_meetup' WHERE meetup_status IS NULL")
     op.alter_column(
@@ -36,7 +36,7 @@ def upgrade():
     op.execute("ALTER TABLE users ALTER COLUMN meetup_status SET DEFAULT 'open_to_meetup'")
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         "users",
         "meetup_status",

@@ -101,7 +101,7 @@ moderationobjecttype2sql = {
 }
 
 
-def moderation_state_to_pb(state: ModerationState, session):
+def moderation_state_to_pb(state: ModerationState, session: Session) -> moderation_pb2.ModerationStateInfo:
     """Convert ModerationState model to proto message"""
     object_type = state.object_type
     object_id = state.object_id

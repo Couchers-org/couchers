@@ -15,11 +15,11 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'chat__missed_messages'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'onboarding__reminder'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'host_request__missed_messages'")
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

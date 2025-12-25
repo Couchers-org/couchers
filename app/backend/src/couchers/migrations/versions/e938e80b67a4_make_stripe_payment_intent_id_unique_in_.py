@@ -15,9 +15,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_unique_constraint(op.f("uq_invoices_stripe_payment_intent_id"), "invoices", ["stripe_payment_intent_id"])
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(op.f("uq_invoices_stripe_payment_intent_id"), "invoices", type_="unique")

@@ -15,10 +15,10 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("UPDATE contributor_forms SET contribute_ways = '{}' WHERE contribute_ways IS NULL")
     op.alter_column("contributor_forms", "contribute_ways", nullable=False)
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column("contributor_forms", "contribute_ways", nullable=True)

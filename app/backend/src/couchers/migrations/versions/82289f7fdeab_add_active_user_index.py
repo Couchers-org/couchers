@@ -16,11 +16,11 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_index(
         "ix_users_active", "users", ["id"], unique=False, postgresql_where=sa.text("NOT is_banned AND NOT is_deleted")
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index("ix_users_active", table_name="users", postgresql_where=sa.text("NOT is_banned AND NOT is_deleted"))

@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         "users",
         sa.Column("last_notified_request_message_id", sa.BigInteger(), server_default=sa.text("0"), nullable=False),
@@ -24,5 +24,5 @@ def upgrade():
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'send_request_notifications'")
 
 
-def downgrade():
+def downgrade() -> None:
     pass

@@ -3,16 +3,11 @@
 
 UV_VERSION=0.9.6
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
+PROTO_IMAGE=registry.gitlab.com/couchers/grpc
 
-# Generate protobuf implementations. Advise to pull the latest image if the command fails.
 protos:
-	@IMAGE=registry.gitlab.com/couchers/grpc; \
-	cmd="docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app $$IMAGE ./generate_protos.sh"; \
-	$$cmd; status=$$?; \
-	if [ $$status -ne 0 ]; then \
-	  printf "\n\n$$(tput smso)HINT:$$(tput sgr0) try 'docker pull $$IMAGE' and run 'make protos' again.\n\n" >&2; \
-	  exit $$status; \
-	fi
+	docker pull -q $PROTO_IMAGE
+	docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app $PROTO_IMAGE ./generate_protos.sh
 
 setup:
 	curl -fsSL https://astral.sh/uv/${UV_VERSION}/install.sh | sh

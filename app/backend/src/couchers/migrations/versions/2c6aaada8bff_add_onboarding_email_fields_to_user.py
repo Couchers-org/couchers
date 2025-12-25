@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("users", sa.Column("last_onboarding_email_sent", sa.DateTime(timezone=True), nullable=True))
     op.add_column("users", sa.Column("onboarding_emails_sent", sa.Integer(), server_default="0", nullable=False))
     op.add_column("users", sa.Column("added_to_mailing_list", sa.Boolean(), server_default="false", nullable=False))
@@ -24,7 +24,7 @@ def upgrade():
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'add_users_to_email_list'")
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("users", "added_to_mailing_list")
     op.drop_column("users", "onboarding_emails_sent")
     op.drop_column("users", "last_onboarding_email_sent")

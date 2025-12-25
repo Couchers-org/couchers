@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         "host_requests", sa.Column("is_host_archived", sa.Boolean(), server_default=sa.text("false"), nullable=False)
     )
@@ -25,6 +25,6 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("host_requests", "is_surfer_archived")
     op.drop_column("host_requests", "is_host_archived")

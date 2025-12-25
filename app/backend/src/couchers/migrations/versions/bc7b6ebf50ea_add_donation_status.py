@@ -16,10 +16,10 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("users", sa.Column("has_donated", sa.Boolean(), server_default=sa.text("false"), nullable=False))
     op.execute("UPDATE USERS SET has_donated = true WHERE id IN (SELECT user_id FROM invoices)")
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("users", "has_donated")

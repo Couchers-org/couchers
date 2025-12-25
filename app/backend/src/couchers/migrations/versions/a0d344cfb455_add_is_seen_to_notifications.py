@@ -16,9 +16,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("notifications", sa.Column("is_seen", sa.Boolean(), server_default=sa.text("false"), nullable=False))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("notifications", "is_seen")

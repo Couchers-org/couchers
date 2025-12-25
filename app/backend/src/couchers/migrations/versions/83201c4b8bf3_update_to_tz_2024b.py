@@ -18,11 +18,11 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     session = Session(bind=op.get_bind())
     copy_resources_to_database(session)
     session.commit()
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

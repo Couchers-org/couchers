@@ -15,7 +15,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     # 1. Update all users who have 'shared_space' to NULL (or another appropriate value)
     op.execute("""
         UPDATE users

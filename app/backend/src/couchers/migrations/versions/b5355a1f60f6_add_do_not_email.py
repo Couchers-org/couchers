@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("users", sa.Column("do_not_email", sa.Boolean(), server_default=sa.text("false"), nullable=False))
     op.create_check_constraint(
         constraint_name="do_not_email_inactive",
@@ -25,5 +25,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

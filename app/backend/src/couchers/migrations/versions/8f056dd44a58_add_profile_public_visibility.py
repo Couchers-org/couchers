@@ -17,7 +17,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     profilepublicvisibility = sa.Enum("nothing", "map_only", "limited", "most", "full", name="profilepublicvisibility")
     profilepublicvisibility.create(op.get_bind(), checkfirst=True)
     op.add_column(
@@ -43,7 +43,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("users", "has_modified_public_visibility")
     op.drop_column("users", "public_visibility")
     op.drop_column("users", "randomized_geom")

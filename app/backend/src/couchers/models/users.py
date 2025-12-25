@@ -478,7 +478,7 @@ class User(Base):
         return ~(cls.is_banned | cls.is_deleted)
 
     @property
-    def coordinates(self) -> tuple[int, int] | None:
+    def coordinates(self) -> tuple[float, float]:
         return get_coordinates(self.geom)
 
     @property

@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("background_jobs", sa.Column("priority", sa.Integer(), server_default=sa.text("10"), nullable=False))
     op.drop_index(
         "ix_background_jobs_lookup",

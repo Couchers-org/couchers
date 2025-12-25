@@ -17,7 +17,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("UPDATE users SET geom = ST_SetSRID(ST_MakePoint(0, 0), 4326) WHERE geom IS NULL")
     op.execute("UPDATE users SET geom_radius = 2000 WHERE geom_radius IS NULL")
     op.alter_column(
@@ -36,7 +36,7 @@ def upgrade():
     op.add_column("users", sa.Column("needs_to_update_location", sa.Boolean(), server_default="false", nullable=False))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("users", "needs_to_update_location")
     op.alter_column("users", "geom_radius", existing_type=sa.DOUBLE_PRECISION(precision=53), nullable=True)
     op.alter_column(

@@ -15,9 +15,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_unique_constraint(op.f("uq_volunteers_user_id"), "volunteers", ["user_id"])
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(op.f("uq_volunteers_user_id"), "volunteers", type_="unique")

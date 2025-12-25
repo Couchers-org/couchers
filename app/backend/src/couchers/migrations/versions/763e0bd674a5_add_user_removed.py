@@ -15,9 +15,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("ALTER TYPE messagetype ADD VALUE 'user_removed'")
 
 
-def downgrade():
+def downgrade() -> None:
     pass

@@ -16,12 +16,12 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("references", sa.Column("private_text", sa.String(), nullable=True))
     op.alter_column("references", "text", existing_type=sa.VARCHAR(), nullable=False)
     op.execute(r"""UPDATE "references" SET text = regexp_replace(regexp_replace(text, '^\s+', ''), '\s+$', '')""")
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column("references", "text", existing_type=sa.VARCHAR(), nullable=True)
     op.drop_column("references", "private_text")

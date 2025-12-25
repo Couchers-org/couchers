@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Any
 
 from geoalchemy2 import Geometry
-from psycopg2.extras import DateTimeTZRange  # type: ignore[import-untyped]
+from psycopg2.extras import DateTimeTZRange
 from sqlalchemy import (
     BigInteger,
     Boolean,

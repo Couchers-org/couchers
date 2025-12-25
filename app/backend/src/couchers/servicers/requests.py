@@ -66,7 +66,7 @@ hostrequestquality2sql = {
 }
 
 
-def message_to_pb(message: Message):
+def message_to_pb(message: Message) -> conversations_pb2.Message:
     """
     Turns the given message to a protocol buffer
     """
@@ -89,7 +89,7 @@ def message_to_pb(message: Message):
             ),
             host_request_status_changed=(
                 conversations_pb2.MessageContentHostRequestStatusChanged(
-                    status=hostrequeststatus2api[message.host_request_status_target]
+                    status=hostrequeststatus2api[message.host_request_status_target]  # type: ignore[index]
                 )
                 if message.message_type == MessageType.host_request_status_changed
                 else None
@@ -97,7 +97,9 @@ def message_to_pb(message: Message):
         )
 
 
-def host_request_to_pb(host_request: HostRequest, session, context):
+def host_request_to_pb(
+    host_request: HostRequest, session: Session, context: CouchersContext
+) -> requests_pb2.HostRequest:
     initial_message = session.execute(
         select(Message)
         .where(Message.conversation_id == host_request.conversation_id)
@@ -147,7 +149,9 @@ def host_request_to_pb(host_request: HostRequest, session, context):
     )
 
 
-def _possibly_observe_first_response_time(session, host_request, user_id, response_type):
+def _possibly_observe_first_response_time(
+    session: Session, host_request: HostRequest, user_id: int, response_type: str
+) -> None:
     # if this is the first response then there's nothing by this user yet
     assert host_request.host_user_id == user_id
 
@@ -220,7 +224,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(
                 grpc.StatusCode.INVALID_ARGUMENT,
                 "host_request_too_short",
-                substitutions={"chars": HOST_REQUEST_MIN_LENGTH_UTF16},
+                substitutions={"chars": str(HOST_REQUEST_MIN_LENGTH_UTF16)},
             )
 
         # Check if user has been sending host requests excessively
@@ -230,7 +234,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
                 "host_request_rate_limit",
-                substitutions={"hours": RATE_LIMIT_HOURS},
+                substitutions={"hours": str(RATE_LIMIT_HOURS)},
             )
 
         conversation = Conversation()
@@ -416,7 +420,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def RespondHostRequest(
         self, request: requests_pb2.RespondHostRequestReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        def count_host_response(other_user_id, response_type):
+        def count_host_response(other_user_id: int, response_type: str) -> None:
             user_gender = session.execute(select(User.gender).where(User.id == context.user_id)).scalar_one()
             other_gender = session.execute(select(User.gender).where(User.id == other_user_id)).scalar_one()
             host_request_responses_counter.labels(user_gender, other_gender, response_type).inc()
@@ -768,7 +772,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
     def SetHostRequestArchiveStatus(
         self, request: requests_pb2.SetHostRequestArchiveStatusReq, context: CouchersContext, session: Session
     ) -> requests_pb2.SetHostRequestArchiveStatusRes:
-        host_request: HostRequest = session.execute(
+        host_request = session.execute(
             select(HostRequest)
             .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
             .where(HostRequest.conversation_id == request.host_request_id)
@@ -803,7 +807,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         user, response_rates = user_res
-        return requests_pb2.GetResponseRateRes(**response_rate_to_pb(response_rates))
+        return requests_pb2.GetResponseRateRes(**response_rate_to_pb(response_rates))  # type: ignore[arg-type]
 
     def SendHostRequestFeedback(
         self, request: requests_pb2.SendHostRequestFeedbackReq, context: CouchersContext, session: Session

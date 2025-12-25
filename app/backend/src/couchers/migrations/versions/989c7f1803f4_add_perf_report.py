@@ -16,9 +16,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("api_calls", sa.Column("perf_report", sa.String(), nullable=True), schema="logging")
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("api_calls", "perf_report", schema="logging")

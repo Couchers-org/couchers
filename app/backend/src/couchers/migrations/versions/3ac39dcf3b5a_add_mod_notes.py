@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "mod_notes",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -41,5 +41,5 @@ def upgrade():
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'modnote__create'")
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

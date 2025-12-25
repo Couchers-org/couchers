@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_index(
         "ix_friend_relationships_status_to_from",
         "friend_relationships",
@@ -35,7 +35,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index("ix_notifications_unseen", table_name="notifications", postgresql_where=sa.text("is_seen = false"))
     op.drop_index("ix_notifications_latest", table_name="notifications")
     op.drop_index("ix_friend_relationships_status_to_from", table_name="friend_relationships")

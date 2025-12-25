@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 25
 
 
-def _parents_to_pb(session, cluster: Cluster):
+def _parents_to_pb(session: Session, cluster: Cluster) -> list[groups_pb2.Parent]:
     parents = get_node_parents_recursively(session, cluster.parent_node_id)
     return [
         groups_pb2.Parent(
@@ -55,7 +55,7 @@ def _parents_to_pb(session, cluster: Cluster):
     ]
 
 
-def group_to_pb(session, cluster: Cluster, context):
+def group_to_pb(session: Session, cluster: Cluster, context: CouchersContext) -> groups_pb2.Group:
     can_moderate = can_moderate_node(session, context.user_id, cluster.parent_node_id)
 
     member_count = session.execute(
@@ -234,23 +234,23 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         if not cluster:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
 
-        occurrences = (
+        query = (
             select(EventOccurrence)
             .join(Event, Event.id == EventOccurrence.event_id)
             .where(Event.owner_cluster == cluster)
         )
 
         if not request.past:
-            occurrences = occurrences.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
+            query = query.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
                 EventOccurrence.start_time.asc()
             )
         else:
-            occurrences = occurrences.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
+            query = query.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
                 EventOccurrence.start_time.desc()
             )
 
-        occurrences = occurrences.limit(page_size + 1)
-        occurrences = session.execute(occurrences).scalars().all()
+        query = query.limit(page_size + 1)
+        occurrences = session.execute(query).scalars().all()
 
         return groups_pb2.ListEventsRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],

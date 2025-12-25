@@ -1,9 +1,11 @@
 import functools
 import json
 import logging
+from typing import cast
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import Table
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_
 
@@ -43,7 +45,7 @@ def get_vapid_public_key() -> str:
     return get_vapid_public_key_from_private_key(config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"])
 
 
-def notification_to_pb(user, notification: Notification):
+def notification_to_pb(user: User, notification: Notification) -> notifications_pb2.Notification:
     rendered = render_notification(user, notification)
     return notifications_pb2.Notification(
         notification_id=notification.id,
@@ -146,7 +148,8 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         self, request: notifications_pb2.MarkAllNotificationsSeenReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         session.execute(
-            Notification.__table__.update()
+            cast(Table, Notification.__table__)
+            .update()
             .values(is_seen=True)
             .where(Notification.user_id == context.user_id)
             .where(Notification.id <= request.latest_notification_id)
@@ -273,7 +276,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
 
         return empty_pb2.Empty()
 
-    def SendDevPushNotification(self, request, context, session):
+    def SendDevPushNotification(
+        self, request: notifications_pb2.SendDevPushNotificationReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         if not config["ENABLE_DEV_APIS"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "dev_apis_disabled")
 
