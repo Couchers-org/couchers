@@ -28,6 +28,7 @@ from sqlalchemy import select as sa_select
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
+from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.constants import (
     EMAIL_REGEX,
@@ -401,8 +402,9 @@ class User(Base):
     def has_completed_profile(self) -> bool:
         return self.avatar_key is not None and self.about_me is not None and len(self.about_me) >= 150
 
-    @has_completed_profile.expression
-    def has_completed_profile(cls):
+    @has_completed_profile.inplace.expression
+    @classmethod
+    def _has_completed_profile_expression(cls) -> ColumnElement[bool]:
         return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 150)
 
     @hybrid_property
@@ -423,8 +425,9 @@ class User(Base):
             )
         )
 
-    @has_completed_my_home.expression
-    def has_completed_my_home(cls):
+    @has_completed_my_home.inplace.expression
+    @classmethod
+    def _has_completed_my_home_expression(cls) -> ColumnElement[bool]:
         return and_(
             cls.max_guests != None,
             cls.sleeping_arrangement != None,
@@ -473,8 +476,9 @@ class User(Base):
     def is_visible(self) -> bool:
         return not self.is_banned and not self.is_deleted
 
-    @is_visible.expression
-    def is_visible(cls):
+    @is_visible.inplace.expression
+    @classmethod
+    def _is_visible_expression(cls) -> ColumnElement[bool]:
         return ~(cls.is_banned | cls.is_deleted)
 
     @property
@@ -502,8 +506,9 @@ class User(Base):
             and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
 
-    @phone_is_verified.expression
-    def phone_is_verified(cls):
+    @phone_is_verified.inplace.expression
+    @classmethod
+    def _phone_is_verified_expression(cls) -> ColumnElement[bool]:
         return (cls.phone_verification_verified != None) & (
             now() - cls.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )

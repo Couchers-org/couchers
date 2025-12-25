@@ -102,13 +102,6 @@ exclude = [
 ]
 
 [[tool.mypy.overrides]]
-module = "couchers.models.*"
-# SQLAlchemy hybrid_property intentionally redefines names for instance/class expressions
-disable_error_code = [
-    "no-redef",
-]
-
-[[tool.mypy.overrides]]
 module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "statsig_python_core", "user_agents"]
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true

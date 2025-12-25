@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from typing import Any
+from typing import cast
 
 from geoalchemy2 import Geometry
 from psycopg2.extras import DateTimeTZRange
@@ -21,6 +21,7 @@ from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, backref, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
+from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.models.base import Base, Geom, communities_seq
 from couchers.utils import get_coordinates
@@ -166,20 +167,22 @@ class EventOccurrence(Base):
         return get_coordinates(self.geom)
 
     @hybrid_property
-    def start_time(self) -> Any:
-        return self.during.lower
+    def start_time(self) -> datetime:
+        return cast(datetime, self.during.lower)
 
-    @start_time.expression
-    def start_time(cls) -> Any:  # noqa: ARG003,D102
-        return func.lower(cls.during)
+    @start_time.inplace.expression
+    @classmethod
+    def _start_time_expression(cls) -> ColumnElement[datetime]:
+        return cast(ColumnElement[datetime], func.lower(cls.during))
 
     @hybrid_property
-    def end_time(self) -> Any:
-        return self.during.upper
+    def end_time(self) -> datetime:
+        return cast(datetime, self.during.upper)
 
-    @end_time.expression
-    def end_time(cls) -> Any:  # noqa: ARG003,D102
-        return func.upper(cls.during)
+    @end_time.inplace.expression
+    @classmethod
+    def _end_time_expression(cls) -> ColumnElement[datetime]:
+        return cast(ColumnElement[datetime], func.upper(cls.during))
 
 
 class EventSubscription(Base):
