@@ -13,7 +13,8 @@
       "field_label": "Benutzername",
       "required_error": "Gib deinen Benutzernamen ein",
       "username_taken_error": "Dieser Benutzername ist bereits vergeben.",
-      "validation_error": "Dein Benutzername sollte mit einem Buchstaben beginnen und kann Buchstaben, Nummern und Unterstriche '_' enthalten."
+      "validation_error": "Dein Benutzername sollte mit einem Buchstaben beginnen und kann Buchstaben, Nummern und Unterstriche '_' enthalten.",
+      "helper_text": "Dies ist deine eindeutige Anmelde-ID, nicht dein Anzeigename."
     },
     "birthday": {
       "field_label": "Geburtstag",
