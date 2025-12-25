@@ -383,6 +383,25 @@ test:backend-format:
         - app/proto/**/*
         - app/backend/**/*
 
+test:backend-mypy:
+  needs: ["build:backend"]
+  stage: test
+  image: $BACKEND_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd app/backend
+    - uv run mypy src/couchers
+  rules:
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+        - app/**/*
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/backend/**/*
+
 test:media:
   needs: ["build:media"]
   stage: test
@@ -733,6 +752,9 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:backend-format
+      artifacts: false
+      optional: true
+    - job: test:backend-mypy
       artifacts: false
       optional: true
     - job: test:media
