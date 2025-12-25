@@ -392,6 +392,9 @@ test:backend-mypy:
     default: false
   script:
     - cd /app
+    - test -f pyproject.toml || (echo "Error: pyproject.toml not found in Docker image" && exit 1)
+    - echo "pyproject.toml exists, checking mypy config..."
+    - grep -A5 "\[tool.mypy\]" pyproject.toml || echo "No mypy config found in pyproject.toml"
     - mypy src/couchers
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
