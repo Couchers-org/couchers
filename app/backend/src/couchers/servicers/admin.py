@@ -4,7 +4,7 @@ from datetime import timedelta
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import and_, func, or_, select
+from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
 
 from couchers import urls
@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 250
 
 
-def _user_to_details(session, user):
+def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
     return admin_pb2.UserDetails(
         user_id=user.id,
         username=user.username,
@@ -69,7 +69,7 @@ def _user_to_details(session, user):
     )
 
 
-def _content_report_to_pb(content_report: ContentReport):
+def _content_report_to_pb(content_report: ContentReport) -> admin_pb2.ContentReport:
     return admin_pb2.ContentReport(
         content_report_id=content_report.id,
         time=Timestamp_from_datetime(content_report.time),
@@ -83,7 +83,7 @@ def _content_report_to_pb(content_report: ContentReport):
     )
 
 
-def append_admin_note(session, context, user, note):
+def append_admin_note(session: Session, context: CouchersContext, user: User, note: str) -> None:
     if not note.strip():
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
     admin = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -394,7 +394,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             ),
         )
 
-        return _user_to_details(session, user)
+        return admin_pb2.CreateApiKeyRes()
 
     def GetChats(
         self, request: admin_pb2.GetChatsReq, context: CouchersContext, session: Session
@@ -406,13 +406,13 @@ class Admin(admin_pb2_grpc.AdminServicer):
         # Cache for UserDetails to avoid recomputing for the same user
         user_details_cache = {}
 
-        def get_user_details(user_id):
+        def get_user_details(user_id: int) -> admin_pb2.UserDetails:
             if user_id not in user_details_cache:
                 u = session.execute(select(User).where(User.id == user_id)).scalar_one()
                 user_details_cache[user_id] = _user_to_details(session, u)
             return user_details_cache[user_id]
 
-        def message_to_pb(message):
+        def message_to_pb(message: Message) -> admin_pb2.ChatMessage:
             return admin_pb2.ChatMessage(
                 message_id=message.id,
                 author=get_user_details(message.author_id),
@@ -425,7 +425,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 target=get_user_details(message.target_id) if message.target_id else None,
             )
 
-        def get_messages_for_conversation(conversation_id):
+        def get_messages_for_conversation(conversation_id: int) -> list[admin_pb2.ChatMessage]:
             messages = (
                 session.execute(
                     select(Message).where(Message.conversation_id == conversation_id).order_by(Message.id.asc())
@@ -435,7 +435,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
             return [message_to_pb(msg) for msg in messages]
 
-        def get_host_request_pb(host_request):
+        def get_host_request_pb(host_request: HostRequest) -> admin_pb2.AdminHostRequest:
             return admin_pb2.AdminHostRequest(
                 host_request_id=host_request.conversation_id,
                 surfer=get_user_details(host_request.surfer_user_id),
@@ -447,7 +447,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 messages=get_messages_for_conversation(host_request.conversation_id),
             )
 
-        def get_group_chat_pb(group_chat):
+        def get_group_chat_pb(group_chat: GroupChat) -> admin_pb2.AdminGroupChat:
             subs = (
                 session.execute(
                     select(GroupChatSubscription)
@@ -624,15 +624,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
             users.append(user)
 
-        # Create a new moderation user list if no one is provided
-        if not request.moderation_list_id:
-            moderation_user_list = ModerationUserList()
-            session.add(moderation_user_list)
-            session.flush()
-        else:
+        if request.moderation_list_id:
             moderation_user_list = session.get(ModerationUserList, request.moderation_list_id)
             if not moderation_user_list:
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "moderation_user_list_not_found")
+        # Create a new moderation user list if no one is provided
+        else:
+            moderation_user_list = ModerationUserList()
+            session.add(moderation_user_list)
+            session.flush()
 
         # Add users to the moderation list only if not already in it
         for user in users:

@@ -17,7 +17,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column(
         "background_jobs",
         "job_type",
@@ -47,7 +47,7 @@ def upgrade():
     op.execute("DROP TYPE backgroundjobtype")
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column(
         "background_jobs",
         "job_type",

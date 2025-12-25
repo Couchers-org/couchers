@@ -16,9 +16,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.alter_column("sessions", "expiry", server_default=sa.func.now() + sa.text("interval '730 days'"))
 
 
-def downgrade():
+def downgrade() -> None:
     op.alter_column("sessions", "expiry", server_default=sa.func.now() + sa.text("interval '90 days'"))

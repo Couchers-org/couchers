@@ -418,7 +418,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "strong_verification_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        existing_verification: StrongVerificationAttempt = session.execute(
+        existing_verification = session.execute(
             select(StrongVerificationAttempt)
             .where(StrongVerificationAttempt.user_id == user.id)
             .where(StrongVerificationAttempt.is_valid)
@@ -554,10 +554,10 @@ class Account(account_pb2_grpc.AccountServicer):
 
         reason = request.reason.strip()
         if reason:
-            reason = AccountDeletionReason(user_id=user.id, reason=reason)
-            session.add(reason)
+            deletion_reason = AccountDeletionReason(user_id=user.id, reason=reason)
+            session.add(deletion_reason)
             session.flush()
-            send_account_deletion_report_email(session, reason)
+            send_account_deletion_report_email(session, deletion_reason)
 
         token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
 
@@ -609,7 +609,7 @@ class Account(account_pb2_grpc.AccountServicer):
             .all()
         )
 
-        def _active_session_to_pb(user_session):
+        def _active_session_to_pb(user_session: UserSession) -> account_pb2.ActiveSession:
             user_agent = user_agents_parse(user_session.user_agent or "")
             return account_pb2.ActiveSession(
                 created=Timestamp_from_datetime(user_session.created),

@@ -16,9 +16,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("users", sa.Column("filled_contributor_form", sa.Boolean(), server_default="false", nullable=False))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("users", "filled_contributor_form")

@@ -16,12 +16,12 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         "users",
         sa.Column("has_passport_sex_gender_exception", sa.Boolean(), server_default=sa.text("false"), nullable=False),
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("users", "has_passport_sex_gender_exception")

@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'host_request__reminder'")
     op.add_column(
         "host_requests",
@@ -39,5 +39,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

@@ -15,7 +15,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_column("strong_verification_attempts", "passport_name")
     op.create_check_constraint(
         constraint_name="full_data_status",
@@ -25,5 +25,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

@@ -18,7 +18,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "signup_flows",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -76,7 +76,7 @@ def upgrade():
     op.drop_table("signup_tokens")
 
 
-def downgrade():
+def downgrade() -> None:
     op.create_table(
         "signup_tokens",
         sa.Column("token", sa.VARCHAR(), autoincrement=False, nullable=False),

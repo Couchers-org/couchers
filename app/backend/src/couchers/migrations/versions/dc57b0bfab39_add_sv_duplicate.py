@@ -15,7 +15,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'verification__sv_fail'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'verification__sv_success'")
     op.execute("ALTER TYPE strongverificationattemptstatus ADD VALUE 'duplicate'")
@@ -31,5 +31,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

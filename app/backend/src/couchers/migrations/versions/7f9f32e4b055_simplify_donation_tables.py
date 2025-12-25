@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "donation_initiations",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -46,5 +46,5 @@ def upgrade():
     op.drop_table("one_time_donations")
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

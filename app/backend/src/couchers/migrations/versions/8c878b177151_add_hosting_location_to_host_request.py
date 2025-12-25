@@ -17,7 +17,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         "host_requests",
         sa.Column("hosting_city", sa.String(), nullable=False, server_default="unknown"),
@@ -37,7 +37,7 @@ def upgrade():
     op.alter_column("host_requests", "hosting_radius", server_default=None)
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("host_requests", "hosting_radius")
     op.drop_column("host_requests", "hosting_location")
     op.drop_column("host_requests", "hosting_city")

@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         "users",
         sa.Column("profile_last_updated", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
@@ -25,5 +25,5 @@ def upgrade():
     op.execute("UPDATE users SET profile_last_updated = last_active")
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("users", "profile_last_updated")

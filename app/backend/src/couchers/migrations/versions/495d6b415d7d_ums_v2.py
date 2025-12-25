@@ -16,13 +16,13 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_index(op.f("ix_moderation_queue_item_author_user_id"), table_name="moderation_queue")
     op.drop_constraint(op.f("fk_moderation_queue_item_author_user_id_users"), "moderation_queue", type_="foreignkey")
     op.drop_column("moderation_queue", "item_author_user_id")
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         "moderation_queue", sa.Column("item_author_user_id", sa.BIGINT(), autoincrement=False, nullable=False)
     )

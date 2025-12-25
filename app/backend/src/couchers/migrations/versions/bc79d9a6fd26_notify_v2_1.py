@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("push_notification_subscriptions", sa.Column("user_agent", sa.String(), nullable=True))
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'reference__receive_friend'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'reference__receive_hosted'")
@@ -25,5 +25,5 @@ def upgrade():
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'reference__reminder_surfed'")
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

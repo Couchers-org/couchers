@@ -15,7 +15,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     # slugify takes an arbitrary piece of text and turns it into a "slug" by replacing occurences of non-alphanumber
     # characters with dashes, truncating, and then cleaning that up. We attempt to turn non-ascii characters to close
     # ascii characters with unaccent. Slugs are useful in URLs, giving users a preview yet being URL "nice". If the slug
@@ -42,5 +42,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     pass

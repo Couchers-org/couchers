@@ -15,7 +15,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute(
         "ALTER TYPE strongverificationattemptstatus RENAME VALUE 'in_progress_waiting_on_user' TO 'in_progress_waiting_on_user_to_open_app'"
     )
@@ -32,5 +32,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

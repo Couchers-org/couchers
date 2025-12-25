@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     # Create the enum types for on_platform (donations on our platform) and external_shop (donations through external merch shop)
     invoicetype_enum = sa.Enum("on_platform", "external_shop", name="invoicetype")
     invoicetype_enum.create(op.get_bind(), checkfirst=True)
@@ -53,7 +53,7 @@ def upgrade():
     op.drop_column("users", "has_donated")
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column(
         "users",
         sa.Column("has_donated", sa.BOOLEAN(), server_default=sa.text("false"), autoincrement=False, nullable=False),

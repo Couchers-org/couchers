@@ -16,12 +16,12 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         "contributor_forms",
         sa.Column("created", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("contributor_forms", "created")

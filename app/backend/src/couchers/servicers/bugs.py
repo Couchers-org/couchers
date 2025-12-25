@@ -1,3 +1,5 @@
+from typing import cast
+
 import grpc
 import requests
 from google.protobuf import empty_pb2
@@ -15,8 +17,8 @@ from couchers.sql import couchers_select as select
 
 
 class Bugs(bugs_pb2_grpc.BugsServicer):
-    def _version(self):
-        return config["VERSION"]
+    def _version(self) -> str:
+        return cast(str, config["VERSION"])
 
     def Version(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> bugs_pb2.VersionInfo:
         return bugs_pb2.VersionInfo(version=self._version())

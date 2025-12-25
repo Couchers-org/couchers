@@ -11,7 +11,7 @@ from couchers.proto import blocking_pb2, blocking_pb2_grpc
 from couchers.sql import couchers_select as select
 
 
-def is_not_visible(session, user1_id: int | None, user2_id: int | None) -> bool:
+def is_not_visible(session: Session, user1_id: int | None, user2_id: int | None) -> bool:
     """
     Check if users are not visible to each other (due to block or because either account is deleted/banned).
     """

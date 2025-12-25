@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE IF NOT EXISTS 'event__reminder'")
     op.add_column(
         "event_occurrence_attendees",
@@ -24,5 +24,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("event_occurrence_attendees", "reminder_sent")

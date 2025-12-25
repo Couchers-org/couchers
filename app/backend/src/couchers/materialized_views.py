@@ -5,7 +5,8 @@ from datetime import timedelta
 from typing import Any
 
 from google.protobuf import empty_pb2
-from sqlalchemy import Column, CompoundSelect, Connection, Float, Index, Integer, MetaData, Select, Table, event
+from sqlalchemy import CompoundSelect, Connection, Float, Index, Integer, MetaData, Select, Table, event
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql import (
     and_,
     case,
@@ -100,6 +101,9 @@ cluster_subscription_counts = create_materialized_view(
 class ClusterSubscriptionCount(Base):
     __table__ = cluster_subscription_counts
 
+    cluster_id: Mapped[int]
+    count: Mapped[int]
+
 
 cluster_admin_counts_selectable = (
     sa_select(
@@ -123,6 +127,9 @@ cluster_admin_counts = create_materialized_view(
 
 class ClusterAdminCount(Base):
     __table__ = cluster_admin_counts
+
+    cluster_id: Mapped[int]
+    count: Mapped[int]
 
 
 def make_lite_users_selectable(create: bool = False) -> Select[Any]:
@@ -193,22 +200,19 @@ lite_users = create_materialized_view_with_different_ddl(
 class LiteUser(Base):
     __table__ = lite_users
 
-    # to allow type annotations without affecting SQLAlchemy
-    __allow_unmapped__ = True
-
     # A subset enough to make mypy happy. Taken from "make_lite_users_selectable".
-    id: Column[int]
-    username: Column[str]
-    name: Column[str]
-    city: Column[str]
-    age: Column[int]
-    geom: Column[Geom]
-    radius: Column[float]
-    is_visible: Column[bool]
-    avatar_filename: Column[str]
-    has_completed_profile: Column[bool]
-    has_completed_my_home: Column[bool]
-    has_strong_verification: Column[bool]
+    id: Mapped[int]
+    username: Mapped[str]
+    name: Mapped[str]
+    city: Mapped[str]
+    age: Mapped[int]
+    geom: Mapped[Geom]
+    radius: Mapped[float]
+    is_visible: Mapped[bool]
+    avatar_filename: Mapped[str]
+    has_completed_profile: Mapped[bool]
+    has_completed_my_home: Mapped[bool]
+    has_strong_verification: Mapped[bool]
 
 
 def make_clustered_users_selectable(create: bool = False) -> CompoundSelect[Any]:
@@ -265,6 +269,9 @@ clustered_users = create_materialized_view_with_different_ddl(
 
 class ClusteredUser(Base):
     __table__ = clustered_users
+
+    geom: Mapped[Geom]
+    count: Mapped[int]
 
 
 def float_(stmt: Any) -> Any:
@@ -330,6 +337,13 @@ user_response_rates = create_materialized_view(
 
 class UserResponseRate(Base):
     __table__ = user_response_rates
+
+    user_id: Mapped[int]
+    requests: Mapped[int]
+    response_rate: Mapped[float]
+    avg_response_time: Mapped[float]
+    response_time_33p: Mapped[timedelta]
+    response_time_66p: Mapped[timedelta]
 
 
 def refresh_materialized_views(payload: empty_pb2.Empty) -> None:

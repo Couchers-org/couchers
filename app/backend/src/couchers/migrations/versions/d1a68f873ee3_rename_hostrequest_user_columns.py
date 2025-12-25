@@ -15,7 +15,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     ### Manually generated
     op.alter_column("host_requests", "from_user_id", new_column_name="surfer_user_id")
     op.alter_column("host_requests", "to_user_id", new_column_name="host_user_id")
@@ -33,5 +33,5 @@ def upgrade():
     op.execute("ALTER INDEX ix_host_requests_to_user_id RENAME TO ix_host_requests_host_user_id")
 
 
-def downgrade():
+def downgrade() -> None:
     pass

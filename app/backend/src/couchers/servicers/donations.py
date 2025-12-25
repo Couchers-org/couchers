@@ -19,7 +19,7 @@ from couchers.sql import couchers_select as select
 logger = logging.getLogger(__name__)
 
 
-def _create_stripe_customer(session, user):
+def _create_stripe_customer(session: Session, user: User) -> None:
     # create a new stripe id for this user
     customer = stripe.Customer.create(
         email=user.email,
@@ -68,13 +68,14 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
         checkout_session = stripe.checkout.Session.create(
             client_reference_id=user.id,
-            submit_type="donate" if not request.recurring else None,
+            # Stripe actually allows None, but the signature says it's either a string or not passed.
+            submit_type="donate" if not request.recurring else None,  # type: ignore[arg-type]
             customer=user.stripe_customer_id,
             success_url=urls.donation_success_url(),
             cancel_url=urls.donation_cancelled_url(),
             payment_method_types=["card"],
             mode="subscription" if request.recurring else "payment",
-            line_items=[item],
+            line_items=[item],  # type: ignore[list-item]
             api_key=config["STRIPE_API_KEY"],
         )
 
@@ -103,21 +104,23 @@ class Donations(donations_pb2_grpc.DonationsServicer):
         if not user.stripe_customer_id:
             _create_stripe_customer(session, user)
 
-        session = stripe.billing_portal.Session.create(
+        stripe_session = stripe.billing_portal.Session.create(
             customer=user.stripe_customer_id,
             return_url=urls.donation_url(),
             api_key=config["STRIPE_API_KEY"],
         )
 
-        return donations_pb2.GetDonationPortalLinkRes(stripe_portal_url=session.url)
+        return donations_pb2.GetDonationPortalLinkRes(stripe_portal_url=stripe_session.url)
 
 
 class Stripe(stripe_pb2_grpc.StripeServicer):
-    def Webhook(self, request, context, session):
+    def Webhook(
+        self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
+    ) -> httpbody_pb2.HttpBody:
         # We're set up to receive the following webhook events (with explanations from stripe docs):
         # For both recurring and one-off donations, we get a `charge.succeeded` event and we then send the user an
         # invoice. There are other events too, but we don't handle them right now.
-        event = stripe.Webhook.construct_event(
+        event = stripe.Webhook.construct_event(  # type: ignore[no-untyped-call]
             payload=request.data,
             sig_header=context.headers.get("stripe-signature"),
             secret=config["STRIPE_WEBHOOK_SECRET"],

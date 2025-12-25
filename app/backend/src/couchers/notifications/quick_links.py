@@ -132,7 +132,7 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
         else:
             context.abort_with_error_code(grpc.StatusCode.UNIMPLEMENTED, "cant_unsub_topic")
     if payload.HasField("host_request_quick_decline"):
-        Requests().RespondHostRequest(  # type: ignore[no-untyped-call]
+        Requests().RespondHostRequest(
             request=requests_pb2.RespondHostRequestReq(
                 host_request_id=payload.host_request_quick_decline.host_request_id,
                 status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,

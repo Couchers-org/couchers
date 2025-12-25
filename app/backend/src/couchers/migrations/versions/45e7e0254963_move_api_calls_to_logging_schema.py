@@ -15,11 +15,11 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("CREATE SCHEMA IF NOT EXISTS logging")
     op.execute("ALTER TABLE api_calls SET SCHEMA logging")
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute("ALTER TABLE api_calls SET SCHEMA public")
     op.execute("DROP SCHEMA IF EXISTS logging")
