@@ -20,7 +20,6 @@ import {
   routeToEditProfile,
   UserTab,
 } from "routes";
-import { theme } from "theme";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import AdminPanelUserButton from "./AdminPanelUserButton";
@@ -51,24 +50,11 @@ function LoggedInUserActions({ tab }: { tab: UserTab }) {
         component={Link}
         color="primary"
         href={routeToEditProfile(getEditTab(tab))}
-        startIcon={<Edit fontSize="small" sx={{ color: "common.white" }} />}
+        startIcon={<Edit fontSize="small" />}
       >
         {t("profile:edit")}
       </Button>
-      <Button
-        component={Link}
-        variant="outlined"
-        sx={{
-          color: theme.palette.common.black,
-          borderColor: theme.palette.grey[300],
-
-          "&:hover": {
-            borderColor: theme.palette.grey[300],
-            backgroundColor: "#3135390A",
-          },
-        }}
-        href={connectionsRoute}
-      >
+      <Button component={Link} variant="outlined" href={connectionsRoute}>
         {t("profile:my_connections")}
       </Button>
     </>

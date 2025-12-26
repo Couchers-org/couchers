@@ -467,7 +467,7 @@ export default function Navigation() {
                     fontSize: "1.3rem",
                     borderRadius: theme.spacing(1),
                     border: (theme: Theme) =>
-                      `1.5px solid ${theme.palette.primary.main}`,
+                      `1.5px solid var(--mui-palette-primary-main)`,
                   }}
                   onClick={() => router.push(loginRoute)}
                 >

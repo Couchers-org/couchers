@@ -1,16 +1,9 @@
 import { ButtonProps, styled } from "@mui/material";
 import Button from "components/Button";
-import { theme } from "theme";
 
-const StyledButton = styled(Button)<ButtonProps>({
-  display: "block",
+const StyledButton = styled(Button)<ButtonProps>(() => ({
   flexShrink: 0,
-  marginInlineStart: theme.spacing(1),
-  height: theme.spacing(5),
-  marginBottom: 0,
-  marginTop: "auto",
-  alignItems: "center",
-});
+}));
 
 const FieldButton = ({
   children,

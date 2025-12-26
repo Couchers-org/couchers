@@ -19,7 +19,6 @@ import { DASHBOARD } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { useEffect, useRef, useState } from "react";
 import { routeToCommunity } from "routes";
-import { theme } from "theme";
 
 const OuterWrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -62,7 +61,7 @@ const StyledDivider = styled(Divider)(({ theme }) => ({
 }));
 
 const StyledListItemText = styled(ListItemText)(({ theme }) => ({
-  color: theme.palette.text.primary,
+  color: "var(--mui-palette-text-primary)",
 }));
 
 export default function CommunityBrowser() {
@@ -195,7 +194,7 @@ function BrowserColumn({
               <StyledListItemText
                 primary={parent.name}
                 sx={{
-                  color: theme.palette.primary.main,
+                  color: "var(--mui-palette-primary-main)",
                 }}
               />
             </StyledLink>

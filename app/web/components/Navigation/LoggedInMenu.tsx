@@ -120,12 +120,14 @@ function LinkMenuItemView({
 }: LoggedInMenuLinkItem & { closeMenu: () => unknown }) {
   const linkContent = (
     <span style={{ display: "flex", alignItems: "center" }}>
-      <Typography noWrap>{name}</Typography>
+      <Typography noWrap sx={{ color: "var(--mui-palette-text-primary)" }}>
+        {name}
+      </Typography>
       {!!notificationCount && (
         <Box
           sx={{
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.common.white,
+            backgroundColor: "var(--mui-palette-primary-main)",
+            color: "var(--mui-palette-primary-contrastText)",
             borderRadius: theme.spacing(10),
             marginLeft: theme.spacing(0.5),
             display: "flex",
@@ -160,7 +162,7 @@ function LinkMenuItemView({
           onClick={closeMenu}
           style={{
             width: "100%",
-            color: theme.palette.text.primary,
+            color: "var(--mui-palette-text-primary)",
             textDecoration: "none",
           }}
         >

@@ -23,7 +23,7 @@ const StyledNextLink = styled(Link, {
   maxWidth: "10.5rem",
   padding: theme.spacing(1, 1.5),
   ...(isNotification && { marginRight: "0.8rem" }),
-  ...(isSelected && { color: theme.palette.secondary.main }),
+  ...(isSelected && { color: "var(--mui-palette-secondary-main)" }),
 }));
 
 const StyledTypography = styled(Typography)(({ theme }) => ({

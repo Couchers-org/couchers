@@ -29,9 +29,11 @@ const StyledCard = styled("div", {
 })<{ isHighlighted: boolean }>(({ theme, isHighlighted }) => ({
   display: "flex",
   flexDirection: "column",
-  border: isHighlighted ? `2px solid ${theme.palette.secondary.main}` : "none",
+  border: isHighlighted
+    ? `2px solid var(--mui-palette-secondary-main)`
+    : "none",
   borderRadius: 8,
-  boxShadow: "0 0 4px rgba(0, 0, 0, 0.25)",
+  boxShadow: "0 0 4px var(--mui-palette-divider)",
   paddingTop: theme.spacing(1),
   height: "100%",
   width: "100%",
@@ -88,7 +90,7 @@ const FlexColumn = styled("div")(({ theme }) => ({
 const UserDetailsRow = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  color: theme.palette.grey[600],
+  color: "var(--mui-palette-grey-600)",
   fontSize: "1.2rem",
   marginTop: "auto",
   justifyContent: "space-between",
@@ -104,7 +106,7 @@ const HaikuContainer = styled("div")(({ theme }) => ({
   whiteSpace: "pre-line",
   lineHeight: 1.8,
   padding: theme.spacing(1),
-  color: theme.palette.text.primary,
+  color: "var(--mui-palette-text-primary)",
   opacity: 0.2,
   textAlign: "center",
   flexGrow: 1,
@@ -198,7 +200,7 @@ const SearchResultUserCard = ({
                 <StyledOpenInNewIcon
                   sx={{
                     "&:hover": {
-                      color: theme.palette.primary.dark,
+                      color: "var(--mui-palette-primary-dark)",
                     },
                   }}
                 />
