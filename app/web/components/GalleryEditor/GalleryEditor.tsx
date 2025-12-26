@@ -35,6 +35,7 @@ export interface GalleryItemData {
 
 interface GalleryEditorProps {
   galleryId: number | undefined;
+  userId?: number;
   title?: string;
   description?: string;
   hasStrongVerification?: boolean;
@@ -121,6 +122,7 @@ const PhotoCountBadge = styled(Typography)(({ theme }) => ({
 
 export default function GalleryEditor({
   galleryId,
+  userId,
   title,
   description,
   hasStrongVerification,
@@ -147,9 +149,9 @@ export default function GalleryEditor({
   const { data: editInfo, isLoading: editInfoLoading } =
     useGalleryEditInfo(galleryId);
 
-  const addPhotoMutation = useAddPhotoToGallery(galleryId || 0);
-  const removePhotoMutation = useRemovePhotoFromGallery(galleryId || 0);
-  const movePhotoMutation = useMovePhoto(galleryId || 0);
+  const addPhotoMutation = useAddPhotoToGallery(galleryId || 0, userId);
+  const removePhotoMutation = useRemovePhotoFromGallery(galleryId || 0, userId);
+  const movePhotoMutation = useMovePhoto(galleryId || 0, userId);
 
   // Auto-dismiss success messages after 3 seconds
   useEffect(() => {

@@ -428,6 +428,7 @@ class User(Base, kw_only=True):
     def _has_completed_profile_expression(cls) -> ColumnElement[bool]:
         from sqlalchemy import exists, literal
         from couchers.models import PhotoGalleryItem
+
         return (
             (cls.profile_gallery_id != None)
             & exists(sa_select(literal(1)).where(PhotoGalleryItem.gallery_id == cls.profile_gallery_id))

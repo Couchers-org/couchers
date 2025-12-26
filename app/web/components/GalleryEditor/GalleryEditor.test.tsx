@@ -45,7 +45,7 @@ describe("GalleryEditor", () => {
     });
 
     expect(screen.getByText("Test description")).toBeInTheDocument();
-    expect(screen.getByText("3 / 10 photos")).toBeInTheDocument();
+    expect(screen.getByText("3 of 4")).toBeInTheDocument();
 
     // Check that images are rendered
     const images = screen.getAllByRole("img");
@@ -125,10 +125,10 @@ describe("GalleryEditor", () => {
   });
 
   it("shows verification message when at photo limit without strong verification", async () => {
-    const gallery = galleryFixtures.galleries[0];
+    const gallery = galleryFixtures.galleries[0]; // Has 3 photos
     const editInfo = {
       ...galleryFixtures.editInfo[0],
-      canAddMore: false, // At limit
+      maxPhotos: 3, // Set to current photo count to trigger limit
     };
 
     mockGetGallery.mockResolvedValue(gallery);
@@ -162,7 +162,7 @@ describe("GalleryEditor", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText("3 / 10 photos")).toBeInTheDocument();
+      expect(screen.getByText("3 of 4")).toBeInTheDocument();
     });
 
     expect(

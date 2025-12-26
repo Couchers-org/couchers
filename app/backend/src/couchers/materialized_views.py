@@ -157,16 +157,13 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
     )
 
     # Subquery to get the first photo from each user's profile gallery
-    first_gallery_photo_subquery = (
-        sa_select(
-            PhotoGalleryItem.gallery_id,
-            PhotoGalleryItem.upload_key,
-            func.row_number()
-            .over(partition_by=PhotoGalleryItem.gallery_id, order_by=PhotoGalleryItem.position)
-            .label("rn"),
-        )
-        .subquery(name="first_photo")
-    )
+    first_gallery_photo_subquery = sa_select(
+        PhotoGalleryItem.gallery_id,
+        PhotoGalleryItem.upload_key,
+        func.row_number()
+        .over(partition_by=PhotoGalleryItem.gallery_id, order_by=PhotoGalleryItem.position)
+        .label("rn"),
+    ).subquery(name="first_photo")
 
     # Be sure to modify the LiteUser type if you add/remove columns!
     return (

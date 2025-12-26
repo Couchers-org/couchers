@@ -451,6 +451,7 @@ export default function EditProfileForm() {
               <FieldGroup>
                 <GalleryEditor
                   galleryId={user.profileGalleryId}
+                  userId={user.userId}
                   title={t("profile:gallery.profile_photos_title")}
                   description={t("profile:gallery.profile_photos_description")}
                   hasStrongVerification={user.hasStrongVerification}

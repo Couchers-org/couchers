@@ -9,12 +9,12 @@ Revises: f8b4ef6e3819
 Create Date: 2025-12-26 18:34:10.385471
 
 """
+
 from alembic import op
 
-
 # revision identifiers, used by Alembic.
-revision = '6862ecf6494d'
-down_revision = 'f8b4ef6e3819'
+revision = "6862ecf6494d"
+down_revision = "f8b4ef6e3819"
 branch_labels = None
 depends_on = None
 

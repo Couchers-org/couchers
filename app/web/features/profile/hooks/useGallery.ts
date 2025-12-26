@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { galleryEditInfoKey, galleryKey, userKey } from "features/queryKeys";
-import useCurrentUser from "features/userQueries/useCurrentUser";
 import { PhotoGallery } from "proto/galleries_pb";
 import { service } from "service";
 
@@ -20,9 +19,8 @@ export function useGalleryEditInfo(galleryId: number | undefined) {
   });
 }
 
-export function useAddPhotoToGallery(galleryId: number) {
+export function useAddPhotoToGallery(galleryId: number, userId?: number) {
   const queryClient = useQueryClient();
-  const { data: user } = useCurrentUser();
 
   return useMutation({
     mutationFn: ({
@@ -38,18 +36,17 @@ export function useAddPhotoToGallery(galleryId: number) {
         queryKey: galleryEditInfoKey(galleryId),
       });
       // Invalidate user query to update avatar
-      if (user?.userId) {
+      if (userId) {
         queryClient.invalidateQueries({
-          queryKey: userKey(user.userId),
+          queryKey: userKey(userId),
         });
       }
     },
   });
 }
 
-export function useRemovePhotoFromGallery(galleryId: number) {
+export function useRemovePhotoFromGallery(galleryId: number, userId?: number) {
   const queryClient = useQueryClient();
-  const { data: user } = useCurrentUser();
 
   return useMutation({
     mutationFn: (itemId: number) =>
@@ -60,18 +57,17 @@ export function useRemovePhotoFromGallery(galleryId: number) {
         queryKey: galleryEditInfoKey(galleryId),
       });
       // Invalidate user query to update avatar
-      if (user?.userId) {
+      if (userId) {
         queryClient.invalidateQueries({
-          queryKey: userKey(user.userId),
+          queryKey: userKey(userId),
         });
       }
     },
   });
 }
 
-export function useMovePhoto(galleryId: number) {
+export function useMovePhoto(galleryId: number, userId?: number) {
   const queryClient = useQueryClient();
-  const { data: user } = useCurrentUser();
 
   return useMutation({
     mutationFn: ({
@@ -84,9 +80,9 @@ export function useMovePhoto(galleryId: number) {
     onSuccess: (updatedGallery) => {
       queryClient.setQueryData(galleryKey(galleryId), updatedGallery);
       // Invalidate user query to update avatar
-      if (user?.userId) {
+      if (userId) {
         queryClient.invalidateQueries({
-          queryKey: userKey(user.userId),
+          queryKey: userKey(userId),
         });
       }
     },

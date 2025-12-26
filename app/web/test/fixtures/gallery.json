@@ -49,12 +49,12 @@
   "editInfo": [
     {
       "galleryId": 1,
-      "maxPhotos": 10,
+      "maxPhotos": 4,
       "currentPhotoCount": 3
     },
     {
       "galleryId": 3,
-      "maxPhotos": 8,
+      "maxPhotos": 1,
       "currentPhotoCount": 0
     }
   ]

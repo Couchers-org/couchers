@@ -29,7 +29,7 @@ def create_upload(session, user_id, filename="test.jpg"):
 
 def test_user_has_profile_gallery(db):
     """Each user should have a profile gallery created automatically"""
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         user = session.execute(select(User).where(User.id == user1.id)).scalar_one()
@@ -40,7 +40,7 @@ def test_user_has_profile_gallery(db):
 
 
 def test_GetGalleryEditInfo(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with galleries_session(token1) as api:
         res = api.GetGalleryEditInfo(galleries_pb2.GetGalleryEditInfoReq(gallery_id=user1.profile_gallery_id))
@@ -50,7 +50,7 @@ def test_GetGalleryEditInfo(db):
 
 
 def test_GetGalleryEditInfo_verified_user(db):
-    user1, token1 = generate_user(strong_verification=True)
+    user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with galleries_session(token1) as api:
         res = api.GetGalleryEditInfo(galleries_pb2.GetGalleryEditInfoReq(gallery_id=user1.profile_gallery_id))
@@ -60,8 +60,8 @@ def test_GetGalleryEditInfo_verified_user(db):
 
 
 def test_GetGalleryEditInfo_not_owner(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
+    user2, token2 = generate_user(complete_profile=False)
 
     with galleries_session(token2) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -71,7 +71,7 @@ def test_GetGalleryEditInfo_not_owner(db):
 
 
 def test_GetGalleryEditInfo_not_found(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with galleries_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -81,7 +81,7 @@ def test_GetGalleryEditInfo_not_found(db):
 
 
 def test_GetGalleryEditInfo_with_photos(db):
-    user1, token1 = generate_user(strong_verification=True)
+    user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
         keys = [create_upload(session, user1.id, f"photo{i}.jpg") for i in range(3)]
@@ -98,7 +98,7 @@ def test_GetGalleryEditInfo_with_photos(db):
 
 
 def test_GetGallery_as_owner(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with galleries_session(token1) as api:
         res = api.GetGallery(galleries_pb2.GetGalleryReq(gallery_id=user1.profile_gallery_id))
@@ -108,8 +108,8 @@ def test_GetGallery_as_owner(db):
 
 
 def test_GetGallery_as_non_owner(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
+    user2, token2 = generate_user(complete_profile=False)
 
     with galleries_session(token2) as api:
         res = api.GetGallery(galleries_pb2.GetGalleryReq(gallery_id=user1.profile_gallery_id))
@@ -119,7 +119,7 @@ def test_GetGallery_as_non_owner(db):
 
 
 def test_GetGallery_not_found(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with galleries_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -129,7 +129,7 @@ def test_GetGallery_not_found(db):
 
 
 def test_AddPhotoToGallery_success(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         upload_key = create_upload(session, user1.id)
@@ -150,7 +150,7 @@ def test_AddPhotoToGallery_success(db):
 
 
 def test_AddPhotoToGallery_with_caption(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         upload_key = create_upload(session, user1.id)
@@ -169,7 +169,7 @@ def test_AddPhotoToGallery_with_caption(db):
 
 
 def test_AddPhotoToGallery_multiple_photos(db):
-    user1, token1 = generate_user(strong_verification=True)
+    user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
         key1 = create_upload(session, user1.id, "photo1.jpg")
@@ -194,8 +194,8 @@ def test_AddPhotoToGallery_multiple_photos(db):
 
 
 def test_AddPhotoToGallery_not_owner(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
+    user2, token2 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         upload_key = create_upload(session, user2.id)
@@ -213,8 +213,8 @@ def test_AddPhotoToGallery_not_owner(db):
 
 
 def test_AddPhotoToGallery_upload_not_owned(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
+    user2, token2 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         upload_key = create_upload(session, user2.id)
@@ -232,7 +232,7 @@ def test_AddPhotoToGallery_upload_not_owned(db):
 
 
 def test_AddPhotoToGallery_max_capacity(db):
-    user1, token1 = generate_user(strong_verification=True)
+    user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
         keys = [create_upload(session, user1.id, f"photo{i}.jpg") for i in range(5)]
@@ -258,7 +258,7 @@ def test_AddPhotoToGallery_max_capacity(db):
 
 
 def test_AddPhotoToGallery_duplicate_photo(db):
-    user1, token1 = generate_user(strong_verification=True)
+    user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
         upload_key = create_upload(session, user1.id)
@@ -283,7 +283,7 @@ def test_AddPhotoToGallery_duplicate_photo(db):
 
 
 def test_AddPhotoToGallery_gallery_not_found(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         upload_key = create_upload(session, user1.id)
@@ -301,7 +301,7 @@ def test_AddPhotoToGallery_gallery_not_found(db):
 
 
 def test_RemovePhotoFromGallery_success(db):
-    user1, token1 = generate_user(strong_verification=True)
+    user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
         key1 = create_upload(session, user1.id, "photo1.jpg")
@@ -328,8 +328,8 @@ def test_RemovePhotoFromGallery_success(db):
 
 
 def test_RemovePhotoFromGallery_not_owner(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
+    user2, token2 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         upload_key = create_upload(session, user1.id)
@@ -353,7 +353,7 @@ def test_RemovePhotoFromGallery_not_owner(db):
 
 
 def test_RemovePhotoFromGallery_item_not_found(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with galleries_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -368,7 +368,7 @@ def test_RemovePhotoFromGallery_item_not_found(db):
 
 
 def test_MovePhoto_to_first(db):
-    user1, token1 = generate_user(strong_verification=True)
+    user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
         keys = [create_upload(session, user1.id, f"photo{i}.jpg") for i in range(3)]
@@ -398,7 +398,7 @@ def test_MovePhoto_to_first(db):
 
 
 def test_MovePhoto_to_middle(db):
-    user1, token1 = generate_user(strong_verification=True)
+    user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
         keys = [create_upload(session, user1.id, f"photo{i}.jpg") for i in range(3)]
@@ -428,7 +428,7 @@ def test_MovePhoto_to_middle(db):
 
 
 def test_MovePhoto_to_end(db):
-    user1, token1 = generate_user(strong_verification=True)
+    user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
         keys = [create_upload(session, user1.id, f"photo{i}.jpg") for i in range(3)]
@@ -458,7 +458,7 @@ def test_MovePhoto_to_end(db):
 
 
 def test_MovePhoto_noop(db):
-    user1, token1 = generate_user(strong_verification=True)
+    user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
         keys = [create_upload(session, user1.id, f"photo{i}.jpg") for i in range(3)]
@@ -488,8 +488,8 @@ def test_MovePhoto_noop(db):
 
 
 def test_MovePhoto_not_owner(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
+    user2, token2 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         upload_key = create_upload(session, user1.id)
@@ -514,7 +514,7 @@ def test_MovePhoto_not_owner(db):
 
 
 def test_MovePhoto_item_not_found(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with galleries_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -530,7 +530,7 @@ def test_MovePhoto_item_not_found(db):
 
 
 def test_MovePhoto_after_item_not_found(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         upload_key = create_upload(session, user1.id)
@@ -554,7 +554,7 @@ def test_MovePhoto_after_item_not_found(db):
 
 
 def test_UpdatePhotoCaption_success(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         upload_key = create_upload(session, user1.id)
@@ -578,7 +578,7 @@ def test_UpdatePhotoCaption_success(db):
 
 
 def test_UpdatePhotoCaption_clear_caption(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         upload_key = create_upload(session, user1.id)
@@ -606,8 +606,8 @@ def test_UpdatePhotoCaption_clear_caption(db):
 
 
 def test_UpdatePhotoCaption_not_owner(db):
-    user1, token1 = generate_user()
-    user2, token2 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
+    user2, token2 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         upload_key = create_upload(session, user1.id)
@@ -632,7 +632,7 @@ def test_UpdatePhotoCaption_not_owner(db):
 
 
 def test_UpdatePhotoCaption_item_not_found(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with galleries_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -648,7 +648,7 @@ def test_UpdatePhotoCaption_item_not_found(db):
 
 
 def test_remove_and_readd_photo(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         upload_key = create_upload(session, user1.id)
@@ -671,7 +671,7 @@ def test_remove_and_readd_photo(db):
 
 
 def test_gallery_photo_ordering_preserved(db):
-    user1, token1 = generate_user(strong_verification=True)
+    user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
         keys = [create_upload(session, user1.id, f"photo{i}.jpg") for i in range(4)]
@@ -691,7 +691,7 @@ def test_gallery_photo_ordering_preserved(db):
 
 
 def test_database_constraints_upload_uniqueness(db):
-    user1, token1 = generate_user()
+    user1, token1 = generate_user(complete_profile=False)
 
     with session_scope() as session:
         user = session.execute(select(User).where(User.id == user1.id)).scalar_one()
