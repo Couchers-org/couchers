@@ -19,34 +19,63 @@ interface GalleryItemProps {
   item: GalleryItemData;
   isFirst: boolean;
   isDragging: boolean;
+  isDragOver: boolean;
   isDeleting: boolean;
   canEdit: boolean;
   onDelete: (itemId: number) => void;
   onDragStart: (e: React.DragEvent, itemId: number) => void;
   onDragEnd: (e: React.DragEvent) => void;
-  onDragOver: (e: React.DragEvent) => void;
+  onDragOver: (e: React.DragEvent, targetItemId: number) => void;
   onDrop: (e: React.DragEvent, targetItemId: number) => void;
+  onTouchStart: (e: React.TouchEvent, itemId: number) => void;
+  onTouchMove: (e: React.TouchEvent) => void;
+  onTouchEnd: () => void;
 }
 
 const StyledImageListItem = styled(ImageListItem, {
-  shouldForwardProp: (prop) => prop !== "isDragging",
-})<{ isDragging: boolean }>(({ theme, isDragging }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  overflow: "hidden",
-  cursor: "grab",
-  opacity: isDragging ? 0.5 : 1,
-  transition: "opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease",
-  "&:hover": {
-    boxShadow: theme.shadows[4],
-    "& .drag-handle": {
-      opacity: 1,
+  shouldForwardProp: (prop) => prop !== "isDragging" && prop !== "isDragOver",
+})<{ isDragging: boolean; isDragOver: boolean }>(
+  ({ theme, isDragging, isDragOver }) => ({
+    position: "relative",
+    borderRadius: theme.shape.borderRadius,
+    overflow: "hidden",
+    cursor: "grab",
+    opacity: isDragging ? 0.5 : 1,
+    transition: "opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease",
+    boxShadow: isDragOver ? theme.shadows[8] : undefined,
+    transform: isDragOver ? "scale(1.02)" : undefined,
+    touchAction: "none",
+    userSelect: "none",
+    WebkitUserSelect: "none",
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      border: isDragOver
+        ? `4px solid ${theme.palette.primary.main}`
+        : "4px solid transparent",
+      borderRadius: theme.shape.borderRadius,
+      pointerEvents: "none",
+      transition: "border-color 0.2s ease",
+      zIndex: 2,
     },
-    "& .MuiImageListItemBar-root": {
-      opacity: 1,
+    "&:hover": {
+      boxShadow: theme.shadows[4],
+      "& .drag-handle": {
+        opacity: 1,
+      },
+      "& .MuiImageListItemBar-root": {
+        opacity: 1,
+      },
     },
-  },
-}));
+    "&:active": {
+      cursor: "grabbing",
+    },
+  }),
+);
 
 const StyledImage = styled("img")({
   width: "100%",
@@ -120,6 +149,7 @@ export default function GalleryItem({
   item,
   isFirst,
   isDragging,
+  isDragOver,
   isDeleting,
   canEdit,
   onDelete,
@@ -127,6 +157,9 @@ export default function GalleryItem({
   onDragEnd,
   onDragOver,
   onDrop,
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd,
 }: GalleryItemProps) {
   const { t } = useTranslation([PROFILE]);
 
@@ -138,14 +171,28 @@ export default function GalleryItem({
     onDragStart(e, item.itemId);
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    onDragOver(e, item.itemId);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!canEdit) return;
+    onTouchStart(e, item.itemId);
+  };
+
   return (
     <StyledImageListItem
       isDragging={isDragging}
+      isDragOver={isDragOver}
       draggable={canEdit}
       onDragStart={handleDragStart}
       onDragEnd={onDragEnd}
-      onDragOver={onDragOver}
+      onDragOver={handleDragOver}
       onDrop={(e) => onDrop(e, item.itemId)}
+      onTouchStart={handleTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      data-item-id={item.itemId}
     >
       <StyledImage
         src={item.thumbnailUrl || item.fullUrl}

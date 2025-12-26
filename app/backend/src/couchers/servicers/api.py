@@ -32,6 +32,7 @@ from couchers.models import (
     Notification,
     NotificationDeliveryType,
     ParkingDetails,
+    PhotoGalleryItem,
     RateLimitAction,
     Reference,
     RegionLived,
@@ -1032,6 +1033,16 @@ def user_model_to_pb(
         select(UserResponseRate).where(UserResponseRate.user_id == db_user.id)
     ).scalar_one_or_none()
 
+    # Get first photo from profile gallery for avatar
+    first_gallery_photo = None
+    if db_user.profile_gallery_id:
+        first_gallery_photo = session.execute(
+            select(PhotoGalleryItem)
+            .where(PhotoGalleryItem.gallery_id == db_user.profile_gallery_id)
+            .order_by(PhotoGalleryItem.position)
+            .limit(1)
+        ).scalar_one_or_none()
+
     verification_score = 0.0
     if db_user.phone_verification_verified:
         verification_score += 1.0 * db_user.phone_is_verified
@@ -1073,8 +1084,9 @@ def user_model_to_pb(
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
         sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
         parking_details=parkingdetails2api[db_user.parking_details],
-        avatar_url=db_user.avatar.full_url if db_user.avatar else None,
-        avatar_thumbnail_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
+        avatar_url=first_gallery_photo.upload.full_url if first_gallery_photo else None,
+        avatar_thumbnail_url=first_gallery_photo.upload.thumbnail_url if first_gallery_photo else None,
+        profile_gallery_id=db_user.profile_gallery_id or 0,
         badges=session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == db_user.id).order_by(UserBadge.id))
         .scalars()
         .all(),

@@ -38,6 +38,7 @@ from couchers.models import (
     MatViewBase,
     Message,
     MessageType,
+    PhotoGalleryItem,
     StrongVerificationAttempt,
     Upload,
     User,
@@ -155,6 +156,18 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
         .subquery(name="sv_subquery")
     )
 
+    # Subquery to get the first photo from each user's profile gallery
+    first_gallery_photo_subquery = (
+        sa_select(
+            PhotoGalleryItem.gallery_id,
+            PhotoGalleryItem.upload_key,
+            func.row_number()
+            .over(partition_by=PhotoGalleryItem.gallery_id, order_by=PhotoGalleryItem.position)
+            .label("rn"),
+        )
+        .subquery(name="first_photo")
+    )
+
     # Be sure to modify the LiteUser type if you add/remove columns!
     return (
         sa_select(
@@ -172,7 +185,12 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
             func.coalesce(strong_verification_subquery.c.true, False).label("has_strong_verification"),
         )
         .select_from(User)
-        .outerjoin(Upload, Upload.key == User.avatar_key)
+        .outerjoin(
+            first_gallery_photo_subquery,
+            (first_gallery_photo_subquery.c.gallery_id == User.profile_gallery_id)
+            & (first_gallery_photo_subquery.c.rn == 1),
+        )
+        .outerjoin(Upload, Upload.key == first_gallery_photo_subquery.c.upload_key)
         .outerjoin(strong_verification_subquery, strong_verification_subquery.c.id == User.id)
     )
 

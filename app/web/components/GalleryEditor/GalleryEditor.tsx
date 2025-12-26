@@ -20,7 +20,8 @@ import {
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import Sentry from "platform/sentry";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { settingsRoute } from "routes";
 import { service } from "service";
 
 import GalleryItem from "./GalleryItem";
@@ -36,6 +37,7 @@ interface GalleryEditorProps {
   galleryId: number | undefined;
   title?: string;
   description?: string;
+  hasStrongVerification?: boolean;
 }
 
 const Root = styled(Box)(({ theme }) => ({
@@ -121,6 +123,7 @@ export default function GalleryEditor({
   galleryId,
   title,
   description,
+  hasStrongVerification,
 }: GalleryEditorProps) {
   const { t } = useTranslation([PROFILE]);
   const theme = useTheme();
@@ -130,9 +133,15 @@ export default function GalleryEditor({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [draggedItemId, setDraggedItemId] = useState<number | null>(null);
+  const [dragOverItemId, setDragOverItemId] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [deletingItemId, setDeletingItemId] = useState<number | null>(null);
+  const [showReorderSuccess, setShowReorderSuccess] = useState(false);
+  const [showUploadSuccess, setShowUploadSuccess] = useState(false);
+
+  // Touch support for mobile
+  const [touchStartItemId, setTouchStartItemId] = useState<number | null>(null);
 
   const { data: gallery, isLoading: galleryLoading } = useGallery(galleryId);
   const { data: editInfo, isLoading: editInfoLoading } =
@@ -141,6 +150,25 @@ export default function GalleryEditor({
   const addPhotoMutation = useAddPhotoToGallery(galleryId || 0);
   const removePhotoMutation = useRemovePhotoFromGallery(galleryId || 0);
   const movePhotoMutation = useMovePhoto(galleryId || 0);
+
+  // Auto-dismiss success messages after 3 seconds
+  useEffect(() => {
+    if (showReorderSuccess) {
+      const timer = setTimeout(() => {
+        setShowReorderSuccess(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showReorderSuccess]);
+
+  useEffect(() => {
+    if (showUploadSuccess) {
+      const timer = setTimeout(() => {
+        setShowUploadSuccess(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showUploadSuccess]);
 
   const canEdit = gallery?.canEdit ?? false;
   const photos: GalleryItemData[] = (gallery?.photosList ??
@@ -165,6 +193,7 @@ export default function GalleryEditor({
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setUploadError(null);
+    setShowUploadSuccess(false);
     if (!e.target.files?.length) return;
 
     const file = e.target.files[0];
@@ -173,6 +202,7 @@ export default function GalleryEditor({
     try {
       const uploadResult = await service.api.uploadFile(file);
       await addPhotoMutation.mutateAsync({ uploadKey: uploadResult.key });
+      setShowUploadSuccess(true);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Upload failed";
@@ -206,17 +236,20 @@ export default function GalleryEditor({
 
   const handleDragEnd = () => {
     setDraggedItemId(null);
+    setDragOverItemId(null);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, targetItemId: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
+    setDragOverItemId(targetItemId);
   };
 
   const handleDrop = async (e: React.DragEvent, targetItemId: number) => {
     e.preventDefault();
     const draggedId = draggedItemId;
     setDraggedItemId(null);
+    setDragOverItemId(null);
 
     if (!draggedId || draggedId === targetItemId) return;
 
@@ -244,6 +277,76 @@ export default function GalleryEditor({
         itemId: draggedId,
         afterItemId,
       });
+      setShowReorderSuccess(true);
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: { component: "GalleryEditor" },
+      });
+    }
+  };
+
+  // Touch handlers for mobile drag and drop
+  const handleTouchStart = (e: React.TouchEvent, itemId: number) => {
+    if (!canEdit) return;
+    setTouchStartItemId(itemId);
+    setDraggedItemId(itemId);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartItemId) return;
+
+    const touch = e.touches[0];
+
+    // Find which item we're currently over
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    const imageListItem = element?.closest("[data-item-id]");
+
+    if (imageListItem) {
+      const itemId = Number(imageListItem.getAttribute("data-item-id"));
+      if (itemId && itemId !== touchStartItemId) {
+        setDragOverItemId(itemId);
+      }
+    }
+  };
+
+  const handleTouchEnd = async () => {
+    if (!touchStartItemId || !dragOverItemId) {
+      setTouchStartItemId(null);
+      setDraggedItemId(null);
+      setDragOverItemId(null);
+      return;
+    }
+
+    const draggedId = touchStartItemId;
+    const targetItemId = dragOverItemId;
+
+    setTouchStartItemId(null);
+    setDraggedItemId(null);
+    setDragOverItemId(null);
+
+    if (draggedId === targetItemId) return;
+
+    // Find the positions of dragged and target items
+    const draggedIndex = photos.findIndex((p) => p.itemId === draggedId);
+    const targetIndex = photos.findIndex((p) => p.itemId === targetItemId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    // Determine afterItemId
+    let afterItemId: number;
+
+    if (draggedIndex > targetIndex) {
+      afterItemId = targetIndex === 0 ? 0 : photos[targetIndex - 1].itemId;
+    } else {
+      afterItemId = targetItemId;
+    }
+
+    try {
+      await movePhotoMutation.mutateAsync({
+        itemId: draggedId,
+        afterItemId,
+      });
+      setShowReorderSuccess(true);
     } catch (error) {
       Sentry.captureException(error, {
         tags: { component: "GalleryEditor" },
@@ -285,7 +388,7 @@ export default function GalleryEditor({
               <PhotoCountBadge>
                 {t("profile:gallery.photo_count", {
                   current: currentPhotoCount,
-                  max: maxPhotos,
+                  total: maxPhotos,
                 })}
               </PhotoCountBadge>
               <UploadButton
@@ -310,12 +413,30 @@ export default function GalleryEditor({
         </HeaderRow>
 
         {canEdit && photos.length > 0 && (
-          <InfoBox>
-            <InfoOutlined fontSize="small" sx={{ color: "primary.main" }} />
-            <Typography variant="body2" color="text.secondary">
-              {t("profile:gallery.primary_photo_hint")}
-            </Typography>
-          </InfoBox>
+          <>
+            {!canAddMore && !hasStrongVerification && (
+              <InfoBox
+                sx={{
+                  backgroundColor: theme.palette.grey[50],
+                  border: `1px solid ${theme.palette.grey[300]}`,
+                  marginTop: 1,
+                }}
+              >
+                <InfoOutlined fontSize="small" sx={{ color: "primary.main" }} />
+                <Typography variant="body2" color="text.secondary">
+                  {t("profile:gallery.verification_required_for_more_photos")}{" "}
+                  <a
+                    href={`${settingsRoute}#strong-verification`}
+                    style={{ color: theme.palette.primary.main }}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t("profile:gallery.get_verified")}
+                  </a>
+                </Typography>
+              </InfoBox>
+            )}
+          </>
         )}
       </Header>
 
@@ -327,15 +448,21 @@ export default function GalleryEditor({
         aria-label={t("profile:gallery.select_photo")}
       />
 
-      {uploadError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {uploadError}
+      {showReorderSuccess && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {t("profile:gallery.reorder_success")}
         </Alert>
       )}
 
-      {addPhotoMutation.isError && (
+      {showUploadSuccess && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {t("profile:gallery.upload_success")}
+        </Alert>
+      )}
+
+      {uploadError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {t("profile:gallery.add_photo_error")}
+          {uploadError}
         </Alert>
       )}
 
@@ -366,6 +493,7 @@ export default function GalleryEditor({
               item={item}
               isFirst={index === 0}
               isDragging={draggedItemId === item.itemId}
+              isDragOver={dragOverItemId === item.itemId}
               isDeleting={deletingItemId === item.itemId}
               canEdit={canEdit}
               onDelete={handleDelete}
@@ -373,6 +501,9 @@ export default function GalleryEditor({
               onDragEnd={handleDragEnd}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             />
           ))}
         </StyledImageList>

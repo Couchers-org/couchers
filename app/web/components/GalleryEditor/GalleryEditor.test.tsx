@@ -123,4 +123,50 @@ describe("GalleryEditor", () => {
 
     expect(container.firstChild).toBeNull();
   });
+
+  it("shows verification message when at photo limit without strong verification", async () => {
+    const gallery = galleryFixtures.galleries[0];
+    const editInfo = {
+      ...galleryFixtures.editInfo[0],
+      canAddMore: false, // At limit
+    };
+
+    mockGetGallery.mockResolvedValue(gallery);
+    mockGetGalleryEditInfo.mockResolvedValue(editInfo);
+
+    render(<GalleryEditor galleryId={1} hasStrongVerification={false} />, {
+      wrapper,
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Complete strong verification to add more photos/i),
+      ).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Get verified")).toBeInTheDocument();
+  });
+
+  it("does not show verification message when user has strong verification", async () => {
+    const gallery = galleryFixtures.galleries[0];
+    const editInfo = {
+      ...galleryFixtures.editInfo[0],
+      canAddMore: false, // At limit
+    };
+
+    mockGetGallery.mockResolvedValue(gallery);
+    mockGetGalleryEditInfo.mockResolvedValue(editInfo);
+
+    render(<GalleryEditor galleryId={1} hasStrongVerification={true} />, {
+      wrapper,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("3 / 10 photos")).toBeInTheDocument();
+    });
+
+    expect(
+      screen.queryByText(/Complete strong verification to add more photos/i),
+    ).not.toBeInTheDocument();
+  });
 });

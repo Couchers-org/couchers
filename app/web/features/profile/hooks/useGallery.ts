@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { galleryEditInfoKey, galleryKey } from "features/queryKeys";
+import { galleryEditInfoKey, galleryKey, userKey } from "features/queryKeys";
+import useCurrentUser from "features/userQueries/useCurrentUser";
 import { PhotoGallery } from "proto/galleries_pb";
 import { service } from "service";
 
@@ -21,6 +22,7 @@ export function useGalleryEditInfo(galleryId: number | undefined) {
 
 export function useAddPhotoToGallery(galleryId: number) {
   const queryClient = useQueryClient();
+  const { data: user } = useCurrentUser();
 
   return useMutation({
     mutationFn: ({
@@ -35,12 +37,19 @@ export function useAddPhotoToGallery(galleryId: number) {
       queryClient.invalidateQueries({
         queryKey: galleryEditInfoKey(galleryId),
       });
+      // Invalidate user query to update avatar
+      if (user?.userId) {
+        queryClient.invalidateQueries({
+          queryKey: userKey(user.userId),
+        });
+      }
     },
   });
 }
 
 export function useRemovePhotoFromGallery(galleryId: number) {
   const queryClient = useQueryClient();
+  const { data: user } = useCurrentUser();
 
   return useMutation({
     mutationFn: (itemId: number) =>
@@ -50,12 +59,19 @@ export function useRemovePhotoFromGallery(galleryId: number) {
       queryClient.invalidateQueries({
         queryKey: galleryEditInfoKey(galleryId),
       });
+      // Invalidate user query to update avatar
+      if (user?.userId) {
+        queryClient.invalidateQueries({
+          queryKey: userKey(user.userId),
+        });
+      }
     },
   });
 }
 
 export function useMovePhoto(galleryId: number) {
   const queryClient = useQueryClient();
+  const { data: user } = useCurrentUser();
 
   return useMutation({
     mutationFn: ({
@@ -67,6 +83,12 @@ export function useMovePhoto(galleryId: number) {
     }) => service.gallery.movePhoto(galleryId, itemId, afterItemId),
     onSuccess: (updatedGallery) => {
       queryClient.setQueryData(galleryKey(galleryId), updatedGallery);
+      // Invalidate user query to update avatar
+      if (user?.userId) {
+        queryClient.invalidateQueries({
+          queryKey: userKey(user.userId),
+        });
+      }
     },
   });
 }

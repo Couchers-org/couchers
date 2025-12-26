@@ -290,6 +290,7 @@ message User {
 
   string avatar_url = 32;
   string avatar_thumbnail_url = 44;
+  uint64 profile_gallery_id = 123;
   repeated LanguageAbility language_abilities = 37;
 
   repeated string badges = 38;

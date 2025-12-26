@@ -419,12 +419,20 @@ class User(Base, kw_only=True):
 
     @hybrid_property
     def has_completed_profile(self) -> bool:
-        return self.avatar_key is not None and self.about_me is not None and len(self.about_me) >= 150
+        # Check if user has at least one photo in their profile gallery
+        has_photo = self.profile_gallery is not None and len(self.profile_gallery.photos) > 0
+        return has_photo and self.about_me is not None and len(self.about_me) >= 150
 
     @has_completed_profile.inplace.expression
     @classmethod
     def _has_completed_profile_expression(cls) -> ColumnElement[bool]:
-        return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 150)
+        from sqlalchemy import exists, literal
+        from couchers.models import PhotoGalleryItem
+        return (
+            (cls.profile_gallery_id != None)
+            & exists(sa_select(literal(1)).where(PhotoGalleryItem.gallery_id == cls.profile_gallery_id))
+            & (func.character_length(cls.about_me) >= 150)
+        )
 
     @hybrid_property
     def has_completed_my_home(self) -> bool:
