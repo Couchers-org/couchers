@@ -96,9 +96,9 @@ extra-standard-library = ["zoneinfo"]
 [tool.mypy]
 strict = true
 exclude = [
-    "src/couchers/jobs/handlers.py",
-    "src/couchers/proto/*",
-    "src/couchers/migrations/versions/*",
+    "src/couchers/jobs/handlers\\.py",
+    "src/couchers/proto/.*",
+    "src/couchers/migrations/versions/.*",
 ]
 
 [[tool.mypy.overrides]]
