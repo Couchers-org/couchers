@@ -78,7 +78,10 @@ const SocialProof = () => {
         {t("landing:what_couchsurfing_description")}
       </Typography>
       <Divider
-        sx={{ backgroundColor: theme.palette.common.black, marginTop: 4 }}
+        sx={{
+          backgroundColor: "var(--mui-palette-divider)",
+          marginTop: 4,
+        }}
       />
       <Box
         display="flex"

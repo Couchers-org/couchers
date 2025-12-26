@@ -18,7 +18,6 @@ const StyledNextLink = styled(Link, {
   isNotification: boolean;
   isSelected: boolean;
 }>(({ theme, isNotification, isSelected }) => ({
-  color: theme.palette.text.primary,
   display: "flex",
   flex: "1",
   maxWidth: "10.5rem",

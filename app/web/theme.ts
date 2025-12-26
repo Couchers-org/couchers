@@ -34,7 +34,7 @@ const themeOptions: ThemeOptions = {
       palette: {
         background: {
           default: "#313539",
-          paper: "#3d4347",
+          paper: "#313539",
         },
         primary: {
           main: "#6bc4a6",
@@ -70,6 +70,11 @@ const themeOptions: ThemeOptions = {
     },
   },
   components: {
+    MuiAppBar: {
+      defaultProps: {
+        elevation: 0,
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: {
         a: {

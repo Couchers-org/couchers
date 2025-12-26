@@ -225,7 +225,6 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   bottom: "auto",
   top: 0,
   boxShadow: "none",
-  backgroundColor: theme.palette.background.paper,
 }));
 
 const StyledFlexbox = styled("div")(({ theme }) => ({
