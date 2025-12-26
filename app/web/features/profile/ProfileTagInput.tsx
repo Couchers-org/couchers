@@ -34,15 +34,15 @@ interface ProfileTagInputProps {
 
 const StyledButtonBase = styled(ButtonBase)(() => ({
   "&:focus": {
-    boxShadow: `0 0 0 2px ${theme.palette.primary.main}`,
+    boxShadow: `0 0 0 2px var(--mui-palette-primary-main)`,
   },
   "&:hover": {
-    borderColor: theme.palette.primary.main,
-    backgroundColor: theme.palette.grey[50],
+    borderColor: "var(--mui-palette-primary-main)",
+    backgroundColor: "var(--mui-palette-grey-50)",
   },
   borderRadius: theme.spacing(1.5),
-  border: `1px solid ${theme.palette.grey[300]}`,
-  backgroundColor: theme.palette.common.white,
+  border: `1px solid var(--mui-palette-grey-300)`,
+  backgroundColor: "var(--mui-palette-background-paper)",
   fontFamily: "inherit",
   fontSize: "1rem",
   justifyContent: "space-between",
@@ -64,8 +64,8 @@ const StyledTagWrapper = styled("div")(() => ({
   fontSize: theme.typography.fontSize,
   margin: theme.spacing(0.5, 0.5, 0.5, 0),
   padding: theme.spacing(0.75, 1.5),
-  backgroundColor: theme.palette.primary.main,
-  border: `1px solid ${theme.palette.primary.dark}`,
+  backgroundColor: "var(--mui-palette-primary-main)",
+  border: `1px solid var(--mui-palette-primary-dark)`,
   borderRadius: theme.spacing(2),
   boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
   transition: "all 0.2s ease-in-out",
@@ -78,12 +78,12 @@ const StyledTagWrapper = styled("div")(() => ({
 const StyledTagLabel = styled("span")(() => ({
   marginLeft: theme.spacing(0.75),
   fontWeight: 500,
-  color: theme.palette.common.white,
+  color: "var(--mui-palette-common-white)",
 }));
 
 const StyledPopper = styled(Popper)(() => ({
-  backgroundColor: theme.palette.common.white,
-  borderColor: theme.palette.grey[200],
+  backgroundColor: "var(--mui-palette-background-paper)",
+  borderColor: "var(--mui-palette-grey-200)",
   borderRadius: theme.spacing(1.5),
   borderStyle: "solid",
   borderWidth: 1,
@@ -93,7 +93,7 @@ const StyledPopper = styled(Popper)(() => ({
 }));
 
 const StyledHeader = styled("div")(() => ({
-  borderBottomColor: theme.palette.divider,
+  borderBottomColor: "var(--mui-palette-divider)",
   borderBottomStyle: "solid",
   borderBottomWidth: 1,
   fontSize: theme.typography.body1.fontSize,
@@ -103,14 +103,14 @@ const StyledHeader = styled("div")(() => ({
   },
 }));
 
-const StyledInputBase = styled(InputBase)(() => ({
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
   "& input": {
     "&:focus": {
-      borderColor: theme.palette.primary.main,
+      borderColor: "var(--mui-palette-primary-main)",
       boxShadow: `${alpha(theme.palette.primary.main, 0.15)} 0 0 0 2px`,
     },
-    backgroundColor: theme.palette.common.white,
-    borderColor: theme.palette.divider,
+    backgroundColor: "var(--mui-palette-background-paper)",
+    borderColor: "var(--mui-palette-divider)",
     borderRadius: theme.spacing(1),
     borderStyle: "solid",
     borderWidth: 1,
@@ -118,14 +118,14 @@ const StyledInputBase = styled(InputBase)(() => ({
     transition: theme.transitions.create(["border-color", "box-shadow"]),
     fontSize: "0.875rem",
   },
-  borderBottomColor: theme.palette.divider,
+  borderBottomColor: "var(--mui-palette-divider)",
   borderBottomStyle: "solid",
   borderBottomWidth: 1,
   padding: theme.spacing(2),
   width: "100%",
 }));
 
-const StyledCheckbox = styled(Checkbox)(() => ({
+const StyledCheckbox = styled(Checkbox)(({ theme }) => ({
   marginRight: theme.spacing(1),
   padding: 0,
 }));
@@ -144,12 +144,11 @@ const StyledAutocompleteOption = styled("li")(() => ({
     backgroundColor: "transparent",
   },
   "&.MuiAutocomplete-option.Mui-focused": {
-    backgroundColor: theme.palette.action.hover,
+    backgroundColor: "var(--mui-palette-action-hover)",
   },
   alignItems: "flex-start",
   minHeight: "auto",
   padding: theme.spacing(1),
-  backgroundCOlor: "yellow",
 }));
 
 export default function ProfileTagInput({
@@ -214,11 +213,11 @@ export default function ProfileTagInput({
               onClick={() => handleRemove(tag)}
               size="small"
               sx={{
-                color: "common.white",
+                color: "var(--mui-palette-common-white)",
                 padding: 0.5,
                 "&:hover": {
-                  backgroundColor: "primary.dark",
-                  color: "common.white",
+                  backgroundColor: "var(--mui-palette-primary-dark)",
+                  color: "var(--mui-palette-common-white)",
                 },
               }}
             >
@@ -238,8 +237,10 @@ export default function ProfileTagInput({
           <StyledHeader>
             <Typography>
               <Trans
+                t={t}
+                i18nKey="profile_tag_input.header_text"
                 components={{
-                  support_link: (
+                  0: (
                     <Link
                       href="mailto:support@couchers.org"
                       target="_blank"
@@ -249,7 +250,6 @@ export default function ProfileTagInput({
                     />
                   ),
                 }}
-                i18nKey="profile:profile_tag_input.header_text"
               />
             </Typography>
           </StyledHeader>

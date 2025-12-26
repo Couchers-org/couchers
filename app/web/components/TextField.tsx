@@ -10,14 +10,23 @@ const StyledMuiTextField = styled(MuiTextField)<TextFieldProps>(
   ({ theme, multiline }) => ({
     "& .MuiOutlinedInput-root": {
       borderRadius: theme.shape.borderRadius * 3,
+      "& .MuiOutlinedInput-notchedOutline": {
+        borderColor: "var(--mui-palette-grey-300)",
+      },
+      "&:hover .MuiOutlinedInput-notchedOutline": {
+        borderColor: "var(--mui-palette-primary-main)",
+      },
+      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+        borderColor: "var(--mui-palette-primary-main)",
+      },
     },
     display: "block",
     ...(multiline && {
       "& .MuiOutlinedInput-notchedOutline": {
-        borderColor: theme.palette.grey[500],
+        borderColor: "var(--mui-palette-grey-500)",
       },
       "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
-        borderColor: theme.palette.grey[900],
+        borderColor: "var(--mui-palette-grey-900)",
       },
     }),
   }),

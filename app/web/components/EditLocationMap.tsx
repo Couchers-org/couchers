@@ -234,7 +234,7 @@ export default function EditLocationMap({
           paint: {
             "circle-color": theme.palette.primary.main,
             "circle-radius": 8,
-            "circle-stroke-color": "#fff",
+            "circle-stroke-color": theme.palette.background.paper,
             "circle-stroke-width": 1,
           },
           source: "circle",
