@@ -6,8 +6,8 @@ ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 PROTO_IMAGE=registry.gitlab.com/couchers/grpc
 
 protos:
-	docker pull -q $PROTO_IMAGE
-	docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app $PROTO_IMAGE ./generate_protos.sh
+	docker pull -q ${PROTO_IMAGE}
+	docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app ${PROTO_IMAGE} ./generate_protos.sh
 
 setup:
 	curl -fsSL https://astral.sh/uv/${UV_VERSION}/install.sh | sh
