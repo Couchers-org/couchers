@@ -8,8 +8,9 @@
 !resources
 !templates
 !alembic.ini
+!pyproject.toml
 
-# These are not included into the final image, but are still needed here
+# It's not included into the final image, but is still needed here
 # for "--mount=type=bind"
 !uv.lock
-!pyproject.toml
+
