@@ -393,6 +393,9 @@ test:backend-mypy:
   script:
     - cd /app
     - test -f pyproject.toml || exit 1
+    - which mypy
+    - mypy --version
+    - which pytest
     - echo "pyproject.toml exists, checking mypy config..."
     - grep -A5 "\[tool.mypy\]" pyproject.toml || echo "No mypy config found in pyproject.toml"
     - mypy src/couchers
