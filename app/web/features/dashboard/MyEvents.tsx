@@ -51,7 +51,7 @@ const StyledCard = styled(EventCard)(() => ({
     margin: theme.spacing(0, 2, 1, 0),
   },
   flexShrink: 0,
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: "var(--mui-shape-borderRadius) * 2",
   scrollSnapAlign: "start",
 }));
 
@@ -114,19 +114,7 @@ export default function MyEvents() {
           </StyledCardContainer>
           {hasNextPage && !isBelowSm && (
             <StyledButtonContainer>
-              <Button
-                onClick={() => fetchNextPage()}
-                variant="outlined"
-                sx={{
-                  color: theme.palette.common.black,
-                  borderColor: theme.palette.grey[300],
-
-                  "&:hover": {
-                    borderColor: theme.palette.grey[300],
-                    backgroundColor: "#3135390A",
-                  },
-                }}
-              >
+              <Button onClick={() => fetchNextPage()}>
                 {t("dashboard:load_more")}
               </Button>
             </StyledButtonContainer>

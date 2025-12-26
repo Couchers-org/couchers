@@ -38,8 +38,18 @@ const StyledSelect = styled(Select, {
   shouldForwardProp: (prop) => prop !== "displayMode",
 })<StyledMuiSelectProps>(({ theme, displayMode }) => ({
   borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
+  backgroundColor: "var(--mui-palette-grey-200)",
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "var(--mui-palette-grey-300)",
+  },
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "var(--mui-palette-grey-300)",
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "var(--mui-palette-grey-300)",
+  },
   "& .MuiSelect-icon": {
-    color: theme.palette.text.primary,
+    color: "var(--mui-palette-text-primary)",
     fontSize: "1.25rem",
     top: "50%",
     transform: "translateY(-50%)",
@@ -150,10 +160,10 @@ export default function LanguagePickerSelect({
               alignItems: "center",
               gap: theme.spacing(1),
               "& .Mui-selected": {
-                backgroundColor: theme.palette.action.selected,
+                backgroundColor: "var(--mui-palette-action-selected)",
               },
               "& .Mui-selected:hover": {
-                backgroundColor: theme.palette.action.hover,
+                backgroundColor: "var(--mui-palette-action-hover)",
               },
             }}
           >
