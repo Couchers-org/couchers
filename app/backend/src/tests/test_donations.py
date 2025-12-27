@@ -53,7 +53,7 @@ def test_one_time_donation_flow(db, monkeypatch):
         )
 
         mock.checkout.Session.create.assert_called_once_with(
-            client_reference_id=user_id,
+            client_reference_id=str(user_id),
             submit_type="donate",
             customer="cus_Pv4uq0gT0rDZWN",
             success_url="http://localhost:3000/donate?success=true",
@@ -158,7 +158,7 @@ def test_recurring_donation_flow(db, monkeypatch):
         )
 
         mock.checkout.Session.create.assert_called_once_with(
-            client_reference_id=user_id,
+            client_reference_id=str(user_id),
             customer="cus_Pv4w8dxBpTVUsQ",
             submit_type=None,
             success_url="http://localhost:3000/donate?success=true",
