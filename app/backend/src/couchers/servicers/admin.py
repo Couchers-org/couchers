@@ -42,7 +42,8 @@ from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime, to_bool
+from couchers.sql import to_bool
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
 
 logger = logging.getLogger(__name__)
 

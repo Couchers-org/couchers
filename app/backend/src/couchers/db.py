@@ -26,6 +26,7 @@ from couchers.models import (
     ClusterSubscription,
     FriendRelationship,
     FriendStatus,
+    Geom,
     Node,
     TimezoneArea,
     User,
@@ -235,7 +236,7 @@ def can_moderate_node(session: Session, user_id: int, node_id: int) -> bool:
     return cast(bool, session.execute(query).scalar_one())
 
 
-def can_moderate_at(session: Session, user_id: int, shape: WKBElement) -> bool:
+def can_moderate_at(session: Session, user_id: int, shape: Geom) -> bool:
     """
     Returns True if the user_id can moderate a given geo-shape (i.e., if the shape is contained in any Node that the user is an admin of)
     """

@@ -96,6 +96,17 @@ def v2markdown(value: str) -> str:
     return md.render(value)  # type: ignore[no-any-return]
 
 
+def replace_tag(match: re.Match[str]) -> str:
+    tag = match.group(1)
+    inner_text = match.group(2)
+    if tag.lower() == "a":
+        # <a href="url">text</a> -> <text>
+        return f"<{inner_text}>"
+    else:
+        # <b>hello</b> -> hello
+        return inner_text
+
+
 @pass_context
 def v2translate(context: Context, key: str, **kwargs: Any) -> str:
     """
@@ -116,17 +127,6 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
     # Translations may include simple formatting HTML like <b> or <a>,
     # but those should not appear in plain text emails.
     if context.parent.get(CONTEXT_PLAINTEXT_KEY) == True:
-
-        def replace_tag(match: re.Match[str]) -> str:
-            tag = match.group(1)
-            inner_text = match.group(2)
-            if tag.lower() == "a":
-                # <a href="url">text</a> -> <text>
-                return f"<{inner_text}>"
-            else:
-                # <b>hello</b> -> hello
-                return inner_text
-
         # Doesn't support nesting, but should be sufficient for our needs
         translated = re.sub(r"<(\w+).*?>(.*?)</\1>", replace_tag, translated)
         translated = re.sub(r"<br\s*/?>", "\n", translated)

@@ -52,7 +52,7 @@ class BackgroundJob(Base):
     payload: Mapped[bytes] = mapped_column(Binary)
 
     # if the job failed, we write that info here
-    failure_info: Mapped[str | None] = mapped_column(String, nullable=True)
+    failure_info: Mapped[str | None] = mapped_column(String)
 
     __table_args__ = (
         # used in looking up background jobs to attempt

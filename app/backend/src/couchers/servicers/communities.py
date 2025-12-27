@@ -30,7 +30,8 @@ from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now, to_bool
+from couchers.sql import to_bool
+from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 
 logger = logging.getLogger(__name__)
 
