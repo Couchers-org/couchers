@@ -7,11 +7,11 @@ import { theme } from "theme";
 
 import ReportDialog from "./ReportDialog";
 
-const StyledReportButton = styled(Button)(() => ({
+const StyledReportButton = styled(Button)(({ theme }) => ({
   flexShrink: 0,
-  backgroundColor: "var(--mui-palette-error-main)",
+  backgroundColor: theme.palette.error.main,
   "&:hover": {
-    backgroundColor: darken("var(--mui-palette-error-main)", 0.1),
+    backgroundColor: darken(theme.palette.error.main, 0.1),
   },
   "& .MuiButton-startIcon": {
     [theme.breakpoints.down("md")]: {
