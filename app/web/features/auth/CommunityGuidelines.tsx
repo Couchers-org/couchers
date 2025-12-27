@@ -37,7 +37,7 @@ const StyledGrid = styled("div")(({ theme }) => ({
 }));
 
 const StyledAvatar = styled(Avatar)(({ theme }) => ({
-  backgroundColor: theme.palette.grey[300],
+  backgroundColor: "var(--mui-palette-grey-300)",
   "& img": {
     fill: "none",
     width: "2rem",
