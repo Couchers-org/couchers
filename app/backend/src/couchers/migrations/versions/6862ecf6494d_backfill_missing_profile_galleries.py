@@ -1,8 +1,9 @@
 """backfill_missing_profile_galleries
 
-This migration creates profile galleries for any users who don't have one.
-This can happen if a user was created between the initial gallery migration
-and the signup code update that creates galleries automatically.
+This migration completes the transition from avatar_key to profile_gallery system:
+1. Creates profile galleries for any users who don't have one
+2. Migrates existing avatar_key photos into the galleries
+3. Updates lite_users materialized view to use profile galleries instead of avatar_key
 
 Revision ID: 6862ecf6494d
 Revises: f8b4ef6e3819
@@ -61,8 +62,109 @@ def upgrade() -> None:
         """
     )
 
+    # Update lite_users materialized view to use profile galleries
+    # Changes has_completed_profile to check for photos in gallery instead of avatar_key
+    op.execute(
+        """
+        DROP MATERIALIZED VIEW lite_users;
+        CREATE MATERIALIZED VIEW lite_users AS
+        SELECT
+            users.id,
+            users.username,
+            users.name,
+            users.city,
+            date_part('year', age(users.birthdate)) AS age,
+            users.geom,
+            users.geom_radius AS radius,
+            (NOT (users.is_banned OR users.is_deleted)) AS is_visible,
+            uploads.filename AS avatar_filename,
+            ((users.profile_gallery_id IS NOT NULL) AND ((SELECT count(photo_gallery_items.id) AS count_1
+                FROM photo_gallery_items
+                WHERE photo_gallery_items.gallery_id = users.profile_gallery_id) > 0) AND (character_length(users.about_me) >= 150)) AS has_completed_profile,
+            ((users.max_guests IS NOT NULL) AND (users.sleeping_arrangement IS NOT NULL) AND ((users.about_place IS NOT NULL) OR (users.other_host_info IS NOT NULL) OR (users.sleeping_details IS NOT NULL) OR (users.area IS NOT NULL) OR (users.house_rules IS NOT NULL))) AS has_completed_my_home,
+            COALESCE(sv_subquery."true", false) AS has_strong_verification
+        FROM users
+        LEFT OUTER JOIN (
+            SELECT photo_gallery_items.gallery_id,
+                photo_gallery_items.upload_key,
+                row_number() OVER (PARTITION BY photo_gallery_items.gallery_id ORDER BY photo_gallery_items.position) AS rn
+            FROM photo_gallery_items
+        ) first_photo ON first_photo.gallery_id = users.profile_gallery_id AND first_photo.rn = 1
+        LEFT OUTER JOIN uploads ON uploads.key = first_photo.upload_key
+        LEFT OUTER JOIN
+            (SELECT DISTINCT
+                users_1.id,
+                true AS "true"
+            FROM strong_verification_attempts, users users_1
+            WHERE
+                ((strong_verification_attempts.status = 'succeeded')
+                AND COALESCE(timezone('Etc/UTC', strong_verification_attempts.passport_expiry_date::timestamp without time zone) >= now(), false)
+                AND strong_verification_attempts.passport_date_of_birth = users_1.birthdate
+                AND (
+                    (users_1.gender = 'Woman' AND strong_verification_attempts.passport_sex = 'female')
+                    OR (users_1.gender = 'Man' AND strong_verification_attempts.passport_sex = 'male')
+                    OR strong_verification_attempts.passport_sex = 'unspecified'
+                    OR users_1.has_passport_sex_gender_exception = true
+                ))
+            ) sv_subquery
+        ON sv_subquery.id = users.id;
+
+        CREATE INDEX idx_lite_users_geom ON lite_users USING gist (geom);
+        CREATE UNIQUE INDEX uq_lite_users_id ON lite_users(id);
+        CREATE UNIQUE INDEX uq_lite_users_username ON lite_users(username);
+        CREATE INDEX ix_lite_users_id_visible ON lite_users USING hash (id) WHERE is_visible;
+        CREATE INDEX ix_lite_users_username_visible ON lite_users USING hash (username) WHERE is_visible;
+        """
+    )
+
 
 def downgrade() -> None:
+    # Restore the old lite_users view that uses avatar_key
+    op.execute(
+        """
+        DROP MATERIALIZED VIEW lite_users;
+        CREATE MATERIALIZED VIEW lite_users AS
+        SELECT
+            users.id,
+            users.username,
+            users.name,
+            users.city,
+            date_part('year', age(users.birthdate)) AS age,
+            users.geom,
+            users.geom_radius AS radius,
+            (NOT (users.is_banned OR users.is_deleted)) AS is_visible,
+            uploads.filename AS avatar_filename,
+            ((users.avatar_key IS NOT NULL) AND (character_length(users.about_me) >= 150)) AS has_completed_profile,
+            ((users.max_guests IS NOT NULL) AND (users.sleeping_arrangement IS NOT NULL) AND ((users.about_place IS NOT NULL) OR (users.other_host_info IS NOT NULL) OR (users.sleeping_details IS NOT NULL) OR (users.area IS NOT NULL) OR (users.house_rules IS NOT NULL))) AS has_completed_my_home,
+            COALESCE(sv_subquery."true", false) AS has_strong_verification
+        FROM users
+        LEFT OUTER JOIN uploads ON uploads.key = users.avatar_key
+        LEFT OUTER JOIN
+            (SELECT DISTINCT
+                users_1.id,
+                true AS "true"
+            FROM strong_verification_attempts, users users_1
+            WHERE
+                ((strong_verification_attempts.status = 'succeeded')
+                AND COALESCE(timezone('Etc/UTC', strong_verification_attempts.passport_expiry_date::timestamp without time zone) >= now(), false)
+                AND strong_verification_attempts.passport_date_of_birth = users_1.birthdate
+                AND (
+                    (users_1.gender = 'Woman' AND strong_verification_attempts.passport_sex = 'female')
+                    OR (users_1.gender = 'Man' AND strong_verification_attempts.passport_sex = 'male')
+                    OR strong_verification_attempts.passport_sex = 'unspecified'
+                    OR users_1.has_passport_sex_gender_exception = true
+                ))
+            ) sv_subquery
+        ON sv_subquery.id = users.id;
+
+        CREATE INDEX idx_lite_users_geom ON lite_users USING gist (geom);
+        CREATE UNIQUE INDEX uq_lite_users_id ON lite_users(id);
+        CREATE UNIQUE INDEX uq_lite_users_username ON lite_users(username);
+        CREATE INDEX ix_lite_users_id_visible ON lite_users USING hash (id) WHERE is_visible;
+        CREATE INDEX ix_lite_users_username_visible ON lite_users USING hash (username) WHERE is_visible;
+        """
+    )
+
     # Remove migrated avatar photos from galleries
     # Only remove items where the upload_key matches the user's avatar_key
     # and it's at position 0.0 (first position)
