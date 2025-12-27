@@ -40,7 +40,7 @@ def get_i18next() -> I18Next:
     i18next.fallback_language = en
 
     # Apply other fallbacks
-    for from_lang_code, to_lang_code in LANGUAGE_FALLBACKS:
+    for from_lang_code, to_lang_code in LANGUAGE_FALLBACKS.items():
         from_lang = i18next.languages_by_code.get(from_lang_code)
         to_lang = i18next.languages_by_code.get(to_lang_code)
         if from_lang is not None and to_lang is not None:
