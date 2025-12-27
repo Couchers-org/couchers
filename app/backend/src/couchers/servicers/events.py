@@ -5,6 +5,7 @@ from typing import Any, cast
 import grpc
 from google.protobuf import empty_pb2
 from psycopg2.extras import DateTimeTZRange
+from sqlalchemy import Row, Select, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_, update
 
@@ -32,8 +33,7 @@ from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
-from couchers.sql import CouchersSelect
-from couchers.sql import couchers_select as select
+from couchers.sql import users_visible, where_users_column_visible
 from couchers.tasks import send_event_community_invite_request_email
 from couchers.utils import (
     Timestamp_from_datetime,
@@ -121,31 +121,39 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
     can_edit = _can_edit_event(session, event, context.user_id)
 
     going_count = session.execute(
-        select(func.count())
-        .select_from(EventOccurrenceAttendee)
-        .where_users_column_visible(context, EventOccurrenceAttendee.user_id)
-        .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
-        .where(EventOccurrenceAttendee.attendee_status == AttendeeStatus.going)
+        where_users_column_visible(
+            select(func.count())
+            .select_from(EventOccurrenceAttendee)
+            .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+            .where(EventOccurrenceAttendee.attendee_status == AttendeeStatus.going),
+            context,
+            EventOccurrenceAttendee.user_id,
+        )
     ).scalar_one()
     maybe_count = session.execute(
-        select(func.count())
-        .select_from(EventOccurrenceAttendee)
-        .where_users_column_visible(context, EventOccurrenceAttendee.user_id)
-        .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
-        .where(EventOccurrenceAttendee.attendee_status == AttendeeStatus.maybe)
+        where_users_column_visible(
+            select(func.count())
+            .select_from(EventOccurrenceAttendee)
+            .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+            .where(EventOccurrenceAttendee.attendee_status == AttendeeStatus.maybe),
+            context,
+            EventOccurrenceAttendee.user_id,
+        )
     ).scalar_one()
 
     organizer_count = session.execute(
-        select(func.count())
-        .select_from(EventOrganizer)
-        .where_users_column_visible(context, EventOrganizer.user_id)
-        .where(EventOrganizer.event_id == event.id)
+        where_users_column_visible(
+            select(func.count()).select_from(EventOrganizer).where(EventOrganizer.event_id == event.id),
+            context,
+            EventOrganizer.user_id,
+        )
     ).scalar_one()
     subscriber_count = session.execute(
-        select(func.count())
-        .select_from(EventSubscription)
-        .where_users_column_visible(context, EventSubscription.user_id)
-        .where(EventSubscription.event_id == event.id)
+        where_users_column_visible(
+            select(func.count()).select_from(EventSubscription).where(EventSubscription.event_id == event.id),
+            context,
+            EventSubscription.user_id,
+        )
     ).scalar_one()
 
     return events_pb2.Event(
@@ -197,7 +205,7 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
     )
 
 
-def _get_event_and_occurrence_query(occurrence_id: int, include_deleted: bool) -> CouchersSelect:
+def _get_event_and_occurrence_query(occurrence_id: int, include_deleted: bool) -> Select[tuple[Event, EventOccurrence]]:
     query = (
         select(Event, EventOccurrence)
         .where(EventOccurrence.id == occurrence_id)
@@ -212,16 +220,14 @@ def _get_event_and_occurrence_query(occurrence_id: int, include_deleted: bool) -
 
 def _get_event_and_occurrence_one(
     session: Session, occurrence_id: int, include_deleted: bool = False
-) -> tuple[Event, EventOccurrence]:
-    result = session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one()
-    return cast(tuple[Event, EventOccurrence], result)
+) -> Row[tuple[Event, EventOccurrence]]:
+    return session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one()
 
 
 def _get_event_and_occurrence_one_or_none(
     session: Session, occurrence_id: int, include_deleted: bool = False
-) -> tuple[Event, EventOccurrence] | None:
-    result = session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one_or_none()
-    return cast(tuple[Event, EventOccurrence], result)
+) -> Row[tuple[Event, EventOccurrence]] | None:
+    return session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one_or_none()
 
 
 def _check_occurrence_time_validity(start_time: datetime, end_time: datetime, context: CouchersContext) -> None:
@@ -845,12 +851,15 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
         attendees = (
             session.execute(
-                select(EventOccurrenceAttendee)
-                .where_users_column_visible(context, EventOccurrenceAttendee.user_id)
-                .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
-                .where(EventOccurrenceAttendee.user_id >= next_user_id)
-                .order_by(EventOccurrenceAttendee.user_id)
-                .limit(page_size + 1)
+                where_users_column_visible(
+                    select(EventOccurrenceAttendee)
+                    .where(EventOccurrenceAttendee.occurrence_id == occurrence.id)
+                    .where(EventOccurrenceAttendee.user_id >= next_user_id)
+                    .order_by(EventOccurrenceAttendee.user_id)
+                    .limit(page_size + 1),
+                    context,
+                    EventOccurrenceAttendee.user_id,
+                )
             )
             .scalars()
             .all()
@@ -871,12 +880,15 @@ class Events(events_pb2_grpc.EventsServicer):
         event, occurrence = res
         subscribers = (
             session.execute(
-                select(EventSubscription)
-                .where_users_column_visible(context, EventSubscription.user_id)
-                .where(EventSubscription.event_id == event.id)
-                .where(EventSubscription.user_id >= next_user_id)
-                .order_by(EventSubscription.user_id)
-                .limit(page_size + 1)
+                where_users_column_visible(
+                    select(EventSubscription)
+                    .where(EventSubscription.event_id == event.id)
+                    .where(EventSubscription.user_id >= next_user_id)
+                    .order_by(EventSubscription.user_id)
+                    .limit(page_size + 1),
+                    context,
+                    EventSubscription.user_id,
+                )
             )
             .scalars()
             .all()
@@ -897,12 +909,15 @@ class Events(events_pb2_grpc.EventsServicer):
         event, occurrence = res
         organizers = (
             session.execute(
-                select(EventOrganizer)
-                .where_users_column_visible(context, EventOrganizer.user_id)
-                .where(EventOrganizer.event_id == event.id)
-                .where(EventOrganizer.user_id >= next_user_id)
-                .order_by(EventOrganizer.user_id)
-                .limit(page_size + 1)
+                where_users_column_visible(
+                    select(EventOrganizer)
+                    .where(EventOrganizer.event_id == event.id)
+                    .where(EventOrganizer.user_id >= next_user_id)
+                    .order_by(EventOrganizer.user_id)
+                    .limit(page_size + 1),
+                    context,
+                    EventOrganizer.user_id,
+                )
             )
             .scalars()
             .all()
@@ -1011,7 +1026,7 @@ class Events(events_pb2_grpc.EventsServicer):
             # if unset/not going, nothing to do!
         else:
             if current_attendance:
-                current_attendance.attendee_status = attendancestate2sql[request.attendance_state]
+                current_attendance.attendee_status = attendancestate2sql[request.attendance_state]  # type: ignore[assignment]
             else:
                 # create new
                 attendance = EventOccurrenceAttendee(
@@ -1157,7 +1172,7 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_update_old_event")
 
         if not session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where(users_visible(context)).where(User.id == request.user_id)
         ).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import grpc
 import requests
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func, or_
 
@@ -40,7 +41,7 @@ from couchers.notifications.quick_links import respond_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
-from couchers.sql import couchers_select as select
+from couchers.sql import username_or_email
 from couchers.tasks import (
     enforce_community_memberships_for_user,
     maybe_send_contributor_form_email,
@@ -53,6 +54,7 @@ from couchers.utils import (
     is_valid_name,
     is_valid_username,
     minimum_allowed_birthdate,
+    not_none,
     now,
     parse_date,
     parse_session_cookie,
@@ -301,7 +303,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.features = form.features
                 flow.experience = form.experience
                 flow.contribute = contributeoption2sql[form.contribute]
-                flow.contribute_ways = form.contribute_ways
+                flow.contribute_ways = form.contribute_ways  # type: ignore[assignment]
                 flow.expertise = form.expertise
                 session.flush()
 
@@ -411,7 +413,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.debug(f"Logging in with {request.user=}, password=*******")
         user = session.execute(
-            select(User).where_username_or_email(request.user).where(~User.is_deleted)
+            select(User).where(username_or_email(request.user)).where(~User.is_deleted)
         ).scalar_one_or_none()
         if user:
             logger.debug("Found user")
@@ -427,7 +429,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         else:  # user not found
             # check if this is an email and they tried to sign up but didn't complete
             signup_flow = session.execute(
-                select(SignupFlow).where_username_or_email(request.user, table=SignupFlow)
+                select(SignupFlow).where(username_or_email(request.user, table=SignupFlow))
             ).scalar_one_or_none()
             if signup_flow:
                 send_signup_email(session, signup_flow)
@@ -473,7 +475,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Note that as long as emails are send synchronously, this is far from constant time regardless of output.
         """
         user = session.execute(
-            select(User).where_username_or_email(request.user).where(~User.is_deleted)
+            select(User).where(username_or_email(request.user)).where(~User.is_deleted)
         ).scalar_one_or_none()
         if user:
             password_reset_token = PasswordResetToken(
@@ -544,7 +546,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
-        user.email = user.new_email
+        user.email = not_none(user.new_email)
         user.new_email = None
         user.new_email_token = None
         user.new_email_token_created = None

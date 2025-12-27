@@ -3,6 +3,7 @@ from pathlib import Path
 
 from google.protobuf import empty_pb2
 from jinja2 import Environment, FileSystemLoader
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, func
 
@@ -26,7 +27,7 @@ from couchers.notifications.quick_links import (
 from couchers.notifications.render import render_notification
 from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
-from couchers.sql import couchers_select as select
+from couchers.sql import moderation_state_column_visible
 from couchers.templates.v2 import (
     CONTEXT_PLAINTEXT_KEY,
     CONTEXT_TIMEZONE_DISPLAY_KEY,
@@ -139,7 +140,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                     exists(
                         select(Notification)
                         .where(Notification.id == notification.id)
-                        .where_moderation_state_column_visible(context, Notification.moderation_state_id)
+                        .where(moderation_state_column_visible(context, Notification.moderation_state_id))
                     )
                 )
             ).scalar_one()
@@ -261,7 +262,7 @@ def handle_email_digests(payload: empty_pb2.Empty) -> None:
                 .where(NotificationDelivery.delivery_type == NotificationDeliveryType.digest)
                 .where(NotificationDelivery.delivered == None)
                 .where(Notification.user_id == user.id)
-                .where_moderation_state_column_visible(context, Notification.moderation_state_id)
+                .where(moderation_state_column_visible(context, Notification.moderation_state_id))
                 .order_by(Notification.created)
             ).all()
 

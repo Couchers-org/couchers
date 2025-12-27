@@ -4,6 +4,7 @@ import os
 from datetime import date, timedelta
 
 from dateutil import parser
+from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
@@ -44,7 +45,6 @@ from couchers.models import (
 from couchers.proto.api_pb2 import HostingStatus
 from couchers.servicers.api import hostingstatus2sql
 from couchers.servicers.auth import create_session
-from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, to_multi
 
 logger = logging.getLogger(__name__)

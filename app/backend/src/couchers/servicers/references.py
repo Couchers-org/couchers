@@ -9,6 +9,7 @@ from datetime import datetime
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
 
@@ -19,7 +20,7 @@ from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.notifications.notify import notify
 from couchers.proto import notification_data_pb2, references_pb2, references_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
-from couchers.sql import couchers_select as select
+from couchers.sql import users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.tasks import maybe_send_reference_report_email
 from couchers.utils import Timestamp_from_datetime, now
 
@@ -60,14 +61,13 @@ def get_host_req_and_check_can_write_ref(
 
     Returns the host req and `surfed`, a boolean of if the user was the surfer or not
     """
-    host_request = session.execute(
-        select(HostRequest)
-        .where_users_column_visible(context, HostRequest.surfer_user_id)
-        .where_users_column_visible(context, HostRequest.host_user_id)
-        .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
-        .where(HostRequest.conversation_id == host_request_id)
-        .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
-    ).scalar_one_or_none()
+    query = select(HostRequest)
+    query = where_users_column_visible(query, context, HostRequest.surfer_user_id)
+    query = where_users_column_visible(query, context, HostRequest.host_user_id)
+    query = where_moderated_content_visible(query, context, HostRequest, is_list_operation=False)
+    query = query.where(HostRequest.conversation_id == host_request_id)
+    query = query.where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
+    host_request = session.execute(query).scalar_one_or_none()
 
     if not host_request:
         context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
@@ -121,13 +121,13 @@ def get_pending_references_to_write(
             ),
         )
         .join(LiteUser, LiteUser.id == HostRequest.host_user_id)
-        .where_users_column_visible(context, HostRequest.host_user_id)
-        .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
-        .where(Reference.id == None)
-        .where(HostRequest.can_write_reference)
-        .where(HostRequest.surfer_user_id == context.user_id)
-        .where(HostRequest.surfer_reason_didnt_meetup == None)
     )
+    q1 = where_users_column_visible(q1, context, HostRequest.host_user_id)
+    q1 = where_moderated_content_visible(q1, context, HostRequest, is_list_operation=True)
+    q1 = q1.where(Reference.id == None)
+    q1 = q1.where(HostRequest.can_write_reference)
+    q1 = q1.where(HostRequest.surfer_user_id == context.user_id)
+    q1 = q1.where(HostRequest.surfer_reason_didnt_meetup == None)
 
     q2 = (
         select(literal(False), HostRequest, LiteUser)
@@ -139,13 +139,13 @@ def get_pending_references_to_write(
             ),
         )
         .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
-        .where_users_column_visible(context, HostRequest.surfer_user_id)
-        .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
-        .where(Reference.id == None)
-        .where(HostRequest.can_write_reference)
-        .where(HostRequest.host_user_id == context.user_id)
-        .where(HostRequest.host_reason_didnt_meetup == None)
     )
+    q2 = where_users_column_visible(q2, context, HostRequest.surfer_user_id)
+    q2 = where_moderated_content_visible(q2, context, HostRequest, is_list_operation=True)
+    q2 = q2.where(Reference.id == None)
+    q2 = q2.where(HostRequest.can_write_reference)
+    q2 = q2.where(HostRequest.host_user_id == context.user_id)
+    q2 = q2.where(HostRequest.host_reason_didnt_meetup == None)
 
     union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
     query = select(union.c[0].label("surfed"), aliased(HostRequest, union), aliased(LiteUser, union))
@@ -248,7 +248,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         check_valid_reference(request, context)
 
         if not session.execute(
-            select(User).where_users_visible(context).where(User.id == request.to_user_id)
+            select(User).where(users_visible(context)).where(User.id == request.to_user_id)
         ).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
@@ -374,7 +374,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             return references_pb2.AvailableWriteReferencesRes()
 
         if not session.execute(
-            select(User).where_users_visible(context).where(User.id == request.to_user_id)
+            select(User).where(users_visible(context)).where(User.id == request.to_user_id)
         ).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
@@ -464,12 +464,13 @@ class References(references_pb2_grpc.ReferencesServicer):
             is not None
         )
 
-        host_request = session.execute(
-            select(HostRequest)
-            .where_moderated_content_visible(context, HostRequest, is_list_operation=False)
-            .where(HostRequest.conversation_id == request.host_request_id)
-            .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
-        ).scalar_one_or_none()
+        query = select(HostRequest)
+        query = where_moderated_content_visible(query, context, HostRequest, is_list_operation=False)
+        query = query.where(HostRequest.conversation_id == request.host_request_id)
+        query = query.where(
+            or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id)
+        )
+        host_request = session.execute(query).scalar_one_or_none()
 
         can_write = False
         is_expired = False

@@ -1,11 +1,11 @@
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 
 from couchers.models import User, UserBlock
 from couchers.proto import blocking_pb2
 from couchers.servicers.blocking import is_not_visible
-from couchers.sql import couchers_select as select
 from tests.test_fixtures import blocking_session, db, generate_user, make_user_block, session_scope, testconfig  # noqa
 
 

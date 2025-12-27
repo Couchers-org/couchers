@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import grpc
 import pytest
+from sqlalchemy import select
 
 import couchers.servicers.postal_verification
 from couchers.config import config
@@ -17,7 +18,6 @@ from couchers.jobs.worker import process_job
 from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt
 from couchers.proto import postal_verification_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import now
 from tests.test_fixtures import generate_user, postal_verification_session
 

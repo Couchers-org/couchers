@@ -16,7 +16,7 @@ from sqlalchemy import (
     func,
     text,
 )
-from sqlalchemy.orm import DynamicMapped, Mapped, backref, column_property, deferred, mapped_column, relationship
+from sqlalchemy.orm import DynamicMapped, Mapped, column_property, deferred, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base, Geom, communities_seq
@@ -122,6 +122,10 @@ class Cluster(Base):
         viewonly=True,
     )
 
+    cluster_subscriptions: Mapped[list["ClusterSubscription"]] = relationship("ClusterSubscription")
+    owned_pages: DynamicMapped["Page"] = relationship("Page", lazy="dynamic")
+    owned_discussions: DynamicMapped["Discussion"] = relationship("Discussion", lazy="dynamic")
+
     main_page: Mapped["Page"] = relationship(
         "Page",
         primaryjoin="and_(Cluster.id == Page.owner_cluster_id, Page.type == 'main_page')",
@@ -189,7 +193,7 @@ class ClusterSubscription(Base):
     role: Mapped[ClusterRole] = mapped_column(Enum(ClusterRole))
 
     user: Mapped["User"] = relationship("User", backref="cluster_subscriptions")
-    cluster: Mapped["Cluster"] = relationship("Cluster", backref="cluster_subscriptions")
+    cluster: Mapped["Cluster"] = relationship("Cluster", back_populates="cluster_subscriptions")
 
     __table_args__ = (
         UniqueConstraint("user_id", "cluster_id"),
@@ -256,9 +260,9 @@ class Page(Base):
 
     thread: Mapped["Thread"] = relationship("Thread", backref="page", uselist=False)
     creator_user: Mapped["User"] = relationship("User", backref="created_pages", foreign_keys="Page.creator_user_id")
-    owner_user: Mapped["User"] = relationship("User", backref="owned_pages", foreign_keys="Page.owner_user_id")
+    owner_user: Mapped["User | None"] = relationship("User", backref="owned_pages", foreign_keys="Page.owner_user_id")
     owner_cluster: Mapped["Cluster"] = relationship(
-        "Cluster", backref=backref("owned_pages", lazy="dynamic"), uselist=False, foreign_keys="Page.owner_cluster_id"
+        "Cluster", back_populates="owned_pages", uselist=False, foreign_keys="Page.owner_cluster_id"
     )
 
     editors: Mapped[list["User"]] = relationship("User", secondary="page_versions", viewonly=True)

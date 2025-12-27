@@ -3,6 +3,7 @@ from datetime import timedelta
 import grpc
 import pytest
 from google.protobuf import wrappers_pb2
+from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.jobs.worker import process_job
@@ -17,7 +18,6 @@ from couchers.models import (
 )
 from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
-from couchers.sql import couchers_select as select
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from tests.test_fixtures import (  # noqa
     api_session,

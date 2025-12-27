@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import BigInteger, DateTime, ForeignKey, String, UniqueConstraint, func
-from sqlalchemy.orm import Mapped, backref, column_property, mapped_column, relationship
+from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 
 from couchers.models.base import Base, communities_seq
 
@@ -40,9 +40,7 @@ class Discussion(Base):
     creator_user: Mapped["User"] = relationship(
         "User", backref="created_discussions", foreign_keys="Discussion.creator_user_id"
     )
-    owner_cluster: Mapped["Cluster"] = relationship(
-        "Cluster", backref=backref("owned_discussions", lazy="dynamic"), uselist=False
-    )
+    owner_cluster: Mapped["Cluster"] = relationship("Cluster", back_populates="owned_discussions", uselist=False)
 
 
 class DiscussionSubscription(Base):

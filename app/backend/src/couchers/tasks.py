@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Sequence
 
-from sqlalchemy import RowMapping, insert
+from sqlalchemy import RowMapping, insert, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -27,7 +27,6 @@ from couchers.models import (
     User,
 )
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
-from couchers.sql import couchers_select as select
 from couchers.templates.v2 import send_simple_pretty_email
 from couchers.utils import now
 

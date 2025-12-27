@@ -6,6 +6,7 @@ from datetime import timedelta
 from typing import Any, cast
 
 import grpc
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 
@@ -50,8 +51,7 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import couchers_select as select
-from couchers.sql import to_bool
+from couchers.sql import to_bool, users_visible, where_users_column_visible
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
@@ -233,7 +233,7 @@ def _search_users(
         [User.things_i_like, User.about_place, User.additional_information],
     )
 
-    users = execute_search_statement(session, select(User, rank, snippet).where_users_visible(context))
+    users = execute_search_statement(session, select(User, rank, snippet).where(users_visible(context)))
 
     return [
         search_pb2.Result(
@@ -398,7 +398,7 @@ def _user_search_inner(
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
-    statement = select(User.id, User.recommendation_score).where_users_visible(context)
+    statement = select(User.id, User.recommendation_score).where(users_visible(context))
     # make sure that only users who are in LiteUser show up
     statement = statement.join(LiteUser, LiteUser.id == User.id)
 
@@ -550,8 +550,11 @@ def _user_search_inner(
 
         if request.only_with_references:
             references = (
-                select(Reference.to_user_id.label("user_id"))
-                .where_users_column_visible(context, Reference.from_user_id)
+                where_users_column_visible(
+                    select(Reference.to_user_id.label("user_id")),
+                    context,
+                    Reference.from_user_id,
+                )
                 .distinct()
                 .subquery()
             )

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Self, cast
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import ColumnElement, and_, false, or_, select, true
 from sqlalchemy.orm import InstrumentedAttribute, aliased
@@ -14,63 +14,6 @@ if TYPE_CHECKING:
     type _UserLike = type[User | LiteUser | SignupFlow]
     type _User = type[User | LiteUser]
     type _ModeratedContent = type[HostRequest | GroupChat]
-
-
-class CouchersSelect(Select[Any]):
-    """
-    This method construct provided directly by the developers
-    They intend to implement a better option in the near future
-    See issue here: https://github.com/sqlalchemy/sqlalchemy/issues/6700
-    """
-
-    inherit_cache = True
-
-    def where_username_or_email(self, value: str, table: "_UserLike" = User) -> Self:
-        return self.where(username_or_email(value, table))
-
-    def where_username_or_id(self, value: str, table: "_UserLike" = User) -> Self:
-        return self.where(username_or_id(value, table))
-
-    def where_username_or_email_or_id(self, value: str) -> Self:
-        return self.where(username_or_email_or_id(value))
-
-    def where_users_visible(self, context: CouchersContext, table: "_User" = User) -> Self:
-        return self.where(users_visible(context, table))
-
-    def where_users_column_visible(self, context: CouchersContext, column: InstrumentedAttribute[int]) -> Self:
-        return cast(Self, where_users_column_visible(self, context, column))
-
-    def where_users_visible_to_each_other(self, user1: "_User", user2: "_User") -> Self:
-        return self.where(users_visible_to_each_other(user1, user2))
-
-    def where_user_columns_visible_to_each_other(
-        self, column1: InstrumentedAttribute[int], column2: InstrumentedAttribute[int]
-    ) -> Self:
-        return cast(Self, where_user_columns_visible_to_each_other(self, column1, column2))
-
-    def where_moderated_content_visible_to_user_column(
-        self,
-        table: "_ModeratedContent",
-        user_id_column: InstrumentedAttribute[int],
-        is_list_operation: bool = False,
-    ) -> Self:
-        query = where_moderated_content_visible_to_user_column(self, table, user_id_column, is_list_operation)
-        return cast(Self, query)
-
-    def where_moderated_content_visible(
-        self,
-        context: CouchersContext,
-        table: "_ModeratedContent",
-        is_list_operation: bool = False,
-    ) -> Self:
-        return cast(Self, where_moderated_content_visible(self, context, table, is_list_operation))
-
-    def where_moderation_state_column_visible(
-        self,
-        context: CouchersContext,
-        column: InstrumentedAttribute[int | None],
-    ) -> Self:
-        return self.where(moderation_state_column_visible(context, column))
 
 
 def username_or_email(value: str, table: "_UserLike" = User) -> ColumnElement[bool]:
@@ -113,7 +56,7 @@ def users_visible(context: CouchersContext, table: "_User" = User) -> ColumnElem
     return and_(table.is_visible, ~table.id.in_(hidden_users))
 
 
-def where_users_column_visible[T: tuple[Any]](
+def where_users_column_visible[T: tuple[Any, ...]](
     query: Select[T], context: CouchersContext, column: InstrumentedAttribute[int]
 ) -> Select[T]:
     """
@@ -154,7 +97,7 @@ def users_visible_to_each_other(user1: "_User", user2: "_User") -> ColumnElement
     )
 
 
-def where_user_columns_visible_to_each_other[T: tuple[Any]](
+def where_user_columns_visible_to_each_other[T: tuple[Any, ...]](
     query: Select[T], column1: InstrumentedAttribute[int], column2: InstrumentedAttribute[int]
 ) -> Select[T]:
     """
@@ -176,7 +119,7 @@ def where_user_columns_visible_to_each_other[T: tuple[Any]](
         .where(user2.is_visible)
         .where(
             ~exists(
-                couchers_select(1)
+                select(1)
                 .select_from(UserBlock)
                 .where(
                     or_(
@@ -189,7 +132,7 @@ def where_user_columns_visible_to_each_other[T: tuple[Any]](
     )
 
 
-def where_moderated_content_visible_to_user_column[T: tuple[Any]](
+def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     query: Select[T],
     table: "_ModeratedContent",
     user_id_column: InstrumentedAttribute[int],
@@ -213,7 +156,7 @@ def where_moderated_content_visible_to_user_column[T: tuple[Any]](
     return query.join(aliased_mod_state, aliased_mod_state.id == table.moderation_state_id).where(or_(*conditions))
 
 
-def where_moderated_content_visible[T: tuple[Any]](
+def where_moderated_content_visible[T: tuple[Any, ...]](
     query: Select[T],
     context: CouchersContext,
     table: "_ModeratedContent",
@@ -255,20 +198,16 @@ def moderation_state_column_visible(
     TODO: if you use this with a non-null column, check what's going on
     """
     hr_visible = exists(
-        couchers_select(HostRequest)
-        .where(HostRequest.moderation_state_id == column)
-        .where_moderated_content_visible(context, HostRequest)
+        where_moderated_content_visible(
+            select(HostRequest).where(HostRequest.moderation_state_id == column), context, HostRequest
+        )
     )
     gc_visible = exists(
-        couchers_select(GroupChat)
-        .where(GroupChat.moderation_state_id == column)
-        .where_moderated_content_visible(context, GroupChat)
+        where_moderated_content_visible(
+            select(GroupChat).where(GroupChat.moderation_state_id == column), context, GroupChat
+        )
     )
     return or_(column.is_(None), hr_visible, gc_visible)
-
-
-def couchers_select(*expr: Any) -> CouchersSelect:
-    return CouchersSelect(*expr)
 
 
 def _relevant_user_blocks(user_id: int) -> Select[tuple[int]]:

@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 
 import couchers.servicers.donations
 from couchers.config import config
@@ -11,7 +12,6 @@ from couchers.jobs.handlers import update_badges
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User, UserBadge
 from couchers.proto import donations_pb2
 from couchers.proto.google.api import httpbody_pb2
-from couchers.sql import couchers_select as select
 from tests.test_fixtures import db, donations_session, generate_user, real_stripe_session, testconfig  # noqa
 
 

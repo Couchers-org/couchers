@@ -1,11 +1,11 @@
 from datetime import date, datetime
 
 import pytest
+from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
 from couchers.models import User
-from couchers.sql import couchers_select as select
 from tests.test_fixtures import (  # noqa
     db,
     testconfig,

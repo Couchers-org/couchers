@@ -1,7 +1,7 @@
 import secrets
 from typing import cast
 
-from sqlalchemy import exists
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 
 from couchers.constants import (
@@ -10,7 +10,6 @@ from couchers.constants import (
 )
 from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt
-from couchers.sql import couchers_select as select
 
 
 def generate_postal_verification_code() -> str:

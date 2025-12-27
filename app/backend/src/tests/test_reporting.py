@@ -1,10 +1,10 @@
 import grpc
 import pytest
+from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.models import ContentReport
 from couchers.proto import reporting_pb2
-from couchers.sql import couchers_select as select
 from tests.test_fixtures import db, generate_user, reporting_session, testconfig  # noqa
 
 

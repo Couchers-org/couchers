@@ -1,7 +1,7 @@
 import logging
 
 import grpc
-from sqlalchemy import and_, exists, not_, or_
+from sqlalchemy import and_, exists, not_, or_, select
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
@@ -30,7 +30,6 @@ from couchers.models import (
 )
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
 
 logger = logging.getLogger(__name__)

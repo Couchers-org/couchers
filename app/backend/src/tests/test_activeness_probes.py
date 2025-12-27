@@ -4,14 +4,13 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2
-from sqlalchemy import exists
+from sqlalchemy import exists, select
 
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, MeetupStatus
 from couchers.proto import api_pb2, jail_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import now
 from tests.test_fixtures import (  # noqa
     api_session,

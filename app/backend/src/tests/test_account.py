@@ -4,7 +4,7 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
 from couchers import constants, urls
@@ -21,7 +21,6 @@ from couchers.models import (
     Volunteer,
 )
 from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import now, today
 from tests.test_fixtures import (  # noqa
     account_session,

@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -6,7 +7,6 @@ from couchers.config import config
 from couchers.jobs.enqueue import queue_job
 from couchers.models import PushNotificationSubscription
 from couchers.proto.internal import jobs_pb2
-from couchers.sql import couchers_select as select
 
 
 def push_to_subscription(
