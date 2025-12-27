@@ -12,7 +12,7 @@
     "editor.formatOnSave": false,
     "editor.formatOnPaste": false,
     "editor.formatOnType": false,
-    "editor.defaultFormatter": null
+    "editor.defaultFormatter": "charliermarsh.ruff"
   },
   "editor.formatOnSave": false,
   "editor.codeActionsOnSave": {
