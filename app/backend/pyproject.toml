@@ -101,11 +101,6 @@ extra-standard-library = ["zoneinfo"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["couchers.jobs.handlers"]
-# This file has many type errors that need to be fixed separately
-ignore_errors = true
-
-[[tool.mypy.overrides]]
 module = ["couchers.proto.*"]
 # Generated protobuf files should not be type-checked
 ignore_errors = true

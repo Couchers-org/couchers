@@ -314,10 +314,10 @@ def test_service_jobs(db):
 
 
 def test_scheduler(db, monkeypatch):
-    MOCK_SCHEDULE = [
-        ("purge_login_tokens", timedelta(seconds=7)),
-        ("send_message_notifications", timedelta(seconds=11)),
-    ]
+    MOCK_JOBS = {
+        "purge_login_tokens": (lambda x: None, empty_pb2.Empty, timedelta(seconds=7)),
+        "send_message_notifications": (lambda x: None, empty_pb2.Empty, timedelta(seconds=11)),
+    }
 
     current_time = 0
     end_time = 70
@@ -337,20 +337,24 @@ def test_scheduler(db, monkeypatch):
 
     realized_schedule = []
 
-    def mock_run_job_and_schedule(sched, schedule_id):
+    def mock_run_job_and_schedule(sched, job_type, frequency):
         nonlocal current_time
-        realized_schedule.append((current_time, schedule_id))
-        _run_job_and_schedule(sched, schedule_id)
+        realized_schedule.append((current_time, job_type))
+        _run_job_and_schedule(sched, job_type, frequency)
 
     monkeypatch.setattr(couchers.jobs.worker, "_run_job_and_schedule", mock_run_job_and_schedule)
-    monkeypatch.setattr(couchers.jobs.worker, "SCHEDULE", MOCK_SCHEDULE)
+    monkeypatch.setattr(couchers.jobs.worker, "JOBS", MOCK_JOBS)
     monkeypatch.setattr(couchers.jobs.worker, "monotonic", mock_monotonic)
     monkeypatch.setattr(couchers.jobs.worker, "sleep", mock_sleep)
 
     with pytest.raises(EndOfTime):
         run_scheduler()
 
-    assert realized_schedule == [
+    # Convert to job indices for comparison (to maintain test compatibility)
+    job_order = ["purge_login_tokens", "send_message_notifications"]
+    realized_schedule_indices = [(time, job_order.index(job_type)) for time, job_type in realized_schedule]
+
+    assert realized_schedule_indices == [
         (0.0, 0),
         (0.0, 1),
         (7.0, 0),
@@ -398,7 +402,7 @@ def test_job_retry(db):
         raise Exception()
 
     MOCK_JOBS = {
-        "mock_job": (empty_pb2.Empty, mock_job),
+        "mock_job": (mock_job, empty_pb2.Empty, None),
     }
     create_prometheus_server(port=8000)
 
