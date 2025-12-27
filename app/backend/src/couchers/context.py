@@ -98,9 +98,7 @@ class CouchersContext:
     def is_logged_in(self) -> bool:
         return self.__logged_in
 
-    def get_localized_string(
-        self, key: str, *, substitutions: dict[str, str | int] | None = None
-    ) -> str:
+    def get_localized_string(self, key: str, *, substitutions: dict[str, str | int] | None = None) -> str:
         """
         Get a localized string using the user's language preference.
         Falls back to the default language if no preference is set.
@@ -112,9 +110,7 @@ class CouchersContext:
         Returns:
             The translated string with substitutions applied
         """
-        return localize_string(
-            self.__ui_language_preference, key, substitutions=substitutions
-        )
+        return localize_string(self.__ui_language_preference, key, substitutions=substitutions)
 
     def abort(self, status_code: grpc.StatusCode, error_message: str) -> NoReturn:
         """

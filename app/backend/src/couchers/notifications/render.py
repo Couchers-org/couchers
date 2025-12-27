@@ -44,12 +44,8 @@ class RenderedNotification:
 
 
 def render_notification(user: User, notification: Notification) -> RenderedNotification:
-    def get_localized_string(
-        key: str, *, substitutions: dict[str, str | int] | None = None
-    ) -> str:
-        return localize_string(
-            user.ui_language_preference, key, substitutions
-        )
+    def get_localized_string(key: str, *, substitutions: dict[str, str | int] | None = None) -> str:
+        return localize_string(user.ui_language_preference, key, substitutions)
 
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic == "host_request":

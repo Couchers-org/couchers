@@ -7,7 +7,6 @@ from jinja2 import Environment
 
 from couchers.templates.v2 import (
     CONTEXT_PLAINTEXT_KEY,
-    CONTEXT_TRANSLATION_COMPONENT_KEY,
     CONTEXT_TRANSLATION_LANGUAGE_KEY,
     add_filters,
 )

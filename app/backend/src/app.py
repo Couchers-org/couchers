@@ -80,7 +80,7 @@ logger.info("Running DB migrations")
 
 apply_migrations()
 
-get_i18next() # Force eager loading of translations
+get_i18next()  # Force eager loading of translations
 
 if config["ADD_DUMMY_DATA"]:
     add_dummy_data()

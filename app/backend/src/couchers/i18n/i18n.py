@@ -49,9 +49,7 @@ def get_i18next() -> I18Next:
     return i18next
 
 
-def localize_string(
-    lang: str | None, key: str, *, substitutions: Mapping[str, str | int] | None = None
-) -> str:
+def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, str | int] | None = None) -> str:
     """
     Retrieves a translated string and performs substitutions.
 
