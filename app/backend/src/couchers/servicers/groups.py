@@ -241,13 +241,11 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         )
 
         if not request.past:
-            query = query.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.asc()
-            )
+            cutoff = page_token - timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
         else:
-            query = query.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.desc()
-            )
+            cutoff = page_token + timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
 
         query = query.limit(page_size + 1)
         occurrences = session.execute(query).scalars().all()

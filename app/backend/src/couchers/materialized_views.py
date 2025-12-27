@@ -158,10 +158,10 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
             User.age.label("age"),
             geom_column.label("geom"),
             User.geom_radius.label("radius"),
-            User.is_visible.label("is_visible"),  # type: ignore[attr-defined]
+            User.is_visible.label("is_visible"),
             Upload.filename.label("avatar_filename"),
-            User.has_completed_profile.label("has_completed_profile"),  # type: ignore[attr-defined]
-            User.has_completed_my_home.label("has_completed_my_home"),  # type: ignore[attr-defined]
+            User.has_completed_profile.label("has_completed_profile"),
+            User.has_completed_my_home.label("has_completed_my_home"),
             func.coalesce(strong_verification_subquery.c.true, False).label("has_strong_verification"),
         )
         .select_from(User)

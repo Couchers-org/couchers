@@ -37,7 +37,7 @@ class PluralRules:
         lang_family = lang if separator_index == -1 else lang[0:separator_index]
 
         # Resolve one of the methods below
-        return getattr(PluralRules, lang_family, default=None)
+        return getattr(PluralRules, lang_family, None)
 
     @staticmethod
     def de(count: int) -> PluralCategory:

@@ -42,7 +42,7 @@ from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime, to_bool
 
 logger = logging.getLogger(__name__)
 
@@ -545,7 +545,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user_ids = (
             session.execute(
                 select(User.id)
-                .where(or_(User.id <= next_user_id, next_user_id == 0))
+                .where(or_(User.id <= next_user_id, to_bool(next_user_id == 0)))
                 .where(User.joined >= start_date)
                 .where(User.joined <= end_date)
                 .order_by(User.id.desc())

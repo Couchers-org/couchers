@@ -341,7 +341,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session.add(user)
             session.flush()
 
-            # Create profile gallery for the user
+            # Create a profile gallery for the user
             profile_gallery = PhotoGallery(owner_user_id=user.id)
             session.add(profile_gallery)
             session.flush()

@@ -60,6 +60,7 @@ from couchers.utils import (
     millis_from_dt,
     now,
     to_aware_datetime,
+    to_bool,
 )
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
@@ -272,8 +273,8 @@ def _search_pages(
         .join(Page, Page.id == PageVersion.page_id)
         .where(
             or_(
-                (Page.type == PageType.place) if include_places else False,
-                (Page.type == PageType.guide) if include_guides else False,
+                (Page.type == PageType.place) if include_places else to_bool(False),
+                (Page.type == PageType.guide) if include_guides else to_bool(False),
             )
         )
         .group_by(PageVersion.page_id)
@@ -372,8 +373,8 @@ def _search_clusters(
         .join(Page, Page.owner_cluster_id == Cluster.id)
         .join(PageVersion, PageVersion.page_id == Page.id)
         .join(latest_pages, latest_pages.c.id == PageVersion.id)
-        .where(Cluster.is_official_cluster if include_communities and not include_groups else True)
-        .where(~Cluster.is_official_cluster if not include_communities and include_groups else True),
+        .where(Cluster.is_official_cluster if include_communities and not include_groups else to_bool(True))
+        .where(~Cluster.is_official_cluster if not include_communities and include_groups else to_bool(True)),
     )
 
     return [
@@ -843,9 +844,11 @@ class Search(search_pb2_grpc.SearchServicer):
             statement = statement.where(func.ST_Contains(node.geom, EventOccurrence.geom))
 
         if request.HasField("after"):
-            statement = statement.where(EventOccurrence.start_time > to_aware_datetime(request.after))
+            after_time = to_aware_datetime(request.after)
+            statement = statement.where(EventOccurrence.start_time > after_time)
         if request.HasField("before"):
-            statement = statement.where(EventOccurrence.end_time < to_aware_datetime(request.before))
+            before_time = to_aware_datetime(request.before)
+            statement = statement.where(EventOccurrence.end_time < before_time)
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
@@ -857,13 +860,11 @@ class Search(search_pb2_grpc.SearchServicer):
         offset = (page_number - 1) * page_size
 
         if not request.past:
-            statement = statement.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.asc()
-            )
+            cutoff = page_token - timedelta(seconds=1)
+            statement = statement.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
         else:
-            statement = statement.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.desc()
-            )
+            cutoff = page_token + timedelta(seconds=1)
+            statement = statement.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
 
         total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
         # Apply pagination by page number

@@ -32,7 +32,7 @@ from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, now, to_bool
 
 logger = logging.getLogger(__name__)
 
@@ -361,7 +361,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             .join(GroupChatSubscription, GroupChatSubscription.id == t.c.group_chat_subscriptions_id)
             .join(GroupChat, GroupChat.conversation_id == t.c.group_chat_id)
             .where_moderated_content_visible(context, GroupChat, is_list_operation=True)
-            .where(or_(t.c.message_id < request.last_message_id, request.last_message_id == 0))
+            .where(or_(t.c.message_id < request.last_message_id, to_bool(request.last_message_id == 0)))
             .order_by(t.c.message_id.desc())
             .limit(page_size + 1)
         ).all()
@@ -522,8 +522,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
                 .where(Message.time >= GroupChatSubscription.joined)
                 .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                .where(or_(Message.id < request.last_message_id, request.last_message_id == 0))
-                .where(or_(Message.id > GroupChatSubscription.last_seen_message_id, request.only_unseen == 0))
+                .where(or_(Message.id < request.last_message_id, to_bool(request.last_message_id == 0)))
+                .where(or_(Message.id > GroupChatSubscription.last_seen_message_id, to_bool(request.only_unseen == 0)))
                 .order_by(Message.id.desc())
                 .limit(page_size + 1)
             )
@@ -587,7 +587,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .where(GroupChatSubscription.user_id == context.user_id)
                 .where(Message.time >= GroupChatSubscription.joined)
                 .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                .where(or_(Message.id < request.last_message_id, request.last_message_id == 0))
+                .where(or_(Message.id < request.last_message_id, to_bool(request.last_message_id == 0)))
                 .where(Message.text.ilike(f"%{request.query}%"))
                 .order_by(Message.id.desc())
                 .limit(page_size + 1)

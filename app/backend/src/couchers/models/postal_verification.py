@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     BigInteger,
@@ -16,6 +16,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.models.base import Base
 
@@ -85,9 +86,9 @@ class PostalVerificationAttempt(Base):
     def is_valid(self) -> bool:
         return self.status == PostalVerificationStatus.succeeded
 
-    @is_valid.expression
+    @is_valid.inplace.expression
     @classmethod
-    def is_valid(cls) -> Any:
+    def _is_valid_expression(cls) -> ColumnElement[bool]:
         return cls.status == PostalVerificationStatus.succeeded
 
     # Relationships
