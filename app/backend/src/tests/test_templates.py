@@ -21,24 +21,22 @@ def _render_template(
     translation_dict: dict,
     template_args: dict[str, Any] | None = None,
     plain: bool = False,
-    component: str = "component",
     lang: str = "en",
 ) -> str:
     template = _env.from_string(template_str)
     template_args = {
         **(template_args or {}),
         CONTEXT_TRANSLATION_LANGUAGE_KEY: lang,
-        CONTEXT_TRANSLATION_COMPONENT_KEY: component,
     }
     if plain:
         template_args[CONTEXT_PLAINTEXT_KEY] = True
 
-    with patch("couchers.i18n.i18n.get_translations", new=lambda: translation_dict):
+    with patch("couchers.i18n.i18n.get_i18next", new=lambda: translation_dict):
         return template.render(template_args)
 
 
 def _greeting_dict(value: str) -> dict:
-    return {"en": {"component": {"greeting": value}}}
+    return {"en": {"greeting": value}}
 
 
 def test_v2translate_no_substitutions() -> None:
@@ -52,7 +50,7 @@ def test_v2translate_multiple_languages() -> None:
     translated = _render_template(
         template_str='{{ "greeting"|v2translate }}',
         lang="fr",
-        translation_dict={"en": {"component": {"greeting": "Hello!"}}, "fr": {"component": {"greeting": "Bonjour!"}}},
+        translation_dict={"en": {"greeting": "Hello!"}, "fr": {"greeting": "Bonjour!"}},
     )
     assert translated == "Bonjour!"
 

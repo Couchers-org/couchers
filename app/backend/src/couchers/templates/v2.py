@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
-from couchers.i18n.i18n import get_raw_translation_string
+from couchers.i18n.i18n import localize_string
 from couchers.models import User
 from couchers.utils import get_tz_as_text, now, to_aware_datetime
 
@@ -106,12 +106,11 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
     """
 
     lang: str = context[CONTEXT_TRANSLATION_LANGUAGE_KEY]
-    component: str = context[CONTEXT_TRANSLATION_COMPONENT_KEY]
 
     # Prevent html injection
     escaped_substitutions = {k: escape(str(v)) for k, v in kwargs.items()}
 
-    translated = get_raw_translation_string(lang, component, key, substitutions=escaped_substitutions)
+    translated = localize_string(lang, key, substitutions=escaped_substitutions)
 
     # Translations may include simple formatting HTML like <b> or <a>,
     # but those should not appear in plain text emails.

@@ -21,8 +21,8 @@ def user_add_badge(session: Session, user_id: int, badge_id: str, do_notify: boo
             key=badge_id,
             data=notification_data_pb2.BadgeAdd(
                 badge_id=badge["id"],
-                badge_name=context.get_localized_string("badges", f"{badge_id}_name"),
-                badge_description=context.get_localized_string("badges", f"{badge_id}_description"),
+                badge_name=context.get_localized_string(f"badges.{badge_id}_name"),
+                badge_description=context.get_localized_string(f"badges.{badge_id}_description"),
             ),
         )
     session.commit()
@@ -40,8 +40,8 @@ def user_remove_badge(session: Session, user_id: int, badge_id: str) -> None:
         key=badge_id,
         data=notification_data_pb2.BadgeRemove(
             badge_id=badge["id"],
-            badge_name=context.get_localized_string("badges", f"{badge_id}_name"),
-            badge_description=context.get_localized_string("badges", f"{badge_id}_description"),
+            badge_name=context.get_localized_string(f"badges.{badge_id}_name"),
+            badge_description=context.get_localized_string(f"badges.{badge_id}_description"),
         ),
     )
     session.commit()
