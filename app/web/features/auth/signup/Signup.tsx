@@ -36,7 +36,7 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
   width: "100%",
   maxWidth: "600px",
-  border: `1px solid ${theme.palette.divider}`,
+  border: `1px solid var(--mui-palette-divider)`,
   marginTop: theme.spacing(2),
 }));
 
@@ -147,9 +147,9 @@ export default function Signup() {
                 alignItems: "center",
                 gap: 1.5,
                 padding: 1.25,
-                border: `1px solid ${theme.palette.divider}`,
+                border: `1px solid var(--mui-palette-divider)`,
                 borderRadius: 2,
-                backgroundColor: theme.palette.background.paper,
+                backgroundColor: "var(--mui-palette-background-paper)",
                 mb: 2,
               }}
             >

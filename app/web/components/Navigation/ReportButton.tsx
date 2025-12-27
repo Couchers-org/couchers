@@ -9,9 +9,9 @@ import ReportDialog from "./ReportDialog";
 
 const StyledReportButton = styled(Button)(() => ({
   flexShrink: 0,
-  backgroundColor: theme.palette.error.main,
+  backgroundColor: "var(--mui-palette-error-main)",
   "&:hover": {
-    backgroundColor: darken(theme.palette.error.main, 0.1),
+    backgroundColor: darken("var(--mui-palette-error-main)", 0.1),
   },
   "& .MuiButton-startIcon": {
     [theme.breakpoints.down("md")]: {
@@ -38,7 +38,7 @@ export default function ReportButton({
           aria-label={t("report.label")}
           onClick={() => setIsDialogOpen(true)}
           sx={{
-            color: theme.palette.text.secondary,
+            color: "var(--mui-palette-text-secondary)",
             cursor: "pointer",
 
             "&:hover": {

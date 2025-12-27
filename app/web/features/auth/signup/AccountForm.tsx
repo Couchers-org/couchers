@@ -35,7 +35,6 @@ import { HostingStatus } from "proto/api_pb";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
-import { theme } from "theme";
 import {
   lowercaseAndTrimField,
   usernameValidationPattern,
@@ -71,7 +70,7 @@ const StyledForm = styled("form")(({ theme }) => ({
 }));
 
 const StyledFormLabel = styled(FormLabel)<FormLabelProps>(({ theme }) => ({
-  color: theme.palette.text.primary,
+  color: "var(--mui-palette-text-primary)",
   fontWeight: 700,
   [theme.breakpoints.up("md")]: {
     marginBottom: theme.spacing(2),
@@ -84,7 +83,7 @@ const StyledSelect = styled(Select)(({ theme }) => ({
   width: "100%",
 
   "& .MuiInputBase-root": {
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: "var(--mui-palette-background-paper)",
   },
 }));
 
@@ -94,7 +93,7 @@ const StyledDatepicker = styled(Datepicker)(({ theme }) => ({
   width: "100%",
 
   "& .MuiInputBase-input": {
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: "var(--mui-palette-background-paper)",
   },
 }));
 
@@ -297,7 +296,7 @@ export default function AccountForm() {
           name="birthdate"
           onPostChange={handleBirthdateChange}
           inputProps={{
-            sx: { backgroundColor: theme.palette.background.paper },
+            sx: { backgroundColor: "var(--mui-palette-background-paper)" },
           }}
         />
         <StyledInputLabel htmlFor="location">
@@ -331,7 +330,7 @@ export default function AccountForm() {
             }}
             sx={{
               "& .MuiInputBase-root": {
-                backgroundColor: theme.palette.common.white,
+                backgroundColor: "var(--mui-palette-common-paper)",
               },
             }}
             variant="outlined"

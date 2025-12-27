@@ -151,7 +151,7 @@ function AppRoute({
           </PageWrapper>
         </>
       )}
-      {!isPrivate && !isNativeEmbed && <CookieBanner />}
+      {!isPrivate && <CookieBanner />}
     </ErrorBoundary>
   );
 }
