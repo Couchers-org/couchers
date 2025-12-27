@@ -3,14 +3,16 @@ Background job servicers
 """
 
 import logging
+from collections.abc import Sequence
 from datetime import date, timedelta
 from math import cos, pi, sin, sqrt
 from random import sample
 from typing import Any
+from typing import cast as t_cast
 
 import requests
 from google.protobuf import empty_pb2
-from sqlalchemy import Float, Integer, select
+from sqlalchemy import ColumnElement, Float, Function, Integer, Table, select
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import (
     and_,
@@ -134,41 +136,11 @@ from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
     get_coordinates,
+    not_none,
     now,
 )
 
 logger = logging.getLogger(__name__)
-
-
-# these were straight up imported
-handle_notification.PAYLOAD = jobs_pb2.HandleNotificationPayload
-
-send_raw_push_notification_v2.PAYLOAD = jobs_pb2.SendRawPushNotificationPayloadV2
-
-handle_email_digests.PAYLOAD = empty_pb2.Empty
-handle_email_digests.SCHEDULE = timedelta(minutes=15)
-
-generate_message_notifications.PAYLOAD = jobs_pb2.GenerateMessageNotificationsPayload
-
-generate_reply_notifications.PAYLOAD = jobs_pb2.GenerateReplyNotificationsPayload
-
-generate_create_discussion_notifications.PAYLOAD = jobs_pb2.GenerateCreateDiscussionNotificationsPayload
-
-generate_event_create_notifications.PAYLOAD = jobs_pb2.GenerateEventCreateNotificationsPayload
-
-generate_event_update_notifications.PAYLOAD = jobs_pb2.GenerateEventUpdateNotificationsPayload
-
-generate_event_cancel_notifications.PAYLOAD = jobs_pb2.GenerateEventCancelNotificationsPayload
-
-generate_event_delete_notifications.PAYLOAD = jobs_pb2.GenerateEventDeleteNotificationsPayload
-
-generate_new_blog_post_notifications.PAYLOAD = jobs_pb2.GenerateNewBlogPostNotificationsPayload
-
-refresh_materialized_views.PAYLOAD = empty_pb2.Empty
-refresh_materialized_views.SCHEDULE = timedelta(minutes=5)
-
-refresh_materialized_views_rapid.PAYLOAD = empty_pb2.Empty
-refresh_materialized_views_rapid.SCHEDULE = timedelta(seconds=30)
 
 
 def send_email(payload: jobs_pb2.SendEmailPayload) -> None:
@@ -190,17 +162,10 @@ def send_email(payload: jobs_pb2.SendEmailPayload) -> None:
         session.add(email)
 
 
-send_email.PAYLOAD = jobs_pb2.SendEmailPayload
-
-
 def purge_login_tokens(payload: empty_pb2.Empty) -> None:
     logger.info("Purging login tokens")
     with session_scope() as session:
         session.execute(delete(LoginToken).where(~LoginToken.is_valid).execution_options(synchronize_session=False))
-
-
-purge_login_tokens.PAYLOAD = empty_pb2.Empty
-purge_login_tokens.SCHEDULE = timedelta(hours=24)
 
 
 def purge_password_reset_tokens(payload: empty_pb2.Empty) -> None:
@@ -211,10 +176,6 @@ def purge_password_reset_tokens(payload: empty_pb2.Empty) -> None:
         )
 
 
-purge_password_reset_tokens.PAYLOAD = empty_pb2.Empty
-purge_password_reset_tokens.SCHEDULE = timedelta(hours=24)
-
-
 def purge_account_deletion_tokens(payload: empty_pb2.Empty) -> None:
     logger.info("Purging account deletion tokens")
     with session_scope() as session:
@@ -223,10 +184,6 @@ def purge_account_deletion_tokens(payload: empty_pb2.Empty) -> None:
             .where(~AccountDeletionToken.is_valid)
             .execution_options(synchronize_session=False)
         )
-
-
-purge_account_deletion_tokens.PAYLOAD = empty_pb2.Empty
-purge_account_deletion_tokens.SCHEDULE = timedelta(hours=24)
 
 
 def send_message_notifications(payload: empty_pb2.Empty) -> None:
@@ -310,7 +267,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
 
             user.last_notified_message_id = max(message.id for _, message, _ in unseen_messages)
 
-            def format_title(message, group_chat, count_unseen):
+            def format_title(message: Message, group_chat: GroupChat, count_unseen: int) -> str:
                 if group_chat.is_dm:
                     return f"You missed {count_unseen} message(s) from {message.author.name}"
                 else:
@@ -338,10 +295,6 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 ),
             )
             session.commit()
-
-
-send_message_notifications.PAYLOAD = empty_pb2.Empty
-send_message_notifications.SCHEDULE = timedelta(minutes=3)
 
 
 def send_request_notifications(payload: empty_pb2.Empty) -> None:
@@ -408,7 +361,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 .where(Message.id > User.last_notified_request_message_id)
                 .where(Message.time < now() - timedelta(minutes=5))
                 .where(Message.message_type == MessageType.text)
-                .group_by(User, HostRequest)
+                .group_by(User, HostRequest)  # type: ignore[arg-type]
             ).all()
 
             # where this user is hosting
@@ -429,7 +382,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 .where(Message.id > User.last_notified_request_message_id)
                 .where(Message.time < now() - timedelta(minutes=5))
                 .where(Message.message_type == MessageType.text)
-                .group_by(User, HostRequest)
+                .group_by(User, HostRequest)  # type: ignore[arg-type]
             ).all()
 
             for user, host_request, max_message_id in surfing_reqs:
@@ -463,10 +416,6 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                         am_host=True,
                     ),
                 )
-
-
-send_request_notifications.PAYLOAD = empty_pb2.Empty
-send_request_notifications.SCHEDULE = timedelta(minutes=3)
 
 
 def send_onboarding_emails(payload: empty_pb2.Empty) -> None:
@@ -516,10 +465,6 @@ def send_onboarding_emails(payload: empty_pb2.Empty) -> None:
             user.onboarding_emails_sent = 2
             user.last_onboarding_email_sent = now()
             session.commit()
-
-
-send_onboarding_emails.PAYLOAD = empty_pb2.Empty
-send_onboarding_emails.SCHEDULE = timedelta(hours=1)
 
 
 def send_reference_reminders(payload: empty_pb2.Empty) -> None:
@@ -588,13 +533,13 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
             )
 
             union = union_all(q1, q2).subquery()
-            union = select(
+            query = select(
                 union.c[0].label("surfed"),
                 aliased(HostRequest, union),
                 aliased(user, union),
                 aliased(other_user, union),
             )
-            reference_reminders = session.execute(union).all()
+            reference_reminders = session.execute(query).all()
 
             for surfed, host_request, user, other_user in reference_reminders:
                 # visibility and blocking already checked in sql
@@ -616,10 +561,6 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                 else:
                     host_request.host_sent_reference_reminders = reminder_number
                 session.commit()
-
-
-send_reference_reminders.PAYLOAD = empty_pb2.Empty
-send_reference_reminders.SCHEDULE = timedelta(hours=1)
 
 
 def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
@@ -669,10 +610,6 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
             session.commit()
 
 
-send_host_request_reminders.PAYLOAD = empty_pb2.Empty
-send_host_request_reminders.SCHEDULE = timedelta(minutes=15)
-
-
 def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
     if not config["LISTMONK_ENABLED"]:
         logger.info("Not adding users to mailing list")
@@ -715,16 +652,8 @@ def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
                 raise Exception("Failed to add users to mailing list")
 
 
-add_users_to_email_list.PAYLOAD = empty_pb2.Empty
-add_users_to_email_list.SCHEDULE = timedelta(hours=1)
-
-
 def enforce_community_membership(payload: empty_pb2.Empty) -> None:
     tasks_enforce_community_memberships()
-
-
-enforce_community_membership.PAYLOAD = empty_pb2.Empty
-enforce_community_membership.SCHEDULE = timedelta(minutes=15)
 
 
 def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
@@ -746,28 +675,28 @@ def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
     ]
     home_fields = [User.about_place, User.other_host_info, User.sleeping_details, User.area, User.house_rules]
 
-    def poor_man_gaussian():
+    def poor_man_gaussian() -> ColumnElement[float] | float:
         """
         Produces an approximatley std normal random variate
         """
         trials = 5
         return (sum([func.random() for _ in range(trials)]) - trials / 2) / sqrt(trials / 12)
 
-    def int_(stmt):
+    def int_(stmt: Any) -> Function[int]:
         return func.coalesce(cast(stmt, Integer), 0)
 
-    def float_(stmt):
+    def float_(stmt: Any) -> Function[float]:
         return func.coalesce(cast(stmt, Float), 0.0)
 
     with session_scope() as session:
         # profile
         profile_text = ""
         for field in text_fields:
-            profile_text += func.coalesce(field, "")
+            profile_text += func.coalesce(field, "")  # type: ignore[assignment]
         text_length = func.length(profile_text)
         home_text = ""
         for field in home_fields:
-            home_text += func.coalesce(field, "")
+            home_text += func.coalesce(field, "")  # type: ignore[assignment]
         home_length = func.length(home_text)
 
         filled_profile = int_(User.has_completed_profile)
@@ -898,20 +827,19 @@ def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
         ).subquery()
 
         session.execute(
-            User.__table__.update().values(recommendation_score=scores.c.score).where(User.id == scores.c.user_id)
+            t_cast(Table, User.__table__)
+            .update()
+            .values(recommendation_score=scores.c.score)
+            .where(User.id == scores.c.user_id)
         )
 
     logger.info("Updated recommendation scores")
 
 
-update_recommendation_scores.PAYLOAD = empty_pb2.Empty
-update_recommendation_scores.SCHEDULE = timedelta(hours=24)
-
-
 def update_badges(payload: empty_pb2.Empty) -> None:
     with session_scope() as session:
 
-        def update_badge(badge_id: str, members: list[int]) -> None:
+        def update_badge(badge_id: str, members: Sequence[int]) -> None:
             badge = get_badge_dict()[badge_id]
             user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge.id)).scalars().all()
             # in case the user ids don't exist in the db
@@ -955,10 +883,6 @@ def update_badges(payload: empty_pb2.Empty) -> None:
             .scalars()
             .all(),
         )
-
-
-update_badges.PAYLOAD = empty_pb2.Empty
-update_badges.SCHEDULE = timedelta(minutes=15)
 
 
 def finalize_strong_verification(payload: "jobs_pb2.FinalizeStrongVerificationPayload") -> None:
@@ -1069,9 +993,6 @@ def finalize_strong_verification(payload: "jobs_pb2.FinalizeStrongVerificationPa
             )
 
 
-finalize_strong_verification.PAYLOAD = jobs_pb2.FinalizeStrongVerificationPayload
-
-
 def send_activeness_probes(payload: empty_pb2.Empty) -> None:
     with session_scope() as session:
         ## Step 1: create new activeness probes for those who need it and don't have one (if enabled)
@@ -1162,10 +1083,6 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
             session.commit()
 
 
-send_activeness_probes.PAYLOAD = empty_pb2.Empty
-send_activeness_probes.SCHEDULE = timedelta(minutes=60)
-
-
 def update_randomized_locations(payload: empty_pb2.Empty) -> None:
     """
     We generate for each user a randomized location as follows:
@@ -1199,10 +1116,6 @@ def update_randomized_locations(payload: empty_pb2.Empty) -> None:
 
     with session_scope() as session:
         session.execute(update(User), user_updates)
-
-
-update_randomized_locations.PAYLOAD = empty_pb2.Empty
-update_randomized_locations.SCHEDULE = timedelta(hours=1)
 
 
 def send_event_reminders(payload: empty_pb2.Empty) -> None:
@@ -1248,10 +1161,6 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
                 session.commit()
 
 
-send_event_reminders.PAYLOAD = empty_pb2.Empty
-send_event_reminders.SCHEDULE = timedelta(hours=1)
-
-
 def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
     """
     Check Expo push receipts in batch and update delivery attempts.
@@ -1281,10 +1190,10 @@ def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
 
             logger.info(f"Checking {len(attempts)} Expo push receipts")
 
-            receipts = get_expo_push_receipts([attempt.expo_ticket_id for attempt in attempts])
+            receipts = get_expo_push_receipts([not_none(attempt.expo_ticket_id) for attempt in attempts])
 
             for attempt in attempts:
-                receipt = receipts.get(attempt.expo_ticket_id)
+                receipt = receipts.get(not_none(attempt.expo_ticket_id))
 
                 # Always mark as checked to avoid infinite loops
                 attempt.receipt_checked_at = now()
@@ -1326,10 +1235,6 @@ def check_expo_push_receipts(payload: empty_pb2.Empty) -> None:
     )
 
 
-check_expo_push_receipts.PAYLOAD = empty_pb2.Empty
-check_expo_push_receipts.SCHEDULE = timedelta(minutes=5)
-
-
 def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPostcardPayload) -> None:
     """
     Sends the postcard via external API and updates attempt status.
@@ -1357,8 +1262,8 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             state=attempt.state,
             postal_code=attempt.postal_code,
             country=attempt.country,
-            verification_code=attempt.verification_code,
-            qr_code_url=urls.postal_verification_link(code=attempt.verification_code),
+            verification_code=not_none(attempt.verification_code),
+            qr_code_url=urls.postal_verification_link(code=not_none(attempt.verification_code)),
         )
 
         if result.success:
@@ -1379,9 +1284,6 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             # Could retry or fail - for now, fail
             attempt.status = PostalVerificationStatus.failed
             logger.error(f"Postcard send failed: {result.error_message}")
-
-
-send_postal_verification_postcard.PAYLOAD = jobs_pb2.SendPostalVerificationPostcardPayload
 
 
 class DatabaseInconsistencyError(Exception):
@@ -1574,10 +1476,6 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         raise DatabaseInconsistencyError("\n".join(errors))
 
 
-check_database_consistency.PAYLOAD = empty_pb2.Empty
-check_database_consistency.SCHEDULE = timedelta(hours=24)
-
-
 def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
     """
     Dead man's switch: auto-approves unresolved INITIAL_REVIEW items older than the deadline.
@@ -1623,5 +1521,72 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
         moderation_auto_approved_counter.inc(len(items))
 
 
-auto_approve_moderation_queue.PAYLOAD = empty_pb2.Empty
-auto_approve_moderation_queue.SCHEDULE = timedelta(seconds=15)
+# Job registry - maps job names to (handler_function, payload_type, schedule)
+JOBS: dict[str, tuple[Any, Any, timedelta | None]] = {
+    "handle_notification": (handle_notification, jobs_pb2.HandleNotificationPayload, None),
+    "send_raw_push_notification_v2": (send_raw_push_notification_v2, jobs_pb2.SendRawPushNotificationPayloadV2, None),
+    "handle_email_digests": (handle_email_digests, empty_pb2.Empty, timedelta(minutes=15)),
+    "generate_message_notifications": (
+        generate_message_notifications,
+        jobs_pb2.GenerateMessageNotificationsPayload,
+        None,
+    ),
+    "generate_reply_notifications": (generate_reply_notifications, jobs_pb2.GenerateReplyNotificationsPayload, None),
+    "generate_create_discussion_notifications": (
+        generate_create_discussion_notifications,
+        jobs_pb2.GenerateCreateDiscussionNotificationsPayload,
+        None,
+    ),
+    "generate_event_create_notifications": (
+        generate_event_create_notifications,
+        jobs_pb2.GenerateEventCreateNotificationsPayload,
+        None,
+    ),
+    "generate_event_update_notifications": (
+        generate_event_update_notifications,
+        jobs_pb2.GenerateEventUpdateNotificationsPayload,
+        None,
+    ),
+    "generate_event_cancel_notifications": (
+        generate_event_cancel_notifications,
+        jobs_pb2.GenerateEventCancelNotificationsPayload,
+        None,
+    ),
+    "generate_event_delete_notifications": (
+        generate_event_delete_notifications,
+        jobs_pb2.GenerateEventDeleteNotificationsPayload,
+        None,
+    ),
+    "generate_new_blog_post_notifications": (
+        generate_new_blog_post_notifications,
+        jobs_pb2.GenerateNewBlogPostNotificationsPayload,
+        None,
+    ),
+    "refresh_materialized_views": (refresh_materialized_views, empty_pb2.Empty, timedelta(minutes=5)),
+    "refresh_materialized_views_rapid": (refresh_materialized_views_rapid, empty_pb2.Empty, timedelta(seconds=30)),
+    "send_email": (send_email, jobs_pb2.SendEmailPayload, None),
+    "purge_login_tokens": (purge_login_tokens, empty_pb2.Empty, timedelta(hours=24)),
+    "purge_password_reset_tokens": (purge_password_reset_tokens, empty_pb2.Empty, timedelta(hours=24)),
+    "purge_account_deletion_tokens": (purge_account_deletion_tokens, empty_pb2.Empty, timedelta(hours=24)),
+    "send_message_notifications": (send_message_notifications, empty_pb2.Empty, timedelta(minutes=3)),
+    "send_request_notifications": (send_request_notifications, empty_pb2.Empty, timedelta(minutes=3)),
+    "send_onboarding_emails": (send_onboarding_emails, empty_pb2.Empty, timedelta(hours=1)),
+    "send_reference_reminders": (send_reference_reminders, empty_pb2.Empty, timedelta(hours=1)),
+    "send_host_request_reminders": (send_host_request_reminders, empty_pb2.Empty, timedelta(minutes=15)),
+    "add_users_to_email_list": (add_users_to_email_list, empty_pb2.Empty, timedelta(hours=1)),
+    "enforce_community_membership": (enforce_community_membership, empty_pb2.Empty, timedelta(minutes=15)),
+    "update_recommendation_scores": (update_recommendation_scores, empty_pb2.Empty, timedelta(hours=24)),
+    "update_badges": (update_badges, empty_pb2.Empty, timedelta(minutes=15)),
+    "finalize_strong_verification": (finalize_strong_verification, jobs_pb2.FinalizeStrongVerificationPayload, None),
+    "send_activeness_probes": (send_activeness_probes, empty_pb2.Empty, timedelta(minutes=60)),
+    "update_randomized_locations": (update_randomized_locations, empty_pb2.Empty, timedelta(hours=1)),
+    "send_event_reminders": (send_event_reminders, empty_pb2.Empty, timedelta(hours=1)),
+    "check_expo_push_receipts": (check_expo_push_receipts, empty_pb2.Empty, timedelta(minutes=5)),
+    "send_postal_verification_postcard": (
+        send_postal_verification_postcard,
+        jobs_pb2.SendPostalVerificationPostcardPayload,
+        None,
+    ),
+    "check_database_consistency": (check_database_consistency, empty_pb2.Empty, timedelta(hours=24)),
+    "auto_approve_moderation_queue": (auto_approve_moderation_queue, empty_pb2.Empty, timedelta(seconds=15)),
+}
