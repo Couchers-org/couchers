@@ -5,6 +5,8 @@ from unittest.mock import patch
 
 from jinja2 import Environment
 
+from couchers.i18n.i18next import I18Next
+from couchers.i18n.plurals import PluralRules
 from couchers.templates.v2 import (
     CONTEXT_PLAINTEXT_KEY,
     CONTEXT_TRANSLATION_LANGUAGE_KEY,
@@ -30,7 +32,12 @@ def _render_template(
     if plain:
         template_args[CONTEXT_PLAINTEXT_KEY] = True
 
-    with patch("couchers.i18n.i18n.get_i18next", new=lambda: translation_dict):
+    mock_i18next = I18Next()
+    for lang_code, strings in translation_dict.items():
+        language = mock_i18next.add_language(lang_code, PluralRules.en)
+        language.load_json_dict(strings)
+
+    with patch("couchers.i18n.i18n.get_i18next", new=lambda: mock_i18next):
         return template.render(template_args)
 
 

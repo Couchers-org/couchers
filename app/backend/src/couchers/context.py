@@ -133,7 +133,7 @@ class CouchersContext:
         else:
             context = cast(grpc.ServicerContext, self._grpc_context)
             # Get the translated error message using the user's language preference
-            error_message = self.get_localized_string(f"errors.{error_message_id}", substitutions)
+            error_message = self.get_localized_string(f"errors.{error_message_id}", substitutions=substitutions)
             context.abort(status_code, error_message)
 
     def set_cookies(self, cookies: list[str]) -> None:
