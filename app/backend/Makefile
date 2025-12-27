@@ -26,34 +26,7 @@ format:
 fmt: format
 
 mypy:
-	uv run mypy \
-		src/couchers/config.py \
-		src/couchers/constants.py \
-		src/couchers/context.py \
-		src/couchers/crypto.py \
-		src/couchers/db.py \
-		src/couchers/descriptor_pool.py \
-		src/couchers/interceptors.py \
-		src/couchers/materialized_views.py \
-		src/couchers/metrics.py \
-		src/couchers/reranker.py \
-		src/couchers/resources.py \
-		src/couchers/server.py \
-		src/couchers/sql.py \
-		src/couchers/tasks.py \
-		src/couchers/tracing.py \
-		src/couchers/urls.py \
-		src/couchers/utils.py \
-		src/couchers/migrations/env.py \
-		src/couchers/models \
-		src/couchers/notifications \
-		src/couchers/rate_limits \
-		src/couchers/email \
-		src/couchers/templates \
-		src/couchers/helpers \
-		src/couchers/jobs \
-		src/couchers/i18n \
-		src/couchers/phone
+	uv run mypy src/couchers
 
 # Downgrade the local database to the previous migration. Good if you ran a migration on a branch and will run the backend on another branch after.
 # Usage:

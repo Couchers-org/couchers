@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import BigInteger, DateTime, ForeignKey, Index, String, func
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base
 
@@ -33,9 +33,7 @@ class ModNote(Base):
 
     note_content: Mapped[str] = mapped_column(String)  # CommonMark without images
 
-    user: Mapped["User"] = relationship(
-        "User", foreign_keys="ModNote.user_id", backref=backref("mod_notes", lazy="dynamic")
-    )
+    user: Mapped["User"] = relationship("User", foreign_keys="ModNote.user_id", back_populates="mod_notes")
 
     def __repr__(self) -> str:
         return f"ModeNote(id={self.id}, user={self.user}, created={self.created}, ack'd={self.acknowledged})"

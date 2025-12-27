@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, cast
 
 from geoalchemy2 import Geometry
 from psycopg2.extras import DateTimeTZRange
@@ -19,11 +19,15 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, backref, column_property, mapped_column, relationship
+from sqlalchemy.orm import DynamicMapped, Mapped, backref, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
+from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.models.base import Base, Geom, communities_seq
 from couchers.utils import get_coordinates
+
+if TYPE_CHECKING:
+    from couchers.models import User
 
 
 class ClusterEventAssociation(Base):
@@ -142,6 +146,10 @@ class EventOccurrence(Base):
     )
 
     photo = relationship("Upload")
+    attendances = relationship("EventOccurrenceAttendee", back_populates="occurrence", lazy="dynamic")
+    community_invite_requests: DynamicMapped["EventCommunityInviteRequest"] = relationship(
+        "EventCommunityInviteRequest", back_populates="occurrence", lazy="dynamic"
+    )
 
     __table_args__ = (
         # Geom and address go together
@@ -166,20 +174,22 @@ class EventOccurrence(Base):
         return get_coordinates(self.geom)
 
     @hybrid_property
-    def start_time(self) -> Any:
-        return self.during.lower
+    def start_time(self) -> datetime:
+        return cast(datetime, self.during.lower)
 
-    @start_time.expression
-    def start_time(cls) -> Any:  # noqa: ARG003,D102
-        return func.lower(cls.during)
+    @start_time.inplace.expression
+    @classmethod
+    def _start_time_expression(cls) -> ColumnElement[datetime]:
+        return cast(ColumnElement[datetime], func.lower(cls.during))
 
     @hybrid_property
-    def end_time(self) -> Any:
-        return self.during.upper
+    def end_time(self) -> datetime:
+        return cast(datetime, self.during.upper)
 
-    @end_time.expression
-    def end_time(cls) -> Any:  # noqa: ARG003,D102
-        return func.upper(cls.during)
+    @end_time.inplace.expression
+    @classmethod
+    def _end_time_expression(cls) -> ColumnElement[datetime]:
+        return cast(ColumnElement[datetime], func.upper(cls.during))
 
 
 class EventSubscription(Base):
@@ -238,8 +248,8 @@ class EventOccurrenceAttendee(Base):
     responded: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     attendee_status: Mapped[AttendeeStatus] = mapped_column(Enum(AttendeeStatus))
 
-    user = relationship("User")
-    occurrence = relationship("EventOccurrence", backref=backref("attendances", lazy="dynamic"))
+    user: Mapped["User"] = relationship("User")
+    occurrence: Mapped[EventOccurrence] = relationship("EventOccurrence", back_populates="attendances")
 
     reminder_sent: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
@@ -262,8 +272,8 @@ class EventCommunityInviteRequest(Base):
     decided_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     approved: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
 
-    occurrence = relationship("EventOccurrence", backref=backref("community_invite_requests", lazy="dynamic"))
-    user = relationship("User", foreign_keys="EventCommunityInviteRequest.user_id")
+    occurrence: Mapped[EventOccurrence] = relationship("EventOccurrence", back_populates="community_invite_requests")
+    user: Mapped["User"] = relationship("User", foreign_keys="EventCommunityInviteRequest.user_id")
 
     __table_args__ = (
         # each user can only request once

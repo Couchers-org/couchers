@@ -26,8 +26,9 @@ from sqlalchemy import (
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import select as sa_select
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
+from sqlalchemy.orm import DynamicMapped, Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
+from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.constants import (
     EMAIL_REGEX,
@@ -44,6 +45,7 @@ from couchers.models.uploads import Upload
 from couchers.utils import get_coordinates, last_active_coarsen, now
 
 if TYPE_CHECKING:
+    from couchers.models import UserBadge
     from couchers.models.rest import InviteCode, ModerationUserList
     from couchers.models.uploads import PhotoGallery
 
@@ -328,6 +330,10 @@ class User(Base):
     galleries: Mapped[list["PhotoGallery"]] = relationship(
         "PhotoGallery", foreign_keys="PhotoGallery.owner_user_id", back_populates="owner_user"
     )
+    mod_notes: DynamicMapped["ModNote"] = relationship(
+        "ModNote", foreign_keys="ModNote.user_id", back_populates="user", lazy="dynamic"
+    )
+    badges: Mapped[list["UserBadge"]] = relationship("UserBadge", back_populates="user")
 
     __table_args__ = (
         # Verified phone numbers should be unique
@@ -401,8 +407,9 @@ class User(Base):
     def has_completed_profile(self) -> bool:
         return self.avatar_key is not None and self.about_me is not None and len(self.about_me) >= 150
 
-    @has_completed_profile.expression
-    def has_completed_profile(cls):
+    @has_completed_profile.inplace.expression
+    @classmethod
+    def _has_completed_profile_expression(cls) -> ColumnElement[bool]:
         return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 150)
 
     @hybrid_property
@@ -423,8 +430,9 @@ class User(Base):
             )
         )
 
-    @has_completed_my_home.expression
-    def has_completed_my_home(cls):
+    @has_completed_my_home.inplace.expression
+    @classmethod
+    def _has_completed_my_home_expression(cls) -> ColumnElement[bool]:
         return and_(
             cls.max_guests != None,
             cls.sleeping_arrangement != None,
@@ -448,7 +456,7 @@ class User(Base):
     @hybrid_property
     def jailed_pending_mod_notes(self) -> Any:
         # mod_notes come from a backref in ModNote
-        return self.mod_notes.where(ModNote.is_pending).count() > 0  # type: ignore[attr-defined]
+        return self.mod_notes.where(ModNote.is_pending).count() > 0
 
     @hybrid_property
     def jailed_pending_activeness_probe(self) -> Any:
@@ -473,8 +481,9 @@ class User(Base):
     def is_visible(self) -> bool:
         return not self.is_banned and not self.is_deleted
 
-    @is_visible.expression
-    def is_visible(cls):
+    @is_visible.inplace.expression
+    @classmethod
+    def _is_visible_expression(cls) -> ColumnElement[bool]:
         return ~(cls.is_banned | cls.is_deleted)
 
     @property
@@ -502,8 +511,9 @@ class User(Base):
             and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
 
-    @phone_is_verified.expression
-    def phone_is_verified(cls):
+    @phone_is_verified.inplace.expression
+    @classmethod
+    def _phone_is_verified_expression(cls) -> ColumnElement[bool]:
         return (cls.phone_verification_verified != None) & (
             now() - cls.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )

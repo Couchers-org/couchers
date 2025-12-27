@@ -42,6 +42,7 @@ from couchers.utils import (
     get_coordinates,
     now,
     parse_date,
+    to_bool,
     today_in_timezone,
 )
 
@@ -332,7 +333,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         pagination = min(pagination, MAX_PAGE_SIZE)
 
         # By outer joining messages on itself where the second id is bigger, only the highest IDs will have
-        # none as message_2.id. So just filter for these ones to get highest messages only.
+        # none as message_2.id. So just filter for these to get the highest messages only.
         # See https://stackoverflow.com/a/27802817/6115336
         message_2 = aliased(Message)
         statement = (
@@ -344,9 +345,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             .where_users_column_visible(context, HostRequest.host_user_id)
             .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
             .where(message_2.id == None)
-            .where(or_(Message.id < request.last_request_id, request.last_request_id == 0))
         )
 
+        if request.last_request_id != 0:
+            statement = statement.where(Message.id < request.last_request_id)
         if request.only_sent:
             statement = statement.where(HostRequest.surfer_user_id == context.user_id)
         elif request.only_received:
@@ -370,8 +372,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
         # TODO: I considered having the latest control message be the single source of truth for
-        # the HostRequest.status, but decided against it because of this filter.
-        # Another possibility is to filter in the python instead of SQL, but that's slower
+        #  the HostRequest.status, but decided against it because of this filter.
+        #  Another possibility is to filter in the python instead of SQL, but that's slower
         if request.only_active:
             statement = statement.where(
                 or_(
@@ -601,7 +603,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             session.execute(
                 select(Message)
                 .where(Message.conversation_id == host_request.conversation_id)
-                .where(or_(Message.id < request.last_message_id, request.last_message_id == 0))
+                .where(or_(Message.id < request.last_message_id, to_bool(request.last_message_id == 0)))
                 .order_by(Message.id.desc())
                 .limit(pagination + 1)
             )

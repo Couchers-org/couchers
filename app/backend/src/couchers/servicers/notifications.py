@@ -34,7 +34,7 @@ from couchers.notifications.utils import enum_from_topic_action
 from couchers.notifications.web_push_api import decode_key, get_vapid_public_key_from_private_key
 from couchers.proto import notifications_pb2, notifications_pb2_grpc
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, now
+from couchers.utils import Timestamp_from_datetime, now, to_bool
 
 logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 100
@@ -109,7 +109,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 select(Notification)
                 .where(Notification.user_id == context.user_id)
                 .where(Notification.id <= next_notification_id)
-                .where(or_(request.only_unread == False, Notification.is_seen == False))
+                .where(or_(to_bool(request.only_unread == False), Notification.is_seen == False))
                 .where(
                     Notification.topic_action.in_(
                         get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)

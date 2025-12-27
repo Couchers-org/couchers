@@ -24,7 +24,7 @@ def _create_stripe_customer(session: Session, user: User) -> None:
     customer = stripe.Customer.create(
         email=user.email,
         # metadata allows us to store arbitrary metadata for ourselves
-        metadata={"user_id": user.id},
+        metadata={"user_id": user.id},  # type: ignore[dict-item]
         api_key=config["STRIPE_API_KEY"],
     )
     user.stripe_customer_id = customer.id

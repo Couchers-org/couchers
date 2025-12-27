@@ -44,6 +44,7 @@ class Node(Base):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     parent_node = relationship("Node", backref="child_nodes", remote_side="Node.id")
+    official_cluster: Mapped["Cluster"] = relationship("Cluster", uselist=False)
 
 
 class Cluster(Base):
@@ -72,7 +73,7 @@ class Cluster(Base):
     official_cluster_for_node = relationship(
         "Node",
         primaryjoin="and_(Cluster.parent_node_id == Node.id, Cluster.is_official_cluster)",
-        backref=backref("official_cluster", uselist=False),
+        back_populates="official_cluster",
         uselist=False,
         viewonly=True,
     )
@@ -250,6 +251,7 @@ class Page(Base):
     )
 
     editors = relationship("User", secondary="page_versions", viewonly=True)
+    versions = relationship("PageVersion", back_populates="page", order_by="PageVersion.id")
 
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
@@ -297,7 +299,7 @@ class PageVersion(Base):
 
     slug = column_property(func.slugify(title))
 
-    page = relationship("Page", backref="versions", order_by="PageVersion.id")
+    page = relationship("Page", back_populates="versions", order_by="PageVersion.id")
     editor_user = relationship("User", backref="edited_pages")
     photo = relationship("Upload")
 
