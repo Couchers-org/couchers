@@ -59,6 +59,8 @@ dev = [
     "types-psycopg2",
 ]
 
+
+# Ruff
 [tool.ruff]
 line-length = 120
 exclude = [
@@ -93,22 +95,38 @@ ignore = [
 known-first-party = ["couchers", "proto", "tests", "dummy_data"]
 extra-standard-library = ["zoneinfo"]
 
+
+# Mypy
 [tool.mypy]
 strict = true
-exclude = [
-    "src/couchers/jobs/handlers.py",
-    "src/couchers/proto/*",
-    "src/couchers/migrations/versions/*",
-]
+
+[[tool.mypy.overrides]]
+module = ["couchers.jobs.handlers"]
+# This file has many type errors that need to be fixed separately
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["couchers.proto.*"]
+# Generated protobuf files should not be type-checked
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["couchers.migrations.versions.*"]
+# Migration files should not be type-checked
+ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "statsig_python_core", "user_agents"]
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true
 
+
+# Coverage
 [tool.coverage.run]
 omit = ["src/couchers/proto/**", "src/couchers/migrations/versions/**", "src/dummy_data.py"]
 
+
+# Build
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

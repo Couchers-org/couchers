@@ -13,7 +13,7 @@ from geoalchemy2.shape import from_shape, to_shape
 from google.protobuf.duration_pb2 import Duration
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
-from sqlalchemy import ColumnElement, Function, cast, false, true
+from sqlalchemy import Function, cast
 from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
@@ -415,7 +415,3 @@ def not_none[T](x: T | None) -> T:
     if x is None:
         raise ValueError("Expected a value but got None")
     return x
-
-
-def to_bool(value: bool) -> ColumnElement[bool]:
-    return true() if value else false()

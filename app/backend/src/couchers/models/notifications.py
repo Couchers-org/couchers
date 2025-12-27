@@ -1,5 +1,6 @@
 import enum
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from google.protobuf import empty_pb2
 from sqlalchemy import (
@@ -20,8 +21,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.constants import DATETIME_INFINITY
+from couchers.models import ModerationState
 from couchers.models.base import Base
 from couchers.proto import notification_data_pb2
+
+if TYPE_CHECKING:
+    from couchers.models import User
 
 
 class NotificationDeliveryType(enum.Enum):
@@ -172,7 +177,7 @@ class NotificationPreference(Base):
     delivery_type: Mapped[NotificationDeliveryType] = mapped_column(Enum(NotificationDeliveryType))
     deliver: Mapped[bool] = mapped_column(Boolean)
 
-    user = relationship("User", foreign_keys="NotificationPreference.user_id")
+    user: Mapped["User"] = relationship("User", foreign_keys="NotificationPreference.user_id")
 
     __table_args__ = (UniqueConstraint("user_id", "topic_action", "delivery_type"),)
 
@@ -204,8 +209,10 @@ class Notification(Base):
         ForeignKey("moderation_states.id"), nullable=True, index=True
     )
 
-    user = relationship("User", foreign_keys="Notification.user_id")
-    moderation_state = relationship("ModerationState", foreign_keys="Notification.moderation_state_id")
+    user: Mapped["User"] = relationship("User", foreign_keys="Notification.user_id")
+    moderation_state: Mapped["ModerationState"] = relationship(
+        "ModerationState", foreign_keys="Notification.moderation_state_id"
+    )
 
     __table_args__ = (
         # used in looking up which notifications need delivery
@@ -250,7 +257,9 @@ class NotificationDelivery(Base):
     delivery_type: Mapped[NotificationDeliveryType] = mapped_column(Enum(NotificationDeliveryType))
     # todo: device id
     # todo: receipt id, etc
-    notification = relationship("Notification", foreign_keys="NotificationDelivery.notification_id")
+    notification: Mapped["Notification"] = relationship(
+        "Notification", foreign_keys="NotificationDelivery.notification_id"
+    )
 
     __table_args__ = (
         UniqueConstraint("notification_id", "delivery_type"),
@@ -322,7 +331,7 @@ class PushNotificationSubscription(Base):
     # when it was disabled
     disabled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=DATETIME_INFINITY.isoformat())
 
-    user = relationship("User")
+    user: Mapped["User"] = relationship("User")
 
     __table_args__ = (
         # web_push platform requires: endpoint, auth_key, p256dh_key, full_subscription_info
@@ -363,4 +372,6 @@ class PushNotificationDeliveryAttempt(Base):
     receipt_status: Mapped[str | None] = mapped_column(String)  # "ok" or "error"
     receipt_error_code: Mapped[str | None] = mapped_column(String)  # e.g., "DeviceNotRegistered"
 
-    push_notification_subscription = relationship("PushNotificationSubscription")
+    push_notification_subscription: Mapped["PushNotificationSubscription"] = relationship(
+        "PushNotificationSubscription"
+    )

@@ -32,7 +32,8 @@ from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.servicers.api import user_model_to_pb
 from couchers.sql import couchers_select as select
-from couchers.utils import Timestamp_from_datetime, now, to_bool
+from couchers.sql import to_bool
+from couchers.utils import Timestamp_from_datetime, now
 
 logger = logging.getLogger(__name__)
 

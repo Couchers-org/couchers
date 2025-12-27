@@ -333,8 +333,8 @@ class User(Base):
     mod_notes: DynamicMapped["ModNote"] = relationship(
         "ModNote", foreign_keys="ModNote.user_id", back_populates="user", lazy="dynamic"
     )
-    badges: Mapped[list["UserBadge"]] = relationship("UserBadge", back_populates="user")
 
+    badges: Mapped[list["UserBadge"]] = relationship("UserBadge", back_populates="user")
     __table_args__ = (
         # Verified phone numbers should be unique
         Index(

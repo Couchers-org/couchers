@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any, Self, cast
 
-from sqlalchemy import ColumnElement, and_, false, or_, select
+from sqlalchemy import ColumnElement, and_, false, or_, select, true
 from sqlalchemy.orm import InstrumentedAttribute, aliased
 from sqlalchemy.sql import Select, exists, union
 
@@ -279,3 +279,7 @@ def _relevant_user_blocks(user_id: int) -> Select[tuple[int]]:
     blocking_users = select(UserBlock.blocking_user_id).where(UserBlock.blocked_user_id == user_id)
 
     return select(union(blocked_users, blocking_users).subquery())
+
+
+def to_bool(value: bool) -> ColumnElement[bool]:
+    return true() if value else false()
