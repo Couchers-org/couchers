@@ -30,7 +30,8 @@ class PluralRules:
     Implements Unicode CLDR language rules for known languages.
     See https://www.unicode.org/cldr/charts/48/supplemental/language_plural_rules.html
     """
-    _by_lang_family: dict[str, PluralRule] = {} # Populated below
+
+    _by_lang_family: dict[str, PluralRule] = {}  # Populated below
 
     @staticmethod
     def for_language(lang: str) -> PluralRule | None:
@@ -152,6 +153,7 @@ class PluralRules:
     @staticmethod
     def zh(count: int) -> PluralCategory:
         return PluralCategory.OTHER
+
 
 # Populate PluralRules lookup table
 for method_name in dir(PluralRules):
