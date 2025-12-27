@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, String, func
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
+from sqlalchemy.orm import DynamicMapped, Mapped, mapped_column, relationship
 
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.models.base import Base
@@ -12,7 +12,7 @@ from couchers.models.host_requests import HostRequestStatus
 from couchers.utils import now
 
 if TYPE_CHECKING:
-    from couchers.models.moderation import ModerationState
+    from couchers.models import ModerationState, User
 
 
 class Conversation(Base):
@@ -48,9 +48,10 @@ class GroupChat(Base):
     # Unified Moderation System
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
-    conversation = relationship("Conversation", backref="group_chat")
-    creator = relationship("User", backref="created_group_chats")
+    conversation: Mapped["Conversation"] = relationship("Conversation", backref="group_chat")
+    creator: Mapped["User"] = relationship("User", backref="created_group_chats")
     moderation_state: Mapped["ModerationState"] = relationship("ModerationState")
+    subscriptions: DynamicMapped["GroupChatSubscription"] = relationship("GroupChatSubscription", lazy="dynamic")
 
     def __repr__(self) -> str:
         return f"GroupChat(conversation={self.conversation}, title={self.title or 'None'}, only_admins_invite={self.only_admins_invite}, creator={self.creator}, is_dm={self.is_dm})"
@@ -86,8 +87,8 @@ class GroupChatSubscription(Base):
         DateTime(timezone=True), server_default=DATETIME_MINUS_INFINITY.isoformat()
     )
 
-    user = relationship("User", backref="group_chat_subscriptions")
-    group_chat = relationship("GroupChat", backref=backref("subscriptions", lazy="dynamic"))
+    user: Mapped["User"] = relationship("User", backref="group_chat_subscriptions")
+    group_chat: Mapped["GroupChat"] = relationship("GroupChat", back_populates="subscriptions")
 
     def muted_display(self) -> tuple[bool, datetime | None]:
         """
@@ -148,7 +149,7 @@ class Message(Base):
     message_type: Mapped[MessageType] = mapped_column(Enum(MessageType))
 
     # the target if a control message and requires target, e.g. if inviting a user, the user invited is the target
-    target_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
+    target_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
 
     # time sent, timezone should always be UTC
     time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -159,9 +160,11 @@ class Message(Base):
     # the new host request status if the message type is host_request_status_changed
     host_request_status_target: Mapped[HostRequestStatus | None] = mapped_column(Enum(HostRequestStatus), nullable=True)
 
-    conversation = relationship("Conversation", backref="messages", order_by="Message.time.desc()")
-    author = relationship("User", foreign_keys="Message.author_id")
-    target = relationship("User", foreign_keys="Message.target_id")
+    conversation: Mapped["Conversation"] = relationship(
+        "Conversation", backref="messages", order_by="Message.time.desc()"
+    )
+    author: Mapped["User"] = relationship("User", foreign_keys="Message.author_id")
+    target: Mapped["User | None"] = relationship("User", foreign_keys="Message.target_id")
 
     @property
     def is_normal_message(self) -> bool:

@@ -51,6 +51,7 @@ from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
 from couchers.sql import couchers_select as select
+from couchers.sql import to_bool
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
@@ -60,7 +61,6 @@ from couchers.utils import (
     millis_from_dt,
     now,
     to_aware_datetime,
-    to_bool,
 )
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages

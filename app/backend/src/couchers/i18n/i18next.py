@@ -114,7 +114,7 @@ class String:
 class StringTemplate:
     """A string value which may contain variable placeholders."""
 
-    segments: "list[StringSegment]"
+    segments: list["StringSegment"]
 
     def can_render(self, substitutions: dict[str, str | int] | None) -> bool:
         for segment in self.segments:
