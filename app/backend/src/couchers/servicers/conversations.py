@@ -145,7 +145,7 @@ def _user_can_message(session: Session, context: CouchersContext, group_chat: Gr
     if not group_chat.is_dm:
         return True
 
-    query = func.exists(
+    query = select(
         where_users_column_visible(
             select(GroupChatSubscription)
             .where(GroupChatSubscription.user_id != context.user_id)
@@ -153,9 +153,9 @@ def _user_can_message(session: Session, context: CouchersContext, group_chat: Gr
             .where(GroupChatSubscription.left == None),
             context=context,
             column=GroupChatSubscription.user_id,
-        )
+        ).exists()
     )
-    return cast(bool, session.execute(query).scalar_one())
+    return session.execute(query).scalar_one()
 
 
 def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotificationsPayload) -> None:

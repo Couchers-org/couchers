@@ -170,7 +170,7 @@ def _sanitized_bytes(proto: Message | None) -> bytes | None:
                 submessage = getattr(message, name)
                 if not submessage:
                     continue
-                if descriptor.label == descriptor.LABEL_REPEATED:
+                if descriptor.is_repeated:
                     for msg in submessage:
                         _sanitize_message(msg)
                 else:

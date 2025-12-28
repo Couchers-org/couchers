@@ -96,6 +96,18 @@ known-first-party = ["couchers", "proto", "tests", "dummy_data"]
 extra-standard-library = ["zoneinfo"]
 
 
+# Pytest
+[tool.pytest]
+strict = true
+filterwarnings = [
+    "error",  # Treat all warnings as errors by default
+    # Ignore scalar subquery warning from geoalchemy2 library (not fixable in our code)
+    "ignore:implicitly coercing SELECT object to scalar subquery:sqlalchemy.exc.SAWarning:geoalchemy2",
+    # Ignore SQLAlchemy session management warnings (informational, from SQLAlchemy internals)
+    "ignore:Object of type .* not in session:sqlalchemy.exc.SAWarning",
+]
+
+
 # Mypy
 [tool.mypy]
 strict = true
