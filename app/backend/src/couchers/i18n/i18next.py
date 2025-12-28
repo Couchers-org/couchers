@@ -3,6 +3,7 @@ Implements localizing strings stored in the i18next json format.
 """
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -17,7 +18,7 @@ class I18Next:
     """Retrieves translated strings from their keys based on the i18next format."""
 
     languages_by_code: "dict[str, Language]" = field(default_factory=dict)
-    fallback_language: "Language | None" = None
+    default_language: "Language | None" = None
     """The language used to look up strings in unsupported languages."""
 
     def add_language(self, code: str, plural_rule: PluralRule) -> "Language":
@@ -26,25 +27,24 @@ class I18Next:
         return language
 
     def find_string(
-        self, key: str, language_code: str, substitutions: dict[str, str | int] | None = None
+        self, key: str, language_code: str, substitutions: Mapping[str, str | int] | None = None
     ) -> "String | None":
         """Find the string that will be localized, applying fallbacks and variant selection."""
-        language = self.languages_by_code.get(language_code, self.fallback_language)
+        language = self.languages_by_code.get(language_code, self.default_language)
         while True:
             if language is None:
                 raise LocalizationError(language_code, key)
 
             string = language.find_string(key, substitutions)
             if string is None or not string.template.can_render(substitutions):
-                if language.fallback is None and language != self.fallback_language:
-                    language = self.fallback_language
-                else:
-                    language = language.fallback
+                language = language.fallback
                 continue
 
             return string
 
-    def localize(self, string_key: str, language_code: str, substitutions: dict[str, str | int] | None = None) -> str:
+    def localize(
+        self, string_key: str, language_code: str, substitutions: Mapping[str, str | int] | None = None
+    ) -> str:
         if string := self.find_string(string_key, language_code, substitutions):
             return string.render(substitutions)
         else:
@@ -62,8 +62,8 @@ class Language:
     strings_by_key: "dict[str, String]" = field(default_factory=dict)
     fallback: "Language | None" = None
 
-    def load_json_dict(self, json_dict: dict[str, Any]) -> None:
-        def add_strings(json_dict: dict[str, Any], key_prefix: str | None) -> None:
+    def load_json_dict(self, json_dict: Mapping[str, Any]) -> None:
+        def add_strings(json_dict: Mapping[str, Any], key_prefix: str | None) -> None:
             for k, v in json_dict.items():
                 full_key = f"{key_prefix}.{k}" if key_prefix else k
                 if isinstance(v, str):
@@ -78,7 +78,7 @@ class Language:
     def add_string(self, key: str, value: str) -> None:
         self.strings_by_key[key] = String(key, StringTemplate.parse(value))
 
-    def find_string(self, key: str, substitutions: dict[str, str | int] | None = None) -> "String | None":
+    def find_string(self, key: str, substitutions: Mapping[str, str | int] | None = None) -> "String | None":
         # if we have a numerical "count" substitution,
         # i18next will first search for a key with a suffix
         # based on the plural category suggested by the count
@@ -92,7 +92,7 @@ class Language:
                         return string
         return self.strings_by_key.get(key)
 
-    def localize(self, string_key: str, substitutions: dict[str, str | int] | None = None) -> str:
+    def localize(self, string_key: str, substitutions: Mapping[str, str | int] | None = None) -> str:
         string = self.find_string(string_key, substitutions)
         if string is None:
             raise LocalizationError(language_code=self.code, string_key=string_key)
@@ -106,7 +106,7 @@ class String:
     key: str
     template: "StringTemplate"
 
-    def render(self, substitutions: dict[str, str | int] | None) -> str:
+    def render(self, substitutions: Mapping[str, str | int] | None) -> str:
         return self.template.render(substitutions)
 
 
@@ -116,14 +116,14 @@ class StringTemplate:
 
     segments: list["StringSegment"]
 
-    def can_render(self, substitutions: dict[str, str | int] | None) -> bool:
+    def can_render(self, substitutions: Mapping[str, str | int] | None) -> bool:
         for segment in self.segments:
             if segment.is_variable:
                 if not substitutions or substitutions.get(segment.text) is None:
                     return False
         return True
 
-    def render(self, substitutions: dict[str, str | int] | None) -> str:
+    def render(self, substitutions: Mapping[str, str | int] | None) -> str:
         substrings: list[str] = []
         for segment in self.segments:
             if segment.is_variable:

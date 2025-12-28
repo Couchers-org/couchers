@@ -2,7 +2,7 @@ from typing import NoReturn, cast
 
 import grpc
 
-from couchers.i18n.i18n import get_raw_translation_string
+from couchers.i18n.i18n import localize_string
 
 
 class NonInteractiveContextException(Exception):
@@ -98,24 +98,19 @@ class CouchersContext:
     def is_logged_in(self) -> bool:
         return self.__logged_in
 
-    def get_localized_string(
-        self, component: str, message_id: str, *, substitutions: dict[str, str | int] | None = None
-    ) -> str:
+    def get_localized_string(self, key: str, *, substitutions: dict[str, str | int] | None = None) -> str:
         """
         Get a localized string using the user's language preference.
         Falls back to the default language if no preference is set.
 
         Args:
-            component: Component name (e.g., "errors")
-            message_id: The key for the specific string
+            key: The key for the specific string
             substitutions: Dictionary of variable substitutions for the string (optional)
 
         Returns:
             The translated string with substitutions applied
         """
-        return get_raw_translation_string(
-            self.__ui_language_preference, component, message_id, substitutions=substitutions
-        )
+        return localize_string(self.__ui_language_preference, key, substitutions=substitutions)
 
     def abort(self, status_code: grpc.StatusCode, error_message: str) -> NoReturn:
         """
@@ -138,7 +133,7 @@ class CouchersContext:
         else:
             context = cast(grpc.ServicerContext, self._grpc_context)
             # Get the translated error message using the user's language preference
-            error_message = self.get_localized_string("errors", error_message_id, substitutions=substitutions)
+            error_message = self.get_localized_string(f"errors.{error_message_id}", substitutions=substitutions)
             context.abort(status_code, error_message)
 
     def set_cookies(self, cookies: list[str]) -> None:
