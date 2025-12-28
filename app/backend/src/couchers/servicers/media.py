@@ -2,6 +2,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
@@ -9,7 +10,6 @@ from couchers.crypto import secure_compare
 from couchers.interceptors import MediaInterceptor
 from couchers.models import InitiatedUpload, Upload
 from couchers.proto import media_pb2, media_pb2_grpc
-from couchers.sql import couchers_select as select
 
 logger = logging.getLogger(__name__)
 

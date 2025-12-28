@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 import pytest
-from sqlalchemy import update
+from sqlalchemy import select, update
 
 import couchers.email
 import couchers.jobs.handlers
@@ -20,7 +20,6 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.proto import api_pb2, editor_pb2, events_pb2, notification_data_pb2, notifications_pb2
-from couchers.sql import couchers_select as select
 from couchers.tasks import (
     enforce_community_memberships,
     maybe_send_reference_report_email,

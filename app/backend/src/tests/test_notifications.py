@@ -5,6 +5,7 @@ from urllib.parse import parse_qs, urlparse
 import grpc
 import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
+from sqlalchemy import select
 
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
@@ -36,7 +37,6 @@ from couchers.proto import (
 )
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
-from couchers.sql import couchers_select as select
 from couchers.templates.v2 import v2timestamp
 from couchers.utils import now
 from tests.test_fixtures import (  # noqa

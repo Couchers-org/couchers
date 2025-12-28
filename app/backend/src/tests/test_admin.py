@@ -3,6 +3,7 @@ from re import match
 
 import grpc
 import pytest
+from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
@@ -16,7 +17,6 @@ from couchers.models import (
     UserSession,
 )
 from couchers.proto import admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
 from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa

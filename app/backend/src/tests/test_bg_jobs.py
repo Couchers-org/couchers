@@ -5,6 +5,7 @@ import pytest
 import requests
 from google.protobuf import empty_pb2
 from google.protobuf.empty_pb2 import Empty
+from sqlalchemy import select
 from sqlalchemy.sql import delete, func
 
 import couchers.jobs.worker
@@ -43,7 +44,6 @@ from couchers.models import (
     Volunteer,
 )
 from couchers.proto import conversations_pb2, requests_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import now, today
 from tests.test_fixtures import (  # noqa
     auth_api_session,

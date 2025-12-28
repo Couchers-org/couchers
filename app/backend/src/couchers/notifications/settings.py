@@ -1,5 +1,6 @@
 import logging
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.db import session_scope
@@ -11,7 +12,6 @@ from couchers.models import (
 )
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.proto import notifications_pb2
-from couchers.sql import couchers_select as select
 
 logger = logging.getLogger(__name__)
 

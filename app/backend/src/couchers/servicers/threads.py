@@ -1,8 +1,8 @@
 import logging
-from typing import cast
 
 import grpc
 import sqlalchemy.exc
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -15,7 +15,7 @@ from couchers.proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
-from couchers.sql import couchers_select as select
+from couchers.sql import where_users_column_visible
 from couchers.utils import Timestamp_from_datetime
 
 logger = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ def total_num_responses(session: Session, database_id: int) -> int:
         .join(Comment, Comment.id == Reply.comment_id)
         .where(Comment.thread_id == database_id)
     )
-    return cast(int, session.execute(comments).scalar_one() + session.execute(replies).scalar_one())
+    return session.execute(comments).scalar_one() + session.execute(replies).scalar_one()
 
 
 def thread_to_pb(session: Session, database_id: int) -> threads_pb2.Thread:
@@ -131,32 +131,34 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 raise NotImplementedError("I can only do event and discussion threads for now")
         elif depth == 2:
             # this is a second-level reply to a comment
-            reply = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one()
+            db_reply = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one()
             # the comment we're replying to
-            parent_comment = session.execute(select(Comment).where(Comment.id == reply.comment_id)).scalar_one()
-            context = make_background_user_context(user_id=reply.author_user_id)
+            parent_comment = session.execute(select(Comment).where(Comment.id == db_reply.comment_id)).scalar_one()
+            context = make_background_user_context(user_id=db_reply.author_user_id)
             thread_replies_author_user_ids = (
                 session.execute(
-                    select(Reply.author_user_id)
-                    .where_users_column_visible(context, Reply.author_user_id)
-                    .where(Reply.comment_id == parent_comment.id)
+                    where_users_column_visible(
+                        select(Reply.author_user_id).where(Reply.comment_id == parent_comment.id),
+                        context,
+                        Reply.author_user_id,
+                    )
                 )
                 .scalars()
                 .all()
             )
             thread_user_ids = set(thread_replies_author_user_ids)
-            if not is_not_visible(session, parent_comment.author_user_id, reply.author_user_id):
+            if not is_not_visible(session, parent_comment.author_user_id, db_reply.author_user_id):
                 thread_user_ids.add(parent_comment.author_user_id)
 
-            author_user = session.execute(select(User).where(User.id == reply.author_user_id)).scalar_one()
+            author_user = session.execute(select(User).where(User.id == db_reply.author_user_id)).scalar_one()
 
-            user_ids_to_notify = set(thread_user_ids) - {reply.author_user_id}
+            user_ids_to_notify = set(thread_user_ids) - {db_reply.author_user_id}
 
             reply = threads_pb2.Reply(
                 thread_id=payload.thread_id,
-                content=reply.content,
-                author_user_id=reply.author_user_id,
-                created_time=Timestamp_from_datetime(reply.created),
+                content=db_reply.content,
+                author_user_id=db_reply.author_user_id,
+                created_time=Timestamp_from_datetime(db_reply.created),
                 num_replies=0,
             )
 
@@ -240,7 +242,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
             res = (
-                session.execute(
+                session.execute(  # type: ignore[assignment]
                     select(Reply)
                     .where(Reply.comment_id == database_id)
                     .where(Reply.id < page_start)

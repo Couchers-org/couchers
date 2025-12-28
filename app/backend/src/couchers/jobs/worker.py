@@ -16,6 +16,7 @@ import sentry_sdk
 import sqlalchemy.exc
 from google.protobuf import empty_pb2
 from opentelemetry import trace
+from sqlalchemy import select
 
 from couchers.config import config
 from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
@@ -30,7 +31,6 @@ from couchers.metrics import (
     observe_in_jobs_duration_histogram,
 )
 from couchers.models import BackgroundJob, BackgroundJobState
-from couchers.sql import couchers_select as select
 from couchers.tracing import setup_tracing
 from couchers.utils import now
 

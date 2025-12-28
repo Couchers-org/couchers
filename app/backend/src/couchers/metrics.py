@@ -15,6 +15,7 @@ from prometheus_client import (
     multiprocess,
 )
 from prometheus_client.registry import CollectorRegistry
+from sqlalchemy import select
 from sqlalchemy.sql import distinct, func
 from sqlalchemy.sql.selectable import Select
 
@@ -28,7 +29,6 @@ from couchers.models.moderation import (
     ModerationTrigger,
     ModerationVisibility,
 )
-from couchers.sql import couchers_select as select
 
 tracer = trace.get_tracer(__name__)
 

@@ -3,6 +3,7 @@ import logging
 import grpc
 from cachetools import TTLCache, cached
 from google.protobuf import empty_pb2
+from sqlalchemy import null, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, union_all
 
@@ -16,7 +17,6 @@ from couchers.proto.google.api import httpbody_pb2
 from couchers.resources import get_static_badge_dict
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
-from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, not_none, now
 
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ def _get_public_users(session: Session) -> httpbody_pb2.HttpBody:
     )
 
     without_geom = (
-        select(None, User.randomized_geom)
+        select(null(), User.randomized_geom)
         .where(User.is_visible)
         .where(User.randomized_geom != None)
         .where(User.public_visibility == ProfilePublicVisibility.map_only)

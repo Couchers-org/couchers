@@ -3,7 +3,7 @@ import http.cookies
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.sql import delete, func
 
 from couchers import urls
@@ -21,7 +21,6 @@ from couchers.models import (
     UserSession,
 )
 from couchers.proto import api_pb2, auth_pb2
-from couchers.sql import couchers_select as select
 from tests.test_fixtures import (  # noqa
     api_session,
     auth_api_session,

@@ -1,4 +1,5 @@
 import grpc
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
@@ -6,7 +7,6 @@ from couchers.db import can_moderate_at, can_moderate_node, get_parent_node_at_l
 from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, Upload, User
 from couchers.proto import pages_pb2, pages_pb2_grpc
 from couchers.servicers.threads import thread_to_pb
-from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
 
 MAX_PAGINATION_LENGTH = 25

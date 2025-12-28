@@ -8,6 +8,7 @@ import logging
 
 import grpc
 from google.protobuf.message import Message
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers import urls
@@ -28,7 +29,7 @@ from couchers.notifications.utils import enum_from_topic_action
 from couchers.proto import auth_pb2, conversations_pb2, requests_pb2
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.requests import Requests
-from couchers.sql import couchers_select as select
+from couchers.sql import where_moderated_content_visible
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -115,9 +116,14 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
         if topic == "chat":
             group_chat_id = int(key)
             subscription = session.execute(
-                select(GroupChatSubscription)
-                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
-                .where_moderated_content_visible(context, GroupChat, is_list_operation=False)
+                where_moderated_content_visible(
+                    select(GroupChatSubscription).join(
+                        GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id
+                    ),
+                    context,
+                    GroupChat,
+                    is_list_operation=False,
+                )
                 .where(GroupChatSubscription.group_chat_id == group_chat_id)
                 .where(GroupChatSubscription.user_id == user.id)
                 .where(GroupChatSubscription.left == None)

@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 import grpc
 import requests
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, update
 from user_agents import parse as user_agents_parse
@@ -61,7 +62,7 @@ from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.servicers.api import lite_user_to_pb
 from couchers.servicers.public import format_volunteer_link
 from couchers.servicers.references import get_pending_references_to_write, reftype2api
-from couchers.sql import couchers_select as select
+from couchers.sql import where_moderated_content_visible, where_users_column_visible
 from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_account_deletion_report_email,
@@ -663,7 +664,7 @@ class Account(account_pb2_grpc.AccountServicer):
         self, request: account_pb2.SetProfilePublicVisibilityReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]
+        user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]  # type: ignore[assignment]
         user.has_modified_public_visibility = True
         return empty_pb2.Empty()
 
@@ -728,12 +729,11 @@ class Account(account_pb2_grpc.AccountServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         # responding to reqs comes first in desc order of when they were received
+        query = select(HostRequest.conversation_id, LiteUser).join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
+        query = where_users_column_visible(query, context, HostRequest.surfer_user_id)
+        query = where_moderated_content_visible(query, context, HostRequest, is_list_operation=True)
         pending_host_requests = session.execute(
-            select(HostRequest.conversation_id, LiteUser)
-            .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
-            .where_users_column_visible(context, HostRequest.surfer_user_id)
-            .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
-            .where(HostRequest.host_user_id == context.user_id)
+            query.where(HostRequest.host_user_id == context.user_id)
             .where(HostRequest.status == HostRequestStatus.pending)
             .where(HostRequest.start_time > func.now())
             .order_by(HostRequest.conversation_id.asc())

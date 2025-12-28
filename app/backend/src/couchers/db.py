@@ -6,13 +6,12 @@ from collections.abc import Generator, Sequence
 from contextlib import contextmanager
 from os import getpid
 from threading import get_ident
-from typing import cast
 
 from alembic import command
 from alembic.config import Config
 from geoalchemy2 import WKBElement
 from opentelemetry import trace
-from sqlalchemy import Engine, Row, Subquery, create_engine, text
+from sqlalchemy import Engine, Row, Subquery, create_engine, select, text, true
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import and_, func, literal, or_
@@ -31,7 +30,7 @@ from couchers.models import (
     TimezoneArea,
     User,
 )
-from couchers.sql import couchers_select as select
+from couchers.sql import where_users_column_visible
 
 logger = logging.getLogger(__name__)
 
@@ -139,25 +138,16 @@ def db_post_fork() -> None:
 
 
 def are_friends(session: Session, context: CouchersContext, other_user: int) -> bool:
-    return (
-        session.execute(
-            select(FriendRelationship)
-            .where_users_column_visible(context, FriendRelationship.from_user_id)
-            .where_users_column_visible(context, FriendRelationship.to_user_id)
-            .where(
-                or_(
-                    and_(
-                        FriendRelationship.from_user_id == context.user_id, FriendRelationship.to_user_id == other_user
-                    ),
-                    and_(
-                        FriendRelationship.from_user_id == other_user, FriendRelationship.to_user_id == context.user_id
-                    ),
-                )
-            )
-            .where(FriendRelationship.status == FriendStatus.accepted)
-        ).scalar_one_or_none()
-        is not None
-    )
+    query = select(FriendRelationship)
+    query = where_users_column_visible(query, context, FriendRelationship.from_user_id)
+    query = where_users_column_visible(query, context, FriendRelationship.to_user_id)
+    query = query.where(
+        or_(
+            and_(FriendRelationship.from_user_id == context.user_id, FriendRelationship.to_user_id == other_user),
+            and_(FriendRelationship.from_user_id == other_user, FriendRelationship.to_user_id == context.user_id),
+        )
+    ).where(FriendRelationship.status == FriendStatus.accepted)
+    return session.execute(query).scalar_one_or_none() is not None
 
 
 def get_parent_node_at_location(session: Session, shape: WKBElement) -> Node | None:
@@ -207,14 +197,14 @@ def get_node_parents_recursively(session: Session, node_id: int) -> Sequence[Row
 def _can_moderate_any_cluster(session: Session, user_id: int, cluster_ids: list[int]) -> bool:
     query = select(
         (
-            select(True)
+            select(true())
             .select_from(ClusterSubscription)
             .where(ClusterSubscription.role == ClusterRole.admin)
             .where(ClusterSubscription.user_id == user_id)
             .where(ClusterSubscription.cluster_id.in_(cluster_ids))
         ).exists()
     )
-    return cast(bool, session.execute(query).scalar_one())
+    return session.execute(query).scalar_one()
 
 
 def can_moderate_node(session: Session, user_id: int, node_id: int) -> bool:
@@ -224,7 +214,7 @@ def can_moderate_node(session: Session, user_id: int, node_id: int) -> bool:
     subquery = _get_node_parents_recursive_cte_subquery(node_id)
     query = select(
         (
-            select(True)
+            select(true())
             .select_from(ClusterSubscription)
             .where(ClusterSubscription.role == ClusterRole.admin)
             .where(ClusterSubscription.user_id == user_id)
@@ -233,7 +223,7 @@ def can_moderate_node(session: Session, user_id: int, node_id: int) -> bool:
             .where(Cluster.parent_node_id == subquery.c.id)
         ).exists()
     )
-    return cast(bool, session.execute(query).scalar_one())
+    return session.execute(query).scalar_one()
 
 
 def can_moderate_at(session: Session, user_id: int, shape: Geom) -> bool:
@@ -242,7 +232,7 @@ def can_moderate_at(session: Session, user_id: int, shape: Geom) -> bool:
     """
     query = select(
         (
-            select(True)
+            select(true())
             .select_from(ClusterSubscription)
             .where(ClusterSubscription.role == ClusterRole.admin)
             .where(ClusterSubscription.user_id == user_id)
@@ -251,7 +241,7 @@ def can_moderate_at(session: Session, user_id: int, shape: Geom) -> bool:
             .where(func.ST_Contains(Node.geom, shape))
         ).exists()
     )
-    return cast(bool, session.execute(query).scalar_one())
+    return session.execute(query).scalar_one()
 
 
 def is_user_in_node_geography(session: Session, user_id: int, node_id: int) -> bool:
@@ -262,20 +252,18 @@ def is_user_in_node_geography(session: Session, user_id: int, node_id: int) -> b
     """
     query = select(
         (
-            select(True)
+            select(true())
             .select_from(User)
             .join(Node, func.ST_Contains(Node.geom, User.geom))
             .where(User.id == user_id)
             .where(Node.id == node_id)
         ).exists()
     )
-    return cast(bool, session.execute(query).scalar_one())
+    return session.execute(query).scalar_one()
 
 
 def timezone_at_coordinate(session: Session, geom: WKBElement) -> str | None:
-    area = session.execute(
+    tzid = session.execute(
         select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom))
     ).scalar_one_or_none()
-    if area:
-        return cast(str | None, area.tzid)
-    return None
+    return tzid

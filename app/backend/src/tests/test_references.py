@@ -4,7 +4,7 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from couchers.db import session_scope
@@ -24,7 +24,6 @@ from couchers.models import (
 )
 from couchers.moderation.utils import create_moderation
 from couchers.proto import conversations_pb2, references_pb2, requests_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now, to_aware_datetime, today
 from tests.test_fixtures import (  # noqa
     account_session,

@@ -4,6 +4,7 @@ import grpc
 import pytest
 from geoalchemy2 import WKBElement
 from google.protobuf import wrappers_pb2
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.db import is_user_in_node_geography, session_scope
@@ -20,7 +21,6 @@ from couchers.models import (
     Thread,
 )
 from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
-from couchers.sql import couchers_select as select
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
 from tests.test_auth import get_session_cookie_tokens

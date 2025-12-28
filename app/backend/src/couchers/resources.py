@@ -4,13 +4,13 @@ import logging
 from pathlib import Path
 from typing import Any, cast
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, text
 
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.models import Language, Region, TimezoneArea
-from couchers.sql import couchers_select as select
 
 logger = logging.getLogger(__name__)
 

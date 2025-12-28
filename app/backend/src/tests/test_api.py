@@ -3,7 +3,7 @@ from datetime import timedelta
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy import update
+from sqlalchemy import select, update
 
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
@@ -12,7 +12,6 @@ from couchers.models import FriendRelationship, FriendStatus, LanguageFluency, R
 from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict
-from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
 from tests.test_fixtures import (  # noqa
     api_session,

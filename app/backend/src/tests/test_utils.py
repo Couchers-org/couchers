@@ -1,10 +1,9 @@
 import pytest
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
 from couchers.models import User
-from couchers.sql import couchers_select as select
 from couchers.utils import dt_from_page_token, dt_to_page_token, now, wrap_coordinate
 from tests.test_fixtures import db, generate_user, testconfig  # noqa
 
