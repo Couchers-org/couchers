@@ -19,8 +19,8 @@ from sqlalchemy import select
 from couchers.config import config
 from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
 from couchers.experimentation import setup_experimentation
+from couchers.jobs.definitions import JOBS
 from couchers.jobs.enqueue import queue_job
-from couchers.jobs.handlers import JOBS
 from couchers.metrics import (
     background_jobs_got_job_counter,
     background_jobs_no_jobs_counter,
@@ -76,13 +76,13 @@ def process_job() -> bool:
         logger.info(f"Job #{job.id} of type {job.job_type} grabbed")
         job.try_count += 1
 
-        func, message_type, _ = JOBS[job.job_type]
+        job_def = JOBS[job.job_type]
 
         jobs_queued_histogram.observe((now() - job.queued).total_seconds())
         try:
             with tracer.start_as_current_span(job.job_type) as rollspan:
                 start = perf_counter_ns()
-                ret = func(message_type.FromString(job.payload))
+                ret = job_def.handler(job_def.payload_type.FromString(job.payload))
                 finished = perf_counter_ns()
             job.state = BackgroundJobState.completed
             observe_in_jobs_duration_histogram(
@@ -154,8 +154,8 @@ def run_scheduler() -> None:
     """
     sched = scheduler(monotonic, sleep)
 
-    for job_type, (_, _, frequency) in JOBS.items():
-        if frequency is not None:
+    for job_type, job_def in JOBS.items():
+        if job_def.schedule is not None:
             sched.enter(
                 delay=0,
                 priority=1,
@@ -163,7 +163,7 @@ def run_scheduler() -> None:
                 argument=(
                     sched,
                     job_type,
-                    frequency,
+                    job_def.schedule,
                 ),
             )
 

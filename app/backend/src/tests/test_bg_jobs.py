@@ -16,6 +16,7 @@ from couchers.db import session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
 from couchers.jobs import handlers
+from couchers.jobs.definitions import Job
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import (
     add_users_to_email_list,
@@ -315,8 +316,8 @@ def test_service_jobs(db):
 
 def test_scheduler(db, monkeypatch):
     MOCK_JOBS = {
-        "purge_login_tokens": (lambda x: None, empty_pb2.Empty, timedelta(seconds=7)),
-        "send_message_notifications": (lambda x: None, empty_pb2.Empty, timedelta(seconds=11)),
+        "purge_login_tokens": Job(lambda x: None, empty_pb2.Empty, timedelta(seconds=7)),
+        "send_message_notifications": Job(lambda x: None, empty_pb2.Empty, timedelta(seconds=11)),
     }
 
     current_time = 0
@@ -402,7 +403,7 @@ def test_job_retry(db):
         raise Exception()
 
     MOCK_JOBS = {
-        "mock_job": (mock_job, empty_pb2.Empty, None),
+        "mock_job": Job(mock_job, empty_pb2.Empty, None),
     }
     create_prometheus_server(port=8000)
 

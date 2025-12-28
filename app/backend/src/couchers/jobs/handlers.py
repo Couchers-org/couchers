@@ -55,8 +55,6 @@ from couchers.email.smtp import send_smtp_email
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.materialized_views import (
     UserResponseRate,
-    refresh_materialized_views,
-    refresh_materialized_views_rapid,
 )
 from couchers.metrics import (
     moderation_auto_approved_counter,
@@ -101,28 +99,18 @@ from couchers.models import (
     UserBadge,
     Volunteer,
 )
-from couchers.notifications.background import handle_email_digests, handle_notification
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
-from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
 from couchers.postal.postcard_service import send_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.api import user_model_to_pb
-from couchers.servicers.conversations import generate_message_notifications
-from couchers.servicers.discussions import generate_create_discussion_notifications
-from couchers.servicers.editor import generate_new_blog_post_notifications
 from couchers.servicers.events import (
     event_to_pb,
-    generate_event_cancel_notifications,
-    generate_event_create_notifications,
-    generate_event_delete_notifications,
-    generate_event_update_notifications,
 )
 from couchers.servicers.moderation import Moderation
 from couchers.servicers.requests import host_request_to_pb
-from couchers.servicers.threads import generate_reply_notifications
 from couchers.sql import (
     users_visible_to_each_other,
     where_moderated_content_visible,
@@ -1519,74 +1507,3 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
                 session=session,
             )
         moderation_auto_approved_counter.inc(len(items))
-
-
-# Job registry - maps job names to (handler_function, payload_type, schedule)
-JOBS: dict[str, tuple[Any, Any, timedelta | None]] = {
-    "handle_notification": (handle_notification, jobs_pb2.HandleNotificationPayload, None),
-    "send_raw_push_notification_v2": (send_raw_push_notification_v2, jobs_pb2.SendRawPushNotificationPayloadV2, None),
-    "handle_email_digests": (handle_email_digests, empty_pb2.Empty, timedelta(minutes=15)),
-    "generate_message_notifications": (
-        generate_message_notifications,
-        jobs_pb2.GenerateMessageNotificationsPayload,
-        None,
-    ),
-    "generate_reply_notifications": (generate_reply_notifications, jobs_pb2.GenerateReplyNotificationsPayload, None),
-    "generate_create_discussion_notifications": (
-        generate_create_discussion_notifications,
-        jobs_pb2.GenerateCreateDiscussionNotificationsPayload,
-        None,
-    ),
-    "generate_event_create_notifications": (
-        generate_event_create_notifications,
-        jobs_pb2.GenerateEventCreateNotificationsPayload,
-        None,
-    ),
-    "generate_event_update_notifications": (
-        generate_event_update_notifications,
-        jobs_pb2.GenerateEventUpdateNotificationsPayload,
-        None,
-    ),
-    "generate_event_cancel_notifications": (
-        generate_event_cancel_notifications,
-        jobs_pb2.GenerateEventCancelNotificationsPayload,
-        None,
-    ),
-    "generate_event_delete_notifications": (
-        generate_event_delete_notifications,
-        jobs_pb2.GenerateEventDeleteNotificationsPayload,
-        None,
-    ),
-    "generate_new_blog_post_notifications": (
-        generate_new_blog_post_notifications,
-        jobs_pb2.GenerateNewBlogPostNotificationsPayload,
-        None,
-    ),
-    "refresh_materialized_views": (refresh_materialized_views, empty_pb2.Empty, timedelta(minutes=5)),
-    "refresh_materialized_views_rapid": (refresh_materialized_views_rapid, empty_pb2.Empty, timedelta(seconds=30)),
-    "send_email": (send_email, jobs_pb2.SendEmailPayload, None),
-    "purge_login_tokens": (purge_login_tokens, empty_pb2.Empty, timedelta(hours=24)),
-    "purge_password_reset_tokens": (purge_password_reset_tokens, empty_pb2.Empty, timedelta(hours=24)),
-    "purge_account_deletion_tokens": (purge_account_deletion_tokens, empty_pb2.Empty, timedelta(hours=24)),
-    "send_message_notifications": (send_message_notifications, empty_pb2.Empty, timedelta(minutes=3)),
-    "send_request_notifications": (send_request_notifications, empty_pb2.Empty, timedelta(minutes=3)),
-    "send_onboarding_emails": (send_onboarding_emails, empty_pb2.Empty, timedelta(hours=1)),
-    "send_reference_reminders": (send_reference_reminders, empty_pb2.Empty, timedelta(hours=1)),
-    "send_host_request_reminders": (send_host_request_reminders, empty_pb2.Empty, timedelta(minutes=15)),
-    "add_users_to_email_list": (add_users_to_email_list, empty_pb2.Empty, timedelta(hours=1)),
-    "enforce_community_membership": (enforce_community_membership, empty_pb2.Empty, timedelta(minutes=15)),
-    "update_recommendation_scores": (update_recommendation_scores, empty_pb2.Empty, timedelta(hours=24)),
-    "update_badges": (update_badges, empty_pb2.Empty, timedelta(minutes=15)),
-    "finalize_strong_verification": (finalize_strong_verification, jobs_pb2.FinalizeStrongVerificationPayload, None),
-    "send_activeness_probes": (send_activeness_probes, empty_pb2.Empty, timedelta(minutes=60)),
-    "update_randomized_locations": (update_randomized_locations, empty_pb2.Empty, timedelta(hours=1)),
-    "send_event_reminders": (send_event_reminders, empty_pb2.Empty, timedelta(hours=1)),
-    "check_expo_push_receipts": (check_expo_push_receipts, empty_pb2.Empty, timedelta(minutes=5)),
-    "send_postal_verification_postcard": (
-        send_postal_verification_postcard,
-        jobs_pb2.SendPostalVerificationPostcardPayload,
-        None,
-    ),
-    "check_database_consistency": (check_database_consistency, empty_pb2.Empty, timedelta(hours=24)),
-    "auto_approve_moderation_queue": (auto_approve_moderation_queue, empty_pb2.Empty, timedelta(seconds=15)),
-}
