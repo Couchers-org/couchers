@@ -20,3 +20,19 @@ def test_translations_loaded():
 
     # Other languages should also exist
     assert len(i18next.languages_by_code) > 1
+
+
+def test_fallback_chain():
+    """Test that fallbacks are correctly set up"""
+    i18next = get_i18next()
+
+    # Example: fr-CA should fallback to fr, which should fallback to en
+    fr_CA = i18next.languages_by_code["fr-CA"]
+    fr = i18next.languages_by_code["fr"]
+    en = i18next.languages_by_code["en"]
+
+    assert fr_CA.fallback == fr
+    assert fr.fallback == en
+    assert en.fallback is None
+
+    assert i18next.default_language == en

@@ -33,18 +33,21 @@ def get_i18next() -> I18Next:
         language = i18next.add_language(lang_code, plural_rule)
         language.load_json_dict(translations)
 
-    # Apply ultimate fallback: English is our source of truth - must exist
+    # English is our default for undefined languages
     en = i18next.languages_by_code.get("en")
     if en is None:
         raise RuntimeError("English translations must be loaded")
-    i18next.fallback_language = en
+    i18next.default_language = en
 
-    # Apply other fallbacks
-    for from_lang_code, to_lang_code in LANGUAGE_FALLBACKS.items():
-        from_lang = i18next.languages_by_code.get(from_lang_code)
-        to_lang = i18next.languages_by_code.get(to_lang_code)
-        if from_lang is not None and to_lang is not None:
-            from_lang.fallback = to_lang.fallback
+    # Apply fallbacks
+    for language in i18next.languages_by_code.values():
+        if language == en:
+            continue  # English has no fallback
+
+        fallback_language = en
+        if fallback_code := LANGUAGE_FALLBACKS.get(language.code):
+            fallback_language = i18next.languages_by_code[fallback_code]
+        language.fallback = fallback_language
 
     return i18next
 

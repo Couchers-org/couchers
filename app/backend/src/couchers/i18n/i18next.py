@@ -18,7 +18,7 @@ class I18Next:
     """Retrieves translated strings from their keys based on the i18next format."""
 
     languages_by_code: "dict[str, Language]" = field(default_factory=dict)
-    fallback_language: "Language | None" = None
+    default_language: "Language | None" = None
     """The language used to look up strings in unsupported languages."""
 
     def add_language(self, code: str, plural_rule: PluralRule) -> "Language":
@@ -30,17 +30,14 @@ class I18Next:
         self, key: str, language_code: str, substitutions: Mapping[str, str | int] | None = None
     ) -> "String | None":
         """Find the string that will be localized, applying fallbacks and variant selection."""
-        language = self.languages_by_code.get(language_code, self.fallback_language)
+        language = self.languages_by_code.get(language_code, self.default_language)
         while True:
             if language is None:
                 raise LocalizationError(language_code, key)
 
             string = language.find_string(key, substitutions)
             if string is None or not string.template.can_render(substitutions):
-                if language.fallback is None and language != self.fallback_language:
-                    language = self.fallback_language
-                else:
-                    language = language.fallback
+                language = language.fallback
                 continue
 
             return string
