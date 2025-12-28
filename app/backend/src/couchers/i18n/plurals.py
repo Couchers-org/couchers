@@ -31,20 +31,21 @@ class PluralRules:
     See https://www.unicode.org/cldr/charts/48/supplemental/language_plural_rules.html
     """
 
-    _by_lang_family: dict[str, PluralRule] = {}  # Populated below
-
     @staticmethod
     def for_language(lang: str) -> PluralRule | None:
         separator_index = lang.find("-")
         lang_family = lang if separator_index == -1 else lang[0:separator_index]
-        return PluralRules._by_lang_family.get(lang_family)
+        # Look up one of the plural rule functions defined below
+        return getattr(PluralRules, lang_family, None)
 
     @staticmethod
     def ca(count: int) -> PluralCategory:
+        """Gets the Catalan plural category for a given count."""
         return PluralRules.es(count)  # Same as ES
 
     @staticmethod
     def cs(count: int) -> PluralCategory:
+        """Gets the Czech plural category for a given count."""
         count = abs(count)
         if count == 1:
             return PluralCategory.ONE
@@ -54,10 +55,12 @@ class PluralRules:
 
     @staticmethod
     def de(count: int) -> PluralCategory:
+        """Gets the German plural category for a given count."""
         return PluralRules.en(count)  # Same as EN
 
     @staticmethod
     def en(count: int) -> PluralCategory:
+        """Gets the English plural category for a given count."""
         count = abs(count)
         if count == 1:
             return PluralCategory.ONE  # 1 apple
@@ -65,6 +68,7 @@ class PluralRules:
 
     @staticmethod
     def es(count: int) -> PluralCategory:
+        """Gets the Spanish plural category for a given count."""
         count = abs(count)
         if count == 1:
             return PluralCategory.ONE  # 1 manzana
@@ -74,6 +78,7 @@ class PluralRules:
 
     @staticmethod
     def fr(count: int) -> PluralCategory:
+        """Gets the French plural category for a given count."""
         count = abs(count)
         if count == 0 or count == 1:
             return PluralCategory.ONE  # 0 pomme, 1 pomme
@@ -84,6 +89,7 @@ class PluralRules:
 
     @staticmethod
     def he(count: int) -> PluralCategory:
+        """Gets the Hebrew plural category for a given count."""
         count = abs(count)
         if count == 1:
             return PluralCategory.ONE
@@ -93,6 +99,7 @@ class PluralRules:
 
     @staticmethod
     def hi(count: int) -> PluralCategory:
+        """Gets the Hindi plural category for a given count."""
         count = abs(count)
         if count <= 1:
             return PluralCategory.ONE
@@ -100,22 +107,27 @@ class PluralRules:
 
     @staticmethod
     def hu(count: int) -> PluralCategory:
+        """Gets the Hungarian plural category for a given count."""
         return PluralRules.en(count)  # Same as EN
 
     @staticmethod
     def it(count: int) -> PluralCategory:
+        """Gets the Italian plural category for a given count."""
         return PluralRules.es(count)  # Same as ES
 
     @staticmethod
     def ja(count: int) -> PluralCategory:
+        """Gets the Japanese plural category for a given count."""
         return PluralCategory.OTHER
 
     @staticmethod
     def nl(count: int) -> PluralCategory:
+        """Gets the Dutch plural category for a given count."""
         return PluralRules.en(count)  # Same as EN
 
     @staticmethod
     def pl(count: int) -> PluralCategory:
+        """Gets the Polish plural category for a given count."""
         count = abs(count)
         if count == 1:
             return PluralCategory.ONE
@@ -125,10 +137,12 @@ class PluralRules:
 
     @staticmethod
     def pt(count: int) -> PluralCategory:
+        """Gets the Portuguese plural category for a given count."""
         return PluralRules.fr(count)  # Same as FR
 
     @staticmethod
     def ru(count: int) -> PluralCategory:
+        """Gets the Russian plural category for a given count."""
         count = abs(count)
         if count % 10 == 1 and count % 100 != 11:
             return PluralCategory.ONE
@@ -140,23 +154,20 @@ class PluralRules:
 
     @staticmethod
     def sv(count: int) -> PluralCategory:
+        """Gets the Swedish plural category for a given count."""
         return PluralRules.en(count)  # Same as EN
 
     @staticmethod
     def tr(count: int) -> PluralCategory:
+        """Gets the Turkish plural category for a given count."""
         return PluralRules.en(count)  # Same as EN
 
     @staticmethod
     def uk(count: int) -> PluralCategory:
+        """Gets the Ukrainian plural category for a given count."""
         return PluralRules.ru(count)  # Same as RU
 
     @staticmethod
     def zh(count: int) -> PluralCategory:
+        """Gets the Chinese plural category for a given count."""
         return PluralCategory.OTHER
-
-
-# Populate PluralRules lookup table
-for method_name in dir(PluralRules):
-    if len(method_name) == 2:
-        method: PluralRule = getattr(PluralRules, method_name)
-        PluralRules._by_lang_family[method_name] = method
