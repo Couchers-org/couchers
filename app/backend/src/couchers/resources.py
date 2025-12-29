@@ -73,6 +73,7 @@ def get_badge_data() -> dict[str, Any]:
 @dataclass
 class Badge:
     """Defines a profile badge that can be awarded to users."""
+
     id: str
     color: str
     admin_editable: bool
