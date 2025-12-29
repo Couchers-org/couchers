@@ -1,2 +1,34 @@
 {
+  "settings_fragment": {
+    "description": "Fes clic al botó de sota per actualitzar o cancel·lar la teva donació recurrent, o per veure factures anteriors.",
+    "title": "Gestiona les teves donacions",
+    "button_text": "Ves al portal de gestió de donacions"
+  },
+  "donations_text2": "La teva donació es destinarà a les operacions diàries de Couchers.org, incloent el pagament de servidors per garantir un servei fiable, així com despeses legals, administratives i el finançament d’eines de col·laboració que ens ajuden a construir aquesta plataforma.\n\nEl finançament addicional, com a entitat sense ànim de lucre, es dedicarà íntegrament a millorar la comunitat; permetent que Couchers.org s’expandeixi en aspectes com la millora del servei, l’augment del ritme de desenvolupament, la provisió d’equips dedicats a la seguretat i l’ampliació del couch surfing a més persones i més llocs arreu del món.",
+  "donations_text": "Couchers.org és una organització sense ànim de lucre gestionada per la comunitat i finançada mitjançant donacions, similar a la Viquipèdia. No hi ha capital de risc ni interessos privats, només voluntaris compromesos que treballen per construir alguna cosa que farà el món una mica millor.\n\nCreiem que hi ha prou bona voluntat dins la comunitat de couch surfing per crear i mantenir una plataforma pròspera que sigui gratuïta per a tothom, per sempre.\n\nPerò **necessitem la teva ajuda** per aconseguir-ho.\n\nLa teva donació a Couchers.org és una inversió altament eficient que es destina directament a despeses essencials. Mentre serveis com Couchsurfing™ gasten grans quantitats en contractacions i serveis de tercers, nosaltres confiem en un equip apassionat de voluntaris i en programari de codi obert, de manera que podem maximitzar l’impacte de cada dòlar que rebem.\n\nSi creus en aquesta missió, et demanem que facis una donació. I et convidem a reflexionar sobre el valor que el couch surfing ha tingut a la teva vida i com d’important és compartir-ho amb altres persones arreu del món. Si us plau, considera fer una donació de 5, 20, 50 dòlars, o la quantitat que puguis, per tal d’assolir el nostre objectiu comú.\n\nGràcies,\n\nAapeli Vuorinen i Itsi Weinstock<br />Fundadors de Couchers.org",
+  "donate": "Fes una donació",
+  "donations_banner": {
+    "title": "Necessitem la teva ajuda per donar suport a la nostra missió",
+    "body": "Pots construir el futur del couch surfing"
+  },
+  "donations_box": {
+    "monthly_button_label": "Mensual",
+    "one_time_button_label": "Un cop",
+    "validation_message": "Aquest camp és obligatori",
+    "action_button_label": "Següent",
+    "recurrence_aria_label": "recurrent",
+    "title": "Import de la donació",
+    "amount_validation_error": "Només nombres enters, si us plau.",
+    "alert": {
+      "success_message": "Gràcies per fer una donació a Couchers.org, agraïm el teu suport! Rebràs un correu electrònic en breu.",
+      "warning_message": "El pagament ha estat cancel·lat."
+    },
+    "helper_text": "Se't redirigirà a Stripe, el nostre processador de pagaments, per completar la teva donació. Per cancel·lar o actualitzar una donació existent en qualsevol moment, <2>fes clic aquí per accedir al portal de donacions</2>."
+  },
+  "donations_title": "La teva donació és necessària per fer créixer la plataforma que necessitem",
+  "donations_title2": "On anirà la teva donació",
+  "donations_info": "La teva donació es destina a <1>{{ legal_name }}</1>, una entitat sense ànim de lucre dels EUA 501(c)(3) que gestiona el servei Couchers.org i dona suport al projecte. Les donacions són exemptes d’impostos als EUA, el nostre EIN és 87-1734577.",
+  "benefactor_contact": "Si vols contribuir amb més de 1.000 $, posa't en contacte amb nosaltres a <1>{{email}}</1> perquè puguem organitzar una transferència amb una comissió més baixa.",
+  "donations_recurrence_explainer": "Una donació mensual ens ajuda a planificar amb antelació i continuar les nostres operacions de manera estable.",
+  "donations_use_explainer": "Consulta els nostres resultats financers per a {{ year }}."
 }

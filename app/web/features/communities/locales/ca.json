@@ -60,7 +60,7 @@
   "community_header": "Benvingut a {{name}}",
   "community_image_input_alt": "Entrada d'imatge de la comunitat",
   "upload_helper_text_replace": "Fes clic per canviar la foto",
-  "community_moderators": "Constructors de comunitat",
+  "community_moderators": "Creadors de comunitats",
   "community_tabs_a11y_label": "Pestanyes per a les subpàgines de la comunitat",
   "created_at": "Creat el ",
   "create_new_discussion_title": "Crea una publicació nova",
@@ -69,7 +69,7 @@
   "discussions_title": "Discussions",
   "edit_event": "Edita esdeveniment",
   "error_loading_community": "Error en carregar la comunitat.",
-  "events_empty_state": "No hi ha esdeveniments en aquest moment.",
+  "events_empty_state": "No hi ha esdeveniments en aquest moment. Per què no en <0>crees</0> un ✨?",
   "find_host": "Cerca amfitrió",
   "finished": "Acabat",
   "community_info_page_title": "Informació general",
@@ -144,5 +144,10 @@
   "discover_events_subtitle": "Descobreix els propers i futurs esdeveniments organitzats per membres de la comunitat de Couchers.org!",
   "discover_events_title": "Descobreix els esdeveniments de Couchers.org",
   "created_by_me": "Creat per mi",
-  "comment": "Comenta"
+  "comment": "Comenta",
+  "event_title_label": "Títol",
+  "search_communities": "Cerca i visita una comunitat",
+  "search_communities_placeholder": "Cerca per nom de ciutat o país...",
+  "search_communities_helper": "Selecciona una comunitat per anar a la seva pàgina",
+  "no_results_found_with_link": "No s'han trobat comunitats. <0>Sol·licita aquesta comunitat!</0>"
 }
