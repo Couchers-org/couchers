@@ -1,3 +1,96 @@
 {
-  "location": "Ubicació"
+  "location": "Ubicació",
+  "any": "Qualsevol",
+  "filter_dialog": {
+    "search_here_button": "Cerca en aquesta zona",
+    "mobile_title": "Cerca",
+    "desktop_title": "Filtres"
+  },
+  "search_result": {
+    "people_range_message": "{{currentRange}} de {{count}} persones",
+    "include_empty_profiles_button": "Mostra tots els perfils",
+    "no_user_result_message": "No s'han trobat usuaris. Prova d'eliminar alguns filtres per veure més resultats.",
+    "show_user_button_label": "Mostra {{name}} al mapa",
+    "missing_about_description": "{{name}} encara no ha dit res sobre si mateix",
+    "few_results_suggestion": "Per defecte, els perfils buits i els que \"no poden allotjar\" estan ocults."
+  },
+  "search_this_area": "Cerca en aquesta zona",
+  "zoom_in_to_select_user": "Amplia per seleccionar un usuari",
+  "last_active_options": {
+    "last_week": "La setmana passada",
+    "last_month": "El mes passat",
+    "last_3_months": "Últims 3 mesos",
+    "last_6_months": "Últims 6 mesos",
+    "last_year": "L'any passat"
+  },
+  "form": {
+    "location_field_label": "A prop de la ubicació",
+    "missing_location_validation_error": "Especifica una ubicació per utilitzar aquest filtre",
+    "keywords": {
+      "clear_field_action_a11y_label": "Neteja la cerca",
+      "search_this_keyword_a11y_label": "Cerca aquesta paraula clau",
+      "field_label": "Nom, paraules clau o nom d'usuari"
+    },
+    "by_location_filter_label": "Per ubicació",
+    "by_keyword_filter_label": "Per paraula clau o nom",
+    "host_filters": {
+      "age": {
+        "field_label": "Edat de l'amfitrió",
+        "min_age": "Edat mínima",
+        "max_age": "Edat màxima"
+      },
+      "last_active_field_label": "Darrera activitat",
+      "hosting_status_field_label": "Disponibilitat per allotjar",
+      "meetup_status_field_label": "Estat de la trobada",
+      "complete_profiles_label": "Perfils complets"
+    },
+    "accommodation_filters": {
+      "title": "Filtres d'allotjament",
+      "guests_field_label": "Nombre d'hostes",
+      "sleeping_arrangement_label": "Arranjament per dormir",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "label": "Habitació compartida",
+          "description": " - p. ex., dormitori compartit amb superfície de descans pròpia"
+        },
+        "private": {
+          "label": "Espai privat",
+          "description": " - p. ex. habitació pròpia o similar"
+        },
+        "common": {
+          "label": "Sala comuna",
+          "description": " - p. ex., sofà a la sala d'estar"
+        }
+      }
+    },
+    "empty_profile_filters": {
+      "title": "Mostra perfils buits"
+    },
+    "general_filters": {
+      "accepts_last_minute_requests": "Accepta sol·licituds d'última hora",
+      "has_strong_verification": "Té verificació sòlida",
+      "has_references": "Té referències",
+      "same_gender_only": "Mostra només el mateix gènere",
+      "same_gender_only_helper_text": "Només els usuaris amb verificació forta poden utilitzar aquest filtre.",
+      "get_strong_verification": "Obtén verificació forta aquí (és gratuït)."
+    },
+    "rules": {
+      "title": "Normes",
+      "alcohol_allowed": "Alcohol permès",
+      "kids_allowed": "Nens permesos",
+      "pets_allowed": "S'admeten animals de companyia",
+      "smokes_at_home": "Fuma a casa"
+    },
+    "submit_button_label": "Aplica",
+    "search_filters": "Filtres de cerca",
+    "clear_filters": "Neteja tots els filtres"
+  },
+  "views": {
+    "choose_map_view": "Tria la vista del mapa",
+    "list": "Llista",
+    "map_and_list": "Mapa i llista"
+  },
+  "keyword": "Paraula clau",
+  "error_loading_users": "Error en carregar els usuaris",
+  "choose_search_criteria": "Escriu una ubicació o aplica un filtre per cercar."
 }
