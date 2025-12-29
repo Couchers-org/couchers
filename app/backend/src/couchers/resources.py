@@ -1,6 +1,7 @@
 import functools
 import json
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
@@ -69,12 +70,24 @@ def get_badge_data() -> dict[str, Any]:
         return cast(dict[str, Any], data)
 
 
+@dataclass
+class Badge:
+    """Defines a profile badge that can be awarded to users."""
+    id: str
+    color: str
+    admin_editable: bool
+
+
 @functools.cache
-def get_badge_dict() -> dict[str, dict[str, Any]]:
+def get_badge_dict() -> dict[str, Badge]:
     """
     Get a list of profile badges in form {id: Badge}
     """
-    return {badge["id"]: badge for badge in get_badge_data()["badges"]}
+    badges: dict[str, Badge] = {}
+    for badge_obj in get_badge_data()["badges"]:
+        badge = Badge(**badge_obj)
+        badges[badge.id] = badge
+    return badges
 
 
 @functools.cache

@@ -223,10 +223,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not badge:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "badge_not_found")
 
-        if not badge["admin_editable"]:
+        if not badge.admin_editable:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin_cannot_edit_badge")
 
-        if badge["id"] in [b.badge_id for b in user.badges]:
+        if badge.id in [b.badge_id for b in user.badges]:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_has_badge")
 
         user_add_badge(session, user.id, request.badge_id)
@@ -244,11 +244,11 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not badge:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "badge_not_found")
 
-        if not badge["admin_editable"]:
+        if not badge.admin_editable:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin_cannot_edit_badge")
 
         user_badge = session.execute(
-            select(UserBadge).where(UserBadge.user_id == user.id, UserBadge.badge_id == badge["id"])
+            select(UserBadge).where(UserBadge.user_id == user.id, UserBadge.badge_id == badge.id)
         ).scalar_one_or_none()
         if not user_badge:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_does_not_have_badge")

@@ -883,7 +883,7 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "badge_not_found")
 
         badge_user_ids_query = (
-            select(UserBadge.user_id).where(UserBadge.badge_id == badge["id"]).where(UserBadge.user_id >= next_user_id)
+            select(UserBadge.user_id).where(UserBadge.badge_id == badge.id).where(UserBadge.user_id >= next_user_id)
         )
         badge_user_ids_query = where_users_column_visible(badge_user_ids_query, context, UserBadge.user_id)
         badge_user_ids_query = badge_user_ids_query.order_by(UserBadge.user_id).limit(page_size + 1)
