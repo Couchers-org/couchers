@@ -70,7 +70,7 @@ def get_badge_data() -> dict[str, Any]:
         return cast(dict[str, Any], data)
 
 
-@dataclass
+@dataclass(frozen=True, slots=True, kw_only=True)
 class Badge:
     """Defines a profile badge that can be awarded to users."""
 
@@ -84,11 +84,8 @@ def get_badge_dict() -> dict[str, Badge]:
     """
     Get a list of profile badges in form {id: Badge}
     """
-    badges: dict[str, Badge] = {}
-    for badge_obj in get_badge_data()["badges"]:
-        badge = Badge(**badge_obj)
-        badges[badge.id] = badge
-    return badges
+    badges = [Badge(**b) for b in get_badge_data()["badges"]]
+    return {badge.id: badge for badge in badges}
 
 
 @functools.cache

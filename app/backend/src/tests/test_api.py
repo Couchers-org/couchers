@@ -1475,7 +1475,7 @@ def test_badges(db):
         assert api.GetUser(api_pb2.GetUserReq(user=user2.username)).badges == ["founder", "board_member"]
         assert api.GetUser(api_pb2.GetUserReq(user=user3.username)).badges == []
 
-        assert api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=founder_badge.id).user_ids == [1, 2])
+        assert api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=founder_badge.id)).user_ids == [1, 2]
         res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=board_member_badge.id, page_size=1))
         assert res.user_ids == [1]
         res2 = api.ListBadgeUsers(
