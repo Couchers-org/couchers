@@ -1475,11 +1475,11 @@ def test_badges(db):
         assert api.GetUser(api_pb2.GetUserReq(user=user2.username)).badges == ["founder", "board_member"]
         assert api.GetUser(api_pb2.GetUserReq(user=user3.username)).badges == []
 
-        assert api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=founder_badge["id"])).user_ids == [1, 2]
-        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=board_member_badge["id"], page_size=1))
+        assert api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=founder_badge.id)).user_ids == [1, 2]
+        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=board_member_badge.id, page_size=1))
         assert res.user_ids == [1]
         res2 = api.ListBadgeUsers(
-            api_pb2.ListBadgeUsersReq(badge_id=board_member_badge["id"], page_token=res.next_page_token)
+            api_pb2.ListBadgeUsersReq(badge_id=board_member_badge.id, page_token=res.next_page_token)
         )
         assert res2.user_ids == [2]
 
@@ -1503,7 +1503,7 @@ def test_ListBadgeUsers_excludes_ghost_users(db, flag):
 
     # Verify all three users appear in the badge list
     with api_session(token1) as api:
-        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=volunteer_badge["id"]))
+        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=volunteer_badge.id))
         assert set(res.user_ids) == {user1.id, user2.id, user3.id}
 
     # Make user2 invisible (deleted or banned)
@@ -1513,7 +1513,7 @@ def test_ListBadgeUsers_excludes_ghost_users(db, flag):
 
     # Now user2 should not appear in the badge list
     with api_session(token1) as api:
-        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=volunteer_badge["id"]))
+        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=volunteer_badge.id))
         assert set(res.user_ids) == {user1.id, user3.id}
 
 

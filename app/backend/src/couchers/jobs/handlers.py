@@ -913,7 +913,7 @@ def update_badges(payload: empty_pb2.Empty) -> None:
 
         def update_badge(badge_id: str, members: list[int]) -> None:
             badge = get_badge_dict()[badge_id]
-            user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge_id)).scalars().all()
+            user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge.id)).scalars().all()
             # in case the user ids don't exist in the db
             actual_members = session.execute(select(User.id).where(User.id.in_(members))).scalars().all()
             # we should add the badge to these
@@ -921,10 +921,10 @@ def update_badges(payload: empty_pb2.Empty) -> None:
             # we should remove the badge from these
             remove = set(user_ids) - set(actual_members)
             for user_id in add:
-                user_add_badge(session, user_id, badge_id)
+                user_add_badge(session, user_id, badge.id)
 
             for user_id in remove:
-                user_remove_badge(session, user_id, badge_id)
+                user_remove_badge(session, user_id, badge.id)
 
         update_badge("founder", get_static_badge_dict()["founder"])
         update_badge("board_member", get_static_badge_dict()["board_member"])
