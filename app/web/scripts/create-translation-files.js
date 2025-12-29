@@ -98,7 +98,6 @@ const VALID_LANGUAGE_CODES = [
   "en-GB",
   "en-CA",
   "en-AU",
-  "en-CORP", // Corporate American -- for testing
   "es-419",
   "es-MX",
   "es-AR",
