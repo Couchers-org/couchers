@@ -67,6 +67,13 @@ from couchers.utils import (
 
 logger = logging.getLogger(__name__)
 
+# Map proto SignupIntent enum values to string representations
+signupintent2sql: dict[int, str] = {
+    auth_pb2.SIGNUP_INTENT_HOST: "host",
+    auth_pb2.SIGNUP_INTENT_SURF: "surf",
+    auth_pb2.SIGNUP_INTENT_COMMUNITY_EVENTS: "community_events",
+}
+
 
 def _auth_res(user: User) -> auth_pb2.AuthRes:
     return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
@@ -313,6 +320,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.expertise = form.expertise
                 session.flush()
 
+            if request.HasField("intents"):
+                if flow.filled_intents:
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_intents_filled")
+
+                flow.filled_intents = True
+                flow.heard_about_couchers = request.intents.heard_about_couchers or None
+                flow.signup_intents = [
+                    signupintent2sql[intent] for intent in request.intents.intents if intent in signupintent2sql
+                ]
+                session.flush()
+
             if request.HasField("accept_community_guidelines"):
                 if not request.accept_community_guidelines.value:
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "must_accept_community_guidelines")
@@ -341,6 +359,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 accepted_tos=not_none(flow.accepted_tos),
                 last_onboarding_email_sent=func.now(),
                 invite_code_id=flow.invite_code_id,
+                heard_about_couchers=flow.heard_about_couchers,
+                signup_intents=flow.signup_intents,
             )
 
             user.accepted_community_guidelines = flow.accepted_community_guidelines
@@ -416,6 +436,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 need_feedback=False,
                 need_verify_email=not flow.email_verified,
                 need_accept_community_guidelines=flow.accepted_community_guidelines < GUIDELINES_VERSION,
+                need_intents=not flow.filled_intents,
             )
 
     def UsernameValid(

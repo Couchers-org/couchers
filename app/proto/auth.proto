@@ -121,6 +121,9 @@ message SignupFlowReq {
   google.protobuf.BoolValue accept_community_guidelines = 6;
 
   bool resend_verification_email = 7;
+
+  // Information about how the user heard about us and what they're looking to do
+  SignupIntents intents = 8;
 }
 
 message SignupFlowRes {
@@ -135,6 +138,8 @@ message SignupFlowRes {
   // user needs to verify their email
   bool need_verify_email = 7;
   bool need_accept_community_guidelines = 8;
+  // user hasn't told us how they heard about us and what they want to do
+  bool need_intents = 9;
 }
 
 message SignupBasic {
@@ -164,6 +169,22 @@ message SignupAccount {
   bool accept_tos = 10;
 
   bool opt_out_of_newsletter = 11;
+}
+
+// What the user is looking to do on Couchers
+enum SignupIntent {
+  SIGNUP_INTENT_UNSPECIFIED = 0;
+  SIGNUP_INTENT_HOST = 1;      // Wants to host travelers
+  SIGNUP_INTENT_SURF = 2;      // Wants to find places to stay
+  SIGNUP_INTENT_COMMUNITY_EVENTS = 3;  // Wants to attend community events
+}
+
+// Information about how the user heard about Couchers and what they want to do
+message SignupIntents {
+  // How they heard about Couchers (free text, e.g., "friend", "social_media", "former_cs_member", "other")
+  string heard_about_couchers = 1;
+  // What they're looking to do - can select multiple
+  repeated SignupIntent intents = 2;
 }
 
 message UsernameValidReq {

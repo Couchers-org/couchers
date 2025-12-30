@@ -1246,3 +1246,229 @@ def test_SignupFlow_invite_code(db):
             select(User.invite_code_id).where(User.username == "invited_user")
         ).scalar_one()
         assert invite_code_id == invite_code
+
+
+def test_signup_with_intents(db):
+    """
+    Test signup flow with the new intents step (heard_about_couchers and signup_intents)
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="intentuser",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                intents=auth_pb2.SignupIntents(
+                    heard_about_couchers="friend",
+                    intents=[
+                        auth_pb2.SIGNUP_INTENT_HOST,
+                        auth_pb2.SIGNUP_INTENT_SURF,
+                        auth_pb2.SIGNUP_INTENT_COMMUNITY_EVENTS,
+                    ],
+                ),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert flow_token
+    assert not res.HasField("auth_res")
+    assert res.need_verify_email
+
+    # Verify the intents are stored in the SignupFlow
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.heard_about_couchers == "friend"
+        assert set(flow.signup_intents) == {"host", "surf", "community_events"}
+        email_token = flow.email_token
+
+    # Complete signup by verifying email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    assert res.HasField("auth_res")
+    user_id = res.auth_res.user_id
+
+    # Verify the intents are transferred to the User object
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user.heard_about_couchers == "friend"
+        assert set(user.signup_intents) == {"host", "surf", "community_events"}
+
+
+def test_signup_intents_incremental(db):
+    """
+    Test that intents can be submitted incrementally as a separate step
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # First, basic signup
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email2@couchers.org.invalid"),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert flow_token
+    assert res.need_account
+    assert res.need_intents  # New field
+
+    # Submit intents separately
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                intents=auth_pb2.SignupIntents(
+                    heard_about_couchers="social_media",
+                    intents=[auth_pb2.SIGNUP_INTENT_SURF],
+                ),
+            )
+        )
+
+    assert res.flow_token == flow_token
+    assert not res.need_intents  # Should be filled now
+    assert res.need_account  # Still need account
+
+    # Verify intents are stored
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.heard_about_couchers == "social_media"
+        assert flow.signup_intents == ["surf"]
+
+
+def test_signup_intents_cannot_be_refilled(db):
+    """
+    Test that intents cannot be submitted twice
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email3@couchers.org.invalid"),
+                intents=auth_pb2.SignupIntents(
+                    heard_about_couchers="friend",
+                    intents=[auth_pb2.SIGNUP_INTENT_HOST],
+                ),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    # Try to submit intents again - should fail
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    intents=auth_pb2.SignupIntents(
+                        heard_about_couchers="different_source",
+                        intents=[auth_pb2.SIGNUP_INTENT_SURF],
+                    ),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You've already told us about your intentions."
+
+
+def test_signup_intents_optional(db):
+    """
+    Test that signup can complete without providing intents (optional step)
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email4@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="nointents",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                # No intents provided
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        email_token = flow.email_token
+
+    # Complete signup
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    assert res.HasField("auth_res")
+    user_id = res.auth_res.user_id
+
+    # User should have empty intents
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user.heard_about_couchers is None
+        assert user.signup_intents == []
+
+
+def test_signup_intents_all_options(db):
+    """
+    Test all the different intent options
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email5@couchers.org.invalid"),
+                intents=auth_pb2.SignupIntents(
+                    heard_about_couchers="other",
+                    intents=[
+                        auth_pb2.SIGNUP_INTENT_HOST,
+                        auth_pb2.SIGNUP_INTENT_SURF,
+                        auth_pb2.SIGNUP_INTENT_COMMUNITY_EVENTS,
+                    ],
+                ),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.heard_about_couchers == "other"
+        assert set(flow.signup_intents) == {"host", "surf", "community_events"}
+
+
+def test_signup_intents_empty_intents_list(db):
+    """
+    Test that providing heard_about but empty intents list is valid
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email6@couchers.org.invalid"),
+                intents=auth_pb2.SignupIntents(
+                    heard_about_couchers="former_cs_member",
+                    intents=[],  # No specific intents selected
+                ),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.heard_about_couchers == "former_cs_member"
+        assert flow.signup_intents == []
