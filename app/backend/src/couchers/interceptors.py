@@ -7,7 +7,7 @@ from os import getpid
 from threading import get_ident
 from time import perf_counter_ns
 from traceback import format_exception
-from typing import Any, Never, NoReturn, cast
+from typing import Any, NoReturn, cast
 
 import grpc
 import sentry_sdk
@@ -135,11 +135,10 @@ def _try_get_and_update_user_details(
             )
 
 
-# We have to lie with R | NoReturn to please mypy. It should be NoReturn.
 def abort_handler[T, R](
     message: str,
     status_code: grpc.StatusCode,
-) -> "grpc.RpcMethodHandler[T, R | NoReturn]":
+) -> "grpc.RpcMethodHandler[T, R]":
     def f(request: Any, context: CouchersContext) -> NoReturn:
         context.abort(status_code, message)
 
@@ -149,7 +148,7 @@ def abort_handler[T, R](
 def unauthenticated_handler[T, R](
     message: str = UNAUTHORIZED_ERROR_MESSAGE,
     status_code: grpc.StatusCode = grpc.StatusCode.UNAUTHENTICATED,
-) -> "grpc.RpcMethodHandler[T, R | NoReturn]":
+) -> "grpc.RpcMethodHandler[T, R]":
     return abort_handler(message, status_code)
 
 
@@ -246,7 +245,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         self,
         continuation: Cont[T, R],
         handler_call_details: grpc.HandlerCallDetails,
-    ) -> "grpc.RpcMethodHandler[T, R | Never]":
+    ) -> "grpc.RpcMethodHandler[T, R]":
         start = perf_counter_ns()
 
         method = handler_call_details.method
@@ -426,7 +425,7 @@ class MediaInterceptor(grpc.ServerInterceptor):
         self,
         continuation: Cont[T, R],
         handler_call_details: grpc.HandlerCallDetails,
-    ) -> "grpc.RpcMethodHandler[T, R | Never]":
+    ) -> "grpc.RpcMethodHandler[T, R]":
         handler = continuation(handler_call_details)
         if not handler:
             raise RuntimeError("No handler")
@@ -465,7 +464,7 @@ class OTelInterceptor(grpc.ServerInterceptor):
         self,
         continuation: Cont[T, R],
         handler_call_details: grpc.HandlerCallDetails,
-    ) -> "grpc.RpcMethodHandler[T, R | Never]":
+    ) -> "grpc.RpcMethodHandler[T, R]":
         handler = continuation(handler_call_details)
         if not handler:
             raise RuntimeError("No handler")
@@ -515,7 +514,7 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
         self,
         continuation: Cont[T, R],
         handler_call_details: grpc.HandlerCallDetails,
-    ) -> "grpc.RpcMethodHandler[T, R | Never]":
+    ) -> "grpc.RpcMethodHandler[T, R]":
         handler = continuation(handler_call_details)
         if not handler:
             raise RuntimeError("No handler")
