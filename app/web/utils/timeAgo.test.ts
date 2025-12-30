@@ -1,53 +1,79 @@
+import { TFunction, TOptions } from "i18next";
+
 import {
   dayMillis,
+  FriendlyTimeSpan,
   hourMillis,
-  lessThanHour,
   minuteMillis,
   monthMillis,
-  timeAgo,
-  twoDayMillis,
-  twoHourMillis,
-  twoMinuteMillis,
-  twoMonthMillis,
-  twoWeekMillis,
-  twoYearMillis,
+  secondMillis,
+  timeAgoI18n,
+  TimeUnit,
   weekMillis,
-  yearMillis,
 } from "./timeAgo";
-
-const timeAgoMap = {
-  [dayMillis]: "1 day ago",
-  [hourMillis]: "1 hour ago",
-  [minuteMillis]: "< 1 minute ago",
-  [monthMillis]: "1 month ago",
-  [twoDayMillis]: "2 days ago",
-  [twoHourMillis]: "2 hours ago",
-  [twoMinuteMillis]: "1 minute ago",
-  [twoMonthMillis]: "2 months ago",
-  [twoWeekMillis]: "2 weeks ago",
-  [twoYearMillis]: "2 years ago",
-  [weekMillis]: "1 week ago",
-  [yearMillis]: "1 year ago",
-};
 
 beforeEach(() => {
   jest.spyOn(Date, "now").mockReturnValue(1614556800000);
 });
 
-test("timeAgo function", () => {
-  Object.keys(timeAgoMap).forEach((key: string) => {
-    const now = Date.now();
-    const millis = parseInt(key);
-    const expectedValue = timeAgoMap[millis];
-    const date = new Date(now - millis);
-    const timeString = timeAgo(date);
-    expect(timeString).toBe(expectedValue);
-  });
+test("FriendlyTimeSpan.fromMillis", () => {
+  expect(FriendlyTimeSpan.fromMillis(5 * secondMillis)).toEqual(
+    new FriendlyTimeSpan(5, TimeUnit.Seconds),
+  );
+  expect(FriendlyTimeSpan.fromMillis(125 * secondMillis)).toEqual(
+    new FriendlyTimeSpan(2, TimeUnit.Minutes),
+  );
+  expect(FriendlyTimeSpan.fromMillis(125 * minuteMillis)).toEqual(
+    new FriendlyTimeSpan(2, TimeUnit.Hours),
+  );
+  expect(FriendlyTimeSpan.fromMillis(48 * hourMillis)).toEqual(
+    new FriendlyTimeSpan(2, TimeUnit.Days),
+  );
+  expect(FriendlyTimeSpan.fromMillis(8 * dayMillis)).toEqual(
+    new FriendlyTimeSpan(1, TimeUnit.Weeks),
+  );
+  expect(FriendlyTimeSpan.fromMillis(6 * weekMillis)).toEqual(
+    new FriendlyTimeSpan(1, TimeUnit.Months),
+  );
+  expect(FriendlyTimeSpan.fromMillis(30 * monthMillis)).toEqual(
+    new FriendlyTimeSpan(2, TimeUnit.Years),
+  );
 });
 
-test("timeAgo function with fuzzy", () => {
+/// Mock translation function, returns "key,count"
+const mockT = ((key: string, options?: TOptions): string => {
+  key = key.replace("relative_time.", "");
+  if (options && options.count) {
+    return `${key},${options.count}`;
+  }
+  return key;
+}) as TFunction;
+
+test("timeAgoI18n function, less than a minute", () => {
   const now = Date.now();
-  const date = new Date(now - twoMinuteMillis);
-  const timeString = timeAgo(date, { millis: hourMillis, text: lessThanHour });
+  const before = new Date(now - 10.5 * secondMillis);
+  const timeString = timeAgoI18n({ input: before, t: mockT });
+  expect(timeString).toBe("less_than_a_minute_ago");
+});
+
+test("timeAgoI18n function, normal case", () => {
+  const now = Date.now();
+  const before = new Date(now - 8.5 * hourMillis);
+  const timeString = timeAgoI18n({ input: before, t: mockT });
+  expect(timeString).toBe("n_hours_ago,8");
+});
+
+test("timeAgoI18n function with fuzzy", () => {
+  const now = Date.now();
+  const date = new Date(now - 2 * minuteMillis);
+  const lessThanHour = "less_than_hour";
+  const timeString = timeAgoI18n({
+    input: date,
+    t: mockT,
+    fuzzy: {
+      millis: hourMillis,
+      translationKey: lessThanHour,
+    },
+  });
   expect(timeString).toBe(lessThanHour);
 });
