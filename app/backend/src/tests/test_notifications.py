@@ -41,7 +41,7 @@ from couchers.servicers.api import user_model_to_pb
 from couchers.templates.v2 import v2timestamp
 from couchers.utils import now
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import email_fields, mock_notification_email, process_jobs
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
 from tests.fixtures.sessions import (
     api_session,
     auth_api_session,

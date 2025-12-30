@@ -27,7 +27,7 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import conversations_pb2, moderation_pb2, notifications_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, now, today
 from tests.fixtures.db import generate_user, make_friends
-from tests.fixtures.misc import mock_notification_email, process_jobs
+from tests.fixtures.misc import PushCollector, mock_notification_email, process_jobs
 from tests.fixtures.sessions import (
     conversations_session,
     notifications_session,

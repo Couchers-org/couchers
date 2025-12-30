@@ -53,7 +53,7 @@ from couchers.models import (
 from couchers.proto import conversations_pb2, requests_pb2
 from couchers.utils import now, today
 from tests.fixtures.db import generate_user, make_friends, make_user_block
-from tests.fixtures.misc import process_jobs
+from tests.fixtures.misc import PushCollector, process_jobs
 from tests.fixtures.sessions import conversations_session, requests_session
 from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
 from tests.test_requests import valid_request_text

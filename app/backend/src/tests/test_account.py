@@ -23,7 +23,7 @@ from couchers.models import (
 from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from couchers.utils import now, today
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import email_fields, mock_notification_email, process_jobs
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
 from tests.fixtures.sessions import (
     account_session,
     auth_api_session,

@@ -19,7 +19,8 @@ from couchers.models import (
     ReferenceType,
     Volunteer,
 )
-from couchers.servicers.public import _get_donation_stats
+from couchers.proto import api_pb2, public_pb2
+from couchers.servicers.public import _get_donation_stats, _get_public_users, _get_signup_page_info, _get_volunteers
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import public_session

@@ -210,6 +210,28 @@ class FakeChannel:
         return fake_handler
 
 
+@contextmanager
+def run_server(grpc_channel_options=(), token: str | None = None):
+    with futures.ThreadPoolExecutor(1) as executor:
+        if token:
+            call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
+            creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
+        else:
+            creds = grpc.local_channel_credentials()
+
+        srv = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
+        port = srv.add_secure_port("localhost:0", grpc.local_server_credentials())
+        srv.start()
+
+        try:
+            with grpc.secure_channel(f"localhost:{port}", creds, options=grpc_channel_options) as channel:
+                metadata_interceptor = _MetadataKeeperInterceptor()
+                channel = grpc.intercept_channel(channel, metadata_interceptor)
+                yield srv, channel, metadata_interceptor
+        finally:
+            srv.stop(None).wait()
+
+
 # Sessions that start a real GRPC server.
 @contextmanager
 def auth_api_session(
@@ -220,21 +242,9 @@ def auth_api_session(
 
     This needs to use the real server since it plays around with headers
     """
-    with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
-        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+    with run_server(grpc_channel_options) as (server, channel, metadata_interceptor):
         auth_pb2_grpc.add_AuthServicer_to_server(Auth(), server)
-        server.start()
-
-        try:
-            with grpc.secure_channel(
-                f"localhost:{port}", grpc.local_channel_credentials(), options=grpc_channel_options
-            ) as channel:
-                metadata_interceptor = _MetadataKeeperInterceptor()
-                channel = grpc.intercept_channel(channel, metadata_interceptor)
-                yield auth_pb2_grpc.AuthStub(channel), metadata_interceptor
-        finally:
-            server.stop(None).wait()
+        yield auth_pb2_grpc.AuthStub(channel), metadata_interceptor
 
 
 @contextmanager
@@ -242,41 +252,19 @@ def real_api_session(token: str):
     """
     Create an API for testing, using TCP sockets, uses the token for auth
     """
-    with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
-        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+    with run_server(token=token) as (server, channel, metadata_interceptor):
         api_pb2_grpc.add_APIServicer_to_server(API(), server)
-        server.start()
-
-        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
-        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
-
-        try:
-            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-                yield api_pb2_grpc.APIStub(channel)
-        finally:
-            server.stop(None).wait()
+        yield api_pb2_grpc.APIStub(channel)
 
 
 @contextmanager
 def real_admin_session(token: str):
     """
-    Create a Admin service for testing, using TCP sockets, uses the token for auth
+    Create an Admin service for testing, using TCP sockets, uses the token for auth
     """
-    with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
-        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+    with run_server(token=token) as (server, channel, metadata_interceptor):
         admin_pb2_grpc.add_AdminServicer_to_server(Admin(), server)
-        server.start()
-
-        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
-        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
-
-        try:
-            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-                yield admin_pb2_grpc.AdminStub(channel)
-        finally:
-            server.stop(None).wait()
+        yield admin_pb2_grpc.AdminStub(channel)
 
 
 @contextmanager
@@ -284,20 +272,9 @@ def real_editor_session(token: str):
     """
     Create an Editor service for testing, using TCP sockets, uses the token for auth
     """
-    with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
-        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+    with run_server(token=token) as (server, channel, metadata_interceptor):
         editor_pb2_grpc.add_EditorServicer_to_server(Editor(), server)
-        server.start()
-
-        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
-        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
-
-        try:
-            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-                yield editor_pb2_grpc.EditorStub(channel)
-        finally:
-            server.stop(None).wait()
+        yield editor_pb2_grpc.EditorStub(channel)
 
 
 @contextmanager
@@ -305,20 +282,9 @@ def real_moderation_session(token: str):
     """
     Create a Moderation service for testing, using TCP sockets, uses the token for auth
     """
-    with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
-        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+    with run_server(token=token) as (server, channel, metadata_interceptor):
         moderation_pb2_grpc.add_ModerationServicer_to_server(Moderation(), server)
-        server.start()
-
-        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
-        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
-
-        try:
-            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-                yield moderation_pb2_grpc.ModerationStub(channel)
-        finally:
-            server.stop(None).wait()
+        yield moderation_pb2_grpc.ModerationStub(channel)
 
 
 @contextmanager
@@ -326,20 +292,9 @@ def real_account_session(token: str):
     """
     Create an Account service for testing, using TCP sockets, uses the token for auth
     """
-    with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
-        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+    with run_server(token=token) as (server, channel, metadata_interceptor):
         account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
-        server.start()
-
-        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
-        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
-
-        try:
-            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-                yield account_pb2_grpc.AccountStub(channel)
-        finally:
-            server.stop(None).wait()
+        yield account_pb2_grpc.AccountStub(channel)
 
 
 @contextmanager
@@ -347,20 +302,9 @@ def real_jail_session(token: str):
     """
     Create a Jail service for testing, using TCP sockets, uses the token for auth
     """
-    with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
-        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+    with run_server(token=token) as (server, channel, metadata_interceptor):
         jail_pb2_grpc.add_JailServicer_to_server(Jail(), server)
-        server.start()
-
-        call_creds = grpc.metadata_call_credentials(CookieMetadataPlugin(token))
-        comp_creds = grpc.composite_channel_credentials(grpc.local_channel_credentials(), call_creds)
-
-        try:
-            with grpc.secure_channel(f"localhost:{port}", comp_creds) as channel:
-                yield jail_pb2_grpc.JailStub(channel)
-        finally:
-            server.stop(None).wait()
+        yield jail_pb2_grpc.JailStub(channel)
 
 
 @contextmanager
@@ -368,36 +312,16 @@ def real_stripe_session():
     """
     Create a Stripe service for testing, using TCP sockets
     """
-    with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
-        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+    with run_server() as (server, channel, metadata_interceptor):
         stripe_pb2_grpc.add_StripeServicer_to_server(Stripe(), server)
-        server.start()
-
-        creds = grpc.local_channel_credentials()
-
-        try:
-            with grpc.secure_channel(f"localhost:{port}", creds) as channel:
-                yield stripe_pb2_grpc.StripeStub(channel)
-        finally:
-            server.stop(None).wait()
+        yield stripe_pb2_grpc.StripeStub(channel)
 
 
 @contextmanager
 def real_iris_session():
-    with futures.ThreadPoolExecutor(1) as executor:
-        server = grpc.server(executor, interceptors=[CouchersMiddlewareInterceptor()])
-        port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
+    with run_server() as (server, channel, metadata_interceptor):
         iris_pb2_grpc.add_IrisServicer_to_server(Iris(), server)
-        server.start()
-
-        creds = grpc.local_channel_credentials()
-
-        try:
-            with grpc.secure_channel(f"localhost:{port}", creds) as channel:
-                yield iris_pb2_grpc.IrisStub(channel)
-        finally:
-            server.stop(None).wait()
+        yield iris_pb2_grpc.IrisStub(channel)
 
 
 @contextmanager
@@ -410,8 +334,7 @@ def media_session(bearer_token: str):
     with futures.ThreadPoolExecutor(1) as executor:
         server = grpc.server(executor, interceptors=[media_auth_interceptor])
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
-        servicer = Media()
-        media_pb2_grpc.add_MediaServicer_to_server(servicer, server)
+        media_pb2_grpc.add_MediaServicer_to_server(Media(), server)
         server.start()
 
         call_creds = grpc.access_token_call_credentials(bearer_token)
@@ -428,7 +351,7 @@ def media_session(bearer_token: str):
 # Note: these don't need to be context managers, but they are so that
 # we can switch to a real implementation if needed.
 @contextmanager
-def api_session(token):
+def api_session(token: str):
     """
     Create an API for testing, uses the token for auth
     """
@@ -438,7 +361,7 @@ def api_session(token):
 
 
 @contextmanager
-def gis_session(token):
+def gis_session(token: str):
     channel = FakeChannel(token)
     gis_pb2_grpc.add_GISServicer_to_server(GIS(), channel)
     yield gis_pb2_grpc.GISStub(channel)
@@ -452,7 +375,7 @@ def public_session():
 
 
 @contextmanager
-def conversations_session(token):
+def conversations_session(token: str):
     """
     Create a Conversations API for testing, uses the token for auth
     """
@@ -462,7 +385,7 @@ def conversations_session(token):
 
 
 @contextmanager
-def requests_session(token):
+def requests_session(token: str):
     """
     Create a Requests API for testing, uses the token for auth
     """
@@ -472,63 +395,63 @@ def requests_session(token):
 
 
 @contextmanager
-def threads_session(token):
+def threads_session(token: str):
     channel = FakeChannel(token)
     threads_pb2_grpc.add_ThreadsServicer_to_server(Threads(), channel)
     yield threads_pb2_grpc.ThreadsStub(channel)
 
 
 @contextmanager
-def discussions_session(token):
+def discussions_session(token: str):
     channel = FakeChannel(token)
     discussions_pb2_grpc.add_DiscussionsServicer_to_server(Discussions(), channel)
     yield discussions_pb2_grpc.DiscussionsStub(channel)
 
 
 @contextmanager
-def donations_session(token):
+def donations_session(token: str):
     channel = FakeChannel(token)
     donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), channel)
     yield donations_pb2_grpc.DonationsStub(channel)
 
 
 @contextmanager
-def pages_session(token):
+def pages_session(token: str):
     channel = FakeChannel(token)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
     yield pages_pb2_grpc.PagesStub(channel)
 
 
 @contextmanager
-def communities_session(token):
+def communities_session(token: str):
     channel = FakeChannel(token)
     communities_pb2_grpc.add_CommunitiesServicer_to_server(Communities(), channel)
     yield communities_pb2_grpc.CommunitiesStub(channel)
 
 
 @contextmanager
-def groups_session(token):
+def groups_session(token: str):
     channel = FakeChannel(token)
     groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), channel)
     yield groups_pb2_grpc.GroupsStub(channel)
 
 
 @contextmanager
-def blocking_session(token):
+def blocking_session(token: str):
     channel = FakeChannel(token)
     blocking_pb2_grpc.add_BlockingServicer_to_server(Blocking(), channel)
     yield blocking_pb2_grpc.BlockingStub(channel)
 
 
 @contextmanager
-def notifications_session(token):
+def notifications_session(token: str):
     channel = FakeChannel(token)
     notifications_pb2_grpc.add_NotificationsServicer_to_server(Notifications(), channel)
     yield notifications_pb2_grpc.NotificationsStub(channel)
 
 
 @contextmanager
-def account_session(token):
+def account_session(token: str):
     """
     Create a Account API for testing, uses the token for auth
     """
@@ -538,7 +461,7 @@ def account_session(token):
 
 
 @contextmanager
-def search_session(token):
+def search_session(token: str):
     """
     Create a Search API for testing, uses the token for auth
     """
@@ -548,7 +471,7 @@ def search_session(token):
 
 
 @contextmanager
-def references_session(token):
+def references_session(token: str):
     """
     Create a References API for testing, uses the token for auth
     """
@@ -558,7 +481,7 @@ def references_session(token):
 
 
 @contextmanager
-def galleries_session(token):
+def galleries_session(token: str):
     """
     Create a Galleries API for testing, uses the token for auth
     """
@@ -568,28 +491,28 @@ def galleries_session(token):
 
 
 @contextmanager
-def reporting_session(token):
+def reporting_session(token: str):
     channel = FakeChannel(token)
     reporting_pb2_grpc.add_ReportingServicer_to_server(Reporting(), channel)
     yield reporting_pb2_grpc.ReportingStub(channel)
 
 
 @contextmanager
-def events_session(token):
+def events_session(token: str):
     channel = FakeChannel(token)
     events_pb2_grpc.add_EventsServicer_to_server(Events(), channel)
     yield events_pb2_grpc.EventsStub(channel)
 
 
 @contextmanager
-def postal_verification_session(token):
+def postal_verification_session(token: str):
     channel = FakeChannel(token)
     postal_verification_pb2_grpc.add_PostalVerificationServicer_to_server(PostalVerification(), channel)
     yield postal_verification_pb2_grpc.PostalVerificationStub(channel)
 
 
 @contextmanager
-def bugs_session(token=None):
+def bugs_session(token: str | None = None):
     channel = FakeChannel(token)
     bugs_pb2_grpc.add_BugsServicer_to_server(Bugs(), channel)
     yield bugs_pb2_grpc.BugsStub(channel)

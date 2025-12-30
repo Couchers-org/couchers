@@ -14,7 +14,7 @@ from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatu
 from couchers.proto import api_pb2, jail_pb2
 from couchers.utils import now
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import process_jobs
+from tests.fixtures.misc import PushCollector, process_jobs
 from tests.fixtures.sessions import api_session, real_jail_session
 
 

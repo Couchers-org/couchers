@@ -26,7 +26,7 @@ from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_
 from couchers.templates.v2 import v2date
 from couchers.utils import create_coordinate, now, today
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import email_fields, mock_notification_email
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
 
 
