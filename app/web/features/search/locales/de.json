@@ -80,7 +80,8 @@
     "missing_about_description": "{{name}} hat noch nichts über sich gesagt",
     "few_results_suggestion": "Standardmäßig werden leere Profile und Profile mit \"kann nicht hosten\" ausgeblendet.",
     "include_empty_profiles_button": "Alle Profile anzeigen",
-    "people_range_message": "{{currentRange}} von {{count}} Personen"
+    "people_range_message_one": "{{currentRange}} von {{count}} Personen",
+    "people_range_message_other": ""
   },
   "choose_search_criteria": "Gib einen Ort ein oder nutze einen Filter zum suchen.",
   "error_loading_users": "Fehler beim Laden von Benutzern",

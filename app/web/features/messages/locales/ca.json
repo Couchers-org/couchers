@@ -1,3 +1,157 @@
 {
-  "unknown_user": "Usuari desconegut"
+  "unknown_user": "Usuari desconegut",
+  "create_chat": {
+    "title_label": "Títol",
+    "dm_title": "Crea un xat nou",
+    "group_title": "Crea un xat de grup",
+    "group_title_field_label": "Títol",
+    "no_friends_found_message": "No s'han pogut trobar amics",
+    "user_load_error_message": "(Error de càrrega de l'usuari)",
+    "friends_input_label": "Amics"
+  },
+  "chat_input": {
+    "label": "Missatge"
+  },
+  "group_chat_settings_dialog": {
+    "title": "Configuració del xat de grup",
+    "chat_title": {
+      "field_label": "Títol de la conversa"
+    },
+    "only_admins_invite": {
+      "field_label": "Només els administradors poden convidar altres persones al xat"
+    }
+  },
+  "group_chats_tab": {
+    "no_chats_message": "Encara no hi ha cap xat de grup",
+    "load_more_button_label": "Carrega'n més"
+  },
+  "requests_tab": {
+    "no_requests_message": "Encara no hi ha sol·licituds",
+    "load_more_button_label": "Carrega'n més"
+  },
+  "invite_dialog": {
+    "selected": {
+      "field_label": "Amics",
+      "no_options_text": "Ningú a qui convidar",
+      "option_load_error_text": "(Error de càrrega de l'usuari)"
+    },
+    "invite_button_label": "Convida",
+    "title": "Convida a xatejar"
+  },
+  "leave_chat_dialog": {
+    "title": "Sortir del xat?",
+    "message": "Estàs segur que vols sortir d’aquest xat?"
+  },
+  "members_dialog": {
+    "title": "Membres del xat"
+  },
+  "control_message": {
+    "created_chat_text": "{{user}} ha creat la conversa",
+    "edited_chat_text": "{{user}} ha editat la conversa",
+    "user_left_chat_text": "{{user}} ha sortit del xat",
+    "admin_assignment_text": "{{user}} ha fet {{target_user}} administrador",
+    "admin_removal_text": "{{user}} ha eliminat {{target_user}} com a administrador",
+    "unknown_message_text": "Missatge de control desconegut",
+    "host_request_status_changed_text": "{{user}} ha canviat la sol·licitud a {{status}}",
+    "invite_user_text": "{{user}} ha convidat {{target_user}}"
+  },
+  "host_request_status": {
+    "accepted": "Acceptat",
+    "cancelled": "Cancel·lat",
+    "confirmed": "Confirmat",
+    "past": "Passat",
+    "pending": "Pendent",
+    "rejected": "Rebutjat"
+  },
+  "host_request_item": {
+    "expired": "Aquesta sol·licitud ha caducat",
+    "pending": "Aquesta sol·licitud encara està pendent",
+    "host_status": {
+      "accepted": "Has acceptat aquesta sol·licitud",
+      "cancelled": "Has cancel·lat aquesta sol·licitud",
+      "confirmed": "Has confirmat aquesta sol·licitud",
+      "rejected": "Has rebutjat aquesta sol·licitud"
+    },
+    "surfer_status": {
+      "accepted": "La teva sol·licitud ha estat acceptada",
+      "cancelled": "La teva sol·licitud ha estat cancel·lada",
+      "confirmed": "La teva sol·licitud ha estat confirmada",
+      "rejected": "La teva sol·licitud ha estat rebutjada"
+    }
+  },
+  "host_request_view": {
+    "error_message": "ID de sol·licitud d'amfitrió no vàlid",
+    "back_button_a11y_label": "Enrere",
+    "title_for_host": "Sol·licitud de {{user}} - {{status}}",
+    "request_duration_0": "{{count}} nit",
+    "request_duration_1": "{{count}} nits",
+    "request_duration_2": "{{count}} nits",
+    "title_for_surfer": "Sol·licitud a {{user}} - {{status}}"
+  },
+  "write_reference_button_text": "Escriu una referència",
+  "close_request_dialog_title": "Ja has acabat d'enviar missatges?",
+  "close_request_dialog_host": "Si us plau, assegura't d'haver acabat de xatejar abans de rebutjar la seva sol·licitud.",
+  "close_request_dialog_surfer": "Si us plau, assegura't d'haver acabat de xatejar abans de cancel·lar la teva sol·licitud.",
+  "close_request_button_text": "Rebutja",
+  "confirm_request_button_text": "Confirma",
+  "host_pending_request_help_text": "<0>Coses a tenir en compte</0> abans de respondre.",
+  "past_request_help_text": "Aquesta sol·licitud és passada, encara pots enviar missatges però no la pots modificar.",
+  "messages_page": {
+    "title": "Missatges",
+    "tabs": {
+      "aria_label": "Pestanyes per a diferents tipus de missatges",
+      "chats": "Xats",
+      "hosting": "Allotjament",
+      "surfing": "Surfing"
+    }
+  },
+  "chat_view": {
+    "cannot_message_text": "No pots enviar missatges en aquest xat",
+    "invalid_id_error": "ID de xat no vàlid.",
+    "no_messages_state_text": "Cap missatge",
+    "back_button": {
+      "a11y_label": "Enrere"
+    },
+    "muted_icon": {
+      "a11y_label": "Silenciat"
+    },
+    "actions_menu": {
+      "a11y_label": "Mostra més accions de xat",
+      "items": {
+        "invite_members": "Convida a xatejar",
+        "show_all_members": "Membres del xat",
+        "manage_admins": "Gestiona els administradors del xat",
+        "chat_settings": "Configuració del xat",
+        "leave_chat": "Surt del xat"
+      }
+    },
+    "mute": {
+      "button_label": "Silencia el xat",
+      "unmute_button_label": "Activa el so del xat",
+      "dialog_title": "Durant quant de temps vols silenciar?",
+      "1_hour_label": "1 hora",
+      "8_hours_label": "8 hores",
+      "1_day_label": "1 dia",
+      "1_week_label": "1 setmana",
+      "1_month_label": "1 mes",
+      "forever_label": "Fins que desactivi el silenci"
+    }
+  },
+  "admins_dialog": {
+    "step_down_confirmation_dialog": {
+      "title": "Vols deixar de ser administrador?",
+      "message": "Estàs segur que vols deixar de ser administrador d’aquest xat de grup? No podràs tornar a ser administrador a menys que un altre administrador t’hi afegeixi."
+    },
+    "remove_admin": {
+      "title": "Elimina l'administrador",
+      "action_a11y_label": "Elimina com a administrador"
+    },
+    "add_admin": {
+      "title": "Afegeix administrador",
+      "action_a11y_label": "Afegeix com a administrador"
+    }
+  },
+  "mark_all_read_button_text": "Marca-ho tot com a llegit",
+  "request_closed_message": "Aquesta sol·licitud d'allotjament està tancada. Per continuar xatejant, envia un missatge normal a l'altra persona.",
+  "surfer_declined_request_help_text": "<0>Llegeix la nostra guia</0> sobre com escriure una sol·licitud que sigui acceptada."
 }
