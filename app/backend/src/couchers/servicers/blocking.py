@@ -1,12 +1,12 @@
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import exists, select
+from sqlalchemy import and_, exists, func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import not_, or_, union
 
 from couchers import urls
 from couchers.context import CouchersContext
-from couchers.models import Upload, User, UserBlock
+from couchers.models import PhotoGalleryItem, Upload, User, UserBlock
 from couchers.proto import blocking_pb2, blocking_pb2_grpc
 
 
@@ -95,10 +95,25 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
     def GetBlockedUsers(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> blocking_pb2.GetBlockedUsersRes:
+        # Subquery to get first photo from each user's profile gallery
+        first_photo_subquery = (
+            select(
+                PhotoGalleryItem.gallery_id,
+                PhotoGalleryItem.upload_key,
+                func.row_number()
+                .over(partition_by=PhotoGalleryItem.gallery_id, order_by=PhotoGalleryItem.position)
+                .label("rn"),
+            )
+        ).subquery()
+
         blocked_users = session.execute(
             select(User.username, User.name, Upload.filename)
             .join(UserBlock, UserBlock.blocked_user_id == User.id)
-            .outerjoin(Upload, Upload.key == User.avatar_key)
+            .outerjoin(
+                first_photo_subquery,
+                and_(first_photo_subquery.c.gallery_id == User.profile_gallery_id, first_photo_subquery.c.rn == 1),
+            )
+            .outerjoin(Upload, Upload.key == first_photo_subquery.c.upload_key)
             .where(User.is_visible)
             .where(UserBlock.blocking_user_id == context.user_id)
         ).all()

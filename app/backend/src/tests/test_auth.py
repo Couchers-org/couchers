@@ -16,6 +16,7 @@ from couchers.models import (
     InviteCode,
     LoginToken,
     PasswordResetToken,
+    PhotoGalleryItem,
     SignupFlow,
     Upload,
     User,
@@ -1157,7 +1158,16 @@ def test_GetInviteCodeInfo(db):
         session.add(avatar)
         session.flush()
 
-        session.execute(update(User).where(User.id == user.id).values(avatar_key=avatar.key))
+        # Add avatar to profile gallery (first photo is the avatar)
+        user_obj = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        session.add(
+            PhotoGalleryItem(
+                gallery_id=user_obj.profile_gallery_id,
+                upload_key=avatar.key,
+                position=0.0,
+                caption=None,
+            )
+        )
 
         code = InviteCode(id=code_id, creator_user_id=user.id)
         session.add(code)
@@ -1166,17 +1176,20 @@ def test_GetInviteCodeInfo(db):
         res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code_id))
         assert res.name == user.name
         assert res.username == user.username
-        assert res.avatar_url.endswith("/img/thumbnail/test_avatar.jpg")
+        # Avatar URL should be a thumbnail URL with a hashed filename
+        assert "/img/thumbnail/" in res.avatar_url
+        assert res.avatar_url.endswith(".jpg")
+        # Verify the hashed filename looks correct (64 char hex hash)
+        assert len(res.avatar_url.split("/")[-1].replace(".jpg", "")) == 64
         assert res.url == urls.invite_code_link(code=code_id)
 
 
 def test_GetInviteCodeInfo_no_avatar(db):
-    user, token = generate_user()
+    user, token = generate_user(complete_profile=False)
     code_id = "NOAVTR1"
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user.id).values(avatar_key=None))
-
+        # User has no photos in gallery (avatar comes from first photo in gallery)
         code = InviteCode(id="NOAVTR1", creator_user_id=user.id)
         session.add(code)
 

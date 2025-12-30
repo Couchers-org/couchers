@@ -143,7 +143,7 @@ def test_GetAccountInfo_regression(db):
             )
         )
 
-    user, token = generate_user(about_me=None, avatar_key=key)
+    user, token = generate_user(about_me=None)
 
     with account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())

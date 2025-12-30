@@ -5,7 +5,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import and_, func, or_
+from sqlalchemy.sql import and_, exists, func, or_
 from user_agents import parse as user_agents_parse
 
 from couchers import urls
@@ -29,6 +29,7 @@ from couchers.models import (
     Message,
     ModerationUserList,
     ModNote,
+    PhotoGalleryItem,
     Reference,
     Reply,
     User,
@@ -170,10 +171,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if request.HasField("is_banned"):
             statement = statement.where(User.is_banned == request.is_banned.value)
         if request.HasField("has_avatar"):
+            # Check if user has at least one photo in their profile gallery
             if request.has_avatar.value:
-                statement = statement.where(User.avatar_key != None)
+                statement = statement.where(
+                    exists(select(1).where(PhotoGalleryItem.gallery_id == User.profile_gallery_id))
+                )
             else:
-                statement = statement.where(User.avatar_key == None)
+                statement = statement.where(
+                    ~exists(select(1).where(PhotoGalleryItem.gallery_id == User.profile_gallery_id))
+                )
         users = (
             session.execute(statement.where(User.id >= next_user_id).order_by(User.id).limit(page_size + 1))
             .scalars()

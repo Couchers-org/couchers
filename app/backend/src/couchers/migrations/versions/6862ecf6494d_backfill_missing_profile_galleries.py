@@ -4,6 +4,7 @@ This migration completes the transition from avatar_key to profile_gallery syste
 1. Creates profile galleries for any users who don't have one
 2. Migrates existing avatar_key photos into the galleries
 3. Updates lite_users materialized view to use profile galleries instead of avatar_key
+4. Removes the avatar_key column from users table
 
 Revision ID: 6862ecf6494d
 Revises: f8b4ef6e3819
@@ -11,6 +12,7 @@ Create Date: 2025-12-26 18:34:10.385471
 
 """
 
+import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
@@ -117,8 +119,32 @@ def upgrade() -> None:
         """
     )
 
+    # Drop the avatar_key column and its foreign key constraint
+    # Avatar is now always the first photo in the profile gallery
+    op.drop_constraint("fk_users_avatar_key_uploads", "users", type_="foreignkey")
+    op.drop_column("users", "avatar_key")
+
 
 def downgrade() -> None:
+    # Re-add the avatar_key column
+    op.add_column("users", sa.Column("avatar_key", sa.String(), nullable=True))
+    op.create_foreign_key("fk_users_avatar_key_uploads", "users", "uploads", ["avatar_key"], ["key"])
+
+    # Restore avatar_key from the first photo in each user's gallery
+    op.execute(
+        """
+        UPDATE users
+        SET avatar_key = first_photo.upload_key
+        FROM (
+            SELECT photo_gallery_items.gallery_id,
+                photo_gallery_items.upload_key,
+                row_number() OVER (PARTITION BY photo_gallery_items.gallery_id ORDER BY photo_gallery_items.position) AS rn
+            FROM photo_gallery_items
+        ) first_photo
+        WHERE first_photo.gallery_id = users.profile_gallery_id AND first_photo.rn = 1
+        """
+    )
+
     # Restore the old lite_users view that uses avatar_key
     op.execute(
         """

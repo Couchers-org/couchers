@@ -33,6 +33,7 @@ from couchers.models import (
     InviteCode,
     PasswordResetToken,
     PhotoGallery,
+    PhotoGalleryItem,
     SignupFlow,
     User,
     UserSession,
@@ -710,9 +711,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         user = session.execute(select(User).where(User.id == invite.creator_user_id)).scalar_one()
 
+        # Get first photo from profile gallery for avatar
+        first_gallery_photo = None
+        if user.profile_gallery_id:
+            first_gallery_photo = session.execute(
+                select(PhotoGalleryItem)
+                .where(PhotoGalleryItem.gallery_id == user.profile_gallery_id)
+                .order_by(PhotoGalleryItem.position)
+                .limit(1)
+            ).scalar_one_or_none()
+
         return auth_pb2.GetInviteCodeInfoRes(
             name=user.name,
             username=user.username,
-            avatar_url=user.avatar.thumbnail_url if user.avatar else None,
+            avatar_url=first_gallery_photo.upload.thumbnail_url if first_gallery_photo else None,
             url=urls.invite_code_link(code=request.code),
         )
