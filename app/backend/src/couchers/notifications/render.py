@@ -1000,6 +1000,9 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
 
 def render_push_notification(user: User, notification: Notification) -> PushNotificationContent:
     email_notification = render_notification(user, notification)
+    if email_notification.push_title is None:
+        raise NotImplementedError(f"topic-action {notification.topic}:{notification.action} does not have push info")
+
     return PushNotificationContent(
         title=email_notification.push_title,
         body=email_notification.push_body,
