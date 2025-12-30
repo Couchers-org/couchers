@@ -22,7 +22,7 @@ from couchers.models import (
     PushNotificationSubscription,
     User,
 )
-from couchers.notifications.push import push_to_subscription, push_to_user
+from couchers.notifications.push import push_to_subscription, push_to_user, PushNotificationContent
 from couchers.notifications.render import render_notification
 from couchers.notifications.settings import (
     PreferenceNotUserEditableError,
@@ -206,8 +206,10 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             session,
             user_id=context.user_id,
             topic_action="adhoc:testing",
-            title="Checking push notifications work!",
-            body="If you see this, then it's working :)",
+            content=PushNotificationContent(
+                title="Checking push notifications work!",
+                body="If you see this, then it's working :)",
+            )
         )
 
         return empty_pb2.Empty()
@@ -270,8 +272,10 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             session,
             user_id=context.user_id,
             topic_action="adhoc:testing",
-            title="Checking mobile push notifications work!",
-            body="If you see this on your phone, everything is wired up correctly 🎉",
+            content=PushNotificationContent(
+                title="Checking mobile push notifications work!",
+                body="If you see this on your phone, everything is wired up correctly 🎉",
+            ),
         )
 
         return empty_pb2.Empty()
@@ -289,11 +293,13 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             session,
             user_id=context.user_id,
             topic_action="adhoc:testing",
+            content=PushNotificationContent(
+                title=request.title,
+                body=request.body,
+                icon_url=request.icon or None,
+                action_url=request.url or None,
+            ),
             key=request.key or None,
-            title=request.title,
-            body=request.body,
-            icon=request.icon or None,
-            url=request.url or None,
             ttl=request.ttl,
         )
 
