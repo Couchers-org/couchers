@@ -8,6 +8,7 @@ from google.protobuf import empty_pb2
 
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
+from couchers.jobs.handlers import update_randomized_locations
 from couchers.models import (
     Invoice,
     InvoiceType,
@@ -39,7 +40,7 @@ def test_GetPublicMapLayer(db):
     test_user_coordinates = [-73.9740, 40.7108]
 
     with session_scope() as session:
-        queue_job(session, "update_randomized_locations", empty_pb2.Empty())
+        queue_job(session, job=update_randomized_locations, payload=empty_pb2.Empty())
 
     process_jobs()
 

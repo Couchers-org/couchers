@@ -6,6 +6,7 @@ from couchers import urls
 from couchers.config import config
 from couchers.jobs.enqueue import queue_job
 from couchers.models import PushNotificationSubscription
+from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
 from couchers.proto.internal import jobs_pb2
 
 
@@ -24,7 +25,7 @@ def push_to_subscription(
 ) -> None:
     queue_job(
         session,
-        job_type="send_raw_push_notification_v2",
+        job=send_raw_push_notification_v2,
         payload=jobs_pb2.SendRawPushNotificationPayloadV2(
             push_notification_subscription_id=push_notification_subscription_id,
             ttl=ttl,

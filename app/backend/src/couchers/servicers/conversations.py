@@ -233,7 +233,7 @@ def _add_message_to_subscription(session: Session, subscription: GroupChatSubscr
 
     queue_job(
         session,
-        job_type="generate_message_notifications",
+        job=generate_message_notifications,
         payload=jobs_pb2.GenerateMessageNotificationsPayload(
             message_id=message.id,
         ),

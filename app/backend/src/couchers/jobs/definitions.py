@@ -53,64 +53,67 @@ class Job:
     schedule: timedelta | None = None
 
 
-# Job registry - maps job names to job definitions
-JOBS: dict[str, Job] = {
-    "handle_notification": Job(handle_notification, jobs_pb2.HandleNotificationPayload),
-    "send_raw_push_notification_v2": Job(send_raw_push_notification_v2, jobs_pb2.SendRawPushNotificationPayloadV2),
-    "handle_email_digests": Job(handle_email_digests, schedule=timedelta(minutes=15)),
-    "generate_message_notifications": Job(
+# Job registry - first create a list of all jobs
+_JOBS_LIST = [
+    Job(handle_notification, jobs_pb2.HandleNotificationPayload),
+    Job(send_raw_push_notification_v2, jobs_pb2.SendRawPushNotificationPayloadV2),
+    Job(handle_email_digests, schedule=timedelta(minutes=15)),
+    Job(
         generate_message_notifications,
         jobs_pb2.GenerateMessageNotificationsPayload,
     ),
-    "generate_reply_notifications": Job(generate_reply_notifications, jobs_pb2.GenerateReplyNotificationsPayload),
-    "generate_create_discussion_notifications": Job(
+    Job(generate_reply_notifications, jobs_pb2.GenerateReplyNotificationsPayload),
+    Job(
         generate_create_discussion_notifications,
         jobs_pb2.GenerateCreateDiscussionNotificationsPayload,
     ),
-    "generate_event_create_notifications": Job(
+    Job(
         generate_event_create_notifications,
         jobs_pb2.GenerateEventCreateNotificationsPayload,
     ),
-    "generate_event_update_notifications": Job(
+    Job(
         generate_event_update_notifications,
         jobs_pb2.GenerateEventUpdateNotificationsPayload,
     ),
-    "generate_event_cancel_notifications": Job(
+    Job(
         generate_event_cancel_notifications,
         jobs_pb2.GenerateEventCancelNotificationsPayload,
     ),
-    "generate_event_delete_notifications": Job(
+    Job(
         generate_event_delete_notifications,
         jobs_pb2.GenerateEventDeleteNotificationsPayload,
     ),
-    "generate_new_blog_post_notifications": Job(
+    Job(
         generate_new_blog_post_notifications,
         jobs_pb2.GenerateNewBlogPostNotificationsPayload,
     ),
-    "refresh_materialized_views": Job(refresh_materialized_views, schedule=timedelta(minutes=5)),
-    "refresh_materialized_views_rapid": Job(refresh_materialized_views_rapid, schedule=timedelta(seconds=30)),
-    "send_email": Job(send_email, jobs_pb2.SendEmailPayload),
-    "purge_login_tokens": Job(purge_login_tokens, schedule=timedelta(hours=24)),
-    "purge_password_reset_tokens": Job(purge_password_reset_tokens, schedule=timedelta(hours=24)),
-    "purge_account_deletion_tokens": Job(purge_account_deletion_tokens, schedule=timedelta(hours=24)),
-    "send_message_notifications": Job(send_message_notifications, schedule=timedelta(minutes=3)),
-    "send_request_notifications": Job(send_request_notifications, schedule=timedelta(minutes=3)),
-    "send_onboarding_emails": Job(send_onboarding_emails, schedule=timedelta(hours=1)),
-    "send_reference_reminders": Job(send_reference_reminders, schedule=timedelta(hours=1)),
-    "send_host_request_reminders": Job(send_host_request_reminders, schedule=timedelta(minutes=15)),
-    "add_users_to_email_list": Job(add_users_to_email_list, schedule=timedelta(hours=1)),
-    "enforce_community_membership": Job(enforce_community_membership, schedule=timedelta(minutes=15)),
-    "update_recommendation_scores": Job(update_recommendation_scores, schedule=timedelta(hours=24)),
-    "update_badges": Job(update_badges, schedule=timedelta(minutes=15)),
-    "finalize_strong_verification": Job(finalize_strong_verification, jobs_pb2.FinalizeStrongVerificationPayload),
-    "send_activeness_probes": Job(send_activeness_probes, schedule=timedelta(minutes=60)),
-    "update_randomized_locations": Job(update_randomized_locations, schedule=timedelta(hours=1)),
-    "send_event_reminders": Job(send_event_reminders, schedule=timedelta(hours=1)),
-    "check_expo_push_receipts": Job(check_expo_push_receipts, schedule=timedelta(minutes=5)),
-    "send_postal_verification_postcard": Job(
+    Job(refresh_materialized_views, schedule=timedelta(minutes=5)),
+    Job(refresh_materialized_views_rapid, schedule=timedelta(seconds=30)),
+    Job(send_email, jobs_pb2.SendEmailPayload),
+    Job(purge_login_tokens, schedule=timedelta(hours=24)),
+    Job(purge_password_reset_tokens, schedule=timedelta(hours=24)),
+    Job(purge_account_deletion_tokens, schedule=timedelta(hours=24)),
+    Job(send_message_notifications, schedule=timedelta(minutes=3)),
+    Job(send_request_notifications, schedule=timedelta(minutes=3)),
+    Job(send_onboarding_emails, schedule=timedelta(hours=1)),
+    Job(send_reference_reminders, schedule=timedelta(hours=1)),
+    Job(send_host_request_reminders, schedule=timedelta(minutes=15)),
+    Job(add_users_to_email_list, schedule=timedelta(hours=1)),
+    Job(enforce_community_membership, schedule=timedelta(minutes=15)),
+    Job(update_recommendation_scores, schedule=timedelta(hours=24)),
+    Job(update_badges, schedule=timedelta(minutes=15)),
+    Job(finalize_strong_verification, jobs_pb2.FinalizeStrongVerificationPayload),
+    Job(send_activeness_probes, schedule=timedelta(minutes=60)),
+    Job(update_randomized_locations, schedule=timedelta(hours=1)),
+    Job(send_event_reminders, schedule=timedelta(hours=1)),
+    Job(check_expo_push_receipts, schedule=timedelta(minutes=5)),
+    Job(
         send_postal_verification_postcard,
         jobs_pb2.SendPostalVerificationPostcardPayload,
     ),
-    "check_database_consistency": Job(check_database_consistency, schedule=timedelta(hours=24)),
-    "auto_approve_moderation_queue": Job(auto_approve_moderation_queue, schedule=timedelta(seconds=15)),
-}
+    Job(check_database_consistency, schedule=timedelta(hours=24)),
+    Job(auto_approve_moderation_queue, schedule=timedelta(seconds=15)),
+]
+
+# Map job names to job definitions
+JOBS: dict[str, Job] = {job.handler.__name__: job for job in _JOBS_LIST}

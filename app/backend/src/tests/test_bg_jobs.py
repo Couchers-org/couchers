@@ -20,6 +20,10 @@ from couchers.jobs.definitions import Job
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import (
     add_users_to_email_list,
+    enforce_community_membership,
+    purge_account_deletion_tokens,
+    purge_login_tokens,
+    purge_password_reset_tokens,
     send_host_request_reminders,
     send_message_notifications,
     send_onboarding_emails,
@@ -29,6 +33,7 @@ from couchers.jobs.handlers import (
     update_recommendation_scores,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
+from couchers.materialized_views import refresh_materialized_views
 from couchers.metrics import create_prometheus_server
 from couchers.models import (
     AccountDeletionToken,
@@ -125,7 +130,7 @@ def test_purge_login_tokens(db):
         session.add(login_token)
         assert session.execute(select(func.count()).select_from(LoginToken)).scalar_one() == 1
 
-        queue_job(session, "purge_login_tokens", empty_pb2.Empty())
+        queue_job(session, job=purge_login_tokens, payload=empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
@@ -158,7 +163,7 @@ def test_purge_password_reset_tokens(db):
         session.add(password_reset_token)
         assert session.execute(select(func.count()).select_from(PasswordResetToken)).scalar_one() == 1
 
-        queue_job(session, "purge_password_reset_tokens", empty_pb2.Empty())
+        queue_job(session, job=purge_password_reset_tokens, payload=empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
@@ -204,7 +209,7 @@ def test_purge_account_deletion_tokens(db):
             session.add(token)
         assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 3
 
-        queue_job(session, "purge_account_deletion_tokens", empty_pb2.Empty())
+        queue_job(session, job=purge_account_deletion_tokens, payload=empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
@@ -231,7 +236,7 @@ def test_purge_account_deletion_tokens(db):
 
 def test_enforce_community_memberships(db):
     with session_scope() as session:
-        queue_job(session, "enforce_community_membership", empty_pb2.Empty())
+        queue_job(session, job=enforce_community_membership, payload=empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
@@ -255,7 +260,7 @@ def test_enforce_community_memberships(db):
 
 def test_refresh_materialized_views(db):
     with session_scope() as session:
-        queue_job(session, "refresh_materialized_views", empty_pb2.Empty())
+        queue_job(session, job=refresh_materialized_views, payload=empty_pb2.Empty())
 
     process_job()
 
@@ -315,9 +320,15 @@ def test_service_jobs(db):
 
 
 def test_scheduler(db, monkeypatch):
+    def purge_login_tokens(_):
+        return
+
+    def send_message_notifications(_):
+        return
+
     MOCK_JOBS = {
-        "purge_login_tokens": Job(lambda x: None, empty_pb2.Empty, timedelta(seconds=7)),
-        "send_message_notifications": Job(lambda x: None, empty_pb2.Empty, timedelta(seconds=11)),
+        "purge_login_tokens": Job(purge_login_tokens, empty_pb2.Empty, timedelta(seconds=7)),
+        "send_message_notifications": Job(send_message_notifications, empty_pb2.Empty, timedelta(seconds=11)),
     }
 
     current_time = 0
@@ -327,7 +338,6 @@ def test_scheduler(db, monkeypatch):
         pass
 
     def mock_monotonic():
-        nonlocal current_time
         return current_time
 
     def mock_sleep(seconds):
@@ -338,10 +348,9 @@ def test_scheduler(db, monkeypatch):
 
     realized_schedule = []
 
-    def mock_run_job_and_schedule(sched, job_type, frequency):
-        nonlocal current_time
-        realized_schedule.append((current_time, job_type))
-        _run_job_and_schedule(sched, job_type, frequency)
+    def mock_run_job_and_schedule(sched, job: Job, frequency: timedelta) -> None:
+        realized_schedule.append((current_time, job.handler.__name__))
+        _run_job_and_schedule(sched, job, frequency)
 
     monkeypatch.setattr(couchers.jobs.worker, "_run_job_and_schedule", mock_run_job_and_schedule)
     monkeypatch.setattr(couchers.jobs.worker, "JOBS", MOCK_JOBS)
@@ -353,7 +362,7 @@ def test_scheduler(db, monkeypatch):
 
     # Convert to job indices for comparison (to maintain test compatibility)
     job_order = ["purge_login_tokens", "send_message_notifications"]
-    realized_schedule_indices = [(time, job_order.index(job_type)) for time, job_type in realized_schedule]
+    realized_schedule_indices = [(time, job_order.index(job_name)) for time, job_name in realized_schedule]
 
     assert realized_schedule_indices == [
         (0.0, 0),
@@ -392,15 +401,15 @@ def test_scheduler(db, monkeypatch):
 
 
 def test_job_retry(db):
-    with session_scope() as session:
-        queue_job(session, "mock_job", empty_pb2.Empty())
-
     called_count = 0
 
     def mock_job(payload):
         nonlocal called_count
         called_count += 1
         raise Exception()
+
+    with session_scope() as session:
+        queue_job(session, job=mock_job, payload=empty_pb2.Empty())
 
     MOCK_JOBS = {
         "mock_job": Job(mock_job, empty_pb2.Empty, None),

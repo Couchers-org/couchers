@@ -22,7 +22,7 @@ from couchers.proto import communities_pb2, editor_pb2, editor_pb2_grpc, notific
 from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_static_badge_dict
 from couchers.servicers.communities import community_to_pb
-from couchers.servicers.events import get_users_to_notify_for_new_event
+from couchers.servicers.events import generate_event_create_notifications, get_users_to_notify_for_new_event
 from couchers.servicers.public import format_volunteer_link
 from couchers.utils import date_to_api, now, parse_date
 
@@ -182,7 +182,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
         if request.approve:
             queue_job(
                 session,
-                "generate_event_create_notifications",
+                job=generate_event_create_notifications,
                 payload=jobs_pb2.GenerateEventCreateNotificationsPayload(
                     inviting_user_id=req.user_id,
                     occurrence_id=req.occurrence_id,
@@ -201,7 +201,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin_blog_blurb_too_long")
         queue_job(
             session,
-            "generate_new_blog_post_notifications",
+            job=generate_new_blog_post_notifications,
             payload=jobs_pb2.GenerateNewBlogPostNotificationsPayload(
                 url=request.url,
                 title=request.title,

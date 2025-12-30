@@ -19,7 +19,7 @@ from sqlalchemy import select
 from couchers.config import config
 from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
 from couchers.experimentation import setup_experimentation
-from couchers.jobs.definitions import JOBS
+from couchers.jobs.definitions import JOBS, Job
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
     background_jobs_got_job_counter,
@@ -128,8 +128,8 @@ def service_jobs() -> None:
             sleep(1)
 
 
-def _run_job_and_schedule(sched: scheduler, job_type: str, frequency: timedelta) -> None:
-    logger.info(f"Processing job of type {job_type}")
+def _run_job_and_schedule(sched: scheduler, job_def: Job, frequency: timedelta) -> None:
+    logger.info(f"Processing job of type {job_def.handler.__name__}")
 
     # wake ourselves up after frequency
     sched.enter(
@@ -138,14 +138,14 @@ def _run_job_and_schedule(sched: scheduler, job_type: str, frequency: timedelta)
         action=_run_job_and_schedule,
         argument=(
             sched,
-            job_type,
+            job_def,
             frequency,
         ),
     )
 
     # queue the job
     with session_scope() as session:
-        queue_job(session, job_type, empty_pb2.Empty())
+        queue_job(session, job=job_def.handler, payload=empty_pb2.Empty())
 
 
 def run_scheduler() -> None:
@@ -162,7 +162,7 @@ def run_scheduler() -> None:
                 action=_run_job_and_schedule,
                 argument=(
                     sched,
-                    job_type,
+                    job_def,
                     job_def.schedule,
                 ),
             )
