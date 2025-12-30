@@ -12,12 +12,9 @@ from couchers.db import session_scope
 from couchers.models import SMS, User
 from couchers.proto import account_pb2, api_pb2
 from couchers.utils import now
-from tests.test_fixtures import (
-    account_session,
-    api_session,
-    generate_user,
-    process_jobs,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import process_jobs
+from tests.fixtures.sessions import account_session, api_session
 
 
 @pytest.fixture(autouse=True)

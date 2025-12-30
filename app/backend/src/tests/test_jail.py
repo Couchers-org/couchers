@@ -7,15 +7,9 @@ from couchers.models import users
 from couchers.proto import admin_pb2, api_pb2, jail_pb2
 from couchers.servicers import jail as servicers_jail
 from couchers.utils import create_coordinate, to_aware_datetime
-from tests.test_fixtures import (
-    email_fields,
-    generate_user,
-    mock_notification_email,
-    real_account_session,
-    real_admin_session,
-    real_api_session,
-    real_jail_session,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import email_fields, mock_notification_email
+from tests.fixtures.sessions import real_account_session, real_admin_session, real_api_session, real_jail_session
 
 
 @pytest.fixture(autouse=True)

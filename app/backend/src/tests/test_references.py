@@ -25,16 +25,9 @@ from couchers.models import (
 from couchers.moderation.utils import create_moderation
 from couchers.proto import conversations_pb2, references_pb2, requests_pb2
 from couchers.utils import create_coordinate, now, to_aware_datetime, today
-from tests.test_fixtures import (
-    account_session,
-    email_fields,
-    generate_user,
-    make_friends,
-    make_user_block,
-    mock_notification_email,
-    references_session,
-    requests_session,
-)
+from tests.fixtures.db import generate_user, make_friends, make_user_block
+from tests.fixtures.misc import email_fields, mock_notification_email
+from tests.fixtures.sessions import account_session, references_session, requests_session
 from tests.test_requests import valid_request_text
 
 

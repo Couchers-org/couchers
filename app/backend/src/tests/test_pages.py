@@ -7,11 +7,9 @@ from couchers.db import session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread, Upload
 from couchers.proto import pages_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import pages_session
 from tests.test_communities import create_community
-from tests.test_fixtures import (
-    generate_user,
-    pages_session,
-)
 
 
 @pytest.fixture(autouse=True)

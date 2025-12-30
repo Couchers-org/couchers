@@ -11,16 +11,10 @@ from couchers.models import BackgroundJob, EventOccurrence
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import email_fields, mock_notification_email, process_jobs
+from tests.fixtures.sessions import events_session, real_editor_session, threads_session
 from tests.test_communities import create_community, create_group
-from tests.test_fixtures import (
-    email_fields,
-    events_session,
-    generate_user,
-    mock_notification_email,
-    process_jobs,
-    real_editor_session,
-    threads_session,
-)
 
 
 @pytest.fixture(autouse=True)

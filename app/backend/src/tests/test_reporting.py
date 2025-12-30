@@ -5,10 +5,8 @@ from sqlalchemy import select
 from couchers.db import session_scope
 from couchers.models import ContentReport
 from couchers.proto import reporting_pb2
-from tests.test_fixtures import (
-    generate_user,
-    reporting_session,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import reporting_session
 
 
 @pytest.fixture(autouse=True)

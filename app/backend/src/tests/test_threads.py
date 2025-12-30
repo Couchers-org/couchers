@@ -8,10 +8,8 @@ from couchers.db import session_scope
 from couchers.models import Thread
 from couchers.proto import threads_pb2
 from couchers.servicers.threads import pack_thread_id
-from tests.test_fixtures import (
-    generate_user,
-    threads_session,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import threads_session
 
 
 @pytest.fixture(autouse=True)

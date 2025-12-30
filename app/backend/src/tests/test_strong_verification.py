@@ -26,13 +26,8 @@ from couchers.models import (
 )
 from couchers.proto import account_pb2, admin_pb2, api_pb2
 from couchers.proto.google.api import httpbody_pb2
-from tests.test_fixtures import (
-    account_session,
-    api_session,
-    generate_user,
-    real_admin_session,
-    real_iris_session,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import account_session, api_session, real_admin_session, real_iris_session
 
 
 @pytest.fixture(autouse=True)

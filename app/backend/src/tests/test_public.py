@@ -20,11 +20,9 @@ from couchers.models import (
     Volunteer,
 )
 from couchers.servicers.public import _get_donation_stats
-from tests.test_fixtures import (
-    generate_user,
-    process_jobs,
-    public_session,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import process_jobs
+from tests.fixtures.sessions import public_session
 
 
 @pytest.fixture(autouse=True)

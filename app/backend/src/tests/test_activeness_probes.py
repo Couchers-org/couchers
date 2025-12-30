@@ -13,12 +13,9 @@ from couchers.jobs.handlers import send_activeness_probes
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, MeetupStatus
 from couchers.proto import api_pb2, jail_pb2
 from couchers.utils import now
-from tests.test_fixtures import (
-    api_session,
-    generate_user,
-    process_jobs,
-    real_jail_session,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import process_jobs
+from tests.fixtures.sessions import api_session, real_jail_session
 
 
 @pytest.fixture(autouse=True)

@@ -11,6 +11,7 @@ from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
+from couchers.db import session_scope
 from couchers.jobs.worker import process_job
 from couchers.models import (
     DeviceType,
@@ -39,17 +40,14 @@ from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.templates.v2 import v2timestamp
 from couchers.utils import now
-from tests.test_fixtures import (
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import email_fields, mock_notification_email, process_jobs
+from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
     conversations_session,
-    email_fields,
-    generate_user,
-    mock_notification_email,
     notifications_session,
-    process_jobs,
     real_editor_session,
-    session_scope,
 )
 
 

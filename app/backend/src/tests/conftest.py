@@ -20,14 +20,13 @@ if "DATABASE_CONNECTION_STRING" not in os.environ:  # pragma: no cover
 
 
 from couchers.config import config  # noqa: E402
-from tests.test_fixtures import (  # noqa: E402
-    Moderator,
-    PushCollector,
+from tests.fixtures.db import (  # noqa: E402
     autocommit_engine,
     create_schema_from_models,
     generate_user,
     populate_testing_resources,
 )
+from tests.fixtures.misc import Moderator, PushCollector  # noqa: E402
 
 
 @pytest.fixture(scope="session")

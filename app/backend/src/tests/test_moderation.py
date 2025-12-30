@@ -13,6 +13,7 @@ from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.handlers import auto_approve_moderation_queue
 from couchers.models import (
+    GroupChat,
     HostRequest,
     ModerationAction,
     ModerationLog,
@@ -25,12 +26,11 @@ from couchers.models import (
 from couchers.moderation.utils import create_moderation
 from couchers.proto import conversations_pb2, moderation_pb2, notifications_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, now, today
-from tests.test_fixtures import (
+from tests.fixtures.db import generate_user, make_friends
+from tests.fixtures.misc import mock_notification_email, process_jobs
+from tests.fixtures.sessions import (
     conversations_session,
-    generate_user,
-    mock_notification_email,
     notifications_session,
-    process_jobs,
     real_moderation_session,
     requests_session,
 )
@@ -1602,10 +1602,6 @@ def test_FlagContentForReview(db):
 
 def test_group_chat_created_with_moderation_state(db):
     """Test that group chats are created with moderation state"""
-    from couchers.models import GroupChat
-    from couchers.proto import conversations_pb2
-    from tests.test_fixtures import conversations_session, make_friends
-
     user1, token1 = generate_user()
     user2, _ = generate_user()
     make_friends(user1, user2)
@@ -1641,9 +1637,6 @@ def test_group_chat_created_with_moderation_state(db):
 
 def test_group_chat_GetModerationState(db):
     """Test GetModerationState API for group chats"""
-    from couchers.proto import conversations_pb2
-    from tests.test_fixtures import conversations_session, make_friends
-
     user1, token1 = generate_user()
     user2, _ = generate_user()
     moderator, mod_token = generate_user(is_superuser=True)
@@ -1669,9 +1662,6 @@ def test_group_chat_GetModerationState(db):
 
 def test_group_chat_moderation_hide(db):
     """Test that a moderator can hide a group chat and participants can no longer see it"""
-    from couchers.proto import conversations_pb2
-    from tests.test_fixtures import conversations_session, make_friends
-
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     moderator, mod_token = generate_user(is_superuser=True)
@@ -1742,9 +1732,6 @@ def test_group_chat_moderation_hide(db):
 
 def test_group_chat_moderation_shadow(db):
     """Test that shadowing a group chat hides it from non-creator participants"""
-    from couchers.proto import conversations_pb2
-    from tests.test_fixtures import conversations_session, make_friends
-
     user1, token1 = generate_user()  # Creator
     user2, token2 = generate_user()  # Participant
     moderator, mod_token = generate_user(is_superuser=True)
