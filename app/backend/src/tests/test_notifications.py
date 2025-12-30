@@ -556,7 +556,7 @@ def test_SendBlogPostNotification(db, push_collector):
         user1.id,
         title="New blog post: Couchers.org v0.9.9 Release Notes",
         body="Read about last major updates before v1!",
-        url="https://couchers.org/blog/2025/05/11/v0.9.9-release",
+        action_url="https://couchers.org/blog/2025/05/11/v0.9.9-release",
     )
 
     push_collector.assert_user_has_count(user2.id, 1)
@@ -564,7 +564,7 @@ def test_SendBlogPostNotification(db, push_collector):
         user2.id,
         title="New blog post: Couchers.org v0.9.9 Release Notes",
         body="Read about last major updates before v1!",
-        url="https://couchers.org/blog/2025/05/11/v0.9.9-release",
+        action_url="https://couchers.org/blog/2025/05/11/v0.9.9-release",
     )
 
     push_collector.assert_user_has_count(user3.id, 0)
@@ -1072,7 +1072,7 @@ def test_SendDevPushNotification_success(db, push_collector):
         title="Test Dev Title",
         body="Test dev notification body",
         icon="https://example.com/icon.png",
-        url="https://example.com/action",
+        action_url="https://example.com/action",
         topic_action="adhoc:testing",
         key="test-key",
         ttl=3600,

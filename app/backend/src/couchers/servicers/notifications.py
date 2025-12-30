@@ -22,8 +22,8 @@ from couchers.models import (
     PushNotificationSubscription,
     User,
 )
-from couchers.notifications.push import push_to_subscription, push_to_user, PushNotificationContent
-from couchers.notifications.render import render_notification
+from couchers.notifications.push import PushNotificationContent, push_to_subscription, push_to_user
+from couchers.notifications.render import render_push_notification
 from couchers.notifications.settings import (
     PreferenceNotUserEditableError,
     get_topic_actions_by_delivery_type,
@@ -46,7 +46,7 @@ def get_vapid_public_key() -> str:
 
 
 def notification_to_pb(user: User, notification: Notification) -> notifications_pb2.Notification:
-    rendered = render_notification(user, notification)
+    rendered = render_push_notification(user, notification)
     return notifications_pb2.Notification(
         notification_id=notification.id,
         created=Timestamp_from_datetime(notification.created),
@@ -209,7 +209,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             content=PushNotificationContent(
                 title="Checking push notifications work!",
                 body="If you see this, then it's working :)",
-            )
+            ),
         )
 
         return empty_pb2.Empty()
@@ -296,8 +296,8 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             content=PushNotificationContent(
                 title=request.title,
                 body=request.body,
-                icon_url=request.icon or None,
                 action_url=request.url or None,
+                icon_url=request.icon or None,
             ),
             key=request.key or None,
             ttl=request.ttl,

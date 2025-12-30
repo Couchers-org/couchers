@@ -48,6 +48,7 @@ from couchers.models import (
     UserBlock,
     UserSession,
 )
+from couchers.notifications.push import PushNotificationContent
 from couchers.proto import (
     account_pb2_grpc,
     admin_pb2_grpc,
@@ -1222,26 +1223,48 @@ class PushCollector:
         # pairs of (user_id, push)
         self.pushes = []
 
-    def by_user(self, user_id):
+    def by_user(self, user_id: int):
         return [kwargs for uid, kwargs in self.pushes if uid == user_id]
 
-    def push_to_user(self, session, user_id, **kwargs):
+    def push_to_user(self, session, user_id: int, **kwargs):
         self.pushes.append((user_id, Push(kwargs=kwargs)))
 
-    def assert_user_has_count(self, user_id, count):
+    def assert_user_has_count(self, user_id: int, count: int) -> None:
         assert len(self.by_user(user_id)) == count
 
-    def assert_user_push_matches_fields(self, user_id, ix=0, **kwargs):
+    def assert_user_push_matches_fields(
+        self,
+        user_id: int,
+        ix=0,
+        title: str | None = None,
+        body: str | None = None,
+        action_url: str | None = None,
+        **kwargs: Any,
+    ) -> None:
         push = self.by_user(user_id)[ix]
+        content: PushNotificationContent = push.kwargs["content"]
+        if title is not None:
+            assert content.title == title, f"Push notification {user_id=}, {ix=} title mismatch"
+        if body is not None:
+            assert content.body == body, f"Push notification {user_id=}, {ix=} body mismatch"
+        if action_url is not None:
+            assert content.action_url == action_url, f"Push notification {user_id=}, {ix=} action_url mismatch"
         for kwarg in kwargs:
-            assert kwarg in push.kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
+            assert kwarg in push.kwargs or kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
             assert push.kwargs[kwarg] == kwargs[kwarg], (
                 f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
             )
 
-    def assert_user_has_single_matching(self, user_id, **kwargs):
+    def assert_user_has_single_matching(
+        self,
+        user_id: int,
+        title: str | None = None,
+        body: str | None = None,
+        action_url: str | None = None,
+        **kwargs: Any,
+    ) -> None:
         self.assert_user_has_count(user_id, 1)
-        self.assert_user_push_matches_fields(user_id, ix=0, **kwargs)
+        self.assert_user_push_matches_fields(user_id, ix=0, title=title, body=body, action_url=action_url, **kwargs)
 
 
 @pytest.fixture

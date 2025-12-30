@@ -12,9 +12,11 @@ from couchers.models import PushNotificationSubscription
 from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
 from couchers.proto.internal import jobs_pb2
 
+
 @dataclass(frozen=True, slots=True)
 class PushNotificationContent:
     """Defines the user-visible content of a push notification."""
+
     # Android reference: https://developer.android.com/develop/ui/views/notifications
     # iOS reference: https://developer.apple.com/documentation/usernotifications/unnotificationcontent
 
@@ -24,11 +26,11 @@ class PushNotificationContent:
     title: str
     """A localized title for the notification, this should be a very short string (2-4 words)."""
     body: str
-    """The main text of the notification."""
-    icon_url: str | None = None
-    """A URL to the icon to show in the notification. If None, will use the default app icon."""
+    """The localized text of the notification body."""
     action_url: str | None = None
     """The URL to open when the notification is clicked. If None, will open the app's main URL."""
+    icon_url: str | None = None
+    """A URL to the icon to show in the notification. If None, will use the default app icon."""
 
 
 def push_to_subscription(
@@ -41,8 +43,8 @@ def push_to_subscription(
     key: str | None = None,
     ttl: int = 0,
 ) -> None:
-    title = config["NOTIFICATION_PREFIX"] + content[:PushNotificationSubscription.MAX_TITLE_LENGTH]
-    body = content.body[:PushNotificationSubscription.MAX_BODY_LENGTH]
+    title = config["NOTIFICATION_PREFIX"] + content[: PushNotificationSubscription.MAX_TITLE_LENGTH]
+    body = content.body[: PushNotificationSubscription.MAX_BODY_LENGTH]
     icon_url = content.icon_url or urls.icon_url()
     action_url = content.action_url or ""
     queue_job(
