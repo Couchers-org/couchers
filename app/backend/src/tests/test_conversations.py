@@ -19,18 +19,15 @@ from couchers.models import (
 from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
-from tests.test_fixtures import (  # noqa
+from tests.test_fixtures import (
     api_session,
     conversations_session,
-    db,
     generate_user,
     make_friends,
     make_user_block,
     make_user_invisible,
     mock_notification_email,
-    moderator,
     notifications_session,
-    testconfig,
 )
 
 

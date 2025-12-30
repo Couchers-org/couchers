@@ -39,23 +39,17 @@ from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.templates.v2 import v2timestamp
 from couchers.utils import now
-from tests.test_fixtures import (  # noqa
-    PushCollector,
+from tests.test_fixtures import (
     api_session,
     auth_api_session,
     conversations_session,
-    db,
     email_fields,
     generate_user,
     mock_notification_email,
-    moderator,
     notifications_session,
     process_jobs,
-    push_collector,
-    real_admin_session,
     real_editor_session,
     session_scope,
-    testconfig,
 )
 
 

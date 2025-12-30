@@ -12,7 +12,11 @@ from tests.test_communities import (  # noqa
     get_group_id,
     testing_communities,
 )
-from tests.test_fixtures import db, generate_user, get_user_id_and_token, groups_session, testconfig  # noqa
+from tests.test_fixtures import (
+    generate_user,
+    get_user_id_and_token,
+    groups_session,
+)
 
 
 @pytest.fixture(autouse=True)

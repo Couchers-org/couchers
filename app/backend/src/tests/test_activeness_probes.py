@@ -13,16 +13,11 @@ from couchers.jobs.handlers import send_activeness_probes
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, MeetupStatus
 from couchers.proto import api_pb2, jail_pb2
 from couchers.utils import now
-from tests.test_fixtures import (  # noqa
-    PushCollector,
+from tests.test_fixtures import (
     api_session,
-    db,
-    email_fields,
     generate_user,
     process_jobs,
-    push_collector,
     real_jail_session,
-    testconfig,
 )
 
 

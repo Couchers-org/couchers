@@ -6,7 +6,12 @@ from sqlalchemy import select
 from couchers.models import User, UserBlock
 from couchers.proto import blocking_pb2
 from couchers.servicers.blocking import is_not_visible
-from tests.test_fixtures import blocking_session, db, generate_user, make_user_block, session_scope, testconfig  # noqa
+from tests.test_fixtures import (
+    blocking_session,
+    generate_user,
+    make_user_block,
+    session_scope,
+)
 
 
 @pytest.fixture(autouse=True)

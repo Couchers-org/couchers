@@ -26,16 +26,12 @@ from couchers.models import (
 )
 from couchers.proto import account_pb2, admin_pb2, api_pb2
 from couchers.proto.google.api import httpbody_pb2
-from tests.test_fixtures import (  # noqa
-    PushCollector,
+from tests.test_fixtures import (
     account_session,
     api_session,
-    db,
     generate_user,
-    push_collector,
     real_admin_session,
     real_iris_session,
-    testconfig,
 )
 
 

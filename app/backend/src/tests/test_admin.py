@@ -19,23 +19,17 @@ from couchers.models import (
 from couchers.proto import admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
 from tests.test_communities import create_community
-from tests.test_fixtures import (  # noqa
-    PushCollector,
+from tests.test_fixtures import (
     add_users_to_new_moderation_list,
     auth_api_session,
-    db,
     email_fields,
     events_session,
     generate_user,
-    get_user_id_and_token,
     make_friends,
     mock_notification_email,
-    push_collector,
     real_admin_session,
     references_session,
     reporting_session,
-    requests_session,
-    testconfig,
 )
 
 

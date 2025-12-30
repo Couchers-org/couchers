@@ -6,11 +6,9 @@ from sqlalchemy.exc import IntegrityError
 from couchers.db import session_scope
 from couchers.models import PhotoGallery, PhotoGalleryItem, Upload, User
 from couchers.proto import galleries_pb2
-from tests.test_fixtures import (  # noqa
-    db,
+from tests.test_fixtures import (
     galleries_session,
     generate_user,
-    testconfig,
 )
 
 

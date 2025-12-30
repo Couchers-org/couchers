@@ -1,7 +1,7 @@
 import pytest
 from google.protobuf import empty_pb2
 
-from tests.test_fixtures import db, resources_session, testconfig  # noqa
+from tests.test_fixtures import resources_session
 
 
 @pytest.fixture(autouse=True)

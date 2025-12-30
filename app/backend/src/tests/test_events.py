@@ -12,18 +12,13 @@ from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
 from tests.test_communities import create_community, create_group
-from tests.test_fixtures import (  # noqa
-    PushCollector,
-    db,
+from tests.test_fixtures import (
     email_fields,
     events_session,
     generate_user,
     mock_notification_email,
     process_jobs,
-    push_collector,
-    real_admin_session,
     real_editor_session,
-    testconfig,
     threads_session,
 )
 

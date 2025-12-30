@@ -25,20 +25,14 @@ from couchers.models import (
 from couchers.moderation.utils import create_moderation
 from couchers.proto import conversations_pb2, moderation_pb2, notifications_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, now, today
-from tests.test_fixtures import (  # noqa
-    PushCollector,
+from tests.test_fixtures import (
     conversations_session,
-    db,
-    email_fields,
     generate_user,
     mock_notification_email,
-    moderator,
     notifications_session,
     process_jobs,
-    push_collector,
     real_moderation_session,
     requests_session,
-    testconfig,
 )
 from tests.test_requests import valid_request_text
 

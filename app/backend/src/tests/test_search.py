@@ -9,13 +9,11 @@ from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, Lan
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
 from tests.test_communities import create_community, testing_communities  # noqa
-from tests.test_fixtures import (  # noqa
+from tests.test_fixtures import (
     communities_session,
-    db,
     events_session,
     generate_user,
     search_session,
-    testconfig,
 )
 from tests.test_references import create_friend_reference
 

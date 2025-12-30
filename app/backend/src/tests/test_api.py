@@ -13,22 +13,17 @@ from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notificat
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict
 from couchers.utils import create_coordinate, to_aware_datetime
-from tests.test_fixtures import (  # noqa
-    PushCollector,
+from tests.test_fixtures import (
     api_session,
     blocking_session,
-    db,
     email_fields,
     generate_user,
     make_friends,
     make_user_block,
-    make_user_invisible,
     mock_notification_email,
     notifications_session,
-    push_collector,
     real_api_session,
     real_jail_session,
-    testconfig,
 )
 from tests.test_fixtures import real_admin_session as admin_session
 

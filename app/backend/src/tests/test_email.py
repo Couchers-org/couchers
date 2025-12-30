@@ -29,20 +29,16 @@ from couchers.tasks import (
 )
 from couchers.utils import Timestamp_from_datetime, now, timedelta
 from tests.test_communities import create_community
-from tests.test_fixtures import (  # noqa
+from tests.test_fixtures import (
     api_session,
-    db,
     email_fields,
     events_session,
     generate_user,
     mock_notification_email,
     notifications_session,
     process_jobs,
-    push_collector,
-    real_admin_session,
     real_editor_session,
     session_scope,
-    testconfig,
 )
 
 

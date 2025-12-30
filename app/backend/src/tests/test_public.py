@@ -19,14 +19,11 @@ from couchers.models import (
     ReferenceType,
     Volunteer,
 )
-from couchers.proto import api_pb2, public_pb2
-from couchers.servicers.public import _get_donation_stats, _get_public_users, _get_signup_page_info, _get_volunteers
-from tests.test_fixtures import (  # noqa
-    db,
+from couchers.servicers.public import _get_donation_stats
+from tests.test_fixtures import (
     generate_user,
     process_jobs,
     public_session,
-    testconfig,
 )
 
 

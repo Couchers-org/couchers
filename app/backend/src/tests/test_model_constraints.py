@@ -6,7 +6,7 @@ from couchers.db import session_scope
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, Cluster, Node, Page, PageType, PageVersion, Thread
 from couchers.utils import create_polygon_lat_lng, to_multi
 from tests.test_communities import create_1d_polygon, create_community
-from tests.test_fixtures import db, generate_user, testconfig  # noqa
+from tests.test_fixtures import generate_user
 
 
 @pytest.fixture(autouse=True)

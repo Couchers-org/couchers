@@ -5,7 +5,10 @@ from google.protobuf import empty_pb2
 
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from tests.test_communities import testing_communities  # noqa
-from tests.test_fixtures import generate_user, gis_session, testconfig  # noqa
+from tests.test_fixtures import (
+    generate_user,
+    gis_session,
+)
 
 
 @pytest.fixture(autouse=True)

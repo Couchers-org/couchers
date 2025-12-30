@@ -1,7 +1,6 @@
 import pytest
 
 from couchers.i18n.i18n import get_i18next
-from tests.test_fixtures import testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)

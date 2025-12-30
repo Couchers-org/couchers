@@ -21,13 +21,11 @@ from couchers.utils import (
     parse_date,
 )
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
-from tests.test_fixtures import (  # noqa
+from tests.test_fixtures import (
     create_schema_from_models,
-    db,
     drop_database,
     generate_user,
     run_migration_test,
-    testconfig,
 )
 
 
