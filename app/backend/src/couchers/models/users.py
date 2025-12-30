@@ -418,14 +418,18 @@ class User(Base, kw_only=True):
 
     @hybrid_property
     def has_completed_profile(self) -> bool:
-        # Check if user has at least one photo in their profile gallery
+        """Check if user has completed their profile (has photo + 150 char about_me)."""
         if self.profile_gallery_id is None:
             has_photo = False
         else:
             session = object_session(self)
-            has_photo = session.query(
-                sa_select(1).where(PhotoGalleryItem.gallery_id == self.profile_gallery_id).exists()
-            ).scalar()
+            if session is None:
+                # Detached instance - assume no photo
+                has_photo = False
+            else:
+                has_photo = session.query(
+                    sa_select(1).where(PhotoGalleryItem.gallery_id == self.profile_gallery_id).exists()
+                ).scalar()
 
         return has_photo and self.about_me is not None and len(self.about_me) >= 150
 

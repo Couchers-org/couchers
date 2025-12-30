@@ -361,10 +361,6 @@ export default function EditProfileForm() {
         setShowIncompleteProfileDialog(false);
       }
     },
-    // All field validation errors should scroll to their respective field
-    // Except the avatar, so this scrolls to top on avatar validation error
-    (errors) =>
-      errors.avatarKey && window.scroll({ top: 0, behavior: "smooth" }),
   );
 
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
@@ -382,11 +378,6 @@ export default function EditProfileForm() {
       {updateError && (
         <Alert severity="error">
           {errorMessage || t("global:error.unknown")}
-        </Alert>
-      )}
-      {errors.avatarKey && (
-        <Alert severity="error">
-          {errors.avatarKey?.message || t("global:error.unknown")}
         </Alert>
       )}
       {!user?.avatarUrl && (

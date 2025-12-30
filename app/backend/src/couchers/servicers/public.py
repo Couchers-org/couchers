@@ -209,6 +209,19 @@ class Public(public_pb2_grpc.PublicServicer):
             )
 
         if user.public_visibility == ProfilePublicVisibility.most:
+            # Get first photo from profile gallery for avatar
+            from couchers.models import PhotoGalleryItem
+
+            first_gallery_photo = session.execute(
+                select(PhotoGalleryItem)
+                .where(PhotoGalleryItem.gallery_id == user.profile_gallery_id)
+                .order_by(PhotoGalleryItem.position)
+                .limit(1)
+            ).scalar_one_or_none()
+
+            avatar_url = first_gallery_photo.upload.full_url if first_gallery_photo else None
+            avatar_thumbnail_url = first_gallery_photo.upload.thumbnail_url if first_gallery_photo else None
+
             return public_pb2.GetPublicUserRes(
                 most_user=public_pb2.MostUser(
                     username=user.username,
@@ -234,8 +247,8 @@ class Public(public_pb2_grpc.PublicServicer):
                     ],
                     regions_visited=[region.code for region in user.regions_visited],
                     regions_lived=[region.code for region in user.regions_lived],
-                    avatar_url=user.avatar.full_url if user.avatar else None,
-                    avatar_thumbnail_url=user.avatar.thumbnail_url if user.avatar else None,
+                    avatar_url=avatar_url,
+                    avatar_thumbnail_url=avatar_thumbnail_url,
                     badges=[badge.badge_id for badge in user.badges],
                 )
             )

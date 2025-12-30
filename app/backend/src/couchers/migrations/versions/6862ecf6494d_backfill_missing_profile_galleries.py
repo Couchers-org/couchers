@@ -87,11 +87,12 @@ def upgrade() -> None:
             COALESCE(sv_subquery."true", false) AS has_strong_verification
         FROM users
         LEFT OUTER JOIN (
-            SELECT photo_gallery_items.gallery_id,
-                photo_gallery_items.upload_key,
-                row_number() OVER (PARTITION BY photo_gallery_items.gallery_id ORDER BY photo_gallery_items.position) AS rn
+            SELECT DISTINCT ON (photo_gallery_items.gallery_id)
+                photo_gallery_items.gallery_id,
+                photo_gallery_items.upload_key
             FROM photo_gallery_items
-        ) first_photo ON first_photo.gallery_id = users.profile_gallery_id AND first_photo.rn = 1
+            ORDER BY photo_gallery_items.gallery_id, photo_gallery_items.position
+        ) first_photo ON first_photo.gallery_id = users.profile_gallery_id
         LEFT OUTER JOIN uploads ON uploads.key = first_photo.upload_key
         LEFT OUTER JOIN
             (SELECT DISTINCT
@@ -111,7 +112,6 @@ def upgrade() -> None:
             ) sv_subquery
         ON sv_subquery.id = users.id;
 
-        CREATE INDEX idx_lite_users_geom ON lite_users USING gist (geom);
         CREATE UNIQUE INDEX uq_lite_users_id ON lite_users(id);
         CREATE UNIQUE INDEX uq_lite_users_username ON lite_users(username);
         CREATE INDEX ix_lite_users_id_visible ON lite_users USING hash (id) WHERE is_visible;
@@ -136,12 +136,13 @@ def downgrade() -> None:
         UPDATE users
         SET avatar_key = first_photo.upload_key
         FROM (
-            SELECT photo_gallery_items.gallery_id,
-                photo_gallery_items.upload_key,
-                row_number() OVER (PARTITION BY photo_gallery_items.gallery_id ORDER BY photo_gallery_items.position) AS rn
+            SELECT DISTINCT ON (photo_gallery_items.gallery_id)
+                photo_gallery_items.gallery_id,
+                photo_gallery_items.upload_key
             FROM photo_gallery_items
+            ORDER BY photo_gallery_items.gallery_id, photo_gallery_items.position
         ) first_photo
-        WHERE first_photo.gallery_id = users.profile_gallery_id AND first_photo.rn = 1
+        WHERE first_photo.gallery_id = users.profile_gallery_id
         """
     )
 
@@ -183,7 +184,6 @@ def downgrade() -> None:
             ) sv_subquery
         ON sv_subquery.id = users.id;
 
-        CREATE INDEX idx_lite_users_geom ON lite_users USING gist (geom);
         CREATE UNIQUE INDEX uq_lite_users_id ON lite_users(id);
         CREATE UNIQUE INDEX uq_lite_users_username ON lite_users(username);
         CREATE INDEX ix_lite_users_id_visible ON lite_users USING hash (id) WHERE is_visible;
