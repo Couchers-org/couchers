@@ -7,7 +7,6 @@ This is a monorepo for Couchers.org, a non-profit hospitality exchange platform.
 - `/app/backend` - Python backend (gRPC, SQLAlchemy, PostgreSQL/PostGIS)
 - `/app/web` - Next.js web frontend
 - `/app/mobile` - React Native Expo mobile app
-- `/app/native` - Deprecated, ignore
 - `/app/proto` - Protocol buffer definitions shared across services
 - `/docs` - Documentation
 
