@@ -9,6 +9,7 @@ from datetime import timedelta
 from multiprocessing import Process
 from sched import scheduler
 from time import monotonic, perf_counter_ns, sleep
+from typing import Any
 
 import sentry_sdk
 import sqlalchemy.exc
@@ -82,7 +83,7 @@ def process_job() -> bool:
         try:
             with tracer.start_as_current_span(job.job_type) as rollspan:
                 start = perf_counter_ns()
-                ret = job_def.handler(job_def.payload_type.FromString(job.payload))
+                job_def.handler(job_def.payload_type.FromString(job.payload))
                 finished = perf_counter_ns()
             job.state = BackgroundJobState.completed
             observe_in_jobs_duration_histogram(
@@ -128,8 +129,8 @@ def service_jobs() -> None:
             sleep(1)
 
 
-def _run_job_and_schedule(sched: scheduler, job_def: Job, frequency: timedelta) -> None:
-    logger.info(f"Processing job of type {job_def.handler.__name__}")
+def _run_job_and_schedule(sched: scheduler, job_def: Job[Any], frequency: timedelta) -> None:
+    logger.info(f"Processing job of type {job_def.name}")
 
     # wake ourselves up after frequency
     sched.enter(

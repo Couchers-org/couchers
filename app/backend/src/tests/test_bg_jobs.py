@@ -320,15 +320,15 @@ def test_service_jobs(db):
 
 
 def test_scheduler(db, monkeypatch):
-    def purge_login_tokens(_):
+    def purge_login_tokens(payload: empty_pb2.Empty):
         return
 
-    def send_message_notifications(_):
+    def send_message_notifications(payload: empty_pb2.Empty):
         return
 
     MOCK_JOBS = {
-        "purge_login_tokens": Job(purge_login_tokens, empty_pb2.Empty, timedelta(seconds=7)),
-        "send_message_notifications": Job(send_message_notifications, empty_pb2.Empty, timedelta(seconds=11)),
+        "purge_login_tokens": Job(purge_login_tokens, timedelta(seconds=7)),
+        "send_message_notifications": Job(send_message_notifications, timedelta(seconds=11)),
     }
 
     current_time = 0
@@ -349,7 +349,7 @@ def test_scheduler(db, monkeypatch):
     realized_schedule = []
 
     def mock_run_job_and_schedule(sched, job: Job, frequency: timedelta) -> None:
-        realized_schedule.append((current_time, job.handler.__name__))
+        realized_schedule.append((current_time, job.name))
         _run_job_and_schedule(sched, job, frequency)
 
     monkeypatch.setattr(couchers.jobs.worker, "_run_job_and_schedule", mock_run_job_and_schedule)
@@ -403,7 +403,7 @@ def test_scheduler(db, monkeypatch):
 def test_job_retry(db):
     called_count = 0
 
-    def mock_job(payload):
+    def mock_job(payload: empty_pb2.Empty) -> empty_pb2.Empty:
         nonlocal called_count
         called_count += 1
         raise Exception()
@@ -412,7 +412,7 @@ def test_job_retry(db):
         queue_job(session, job=mock_job, payload=empty_pb2.Empty())
 
     MOCK_JOBS = {
-        "mock_job": Job(mock_job, empty_pb2.Empty, None),
+        "mock_job": Job(mock_job),
     }
     create_prometheus_server(port=8000)
 
