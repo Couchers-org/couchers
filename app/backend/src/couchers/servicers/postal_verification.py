@@ -15,6 +15,7 @@ from couchers.constants import (
 from couchers.context import CouchersContext
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
 from couchers.jobs.enqueue import queue_job
+from couchers.jobs.handlers import send_postal_verification_postcard
 from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
 from couchers.notifications.notify import notify
@@ -186,8 +187,8 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         # Queue background job to send postcard
         queue_job(
             session,
-            "send_postal_verification_postcard",
-            jobs_pb2.SendPostalVerificationPostcardPayload(
+            job=send_postal_verification_postcard,
+            payload=jobs_pb2.SendPostalVerificationPostcardPayload(
                 postal_verification_attempt_id=attempt.id,
             ),
         )

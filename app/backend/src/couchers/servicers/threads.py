@@ -301,7 +301,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         queue_job(
             session,
-            job_type="generate_reply_notifications",
+            job=generate_reply_notifications,
             payload=jobs_pb2.GenerateReplyNotificationsPayload(
                 thread_id=thread_id,
             ),

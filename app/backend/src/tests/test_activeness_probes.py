@@ -9,6 +9,7 @@ from sqlalchemy import exists, select
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
+from couchers.jobs.handlers import send_activeness_probes
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, MeetupStatus
 from couchers.proto import api_pb2, jail_pb2
 from couchers.utils import now
@@ -37,7 +38,7 @@ def test_activeness_probes_happy_path_inactive(db, push_collector):
     )
 
     with session_scope() as session:
-        queue_job(session, "send_activeness_probes", empty_pb2.Empty())
+        queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
 
     process_jobs()
 
@@ -72,7 +73,7 @@ def test_activeness_probes_happy_path_active(db, push_collector):
     )
 
     with session_scope() as session:
-        queue_job(session, "send_activeness_probes", empty_pb2.Empty())
+        queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
 
     process_jobs()
 
@@ -111,7 +112,7 @@ def test_activeness_probes_disabled(db, push_collector):
         )
 
         with session_scope() as session:
-            queue_job(session, "send_activeness_probes", empty_pb2.Empty())
+            queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
 
         process_jobs()
 
@@ -132,7 +133,7 @@ def test_activeness_probes_expiry(db, push_collector):
     )
 
     with session_scope() as session:
-        queue_job(session, "send_activeness_probes", empty_pb2.Empty())
+        queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
 
     process_jobs()
 
@@ -147,7 +148,7 @@ def test_activeness_probes_expiry(db, push_collector):
         assert probe.notifications_sent == 1
         probe.notifications_sent = 2
 
-        queue_job(session, "send_activeness_probes", empty_pb2.Empty())
+        queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
 
     process_jobs()
 

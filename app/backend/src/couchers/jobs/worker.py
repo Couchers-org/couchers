@@ -6,7 +6,6 @@ import logging
 import traceback
 from collections.abc import Callable
 from datetime import timedelta
-from inspect import getmembers, isfunction
 from multiprocessing import Process
 from sched import scheduler
 from time import monotonic, perf_counter_ns, sleep
@@ -21,7 +20,7 @@ from sqlalchemy import select
 from couchers.config import config
 from couchers.db import db_post_fork, session_scope, worker_repeatable_read_session_scope
 from couchers.experimentation import setup_experimentation
-from couchers.jobs import handlers
+from couchers.jobs.definitions import JOBS, Job
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
     background_jobs_got_job_counter,
@@ -36,15 +35,6 @@ from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)
-
-JOBS: dict[str, tuple[Any, Callable[[Any], Any]]] = {}
-SCHEDULE: list[tuple[str, timedelta]] = []
-
-for name, func in getmembers(handlers, isfunction):
-    if hasattr(func, "PAYLOAD"):
-        JOBS[name] = (func.PAYLOAD, func)
-        if hasattr(func, "SCHEDULE"):
-            SCHEDULE.append((name, func.SCHEDULE))
 
 
 def process_job() -> bool:
@@ -87,13 +77,13 @@ def process_job() -> bool:
         logger.info(f"Job #{job.id} of type {job.job_type} grabbed")
         job.try_count += 1
 
-        message_type, func = JOBS[job.job_type]
+        job_def = JOBS[job.job_type]
 
         jobs_queued_histogram.observe((now() - job.queued).total_seconds())
         try:
             with tracer.start_as_current_span(job.job_type) as rollspan:
                 start = perf_counter_ns()
-                ret = func(message_type.FromString(job.payload))
+                job_def.handler(job_def.payload_type.FromString(job.payload))
                 finished = perf_counter_ns()
             job.state = BackgroundJobState.completed
             observe_in_jobs_duration_histogram(
@@ -139,42 +129,44 @@ def service_jobs() -> None:
             sleep(1)
 
 
-def _run_job_and_schedule(sched: scheduler, schedule_id: int) -> None:
-    job_type, frequency = SCHEDULE[schedule_id]
-    logger.info(f"Processing job of type {job_type}")
+def _run_job_and_schedule(sched: scheduler, job_def: Job[Any], frequency: timedelta) -> None:
+    logger.info(f"Processing job of type {job_def.name}")
 
     # wake ourselves up after frequency
     sched.enter(
-        frequency.total_seconds(),
-        1,
-        _run_job_and_schedule,
+        delay=frequency.total_seconds(),
+        priority=1,
+        action=_run_job_and_schedule,
         argument=(
             sched,
-            schedule_id,
+            job_def,
+            frequency,
         ),
     )
 
     # queue the job
     with session_scope() as session:
-        queue_job(session, job_type, empty_pb2.Empty())
+        queue_job(session, job=job_def.handler, payload=empty_pb2.Empty())
 
 
 def run_scheduler() -> None:
     """
-    Schedules jobs according to schedule in .definitions
+    Schedules jobs according to schedule in JOBS
     """
     sched = scheduler(monotonic, sleep)
 
-    for schedule_id, (job_type, frequency) in enumerate(SCHEDULE):
-        sched.enter(
-            0,
-            1,
-            _run_job_and_schedule,
-            argument=(
-                sched,
-                schedule_id,
-            ),
-        )
+    for job_type, job_def in JOBS.items():
+        if job_def.schedule is not None:
+            sched.enter(
+                delay=0,
+                priority=1,
+                action=_run_job_and_schedule,
+                argument=(
+                    sched,
+                    job_def,
+                    job_def.schedule,
+                ),
+            )
 
     sched.run()
 

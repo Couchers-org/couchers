@@ -146,7 +146,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
             ).scalar_one()
 
             if not content_visible:
-                # Content not visible to recipient, leave notification for later processing
+                # Content is not visible to recipient, leave notification for later processing
                 logger.info(
                     f"Deferring notification {notification.id}: content not visible to user {notification.user_id}"
                 )
@@ -155,7 +155,6 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
         # ignore this notification if the user hasn't enabled new notifications
         user = session.execute(select(User).where(User.id == notification.user_id)).scalar_one()
 
-        topic, action = notification.topic_action.unpack()
         delivery_types = get_preference(session, notification.user.id, notification.topic_action)
         for delivery_type in delivery_types:
             # Check if delivery already exists for this notification and delivery type

@@ -489,7 +489,7 @@ class Events(events_pb2_grpc.EventsServicer):
         if user.has_completed_profile:
             queue_job(
                 session,
-                "generate_event_create_notifications",
+                job=generate_event_create_notifications,
                 payload=jobs_pb2.GenerateEventCreateNotificationsPayload(
                     inviting_user_id=user.id,
                     occurrence_id=occurrence.id,
@@ -708,7 +708,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
                 queue_job(
                     session,
-                    "generate_event_update_notifications",
+                    job=generate_event_update_notifications,
                     payload=jobs_pb2.GenerateEventUpdateNotificationsPayload(
                         updating_user_id=user.id,
                         occurrence_id=occurrence.id,
@@ -754,7 +754,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
         queue_job(
             session,
-            "generate_event_cancel_notifications",
+            job=generate_event_cancel_notifications,
             payload=jobs_pb2.GenerateEventCancelNotificationsPayload(
                 cancelling_user_id=context.user_id,
                 occurrence_id=occurrence.id,
