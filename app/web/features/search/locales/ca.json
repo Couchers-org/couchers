@@ -7,7 +7,9 @@
     "desktop_title": "Filtres"
   },
   "search_result": {
-    "people_range_message": "{{currentRange}} de {{count}} persones",
+    "people_range_message_one": "{{currentRange}} de {{count}} persones",
+    "people_range_message_many": "",
+    "people_range_message_other": "",
     "include_empty_profiles_button": "Mostra tots els perfils",
     "no_user_result_message": "No s'han trobat usuaris. Prova d'eliminar alguns filtres per veure més resultats.",
     "show_user_button_label": "Mostra {{name}} al mapa",
