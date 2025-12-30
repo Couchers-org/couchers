@@ -31,7 +31,6 @@ from couchers.sql import moderation_state_column_visible
 from couchers.templates.v2 import (
     CONTEXT_PLAINTEXT_KEY,
     CONTEXT_TIMEZONE_DISPLAY_KEY,
-    CONTEXT_TRANSLATION_COMPONENT_KEY,
     CONTEXT_TRANSLATION_LANGUAGE_KEY,
     CONTEXT_YEAR_KEY,
     add_filters,
@@ -50,6 +49,11 @@ add_filters(env)
 
 def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
     rendered = render_notification(user, notification)
+
+    email_lang = "en"
+    if config.get("ENABLE_NOTIFICATION_TRANSLATIONS", False):
+        email_lang = user.ui_language_preference or "en"
+
     template_args = {
         "user": user,
         "time": notification.created,
@@ -60,8 +64,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         "footer_notification_topic_key": rendered.email_topic_key_unsubscribe_text,
         "footer_notification_topic_key_link": generate_unsub_topic_key(notification),
         "footer_do_not_email_link": generate_do_not_email(user),
-        CONTEXT_TRANSLATION_LANGUAGE_KEY: user.ui_language_preference or "en",
-        CONTEXT_TRANSLATION_COMPONENT_KEY: "notifications",
+        CONTEXT_TRANSLATION_LANGUAGE_KEY: email_lang,
         CONTEXT_YEAR_KEY: now().year,
         CONTEXT_TIMEZONE_DISPLAY_KEY: get_tz_as_text(user.timezone or "Etc/UTC"),
         **rendered.email_template_args,
