@@ -80,9 +80,9 @@ def upgrade() -> None:
             users.geom_radius AS radius,
             (NOT (users.is_banned OR users.is_deleted)) AS is_visible,
             uploads.filename AS avatar_filename,
-            ((users.profile_gallery_id IS NOT NULL) AND ((SELECT count(photo_gallery_items.id) AS count_1
+            ((users.profile_gallery_id IS NOT NULL) AND (EXISTS (SELECT 1
                 FROM photo_gallery_items
-                WHERE photo_gallery_items.gallery_id = users.profile_gallery_id) > 0) AND (character_length(users.about_me) >= 150)) AS has_completed_profile,
+                WHERE photo_gallery_items.gallery_id = users.profile_gallery_id)) AND (character_length(users.about_me) >= 150)) AS has_completed_profile,
             ((users.max_guests IS NOT NULL) AND (users.sleeping_arrangement IS NOT NULL) AND ((users.about_place IS NOT NULL) OR (users.other_host_info IS NOT NULL) OR (users.sleeping_details IS NOT NULL) OR (users.area IS NOT NULL) OR (users.house_rules IS NOT NULL))) AS has_completed_my_home,
             COALESCE(sv_subquery."true", false) AS has_strong_verification
         FROM users
@@ -112,6 +112,7 @@ def upgrade() -> None:
             ) sv_subquery
         ON sv_subquery.id = users.id;
 
+        CREATE INDEX idx_lite_users_geom ON lite_users USING gist (geom);
         CREATE UNIQUE INDEX uq_lite_users_id ON lite_users(id);
         CREATE UNIQUE INDEX uq_lite_users_username ON lite_users(username);
         CREATE INDEX ix_lite_users_id_visible ON lite_users USING hash (id) WHERE is_visible;
@@ -184,6 +185,7 @@ def downgrade() -> None:
             ) sv_subquery
         ON sv_subquery.id = users.id;
 
+        CREATE INDEX idx_lite_users_geom ON lite_users USING gist (geom);
         CREATE UNIQUE INDEX uq_lite_users_id ON lite_users(id);
         CREATE UNIQUE INDEX uq_lite_users_username ON lite_users(username);
         CREATE INDEX ix_lite_users_id_visible ON lite_users USING hash (id) WHERE is_visible;
