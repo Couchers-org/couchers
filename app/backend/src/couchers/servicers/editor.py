@@ -6,6 +6,7 @@ from geoalchemy2.shape import from_shape
 from google.protobuf import empty_pb2
 from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, update
 
@@ -23,7 +24,6 @@ from couchers.resources import get_static_badge_dict
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import get_users_to_notify_for_new_event
 from couchers.servicers.public import format_volunteer_link
-from couchers.sql import couchers_select as select
 from couchers.utils import date_to_api, now, parse_date
 
 logger = logging.getLogger(__name__)

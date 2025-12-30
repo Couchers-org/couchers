@@ -35,8 +35,8 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
         return resources_pb2.GetCommunityGuidelinesRes(
             community_guidelines=[
                 resources_pb2.CommunityGuideline(
-                    title=context.get_localized_string("community_guidelines", f"{cg['key']}_title"),
-                    guideline=context.get_localized_string("community_guidelines", f"{cg['key']}_guideline"),
+                    title=context.get_localized_string(f"community_guidelines.{cg['key']}_title"),
+                    guideline=context.get_localized_string(f"community_guidelines.{cg['key']}_guideline"),
                     icon_svg=get_icon(cg["icon"]),
                 )
                 for cg in COMMUNITY_GUIDELINES
@@ -67,10 +67,10 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
         return resources_pb2.GetBadgesRes(
             badges=[
                 resources_pb2.Badge(
-                    id=badge["id"],
-                    name=context.get_localized_string("badges", f"{badge['id']}_name"),
-                    description=context.get_localized_string("badges", f"{badge['id']}_description"),
-                    color=badge["color"],
+                    id=badge.id,
+                    name=context.get_localized_string(f"badges.{badge.id}_name"),
+                    description=context.get_localized_string(f"badges.{badge.id}_description"),
+                    color=badge.color,
                 )
                 for badge in get_badge_dict().values()
             ]

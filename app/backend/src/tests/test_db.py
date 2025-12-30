@@ -6,13 +6,13 @@ from pathlib import Path
 
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.config import config
 from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
 from couchers.jobs.handlers import DatabaseInconsistencyError, check_database_consistency
 from couchers.models import User
-from couchers.sql import couchers_select as select
 from couchers.utils import (
     is_valid_email,
     is_valid_name,

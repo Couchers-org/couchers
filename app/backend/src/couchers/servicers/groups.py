@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func
 
@@ -23,7 +24,7 @@ from couchers.proto import groups_pb2, groups_pb2_grpc
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import couchers_select as select
+from couchers.sql import users_visible, where_users_column_visible
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 
 logger = logging.getLogger(__name__)
@@ -59,10 +60,11 @@ def group_to_pb(session: Session, cluster: Cluster, context: CouchersContext) ->
     can_moderate = can_moderate_node(session, context.user_id, cluster.parent_node_id)
 
     member_count = session.execute(
-        select(func.count())
-        .select_from(ClusterSubscription)
-        .where_users_column_visible(context, ClusterSubscription.user_id)
-        .where(ClusterSubscription.cluster_id == cluster.id)
+        where_users_column_visible(
+            select(func.count()).select_from(ClusterSubscription).where(ClusterSubscription.cluster_id == cluster.id),
+            context,
+            ClusterSubscription.user_id,
+        )
     ).scalar_one()
     is_member = (
         session.execute(
@@ -74,11 +76,14 @@ def group_to_pb(session: Session, cluster: Cluster, context: CouchersContext) ->
     )
 
     admin_count = session.execute(
-        select(func.count())
-        .select_from(ClusterSubscription)
-        .where_users_column_visible(context, ClusterSubscription.user_id)
-        .where(ClusterSubscription.cluster_id == cluster.id)
-        .where(ClusterSubscription.role == ClusterRole.admin)
+        where_users_column_visible(
+            select(func.count())
+            .select_from(ClusterSubscription)
+            .where(ClusterSubscription.cluster_id == cluster.id)
+            .where(ClusterSubscription.role == ClusterRole.admin),
+            context,
+            ClusterSubscription.user_id,
+        )
     ).scalar_one()
     is_admin = (
         session.execute(
@@ -132,7 +137,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         admins = (
             session.execute(
                 select(User)
-                .where_users_visible(context)
+                .where(users_visible(context))
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
                 .where(ClusterSubscription.cluster_id == cluster.id)
                 .where(ClusterSubscription.role == ClusterRole.admin)
@@ -163,7 +168,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             session.execute(
                 select(User)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                .where_users_visible(context)
+                .where(users_visible(context))
                 .where(ClusterSubscription.cluster_id == cluster.id)
                 .where(User.id >= next_member_id)
                 .order_by(User.id)
@@ -241,13 +246,11 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         )
 
         if not request.past:
-            query = query.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.asc()
-            )
+            cutoff = page_token - timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
         else:
-            query = query.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.desc()
-            )
+            cutoff = page_token + timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
 
         query = query.limit(page_size + 1)
         occurrences = session.execute(query).scalars().all()

@@ -139,10 +139,11 @@ export default function DiscussionPage({
                         <Skeleton width={100} />
                       ) : (
                         <Typography variant="body2">
-                          {t("communities:created_at")}
-                          {dateFormatter(locale).format(
-                            timestamp2Date(discussion.created!),
-                          )}
+                          {t("communities:discussion_creation_date", {
+                            dateOnly: dateFormatter(locale).format(
+                              timestamp2Date(discussion.created!),
+                            ),
+                          })}
                         </Typography>
                       )}
                     </StyledCreatorDetailsContainer>

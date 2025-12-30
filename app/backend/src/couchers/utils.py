@@ -4,7 +4,6 @@ import typing
 from collections.abc import Sequence
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
-from types import SimpleNamespace
 from typing import Any, overload
 from zoneinfo import ZoneInfo
 
@@ -28,7 +27,8 @@ utc = pytz.UTC
 # When a user logs in, they can basically input one of three things: user id, username, or email
 # These are three non-intersecting sets
 # * user_ids are numeric representations in base 10
-# * usernames are alphanumeric + underscores, at least 2 chars long, and don't start with a number, and don't start or end with underscore
+# * usernames are alphanumeric + underscores, at least 2 chars long, and don't start with a number,
+#   and don't start or end with underscore
 # * emails are just whatever stack overflow says emails are ;)
 
 
@@ -409,10 +409,6 @@ def last_active_coarsen(dt: datetime) -> datetime:
 
 def get_tz_as_text(tz_name: str) -> str:
     return datetime.now(tz=ZoneInfo(tz_name)).strftime("%Z/UTC%z")
-
-
-def make_logged_out_context() -> SimpleNamespace:
-    return SimpleNamespace(user_id=0)
 
 
 def not_none[T](x: T | None) -> T:

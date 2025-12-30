@@ -3,7 +3,7 @@ import logging
 from typing import Any
 
 from google.protobuf import empty_pb2
-from sqlalchemy import Function
+from sqlalchemy import Function, select
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
@@ -14,7 +14,7 @@ from couchers.materialized_views import ClusteredUser, LiteUser
 from couchers.models import Node, Page, PageType, PageVersion
 from couchers.proto import gis_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
-from couchers.sql import couchers_select as select
+from couchers.sql import users_visible
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +43,8 @@ def _statement_to_geojson_response(session: Session, statement: GenerativeSelect
 
 class GIS(gis_pb2_grpc.GISServicer):
     def GetUsers(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> httpbody_pb2.HttpBody:
-        statement = select(LiteUser.id, LiteUser.geom, LiteUser.has_completed_profile).where_users_visible(
-            context, table=LiteUser
+        statement = select(LiteUser.id, LiteUser.geom, LiteUser.has_completed_profile).where(
+            users_visible(context, table=LiteUser)
         )
         return _statement_to_geojson_response(session, statement)
 

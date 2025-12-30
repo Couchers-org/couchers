@@ -5,14 +5,14 @@ import CopyOnClick from "features/mod/CopyOnClick";
 import ModVisibleComponent from "features/mod/ModVisibleComponent";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
 import { Discussion } from "proto/discussions_pb";
 import { useMemo } from "react";
 import { routeToDiscussion } from "routes";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
-import { timeAgo } from "utils/timeAgo";
+import { timeAgoI18n } from "utils/timeAgo";
 
 import getContentSummary from "../getContentSummary";
 
@@ -64,13 +64,13 @@ export default function DiscussionCard({
   discussion: Discussion.AsObject;
   className?: string;
 }) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const { data: creator } = useLiteUser(discussion.creatorUserId);
 
   const date = discussion.created
     ? timestamp2Date(discussion.created)
     : undefined;
-  const postedTime = date ? timeAgo(date) : null;
+  const postedTime = date ? timeAgoI18n({ input: date, t: t }) : null;
   const truncatedContent = useMemo(
     () =>
       getContentSummary({

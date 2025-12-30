@@ -14,7 +14,7 @@ import sentry_sdk
 from google.protobuf.descriptor import ServiceDescriptor
 from google.protobuf.message import Message
 from opentelemetry import trace
-from sqlalchemy import Function
+from sqlalchemy import Function, select
 from sqlalchemy.sql import and_, func
 
 from couchers.constants import (
@@ -32,7 +32,6 @@ from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserActivity, UserSession
 from couchers.proto import annotations_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import (
     create_lang_cookie,
     create_session_cookies,

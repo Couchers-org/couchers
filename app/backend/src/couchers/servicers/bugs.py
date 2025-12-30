@@ -3,6 +3,7 @@ from typing import cast
 import grpc
 import requests
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -13,7 +14,6 @@ from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
-from couchers.sql import couchers_select as select
 
 
 class Bugs(bugs_pb2_grpc.BugsServicer):

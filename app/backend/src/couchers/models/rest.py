@@ -1,6 +1,6 @@
 import enum
 from datetime import date, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
@@ -32,6 +32,9 @@ from couchers.models.base import Base, Geom
 from couchers.models.users import HostingStatus
 from couchers.utils import now
 
+if TYPE_CHECKING:
+    from couchers.models import HostRequest, User
+
 
 class UserBadge(Base):
     """
@@ -50,7 +53,7 @@ class UserBadge(Base):
     # take this with a grain of salt, someone may get then lose a badge for whatever reason
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    user = relationship("User", backref="badges")
+    user: Mapped["User"] = relationship("User", back_populates="badges")
 
 
 class FriendStatus(enum.Enum):
@@ -79,10 +82,12 @@ class FriendRelationship(Base):
 
     # timezones should always be UTC
     time_sent: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    time_responded: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    time_responded: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    from_user = relationship("User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id")
-    to_user = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
+    from_user: Mapped["User"] = relationship(
+        "User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id"
+    )
+    to_user: Mapped["User"] = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
 
     __table_args__ = (
         # Ping looks up pending friend reqs, this speeds that up
@@ -113,14 +118,14 @@ class ContributorForm(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    ideas: Mapped[str | None] = mapped_column(String, nullable=True)
-    features: Mapped[str | None] = mapped_column(String, nullable=True)
-    experience: Mapped[str | None] = mapped_column(String, nullable=True)
-    contribute: Mapped[ContributeOption | None] = mapped_column(Enum(ContributeOption), nullable=True)
+    ideas: Mapped[str | None] = mapped_column(String)
+    features: Mapped[str | None] = mapped_column(String)
+    experience: Mapped[str | None] = mapped_column(String)
+    contribute: Mapped[ContributeOption | None] = mapped_column(Enum(ContributeOption))
     contribute_ways: Mapped[list[str]] = mapped_column(ARRAY(String))
-    expertise: Mapped[str | None] = mapped_column(String, nullable=True)
+    expertise: Mapped[str | None] = mapped_column(String)
 
-    user = relationship("User", backref="contributor_forms")
+    user: Mapped["User"] = relationship("User", backref="contributor_forms")
 
     @hybrid_property
     def is_filled(self) -> Any:
@@ -162,8 +167,8 @@ class SignupFlow(Base):
     flow_token: Mapped[str] = mapped_column(String, unique=True)
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     email_sent: Mapped[bool] = mapped_column(Boolean, default=False)
-    email_token: Mapped[str | None] = mapped_column(String, nullable=True)
-    email_token_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    email_token: Mapped[str | None] = mapped_column(String)
+    email_token_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     ## Basic
     name: Mapped[str] = mapped_column(String)
@@ -173,30 +178,30 @@ class SignupFlow(Base):
 
     ## Account
     # TODO: unique across both tables
-    username: Mapped[str | None] = mapped_column(String, nullable=True, unique=True)
-    hashed_password: Mapped[bytes | None] = mapped_column(Binary, nullable=True)
-    birthdate: Mapped[date | None] = mapped_column(Date, nullable=True)  # in the timezone of birthplace
-    gender: Mapped[str | None] = mapped_column(String, nullable=True)
-    hosting_status: Mapped[HostingStatus | None] = mapped_column(Enum(HostingStatus), nullable=True)
-    city: Mapped[str | None] = mapped_column(String, nullable=True)
-    geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
-    geom_radius: Mapped[float | None] = mapped_column(Float, nullable=True)
+    username: Mapped[str | None] = mapped_column(String, unique=True)
+    hashed_password: Mapped[bytes | None] = mapped_column(Binary)
+    birthdate: Mapped[date | None] = mapped_column(Date)  # in the timezone of birthplace
+    gender: Mapped[str | None] = mapped_column(String)
+    hosting_status: Mapped[HostingStatus | None] = mapped_column(Enum(HostingStatus))
+    city: Mapped[str | None] = mapped_column(String)
+    geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326))
+    geom_radius: Mapped[float | None] = mapped_column(Float)
 
-    accepted_tos: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    accepted_tos: Mapped[int | None] = mapped_column(Integer)
     accepted_community_guidelines: Mapped[int] = mapped_column(Integer, server_default="0")
 
-    opt_out_of_newsletter: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    opt_out_of_newsletter: Mapped[bool | None] = mapped_column(Boolean)
 
     ## Feedback (now unused)
     filled_feedback: Mapped[bool] = mapped_column(Boolean, default=False)
-    ideas: Mapped[str | None] = mapped_column(String, nullable=True)
-    features: Mapped[str | None] = mapped_column(String, nullable=True)
-    experience: Mapped[str | None] = mapped_column(String, nullable=True)
-    contribute: Mapped[ContributeOption | None] = mapped_column(Enum(ContributeOption), nullable=True)
-    contribute_ways: Mapped[list[str] | None] = mapped_column(ARRAY(String), nullable=True)
-    expertise: Mapped[str | None] = mapped_column(String, nullable=True)
+    ideas: Mapped[str | None] = mapped_column(String)
+    features: Mapped[str | None] = mapped_column(String)
+    experience: Mapped[str | None] = mapped_column(String)
+    contribute: Mapped[ContributeOption | None] = mapped_column(Enum(ContributeOption))
+    contribute_ways: Mapped[list[str] | None] = mapped_column(ARRAY(String))
+    expertise: Mapped[str | None] = mapped_column(String)
 
-    invite_code_id: Mapped[str | None] = mapped_column(ForeignKey("invite_codes.id"), nullable=True)
+    invite_code_id: Mapped[str | None] = mapped_column(ForeignKey("invite_codes.id"))
 
     @hybrid_property
     def token_is_valid(self) -> Any:
@@ -231,7 +236,7 @@ class AccountDeletionToken(Base):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
-    user = relationship("User", backref="account_deletion_tokens")
+    user: Mapped["User"] = relationship("User", backref="account_deletion_tokens")
 
     @hybrid_property
     def is_valid(self) -> Any:
@@ -257,8 +262,8 @@ class UserActivity(Base):
     period: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     # details of the browser, if available
-    ip_address: Mapped[str | None] = mapped_column(INET, nullable=True)
-    user_agent: Mapped[str | None] = mapped_column(String, nullable=True)
+    ip_address: Mapped[str | None] = mapped_column(INET)
+    user_agent: Mapped[str | None] = mapped_column(String)
 
     # count of api calls made with this ip, user_agent, and period
     api_calls: Mapped[int] = mapped_column(Integer, default=0)
@@ -282,9 +287,9 @@ class InviteCode(Base):
     id: Mapped[str] = mapped_column(String, primary_key=True)
     creator_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
-    disabled: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    disabled: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    creator = relationship("User", foreign_keys=[creator_user_id])
+    creator: Mapped["User"] = relationship("User", foreign_keys=[creator_user_id])
 
 
 class ContentReport(Base):
@@ -317,8 +322,8 @@ class ContentReport(Base):
     page: Mapped[str] = mapped_column(String)
 
     # see comments above for reporting vs author
-    reporting_user = relationship("User", foreign_keys="ContentReport.reporting_user_id")
-    author_user = relationship("User", foreign_keys="ContentReport.author_user_id")
+    reporting_user: Mapped["User"] = relationship("User", foreign_keys="ContentReport.reporting_user_id")
+    author_user: Mapped["User"] = relationship("User", foreign_keys="ContentReport.author_user_id")
 
 
 class Email(Base):
@@ -342,8 +347,8 @@ class Email(Base):
     plain: Mapped[str] = mapped_column(String)
     html: Mapped[str] = mapped_column(String)
 
-    list_unsubscribe_header: Mapped[str | None] = mapped_column(String, nullable=True)
-    source_data: Mapped[str | None] = mapped_column(String, nullable=True)
+    list_unsubscribe_header: Mapped[str | None] = mapped_column(String)
+    source_data: Mapped[str | None] = mapped_column(String)
 
 
 class SMS(Base):
@@ -388,21 +393,21 @@ class Reference(Base):
 
     reference_type: Mapped[ReferenceType] = mapped_column(Enum(ReferenceType))
 
-    host_request_id: Mapped[int | None] = mapped_column(ForeignKey("host_requests.id"), nullable=True)
+    host_request_id: Mapped[int | None] = mapped_column(ForeignKey("host_requests.id"))
 
     text: Mapped[str] = mapped_column(String)  # plain text
     # text that's only visible to mods
-    private_text: Mapped[str | None] = mapped_column(String, nullable=True)  # plain text
+    private_text: Mapped[str | None] = mapped_column(String)  # plain text
 
     rating: Mapped[float] = mapped_column(Float)
     was_appropriate: Mapped[bool] = mapped_column(Boolean)
 
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
-    from_user = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
-    to_user = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
+    from_user: Mapped["User"] = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
+    to_user: Mapped["User"] = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
 
-    host_request = relationship("HostRequest", backref="references")
+    host_request: Mapped["HostRequest | None"] = relationship("HostRequest", backref="references")
 
     __table_args__ = (
         # Rating must be between 0 and 1, inclusive
@@ -456,8 +461,8 @@ class UserBlock(Base):
     blocked_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     time_blocked: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    blocking_user = relationship("User", foreign_keys="UserBlock.blocking_user_id")
-    blocked_user = relationship("User", foreign_keys="UserBlock.blocked_user_id")
+    blocking_user: Mapped["User"] = relationship("User", foreign_keys="UserBlock.blocking_user_id")
+    blocked_user: Mapped["User"] = relationship("User", foreign_keys="UserBlock.blocked_user_id")
 
     __table_args__ = (
         UniqueConstraint("blocking_user_id", "blocked_user_id"),
@@ -472,9 +477,9 @@ class AccountDeletionReason(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    reason: Mapped[str | None] = mapped_column(String, nullable=True)
+    reason: Mapped[str | None] = mapped_column(String)
 
-    user = relationship("User")
+    user: Mapped["User"] = relationship("User")
 
 
 class ModerationUserList(Base):
@@ -487,8 +492,9 @@ class ModerationUserList(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    # Relationships
-    users = relationship("User", secondary="moderation_user_list_members", back_populates="moderation_user_lists")
+    users: Mapped[list["User"]] = relationship(
+        "User", secondary="moderation_user_list_members", back_populates="moderation_user_lists"
+    )
 
 
 class ModerationUserListMember(Base):
@@ -507,10 +513,10 @@ class AntiBotLog(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
 
-    ip_address: Mapped[str | None] = mapped_column(String, nullable=True)
-    user_agent: Mapped[str | None] = mapped_column(String, nullable=True)
+    ip_address: Mapped[str | None] = mapped_column(String)
+    user_agent: Mapped[str | None] = mapped_column(String)
 
     action: Mapped[str] = mapped_column(String)
     token: Mapped[str] = mapped_column(String)
@@ -536,7 +542,7 @@ class RateLimitViolation(Base):
     action: Mapped[RateLimitAction] = mapped_column(Enum(RateLimitAction))
     is_hard_limit: Mapped[bool] = mapped_column(Boolean)
 
-    user = relationship("User")
+    user: Mapped["User"] = relationship("User")
 
     __table_args__ = (
         # Fast lookup for rate limits in interval
@@ -550,20 +556,20 @@ class Volunteer(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True)
 
-    display_name: Mapped[str | None] = mapped_column(String, nullable=True)
-    display_location: Mapped[str | None] = mapped_column(String, nullable=True)
+    display_name: Mapped[str | None] = mapped_column(String)
+    display_location: Mapped[str | None] = mapped_column(String)
 
     role: Mapped[str] = mapped_column(String)
 
     # custom sort order on team page, sorted ascending
-    sort_key: Mapped[float | None] = mapped_column(Float, nullable=True)
+    sort_key: Mapped[float | None] = mapped_column(Float)
 
     started_volunteering: Mapped[date] = mapped_column(Date, server_default=text("CURRENT_DATE"))
-    stopped_volunteering: Mapped[date | None] = mapped_column(Date, nullable=True, default=None)
+    stopped_volunteering: Mapped[date | None] = mapped_column(Date, default=None)
 
-    link_type: Mapped[str | None] = mapped_column(String, nullable=True)
-    link_text: Mapped[str | None] = mapped_column(String, nullable=True)
-    link_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    link_type: Mapped[str | None] = mapped_column(String)
+    link_text: Mapped[str | None] = mapped_column(String)
+    link_url: Mapped[str | None] = mapped_column(String)
 
     show_on_team_page: Mapped[bool] = mapped_column(Boolean, server_default=expression.true())
 

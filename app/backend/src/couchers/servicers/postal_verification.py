@@ -3,7 +3,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import exists
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 
 from couchers.config import config
@@ -21,7 +21,6 @@ from couchers.notifications.notify import notify
 from couchers.postal.address_validation import AddressValidationError, validate_address
 from couchers.proto import notification_data_pb2, postal_verification_pb2, postal_verification_pb2_grpc
 from couchers.proto.internal import jobs_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
 
 logger = logging.getLogger(__name__)

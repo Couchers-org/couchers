@@ -6,6 +6,7 @@ from datetime import timedelta
 from typing import Any, cast
 
 import grpc
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 
@@ -50,7 +51,7 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import couchers_select as select
+from couchers.sql import to_bool, users_visible, where_users_column_visible
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
@@ -232,7 +233,7 @@ def _search_users(
         [User.things_i_like, User.about_place, User.additional_information],
     )
 
-    users = execute_search_statement(session, select(User, rank, snippet).where_users_visible(context))
+    users = execute_search_statement(session, select(User, rank, snippet).where(users_visible(context)))
 
     return [
         search_pb2.Result(
@@ -272,8 +273,8 @@ def _search_pages(
         .join(Page, Page.id == PageVersion.page_id)
         .where(
             or_(
-                (Page.type == PageType.place) if include_places else False,
-                (Page.type == PageType.guide) if include_guides else False,
+                (Page.type == PageType.place) if include_places else to_bool(False),
+                (Page.type == PageType.guide) if include_guides else to_bool(False),
             )
         )
         .group_by(PageVersion.page_id)
@@ -372,8 +373,8 @@ def _search_clusters(
         .join(Page, Page.owner_cluster_id == Cluster.id)
         .join(PageVersion, PageVersion.page_id == Page.id)
         .join(latest_pages, latest_pages.c.id == PageVersion.id)
-        .where(Cluster.is_official_cluster if include_communities and not include_groups else True)
-        .where(~Cluster.is_official_cluster if not include_communities and include_groups else True),
+        .where(Cluster.is_official_cluster if include_communities and not include_groups else to_bool(True))
+        .where(~Cluster.is_official_cluster if not include_communities and include_groups else to_bool(True)),
     )
 
     return [
@@ -397,7 +398,7 @@ def _user_search_inner(
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
-    statement = select(User.id, User.recommendation_score).where_users_visible(context)
+    statement = select(User.id, User.recommendation_score).where(users_visible(context))
     # make sure that only users who are in LiteUser show up
     statement = statement.join(LiteUser, LiteUser.id == User.id)
 
@@ -549,8 +550,11 @@ def _user_search_inner(
 
         if request.only_with_references:
             references = (
-                select(Reference.to_user_id.label("user_id"))
-                .where_users_column_visible(context, Reference.from_user_id)
+                where_users_column_visible(
+                    select(Reference.to_user_id.label("user_id")),
+                    context,
+                    Reference.from_user_id,
+                )
                 .distinct()
                 .subquery()
             )
@@ -843,9 +847,11 @@ class Search(search_pb2_grpc.SearchServicer):
             statement = statement.where(func.ST_Contains(node.geom, EventOccurrence.geom))
 
         if request.HasField("after"):
-            statement = statement.where(EventOccurrence.start_time > to_aware_datetime(request.after))
+            after_time = to_aware_datetime(request.after)
+            statement = statement.where(EventOccurrence.start_time > after_time)
         if request.HasField("before"):
-            statement = statement.where(EventOccurrence.end_time < to_aware_datetime(request.before))
+            before_time = to_aware_datetime(request.before)
+            statement = statement.where(EventOccurrence.end_time < before_time)
 
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
@@ -857,13 +863,11 @@ class Search(search_pb2_grpc.SearchServicer):
         offset = (page_number - 1) * page_size
 
         if not request.past:
-            statement = statement.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.asc()
-            )
+            cutoff = page_token - timedelta(seconds=1)
+            statement = statement.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
         else:
-            statement = statement.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.desc()
-            )
+            cutoff = page_token + timedelta(seconds=1)
+            statement = statement.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
 
         total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
         # Apply pagination by page number

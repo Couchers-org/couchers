@@ -80,7 +80,7 @@ def test_fallback_locale():
     i18next = I18Next()
     en = i18next.add_language("en", PluralRules.en)
     en.add_string("greeting", "hello")
-    i18next.fallback_language = en
+    i18next.default_language = en
     assert i18next.localize("greeting", "fr") == "hello"
 
 

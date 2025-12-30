@@ -4,6 +4,7 @@ import logging
 import grpc
 import stripe
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers import urls
@@ -14,7 +15,7 @@ from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceTy
 from couchers.notifications.notify import notify
 from couchers.proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
-from couchers.sql import couchers_select as select
+from couchers.utils import not_none
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ def _create_stripe_customer(session: Session, user: User) -> None:
     customer = stripe.Customer.create(
         email=user.email,
         # metadata allows us to store arbitrary metadata for ourselves
-        metadata={"user_id": user.id},
+        metadata={"user_id": user.id},  # type: ignore[dict-item]
         api_key=config["STRIPE_API_KEY"],
     )
     user.stripe_customer_id = customer.id
@@ -67,10 +68,10 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             }
 
         checkout_session = stripe.checkout.Session.create(
-            client_reference_id=user.id,
+            client_reference_id=str(user.id),
             # Stripe actually allows None, but the signature says it's either a string or not passed.
             submit_type="donate" if not request.recurring else None,  # type: ignore[arg-type]
-            customer=user.stripe_customer_id,
+            customer=not_none(user.stripe_customer_id),
             success_url=urls.donation_success_url(),
             cancel_url=urls.donation_cancelled_url(),
             payment_method_types=["card"],
@@ -105,7 +106,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             _create_stripe_customer(session, user)
 
         stripe_session = stripe.billing_portal.Session.create(
-            customer=user.stripe_customer_id,
+            customer=not_none(user.stripe_customer_id),
             return_url=urls.donation_url(),
             api_key=config["STRIPE_API_KEY"],
         )

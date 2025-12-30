@@ -5,7 +5,7 @@ from typing import cast
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import Table
+from sqlalchemy import Table, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_
 
@@ -33,7 +33,7 @@ from couchers.notifications.settings import (
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.notifications.web_push_api import decode_key, get_vapid_public_key_from_private_key
 from couchers.proto import notifications_pb2, notifications_pb2_grpc
-from couchers.sql import couchers_select as select
+from couchers.sql import moderation_state_column_visible, to_bool
 from couchers.utils import Timestamp_from_datetime, now
 
 logger = logging.getLogger(__name__)
@@ -109,13 +109,13 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 select(Notification)
                 .where(Notification.user_id == context.user_id)
                 .where(Notification.id <= next_notification_id)
-                .where(or_(request.only_unread == False, Notification.is_seen == False))
+                .where(or_(to_bool(request.only_unread == False), Notification.is_seen == False))
                 .where(
                     Notification.topic_action.in_(
                         get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
                     )
                 )
-                .where_moderation_state_column_visible(context, Notification.moderation_state_id)
+                .where(moderation_state_column_visible(context, Notification.moderation_state_id))
                 .order_by(Notification.id.desc())
                 .limit(page_size + 1)
             )

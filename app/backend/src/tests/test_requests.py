@@ -4,6 +4,7 @@ from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
+from sqlalchemy import select
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
@@ -22,7 +23,6 @@ from couchers.proto import (
 )
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
-from couchers.sql import couchers_select as select
 from couchers.templates.v2 import v2date
 from couchers.utils import create_coordinate, now, today
 from tests.test_fixtures import (  # noqa

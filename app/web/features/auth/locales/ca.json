@@ -36,7 +36,9 @@
       "username_field_label": "Correu electrònic/Nom d'usuari",
       "password_field_label": "Contrasenya",
       "no_password_login_prompt": "Revisa el teu correu electrònic per un enllaç per iniciar sessió! :)",
-      "forgot_password": "Has oblidat la contrasenya?"
+      "forgot_password": "Has oblidat la contrasenya?",
+      "show_password": "Mostra la contrasenya",
+      "hide_password": "Amaga la contrasenya"
     },
     "title": "Inicia sessió",
     "header": "Benvingut de nou!"
@@ -101,7 +103,8 @@
       "field_label": "Nom d'usuari",
       "required_error": "Introdueix el teu nom d'usuari",
       "username_taken_error": "Aquest nom d'usuari ja existeix.",
-      "validation_error": "El nom d’usuari només pot contenir números o _, i ha de començar amb una lletra."
+      "validation_error": "El nom d’usuari només pot contenir números o _, i ha de començar amb una lletra.",
+      "helper_text": "Aquest és el teu identificador d'inici de sessió únic, no el teu nom visible."
     },
     "password": {
       "field_label": "Contrasenya",
@@ -194,7 +197,29 @@
     "donation_title": "Gràcies per verificar la teva identitat: estàs ajudant a fer que Couchers.org sigui més segur per a tothom.",
     "donation_message1": "La verificació és gratuïta per a tu, però per a nosaltres té un cost. Com a organització sense ànim de lucre gestionada per voluntaris, depenem de les donacions per cobrir despeses com mantenir els nostres servidors en funcionament, la verificació i les eines per als voluntaris i els creadors de comunitat.",
     "donation_message2": "Si pots, considera fer una donació per ajudar a mantenir i fer créixer Couchers.org.",
-    "donate_button": "Fes una donació per donar suport a Couchers.org"
+    "donate_button": "Fes una donació per donar suport a Couchers.org",
+    "instructions": {
+      "step1": "Descarrega l'aplicació <strong>Iris ID</strong>",
+      "step1_apple_note": "<strong>Usuaris d'Apple:</strong> Podeu ometre la descàrrega i utilitzar el vostre navegador. Només cal que feu clic a \"Obre\" quan se us demani.",
+      "step3": "Escaneja el codi QR amb el teu telèfon",
+      "step4": "Si se't demana, obre l'aplicació i torna a escanejar el codi QR",
+      "download_app_store": "Descarrega-ho a l'App Store",
+      "chip_location": {
+        "finland_germany_new": "<strong>Finlàndia, Alemanya (2017+), Rússia:</strong> Pàgina d’imatge",
+        "australia": "<strong>Austràlia:</strong> Pàgina central (marcada amb el símbol + \"nom del xip\")",
+        "heading": "Trobar el xip NFC del teu passaport",
+        "description": "La ubicació del xip varia segons el país. Potser hauràs de provar diferents pàgines. Aquí tens alguns exemples de localitzacions:",
+        "us_germany_mexico": "<strong>Brasil, EUA, Alemanya (2016), Indonèsia, Mèxic:</strong> Pàgina del darrere"
+      },
+      "title": "Com completar la verificació forta",
+      "warning": "Important: El pas de lectura del xip del passaport pot ser complicat, llegeix totes les instruccions primer!",
+      "step2": "Fes clic a <strong>\"Inicia la verificació forta\"</strong> a continuació (s'obrirà en una pestanya nova)",
+      "step7": "Mantingues el telèfon contra la pàgina del passaport amb el xip NFC (consulta els consells a continuació)",
+      "step8": "Sabràs que té èxit quan vegis un percentatge creixent i un carregador",
+      "step6": "Fes una foto clara de la pàgina del passaport amb els números a la part inferior",
+      "download_google_play": "Descarrega-ho a Google Play",
+      "step5": "Seleccioneu <strong>Passaport</strong> (targetes d'identitat no admeses)"
+    }
   },
   "do_not_email": {
     "caveat": "En habilitar aquesta opció, el teu compte deixarà d’acceptar sol·licituds com a amfitrió. Continuaràs rebent correus de seguretat (com els per restablir la contrasenya). També podràs rebre el butlletí informatiu, del qual et podràs donar de baixa mitjançant l’enllaç que hi ha al peu del correu.",
@@ -220,7 +245,7 @@
   },
   "reset_password_form": {
     "enter_email": "Introdueix el teu nom d’usuari o correu electrònic",
-    "success_message": "Revisa el teu correu electrònic per un enllaç per restablir la contrasenya!"
+    "success_message": "S'ha enviat un enllaç per restablir la contrasenya al correu electrònic associat a aquest compte, si existeix i està actiu. Tingues en compte que el correu pot acabar de vegades a la carpeta de correu brossa."
   },
   "basic_sign_up_form": {
     "header": "Comencem!",
@@ -295,5 +320,46 @@
     "missing_payload_or_sig": "URL invàlida",
     "title": "Acció ràpida amb el correu electrònic"
   },
-  "unhandled_sign_up_state": "Error: unhandled signup flow state."
+  "unhandled_sign_up_state": "Error: unhandled signup flow state.",
+  "volunteer_management": {
+    "title": "Gestió de voluntariat",
+    "current_volunteer": "Voluntari des de {{startDate}}.",
+    "shown_on_team_page_past": "Mostrat a la pàgina de l'equip com a antic voluntari.",
+    "not_shown_on_team_page": "Amagat de la pàgina de l'equip.",
+    "form": {
+      "link_url_label": "Enllaç URL",
+      "link_url_helper": "L'URL complet al qual hauria d'apuntar l'enllaç",
+      "link_url_required": "Si us plau, introdueix una URL per al lloc web",
+      "link_url_invalid": "Si us plau, introdueix una URL vàlida que comenci per http:// o https://",
+      "save_button": "Desa els canvis",
+      "display_name_label": "Nom visible",
+      "override_location_label": "Utilitza una ubicació diferent a la pàgina de l’equip (en comptes de \"{{profileLocation}}\")",
+      "title": "Actualitza la teva informació de voluntari",
+      "override_name_label": "Utilitza un nom diferent a la pàgina de l’equip (en comptes de \"{{profileName}}\")",
+      "link_text_website_helper": "El text que es mostrarà per a l'enllaç",
+      "link_text_required": "Si us plau, introdueix un valor per a l'enllaç",
+      "link_text_email_invalid": "Si us plau, introdueix un correu electrònic vàlid",
+      "link_text_linkedin_invalid": "Si us plau, introdueix un nom d'usuari de LinkedIn vàlid (només lletres, números i guions)",
+      "display_location_label": "Mostra la ubicació",
+      "show_on_team_page_label": "Mostra'm a la pàgina de l'equip",
+      "link_type_label": "Tipus d'enllaç",
+      "link_type_couchers": "Perfil de couchers",
+      "link_type_email": "Correu electrònic",
+      "link_type_linkedin": "LinkedIn",
+      "link_type_website": "Lloc web",
+      "link_text_label": "Valor de l'enllaç",
+      "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
+      "link_text_email_placeholder": "elteu@email.com",
+      "link_text_website_placeholder": "https://la-teva-web.com",
+      "link_text_linkedin_helper": "El nom d'usuari de l'URL del teu perfil (per exemple, linkedin.com/in/jane-doe-a1b2c3)",
+      "link_text_email_helper": "La teva adreça de correu electrònic",
+      "link_url_placeholder": "https://la-teva-web.com"
+    },
+    "card_preview_label": "Llistat de la pàgina del vostre equip",
+    "description": "Si el vostre càrrec o les dates són incorrectes, feu-nos-ho saber.",
+    "shown_on_team_page_current": "Mostrat a la pàgina de l'equip com a membre actual.",
+    "past_volunteer": "Voluntari de {{startDate}} a {{endDate}}.",
+    "not_a_volunteer_message": "Segons els nostres registres, no ets un voluntari actual ni passat. Si això és incorrecte, fes-nos-ho saber omplint <1>aquest formulari</1>.",
+    "update_success": "La teva informació de voluntari s'ha actualitzat."
+  }
 }

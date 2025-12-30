@@ -1,11 +1,11 @@
 import grpc
 import pytest
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from couchers.db import session_scope
 from couchers.models import PhotoGallery, PhotoGalleryItem, Upload, User
 from couchers.proto import galleries_pb2
-from couchers.sql import couchers_select as select
 from tests.test_fixtures import (  # noqa
     db,
     galleries_session,

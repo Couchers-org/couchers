@@ -52,7 +52,7 @@ def create_cluster(
     )
     session.add(page_version)
     for admin_id in admin_ids:
-        cluster.cluster_subscriptions.append(  # type: ignore[attr-defined]
+        cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user_id=admin_id,
                 role=ClusterRole.admin,

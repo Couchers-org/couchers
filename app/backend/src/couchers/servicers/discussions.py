@@ -1,6 +1,7 @@
 import logging
 
 import grpc
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext, make_background_user_context
@@ -13,7 +14,6 @@ from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
-from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime
 
 logger = logging.getLogger(__name__)

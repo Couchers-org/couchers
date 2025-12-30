@@ -1,7 +1,7 @@
 from typing import cast
 
 import grpc
-from sqlalchemy import Table
+from sqlalchemy import Table, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -10,7 +10,6 @@ from couchers.context import CouchersContext
 from couchers.helpers.strong_verification import has_strong_verification
 from couchers.models import PhotoGallery, PhotoGalleryItem, Upload, User
 from couchers.proto import galleries_pb2, galleries_pb2_grpc
-from couchers.sql import couchers_select as select
 
 
 def _get_max_photos_for_user(session: Session, user: User) -> int:

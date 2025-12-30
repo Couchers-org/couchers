@@ -2,6 +2,7 @@ import json
 import logging
 from dataclasses import dataclass
 
+from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.config import config
@@ -16,7 +17,6 @@ from couchers.models import (
 from couchers.notifications.expo_api import send_expo_push_notification
 from couchers.notifications.web_push_api import send_web_push
 from couchers.proto.internal import jobs_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import not_none, now
 
 logger = logging.getLogger(__name__)

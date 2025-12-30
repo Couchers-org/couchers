@@ -10,7 +10,7 @@ from typing import Any
 
 import requests
 from google.protobuf import empty_pb2
-from sqlalchemy import Float, Integer
+from sqlalchemy import Float, Integer, select
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import (
     and_,
@@ -121,7 +121,13 @@ from couchers.servicers.events import (
 from couchers.servicers.moderation import Moderation
 from couchers.servicers.requests import host_request_to_pb
 from couchers.servicers.threads import generate_reply_notifications
-from couchers.sql import couchers_select as select
+from couchers.sql import (
+    users_visible_to_each_other,
+    where_moderated_content_visible,
+    where_moderated_content_visible_to_user_column,
+    where_user_columns_visible_to_each_other,
+    where_users_column_visible,
+)
 from couchers.tasks import enforce_community_memberships as tasks_enforce_community_memberships
 from couchers.tasks import send_duplicate_strong_verification_email
 from couchers.utils import (
@@ -234,11 +240,14 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
         # users who have unnotified messages older than 5 minutes in any group chat
         users = (
             session.execute(
-                select(User)
-                .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
-                .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
-                .where_moderated_content_visible_to_user_column(GroupChat, User.id)
+                where_moderated_content_visible_to_user_column(
+                    select(User)
+                    .join(GroupChatSubscription, GroupChatSubscription.user_id == User.id)
+                    .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                    .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id),
+                    GroupChat,
+                    User.id,
+                )
                 .where(not_(GroupChatSubscription.is_muted))
                 .where(User.is_visible)
                 .where(Message.time >= GroupChatSubscription.joined)
@@ -256,34 +265,44 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
             context = make_background_user_context(user_id=user.id)
             # now actually grab all the group chats, not just less than 5 min old
             subquery = (
-                select(
-                    GroupChatSubscription.group_chat_id.label("group_chat_id"),
-                    func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
-                    func.max(Message.id).label("message_id"),
-                    func.count(Message.id).label("count_unseen"),
+                where_users_column_visible(
+                    where_moderated_content_visible(
+                        select(
+                            GroupChatSubscription.group_chat_id.label("group_chat_id"),
+                            func.max(GroupChatSubscription.id).label("group_chat_subscriptions_id"),
+                            func.max(Message.id).label("message_id"),
+                            func.count(Message.id).label("count_unseen"),
+                        )
+                        .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                        .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id),
+                        context,
+                        GroupChat,
+                        is_list_operation=True,
+                    )
+                    .where(GroupChatSubscription.user_id == user.id)
+                    .where(not_(GroupChatSubscription.is_muted))
+                    .where(Message.id > user.last_notified_message_id)
+                    .where(Message.id > GroupChatSubscription.last_seen_message_id)
+                    .where(Message.time >= GroupChatSubscription.joined)
+                    .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
+                    .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None)),
+                    context,
+                    Message.author_id,
                 )
-                .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
-                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
-                .where_moderated_content_visible(context, GroupChat, is_list_operation=True)
-                .where(GroupChatSubscription.user_id == user.id)
-                .where(not_(GroupChatSubscription.is_muted))
-                .where(Message.id > user.last_notified_message_id)
-                .where(Message.id > GroupChatSubscription.last_seen_message_id)
-                .where(Message.time >= GroupChatSubscription.joined)
-                .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
-                .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
-                .where_users_column_visible(context, Message.author_id)
                 .group_by(GroupChatSubscription.group_chat_id)
                 .order_by(func.max(Message.id).desc())
                 .subquery()
             )
 
             unseen_messages = session.execute(
-                select(GroupChat, Message, subquery.c.count_unseen)
-                .join(subquery, subquery.c.message_id == Message.id)
-                .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id)
-                .where_moderated_content_visible(context, GroupChat, is_list_operation=True)
-                .order_by(subquery.c.message_id.desc())
+                where_moderated_content_visible(
+                    select(GroupChat, Message, subquery.c.count_unseen)
+                    .join(subquery, subquery.c.message_id == Message.id)
+                    .join(GroupChat, GroupChat.conversation_id == subquery.c.group_chat_id),
+                    context,
+                    GroupChat,
+                    is_list_operation=True,
+                ).order_by(subquery.c.message_id.desc())
             ).all()
 
             if not unseen_messages:
@@ -373,11 +392,17 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
 
             # requests where this user is surfing
             surfing_reqs = session.execute(
-                select(User, HostRequest, func.max(Message.id))
-                .where(User.id == user_id)
-                .join(HostRequest, HostRequest.surfer_user_id == User.id)
-                .where_moderated_content_visible_to_user_column(HostRequest, HostRequest.surfer_user_id)
-                .where_users_column_visible(context, HostRequest.host_user_id)
+                where_users_column_visible(
+                    where_moderated_content_visible_to_user_column(
+                        select(User, HostRequest, func.max(Message.id))
+                        .where(User.id == user_id)
+                        .join(HostRequest, HostRequest.surfer_user_id == User.id),
+                        HostRequest,
+                        HostRequest.surfer_user_id,
+                    ),
+                    context,
+                    HostRequest.host_user_id,
+                )
                 .join(Message, Message.conversation_id == HostRequest.conversation_id)
                 .where(Message.id > HostRequest.surfer_last_seen_message_id)
                 .where(Message.id > User.last_notified_request_message_id)
@@ -388,11 +413,17 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
 
             # where this user is hosting
             hosting_reqs = session.execute(
-                select(User, HostRequest, func.max(Message.id))
-                .where(User.id == user_id)
-                .join(HostRequest, HostRequest.host_user_id == User.id)
-                .where_moderated_content_visible_to_user_column(HostRequest, HostRequest.host_user_id)
-                .where_users_column_visible(context, HostRequest.surfer_user_id)
+                where_users_column_visible(
+                    where_moderated_content_visible_to_user_column(
+                        select(User, HostRequest, func.max(Message.id))
+                        .where(User.id == user_id)
+                        .join(HostRequest, HostRequest.host_user_id == User.id),
+                        HostRequest,
+                        HostRequest.host_user_id,
+                    ),
+                    context,
+                    HostRequest.surfer_user_id,
+                )
                 .join(Message, Message.conversation_id == HostRequest.conversation_id)
                 .where(Message.id > HostRequest.host_last_seen_message_id)
                 .where(Message.id > User.last_notified_request_message_id)
@@ -532,7 +563,7 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                 .where(HostRequest.surfer_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
                 .where(HostRequest.surfer_reason_didnt_meetup == None)
-                .where_users_visible_to_each_other(user, other_user)
+                .where(users_visible_to_each_other(user, other_user))
             )
 
             # hosts needing to write a ref
@@ -553,7 +584,7 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                 .where(HostRequest.host_sent_reference_reminders < reminder_number)
                 .where(HostRequest.end_time_to_write_reference - reminder_time < now())
                 .where(HostRequest.host_reason_didnt_meetup == None)
-                .where_users_visible_to_each_other(user, other_user)
+                .where(users_visible_to_each_other(user, other_user))
             )
 
             union = union_all(q1, q2).subquery()
@@ -599,14 +630,20 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
 
         requests = (
             session.execute(
-                select(HostRequest)
-                .where_moderated_content_visible_to_user_column(HostRequest, HostRequest.host_user_id)
-                .where(HostRequest.status == HostRequestStatus.pending)
-                .where(HostRequest.host_sent_request_reminders < HOST_REQUEST_MAX_REMINDERS)
-                .where(HostRequest.start_time > func.now())
-                .where((func.now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
-                .where(~exists(host_has_sent_message))
-                .where_user_columns_visible_to_each_other(HostRequest.host_user_id, HostRequest.surfer_user_id)
+                where_user_columns_visible_to_each_other(
+                    where_moderated_content_visible_to_user_column(
+                        select(HostRequest),
+                        HostRequest,
+                        HostRequest.host_user_id,
+                    )
+                    .where(HostRequest.status == HostRequestStatus.pending)
+                    .where(HostRequest.host_sent_request_reminders < HOST_REQUEST_MAX_REMINDERS)
+                    .where(HostRequest.start_time > func.now())
+                    .where((func.now() - HostRequest.last_sent_request_reminder_time) >= HOST_REQUEST_REMINDER_INTERVAL)
+                    .where(~exists(host_has_sent_message)),
+                    HostRequest.host_user_id,
+                    HostRequest.surfer_user_id,
+                )
             )
             .scalars()
             .all()
@@ -876,7 +913,7 @@ def update_badges(payload: empty_pb2.Empty) -> None:
 
         def update_badge(badge_id: str, members: list[int]) -> None:
             badge = get_badge_dict()[badge_id]
-            user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge_id)).scalars().all()
+            user_ids = session.execute(select(UserBadge.user_id).where(UserBadge.badge_id == badge.id)).scalars().all()
             # in case the user ids don't exist in the db
             actual_members = session.execute(select(User.id).where(User.id.in_(members))).scalars().all()
             # we should add the badge to these
@@ -884,10 +921,10 @@ def update_badges(payload: empty_pb2.Empty) -> None:
             # we should remove the badge from these
             remove = set(user_ids) - set(actual_members)
             for user_id in add:
-                user_add_badge(session, user_id, badge_id)
+                user_add_badge(session, user_id, badge.id)
 
             for user_id in remove:
-                user_remove_badge(session, user_id, badge_id)
+                user_remove_badge(session, user_id, badge.id)
 
         update_badge("founder", get_static_badge_dict()["founder"])
         update_badge("board_member", get_static_badge_dict()["board_member"])

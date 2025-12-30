@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from couchers import urls
-from couchers.i18n.i18n import get_raw_translation_string
+from couchers.i18n.i18n import localize_string
 from couchers.models import Notification, User
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.proto import notification_data_pb2
@@ -44,12 +44,8 @@ class RenderedNotification:
 
 
 def render_notification(user: User, notification: Notification) -> RenderedNotification:
-    def get_localized_string(
-        component: str, message_id: str, *, substitutions: dict[str, str | int] | None = None
-    ) -> str:
-        return get_raw_translation_string(
-            user.ui_language_preference, component, message_id, substitutions=substitutions
-        )
+    def get_localized_string(key: str, *, substitutions: dict[str, str | int] | None = None) -> str:
+        return localize_string(user.ui_language_preference, key, substitutions=substitutions)
 
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic == "host_request":
@@ -367,10 +363,9 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
             email_list_unsubscribe_url=generate_unsub_topic_action(notification),
         )
     elif notification.topic_action.display == "donation:received":
-        title = get_localized_string("notifications", "donation_received_title")
+        title = get_localized_string("notifications.donation_received.title")
         message = get_localized_string(
-            "notifications",
-            "donation_received_thanks_amount",
+            "notifications.donation_received.thanks_amount",
             substitutions={
                 "amount": data.amount,
             },

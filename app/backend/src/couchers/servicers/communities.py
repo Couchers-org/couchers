@@ -4,6 +4,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func, or_
 
@@ -29,7 +30,7 @@ from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import couchers_select as select
+from couchers.sql import to_bool, users_visible
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 
 logger = logging.getLogger(__name__)
@@ -139,7 +140,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             session.execute(
                 select(Node)
                 .join(Cluster, Cluster.parent_node_id == Node.id)
-                .where(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
+                .where(or_(Node.parent_node_id == request.community_id, to_bool(request.community_id == 0)))
                 .where(Cluster.is_official_cluster)
                 .order_by(Cluster.name)
                 .limit(page_size + 1)
@@ -211,7 +212,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             session.execute(
                 select(User)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                .where_users_visible(context)
+                .where(users_visible(context))
                 .where(ClusterSubscription.cluster_id == node.official_cluster.id)
                 .where(ClusterSubscription.role == ClusterRole.admin)
                 .where(User.id >= next_admin_id)
@@ -236,7 +237,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "node_moderate_permission_denied")
 
         user = session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where(users_visible(context)).where(User.id == request.user_id)
         ).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
@@ -266,7 +267,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "node_moderate_permission_denied")
 
         user = session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where(users_visible(context)).where(User.id == request.user_id)
         ).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
@@ -298,7 +299,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         query = (
             select(User)
             .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-            .where_users_visible(context)
+            .where(users_visible(context))
             .where(ClusterSubscription.cluster_id == node.official_cluster.id)
         )
         if next_member_id is not None:
@@ -321,7 +322,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         nearbys = (
             session.execute(
                 select(User)
-                .where_users_visible(context)
+                .where(users_visible(context))
                 .where(func.ST_Contains(node.geom, User.geom))
                 .where(User.id >= next_nearby_id)
                 .order_by(User.id)
@@ -407,13 +408,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         )
 
         if request.past:
-            query = query.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.desc()
-            )
+            cutoff = page_token + timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
         else:
-            query = query.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.asc()
-            )
+            cutoff = page_token - timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
 
         query = query.limit(page_size + 1)
         occurrences = session.execute(query).scalars().all()
@@ -434,7 +433,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         if not node.official_cluster.discussions_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussions_not_enabled")
         discussions = (
-            node.official_cluster.owned_discussions.where(or_(Discussion.id <= next_page_id, next_page_id == 0))
+            node.official_cluster.owned_discussions.where(
+                or_(Discussion.id <= next_page_id, to_bool(next_page_id == 0))
+            )
             .order_by(Discussion.id.desc())
             .limit(page_size + 1)
             .all()

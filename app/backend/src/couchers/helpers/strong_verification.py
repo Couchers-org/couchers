@@ -1,11 +1,11 @@
 from typing import TypedDict
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.models import StrongVerificationAttempt, User
 from couchers.proto import api_pb2
 from couchers.proto.api_pb2 import BirthdateVerificationStatus, GenderVerificationStatus
-from couchers.sql import couchers_select as select
 
 
 def has_strong_verification(session: Session, user: User) -> bool:

@@ -1,6 +1,6 @@
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import exists
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import not_, or_, union
 
@@ -8,7 +8,6 @@ from couchers import urls
 from couchers.context import CouchersContext
 from couchers.models import Upload, User, UserBlock
 from couchers.proto import blocking_pb2, blocking_pb2_grpc
-from couchers.sql import couchers_select as select
 
 
 def is_not_visible(session: Session, user1_id: int | None, user2_id: int | None) -> bool:

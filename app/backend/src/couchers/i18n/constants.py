@@ -1,11 +1,10 @@
 # Language fallback hierarchy
-# If a string is not found in the requested language, fall back to these languages in order
-LANGUAGE_FALLBACKS: dict[str, list[str]] = {
-    "pt-BR": ["pt", "en"],
-    "pt-PT": ["pt-BR", "en"],
-    "es-419": ["es", "en"],
-    "fr-CA": ["fr", "en"],
-    "zh": ["zh-Hans", "en"],
-    "en_CORP": ["en"],
+# If a string is not found in the requested language, transitively fall back to these languages.
+# Other languages implicitly fallback to English.
+LANGUAGE_FALLBACKS: dict[str, str] = {
+    "pt-BR": "pt",
+    "pt-PT": "pt-BR",
+    "es-419": "es",
+    "fr-CA": "fr",
+    "zh": "zh-Hans",
 }
-DEFAULT_FALLBACK = ["en"]

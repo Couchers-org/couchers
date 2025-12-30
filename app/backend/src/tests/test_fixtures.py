@@ -12,7 +12,7 @@ from unittest.mock import patch
 import grpc
 import pytest
 from grpc._server import _validate_generic_rpc_handlers
-from sqlalchemy import Connection, Engine, create_engine, update
+from sqlalchemy import Connection, Engine, create_engine, select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_, text
 
@@ -110,7 +110,6 @@ from couchers.servicers.requests import Requests
 from couchers.servicers.resources import Resources
 from couchers.servicers.search import Search
 from couchers.servicers.threads import Threads
-from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
 
 

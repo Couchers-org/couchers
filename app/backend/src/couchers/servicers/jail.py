@@ -2,6 +2,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
@@ -9,7 +10,6 @@ from couchers.context import CouchersContext
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, ModNote, User
 from couchers.proto import jail_pb2, jail_pb2_grpc
 from couchers.servicers.account import mod_note_to_pb
-from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, now
 
 logger = logging.getLogger(__name__)

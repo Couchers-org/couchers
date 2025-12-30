@@ -5,9 +5,10 @@ from unittest.mock import patch
 
 from jinja2 import Environment
 
+from couchers.i18n.i18next import I18Next
+from couchers.i18n.plurals import PluralRules
 from couchers.templates.v2 import (
     CONTEXT_PLAINTEXT_KEY,
-    CONTEXT_TRANSLATION_COMPONENT_KEY,
     CONTEXT_TRANSLATION_LANGUAGE_KEY,
     add_filters,
 )
@@ -21,24 +22,27 @@ def _render_template(
     translation_dict: dict,
     template_args: dict[str, Any] | None = None,
     plain: bool = False,
-    component: str = "component",
     lang: str = "en",
 ) -> str:
     template = _env.from_string(template_str)
     template_args = {
         **(template_args or {}),
         CONTEXT_TRANSLATION_LANGUAGE_KEY: lang,
-        CONTEXT_TRANSLATION_COMPONENT_KEY: component,
     }
     if plain:
         template_args[CONTEXT_PLAINTEXT_KEY] = True
 
-    with patch("couchers.i18n.i18n.get_translations", new=lambda: translation_dict):
+    mock_i18next = I18Next()
+    for lang_code, strings in translation_dict.items():
+        language = mock_i18next.add_language(lang_code, PluralRules.en)
+        language.load_json_dict(strings)
+
+    with patch("couchers.i18n.i18n.get_i18next", new=lambda: mock_i18next):
         return template.render(template_args)
 
 
 def _greeting_dict(value: str) -> dict:
-    return {"en": {"component": {"greeting": value}}}
+    return {"en": {"greeting": value}}
 
 
 def test_v2translate_no_substitutions() -> None:
@@ -52,7 +56,7 @@ def test_v2translate_multiple_languages() -> None:
     translated = _render_template(
         template_str='{{ "greeting"|v2translate }}',
         lang="fr",
-        translation_dict={"en": {"component": {"greeting": "Hello!"}}, "fr": {"component": {"greeting": "Bonjour!"}}},
+        translation_dict={"en": {"greeting": "Hello!"}, "fr": {"greeting": "Bonjour!"}},
     )
     assert translated == "Bonjour!"
 

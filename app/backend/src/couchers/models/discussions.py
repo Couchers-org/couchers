@@ -1,9 +1,13 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import BigInteger, DateTime, ForeignKey, String, UniqueConstraint, func
-from sqlalchemy.orm import Mapped, backref, column_property, mapped_column, relationship
+from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 
 from couchers.models.base import Base, communities_seq
+
+if TYPE_CHECKING:
+    from couchers.models import Cluster, User
 
 
 class Discussion(Base):
@@ -25,14 +29,18 @@ class Discussion(Base):
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     owner_cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
-    slug = column_property(func.slugify(title))
+    slug: Mapped[str] = column_property(func.slugify(title))
 
-    thread = relationship("Thread", backref="discussion", uselist=False)
+    thread: Mapped["Thread"] = relationship("Thread", backref="discussion", uselist=False)
 
-    subscribers = relationship("User", backref="discussions", secondary="discussion_subscriptions", viewonly=True)
+    subscribers: Mapped[list["User"]] = relationship(
+        "User", backref="discussions", secondary="discussion_subscriptions", viewonly=True
+    )
 
-    creator_user = relationship("User", backref="created_discussions", foreign_keys="Discussion.creator_user_id")
-    owner_cluster = relationship("Cluster", backref=backref("owned_discussions", lazy="dynamic"), uselist=False)
+    creator_user: Mapped["User"] = relationship(
+        "User", backref="created_discussions", foreign_keys="Discussion.creator_user_id"
+    )
+    owner_cluster: Mapped["Cluster"] = relationship("Cluster", back_populates="owned_discussions", uselist=False)
 
 
 class DiscussionSubscription(Base):
@@ -48,10 +56,10 @@ class DiscussionSubscription(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     discussion_id: Mapped[int] = mapped_column(ForeignKey("discussions.id"), index=True)
     joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    left: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    left: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    user = relationship("User", backref="discussion_subscriptions")
-    discussion = relationship("Discussion", backref="discussion_subscriptions")
+    user: Mapped["User"] = relationship("User", backref="discussion_subscriptions")
+    discussion: Mapped["Discussion"] = relationship("Discussion", backref="discussion_subscriptions")
 
 
 class Thread(Base):
@@ -64,7 +72,7 @@ class Thread(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class Comment(Base):
@@ -82,7 +90,7 @@ class Comment(Base):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    thread = relationship("Thread", backref="comments")
+    thread: Mapped["Thread"] = relationship("Thread", backref="comments")
 
 
 class Reply(Base):
@@ -100,7 +108,7 @@ class Reply(Base):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    comment = relationship("Comment", backref="replies")
+    comment: Mapped["Comment"] = relationship("Comment", backref="replies")
 
 
 class ClusterDiscussionAssociation(Base):
@@ -116,5 +124,5 @@ class ClusterDiscussionAssociation(Base):
     discussion_id: Mapped[int] = mapped_column(ForeignKey("discussions.id"), index=True)
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
-    discussion = relationship("Discussion", backref="cluster_discussion_associations")
-    cluster = relationship("Cluster", backref="cluster_discussion_associations")
+    discussion: Mapped["Discussion"] = relationship("Discussion", backref="cluster_discussion_associations")
+    cluster: Mapped["Cluster"] = relationship("Cluster", backref="cluster_discussion_associations")
