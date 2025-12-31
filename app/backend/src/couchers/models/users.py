@@ -18,7 +18,7 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
     and_,
-    exists,
+    event,
     func,
     not_,
     or_,
@@ -27,7 +27,7 @@ from sqlalchemy import (
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import select as sa_select
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import DynamicMapped, Mapped, column_property, mapped_column, object_session, relationship
+from sqlalchemy.orm import DynamicMapped, Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -163,6 +163,10 @@ class User(Base, kw_only=True):
     # Profile photo gallery for this user (photos about themselves)
     # The first photo in the gallery (by position) is used as the avatar
     profile_gallery_id: Mapped[int | None] = mapped_column(ForeignKey("photo_galleries.id"), default=None)
+
+    # Denormalized field: true if user has a photo and about_me >= 150 chars
+    # Kept in sync via SQLAlchemy events (see bottom of file)
+    has_completed_profile: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     hosting_status: Mapped[HostingStatus] = mapped_column(Enum(HostingStatus))
     meetup_status: Mapped[MeetupStatus] = mapped_column(Enum(MeetupStatus), server_default="open_to_meetup", init=False)
@@ -417,35 +421,6 @@ class User(Base, kw_only=True):
     )
 
     @hybrid_property
-    def has_completed_profile(self) -> bool:
-        """Check if user has completed their profile (has photo + 150 char about_me)."""
-        if self.profile_gallery_id is None:
-            has_photo = False
-        else:
-            session = object_session(self)
-            if session is None:
-                # Detached instance - assume no photo
-                has_photo = False
-            else:
-                has_photo = session.query(
-                    sa_select(1).where(PhotoGalleryItem.gallery_id == self.profile_gallery_id).exists()
-                ).scalar()
-
-        return has_photo and self.about_me is not None and len(self.about_me) >= 150
-
-    @has_completed_profile.inplace.expression
-    @classmethod
-    def _has_completed_profile_expression(cls) -> ColumnElement[bool]:
-        from sqlalchemy import exists, literal
-        from couchers.models import PhotoGalleryItem
-
-        return (
-            (cls.profile_gallery_id != None)
-            & exists(sa_select(literal(1)).where(PhotoGalleryItem.gallery_id == cls.profile_gallery_id))
-            & (func.character_length(cls.about_me) >= 150)
-        )
-
-    @hybrid_property
     def has_completed_my_home(self) -> bool:
         # completed my profile means that:
         # 1. has filled out max_guests
@@ -598,3 +573,48 @@ class RegionLived(Base, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     region_code: Mapped[str] = mapped_column(ForeignKey("regions.code", deferrable=True))
+
+
+# Event handlers to keep User.has_completed_profile in sync
+@event.listens_for(User, "after_update")
+@event.listens_for(User, "after_insert")
+def _user_updated(mapper, connection, target: User) -> None:
+    """When a user's profile_gallery_id or about_me changes, update has_completed_profile."""
+    # Use raw SQL to update has_completed_profile based on current database state
+    stmt = text(
+        """
+        UPDATE users
+        SET has_completed_profile = (
+            EXISTS (
+                SELECT 1
+                FROM photo_gallery_items
+                WHERE photo_gallery_items.gallery_id = users.profile_gallery_id
+            )
+            AND COALESCE(character_length(users.about_me), 0) >= 150
+        )
+        WHERE users.id = :user_id
+        """
+    ).bindparams(user_id=target.id)
+    connection.execute(stmt)
+
+
+@event.listens_for(PhotoGalleryItem, "after_insert")
+@event.listens_for(PhotoGalleryItem, "after_delete")
+def _photo_gallery_item_changed(mapper, connection, target: PhotoGalleryItem) -> None:
+    """When photos are added/removed from a gallery, update has_completed_profile for affected users."""
+    # Find users who have this gallery as their profile_gallery_id
+    stmt = text(
+        """
+        UPDATE users
+        SET has_completed_profile = (
+            EXISTS (
+                SELECT 1
+                FROM photo_gallery_items
+                WHERE photo_gallery_items.gallery_id = users.profile_gallery_id
+            )
+            AND COALESCE(character_length(users.about_me), 0) >= 150
+        )
+        WHERE users.profile_gallery_id = :gallery_id
+        """
+    ).bindparams(gallery_id=target.gallery_id)
+    connection.execute(stmt)

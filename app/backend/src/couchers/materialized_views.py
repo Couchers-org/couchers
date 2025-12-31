@@ -38,11 +38,11 @@ from couchers.models import (
     MatViewBase,
     Message,
     MessageType,
-    PhotoGalleryItem,
     StrongVerificationAttempt,
     Upload,
     User,
 )
+from couchers.models.uploads import get_first_gallery_photo_subquery
 
 logger = logging.getLogger(__name__)
 
@@ -157,16 +157,7 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
     )
 
     # Subquery to get the first photo from each user's profile gallery
-    # Using DISTINCT ON to select the photo with the minimum position for each gallery
-    first_gallery_photo_subquery = (
-        sa_select(
-            PhotoGalleryItem.gallery_id,
-            PhotoGalleryItem.upload_key,
-        )
-        .distinct(PhotoGalleryItem.gallery_id)
-        .order_by(PhotoGalleryItem.gallery_id, PhotoGalleryItem.position)
-        .subquery(name="first_photo")
-    )
+    first_gallery_photo_subquery = get_first_gallery_photo_subquery(name="first_photo")
 
     # Be sure to modify the LiteUser type if you add/remove columns!
     return (

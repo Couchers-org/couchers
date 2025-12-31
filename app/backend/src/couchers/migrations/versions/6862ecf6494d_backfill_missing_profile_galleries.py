@@ -53,14 +53,7 @@ def upgrade() -> None:
             NULL  -- No caption initially
         FROM users u
         WHERE u.avatar_key IS NOT NULL
-        AND u.profile_gallery_id IS NOT NULL
-        AND NOT EXISTS (
-            -- Don't add if it's already in the gallery
-            SELECT 1
-            FROM photo_gallery_items pgi
-            WHERE pgi.gallery_id = u.profile_gallery_id
-            AND pgi.upload_key = u.avatar_key
-        )
+        ON CONFLICT (gallery_id, upload_key) DO NOTHING
         """
     )
 

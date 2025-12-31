@@ -33,12 +33,12 @@ from couchers.models import (
     InviteCode,
     PasswordResetToken,
     PhotoGallery,
-    PhotoGalleryItem,
     SignupFlow,
     User,
     UserSession,
 )
 from couchers.models.notifications import NotificationTopicAction
+from couchers.models.uploads import get_first_gallery_photo_query
 from couchers.notifications.notify import notify
 from couchers.notifications.quick_links import respond_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
@@ -715,10 +715,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         first_gallery_photo = None
         if user.profile_gallery_id:
             first_gallery_photo = session.execute(
-                select(PhotoGalleryItem)
-                .where(PhotoGalleryItem.gallery_id == user.profile_gallery_id)
-                .order_by(PhotoGalleryItem.position)
-                .limit(1)
+                get_first_gallery_photo_query(user.profile_gallery_id)
             ).scalar_one_or_none()
 
         return auth_pb2.GetInviteCodeInfoRes(
