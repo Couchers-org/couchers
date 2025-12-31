@@ -1283,7 +1283,7 @@ def test_response_rate(db, moderator):
         assert res.almost_all.response_time_p66.ToTimedelta() == timedelta(hours=35)
 
 
-def test_request_notifications(db, push_collector, moderator):
+def test_request_notifications(db, push_collector: PushCollector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
@@ -1322,7 +1322,7 @@ def test_request_notifications(db, push_collector, moderator):
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
 
-    assert push_collector.get_for_user(host.id).title == f"{surfer.name} sent you a host request"
+    assert push_collector.get_for_user(host.id).content.title == f"{surfer.name} sent you a host request"
 
     with requests_session(host_token) as api:
         with mock_notification_email() as mock:
@@ -1350,10 +1350,10 @@ def test_request_notifications(db, push_collector, moderator):
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
 
-    assert push_collector.get_for_user(surfer.id).title == f"{host.name} accepted your host request"
+    assert push_collector.get_for_user(surfer.id).content.title == f"{host.name} accepted your host request"
 
 
-def test_quick_decline(db, push_collector, moderator):
+def test_quick_decline(db, push_collector: PushCollector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
@@ -1392,7 +1392,7 @@ def test_quick_decline(db, push_collector, moderator):
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
 
-    assert push_collector.get_for_user(host.id).title == f"{surfer.name} sent you a host request"
+    assert push_collector.get_for_user(host.id).content.title == f"{surfer.name} sent you a host request"
 
     # very ugly
     # http://localhost:3000/quick-link?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=

@@ -331,7 +331,7 @@ def test_set_do_not_email(db):
         assert not user.do_not_email
 
 
-def test_list_notifications(db, push_collector, moderator):
+def test_list_notifications(db, push_collector: PushCollector, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 

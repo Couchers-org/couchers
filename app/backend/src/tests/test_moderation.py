@@ -2169,7 +2169,7 @@ def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
 # ============================================================================
 
 
-def test_host_request_message_notifications_suppressed_before_approval(db, push_collector, moderator):
+def test_host_request_message_notifications_suppressed_before_approval(db, push_collector: PushCollector, moderator):
     """
     Test that notifications are NOT sent for messages in host requests
     that haven't been approved yet.
@@ -2225,7 +2225,7 @@ def test_host_request_message_notifications_suppressed_before_approval(db, push_
     assert push.content.title == f"{surfer.name} sent you a host request"
 
 
-def test_host_request_status_notifications_suppressed_before_approval(db, push_collector, moderator):
+def test_host_request_status_notifications_suppressed_before_approval(db, push_collector: PushCollector, moderator):
     """
     Test that status change notifications (accept/reject/etc.) are NOT sent
     for host requests that haven't been approved yet.
@@ -2268,7 +2268,7 @@ def test_host_request_status_notifications_suppressed_before_approval(db, push_c
     assert push_collector.count_for_user(host.id) == 0
 
 
-def test_host_request_notifications_sent_after_approval(db, push_collector, moderator):
+def test_host_request_notifications_sent_after_approval(db, push_collector: PushCollector, moderator):
     """
     Test that after a host request is approved, all notifications work normally.
     """
@@ -2328,7 +2328,7 @@ def test_host_request_notifications_sent_after_approval(db, push_collector, mode
     assert push.content.title == f"{surfer.name} confirmed their host request"
 
 
-def test_group_chat_message_notifications_suppressed_before_approval(db, push_collector, moderator):
+def test_group_chat_message_notifications_suppressed_before_approval(db, push_collector: PushCollector, moderator):
     """
     Test that notifications are NOT sent for messages in group chats
     that haven't been approved yet.
