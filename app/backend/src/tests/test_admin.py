@@ -20,6 +20,7 @@ from couchers.proto import admin_pb2, auth_pb2, events_pb2, references_pb2, repo
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
 from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     add_users_to_new_moderation_list,
     auth_api_session,
     db,
@@ -35,7 +36,6 @@ from tests.test_fixtures import (  # noqa
     reporting_session,
     requests_session,
     testconfig,
-    PushCollector
 )
 
 
@@ -137,6 +137,7 @@ def test_ChangeUserGender(db, push_collector: PushCollector):
     assert push.content.title == "Your gender was changed"
     assert push.content.body == "Your gender on Couchers.org was changed to Machine by an admin."
 
+
 def test_ChangeUserBirthdate(db, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user(birthdate=date(year=2000, month=1, day=1))
@@ -168,6 +169,7 @@ def test_ChangeUserBirthdate(db, push_collector: PushCollector):
     push = push_collector.get_for_user(normal_user.id)
     assert push.content.title == "Your date of birth was changed"
     assert push.content.body == "Your date of birth on Couchers.org was changed to Friday 25 May 1990 by an admin."
+
 
 def test_BanUser(db):
     super_user, super_token = generate_user(is_superuser=True)

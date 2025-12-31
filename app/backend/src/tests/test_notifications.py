@@ -40,6 +40,7 @@ from couchers.servicers.api import user_model_to_pb
 from couchers.templates.v2 import v2timestamp
 from couchers.utils import now
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     api_session,
     auth_api_session,
     conversations_session,
@@ -55,7 +56,6 @@ from tests.test_fixtures import (  # noqa
     real_editor_session,
     session_scope,
     testconfig,
-    PushCollector
 )
 
 
@@ -486,6 +486,7 @@ def test_SendTestPushNotification(db, push_collector: PushCollector):
     assert push.content.title == "Checking push notifications work!"
     assert push.content.body == "If you see this, then it's working :)"
 
+
 def test_SendBlogPostNotification(db, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
 
@@ -775,6 +776,7 @@ def test_SendTestMobilePushNotification(db, push_collector: PushCollector):
     push = push_collector.get_for_user(user.id)
     assert push.content.title == "Checking mobile push notifications work!"
     assert push.content.body == "If you see this on your phone, everything is wired up correctly 🎉"
+
 
 def test_get_expo_push_receipts(db):
     from unittest.mock import Mock, patch

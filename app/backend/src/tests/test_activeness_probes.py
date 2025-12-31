@@ -14,6 +14,7 @@ from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatu
 from couchers.proto import api_pb2, jail_pb2
 from couchers.utils import now
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     api_session,
     db,
     email_fields,
@@ -22,7 +23,6 @@ from tests.test_fixtures import (  # noqa
     push_collector,
     real_jail_session,
     testconfig,
-    PushCollector
 )
 
 
@@ -63,6 +63,7 @@ def test_activeness_probes_happy_path_inactive(db, push_collector: PushCollector
     assert push.content.title == "Are you still open to hosting on Couchers.org?"
     assert push.content.body == "Please log in to confirm your hosting status."
 
+
 def test_activeness_probes_happy_path_active(db, push_collector: PushCollector):
     user, token = generate_user(
         hosting_status=HostingStatus.can_host,
@@ -94,6 +95,7 @@ def test_activeness_probes_happy_path_active(db, push_collector: PushCollector):
     push = push_collector.get_for_user(user.id)
     assert push.content.title == "Are you still open to hosting on Couchers.org?"
     assert push.content.body == "Please log in to confirm your hosting status."
+
 
 def test_activeness_probes_disabled(db, push_collector: PushCollector):
     new_config = config.copy()

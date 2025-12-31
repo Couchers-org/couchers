@@ -52,6 +52,7 @@ from couchers.models import (
 from couchers.proto import conversations_pb2, requests_pb2
 from couchers.utils import now, today
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     auth_api_session,
     conversations_session,
     db,
@@ -63,7 +64,6 @@ from tests.test_fixtures import (  # noqa
     push_collector,
     requests_session,
     testconfig,
-    PushCollector
 )
 from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
 from tests.test_requests import valid_request_text

@@ -22,6 +22,7 @@ from couchers.models import (
 )
 from couchers.proto import api_pb2, auth_pb2
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     api_session,
     auth_api_session,
     db,
@@ -32,7 +33,6 @@ from tests.test_fixtures import (  # noqa
     push_collector,
     real_api_session,
     testconfig,
-    PushCollector
 )
 
 
@@ -431,7 +431,10 @@ def test_password_reset_v2(db, push_collector: PushCollector):
     assert "support@couchers.org" in e.plain
     assert "support@couchers.org" in e.html
 
-    push = push_collector.get_for_user(user.id, index=0,)
+    push = push_collector.get_for_user(
+        user.id,
+        index=0,
+    )
     assert push.content.title == "A password reset was initiated on your account"
     assert push.content.body == "Someone initiated a password change on your account."
     # make sure bad password are caught
@@ -453,7 +456,10 @@ def test_password_reset_v2(db, push_collector: PushCollector):
 
     push = push_collector.get_for_user(user.id, index=1)
     assert push.content.title == "Your password was successfully reset"
-    assert push.content.body == "Your password on Couchers.org was changed. If that was you, then no further action is needed."
+    assert (
+        push.content.body
+        == "Your password on Couchers.org was changed. If that was you, then no further action is needed."
+    )
 
     session_token, _ = get_session_cookie_tokens(metadata_interceptor)
 

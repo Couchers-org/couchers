@@ -13,6 +13,7 @@ from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
 from tests.test_communities import create_community, create_group
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     db,
     email_fields,
     events_session,
@@ -24,7 +25,6 @@ from tests.test_fixtures import (  # noqa
     real_editor_session,
     testconfig,
     threads_session,
-    PushCollector
 )
 
 

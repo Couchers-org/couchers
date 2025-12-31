@@ -23,6 +23,7 @@ from couchers.models import (
 from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from couchers.utils import now, today
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     account_session,
     auth_api_session,
     email_fields,
@@ -33,7 +34,6 @@ from tests.test_fixtures import (  # noqa
     public_session,
     real_account_session,
     requests_session,
-    PushCollector,
 )
 from tests.test_requests import valid_request_text
 
@@ -629,6 +629,7 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector: P
     assert push.content.title == "An email change was initiated on your account"
     assert push.content.body == f"An email change to the email {new_email} was initiated on your account."
 
+
 def test_ChangeLanguagePreference(db, fast_passwords):
     # user changes from default to ISO 639-1 language code
     newLanguageCode = "zh"
@@ -718,7 +719,10 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
 
     push = push_collector.get_for_user(user_id, index=0)
     assert push.content.title == "Account deletion initiated"
-    assert push.content.body == "Someone initiated the deletion of your Couchers.org account. To delete your account, please follow the link in the email we sent you."
+    assert (
+        push.content.body
+        == "Someone initiated the deletion of your Couchers.org account. To delete your account, please follow the link in the email we sent you."
+    )
 
     mock.assert_called_once()
     e = email_fields(mock)

@@ -1229,7 +1229,7 @@ class PushCollector:
         pushes = self.by_user(user_id)
         if index is None:
             assert len(pushes) == 1, "Expected a single user notification"
-            return pushes[0].content
+            return pushes[0]
         return pushes[index]
 
 

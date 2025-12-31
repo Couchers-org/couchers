@@ -27,6 +27,7 @@ from couchers.models import (
 from couchers.proto import account_pb2, admin_pb2, api_pb2
 from couchers.proto.google.api import httpbody_pb2
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     account_session,
     api_session,
     db,
@@ -35,7 +36,6 @@ from tests.test_fixtures import (  # noqa
     real_admin_session,
     real_iris_session,
     testconfig,
-    PushCollector
 )
 
 
@@ -801,7 +801,10 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
 
     push = push_collector.get_for_user(user.id, index=1)
     assert push.content.title == "Strong Verification failed"
-    assert push.content.body == "You tried to verify with a passport that has already been used for verification. Please use another passport."
+    assert (
+        push.content.body
+        == "You tried to verify with a passport that has already been used for verification. Please use another passport."
+    )
 
     refresh_materialized_views_rapid(None)
 
@@ -949,7 +952,11 @@ def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collecto
 
     push = push_collector.get_for_user(user2.id, index=0)
     assert push.content.title == "Strong Verification failed"
-    assert push.content.body == "You tried to verify with a passport that has already been used for verification. Please use another passport."
+    assert (
+        push.content.body
+        == "You tried to verify with a passport that has already been used for verification. Please use another passport."
+    )
+
 
 def test_strong_verification_non_passport(db, monkeypatch, push_collector: PushCollector):
     monkeypatch_sv_config(monkeypatch)
@@ -1020,4 +1027,7 @@ def test_strong_verification_non_passport(db, monkeypatch, push_collector: PushC
 
     push = push_collector.get_for_user(user.id, index=0)
     assert push.content.title == "Strong Verification failed"
-    assert push.content.body == "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification."
+    assert (
+        push.content.body
+        == "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification."
+    )

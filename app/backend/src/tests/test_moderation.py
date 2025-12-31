@@ -26,6 +26,7 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import conversations_pb2, moderation_pb2, notifications_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, now, today
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     conversations_session,
     db,
     email_fields,
@@ -38,7 +39,6 @@ from tests.test_fixtures import (  # noqa
     real_moderation_session,
     requests_session,
     testconfig,
-    PushCollector
 )
 from tests.test_requests import valid_request_text
 
@@ -2326,6 +2326,7 @@ def test_host_request_notifications_sent_after_approval(db, push_collector, mode
     assert push_collector.count_for_user(host.id) == 2
     push = push_collector.get_for_user(host.id, index=1)
     assert push.content.title == f"{surfer.name} confirmed their host request"
+
 
 def test_group_chat_message_notifications_suppressed_before_approval(db, push_collector, moderator):
     """

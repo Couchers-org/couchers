@@ -26,6 +26,7 @@ from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_
 from couchers.templates.v2 import v2date
 from couchers.utils import create_coordinate, now, today
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     api_session,
     auth_api_session,
     db,
@@ -36,7 +37,6 @@ from tests.test_fixtures import (  # noqa
     push_collector,
     requests_session,
     testconfig,
-    PushCollector
 )
 
 

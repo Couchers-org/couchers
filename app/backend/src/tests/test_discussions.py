@@ -6,6 +6,7 @@ from couchers.proto import discussions_pb2, notifications_pb2, threads_pb2
 from couchers.utils import now, to_aware_datetime
 from tests.test_communities import create_community, create_group
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     db,
     discussions_session,
     generate_user,
@@ -14,7 +15,6 @@ from tests.test_fixtures import (  # noqa
     push_collector,
     testconfig,
     threads_session,
-    PushCollector
 )
 
 

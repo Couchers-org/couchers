@@ -26,6 +26,7 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import conversations_pb2, references_pb2, requests_pb2
 from couchers.utils import create_coordinate, now, to_aware_datetime, today
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     account_session,
     db,
     email_fields,
@@ -38,7 +39,6 @@ from tests.test_fixtures import (  # noqa
     references_session,
     requests_session,
     testconfig,
-    PushCollector
 )
 from tests.test_requests import valid_request_text
 
@@ -544,6 +544,7 @@ def test_WriteFriendReference_with_private_text(db, push_collector: PushCollecto
     assert push.content.title == f"You've received a friend reference from {user1.name}!"
     assert push.content.body == "They were nice!"
 
+
 def test_WriteFriendReference_requires_friendship(db):
     """Test that users must be friends to write friend references"""
     user1, token1 = generate_user()
@@ -868,7 +869,11 @@ def test_WriteHostRequestReference_private_text(db, push_collector: PushCollecto
 
     push = push_collector.get_for_user(user2.id)
     assert push.content.title == f"You've received a reference from {user1.name}!"
-    assert push.content.body == "Please go and write a reference for them too. It's a nice gesture and helps us build a community together!"
+    assert (
+        push.content.body
+        == "Please go and write a reference for them too. It's a nice gesture and helps us build a community together!"
+    )
+
 
 def test_GetHostRequestReferenceStatus(db, moderator):
     user1, token1 = generate_user()

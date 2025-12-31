@@ -14,6 +14,7 @@ from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_
 from couchers.resources import get_badge_dict
 from couchers.utils import create_coordinate, to_aware_datetime
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     api_session,
     blocking_session,
     db,
@@ -28,7 +29,6 @@ from tests.test_fixtures import (  # noqa
     real_api_session,
     real_jail_session,
     testconfig,
-    PushCollector
 )
 from tests.test_fixtures import real_admin_session as admin_session
 
