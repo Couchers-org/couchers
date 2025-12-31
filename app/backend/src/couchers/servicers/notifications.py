@@ -46,17 +46,17 @@ def get_vapid_public_key() -> str:
 
 
 def notification_to_pb(user: User, notification: Notification) -> notifications_pb2.Notification:
-    rendered = render_push_notification(user, notification)
+    content = render_push_notification(user, notification)
     return notifications_pb2.Notification(
         notification_id=notification.id,
         created=Timestamp_from_datetime(notification.created),
         topic=notification.topic_action.topic,
         action=notification.topic_action.action,
         key=notification.key,
-        title=rendered.push_title,
-        body=rendered.push_body,
-        icon=rendered.push_icon,
-        url=rendered.push_url,
+        title=content.title,
+        body=content.body,
+        icon=content.icon_url,
+        url=content.action_url,
         is_seen=notification.is_seen,
     )
 
@@ -190,8 +190,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             push_notification_subscription_id=subscription.id,
             user_id=context.user_id,
             topic_action="adhoc:setup",
-            title="Checking push notifications work!",
-            body="Hi, thanks for enabling push notifications!",
+            content=PushNotificationContent(
+                title="Checking push notifications work!", body="Hi, thanks for enabling push notifications!"
+            ),
         )
 
         return empty_pb2.Empty()
@@ -256,8 +257,10 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             push_notification_subscription_id=subscription.id,
             user_id=context.user_id,
             topic_action="adhoc:setup",
-            title="Push notifications enabled!",
-            body="You'll now receive notifications on this device.",
+            content=PushNotificationContent(
+                title="Push notifications enabled!",
+                body="You'll now receive notifications on this device.",
+            ),
         )
 
         return empty_pb2.Empty()
