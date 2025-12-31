@@ -63,6 +63,7 @@ from tests.test_fixtures import (  # noqa
     push_collector,
     requests_session,
     testconfig,
+    PushCollector
 )
 from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
 from tests.test_requests import valid_request_text
@@ -1191,7 +1192,7 @@ def test_update_recommendation_scores(db):
     update_recommendation_scores(empty_pb2.Empty())
 
 
-def test_update_badges(db, push_collector):
+def test_update_badges(db, push_collector: PushCollector):
     user1, _ = generate_user(last_donated=None)
     user2, _ = generate_user(last_donated=None)
     user3, _ = generate_user(last_donated=None)
@@ -1223,48 +1224,33 @@ def test_update_badges(db, push_collector):
 
     print(push_collector.pushes)
 
-    push_collector.assert_user_push_matches_fields(
-        user1.id,
-        ix=0,
-        title="The Founder badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user1.id,
-        ix=1,
-        title="The Board Member badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user2.id,
-        ix=0,
-        title="The Founder badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user2.id,
-        ix=1,
-        title="The Board Member badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user4.id,
-        ix=0,
-        title="The Verified Phone badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user5.id,
-        ix=0,
-        title="The Board Member badge was removed from your profile",
-        body="You can see all your badges on your profile.",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user5.id,
-        ix=1,
-        title="The Verified Phone badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
+    push = push_collector.get_for_user(user1.id, index=0)
+    assert push.content.title == "The Founder badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user1.id, index=1)
+    assert push.content.title == "The Board Member badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user2.id, index=0)
+    assert push.content.title == "The Founder badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user2.id, index=1)
+    assert push.content.title == "The Board Member badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user4.id, index=0)
+    assert push.content.title == "The Verified Phone badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user5.id, index=0)
+    assert push.content.title == "The Board Member badge was removed from your profile"
+    assert push.content.body == "You can see all your badges on your profile."
+
+    push = push_collector.get_for_user(user5.id, index=1)
+    assert push.content.title == "The Verified Phone badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
 
 
 def test_send_request_notifications_blocked_users_no_notification(db, moderator):
@@ -1469,7 +1455,7 @@ def test_send_message_notifications_blocked_users_no_notification(db, moderator)
         assert email_job_count == 0, "No notification email should be sent when recipient has blocked sender"
 
 
-def test_update_badges_volunteers(db, push_collector):
+def test_update_badges_volunteers(db, push_collector: PushCollector):
     """Test that volunteer and past_volunteer badges are automatically granted based on Volunteer model."""
     # Create 6 users - users 1 and 2 get founder/board_member badges from static_badges
     user1, _ = generate_user(last_donated=None)
@@ -1529,29 +1515,24 @@ def test_update_badges_volunteers(db, push_collector):
         assert "past_volunteer" not in user6_badges
 
     # Check notifications for volunteer badge users
-    push_collector.assert_user_has_single_matching(
-        user3.id,
-        title="The Active Volunteer badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_has_single_matching(
-        user4.id,
-        title="The Past Volunteer badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_has_single_matching(
-        user5.id,
-        title="The Active Volunteer badge was removed from your profile",
-        body="You can see all your badges on your profile.",
-    )
-    push_collector.assert_user_has_single_matching(
-        user6.id,
-        title="The Past Volunteer badge was removed from your profile",
-        body="You can see all your badges on your profile.",
-    )
+    push = push_collector.get_for_user(user3.id)
+    assert push.content.title == "The Active Volunteer badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user4.id)
+    assert push.content.title == "The Past Volunteer badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user5.id)
+    assert push.content.title == "The Active Volunteer badge was removed from your profile"
+    assert push.content.body == "You can see all your badges on your profile."
+
+    push = push_collector.get_for_user(user6.id)
+    assert push.content.title == "The Past Volunteer badge was removed from your profile"
+    assert push.content.body == "You can see all your badges on your profile."
 
 
-def test_update_badges_volunteer_status_change(db, push_collector):
+def test_update_badges_volunteer_status_change(db, push_collector: PushCollector):
     """Test that badge is updated when volunteer status changes from active to past."""
     # Create users - users 1 and 2 get founder/board_member badges from static_badges
     user1, _ = generate_user(last_donated=None)
@@ -1577,11 +1558,9 @@ def test_update_badges_volunteer_status_change(db, push_collector):
         assert "volunteer" in user3_badges
         assert "past_volunteer" not in user3_badges
 
-    push_collector.assert_user_has_single_matching(
-        user3.id,
-        title="The Active Volunteer badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
+    push = push_collector.get_for_user(user3.id)
+    assert push.content.title == "The Active Volunteer badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
 
     # Now change the volunteer to past volunteer
     with session_scope() as session:
@@ -1597,18 +1576,13 @@ def test_update_badges_volunteer_status_change(db, push_collector):
         assert "past_volunteer" in user3_badges
 
     # Check both badges were updated
-    push_collector.assert_user_push_matches_fields(
-        user3.id,
-        ix=1,
-        title="The Active Volunteer badge was removed from your profile",
-        body="You can see all your badges on your profile.",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user3.id,
-        ix=2,
-        title="The Past Volunteer badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
+    push = push_collector.get_for_user(user3.id, index=1)
+    assert push.content.title == "The Active Volunteer badge was removed from your profile"
+    assert push.content.body == "You can see all your badges on your profile."
+
+    push = push_collector.get_for_user(user3.id, index=2)
+    assert push.content.title == "The Past Volunteer badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
 
 
 def test_send_message_notifications_empty_unseen_simple(monkeypatch):

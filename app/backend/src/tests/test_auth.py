@@ -32,6 +32,7 @@ from tests.test_fixtures import (  # noqa
     push_collector,
     real_api_session,
     testconfig,
+    PushCollector
 )
 
 
@@ -406,7 +407,7 @@ def test_invalid_token(db):
     assert e.value.details() == "Unauthorized"
 
 
-def test_password_reset_v2(db, push_collector):
+def test_password_reset_v2(db, push_collector: PushCollector):
     user, token = generate_user(hashed_password=hash_password("mypassword"))
 
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -430,12 +431,9 @@ def test_password_reset_v2(db, push_collector):
     assert "support@couchers.org" in e.plain
     assert "support@couchers.org" in e.html
 
-    push_collector.assert_user_push_matches_fields(
-        user.id,
-        title="A password reset was initiated on your account",
-        body="Someone initiated a password change on your account.",
-    )
-
+    push = push_collector.get_for_user(user.id, index=0,)
+    assert push.content.title == "A password reset was initiated on your account"
+    assert push.content.body == "Someone initiated a password change on your account."
     # make sure bad password are caught
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
@@ -453,12 +451,9 @@ def test_password_reset_v2(db, push_collector):
                 auth_pb2.CompletePasswordResetV2Req(password_reset_token=password_reset_token, new_password=pwd)
             )
 
-    push_collector.assert_user_push_matches_fields(
-        user.id,
-        ix=1,
-        title="Your password was successfully reset",
-        body="Your password on Couchers.org was changed. If that was you, then no further action is needed.",
-    )
+    push = push_collector.get_for_user(user.id, index=1)
+    assert push.content.title == "Your password was successfully reset"
+    assert push.content.body == "Your password on Couchers.org was changed. If that was you, then no further action is needed."
 
     session_token, _ = get_session_cookie_tokens(metadata_interceptor)
 

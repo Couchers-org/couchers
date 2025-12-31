@@ -55,6 +55,7 @@ from tests.test_fixtures import (  # noqa
     real_editor_session,
     session_scope,
     testconfig,
+    PushCollector
 )
 
 
@@ -380,7 +381,7 @@ def test_list_notifications(db, push_collector, moderator):
     assert bodys == [n.body for n in all_notifs]
 
 
-def test_notifications_seen(db, push_collector):
+def test_notifications_seen(db, push_collector: PushCollector):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -469,29 +470,23 @@ def test_RegisterPushNotificationSubscription(db):
         )
 
 
-def test_SendTestPushNotification(db, push_collector):
+def test_SendTestPushNotification(db, push_collector: PushCollector):
     user, token = generate_user()
 
     with notifications_session(token) as notifications:
         notifications.SendTestPushNotification(empty_pb2.Empty())
 
-    push_collector.assert_user_has_count(user.id, 1)
-    push_collector.assert_user_push_matches_fields(
-        user.id,
-        title="Checking push notifications work!",
-        body="If you see this, then it's working :)",
-    )
-
+    assert push_collector.count_for_user(user.id) == 1
+    push = push_collector.get_for_user(user.id, index=0)
+    assert push.content.title == "Checking push notifications work!"
+    assert push.content.body == "If you see this, then it's working :)"
     # the above two are equivalent to this
 
-    push_collector.assert_user_has_single_matching(
-        user.id,
-        title="Checking push notifications work!",
-        body="If you see this, then it's working :)",
-    )
+    push = push_collector.get_for_user(user.id, index=0)
+    assert push.content.title == "Checking push notifications work!"
+    assert push.content.body == "If you see this, then it's working :)"
 
-
-def test_SendBlogPostNotification(db, push_collector):
+def test_SendBlogPostNotification(db, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
 
     user1, user1_token = generate_user()
@@ -551,23 +546,17 @@ def test_SendBlogPostNotification(db, push_collector):
     assert "https://couchers.org/blog/2025/05/11/v0.9.9-release" in email_fields(mock).html
     assert "https://couchers.org/blog/2025/05/11/v0.9.9-release" in email_fields(mock).plain
 
-    push_collector.assert_user_has_count(user1.id, 1)
-    push_collector.assert_user_push_matches_fields(
-        user1.id,
-        title="New blog post: Couchers.org v0.9.9 Release Notes",
-        body="Read about last major updates before v1!",
-        action_url="https://couchers.org/blog/2025/05/11/v0.9.9-release",
-    )
+    push = push_collector.get_for_user(user1.id)
+    assert push.content.title == "New blog post: Couchers.org v0.9.9 Release Notes"
+    assert push.content.body == "Read about last major updates before v1!"
+    assert push.action_url == "https://couchers.org/blog/2025/05/11/v0.9.9-release"
 
-    push_collector.assert_user_has_count(user2.id, 1)
-    push_collector.assert_user_push_matches_fields(
-        user2.id,
-        title="New blog post: Couchers.org v0.9.9 Release Notes",
-        body="Read about last major updates before v1!",
-        action_url="https://couchers.org/blog/2025/05/11/v0.9.9-release",
-    )
+    push = push_collector.get_for_user(user2.id)
+    assert push.content.title == "New blog post: Couchers.org v0.9.9 Release Notes"
+    assert push.content.body == "Read about last major updates before v1!"
+    assert push.action_url == "https://couchers.org/blog/2025/05/11/v0.9.9-release"
 
-    push_collector.assert_user_has_count(user3.id, 0)
+    assert push_collector.count_for_user(user3.id) == 0
 
 
 def test_get_topic_actions_by_delivery_type(db):
@@ -777,18 +766,15 @@ def test_RegisterMobilePushNotificationSubscription_already_exists(db):
         assert sub.device_name == "Existing Device"  # unchanged
 
 
-def test_SendTestMobilePushNotification(db, push_collector):
+def test_SendTestMobilePushNotification(db, push_collector: PushCollector):
     user, token = generate_user()
 
     with notifications_session(token) as notifications:
         notifications.SendTestMobilePushNotification(empty_pb2.Empty())
 
-    push_collector.assert_user_has_single_matching(
-        user.id,
-        title="Checking mobile push notifications work!",
-        body="If you see this on your phone, everything is wired up correctly 🎉",
-    )
-
+    push = push_collector.get_for_user(user.id)
+    assert push.content.title == "Checking mobile push notifications work!"
+    assert push.content.body == "If you see this on your phone, everything is wired up correctly 🎉"
 
 def test_get_expo_push_receipts(db):
     from unittest.mock import Mock, patch
@@ -1048,7 +1034,7 @@ def test_check_expo_push_receipts_skips_already_checked(db):
         mock_post.assert_not_called()
 
 
-def test_SendDevPushNotification_success(db, push_collector):
+def test_SendDevPushNotification_success(db, push_collector: PushCollector):
     """Test SendDevPushNotification sends push with all specified parameters."""
     user, token = generate_user()
 
@@ -1067,19 +1053,17 @@ def test_SendDevPushNotification_success(db, push_collector):
             )
         )
 
-    push_collector.assert_user_has_single_matching(
-        user.id,
-        title="Test Dev Title",
-        body="Test dev notification body",
-        icon="https://example.com/icon.png",
-        action_url="https://example.com/action",
-        topic_action="adhoc:testing",
-        key="test-key",
-        ttl=3600,
-    )
+    push = push_collector.get_for_user(user.id)
+    assert push.content.title == "Test Dev Title"
+    assert push.content.body == "Test dev notification body"
+    assert push.action_url == "https://example.com/action"
+    assert push.icon_url == "https://example.com/icon.png"
+    assert push.topic_action == "adhoc:testing"
+    assert push.key == "test-key"
+    assert push.ttl == 3600
 
 
-def test_SendDevPushNotification_minimal(db, push_collector):
+def test_SendDevPushNotification_minimal(db, push_collector: PushCollector):
     """Test SendDevPushNotification with minimal parameters."""
     user, token = generate_user()
 
@@ -1093,15 +1077,13 @@ def test_SendDevPushNotification_minimal(db, push_collector):
             )
         )
 
-    push_collector.assert_user_has_single_matching(
-        user.id,
-        title="Minimal Title",
-        body="Minimal body",
-        topic_action="adhoc:testing",
-    )
+    push = push_collector.get_for_user(user.id)
+    assert push.content.title == "Minimal Title"
+    assert push.content.body == "Minimal body"
+    assert push.topic_action == "adhoc:testing"
 
 
-def test_SendDevPushNotification_disabled(db, push_collector):
+def test_SendDevPushNotification_disabled(db, push_collector: PushCollector):
     """Test SendDevPushNotification fails when ENABLE_DEV_APIS is disabled."""
     user, token = generate_user()
 
@@ -1119,10 +1101,10 @@ def test_SendDevPushNotification_disabled(db, push_collector):
         assert e.value.code() == grpc.StatusCode.UNAVAILABLE
         assert "Development APIs are not enabled" in e.value.details()
 
-    push_collector.assert_user_has_count(user.id, 0)
+    assert push_collector.count_for_user(user.id) == 0
 
 
-def test_SendDevPushNotification_push_notifications_disabled(db, push_collector):
+def test_SendDevPushNotification_push_notifications_disabled(db, push_collector: PushCollector):
     """Test SendDevPushNotification fails when push notifications are disabled."""
     user, token = generate_user()
 
@@ -1140,7 +1122,7 @@ def test_SendDevPushNotification_push_notifications_disabled(db, push_collector)
         assert e.value.code() == grpc.StatusCode.UNAVAILABLE
         assert "Push notifications are currently disabled" in e.value.details()
 
-    push_collector.assert_user_has_count(user.id, 0)
+    assert push_collector.count_for_user(user.id) == 0
 
 
 def test_check_expo_push_receipts_skips_too_recent(db):

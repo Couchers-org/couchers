@@ -22,6 +22,7 @@ from tests.test_fixtures import (  # noqa
     push_collector,
     real_jail_session,
     testconfig,
+    PushCollector
 )
 
 
@@ -30,7 +31,7 @@ def _(testconfig):
     pass
 
 
-def test_activeness_probes_happy_path_inactive(db, push_collector):
+def test_activeness_probes_happy_path_inactive(db, push_collector: PushCollector):
     user, token = generate_user(
         hosting_status=HostingStatus.can_host,
         meetup_status=MeetupStatus.wants_to_meetup,
@@ -58,14 +59,11 @@ def test_activeness_probes_happy_path_inactive(db, push_collector):
         assert res.hosting_status == api_pb2.HOSTING_STATUS_CANT_HOST
         assert res.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
 
-    push_collector.assert_user_has_single_matching(
-        user.id,
-        title="Are you still open to hosting on Couchers.org?",
-        body="Please log in to confirm your hosting status.",
-    )
+    push = push_collector.get_for_user(user.id)
+    assert push.content.title == "Are you still open to hosting on Couchers.org?"
+    assert push.content.body == "Please log in to confirm your hosting status."
 
-
-def test_activeness_probes_happy_path_active(db, push_collector):
+def test_activeness_probes_happy_path_active(db, push_collector: PushCollector):
     user, token = generate_user(
         hosting_status=HostingStatus.can_host,
         meetup_status=MeetupStatus.wants_to_meetup,
@@ -93,14 +91,11 @@ def test_activeness_probes_happy_path_active(db, push_collector):
         assert res.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert res.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
 
-    push_collector.assert_user_has_single_matching(
-        user.id,
-        title="Are you still open to hosting on Couchers.org?",
-        body="Please log in to confirm your hosting status.",
-    )
+    push = push_collector.get_for_user(user.id)
+    assert push.content.title == "Are you still open to hosting on Couchers.org?"
+    assert push.content.body == "Please log in to confirm your hosting status."
 
-
-def test_activeness_probes_disabled(db, push_collector):
+def test_activeness_probes_disabled(db, push_collector: PushCollector):
     new_config = config.copy()
     new_config["ACTIVENESS_PROBES_ENABLED"] = False
 
@@ -125,7 +120,7 @@ def test_activeness_probes_disabled(db, push_collector):
             assert not session.execute(select(exists(ActivenessProbe))).scalar_one()
 
 
-def test_activeness_probes_expiry(db, push_collector):
+def test_activeness_probes_expiry(db, push_collector: PushCollector):
     user, token = generate_user(
         hosting_status=HostingStatus.can_host,
         meetup_status=MeetupStatus.wants_to_meetup,

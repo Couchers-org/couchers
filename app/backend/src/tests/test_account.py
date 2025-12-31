@@ -33,6 +33,7 @@ from tests.test_fixtures import (  # noqa
     public_session,
     real_account_session,
     requests_session,
+    PushCollector,
 )
 from tests.test_requests import valid_request_text
 
@@ -179,7 +180,7 @@ def test_GetAccountInfo_regression(db):
         res = account.GetAccountInfo(empty_pb2.Empty())
 
 
-def test_ChangePasswordV2_normal(db, fast_passwords, push_collector):
+def test_ChangePasswordV2_normal(db, fast_passwords, push_collector: PushCollector):
     # user has old password and is changing to new password
     old_password = random_hex()
     new_password = random_hex()
@@ -197,9 +198,9 @@ def test_ChangePasswordV2_normal(db, fast_passwords, push_collector):
     mock.assert_called_once()
     assert email_fields(mock).subject == "[TEST] Your password was changed"
 
-    push_collector.assert_user_has_single_matching(
-        user.id, title="Your password was changed", body="Your login password for Couchers.org was changed."
-    )
+    push = push_collector.get_for_user(user.id)
+    assert push.content.title == "Your password was changed"
+    assert push.content.body == "Your login password for Couchers.org was changed."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -546,7 +547,7 @@ def test_ChangeEmailV2_tokens_two_hour_window(db):
             assert e.value.details() == "Invalid token."
 
 
-def test_ChangeEmailV2(db, fast_passwords, push_collector):
+def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
@@ -571,12 +572,9 @@ def test_ChangeEmailV2(db, fast_passwords, push_collector):
         token = user_updated.new_email_token
 
     process_jobs()
-    push_collector.assert_user_push_matches_fields(
-        user_id,
-        ix=0,
-        title="An email change was initiated on your account",
-        body=f"An email change to the email {new_email} was initiated on your account.",
-    )
+    push = push_collector.get_for_user(user_id, index=0)
+    assert push.content.title == "An email change was initiated on your account"
+    assert push.content.body == f"An email change to the email {new_email} was initiated on your account."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         res = auth_api.ConfirmChangeEmailV2(
@@ -594,15 +592,12 @@ def test_ChangeEmailV2(db, fast_passwords, push_collector):
         assert user.new_email_token_expiry is None
 
     process_jobs()
-    push_collector.assert_user_push_matches_fields(
-        user_id,
-        ix=1,
-        title="Email change completed",
-        body="Your new email address has been verified.",
-    )
+    push = push_collector.get_for_user(user_id, index=1)
+    assert push.content.title == "Email change completed"
+    assert push.content.body == "Your new email address has been verified."
 
 
-def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector):
+def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector: PushCollector):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
@@ -630,12 +625,9 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector):
             uq_str2 in jobs[0].payload and uq_str1 in jobs[1].payload
         )
 
-    push_collector.assert_user_has_single_matching(
-        user.id,
-        title="An email change was initiated on your account",
-        body=f"An email change to the email {new_email} was initiated on your account.",
-    )
-
+    push = push_collector.get_for_user(user.id)
+    assert push.content.title == "An email change was initiated on your account"
+    assert push.content.body == f"An email change to the email {new_email} was initiated on your account."
 
 def test_ChangeLanguagePreference(db, fast_passwords):
     # user changes from default to ISO 639-1 language code
@@ -710,7 +702,7 @@ def test_DeleteAccount_message_storage(db):
         assert session.execute(select(func.count()).select_from(AccountDeletionReason)).scalar_one() == 3
 
 
-def test_full_delete_account_with_recovery(db, push_collector):
+def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
     user, token = generate_user()
     user_id = user.id
 
@@ -724,12 +716,9 @@ def test_full_delete_account_with_recovery(db, push_collector):
         with mock_notification_email() as mock:
             account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
 
-    push_collector.assert_user_push_matches_fields(
-        user_id,
-        ix=0,
-        title="Account deletion initiated",
-        body="Someone initiated the deletion of your Couchers.org account. To delete your account, please follow the link in the email we sent you.",
-    )
+    push = push_collector.get_for_user(user_id, index=0)
+    assert push.content.title == "Account deletion initiated"
+    assert push.content.body == "Someone initiated the deletion of your Couchers.org account. To delete your account, please follow the link in the email we sent you."
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -766,12 +755,9 @@ def test_full_delete_account_with_recovery(db, push_collector):
                 )
             )
 
-    push_collector.assert_user_push_matches_fields(
-        user_id,
-        ix=1,
-        title="Your Couchers.org account has been deleted",
-        body="You can still undo this by following the link we emailed to you within 7 days.",
-    )
+    push = push_collector.get_for_user(user_id, index=1)
+    assert push.content.title == "Your Couchers.org account has been deleted"
+    assert push.content.body == "You can still undo this by following the link we emailed to you within 7 days."
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -807,12 +793,9 @@ def test_full_delete_account_with_recovery(db, push_collector):
                 )
             )
 
-    push_collector.assert_user_push_matches_fields(
-        user_id,
-        ix=2,
-        title="Your Couchers.org account has been recovered!",
-        body="We have recovered your Couchers.org account as per your request! Welcome back!",
-    )
+    push = push_collector.get_for_user(user_id, index=2)
+    assert push.content.title == "Your Couchers.org account has been recovered!"
+    assert push.content.body == "We have recovered your Couchers.org account as per your request! Welcome back!"
 
     mock.assert_called_once()
     e = email_fields(mock)

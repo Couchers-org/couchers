@@ -24,6 +24,7 @@ from tests.test_fixtures import (  # noqa
     real_editor_session,
     testconfig,
     threads_session,
+    PushCollector
 )
 
 
@@ -32,7 +33,7 @@ def _(testconfig):
     pass
 
 
-def test_CreateEvent(db, push_collector):
+def test_CreateEvent(db, push_collector: PushCollector):
     # test cases:
     # can create event
     # cannot create event with missing details
@@ -2095,7 +2096,7 @@ def test_ListEventAttendees_regression(db):
         assert res.attendee_user_ids[0] == user1.id
 
 
-def test_event_threads(db, push_collector):
+def test_event_threads(db, push_collector: PushCollector):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -2144,9 +2145,9 @@ def test_event_threads(db, push_collector):
 
     process_jobs()
 
-    push_collector.assert_user_has_single_matching(user1.id, title=f'{user2.name} commented on "Dummy Title"')
-    push_collector.assert_user_has_single_matching(user2.id, title="Dummy Title")
-    push_collector.assert_user_has_count(user4_id, 0)
+    assert push_collector.get_for_user(user1.id).title == f'{user2.name} commented on "Dummy Title"'
+    assert push_collector.get_for_user(user2.id).title == "Dummy Title"
+    assert push_collector.count_for_user(user4_id) == 0
 
 
 def test_can_overlap_other_events_schedule_regression(db):

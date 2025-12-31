@@ -14,6 +14,7 @@ from tests.test_fixtures import (  # noqa
     push_collector,
     testconfig,
     threads_session,
+    PushCollector
 )
 
 
@@ -47,7 +48,7 @@ def test_create_discussion_errors(db):
         assert e.value.details() == "Missing discussion content."
 
 
-def test_create_and_get_discussion(db, push_collector):
+def test_create_and_get_discussion(db, push_collector: PushCollector):
     generate_user()
     user, token = generate_user()
     user2, token2 = generate_user()
@@ -96,11 +97,9 @@ def test_create_and_get_discussion(db, push_collector):
 
     process_jobs()
 
-    push_collector.assert_user_has_single_matching(
-        user2_id,
-        title="dummy title",
-        body=f"{user.name} created a discussion in Testing Community: dummy title\n\ndummy content",
-    )
+    push = push_collector.get_for_user(user2_id)
+    assert push.content.title == "dummy title"
+    assert push.content.body == f"{user.name} created a discussion in Testing Community: dummy title\n\ndummy content"
 
     with discussions_session(token) as api:
         res = api.GetDiscussion(
@@ -151,7 +150,7 @@ def test_create_and_get_discussion(db, push_collector):
         assert res.owner_group_id == group_id
 
 
-def test_discussion_notifications_regression(db, push_collector):
+def test_discussion_notifications_regression(db, push_collector: PushCollector):
     generate_user()
     user, token = generate_user()
     user2, token2 = generate_user()
@@ -198,16 +197,12 @@ def test_discussion_notifications_regression(db, push_collector):
     process_jobs()
 
     # User2 should get 2 notifications about 2 replies to their comment, User3 should get 1 notification about 1 reply
-    push_collector.assert_user_has_count(user2_id, 2)
+    assert push_collector.count_for_user(user2_id) == 2
     for i in range(2):
-        push_collector.assert_user_push_matches_fields(
-            user2_id,
-            ix=i,
-            title="dummy title",
-            topic_action="thread:reply",
-        )
-    push_collector.assert_user_has_single_matching(
-        user3.id,
-        title="dummy title",
-        topic_action="thread:reply",
-    )
+        push = push_collector.get_for_user(user2_id, index=i)
+        assert push.content.title == "dummy title"
+        assert push.topic_action == "thread:reply"
+
+    push = push_collector.get_for_user(user3.id)
+    assert push.content.title == "dummy title"
+    assert push.topic_action == "thread:reply"
