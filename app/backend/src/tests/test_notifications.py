@@ -550,12 +550,12 @@ def test_SendBlogPostNotification(db, push_collector: PushCollector):
     push = push_collector.get_for_user(user1.id)
     assert push.content.title == "New blog post: Couchers.org v0.9.9 Release Notes"
     assert push.content.body == "Read about last major updates before v1!"
-    assert push.action_url == "https://couchers.org/blog/2025/05/11/v0.9.9-release"
+    assert push.content.action_url == "https://couchers.org/blog/2025/05/11/v0.9.9-release"
 
     push = push_collector.get_for_user(user2.id)
     assert push.content.title == "New blog post: Couchers.org v0.9.9 Release Notes"
     assert push.content.body == "Read about last major updates before v1!"
-    assert push.action_url == "https://couchers.org/blog/2025/05/11/v0.9.9-release"
+    assert push.content.action_url == "https://couchers.org/blog/2025/05/11/v0.9.9-release"
 
     assert push_collector.count_for_user(user3.id) == 0
 
@@ -1058,8 +1058,8 @@ def test_SendDevPushNotification_success(db, push_collector: PushCollector):
     push = push_collector.get_for_user(user.id)
     assert push.content.title == "Test Dev Title"
     assert push.content.body == "Test dev notification body"
-    assert push.action_url == "https://example.com/action"
-    assert push.icon_url == "https://example.com/icon.png"
+    assert push.content.action_url == "https://example.com/action"
+    assert push.content.icon_url == "https://example.com/icon.png"
     assert push.topic_action == "adhoc:testing"
     assert push.key == "test-key"
     assert push.ttl == 3600
