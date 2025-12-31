@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, String, UniqueConstraint, func
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql.selectable import Select, Subquery
 
 from couchers import urls
 from couchers.models.base import Base
@@ -115,7 +116,7 @@ class PhotoGalleryItem(Base, kw_only=True):
     )
 
 
-def get_first_gallery_photo_subquery(name: str = "first_photo"):
+def get_first_gallery_photo_subquery(name: str = "first_photo") -> Subquery:
     """
     Returns a subquery that selects the first photo (by position) from each photo gallery.
 
@@ -138,7 +139,7 @@ def get_first_gallery_photo_subquery(name: str = "first_photo"):
     )
 
 
-def get_first_gallery_photo_query(gallery_id: int):
+def get_first_gallery_photo_query(gallery_id: int) -> Select[tuple[PhotoGalleryItem]]:
     """
     Returns a select statement for the first photo (by position) in a specific gallery.
 

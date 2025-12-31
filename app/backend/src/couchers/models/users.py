@@ -26,8 +26,9 @@ from sqlalchemy import (
 )
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import select as sa_select
+from sqlalchemy.engine import Connection
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import DynamicMapped, Mapped, column_property, mapped_column, relationship
+from sqlalchemy.orm import DynamicMapped, Mapped, Mapper, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -578,7 +579,7 @@ class RegionLived(Base, kw_only=True):
 # Event handlers to keep User.has_completed_profile in sync
 @event.listens_for(User, "after_update")
 @event.listens_for(User, "after_insert")
-def _user_updated(mapper, connection, target: User) -> None:
+def _user_updated(mapper: Mapper[User], connection: Connection, target: User) -> None:
     """When a user's profile_gallery_id or about_me changes, update has_completed_profile."""
     # Use raw SQL to update has_completed_profile based on current database state
     stmt = text(
@@ -600,7 +601,9 @@ def _user_updated(mapper, connection, target: User) -> None:
 
 @event.listens_for(PhotoGalleryItem, "after_insert")
 @event.listens_for(PhotoGalleryItem, "after_delete")
-def _photo_gallery_item_changed(mapper, connection, target: PhotoGalleryItem) -> None:
+def _photo_gallery_item_changed(
+    mapper: Mapper[PhotoGalleryItem], connection: Connection, target: PhotoGalleryItem
+) -> None:
     """When photos are added/removed from a gallery, update has_completed_profile for affected users."""
     # Find users who have this gallery as their profile_gallery_id
     stmt = text(

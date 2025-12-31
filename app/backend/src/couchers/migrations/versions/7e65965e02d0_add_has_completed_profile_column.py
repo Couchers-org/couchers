@@ -18,9 +18,7 @@ depends_on = None
 
 def upgrade() -> None:
     # Add the has_completed_profile column with default False
-    op.add_column(
-        "users", sa.Column("has_completed_profile", sa.Boolean(), server_default=sa.text("false"), nullable=False)
-    )
+    op.add_column("users", sa.Column("has_completed_profile", sa.Boolean(), server_default=sa.false(), nullable=False))
 
     # Backfill existing users based on whether they have photos and about_me >= 150 chars
     op.execute(
