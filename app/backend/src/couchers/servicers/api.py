@@ -954,7 +954,8 @@ def user_model_to_pb(
     # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
 
-    if not is_admin_see_ghosts and is_not_visible(session, context.user_id, db_user.id):
+    viewer_user_id = context.user_id if context.is_logged_in() else None
+    if not is_admin_see_ghosts and is_not_visible(session, viewer_user_id, db_user.id):
         # User is not visible (deleted, banned, or blocked)
         if is_get_user_return_ghosts:
             # Return an anonymized "ghost" user profile
@@ -978,7 +979,7 @@ def user_model_to_pb(
     lat, lng = db_user.coordinates or (0, 0)
 
     pending_friend_request = None
-    if db_user.id == context.user_id:
+    if context.is_logged_out() or db_user.id == context.user_id:
         friends_status = api_pb2.User.FriendshipStatus.NA
     else:
         friend_relationship = session.execute(
