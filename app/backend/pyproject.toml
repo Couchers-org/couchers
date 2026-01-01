@@ -131,7 +131,20 @@ ignore_missing_imports = true
 # Coverage
 [tool.coverage.run]
 omit = ["src/couchers/proto/**", "src/couchers/migrations/versions/**", "src/dummy_data.py"]
+branch = true
 
+[tool.coverage.report]
+exclude_also = [
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+skip_covered = true
+show_missing = true
 
 # Build
 [build-system]

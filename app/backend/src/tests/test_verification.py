@@ -152,15 +152,13 @@ def test_VerifyPhone(push_collector: PushCollector):
 
 
 def test_VerifyPhone_antibrute():
-    user, token = generate_user()
-    with account_session(token) as account:
-        with session_scope() as session:
-            session.execute(
-                update(User)
-                .where(User.id == user.id)
-                .values(phone_verification_token="111112", phone_verification_sent=now(), phone="+46701740605")
-            )
+    user, token = generate_user(
+        phone_verification_token="111112",
+        phone_verification_sent=now(),
+        phone="+46701740605",
+    )
 
+    with account_session(token) as account:
         for _ in range(10):
             with pytest.raises(grpc.RpcError) as e:
                 account.VerifyPhone(account_pb2.VerifyPhoneReq(token="123455"))

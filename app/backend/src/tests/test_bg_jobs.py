@@ -40,6 +40,7 @@ from couchers.models import (
     BackgroundJob,
     BackgroundJobState,
     Email,
+    HostRequest,
     HostRequestStatus,
     LoginToken,
     Message,
@@ -1370,8 +1371,6 @@ def test_send_host_request_reminders_blocked_users_no_notification(db, moderator
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
         # Reset the reminder counter so we can test again
-        from couchers.models import HostRequest
-
         host_request = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr)).scalar_one()
         host_request.host_sent_request_reminders = 0
         host_request.last_sent_request_reminder_time = now() - HOST_REQUEST_REMINDER_INTERVAL

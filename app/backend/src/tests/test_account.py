@@ -577,7 +577,7 @@ def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):
     assert push.content.body == f"An email change to the email {new_email} was initiated on your account."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmailV2(
+        auth_api.ConfirmChangeEmailV2(
             auth_pb2.ConfirmChangeEmailV2Req(
                 change_email_token=token,
             )
@@ -615,8 +615,6 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector: P
     with session_scope() as session:
         jobs = session.execute(select(BackgroundJob).where(BackgroundJob.job_type == "send_email")).scalars().all()
         assert len(jobs) == 2
-        payload_for_notification_email = jobs[0].payload
-        payload_for_confirmation_email_new_address = jobs[1].payload
         uq_str1 = b"An email change to the email"
         uq_str2 = (
             b"You requested that your email be changed to this email address on Couchers.org. Your old email address is"
@@ -632,7 +630,7 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector: P
 
 def test_ChangeLanguagePreference(db, fast_passwords):
     # user changes from default to ISO 639-1 language code
-    newLanguageCode = "zh"
+    new_lang = "zh"
     user, token = generate_user()
 
     with real_account_session(token) as account:
@@ -641,20 +639,19 @@ def test_ChangeLanguagePreference(db, fast_passwords):
 
         # call will have info about the request
         res, call = account.ChangeLanguagePreference.with_call(
-            account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode)
+            account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=new_lang)
         )
 
         # cookies are sent via initial metadata, so we check for it there
-        for key, val in call.initial_metadata():
-            if key == "set-cookie":
-                # the value of "set-cookie" will be the full cookie string, pull the key value from the string
-                key_val = val.split(";")[0]
-                if key_val == "NEXT_LOCALE=zh":
-                    # the changed language preference should also be sent to the backend
-                    res = account.GetAccountInfo(empty_pb2.Empty())
-                    assert res.ui_language_preference == "zh"
-                    return
-        raise Exception(f"Didn't find right cookie, got {call.initial_metadata()}")
+        # the value of "set-cookie" will be the full cookie string, pull the key value from the string
+        cookie_values = [v.split(";")[0] for k, v in call.initial_metadata() if k == "set-cookie"]
+        assert any(val == "NEXT_LOCALE=zh" for val in cookie_values), (
+            f"Didn't find the right cookie, got {call.initial_metadata()}"
+        )
+
+        # the changed language preference should also be sent to the backend
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.ui_language_preference == "zh"
 
 
 def test_contributor_form(db):
