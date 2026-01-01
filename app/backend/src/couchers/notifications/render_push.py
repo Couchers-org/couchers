@@ -17,12 +17,126 @@ logger = logging.getLogger(__name__)
 
 # Best practices for push notification strings (Android/iOS lowest common denominator):
 # Title:
-#   Describe the event, e.g. "Payment Successful"
-#   <= 30 chars (Android), most important info in first 20 chars
-#   Title-style capitalization, no ending punctuation
+#   - Describe the event, e.g. "Payment Successful"
+#   - <= 30 chars (Android), most important info in first 20 chars
+#   - Title-style capitalization, no ending punctuation
 # Body:
-#   <= 80 chars (Android), first 40 visible when collapsed
-#   Sentence-style capitalization with punctuation
+#   - <= 80 chars (Android), first 40 visible when collapsed
+#   - Sentence-style capitalization with punctuation
+
+
+def render_push_notification(user: User, notification: Notification) -> PushNotificationContent:
+    data: Any = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
+    # Keep topics sorted (action can follow logical ordering)
+    match notification.topic_action.display:
+        case "account_deletion:start":
+            return _account_deletion_start(data)
+        case "account_deletion:complete":
+            return _account_deletion_complete(data)
+        case "account_deletion:recovered":
+            return _account_deletion_recovered(data)
+        case "activeness:probe":
+            return _activeness_probe(data)
+        case "api_key:create":
+            return _api_key_create(data)
+        case "badge:add":
+            return _badge_add(data)
+        case "badge:remove":
+            return _badge_remove(data)
+        case "birthdate:change":
+            return _birthdate_change(data, user)
+        case "chat:message":
+            return _chat_message(data)
+        case "chat:missed_messages":
+            return _chat_missed_messages(data)
+        case "donation:received":
+            return _donation_received(data)
+        case "discussion:create":
+            return _discussion_create(data)
+        case "discussion:comment":
+            return _discussion_comment(data)
+        case "email_address:change":
+            return _email_address_change(data)
+        case "email_address:verify":
+            return _email_address_verify(data)
+        case "event:create_any":
+            return _event_create_any(data, user)
+        case "event:create_approved":
+            return _event_create_approved(data, user)
+        case "event:update":
+            return _event_update(data, user)
+        case "event:invite_organizer":
+            return _event_invite_organizer(data, user)
+        case "event:comment":
+            return _event_comment(data, user)
+        case "event:reminder":
+            return _event_reminder(data, user)
+        case "event:cancel":
+            return _event_cancel(data, user)
+        case "event:delete":
+            return _event_delete(data, user)
+        case "friend_request:create":
+            return _friend_request_create(data)
+        case "friend_request:accept":
+            return _friend_request_accept(data)
+        case "gender:change":
+            return _gender_change(data)
+        case "general:new_blog_post":
+            return _general_new_blog_post(data)
+        case "host_request:create":
+            return _host_request_create(data, user)
+        case "host_request:message":
+            return _host_request_message(data, user)
+        case "host_request:missed_messages":
+            return _host_request_missed_messages(data)
+        case "host_request:reminder":
+            return _host_request_reminder(data)
+        case "host_request:accept":
+            return _host_request_accept(data)
+        case "host_request:reject":
+            return _host_request_reject(data)
+        case "host_request:cancel":
+            return _host_request_cancel(data)
+        case "host_request:confirm":
+            return _host_request_confirm(data)
+        case "modnote:create":
+            return _modnote_create(data)
+        case "onboarding:reminder":
+            return _onboarding_reminder(data, notification.key, user)
+        case "password:change":
+            return _password_change(data)
+        case "password_reset:start":
+            return _password_reset_start(data)
+        case "password_reset:complete":
+            return _password_reset_complete(data)
+        case "phone_number:change":
+            return _phone_number_change(data)
+        case "phone_number:verify":
+            return _phone_number_verify(data)
+        case "postal_verification:postcard_sent":
+            return _postal_verification_postcard_sent(data)
+        case "postal_verification:success":
+            return _postal_verification_success(data)
+        case "postal_verification:failed":
+            return _postal_verification_failed(data)
+        case "reference:receive_friend":
+            return _reference_receive_friend(data)
+        case "reference:receive_hosted":
+            return _reference_receive(data, action=notification.action)
+        case "reference:receive_surfed":
+            return _reference_receive(data, action=notification.action)
+        case "reference:reminder_hosted":
+            return _reference_reminder(data, action=notification.action)
+        case "reference:reminder_surfed":
+            return _reference_reminder(data, action=notification.action)
+        case "thread:reply":
+            return _thread_reply(data)
+        case "verification:sv_success":
+            return _verification_sv_success(data)
+        case "verification:sv_fail":
+            return _verification_sv_fail(data)
+        case _:
+            raise NotImplementedError(f"Unknown topic-action: {notification.topic_action.display}")
 
 
 # account_deletion:start
@@ -573,117 +687,3 @@ def _verification_sv_fail(data: notification_data_pb2.VerificationSVFail) -> Pus
         body=reason_message,
         action_url=urls.account_settings_link(),
     )
-
-
-def render_push_notification(user: User, notification: Notification) -> PushNotificationContent:
-    data: Any = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
-    # Keep topics sorted (action can follow logical ordering)
-    match notification.topic_action.display:
-        case "account_deletion:start":
-            return _account_deletion_start(data)
-        case "account_deletion:complete":
-            return _account_deletion_complete(data)
-        case "account_deletion:recovered":
-            return _account_deletion_recovered(data)
-        case "activeness:probe":
-            return _activeness_probe(data)
-        case "api_key:create":
-            return _api_key_create(data)
-        case "badge:add":
-            return _badge_add(data)
-        case "badge:remove":
-            return _badge_remove(data)
-        case "birthdate:change":
-            return _birthdate_change(data, user)
-        case "chat:message":
-            return _chat_message(data)
-        case "chat:missed_messages":
-            return _chat_missed_messages(data)
-        case "donation:received":
-            return _donation_received(data)
-        case "discussion:create":
-            return _discussion_create(data)
-        case "discussion:comment":
-            return _discussion_comment(data)
-        case "email_address:change":
-            return _email_address_change(data)
-        case "email_address:verify":
-            return _email_address_verify(data)
-        case "event:create_any":
-            return _event_create_any(data, user)
-        case "event:create_approved":
-            return _event_create_approved(data, user)
-        case "event:update":
-            return _event_update(data, user)
-        case "event:invite_organizer":
-            return _event_invite_organizer(data, user)
-        case "event:comment":
-            return _event_comment(data, user)
-        case "event:reminder":
-            return _event_reminder(data, user)
-        case "event:cancel":
-            return _event_cancel(data, user)
-        case "event:delete":
-            return _event_delete(data, user)
-        case "friend_request:create":
-            return _friend_request_create(data)
-        case "friend_request:accept":
-            return _friend_request_accept(data)
-        case "gender:change":
-            return _gender_change(data)
-        case "general:new_blog_post":
-            return _general_new_blog_post(data)
-        case "host_request:create":
-            return _host_request_create(data, user)
-        case "host_request:message":
-            return _host_request_message(data, user)
-        case "host_request:missed_messages":
-            return _host_request_missed_messages(data)
-        case "host_request:reminder":
-            return _host_request_reminder(data)
-        case "host_request:accept":
-            return _host_request_accept(data)
-        case "host_request:reject":
-            return _host_request_reject(data)
-        case "host_request:cancel":
-            return _host_request_cancel(data)
-        case "host_request:confirm":
-            return _host_request_confirm(data)
-        case "modnote:create":
-            return _modnote_create(data)
-        case "onboarding:reminder":
-            return _onboarding_reminder(data, notification.key, user)
-        case "password:change":
-            return _password_change(data)
-        case "password_reset:start":
-            return _password_reset_start(data)
-        case "password_reset:complete":
-            return _password_reset_complete(data)
-        case "phone_number:change":
-            return _phone_number_change(data)
-        case "phone_number:verify":
-            return _phone_number_verify(data)
-        case "postal_verification:postcard_sent":
-            return _postal_verification_postcard_sent(data)
-        case "postal_verification:success":
-            return _postal_verification_success(data)
-        case "postal_verification:failed":
-            return _postal_verification_failed(data)
-        case "reference:receive_friend":
-            return _reference_receive_friend(data)
-        case "reference:receive_hosted":
-            return _reference_receive(data, action=notification.action)
-        case "reference:receive_surfed":
-            return _reference_receive(data, action=notification.action)
-        case "reference:reminder_hosted":
-            return _reference_reminder(data, action=notification.action)
-        case "reference:reminder_surfed":
-            return _reference_reminder(data, action=notification.action)
-        case "thread:reply":
-            return _thread_reply(data)
-        case "verification:sv_success":
-            return _verification_sv_success(data)
-        case "verification:sv_fail":
-            return _verification_sv_fail(data)
-        case _:
-            raise NotImplementedError(f"Unknown topic-action: {notification.topic_action.display}")
