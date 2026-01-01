@@ -21,19 +21,9 @@ from couchers.models import (
     UserSession,
 )
 from couchers.proto import api_pb2, auth_pb2
-from tests.test_fixtures import (  # noqa
-    PushCollector,
-    api_session,
-    auth_api_session,
-    db,
-    email_fields,
-    fast_passwords,
-    generate_user,
-    mock_notification_email,
-    push_collector,
-    real_api_session,
-    testconfig,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.sessions import api_session, auth_api_session, real_api_session
 
 
 @pytest.fixture(autouse=True)

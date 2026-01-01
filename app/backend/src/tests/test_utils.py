@@ -8,7 +8,7 @@ from sqlalchemy.sql import func
 from couchers.db import session_scope
 from couchers.models import User
 from couchers.utils import dt_from_page_token, dt_to_page_token, http_date, now, wrap_coordinate
-from tests.test_fixtures import db, generate_user, testconfig  # noqa
+from tests.fixtures.db import generate_user
 
 
 @pytest.fixture(autouse=True)

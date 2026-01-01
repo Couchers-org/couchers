@@ -11,7 +11,8 @@ from couchers.models import (
     Volunteer,
 )
 from couchers.proto import editor_pb2
-from tests.test_fixtures import db, generate_user, real_editor_session, testconfig  # noqa
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import real_editor_session
 
 
 @pytest.fixture(autouse=True)

@@ -96,7 +96,7 @@ if config["ROLE"] in ["worker", "all"]:
 
 setup_tracing()
 
-# Initialize experimentation framework for feature flags in the main process.
+# Initialize the experimentation framework for feature flags in the main process.
 # IMPORTANT: This MUST be called AFTER worker processes are spawned (above).
 # The underlying SDK uses internal threading that doesn't survive fork().
 # Worker processes initialize their own instance in _run_forever().

@@ -20,15 +20,8 @@ from couchers.utils import (
     is_valid_username,
     parse_date,
 )
+from tests.fixtures.db import create_schema_from_models, drop_database, generate_user, run_migration_test
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
-from tests.test_fixtures import (  # noqa
-    create_schema_from_models,
-    db,
-    drop_database,
-    generate_user,
-    run_migration_test,
-    testconfig,
-)
 
 
 def test_is_valid_user_id():

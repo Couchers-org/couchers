@@ -1,7 +1,6 @@
 import pytest
 
 from couchers import crypto
-from tests.test_fixtures import testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)

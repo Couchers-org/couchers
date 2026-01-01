@@ -21,13 +21,9 @@ from couchers.models import (
 )
 from couchers.proto import api_pb2, public_pb2
 from couchers.servicers.public import _get_donation_stats, _get_public_users, _get_signup_page_info, _get_volunteers
-from tests.test_fixtures import (  # noqa
-    db,
-    generate_user,
-    process_jobs,
-    public_session,
-    testconfig,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import process_jobs
+from tests.fixtures.sessions import public_session
 
 
 @pytest.fixture(autouse=True)

@@ -6,10 +6,6 @@ from sqlalchemy.sql import func
 
 from couchers.db import session_scope
 from couchers.models import User
-from tests.test_fixtures import (  # noqa
-    db,
-    testconfig,
-)
 
 
 @pytest.fixture(autouse=True)
