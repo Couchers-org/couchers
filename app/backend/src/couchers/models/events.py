@@ -87,7 +87,7 @@ class Event(Base):
     )
     creator_user: Mapped["User"] = relationship("User", backref="created_events", foreign_keys="Event.creator_user_id")
     owner_user: Mapped["User | None"] = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
-    owner_cluster: Mapped["Cluster"] = relationship(
+    owner_cluster: Mapped["Cluster | None"] = relationship(
         "Cluster",
         backref=backref("owned_events", lazy="dynamic"),
         uselist=False,
