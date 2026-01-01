@@ -23,7 +23,7 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.push import PushNotificationContent, push_to_subscription, push_to_user
-from couchers.notifications.render import render_push_notification
+from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import (
     PreferenceNotUserEditableError,
     get_topic_actions_by_delivery_type,
