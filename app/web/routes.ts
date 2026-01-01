@@ -151,6 +151,8 @@ export const eventBaseRoute = "/event";
 export const newEventRoute = `${eventBaseRoute}/new`;
 export const routeToNewEvent = (communityId?: number) =>
   `${newEventRoute}${communityId ? `?communityId=${communityId}` : ""}`;
+export const routeToDuplicateEvent = (eventId: number) =>
+  `${newEventRoute}?duplicateEventId=${eventId}`;
 export const routeToEvent = (id: number, slug: string) =>
   `${eventBaseRoute}/${id}/${slug}`;
 export const routeToEditEvent = (id: number, slug: string) =>

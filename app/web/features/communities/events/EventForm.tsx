@@ -190,7 +190,7 @@ export default function EventForm({
         <EventTimeChanger
           control={control}
           errors={errors}
-          event={event}
+          event={isEdit ? event : undefined}
           getValues={getValues}
           register={register}
           setValue={setValue}

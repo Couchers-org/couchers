@@ -1,6 +1,11 @@
 import { ListItemText, styled } from "@mui/material";
 import Button from "components/Button";
-import { CheckIcon, ExpandLessIcon, ExpandMoreIcon } from "components/Icons";
+import {
+  CheckCircleIcon,
+  CheckIcon,
+  ExpandLessIcon,
+  ExpandMoreIcon,
+} from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
@@ -62,7 +67,22 @@ export default function AttendanceMenu({
         onClick={handleClick}
         loading={loading}
         variant={isAttending ? "outlined" : "contained"}
+        color="primary"
         disabled={disabled}
+        startIcon={
+          isAttending ? (
+            <CheckCircleIcon sx={{ color: theme.palette.primary.main }} />
+          ) : undefined
+        }
+        endIcon={
+          isAttending ? (
+            open ? (
+              <ExpandLessIcon />
+            ) : (
+              <ExpandMoreIcon />
+            )
+          ) : undefined
+        }
         sx={{
           color: isAttending
             ? theme.palette.common.black
@@ -73,8 +93,6 @@ export default function AttendanceMenu({
         {isAttending
           ? t("communities:going_to_event")
           : t("communities:join_event")}
-
-        {isAttending && (open ? <ExpandLessIcon /> : <ExpandMoreIcon />)}
       </Button>
 
       <Menu

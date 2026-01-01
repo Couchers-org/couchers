@@ -216,6 +216,99 @@ describe("Event page", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("shows the 'duplicate event' button only for the event creator", async () => {
+    // Current user is user 1 (from users[0])
+    getEventMock.mockResolvedValue({ ...firstEvent, creatorUserId: 1 });
+    renderEventPage();
+
+    expect(
+      await screen.findByRole("button", {
+        name: t("communities:duplicate_event"),
+      }),
+    ).toBeVisible();
+  });
+
+  it("does not show the 'duplicate event' button if user is not the creator", async () => {
+    // Current user is user 1, but event is created by user 2
+    getEventMock.mockResolvedValue({ ...firstEvent, creatorUserId: 2 });
+    renderEventPage();
+
+    await screen.findByRole("heading", { name: firstEvent.title });
+
+    expect(
+      screen.queryByRole("button", {
+        name: t("communities:duplicate_event"),
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("disables the 'duplicate event' button for cancelled events", async () => {
+    getEventMock.mockResolvedValue({
+      ...firstEvent,
+      creatorUserId: 1,
+      isCancelled: true,
+    });
+    renderEventPage();
+
+    const duplicateButton = await screen.findByRole("button", {
+      name: t("communities:duplicate_event"),
+    });
+    expect(duplicateButton).toBeDisabled();
+    expect(duplicateButton).toHaveAttribute("aria-disabled", "true");
+    expect(duplicateButton).toHaveAttribute("tabIndex", "-1");
+  });
+
+  it("disables the 'duplicate event' button for past events", async () => {
+    const pastEvent = {
+      ...firstEvent,
+      creatorUserId: 1,
+      endTime: { seconds: 1500000000, nanos: 0 }, // Past date
+    };
+    getEventMock.mockResolvedValue(pastEvent);
+    renderEventPage();
+
+    const duplicateButton = await screen.findByRole("button", {
+      name: t("communities:duplicate_event"),
+    });
+    expect(duplicateButton).toBeDisabled();
+    expect(duplicateButton).toHaveAttribute("aria-disabled", "true");
+    expect(duplicateButton).toHaveAttribute("tabIndex", "-1");
+  });
+
+  it("navigates to create event page with duplicate query param when clicked", async () => {
+    mockRouter.push = jest.fn();
+    getEventMock.mockResolvedValue({ ...firstEvent, creatorUserId: 1 });
+    renderEventPage();
+
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+    const duplicateButton = await screen.findByRole("button", {
+      name: t("communities:duplicate_event"),
+    });
+    await user.click(duplicateButton);
+
+    await waitFor(() =>
+      expect(mockRouter.push).toHaveBeenCalledWith(
+        `/event/new?duplicateEventId=${firstEvent.eventId}`,
+      ),
+    );
+  });
+
+  it("has proper accessibility attributes", async () => {
+    getEventMock.mockResolvedValue({ ...firstEvent, creatorUserId: 1 });
+    renderEventPage();
+
+    const duplicateButton = await screen.findByRole("button", {
+      name: t("communities:duplicate_event"),
+    });
+    expect(duplicateButton).toHaveAttribute(
+      "aria-label",
+      t("communities:duplicate_event"),
+    );
+    expect(duplicateButton).toHaveAttribute("tabIndex", "0");
+    expect(duplicateButton).toHaveAttribute("aria-disabled", "false");
+  });
+
   it("shows the not found page if the user tries to find an event with an invalid ID in the URL", async () => {
     renderEventPage(0, "event");
     expect(
