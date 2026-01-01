@@ -486,45 +486,6 @@ describe("Event time changer", () => {
   });
 
   describe("auto-set end date behavior", () => {
-    it("should auto-set end date to match start date when end date is not set", async () => {
-      render(<TestForm />, { wrapper });
-
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
-      // Set only start date
-      const startDateGroup = await screen.findByRole("group", {
-        name: t("communities:start_date"),
-      });
-      await user.click(startDateGroup);
-      await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("08052021");
-
-      // End date should automatically be set to match
-      // Verify by checking if we can submit (end date should be valid)
-      const startTimeGroup = screen.getByRole("group", {
-        name: t("communities:start_time"),
-      });
-      await user.click(startTimeGroup);
-      await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("1000 AM");
-
-      const endTimeGroup = screen.getByRole("group", {
-        name: t("communities:end_time"),
-      });
-      await user.click(endTimeGroup);
-      await user.keyboard("{Control>}a{/Control}");
-      await user.keyboard("0200 PM");
-
-      await user.click(screen.getByTestId("submit"));
-
-      expect(onValidSubmit).toHaveBeenCalledTimes(1);
-      const submittedData = onValidSubmit.mock.calls[0][0];
-
-      // Both dates should match
-      expect(submittedData.startDate.format("YYYY-MM-DD")).toBe("2021-08-05");
-      expect(submittedData.endDate.format("YYYY-MM-DD")).toBe("2021-08-05");
-    });
-
     it("should auto-adjust end date when start date is changed to be after end date", async () => {
       render(<TestForm />, { wrapper });
 

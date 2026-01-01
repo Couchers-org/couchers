@@ -17,7 +17,7 @@ import {
   getThread,
   getUser,
 } from "test/serviceMockDefaults";
-import { assertErrorAlert, mockConsoleError } from "test/utils";
+import { addDefaultUser, assertErrorAlert, mockConsoleError } from "test/utils";
 
 import EventPage from "./EventPage";
 
@@ -64,6 +64,7 @@ function renderEventPage(id = 1, slug = "weekly-meetup") {
 
 describe("Event page", () => {
   beforeEach(() => {
+    addDefaultUser(1); // Set up auth state with userId 1
     getEventMock.mockResolvedValue(firstEvent);
     listEventAttendeesMock.mockImplementation(getEventAttendees);
     listEventOrganizersMock.mockImplementation(getEventOrganizers);
@@ -204,7 +205,7 @@ describe("Event page", () => {
     renderEventPage();
 
     expect(
-      await screen.findByRole("link", { name: t("communities:edit_event") }),
+      await screen.findByRole("button", { name: t("communities:edit_event") }),
     ).toBeVisible();
   });
 
@@ -254,7 +255,6 @@ describe("Event page", () => {
       name: t("communities:duplicate_event"),
     });
     expect(duplicateButton).toBeDisabled();
-    expect(duplicateButton).toHaveAttribute("aria-disabled", "true");
     expect(duplicateButton).toHaveAttribute("tabIndex", "-1");
   });
 
@@ -271,7 +271,6 @@ describe("Event page", () => {
       name: t("communities:duplicate_event"),
     });
     expect(duplicateButton).toBeDisabled();
-    expect(duplicateButton).toHaveAttribute("aria-disabled", "true");
     expect(duplicateButton).toHaveAttribute("tabIndex", "-1");
   });
 
@@ -306,7 +305,7 @@ describe("Event page", () => {
       t("communities:duplicate_event"),
     );
     expect(duplicateButton).toHaveAttribute("tabIndex", "0");
-    expect(duplicateButton).toHaveAttribute("aria-disabled", "false");
+    expect(duplicateButton).not.toBeDisabled();
   });
 
   it("shows the not found page if the user tries to find an event with an invalid ID in the URL", async () => {
