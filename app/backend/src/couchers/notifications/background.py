@@ -51,7 +51,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     rendered = render_notification(user, notification)
 
     email_lang = "en"
-    if config.get("ENABLE_NOTIFICATION_TRANSLATIONS", False):
+    if config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
         email_lang = user.ui_language_preference or "en"
 
     template_args = {

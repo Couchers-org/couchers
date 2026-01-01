@@ -1135,6 +1135,8 @@ def testconfig():
     # Dev APIs disabled by default in tests
     config["ENABLE_DEV_APIS"] = False
 
+    config["ENABLE_NOTIFICATION_TRANSLATIONS"] = False
+
     yield None
 
     config.clear()
