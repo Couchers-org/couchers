@@ -54,7 +54,7 @@ def create_materialized_view_with_different_ddl(
     aliases: dict[str, str] | None = None,
 ) -> Table:
     """
-    Copied wholesale from sqlalchemy_utils (3-clause BSD), with minor tweak in {select,create}_selectable
+    Copied wholesale from sqlalchemy_utils (3-clause BSD), with a minor tweak in {select,create}_selectable
 
     https://github.com/kvesteri/sqlalchemy-utils/blob/baf53cd1a3e779fc127010543fed53cf4a97fe16/sqlalchemy_utils/view.py#L77-L124
     """
