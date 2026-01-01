@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, String, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, Index, String, UniqueConstraint, func, text
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import DynamicMapped, Mapped, mapped_column, relationship
 
@@ -15,6 +15,11 @@ if TYPE_CHECKING:
     from couchers.models import ModerationState, User
 
 
+class ConversationType(enum.Enum):
+    group_chat = enum.auto()
+    host_request = enum.auto()
+
+
 class Conversation(Base):
     """
     Conversation brings together the different types of message/conversation types
@@ -25,9 +30,10 @@ class Conversation(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     # timezone should always be UTC
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    type: Mapped[ConversationType] = mapped_column(Enum(ConversationType))
 
     def __repr__(self) -> str:
-        return f"Conversation(id={self.id}, created={self.created})"
+        return f"Conversation(id={self.id}, created={self.created}, type={self.type})"
 
 
 class GroupChat(Base):
@@ -110,6 +116,67 @@ class GroupChatSubscription(Base):
 
     def __repr__(self) -> str:
         return f"GroupChatSubscription(id={self.id}, user={self.user}, joined={self.joined}, left={self.left}, role={self.role}, group_chat={self.group_chat})"
+
+
+class ConversationSubscription(Base):
+    """
+    Unified per-user conversation state for all conversation types (group chats, host requests, etc.).
+    Tracks archiving, last seen messages, mute status, and membership details.
+    """
+
+    __tablename__ = "conversation_subscriptions"
+    __table_args__ = (
+        UniqueConstraint("user_id", "conversation_id"),
+        Index("ix_conversation_subs_user_archived", "user_id", "is_archived"),
+        Index("ix_conversation_subs_user_conv", "user_id", "conversation_id"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"), index=True)
+
+    # Archiving state
+    is_archived: Mapped[bool] = mapped_column(Boolean, server_default=text("false"), nullable=False)
+
+    # Last seen message tracking
+    last_seen_message_id: Mapped[int] = mapped_column(BigInteger, server_default=text("0"), nullable=False)
+
+    # Mute status
+    muted_until: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("TIMESTAMP '-infinity'"), nullable=False
+    )
+
+    # Membership timestamps
+    joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    left: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    # Role (for group chats; NULL for host requests)
+    role: Mapped[GroupChatRole | None] = mapped_column(Enum(GroupChatRole), nullable=True)
+
+    # Relationships
+    user: Mapped["User"] = relationship("User", backref="conversation_subscriptions")
+    conversation: Mapped["Conversation"] = relationship("Conversation", backref="subscriptions")
+
+    def muted_display(self) -> tuple[bool, datetime | None]:
+        """
+        Returns (muted, muted_until) display values:
+        1. If not muted, returns (False, None)
+        2. If muted forever, returns (True, None)
+        3. If muted until a given datetime returns (True, dt)
+        """
+        if self.muted_until < now():
+            return (False, None)
+        elif self.muted_until == DATETIME_INFINITY:
+            return (True, None)
+        else:
+            return (True, self.muted_until)
+
+    @hybrid_property
+    def is_muted(self) -> Any:
+        return self.muted_until > func.now()
+
+    def __repr__(self) -> str:
+        return f"ConversationSubscription(id={self.id}, user_id={self.user_id}, conversation_id={self.conversation_id}, is_archived={self.is_archived}, role={self.role})"
 
 
 class MessageType(enum.Enum):

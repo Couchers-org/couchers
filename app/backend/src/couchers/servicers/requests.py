@@ -19,6 +19,8 @@ from couchers.metrics import (
 )
 from couchers.models import (
     Conversation,
+    ConversationSubscription,
+    ConversationType,
     HostRequest,
     HostRequestFeedback,
     HostRequestQuality,
@@ -127,6 +129,12 @@ def host_request_to_pb(
             )
         ).scalar_one()
 
+    # @TODO(NA): Use old fields for now (migration to ConversationSubscription will happen in next PR)
+    if context.user_id == host_request.surfer_user_id:
+        is_archived = host_request.is_surfer_archived
+    else:
+        is_archived = host_request.is_host_archived
+
     return requests_pb2.HostRequest(
         host_request_id=host_request.conversation_id,
         surfer_user_id=host_request.surfer_user_id,
@@ -146,6 +154,7 @@ def host_request_to_pb(
         hosting_lng=lng,
         hosting_radius=host_request.hosting_radius,
         need_host_request_feedback=need_feedback,
+        is_archived=is_archived,
     )
 
 
@@ -237,7 +246,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 substitutions={"hours": str(RATE_LIMIT_HOURS)},
             )
 
-        conversation = Conversation()
+        conversation = Conversation(type=ConversationType.host_request)
         session.add(conversation)
         session.flush()
 
@@ -283,6 +292,22 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         )
         session.add(host_request)
         session.flush()
+
+        # Create conversation subscriptions for both surfer and host
+        surfer_subscription = ConversationSubscription(
+            user_id=context.user_id,
+            conversation_id=conversation.id,
+            last_seen_message_id=message.id,
+            is_archived=False,
+        )
+        host_subscription = ConversationSubscription(
+            user_id=host.id,
+            conversation_id=conversation.id,
+            last_seen_message_id=0,
+            is_archived=False,
+        )
+        session.add(surfer_subscription)
+        session.add(host_subscription)
 
         notify(
             session,

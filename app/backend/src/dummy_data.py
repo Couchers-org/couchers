@@ -15,6 +15,7 @@ from couchers.models import (
     ClusterRole,
     ClusterSubscription,
     Conversation,
+    ConversationType,
     FriendRelationship,
     FriendStatus,
     GroupChat,
@@ -166,7 +167,7 @@ def add_dummy_users():
             creator = group_chat["creator"]
             creator_id = session.execute(select(User).where(User.username == creator)).scalar_one().id
 
-            conversation = Conversation()
+            conversation = Conversation(type=ConversationType.group_chat)
             session.add(conversation)
             session.flush()
 

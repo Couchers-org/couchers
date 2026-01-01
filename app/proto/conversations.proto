@@ -80,6 +80,10 @@ service Conversations {
     // Leave a group chat
   }
 
+  rpc SetConversationArchiveStatus(SetConversationArchiveStatusReq) returns (google.protobuf.Empty) {
+    // Archive or unarchive a conversation (group chat or host request)
+  }
+
   rpc SearchMessages(SearchMessagesReq) returns (SearchMessagesRes) {
     // Search messages by string
   }
@@ -162,6 +166,7 @@ message GroupChat {
   Message latest_message = 10;
   MuteInfo mute_info = 11;
   bool can_message = 12;
+  bool is_archived = 13; // whether this group chat is archived for the current user
 }
 
 message GetGroupChatReq {
@@ -272,6 +277,11 @@ message SendDirectMessageRes {
 
 message LeaveGroupChatReq {
   uint64 group_chat_id = 1;
+}
+
+message SetConversationArchiveStatusReq {
+  uint64 conversation_id = 1;
+  bool is_archived = 2;
 }
 
 message SearchMessagesReq {

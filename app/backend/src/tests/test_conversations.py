@@ -1676,3 +1676,64 @@ def test_incomplete_profile(db):
             c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user3.id]))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "You have to complete your profile before you can send a message."
+
+
+def test_archive_group_chat(db, moderator):
+    """Test archiving and unarchiving group chats using SetConversationArchiveStatus."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    make_friends(user1, user2)
+
+    # User 1 creates a group chat with user 2
+    with conversations_session(token1) as api:
+        group_chat_id = api.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(
+                recipient_user_ids=[user2.id],
+            )
+        ).group_chat_id
+
+        # Send a message so there's definitely a message in the chat
+        api.SendMessage(
+            conversations_pb2.SendMessageReq(
+                group_chat_id=group_chat_id,
+                text="Test message",
+            )
+        )
+
+    # Approve the group chat so it's visible to all users
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(token1) as api:
+        # Initially not archived for user 1
+        group_chat = api.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
+        assert not group_chat.is_archived
+
+        # Archive the group chat for user 1
+        api.SetConversationArchiveStatus(
+            conversations_pb2.SetConversationArchiveStatusReq(
+                conversation_id=group_chat_id,
+                is_archived=True,
+            )
+        )
+
+        # Verify it's archived for user 1
+        group_chat = api.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
+        assert group_chat.is_archived
+
+    # Verify user 2 doesn't see it as archived (archive is per-user)
+    with conversations_session(token2) as api:
+        group_chat = api.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
+        assert not group_chat.is_archived
+
+    # User 1 unarchives it
+    with conversations_session(token1) as api:
+        api.SetConversationArchiveStatus(
+            conversations_pb2.SetConversationArchiveStatusReq(
+                conversation_id=group_chat_id,
+                is_archived=False,
+            )
+        )
+
+        # Verify it's no longer archived
+        group_chat = api.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat_id))
+        assert not group_chat.is_archived

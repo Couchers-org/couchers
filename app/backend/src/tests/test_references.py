@@ -11,6 +11,7 @@ from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     Conversation,
+    ConversationType,
     FriendRelationship,
     FriendStatus,
     HostRequest,
@@ -51,7 +52,7 @@ def create_host_request(
     from_date = today() - host_request_age - timedelta(days=2)
     to_date = today() - host_request_age
     fake_created = now() - host_request_age - timedelta(days=3)
-    conversation = Conversation()
+    conversation = Conversation(type=ConversationType.host_request)
     session.add(conversation)
     session.flush()
     session.add(
@@ -109,7 +110,7 @@ def create_host_request_by_date(
     host_sent_request_reminders,
     last_sent_request_reminder_time,
 ):
-    conversation = Conversation()
+    conversation = Conversation(type=ConversationType.host_request)
     session.add(conversation)
     session.flush()
 

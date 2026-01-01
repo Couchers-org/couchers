@@ -16,6 +16,8 @@ from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
 from couchers.models import (
     Conversation,
+    ConversationSubscription,
+    ConversationType,
     GroupChat,
     GroupChatRole,
     GroupChatSubscription,
@@ -249,7 +251,7 @@ def _create_chat(
     title: str | None = None,
     only_admins_invite: bool = True,
 ) -> GroupChat:
-    conversation = Conversation()
+    conversation = Conversation(type=ConversationType.group_chat)
     session.add(conversation)
     session.flush()
 
@@ -279,12 +281,30 @@ def _create_chat(
     )
     session.add(creator_subscription)
 
+    # Create conversation subscription for creator
+    creator_conv_sub = ConversationSubscription(
+        user_id=creator_id,
+        conversation_id=conversation.id,
+        role=GroupChatRole.admin,
+        is_archived=False,
+    )
+    session.add(creator_conv_sub)
+
     for uid in recipient_ids:
         session.add(
             GroupChatSubscription(
                 user_id=uid,
                 group_chat=chat,
                 role=GroupChatRole.participant,
+            )
+        )
+        # Create conversation subscription for each participant
+        session.add(
+            ConversationSubscription(
+                user_id=uid,
+                conversation_id=conversation.id,
+                role=GroupChatRole.participant,
+                is_archived=False,
             )
         )
 
@@ -339,6 +359,16 @@ def _mute_info(subscription: GroupChatSubscription) -> conversations_pb2.MuteInf
         muted=muted,
         muted_until=Timestamp_from_datetime(muted_until) if muted_until else None,
     )
+
+
+def _get_is_archived(session: Session, conversation_id: int, user_id: int) -> bool:
+    """Get archive status from conversation subscription"""
+    subscription = session.execute(
+        select(ConversationSubscription)
+        .where(ConversationSubscription.conversation_id == conversation_id)
+        .where(ConversationSubscription.user_id == user_id)
+    ).scalar_one_or_none()
+    return subscription.is_archived if subscription else False
 
 
 class Conversations(conversations_pb2_grpc.ConversationsServicer):
@@ -396,6 +426,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     latest_message=_message_to_pb(result.Message) if result.Message else None,
                     mute_info=_mute_info(result.GroupChatSubscription),
                     can_message=_user_can_message(session, context, result.GroupChat),
+                    is_archived=_get_is_archived(session, result.GroupChat.conversation_id, context.user_id),
                 )
                 for result in results[:page_size]
             ],
@@ -441,6 +472,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             latest_message=_message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
             can_message=_user_can_message(session, context, result.GroupChat),
+            is_archived=_get_is_archived(session, result.GroupChat.conversation_id, context.user_id),
         )
 
     def GetDirectMessage(
@@ -496,6 +528,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             latest_message=_message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
             can_message=_user_can_message(session, context, result.GroupChat),
+            is_archived=_get_is_archived(session, result.GroupChat.conversation_id, context.user_id),
         )
 
     def GetUpdates(
@@ -736,6 +769,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             created=Timestamp_from_datetime(group_chat.conversation.created),
             mute_info=_mute_info(your_subscription),
             can_message=True,
+            is_archived=False,  # New chats are never archived
         )
 
     def SendMessage(
@@ -1062,5 +1096,23 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         _add_message_to_subscription(session, subscription, message_type=MessageType.user_left)
 
         subscription.left = func.now()
+
+        return empty_pb2.Empty()
+
+    def SetConversationArchiveStatus(
+        self, request: conversations_pb2.SetConversationArchiveStatusReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        # Get the conversation subscription for this user
+        subscription = session.execute(
+            select(ConversationSubscription)
+            .where(ConversationSubscription.conversation_id == request.conversation_id)
+            .where(ConversationSubscription.user_id == context.user_id)
+        ).scalar_one_or_none()
+
+        if not subscription:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "conversation_not_found")
+
+        subscription.is_archived = request.is_archived
+        session.commit()
 
         return empty_pb2.Empty()
