@@ -3,6 +3,7 @@ Renders a Notification model into a localized push notification.
 """
 
 import logging
+from typing import Any
 
 from google.protobuf import empty_pb2
 
@@ -53,24 +54,6 @@ def _activeness_probe(data: notification_data_pb2.ActivenessProbe) -> PushNotifi
     return PushNotificationContent(
         title="Are you still open to hosting on Couchers.org?",
         body="Please log in to confirm your hosting status.",
-    )
-
-
-# address:change
-def _address_change(data: notification_data_pb2.EmailAddressChange) -> PushNotificationContent:
-    return PushNotificationContent(
-        title="An email change was initiated on your account",
-        body=f"An email change to the email {data.new_email} was initiated on your account.",
-        action_url=urls.account_settings_link(),
-    )
-
-
-# address:verify
-def _address_verify(data: empty_pb2.Empty) -> PushNotificationContent:
-    return PushNotificationContent(
-        title="Email change completed",
-        body="Your new email address has been verified.",
-        action_url=urls.account_settings_link(),
     )
 
 
@@ -158,6 +141,24 @@ def _discussion_comment(data: notification_data_pb2.DiscussionComment) -> PushNo
     )
 
 
+# email_address:change
+def _email_address_change(data: notification_data_pb2.EmailAddressChange) -> PushNotificationContent:
+    return PushNotificationContent(
+        title="An email change was initiated on your account",
+        body=f"An email change to the email {data.new_email} was initiated on your account.",
+        action_url=urls.account_settings_link(),
+    )
+
+
+# email_address:verify
+def _email_address_verify(data: empty_pb2.Empty) -> PushNotificationContent:
+    return PushNotificationContent(
+        title="Email change completed",
+        body="Your new email address has been verified.",
+        action_url=urls.account_settings_link(),
+    )
+
+
 def _get_event_time_display(event: events_pb2.Event, user: User) -> str:
     return f"{v2timestamp(event.start_time, user)} - {v2timestamp(event.end_time, user)}"
 
@@ -207,8 +208,8 @@ def _event_invite_organizer(data: notification_data_pb2.EventInviteOrganizer, us
     )
 
 
-# event:action
-def _event_action(data: notification_data_pb2.EventComment, user: User) -> PushNotificationContent:
+# event:comment
+def _event_comment(data: notification_data_pb2.EventComment, user: User) -> PushNotificationContent:
     time_display = _get_event_time_display(data.event, user)
     return PushNotificationContent(
         title=f'{data.author.name} commented on "{data.event.title}"',
@@ -575,7 +576,7 @@ def _verification_sv_fail(data: notification_data_pb2.VerificationSVFail) -> Pus
 
 
 def render_push_notification(user: User, notification: Notification) -> PushNotificationContent:
-    data: empty_pb2.Empty = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
+    data: Any = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     # Keep topics sorted (action can follow logical ordering)
     match notification.topic_action.display:
         case "account_deletion:start":
@@ -586,10 +587,6 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
             return _account_deletion_recovered(data)
         case "activeness:probe":
             return _activeness_probe(data)
-        case "address:change":
-            return _address_change(data)
-        case "address:verify":
-            return _address_verify(data)
         case "api_key:create":
             return _api_key_create(data)
         case "badge:add":
@@ -599,30 +596,34 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
         case "birthdate:change":
             return _birthdate_change(data, user)
         case "chat:message":
-            return _chat_message(data, user)
+            return _chat_message(data)
         case "chat:missed_messages":
-            return _chat_missed_messages(data, user)
+            return _chat_missed_messages(data)
         case "donation:received":
             return _donation_received(data)
         case "discussion:create":
             return _discussion_create(data)
         case "discussion:comment":
             return _discussion_comment(data)
+        case "email_address:change":
+            return _email_address_change(data)
+        case "email_address:verify":
+            return _email_address_verify(data)
         case "event:create_any":
             return _event_create_any(data, user)
         case "event:create_approved":
             return _event_create_approved(data, user)
-        case "event:create_update":
+        case "event:update":
             return _event_update(data, user)
-        case "event:create_invite_organizer":
+        case "event:invite_organizer":
             return _event_invite_organizer(data, user)
-        case "event:create_action":
-            return _event_action(data, user)
-        case "event:create_reminder":
+        case "event:comment":
+            return _event_comment(data, user)
+        case "event:reminder":
             return _event_reminder(data, user)
-        case "event:create_cancel":
+        case "event:cancel":
             return _event_cancel(data, user)
-        case "event:create_delete":
+        case "event:delete":
             return _event_delete(data, user)
         case "friend_request:create":
             return _friend_request_create(data)
@@ -651,7 +652,7 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
         case "modnote:create":
             return _modnote_create(data)
         case "onboarding:reminder":
-            return _onboarding_reminder(data)
+            return _onboarding_reminder(data, notification.key, user)
         case "password:change":
             return _password_change(data)
         case "password_reset:start":

@@ -175,7 +175,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "message": message,
             },
         )
-    elif notification.topic_action.display == "address:change":
+    elif notification.topic_action.display == "email_address:change":
         title = "An email change was initiated on your account"
         message = f"An email change to the email <b>{data.new_email}</b> was initiated on your account."
         return RenderedEmailNotification(
@@ -188,7 +188,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "message": message,
             },
         )
-    elif notification.topic_action.display == "address:verify":
+    elif notification.topic_action.display == "email_address:verify":
         title = "Email change completed"
         message = "Your new email address has been verified."
         return RenderedEmailNotification(
