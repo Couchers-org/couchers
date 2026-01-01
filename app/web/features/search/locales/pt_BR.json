@@ -1,2 +1,98 @@
 {
+  "any": "Em qualquer momento",
+  "filter_dialog": {
+    "desktop_title": "Filtros",
+    "search_here_button": "Buscar nesta região",
+    "mobile_title": "Buscar"
+  },
+  "search_result": {
+    "people_range_message_one": "{{currentRange}} de {{count}} pessoa",
+    "people_range_message_many": "{{currentRange}} de {{count}} pessoas",
+    "people_range_message_other": "{{currentRange}} de {{count}} pessoas",
+    "include_empty_profiles_button": "Mostrar todos os perfis",
+    "no_user_result_message": "Nenhum usuário encontrado. Tente remover alguns filtros para ver mais resultados.",
+    "show_user_button_label": "Mostrar {{name}} no mapa",
+    "missing_about_description": "{{name}} ainda não disse nada sobre si mesmo",
+    "few_results_suggestion": "Por padrão, perfis vazios e \"não pode hospedar\" estão ocultos."
+  },
+  "error_loading_users": "Erro ao carregar usuários",
+  "last_active_options": {
+    "last_week": "Última semana",
+    "last_month": "Último mês",
+    "last_3_months": "Últimos 3 meses",
+    "last_6_months": "Últimos 6 meses",
+    "last_year": "Último ano"
+  },
+  "choose_search_criteria": "Digite uma localização ou aplique um filtro para buscar.",
+  "form": {
+    "location_field_label": "Localização próxima",
+    "keywords": {
+      "field_label": "Nome, palavras-chave ou sobrenome",
+      "clear_field_action_a11y_label": "Limpar busca",
+      "search_this_keyword_a11y_label": "Buscar esta palavra-chave"
+    },
+    "by_location_filter_label": "Por localização",
+    "by_keyword_filter_label": "Por palavra-chave ou nome",
+    "host_filters": {
+      "age": {
+        "field_label": "Idade do anfitrião",
+        "min_age": "Idade mínima",
+        "max_age": "Idade máxima"
+      },
+      "last_active_field_label": "Última atividade",
+      "meetup_status_field_label": "Disponibilidade para encontros",
+      "complete_profiles_label": "Perfis completos",
+      "hosting_status_field_label": "Disponibilidade para hospedar"
+    },
+    "accommodation_filters": {
+      "title": "Filtros de estadia",
+      "guests_field_label": "Número de hóspedes",
+      "sleeping_arrangement_label": "Condições da hospedagem",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "description": " - por ex.: quarto compartilhado com seu próprio leito",
+          "label": "Quarto compartilhado"
+        },
+        "private": {
+          "label": "Espaço privado",
+          "description": " - por ex.: quarto próprio ou semelhante"
+        },
+        "common": {
+          "label": "Cômodo comum",
+          "description": " - por ex.: sofá da sala"
+        }
+      }
+    },
+    "empty_profile_filters": {
+      "title": "Mostrar perfis vazios"
+    },
+    "general_filters": {
+      "has_strong_verification": "Tem verificação forte",
+      "has_references": "Tem referências",
+      "get_strong_verification": "Obtenha a verificação forte aqui (é grátis).",
+      "same_gender_only": "Mostrar apenas pessoas do mesmo gênero",
+      "same_gender_only_helper_text": "Apenas usuários com verificação forte podem usar este filtro.",
+      "accepts_last_minute_requests": "Aceita solicitações de última hora"
+    },
+    "rules": {
+      "alcohol_allowed": "Permite bebidas alcoólicas",
+      "kids_allowed": "Permite crianças",
+      "pets_allowed": "Permite pets",
+      "smokes_at_home": "Fuma em casa",
+      "title": "Regras"
+    },
+    "submit_button_label": "Aplicar",
+    "search_filters": "Filtros de busca",
+    "clear_filters": "Limpar todos os filtros",
+    "missing_location_validation_error": "Especifique uma localização para usar o filtro"
+  },
+  "views": {
+    "map_and_list": "Mapa e Lista",
+    "list": "Lista",
+    "choose_map_view": "Escolher visualização do mapa"
+  },
+  "location": "Localização",
+  "keyword": "Palavra-chave",
+  "search_this_area": "Buscar esta região",
+  "zoom_in_to_select_user": "Aumente o zoom para selecionar um usuário"
 }
