@@ -35,7 +35,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({
-  color: "var(--mui-palette-text-primary)",
+  color: "var(--mui-palette-secondary-contrastText)",
   fontWeight: 700,
   marginTop: theme.spacing(2),
   fontSize: "1.4rem",

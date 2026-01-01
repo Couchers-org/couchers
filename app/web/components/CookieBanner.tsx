@@ -16,7 +16,7 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   backgroundColor: "var(--mui-palette-background-paper)",
   bottom: 0,
   padding: theme.spacing(2, 4),
-  boxShadow: `0 -1px 4px var(--mui-palette-primary-dark)33`,
+  boxShadow: theme.shadows[4],
 
   "& .content": {
     width: "75%",

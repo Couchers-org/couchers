@@ -1,6 +1,7 @@
 import { DarkModeOutlined, LightModeOutlined } from "@mui/icons-material";
-import { IconButton, styled } from "@mui/material";
+import { CircularProgress, IconButton, styled } from "@mui/material";
 import { useColorScheme } from "@mui/material/styles";
+import { useEffect, useRef, useState } from "react";
 
 const StyledToggleButton = styled(IconButton)(({ theme }) => ({
   padding: theme.spacing(1),
@@ -22,6 +23,16 @@ const IconWrapper = styled("div")({
 
 export default function DarkModeToggle() {
   const { mode, setMode } = useColorScheme();
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const previousModeRef = useRef(mode);
+
+  useEffect(() => {
+    // Detect when mode has actually changed
+    if (mode && previousModeRef.current !== mode) {
+      setIsTransitioning(false);
+      previousModeRef.current = mode;
+    }
+  }, [mode]);
 
   if (!mode) {
     return (
@@ -40,6 +51,7 @@ export default function DarkModeToggle() {
   const isDark = mode === "dark";
 
   const handleToggle = () => {
+    setIsTransitioning(true);
     setMode(isDark ? "light" : "dark");
   };
 
@@ -48,13 +60,19 @@ export default function DarkModeToggle() {
       onClick={handleToggle}
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
       size="small"
+      disabled={isTransitioning}
     >
       <IconWrapper
         sx={{
           transform: isDark ? "rotate(0deg)" : "rotate(180deg)",
         }}
       >
-        {isDark ? (
+        {isTransitioning ? (
+          <CircularProgress
+            size={16}
+            sx={{ color: "var(--mui-palette-text-primary)" }}
+          />
+        ) : isDark ? (
           <DarkModeOutlined fontSize="small" />
         ) : (
           <LightModeOutlined fontSize="small" />
