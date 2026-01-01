@@ -281,7 +281,7 @@ class Page(Base):
     thread: Mapped["Thread"] = relationship("Thread", backref="page", uselist=False)
     creator_user: Mapped["User"] = relationship("User", backref="created_pages", foreign_keys="Page.creator_user_id")
     owner_user: Mapped["User | None"] = relationship("User", backref="owned_pages", foreign_keys="Page.owner_user_id")
-    owner_cluster: Mapped["Cluster"] = relationship(
+    owner_cluster: Mapped["Cluster | None"] = relationship(
         "Cluster", back_populates="owned_pages", uselist=False, foreign_keys="Page.owner_cluster_id"
     )
 
