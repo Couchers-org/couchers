@@ -846,11 +846,9 @@ class API(api_pb2_grpc.APIServicer):
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> api_pb2.InitiateMediaUploadRes:
         key = random_hex()
+        expiry = now() + timedelta(minutes=20)
 
-        created = now()
-        expiry = created + timedelta(minutes=20)
-
-        upload = InitiatedUpload(key=key, created=created, expiry=expiry, initiator_user_id=context.user_id)
+        upload = InitiatedUpload(key=key, expiry=expiry, initiator_user_id=context.user_id)
         session.add(upload)
         session.commit()
 

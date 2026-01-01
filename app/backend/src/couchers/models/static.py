@@ -1,28 +1,28 @@
 from geoalchemy2 import Geometry
 from sqlalchemy import BigInteger, Index, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, MappedAsDataclass, mapped_column
 
 from couchers.models.base import Base, Geom
 
 
-class Language(Base):
+class Language(MappedAsDataclass, Base, kw_only=True):
     """
     Table of allowed languages (a subset of ISO639-3)
     """
 
     __tablename__ = "languages"
 
-    # ISO639-3 language code, in lowercase, e.g. fin, eng
+    # ISO639-3 language code, in lowercase, e.g., fin, eng
     code: Mapped[str] = mapped_column(String(3), primary_key=True)
 
     # the english name
     name: Mapped[str] = mapped_column(String, unique=True)
 
 
-class TimezoneArea(Base):
+class TimezoneArea(MappedAsDataclass, Base, kw_only=True):
     __tablename__ = "timezone_areas"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     tzid: Mapped[str | None] = mapped_column(String)
     geom: Mapped[Geom] = mapped_column(Geometry(geometry_type="MULTIPOLYGON", srid=4326))
 
@@ -36,7 +36,7 @@ class TimezoneArea(Base):
     )
 
 
-class Region(Base):
+class Region(MappedAsDataclass, Base, kw_only=True):
     """
     Table of regions
     """
@@ -46,6 +46,6 @@ class Region(Base):
     # iso 3166-1 alpha3 code in uppercase, e.g. FIN, USA
     code: Mapped[str] = mapped_column(String(3), primary_key=True)
 
-    # the name, e.g. Finland, United States
+    # the name, e.g., Finland, United States
     # this is the display name in English, should be the "common name", not "Republic of Finland"
     name: Mapped[str] = mapped_column(String, unique=True)
