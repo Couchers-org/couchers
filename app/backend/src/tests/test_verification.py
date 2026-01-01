@@ -13,6 +13,7 @@ from couchers.models import SMS, User
 from couchers.proto import account_pb2, api_pb2
 from couchers.utils import now
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     account_session,
     api_session,
     db,
@@ -29,7 +30,7 @@ def _(testconfig):
     pass
 
 
-def test_ChangePhone(db, monkeypatch, push_collector):
+def test_ChangePhone(db, monkeypatch, push_collector: PushCollector):
     user, token = generate_user()
     user_id = user.id
 
@@ -65,7 +66,7 @@ def test_ChangePhone(db, monkeypatch, push_collector):
             assert phone == "+46701740605"
             return "success"
 
-        push_collector.assert_user_has_count(user_id, 0)
+        assert push_collector.count_for_user(user_id) == 0
 
         monkeypatch.setattr(couchers.phone.sms, "send_sms", succeed)
 
@@ -77,11 +78,9 @@ def test_ChangePhone(db, monkeypatch, push_collector):
             assert len(user.phone_verification_token) == 6
 
         process_jobs()
-        push_collector.assert_user_has_single_matching(
-            user_id,
-            title="Phone verification started",
-            body="You started phone number verification with the number +46 70 174 06 05.",
-        )
+        push = push_collector.get_for_user(user_id)
+        assert push.content.title == "Phone verification started"
+        assert push.content.body == "You started phone number verification with the number +46 70 174 06 05."
 
         # Phone number should show up but not be verified in your profile settings
         res = account.GetAccountInfo(empty_pb2.Empty())
@@ -120,7 +119,7 @@ def test_ChangePhone_ratelimit(db, monkeypatch):
             assert len(user.phone_verification_token) == 6
 
 
-def test_VerifyPhone(push_collector):
+def test_VerifyPhone(push_collector: PushCollector):
     user, token = generate_user()
     with account_session(token) as account, api_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -140,11 +139,9 @@ def test_VerifyPhone(push_collector):
         account.VerifyPhone(account_pb2.VerifyPhoneReq(token="111112"))
 
         process_jobs()
-        push_collector.assert_user_has_single_matching(
-            user.id,
-            title="Phone successfully verified",
-            body="Your phone was successfully verified as +46 70 174 06 05 on Couchers.org.",
-        )
+        push = push_collector.get_for_user(user.id)
+        assert push.content.title == "Phone successfully verified"
+        assert push.content.body == "Your phone was successfully verified as +46 70 174 06 05 on Couchers.org."
 
         res = api.GetUser(api_pb2.GetUserReq(user=str(user.id)))
         assert res.verification == 1.0
@@ -155,15 +152,13 @@ def test_VerifyPhone(push_collector):
 
 
 def test_VerifyPhone_antibrute():
-    user, token = generate_user()
-    with account_session(token) as account:
-        with session_scope() as session:
-            session.execute(
-                update(User)
-                .where(User.id == user.id)
-                .values(phone_verification_token="111112", phone_verification_sent=now(), phone="+46701740605")
-            )
+    user, token = generate_user(
+        phone_verification_token="111112",
+        phone_verification_sent=now(),
+        phone="+46701740605",
+    )
 
+    with account_session(token) as account:
         for _ in range(10):
             with pytest.raises(grpc.RpcError) as e:
                 account.VerifyPhone(account_pb2.VerifyPhoneReq(token="123455"))

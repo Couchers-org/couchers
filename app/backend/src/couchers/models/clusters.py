@@ -16,7 +16,14 @@ from sqlalchemy import (
     func,
     text,
 )
-from sqlalchemy.orm import DynamicMapped, Mapped, column_property, deferred, mapped_column, relationship
+from sqlalchemy.orm import (
+    DynamicMapped,
+    Mapped,
+    column_property,
+    deferred,
+    mapped_column,
+    relationship,
+)
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base, Geom, communities_seq
@@ -49,7 +56,16 @@ class Node(Base):
 
     parent_node: Mapped["Node"] = relationship("Node", back_populates="child_nodes", remote_side="Node.id")
     child_nodes: Mapped[list["Node"]] = relationship("Node")
-    official_cluster: Mapped["Cluster"] = relationship("Cluster", uselist=False)
+    child_clusters: Mapped[list["Cluster"]] = relationship(
+        "Cluster", back_populates="parent_node", overlaps="official_cluster"
+    )
+    official_cluster: Mapped["Cluster"] = relationship(
+        "Cluster",
+        primaryjoin="and_(Node.id == Cluster.parent_node_id, Cluster.is_official_cluster)",
+        foreign_keys="[Cluster.parent_node_id]",
+        uselist=False,
+        viewonly=True,
+    )
 
 
 class Cluster(Base):
@@ -84,7 +100,11 @@ class Cluster(Base):
     )
 
     parent_node: Mapped["Node"] = relationship(
-        "Node", backref="child_clusters", remote_side="Node.id", foreign_keys="Cluster.parent_node_id"
+        "Node",
+        back_populates="child_clusters",
+        remote_side="Node.id",
+        foreign_keys="Cluster.parent_node_id",
+        overlaps="official_cluster",
     )
 
     nodes: Mapped[list["Cluster"]] = relationship(

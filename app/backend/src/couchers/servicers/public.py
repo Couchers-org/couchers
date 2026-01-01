@@ -1,4 +1,5 @@
 import logging
+import threading
 
 import grpc
 from cachetools import TTLCache, cached
@@ -38,7 +39,7 @@ def format_volunteer_link(volunteer: Volunteer, username: str) -> dict[str, str]
         )
 
 
-@cached(cache=TTLCache(maxsize=1, ttl=600), key=lambda _: None)
+@cached(cache=TTLCache(maxsize=1, ttl=600), key=lambda _: None, lock=threading.Lock())
 def _get_public_users(session: Session) -> httpbody_pb2.HttpBody:
     with_geom = (
         select(User.username, User.geom)
@@ -56,7 +57,7 @@ def _get_public_users(session: Session) -> httpbody_pb2.HttpBody:
     return _statement_to_geojson_response(session, union_all(with_geom, without_geom))
 
 
-@cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None)
+@cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None, lock=threading.Lock())
 def _get_signup_page_info(session: Session) -> public_pb2.GetSignupPageInfoRes:
     # last user who signed up
     last_signup, geom = session.execute(
@@ -94,7 +95,7 @@ def _get_signup_page_info(session: Session) -> public_pb2.GetSignupPageInfoRes:
     )
 
 
-@cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None)
+@cached(cache=TTLCache(maxsize=1, ttl=60), key=lambda _: None, lock=threading.Lock())
 def _get_donation_stats(session: Session) -> public_pb2.GetDonationStatsRes:
     """Get year-to-date donation statistics, excluding merch purchases."""
     start_of_year = now().replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -111,7 +112,7 @@ def _get_donation_stats(session: Session) -> public_pb2.GetDonationStatsRes:
     )
 
 
-@cached(cache=TTLCache(maxsize=1, ttl=5), key=lambda _: None)
+@cached(cache=TTLCache(maxsize=1, ttl=5), key=lambda _: None, lock=threading.Lock())
 def _get_volunteers(session: Session) -> public_pb2.GetVolunteersRes:
     volunteers = session.execute(
         select(Volunteer, LiteUser)
@@ -218,7 +219,7 @@ class Public(public_pb2_grpc.PublicServicer):
                     num_references=num_references,
                     gender=user.gender,
                     pronouns=user.pronouns,
-                    age=user.age,
+                    age=int(user.age),
                     joined=Timestamp_from_datetime(user.display_joined),
                     last_active=Timestamp_from_datetime(user.display_last_active),
                     hosting_status=hostingstatus2api[user.hosting_status],

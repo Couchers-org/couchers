@@ -16,9 +16,14 @@ from couchers.db import session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
 from couchers.jobs import handlers
+from couchers.jobs.definitions import Job
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import (
     add_users_to_email_list,
+    enforce_community_membership,
+    purge_account_deletion_tokens,
+    purge_login_tokens,
+    purge_password_reset_tokens,
     send_host_request_reminders,
     send_message_notifications,
     send_onboarding_emails,
@@ -28,12 +33,14 @@ from couchers.jobs.handlers import (
     update_recommendation_scores,
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
+from couchers.materialized_views import refresh_materialized_views
 from couchers.metrics import create_prometheus_server
 from couchers.models import (
     AccountDeletionToken,
     BackgroundJob,
     BackgroundJobState,
     Email,
+    HostRequest,
     HostRequestStatus,
     LoginToken,
     Message,
@@ -46,6 +53,7 @@ from couchers.models import (
 from couchers.proto import conversations_pb2, requests_pb2
 from couchers.utils import now, today
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     auth_api_session,
     conversations_session,
     db,
@@ -124,7 +132,7 @@ def test_purge_login_tokens(db):
         session.add(login_token)
         assert session.execute(select(func.count()).select_from(LoginToken)).scalar_one() == 1
 
-        queue_job(session, "purge_login_tokens", empty_pb2.Empty())
+        queue_job(session, job=purge_login_tokens, payload=empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
@@ -157,7 +165,7 @@ def test_purge_password_reset_tokens(db):
         session.add(password_reset_token)
         assert session.execute(select(func.count()).select_from(PasswordResetToken)).scalar_one() == 1
 
-        queue_job(session, "purge_password_reset_tokens", empty_pb2.Empty())
+        queue_job(session, job=purge_password_reset_tokens, payload=empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
@@ -203,7 +211,7 @@ def test_purge_account_deletion_tokens(db):
             session.add(token)
         assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 3
 
-        queue_job(session, "purge_account_deletion_tokens", empty_pb2.Empty())
+        queue_job(session, job=purge_account_deletion_tokens, payload=empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
@@ -230,7 +238,7 @@ def test_purge_account_deletion_tokens(db):
 
 def test_enforce_community_memberships(db):
     with session_scope() as session:
-        queue_job(session, "enforce_community_membership", empty_pb2.Empty())
+        queue_job(session, job=enforce_community_membership, payload=empty_pb2.Empty())
     process_job()
 
     with session_scope() as session:
@@ -254,7 +262,7 @@ def test_enforce_community_memberships(db):
 
 def test_refresh_materialized_views(db):
     with session_scope() as session:
-        queue_job(session, "refresh_materialized_views", empty_pb2.Empty())
+        queue_job(session, job=refresh_materialized_views, payload=empty_pb2.Empty())
 
     process_job()
 
@@ -314,10 +322,16 @@ def test_service_jobs(db):
 
 
 def test_scheduler(db, monkeypatch):
-    MOCK_SCHEDULE = [
-        ("purge_login_tokens", timedelta(seconds=7)),
-        ("send_message_notifications", timedelta(seconds=11)),
-    ]
+    def purge_login_tokens(payload: empty_pb2.Empty):
+        return
+
+    def send_message_notifications(payload: empty_pb2.Empty):
+        return
+
+    MOCK_JOBS = {
+        "purge_login_tokens": Job(purge_login_tokens, timedelta(seconds=7)),
+        "send_message_notifications": Job(send_message_notifications, timedelta(seconds=11)),
+    }
 
     current_time = 0
     end_time = 70
@@ -326,7 +340,6 @@ def test_scheduler(db, monkeypatch):
         pass
 
     def mock_monotonic():
-        nonlocal current_time
         return current_time
 
     def mock_sleep(seconds):
@@ -337,20 +350,23 @@ def test_scheduler(db, monkeypatch):
 
     realized_schedule = []
 
-    def mock_run_job_and_schedule(sched, schedule_id):
-        nonlocal current_time
-        realized_schedule.append((current_time, schedule_id))
-        _run_job_and_schedule(sched, schedule_id)
+    def mock_run_job_and_schedule(sched, job: Job, frequency: timedelta) -> None:
+        realized_schedule.append((current_time, job.name))
+        _run_job_and_schedule(sched, job, frequency)
 
     monkeypatch.setattr(couchers.jobs.worker, "_run_job_and_schedule", mock_run_job_and_schedule)
-    monkeypatch.setattr(couchers.jobs.worker, "SCHEDULE", MOCK_SCHEDULE)
+    monkeypatch.setattr(couchers.jobs.worker, "JOBS", MOCK_JOBS)
     monkeypatch.setattr(couchers.jobs.worker, "monotonic", mock_monotonic)
     monkeypatch.setattr(couchers.jobs.worker, "sleep", mock_sleep)
 
     with pytest.raises(EndOfTime):
         run_scheduler()
 
-    assert realized_schedule == [
+    # Convert to job indices for comparison (to maintain test compatibility)
+    job_order = ["purge_login_tokens", "send_message_notifications"]
+    realized_schedule_indices = [(time, job_order.index(job_name)) for time, job_name in realized_schedule]
+
+    assert realized_schedule_indices == [
         (0.0, 0),
         (0.0, 1),
         (7.0, 0),
@@ -387,18 +403,18 @@ def test_scheduler(db, monkeypatch):
 
 
 def test_job_retry(db):
-    with session_scope() as session:
-        queue_job(session, "mock_job", empty_pb2.Empty())
-
     called_count = 0
 
-    def mock_job(payload):
+    def mock_job(payload: empty_pb2.Empty) -> empty_pb2.Empty:
         nonlocal called_count
         called_count += 1
         raise Exception()
 
+    with session_scope() as session:
+        queue_job(session, job=mock_job, payload=empty_pb2.Empty())
+
     MOCK_JOBS = {
-        "mock_job": (empty_pb2.Empty, mock_job),
+        "mock_job": Job(mock_job),
     }
     create_prometheus_server(port=8000)
 
@@ -1177,7 +1193,7 @@ def test_update_recommendation_scores(db):
     update_recommendation_scores(empty_pb2.Empty())
 
 
-def test_update_badges(db, push_collector):
+def test_update_badges(db, push_collector: PushCollector):
     user1, _ = generate_user(last_donated=None)
     user2, _ = generate_user(last_donated=None)
     user3, _ = generate_user(last_donated=None)
@@ -1209,48 +1225,33 @@ def test_update_badges(db, push_collector):
 
     print(push_collector.pushes)
 
-    push_collector.assert_user_push_matches_fields(
-        user1.id,
-        ix=0,
-        title="The Founder badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user1.id,
-        ix=1,
-        title="The Board Member badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user2.id,
-        ix=0,
-        title="The Founder badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user2.id,
-        ix=1,
-        title="The Board Member badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user4.id,
-        ix=0,
-        title="The Verified Phone badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user5.id,
-        ix=0,
-        title="The Board Member badge was removed from your profile",
-        body="You can see all your badges on your profile.",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user5.id,
-        ix=1,
-        title="The Verified Phone badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
+    push = push_collector.get_for_user(user1.id, index=0)
+    assert push.content.title == "The Founder badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user1.id, index=1)
+    assert push.content.title == "The Board Member badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user2.id, index=0)
+    assert push.content.title == "The Founder badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user2.id, index=1)
+    assert push.content.title == "The Board Member badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user4.id, index=0)
+    assert push.content.title == "The Verified Phone badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user5.id, index=0)
+    assert push.content.title == "The Board Member badge was removed from your profile"
+    assert push.content.body == "You can see all your badges on your profile."
+
+    push = push_collector.get_for_user(user5.id, index=1)
+    assert push.content.title == "The Verified Phone badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
 
 
 def test_send_request_notifications_blocked_users_no_notification(db, moderator):
@@ -1370,8 +1371,6 @@ def test_send_host_request_reminders_blocked_users_no_notification(db, moderator
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
         # Reset the reminder counter so we can test again
-        from couchers.models import HostRequest
-
         host_request = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr)).scalar_one()
         host_request.host_sent_request_reminders = 0
         host_request.last_sent_request_reminder_time = now() - HOST_REQUEST_REMINDER_INTERVAL
@@ -1455,7 +1454,7 @@ def test_send_message_notifications_blocked_users_no_notification(db, moderator)
         assert email_job_count == 0, "No notification email should be sent when recipient has blocked sender"
 
 
-def test_update_badges_volunteers(db, push_collector):
+def test_update_badges_volunteers(db, push_collector: PushCollector):
     """Test that volunteer and past_volunteer badges are automatically granted based on Volunteer model."""
     # Create 6 users - users 1 and 2 get founder/board_member badges from static_badges
     user1, _ = generate_user(last_donated=None)
@@ -1515,29 +1514,24 @@ def test_update_badges_volunteers(db, push_collector):
         assert "past_volunteer" not in user6_badges
 
     # Check notifications for volunteer badge users
-    push_collector.assert_user_has_single_matching(
-        user3.id,
-        title="The Active Volunteer badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_has_single_matching(
-        user4.id,
-        title="The Past Volunteer badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
-    push_collector.assert_user_has_single_matching(
-        user5.id,
-        title="The Active Volunteer badge was removed from your profile",
-        body="You can see all your badges on your profile.",
-    )
-    push_collector.assert_user_has_single_matching(
-        user6.id,
-        title="The Past Volunteer badge was removed from your profile",
-        body="You can see all your badges on your profile.",
-    )
+    push = push_collector.get_for_user(user3.id)
+    assert push.content.title == "The Active Volunteer badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user4.id)
+    assert push.content.title == "The Past Volunteer badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
+
+    push = push_collector.get_for_user(user5.id)
+    assert push.content.title == "The Active Volunteer badge was removed from your profile"
+    assert push.content.body == "You can see all your badges on your profile."
+
+    push = push_collector.get_for_user(user6.id)
+    assert push.content.title == "The Past Volunteer badge was removed from your profile"
+    assert push.content.body == "You can see all your badges on your profile."
 
 
-def test_update_badges_volunteer_status_change(db, push_collector):
+def test_update_badges_volunteer_status_change(db, push_collector: PushCollector):
     """Test that badge is updated when volunteer status changes from active to past."""
     # Create users - users 1 and 2 get founder/board_member badges from static_badges
     user1, _ = generate_user(last_donated=None)
@@ -1563,11 +1557,9 @@ def test_update_badges_volunteer_status_change(db, push_collector):
         assert "volunteer" in user3_badges
         assert "past_volunteer" not in user3_badges
 
-    push_collector.assert_user_has_single_matching(
-        user3.id,
-        title="The Active Volunteer badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
+    push = push_collector.get_for_user(user3.id)
+    assert push.content.title == "The Active Volunteer badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
 
     # Now change the volunteer to past volunteer
     with session_scope() as session:
@@ -1583,18 +1575,13 @@ def test_update_badges_volunteer_status_change(db, push_collector):
         assert "past_volunteer" in user3_badges
 
     # Check both badges were updated
-    push_collector.assert_user_push_matches_fields(
-        user3.id,
-        ix=1,
-        title="The Active Volunteer badge was removed from your profile",
-        body="You can see all your badges on your profile.",
-    )
-    push_collector.assert_user_push_matches_fields(
-        user3.id,
-        ix=2,
-        title="The Past Volunteer badge was added to your profile",
-        body="Check out your profile to see the new badge!",
-    )
+    push = push_collector.get_for_user(user3.id, index=1)
+    assert push.content.title == "The Active Volunteer badge was removed from your profile"
+    assert push.content.body == "You can see all your badges on your profile."
+
+    push = push_collector.get_for_user(user3.id, index=2)
+    assert push.content.title == "The Past Volunteer badge was added to your profile"
+    assert push.content.body == "Check out your profile to see the new badge!"
 
 
 def test_send_message_notifications_empty_unseen_simple(monkeypatch):

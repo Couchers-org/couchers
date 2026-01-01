@@ -30,6 +30,7 @@ from couchers.experimentation import check_gate
 from couchers.helpers.geoip import geoip_approximate_location
 from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
 from couchers.jobs.enqueue import queue_job
+from couchers.jobs.handlers import finalize_strong_verification
 from couchers.materialized_views import LiteUser
 from couchers.metrics import (
     account_deletion_initiations_counter,
@@ -865,7 +866,7 @@ class Iris(iris_pb2_grpc.IrisServicer):
             # background worker will go and sort this one out
             queue_job(
                 session,
-                job_type="finalize_strong_verification",
+                job=finalize_strong_verification,
                 payload=jobs_pb2.FinalizeStrongVerificationPayload(verification_attempt_id=verification_attempt.id),
                 priority=8,
             )

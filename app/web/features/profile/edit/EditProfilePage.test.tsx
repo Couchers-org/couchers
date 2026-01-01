@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
@@ -34,7 +34,10 @@ const uploadFileMock = service.api.uploadFile as jest.MockedFunction<
 >;
 
 const renderPage = async () => {
-  act(() => render(<EditProfilePage />, { wrapper }));
+  const result = render(<EditProfilePage />, { wrapper });
+  // Wait for initial render to complete
+  await screen.findByText(t("profile:heading.about_me"));
+  return result;
 };
 
 describe("Edit profile", () => {
@@ -69,8 +72,6 @@ describe("Edit profile", () => {
     await renderPage();
 
     const user = userEvent.setup();
-
-    await screen.findByText(t("profile:heading.about_me"));
 
     const aboutMeInput = await screen.findByTestId("aboutMe-input");
 
@@ -112,8 +113,6 @@ describe("Edit profile", () => {
     await renderPage();
 
     const user = userEvent.setup();
-
-    await screen.findByText(t("profile:heading.about_me"));
 
     const aboutMeInput = await screen.findByTestId("aboutMe-input");
 
@@ -158,8 +157,6 @@ describe("Edit profile", () => {
 
     const user = userEvent.setup();
 
-    await screen.findByText(t("profile:heading.about_me"));
-
     const aboutMeInput = await screen.findByTestId("aboutMe-input");
 
     await user.clear(aboutMeInput);
@@ -196,17 +193,19 @@ describe("Edit profile", () => {
     await user.clear(aboutMeInput);
     await waitFor(() => expect(aboutMeInput).toHaveValue(""));
 
+    // Use paste instead of type for large text - much faster
     const userContent = "a".repeat(100);
-    await user.type(aboutMeInput, userContent);
+    await user.click(aboutMeInput);
+    await user.paste(userContent);
 
     expect(
-      screen.getByText(
+      await screen.findByText(
         /Please write at least 50 characters to unlock messaging and requests/i,
       ),
     ).toBeInTheDocument();
 
     const additionalContent = "a".repeat(50);
-    await user.type(aboutMeInput, additionalContent);
+    await user.paste(additionalContent);
 
     await waitFor(() => {
       expect(
@@ -215,7 +214,7 @@ describe("Edit profile", () => {
         ),
       ).not.toBeInTheDocument();
     });
-  });
+  }, 10000);
 
   it("should only show save bar when form is dirty", async () => {
     jest.spyOn(window, "confirm").mockImplementation(() => true);
@@ -223,8 +222,6 @@ describe("Edit profile", () => {
     getUserMock.mockImplementation(getUser);
 
     await renderPage();
-
-    await screen.findByText(t("profile:heading.about_me"));
 
     expect(
       screen.queryByRole("button", { name: t("global:save_changes") }),

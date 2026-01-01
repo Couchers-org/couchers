@@ -63,4 +63,4 @@ teardown-db:
 # make test file=test_file.py → runs tests in a specific file
 # make test file=test_file.py::TestClass::test_method → runs a specific test
 test:
-	uv run pytest $(if $(file),src/tests/$(file),src/tests) --disable-warnings
+	uv run pytest $(if $(file),src/tests/$(file),src/tests)

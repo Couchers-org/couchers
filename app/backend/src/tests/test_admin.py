@@ -20,6 +20,7 @@ from couchers.proto import admin_pb2, auth_pb2, events_pb2, references_pb2, repo
 from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
 from tests.test_communities import create_community
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     add_users_to_new_moderation_list,
     auth_api_session,
     db,
@@ -110,7 +111,7 @@ def test_GetUserDetails(db):
     assert not res.deleted
 
 
-def test_ChangeUserGender(db, push_collector):
+def test_ChangeUserGender(db, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
 
@@ -132,14 +133,12 @@ def test_ChangeUserGender(db, push_collector):
     assert "Machine" in e.plain
     assert "Machine" in e.html
 
-    push_collector.assert_user_has_single_matching(
-        normal_user.id,
-        title="Your gender was changed",
-        body="Your gender on Couchers.org was changed to Machine by an admin.",
-    )
+    push = push_collector.get_for_user(normal_user.id)
+    assert push.content.title == "Your gender was changed"
+    assert push.content.body == "Your gender on Couchers.org was changed to Machine by an admin."
 
 
-def test_ChangeUserBirthdate(db, push_collector):
+def test_ChangeUserBirthdate(db, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user(birthdate=date(year=2000, month=1, day=1))
 
@@ -167,11 +166,9 @@ def test_ChangeUserBirthdate(db, push_collector):
     assert "1990" in e.plain
     assert "1990" in e.html
 
-    push_collector.assert_user_has_single_matching(
-        normal_user.id,
-        title="Your date of birth was changed",
-        body="Your date of birth on Couchers.org was changed to Friday 25 May 1990 by an admin.",
-    )
+    push = push_collector.get_for_user(normal_user.id)
+    assert push.content.title == "Your date of birth was changed"
+    assert push.content.body == "Your date of birth on Couchers.org was changed to Friday 25 May 1990 by an admin."
 
 
 def test_BanUser(db):
@@ -336,7 +333,7 @@ def test_DeleteUser(db):
     assert not res.deleted
 
 
-def test_CreateApiKey(db, push_collector):
+def test_CreateApiKey(db, push_collector: PushCollector):
     with session_scope() as session:
         super_user, super_token = generate_user(is_superuser=True)
         normal_user, normal_token = generate_user()
@@ -378,9 +375,9 @@ def test_CreateApiKey(db, push_collector):
     assert "support@couchers.org" in e.plain
     assert "support@couchers.org" in e.html
 
-    push_collector.assert_user_has_single_matching(
-        normal_user.id, title="An API key was created for your account", body="Details were sent to you via email."
-    )
+    push = push_collector.get_for_user(normal_user.id)
+    assert push.content.title == "An API key was created for your account"
+    assert push.content.body == "Details were sent to you via email."
 
 
 def test_GetChats(db):
@@ -399,7 +396,7 @@ def test_GetChats(db):
     assert len(res.group_chats) == 0
 
 
-def test_badges(db, push_collector):
+def test_badges(db, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user()
 
@@ -413,11 +410,9 @@ def test_badges(db, push_collector):
         # badge emails are disabled by default
         mock.assert_not_called()
 
-        push_collector.assert_user_has_single_matching(
-            normal_user.id,
-            title="The Swagster badge was added to your profile",
-            body="Check out your profile to see the new badge!",
-        )
+        push = push_collector.get_for_user(normal_user.id)
+        assert push.content.title == "The Swagster badge was added to your profile"
+        assert push.content.body == "Check out your profile to see the new badge!"
 
         # can't add/edit special tags
         with pytest.raises(grpc.RpcError) as e:
@@ -440,12 +435,9 @@ def test_badges(db, push_collector):
         # badge emails are disabled by default
         mock.assert_not_called()
 
-        push_collector.assert_user_push_matches_fields(
-            normal_user.id,
-            ix=1,
-            title="The Swagster badge was removed from your profile",
-            body="You can see all your badges on your profile.",
-        )
+        push = push_collector.get_for_user(normal_user.id, index=1)
+        assert push.content.title == "The Swagster badge was removed from your profile"
+        assert push.content.body == "You can see all your badges on your profile."
 
         # not found on user
         with pytest.raises(grpc.RpcError) as e:
@@ -700,7 +692,7 @@ def test_RemoveUserFromModerationUserList(db):
             assert session.get(ModerationUserList, moderation_list_id) is None
 
 
-def test_admin_delete_account_url(db, push_collector):
+def test_admin_delete_account_url(db, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
 
     user, token = generate_user()
@@ -711,7 +703,7 @@ def test_admin_delete_account_url(db, push_collector):
             admin_pb2.CreateAccountDeletionLinkReq(user=user.username)
         ).account_deletion_confirm_url
 
-    push_collector.assert_user_has_count(user_id, 0)
+    assert push_collector.count_for_user(user_id) == 0
 
     with session_scope() as session:
         token_o = session.execute(select(AccountDeletionToken)).scalar_one()
@@ -727,13 +719,9 @@ def test_admin_delete_account_url(db, push_collector):
                 )
             )
 
-    push_collector.assert_user_push_matches_fields(
-        user_id,
-        ix=0,
-        title="Your Couchers.org account has been deleted",
-        body="You can still undo this by following the link we emailed to you within 7 days.",
-    )
-
+    push = push_collector.get_for_user(user_id, index=0)
+    assert push.content.title == "Your Couchers.org account has been deleted"
+    assert push.content.body == "You can still undo this by following the link we emailed to you within 7 days."
     mock.assert_called_once()
     e = email_fields(mock)
 

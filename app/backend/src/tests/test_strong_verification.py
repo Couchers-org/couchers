@@ -27,6 +27,7 @@ from couchers.models import (
 from couchers.proto import account_pb2, admin_pb2, api_pb2
 from couchers.proto.google.api import httpbody_pb2
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     account_session,
     api_session,
     db,
@@ -669,7 +670,7 @@ def test_strong_verification_disabled(db):
         assert e.value.details() == "Strong verification is currently disabled."
 
 
-def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_collector):
+def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_collector: PushCollector):
     monkeypatch_sv_config(monkeypatch)
 
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
@@ -798,11 +799,11 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
         assert verification_attempt.user_id == user.id
         assert verification_attempt.status == StrongVerificationAttemptStatus.duplicate
 
-    push_collector.assert_user_push_matches_fields(
-        user.id,
-        ix=1,
-        title="Strong Verification failed",
-        body="You tried to verify with a passport that has already been used for verification. Please use another passport.",
+    push = push_collector.get_for_user(user.id, index=1)
+    assert push.content.title == "Strong Verification failed"
+    assert (
+        push.content.body
+        == "You tried to verify with a passport that has already been used for verification. Please use another passport."
     )
 
     refresh_materialized_views_rapid(None)
@@ -815,7 +816,7 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
         )
 
 
-def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collector):
+def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collector: PushCollector):
     monkeypatch_sv_config(monkeypatch)
 
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
@@ -949,14 +950,15 @@ def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collecto
         assert verification_attempt.user_id == user2.id
         assert verification_attempt.status == StrongVerificationAttemptStatus.duplicate
 
-    push_collector.assert_user_push_matches_fields(
-        user2.id,
-        title="Strong Verification failed",
-        body="You tried to verify with a passport that has already been used for verification. Please use another passport.",
+    push = push_collector.get_for_user(user2.id, index=0)
+    assert push.content.title == "Strong Verification failed"
+    assert (
+        push.content.body
+        == "You tried to verify with a passport that has already been used for verification. Please use another passport."
     )
 
 
-def test_strong_verification_non_passport(db, monkeypatch, push_collector):
+def test_strong_verification_non_passport(db, monkeypatch, push_collector: PushCollector):
     monkeypatch_sv_config(monkeypatch)
 
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
@@ -1023,8 +1025,9 @@ def test_strong_verification_non_passport(db, monkeypatch, push_collector):
         assert verification_attempt.user_id == user.id
         assert verification_attempt.status == StrongVerificationAttemptStatus.failed
 
-    push_collector.assert_user_push_matches_fields(
-        user.id,
-        title="Strong Verification failed",
-        body="You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification.",
+    push = push_collector.get_for_user(user.id, index=0)
+    assert push.content.title == "Strong Verification failed"
+    assert (
+        push.content.body
+        == "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification."
     )

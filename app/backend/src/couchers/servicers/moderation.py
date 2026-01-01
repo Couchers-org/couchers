@@ -377,10 +377,13 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 .all()
             )
 
+            # Import here to avoid circular dependency
+            from couchers.notifications.background import handle_notification
+
             for notification in pending_notifications:
                 queue_job(
                     session,
-                    job_type="handle_notification",
+                    job=handle_notification,
                     payload=jobs_pb2.HandleNotificationPayload(notification_id=notification.id),
                 )
 

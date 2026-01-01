@@ -26,6 +26,7 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import conversations_pb2, moderation_pb2, notifications_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, now, today
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     conversations_session,
     db,
     email_fields,
@@ -377,7 +378,7 @@ def test_create_host_request_creates_moderation_state(db):
         # item_author_user_id is no longer stored in the model, it's dynamically retrieved
 
 
-def test_host_request_no_notification_before_approval(db, push_collector):
+def test_host_request_no_notification_before_approval(db, push_collector: PushCollector):
     """Test that host requests don't send notifications until approved"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -399,7 +400,7 @@ def test_host_request_no_notification_before_approval(db, push_collector):
     process_jobs()
 
     # No push notification should be sent yet (host requests are shadowed initially)
-    push_collector.assert_user_has_count(user2.id, 0)
+    assert push_collector.count_for_user(user2.id) == 0
 
 
 def test_shadowed_notification_not_in_list_notifications(db):
@@ -538,7 +539,7 @@ def test_unlisted_host_request_not_in_lists(db):
         assert len(res.host_requests) == 0
 
 
-def test_approved_host_request_in_lists_and_notifications(db, push_collector):
+def test_approved_host_request_in_lists_and_notifications(db, push_collector: PushCollector):
     """Test that approved host requests appear in lists and send notifications"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -559,7 +560,7 @@ def test_approved_host_request_in_lists_and_notifications(db, push_collector):
 
     # Process the initial notification job - should be deferred (no notification sent)
     process_jobs()
-    push_collector.assert_user_has_count(user2.id, 0)
+    assert push_collector.count_for_user(user2.id) == 0
 
     # Get the moderation state ID
     state_id = None
@@ -596,7 +597,7 @@ def test_approved_host_request_in_lists_and_notifications(db, push_collector):
         assert res.host_requests[0].host_request_id == host_request_id
 
     # After approval, the host should have received a push notification
-    push_collector.assert_user_has_single_matching(user2.id, topic_action="host_request:create")
+    assert push_collector.get_for_user(user2.id).topic_action == "host_request:create"
 
 
 def test_hidden_host_request_invisible_to_all(db):
@@ -1864,7 +1865,7 @@ def test_auto_approve_moderation_queue_disabled_when_zero(db):
         assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
 
 
-def test_auto_approve_moderation_queue_approves_old_items(db, push_collector):
+def test_auto_approve_moderation_queue_approves_old_items(db, push_collector: PushCollector):
     """Test that auto-approval approves items older than the deadline"""
     moderator, mod_token = generate_user(is_superuser=True)
     user1, token1 = generate_user()
@@ -2168,7 +2169,7 @@ def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
 # ============================================================================
 
 
-def test_host_request_message_notifications_suppressed_before_approval(db, push_collector, moderator):
+def test_host_request_message_notifications_suppressed_before_approval(db, push_collector: PushCollector, moderator):
     """
     Test that notifications are NOT sent for messages in host requests
     that haven't been approved yet.
@@ -2191,7 +2192,7 @@ def test_host_request_message_notifications_suppressed_before_approval(db, push_
         ).host_request_id
 
     # No notifications should have been sent to the host (request is SHADOWED)
-    push_collector.assert_user_has_count(host.id, 0)
+    assert push_collector.count_for_user(host.id) == 0
 
     # Send additional messages BEFORE approval - should NOT generate notifications
     with requests_session(surfer_token) as api:
@@ -2209,7 +2210,7 @@ def test_host_request_message_notifications_suppressed_before_approval(db, push_
         )
 
     # Host should STILL have no notifications (messages sent while SHADOWED)
-    push_collector.assert_user_has_count(host.id, 0)
+    assert push_collector.count_for_user(host.id) == 0
 
     # Now approve the request
     with mock_notification_email():
@@ -2219,15 +2220,12 @@ def test_host_request_message_notifications_suppressed_before_approval(db, push_
     # 1. host_request:create (the initial request)
     # 2. host_request:message (Follow-up message 1)
     # 3. host_request:message (Follow-up message 2)
-    push_collector.assert_user_has_count(host.id, 3)
-    push_collector.assert_user_push_matches_fields(
-        host.id,
-        ix=0,
-        title=f"{surfer.name} sent you a host request",
-    )
+    assert push_collector.count_for_user(host.id) == 3
+    push = push_collector.get_for_user(host.id, index=0)
+    assert push.content.title == f"{surfer.name} sent you a host request"
 
 
-def test_host_request_status_notifications_suppressed_before_approval(db, push_collector, moderator):
+def test_host_request_status_notifications_suppressed_before_approval(db, push_collector: PushCollector, moderator):
     """
     Test that status change notifications (accept/reject/etc.) are NOT sent
     for host requests that haven't been approved yet.
@@ -2253,7 +2251,7 @@ def test_host_request_status_notifications_suppressed_before_approval(db, push_c
         ).host_request_id
 
     # No notifications should have been sent to the host (request is SHADOWED)
-    push_collector.assert_user_has_count(host.id, 0)
+    assert push_collector.count_for_user(host.id) == 0
 
     # The surfer can cancel their own request even when SHADOWED
     # But this should NOT notify the host since the request isn't approved
@@ -2267,10 +2265,10 @@ def test_host_request_status_notifications_suppressed_before_approval(db, push_c
         )
 
     # Host should STILL have no notifications (cancel notification suppressed)
-    push_collector.assert_user_has_count(host.id, 0)
+    assert push_collector.count_for_user(host.id) == 0
 
 
-def test_host_request_notifications_sent_after_approval(db, push_collector, moderator):
+def test_host_request_notifications_sent_after_approval(db, push_collector: PushCollector, moderator):
     """
     Test that after a host request is approved, all notifications work normally.
     """
@@ -2295,7 +2293,7 @@ def test_host_request_notifications_sent_after_approval(db, push_collector, mode
         moderator.approve_host_request(hr_id)
 
     # Host should have received 1 notification (the approval notification)
-    push_collector.assert_user_has_count(host.id, 1)
+    assert push_collector.count_for_user(host.id) == 1
 
     # Host accepts the request - surfer should be notified
     with requests_session(host_token) as api:
@@ -2309,12 +2307,9 @@ def test_host_request_notifications_sent_after_approval(db, push_collector, mode
             )
 
     # Surfer should have 1 notification (the accept notification)
-    push_collector.assert_user_has_count(surfer.id, 1)
-    push_collector.assert_user_push_matches_fields(
-        surfer.id,
-        ix=0,
-        title=f"{host.name} accepted your host request",
-    )
+    assert push_collector.count_for_user(surfer.id) == 1
+    push = push_collector.get_for_user(surfer.id, index=0)
+    assert push.content.title == f"{host.name} accepted your host request"
 
     # Surfer confirms - host should be notified
     with requests_session(surfer_token) as api:
@@ -2328,15 +2323,12 @@ def test_host_request_notifications_sent_after_approval(db, push_collector, mode
             )
 
     # Host should now have 2 notifications (approval + confirm)
-    push_collector.assert_user_has_count(host.id, 2)
-    push_collector.assert_user_push_matches_fields(
-        host.id,
-        ix=1,
-        title=f"{surfer.name} confirmed their host request",
-    )
+    assert push_collector.count_for_user(host.id) == 2
+    push = push_collector.get_for_user(host.id, index=1)
+    assert push.content.title == f"{surfer.name} confirmed their host request"
 
 
-def test_group_chat_message_notifications_suppressed_before_approval(db, push_collector, moderator):
+def test_group_chat_message_notifications_suppressed_before_approval(db, push_collector: PushCollector, moderator):
     """
     Test that notifications are NOT sent for messages in group chats
     that haven't been approved yet.
@@ -2362,7 +2354,7 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
         assert gc.moderation_state.visibility == ModerationVisibility.SHADOWED
 
     # No notifications should have been sent yet (chat is SHADOWED)
-    push_collector.assert_user_has_count(user2.id, 0)
+    assert push_collector.count_for_user(user2.id) == 0
 
     # Send messages BEFORE approval
     with conversations_session(token1) as api:
@@ -2378,7 +2370,7 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
         pass
 
     # User2 should STILL have no notifications (chat is SHADOWED)
-    push_collector.assert_user_has_count(user2.id, 0)
+    assert push_collector.count_for_user(user2.id) == 0
 
     # Now approve the group chat
     moderator.approve_group_chat(gc_id)
@@ -2393,11 +2385,9 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
         assert gc.moderation_state.visibility == ModerationVisibility.VISIBLE
 
     # User2 should now have 1 notification for the first message sent before approval
-    push_collector.assert_user_has_single_matching(
-        user2.id,
-        title=f"{user1.name} sent you a message",
-        body="Hello before approval",
-    )
+    push = push_collector.get_for_user(user2.id)
+    assert push.content.title == f"{user1.name} sent you a message"
+    assert push.content.body == "Hello before approval"
 
     # Send a message AFTER approval
     with conversations_session(token1) as api:
@@ -2413,4 +2403,4 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
         pass
 
     # User2 SHOULD now have 2 notifications total
-    push_collector.assert_user_has_count(user2.id, 2)
+    assert push_collector.count_for_user(user2.id) == 2

@@ -42,6 +42,9 @@ def notify(
     (e.g., security notifications like password changes, or aggregated notifications like chat:missed_messages).
     """
     logger.info(f"Generating notification of type {topic_action} for user {user_id}")
+    # Import here to avoid circular dependency
+    from couchers.notifications.background import handle_notification
+
     topic, action = topic_action.split(":")
 
     notification = Notification(
@@ -56,7 +59,7 @@ def notify(
 
     queue_job(
         session,
-        job_type="handle_notification",
+        job=handle_notification,
         payload=jobs_pb2.HandleNotificationPayload(
             notification_id=notification.id,
         ),

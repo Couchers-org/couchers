@@ -29,20 +29,9 @@ This will spin up a complete copy of the database, backend, and proxies needed t
 
 This will not currently run the frontend, to do that, please follow the instructions in [app/web/readme.md](../web/readme.md) under *Quick Start*, then *Running against a local backend*.
 
-### Running tests in docker
-
-**Remember** 
-
-If you've made changes to any \*.proto files, you may need to re-compile the protocol buffers (step 2).
-
-You can run all backend tests in docker with the following command, executed in the `app` folder:
-
-```sh
-docker compose -f docker-compose.test.yml up --build
-```
-
 ### Running tests locally
 
+This is the recommended approach. 
 ```sh
 cd app/backend
 
@@ -61,6 +50,29 @@ make test
 ## Or run a single file's tests, add your filename
 make test file=[test_filename.py]
 ```
+
+
+### Running tests in docker
+
+**Remember**
+
+If you've made changes to any \*.proto files, you may need to re-compile the protocol buffers (step 2).
+
+You can run all backend tests in docker with the following commands:
+
+```sh
+cd app/backend
+
+## Run all tests
+make docker-test
+
+## Or run a single file's tests
+make docker-test file=test_filename.py
+
+## Teardown the test database when done
+make teardown-docker-test
+```
+
 
 ## Q/A:
 

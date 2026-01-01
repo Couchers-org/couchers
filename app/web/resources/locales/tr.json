@@ -70,5 +70,23 @@
         "can_host": "Ev sahipliği yapabilir",
         "cant_host": "Ev sahipliği yapamaz",
         "unspecified_info": "Belirtmemiş"
+    },
+    "report": {
+        "title": "Bir sorun bildir",
+        "bug": {
+            "button_label": "Bir teknik sorun bildir",
+            "title_label": "Sorun Başlığı",
+            "warning_message": "Lütfen bu bilginin yanı sıra, bulunduğunuz sayfa, kullandığınız tarayıcı ve kullanıcı adınız gibi tanılama bilgilerinin de herkese açık bir hata listesine kaydedileceğini unutmayın.",
+            "problem_label": "Hatanın oluşması için neler yaptın?",
+            "title_helper": "Hatanın kısa bir açıklaması",
+            "problem_helper": "Sorunun kısa bir açıklaması ve nasıl tekrardan oluşturulabileceği"
+        },
+        "label": "Bir sorun bildir"
+    },
+    "meetup_status": {
+        "wants_to_meetup": "Buluşmak istiyor",
+        "open_to_meetup": "Buluşmaya açık",
+        "unspecified_info": "Belirtmemiş",
+        "does_not_want_to_meetup": "Buluşamaz"
     }
 }

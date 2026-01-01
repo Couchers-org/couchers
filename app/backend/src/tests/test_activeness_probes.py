@@ -9,10 +9,12 @@ from sqlalchemy import exists, select
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
+from couchers.jobs.handlers import send_activeness_probes
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, MeetupStatus
 from couchers.proto import api_pb2, jail_pb2
 from couchers.utils import now
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     api_session,
     db,
     email_fields,
@@ -29,7 +31,7 @@ def _(testconfig):
     pass
 
 
-def test_activeness_probes_happy_path_inactive(db, push_collector):
+def test_activeness_probes_happy_path_inactive(db, push_collector: PushCollector):
     user, token = generate_user(
         hosting_status=HostingStatus.can_host,
         meetup_status=MeetupStatus.wants_to_meetup,
@@ -37,7 +39,7 @@ def test_activeness_probes_happy_path_inactive(db, push_collector):
     )
 
     with session_scope() as session:
-        queue_job(session, "send_activeness_probes", empty_pb2.Empty())
+        queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
 
     process_jobs()
 
@@ -57,14 +59,12 @@ def test_activeness_probes_happy_path_inactive(db, push_collector):
         assert res.hosting_status == api_pb2.HOSTING_STATUS_CANT_HOST
         assert res.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
 
-    push_collector.assert_user_has_single_matching(
-        user.id,
-        title="Are you still open to hosting on Couchers.org?",
-        body="Please log in to confirm your hosting status.",
-    )
+    push = push_collector.get_for_user(user.id)
+    assert push.content.title == "Are you still open to hosting on Couchers.org?"
+    assert push.content.body == "Please log in to confirm your hosting status."
 
 
-def test_activeness_probes_happy_path_active(db, push_collector):
+def test_activeness_probes_happy_path_active(db, push_collector: PushCollector):
     user, token = generate_user(
         hosting_status=HostingStatus.can_host,
         meetup_status=MeetupStatus.wants_to_meetup,
@@ -72,7 +72,7 @@ def test_activeness_probes_happy_path_active(db, push_collector):
     )
 
     with session_scope() as session:
-        queue_job(session, "send_activeness_probes", empty_pb2.Empty())
+        queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
 
     process_jobs()
 
@@ -92,14 +92,12 @@ def test_activeness_probes_happy_path_active(db, push_collector):
         assert res.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert res.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
 
-    push_collector.assert_user_has_single_matching(
-        user.id,
-        title="Are you still open to hosting on Couchers.org?",
-        body="Please log in to confirm your hosting status.",
-    )
+    push = push_collector.get_for_user(user.id)
+    assert push.content.title == "Are you still open to hosting on Couchers.org?"
+    assert push.content.body == "Please log in to confirm your hosting status."
 
 
-def test_activeness_probes_disabled(db, push_collector):
+def test_activeness_probes_disabled(db, push_collector: PushCollector):
     new_config = config.copy()
     new_config["ACTIVENESS_PROBES_ENABLED"] = False
 
@@ -111,7 +109,7 @@ def test_activeness_probes_disabled(db, push_collector):
         )
 
         with session_scope() as session:
-            queue_job(session, "send_activeness_probes", empty_pb2.Empty())
+            queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
 
         process_jobs()
 
@@ -124,7 +122,7 @@ def test_activeness_probes_disabled(db, push_collector):
             assert not session.execute(select(exists(ActivenessProbe))).scalar_one()
 
 
-def test_activeness_probes_expiry(db, push_collector):
+def test_activeness_probes_expiry(db, push_collector: PushCollector):
     user, token = generate_user(
         hosting_status=HostingStatus.can_host,
         meetup_status=MeetupStatus.wants_to_meetup,
@@ -132,7 +130,7 @@ def test_activeness_probes_expiry(db, push_collector):
     )
 
     with session_scope() as session:
-        queue_job(session, "send_activeness_probes", empty_pb2.Empty())
+        queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
 
     process_jobs()
 
@@ -147,7 +145,7 @@ def test_activeness_probes_expiry(db, push_collector):
         assert probe.notifications_sent == 1
         probe.notifications_sent = 2
 
-        queue_job(session, "send_activeness_probes", empty_pb2.Empty())
+        queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
 
     process_jobs()
 

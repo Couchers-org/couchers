@@ -14,6 +14,7 @@ from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_
 from couchers.resources import get_badge_dict
 from couchers.utils import create_coordinate, to_aware_datetime
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     api_session,
     blocking_session,
     db,
@@ -801,7 +802,7 @@ def test_pending_friend_request_count(db):
         assert res.pending_friend_request_count == 0
 
 
-def test_friend_request_flow(db, push_collector):
+def test_friend_request_flow(db, push_collector: PushCollector):
     user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user(complete_profile=True)
     user3, token3 = generate_user()
@@ -811,11 +812,9 @@ def test_friend_request_flow(db, push_collector):
         with api_session(token1) as api:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
 
-    push_collector.assert_user_has_single_matching(
-        user2.id,
-        title=f"{user1.name} wants to be your friend",
-        body=f"You've received a friend request from {user1.name}",
-    )
+    push = push_collector.get_for_user(user2.id)
+    assert push.content.title == f"{user1.name} wants to be your friend"
+    assert push.content.body == f"You've received a friend request from {user1.name}"
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -874,12 +873,10 @@ def test_friend_request_flow(db, push_collector):
         assert len(res.user_ids) == 1
         assert res.user_ids[0] == user1.id
 
-    push_collector.assert_user_has_count(user2.id, 1)
-    push_collector.assert_user_push_matches_fields(
-        user1.id,
-        title=f"{user2.name} accepted your friend request!",
-        body=f"{user2.name} has accepted your friend request",
-    )
+    assert push_collector.count_for_user(user2.id) == 1
+    push = push_collector.get_for_user(user1.id, index=0)
+    assert push.content.title == f"{user2.name} accepted your friend request!"
+    assert push.content.body == f"{user2.name} has accepted your friend request"
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -919,7 +916,7 @@ def test_friend_request_flow(db, push_collector):
         assert len(res.user_ids) == 0
 
 
-def test_RemoveFriend_regression(db, push_collector):
+def test_RemoveFriend_regression(db, push_collector: PushCollector):
     user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user(complete_profile=True)
     user3, token3 = generate_user()

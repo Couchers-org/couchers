@@ -48,6 +48,7 @@ from couchers.models import (
     UserBlock,
     UserSession,
 )
+from couchers.notifications.push import PushNotificationContent
 from couchers.proto import (
     account_pb2_grpc,
     admin_pb2_grpc,
@@ -1198,50 +1199,38 @@ def email_fields(mock, call_ix=0):
     )
 
 
+@dataclass(frozen=True, slots=True, kw_only=True)
 class Push:
-    """
-    This allows nice access to the push info via e.g. push.title instead of push["title"]
-    """
-
-    def __init__(self, kwargs):
-        self.kwargs = kwargs
-
-    def __getattr__(self, attr):
-        try:
-            return self.kwargs[attr]
-        except KeyError:
-            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'") from None
-
-    def __repr__(self):
-        kwargs_disp = ", ".join(f"'{key}'='{val}'" for key, val in self.kwargs.items())
-        return f"Push({kwargs_disp})"
+    topic_action: str
+    content: PushNotificationContent
+    key: str | None = None
+    ttl: int | None = None
 
 
 class PushCollector:
     def __init__(self):
         # pairs of (user_id, push)
-        self.pushes = []
+        self.pushes: list[tuple[int, Push]] = []
 
-    def by_user(self, user_id):
-        return [kwargs for uid, kwargs in self.pushes if uid == user_id]
+    def by_user(self, user_id: int) -> list[Push]:
+        return [push for uid, push in self.pushes if uid == user_id]
 
-    def push_to_user(self, session, user_id, **kwargs):
-        self.pushes.append((user_id, Push(kwargs=kwargs)))
+    def push_to_user(self, session, user_id: int, **kwargs) -> None:
+        self.pushes.append((user_id, Push(**kwargs)))
 
-    def assert_user_has_count(self, user_id, count):
-        assert len(self.by_user(user_id)) == count
+    def count_for_user(self, user_id: int) -> int:
+        return len(self.by_user(user_id))
 
-    def assert_user_push_matches_fields(self, user_id, ix=0, **kwargs):
-        push = self.by_user(user_id)[ix]
-        for kwarg in kwargs:
-            assert kwarg in push.kwargs, f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
-            assert push.kwargs[kwarg] == kwargs[kwarg], (
-                f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{push.kwargs[kwarg]}'"
-            )
-
-    def assert_user_has_single_matching(self, user_id, **kwargs):
-        self.assert_user_has_count(user_id, 1)
-        self.assert_user_push_matches_fields(user_id, ix=0, **kwargs)
+    def get_for_user(
+        self,
+        user_id: int,
+        index: int | None = None,
+    ) -> Push:
+        pushes = self.by_user(user_id)
+        if index is None:
+            assert len(pushes) == 1, "Expected a single user notification"
+            return pushes[0]
+        return pushes[index]
 
 
 @pytest.fixture

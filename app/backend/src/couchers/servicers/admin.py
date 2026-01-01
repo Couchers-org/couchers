@@ -41,6 +41,7 @@ from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
+from couchers.servicers.events import generate_event_delete_notifications
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import to_bool, username_or_email_or_id
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
@@ -529,7 +530,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         queue_job(
             session,
-            "generate_event_delete_notifications",
+            job=generate_event_delete_notifications,
             payload=jobs_pb2.GenerateEventDeleteNotificationsPayload(
                 occurrence_id=occurrence.id,
             ),

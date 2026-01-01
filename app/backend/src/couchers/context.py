@@ -98,6 +98,9 @@ class CouchersContext:
     def is_logged_in(self) -> bool:
         return self.__logged_in
 
+    def is_logged_out(self) -> bool:
+        return not self.__logged_in
+
     def get_localized_string(self, key: str, *, substitutions: dict[str, str | int] | None = None) -> str:
         """
         Get a localized string using the user's language preference.
@@ -240,7 +243,7 @@ def make_background_user_context(user_id: int) -> CouchersContext:
 
 def make_logged_out_context() -> CouchersContext:
     return CouchersContext(
-        user_id=0,
+        user_id=None,
         is_interactive=False,
         is_api_key=None,
         grpc_context=None,

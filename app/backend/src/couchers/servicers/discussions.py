@@ -109,7 +109,7 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
 
         queue_job(
             session,
-            job_type="generate_create_discussion_notifications",
+            job=generate_create_discussion_notifications,
             payload=jobs_pb2.GenerateCreateDiscussionNotificationsPayload(
                 discussion_id=discussion.id,
             ),
