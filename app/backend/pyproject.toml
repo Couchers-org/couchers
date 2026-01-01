@@ -111,6 +111,9 @@ filterwarnings = [
 # Mypy
 [tool.mypy]
 strict = true
+# These aren't covered by strict.
+warn_unreachable = true
+strict_equality_for_none = true
 
 [[tool.mypy.overrides]]
 module = ["couchers.proto.*"]

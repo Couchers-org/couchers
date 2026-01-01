@@ -972,11 +972,7 @@ def user_model_to_pb(
         )
 
     num_references = get_num_references(session, [db_user.id]).get(db_user.id, 0)
-
-    # returns (lat, lng)
-    # we put people without coords on null island
-    # https://en.wikipedia.org/wiki/Null_Island
-    lat, lng = db_user.coordinates or (0, 0)
+    lat, lng = db_user.coordinates
 
     pending_friend_request = None
     if context.is_logged_out() or db_user.id == context.user_id:
@@ -1168,7 +1164,7 @@ def lite_user_to_pb(
             f"Context user_id: {context.user_id}, lite_user id: {lite_user.id} (username: {lite_user.username})"
         )
 
-    lat, lng = get_coordinates(lite_user.geom) or (0, 0)
+    lat, lng = get_coordinates(lite_user.geom)
 
     return api_pb2.LiteUser(
         user_id=lite_user.id,

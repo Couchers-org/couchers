@@ -69,7 +69,7 @@ def _is_event_owner(event: Event, user_id: int) -> bool:
     if event.owner_user:
         return event.owner_user_id == user_id
     # otherwise owned by a cluster
-    return event.owner_cluster.admins.where(User.id == user_id).one_or_none() is not None
+    return not_none(event.owner_cluster).admins.where(User.id == user_id).one_or_none() is not None
 
 
 def _is_event_organizer(event: Event, user_id: int) -> bool:
