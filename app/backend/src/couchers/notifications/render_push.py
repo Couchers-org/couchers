@@ -3,12 +3,12 @@ Renders a Notification model into a localized push notification.
 """
 
 import logging
-from typing import Any
+from typing import Any, assert_never
 
 from google.protobuf import empty_pb2
 
 from couchers import urls
-from couchers.models import Notification, User
+from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.push import PushNotificationContent
 from couchers.proto import events_pb2, notification_data_pb2
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
@@ -26,117 +26,119 @@ logger = logging.getLogger(__name__)
 
 
 def render_push_notification(user: User, notification: Notification) -> PushNotificationContent:
+    # Any-typed so it implicitly converts when calling the methods below
     data: Any = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
-    # Keep topics sorted (action can follow logical ordering)
-    match notification.topic_action.display:
-        case "account_deletion:start":
+    match notification.topic_action:
+        # Keep topics sorted (actions can follow logical ordering)
+        case NotificationTopicAction.account_deletion__start:
             return _account_deletion_start(data)
-        case "account_deletion:complete":
+        case NotificationTopicAction.account_deletion__complete:
             return _account_deletion_complete(data)
-        case "account_deletion:recovered":
+        case NotificationTopicAction.account_deletion__recovered:
             return _account_deletion_recovered(data)
-        case "activeness:probe":
+        case NotificationTopicAction.activeness__probe:
             return _activeness_probe(data)
-        case "api_key:create":
+        case NotificationTopicAction.api_key__create:
             return _api_key_create(data)
-        case "badge:add":
+        case NotificationTopicAction.badge__add:
             return _badge_add(data)
-        case "badge:remove":
+        case NotificationTopicAction.badge__remove:
             return _badge_remove(data)
-        case "birthdate:change":
+        case NotificationTopicAction.birthdate__change:
             return _birthdate_change(data, user)
-        case "chat:message":
+        case NotificationTopicAction.chat__message:
             return _chat_message(data)
-        case "chat:missed_messages":
+        case NotificationTopicAction.chat__missed_messages:
             return _chat_missed_messages(data)
-        case "donation:received":
+        case NotificationTopicAction.donation__received:
             return _donation_received(data)
-        case "discussion:create":
+        case NotificationTopicAction.discussion__create:
             return _discussion_create(data)
-        case "discussion:comment":
+        case NotificationTopicAction.discussion__comment:
             return _discussion_comment(data)
-        case "email_address:change":
+        case NotificationTopicAction.email_address__change:
             return _email_address_change(data)
-        case "email_address:verify":
+        case NotificationTopicAction.email_address__verify:
             return _email_address_verify(data)
-        case "event:create_any":
+        case NotificationTopicAction.event__create_any:
             return _event_create_any(data, user)
-        case "event:create_approved":
+        case NotificationTopicAction.event__create_approved:
             return _event_create_approved(data, user)
-        case "event:update":
+        case NotificationTopicAction.event__update:
             return _event_update(data, user)
-        case "event:invite_organizer":
+        case NotificationTopicAction.event__invite_organizer:
             return _event_invite_organizer(data, user)
-        case "event:comment":
+        case NotificationTopicAction.event__comment:
             return _event_comment(data, user)
-        case "event:reminder":
+        case NotificationTopicAction.event__reminder:
             return _event_reminder(data, user)
-        case "event:cancel":
+        case NotificationTopicAction.event__cancel:
             return _event_cancel(data, user)
-        case "event:delete":
+        case NotificationTopicAction.event__delete:
             return _event_delete(data, user)
-        case "friend_request:create":
+        case NotificationTopicAction.friend_request__create:
             return _friend_request_create(data)
-        case "friend_request:accept":
+        case NotificationTopicAction.friend_request__accept:
             return _friend_request_accept(data)
-        case "gender:change":
+        case NotificationTopicAction.gender__change:
             return _gender_change(data)
-        case "general:new_blog_post":
+        case NotificationTopicAction.general__new_blog_post:
             return _general_new_blog_post(data)
-        case "host_request:create":
+        case NotificationTopicAction.host_request__create:
             return _host_request_create(data, user)
-        case "host_request:message":
+        case NotificationTopicAction.host_request__message:
             return _host_request_message(data, user)
-        case "host_request:missed_messages":
+        case NotificationTopicAction.host_request__missed_messages:
             return _host_request_missed_messages(data)
-        case "host_request:reminder":
+        case NotificationTopicAction.host_request__reminder:
             return _host_request_reminder(data)
-        case "host_request:accept":
+        case NotificationTopicAction.host_request__accept:
             return _host_request_accept(data)
-        case "host_request:reject":
+        case NotificationTopicAction.host_request__reject:
             return _host_request_reject(data)
-        case "host_request:cancel":
+        case NotificationTopicAction.host_request__cancel:
             return _host_request_cancel(data)
-        case "host_request:confirm":
+        case NotificationTopicAction.host_request__confirm:
             return _host_request_confirm(data)
-        case "modnote:create":
+        case NotificationTopicAction.modnote__create:
             return _modnote_create(data)
-        case "onboarding:reminder":
+        case NotificationTopicAction.onboarding__reminder:
             return _onboarding_reminder(data, notification.key, user)
-        case "password:change":
+        case NotificationTopicAction.password__change:
             return _password_change(data)
-        case "password_reset:start":
+        case NotificationTopicAction.password_reset__start:
             return _password_reset_start(data)
-        case "password_reset:complete":
+        case NotificationTopicAction.password_reset__complete:
             return _password_reset_complete(data)
-        case "phone_number:change":
+        case NotificationTopicAction.phone_number__change:
             return _phone_number_change(data)
-        case "phone_number:verify":
+        case NotificationTopicAction.phone_number__verify:
             return _phone_number_verify(data)
-        case "postal_verification:postcard_sent":
+        case NotificationTopicAction.postal_verification__postcard_sent:
             return _postal_verification_postcard_sent(data)
-        case "postal_verification:success":
+        case NotificationTopicAction.postal_verification__success:
             return _postal_verification_success(data)
-        case "postal_verification:failed":
+        case NotificationTopicAction.postal_verification__failed:
             return _postal_verification_failed(data)
-        case "reference:receive_friend":
+        case NotificationTopicAction.reference__receive_friend:
             return _reference_receive_friend(data)
-        case "reference:receive_hosted":
+        case NotificationTopicAction.reference__receive_hosted:
             return _reference_receive(data, action=notification.action)
-        case "reference:receive_surfed":
+        case NotificationTopicAction.reference__receive_surfed:
             return _reference_receive(data, action=notification.action)
-        case "reference:reminder_hosted":
+        case NotificationTopicAction.reference__reminder_hosted:
             return _reference_reminder(data, action=notification.action)
-        case "reference:reminder_surfed":
+        case NotificationTopicAction.reference__reminder_surfed:
             return _reference_reminder(data, action=notification.action)
-        case "thread:reply":
+        case NotificationTopicAction.thread__reply:
             return _thread_reply(data)
-        case "verification:sv_success":
+        case NotificationTopicAction.verification__sv_success:
             return _verification_sv_success(data)
-        case "verification:sv_fail":
+        case NotificationTopicAction.verification__sv_fail:
             return _verification_sv_fail(data)
         case _:
-            raise NotImplementedError(f"Unknown topic-action: {notification.topic_action.display}")
+            # Enables mypy's exhaustiveness checking for the cases above.
+            assert_never(notification.topic_action)
 
 
 # account_deletion:start
