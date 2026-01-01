@@ -5,6 +5,7 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { mockIsIntersecting } from "react-intersection-observer/test-utils";
 import { service } from "service";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
@@ -19,16 +20,16 @@ import MyEvents from "./MyEvents";
 
 const { t } = i18n;
 
-// EventSearch by default does not return cancelled events
+// ListMyEvents by default does not return cancelled events
 const nonCancelledEvents = events.filter((event) => !event.isCancelled);
 
-const eventSearchMock = service.search.EventSearch as jest.MockedFunction<
-  typeof service.search.EventSearch
+const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<
+  typeof service.events.listMyEvents
 >;
 
 describe("My events", () => {
   beforeEach(() => {
-    eventSearchMock.mockResolvedValue({
+    listMyEventsMock.mockResolvedValue({
       eventsList: nonCancelledEvents,
       nextPageToken: "",
       totalItems: nonCancelledEvents.length,
@@ -46,65 +47,8 @@ describe("My events", () => {
     expect(screen.getAllByRole("link")).toHaveLength(3);
   });
 
-  it("shows events from user's communities (not attending)", async () => {
-    const communityEvent = {
-      ...nonCancelledEvents[0],
-      attendanceState: 0, // NOT_GOING
-      organizer: false,
-      ownerCommunityId: 123,
-    };
-    eventSearchMock.mockResolvedValue({
-      eventsList: [communityEvent],
-      nextPageToken: "",
-      totalItems: 1,
-    });
-
-    render(<MyEvents />, { wrapper });
-
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
-    // Should display the event even though user is not attending
-    expect(screen.getByRole("link")).toBeInTheDocument();
-    expect(eventSearchMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        isMyCommunities: true,
-        attending: true,
-        organizing: true,
-        pastEvents: false,
-      }),
-    );
-  });
-
-  it("shows events user is attending from any community", async () => {
-    const attendingEvent = {
-      ...nonCancelledEvents[0],
-      attendanceState: 2, // GOING
-      organizer: false,
-      ownerCommunityId: 456, // Different community
-    };
-    eventSearchMock.mockResolvedValue({
-      eventsList: [attendingEvent],
-      nextPageToken: "",
-      totalItems: 1,
-    });
-
-    render(<MyEvents />, { wrapper });
-
-    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
-    // Should display the event because user is attending
-    expect(screen.getByRole("link")).toBeInTheDocument();
-    expect(eventSearchMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        attending: true,
-        organizing: true,
-        isMyCommunities: true,
-      }),
-    );
-  });
-
   it("renders the empty state if there are no events", async () => {
-    eventSearchMock.mockResolvedValue({
+    listMyEventsMock.mockResolvedValue({
       eventsList: [],
       nextPageToken: "",
       totalItems: 0,
@@ -128,7 +72,7 @@ describe("My events", () => {
   it("shows an error alert if the events failed to load", async () => {
     mockConsoleError();
     const errorMessage = "Error listing all events";
-    eventSearchMock.mockRejectedValue(new Error(errorMessage));
+    listMyEventsMock.mockRejectedValue(new Error(errorMessage));
     render(<MyEvents />, { wrapper });
 
     await waitForElementToBeRemoved(screen.getByRole("progressbar"));
@@ -140,37 +84,36 @@ describe("My events", () => {
   });
 
   describe("when there are more than one page of events", () => {
-    it("shows pagination controls and switches pages", async () => {
-      const pageSize = 4;
-      const totalEvents = 10; // More than one page worth
-      eventSearchMock.mockImplementation(async ({ pageNumber }) => {
-        const startIdx = ((pageNumber || 1) - 1) * pageSize;
+    it('shows the the next page of events when the "See more events" button is clicked', async () => {
+      listMyEventsMock.mockImplementation(async ({ pageToken }) => {
         return {
-          eventsList: nonCancelledEvents.slice(startIdx, startIdx + pageSize),
-          nextPageToken: "",
-          totalItems: totalEvents, // Return totalItems > pageSize to show pagination
+          eventsList: pageToken
+            ? nonCancelledEvents.slice(2)
+            : nonCancelledEvents.slice(0, 2),
+          nextPageToken: pageToken ? "" : "2",
+          totalItems: nonCancelledEvents.length,
         };
       });
-
       render(<MyEvents />, { wrapper });
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+      expect(screen.getAllByRole("link")).toHaveLength(2);
 
-      // Should show pagination if more than one page
-      expect(
-        screen.getByRole("button", { name: "Go to page 2" }),
-      ).toBeInTheDocument();
+      const loadMoreButton = screen.getByRole("button", {
+        name: t("dashboard:load_more"),
+      });
 
       const user = userEvent.setup();
-      await user.click(screen.getByRole("button", { name: "Go to page 2" }));
 
-      await waitFor(() => {
-        expect(eventSearchMock).toHaveBeenCalledWith(
-          expect.objectContaining({
-            pageNumber: 2,
-            pageSize,
-          }),
-        );
-      });
+      await user.click(loadMoreButton);
+
+      expect(await screen.findAllByRole("link")).toHaveLength(3);
+      expect(listMyEventsMock).toHaveBeenCalledTimes(2);
+
+      const eventCardPerRow = 2;
+      expect(listMyEventsMock.mock.calls).toEqual([
+        [{ pageSize: eventCardPerRow }],
+        [{ pageToken: "2", pageSize: eventCardPerRow }],
+      ]);
     });
   });
 
@@ -179,6 +122,15 @@ describe("My events", () => {
       // @ts-ignore
       window.innerWidth = 425;
       window.matchMedia = createMatchMedia(window.innerWidth);
+      listMyEventsMock.mockImplementation(async ({ pageToken }) => {
+        return {
+          eventsList: pageToken
+            ? nonCancelledEvents.slice(2)
+            : nonCancelledEvents.slice(0, 2),
+          nextPageToken: pageToken ? "" : "2",
+          totalItems: nonCancelledEvents.length,
+        };
+      });
     });
 
     afterEach(() => {
@@ -187,21 +139,28 @@ describe("My events", () => {
       window.matchMedia = createMatchMedia(window.innerWidth);
     });
 
-    it("should show pagination controls on small screens", async () => {
-      const totalEvents = 10;
-      eventSearchMock.mockResolvedValue({
-        eventsList: nonCancelledEvents.slice(0, 4),
-        nextPageToken: "",
-        totalItems: totalEvents, // More than one page
-      });
-
+    it("should load the next page of events when scrolled", async () => {
       render(<MyEvents />, { wrapper });
-      await waitForElementToBeRemoved(screen.getByRole("progressbar"));
-
-      // Pagination should be visible on small screens when multiple pages exist
+      expect(await screen.findAllByRole("link")).toHaveLength(2);
       expect(
-        screen.getByRole("button", { name: "Go to page 2" }),
-      ).toBeInTheDocument();
+        screen.queryByRole("button", {
+          name: t("communities:see_more_events_label"),
+        }),
+      ).not.toBeInTheDocument();
+
+      // Simulates scrolling horizontally to the end
+      mockIsIntersecting(screen.getByRole("progressbar"), true);
+
+      await waitFor(() => {
+        expect(screen.getAllByRole("link")).toHaveLength(3);
+      });
+      expect(listMyEventsMock).toHaveBeenCalledTimes(2);
+
+      const eventCardPerRow = 2;
+      expect(listMyEventsMock.mock.calls).toEqual([
+        [{ pageSize: eventCardPerRow }],
+        [{ pageToken: "2", pageSize: eventCardPerRow }],
+      ]);
     });
   });
 });

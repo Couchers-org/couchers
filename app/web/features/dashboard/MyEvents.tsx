@@ -1,16 +1,21 @@
-import { Pagination, styled, Typography } from "@mui/material";
+import { styled, Typography, useMediaQuery } from "@mui/material";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
+import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import EventCard from "features/communities/events/EventCard";
-import { useEventSearch } from "features/communities/events/hooks";
+import { myEventsKey } from "features/queryKeys";
+import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
-import { useState } from "react";
+import { ListMyEventsRes } from "proto/events_pb";
 import { routeToNewEvent } from "routes";
+import { service } from "service";
 import { theme } from "theme";
+import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 const StyledCardContainer = styled(HorizontalScroller)(() => ({
   paddingLeft: theme.spacing(1),
@@ -56,39 +61,29 @@ const StyledWrapper = styled("div")(() => ({
   margin: theme.spacing(2, 0, 3),
 }));
 
-const StyledPagination = styled(Pagination)(() => ({
+const StyledButtonContainer = styled("div")(() => ({
   display: "flex",
   justifyContent: "center",
-  marginTop: theme.spacing(2),
-  marginBottom: theme.spacing(2),
+  width: "100%",
 }));
 
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 2;
 
 export default function MyEvents() {
   const { t } = useTranslation([DASHBOARD]);
-  const [pageNumber, setPageNumber] = useState(1);
+  const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const { data, error, isLoading } = useEventSearch({
-    pageNumber,
-    pageSize: PAGE_SIZE,
-    pastEvents: false,
-    isMyCommunities: true,
-    attending: true,
-    organizing: true,
-    isOnlineOnly: undefined,
-    searchLocation: "",
-  });
-
-  const hasEvents = data?.eventsList && data.eventsList.length > 0;
-  const numPages = Math.ceil((data?.totalItems ?? 0) / PAGE_SIZE) ?? 1;
-
-  const handlePageNumberChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
-    setPageNumber(value);
-  };
+  const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
+    useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
+      queryKey: myEventsKey("upcoming"),
+      queryFn: ({ pageParam }) =>
+        service.events.listMyEvents({
+          pageToken: pageParam as string | undefined,
+          pageSize: PAGE_SIZE,
+        }),
+      getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+      initialPageParam: undefined,
+    });
 
   return (
     <StyledWrapper>
@@ -96,29 +91,45 @@ export default function MyEvents() {
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
-      ) : hasEvents ? (
+      ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
-          <StyledCardContainer>
-            {data.eventsList.map((event) => {
-              return (
-                <StyledCard
-                  key={event.eventId}
-                  event={event}
-                  attendeesCountFormatter={(count) =>
-                    t("dashboard:attendees_count", { count })
-                  }
-                />
-              );
-            })}
+          <StyledCardContainer
+            fetchNext={isBelowSm ? fetchNextPage : undefined}
+            hasMore={hasNextPage}
+            isFetching={isFetching}
+          >
+            {data.pages
+              .flatMap((page) => page.eventsList)
+              .map((event) => {
+                return (
+                  <StyledCard
+                    key={event.eventId}
+                    event={event}
+                    attendeesCountFormatter={(count) =>
+                      t("dashboard:attendees_count", { count })
+                    }
+                  />
+                );
+              })}
           </StyledCardContainer>
-          {numPages > 1 && (
-            <StyledPagination
-              count={numPages}
-              page={pageNumber}
-              color="primary"
-              onChange={handlePageNumberChange}
-              size="large"
-            />
+          {hasNextPage && !isBelowSm && (
+            <StyledButtonContainer>
+              <Button
+                onClick={() => fetchNextPage()}
+                variant="outlined"
+                sx={{
+                  color: theme.palette.common.black,
+                  borderColor: theme.palette.grey[300],
+
+                  "&:hover": {
+                    borderColor: theme.palette.grey[300],
+                    backgroundColor: "#3135390A",
+                  },
+                }}
+              >
+                {t("dashboard:load_more")}
+              </Button>
+            </StyledButtonContainer>
           )}
         </>
       ) : (

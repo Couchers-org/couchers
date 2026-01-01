@@ -185,8 +185,6 @@ export async function EventSearch({
   isMyCommunities,
   isOnlineOnly,
   searchLocation,
-  attending,
-  organizing,
 }: {
   pageNumber: number;
   pageSize: number;
@@ -194,8 +192,6 @@ export async function EventSearch({
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
   searchLocation?: GeocodeResult | "";
-  attending?: boolean;
-  organizing?: boolean;
 }): Promise<EventSearchRes.AsObject> {
   const req = new EventSearchReq();
   req.setPageSize(pageSize);
@@ -225,12 +221,6 @@ export async function EventSearch({
   }
   if (isOnlineOnly !== undefined) {
     req.setOnlyOnline(isOnlineOnly);
-  }
-  if (attending !== undefined) {
-    req.setAttending(attending);
-  }
-  if (organizing !== undefined) {
-    req.setOrganizing(organizing);
   }
 
   const res = await client.search.eventSearch(req);
