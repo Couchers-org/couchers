@@ -53,7 +53,7 @@ class UserBadge(Base):
     # take this with a grain of salt, someone may get then lose a badge for whatever reason
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    user: Mapped["User"] = relationship("User", back_populates="badges")
+    user: Mapped[User] = relationship("User", back_populates="badges")
 
 
 class FriendStatus(enum.Enum):
@@ -84,10 +84,10 @@ class FriendRelationship(Base):
     time_sent: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     time_responded: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    from_user: Mapped["User"] = relationship(
+    from_user: Mapped[User] = relationship(
         "User", backref="friends_from", foreign_keys="FriendRelationship.from_user_id"
     )
-    to_user: Mapped["User"] = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
+    to_user: Mapped[User] = relationship("User", backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
 
     __table_args__ = (
         # Ping looks up pending friend reqs, this speeds that up
@@ -125,7 +125,7 @@ class ContributorForm(Base):
     contribute_ways: Mapped[list[str]] = mapped_column(ARRAY(String))
     expertise: Mapped[str | None] = mapped_column(String)
 
-    user: Mapped["User"] = relationship("User", backref="contributor_forms")
+    user: Mapped[User] = relationship("User", backref="contributor_forms")
 
     @hybrid_property
     def is_filled(self) -> Any:
@@ -236,7 +236,7 @@ class AccountDeletionToken(Base):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
-    user: Mapped["User"] = relationship("User", backref="account_deletion_tokens")
+    user: Mapped[User] = relationship("User", backref="account_deletion_tokens")
 
     @hybrid_property
     def is_valid(self) -> Any:
@@ -289,7 +289,7 @@ class InviteCode(Base):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
     disabled: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    creator: Mapped["User"] = relationship("User", foreign_keys=[creator_user_id])
+    creator: Mapped[User] = relationship("User", foreign_keys=[creator_user_id])
 
 
 class ContentReport(Base):
@@ -322,8 +322,8 @@ class ContentReport(Base):
     page: Mapped[str] = mapped_column(String)
 
     # see comments above for reporting vs author
-    reporting_user: Mapped["User"] = relationship("User", foreign_keys="ContentReport.reporting_user_id")
-    author_user: Mapped["User"] = relationship("User", foreign_keys="ContentReport.author_user_id")
+    reporting_user: Mapped[User] = relationship("User", foreign_keys="ContentReport.reporting_user_id")
+    author_user: Mapped[User] = relationship("User", foreign_keys="ContentReport.author_user_id")
 
 
 class Email(Base):
@@ -404,10 +404,10 @@ class Reference(Base):
 
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
-    from_user: Mapped["User"] = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
-    to_user: Mapped["User"] = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
+    from_user: Mapped[User] = relationship("User", backref="references_from", foreign_keys="Reference.from_user_id")
+    to_user: Mapped[User] = relationship("User", backref="references_to", foreign_keys="Reference.to_user_id")
 
-    host_request: Mapped["HostRequest | None"] = relationship("HostRequest", backref="references")
+    host_request: Mapped[HostRequest | None] = relationship("HostRequest", backref="references")
 
     __table_args__ = (
         # Rating must be between 0 and 1, inclusive
@@ -461,8 +461,8 @@ class UserBlock(Base):
     blocked_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     time_blocked: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    blocking_user: Mapped["User"] = relationship("User", foreign_keys="UserBlock.blocking_user_id")
-    blocked_user: Mapped["User"] = relationship("User", foreign_keys="UserBlock.blocked_user_id")
+    blocking_user: Mapped[User] = relationship("User", foreign_keys="UserBlock.blocking_user_id")
+    blocked_user: Mapped[User] = relationship("User", foreign_keys="UserBlock.blocked_user_id")
 
     __table_args__ = (
         UniqueConstraint("blocking_user_id", "blocked_user_id"),
@@ -479,7 +479,7 @@ class AccountDeletionReason(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     reason: Mapped[str | None] = mapped_column(String)
 
-    user: Mapped["User"] = relationship("User")
+    user: Mapped[User] = relationship("User")
 
 
 class ModerationUserList(Base):
@@ -492,7 +492,7 @@ class ModerationUserList(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    users: Mapped[list["User"]] = relationship(
+    users: Mapped[list[User]] = relationship(
         "User", secondary="moderation_user_list_members", back_populates="moderation_user_lists"
     )
 
@@ -542,7 +542,7 @@ class RateLimitViolation(Base):
     action: Mapped[RateLimitAction] = mapped_column(Enum(RateLimitAction))
     is_hard_limit: Mapped[bool] = mapped_column(Boolean)
 
-    user: Mapped["User"] = relationship("User")
+    user: Mapped[User] = relationship("User")
 
     __table_args__ = (
         # Fast lookup for rate limits in interval

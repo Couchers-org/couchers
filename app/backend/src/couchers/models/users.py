@@ -127,10 +127,8 @@ class User(Base):
     # "Grew up in" on profile
     hometown: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    regions_visited: Mapped[list["Region"]] = relationship(
-        "Region", secondary="regions_visited", order_by="Region.name"
-    )
-    regions_lived: Mapped[list["Region"]] = relationship("Region", secondary="regions_lived", order_by="Region.name")
+    regions_visited: Mapped[list[Region]] = relationship("Region", secondary="regions_visited", order_by="Region.name")
+    regions_lived: Mapped[list[Region]] = relationship("Region", secondary="regions_lived", order_by="Region.name")
 
     timezone = column_property(
         sa_select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom)).limit(1).scalar_subquery(),
@@ -306,9 +304,7 @@ class User(Base):
     do_not_email: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     avatar: Mapped[Upload | None] = relationship("Upload", foreign_keys="User.avatar_key")
-    profile_gallery: Mapped["PhotoGallery | None"] = relationship(
-        "PhotoGallery", foreign_keys="User.profile_gallery_id"
-    )
+    profile_gallery: Mapped[PhotoGallery | None] = relationship("PhotoGallery", foreign_keys="User.profile_gallery_id")
 
     admin_note: Mapped[str] = mapped_column(String, server_default=text("''"))
 
@@ -321,20 +317,20 @@ class User(Base):
 
     # ID of the invite code used to sign up (if any)
     invite_code_id: Mapped[int | None] = mapped_column(ForeignKey("invite_codes.id"), nullable=True)
-    invite_code: Mapped["InviteCode | None"] = relationship("InviteCode", foreign_keys=[invite_code_id])
+    invite_code: Mapped[InviteCode | None] = relationship("InviteCode", foreign_keys=[invite_code_id])
 
-    moderation_user_lists: Mapped[list["ModerationUserList"]] = relationship(
+    moderation_user_lists: Mapped[list[ModerationUserList]] = relationship(
         "ModerationUserList", secondary="moderation_user_list_members", back_populates="users"
     )
-    language_abilities: Mapped[list["LanguageAbility"]] = relationship("LanguageAbility", back_populates="user")
-    galleries: Mapped[list["PhotoGallery"]] = relationship(
+    language_abilities: Mapped[list[LanguageAbility]] = relationship("LanguageAbility", back_populates="user")
+    galleries: Mapped[list[PhotoGallery]] = relationship(
         "PhotoGallery", foreign_keys="PhotoGallery.owner_user_id", back_populates="owner_user"
     )
-    mod_notes: DynamicMapped["ModNote"] = relationship(
+    mod_notes: DynamicMapped[ModNote] = relationship(
         "ModNote", foreign_keys="ModNote.user_id", back_populates="user", lazy="dynamic"
     )
 
-    badges: Mapped[list["UserBadge"]] = relationship("UserBadge", back_populates="user")
+    badges: Mapped[list[UserBadge]] = relationship("UserBadge", back_populates="user")
     __table_args__ = (
         # Verified phone numbers should be unique
         Index(
@@ -553,7 +549,7 @@ class LanguageAbility(Base):
     language_code: Mapped[str] = mapped_column(ForeignKey("languages.code", deferrable=True))
     fluency: Mapped[LanguageFluency] = mapped_column(Enum(LanguageFluency))
 
-    user: Mapped["User"] = relationship("User", back_populates="language_abilities")
+    user: Mapped[User] = relationship("User", back_populates="language_abilities")
     language: Mapped[Language] = relationship("Language")
 
 
