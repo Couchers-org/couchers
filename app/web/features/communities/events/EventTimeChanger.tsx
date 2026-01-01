@@ -66,17 +66,6 @@ export default function EventTimeChanger({
       shouldDirty: true,
       shouldValidate: true,
     });
-
-    // Auto-set end date to match start date if:
-    // 1. End date is not set yet, OR
-    // 2. End date is before the new start date (to prevent invalid state)
-    const currentEndDate = getValues("endDate");
-    if (!currentEndDate || currentEndDate.isBefore(newStartDate, "day")) {
-      setValue("endDate", newStartDate, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    }
   };
 
   const handleEndDateChange = (newEndDate: Dayjs) => {

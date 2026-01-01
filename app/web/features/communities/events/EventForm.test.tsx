@@ -24,7 +24,13 @@ jest.mock("@mui/x-date-pickers", () => {
 });
 
 const serviceFn = jest.fn();
-function TestComponent({ event }: { event?: Event.AsObject }) {
+function TestComponent({
+  event,
+  isEdit = false,
+}: {
+  event?: Event.AsObject;
+  isEdit?: boolean;
+}) {
   const { error, mutate, isPending } = useMutation<
     Event.AsObject,
     RpcError,
@@ -40,15 +46,15 @@ function TestComponent({ event }: { event?: Event.AsObject }) {
       mutate={mutate}
       isMutationLoading={isPending}
       title={t("communities:create_an_event")}
-      isEdit={false}
+      isEdit={isEdit}
     >
       {() => <button type="submit">{t("global:create")}</button>}
     </EventForm>
   );
 }
 
-function renderForm(event?: Event.AsObject) {
-  render(<TestComponent event={event} />, { wrapper });
+function renderForm(event?: Event.AsObject, isEdit?: boolean) {
+  render(<TestComponent event={event} isEdit={isEdit} />, { wrapper });
 }
 
 function assertFieldVisibleWithValue(field: HTMLElement, value: string) {
@@ -117,7 +123,7 @@ describe("Event form", () => {
   });
 
   it("renders the form correctly when passed an event", async () => {
-    renderForm(events[0]);
+    renderForm(events[0], true);
 
     assertFieldVisibleWithValue(
       await screen.findByLabelText(t("communities:event_title_label")),
@@ -159,7 +165,7 @@ describe("Event form", () => {
   });
 
   it("renders the image input for an event with no photo correctly", async () => {
-    renderForm(events[2]);
+    renderForm(events[2], true);
 
     expect(
       await screen.findByRole("img", {

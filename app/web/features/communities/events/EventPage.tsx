@@ -107,14 +107,6 @@ const StyledCancelledChip = styled(Chip)(() => ({
   fontWeight: "bold",
 }));
 
-// const StyledCancelButton = styled(Button)(() => ({
-//   flexShrink: 0,
-//   "&:hover": {
-//     backgroundColor: darken(theme.palette.error.main, 0.1),
-//   },
-//   backgroundColor: theme.palette.error.main,
-// }));
-
 const StyledIconButton = styled(IconButton)(() => ({
   flexShrink: 0,
 }));
