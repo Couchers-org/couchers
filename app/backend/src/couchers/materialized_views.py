@@ -91,7 +91,7 @@ cluster_subscription_counts = create_materialized_view(
     [
         Index(
             "uq_cluster_subscription_counts_cluster_id",
-            cluster_subscription_counts_selectable.c.cluster_id,
+            cluster_subscription_counts_selectable.subquery().c.cluster_id,
             unique=True,
         )
     ],
@@ -121,7 +121,13 @@ cluster_admin_counts = create_materialized_view(
     "cluster_admin_counts",
     cluster_admin_counts_selectable,
     Base.metadata,
-    [Index("uq_cluster_admin_counts_cluster_id", cluster_admin_counts_selectable.c.cluster_id, unique=True)],
+    [
+        Index(
+            "uq_cluster_admin_counts_cluster_id",
+            cluster_admin_counts_selectable.subquery().c.cluster_id,
+            unique=True,
+        )
+    ],
 )
 
 
@@ -173,25 +179,27 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
 lite_users_selectable_select = make_lite_users_selectable(create=False)
 lite_users_selectable_create = make_lite_users_selectable(create=True)
 
+lite_users_subquery = lite_users_selectable_create.subquery()
+
 lite_users = create_materialized_view_with_different_ddl(
     "lite_users",
     lite_users_selectable_select,
     lite_users_selectable_create,
     Base.metadata,
     [
-        Index("uq_lite_users_id", lite_users_selectable_create.c.id, unique=True),
-        Index("uq_lite_users_username", lite_users_selectable_create.c.username, unique=True),
+        Index("uq_lite_users_id", lite_users_subquery.c.id, unique=True),
+        Index("uq_lite_users_username", lite_users_subquery.c.username, unique=True),
         Index(
             "ix_lite_users_id_visible",
-            lite_users_selectable_create.c.id,
+            lite_users_subquery.c.id,
             postgresql_using="hash",
-            postgresql_where=lite_users_selectable_create.c.is_visible,
+            postgresql_where=lite_users_subquery.c.is_visible,
         ),
         Index(
             "ix_lite_users_username_visible",
-            lite_users_selectable_create.c.username,
+            lite_users_subquery.c.username,
             postgresql_using="hash",
-            postgresql_where=lite_users_selectable_create.c.is_visible,
+            postgresql_where=lite_users_subquery.c.is_visible,
         ),
     ],
 )
@@ -331,7 +339,7 @@ user_response_rates = create_materialized_view(
     "user_response_rates",
     user_response_rates_selectable,
     Base.metadata,
-    [Index("uq_user_response_rates_id", user_response_rates_selectable.c.user_id, unique=True)],
+    [Index("uq_user_response_rates_id", user_response_rates_selectable.subquery().c.user_id, unique=True)],
 )
 
 
