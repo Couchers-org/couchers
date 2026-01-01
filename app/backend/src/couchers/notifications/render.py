@@ -10,7 +10,6 @@ from couchers.proto import notification_data_pb2
 from couchers.templates.v2 import v2date, v2esc, v2phone, v2timestamp
 from couchers.utils import now, to_aware_datetime
 
-
 logger = logging.getLogger(__name__)
 
 
