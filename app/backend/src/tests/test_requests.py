@@ -25,19 +25,9 @@ from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.templates.v2 import v2date
 from couchers.utils import create_coordinate, now, today
-from tests.test_fixtures import (  # noqa
-    PushCollector,
-    api_session,
-    auth_api_session,
-    db,
-    email_fields,
-    generate_user,
-    mock_notification_email,
-    moderator,
-    push_collector,
-    requests_session,
-    testconfig,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.sessions import api_session, auth_api_session, requests_session
 
 
 @pytest.fixture(autouse=True)

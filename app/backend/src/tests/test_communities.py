@@ -23,18 +23,15 @@ from couchers.models import (
 from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
-from tests.test_auth import get_session_cookie_tokens
-from tests.test_fixtures import (  # noqa
+from tests.fixtures.db import generate_user, get_user_id_and_token
+from tests.fixtures.sessions import (
     auth_api_session,
     communities_session,
-    db,
     discussions_session,
     events_session,
-    generate_user,
-    get_user_id_and_token,
     pages_session,
-    testconfig,
 )
+from tests.test_auth import get_session_cookie_tokens
 
 
 @pytest.fixture(autouse=True)

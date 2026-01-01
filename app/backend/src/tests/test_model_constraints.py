@@ -5,8 +5,8 @@ from sqlalchemy.sql import func
 from couchers.db import session_scope
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, Cluster, Node, Page, PageType, PageVersion, Thread
 from couchers.utils import create_polygon_lat_lng, to_multi
+from tests.fixtures.db import generate_user
 from tests.test_communities import create_1d_polygon, create_community
-from tests.test_fixtures import db, generate_user, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)

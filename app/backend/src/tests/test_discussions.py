@@ -4,18 +4,10 @@ import pytest
 from couchers.db import session_scope
 from couchers.proto import discussions_pb2, notifications_pb2, threads_pb2
 from couchers.utils import now, to_aware_datetime
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import PushCollector, process_jobs
+from tests.fixtures.sessions import discussions_session, notifications_session, threads_session
 from tests.test_communities import create_community, create_group
-from tests.test_fixtures import (  # noqa
-    PushCollector,
-    db,
-    discussions_session,
-    generate_user,
-    notifications_session,
-    process_jobs,
-    push_collector,
-    testconfig,
-    threads_session,
-)
 
 
 @pytest.fixture(autouse=True)

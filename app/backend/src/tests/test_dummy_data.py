@@ -1,7 +1,6 @@
 from couchers.db import session_scope
 from couchers.resources import copy_resources_to_database
 from dummy_data import add_dummy_data
-from tests.test_fixtures import db, testconfig  # noqa
 
 
 def test_add_dummy_data(db, caplog, testconfig):

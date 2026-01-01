@@ -4,13 +4,7 @@ from sqlalchemy.sql import func
 from couchers.db import session_scope
 from couchers.models import FriendRelationship, User
 from couchers.sql import users_visible, where_users_column_visible
-from tests.test_fixtures import (  # noqa
-    db,
-    generate_user,
-    make_friends,
-    make_user_block,
-    make_user_invisible,
-)
+from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
 
 
 class _FakeContext:

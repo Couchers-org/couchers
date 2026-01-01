@@ -7,7 +7,8 @@ from google.protobuf import empty_pb2
 from couchers.config import config
 from couchers.crypto import random_hex
 from couchers.proto import bugs_pb2
-from tests.test_fixtures import bugs_session, db, generate_user, testconfig  # noqa
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import bugs_session
 
 
 @pytest.fixture(autouse=True)

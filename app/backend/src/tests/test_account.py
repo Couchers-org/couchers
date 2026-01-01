@@ -22,15 +22,11 @@ from couchers.models import (
 )
 from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from couchers.utils import now, today
-from tests.test_fixtures import (  # noqa
-    PushCollector,
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
+from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
-    email_fields,
-    generate_user,
-    mock_notification_email,
-    moderator,
-    process_jobs,
     public_session,
     real_account_session,
     requests_session,

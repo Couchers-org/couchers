@@ -4,6 +4,8 @@ import pytest
 from couchers.db import session_scope
 from couchers.proto import groups_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
+from tests.fixtures.db import generate_user, get_user_id_and_token
+from tests.fixtures.sessions import groups_session
 from tests.test_communities import (  # noqa
     create_1d_point,
     create_community,
@@ -12,7 +14,6 @@ from tests.test_communities import (  # noqa
     get_group_id,
     testing_communities,
 )
-from tests.test_fixtures import db, generate_user, get_user_id_and_token, groups_session, testconfig  # noqa
 
 
 @pytest.fixture(autouse=True)
