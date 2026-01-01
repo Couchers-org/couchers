@@ -24,7 +24,7 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
-from couchers.notifications.render import render_notification
+from couchers.notifications.render import render_notification, render_push_notification
 from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import moderation_state_column_visible
@@ -110,19 +110,12 @@ def _send_email_notification(session: Session, user: User, notification: Notific
 def _send_push_notification(session: Session, user: User, notification: Notification) -> None:
     logger.debug(f"Formatting push notification for {user}")
 
-    rendered = render_notification(user, notification)
-
-    if not rendered.push_title:
-        raise Exception(f"Tried to send push notification to {user} but didn't have push info")
-
+    content = render_push_notification(user, notification)
     push_to_user(
         session,
         user_id=user.id,
-        title=rendered.push_title,
-        body=rendered.push_body,
-        icon=rendered.push_icon,
-        url=rendered.push_url,
         topic_action=notification.topic_action.display,
+        content=content,
         key=notification.key,
         # keep on server for at most an hour if the client is not around
         ttl=3600,

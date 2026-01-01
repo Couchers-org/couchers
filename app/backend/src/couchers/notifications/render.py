@@ -5,6 +5,7 @@ from typing import Any
 from couchers import urls
 from couchers.i18n.i18n import localize_string
 from couchers.models import Notification, User
+from couchers.notifications.push import PushNotificationContent
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.proto import notification_data_pb2
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
@@ -995,3 +996,16 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
         )
 
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
+
+
+def render_push_notification(user: User, notification: Notification) -> PushNotificationContent:
+    email_notification = render_notification(user, notification)
+    if email_notification.push_title is None:
+        raise NotImplementedError(f"topic-action {notification.topic}:{notification.action} does not have push info")
+
+    return PushNotificationContent(
+        title=email_notification.push_title,
+        body=email_notification.push_body,
+        action_url=email_notification.push_url,
+        icon_url=email_notification.push_icon,
+    )

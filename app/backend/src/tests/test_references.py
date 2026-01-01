@@ -26,6 +26,7 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import conversations_pb2, references_pb2, requests_pb2
 from couchers.utils import create_coordinate, now, to_aware_datetime, today
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     account_session,
     db,
     email_fields,
@@ -512,7 +513,7 @@ def test_WriteFriendReference_with_empty_text(db):
     assert e.value.details() == "The text of a reference must not be empty"
 
 
-def test_WriteFriendReference_with_private_text(db, push_collector):
+def test_WriteFriendReference_with_private_text(db, push_collector: PushCollector):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -539,11 +540,9 @@ def test_WriteFriendReference_with_private_text(db, push_collector):
     assert e.subject == f"[TEST] You've received a friend reference from {user1.name}!"
     assert e.recipient == user2.email
 
-    push_collector.assert_user_has_single_matching(
-        user2.id,
-        title=f"You've received a friend reference from {user1.name}!",
-        body="They were nice!",
-    )
+    push = push_collector.get_for_user(user2.id)
+    assert push.content.title == f"You've received a friend reference from {user1.name}!"
+    assert push.content.body == "They were nice!"
 
 
 def test_WriteFriendReference_requires_friendship(db):
@@ -840,7 +839,7 @@ def test_WriteHostRequestReference(db, moderator):
         )
 
 
-def test_WriteHostRequestReference_private_text(db, push_collector):
+def test_WriteHostRequestReference_private_text(db, push_collector: PushCollector):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -868,10 +867,11 @@ def test_WriteHostRequestReference_private_text(db, push_collector):
     assert e.subject == f"[TEST] You've received a reference from {user1.name}!"
     assert e.recipient == user2.email
 
-    push_collector.assert_user_has_single_matching(
-        user2.id,
-        title=f"You've received a reference from {user1.name}!",
-        body="Please go and write a reference for them too. It's a nice gesture and helps us build a community together!",
+    push = push_collector.get_for_user(user2.id)
+    assert push.content.title == f"You've received a reference from {user1.name}!"
+    assert (
+        push.content.body
+        == "Please go and write a reference for them too. It's a nice gesture and helps us build a community together!"
     )
 
 

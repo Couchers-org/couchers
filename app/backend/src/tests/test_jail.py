@@ -8,6 +8,7 @@ from couchers.proto import admin_pb2, api_pb2, jail_pb2
 from couchers.servicers import jail as servicers_jail
 from couchers.utils import create_coordinate, to_aware_datetime
 from tests.test_fixtures import (  # noqa
+    PushCollector,
     db,
     email_fields,
     fast_passwords,
@@ -273,7 +274,7 @@ def test_AcceptCommunityGuidelines(db):
         assert not res.has_not_accepted_community_guidelines
 
 
-def test_modnotes(db, push_collector):
+def test_modnotes(db, push_collector: PushCollector):
     user, token = generate_user()
     super_user, super_token = generate_user(is_superuser=True)
 
@@ -300,11 +301,9 @@ def test_modnotes(db, push_collector):
         e = email_fields(mock)
 
         assert e.subject == "[TEST] You have received a mod note"
-        push_collector.assert_user_has_single_matching(
-            user.id,
-            title="You received a mod note",
-            body="You need to read and acknowledge the note before continuing to use the platform.",
-        )
+        push = push_collector.get_for_user(user.id)
+        assert push.content.title == "You received a mod note"
+        assert push.content.body == "You need to read and acknowledge the note before continuing to use the platform."
 
     with real_jail_session(token) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
@@ -362,7 +361,7 @@ def test_modnotes(db, push_collector):
         assert to_aware_datetime(note.acknowledged) > to_aware_datetime(note.created)
 
 
-def test_modnotes_no_notify(db, push_collector):
+def test_modnotes_no_notify(db, push_collector: PushCollector):
     user, token = generate_user()
     super_user, super_token = generate_user(is_superuser=True)
 
