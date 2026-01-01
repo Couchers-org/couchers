@@ -577,7 +577,7 @@ def _verification_sv_fail(data: notification_data_pb2.VerificationSVFail) -> Pus
 def render_push_notification(user: User, notification: Notification) -> PushNotificationContent:
     data: empty_pb2.Empty = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     # Keep topics sorted (action can follow logical ordering)
-    match notification.topic_action:
+    match notification.topic_action.display:
         case "account_deletion:start":
             return _account_deletion_start(data)
         case "account_deletion:complete":
@@ -685,4 +685,4 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
         case "verification:sv_fail":
             return _verification_sv_fail(data)
         case _:
-            raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
+            raise NotImplementedError(f"Unknown topic-action: {notification.topic_action.display}")
