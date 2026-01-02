@@ -5,7 +5,8 @@
   "block_user": "Bloquear usuário",
   "block_user_confirmation_dialog": {
     "title": "Tem certeza de que quer bloquear {{name}}?",
-    "message": "Mensagens e pedidos dessa pessoa serão bloqueadas, e seu perfil, eventos e comentários não ficarão visíveis para ela. Ela não será informada de que você a bloqueou."
+    "message": "Mensagens e pedidos dessa pessoa serão bloqueadas, e seu perfil, eventos e comentários não ficarão visíveis para ela. Ela não será informada de que você a bloqueou.",
+    "confirm": "Bloquear"
   },
   "no_blocked_users": "Nenhum usuário bloqueado",
   "no_friends": "Nenhum amigo disponível",
@@ -24,5 +25,10 @@
     "message": "Desbloquear permitirá que a pessoa veja seu perfil e envie pedidos a você. Se vocês eram amigos antes, ela vai voltar para sua lista de amigos. Ela não será notificada.",
     "confirm": "Desbloquear"
   },
-  "add_friend": "Adicionar amigo"
+  "add_friend": "Adicionar amigo",
+  "my_connections": "Minhas conexões",
+  "friends": "Amigos",
+  "friend_list_title": "Seus amigos",
+  "friend_requests": "Pedidos de amizade",
+  "friend_requests_sent": "Pedidos de amizade enviados"
 }
