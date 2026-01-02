@@ -8,7 +8,7 @@ const StyledToggleButton = styled(IconButton)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   transition: "all 0.3s ease",
   "&:hover": {
-    backgroundColor: theme.palette.action.hover,
+    backgroundColor: "transparent",
   },
 }));
 
@@ -42,7 +42,7 @@ export default function DarkModeToggle() {
         aria-label="Loading theme toggle"
       >
         <IconWrapper>
-          <LightModeOutlined fontSize="small" sx={{ opacity: 0 }} />
+          <LightModeOutlined fontSize="small" />
         </IconWrapper>
       </StyledToggleButton>
     );
@@ -73,9 +73,15 @@ export default function DarkModeToggle() {
             sx={{ color: "var(--mui-palette-text-primary)" }}
           />
         ) : isDark ? (
-          <DarkModeOutlined fontSize="small" />
+          <DarkModeOutlined
+            fontSize="small"
+            sx={{ "&:hover": { color: "var(--mui-palette-primary-main)" } }}
+          />
         ) : (
-          <LightModeOutlined fontSize="small" />
+          <LightModeOutlined
+            fontSize="small"
+            sx={{ "&:hover": { color: "var(--mui-palette-primary-main)" } }}
+          />
         )}
       </IconWrapper>
     </StyledToggleButton>
