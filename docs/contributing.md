@@ -1,35 +1,38 @@
 # Developer Contributor Guide
 
-Thank you for your interest in contributing to Couchers.org! We're a small, passionate team of volunteers building the future of couch surfing. Before you start, please read this guide carefully to understand our workflow and expectations.
+Thank you for your interest in contributing to Couchers.org! We're a small, passionate team of volunteers building the future of couch surfing.
 
-## Important: Before You Start
+We collaborate on code through git, hosted on GitHub. If you are a software engineer (web/mobile/backend) who has been onboarded, you should request write access to the codebase.
 
-**We are a small volunteer team with limited review capacity.** To make the most of everyone's time and ensure quality contributions, we ask that you:
+Before you start, please read this guide carefully to understand our workflow and expectations.
 
-1. **Contact us before starting any work** — Tag @nabramow (frontend) or @aapeliv (backend) on GitHub or reach out on Slack to confirm that:
+## Expectations for developers
+
+**We are a small volunteer team with limited capacity.** Onboarding new developers and volunteers is a sizeable effort, and we love doing it when we meet a motivated dev who wants to stick around for a good while, but we don't like to do it if people aren't in it for the right reasons.
+
+To make the most of everyone's time and ensure quality contributions, we want to set some ground rules:
+
+1. **We encourage you to contact us before starting work**, e.g. tag @nabramow (frontend) or @aapeliv (backend) on GitHub or reach out on Slack to confirm that:
    - The issue is still relevant and ready to be worked on
    - We have capacity to review your contribution
    - The work aligns with current priorities
 
-2. **Ideally commit to 3-6 months minimum** — Onboarding takes significant time and effort from our small team. We need contributors who can commit to staying involved for at least 3-6 months to make the investment worthwhile.
+2. **We hope that you are looking to commit for 3+ months**. Onboarding takes significant time and effort from our small team. We look for contributors who can commit to staying involved for a while to make the investment worthwhile. The future is always uncertain and we understand you also want to figure out if we are the project you want to spend your time on. But if you know you are between jobs briefly or are looking for a low-effort item on your resume, we are probably not the project for you.
     - See next section about single issue contributions.
 
-3. **Attend weekly meetings** — We hold video meetings every week where we discuss priorities, architecture, and important details. Attending these meetings is essential to prevent miscommunication and avoid lengthy back-and-forth in PR reviews. Priorities and context shared in these meetings often aren't captured elsewhere.
+3. **Attend weekly meetings**. We hold video meetings every week where we discuss priorities, architecture, and important details. Attending these meetings is essential to prevent miscommunication and avoid lengthy back-and-forth in PR reviews. Priorities and context shared in these meetings often aren't captured elsewhere. It's also a key way in which we make sure contributing is fun, social, and fulfilling to all. Please make an effort to join regularly!
 
 4. **Join our Slack** — This is where our main communication happens. Reach out to @aapeliv or @nabramow to join or email volunteers@couchers.org.
 
-### Single-issue contributions
+We do welcome independent contributions if you feel you prefer working on your own, but please keep in mind that **we make no guarantee that your PR will be approved, merged, or even reviewed if you don't follow the above ground rules**. In particular, this can happen if our priorities have shifted (our issue board is often a bit out of date), if some detail is missing from GitHub, or if your PR requires significant work and we feel it's not worth our while. This isn't a reflection on your skills—it's simply about managing our bandwidth effectively. You can increase the chances of your PR being approved by carefully making it easy to review and merge for maintainers (e.g. making sure you carefully read our documentation, adhere to our style, run all formatters, and fill out the PR template carefully).
 
-We discuss priorities and details for tickets in our weekly Tuesday dev meetings. We welcome independent contributions if you feel you can work on your own, but please keep in mind:
+## On recruiting
 
-- **Tag us before starting work**: Tag @aapeliv (backend) or @nabramow (frontend) on the issue first to get cleared on that ticket. While we drive to keep the issues up to date, we're a small team and sometimes the board gets out of date, someone else is already working on it, or there are missing details or outdated designs that aren't captured in the ticket. For the best chance of getting a PR merged, make sure you have the latest details from us.
-- **We may close PRs that require significant rework**: Due to our limited capacity, if a PR is significantly off-base and would require extensive back-and-forth to be mergeable, we may need to close it. This isn't a reflection on your skills—it's simply about managing our review bandwidth effectively.
+If you formally apply to volunteer and don't hear back immediately, please be patient — it may take time for us to respond, and we may be defering onboarding until we have more capacity. At any time, we tend to have a relatively small group of core devs doing most work, including recruiting.
 
-## Our current capacity
+If you are a motivated engineer, really want to contribute, and you have the seniority and skills we are looking for, we encourage you to proactively make an effort to make it known. You can pick up a good first issue, figure out how to set up the dev environment locally, and carefully make an easy-to-review PR, also noting that you are hoping to join as a permanent volunteer. We do take note and will probably schedule a chat soon!
 
-We're a bootstrapped team of typically 2-3 engineers doing everything. Depending on our current workload, we may not have capacity to onboard new contributors or may not need someone with your specific skillset at the moment. If you apply to volunteer and don't hear back immediately, please be patient — it may take time for us to respond, and we may need to defer onboarding until we have more capacity.
-
-We collaborate on code through git, hosted on GitHub. If you are a software engineer (web/mobile/backend) who has been onboarded, you should request write access to the codebase.
+We hope you understand the constraints we operate under and that we put a fair bit of effort into onboarding each new volunteer and doing our part in helping them succeed.
 
 ## Finding an issue
 
@@ -37,21 +40,13 @@ If you are looking for something to help with related to software development, o
 
 Tickets that are ready to be picked up are under the "Ready" column. The higher the ticket, the bigger the priority, so try to choose from the top if you can.
 
-**⚠️ Important: Do not start work without approval.** Before starting any ticket:
+**Please review the expectations for developers above before starting on a ticket.** In particular, our project board gets out of date, and we encourage you to communicate with us before commencing work to prevent wasted effort on both sides.
 
-1. Tag @nabramow (frontend) or @aapeliv (backend) on the GitHub issue to confirm:
-   - The ticket is still relevant and ready to be worked on
-   - There are no important details or context that need to be clarified
-
-2. Our project board can get out of date since we're a small volunteer team. Checking first prevents wasted effort on both sides.
-
-Once you have approval and begin a ticket, please assign yourself to it and move it into the "In Progress" column so we know who is working on what.
+Once you have discussed with us the ticket and are ready to begin, please assign yourself to it and move it into the "In Progress" column so we know who is working on what.
 
 If you need clarification on a ticket, you can leave a comment and tag a contributor, or even better, ask on our Slack Channel (reach out to @aapeliv or @nabramow to join).
 
 ## The development process
-
-**Note**: This section assumes you've already gotten approval to work on an issue as described above. Do not create PRs without prior discussion and approval.
 
 All our code is in one repository (monorepo). We currently use the pull request model as our git workflow, our main development branch is `develop`.
 
