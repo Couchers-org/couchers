@@ -22,7 +22,7 @@
   },
   "reset_password_form": {
     "enter_email": "Zadej své uživatelské jméno/e-mail",
-    "success_message": "Zkontroluj svou e-mailovou adresu a pokračuj podle instrukcí!"
+    "success_message": "Odkaz pro obnovení hesla byl odeslán na e-mailovou adresu spojenou s tímto účtem, pokud existuje a je aktivní. Upozorňujeme, že e-mail může někdy skončit ve spamu."
   },
   "login_page": {
     "title": "Přihlásit se",
