@@ -29,152 +29,152 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
     # Any-typed so it implicitly converts when calling the methods below
     data: Any = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     match notification.topic_action:
+        # Using a match statement enable mypy's exhaustiveness checking.
+        # Every case is has its own function so that they can declare different types for "data",
+        # as mypy wouldn't allow that in a single function.
         # Keep topics sorted (actions can follow logical ordering)
         case NotificationTopicAction.account_deletion__start:
-            return _account_deletion_start(data)
+            return _account_deletion__start(data)
         case NotificationTopicAction.account_deletion__complete:
-            return _account_deletion_complete(data)
+            return _account_deletion__complete(data)
         case NotificationTopicAction.account_deletion__recovered:
-            return _account_deletion_recovered(data)
+            return _account_deletion__recovered(data)
         case NotificationTopicAction.activeness__probe:
-            return _activeness_probe(data)
+            return _activeness__probe(data)
         case NotificationTopicAction.api_key__create:
-            return _api_key_create(data)
+            return _api_key__create(data)
         case NotificationTopicAction.badge__add:
-            return _badge_add(data)
+            return _badge__add(data)
         case NotificationTopicAction.badge__remove:
-            return _badge_remove(data)
+            return _badge__remove(data)
         case NotificationTopicAction.birthdate__change:
-            return _birthdate_change(data, user)
+            return _birthdate__change(data, user)
         case NotificationTopicAction.chat__message:
-            return _chat_message(data)
+            return _chat__message(data)
         case NotificationTopicAction.chat__missed_messages:
-            return _chat_missed_messages(data)
+            return _chat__missed_messages(data)
         case NotificationTopicAction.donation__received:
-            return _donation_received(data)
+            return _donation__received(data)
         case NotificationTopicAction.discussion__create:
-            return _discussion_create(data)
+            return _discussion__create(data)
         case NotificationTopicAction.discussion__comment:
-            return _discussion_comment(data)
+            return _discussion__comment(data)
         case NotificationTopicAction.email_address__change:
-            return _email_address_change(data)
+            return _email_address__change(data)
         case NotificationTopicAction.email_address__verify:
-            return _email_address_verify(data)
+            return _email_address__verify(data)
         case NotificationTopicAction.event__create_any:
-            return _event_create_any(data, user)
+            return _event__create_any(data, user)
         case NotificationTopicAction.event__create_approved:
-            return _event_create_approved(data, user)
+            return _event__create_approved(data, user)
         case NotificationTopicAction.event__update:
-            return _event_update(data, user)
+            return _event__update(data, user)
         case NotificationTopicAction.event__invite_organizer:
-            return _event_invite_organizer(data, user)
+            return _event__invite_organizer(data, user)
         case NotificationTopicAction.event__comment:
-            return _event_comment(data, user)
+            return _event__comment(data, user)
         case NotificationTopicAction.event__reminder:
-            return _event_reminder(data, user)
+            return _event__reminder(data, user)
         case NotificationTopicAction.event__cancel:
-            return _event_cancel(data, user)
+            return _event__cancel(data, user)
         case NotificationTopicAction.event__delete:
-            return _event_delete(data, user)
+            return _event__delete(data, user)
         case NotificationTopicAction.friend_request__create:
-            return _friend_request_create(data)
+            return _friend_request__create(data)
         case NotificationTopicAction.friend_request__accept:
-            return _friend_request_accept(data)
+            return _friend_request__accept(data)
         case NotificationTopicAction.gender__change:
-            return _gender_change(data)
+            return _gender__change(data)
         case NotificationTopicAction.general__new_blog_post:
-            return _general_new_blog_post(data)
+            return _general__new_blog_post(data)
         case NotificationTopicAction.host_request__create:
-            return _host_request_create(data, user)
+            return _host_request__create(data, user)
         case NotificationTopicAction.host_request__message:
-            return _host_request_message(data, user)
+            return _host_request__message(data, user)
         case NotificationTopicAction.host_request__missed_messages:
-            return _host_request_missed_messages(data)
+            return _host_request__missed_messages(data)
         case NotificationTopicAction.host_request__reminder:
-            return _host_request_reminder(data)
+            return _host_request__reminder(data)
         case NotificationTopicAction.host_request__accept:
-            return _host_request_accept(data)
+            return _host_request__accept(data)
         case NotificationTopicAction.host_request__reject:
-            return _host_request_reject(data)
+            return _host_request__reject(data)
         case NotificationTopicAction.host_request__cancel:
-            return _host_request_cancel(data)
+            return _host_request__cancel(data)
         case NotificationTopicAction.host_request__confirm:
-            return _host_request_confirm(data)
+            return _host_request__confirm(data)
         case NotificationTopicAction.modnote__create:
-            return _modnote_create(data)
+            return _modnote__create(data)
         case NotificationTopicAction.onboarding__reminder:
-            return _onboarding_reminder(data, notification.key, user)
+            return _onboarding__reminder(data, notification.key, user)
         case NotificationTopicAction.password__change:
-            return _password_change(data)
+            return _password__change(data)
         case NotificationTopicAction.password_reset__start:
-            return _password_reset_start(data)
+            return _password_reset__start(data)
         case NotificationTopicAction.password_reset__complete:
-            return _password_reset_complete(data)
+            return _password_reset__complete(data)
         case NotificationTopicAction.phone_number__change:
-            return _phone_number_change(data)
+            return _phone_number__change(data)
         case NotificationTopicAction.phone_number__verify:
-            return _phone_number_verify(data)
+            return _phone_number__verify(data)
         case NotificationTopicAction.postal_verification__postcard_sent:
-            return _postal_verification_postcard_sent(data)
+            return _postal_verification__postcard_sent(data)
         case NotificationTopicAction.postal_verification__success:
-            return _postal_verification_success(data)
+            return _postal_verification__success(data)
         case NotificationTopicAction.postal_verification__failed:
-            return _postal_verification_failed(data)
+            return _postal_verification__failed(data)
         case NotificationTopicAction.reference__receive_friend:
-            return _reference_receive_friend(data)
+            return _reference__receive_friend(data)
         case NotificationTopicAction.reference__receive_hosted:
-            return _reference_receive(data, action=notification.action)
+            return _reference__receive_hosted(data)
         case NotificationTopicAction.reference__receive_surfed:
-            return _reference_receive(data, action=notification.action)
+            return _reference__receive_surfed(data)
         case NotificationTopicAction.reference__reminder_hosted:
-            return _reference_reminder(data, action=notification.action)
+            return _reference__reminder_hosted(data)
         case NotificationTopicAction.reference__reminder_surfed:
-            return _reference_reminder(data, action=notification.action)
+            return _reference__reminder_surfed(data)
         case NotificationTopicAction.thread__reply:
-            return _thread_reply(data)
+            return _thread__reply(data)
         case NotificationTopicAction.verification__sv_success:
-            return _verification_sv_success(data)
+            return _verification__sv_success(data)
         case NotificationTopicAction.verification__sv_fail:
-            return _verification_sv_fail(data)
+            return _verification__sv_fail(data)
         case _:
             # Enables mypy's exhaustiveness checking for the cases above.
             assert_never(notification.topic_action)
 
+    raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
 
-# account_deletion:start
-def _account_deletion_start(data: empty_pb2.Empty) -> PushNotificationContent:
+
+def _account_deletion__start(data: empty_pb2.Empty) -> PushNotificationContent:
     return PushNotificationContent(
         title="Account deletion initiated",
         body="Someone initiated the deletion of your Couchers.org account. To delete your account, please follow the link in the email we sent you.",
     )
 
 
-# account_deletion:complete
-def _account_deletion_complete(data: notification_data_pb2.AccountDeletionComplete) -> PushNotificationContent:
+def _account_deletion__complete(data: notification_data_pb2.AccountDeletionComplete) -> PushNotificationContent:
     return PushNotificationContent(
         title="Your Couchers.org account has been deleted",
         body=f"You can still undo this by following the link we emailed to you within {data.undelete_days} days.",
     )
 
 
-# account_deletion:recovered
-def _account_deletion_recovered(data: empty_pb2.Empty) -> PushNotificationContent:
+def _account_deletion__recovered(data: empty_pb2.Empty) -> PushNotificationContent:
     return PushNotificationContent(
         title="Your Couchers.org account has been recovered!",
         body="We have recovered your Couchers.org account as per your request! Welcome back!",
     )
 
 
-# activeness:probe
-def _activeness_probe(data: notification_data_pb2.ActivenessProbe) -> PushNotificationContent:
+def _activeness__probe(data: notification_data_pb2.ActivenessProbe) -> PushNotificationContent:
     return PushNotificationContent(
         title="Are you still open to hosting on Couchers.org?",
         body="Please log in to confirm your hosting status.",
     )
 
 
-# api_key:create
-def _api_key_create(data: empty_pb2.Empty) -> PushNotificationContent:
+def _api_key__create(data: empty_pb2.Empty) -> PushNotificationContent:
     return PushNotificationContent(
         title="An API key was created for your account",
         body="Details were sent to you via email.",
@@ -182,8 +182,7 @@ def _api_key_create(data: empty_pb2.Empty) -> PushNotificationContent:
     )
 
 
-# badge:add
-def _badge_add(data: notification_data_pb2.BadgeAdd) -> PushNotificationContent:
+def _badge__add(data: notification_data_pb2.BadgeAdd) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"The {data.badge_name} badge was added to your profile",
         body="Check out your profile to see the new badge!",
@@ -191,8 +190,7 @@ def _badge_add(data: notification_data_pb2.BadgeAdd) -> PushNotificationContent:
     )
 
 
-# badge:remove
-def _badge_remove(data: notification_data_pb2.BadgeRemove) -> PushNotificationContent:
+def _badge__remove(data: notification_data_pb2.BadgeRemove) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"The {data.badge_name} badge was removed from your profile",
         body="You can see all your badges on your profile.",
@@ -200,8 +198,7 @@ def _badge_remove(data: notification_data_pb2.BadgeRemove) -> PushNotificationCo
     )
 
 
-# birthdate:change
-def _birthdate_change(data: notification_data_pb2.BirthdateChange, user: User) -> PushNotificationContent:
+def _birthdate__change(data: notification_data_pb2.BirthdateChange, user: User) -> PushNotificationContent:
     return PushNotificationContent(
         title="Your date of birth was changed",
         body=f"Your date of birth on Couchers.org was changed to {v2date(data.birthdate, user)} by an admin.",
@@ -209,8 +206,7 @@ def _birthdate_change(data: notification_data_pb2.BirthdateChange, user: User) -
     )
 
 
-# chat:message
-def _chat_message(data: notification_data_pb2.ChatMessage) -> PushNotificationContent:
+def _chat__message(data: notification_data_pb2.ChatMessage) -> PushNotificationContent:
     return PushNotificationContent(
         title=data.message,
         body=data.text,
@@ -219,8 +215,7 @@ def _chat_message(data: notification_data_pb2.ChatMessage) -> PushNotificationCo
     )
 
 
-# chat:missed_messages
-def _chat_missed_messages(data: empty_pb2.Empty) -> PushNotificationContent:
+def _chat__missed_messages(data: empty_pb2.Empty) -> PushNotificationContent:
     return PushNotificationContent(
         title="You have unseen messages on Couchers.org",
         body="Please check out any messages you missed.",
@@ -228,8 +223,7 @@ def _chat_missed_messages(data: empty_pb2.Empty) -> PushNotificationContent:
     )
 
 
-# donation:received
-def _donation_received(data: notification_data_pb2.DonationReceived) -> PushNotificationContent:
+def _donation__received(data: notification_data_pb2.DonationReceived) -> PushNotificationContent:
     return PushNotificationContent(
         title="Thank you for your donation to Couchers.org!",
         body=f"Thank you so much for your donation of ${data.amount} to Couchers.org.",
@@ -237,8 +231,7 @@ def _donation_received(data: notification_data_pb2.DonationReceived) -> PushNoti
     )
 
 
-# discussion:create
-def _discussion_create(data: notification_data_pb2.DiscussionCreate) -> PushNotificationContent:
+def _discussion__create(data: notification_data_pb2.DiscussionCreate) -> PushNotificationContent:
     return PushNotificationContent(
         title=data.discussion.title,
         body=f"{data.author.name} created a discussion in {data.discussion.owner_title}: {data.discussion.title}\n\n{data.discussion.content}",
@@ -247,8 +240,7 @@ def _discussion_create(data: notification_data_pb2.DiscussionCreate) -> PushNoti
     )
 
 
-# discussion:comment
-def _discussion_comment(data: notification_data_pb2.DiscussionComment) -> PushNotificationContent:
+def _discussion__comment(data: notification_data_pb2.DiscussionComment) -> PushNotificationContent:
     return PushNotificationContent(
         title=data.discussion.title,
         body=f"{data.author.name} commented:\n\n{data.reply.content}",
@@ -257,8 +249,7 @@ def _discussion_comment(data: notification_data_pb2.DiscussionComment) -> PushNo
     )
 
 
-# email_address:change
-def _email_address_change(data: notification_data_pb2.EmailAddressChange) -> PushNotificationContent:
+def _email_address__change(data: notification_data_pb2.EmailAddressChange) -> PushNotificationContent:
     return PushNotificationContent(
         title="An email change was initiated on your account",
         body=f"An email change to the email {data.new_email} was initiated on your account.",
@@ -266,8 +257,7 @@ def _email_address_change(data: notification_data_pb2.EmailAddressChange) -> Pus
     )
 
 
-# email_address:verify
-def _email_address_verify(data: empty_pb2.Empty) -> PushNotificationContent:
+def _email_address__verify(data: empty_pb2.Empty) -> PushNotificationContent:
     return PushNotificationContent(
         title="Email change completed",
         body="Your new email address has been verified.",
@@ -279,8 +269,7 @@ def _get_event_time_display(event: events_pb2.Event, user: User) -> str:
     return f"{v2timestamp(event.start_time, user)} - {v2timestamp(event.end_time, user)}"
 
 
-# event:create_any
-def _event_create_any(data: notification_data_pb2.EventCreate, user: User) -> PushNotificationContent:
+def _event__create_any(data: notification_data_pb2.EventCreate, user: User) -> PushNotificationContent:
     time_display = _get_event_time_display(data.event, user)
     return PushNotificationContent(
         title=f'{data.inviting_user.name} created an event called "{data.event.title}"',
@@ -290,8 +279,7 @@ def _event_create_any(data: notification_data_pb2.EventCreate, user: User) -> Pu
     )
 
 
-# event:create_approved
-def _event_create_approved(data: notification_data_pb2.EventCreate, user: User) -> PushNotificationContent:
+def _event__create_approved(data: notification_data_pb2.EventCreate, user: User) -> PushNotificationContent:
     time_display = _get_event_time_display(data.event, user)
     return PushNotificationContent(
         title=f'{data.inviting_user.name} invited you to "{data.event.title}"',
@@ -301,8 +289,7 @@ def _event_create_approved(data: notification_data_pb2.EventCreate, user: User) 
     )
 
 
-# event:update
-def _event_update(data: notification_data_pb2.EventUpdate, user: User) -> PushNotificationContent:
+def _event__update(data: notification_data_pb2.EventUpdate, user: User) -> PushNotificationContent:
     time_display = _get_event_time_display(data.event, user)
     updated_text = ", ".join(data.updated_items)
     return PushNotificationContent(
@@ -313,8 +300,7 @@ def _event_update(data: notification_data_pb2.EventUpdate, user: User) -> PushNo
     )
 
 
-# event:invite_organizer
-def _event_invite_organizer(data: notification_data_pb2.EventInviteOrganizer, user: User) -> PushNotificationContent:
+def _event__invite_organizer(data: notification_data_pb2.EventInviteOrganizer, user: User) -> PushNotificationContent:
     time_display = _get_event_time_display(data.event, user)
     return PushNotificationContent(
         title=f'{data.inviting_user.name} invited you to co-organize "{data.event.title}"',
@@ -324,8 +310,7 @@ def _event_invite_organizer(data: notification_data_pb2.EventInviteOrganizer, us
     )
 
 
-# event:comment
-def _event_comment(data: notification_data_pb2.EventComment, user: User) -> PushNotificationContent:
+def _event__comment(data: notification_data_pb2.EventComment, user: User) -> PushNotificationContent:
     time_display = _get_event_time_display(data.event, user)
     return PushNotificationContent(
         title=f'{data.author.name} commented on "{data.event.title}"',
@@ -335,8 +320,7 @@ def _event_comment(data: notification_data_pb2.EventComment, user: User) -> Push
     )
 
 
-# event:reminder
-def _event_reminder(data: notification_data_pb2.EventReminder, user: User) -> PushNotificationContent:
+def _event__reminder(data: notification_data_pb2.EventReminder, user: User) -> PushNotificationContent:
     time_display = _get_event_time_display(data.event, user)
     return PushNotificationContent(
         title=f'"{data.event.title}" starts soon',
@@ -345,8 +329,7 @@ def _event_reminder(data: notification_data_pb2.EventReminder, user: User) -> Pu
     )
 
 
-# event:cancel
-def _event_cancel(data: notification_data_pb2.EventCancel, user: User) -> PushNotificationContent:
+def _event__cancel(data: notification_data_pb2.EventCancel, user: User) -> PushNotificationContent:
     time_display = _get_event_time_display(data.event, user)
     return PushNotificationContent(
         title=f'{data.cancelling_user.name} cancelled "{data.event.title}"',
@@ -356,8 +339,7 @@ def _event_cancel(data: notification_data_pb2.EventCancel, user: User) -> PushNo
     )
 
 
-# event:delete
-def _event_delete(data: notification_data_pb2.EventDelete, user: User) -> PushNotificationContent:
+def _event__delete(data: notification_data_pb2.EventDelete, user: User) -> PushNotificationContent:
     time_display = _get_event_time_display(data.event, user)
     return PushNotificationContent(
         title=f'A moderator deleted "{data.event.title}"',
@@ -365,8 +347,7 @@ def _event_delete(data: notification_data_pb2.EventDelete, user: User) -> PushNo
     )
 
 
-# friend_request:create
-def _friend_request_create(data: notification_data_pb2.FriendRequestCreate) -> PushNotificationContent:
+def _friend_request__create(data: notification_data_pb2.FriendRequestCreate) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"{data.other_user.name} wants to be your friend",
         body=f"You've received a friend request from {data.other_user.name}",
@@ -375,8 +356,7 @@ def _friend_request_create(data: notification_data_pb2.FriendRequestCreate) -> P
     )
 
 
-# friend_request:accept
-def _friend_request_accept(data: notification_data_pb2.FriendRequestAccept) -> PushNotificationContent:
+def _friend_request__accept(data: notification_data_pb2.FriendRequestAccept) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"{data.other_user.name} accepted your friend request!",
         body=f"{v2esc(data.other_user.name)} has accepted your friend request",
@@ -385,8 +365,7 @@ def _friend_request_accept(data: notification_data_pb2.FriendRequestAccept) -> P
     )
 
 
-# gender:change
-def _gender_change(data: notification_data_pb2.GenderChange) -> PushNotificationContent:
+def _gender__change(data: notification_data_pb2.GenderChange) -> PushNotificationContent:
     return PushNotificationContent(
         title="Your gender was changed",
         body=f"Your gender on Couchers.org was changed to {data.gender} by an admin.",
@@ -394,8 +373,7 @@ def _gender_change(data: notification_data_pb2.GenderChange) -> PushNotification
     )
 
 
-# general:new_blog_post
-def _general_new_blog_post(data: notification_data_pb2.GeneralNewBlogPost) -> PushNotificationContent:
+def _general__new_blog_post(data: notification_data_pb2.GeneralNewBlogPost) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"New blog post: {data.title}",
         body=data.blurb,
@@ -403,8 +381,7 @@ def _general_new_blog_post(data: notification_data_pb2.GeneralNewBlogPost) -> Pu
     )
 
 
-# host_request:create
-def _host_request_create(data: notification_data_pb2.HostRequestCreate, user: User) -> PushNotificationContent:
+def _host_request__create(data: notification_data_pb2.HostRequestCreate, user: User) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"{data.surfer.name} sent you a host request",
         body=f"Dates: {v2date(data.host_request.from_date, user)} to {v2date(data.host_request.to_date, user)}.\n\n{data.text}",
@@ -413,8 +390,7 @@ def _host_request_create(data: notification_data_pb2.HostRequestCreate, user: Us
     )
 
 
-# host_request:message
-def _host_request_message(data: notification_data_pb2.HostRequestMessage, user: User) -> PushNotificationContent:
+def _host_request__message(data: notification_data_pb2.HostRequestMessage, user: User) -> PushNotificationContent:
     if data.am_host:
         title = f"{data.user.name} sent you a message in their host request"
     else:
@@ -427,8 +403,7 @@ def _host_request_message(data: notification_data_pb2.HostRequestMessage, user: 
     )
 
 
-# host_request:missed_messages
-def _host_request_missed_messages(data: notification_data_pb2.HostRequestMissedMessages) -> PushNotificationContent:
+def _host_request__missed_messages(data: notification_data_pb2.HostRequestMissedMessages) -> PushNotificationContent:
     their_your = "their" if data.am_host else "your"
     return PushNotificationContent(
         title=f"{data.user.name} sent you message(s) in {their_your} host request",
@@ -438,8 +413,7 @@ def _host_request_missed_messages(data: notification_data_pb2.HostRequestMissedM
     )
 
 
-# host_request:reminder
-def _host_request_reminder(data: notification_data_pb2.HostRequestReminder) -> PushNotificationContent:
+def _host_request__reminder(data: notification_data_pb2.HostRequestReminder) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"You have a pending host request from {data.surfer.name}!",
         body="Please respond to the request!",
@@ -448,8 +422,7 @@ def _host_request_reminder(data: notification_data_pb2.HostRequestReminder) -> P
     )
 
 
-# host_request:accept
-def _host_request_accept(data: notification_data_pb2.HostRequestAccept) -> PushNotificationContent:
+def _host_request__accept(data: notification_data_pb2.HostRequestAccept) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"{data.host.name} accepted your host request",
         body="Check the app for more info.",
@@ -458,8 +431,7 @@ def _host_request_accept(data: notification_data_pb2.HostRequestAccept) -> PushN
     )
 
 
-# host_request:reject
-def _host_request_reject(data: notification_data_pb2.HostRequestReject) -> PushNotificationContent:
+def _host_request__reject(data: notification_data_pb2.HostRequestReject) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"{data.host.name} rejected your host request",
         body="Check the app for more info.",
@@ -468,8 +440,7 @@ def _host_request_reject(data: notification_data_pb2.HostRequestReject) -> PushN
     )
 
 
-# host_request:cancel
-def _host_request_cancel(data: notification_data_pb2.HostRequestCancel) -> PushNotificationContent:
+def _host_request__cancel(data: notification_data_pb2.HostRequestCancel) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"{data.surfer.name} cancelled their host request",
         body="Check the app for more info.",
@@ -478,8 +449,7 @@ def _host_request_cancel(data: notification_data_pb2.HostRequestCancel) -> PushN
     )
 
 
-# host_request:confirm
-def _host_request_confirm(data: notification_data_pb2.HostRequestConfirm) -> PushNotificationContent:
+def _host_request__confirm(data: notification_data_pb2.HostRequestConfirm) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"{data.surfer.name} confirmed their host request",
         body="Check the app for more info.",
@@ -488,16 +458,14 @@ def _host_request_confirm(data: notification_data_pb2.HostRequestConfirm) -> Pus
     )
 
 
-# modnote:create
-def _modnote_create(data: empty_pb2.Empty) -> PushNotificationContent:
+def _modnote__create(data: empty_pb2.Empty) -> PushNotificationContent:
     return PushNotificationContent(
         title="You received a mod note",
         body="You need to read and acknowledge the note before continuing to use the platform.",
     )
 
 
-# onboarding:reminder
-def _onboarding_reminder(data: empty_pb2.Empty, key: str, user: User) -> PushNotificationContent:
+def _onboarding__reminder(data: empty_pb2.Empty, key: str, user: User) -> PushNotificationContent:
     if key == "1":
         return PushNotificationContent(
             title="Welcome to Couchers.org and the future of couch surfing",
@@ -514,8 +482,7 @@ def _onboarding_reminder(data: empty_pb2.Empty, key: str, user: User) -> PushNot
         raise NotImplementedError(f"Unknown onboarding reminder key: {key}")
 
 
-# password:change
-def _password_change(data: empty_pb2.Empty) -> PushNotificationContent:
+def _password__change(data: empty_pb2.Empty) -> PushNotificationContent:
     return PushNotificationContent(
         title="Your password was changed",
         body="Your login password for Couchers.org was changed.",
@@ -523,8 +490,7 @@ def _password_change(data: empty_pb2.Empty) -> PushNotificationContent:
     )
 
 
-# password_reset:start
-def _password_reset_start(data: empty_pb2.Empty) -> PushNotificationContent:
+def _password_reset__start(data: empty_pb2.Empty) -> PushNotificationContent:
     return PushNotificationContent(
         title="A password reset was initiated on your account",
         body="Someone initiated a password change on your account.",
@@ -532,8 +498,7 @@ def _password_reset_start(data: empty_pb2.Empty) -> PushNotificationContent:
     )
 
 
-# password_reset:complete
-def _password_reset_complete(data: empty_pb2.Empty) -> PushNotificationContent:
+def _password_reset__complete(data: empty_pb2.Empty) -> PushNotificationContent:
     return PushNotificationContent(
         title="Your password was successfully reset",
         body="Your password on Couchers.org was changed. If that was you, then no further action is needed.",
@@ -541,8 +506,7 @@ def _password_reset_complete(data: empty_pb2.Empty) -> PushNotificationContent:
     )
 
 
-# phone_number:change
-def _phone_number_change(data: notification_data_pb2.PhoneNumberChange) -> PushNotificationContent:
+def _phone_number__change(data: notification_data_pb2.PhoneNumberChange) -> PushNotificationContent:
     return PushNotificationContent(
         title="Phone verification started",
         body=f"You started phone number verification with the number {v2phone(data.phone)}.",
@@ -550,8 +514,7 @@ def _phone_number_change(data: notification_data_pb2.PhoneNumberChange) -> PushN
     )
 
 
-# phone_number:verify
-def _phone_number_verify(data: notification_data_pb2.PhoneNumberVerify) -> PushNotificationContent:
+def _phone_number__verify(data: notification_data_pb2.PhoneNumberVerify) -> PushNotificationContent:
     return PushNotificationContent(
         title="Phone successfully verified",
         body=f"Your phone was successfully verified as {v2phone(data.phone)} on Couchers.org.",
@@ -559,8 +522,7 @@ def _phone_number_verify(data: notification_data_pb2.PhoneNumberVerify) -> PushN
     )
 
 
-# postal_verification:postcard_sent
-def _postal_verification_postcard_sent(
+def _postal_verification__postcard_sent(
     data: notification_data_pb2.PostalVerificationPostcardSent,
 ) -> PushNotificationContent:
     return PushNotificationContent(
@@ -570,8 +532,7 @@ def _postal_verification_postcard_sent(
     )
 
 
-# postal_verification:success
-def _postal_verification_success(data: empty_pb2.Empty) -> PushNotificationContent:
+def _postal_verification__success(data: empty_pb2.Empty) -> PushNotificationContent:
     return PushNotificationContent(
         title="Postal Verification succeeded",
         body="You have been verified with Postal Verification! Your address has been confirmed.",
@@ -579,8 +540,7 @@ def _postal_verification_success(data: empty_pb2.Empty) -> PushNotificationConte
     )
 
 
-# postal_verification:failed
-def _postal_verification_failed(data: notification_data_pb2.PostalVerificationFailed) -> PushNotificationContent:
+def _postal_verification__failed(data: notification_data_pb2.PostalVerificationFailed) -> PushNotificationContent:
     if data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED:
         reason_message = "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can start a new verification attempt."
     elif data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS:
@@ -594,8 +554,7 @@ def _postal_verification_failed(data: notification_data_pb2.PostalVerificationFa
     )
 
 
-# reference:receive_friend
-def _reference_receive_friend(data: notification_data_pb2.ReferenceReceiveFriend) -> PushNotificationContent:
+def _reference__receive_friend(data: notification_data_pb2.ReferenceReceiveFriend) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"You've received a friend reference from {data.from_user.name}!",
         body=data.text,
@@ -604,8 +563,9 @@ def _reference_receive_friend(data: notification_data_pb2.ReferenceReceiveFriend
     )
 
 
-# reference:receive_hosted, reference:receive_surfed
-def _reference_receive(data: notification_data_pb2.ReferenceReceiveHostRequest, action: str) -> PushNotificationContent:
+def _reference__receive(
+    data: notification_data_pb2.ReferenceReceiveHostRequest, reference_type: str
+) -> PushNotificationContent:
     if data.text:
         body = v2esc(data.text)
         action_url = urls.profile_references_link()
@@ -613,10 +573,8 @@ def _reference_receive(data: notification_data_pb2.ReferenceReceiveHostRequest, 
         body = (
             "Please go and write a reference for them too. It's a nice gesture and helps us build a community together!"
         )
-        # what was my type? i surfed with them if i received a "hosted" request
-        surfed = action == "receive_hosted"
         action_url = urls.leave_reference_link(
-            reference_type="surfed" if surfed else "hosted",
+            reference_type=reference_type,
             to_user_id=data.from_user.user_id,
             host_request_id=str(data.host_request_id),
         )
@@ -628,12 +586,18 @@ def _reference_receive(data: notification_data_pb2.ReferenceReceiveHostRequest, 
     )
 
 
-# reference:reminder_hosted, reference:reminder_surfed
-def _reference_reminder(data: notification_data_pb2.ReferenceReminder, action: str) -> PushNotificationContent:
-    # what was my type? i surfed with them if i get a surfed reminder
-    surfed = action == "reminder_surfed"
+def _reference__receive_hosted(data: notification_data_pb2.ReferenceReceiveHostRequest) -> PushNotificationContent:
+    # I surfed with them if I received a "hosted" request
+    return _reference__receive(data, reference_type="surfed")
+
+
+def _reference__receive_surfed(data: notification_data_pb2.ReferenceReceiveHostRequest) -> PushNotificationContent:
+    return _reference__receive(data, reference_type="hosted")
+
+
+def _reference__reminder(data: notification_data_pb2.ReferenceReminder, reference_type=str) -> PushNotificationContent:
     leave_reference_link = urls.leave_reference_link(
-        reference_type="surfed" if surfed else "hosted",
+        reference_type=reference_type,
         to_user_id=data.other_user.user_id,
         host_request_id=str(data.host_request_id),
     )
@@ -645,8 +609,16 @@ def _reference_reminder(data: notification_data_pb2.ReferenceReminder, action: s
     )
 
 
-# thread:reply
-def _thread_reply(data: notification_data_pb2.ThreadReply) -> PushNotificationContent:
+def _reference__reminder_surfed(data: notification_data_pb2.ReferenceReminder) -> PushNotificationContent:
+    # I surfed with them if I get a surfed reminder
+    return _reference__reminder(data, reference_type="surfed")
+
+
+def _reference__reminder_hosted(data: notification_data_pb2.ReferenceReminder) -> PushNotificationContent:
+    return _reference__reminder(data, reference_type="hosted")
+
+
+def _thread__reply(data: notification_data_pb2.ThreadReply) -> PushNotificationContent:
     parent = data.WhichOneof("reply_parent")
     if parent == "event":
         title = data.event.title
@@ -665,8 +637,7 @@ def _thread_reply(data: notification_data_pb2.ThreadReply) -> PushNotificationCo
     )
 
 
-# verification:sv_success
-def _verification_sv_success(data: empty_pb2.Empty) -> PushNotificationContent:
+def _verification__sv_success(data: empty_pb2.Empty) -> PushNotificationContent:
     return PushNotificationContent(
         title="Strong Verification succeeded",
         body="You have been verified with Strong Verification! You will now see a tick next to your name on the platform.",
@@ -674,8 +645,7 @@ def _verification_sv_success(data: empty_pb2.Empty) -> PushNotificationContent:
     )
 
 
-# verification:sv_fail
-def _verification_sv_fail(data: notification_data_pb2.VerificationSVFail) -> PushNotificationContent:
+def _verification__sv_fail(data: notification_data_pb2.VerificationSVFail) -> PushNotificationContent:
     if data.reason == notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
         reason_message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
     elif data.reason == notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
