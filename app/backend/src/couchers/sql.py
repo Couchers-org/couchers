@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     type _ModeratedContent = type[HostRequest | GroupChat]
 
 
-def username_or_email(value: str, table: "_UserLike" = User) -> ColumnElement[bool]:
+def username_or_email(value: str, table: _UserLike = User) -> ColumnElement[bool]:
     if is_valid_username(value):
         return table.username == value
     elif is_valid_email(value) and hasattr(table, "email"):
@@ -25,7 +25,7 @@ def username_or_email(value: str, table: "_UserLike" = User) -> ColumnElement[bo
     return false()
 
 
-def username_or_id(value: str, table: "_UserLike" = User) -> ColumnElement[bool]:
+def username_or_id(value: str, table: _UserLike = User) -> ColumnElement[bool]:
     if is_valid_username(value):
         return table.username == value
     elif is_valid_user_id(value):
@@ -46,7 +46,7 @@ def username_or_email_or_id(value: str) -> ColumnElement[bool]:
     return false()
 
 
-def users_visible(context: CouchersContext, table: "_User" = User) -> ColumnElement[bool]:
+def users_visible(context: CouchersContext, table: _User = User) -> ColumnElement[bool]:
     """
     Filters out users that should not be visible: blocked, deleted, or banned
 
@@ -71,7 +71,7 @@ def where_users_column_visible[T: tuple[Any, ...]](
     )
 
 
-def users_visible_to_each_other(user1: "_User", user2: "_User") -> ColumnElement[bool]:
+def users_visible_to_each_other(user1: _User, user2: _User) -> ColumnElement[bool]:
     """
     Filters to ensure two users are mutually visible to each other.
 
@@ -134,7 +134,7 @@ def where_user_columns_visible_to_each_other[T: tuple[Any, ...]](
 
 def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     query: Select[T],
-    table: "_ModeratedContent",
+    table: _ModeratedContent,
     user_id_column: InstrumentedAttribute[int],
     is_list_operation: bool = False,
 ) -> Select[T]:
@@ -159,7 +159,7 @@ def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
 def where_moderated_content_visible[T: tuple[Any, ...]](
     query: Select[T],
     context: CouchersContext,
-    table: "_ModeratedContent",
+    table: _ModeratedContent,
     is_list_operation: bool = False,
 ) -> Select[T]:
     aliased_mod_state = aliased(ModerationState)

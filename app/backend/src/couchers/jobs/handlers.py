@@ -873,7 +873,7 @@ def update_badges(payload: empty_pb2.Empty) -> None:
         )
 
 
-def finalize_strong_verification(payload: "jobs_pb2.FinalizeStrongVerificationPayload") -> None:
+def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPayload) -> None:
     with session_scope() as session:
         verification_attempt = session.execute(
             select(StrongVerificationAttempt)
