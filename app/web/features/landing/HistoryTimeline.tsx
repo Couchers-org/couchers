@@ -3,7 +3,6 @@ import { Box, Container, Stack, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { theme } from "theme";
 
 type TimelineDataItem = { year: string; text: string };
 
@@ -36,7 +35,7 @@ const TimelineTab = memo(function TimelineTab({
           transform: "translateX(-50%)",
           width: 32,
           height: 2,
-          bgcolor: theme.palette.grey[50],
+          bgcolor: "var(--mui-palette-grey-50)",
           zIndex: 0,
           pointerEvents: "none",
         }}
@@ -61,11 +60,11 @@ const TimelineTab = memo(function TimelineTab({
           height: active ? 20 : 14,
           border: "none",
           background: active
-            ? theme.palette.secondary.main
-            : theme.palette.grey[300],
+            ? "var(--mui-palette-secondary-main)"
+            : "var(--mui-palette-grey-300)",
           borderRadius: "50%",
           boxShadow: active
-            ? `${theme.palette.secondary.light} 0 0 0 4px`
+            ? `${"var(--mui-palette-secondary-light)"} 0 0 0 4px`
             : `transparent 0 0 0 4px`,
           transition: "all .25s ease",
           position: "relative",
@@ -73,11 +72,11 @@ const TimelineTab = memo(function TimelineTab({
           outline: "none",
           "&:hover": {
             background: active
-              ? theme.palette.secondary.main
-              : theme.palette.grey[400],
+              ? "var(--mui-palette-secondary-main)"
+              : "var(--mui-palette-grey-400)",
           },
           "&:focus-visible": {
-            boxShadow: `${theme.palette.secondary.main} 0 0 0 3px, ${theme.palette.secondary.light} 0 0 0 5px`,
+            boxShadow: `${"var(--mui-palette-secondary-main)"} 0 0 0 3px, ${"var(--mui-palette-secondary-light)"} 0 0 0 5px`,
           },
         }}
       />
@@ -88,8 +87,8 @@ const TimelineTab = memo(function TimelineTab({
           fontSize: { xs: "1rem", md: "1.1rem" },
           fontWeight: active ? 700 : 500,
           color: active
-            ? theme.palette.secondary.main
-            : theme.palette.text.primary,
+            ? "var(--mui-palette-secondary-main)"
+            : "var(--mui-palette-text-primary)",
           transition: "color .25s, margin-top .25s",
         }}
       >
@@ -171,7 +170,7 @@ export default function HistoryTimeline() {
       component="section"
       sx={{
         py: 6,
-        bgcolor: theme.palette.grey[50],
+        bgcolor: "var(--mui-palette-grey-50)",
         position: "relative",
         left: "50%",
         right: "50%",
@@ -220,7 +219,7 @@ export default function HistoryTimeline() {
               right: 0,
               bottom: 0,
               width: 48,
-              background: `linear-gradient(to right, transparent, ${theme.palette.grey[50]})`,
+              background: `linear-gradient(to right, transparent, var(--mui-palette-grey-50))`,
               zIndex: 1,
             }}
           />
@@ -232,7 +231,7 @@ export default function HistoryTimeline() {
               bottom: 6,
               alignItems: "center",
               gap: 0.5,
-              color: theme.palette.text.secondary,
+              color: "var(--mui-palette-text-secondary)",
               zIndex: 2,
             }}
           >
@@ -266,7 +265,7 @@ export default function HistoryTimeline() {
                 left: 0,
                 right: 0,
                 height: 2,
-                bgcolor: theme.palette.grey[200],
+                bgcolor: "var(--mui-palette-grey-200)",
                 zIndex: 0,
               }}
             />
@@ -294,9 +293,9 @@ export default function HistoryTimeline() {
           sx={{
             mx: "auto",
             p: { xs: 2, md: 3 },
-            border: `1px solid ${theme.palette.grey[200]}`,
+            border: `1px solid var(--mui-palette-grey-200)`,
             borderRadius: 3,
-            background: theme.palette.background.paper,
+            background: "var(--mui-palette-background-paper)",
             maxWidth: 640,
             textAlign: "center",
           }}
@@ -306,14 +305,17 @@ export default function HistoryTimeline() {
             sx={{
               fontSize: { xs: "1.15rem", md: "1.3rem" },
               mb: 1,
-              color: theme.palette.primary.main,
+              color: "var(--mui-palette-primary-main)",
             }}
           >
             {items[activeIndex].year}
           </Typography>
           <Typography
             variant="body1"
-            sx={{ color: theme.palette.text.secondary, lineHeight: 1.55 }}
+            sx={{
+              color: "var(--mui-palette-text-secondary)",
+              lineHeight: 1.55,
+            }}
           >
             {items[activeIndex].text}
           </Typography>

@@ -57,14 +57,14 @@ const StyledMenuButton = styled(Button)(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  border: `1px solid ${theme.palette.grey[300]}`,
+  border: `1px solid var(--mui-palette-grey-300)`,
   borderRadius: 999,
-  backgroundColor: theme.palette.grey[200],
+  backgroundColor: "var(--mui-palette-grey-200)",
   padding: theme.spacing(1),
   transition: `${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   "&:hover": {
     opacity: 0.8,
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: "var(--mui-palette-grey-300)",
   },
   [theme.breakpoints.down("lg")]: {
     padding: theme.spacing(0.75),
@@ -87,7 +87,7 @@ const styledMenuItem = <C extends React.ComponentType<React.ComponentProps<C>>>(
 ) => {
   return styled(component)(() => ({
     width: "100%",
-    color: theme.palette.text.primary,
+    color: "var(--mui-palette-text-primary)",
     textDecoration: "none",
     border: "none",
     margin: 0,
@@ -120,12 +120,14 @@ function LinkMenuItemView({
 }: LoggedInMenuLinkItem & { closeMenu: () => unknown }) {
   const linkContent = (
     <span style={{ display: "flex", alignItems: "center" }}>
-      <Typography noWrap>{name}</Typography>
+      <Typography noWrap sx={{ color: "var(--mui-palette-text-primary)" }}>
+        {name}
+      </Typography>
       {!!notificationCount && (
         <Box
           sx={{
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.common.white,
+            backgroundColor: "var(--mui-palette-primary-main)",
+            color: "var(--mui-palette-primary-contrastText)",
             borderRadius: theme.spacing(10),
             marginLeft: theme.spacing(0.5),
             display: "flex",
@@ -160,7 +162,7 @@ function LinkMenuItemView({
           onClick={closeMenu}
           style={{
             width: "100%",
-            color: theme.palette.text.primary,
+            color: "var(--mui-palette-text-primary)",
             textDecoration: "none",
           }}
         >
@@ -270,12 +272,13 @@ export default function LoggedInMenu({
               aria-haspopup="true"
               aria-expanded={isNotificationsFeedOpen ? "true" : undefined}
               sx={{
-                backgroundColor: theme.palette.grey[300],
+                backgroundColor: "var(--mui-palette-grey-200)",
+                border: "1px solid var(--mui-palette-grey-300)",
                 width: { xs: 36, md: 40 },
                 height: { xs: 36, md: 40 },
                 "&:hover": {
                   opacity: 0.8,
-                  backgroundColor: theme.palette.grey[300],
+                  backgroundColor: "var(--mui-palette-grey-300)",
                 },
               }}
             >
@@ -297,7 +300,7 @@ export default function LoggedInMenu({
       >
         <MenuIcon
           sx={{
-            color: theme.palette.text.primary,
+            color: "var(--mui-palette-text-primary)",
             fontSize: { xs: 20, lg: 24 },
           }}
         />

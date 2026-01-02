@@ -24,7 +24,7 @@ const StyledMenuItem = styled(MuiMenuItem, {
     alignItems: "center",
   }),
   ...(hasBottomDivider && {
-    borderBottom: `1px solid ${theme.palette.divider}`,
+    borderBottom: `1px solid var(--mui-palette-divider)`,
   }),
 }));
 

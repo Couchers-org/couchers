@@ -18,13 +18,12 @@ const StyledNextLink = styled(Link, {
   isNotification: boolean;
   isSelected: boolean;
 }>(({ theme, isNotification, isSelected }) => ({
-  color: theme.palette.text.primary,
   display: "flex",
   flex: "1",
   maxWidth: "10.5rem",
   padding: theme.spacing(1, 1.5),
   ...(isNotification && { marginRight: "0.8rem" }),
-  ...(isSelected && { color: theme.palette.secondary.main }),
+  ...(isSelected && { color: "var(--mui-palette-secondary-main)" }),
 }));
 
 const StyledTypography = styled(Typography)(({ theme }) => ({

@@ -45,33 +45,34 @@ const Select = forwardRef(function Select<
       sx={{
         "& .MuiOutlinedInput-root": {
           borderRadius: theme.spacing(1.5),
-          backgroundColor: theme.palette.common.white,
+          backgroundColor: "var(--mui-palette-background-paper)",
           boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
           transition: "all 0.2s ease-in-out",
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.palette.grey[300],
+            borderColor: "var(--mui-palette-grey-300)",
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.palette.primary.main,
+            borderColor: "var(--mui-palette-primary-main)",
           },
           "&:hover": {
-            backgroundColor: theme.palette.grey[50],
+            backgroundColor: "var(--mui-palette-grey-50)",
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.palette.primary.main,
+            borderColor: "var(--mui-palette-primary-main)",
             borderWidth: "1px",
           },
           "&.Mui-focused": {
-            boxShadow: `0 0 0 2px ${theme.palette.primary.main}15`,
+            boxShadow: `0 0 0 2px var(--mui-palette-primary-main)15`,
           },
         },
         "& .MuiInputBase-input": {
           height: "auto",
           fontSize: "1rem",
           padding: theme.spacing(1.5, 2),
+          color: "var(--mui-palette-text-primary)",
         },
         "& .MuiSelect-icon": {
-          color: theme.palette.grey[600],
+          color: "var(--mui-palette-text-secondary)",
         },
         display: "block",
       }}
