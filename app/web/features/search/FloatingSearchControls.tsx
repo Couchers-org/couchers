@@ -298,7 +298,7 @@ const FloatingSearchControls = ({
                               >
                                 <Clear
                                   sx={{
-                                    color: theme.palette.primary.main,
+                                    color: "var(--mui-palette-primary-main)",
                                     fontSize: "20px",
                                   }}
                                 />

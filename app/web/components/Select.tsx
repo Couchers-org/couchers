@@ -62,7 +62,7 @@ const Select = forwardRef(function Select<
             borderWidth: "1px",
           },
           "&.Mui-focused": {
-            boxShadow: `0 0 0 2px ${theme.palette.primary.main}15`,
+            boxShadow: `0 0 0 2px var(--mui-palette-primary-main)15`,
           },
         },
         "& .MuiInputBase-input": {

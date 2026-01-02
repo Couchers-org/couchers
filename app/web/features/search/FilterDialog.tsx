@@ -682,17 +682,7 @@ const FilterDialog = ({
         <Button onClick={handleClearFilters}>
           {t("search:form.clear_filters")}
         </Button>
-        <Button
-          onClick={handleApplyFilters}
-          sx={{
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.common.white,
-
-            "&:hover": {
-              backgroundColor: theme.palette.primary.dark,
-            },
-          }}
-        >
+        <Button onClick={handleApplyFilters} variant="contained">
           {t("search:form.submit_button_label")}
         </Button>
       </DialogActions>

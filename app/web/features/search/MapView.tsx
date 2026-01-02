@@ -40,8 +40,6 @@ const MapLoadingContainer = styled("div")(({ theme }) => ({
 const SearchThisAreaButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== "isDrawerExpanded",
 })<{ isDrawerExpanded: boolean }>(({ isDrawerExpanded, theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.common.white,
   borderRadius: "20px",
   boxShadow: theme.shadows[4],
   padding: theme.spacing(1, 2),
@@ -195,6 +193,7 @@ const MapView = ({
         <SearchThisAreaButton
           isDrawerExpanded={isDrawerExpanded}
           onClick={handleSearchThisAreaClick}
+          variant="contained"
         >
           {t("search:search_this_area")}
         </SearchThisAreaButton>

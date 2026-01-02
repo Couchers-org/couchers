@@ -34,7 +34,7 @@ const Label = styled(Typography)(({ theme }) => ({
   alignItems: "center",
   gap: theme.spacing(0.5),
   fontWeight: 600,
-  color: theme.palette.text.secondary,
+  color: "var(--mui-palette-text-secondary)",
   fontSize: "0.875rem",
 }));
 
