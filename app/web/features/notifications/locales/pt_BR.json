@@ -22,7 +22,8 @@
                     "update": "Um evento do qual você vai participar é atualizado",
                     "cancel": "Um evento do qual você vai participar é cancelado",
                     "delete": "Um evento do qual você vai participar é excluído",
-                    "reminder": "Lembrete de que um evento ao qual você vai está prestes a acontecer"
+                    "reminder": "Lembrete de que um evento ao qual você vai está prestes a acontecer",
+                    "comment": " Um usuário comenta em um evento que você irá participar"
                 },
                 "host_request": {
                     "reject": "Alguém recusa sua solicitação de hospedagem",
@@ -83,6 +84,9 @@
                 },
                 "thread": {
                     "reply": "Alguém responde o seu comentário"
+                },
+                "general": {
+                    "new_blog_post": "Um nova postagem foi publicada no blog"
                 }
             },
             "description": "Qualquer alteração feita abaixo é salva automaticamente. Você ainda pode receber notificações importantes sobre sua conta e conteúdo, apesar de suas preferências de notificações.",
