@@ -33,30 +33,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-if config["SENTRY_ENABLED"]:
-    # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
-    sentry_sdk.init(
-        config["SENTRY_URL"],
-        traces_sample_rate=0.0,
-        environment=config["COOKIE_DOMAIN"],
-        release=config["VERSION"],
-        default_integrations=False,
-        integrations=[
-            # we need to manually list out the integrations, there is no other way of disabling the global excepthook integration
-            # we want to disable that because it seems to be picking up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
-            argv.ArgvIntegration(),
-            atexit.AtexitIntegration(),
-            dedupe.DedupeIntegration(),
-            sentry_logging.LoggingIntegration(),
-            modules.ModulesIntegration(),
-            stdlib.StdlibIntegration(),
-            threading.ThreadingIntegration(),
-        ],
-    )
-
-# used to export metrics
-create_prometheus_server(8000)
-
 
 def log_unhandled_exception(exc_type, exc_value, exc_traceback):
     """Make sure that any unhandled exceptions will write to the logs"""
@@ -69,46 +45,73 @@ def log_unhandled_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = log_unhandled_exception
 
-logger.info("Checking DB connection")
 
-with session_scope() as session:
-    res = session.execute(text("SELECT 42;"))
-    if list(res) != [(42,)]:
-        raise Exception("Failed to connect to DB")
+if __name__ == "__main__":
+    if config["SENTRY_ENABLED"]:
+        # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
+        sentry_sdk.init(
+            config["SENTRY_URL"],
+            traces_sample_rate=0.0,
+            environment=config["COOKIE_DOMAIN"],
+            release=config["VERSION"],
+            default_integrations=False,
+            integrations=[
+                # we need to manually list out the integrations, there is no other way of disabling
+                # the global excepthook integration we want to disable that because it seems to be
+                # picking up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
+                argv.ArgvIntegration(),
+                atexit.AtexitIntegration(),
+                dedupe.DedupeIntegration(),
+                sentry_logging.LoggingIntegration(),
+                modules.ModulesIntegration(),
+                stdlib.StdlibIntegration(),
+                threading.ThreadingIntegration(),
+            ],
+        )
 
-logger.info("Running DB migrations")
+    # used to export metrics
+    create_prometheus_server(8000)
 
-apply_migrations()
+    logger.info("Checking DB connection")
 
-get_i18next()  # Force eager loading of translations
+    with session_scope() as session:
+        res = session.execute(text("SELECT 42;"))
+        if list(res) != [(42,)]:
+            raise Exception("Failed to connect to DB")
 
-if config["ADD_DUMMY_DATA"]:
-    add_dummy_data()
+    logger.info("Running DB migrations")
 
-logger.info("Starting")
+    apply_migrations()
 
-if config["ROLE"] in ["scheduler", "all"]:
-    scheduler = start_jobs_scheduler()
+    get_i18next()  # Force eager loading of translations
 
-if config["ROLE"] in ["worker", "all"]:
-    for _ in range(config["BACKGROUND_WORKER_COUNT"]):
-        start_jobs_worker()
+    if config["ADD_DUMMY_DATA"]:
+        add_dummy_data()
 
-setup_tracing()
+    logger.info("Starting")
 
-# Initialize the experimentation framework for feature flags in the main process.
-# IMPORTANT: This MUST be called AFTER worker processes are spawned (above).
-# The underlying SDK uses internal threading that doesn't survive fork().
-# Worker processes initialize their own instance in _run_forever().
-setup_experimentation()
+    if config["ROLE"] in ["scheduler", "all"]:
+        scheduler = start_jobs_scheduler()
 
-if config["ROLE"] in ["api", "all"]:
-    server = create_main_server(port=1751)
-    server.start()
-    media_server = create_media_server(port=1753)
-    media_server.start()
-    logger.info("Serving on 1751 (secure) and 1753 (media)")
+    if config["ROLE"] in ["worker", "all"]:
+        for _ in range(config["BACKGROUND_WORKER_COUNT"]):
+            start_jobs_worker()
 
-logger.info("App waiting for signal...")
+    setup_tracing()
 
-signal.pause()
+    # Initialize the experimentation framework for feature flags in the main process.
+    # IMPORTANT: This MUST be called AFTER worker processes are spawned (above).
+    # The underlying SDK uses internal threading that doesn't survive fork().
+    # Worker processes initialize their own instance in _run_forever().
+    setup_experimentation()
+
+    if config["ROLE"] in ["api", "all"]:
+        server = create_main_server(port=1751)
+        server.start()
+        media_server = create_media_server(port=1753)
+        media_server.start()
+        logger.info("Serving on 1751 (secure) and 1753 (media)")
+
+    logger.info("App waiting for signal...")
+
+    signal.pause()

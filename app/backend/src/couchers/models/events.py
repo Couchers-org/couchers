@@ -43,8 +43,8 @@ class ClusterEventAssociation(Base):
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), index=True)
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
-    event: Mapped["Event"] = relationship("Event", backref="cluster_event_associations")
-    cluster: Mapped["Cluster"] = relationship("Cluster", backref="cluster_event_associations")
+    event: Mapped[Event] = relationship("Event", backref="cluster_event_associations")
+    cluster: Mapped[Cluster] = relationship("Cluster", backref="cluster_event_associations")
 
 
 class Event(Base):
@@ -75,25 +75,25 @@ class Event(Base):
     owner_cluster_id: Mapped[int | None] = mapped_column(ForeignKey("clusters.id"), index=True)
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
 
-    parent_node: Mapped["Node"] = relationship(
+    parent_node: Mapped[Node] = relationship(
         "Node", backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
     )
-    thread: Mapped["Thread"] = relationship("Thread", backref="event", uselist=False)
-    subscribers: DynamicMapped["User"] = relationship(
+    thread: Mapped[Thread] = relationship("Thread", backref="event", uselist=False)
+    subscribers: DynamicMapped[User] = relationship(
         "User", backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic", viewonly=True
     )
-    organizers: DynamicMapped["User"] = relationship(
+    organizers: DynamicMapped[User] = relationship(
         "User", backref="organized_events", secondary="event_organizers", lazy="dynamic", viewonly=True
     )
-    creator_user: Mapped["User"] = relationship("User", backref="created_events", foreign_keys="Event.creator_user_id")
-    owner_user: Mapped["User | None"] = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
-    owner_cluster: Mapped["Cluster | None"] = relationship(
+    creator_user: Mapped[User] = relationship("User", backref="created_events", foreign_keys="Event.creator_user_id")
+    owner_user: Mapped[User | None] = relationship("User", backref="owned_events", foreign_keys="Event.owner_user_id")
+    owner_cluster: Mapped[Cluster | None] = relationship(
         "Cluster",
         backref=backref("owned_events", lazy="dynamic"),
         uselist=False,
         foreign_keys="Event.owner_cluster_id",
     )
-    occurrences: DynamicMapped["EventOccurrence"] = relationship("EventOccurrence", lazy="dynamic")
+    occurrences: DynamicMapped[EventOccurrence] = relationship("EventOccurrence", lazy="dynamic")
 
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
@@ -131,12 +131,12 @@ class EventOccurrence(Base):
 
     # time during which the event takes place; this is a range type (instead of separate start+end times) which
     # simplifies database constraints, etc
-    during: Mapped["DateTimeTZRange"] = mapped_column(TSTZRANGE)
+    during: Mapped[DateTimeTZRange] = mapped_column(TSTZRANGE)
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     last_edited: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    creator_user: Mapped["User"] = relationship(
+    creator_user: Mapped[User] = relationship(
         "User", backref="created_event_occurrences", foreign_keys="EventOccurrence.creator_user_id"
     )
     event: Mapped[Event] = relationship(
@@ -146,11 +146,11 @@ class EventOccurrence(Base):
         foreign_keys="EventOccurrence.event_id",
     )
 
-    photo: Mapped["Upload | None"] = relationship("Upload")
-    attendances: DynamicMapped["EventOccurrenceAttendee"] = relationship(
+    photo: Mapped[Upload | None] = relationship("Upload")
+    attendances: DynamicMapped[EventOccurrenceAttendee] = relationship(
         "EventOccurrenceAttendee", back_populates="occurrence", lazy="dynamic"
     )
-    community_invite_requests: DynamicMapped["EventCommunityInviteRequest"] = relationship(
+    community_invite_requests: DynamicMapped[EventCommunityInviteRequest] = relationship(
         "EventCommunityInviteRequest", back_populates="occurrence", lazy="dynamic"
     )
 
@@ -209,8 +209,8 @@ class EventSubscription(Base):
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), index=True)
     joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    user: Mapped["User"] = relationship("User")
-    event: Mapped["Event"] = relationship("Event")
+    user: Mapped[User] = relationship("User")
+    event: Mapped[Event] = relationship("Event")
 
 
 class EventOrganizer(Base):
@@ -227,8 +227,8 @@ class EventOrganizer(Base):
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), index=True)
     joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    user: Mapped["User"] = relationship("User")
-    event: Mapped["Event"] = relationship("Event")
+    user: Mapped[User] = relationship("User")
+    event: Mapped[Event] = relationship("Event")
 
 
 class AttendeeStatus(enum.Enum):
@@ -251,7 +251,7 @@ class EventOccurrenceAttendee(Base):
     responded: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     attendee_status: Mapped[AttendeeStatus] = mapped_column(Enum(AttendeeStatus))
 
-    user: Mapped["User"] = relationship("User")
+    user: Mapped[User] = relationship("User")
     occurrence: Mapped[EventOccurrence] = relationship("EventOccurrence", back_populates="attendances")
 
     reminder_sent: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
@@ -276,7 +276,7 @@ class EventCommunityInviteRequest(Base):
     approved: Mapped[bool | None] = mapped_column(Boolean)
 
     occurrence: Mapped[EventOccurrence] = relationship("EventOccurrence", back_populates="community_invite_requests")
-    user: Mapped["User"] = relationship("User", foreign_keys="EventCommunityInviteRequest.user_id")
+    user: Mapped[User] = relationship("User", foreign_keys="EventCommunityInviteRequest.user_id")
 
     __table_args__ = (
         # each user can only request once

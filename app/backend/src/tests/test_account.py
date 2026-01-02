@@ -7,7 +7,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
-from couchers import constants, urls
+from couchers import urls
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -57,102 +57,76 @@ def test_GetAccountInfo(db, fast_passwords):
 
 def test_donation_banner_no_drive(db):
     """Test that the banner is not shown when DONATION_DRIVE_START is None"""
+    # User has donated, but the drive is disabled, so the banner should not show
+    user, token = generate_user()
 
-    original_value = constants.DONATION_DRIVE_START
-    try:
-        constants.DONATION_DRIVE_START = None
-
-        # User has donated, but the drive is disabled, so the banner should not show
-        user, token = generate_user()
-
+    with patch("couchers.servicers.account.DONATION_DRIVE_START", None):
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
             assert not res.should_show_donation_banner
-    finally:
-        constants.DONATION_DRIVE_START = original_value
 
 
 def test_donation_banner_never_donated(db):
     """Test that banner is shown when user has never donated and drive is active"""
+    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
 
-    original_value = constants.DONATION_DRIVE_START
-    try:
-        drive_start = datetime(2025, 11, 1, tzinfo=UTC)
-        constants.DONATION_DRIVE_START = drive_start
+    # Explicitly set last_donated=None since generate_user defaults to now()
+    user, token = generate_user(last_donated=None)
 
-        # Explicitly set last_donated=None since generate_user defaults to now()
-        user, token = generate_user(last_donated=None)
-
+    with patch("couchers.servicers.account.DONATION_DRIVE_START", drive_start):
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
             assert res.should_show_donation_banner
-    finally:
-        constants.DONATION_DRIVE_START = original_value
 
 
 def test_donation_banner_donated_before_drive(db):
     """Test that banner is shown when user donated before drive start"""
+    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
 
-    original_value = constants.DONATION_DRIVE_START
-    try:
-        drive_start = datetime(2025, 11, 1, tzinfo=UTC)
-        constants.DONATION_DRIVE_START = drive_start
+    user, token = generate_user()
 
-        user, token = generate_user()
+    # Set donation before drive start
+    with session_scope() as session:
+        last_donated = datetime(2025, 10, 15, tzinfo=UTC)  # Before Nov 1
+        session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
 
-        # Set donation before drive start
-        with session_scope() as session:
-            last_donated = datetime(2025, 10, 15, tzinfo=UTC)  # Before Nov 1
-            session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
-
+    with patch("couchers.servicers.account.DONATION_DRIVE_START", drive_start):
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
             assert res.should_show_donation_banner
-    finally:
-        constants.DONATION_DRIVE_START = original_value
 
 
 def test_donation_banner_donated_after_drive(db):
     """Test that banner is not shown when user donated after drive start"""
+    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
 
-    original_value = constants.DONATION_DRIVE_START
-    try:
-        drive_start = datetime(2025, 11, 1, tzinfo=UTC)
-        constants.DONATION_DRIVE_START = drive_start
+    user, token = generate_user()
 
-        user, token = generate_user()
+    # Set donation after drive start
+    with session_scope() as session:
+        last_donated = datetime(2025, 11, 15, tzinfo=UTC)  # After Nov 1
+        session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
 
-        # Set donation after drive start
-        with session_scope() as session:
-            last_donated = datetime(2025, 11, 15, tzinfo=UTC)  # After Nov 1
-            session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
-
+    with patch("couchers.servicers.account.DONATION_DRIVE_START", drive_start):
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
             assert not res.should_show_donation_banner
-    finally:
-        constants.DONATION_DRIVE_START = original_value
 
 
 def test_donation_banner_donated_exactly_at_drive_start(db):
     """Test that banner is not shown when user donated exactly at drive start time"""
+    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
 
-    original_value = constants.DONATION_DRIVE_START
-    try:
-        drive_start = datetime(2025, 11, 1, tzinfo=UTC)
-        constants.DONATION_DRIVE_START = drive_start
+    user, token = generate_user()
 
-        user, token = generate_user()
+    # Set donation exactly at drive start
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(last_donated=drive_start))
 
-        # Set donation exactly at drive start
-        with session_scope() as session:
-            session.execute(update(User).where(User.id == user.id).values(last_donated=drive_start))
-
+    with patch("couchers.servicers.account.DONATION_DRIVE_START", drive_start):
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
             assert not res.should_show_donation_banner
-    finally:
-        constants.DONATION_DRIVE_START = original_value
 
 
 def test_GetAccountInfo_regression(db):

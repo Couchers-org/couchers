@@ -114,7 +114,7 @@ def _check_initialized() -> None:
         )
 
 
-def _get_statsig_user(context: "CouchersContext") -> StatsigUser:
+def _get_statsig_user(context: CouchersContext) -> StatsigUser:
     """
     Get or create a cached StatsigUser for the given context.
 
@@ -125,7 +125,7 @@ def _get_statsig_user(context: "CouchersContext") -> StatsigUser:
     return context._statsig_user  # type: ignore[attr-defined, no-any-return]
 
 
-def check_gate(context: "CouchersContext", gate_name: str) -> bool:
+def check_gate(context: CouchersContext, gate_name: str) -> bool:
     """
     Check if a feature gate is enabled for the user in this context.
 
@@ -149,7 +149,7 @@ def check_gate(context: "CouchersContext", gate_name: str) -> bool:
     return Statsig.shared().check_gate(_get_statsig_user(context), gate_name)
 
 
-def get_experiment(context: "CouchersContext", experiment_name: str) -> dict[str, object]:
+def get_experiment(context: CouchersContext, experiment_name: str) -> dict[str, object]:
     """
     Get experiment configuration for the user in this context.
 
@@ -171,7 +171,7 @@ def get_experiment(context: "CouchersContext", experiment_name: str) -> dict[str
     return experiment.value if experiment else {}
 
 
-def get_dynamic_config(context: "CouchersContext", config_name: str) -> dict[str, object]:
+def get_dynamic_config(context: CouchersContext, config_name: str) -> dict[str, object]:
     """
     Get dynamic config for the user in this context.
 
@@ -194,7 +194,7 @@ def get_dynamic_config(context: "CouchersContext", config_name: str) -> dict[str
 
 
 def log_event(
-    context: "CouchersContext",
+    context: CouchersContext,
     event_name: str,
     value: str | float | None = None,
     metadata: dict[str, str] | None = None,
