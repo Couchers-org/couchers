@@ -168,7 +168,7 @@ class EventOccurrence(Base):
             name="link_or_geom",
         ),
         # Can't have overlapping occurrences in the same Event
-        ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurrences_event_id_during_excl"),  # type: ignore[no-untyped-call]
+        ExcludeConstraint(("event_id", "="), ("during", "&&"), name="event_occurrences_event_id_during_excl"),
     )
 
     @property
