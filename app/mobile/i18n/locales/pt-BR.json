@@ -1,1 +1,19 @@
-{}
+{
+    "tabs": {
+        "events": "Eventos",
+        "communities": "Comunidades",
+        "home": "Início",
+        "messages": "Mensagens",
+        "search": "Busca"
+    },
+    "errors": {
+        "failed_to_load": "Falha ao carregar",
+        "check_connection": "Verifique sua conexão de internet e tente novamente.",
+        "try_again": "Tente novamente"
+    },
+    "not_found": {
+        "title": "Opa!",
+        "message": "Essa tela não existe.",
+        "go_home": "Volte para a tela inicial!"
+    }
+}
