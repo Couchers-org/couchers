@@ -71,7 +71,8 @@
     "group_title_field_label": "Title",
     "no_friends_found_message": "Couldn't find any friends",
     "user_load_error_message": "(User load error)",
-    "friends_input_label": "Friends"
+    "friends_input_label": "Friends",
+    "title_label": "Title"
   },
   "chat_input": {
     "label": "Message"

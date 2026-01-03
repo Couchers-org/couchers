@@ -16,9 +16,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("donation_initiations", sa.Column("source", sa.String(), nullable=True))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("donation_initiations", "source")

@@ -17,6 +17,7 @@ from sqlalchemy import (
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
+from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.models.base import Base
 from couchers.utils import date_in_timezone, now
@@ -98,17 +99,18 @@ class StrongVerificationAttempt(Base):
 
     passport_expiry_datetime = column_property(date_in_timezone(passport_expiry_date, "Etc/UTC"))  # type: ignore[arg-type]
 
-    user: Mapped["User"] = relationship("User")
+    user: Mapped[User] = relationship()
 
     @hybrid_property
-    def is_valid(self) -> Any:
+    def is_valid(self) -> bool:
         """
         This only checks whether the attempt is a success and the passport is not expired, use `has_strong_verification` for full check
         """
         return (self.status == StrongVerificationAttemptStatus.succeeded) and (self.passport_expiry_datetime >= now())
 
-    @is_valid.expression
-    def is_valid(cls) -> Any:  # noqa: ARG003,D102
+    @is_valid.inplace.expression
+    @classmethod
+    def _is_valid_expression(cls) -> ColumnElement[bool]:
         return (cls.status == StrongVerificationAttemptStatus.succeeded) & (
             func.coalesce(cls.passport_expiry_datetime >= func.now(), False)
         )
@@ -118,16 +120,16 @@ class StrongVerificationAttempt(Base):
         return self.status != StrongVerificationAttemptStatus.deleted
 
     @hybrid_method
-    def _raw_birthdate_match(self, user: "User | type[User]") -> Any:
+    def _raw_birthdate_match(self, user: User | type[User]) -> Any:
         """Does not check whether the SV attempt itself is not expired"""
         return self.passport_date_of_birth == user.birthdate
 
     @hybrid_method
-    def matches_birthdate(self, user: "User | type[User]") -> Any:
+    def matches_birthdate(self, user: User | type[User]) -> Any:
         return self.is_valid & self._raw_birthdate_match(user)
 
     @hybrid_method
-    def _raw_gender_match(self, user: "User | type[User]") -> Any:
+    def _raw_gender_match(self, user: User | type[User]) -> Any:
         """Does not check whether the SV attempt itself is not expired"""
         return (
             ((user.gender == "Woman") & (self.passport_sex == PassportSex.female))  # type: ignore[operator]
@@ -137,11 +139,11 @@ class StrongVerificationAttempt(Base):
         )
 
     @hybrid_method
-    def matches_gender(self, user: "User | type[User]") -> Any:
+    def matches_gender(self, user: User | type[User]) -> Any:
         return self.is_valid & self._raw_gender_match(user)
 
     @hybrid_method
-    def has_strong_verification(self, user: "User | type[User]") -> Any:
+    def has_strong_verification(self, user: User | type[User]) -> Any:
         return self.is_valid & self._raw_birthdate_match(user) & self._raw_gender_match(user)
 
     __table_args__ = (

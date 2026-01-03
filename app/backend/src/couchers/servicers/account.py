@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 import grpc
 import requests
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, update
 from user_agents import parse as user_agents_parse
@@ -29,6 +30,7 @@ from couchers.experimentation import check_gate
 from couchers.helpers.geoip import geoip_approximate_location
 from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
 from couchers.jobs.enqueue import queue_job
+from couchers.jobs.handlers import finalize_strong_verification
 from couchers.materialized_views import LiteUser
 from couchers.metrics import (
     account_deletion_initiations_counter,
@@ -61,7 +63,7 @@ from couchers.proto.internal import jobs_pb2, verification_pb2
 from couchers.servicers.api import lite_user_to_pb
 from couchers.servicers.public import format_volunteer_link
 from couchers.servicers.references import get_pending_references_to_write, reftype2api
-from couchers.sql import couchers_select as select
+from couchers.sql import where_moderated_content_visible, where_users_column_visible
 from couchers.tasks import (
     maybe_send_contributor_form_email,
     send_account_deletion_report_email,
@@ -418,7 +420,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "strong_verification_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        existing_verification: StrongVerificationAttempt = session.execute(
+        existing_verification = session.execute(
             select(StrongVerificationAttempt)
             .where(StrongVerificationAttempt.user_id == user.id)
             .where(StrongVerificationAttempt.is_valid)
@@ -554,10 +556,10 @@ class Account(account_pb2_grpc.AccountServicer):
 
         reason = request.reason.strip()
         if reason:
-            reason = AccountDeletionReason(user_id=user.id, reason=reason)
-            session.add(reason)
+            deletion_reason = AccountDeletionReason(user_id=user.id, reason=reason)
+            session.add(deletion_reason)
             session.flush()
-            send_account_deletion_report_email(session, reason)
+            send_account_deletion_report_email(session, deletion_reason)
 
         token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
 
@@ -609,7 +611,7 @@ class Account(account_pb2_grpc.AccountServicer):
             .all()
         )
 
-        def _active_session_to_pb(user_session):
+        def _active_session_to_pb(user_session: UserSession) -> account_pb2.ActiveSession:
             user_agent = user_agents_parse(user_session.user_agent or "")
             return account_pb2.ActiveSession(
                 created=Timestamp_from_datetime(user_session.created),
@@ -659,9 +661,11 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         return empty_pb2.Empty()
 
-    def SetProfilePublicVisibility(self, request, context, session):
+    def SetProfilePublicVisibility(
+        self, request: account_pb2.SetProfilePublicVisibilityReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]
+        user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]  # type: ignore[assignment]
         user.has_modified_public_visibility = True
         return empty_pb2.Empty()
 
@@ -726,12 +730,11 @@ class Account(account_pb2_grpc.AccountServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         # responding to reqs comes first in desc order of when they were received
+        query = select(HostRequest.conversation_id, LiteUser).join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
+        query = where_users_column_visible(query, context, HostRequest.surfer_user_id)
+        query = where_moderated_content_visible(query, context, HostRequest, is_list_operation=True)
         pending_host_requests = session.execute(
-            select(HostRequest.conversation_id, LiteUser)
-            .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
-            .where_users_column_visible(context, HostRequest.surfer_user_id)
-            .where_moderated_content_visible(context, HostRequest, is_list_operation=True)
-            .where(HostRequest.host_user_id == context.user_id)
+            query.where(HostRequest.host_user_id == context.user_id)
             .where(HostRequest.status == HostRequestStatus.pending)
             .where(HostRequest.start_time > func.now())
             .order_by(HostRequest.conversation_id.asc())
@@ -863,7 +866,7 @@ class Iris(iris_pb2_grpc.IrisServicer):
             # background worker will go and sort this one out
             queue_job(
                 session,
-                job_type="finalize_strong_verification",
+                job=finalize_strong_verification,
                 payload=jobs_pb2.FinalizeStrongVerificationPayload(verification_attempt_id=verification_attempt.id),
                 priority=8,
             )

@@ -1,9 +1,11 @@
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import grpc
 import requests
 from google.protobuf import empty_pb2
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func, or_
 
 from couchers import urls
@@ -39,7 +41,7 @@ from couchers.notifications.quick_links import respond_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
-from couchers.sql import couchers_select as select
+from couchers.sql import username_or_email
 from couchers.tasks import (
     enforce_community_memberships_for_user,
     maybe_send_contributor_form_email,
@@ -52,6 +54,7 @@ from couchers.utils import (
     is_valid_name,
     is_valid_username,
     minimum_allowed_birthdate,
+    not_none,
     now,
     parse_date,
     parse_session_cookie,
@@ -60,13 +63,19 @@ from couchers.utils import (
 logger = logging.getLogger(__name__)
 
 
-def _auth_res(user):
+def _auth_res(user: User) -> auth_pb2.AuthRes:
     return auth_pb2.AuthRes(jailed=user.is_jailed, user_id=user.id)
 
 
 def create_session(
-    context: CouchersContext, session, user, long_lived, is_api_key=False, duration=None, set_cookie=True
-):
+    context: CouchersContext,
+    session: Session,
+    user: User,
+    long_lived: bool,
+    is_api_key: bool = False,
+    duration: timedelta | None = None,
+    set_cookie: bool = True,
+) -> tuple[str, datetime]:
     """
     Creates a session for the given user and returns the token and expiry.
 
@@ -113,7 +122,7 @@ def create_session(
     return token, user_session.expiry
 
 
-def delete_session(session, token):
+def delete_session(session: Session, token: str) -> bool:
     """
     Deletes the given session (practically logging the user out)
 
@@ -130,7 +139,7 @@ def delete_session(session, token):
         return False
 
 
-def _username_available(session, username):
+def _username_available(session: Session, username: str) -> bool:
     """
     Checks if the given username adheres to our rules and isn't taken already.
     """
@@ -157,7 +166,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
     This class services the Auth service/API.
     """
 
-    def SignupFlow(self, request, context, session):
+    def SignupFlow(
+        self, request: auth_pb2.SignupFlowReq, context: CouchersContext, session: Session
+    ) -> auth_pb2.SignupFlowRes:
         if request.email_token:
             # the email token can either be for verification or just to find an existing signup
             flow = session.execute(
@@ -292,7 +303,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.features = form.features
                 flow.experience = form.experience
                 flow.contribute = contributeoption2sql[form.contribute]
-                flow.contribute_ways = form.contribute_ways
+                flow.contribute_ways = form.contribute_ways  # type: ignore[assignment]
                 flow.expertise = form.expertise
                 session.flush()
 
@@ -332,14 +343,14 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session.add(user)
             session.flush()
 
-            # Create profile gallery for the user
+            # Create a profile gallery for the user
             profile_gallery = PhotoGallery(owner_user_id=user.id)
             session.add(profile_gallery)
             session.flush()
             user.profile_gallery_id = profile_gallery.id
 
             if flow.filled_feedback:
-                form = ContributorForm(
+                form_ = ContributorForm(
                     user=user,
                     ideas=flow.ideas or None,
                     features=flow.features or None,
@@ -349,11 +360,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     expertise=flow.expertise or None,
                 )
 
-                session.add(form)
+                session.add(form_)
 
-                user.filled_contributor_form = form.is_filled
+                user.filled_contributor_form = form_.is_filled
 
-                maybe_send_contributor_form_email(session, form)
+                maybe_send_contributor_form_email(session, form_)
 
             signup_duration_s = (now() - flow.created).total_seconds()
 
@@ -386,13 +397,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 need_accept_community_guidelines=flow.accepted_community_guidelines < GUIDELINES_VERSION,
             )
 
-    def UsernameValid(self, request, context, session):
+    def UsernameValid(
+        self, request: auth_pb2.UsernameValidReq, context: CouchersContext, session: Session
+    ) -> auth_pb2.UsernameValidRes:
         """
         Runs a username availability and validity check.
         """
         return auth_pb2.UsernameValidRes(valid=_username_available(session, request.username.lower()))
 
-    def Authenticate(self, request, context, session):
+    def Authenticate(self, request: auth_pb2.AuthReq, context: CouchersContext, session: Session) -> auth_pb2.AuthRes:
         """
         Authenticates a classic password-based login request.
 
@@ -400,7 +413,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.debug(f"Logging in with {request.user=}, password=*******")
         user = session.execute(
-            select(User).where_username_or_email(request.user).where(~User.is_deleted)
+            select(User).where(username_or_email(request.user)).where(~User.is_deleted)
         ).scalar_one_or_none()
         if user:
             logger.debug("Found user")
@@ -416,7 +429,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         else:  # user not found
             # check if this is an email and they tried to sign up but didn't complete
             signup_flow = session.execute(
-                select(SignupFlow).where_username_or_email(request.user, table=SignupFlow)
+                select(SignupFlow).where(username_or_email(request.user, table=SignupFlow))
             ).scalar_one_or_none()
             if signup_flow:
                 send_signup_email(session, signup_flow)
@@ -425,14 +438,16 @@ class Auth(auth_pb2_grpc.AuthServicer):
             logger.debug("Didn't find user")
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "account_not_found")
 
-    def GetAuthState(self, request, context, session):
+    def GetAuthState(
+        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+    ) -> auth_pb2.GetAuthStateRes:
         if not context.is_logged_in():
             return auth_pb2.GetAuthStateRes(logged_in=False)
         else:
             user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             return auth_pb2.GetAuthStateRes(logged_in=True, auth_res=_auth_res(user))
 
-    def Deauthenticate(self, request, context, session):
+    def Deauthenticate(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> empty_pb2.Empty:
         """
         Removes an active cookie session.
         """
@@ -448,7 +463,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return empty_pb2.Empty()
 
-    def ResetPassword(self, request, context, session):
+    def ResetPassword(
+        self, request: auth_pb2.ResetPasswordReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         """
         If the user does not exist, do nothing.
 
@@ -458,7 +475,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Note that as long as emails are send synchronously, this is far from constant time regardless of output.
         """
         user = session.execute(
-            select(User).where_username_or_email(request.user).where(~User.is_deleted)
+            select(User).where(username_or_email(request.user)).where(~User.is_deleted)
         ).scalar_one_or_none()
         if user:
             password_reset_token = PasswordResetToken(
@@ -483,7 +500,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return empty_pb2.Empty()
 
-    def CompletePasswordResetV2(self, request, context, session):
+    def CompletePasswordResetV2(
+        self, request: auth_pb2.CompletePasswordResetV2Req, context: CouchersContext, session: Session
+    ) -> auth_pb2.AuthRes:
         """
         Completes the password reset: just clears the user's password
         """
@@ -514,7 +533,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         else:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
-    def ConfirmChangeEmailV2(self, request, context, session):
+    def ConfirmChangeEmailV2(
+        self, request: auth_pb2.ConfirmChangeEmailV2Req, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         user = session.execute(
             select(User)
             .where(User.new_email_token == request.change_email_token)
@@ -525,7 +546,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
-        user.email = user.new_email
+        user.email = not_none(user.new_email)
         user.new_email = None
         user.new_email_token = None
         user.new_email_token_created = None
@@ -540,7 +561,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return empty_pb2.Empty()
 
-    def ConfirmDeleteAccount(self, request, context, session):
+    def ConfirmDeleteAccount(
+        self, request: auth_pb2.ConfirmDeleteAccountReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         """
         Confirm account deletion using account delete token
         """
@@ -579,7 +602,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return empty_pb2.Empty()
 
-    def RecoverAccount(self, request, context, session):
+    def RecoverAccount(
+        self, request: auth_pb2.RecoverAccountReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         """
         Recovers a recently deleted account
         """
@@ -605,10 +630,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return empty_pb2.Empty()
 
-    def Unsubscribe(self, request, context, session):
+    def Unsubscribe(
+        self, request: auth_pb2.UnsubscribeReq, context: CouchersContext, session: Session
+    ) -> auth_pb2.UnsubscribeRes:
         return auth_pb2.UnsubscribeRes(response=respond_quick_link(request, context, session))
 
-    def AntiBot(self, request, context, session):
+    def AntiBot(self, request: auth_pb2.AntiBotReq, context: CouchersContext, session: Session) -> auth_pb2.AntiBotRes:
         if not config["RECAPTHCA_ENABLED"]:
             return auth_pb2.AntiBotRes()
 
@@ -655,7 +682,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return auth_pb2.AntiBotRes()
 
-    def AntiBotPolicy(self, request, context, session):
+    def AntiBotPolicy(
+        self, request: auth_pb2.AntiBotPolicyReq, context: CouchersContext, session: Session
+    ) -> auth_pb2.AntiBotPolicyRes:
         if config["RECAPTHCA_ENABLED"]:
             if context.is_logged_in():
                 user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -664,7 +693,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return auth_pb2.AntiBotPolicyRes(should_antibot=False)
 
-    def GetInviteCodeInfo(self, request, context, session):
+    def GetInviteCodeInfo(
+        self, request: auth_pb2.GetInviteCodeInfoReq, context: CouchersContext, session: Session
+    ) -> auth_pb2.GetInviteCodeInfoRes:
         invite = session.execute(
             select(InviteCode).where(
                 InviteCode.id == request.code, or_(InviteCode.disabled == None, InviteCode.disabled > func.now())

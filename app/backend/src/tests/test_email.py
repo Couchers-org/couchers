@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 import pytest
-from sqlalchemy import update
+from sqlalchemy import select, update
 
 import couchers.email
 import couchers.jobs.handlers
@@ -20,7 +20,6 @@ from couchers.models import (
 )
 from couchers.notifications.notify import notify
 from couchers.proto import api_pb2, editor_pb2, events_pb2, notification_data_pb2, notifications_pb2
-from couchers.sql import couchers_select as select
 from couchers.tasks import (
     enforce_community_memberships,
     maybe_send_reference_report_email,
@@ -29,22 +28,10 @@ from couchers.tasks import (
     send_signup_email,
 )
 from couchers.utils import Timestamp_from_datetime, now, timedelta
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import email_fields, mock_notification_email, process_jobs
+from tests.fixtures.sessions import api_session, events_session, notifications_session, real_editor_session
 from tests.test_communities import create_community
-from tests.test_fixtures import (  # noqa
-    api_session,
-    db,
-    email_fields,
-    events_session,
-    generate_user,
-    mock_notification_email,
-    notifications_session,
-    process_jobs,
-    push_collector,
-    real_admin_session,
-    real_editor_session,
-    session_scope,
-    testconfig,
-)
 
 
 @pytest.fixture(autouse=True)

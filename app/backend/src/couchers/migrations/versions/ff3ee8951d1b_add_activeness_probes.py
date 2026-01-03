@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     # remove postgis things we don't use
     op.execute("DROP EXTENSION IF EXISTS postgis_tiger_geocoder")
 

@@ -7,14 +7,14 @@ from os import getpid
 from threading import get_ident
 from time import perf_counter_ns
 from traceback import format_exception
-from typing import Any, Never, NoReturn, cast
+from typing import Any, NoReturn, cast
 
 import grpc
 import sentry_sdk
 from google.protobuf.descriptor import ServiceDescriptor
 from google.protobuf.message import Message
 from opentelemetry import trace
-from sqlalchemy import Function
+from sqlalchemy import Function, select
 from sqlalchemy.sql import and_, func
 
 from couchers.constants import (
@@ -32,7 +32,6 @@ from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserActivity, UserSession
 from couchers.proto import annotations_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import (
     create_lang_cookie,
     create_session_cookies,
@@ -136,11 +135,10 @@ def _try_get_and_update_user_details(
             )
 
 
-# We have to lie with R | NoReturn to please mypy. It should be NoReturn.
 def abort_handler[T, R](
     message: str,
     status_code: grpc.StatusCode,
-) -> "grpc.RpcMethodHandler[T, R | NoReturn]":
+) -> grpc.RpcMethodHandler[T, R]:
     def f(request: Any, context: CouchersContext) -> NoReturn:
         context.abort(status_code, message)
 
@@ -150,7 +148,7 @@ def abort_handler[T, R](
 def unauthenticated_handler[T, R](
     message: str = UNAUTHORIZED_ERROR_MESSAGE,
     status_code: grpc.StatusCode = grpc.StatusCode.UNAUTHENTICATED,
-) -> "grpc.RpcMethodHandler[T, R | NoReturn]":
+) -> grpc.RpcMethodHandler[T, R]:
     return abort_handler(message, status_code)
 
 
@@ -171,7 +169,7 @@ def _sanitized_bytes(proto: Message | None) -> bytes | None:
                 submessage = getattr(message, name)
                 if not submessage:
                     continue
-                if descriptor.label == descriptor.LABEL_REPEATED:
+                if descriptor.is_repeated:
                     for msg in submessage:
                         _sanitize_message(msg)
                 else:
@@ -247,7 +245,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         self,
         continuation: Cont[T, R],
         handler_call_details: grpc.HandlerCallDetails,
-    ) -> "grpc.RpcMethodHandler[T, R | Never]":
+    ) -> grpc.RpcMethodHandler[T, R]:
         start = perf_counter_ns()
 
         method = handler_call_details.method
@@ -427,7 +425,7 @@ class MediaInterceptor(grpc.ServerInterceptor):
         self,
         continuation: Cont[T, R],
         handler_call_details: grpc.HandlerCallDetails,
-    ) -> "grpc.RpcMethodHandler[T, R | Never]":
+    ) -> grpc.RpcMethodHandler[T, R]:
         handler = continuation(handler_call_details)
         if not handler:
             raise RuntimeError("No handler")
@@ -466,7 +464,7 @@ class OTelInterceptor(grpc.ServerInterceptor):
         self,
         continuation: Cont[T, R],
         handler_call_details: grpc.HandlerCallDetails,
-    ) -> "grpc.RpcMethodHandler[T, R | Never]":
+    ) -> grpc.RpcMethodHandler[T, R]:
         handler = continuation(handler_call_details)
         if not handler:
             raise RuntimeError("No handler")
@@ -516,7 +514,7 @@ class ErrorSanitizationInterceptor(grpc.ServerInterceptor):
         self,
         continuation: Cont[T, R],
         handler_call_details: grpc.HandlerCallDetails,
-    ) -> "grpc.RpcMethodHandler[T, R | Never]":
+    ) -> grpc.RpcMethodHandler[T, R]:
         handler = continuation(handler_call_details)
         if not handler:
             raise RuntimeError("No handler")

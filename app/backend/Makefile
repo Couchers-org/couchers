@@ -3,16 +3,11 @@
 
 UV_VERSION=0.9.6
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
+PROTO_IMAGE=registry.gitlab.com/couchers/grpc
 
-# Generate protobuf implementations. Advise to pull the latest image if the command fails.
 protos:
-	@IMAGE=registry.gitlab.com/couchers/grpc; \
-	cmd="docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app $$IMAGE ./generate_protos.sh"; \
-	$$cmd; status=$$?; \
-	if [ $$status -ne 0 ]; then \
-	  printf "\n\n$$(tput smso)HINT:$$(tput sgr0) try 'docker pull $$IMAGE' and run 'make protos' again.\n\n" >&2; \
-	  exit $$status; \
-	fi
+	docker pull -q ${PROTO_IMAGE}
+	docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app ${PROTO_IMAGE} ./generate_protos.sh
 
 setup:
 	curl -fsSL https://astral.sh/uv/${UV_VERSION}/install.sh | sh
@@ -31,34 +26,7 @@ format:
 fmt: format
 
 mypy:
-	uv run mypy \
-		src/couchers/config.py \
-		src/couchers/constants.py \
-		src/couchers/context.py \
-		src/couchers/crypto.py \
-		src/couchers/db.py \
-		src/couchers/descriptor_pool.py \
-		src/couchers/interceptors.py \
-		src/couchers/materialized_views.py \
-		src/couchers/metrics.py \
-		src/couchers/reranker.py \
-		src/couchers/resources.py \
-		src/couchers/server.py \
-		src/couchers/sql.py \
-		src/couchers/tasks.py \
-		src/couchers/tracing.py \
-		src/couchers/urls.py \
-		src/couchers/utils.py \
-		src/couchers/migrations/env.py \
-		src/couchers/models \
-		src/couchers/notifications \
-		src/couchers/rate_limits \
-		src/couchers/email \
-		src/couchers/templates \
-		src/couchers/helpers \
-		src/couchers/jobs \
-		src/couchers/i18n \
-		src/couchers/phone
+	uv run mypy src/couchers
 
 # Downgrade the local database to the previous migration. Good if you ran a migration on a branch and will run the backend on another branch after.
 # Usage:
@@ -95,4 +63,4 @@ teardown-db:
 # make test file=test_file.py → runs tests in a specific file
 # make test file=test_file.py::TestClass::test_method → runs a specific test
 test:
-	uv run pytest $(if $(file),src/tests/$(file),src/tests) --disable-warnings
+	uv run pytest $(if $(file),src/tests/$(file),src/tests)

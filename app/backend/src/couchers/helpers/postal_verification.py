@@ -1,6 +1,7 @@
 import secrets
+from typing import cast
 
-from sqlalchemy import exists
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 
 from couchers.constants import (
@@ -9,7 +10,6 @@ from couchers.constants import (
 )
 from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt
-from couchers.sql import couchers_select as select
 
 
 def generate_postal_verification_code() -> str:
@@ -27,7 +27,7 @@ def has_postal_verification(session: Session, user: User) -> bool:
     Similar to strong verification, we query the database rather than
     storing a denormalized flag on the user.
     """
-    return session.execute(
+    result = session.execute(
         select(
             exists(
                 select(PostalVerificationAttempt)
@@ -36,3 +36,5 @@ def has_postal_verification(session: Session, user: User) -> bool:
             )
         )
     ).scalar()
+
+    return cast(bool, result)

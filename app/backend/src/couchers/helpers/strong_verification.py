@@ -1,8 +1,11 @@
+from typing import TypedDict
+
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.models import StrongVerificationAttempt, User
 from couchers.proto import api_pb2
-from couchers.sql import couchers_select as select
+from couchers.proto.api_pb2 import BirthdateVerificationStatus, GenderVerificationStatus
 
 
 def has_strong_verification(session: Session, user: User) -> bool:
@@ -19,8 +22,14 @@ def has_strong_verification(session: Session, user: User) -> bool:
     return False
 
 
-def get_strong_verification_fields(session: Session, db_user: User) -> dict[str, int | bool]:
-    out: dict[str, int | bool] = dict(
+class StrongVerificationFields(TypedDict):
+    birthdate_verification_status: BirthdateVerificationStatus.ValueType
+    gender_verification_status: GenderVerificationStatus.ValueType
+    has_strong_verification: bool
+
+
+def get_strong_verification_fields(session: Session, db_user: User) -> StrongVerificationFields:
+    out: StrongVerificationFields = dict(
         birthdate_verification_status=api_pb2.BIRTHDATE_VERIFICATION_STATUS_UNVERIFIED,
         gender_verification_status=api_pb2.GENDER_VERIFICATION_STATUS_UNVERIFIED,
         has_strong_verification=False,

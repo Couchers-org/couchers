@@ -9,7 +9,7 @@ from couchers.config import config
 logger = logging.getLogger(__name__)
 
 
-def geoip_approximate_location(ip_address: str) -> str | None:
+def geoip_approximate_location(ip_address: str | None) -> str | None:
     if config["GEOLITE2_CITY_MMDB_FILE_LOCATION"] == "":
         return None
     if ip_address is None:

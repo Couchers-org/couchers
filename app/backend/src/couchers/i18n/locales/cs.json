@@ -1,1 +1,20 @@
-{}
+{
+    "errors": {
+        "already_admin": "Tento uživatel je již správcem.",
+        "already_have_dm": "S tímto uživatelem již máš soukromý chat.",
+        "already_in_chat": "Tento uživatel je již v chatu.",
+        "already_in_community": "Už jsi v této komunitě.",
+        "already_in_group": "Už jsi v této skupině.",
+        "badge_not_found": "Odznak nebyl nalezen.",
+        "bug_tool_disabled": "Nástroj pro hlášení chyb deaktivován",
+        "cannot_create_discussion": "V této skupině nebo komunitě nemůžeš vytvořit diskusi.",
+        "cannot_edit_that_notification_preference": "Tuto předvolbu oznámení nelze upravit uživatelem.",
+        "account_suspended": "Tvůj účet je pozastaven.",
+        "account_not_found": "Účet s tímto uživatelským jménem nebo e-mailem nebyl nalezen.",
+        "admin_note_cant_be_empty": "Poznámka správce nesmí být prázdná.",
+        "address_line_1_required": "Řádek adresy 1 je povinný.",
+        "admin_cannot_edit_badge": "Správci nemohou tento odznak upravit.",
+        "at_least_two_users_required": "Musí být zadáni alespoň 2 uživatelé",
+        "bug_tool_request_failed": "Požadavek selhal"
+    }
+}

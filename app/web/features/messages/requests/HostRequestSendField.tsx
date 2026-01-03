@@ -42,6 +42,8 @@ const StyledButtonContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexWrap: "wrap",
   justifyContent: "center",
+  gap: theme.spacing(1),
+  marginTop: theme.spacing(1),
 }));
 
 const StyledButton = styled(Button)<ButtonProps>({
@@ -53,8 +55,9 @@ const StyledButton = styled(Button)<ButtonProps>({
 });
 
 const StyledContainer = styled("div")(({ theme }) => ({
-  alignItems: "flex-start",
+  alignItems: "center",
   display: "flex",
+  gap: theme.spacing(1),
   marginTop: theme.spacing(3),
 }));
 
@@ -171,7 +174,7 @@ export default function HostRequestSendField({
           onKeyDown={handleKeyDown}
           maxRows={6}
           size="small"
-          sx={{ background: theme.palette.common.white }}
+          sx={{ background: "var(--mui-palette-background-paper)" }}
         />
         <FieldButton
           callback={onSubmit}

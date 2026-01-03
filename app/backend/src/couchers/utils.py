@@ -4,8 +4,7 @@ import typing
 from collections.abc import Sequence
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
-from types import SimpleNamespace
-from typing import Any
+from typing import Any, overload
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -28,7 +27,8 @@ utc = pytz.UTC
 # When a user logs in, they can basically input one of three things: user id, username, or email
 # These are three non-intersecting sets
 # * user_ids are numeric representations in base 10
-# * usernames are alphanumeric + underscores, at least 2 chars long, and don't start with a number, and don't start or end with underscore
+# * usernames are alphanumeric + underscores, at least 2 chars long, and don't start with a number,
+#   and don't start or end with underscore
 # * emails are just whatever stack overflow says emails are ;)
 
 
@@ -130,26 +130,26 @@ def today_in_timezone(tz: str) -> date:
 # When entering as EPSG4326, we also need it in (lng, lat)
 
 
-def wrap_coordinate(lat: int, lng: int) -> tuple[int, int]:
+def wrap_coordinate(lat: float, lng: float) -> tuple[float, float]:
     """
     Wraps (lat, lng) point in the EPSG4326 format
     """
 
-    def __wrap_gen(deg: int, ct: int, adj: int) -> int:
+    def __wrap_gen(deg: float, ct: float, adj: float) -> float:
         if deg > ct:
             deg -= adj
         if deg < -ct:
             deg += adj
         return deg
 
-    def __wrap_flip(deg: int, ct: int, adj: int) -> int:
+    def __wrap_flip(deg: float, ct: float, adj: float) -> float:
         if deg > ct:
             deg = -deg + adj
         if deg < -ct:
             deg = -deg - adj
         return deg
 
-    def __wrap_rem(deg: int, ct: int = 360) -> int:
+    def __wrap_rem(deg: float, ct: float = 360) -> float:
         if deg > ct:
             deg = deg % ct
         if deg < -ct:
@@ -170,7 +170,7 @@ def wrap_coordinate(lat: int, lng: int) -> tuple[int, int]:
     return lat, lng
 
 
-def create_coordinate(lat: int, lng: int) -> WKBElement:
+def create_coordinate(lat: float, lng: float) -> WKBElement:
     """
     Creates a WKT point from a (lat, lng) tuple in EPSG4326 coordinate system (normal GPS-coordinates)
     """
@@ -178,14 +178,14 @@ def create_coordinate(lat: int, lng: int) -> WKBElement:
     return from_shape(Point(lng, lat), srid=4326)
 
 
-def create_polygon_lat_lng(points: list[list[int]]) -> WKBElement:
+def create_polygon_lat_lng(points: list[list[float]]) -> WKBElement:
     """
     Creates a EPSG4326 WKT polygon from a list of (lat, lng) tuples
     """
     return from_shape(Polygon([(lng, lat) for (lat, lng) in points]), srid=4326)
 
 
-def create_polygon_lng_lat(points: list[list[int]]) -> WKBElement:
+def create_polygon_lng_lat(points: list[list[float]]) -> WKBElement:
     """
     Creates a EPSG4326 WKT polygon from a list of (lng, lat) tuples
     """
@@ -203,14 +203,20 @@ def to_multi(polygon: WKBElement) -> Function[Any]:
     return func.ST_Multi(polygon)
 
 
-def get_coordinates(geom: WKBElement | WKTElement | None) -> tuple[int, int] | None:
+@overload
+def get_coordinates(geom: WKBElement | WKTElement) -> tuple[float, float]: ...
+@overload
+def get_coordinates(geom: None) -> None: ...
+
+
+def get_coordinates(geom: WKBElement | WKTElement | None) -> tuple[float, float] | None:
     """
     Returns EPSG4326 (lat, lng) pair for a given WKT geom point or None if the input is not truthy
     """
     if geom:
         shp = to_shape(geom)
         # note the funniness with 4326 normally being (x, y) = (lng, lat)
-        return (shp.y, shp.x)
+        return shp.y, shp.x
     else:
         return None
 
@@ -247,7 +253,7 @@ def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool
     return cookie.OutputString()
 
 
-def create_session_cookies(token: str, user_id: int, expiry: datetime) -> list[str]:
+def create_session_cookies(token: str, user_id: str | int, expiry: datetime) -> list[str]:
     """
     Creates our session cookies.
 
@@ -405,5 +411,7 @@ def get_tz_as_text(tz_name: str) -> str:
     return datetime.now(tz=ZoneInfo(tz_name)).strftime("%Z/UTC%z")
 
 
-def make_logged_out_context() -> SimpleNamespace:
-    return SimpleNamespace(user_id=0)
+def not_none[T](x: T | None) -> T:
+    if x is None:
+        raise ValueError("Expected a value but got None")
+    return x

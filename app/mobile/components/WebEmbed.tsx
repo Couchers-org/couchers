@@ -3,7 +3,10 @@ import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
+  BackHandler,
   Image,
+  Linking,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -32,13 +35,38 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const colorScheme = useColorScheme();
   const webviewRef = useRef<WebView>(null);
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
   const [hasError, setHasError] = useState(false);
+  const [canGoBack, setCanGoBack] = useState(false);
 
   // Track the current WebView URL to detect when it drifts from the expected path
   const currentWebPathRef = useRef<string>(path);
+
+  // Handle Android hardware back button - go back in WebView if possible
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== "android") {
+        return;
+      }
+
+      const onBackPress = () => {
+        if (canGoBack && webviewRef.current) {
+          webviewRef.current.goBack();
+          return true; // Prevent default back behavior
+        }
+        return false; // Let native navigation handle it
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
+
+      return () => subscription.remove();
+    }, [canGoBack]),
+  );
 
   const backgroundColor =
     colorScheme === "dark"
@@ -53,11 +81,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   // When this screen gains focus, ensure WebView shows the correct path
   useFocusEffect(
     useCallback(() => {
-      const expectedPath = path.split("?")[0];
-      const currentPath = currentWebPathRef.current.split("?")[0];
-
-      // If WebView drifted to a different path, navigate it back
-      if (currentPath !== expectedPath) {
+      // Compare full path including query params to handle search filters
+      if (currentWebPathRef.current !== path) {
         const targetUrl = WEB_BASE_URL + path;
         webviewRef.current?.injectJavaScript(
           `window.location.href = "${targetUrl}"; true;`,
@@ -67,17 +92,44 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     }, [path, WEB_BASE_URL]),
   );
 
-  // Map web paths to tab names
-  const getTabNameForPath = (webPath: string): string | null => {
-    if (webPath.startsWith("/dashboard")) return "dashboard";
-    if (webPath.startsWith("/messages")) return "messages";
-    if (webPath.startsWith("/search")) return "search";
-    if (webPath.startsWith("/communities")) return "communities";
+  // Extract locale from web path (e.g., "/de/dashboard" -> "de", "/zh-Hans/search" -> "zh-Hans")
+  const extractLocaleFromPath = (webPath: string): string | null => {
+    const match = webPath.match(/^\/([a-z]{2}(-[A-Z][a-z]+)?)\//);
+    return match ? match[1] : null;
+  };
+
+  // Map web paths to native route names
+  const getRouteNameForPath = (webPath: string): string | null => {
+    // Strip locale prefix if present (e.g., "/de/dashboard" -> "/dashboard")
+    const pathWithoutLocale = webPath.replace(
+      /^\/[a-z]{2}(-[A-Z][a-z]+)?\//,
+      "/",
+    );
+
+    // Main tab routes (visible in tab bar)
+    if (pathWithoutLocale.startsWith("/dashboard")) return "dashboard";
+    if (pathWithoutLocale.startsWith("/messages")) return "messages";
+    if (pathWithoutLocale.startsWith("/search")) return "search";
+    if (pathWithoutLocale.startsWith("/communities")) return "communities";
+    if (pathWithoutLocale.startsWith("/events")) return "events";
+
+    // Special routes
+    if (pathWithoutLocale.startsWith("/md/")) return "md/[...slug]";
+
+    // Catch-all for other routes
+    if (pathWithoutLocale.startsWith("/")) {
+      // Return the slug route for any other path
+      return "[...slug]";
+    }
+
     return null;
   };
 
   const handleNavigationStateChange = (navState: WebViewNavigation) => {
-    const { url, loading } = navState;
+    const { url, loading, canGoBack: webViewCanGoBack } = navState;
+
+    // Track whether WebView can go back (for Android back button handling)
+    setCanGoBack(webViewCanGoBack);
 
     if (!url || loading) {
       return;
@@ -91,21 +143,42 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       return;
     }
 
-    // Track the current web path
+    // Track the current web path (strip query params for tab comparison)
     const webPath: string = normalizedUrl.replace(WEB_BASE_URL, "") || "/";
+    const webPathWithoutQuery = webPath.split("?")[0];
     currentWebPathRef.current = webPath;
 
-    // Sync native tab highlighting when WebView navigates to a different section
-    const targetTab = getTabNameForPath(webPath);
-    const currentTab = getTabNameForPath(path);
+    // Extract locale from URL and sync with mobile app's i18n
+    const webLocale = extractLocaleFromPath(webPathWithoutQuery);
+    if (webLocale && webLocale !== i18n.language) {
+      i18n.changeLanguage(webLocale).catch((err) => {
+        if (__DEV__) {
+          console.error("Failed to change mobile app language:", err);
+        }
+      });
+    }
 
-    if (targetTab !== currentTab) {
-      if (targetTab) {
-        // Navigate to a main tab
-        router.navigate(`/${targetTab}` as Href);
+    // Sync native route when WebView navigates to a different page
+    const targetRoute = getRouteNameForPath(webPathWithoutQuery);
+    const currentRoute = getRouteNameForPath(path);
+
+    // Navigate native router when the route changes
+    // Only sync for main tab routes - catch-all routes don't need native navigation
+    if (
+      targetRoute !== currentRoute &&
+      targetRoute &&
+      targetRoute !== "[...slug]"
+    ) {
+      if (targetRoute === "md/[...slug]") {
+        // For markdown routes, pass the full path including /md/
+        router.navigate(webPathWithoutQuery as Href);
       } else {
-        // Navigate to non-tab route (deselects all tabs)
-        router.navigate(webPath as Href);
+        // For main tab routes, preserve query parameters
+        // Extract query string from the full web path
+        const queryString = webPath.includes("?")
+          ? webPath.substring(webPath.indexOf("?"))
+          : "";
+        router.navigate(`/${targetRoute}${queryString}` as Href);
       }
     }
   };
@@ -131,6 +204,18 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         console.debug("WebEmbed: Ignoring non-JSON message", error);
       }
     }
+  };
+
+  const handleOpenWindow = (syntheticEvent: {
+    nativeEvent: { targetUrl: string };
+  }) => {
+    const { targetUrl } = syntheticEvent.nativeEvent;
+    // Open target="_blank" links in device's browser (Safari/Chrome)
+    Linking.openURL(targetUrl).catch((err) => {
+      if (__DEV__) {
+        console.error("Failed to open external link:", err);
+      }
+    });
   };
 
   // Show error screen
@@ -165,6 +250,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         ref={webviewRef}
         style={styles.webview}
         source={{ uri: WEB_BASE_URL + path }}
+        allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled
         cacheEnabled
         cacheMode="LOAD_CACHE_ELSE_NETWORK"
@@ -179,6 +265,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         )}
         onNavigationStateChange={handleNavigationStateChange}
         injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
+        onOpenWindow={handleOpenWindow}
         onMessage={handleMessage}
         onError={(syntheticEvent) => {
           setHasError(true);

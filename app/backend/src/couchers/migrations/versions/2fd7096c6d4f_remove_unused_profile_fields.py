@@ -16,11 +16,11 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.drop_column("users", "my_travels")
     op.drop_column("users", "full_name")
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column("users", sa.Column("full_name", sa.VARCHAR(), autoincrement=False, nullable=True))
     op.add_column("users", sa.Column("my_travels", sa.VARCHAR(), autoincrement=False, nullable=True))

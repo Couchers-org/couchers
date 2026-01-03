@@ -2,9 +2,11 @@ import logging
 
 import grpc
 import sqlalchemy.exc
-from sqlalchemy.sql import func, select
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import func
 
-from couchers.context import make_background_user_context
+from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Comment, Discussion, Event, EventOccurrence, Reply, Thread, User
@@ -13,7 +15,7 @@ from couchers.proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
-from couchers.sql import couchers_select as select
+from couchers.sql import where_users_column_visible
 from couchers.utils import Timestamp_from_datetime
 
 logger = logging.getLogger(__name__)
@@ -27,34 +29,33 @@ def pack_thread_id(database_id: int, depth: int) -> int:
     return database_id * 10 + depth
 
 
-def unpack_thread_id(thread_id: int) -> (int, int):
+def unpack_thread_id(thread_id: int) -> tuple[int, int]:
     """Returns (database_id, depth) tuple."""
     return divmod(thread_id, 10)
 
 
-def total_num_responses(session, database_id):
+def total_num_responses(session: Session, database_id: int) -> int:
     """Return the total number of comments and replies to the thread with
     database id database_id.
     """
-    return (
-        session.execute(select(func.count()).select_from(Comment).where(Comment.thread_id == database_id)).scalar_one()
-        + session.execute(
-            select(func.count())
-            .select_from(Reply)
-            .join(Comment, Comment.id == Reply.comment_id)
-            .where(Comment.thread_id == database_id)
-        ).scalar_one()
+    comments = select(func.count()).select_from(Comment).where(Comment.thread_id == database_id)
+    replies = (
+        select(func.count())
+        .select_from(Reply)
+        .join(Comment, Comment.id == Reply.comment_id)
+        .where(Comment.thread_id == database_id)
     )
+    return session.execute(comments).scalar_one() + session.execute(replies).scalar_one()
 
 
-def thread_to_pb(session, database_id):
+def thread_to_pb(session: Session, database_id: int) -> threads_pb2.Thread:
     return threads_pb2.Thread(
         thread_id=pack_thread_id(database_id, 0),
         num_responses=total_num_responses(session, database_id),
     )
 
 
-def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPayload):
+def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPayload) -> None:
     from couchers.servicers.discussions import discussion_to_pb
     from couchers.servicers.events import event_to_pb
 
@@ -130,32 +131,34 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                 raise NotImplementedError("I can only do event and discussion threads for now")
         elif depth == 2:
             # this is a second-level reply to a comment
-            reply = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one()
+            db_reply = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one()
             # the comment we're replying to
-            parent_comment = session.execute(select(Comment).where(Comment.id == reply.comment_id)).scalar_one()
-            context = make_background_user_context(user_id=reply.author_user_id)
+            parent_comment = session.execute(select(Comment).where(Comment.id == db_reply.comment_id)).scalar_one()
+            context = make_background_user_context(user_id=db_reply.author_user_id)
             thread_replies_author_user_ids = (
                 session.execute(
-                    select(Reply.author_user_id)
-                    .where_users_column_visible(context, Reply.author_user_id)
-                    .where(Reply.comment_id == parent_comment.id)
+                    where_users_column_visible(
+                        select(Reply.author_user_id).where(Reply.comment_id == parent_comment.id),
+                        context,
+                        Reply.author_user_id,
+                    )
                 )
                 .scalars()
                 .all()
             )
             thread_user_ids = set(thread_replies_author_user_ids)
-            if not is_not_visible(session, parent_comment.author_user_id, reply.author_user_id):
+            if not is_not_visible(session, parent_comment.author_user_id, db_reply.author_user_id):
                 thread_user_ids.add(parent_comment.author_user_id)
 
-            author_user = session.execute(select(User).where(User.id == reply.author_user_id)).scalar_one()
+            author_user = session.execute(select(User).where(User.id == db_reply.author_user_id)).scalar_one()
 
-            user_ids_to_notify = set(thread_user_ids) - {reply.author_user_id}
+            user_ids_to_notify = set(thread_user_ids) - {db_reply.author_user_id}
 
             reply = threads_pb2.Reply(
                 thread_id=payload.thread_id,
-                content=reply.content,
-                author_user_id=reply.author_user_id,
-                created_time=Timestamp_from_datetime(reply.created),
+                content=db_reply.content,
+                author_user_id=db_reply.author_user_id,
+                created_time=Timestamp_from_datetime(db_reply.created),
                 num_replies=0,
             )
 
@@ -203,7 +206,9 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
 
 
 class Threads(threads_pb2_grpc.ThreadsServicer):
-    def GetThread(self, request, context, session):
+    def GetThread(
+        self, request: threads_pb2.GetThreadReq, context: CouchersContext, session: Session
+    ) -> threads_pb2.GetThreadRes:
         database_id, depth = unpack_thread_id(request.thread_id)
         page_size = request.page_size if 0 < request.page_size < 100000 else 1000
         page_start = unpack_thread_id(int(request.page_token))[0] if request.page_token else 2**50
@@ -237,7 +242,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
             res = (
-                session.execute(
+                session.execute(  # type: ignore[assignment]
                     select(Reply)
                     .where(Reply.comment_id == database_id)
                     .where(Reply.id < page_start)
@@ -269,7 +274,9 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token)
 
-    def PostReply(self, request, context, session):
+    def PostReply(
+        self, request: threads_pb2.PostReplyReq, context: CouchersContext, session: Session
+    ) -> threads_pb2.PostReplyRes:
         content = request.content.strip()
 
         if content == "":
@@ -277,7 +284,9 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         database_id, depth = unpack_thread_id(request.thread_id)
         if depth == 0:
-            object_to_add = Comment(thread_id=database_id, author_user_id=context.user_id, content=content)
+            object_to_add: Comment | Reply = Comment(
+                thread_id=database_id, author_user_id=context.user_id, content=content
+            )
         elif depth == 1:
             object_to_add = Reply(comment_id=database_id, author_user_id=context.user_id, content=content)
         else:
@@ -292,7 +301,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
         queue_job(
             session,
-            job_type="generate_reply_notifications",
+            job=generate_reply_notifications,
             payload=jobs_pb2.GenerateReplyNotificationsPayload(
                 thread_id=thread_id,
             ),

@@ -7,7 +7,7 @@ interface ExternalNavButtonProps {
 }
 
 const StyledLink = styled("a")(({ theme }) => ({
-  color: theme.palette.text.secondary,
+  color: "var(--mui-palette-text-secondary)",
   display: "flex",
   flex: "1",
   fontSize: "2rem",

@@ -16,11 +16,11 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("signup_flows", sa.Column("opt_out_of_newsletter", sa.Boolean(), nullable=True))
     op.alter_column("users", "added_to_mailing_list", new_column_name="in_sync_with_newsletter")
     op.add_column("users", sa.Column("opt_out_of_newsletter", sa.Boolean(), server_default="false", nullable=False))
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

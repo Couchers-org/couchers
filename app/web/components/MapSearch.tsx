@@ -25,7 +25,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
   "& .MuiInputLabel-root": {
     fontSize: "0.75rem",
   },
-  background: theme.palette.background.default,
+  background: "var(--mui-palette-background-default)",
   borderRadius: theme.shape.borderRadius * 3,
   left: 10,
   opacity: 0.9,

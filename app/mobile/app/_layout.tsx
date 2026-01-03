@@ -1,4 +1,5 @@
 import "react-native-reanimated";
+import "@/i18n";
 
 import {
   Ubuntu_300Light,
@@ -57,10 +58,20 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
     return null;
   }
 
+  // Using Stack.Protected with guard prop is the recommended Expo Router pattern
+  // for auth flows. When the guard condition changes, Expo Router automatically:
+  // - Removes screens that are no longer accessible
+  // - Resets the navigation state appropriately
+  // - Prevents back navigation to screens that shouldn't be accessible
+  // This eliminates the need for manual CommonActions.reset or setTimeout hacks
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="login" redirect={authenticated} />
-      <Stack.Screen name="(tabs)" redirect={!authenticated} />
+      <Stack.Protected guard={authenticated}>
+        <Stack.Screen name="(tabs)" />
+      </Stack.Protected>
+      <Stack.Protected guard={!authenticated}>
+        <Stack.Screen name="login" />
+      </Stack.Protected>
     </Stack>
   );
 }

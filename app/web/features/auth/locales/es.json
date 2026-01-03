@@ -87,7 +87,9 @@
       "password_field_label": "Contraseña",
       "forgot_password": "¿Has olvidado tu contraseña?",
       "no_password_login_prompt": "¡Busca en tu correo electrónico el enlace para iniciar sesión! :)",
-      "remember_me": "Recuérdame"
+      "remember_me": "Recuérdame",
+      "show_password": "Mostrar contraseña",
+      "hide_password": "Ocultar contraseña"
     }
   },
   "basic_sign_up_form": {
@@ -238,5 +240,38 @@
   "sign_up_need_verification_title": "¡Cási hemos terminado, una última cosa!",
   "volunteer_management": {
     "shown_on_team_page_current": "Mostrado en la página del equipo como miembro actual del equipo."
-  }
+  },
+  "strong_verification": {
+    "begin_button": "Completar la verificación robusta mediante Iris ID",
+    "information_text1": "Necesitarás un <strong>pasaporte biométrico</strong> (otros tipos de identificación no funcionarán) y un teléfono Apple o Android con capacidad NFC.",
+    "learn_more": "Aprende sobre la verificación robusta <a>aquí</a>.",
+    "title": "Verificación robusta",
+    "subtitle": "La verificación robusta es una medida de seguridad adicional que te permite verificar tu fecha de nacimiento y tu género usando tu pasaporte biométrico.",
+    "status": {
+      "enabled_message": "Actualmente <1>estás verificado</1> mediante verificación robusta.",
+      "disabled_message": "Actualmente <1>no estás verificado</1> mediante verificación robusta."
+    },
+    "start_button": "Empezar la verificación robusta",
+    "information_text2": "Al hacer clic en el botón de abajo, se te dirigirá a la web de Iris ID para completar el proceso de verificación de pasaporte.",
+    "information_text3": "Puedes obtener más información sobre cómo nosotros e Iris ID procesamos y almacenamos tus datos en nuestros <2>Términos de servicio</2>. Según la <5>Política de privacidad</5> de Iris ID, eliminarán tu información personal en un plazo de 24 horas. Puedes solicitar que estos datos de verificación robusta (excepto el país emisor, la fecha de vencimiento y los últimos tres dígitos del número del documento) se eliminen de nuestros servidores en cualquier momento con solo el clic de un botón.",
+    "complete_title": "Estamos procesando su intento de Verificación robusta",
+    "complete_message1": "Tu pasaporte está siendo validado. Recibirás un correo electrónico con los resultados en unos minutos.",
+    "complete_message2": "La verificación robusta expira cuando vence tu pasaporte, y deberás completar la verificación nuevamente con el nuevo pasaporte.",
+    "delete_data_title": "Eliminar los datos del pasaporte de tu verificación robusta"
+  },
+  "active_logins": {
+    "description": "Esta página muestra sesiones activas; puedes cerrar cualquier sesión haciendo clic en el botón junto a la misma, o desplazándote hasta el final y haciendo clic en el botón para todas las sesiones excepto la actual.",
+    "settings_page_text": "Consulta dónde has iniciado sesión y cierra otras sesiones",
+    "settings_page_link": "Gestionar sesiones actuales",
+    "login_header": "Sesión del {{login_datetime}}",
+    "location": "Cerca de <2>{{approximate_location}}</2>",
+    "last_activity": "Última actividad <2>{{last_activity_ago}}</2>",
+    "expiry": "Caduca el <1>{{expiry_datetime}}</1>",
+    "current_session": "Esta es tu sesión actual.",
+    "log_out_of_session": "Salir de esta sesión",
+    "log_out_of_all_session": "Cerrar todas las demás sesiones",
+    "heading": "Sesiones actuales"
+  },
+  "sign_up_resend_verification_email_help": "¿No has recibido el correo eletrónico? Haz clic <2>aquí para reenviar el enlace de verificación</2>.",
+  "sign_up_resend_verification_done": "¡Hecho! Te hemos enviado otro correo electrónico."
 }

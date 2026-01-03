@@ -1,16 +1,10 @@
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
 from couchers.models import FriendRelationship, User
-from couchers.sql import couchers_select as select
-from tests.test_fixtures import (  # noqa
-    db,
-    generate_user,
-    make_friends,
-    make_user_block,
-    make_user_invisible,
-)
+from couchers.sql import users_visible, where_users_column_visible
+from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
 
 
 class _FakeContext:
@@ -47,7 +41,7 @@ def test_select_dot_where_users_visible(db):
 
     context = _FakeContext(user1.id)
     with session_scope() as session:
-        assert session.execute(select(func.count()).select_from(User).where_users_visible(context)).scalar_one() == 1
+        assert session.execute(select(func.count()).select_from(User).where(users_visible(context))).scalar_one() == 1
 
 
 def test_select_dot_where_users_column_visible(db):
@@ -70,9 +64,9 @@ def test_select_dot_where_users_column_visible(db):
     with session_scope() as session:
         assert (
             session.execute(
-                select(func.count())
-                .select_from(FriendRelationship)
-                .where_users_column_visible(context, FriendRelationship.to_user_id)
+                where_users_column_visible(
+                    select(func.count()).select_from(FriendRelationship), context, FriendRelationship.to_user_id
+                )
             ).scalar_one()
             == 1
         )

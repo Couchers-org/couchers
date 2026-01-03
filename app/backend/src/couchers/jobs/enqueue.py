@@ -3,8 +3,9 @@ Background jobs
 """
 
 import logging
+from collections.abc import Callable
 
-from google.protobuf.message import Message
+import google.protobuf.message
 from sqlalchemy.orm import Session
 
 from couchers.models import BackgroundJob
@@ -12,16 +13,16 @@ from couchers.models import BackgroundJob
 logger = logging.getLogger(__name__)
 
 
-def queue_job(
+def queue_job[T: google.protobuf.message.Message](
     session: Session,
-    job_type: str,
-    payload: Message,
+    job: Callable[[T], None],
+    payload: T,
     max_tries: int | None = None,
     priority: int | None = None,
 ) -> None:
     session.add(
         BackgroundJob(
-            job_type=job_type,
+            job_type=job.__name__,
             payload=payload.SerializeToString(),
             max_tries=max_tries,
             priority=priority,

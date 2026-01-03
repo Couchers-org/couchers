@@ -15,7 +15,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("""
         CREATE OR REPLACE FUNCTION immutable_unaccent(input_text TEXT)
         RETURNS TEXT AS $$
@@ -28,7 +28,7 @@ def upgrade():
         """)
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute("""
     DROP INDEX idx_clusters_name_unaccented_trgm;
 

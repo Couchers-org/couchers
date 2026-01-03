@@ -8,7 +8,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 
-from couchers.models.base import Base
+from couchers.models.base import Base, Geom
 from couchers.utils import date_in_timezone, now
 
 if TYPE_CHECKING:
@@ -47,7 +47,7 @@ class HostRequest(Base):
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
     hosting_city: Mapped[str] = mapped_column(String)
-    hosting_location: Mapped[Geometry] = mapped_column(Geometry("POINT", srid=4326))
+    hosting_location: Mapped[Geom] = mapped_column(Geometry("POINT", srid=4326))
     hosting_radius: Mapped[float] = mapped_column(Float)
 
     # TODO: proper timezone handling
@@ -57,7 +57,7 @@ class HostRequest(Base):
     from_date: Mapped[date] = mapped_column(Date)
     to_date: Mapped[date] = mapped_column(Date)
 
-    # timezone aware start and end times of the request, can be compared to now()
+    # timezone-aware start and end times of the request, can be compared to now()
     start_time = column_property(date_in_timezone(from_date, timezone))  # type: ignore[arg-type]
     end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))  # type: ignore[arg-type]
     start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))  # type: ignore[arg-type]
@@ -84,14 +84,10 @@ class HostRequest(Base):
     host_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, nullable=True)
     surfer_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    surfer: Mapped["User"] = relationship(
-        "User", backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id"
-    )
-    host: Mapped["User"] = relationship(
-        "User", backref="host_requests_received", foreign_keys="HostRequest.host_user_id"
-    )
-    conversation: Mapped["Conversation"] = relationship("Conversation")
-    moderation_state: Mapped["ModerationState"] = relationship("ModerationState")
+    surfer: Mapped[User] = relationship(backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id")
+    host: Mapped[User] = relationship(backref="host_requests_received", foreign_keys="HostRequest.host_user_id")
+    conversation: Mapped[Conversation] = relationship()
+    moderation_state: Mapped[ModerationState] = relationship()
 
     __table_args__ = (
         # allows fast lookup as to whether they didn't meet up
@@ -150,7 +146,7 @@ class HostRequestFeedback(Base):
     request_quality: Mapped[HostRequestQuality | None] = mapped_column(Enum(HostRequestQuality), nullable=True)
     decline_reason: Mapped[str | None] = mapped_column(String, nullable=True)  # plain text
 
-    host_request: Mapped["HostRequest"] = relationship("HostRequest")
+    host_request: Mapped[HostRequest] = relationship()
 
     __table_args__ = (
         # Each user can leave at most one friend reference to another user

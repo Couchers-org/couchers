@@ -26,8 +26,9 @@ from sqlalchemy import (
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import select as sa_select
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
+from sqlalchemy.orm import DynamicMapped, Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
+from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.constants import (
     EMAIL_REGEX,
@@ -44,6 +45,7 @@ from couchers.models.uploads import Upload
 from couchers.utils import get_coordinates, last_active_coarsen, now
 
 if TYPE_CHECKING:
+    from couchers.models import UserBadge
     from couchers.models.rest import InviteCode, ModerationUserList
     from couchers.models.uploads import PhotoGallery
 
@@ -125,10 +127,8 @@ class User(Base):
     # "Grew up in" on profile
     hometown: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    regions_visited: Mapped[list["Region"]] = relationship(
-        "Region", secondary="regions_visited", order_by="Region.name"
-    )
-    regions_lived: Mapped[list["Region"]] = relationship("Region", secondary="regions_lived", order_by="Region.name")
+    regions_visited: Mapped[list[Region]] = relationship(secondary="regions_visited", order_by="Region.name")
+    regions_lived: Mapped[list[Region]] = relationship(secondary="regions_lived", order_by="Region.name")
 
     timezone = column_property(
         sa_select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom)).limit(1).scalar_subquery(),
@@ -303,10 +303,8 @@ class User(Base):
     # whether this user has all emails turned off
     do_not_email: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
-    avatar: Mapped[Upload | None] = relationship("Upload", foreign_keys="User.avatar_key")
-    profile_gallery: Mapped["PhotoGallery | None"] = relationship(
-        "PhotoGallery", foreign_keys="User.profile_gallery_id"
-    )
+    avatar: Mapped[Upload | None] = relationship(foreign_keys="User.avatar_key")
+    profile_gallery: Mapped[PhotoGallery | None] = relationship(foreign_keys="User.profile_gallery_id")
 
     admin_note: Mapped[str] = mapped_column(String, server_default=text("''"))
 
@@ -319,14 +317,25 @@ class User(Base):
 
     # ID of the invite code used to sign up (if any)
     invite_code_id: Mapped[int | None] = mapped_column(ForeignKey("invite_codes.id"), nullable=True)
-    invite_code: Mapped["InviteCode | None"] = relationship("InviteCode", foreign_keys=[invite_code_id])
+    invite_code: Mapped[InviteCode | None] = relationship(foreign_keys=[invite_code_id])
 
-    moderation_user_lists: Mapped[list["ModerationUserList"]] = relationship(
-        "ModerationUserList", secondary="moderation_user_list_members", back_populates="users"
+    moderation_user_lists: Mapped[list[ModerationUserList]] = relationship(
+        secondary="moderation_user_list_members", back_populates="users"
     )
-    language_abilities: Mapped[list["LanguageAbility"]] = relationship("LanguageAbility", back_populates="user")
-    galleries: Mapped[list["PhotoGallery"]] = relationship(
-        "PhotoGallery", foreign_keys="PhotoGallery.owner_user_id", back_populates="owner_user"
+    language_abilities: Mapped[list[LanguageAbility]] = relationship(back_populates="user")
+    galleries: Mapped[list[PhotoGallery]] = relationship(
+        foreign_keys="PhotoGallery.owner_user_id", back_populates="owner_user"
+    )
+    mod_notes: DynamicMapped[ModNote] = relationship(
+        foreign_keys="ModNote.user_id", back_populates="user", lazy="dynamic"
+    )
+
+    badges: Mapped[list[UserBadge]] = relationship(back_populates="user")
+
+    pending_activeness_probe: Mapped[ActivenessProbe | None] = relationship(
+        primaryjoin="and_(ActivenessProbe.user_id == User.id, ActivenessProbe.is_pending)",
+        uselist=False,
+        back_populates="user",
     )
 
     __table_args__ = (
@@ -401,8 +410,9 @@ class User(Base):
     def has_completed_profile(self) -> bool:
         return self.avatar_key is not None and self.about_me is not None and len(self.about_me) >= 150
 
-    @has_completed_profile.expression
-    def has_completed_profile(cls):
+    @has_completed_profile.inplace.expression
+    @classmethod
+    def _has_completed_profile_expression(cls) -> ColumnElement[bool]:
         return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 150)
 
     @hybrid_property
@@ -423,8 +433,9 @@ class User(Base):
             )
         )
 
-    @has_completed_my_home.expression
-    def has_completed_my_home(cls):
+    @has_completed_my_home.inplace.expression
+    @classmethod
+    def _has_completed_my_home_expression(cls) -> ColumnElement[bool]:
         return and_(
             cls.max_guests != None,
             cls.sleeping_arrangement != None,
@@ -448,12 +459,12 @@ class User(Base):
     @hybrid_property
     def jailed_pending_mod_notes(self) -> Any:
         # mod_notes come from a backref in ModNote
-        return self.mod_notes.where(ModNote.is_pending).count() > 0  # type: ignore[attr-defined]
+        return self.mod_notes.where(ModNote.is_pending).count() > 0
 
     @hybrid_property
     def jailed_pending_activeness_probe(self) -> Any:
         # search for User.pending_activeness_probe
-        return self.pending_activeness_probe != None  # type: ignore[attr-defined]
+        return self.pending_activeness_probe != None
 
     @hybrid_property
     def is_jailed(self) -> Any:
@@ -473,12 +484,13 @@ class User(Base):
     def is_visible(self) -> bool:
         return not self.is_banned and not self.is_deleted
 
-    @is_visible.expression
-    def is_visible(cls):
+    @is_visible.inplace.expression
+    @classmethod
+    def _is_visible_expression(cls) -> ColumnElement[bool]:
         return ~(cls.is_banned | cls.is_deleted)
 
     @property
-    def coordinates(self) -> tuple[int, int] | None:
+    def coordinates(self) -> tuple[float, float]:
         return get_coordinates(self.geom)
 
     @property
@@ -502,8 +514,9 @@ class User(Base):
             and now() - self.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
 
-    @phone_is_verified.expression
-    def phone_is_verified(cls):
+    @phone_is_verified.inplace.expression
+    @classmethod
+    def _phone_is_verified_expression(cls) -> ColumnElement[bool]:
         return (cls.phone_verification_verified != None) & (
             now() - cls.phone_verification_verified < PHONE_VERIFICATION_LIFETIME
         )
@@ -514,14 +527,6 @@ class User(Base):
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, email={self.email}, username={self.username})"
-
-
-User.pending_activeness_probe = relationship(
-    ActivenessProbe,
-    primaryjoin="and_(ActivenessProbe.user_id == User.id, ActivenessProbe.is_pending)",
-    uselist=False,
-    back_populates="user",
-)
 
 
 class LanguageFluency(enum.Enum):
@@ -543,8 +548,8 @@ class LanguageAbility(Base):
     language_code: Mapped[str] = mapped_column(ForeignKey("languages.code", deferrable=True))
     fluency: Mapped[LanguageFluency] = mapped_column(Enum(LanguageFluency))
 
-    user: Mapped["User"] = relationship("User", back_populates="language_abilities")
-    language: Mapped[Language] = relationship("Language")
+    user: Mapped[User] = relationship(back_populates="language_abilities")
+    language: Mapped[Language] = relationship()
 
 
 class RegionVisited(Base):

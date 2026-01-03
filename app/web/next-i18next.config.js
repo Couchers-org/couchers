@@ -16,6 +16,7 @@ module.exports = {
   i18n: {
     defaultLocale: "en",
     locales: allLanguages,
+    localeDetection: false, // Disabled - using custom middleware for locale detection
   },
   fallbackLng,
   defaultNS: "global",

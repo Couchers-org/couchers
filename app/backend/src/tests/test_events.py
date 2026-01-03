@@ -11,20 +11,10 @@ from couchers.models import BackgroundJob, EventOccurrence
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
+from tests.fixtures.sessions import events_session, real_editor_session, threads_session
 from tests.test_communities import create_community, create_group
-from tests.test_fixtures import (  # noqa
-    db,
-    email_fields,
-    events_session,
-    generate_user,
-    mock_notification_email,
-    process_jobs,
-    push_collector,
-    real_admin_session,
-    real_editor_session,
-    testconfig,
-    threads_session,
-)
 
 
 @pytest.fixture(autouse=True)
@@ -32,7 +22,7 @@ def _(testconfig):
     pass
 
 
-def test_CreateEvent(db, push_collector):
+def test_CreateEvent(db, push_collector: PushCollector):
     # test cases:
     # can create event
     # cannot create event with missing details
@@ -2095,7 +2085,7 @@ def test_ListEventAttendees_regression(db):
         assert res.attendee_user_ids[0] == user1.id
 
 
-def test_event_threads(db, push_collector):
+def test_event_threads(db, push_collector: PushCollector):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -2144,9 +2134,9 @@ def test_event_threads(db, push_collector):
 
     process_jobs()
 
-    push_collector.assert_user_has_single_matching(user1.id, title=f'{user2.name} commented on "Dummy Title"')
-    push_collector.assert_user_has_single_matching(user2.id, title="Dummy Title")
-    push_collector.assert_user_has_count(user4_id, 0)
+    assert push_collector.get_for_user(user1.id).content.title == f'{user2.name} commented on "Dummy Title"'
+    assert push_collector.get_for_user(user2.id).content.title == "Dummy Title"
+    assert push_collector.count_for_user(user4_id) == 0
 
 
 def test_can_overlap_other_events_schedule_regression(db):

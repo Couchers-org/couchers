@@ -6,10 +6,12 @@ import {
   List,
   ListItem,
   styled,
+  Theme,
   Toolbar,
   useMediaQuery,
 } from "@mui/material";
 import Button from "components/Button";
+import DarkModeToggle from "components/DarkModeToggle";
 import { GlobalMessage } from "components/GlobalMessage";
 import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
@@ -223,7 +225,6 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   bottom: "auto",
   top: 0,
   boxShadow: "none",
-  backgroundColor: theme.palette.common.white,
 }));
 
 const StyledFlexbox = styled("div")(({ theme }) => ({
@@ -318,7 +319,7 @@ export default function Navigation() {
                 border: "none",
 
                 "&:hover": {
-                  backgroundColor: theme.palette.grey[200],
+                  backgroundColor: (theme) => theme.palette.grey[200],
                 },
               }}
             >
@@ -349,6 +350,15 @@ export default function Navigation() {
         >
           <LanguagePickerSelect onSelect={handleDrawerClose} />
         </ListItem>
+        <ListItem
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            padding: theme.spacing(1, 4),
+          }}
+        >
+          <DarkModeToggle />
+        </ListItem>
       </List>
     </div>
   );
@@ -371,7 +381,10 @@ export default function Navigation() {
                 sx={{ marginLeft: theme.spacing(1) }}
               >
                 <MenuIcon
-                  sx={{ color: theme.palette.text.primary, fontSize: 24 }}
+                  sx={{
+                    color: (theme) => theme.palette.text.primary,
+                    fontSize: 24,
+                  }}
                 />
               </IconButton>
               <StyledDrawer
@@ -426,12 +439,15 @@ export default function Navigation() {
         </StyledNav>
         <StyledMenuContainer>
           {authState.authenticated && isMounted ? (
-            <LoggedInMenu
-              menuOpen={menuOpen}
-              notificationCount={pingData?.unseenNotificationCount}
-              setMenuOpen={setMenuOpen}
-              items={loggedInMenuItems}
-            />
+            <>
+              <DarkModeToggle />
+              <LoggedInMenu
+                menuOpen={menuOpen}
+                notificationCount={pingData?.unseenNotificationCount}
+                setMenuOpen={setMenuOpen}
+                items={loggedInMenuItems}
+              />
+            </>
           ) : (
             <Box
               sx={{
@@ -441,6 +457,7 @@ export default function Navigation() {
                 gap: 2,
               }}
             >
+              <DarkModeToggle />
               {!isMobile && <LanguagePickerSelect />}
               {!isLoginPage && (
                 <Button
@@ -449,7 +466,8 @@ export default function Navigation() {
                   sx={{
                     fontSize: "1.3rem",
                     borderRadius: theme.spacing(1),
-                    border: `1.5px solid ${theme.palette.primary.main}`,
+                    border: (theme: Theme) =>
+                      `1.5px solid var(--mui-palette-primary-main)`,
                   }}
                   onClick={() => router.push(loginRoute)}
                 >

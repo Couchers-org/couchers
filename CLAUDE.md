@@ -7,7 +7,6 @@ This is a monorepo for Couchers.org, a non-profit hospitality exchange platform.
 - `/app/backend` - Python backend (gRPC, SQLAlchemy, PostgreSQL/PostGIS)
 - `/app/web` - Next.js web frontend
 - `/app/mobile` - React Native Expo mobile app
-- `/app/native` - Deprecated, ignore
 - `/app/proto` - Protocol buffer definitions shared across services
 - `/docs` - Documentation
 
@@ -49,7 +48,7 @@ make mypy
 - Imports always occur at the top of the file. The two exceptions are when this is required during type checking or in tests that really require inline imports
 - Do not use `session.get(...)`. Use `session.execute(select(...))` instead
 - For URLs, use `from couchers import urls` and then `urls.whatever()`
-- Always import `from couchers.sql import couchers_select as select` instead of something else
+- To filter out invisible users (deleted/banned/blocked), use the helper functions from `couchers.sql`: `where(users_visible(context))` when User is already joined, `where(users_column_visible(context, column))` when you have a user_id column, or `where(users_visible_to_each_other(user1, user2))` for mutual visibility. Never use `User.is_visible` directly in queries
 
 ### Web (TypeScript/React)
 - Uses `nvm` for node version management

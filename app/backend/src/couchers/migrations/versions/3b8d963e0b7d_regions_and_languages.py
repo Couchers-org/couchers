@@ -20,7 +20,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "timezone_areas",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -106,7 +106,7 @@ def upgrade():
     session.commit()
 
 
-def downgrade():
+def downgrade() -> None:
     op.add_column("users", sa.Column("countries_lived", sa.VARCHAR(), autoincrement=False, nullable=True))
     op.add_column("users", sa.Column("countries_visited", sa.VARCHAR(), autoincrement=False, nullable=True))
     op.add_column("users", sa.Column("languages", sa.VARCHAR(), autoincrement=False, nullable=True))

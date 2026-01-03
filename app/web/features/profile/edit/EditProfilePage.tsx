@@ -28,9 +28,10 @@ const DetailsCard = styled(Card)(({ theme }) => ({
   flexGrow: 1,
   marginRight: 0,
   padding: 0,
-  backgroundColor: "transparent",
   boxShadow: "none",
   border: "none",
+  backgroundColor: "transparent",
+  backgroundImage: "none",
 }));
 
 const Root = styled("div")(({ theme }) => ({
@@ -62,10 +63,10 @@ const BackButton = styled(IconButton)(({ theme }) => ({
   minWidth: "auto",
   padding: theme.spacing(1),
   borderRadius: "50%",
-  color: theme.palette.text.secondary,
+  color: "var(--mui-palette-text-secondary)",
   "&:hover": {
-    backgroundColor: theme.palette.action.hover,
-    color: theme.palette.text.primary,
+    backgroundColor: "var(--mui-palette-action-hover)",
+    color: "var(--mui-palette-text-primary)",
   },
 }));
 
@@ -133,16 +134,16 @@ export default function EditProfilePage({
                 padding: theme.spacing(1.5, 3),
                 borderRadius: theme.spacing(1.5, 1.5, 0, 0),
                 transition: "all 0.2s ease-in-out",
-                color: theme.palette.text.secondary,
+                color: "var(--mui-palette-text-secondary)",
 
                 "&.Mui-selected": {
-                  color: theme.palette.primary.main,
-                  borderBottom: `3px solid ${theme.palette.primary.main}`,
+                  color: "var(--mui-palette-primary-main)",
+                  borderBottom: `3px solid var(--mui-palette-primary-main)`,
                   fontWeight: 700,
                 },
 
                 "&:hover": {
-                  color: theme.palette.primary.main,
+                  color: "var(--mui-palette-primary-main)",
                 },
 
                 [theme.breakpoints.down("md")]: {

@@ -28,6 +28,9 @@ def _queue_email(
     list_unsubscribe_header: str | None,
     source_data: str | None,
 ) -> None:
+    # Import here to avoid circular dependency
+    from couchers.jobs.handlers import send_email
+
     payload = jobs_pb2.SendEmailPayload(
         sender_name=sender_name,
         sender_email=sender_email,
@@ -40,7 +43,7 @@ def _queue_email(
     )
     queue_job(
         session,
-        job_type="send_email",
+        job=send_email,
         payload=payload,
         priority=5,
     )

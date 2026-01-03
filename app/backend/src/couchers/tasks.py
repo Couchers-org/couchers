@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Sequence
 
-from sqlalchemy import RowMapping, insert
+from sqlalchemy import RowMapping, insert, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -11,6 +11,7 @@ from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
+    AccountDeletionReason,
     Cluster,
     ClusterRole,
     ClusterSubscription,
@@ -26,7 +27,6 @@ from couchers.models import (
     User,
 )
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
-from couchers.sql import couchers_select as select
 from couchers.templates.v2 import send_simple_pretty_email
 from couchers.utils import now
 
@@ -174,7 +174,7 @@ def send_event_community_invite_request_email(session: Session, request: EventCo
     )
 
 
-def send_account_deletion_report_email(session: Session, reason: str) -> None:
+def send_account_deletion_report_email(session: Session, reason: AccountDeletionReason) -> None:
     logger.info("Sending account deletion report email")
     email.enqueue_system_email(
         session,

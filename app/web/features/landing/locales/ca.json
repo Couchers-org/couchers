@@ -23,5 +23,21 @@
     "free_forever_description": "Ningú no hauria de pagar diners per registrar-se i utilitzar Couchers.org.",
     "free_forever_why": "Requerir un pagament per a l’ús és una barrera d’entrada insostenible. A l'implicar diners en el couchsurfing, la gent pot crear expectatives equivocades.",
     "authentic_title": "Autèntic i genuí",
-    "authentic_description": "Ens esforcem per crear eines eficaces que t’ajudin a tenir experiències sinceres al món real dedicant el mínim temps possible a buscar-les al món digital. No creem per augmentar la interacció buida."
+    "authentic_description": "Ens esforcem per crear eines eficaces que t’ajudin a tenir experiències sinceres al món real dedicant el mínim temps possible a buscar-les al món digital. No creem per augmentar la interacció buida.",
+    "open_source_description": "La plataforma i les eines que desenvolupem estan disponibles lliurement per a l’ús, modificació i distribució, sense que la fundació en tingui drets exclusius. Ens esforcem per contribuir de nou a la comunitat de codi obert.",
+    "non_transactional_why": "És fonamentalment incompatible amb tenir interaccions genuïnes. És saludable només donar o només rebre i hauríem d'aprendre a sentir-nos més còmodes amb això.",
+    "couchers_mission_title": "Allò que ens representa",
+    "authentic_why": "Creiem que l’abstracció de l’experiència humana cap al món digital i la seva desvinculació de la connexió humana real és insana i perjudicial. Treballem activament per fomentar un sentit real de comunitat i pertinença en un món que es mou en la direcció oposada.",
+    "community_led_title": "Dirigit per la comunitat",
+    "community_led_description": "Els responsables de la presa de decisions i els voluntaris haurien de formar part de la comunitat; les decisions s’haurien de prendre de manera transparent i en consulta amb la comunitat; i l’organització hauria de demanar activament opinions. La responsabilitat de mantenir la plataforma hauria de recaure en la comunitat.",
+    "community_led_why": "Mantenir una organització i una plataforma saludables requereix la participació activa de la comunitat a la qual servim, i separar la comunitat de la resta del projecte ens impedeix realment construir per a la nostra gent. La comunitat només pot participar si té visibilitat dins de l'organització.",
+    "open_source_title": "Codi obert",
+    "open_source_why": "Volem que altres persones es beneficiïn al màxim possible de les eines que construïm. Distribuir-les lliurement dóna a la nostra comunitat una garantia més sòlida que allò que construïm plegats serà utilitzable en el futur.",
+    "non_transactional_title": "Sense transaccions",
+    "non_transactional_description": "La gent no es paga entre si amb diners ni en espècie per participar en activitats o en la comunitat. Ser hoste no t'obliga a allotjar ningú en el futur.",
+    "why": "Per què?",
+    "map_section_title": "Explora la nostra comunitat global",
+    "num_users": "{{numUsers}} membres",
+    "num_countries": "{{numCountries}}+ països",
+    "last_signup": "Última sessió {{timeAgo}}"
 }

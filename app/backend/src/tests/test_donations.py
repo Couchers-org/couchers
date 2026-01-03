@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 
 import couchers.servicers.donations
 from couchers.config import config
@@ -11,8 +12,8 @@ from couchers.jobs.handlers import update_badges
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User, UserBadge
 from couchers.proto import donations_pb2
 from couchers.proto.google.api import httpbody_pb2
-from couchers.sql import couchers_select as select
-from tests.test_fixtures import db, donations_session, generate_user, real_stripe_session, testconfig  # noqa
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import donations_session, real_stripe_session
 
 
 @pytest.fixture(autouse=True)
@@ -53,7 +54,7 @@ def test_one_time_donation_flow(db, monkeypatch):
         )
 
         mock.checkout.Session.create.assert_called_once_with(
-            client_reference_id=user_id,
+            client_reference_id=str(user_id),
             submit_type="donate",
             customer="cus_Pv4uq0gT0rDZWN",
             success_url="http://localhost:3000/donate?success=true",
@@ -158,7 +159,7 @@ def test_recurring_donation_flow(db, monkeypatch):
         )
 
         mock.checkout.Session.create.assert_called_once_with(
-            client_reference_id=user_id,
+            client_reference_id=str(user_id),
             customer="cus_Pv4w8dxBpTVUsQ",
             submit_type=None,
             success_url="http://localhost:3000/donate?success=true",

@@ -15,7 +15,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute(
         """
         CREATE MATERIALIZED VIEW user_response_rates AS
@@ -62,5 +62,5 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.execute("DROP MATERIALIZED VIEW uq_user_response_rates_id;")

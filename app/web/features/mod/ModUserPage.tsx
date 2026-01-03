@@ -99,7 +99,13 @@ export default function ModUserPage({
                   </TabPanel>
                 }
                 onTabChange={(newTab) => {
-                  router.push(routeToModUser(user.username, newTab));
+                  router.push(
+                    routeToModUser(user.username, newTab),
+                    undefined,
+                    {
+                      scroll: false,
+                    },
+                  );
                 }}
               />
             </StyledProfileRoot>

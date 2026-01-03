@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'postal_verification__postcard_sent'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'postal_verification__success'")
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'postal_verification__failed'")
@@ -87,7 +87,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index(
         "ix_postal_verification_one_active_per_user",
         table_name="postal_verification_attempts",

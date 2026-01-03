@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "invoices",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -55,7 +55,7 @@ def upgrade():
     op.add_column("users", sa.Column("stripe_customer_id", sa.String(), nullable=True))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("users", "stripe_customer_id")
     op.drop_table("recurring_donations")
     op.drop_index(op.f("ix_one_time_donations_user_id"), table_name="one_time_donations")

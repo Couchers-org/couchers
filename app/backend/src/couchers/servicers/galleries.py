@@ -1,23 +1,26 @@
+from typing import cast
+
 import grpc
+from sqlalchemy import Table, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from couchers.constants import GALLERY_MAX_PHOTOS_NOT_VERIFIED, GALLERY_MAX_PHOTOS_VERIFIED
+from couchers.context import CouchersContext
 from couchers.helpers.strong_verification import has_strong_verification
 from couchers.models import PhotoGallery, PhotoGalleryItem, Upload, User
 from couchers.proto import galleries_pb2, galleries_pb2_grpc
-from couchers.sql import couchers_select as select
 
 
 def _get_max_photos_for_user(session: Session, user: User) -> int:
     return GALLERY_MAX_PHOTOS_VERIFIED if has_strong_verification(session, user) else GALLERY_MAX_PHOTOS_NOT_VERIFIED
 
 
-def _can_edit_gallery(gallery: PhotoGallery, context) -> bool:
+def _can_edit_gallery(gallery: PhotoGallery, context: CouchersContext) -> bool:
     return gallery.owner_user_id == context.user_id
 
 
-def _gallery_to_pb(gallery: PhotoGallery, context) -> galleries_pb2.PhotoGallery:
+def _gallery_to_pb(gallery: PhotoGallery, context: CouchersContext) -> galleries_pb2.PhotoGallery:
     return galleries_pb2.PhotoGallery(
         gallery_id=gallery.id,
         photos=[
@@ -34,7 +37,9 @@ def _gallery_to_pb(gallery: PhotoGallery, context) -> galleries_pb2.PhotoGallery
 
 
 class Galleries(galleries_pb2_grpc.GalleriesServicer):
-    def GetGallery(self, request: galleries_pb2.GetGalleryReq, context, session: Session) -> galleries_pb2.PhotoGallery:
+    def GetGallery(
+        self, request: galleries_pb2.GetGalleryReq, context: CouchersContext, session: Session
+    ) -> galleries_pb2.PhotoGallery:
         gallery = session.execute(
             select(PhotoGallery).where(PhotoGallery.id == request.gallery_id)
         ).scalar_one_or_none()
@@ -45,7 +50,7 @@ class Galleries(galleries_pb2_grpc.GalleriesServicer):
         return _gallery_to_pb(gallery, context)
 
     def AddPhotoToGallery(
-        self, request: galleries_pb2.AddPhotoToGalleryReq, context, session: Session
+        self, request: galleries_pb2.AddPhotoToGalleryReq, context: CouchersContext, session: Session
     ) -> galleries_pb2.PhotoGallery:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
@@ -99,7 +104,7 @@ class Galleries(galleries_pb2_grpc.GalleriesServicer):
         return _gallery_to_pb(gallery, context)
 
     def RemovePhotoFromGallery(
-        self, request: galleries_pb2.RemovePhotoFromGalleryReq, context, session: Session
+        self, request: galleries_pb2.RemovePhotoFromGalleryReq, context: CouchersContext, session: Session
     ) -> galleries_pb2.PhotoGallery:
         gallery = session.execute(
             select(PhotoGallery).where(PhotoGallery.id == request.gallery_id)
@@ -126,7 +131,9 @@ class Galleries(galleries_pb2_grpc.GalleriesServicer):
 
         return _gallery_to_pb(gallery, context)
 
-    def MovePhoto(self, request: galleries_pb2.MovePhotoReq, context, session: Session) -> galleries_pb2.PhotoGallery:
+    def MovePhoto(
+        self, request: galleries_pb2.MovePhotoReq, context: CouchersContext, session: Session
+    ) -> galleries_pb2.PhotoGallery:
         gallery = session.execute(
             select(PhotoGallery).where(PhotoGallery.id == request.gallery_id)
         ).scalar_one_or_none()
@@ -177,7 +184,8 @@ class Galleries(galleries_pb2_grpc.GalleriesServicer):
 
         if new_position is not None:
             session.execute(
-                PhotoGalleryItem.__table__.update()
+                cast(Table, PhotoGalleryItem.__table__)
+                .update()
                 .where(PhotoGalleryItem.id == request.item_id)
                 .values(position=new_position)
             )
@@ -188,7 +196,7 @@ class Galleries(galleries_pb2_grpc.GalleriesServicer):
         return _gallery_to_pb(gallery, context)
 
     def UpdatePhotoCaption(
-        self, request: galleries_pb2.UpdatePhotoCaptionReq, context, session: Session
+        self, request: galleries_pb2.UpdatePhotoCaptionReq, context: CouchersContext, session: Session
     ) -> galleries_pb2.PhotoGallery:
         gallery = session.execute(
             select(PhotoGallery).where(PhotoGallery.id == request.gallery_id)
@@ -216,7 +224,7 @@ class Galleries(galleries_pb2_grpc.GalleriesServicer):
         return _gallery_to_pb(gallery, context)
 
     def GetGalleryEditInfo(
-        self, request: galleries_pb2.GetGalleryEditInfoReq, context, session: Session
+        self, request: galleries_pb2.GetGalleryEditInfoReq, context: CouchersContext, session: Session
     ) -> galleries_pb2.GetGalleryEditInfoRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 

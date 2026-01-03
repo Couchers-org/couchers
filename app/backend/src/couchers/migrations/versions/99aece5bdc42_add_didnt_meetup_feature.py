@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("host_requests", sa.Column("host_reason_didnt_meetup", sa.String(), nullable=True))
     op.add_column("host_requests", sa.Column("surfer_reason_didnt_meetup", sa.String(), nullable=True))
     op.create_index(
@@ -33,6 +33,6 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("host_requests", "surfer_reason_didnt_meetup")
     op.drop_column("host_requests", "host_reason_didnt_meetup")

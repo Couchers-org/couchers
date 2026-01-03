@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "host_request_feedbacks",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -55,7 +55,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_index("ix_unique_host_req_feedback", table_name="host_request_feedbacks")
     op.drop_index(op.f("ix_host_request_feedbacks_to_user_id"), table_name="host_request_feedbacks")
     op.drop_index(op.f("ix_host_request_feedbacks_from_user_id"), table_name="host_request_feedbacks")

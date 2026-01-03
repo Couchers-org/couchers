@@ -4,10 +4,10 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
-from couchers import constants, urls
+from couchers import urls
 from couchers.crypto import hash_password, random_hex
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -21,16 +21,12 @@ from couchers.models import (
     Volunteer,
 )
 from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import now, today
-from tests.test_fixtures import (  # noqa
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
+from tests.fixtures.sessions import (
     account_session,
     auth_api_session,
-    email_fields,
-    generate_user,
-    mock_notification_email,
-    moderator,
-    process_jobs,
     public_session,
     real_account_session,
     requests_session,
@@ -61,102 +57,76 @@ def test_GetAccountInfo(db, fast_passwords):
 
 def test_donation_banner_no_drive(db):
     """Test that the banner is not shown when DONATION_DRIVE_START is None"""
+    # User has donated, but the drive is disabled, so the banner should not show
+    user, token = generate_user()
 
-    original_value = constants.DONATION_DRIVE_START
-    try:
-        constants.DONATION_DRIVE_START = None
-
-        # User has donated, but the drive is disabled, so the banner should not show
-        user, token = generate_user()
-
+    with patch("couchers.servicers.account.DONATION_DRIVE_START", None):
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
             assert not res.should_show_donation_banner
-    finally:
-        constants.DONATION_DRIVE_START = original_value
 
 
 def test_donation_banner_never_donated(db):
     """Test that banner is shown when user has never donated and drive is active"""
+    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
 
-    original_value = constants.DONATION_DRIVE_START
-    try:
-        drive_start = datetime(2025, 11, 1, tzinfo=UTC)
-        constants.DONATION_DRIVE_START = drive_start
+    # Explicitly set last_donated=None since generate_user defaults to now()
+    user, token = generate_user(last_donated=None)
 
-        # Explicitly set last_donated=None since generate_user defaults to now()
-        user, token = generate_user(last_donated=None)
-
+    with patch("couchers.servicers.account.DONATION_DRIVE_START", drive_start):
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
             assert res.should_show_donation_banner
-    finally:
-        constants.DONATION_DRIVE_START = original_value
 
 
 def test_donation_banner_donated_before_drive(db):
     """Test that banner is shown when user donated before drive start"""
+    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
 
-    original_value = constants.DONATION_DRIVE_START
-    try:
-        drive_start = datetime(2025, 11, 1, tzinfo=UTC)
-        constants.DONATION_DRIVE_START = drive_start
+    user, token = generate_user()
 
-        user, token = generate_user()
+    # Set donation before drive start
+    with session_scope() as session:
+        last_donated = datetime(2025, 10, 15, tzinfo=UTC)  # Before Nov 1
+        session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
 
-        # Set donation before drive start
-        with session_scope() as session:
-            last_donated = datetime(2025, 10, 15, tzinfo=UTC)  # Before Nov 1
-            session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
-
+    with patch("couchers.servicers.account.DONATION_DRIVE_START", drive_start):
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
             assert res.should_show_donation_banner
-    finally:
-        constants.DONATION_DRIVE_START = original_value
 
 
 def test_donation_banner_donated_after_drive(db):
     """Test that banner is not shown when user donated after drive start"""
+    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
 
-    original_value = constants.DONATION_DRIVE_START
-    try:
-        drive_start = datetime(2025, 11, 1, tzinfo=UTC)
-        constants.DONATION_DRIVE_START = drive_start
+    user, token = generate_user()
 
-        user, token = generate_user()
+    # Set donation after drive start
+    with session_scope() as session:
+        last_donated = datetime(2025, 11, 15, tzinfo=UTC)  # After Nov 1
+        session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
 
-        # Set donation after drive start
-        with session_scope() as session:
-            last_donated = datetime(2025, 11, 15, tzinfo=UTC)  # After Nov 1
-            session.execute(update(User).where(User.id == user.id).values(last_donated=last_donated))
-
+    with patch("couchers.servicers.account.DONATION_DRIVE_START", drive_start):
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
             assert not res.should_show_donation_banner
-    finally:
-        constants.DONATION_DRIVE_START = original_value
 
 
 def test_donation_banner_donated_exactly_at_drive_start(db):
     """Test that banner is not shown when user donated exactly at drive start time"""
+    drive_start = datetime(2025, 11, 1, tzinfo=UTC)
 
-    original_value = constants.DONATION_DRIVE_START
-    try:
-        drive_start = datetime(2025, 11, 1, tzinfo=UTC)
-        constants.DONATION_DRIVE_START = drive_start
+    user, token = generate_user()
 
-        user, token = generate_user()
+    # Set donation exactly at drive start
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(last_donated=drive_start))
 
-        # Set donation exactly at drive start
-        with session_scope() as session:
-            session.execute(update(User).where(User.id == user.id).values(last_donated=drive_start))
-
+    with patch("couchers.servicers.account.DONATION_DRIVE_START", drive_start):
         with account_session(token) as account:
             res = account.GetAccountInfo(empty_pb2.Empty())
             assert not res.should_show_donation_banner
-    finally:
-        constants.DONATION_DRIVE_START = original_value
 
 
 def test_GetAccountInfo_regression(db):
@@ -180,7 +150,7 @@ def test_GetAccountInfo_regression(db):
         res = account.GetAccountInfo(empty_pb2.Empty())
 
 
-def test_ChangePasswordV2_normal(db, fast_passwords, push_collector):
+def test_ChangePasswordV2_normal(db, fast_passwords, push_collector: PushCollector):
     # user has old password and is changing to new password
     old_password = random_hex()
     new_password = random_hex()
@@ -198,9 +168,9 @@ def test_ChangePasswordV2_normal(db, fast_passwords, push_collector):
     mock.assert_called_once()
     assert email_fields(mock).subject == "[TEST] Your password was changed"
 
-    push_collector.assert_user_has_single_matching(
-        user.id, title="Your password was changed", body="Your login password for Couchers.org was changed."
-    )
+    push = push_collector.get_for_user(user.id)
+    assert push.content.title == "Your password was changed"
+    assert push.content.body == "Your login password for Couchers.org was changed."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -547,7 +517,7 @@ def test_ChangeEmailV2_tokens_two_hour_window(db):
             assert e.value.details() == "Invalid token."
 
 
-def test_ChangeEmailV2(db, fast_passwords, push_collector):
+def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
@@ -572,15 +542,12 @@ def test_ChangeEmailV2(db, fast_passwords, push_collector):
         token = user_updated.new_email_token
 
     process_jobs()
-    push_collector.assert_user_push_matches_fields(
-        user_id,
-        ix=0,
-        title="An email change was initiated on your account",
-        body=f"An email change to the email {new_email} was initiated on your account.",
-    )
+    push = push_collector.get_for_user(user_id, index=0)
+    assert push.content.title == "An email change was initiated on your account"
+    assert push.content.body == f"An email change to the email {new_email} was initiated on your account."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.ConfirmChangeEmailV2(
+        auth_api.ConfirmChangeEmailV2(
             auth_pb2.ConfirmChangeEmailV2Req(
                 change_email_token=token,
             )
@@ -595,15 +562,12 @@ def test_ChangeEmailV2(db, fast_passwords, push_collector):
         assert user.new_email_token_expiry is None
 
     process_jobs()
-    push_collector.assert_user_push_matches_fields(
-        user_id,
-        ix=1,
-        title="Email change completed",
-        body="Your new email address has been verified.",
-    )
+    push = push_collector.get_for_user(user_id, index=1)
+    assert push.content.title == "Email change completed"
+    assert push.content.body == "Your new email address has been verified."
 
 
-def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector):
+def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector: PushCollector):
     password = random_hex()
     new_email = f"{random_hex()}@couchers.org.invalid"
     user, token = generate_user(hashed_password=hash_password(password))
@@ -621,8 +585,6 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector):
     with session_scope() as session:
         jobs = session.execute(select(BackgroundJob).where(BackgroundJob.job_type == "send_email")).scalars().all()
         assert len(jobs) == 2
-        payload_for_notification_email = jobs[0].payload
-        payload_for_confirmation_email_new_address = jobs[1].payload
         uq_str1 = b"An email change to the email"
         uq_str2 = (
             b"You requested that your email be changed to this email address on Couchers.org. Your old email address is"
@@ -631,16 +593,14 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector):
             uq_str2 in jobs[0].payload and uq_str1 in jobs[1].payload
         )
 
-    push_collector.assert_user_has_single_matching(
-        user.id,
-        title="An email change was initiated on your account",
-        body=f"An email change to the email {new_email} was initiated on your account.",
-    )
+    push = push_collector.get_for_user(user.id)
+    assert push.content.title == "An email change was initiated on your account"
+    assert push.content.body == f"An email change to the email {new_email} was initiated on your account."
 
 
 def test_ChangeLanguagePreference(db, fast_passwords):
     # user changes from default to ISO 639-1 language code
-    newLanguageCode = "zh"
+    new_lang = "zh"
     user, token = generate_user()
 
     with real_account_session(token) as account:
@@ -649,20 +609,19 @@ def test_ChangeLanguagePreference(db, fast_passwords):
 
         # call will have info about the request
         res, call = account.ChangeLanguagePreference.with_call(
-            account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=newLanguageCode)
+            account_pb2.ChangeLanguagePreferenceReq(ui_language_preference=new_lang)
         )
 
         # cookies are sent via initial metadata, so we check for it there
-        for key, val in call.initial_metadata():
-            if key == "set-cookie":
-                # the value of "set-cookie" will be the full cookie string, pull the key value from the string
-                key_val = val.split(";")[0]
-                if key_val == "NEXT_LOCALE=zh":
-                    # the changed language preference should also be sent to the backend
-                    res = account.GetAccountInfo(empty_pb2.Empty())
-                    assert res.ui_language_preference == "zh"
-                    return
-        raise Exception(f"Didn't find right cookie, got {call.initial_metadata()}")
+        # the value of "set-cookie" will be the full cookie string, pull the key value from the string
+        cookie_values = [v.split(";")[0] for k, v in call.initial_metadata() if k == "set-cookie"]
+        assert any(val == "NEXT_LOCALE=zh" for val in cookie_values), (
+            f"Didn't find the right cookie, got {call.initial_metadata()}"
+        )
+
+        # the changed language preference should also be sent to the backend
+        res = account.GetAccountInfo(empty_pb2.Empty())
+        assert res.ui_language_preference == "zh"
 
 
 def test_contributor_form(db):
@@ -711,7 +670,7 @@ def test_DeleteAccount_message_storage(db):
         assert session.execute(select(func.count()).select_from(AccountDeletionReason)).scalar_one() == 3
 
 
-def test_full_delete_account_with_recovery(db, push_collector):
+def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
     user, token = generate_user()
     user_id = user.id
 
@@ -725,11 +684,11 @@ def test_full_delete_account_with_recovery(db, push_collector):
         with mock_notification_email() as mock:
             account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
 
-    push_collector.assert_user_push_matches_fields(
-        user_id,
-        ix=0,
-        title="Account deletion initiated",
-        body="Someone initiated the deletion of your Couchers.org account. To delete your account, please follow the link in the email we sent you.",
+    push = push_collector.get_for_user(user_id, index=0)
+    assert push.content.title == "Account deletion initiated"
+    assert (
+        push.content.body
+        == "Someone initiated the deletion of your Couchers.org account. To delete your account, please follow the link in the email we sent you."
     )
 
     mock.assert_called_once()
@@ -767,12 +726,9 @@ def test_full_delete_account_with_recovery(db, push_collector):
                 )
             )
 
-    push_collector.assert_user_push_matches_fields(
-        user_id,
-        ix=1,
-        title="Your Couchers.org account has been deleted",
-        body="You can still undo this by following the link we emailed to you within 7 days.",
-    )
+    push = push_collector.get_for_user(user_id, index=1)
+    assert push.content.title == "Your Couchers.org account has been deleted"
+    assert push.content.body == "You can still undo this by following the link we emailed to you within 7 days."
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -808,12 +764,9 @@ def test_full_delete_account_with_recovery(db, push_collector):
                 )
             )
 
-    push_collector.assert_user_push_matches_fields(
-        user_id,
-        ix=2,
-        title="Your Couchers.org account has been recovered!",
-        body="We have recovered your Couchers.org account as per your request! Welcome back!",
-    )
+    push = push_collector.get_for_user(user_id, index=2)
+    assert push.content.title == "Your Couchers.org account has been recovered!"
+    assert push.content.body == "We have recovered your Couchers.org account as per your request! Welcome back!"
 
     mock.assert_called_once()
     e = email_fields(mock)

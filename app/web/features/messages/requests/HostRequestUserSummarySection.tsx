@@ -71,7 +71,7 @@ const HostRequestUserSummarySection = ({
         />
       )}
       <StyledShortUserInfo>
-        <Typography component="p" variant="body2">
+        <Typography component="div" variant="body2">
           {!otherUser ? (
             <Skeleton />
           ) : (

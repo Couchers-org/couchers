@@ -21,13 +21,14 @@ import { useWeblateStats } from "features/weblate/useWeblateStats";
 import { useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
-import { useRouter } from "next/router"; // we'll use this to reload the components w/ changed languages
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
-import { ALMOST_DONE_CUTOFF, SELECTOR_CUTOFF } from "./constants";
+import { ALMOST_DONE_CUTOFF } from "./constants";
+import { getAvailableLanguages } from "./utils";
 
 interface StyledMuiSelectProps {
   displayMode?: "round" | "rect";
@@ -37,8 +38,18 @@ const StyledSelect = styled(Select, {
   shouldForwardProp: (prop) => prop !== "displayMode",
 })<StyledMuiSelectProps>(({ theme, displayMode }) => ({
   borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
+  backgroundColor: "var(--mui-palette-grey-200)",
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "var(--mui-palette-grey-300)",
+  },
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "var(--mui-palette-grey-300)",
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "var(--mui-palette-grey-300)",
+  },
   "& .MuiSelect-icon": {
-    color: theme.palette.text.primary,
+    color: "var(--mui-palette-text-primary)",
     fontSize: "1.25rem",
     top: "50%",
     transform: "translateY(-50%)",
@@ -56,7 +67,7 @@ export default function LanguagePickerSelect({
   onSelect,
 }: LanguagePickerSelectProps & { onSelect?: () => void }) {
   const router = useRouter();
-  const { asPath, locale, pathname } = router;
+  const { asPath, locale, pathname, query } = router;
   const { authState } = useAuthContext();
   const isAuthenticated = authState.authenticated;
 
@@ -66,21 +77,35 @@ export default function LanguagePickerSelect({
   const { data: languages, isLoading, error } = useWeblateStats();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isChangingLanguage, setIsChangingLanguage] = useState(false);
 
   const { mutate: changeLanguageMutation } = useMutation({
     mutationFn: (newLanguage: string) =>
       service.account.changeLanguage(newLanguage),
   });
 
-  const handleChange = async (event: SelectChangeEvent<unknown>) => {
+  const handleChange = (event: SelectChangeEvent<unknown>) => {
     const newLocale = event.target.value as string;
 
-    if (isAuthenticated) {
-      await changeLanguageMutation(newLocale);
+    // Prevent rapid consecutive language changes
+    if (isChangingLanguage) {
+      return;
     }
 
-    // Push new route with updated locale, keep the current asPath for display
-    router.push({ pathname }, asPath, { locale: newLocale });
+    setIsChangingLanguage(true);
+
+    // Set cookie client-side immediately for both authenticated and logged-out users
+    // This ensures the middleware sees the updated locale before navigation
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; samesite=lax`;
+
+    if (isAuthenticated) {
+      // For authenticated users, also update backend's ui_language_preference
+      changeLanguageMutation(newLocale);
+    }
+
+    router.push({ pathname, query }, asPath, { locale: newLocale });
+
+    setIsChangingLanguage(false);
     onSelect?.();
   };
 
@@ -118,30 +143,11 @@ export default function LanguagePickerSelect({
   };
   // Languages with < 50% translated are hidden from language selector
   // Languages with < 80% translated are greyed out
-  const availableLanguages = languages
-    ?.filter(
-      (language) =>
-        LANGUAGE_MAP[language.code.replace("_", "-")] &&
-        language.translated_percent >= SELECTOR_CUTOFF,
-    )
-    // sort by translated percent with the >= 80 grouped at the top, then sorted alphabetically by code
-    .sort((a, b) => {
-      if (
-        a.translated_percent >= ALMOST_DONE_CUTOFF &&
-        b.translated_percent < ALMOST_DONE_CUTOFF
-      )
-        return -1;
-      if (
-        a.translated_percent < ALMOST_DONE_CUTOFF &&
-        b.translated_percent >= ALMOST_DONE_CUTOFF
-      )
-        return 1;
-      return a.code.localeCompare(b.code);
-    });
+  const availableLanguages = getAvailableLanguages(languages);
 
   const menuItems: React.ReactNode[] | undefined = isLoading
     ? []
-    : availableLanguages?.map((language) => {
+    : availableLanguages.map((language) => {
         // language.code has underscore, we need to change to hyphen
         const languageCode = language.code.replace("_", "-");
 
@@ -154,10 +160,10 @@ export default function LanguagePickerSelect({
               alignItems: "center",
               gap: theme.spacing(1),
               "& .Mui-selected": {
-                backgroundColor: theme.palette.action.selected,
+                backgroundColor: "var(--mui-palette-action-selected)",
               },
               "& .Mui-selected:hover": {
-                backgroundColor: theme.palette.action.hover,
+                backgroundColor: "var(--mui-palette-action-hover)",
               },
             }}
           >
@@ -189,7 +195,10 @@ export default function LanguagePickerSelect({
               </Stack>
               <div>
                 {locale === languageCode && (
-                  <CheckIcon fontSize="small" sx={{ color: "#00a69a" }} />
+                  <CheckIcon
+                    fontSize="small"
+                    sx={{ color: "var(--mui-palette-primary-main)" }}
+                  />
                 )}
               </div>
             </Stack>
@@ -207,7 +216,7 @@ export default function LanguagePickerSelect({
           alignItems: "center",
           gap: 1,
           pl: 1,
-          color: "#666666",
+          color: "var(--mui-palette-text-secondary)",
           fontWeight: "bold",
         }}
       >
@@ -246,7 +255,7 @@ export default function LanguagePickerSelect({
               // Use renderValue to display the selected language in collapsed state
               renderValue={renderValue}
               IconComponent={ExpandMoreOutlinedIcon}
-              disabled={isLoading}
+              disabled={isLoading || isChangingLanguage}
               open={isOpen}
               onOpen={() => setIsOpen(true)}
               onClose={() => setIsOpen(false)}
@@ -256,18 +265,18 @@ export default function LanguagePickerSelect({
                 key="translation-progress"
                 onClick={handleTranslationProgressClick}
                 sx={{
-                  borderTop: `1px solid ${theme.palette.divider}`,
+                  borderTop: `1px solid var(--mui-palette-divider)`,
                   mt: 1,
                   pt: 1,
                   px: 2,
                   cursor: "pointer",
                   "&:hover": {
-                    backgroundColor: "action.hover",
+                    backgroundColor: "var(--mui-palette-action-hover)",
                   },
                 }}
               >
                 <Typography
-                  color="primary"
+                  color="var(--mui-palette-primary-main)"
                   sx={{ fontWeight: "bold" }}
                   onClick={handleTranslationProgressClick}
                 >
@@ -282,7 +291,7 @@ export default function LanguagePickerSelect({
               value={isLoading ? "" : locale}
               fullWidth={isMobile}
               onChange={handleChange}
-              disabled={isLoading}
+              disabled={isLoading || isChangingLanguage}
               open={isOpen}
               onOpen={() => setIsOpen(true)}
               onClose={() => setIsOpen(false)}
@@ -291,20 +300,20 @@ export default function LanguagePickerSelect({
               <Box
                 onClick={handleTranslationProgressClick}
                 sx={{
-                  borderTop: `1px solid ${theme.palette.divider}`,
+                  borderTop: `1px solid var(--mui-palette-divider)`,
                   mt: 1,
                   pt: 1,
                   px: 2,
                   py: 1,
                   cursor: "pointer",
                   "&:hover": {
-                    backgroundColor: "action.hover",
+                    backgroundColor: "var(--mui-palette-action-hover)",
                   },
                 }}
               >
                 <Typography
                   variant="body2"
-                  color="primary"
+                  color="var(--mui-palette-primary-main)"
                   onClick={handleTranslationProgressClick}
                 >
                   {t("global:language_preference.translation_progress.title")}

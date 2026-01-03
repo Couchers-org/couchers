@@ -53,6 +53,7 @@ const UserCardsWrapper = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
     display: "flex",
     flexDirection: "column",
+    gap: theme.spacing(1),
   },
 }));
 
@@ -61,7 +62,7 @@ const StyledCardWrapper = styled("div")(({ theme }) => ({
   display: "flex",
 
   [theme.breakpoints.down("md")]: {
-    height: `${DEFAULT_DRAWER_WIDTH - 200}px`,
+    height: "auto",
   },
 }));
 
@@ -139,9 +140,9 @@ const SearchResultListContent = ({
         )}
         {(users ?? []).length > 0 && (
           <Typography variant="body2">
-            {t("search:search_result.people_found_message", {
-              currentRange,
-              totalItems,
+            {t("search:search_result.people_range_message", {
+              currentRange: currentRange,
+              count: totalItems, // "count" name enables plurals
             })}
           </Typography>
         )}
@@ -160,8 +161,8 @@ const SearchResultListContent = ({
             )}
             sx={{
               fontSize: "24px",
-              backgroundColor: theme.palette.common.white,
-              border: `1px solid ${theme.palette.divider}`,
+              backgroundColor: "var(--mui-palette-background-paper)",
+              border: `1px solid var(--mui-palette-divider)`,
               height: "25px",
               width: "25px",
               position: "absolute",
@@ -170,7 +171,7 @@ const SearchResultListContent = ({
               zIndex: 10,
 
               "&:hover": {
-                backgroundColor: theme.palette.common.white,
+                backgroundColor: "var(--mui-palette-background-paper)",
               },
             }}
           >
@@ -203,7 +204,6 @@ const SearchResultListContent = ({
             variant="contained"
             size="small"
             onClick={handleIncludeEmptyProfilesClick}
-            sx={{ backgroundColor: theme.palette.primary.main }}
           >
             {t("search:search_result.include_empty_profiles_button")}
           </Button>

@@ -8,6 +8,7 @@ import logging
 
 import grpc
 from google.protobuf.message import Message
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers import urls
@@ -28,7 +29,7 @@ from couchers.notifications.utils import enum_from_topic_action
 from couchers.proto import auth_pb2, conversations_pb2, requests_pb2
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.requests import Requests
-from couchers.sql import couchers_select as select
+from couchers.sql import where_moderated_content_visible
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -98,7 +99,7 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
         user.do_not_email = True
         user.hosting_status = HostingStatus.cant_host
         user.meetup_status = MeetupStatus.does_not_want_to_meetup
-        return context.get_localized_string("quick_links", "do_not_email")
+        return context.get_localized_string("quick_links.do_not_email")
     if payload.HasField("topic_action"):
         logger.info(f"User {user.name} unsubscribing from topic_action")
         topic = payload.topic_action.topic
@@ -106,7 +107,7 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
         topic_action = enum_from_topic_action[topic, action]
         # disable emails for this type
         settings.set_preference(session, user.id, topic_action, NotificationDeliveryType.email, False)
-        return context.get_localized_string("quick_links", "topic_action")
+        return context.get_localized_string("quick_links.topic_action")
     if payload.HasField("topic_key"):
         logger.info(f"User {user.name} unsubscribing from topic_key")
         topic = payload.topic_key.topic
@@ -115,9 +116,14 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
         if topic == "chat":
             group_chat_id = int(key)
             subscription = session.execute(
-                select(GroupChatSubscription)
-                .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
-                .where_moderated_content_visible(context, GroupChat, is_list_operation=False)
+                where_moderated_content_visible(
+                    select(GroupChatSubscription).join(
+                        GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id
+                    ),
+                    context,
+                    GroupChat,
+                    is_list_operation=False,
+                )
                 .where(GroupChatSubscription.group_chat_id == group_chat_id)
                 .where(GroupChatSubscription.user_id == user.id)
                 .where(GroupChatSubscription.left == None)
@@ -126,13 +132,12 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
             if subscription is None:
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
 
-            assert subscription is not None
             subscription.muted_until = DATETIME_INFINITY
-            return context.get_localized_string("quick_links", "chat_unsub")
+            return context.get_localized_string("quick_links.chat_unsub")
         else:
             context.abort_with_error_code(grpc.StatusCode.UNIMPLEMENTED, "cant_unsub_topic")
     if payload.HasField("host_request_quick_decline"):
-        Requests().RespondHostRequest(  # type: ignore[no-untyped-call]
+        Requests().RespondHostRequest(
             request=requests_pb2.RespondHostRequestReq(
                 host_request_id=payload.host_request_quick_decline.host_request_id,
                 status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
@@ -140,5 +145,5 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
             context=make_one_off_interactive_user_context(couchers_context=context, user_id=payload.user_id),
             session=session,
         )
-        return context.get_localized_string("quick_links", "host_request_quick_decline")
+        return context.get_localized_string("quick_links.host_request_quick_decline")
     raise Exception("Unhandled quick link type")

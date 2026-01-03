@@ -15,7 +15,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     """
     Cast points to geography and back to wrap coordinates
     """
@@ -26,5 +26,5 @@ def upgrade():
     op.execute("UPDATE events SET geom = (ST_SetSRID(geom, 4326)::geography)::geometry")
 
 
-def downgrade():
+def downgrade() -> None:
     pass

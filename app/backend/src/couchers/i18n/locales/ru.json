@@ -260,15 +260,17 @@
         "no_money_guideline": "Сохраняйте отношения некоммерческими. Не платите и не принимайте оплату за проживание или хостинг. Couchers.org - это про обучение, опыт и знакомство с людьми."
     },
     "notifications": {
-        "donation_received_title": "Спасибо за ваш вклад в Couchers.org!",
-        "donation_received_thanks_amount": "Большое спасибо за ваше пожертвование в размере ${{amount}} в пользу Couchers.org.",
-        "donation_received_invoice_receipt_info": "Вы можете скачать счет и квитанцию за пожертвование здесь:",
-        "donation_received_download_invoice": "Скачать счет",
-        "donation_received_generosity_helps": "Ваша щедрость поможет сделать платформу доступной для всех.",
         "thank_you": "Спасибо!",
         "founders_signature": "Аапели и Итси,\nОснователи Couchers.org",
-        "donation_received_questions_contact": "Если у вас есть вопросы о вашем пожертвовании, пожалуйста, напишите нам на <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
-        "donation_received_purpose": "Ваш вклад поможет в создании и поддержке платформы и сообщества Couchers.org и является жизненно важным для нашей цели - полностью бесплатного и некоммерческого поколения каучсерфинга.",
-        "dear_name": "Привет {{name}},"
+        "dear_name": "Привет {{name}},",
+        "donation_received": {
+            "title": "Спасибо за ваш вклад в Couchers.org!",
+            "thanks_amount": "Большое спасибо за ваше пожертвование в размере ${{amount}} в пользу Couchers.org.",
+            "invoice_receipt_info": "Вы можете скачать счет и квитанцию за пожертвование здесь:",
+            "download_invoice": "Скачать счет",
+            "generosity_helps": "Ваша щедрость поможет сделать платформу доступной для всех.",
+            "questions_contact": "Если у вас есть вопросы о вашем пожертвовании, пожалуйста, напишите нам на <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
+            "purpose": "Ваш вклад поможет в создании и поддержке платформы и сообщества Couchers.org и является жизненно важным для нашей цели - полностью бесплатного и некоммерческого поколения каучсерфинга."
+        }
     }
 }

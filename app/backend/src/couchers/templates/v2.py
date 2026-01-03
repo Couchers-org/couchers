@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
-from couchers.i18n.i18n import get_raw_translation_string
+from couchers.i18n.i18n import localize_string
 from couchers.models import User
 from couchers.utils import get_tz_as_text, now, to_aware_datetime
 
@@ -37,7 +37,6 @@ md = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading",
 # Special context values expected by v2 filters
 CONTEXT_YEAR_KEY = "_year"
 CONTEXT_TIMEZONE_DISPLAY_KEY = "_timezone_display"
-CONTEXT_TRANSLATION_COMPONENT_KEY = "_component"
 CONTEXT_TRANSLATION_LANGUAGE_KEY = "_lang"
 CONTEXT_PLAINTEXT_KEY = "_plain"
 
@@ -96,6 +95,17 @@ def v2markdown(value: str) -> str:
     return md.render(value)  # type: ignore[no-any-return]
 
 
+def replace_tag(match: re.Match[str]) -> str:
+    tag = match.group(1)
+    inner_text = match.group(2)
+    if tag.lower() == "a":
+        # <a href="url">text</a> -> <text>
+        return f"<{inner_text}>"
+    else:
+        # <b>hello</b> -> hello
+        return inner_text
+
+
 @pass_context
 def v2translate(context: Context, key: str, **kwargs: Any) -> str:
     """
@@ -106,27 +116,15 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
     """
 
     lang: str = context[CONTEXT_TRANSLATION_LANGUAGE_KEY]
-    component: str = context[CONTEXT_TRANSLATION_COMPONENT_KEY]
 
     # Prevent html injection
     escaped_substitutions = {k: escape(str(v)) for k, v in kwargs.items()}
 
-    translated = get_raw_translation_string(lang, component, key, substitutions=escaped_substitutions)
+    translated = localize_string(lang, key, substitutions=escaped_substitutions)
 
     # Translations may include simple formatting HTML like <b> or <a>,
     # but those should not appear in plain text emails.
     if context.parent.get(CONTEXT_PLAINTEXT_KEY) == True:
-
-        def replace_tag(match: re.Match) -> str:
-            tag = match.group(1)
-            inner_text = match.group(2)
-            if tag.lower() == "a":
-                # <a href="url">text</a> -> <text>
-                return f"<{inner_text}>"
-            else:
-                # <b>hello</b> -> hello
-                return inner_text
-
         # Doesn't support nesting, but should be sufficient for our needs
         translated = re.sub(r"<(\w+).*?>(.*?)</\1>", replace_tag, translated)
         translated = re.sub(r"<br\s*/?>", "\n", translated)
@@ -165,6 +163,7 @@ def send_simple_pretty_email(
 
     It's for the few security emails where we don't have a user to email but send directly to an email address.
     """
+    template_args[CONTEXT_TRANSLATION_LANGUAGE_KEY] = "en"  # Not yet localizable
     template_args[CONTEXT_YEAR_KEY] = now().year
     template_args[CONTEXT_TIMEZONE_DISPLAY_KEY] = get_tz_as_text("Etc/UTC")
     template_args["footer_email_is_critical"] = True  # Results in no unsubscribe footer.

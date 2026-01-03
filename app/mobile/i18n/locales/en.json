@@ -1,19 +1,4 @@
 {
-  "biometrics": {
-    "login_prompt": "Authenticate to continue",
-    "cancel_button": "Cancel",
-    "use_password_button": "Use Password",
-    "enable_title": "Enable {{biometricType}}?",
-    "enable_message": "Would you like to use {{biometricType}} for faster login next time?",
-    "enable_button": "Enable",
-    "not_now_button": "Not Now",
-    "confirm_prompt": "Confirm {{biometricType}}",
-    "face_id": "Face ID",
-    "touch_id": "Touch ID",
-    "biometrics_generic": "biometrics",
-    "pin_prompt": "Use your device PIN to continue",
-    "pin_fallback_label": "Use device PIN"
-  },
   "errors": {
     "failed_to_load": "Failed to load",
     "check_connection": "Check your internet connection and try again.",
@@ -28,6 +13,7 @@
     "home": "Home",
     "messages": "Messages",
     "communities": "Communities",
-    "search": "Search"
+    "search": "Search",
+    "events": "Events"
   }
 }

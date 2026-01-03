@@ -5,7 +5,8 @@ from datetime import timedelta
 from typing import Any
 
 from google.protobuf import empty_pb2
-from sqlalchemy import Column, CompoundSelect, Connection, Float, Index, Integer, MetaData, Select, Table, event
+from sqlalchemy import CompoundSelect, Connection, Float, Index, Integer, MetaData, Select, Table, event
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql import (
     and_,
     case,
@@ -53,7 +54,7 @@ def create_materialized_view_with_different_ddl(
     aliases: dict[str, str] | None = None,
 ) -> Table:
     """
-    Copied wholesale from sqlalchemy_utils (3-clause BSD), with minor tweak in {select,create}_selectable
+    Copied wholesale from sqlalchemy_utils (3-clause BSD), with a minor tweak in {select,create}_selectable
 
     https://github.com/kvesteri/sqlalchemy-utils/blob/baf53cd1a3e779fc127010543fed53cf4a97fe16/sqlalchemy_utils/view.py#L77-L124
     """
@@ -90,7 +91,7 @@ cluster_subscription_counts = create_materialized_view(
     [
         Index(
             "uq_cluster_subscription_counts_cluster_id",
-            cluster_subscription_counts_selectable.c.cluster_id,
+            cluster_subscription_counts_selectable.subquery().c.cluster_id,
             unique=True,
         )
     ],
@@ -99,6 +100,9 @@ cluster_subscription_counts = create_materialized_view(
 
 class ClusterSubscriptionCount(Base):
     __table__ = cluster_subscription_counts
+
+    cluster_id: Mapped[int]
+    count: Mapped[int]
 
 
 cluster_admin_counts_selectable = (
@@ -117,12 +121,21 @@ cluster_admin_counts = create_materialized_view(
     "cluster_admin_counts",
     cluster_admin_counts_selectable,
     Base.metadata,
-    [Index("uq_cluster_admin_counts_cluster_id", cluster_admin_counts_selectable.c.cluster_id, unique=True)],
+    [
+        Index(
+            "uq_cluster_admin_counts_cluster_id",
+            cluster_admin_counts_selectable.subquery().c.cluster_id,
+            unique=True,
+        )
+    ],
 )
 
 
 class ClusterAdminCount(Base):
     __table__ = cluster_admin_counts
+
+    cluster_id: Mapped[int]
+    count: Mapped[int]
 
 
 def make_lite_users_selectable(create: bool = False) -> Select[Any]:
@@ -151,10 +164,10 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
             User.age.label("age"),
             geom_column.label("geom"),
             User.geom_radius.label("radius"),
-            User.is_visible.label("is_visible"),  # type: ignore[attr-defined]
+            User.is_visible.label("is_visible"),
             Upload.filename.label("avatar_filename"),
-            User.has_completed_profile.label("has_completed_profile"),  # type: ignore[attr-defined]
-            User.has_completed_my_home.label("has_completed_my_home"),  # type: ignore[attr-defined]
+            User.has_completed_profile.label("has_completed_profile"),
+            User.has_completed_my_home.label("has_completed_my_home"),
             func.coalesce(strong_verification_subquery.c.true, False).label("has_strong_verification"),
         )
         .select_from(User)
@@ -166,25 +179,27 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
 lite_users_selectable_select = make_lite_users_selectable(create=False)
 lite_users_selectable_create = make_lite_users_selectable(create=True)
 
+lite_users_subquery = lite_users_selectable_create.subquery()
+
 lite_users = create_materialized_view_with_different_ddl(
     "lite_users",
     lite_users_selectable_select,
     lite_users_selectable_create,
     Base.metadata,
     [
-        Index("uq_lite_users_id", lite_users_selectable_create.c.id, unique=True),
-        Index("uq_lite_users_username", lite_users_selectable_create.c.username, unique=True),
+        Index("uq_lite_users_id", lite_users_subquery.c.id, unique=True),
+        Index("uq_lite_users_username", lite_users_subquery.c.username, unique=True),
         Index(
             "ix_lite_users_id_visible",
-            lite_users_selectable_create.c.id,
+            lite_users_subquery.c.id,
             postgresql_using="hash",
-            postgresql_where=lite_users_selectable_create.c.is_visible,
+            postgresql_where=lite_users_subquery.c.is_visible,
         ),
         Index(
             "ix_lite_users_username_visible",
-            lite_users_selectable_create.c.username,
+            lite_users_subquery.c.username,
             postgresql_using="hash",
-            postgresql_where=lite_users_selectable_create.c.is_visible,
+            postgresql_where=lite_users_subquery.c.is_visible,
         ),
     ],
 )
@@ -193,22 +208,19 @@ lite_users = create_materialized_view_with_different_ddl(
 class LiteUser(Base):
     __table__ = lite_users
 
-    # to allow type annotations without affecting SQLAlchemy
-    __allow_unmapped__ = True
-
     # A subset enough to make mypy happy. Taken from "make_lite_users_selectable".
-    id: Column[int]
-    username: Column[str]
-    name: Column[str]
-    city: Column[str]
-    age: Column[int]
-    geom: Column[Geom]
-    radius: Column[float]
-    is_visible: Column[bool]
-    avatar_filename: Column[str]
-    has_completed_profile: Column[bool]
-    has_completed_my_home: Column[bool]
-    has_strong_verification: Column[bool]
+    id: Mapped[int]
+    username: Mapped[str]
+    name: Mapped[str]
+    city: Mapped[str]
+    age: Mapped[int]
+    geom: Mapped[Geom]
+    radius: Mapped[float]
+    is_visible: Mapped[bool]
+    avatar_filename: Mapped[str]
+    has_completed_profile: Mapped[bool]
+    has_completed_my_home: Mapped[bool]
+    has_strong_verification: Mapped[bool]
 
 
 def make_clustered_users_selectable(create: bool = False) -> CompoundSelect[Any]:
@@ -265,6 +277,9 @@ clustered_users = create_materialized_view_with_different_ddl(
 
 class ClusteredUser(Base):
     __table__ = clustered_users
+
+    geom: Mapped[Geom]
+    count: Mapped[int]
 
 
 def float_(stmt: Any) -> Any:
@@ -324,12 +339,19 @@ user_response_rates = create_materialized_view(
     "user_response_rates",
     user_response_rates_selectable,
     Base.metadata,
-    [Index("uq_user_response_rates_id", user_response_rates_selectable.c.user_id, unique=True)],
+    [Index("uq_user_response_rates_id", user_response_rates_selectable.subquery().c.user_id, unique=True)],
 )
 
 
 class UserResponseRate(Base):
     __table__ = user_response_rates
+
+    user_id: Mapped[int]
+    requests: Mapped[int]
+    response_rate: Mapped[float]
+    avg_response_time: Mapped[float]
+    response_time_33p: Mapped[timedelta]
+    response_time_66p: Mapped[timedelta]
 
 
 def refresh_materialized_views(payload: empty_pb2.Empty) -> None:

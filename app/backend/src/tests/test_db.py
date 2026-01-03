@@ -6,13 +6,13 @@ from pathlib import Path
 
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.config import config
 from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
 from couchers.jobs.handlers import DatabaseInconsistencyError, check_database_consistency
 from couchers.models import User
-from couchers.sql import couchers_select as select
 from couchers.utils import (
     is_valid_email,
     is_valid_name,
@@ -20,15 +20,8 @@ from couchers.utils import (
     is_valid_username,
     parse_date,
 )
+from tests.fixtures.db import create_schema_from_models, drop_database, generate_user, run_migration_test
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
-from tests.test_fixtures import (  # noqa
-    create_schema_from_models,
-    db,
-    drop_database,
-    generate_user,
-    run_migration_test,
-    testconfig,
-)
 
 
 def test_is_valid_user_id():

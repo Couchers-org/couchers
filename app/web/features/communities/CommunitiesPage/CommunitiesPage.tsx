@@ -43,9 +43,9 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
 const BrowserContainer = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(3),
   padding: theme.spacing(3),
-  backgroundColor: theme.palette.grey[50],
+  backgroundColor: "var(--mui-palette-grey-50)",
   borderRadius: theme.spacing(1),
-  border: `1px solid ${theme.palette.divider}`,
+  border: `1px solid var(--mui-palette-divider)`,
 }));
 
 const BrowserHeader = styled("div")(({ theme }) => ({
@@ -58,7 +58,7 @@ const BrowserHeader = styled("div")(({ theme }) => ({
 const BrowserTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
   fontSize: "1rem",
-  color: theme.palette.text.primary,
+  color: "var(--mui-palette-text-primary)",
 }));
 
 const ExpandButton = styled(Button)(({ theme }) => ({

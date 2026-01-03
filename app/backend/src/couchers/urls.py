@@ -63,15 +63,15 @@ def messages_link() -> str:
     return f"{config['BASE_URL']}/messages/"
 
 
-def chat_link(*, chat_id: str) -> str:
+def chat_link(*, chat_id: int) -> str:
     return f"{config['BASE_URL']}/messages/chats/{chat_id}"
 
 
-def event_link(*, occurrence_id: str, slug: str = "e") -> str:
+def event_link(*, occurrence_id: int, slug: str = "e") -> str:
     return f"{config['BASE_URL']}/event/{occurrence_id}/{slug}"
 
 
-def community_link(*, node_id: str, slug: str = "e") -> str:
+def community_link(*, node_id: int, slug: str = "e") -> str:
     return f"{config['BASE_URL']}/community/{node_id}/{slug}"
 
 

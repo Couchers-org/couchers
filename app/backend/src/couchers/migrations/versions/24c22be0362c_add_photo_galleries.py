@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.create_table(
         "photo_galleries",
         sa.Column("id", sa.BigInteger(), nullable=False),
@@ -69,7 +69,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_constraint(op.f("fk_users_profile_gallery_id_photo_galleries"), "users", type_="foreignkey")
     op.drop_column("users", "profile_gallery_id")
     op.drop_index(op.f("ix_photo_gallery_items_gallery_id"), table_name="photo_gallery_items")

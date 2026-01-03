@@ -4,6 +4,7 @@ from contextlib import contextmanager
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from sqlalchemy import select
 
 from couchers.crypto import random_hex
 from couchers.db import session_scope
@@ -16,8 +17,8 @@ from couchers.models import APICall, UserSession
 from couchers.proto import account_pb2, admin_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
-from couchers.sql import couchers_select as select
-from tests.test_fixtures import db, generate_user, real_admin_session, testconfig  # noqa
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import real_admin_session
 
 
 @pytest.fixture(autouse=True)

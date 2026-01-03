@@ -20,7 +20,7 @@ depends_on = None
 BACKFILL_START = 1_000_000
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("CREATE SEQUENCE moderation_seq START WITH 2000000")
     op.create_table(
         "moderation_states",
@@ -257,7 +257,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     # Drop notifications foreign key and column
     op.drop_constraint(
         op.f("fk_notifications_moderation_state_id_moderation_states"),

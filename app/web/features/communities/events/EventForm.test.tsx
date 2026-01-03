@@ -120,7 +120,7 @@ describe("Event form", () => {
     renderForm(events[0]);
 
     assertFieldVisibleWithValue(
-      await screen.findByLabelText(t("global:title")),
+      await screen.findByLabelText(t("communities:event_title_label")),
       "Weekly Meetup",
     );
 
@@ -203,7 +203,10 @@ describe("Event form", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.type(screen.getByLabelText(t("global:title")), "Test event");
+    await user.type(
+      screen.getByLabelText(t("communities:event_title_label")),
+      "Test event",
+    );
 
     await act(async () =>
       user.click(screen.getByRole("button", { name: t("global:create") })),
@@ -220,7 +223,10 @@ describe("Event form", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.type(screen.getByLabelText(t("global:title")), "Test event");
+    await user.type(
+      screen.getByLabelText(t("communities:event_title_label")),
+      "Test event",
+    );
 
     const virtualEventCheckbox = screen.getByLabelText(
       t("communities:virtual_event"),
@@ -249,7 +255,7 @@ describe("Event form", () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const titleInput = screen.getByLabelText(
-      t("global:title"),
+      t("communities:event_title_label"),
     ) as HTMLInputElement;
 
     await user.type(titleInput, "Test event");
@@ -338,9 +344,14 @@ describe("Event form", () => {
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-    await user.type(screen.getByLabelText(t("global:title")), "Test event");
+    await user.type(
+      screen.getByLabelText(t("communities:event_title_label")),
+      "Test event",
+    );
 
-    expect(screen.getByLabelText(t("global:title"))).toHaveValue("Test event");
+    expect(
+      screen.getByLabelText(t("communities:event_title_label")),
+    ).toHaveValue("Test event");
 
     const startDateGroup = await screen.findByRole("group", {
       name: t("communities:start_date"),
@@ -403,7 +414,7 @@ describe("Event form", () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
     const titleInput = screen.getByLabelText(
-      t("global:title"),
+      t("communities:event_title_label"),
     ) as HTMLInputElement;
 
     await user.type(titleInput, "Test event");

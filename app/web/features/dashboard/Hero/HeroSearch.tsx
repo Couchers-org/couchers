@@ -4,7 +4,9 @@ import { Coordinates } from "features/search/utils/constants";
 import { DASHBOARD } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
+import { useIsNativeEmbed } from "platform/nativeLink";
 import { HostingStatus } from "proto/api_pb";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { routeToSearch } from "routes";
 import { theme } from "theme";
@@ -12,14 +14,16 @@ import { GeocodeResult } from "utils/hooks";
 
 const StyledSearchBoxContainer = styled("form")(() => ({
   padding: theme.spacing(4, 2, 6, 2),
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: theme.palette.background.paper,
+  borderRadius: "var(--mui-shape-borderRadius)",
+  backgroundColor: "var(--mui-palette-background-paper)",
 }));
 
 export default function HeroSearch() {
   const { t } = useTranslation(DASHBOARD);
   const router = useRouter();
   const searchInputId = "hero-search-input";
+  const isNativeEmbed = useIsNativeEmbed();
+  const [, startTransition] = useTransition();
 
   const {
     control,
@@ -47,7 +51,7 @@ export default function HeroSearch() {
         placeholder={t("search_input_placeholder")}
         defaultValue={""}
         onChange={(value) => {
-          if (value !== "") {
+          if (value && value.bbox && value.simplifiedName) {
             const newBbox: Coordinates = [
               value.bbox[2],
               value.bbox[3],
@@ -63,7 +67,15 @@ export default function HeroSearch() {
               bbox: newBbox,
               showEmptyProfile: false,
             });
-            router.push(searchRouteWithSearchQuery);
+
+            // Use startTransition in WebView to allow autocomplete to complete before navigation
+            if (isNativeEmbed) {
+              startTransition(() => {
+                router.push(searchRouteWithSearchQuery);
+              });
+            } else {
+              router.push(searchRouteWithSearchQuery);
+            }
           }
         }}
         fieldError={errors.location?.message}

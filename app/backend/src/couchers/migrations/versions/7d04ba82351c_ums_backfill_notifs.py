@@ -18,7 +18,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     conn = op.get_bind()
 
     # Backfill key for host_request__reminder notifications
@@ -124,7 +124,7 @@ def upgrade():
     # Backfill moderation_state_id for host_request notifications
     # The notification key contains the conversation_id, which is the host_request.id
     # Only process rows where key is non-empty and numeric
-    op.execute("""
+    op.execute(r"""
         UPDATE notifications n
         SET moderation_state_id = hr.moderation_state_id
         FROM host_requests hr
@@ -137,7 +137,7 @@ def upgrade():
 
     # Backfill moderation_state_id for chat notifications
     # The notification key contains the conversation_id, which is the group_chat.id
-    op.execute("""
+    op.execute(r"""
         UPDATE notifications n
         SET moderation_state_id = gc.moderation_state_id
         FROM group_chats gc
@@ -149,7 +149,7 @@ def upgrade():
     """)
 
 
-def downgrade():
+def downgrade() -> None:
     # Note: We don't clear the moderation_state_id on downgrade because:
     # 1. It's nullable and having it set doesn't break anything
     # 2. We can't distinguish backfilled values from values set during normal operation

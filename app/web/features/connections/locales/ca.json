@@ -28,5 +28,7 @@
   "no_friend_requests_sent": "No hi ha sol·licituds d'amistat pendents",
   "pending": "Pendent",
   "remove_friend": "Elimina amic",
-  "unblock_user": "Desbloqueja l'usuari"
+  "unblock_user": "Desbloqueja l'usuari",
+  "accept": "Accepta",
+  "decline": "Rebutja"
 }

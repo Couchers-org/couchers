@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     # clear existing new email stuff
     op.execute(
         "UPDATE users SET new_email = NULL, new_email_token = NULL, new_email_token_created = NULL, new_email_token_expiry = NULL"
@@ -44,7 +44,7 @@ def upgrade():
     )
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("users", "old_email_token_expiry")
     op.drop_column("users", "old_email_token_created")
     op.drop_column("users", "old_email_token")

@@ -1,8 +1,9 @@
 import { act, render } from "@testing-library/react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 
-import { useAuthContext } from "@/features/auth/AuthContext";
 import LoginScreen from "@/app/login";
+import { useAuthContext } from "@/features/auth/AuthContext";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
@@ -11,11 +12,15 @@ jest.mock("expo-router", () => ({
   useRouter: jest.fn(),
 }));
 
+jest.mock("@react-navigation/native", () => ({
+  ...jest.requireActual("@react-navigation/native"),
+  useFocusEffect: jest.fn(),
+}));
+
 jest.mock("@/features/auth/AuthContext", () => ({
   useAuthContext: jest.fn(),
 }));
 
-// WebView mock - captures props for test assertions
 let capturedWebViewProps: {
   source?: { uri: string };
   onMessage?: (event: { nativeEvent: { data: string } }) => void;
@@ -36,13 +41,8 @@ describe("LoginScreen", () => {
     markLoggedOut: jest.fn(),
     setUserId: jest.fn(),
     setJailed: jest.fn(),
-    biometricsEnabled: false,
-    biometricsAvailable: false,
-    enableBiometrics: jest.fn(),
-    enableSecureLogin: jest.fn(),
   };
 
-  // Helper to send WebView messages
   const sendMessage = async (data: object) => {
     await act(async () => {
       capturedWebViewProps.onMessage?.({
@@ -51,19 +51,11 @@ describe("LoginScreen", () => {
     });
   };
 
-  beforeAll(() => {
-    // Suppress expected errors from dynamic import in test environment
-    jest.spyOn(console, "error").mockImplementation();
-  });
-
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
-
   beforeEach(() => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (useAuthContext as jest.Mock).mockReturnValue(mockAuthContext);
+    (useFocusEffect as jest.Mock).mockImplementation((callback) => callback());
   });
 
   describe("rendering", () => {
@@ -94,20 +86,7 @@ describe("LoginScreen", () => {
       expect(mockAuthContext.setJailed).toHaveBeenCalledWith(true);
     });
 
-    it("navigates to dashboard when biometrics already enabled", async () => {
-      (useAuthContext as jest.Mock).mockReturnValue({
-        ...mockAuthContext,
-        biometricsEnabled: true,
-      });
-
-      render(<LoginScreen />);
-
-      await sendMessage({ type: "LOGIN_SUCCESS", userId: 1 });
-
-      expect(mockRouter.replace).toHaveBeenCalledWith("/(tabs)/dashboard");
-    });
-
-    it("navigates to dashboard when biometrics not available", async () => {
+    it("navigates to dashboard after login", async () => {
       render(<LoginScreen />);
 
       await sendMessage({ type: "LOGIN_SUCCESS", userId: 1 });

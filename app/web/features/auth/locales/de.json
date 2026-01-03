@@ -13,7 +13,8 @@
       "field_label": "Benutzername",
       "required_error": "Gib deinen Benutzernamen ein",
       "username_taken_error": "Dieser Benutzername ist bereits vergeben.",
-      "validation_error": "Dein Benutzername sollte mit einem Buchstaben beginnen und kann Buchstaben, Nummern und Unterstriche '_' enthalten."
+      "validation_error": "Dein Benutzername sollte mit einem Buchstaben beginnen und kann Buchstaben, Nummern und Unterstriche '_' enthalten.",
+      "helper_text": "Dies ist deine eindeutige Anmelde-ID, nicht dein Anzeigename."
     },
     "birthday": {
       "field_label": "Geburtstag",
@@ -162,7 +163,7 @@
     "mod_note_section": {
       "title": "Du hast eine Nachricht von den Moderatoren erhalten",
       "description": "Die Moderatoren haben dir die folgende Mitteilung geschickt. Bitte lies sie sorgfältig durch und bestätige, dass du sie gelesen und verstanden hast, bevor du fortfährst.",
-      "note_title": "Mod-Notiz erhalten um {{time}}:",
+      "note_title": "Moderatorhinweis erhalten am {{time}}:",
       "acknowledge": "Mitteilung bestätigen"
     },
     "activeness_probe": {

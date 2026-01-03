@@ -115,11 +115,11 @@ export default function WhatIsCouchSurfingPage() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 sx={{
-                  border: `1px solid ${theme.palette.grey[200]}`,
+                  border: `1px solid var(--mui-palette-grey-200)`,
                   borderRadius: 3,
                   p: 3,
                   height: "100%",
-                  background: theme.palette.background.paper,
+                  // background: theme.palette.background.paper,
                 }}
               >
                 <Stack
@@ -166,11 +166,10 @@ export default function WhatIsCouchSurfingPage() {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 sx={{
-                  border: `1px solid ${theme.palette.grey[200]}`,
+                  border: `1px solid var(--mui-palette-grey-200)`,
                   borderRadius: 3,
                   p: 3,
                   height: "100%",
-                  background: theme.palette.background.paper,
                 }}
               >
                 <Stack
@@ -180,7 +179,10 @@ export default function WhatIsCouchSurfingPage() {
                   sx={{ mb: 2 }}
                 >
                   <GroupAddOutlined
-                    sx={{ fontSize: 36, color: theme.palette.primary.main }}
+                    sx={{
+                      fontSize: 36,
+                      color: "var(--mui-palette-primary-main)",
+                    }}
                   />
                   <Typography
                     variant="h3"
@@ -197,7 +199,10 @@ export default function WhatIsCouchSurfingPage() {
                     sx={{ p: 0, mb: 2, columnGap: 1, alignItems: "center" }}
                   >
                     <ListItemIcon
-                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
+                      sx={{
+                        minWidth: 36,
+                        color: "var(--mui-palette-primary-main)",
+                      }}
                     >
                       <WeekendOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
                     </ListItemIcon>
@@ -212,7 +217,10 @@ export default function WhatIsCouchSurfingPage() {
                     sx={{ p: 0, mb: 2, columnGap: 1, alignItems: "center" }}
                   >
                     <ListItemIcon
-                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
+                      sx={{
+                        minWidth: 36,
+                        color: "var(--mui-palette-primary-main)",
+                      }}
                     >
                       <TravelExploreOutlined
                         sx={{ fontSize: { xs: 22, md: 28 } }}
@@ -229,7 +237,10 @@ export default function WhatIsCouchSurfingPage() {
                     sx={{ p: 0, mb: 2, columnGap: 1, alignItems: "center" }}
                   >
                     <ListItemIcon
-                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
+                      sx={{
+                        minWidth: 36,
+                        color: "var(--mui-palette-primary-main)",
+                      }}
                     >
                       <EventOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
                     </ListItemIcon>
@@ -244,7 +255,10 @@ export default function WhatIsCouchSurfingPage() {
                     sx={{ p: 0, mb: 2, columnGap: 1, alignItems: "center" }}
                   >
                     <ListItemIcon
-                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
+                      sx={{
+                        minWidth: 36,
+                        color: "var(--mui-palette-primary-main)",
+                      }}
                     >
                       <GroupOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
                     </ListItemIcon>
@@ -259,7 +273,10 @@ export default function WhatIsCouchSurfingPage() {
                     sx={{ p: 0, mb: 0, columnGap: 1, alignItems: "center" }}
                   >
                     <ListItemIcon
-                      sx={{ minWidth: 36, color: theme.palette.primary.main }}
+                      sx={{
+                        minWidth: 36,
+                        color: "var(--mui-palette-primary-main)",
+                      }}
                     >
                       <ForumOutlined sx={{ fontSize: { xs: 22, md: 28 } }} />
                     </ListItemIcon>
@@ -279,7 +296,7 @@ export default function WhatIsCouchSurfingPage() {
         <Box
           component="section"
           sx={{
-            bgcolor: theme.palette.grey[50],
+            bgcolor: "var(--mui-palette-grey-50)",
             py: 6,
             position: "relative",
             left: "50%",
@@ -327,10 +344,9 @@ export default function WhatIsCouchSurfingPage() {
                 </List>
                 <Box
                   sx={{
-                    border: `1px solid ${theme.palette.grey[200]}`,
+                    border: `1px solid var(--mui-palette-grey-200)`,
                     borderRadius: 3,
                     p: 3,
-                    bgcolor: theme.palette.background.paper,
                   }}
                 >
                   <Stack
@@ -343,7 +359,7 @@ export default function WhatIsCouchSurfingPage() {
                       className="tip-lightbulb"
                       sx={{
                         fontSize: 20,
-                        color: theme.palette.primary.main,
+                        color: "var(--mui-palette-primary-main)",
                         transition:
                           "color .3s, filter .3s, transform .35s cubic-bezier(.4,1.6,.4,1)",
                         transformOrigin: "60% 40%",
@@ -368,7 +384,7 @@ export default function WhatIsCouchSurfingPage() {
               <Grid size={{ xs: 12, md: 6 }}>
                 <Box
                   sx={{
-                    border: `1px solid ${theme.palette.grey[200]}`,
+                    border: `1px solid var(--mui-palette-grey-200)`,
                     borderRadius: 3,
                     overflow: "hidden",
                     mb: 3,
@@ -410,7 +426,7 @@ export default function WhatIsCouchSurfingPage() {
         component="section"
         sx={{
           py: 6,
-          bgcolor: theme.palette.grey[50],
+          bgcolor: "var(--mui-palette-grey-50)",
           position: "relative",
           left: "50%",
           right: "50%",
@@ -432,7 +448,7 @@ export default function WhatIsCouchSurfingPage() {
             </Typography>
             <Typography
               variant="body1"
-              sx={{ color: theme.palette.text.secondary }}
+              sx={{ color: "var(--mui-palette-text-secondary)" }}
             >
               {t("what_is_cs.bottom_cta_subtitle")}
             </Typography>

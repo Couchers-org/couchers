@@ -1,11 +1,15 @@
 import logging
+from collections.abc import Sequence
 from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func, or_
 
 from couchers.constants import COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD
+from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node, get_node_parents_recursively, is_user_in_node_geography
 from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
@@ -26,7 +30,7 @@ from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import couchers_select as select
+from couchers.sql import to_bool, users_visible
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 
 logger = logging.getLogger(__name__)
@@ -34,7 +38,7 @@ logger = logging.getLogger(__name__)
 MAX_PAGINATION_LENGTH = 25
 
 
-def _parents_to_pb(session, node_id):
+def _parents_to_pb(session: Session, node_id: int) -> list[groups_pb2.Parent]:
     parents = get_node_parents_recursively(session, node_id)
     return [
         groups_pb2.Parent(
@@ -49,14 +53,16 @@ def _parents_to_pb(session, node_id):
     ]
 
 
-def communities_to_pb(session, nodes: list[Node], context):
+def communities_to_pb(
+    session: Session, nodes: Sequence[Node], context: CouchersContext
+) -> list[communities_pb2.Community]:
     can_moderates = [can_moderate_node(session, context.user_id, node.id) for node in nodes]
 
     official_clusters = [node.official_cluster for node in nodes]
     official_cluster_ids = [cluster.id for cluster in official_clusters]
 
-    member_counts = dict(
-        session.execute(
+    member_counts: dict[int, int] = dict(
+        session.execute(  # type: ignore[arg-type]
             select(ClusterSubscriptionCount.cluster_id, ClusterSubscriptionCount.count).where(
                 ClusterSubscriptionCount.cluster_id.in_(official_cluster_ids)
             )
@@ -72,8 +78,8 @@ def communities_to_pb(session, nodes: list[Node], context):
         .all()
     )
 
-    admin_counts = dict(
-        session.execute(
+    admin_counts: dict[int, int] = dict(
+        session.execute(  # type: ignore[arg-type]
             select(ClusterAdminCount.cluster_id, ClusterAdminCount.count).where(
                 ClusterAdminCount.cluster_id.in_(official_cluster_ids)
             )
@@ -111,26 +117,30 @@ def communities_to_pb(session, nodes: list[Node], context):
     ]
 
 
-def community_to_pb(session, node: Node, context):
+def community_to_pb(session: Session, node: Node, context: CouchersContext) -> communities_pb2.Community:
     return communities_to_pb(session, [node], context)[0]
 
 
 class Communities(communities_pb2_grpc.CommunitiesServicer):
-    def GetCommunity(self, request, context, session):
+    def GetCommunity(
+        self, request: communities_pb2.GetCommunityReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.Community:
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
         return community_to_pb(session, node, context)
 
-    def ListCommunities(self, request, context, session):
+    def ListCommunities(
+        self, request: communities_pb2.ListCommunitiesReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListCommunitiesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         offset = int(decrypt_page_token(request.page_token)) if request.page_token else 0
         nodes = (
             session.execute(
                 select(Node)
                 .join(Cluster, Cluster.parent_node_id == Node.id)
-                .where(or_(Node.parent_node_id == request.community_id, request.community_id == 0))
+                .where(or_(Node.parent_node_id == request.community_id, to_bool(request.community_id == 0)))
                 .where(Cluster.is_official_cluster)
                 .order_by(Cluster.name)
                 .limit(page_size + 1)
@@ -144,7 +154,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_page_token=encrypt_page_token(str(offset + page_size)) if len(nodes) > page_size else None,
         )
 
-    def SearchCommunities(self, request, context, session):
+    def SearchCommunities(
+        self, request: communities_pb2.SearchCommunitiesReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.SearchCommunitiesRes:
         raw_query = request.query.strip()
         if len(raw_query) < 3:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "query_too_short")
@@ -166,7 +178,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         return communities_pb2.SearchCommunitiesRes(communities=communities_to_pb(session, rows, context))
 
-    def ListGroups(self, request, context, session):
+    def ListGroups(
+        self, request: communities_pb2.ListGroupsReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListGroupsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_cluster_id = int(request.page_token) if request.page_token else 0
         clusters = (
@@ -186,7 +200,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
         )
 
-    def ListAdmins(self, request, context, session):
+    def ListAdmins(
+        self, request: communities_pb2.ListAdminsReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListAdminsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_admin_id = int(request.page_token) if request.page_token else 0
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
@@ -196,7 +212,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             session.execute(
                 select(User)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-                .where_users_visible(context)
+                .where(users_visible(context))
                 .where(ClusterSubscription.cluster_id == node.official_cluster.id)
                 .where(ClusterSubscription.role == ClusterRole.admin)
                 .where(User.id >= next_admin_id)
@@ -211,7 +227,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_page_token=str(admins[-1].id) if len(admins) > page_size else None,
         )
 
-    def AddAdmin(self, request, context, session):
+    def AddAdmin(
+        self, request: communities_pb2.AddAdminReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
@@ -219,7 +237,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "node_moderate_permission_denied")
 
         user = session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where(users_visible(context)).where(User.id == request.user_id)
         ).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
@@ -239,7 +257,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         return empty_pb2.Empty()
 
-    def RemoveAdmin(self, request, context, session):
+    def RemoveAdmin(
+        self, request: communities_pb2.RemoveAdminReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
@@ -247,7 +267,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "node_moderate_permission_denied")
 
         user = session.execute(
-            select(User).where_users_visible(context).where(User.id == request.user_id)
+            select(User).where(users_visible(context)).where(User.id == request.user_id)
         ).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
@@ -266,7 +286,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         return empty_pb2.Empty()
 
-    def ListMembers(self, request, context, session):
+    def ListMembers(
+        self, request: communities_pb2.ListMembersReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListMembersRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_member_id = int(request.page_token) if request.page_token else None
 
@@ -277,7 +299,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         query = (
             select(User)
             .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
-            .where_users_visible(context)
+            .where(users_visible(context))
             .where(ClusterSubscription.cluster_id == node.official_cluster.id)
         )
         if next_member_id is not None:
@@ -289,7 +311,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_page_token=str(members[-1].id) if len(members) > page_size else None,
         )
 
-    def ListNearbyUsers(self, request, context, session):
+    def ListNearbyUsers(
+        self, request: communities_pb2.ListNearbyUsersReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListNearbyUsersRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_nearby_id = int(request.page_token) if request.page_token else 0
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
@@ -298,7 +322,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         nearbys = (
             session.execute(
                 select(User)
-                .where_users_visible(context)
+                .where(users_visible(context))
                 .where(func.ST_Contains(node.geom, User.geom))
                 .where(User.id >= next_nearby_id)
                 .order_by(User.id)
@@ -312,7 +336,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_page_token=str(nearbys[-1].id) if len(nearbys) > page_size else None,
         )
 
-    def ListPlaces(self, request, context, session):
+    def ListPlaces(
+        self, request: communities_pb2.ListPlacesReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListPlacesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
@@ -330,7 +356,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_page_token=str(places[-1].id) if len(places) > page_size else None,
         )
 
-    def ListGuides(self, request, context, session):
+    def ListGuides(
+        self, request: communities_pb2.ListGuidesReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListGuidesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
@@ -348,7 +376,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
         )
 
-    def ListEvents(self, request, context, session):
+    def ListEvents(
+        self, request: communities_pb2.ListEventsReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListEventsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
         page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
@@ -373,28 +403,28 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             membership_clauses.append(Event.parent_node_id == node_id)
 
         # for communities, we list events owned by this community or for which this is a parent
-        occurrences = (
+        query = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(or_(*membership_clauses))
         )
 
         if request.past:
-            occurrences = occurrences.where(EventOccurrence.end_time < page_token + timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.desc()
-            )
+            cutoff = page_token + timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
         else:
-            occurrences = occurrences.where(EventOccurrence.end_time > page_token - timedelta(seconds=1)).order_by(
-                EventOccurrence.start_time.asc()
-            )
+            cutoff = page_token - timedelta(seconds=1)
+            query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
 
-        occurrences = occurrences.limit(page_size + 1)
-        occurrences = session.execute(occurrences).scalars().all()
+        query = query.limit(page_size + 1)
+        occurrences = session.execute(query).scalars().all()
 
         return communities_pb2.ListEventsRes(
             events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
             next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
         )
 
-    def ListDiscussions(self, request, context, session):
+    def ListDiscussions(
+        self, request: communities_pb2.ListDiscussionsReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListDiscussionsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
@@ -403,7 +433,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         if not node.official_cluster.discussions_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussions_not_enabled")
         discussions = (
-            node.official_cluster.owned_discussions.where(or_(Discussion.id <= next_page_id, next_page_id == 0))
+            node.official_cluster.owned_discussions.where(
+                or_(Discussion.id <= next_page_id, to_bool(next_page_id == 0))
+            )
             .order_by(Discussion.id.desc())
             .limit(page_size + 1)
             .all()
@@ -413,7 +445,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
         )
 
-    def JoinCommunity(self, request, context, session):
+    def JoinCommunity(
+        self, request: communities_pb2.JoinCommunityReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
@@ -431,7 +465,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         return empty_pb2.Empty()
 
-    def LeaveCommunity(self, request, context, session):
+    def LeaveCommunity(
+        self, request: communities_pb2.LeaveCommunityReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
@@ -452,7 +488,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         return empty_pb2.Empty()
 
-    def ListUserCommunities(self, request, context, session):
+    def ListUserCommunities(
+        self, request: communities_pb2.ListUserCommunitiesReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListUserCommunitiesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_node_id = int(request.page_token) if request.page_token else 0
         user_id = request.user_id or context.user_id
@@ -476,7 +514,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
         )
 
-    def ListAllCommunities(self, request, context, session):
+    def ListAllCommunities(
+        self, request: communities_pb2.ListAllCommunitiesReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListAllCommunitiesRes:
         """List all communities ordered hierarchically by parent-child relationships"""
         # Get all nodes with their clusters, member counts, and user membership in a single query
         results = session.execute(

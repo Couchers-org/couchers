@@ -4,6 +4,7 @@ import os
 from datetime import date, timedelta
 
 from dateutil import parser
+from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
@@ -32,6 +33,7 @@ from couchers.models import (
     Page,
     PageType,
     PageVersion,
+    PhotoGallery,
     Reference,
     ReferenceType,
     RegionLived,
@@ -43,7 +45,6 @@ from couchers.models import (
 from couchers.proto.api_pb2 import HostingStatus
 from couchers.servicers.api import hostingstatus2sql
 from couchers.servicers.auth import create_session
-from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, create_polygon_lng_lat, geojson_to_geom, to_multi
 
 logger = logging.getLogger(__name__)
@@ -91,6 +92,12 @@ def add_dummy_users():
             )
             session.add(new_user)
             session.flush()
+
+            # Create profile gallery for the user (same as in signup flow)
+            profile_gallery = PhotoGallery(owner_user_id=new_user.id)
+            session.add(profile_gallery)
+            session.flush()
+            new_user.profile_gallery_id = profile_gallery.id
 
             for language in user["languages"]:
                 session.add(

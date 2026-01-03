@@ -42,22 +42,23 @@ import InviteCommunityDialog from "./InviteCommunityDialog";
 
 const StyledHeader = styled("div")(() => ({
   alignItems: "center",
-  gap: theme.spacing(2, 2),
+  gap: theme.spacing(2),
   display: "grid",
   gridTemplateAreas: `
-      "backButton eventTitle eventTitle"
-      "eventTime eventTime eventTime"
-      "actionButtons actionButtons ."
-    `,
-  gridAutoFlow: "column",
-  gridTemplateColumns: "3.125rem 1fr auto",
+    "backButton eventTitle"
+    "eventTime eventTime"
+    "actionButtons actionButtons"
+  `,
+  gridTemplateColumns: "3.125rem 1fr",
   marginBlockEnd: theme.spacing(4),
   marginBlockStart: theme.spacing(2),
+
   [theme.breakpoints.up("sm")]: {
     gridTemplateAreas: `
       "backButton eventTitle actionButtons"
       ". eventTime eventTime"
     `,
+    gridTemplateColumns: "3.125rem 1fr auto",
   },
 }));
 
@@ -112,7 +113,22 @@ const StyledActionButtonsContainer = styled("div")(() => ({
   columnGap: theme.spacing(1),
   gridArea: "actionButtons",
   justifySelf: "start",
+
+  [theme.breakpoints.down("md")]: {
+    gridAutoFlow: "row",
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, max-content))",
+    gap: theme.spacing(1),
+    width: "100%",
+  },
 }));
+
+const ActionButtonSx = {
+  whiteSpace: "normal",
+  textAlign: "center",
+  height: "auto",
+  lineHeight: 1.2,
+  paddingBlock: theme.spacing(1),
+};
 
 const StyledEventTimeContainer = styled("div")(() => ({
   alignItems: "center",
@@ -296,6 +312,10 @@ export default function EventPage({
                         "&:hover": {
                           borderColor: theme.palette.grey[300],
                           backgroundColor: "#3135390A",
+                        },
+
+                        [theme.breakpoints.down("md")]: {
+                          ...ActionButtonSx,
                         },
                       }}
                     >

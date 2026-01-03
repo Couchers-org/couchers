@@ -15,9 +15,9 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.execute("ALTER TYPE notificationtopicaction ADD VALUE 'general__new_blog_post'")
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

@@ -3,7 +3,7 @@ import logging
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import exists
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 
 from couchers.config import config
@@ -15,13 +15,13 @@ from couchers.constants import (
 from couchers.context import CouchersContext
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
 from couchers.jobs.enqueue import queue_job
+from couchers.jobs.handlers import send_postal_verification_postcard
 from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
 from couchers.notifications.notify import notify
 from couchers.postal.address_validation import AddressValidationError, validate_address
 from couchers.proto import notification_data_pb2, postal_verification_pb2, postal_verification_pb2_grpc
 from couchers.proto.internal import jobs_pb2
-from couchers.sql import couchers_select as select
 from couchers.utils import Timestamp_from_datetime, now
 
 logger = logging.getLogger(__name__)
@@ -187,8 +187,8 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         # Queue background job to send postcard
         queue_job(
             session,
-            "send_postal_verification_postcard",
-            jobs_pb2.SendPostalVerificationPostcardPayload(
+            job=send_postal_verification_postcard,
+            payload=jobs_pb2.SendPostalVerificationPostcardPayload(
                 postal_verification_attempt_id=attempt.id,
             ),
         )

@@ -1,6 +1,7 @@
 import grpc
 import pytest
 from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue, StringValue
+from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -10,8 +11,8 @@ from couchers.models import (
     Volunteer,
 )
 from couchers.proto import editor_pb2
-from couchers.sql import couchers_select as select
-from tests.test_fixtures import db, generate_user, real_editor_session, testconfig  # noqa
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import real_editor_session
 
 
 @pytest.fixture(autouse=True)

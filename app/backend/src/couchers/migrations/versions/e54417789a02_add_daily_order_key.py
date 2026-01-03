@@ -16,10 +16,10 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column("users", sa.Column("daily_order_key", sa.Float(), server_default="0", nullable=False))
     op.execute("UPDATE users SET daily_order_key = 10e6 - id")
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("users", "daily_order_key")

@@ -79,7 +79,6 @@
   "search_result": {
     "show_user_button_label": "Laat {{name}} op de kaart zien",
     "missing_about_description": "{{name}} heeft nog niks over zichzelf geschreven",
-    "people_found_message": "Dit zijn {{currentRange}} van de {{totalItems}} gevonden mensen",
     "no_user_result_message": "Geen gebruikers gevonden. Probeer wat filters te verwijderen om meer resultaten te zien.",
     "few_results_suggestion": "Standaard worden lege profielen en profielen met \"kan niet hosten\" verborgen.",
     "include_empty_profiles_button": "Toon alle profielen"

@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         "api_calls",
         sa.Column("response_truncated", sa.Boolean(), server_default=sa.text("false"), nullable=False),
@@ -77,5 +77,5 @@ def upgrade():
     op.execute("ALTER TYPE backgroundjobtype ADD VALUE 'refresh_materialized_views'")
 
 
-def downgrade():
+def downgrade() -> None:
     raise Exception("Can't downgrade")

@@ -22,7 +22,6 @@
   "comments_count": "Kommentare | {{count}}",
   "community_header": "Willkommen in {{name}}",
   "community_moderators": "Community Builder",
-  "created_at": "Erstellt am ",
   "edit_info_page_success_message": "Die Community-Seite wurde erfolgreich aktualisiert.",
   "community_tabs_a11y_label": "Tabs für Community Unterseiten",
   "create_new_discussion_title": "Neuen Beitrag erstellen",
@@ -147,5 +146,6 @@
   "search_communities_helper": "Wähle eine Community aus um zu ihrer Seite zu gehen",
   "search_communities": "Suche und besuche eine Community",
   "no_results_found_with_link": "Keine Communitys gefunden. <0>Diese Community anfordern!</0>",
-  "search_communities_placeholder": "Suche nach Stadt- oder Ländernamen..."
+  "search_communities_placeholder": "Suche nach Stadt- oder Ländernamen...",
+  "event_title_label": "Titel"
 }

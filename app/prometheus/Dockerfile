@@ -1,4 +1,4 @@
-FROM prom/prometheus:v3.7.3
+FROM prom/prometheus:v3.8.1
 
 ADD prometheus.yml /etc/prometheus
 ADD entrypoint.sh /etc/prometheus

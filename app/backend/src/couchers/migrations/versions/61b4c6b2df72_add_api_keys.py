@@ -16,7 +16,7 @@ branch_labels = None
 depends_on = None
 
 
-def upgrade():
+def upgrade() -> None:
     op.add_column(
         "api_calls",
         sa.Column("is_api_key", sa.Boolean(), server_default=sa.text("false"), nullable=False),
@@ -25,6 +25,6 @@ def upgrade():
     op.add_column("sessions", sa.Column("is_api_key", sa.Boolean(), server_default=sa.text("false"), nullable=False))
 
 
-def downgrade():
+def downgrade() -> None:
     op.drop_column("sessions", "is_api_key")
     op.drop_column("api_calls", "is_api_key", schema="logging")

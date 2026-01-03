@@ -54,15 +54,6 @@ const StyledReportTypeButton = styled(Button)(() => ({
   },
 }));
 
-const StyledCancelButton = styled(Button)(() => ({
-  color: theme.palette.common.black,
-  borderColor: theme.palette.grey[300],
-  "&:hover": {
-    borderColor: theme.palette.grey[300],
-    backgroundColor: "#3135390A",
-  },
-}));
-
 export default function ReportDialog({ open, onClose }: DialogProps) {
   const { t } = useTranslation("global");
 
@@ -137,12 +128,12 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
               </StyledReportTypeButton>
             </DialogContent>
             <DialogActions>
-              <StyledCancelButton
+              <Button
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
               >
                 {t("cancel")}
-              </StyledCancelButton>
+              </Button>
             </DialogActions>
           </>
         ) : type === "bug" ? (
@@ -186,12 +177,12 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
               <Button type="submit" loading={isPending} onClick={onSubmit}>
                 {t("submit")}
               </Button>
-              <StyledCancelButton
+              <Button
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
               >
                 {t("cancel")}
-              </StyledCancelButton>
+              </Button>
             </DialogActions>
           </form>
         ) : null}

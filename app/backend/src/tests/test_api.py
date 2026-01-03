@@ -3,7 +3,7 @@ from datetime import timedelta
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy import update
+from sqlalchemy import select, update
 
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
@@ -12,25 +12,19 @@ from couchers.models import FriendRelationship, FriendStatus, LanguageFluency, R
 from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict
-from couchers.sql import couchers_select as select
 from couchers.utils import create_coordinate, to_aware_datetime
-from tests.test_fixtures import (  # noqa
+from tests.fixtures.db import generate_user, make_friends, make_user_block
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.sessions import (
     api_session,
     blocking_session,
-    db,
-    email_fields,
-    generate_user,
-    make_friends,
-    make_user_block,
-    make_user_invisible,
-    mock_notification_email,
     notifications_session,
-    push_collector,
     real_api_session,
     real_jail_session,
-    testconfig,
 )
-from tests.test_fixtures import real_admin_session as admin_session
+from tests.fixtures.sessions import (
+    real_admin_session as admin_session,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -802,7 +796,7 @@ def test_pending_friend_request_count(db):
         assert res.pending_friend_request_count == 0
 
 
-def test_friend_request_flow(db, push_collector):
+def test_friend_request_flow(db, push_collector: PushCollector):
     user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user(complete_profile=True)
     user3, token3 = generate_user()
@@ -812,11 +806,9 @@ def test_friend_request_flow(db, push_collector):
         with api_session(token1) as api:
             api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
 
-    push_collector.assert_user_has_single_matching(
-        user2.id,
-        title=f"{user1.name} wants to be your friend",
-        body=f"You've received a friend request from {user1.name}",
-    )
+    push = push_collector.get_for_user(user2.id)
+    assert push.content.title == f"{user1.name} wants to be your friend"
+    assert push.content.body == f"You've received a friend request from {user1.name}"
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -875,12 +867,10 @@ def test_friend_request_flow(db, push_collector):
         assert len(res.user_ids) == 1
         assert res.user_ids[0] == user1.id
 
-    push_collector.assert_user_has_count(user2.id, 1)
-    push_collector.assert_user_push_matches_fields(
-        user1.id,
-        title=f"{user2.name} accepted your friend request!",
-        body=f"{user2.name} has accepted your friend request",
-    )
+    assert push_collector.count_for_user(user2.id) == 1
+    push = push_collector.get_for_user(user1.id, index=0)
+    assert push.content.title == f"{user2.name} accepted your friend request!"
+    assert push.content.body == f"{user2.name} has accepted your friend request"
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -920,7 +910,7 @@ def test_friend_request_flow(db, push_collector):
         assert len(res.user_ids) == 0
 
 
-def test_RemoveFriend_regression(db, push_collector):
+def test_RemoveFriend_regression(db, push_collector: PushCollector):
     user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user(complete_profile=True)
     user3, token3 = generate_user()
@@ -1476,13 +1466,46 @@ def test_badges(db):
         assert api.GetUser(api_pb2.GetUserReq(user=user2.username)).badges == ["founder", "board_member"]
         assert api.GetUser(api_pb2.GetUserReq(user=user3.username)).badges == []
 
-        assert api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=founder_badge["id"])).user_ids == [1, 2]
-        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=board_member_badge["id"], page_size=1))
+        assert api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=founder_badge.id)).user_ids == [1, 2]
+        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=board_member_badge.id, page_size=1))
         assert res.user_ids == [1]
         res2 = api.ListBadgeUsers(
-            api_pb2.ListBadgeUsersReq(badge_id=board_member_badge["id"], page_token=res.next_page_token)
+            api_pb2.ListBadgeUsersReq(badge_id=board_member_badge.id, page_token=res.next_page_token)
         )
         assert res2.user_ids == [2]
+
+
+@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+def test_ListBadgeUsers_excludes_ghost_users(db, flag):
+    """Test that ListBadgeUsers does not return deleted/banned users."""
+    from couchers.helpers.badges import user_add_badge
+
+    user1, token1 = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+
+    volunteer_badge = get_badge_dict()["volunteer"]
+
+    # Give all three users the volunteer badge
+    with session_scope() as session:
+        user_add_badge(session, user1.id, "volunteer", do_notify=False)
+        user_add_badge(session, user2.id, "volunteer", do_notify=False)
+        user_add_badge(session, user3.id, "volunteer", do_notify=False)
+
+    # Verify all three users appear in the badge list
+    with api_session(token1) as api:
+        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=volunteer_badge.id))
+        assert set(res.user_ids) == {user1.id, user2.id, user3.id}
+
+    # Make user2 invisible (deleted or banned)
+    with session_scope() as session:
+        db_user2 = session.execute(select(User).where(User.id == user2.id)).scalar_one()
+        setattr(db_user2, flag, True)
+
+    # Now user2 should not appear in the badge list
+    with api_session(token1) as api:
+        res = api.ListBadgeUsers(api_pb2.ListBadgeUsersReq(badge_id=volunteer_badge.id))
+        assert set(res.user_ids) == {user1.id, user3.id}
 
 
 @pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])

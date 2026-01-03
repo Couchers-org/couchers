@@ -52,7 +52,9 @@ describe("Edit event page", () => {
     renderPage();
 
     // Brief sanity check that the form has existing data
-    const titleField = await screen.findByLabelText(t("global:title"));
+    const titleField = await screen.findByLabelText(
+      t("communities:event_title_label"),
+    );
     expect(titleField).toHaveValue("Weekly Meetup");
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -182,7 +184,9 @@ describe("Edit event page", () => {
     renderPage();
 
     await assertErrorAlert(errorMessage);
-    expect(screen.queryByLabelText(t("global:title"))).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(t("communities:event_title_label")),
+    ).not.toBeInTheDocument();
   });
 
   it("should show error if startDate after endDate", async () => {

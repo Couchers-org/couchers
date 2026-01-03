@@ -3,8 +3,9 @@ from dataclasses import dataclass
 from typing import Any
 
 from couchers import urls
-from couchers.i18n.i18n import get_raw_translation_string
+from couchers.i18n.i18n import localize_string
 from couchers.models import Notification, User
+from couchers.notifications.push import PushNotificationContent
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.proto import notification_data_pb2
 from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
@@ -44,10 +45,8 @@ class RenderedNotification:
 
 
 def render_notification(user: User, notification: Notification) -> RenderedNotification:
-    def get_localized_string(component: str, message_id: str, *, substitutions: dict[str, str] | None = None) -> str:
-        return get_raw_translation_string(
-            user.ui_language_preference, component, message_id, substitutions=substitutions
-        )
+    def get_localized_string(key: str, *, substitutions: dict[str, str | int] | None = None) -> str:
+        return localize_string(user.ui_language_preference, key, substitutions=substitutions)
 
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic == "host_request":
@@ -365,10 +364,9 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
             email_list_unsubscribe_url=generate_unsub_topic_action(notification),
         )
     elif notification.topic_action.display == "donation:received":
-        title = get_localized_string("notifications", "donation_received_title")
+        title = get_localized_string("notifications.donation_received.title")
         message = get_localized_string(
-            "notifications",
-            "donation_received_thanks_amount",
+            "notifications.donation_received.thanks_amount",
             substitutions={
                 "amount": data.amount,
             },
@@ -883,7 +881,6 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
         )
     elif notification.topic_action.display == "verification:sv_fail":
         title = "Strong Verification failed"
-        reason_message: str
         if data.reason == notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
             reason_message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
         elif data.reason == notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
@@ -943,7 +940,6 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
             )
         elif notification.action == "failed":
             title = "Postal Verification failed"
-            reason_message: str
             if data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED:
                 reason_message = "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can start a new verification attempt."
             elif data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS:
@@ -1000,3 +996,16 @@ def render_notification(user: User, notification: Notification) -> RenderedNotif
         )
 
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
+
+
+def render_push_notification(user: User, notification: Notification) -> PushNotificationContent:
+    email_notification = render_notification(user, notification)
+    if email_notification.push_title is None:  # type: ignore[comparison-overlap]
+        raise NotImplementedError(f"topic-action {notification.topic}:{notification.action} does not have push info")
+
+    return PushNotificationContent(
+        title=email_notification.push_title,
+        body=email_notification.push_body,
+        action_url=email_notification.push_url,
+        icon_url=email_notification.push_icon,
+    )

@@ -19,7 +19,7 @@ export default function Logout() {
     },
 
     onSuccess: () => {
-      router.push(loginRoute);
+      router.push(loginRoute, undefined, { locale: router.locale });
     },
   });
 
