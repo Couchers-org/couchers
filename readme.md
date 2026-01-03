@@ -10,6 +10,12 @@ Read more about us at [Couchers.org](https://couchers.org).
 
 The code in this repository is licensed under the [MIT license](license.md).
 
+## 👩‍💻 Looking to contribute as a software developer?
+
+**Please read our [Developer Contributor Guide](docs/contributing.md) first** — it explains our workflow, expectations, and how to get started. [You can see and apply to our current volunteer positions here.](./app/web/markdown/volunteer.md)
+
+---
+
 ## How to contribute
 
 If you found an issue with the app, or have a suggestion/feature you'd like to raise, please add it to the Issues (in the issues tab on GitHub). A developer will come and triage the issue and add it to the backlog.
@@ -17,8 +23,6 @@ If you found an issue with the app, or have a suggestion/feature you'd like to r
 If you are a **frontend developer**, we have an up to date Quick Start at [app/web/readme.md](app/web/readme.md).
 
 If you are a **backend or full stack developer**, there is a Quick Start at [app/backend/readme.md](app/backend/readme.md).
-
-<!-- If you are a developer, please read [docs/contributing.md](docs/contributing.md) on our development model. -->
 
 ## Overview of documentation
 
