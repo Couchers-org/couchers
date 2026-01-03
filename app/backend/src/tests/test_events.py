@@ -1783,8 +1783,12 @@ def test_ListMyEvents(db):
     user5, token5 = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user3], [], None).id
-        c2_id = create_community(session, 0, 2, "Community", [user4], [], None).id
+        # Create global community first (node_id=1), then a child community (node_id=2)
+        # This allows testing my_communities_exclude_global
+        global_community = create_community(session, 0, 100, "Global", [user3], [], None)
+        c_id = global_community.id
+        child_community = create_community(session, 0, 50, "Child Community", [user3, user4], [], global_community)
+        c2_id = child_community.id
 
     start = now()
 
@@ -1810,6 +1814,7 @@ def test_ListMyEvents(db):
                     lat=0.1,
                     lng=0.2,
                 ),
+                parent_community_id=community_id,
                 timezone="UTC",
                 start_time=Timestamp_from_datetime(start + timedelta(hours=hours_from_now)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=hours_from_now + 0.5)),
@@ -1914,8 +1919,9 @@ def test_ListMyEvents(db):
         assert [event.event_id for event in res.events] == [e1, e5]
 
     with events_session(token3) as api:
+        # user3 is member of both global (c_id) and child (c2_id) communities
         res = api.ListMyEvents(events_pb2.ListMyEventsReq())
-        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5]
+        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5, e6]
 
         res = api.ListMyEvents(events_pb2.ListMyEventsReq(subscribed=True))
         assert [event.event_id for event in res.events] == [e2, e4]
@@ -1926,8 +1932,25 @@ def test_ListMyEvents(db):
         res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True))
         assert [event.event_id for event in res.events] == [e3, e4]
 
+        # my_communities returns events from both communities user3 is a member of
         res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True))
-        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5]
+        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5, e6]
+
+        # my_communities_exclude_global filters out events from global community (node_id=1)
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True, my_communities_exclude_global=True))
+        assert [event.event_id for event in res.events] == [e6]
+
+        # my_communities_exclude_global works independently of my_communities flag
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities_exclude_global=True))
+        assert [event.event_id for event in res.events] == [e6]
+
+        # my_communities_exclude_global filters organizing results too
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True, my_communities_exclude_global=True))
+        assert [event.event_id for event in res.events] == []
+
+        # my_communities_exclude_global filters subscribed results too
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(subscribed=True, my_communities_exclude_global=True))
+        assert [event.event_id for event in res.events] == []
 
     with events_session(token5) as api:
         res = api.ListAllEvents(events_pb2.ListAllEventsReq())
