@@ -3,7 +3,7 @@ title: "Introducing the Official Couchers.org Merchandise Shop!"
 slug: merch-shop-release
 description: "We’re excited to share a milestone the community has been waiting for: The official Couchers Merchandise Shop is now live!"
 date: 2026/01/03
-author: Aditi
+author: Iason
 ---
 
 We’re excited to share a milestone the community has been waiting for:
@@ -69,4 +69,4 @@ Together, we’re building a better hospitality platform for the world.
 Happy Merch Drop!
 
 
-*Written by [Aditi](https://couchers.org/user/adititrips). Published on 2026/01/03*
+*Written by [Iason](https://couchers.org/user/iliossatos). Published on 2026/01/03*
