@@ -595,7 +595,7 @@ def _reference__receive_surfed(data: notification_data_pb2.ReferenceReceiveHostR
     return _reference__receive(data, reference_type="hosted")
 
 
-def _reference__reminder(data: notification_data_pb2.ReferenceReminder, reference_type=str) -> PushNotificationContent:
+def _reference__reminder(data: notification_data_pb2.ReferenceReminder, reference_type: str) -> PushNotificationContent:
     leave_reference_link = urls.leave_reference_link(
         reference_type=reference_type,
         to_user_id=data.other_user.user_id,
