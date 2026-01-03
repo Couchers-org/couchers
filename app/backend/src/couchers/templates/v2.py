@@ -20,9 +20,9 @@ from sqlalchemy.orm import Session
 from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
-from couchers.i18n.i18n import localize_string
+from couchers.i18n.i18n import localize_date, localize_string, localize_time, localize_timestamp
 from couchers.models import User
-from couchers.utils import get_tz_as_text, now, to_aware_datetime
+from couchers.utils import get_tz_as_text, now
 
 logger = logging.getLogger(__name__)
 
@@ -65,17 +65,17 @@ def v2date(value: date | str, user: User) -> str:
     # todo: user locale-based date formatting
     if isinstance(value, str):
         value = date.fromisoformat(value)
-    return value.strftime("%A %-d %B %Y")
+    return localize_date(value, user.ui_language_preference or "en")
 
 
 def v2time(value: datetime, user: User) -> str:
-    tz = ZoneInfo(user.timezone or "Etc/UTC")
-    return value.astimezone(tz=tz).strftime("%-I:%M %p (%H:%M)")
+    value = value.astimezone(ZoneInfo(user.timezone or "Etc/UTC"))
+    return localize_time(value, user.ui_language_preference or "en")
 
 
 def v2timestamp(value: Timestamp, user: User) -> str:
     tz = ZoneInfo(user.timezone or "Etc/UTC")
-    return to_aware_datetime(value).astimezone(tz=tz).strftime("%A %-d %B %Y at %-I:%M %p (%H:%M)")
+    return localize_timestamp(value, tz, user.ui_language_preference or "en")
 
 
 def v2avatar(user: Any) -> str:
