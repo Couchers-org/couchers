@@ -96,8 +96,8 @@ class PhotoGalleryItem(Base, kw_only=True):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
-    gallery_id: Mapped[int] = mapped_column(ForeignKey("photo_galleries.id"), index=True)
-    upload_key: Mapped[str] = mapped_column(ForeignKey("uploads.key"))
+    gallery_id: Mapped[int] = mapped_column(ForeignKey("photo_galleries.id"), index=True, default=None)
+    upload_key: Mapped[str] = mapped_column(ForeignKey("uploads.key"), default=None)
 
     # Float position for ordering - allows inserting between items without shifting
     position: Mapped[float] = mapped_column(Float)
