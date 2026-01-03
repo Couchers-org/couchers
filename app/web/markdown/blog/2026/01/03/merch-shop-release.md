@@ -39,7 +39,7 @@ The Couchers Merch Shop launches with a curated collection designed for traveler
 * **Pin Button Set 1** - cute collectible pins featuring Couchers graphics
 
 **Home & Living**
-* **Sticker Sheet 1* - perfect for laptops, water bottles, journals, and travel gear
+* **Sticker Sheet 1** - perfect for laptops, water bottles, journals, and travel gear
 * **Large Couchers Flag (154.94 × 96.52 cm)** - great for drawing attention at meetups, events, or decorating your space
 
 Everything is made on demand, ensuring sustainable production with no unnecessary waste.
@@ -61,6 +61,7 @@ Check out the full collection here:
 <div style="margin: 2rem 0; text-align: center;">
   <a href="https://couchers.org/shop" style="display: inline-block; background-color: #00a398; color: white; padding: 6px 16px; font-size: 0.875rem; font-weight: 500; line-height: 1.75; border-radius: 4px; text-decoration: none; text-transform: uppercase; letter-spacing: 0.02857em; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.25); transition: background-color 0.3s;">Visit the Merch Shop</a>
 </div>
+
 
 Thank you for supporting Couchers - whether by hosting, volunteering, donating, or rocking some stylish merch.
 
