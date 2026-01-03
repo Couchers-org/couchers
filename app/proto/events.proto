@@ -275,6 +275,8 @@ message ListMyEventsReq {
   bool organizing = 4;
   // include events in the user's communities
   bool my_communities = 7;
+  // when my_communities is set, exclude events in communities that are too large (e.g., the Global Community)
+  bool my_communities_exclude_global = 10;
 
   bool include_cancelled = 8;
 

@@ -9,6 +9,7 @@ from sqlalchemy import Row, Select, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_, update
 
+from couchers.constants import GLOBAL_COMMUNITY_MAX_NODE_ID
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.jobs.enqueue import queue_job
@@ -246,7 +247,7 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
     Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
     """
     cluster = occurrence.event.parent_node.official_cluster
-    if cluster.parent_node_id == 1:
+    if cluster.parent_node_id <= GLOBAL_COMMUNITY_MAX_NODE_ID:
         logger.info("The Global Community is too big for email notifications.")
         return [], occurrence.event.parent_node_id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
@@ -1101,6 +1102,9 @@ class Events(events_pb2_grpc.EventsServicer):
             where_.append(Event.parent_node_id.in_(my_communities))
 
         query = query.where(or_(*where_))
+
+        if request.my_communities_exclude_global:
+            query = query.where(Event.parent_node_id > GLOBAL_COMMUNITY_MAX_NODE_ID)
 
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)
