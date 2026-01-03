@@ -22,7 +22,7 @@ class InitiatedUpload(Base, kw_only=True):
     key: Mapped[str] = mapped_column(String, primary_key=True)
 
     # timezones should always be UTC
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
