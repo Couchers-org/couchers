@@ -143,10 +143,8 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
             # Enables mypy's exhaustiveness checking for the cases above.
             assert_never(notification.topic_action)
 
-    raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
 
-
-def _account_deletion__start(data: empty_pb2.Empty) -> PushNotificationContent:
+def _account_deletion__start(data: notification_data_pb2.AccountDeletionStart) -> PushNotificationContent:
     return PushNotificationContent(
         title="Account deletion initiated",
         body="Someone initiated the deletion of your Couchers.org account. To delete your account, please follow the link in the email we sent you.",
@@ -174,7 +172,7 @@ def _activeness__probe(data: notification_data_pb2.ActivenessProbe) -> PushNotif
     )
 
 
-def _api_key__create(data: empty_pb2.Empty) -> PushNotificationContent:
+def _api_key__create(data: notification_data_pb2.ApiKeyCreate) -> PushNotificationContent:
     return PushNotificationContent(
         title="An API key was created for your account",
         body="Details were sent to you via email.",
@@ -490,7 +488,7 @@ def _password__change(data: empty_pb2.Empty) -> PushNotificationContent:
     )
 
 
-def _password_reset__start(data: empty_pb2.Empty) -> PushNotificationContent:
+def _password_reset__start(data: notification_data_pb2.PasswordResetStart) -> PushNotificationContent:
     return PushNotificationContent(
         title="A password reset was initiated on your account",
         body="Someone initiated a password change on your account.",
