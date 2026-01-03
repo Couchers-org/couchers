@@ -5,8 +5,6 @@ Renders a Notification model into a localized push notification.
 import logging
 from typing import Any, assert_never
 
-from google.protobuf import empty_pb2
-
 from couchers import urls
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.push import PushNotificationContent
