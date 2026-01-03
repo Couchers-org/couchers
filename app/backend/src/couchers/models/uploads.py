@@ -27,7 +27,7 @@ class InitiatedUpload(Base):
 
     initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    initiator_user: Mapped[User] = relationship("User")
+    initiator_user: Mapped[User] = relationship()
 
     @hybrid_property
     def is_valid(self) -> Any:
@@ -50,7 +50,7 @@ class Upload(Base):
     # photo credit, etc
     credit: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    creator_user: Mapped[User] = relationship("User", backref="uploads", foreign_keys="Upload.creator_user_id")
+    creator_user: Mapped[User] = relationship(backref="uploads", foreign_keys="Upload.creator_user_id")
 
     def _url(self, size: str) -> str:
         return urls.media_url(filename=self.filename, size=size)
@@ -79,9 +79,8 @@ class PhotoGallery(Base):
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    owner_user: Mapped[User] = relationship("User", foreign_keys=[owner_user_id], back_populates="galleries")
+    owner_user: Mapped[User] = relationship(foreign_keys=[owner_user_id], back_populates="galleries")
     photos: Mapped[list[PhotoGalleryItem]] = relationship(
-        "PhotoGalleryItem",
         back_populates="gallery",
         order_by="PhotoGalleryItem.position",
     )
@@ -106,8 +105,8 @@ class PhotoGalleryItem(Base):
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    gallery: Mapped[PhotoGallery] = relationship("PhotoGallery", back_populates="photos")
-    upload: Mapped[Upload] = relationship("Upload")
+    gallery: Mapped[PhotoGallery] = relationship(back_populates="photos")
+    upload: Mapped[Upload] = relationship()
 
     __table_args__ = (
         # Ensure each upload is only in a gallery once
