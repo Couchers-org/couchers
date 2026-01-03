@@ -43,7 +43,7 @@ Our volunteer recruiting process has evolved through the years as our project ha
 
 1. You apply via one of the defined open "positions" below, filling out the application form.
 
-2. When review your application and if your profile seems appropriate, we schedule a quick Zoom call to get to know each other.
+2. We'll review your application and if your profile seems appropriate, we schedule a quick Zoom call to get to know each other.
 
 3. After accepting the position, we'll send you some volunteer agreements and then get you onboarded with the people you're going to directly work with.
 
