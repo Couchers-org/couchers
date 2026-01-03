@@ -99,7 +99,7 @@ class StrongVerificationAttempt(Base, init=False, kw_only=True):
 
     passport_expiry_datetime = column_property(date_in_timezone(passport_expiry_date, "Etc/UTC"))  # type: ignore[arg-type]
 
-    user: Mapped[User] = relationship()
+    user: Mapped[User] = relationship(init=False)
 
     @hybrid_property
     def is_valid(self) -> bool:

@@ -320,19 +320,20 @@ class User(Base, init=False, kw_only=True):
     invite_code: Mapped[InviteCode | None] = relationship(foreign_keys=[invite_code_id])
 
     moderation_user_lists: Mapped[list[ModerationUserList]] = relationship(
-        secondary="moderation_user_list_members", back_populates="users"
+        init=False, secondary="moderation_user_list_members", back_populates="users"
     )
-    language_abilities: Mapped[list[LanguageAbility]] = relationship(back_populates="user")
+    language_abilities: Mapped[list[LanguageAbility]] = relationship(init=False, back_populates="user")
     galleries: Mapped[list[PhotoGallery]] = relationship(
-        foreign_keys="PhotoGallery.owner_user_id", back_populates="owner_user"
+        init=False, foreign_keys="PhotoGallery.owner_user_id", back_populates="owner_user"
     )
     mod_notes: DynamicMapped[ModNote] = relationship(
-        foreign_keys="ModNote.user_id", back_populates="user", lazy="dynamic"
+        init=False, foreign_keys="ModNote.user_id", back_populates="user", lazy="dynamic"
     )
 
-    badges: Mapped[list[UserBadge]] = relationship(back_populates="user")
+    badges: Mapped[list[UserBadge]] = relationship(init=False, back_populates="user")
 
     pending_activeness_probe: Mapped[ActivenessProbe | None] = relationship(
+        init=False,
         primaryjoin="and_(ActivenessProbe.user_id == User.id, ActivenessProbe.is_pending)",
         uselist=False,
         back_populates="user",
@@ -548,8 +549,8 @@ class LanguageAbility(Base, init=False, kw_only=True):
     language_code: Mapped[str] = mapped_column(ForeignKey("languages.code", deferrable=True))
     fluency: Mapped[LanguageFluency] = mapped_column(Enum(LanguageFluency))
 
-    user: Mapped[User] = relationship(back_populates="language_abilities")
-    language: Mapped[Language] = relationship()
+    user: Mapped[User] = relationship(init=False, back_populates="language_abilities")
+    language: Mapped[Language] = relationship(init=False)
 
 
 class RegionVisited(Base, init=False, kw_only=True):

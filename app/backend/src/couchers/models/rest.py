@@ -53,7 +53,7 @@ class UserBadge(Base, init=False, kw_only=True):
     # take this with a grain of salt, someone may get then lose a badge for whatever reason
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    user: Mapped[User] = relationship(back_populates="badges")
+    user: Mapped[User] = relationship(init=False, back_populates="badges")
 
 
 class FriendStatus(enum.Enum):
@@ -84,8 +84,10 @@ class FriendRelationship(Base, init=False, kw_only=True):
     time_sent: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     time_responded: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    from_user: Mapped[User] = relationship(backref="friends_from", foreign_keys="FriendRelationship.from_user_id")
-    to_user: Mapped[User] = relationship(backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
+    from_user: Mapped[User] = relationship(
+        init=False, backref="friends_from", foreign_keys="FriendRelationship.from_user_id"
+    )
+    to_user: Mapped[User] = relationship(init=False, backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
 
     __table_args__ = (
         # Ping looks up pending friend reqs, this speeds that up
@@ -123,7 +125,7 @@ class ContributorForm(Base, init=False, kw_only=True):
     contribute_ways: Mapped[list[str]] = mapped_column(ARRAY(String))
     expertise: Mapped[str | None] = mapped_column(String)
 
-    user: Mapped[User] = relationship(backref="contributor_forms")
+    user: Mapped[User] = relationship(init=False, backref="contributor_forms")
 
     @hybrid_property
     def is_filled(self) -> Any:
@@ -234,7 +236,7 @@ class AccountDeletionToken(Base, init=False, kw_only=True):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
-    user: Mapped[User] = relationship(backref="account_deletion_tokens")
+    user: Mapped[User] = relationship(init=False, backref="account_deletion_tokens")
 
     @hybrid_property
     def is_valid(self) -> Any:
@@ -402,10 +404,10 @@ class Reference(Base, init=False, kw_only=True):
 
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
-    from_user: Mapped[User] = relationship(backref="references_from", foreign_keys="Reference.from_user_id")
-    to_user: Mapped[User] = relationship(backref="references_to", foreign_keys="Reference.to_user_id")
+    from_user: Mapped[User] = relationship(init=False, backref="references_from", foreign_keys="Reference.from_user_id")
+    to_user: Mapped[User] = relationship(init=False, backref="references_to", foreign_keys="Reference.to_user_id")
 
-    host_request: Mapped[HostRequest | None] = relationship(backref="references")
+    host_request: Mapped[HostRequest | None] = relationship(init=False, backref="references")
 
     __table_args__ = (
         # Rating must be between 0 and 1, inclusive
@@ -477,7 +479,7 @@ class AccountDeletionReason(Base, init=False, kw_only=True):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     reason: Mapped[str | None] = mapped_column(String)
 
-    user: Mapped[User] = relationship()
+    user: Mapped[User] = relationship(init=False)
 
 
 class ModerationUserList(Base, init=False, kw_only=True):
@@ -491,7 +493,7 @@ class ModerationUserList(Base, init=False, kw_only=True):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     users: Mapped[list[User]] = relationship(
-        secondary="moderation_user_list_members", back_populates="moderation_user_lists"
+        init=False, secondary="moderation_user_list_members", back_populates="moderation_user_lists"
     )
 
 
@@ -540,7 +542,7 @@ class RateLimitViolation(Base, init=False, kw_only=True):
     action: Mapped[RateLimitAction] = mapped_column(Enum(RateLimitAction))
     is_hard_limit: Mapped[bool] = mapped_column(Boolean)
 
-    user: Mapped[User] = relationship()
+    user: Mapped[User] = relationship(init=False)
 
     __table_args__ = (
         # Fast lookup for rate limits in interval

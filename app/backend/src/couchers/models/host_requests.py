@@ -84,10 +84,14 @@ class HostRequest(Base, init=False, kw_only=True):
     host_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, nullable=True)
     surfer_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    surfer: Mapped[User] = relationship(backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id")
-    host: Mapped[User] = relationship(backref="host_requests_received", foreign_keys="HostRequest.host_user_id")
-    conversation: Mapped[Conversation] = relationship()
-    moderation_state: Mapped[ModerationState] = relationship()
+    surfer: Mapped[User] = relationship(
+        init=False, backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id"
+    )
+    host: Mapped[User] = relationship(
+        init=False, backref="host_requests_received", foreign_keys="HostRequest.host_user_id"
+    )
+    conversation: Mapped[Conversation] = relationship(init=False)
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # allows fast lookup as to whether they didn't meet up
@@ -146,7 +150,7 @@ class HostRequestFeedback(Base, init=False, kw_only=True):
     request_quality: Mapped[HostRequestQuality | None] = mapped_column(Enum(HostRequestQuality), nullable=True)
     decline_reason: Mapped[str | None] = mapped_column(String, nullable=True)  # plain text
 
-    host_request: Mapped[HostRequest] = relationship()
+    host_request: Mapped[HostRequest] = relationship(init=False)
 
     __table_args__ = (
         # Each user can leave at most one friend reference to another user

@@ -92,7 +92,7 @@ class PostalVerificationAttempt(Base, init=False, kw_only=True):
         return cls.status == PostalVerificationStatus.succeeded
 
     # Relationships
-    user: Mapped[User] = relationship()
+    user: Mapped[User] = relationship(init=False)
 
     # Constraints
     __table_args__ = (

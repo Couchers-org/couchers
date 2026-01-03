@@ -65,7 +65,7 @@ class UserSession(Base, init=False, kw_only=True):
     ip_address: Mapped[str | None] = mapped_column(String, default=None)
     user_agent: Mapped[str | None] = mapped_column(String, default=None)
 
-    user: Mapped[User] = relationship(backref="sessions")
+    user: Mapped[User] = relationship(init=False, backref="sessions")
 
     @hybrid_property
     def is_valid(self) -> Any:
@@ -106,7 +106,7 @@ class LoginToken(Base, init=False, kw_only=True):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
-    user: Mapped[User] = relationship(backref="login_tokens")
+    user: Mapped[User] = relationship(init=False, backref="login_tokens")
 
     @hybrid_property
     def is_valid(self) -> Any:
@@ -125,7 +125,7 @@ class PasswordResetToken(Base, init=False, kw_only=True):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
-    user: Mapped[User] = relationship(backref="password_reset_tokens")
+    user: Mapped[User] = relationship(init=False, backref="password_reset_tokens")
 
     @hybrid_property
     def is_valid(self) -> Any:

@@ -54,7 +54,7 @@ class ActivenessProbe(Base, init=False, kw_only=True):
     def is_pending(self) -> bool:
         return self.responded == None
 
-    user: Mapped[User] = relationship(back_populates="pending_activeness_probe")
+    user: Mapped[User] = relationship(init=False, back_populates="pending_activeness_probe")
 
     __table_args__ = (
         # a user can have at most one pending activeness probe at a time

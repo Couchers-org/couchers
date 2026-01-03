@@ -54,10 +54,13 @@ class Node(Base, init=False, kw_only=True):
     geom: Mapped[Geom] = deferred(mapped_column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False))
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    parent_node: Mapped[Node] = relationship(back_populates="child_nodes", remote_side="Node.id")
-    child_nodes: Mapped[list[Node]] = relationship()
-    child_clusters: Mapped[list[Cluster]] = relationship(back_populates="parent_node", overlaps="official_cluster")
+    parent_node: Mapped[Node] = relationship(init=False, back_populates="child_nodes", remote_side="Node.id")
+    child_nodes: Mapped[list[Node]] = relationship(init=False)
+    child_clusters: Mapped[list[Cluster]] = relationship(
+        init=False, back_populates="parent_node", overlaps="official_cluster"
+    )
     official_cluster: Mapped[Cluster] = relationship(
+        init=False,
         primaryjoin="and_(Node.id == Cluster.parent_node_id, Cluster.is_official_cluster)",
         foreign_keys="[Cluster.parent_node_id]",
         uselist=False,
@@ -89,6 +92,7 @@ class Cluster(Base, init=False, kw_only=True):
     slug: Mapped[str] = column_property(func.slugify(name))
 
     official_cluster_for_node: Mapped[Node] = relationship(
+        init=False,
         primaryjoin="and_(Cluster.parent_node_id == Node.id, Cluster.is_official_cluster)",
         back_populates="official_cluster",
         uselist=False,
@@ -96,6 +100,7 @@ class Cluster(Base, init=False, kw_only=True):
     )
 
     parent_node: Mapped[Node] = relationship(
+        init=False,
         back_populates="child_clusters",
         remote_side="Node.id",
         foreign_keys="Cluster.parent_node_id",
@@ -103,19 +108,22 @@ class Cluster(Base, init=False, kw_only=True):
     )
 
     nodes: Mapped[list[Cluster]] = relationship(
-        backref="clusters", secondary="node_cluster_associations", viewonly=True
+        init=False, backref="clusters", secondary="node_cluster_associations", viewonly=True
     )
     # all pages
     pages: DynamicMapped[Page] = relationship(
-        backref="clusters", secondary="cluster_page_associations", lazy="dynamic", viewonly=True
+        init=False, backref="clusters", secondary="cluster_page_associations", lazy="dynamic", viewonly=True
     )
-    events: Mapped[Event] = relationship(backref="clusters", secondary="cluster_event_associations", viewonly=True)
+    events: Mapped[Event] = relationship(
+        init=False, backref="clusters", secondary="cluster_event_associations", viewonly=True
+    )
     discussions: Mapped[Discussion] = relationship(
-        backref="clusters", secondary="cluster_discussion_associations", viewonly=True
+        init=False, backref="clusters", secondary="cluster_discussion_associations", viewonly=True
     )
 
     # includes also admins
     members: DynamicMapped[User] = relationship(
+        init=False,
         lazy="dynamic",
         backref="cluster_memberships",
         secondary="cluster_subscriptions",
@@ -125,6 +133,7 @@ class Cluster(Base, init=False, kw_only=True):
     )
 
     admins: DynamicMapped[User] = relationship(
+        init=False,
         lazy="dynamic",
         backref="cluster_adminships",
         secondary="cluster_subscriptions",
@@ -133,11 +142,12 @@ class Cluster(Base, init=False, kw_only=True):
         viewonly=True,
     )
 
-    cluster_subscriptions: Mapped[list[ClusterSubscription]] = relationship()
+    cluster_subscriptions: Mapped[list[ClusterSubscription]] = relationship(init=False)
     owned_pages: DynamicMapped[Page] = relationship(lazy="dynamic")
     owned_discussions: DynamicMapped[Discussion] = relationship(lazy="dynamic")
 
     main_page: Mapped[Page] = relationship(
+        init=False,
         primaryjoin="and_(Cluster.id == Page.owner_cluster_id, Page.type == 'main_page')",
         viewonly=True,
         uselist=False,
@@ -180,8 +190,8 @@ class NodeClusterAssociation(Base, init=False, kw_only=True):
     node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
-    node: Mapped[Node] = relationship(backref="node_cluster_associations")
-    cluster: Mapped[Cluster] = relationship(backref="node_cluster_associations")
+    node: Mapped[Node] = relationship(init=False, backref="node_cluster_associations")
+    cluster: Mapped[Cluster] = relationship(init=False, backref="node_cluster_associations")
 
 
 class ClusterRole(enum.Enum):
@@ -202,8 +212,8 @@ class ClusterSubscription(Base, init=False, kw_only=True):
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
     role: Mapped[ClusterRole] = mapped_column(Enum(ClusterRole))
 
-    user: Mapped[User] = relationship(backref="cluster_subscriptions")
-    cluster: Mapped[Cluster] = relationship(back_populates="cluster_subscriptions")
+    user: Mapped[User] = relationship(init=False, backref="cluster_subscriptions")
+    cluster: Mapped[Cluster] = relationship(init=False, back_populates="cluster_subscriptions")
 
     __table_args__ = (
         UniqueConstraint("user_id", "cluster_id"),
@@ -235,8 +245,8 @@ class ClusterPageAssociation(Base, init=False, kw_only=True):
     page_id: Mapped[int] = mapped_column(ForeignKey("pages.id"), index=True)
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
-    page: Mapped[Page] = relationship(backref="cluster_page_associations")
-    cluster: Mapped[Cluster] = relationship(backref="cluster_page_associations")
+    page: Mapped[Page] = relationship(init=False, backref="cluster_page_associations")
+    cluster: Mapped[Cluster] = relationship(init=False, backref="cluster_page_associations")
 
 
 class PageType(enum.Enum):
@@ -265,18 +275,18 @@ class Page(Base, init=False, kw_only=True):
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
 
     parent_node: Mapped[Node] = relationship(
-        backref="child_pages", remote_side="Node.id", foreign_keys="Page.parent_node_id"
+        init=False, backref="child_pages", remote_side="Node.id", foreign_keys="Page.parent_node_id"
     )
 
-    thread: Mapped[Thread] = relationship(backref="page", uselist=False)
-    creator_user: Mapped[User] = relationship(backref="created_pages", foreign_keys="Page.creator_user_id")
-    owner_user: Mapped[User | None] = relationship(backref="owned_pages", foreign_keys="Page.owner_user_id")
+    thread: Mapped[Thread] = relationship(init=False, backref="page", uselist=False)
+    creator_user: Mapped[User] = relationship(init=False, backref="created_pages", foreign_keys="Page.creator_user_id")
+    owner_user: Mapped[User | None] = relationship(init=False, backref="owned_pages", foreign_keys="Page.owner_user_id")
     owner_cluster: Mapped[Cluster | None] = relationship(
-        back_populates="owned_pages", uselist=False, foreign_keys="Page.owner_cluster_id"
+        init=False, back_populates="owned_pages", uselist=False, foreign_keys="Page.owner_cluster_id"
     )
 
     editors: Mapped[list[User]] = relationship(secondary="page_versions", viewonly=True)
-    versions: Mapped[list[PageVersion]] = relationship(back_populates="page", order_by="PageVersion.id")
+    versions: Mapped[list[PageVersion]] = relationship(init=False, back_populates="page", order_by="PageVersion.id")
 
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
@@ -324,9 +334,9 @@ class PageVersion(Base, init=False, kw_only=True):
 
     slug: Mapped[str] = column_property(func.slugify(title))
 
-    page: Mapped[Page] = relationship(back_populates="versions")
-    editor_user: Mapped[User] = relationship(backref="edited_pages")
-    photo: Mapped[Upload] = relationship()
+    page: Mapped[Page] = relationship(init=False, back_populates="versions")
+    editor_user: Mapped[User] = relationship(init=False, backref="edited_pages")
+    photo: Mapped[Upload] = relationship(init=False)
 
     __table_args__ = (
         # Geom and address must either both be null or both be set

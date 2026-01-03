@@ -43,8 +43,8 @@ class ClusterEventAssociation(Base, init=False, kw_only=True):
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), index=True)
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
-    event: Mapped[Event] = relationship(backref="cluster_event_associations")
-    cluster: Mapped[Cluster] = relationship(backref="cluster_event_associations")
+    event: Mapped[Event] = relationship(init=False, backref="cluster_event_associations")
+    cluster: Mapped[Cluster] = relationship(init=False, backref="cluster_event_associations")
 
 
 class Event(Base, init=False, kw_only=True):
@@ -76,18 +76,23 @@ class Event(Base, init=False, kw_only=True):
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
 
     parent_node: Mapped[Node] = relationship(
-        backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
+        init=False, backref="child_events", remote_side="Node.id", foreign_keys="Event.parent_node_id"
     )
-    thread: Mapped[Thread] = relationship(backref="event", uselist=False)
+    thread: Mapped[Thread] = relationship(init=False, backref="event", uselist=False)
     subscribers: DynamicMapped[User] = relationship(
-        backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic", viewonly=True
+        init=False, backref="subscribed_events", secondary="event_subscriptions", lazy="dynamic", viewonly=True
     )
     organizers: DynamicMapped[User] = relationship(
-        backref="organized_events", secondary="event_organizers", lazy="dynamic", viewonly=True
+        init=False, backref="organized_events", secondary="event_organizers", lazy="dynamic", viewonly=True
     )
-    creator_user: Mapped[User] = relationship(backref="created_events", foreign_keys="Event.creator_user_id")
-    owner_user: Mapped[User | None] = relationship(backref="owned_events", foreign_keys="Event.owner_user_id")
+    creator_user: Mapped[User] = relationship(
+        init=False, backref="created_events", foreign_keys="Event.creator_user_id"
+    )
+    owner_user: Mapped[User | None] = relationship(
+        init=False, backref="owned_events", foreign_keys="Event.owner_user_id"
+    )
     owner_cluster: Mapped[Cluster | None] = relationship(
+        init=False,
         backref=backref("owned_events", lazy="dynamic"),
         uselist=False,
         foreign_keys="Event.owner_cluster_id",
@@ -136,18 +141,21 @@ class EventOccurrence(Base, init=False, kw_only=True):
     last_edited: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     creator_user: Mapped[User] = relationship(
-        backref="created_event_occurrences", foreign_keys="EventOccurrence.creator_user_id"
+        init=False, backref="created_event_occurrences", foreign_keys="EventOccurrence.creator_user_id"
     )
     event: Mapped[Event] = relationship(
+        init=False,
         back_populates="occurrences",
         remote_side="Event.id",
         foreign_keys="EventOccurrence.event_id",
     )
 
-    photo: Mapped[Upload | None] = relationship()
-    attendances: DynamicMapped[EventOccurrenceAttendee] = relationship(back_populates="occurrence", lazy="dynamic")
+    photo: Mapped[Upload | None] = relationship(init=False)
+    attendances: DynamicMapped[EventOccurrenceAttendee] = relationship(
+        init=False, back_populates="occurrence", lazy="dynamic"
+    )
     community_invite_requests: DynamicMapped[EventCommunityInviteRequest] = relationship(
-        back_populates="occurrence", lazy="dynamic"
+        init=False, back_populates="occurrence", lazy="dynamic"
     )
 
     __table_args__ = (
@@ -205,8 +213,8 @@ class EventSubscription(Base, init=False, kw_only=True):
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), index=True)
     joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    user: Mapped[User] = relationship()
-    event: Mapped[Event] = relationship()
+    user: Mapped[User] = relationship(init=False)
+    event: Mapped[Event] = relationship(init=False)
 
 
 class EventOrganizer(Base, init=False, kw_only=True):
@@ -223,8 +231,8 @@ class EventOrganizer(Base, init=False, kw_only=True):
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), index=True)
     joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    user: Mapped[User] = relationship()
-    event: Mapped[Event] = relationship()
+    user: Mapped[User] = relationship(init=False)
+    event: Mapped[Event] = relationship(init=False)
 
 
 class AttendeeStatus(enum.Enum):
@@ -247,8 +255,8 @@ class EventOccurrenceAttendee(Base, init=False, kw_only=True):
     responded: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     attendee_status: Mapped[AttendeeStatus] = mapped_column(Enum(AttendeeStatus))
 
-    user: Mapped[User] = relationship()
-    occurrence: Mapped[EventOccurrence] = relationship(back_populates="attendances")
+    user: Mapped[User] = relationship(init=False)
+    occurrence: Mapped[EventOccurrence] = relationship(init=False, back_populates="attendances")
 
     reminder_sent: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
@@ -271,7 +279,7 @@ class EventCommunityInviteRequest(Base, init=False, kw_only=True):
     decided_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
     approved: Mapped[bool | None] = mapped_column(Boolean)
 
-    occurrence: Mapped[EventOccurrence] = relationship(back_populates="community_invite_requests")
+    occurrence: Mapped[EventOccurrence] = relationship(init=False, back_populates="community_invite_requests")
     user: Mapped[User] = relationship(foreign_keys="EventCommunityInviteRequest.user_id")
 
     __table_args__ = (

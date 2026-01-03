@@ -327,7 +327,7 @@ class PushNotificationSubscription(Base, init=False, kw_only=True):
     # when it was disabled
     disabled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=DATETIME_INFINITY.isoformat())
 
-    user: Mapped[User] = relationship()
+    user: Mapped[User] = relationship(init=False)
 
     __table_args__ = (
         # web_push platform requires: endpoint, auth_key, p256dh_key, full_subscription_info
@@ -368,4 +368,4 @@ class PushNotificationDeliveryAttempt(Base, init=False, kw_only=True):
     receipt_status: Mapped[str | None] = mapped_column(String)  # "ok" or "error"
     receipt_error_code: Mapped[str | None] = mapped_column(String)  # e.g., "DeviceNotRegistered"
 
-    push_notification_subscription: Mapped[PushNotificationSubscription] = relationship()
+    push_notification_subscription: Mapped[PushNotificationSubscription] = relationship(init=False)

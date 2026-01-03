@@ -31,14 +31,16 @@ class Discussion(Base, init=False, kw_only=True):
 
     slug: Mapped[str] = column_property(func.slugify(title))
 
-    thread: Mapped[Thread] = relationship(backref="discussion", uselist=False)
+    thread: Mapped[Thread] = relationship(init=False, backref="discussion", uselist=False)
 
     subscribers: Mapped[list[User]] = relationship(
-        backref="discussions", secondary="discussion_subscriptions", viewonly=True
+        init=False, backref="discussions", secondary="discussion_subscriptions", viewonly=True
     )
 
-    creator_user: Mapped[User] = relationship(backref="created_discussions", foreign_keys="Discussion.creator_user_id")
-    owner_cluster: Mapped[Cluster] = relationship(back_populates="owned_discussions", uselist=False)
+    creator_user: Mapped[User] = relationship(
+        init=False, backref="created_discussions", foreign_keys="Discussion.creator_user_id"
+    )
+    owner_cluster: Mapped[Cluster] = relationship(init=False, back_populates="owned_discussions", uselist=False)
 
 
 class DiscussionSubscription(Base, init=False, kw_only=True):
@@ -56,8 +58,8 @@ class DiscussionSubscription(Base, init=False, kw_only=True):
     joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     left: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    user: Mapped[User] = relationship(backref="discussion_subscriptions")
-    discussion: Mapped[Discussion] = relationship(backref="discussion_subscriptions")
+    user: Mapped[User] = relationship(init=False, backref="discussion_subscriptions")
+    discussion: Mapped[Discussion] = relationship(init=False, backref="discussion_subscriptions")
 
 
 class Thread(Base, init=False, kw_only=True):
@@ -88,7 +90,7 @@ class Comment(Base, init=False, kw_only=True):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    thread: Mapped[Thread] = relationship(backref="comments")
+    thread: Mapped[Thread] = relationship(init=False, backref="comments")
 
 
 class Reply(Base, init=False, kw_only=True):
@@ -106,7 +108,7 @@ class Reply(Base, init=False, kw_only=True):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    comment: Mapped[Comment] = relationship(backref="replies")
+    comment: Mapped[Comment] = relationship(init=False, backref="replies")
 
 
 class ClusterDiscussionAssociation(Base, init=False, kw_only=True):
@@ -122,5 +124,5 @@ class ClusterDiscussionAssociation(Base, init=False, kw_only=True):
     discussion_id: Mapped[int] = mapped_column(ForeignKey("discussions.id"), index=True)
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
-    discussion: Mapped[Discussion] = relationship(backref="cluster_discussion_associations")
-    cluster: Mapped[Cluster] = relationship(backref="cluster_discussion_associations")
+    discussion: Mapped[Discussion] = relationship(init=False, backref="cluster_discussion_associations")
+    cluster: Mapped[Cluster] = relationship(init=False, backref="cluster_discussion_associations")

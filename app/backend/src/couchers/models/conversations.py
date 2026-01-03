@@ -48,9 +48,9 @@ class GroupChat(Base, init=False, kw_only=True):
     # Unified Moderation System
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
-    conversation: Mapped[Conversation] = relationship(backref="group_chat")
-    creator: Mapped[User] = relationship(backref="created_group_chats")
-    moderation_state: Mapped[ModerationState] = relationship()
+    conversation: Mapped[Conversation] = relationship(init=False, backref="group_chat")
+    creator: Mapped[User] = relationship(init=False, backref="created_group_chats")
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
     subscriptions: DynamicMapped[GroupChatSubscription] = relationship(lazy="dynamic")
 
     def __repr__(self) -> str:
@@ -87,8 +87,8 @@ class GroupChatSubscription(Base, init=False, kw_only=True):
         DateTime(timezone=True), server_default=DATETIME_MINUS_INFINITY.isoformat()
     )
 
-    user: Mapped[User] = relationship(backref="group_chat_subscriptions")
-    group_chat: Mapped[GroupChat] = relationship(back_populates="subscriptions")
+    user: Mapped[User] = relationship(init=False, backref="group_chat_subscriptions")
+    group_chat: Mapped[GroupChat] = relationship(init=False, back_populates="subscriptions")
 
     def muted_display(self) -> tuple[bool, datetime | None]:
         """
@@ -160,7 +160,7 @@ class Message(Base, init=False, kw_only=True):
     # the new host request status if the message type is host_request_status_changed
     host_request_status_target: Mapped[HostRequestStatus | None] = mapped_column(Enum(HostRequestStatus), nullable=True)
 
-    conversation: Mapped[Conversation] = relationship(backref="messages", order_by="Message.time.desc()")
+    conversation: Mapped[Conversation] = relationship(init=False, backref="messages", order_by="Message.time.desc()")
     author: Mapped[User] = relationship(foreign_keys="Message.author_id")
     target: Mapped[User | None] = relationship(foreign_keys="Message.target_id")
 
