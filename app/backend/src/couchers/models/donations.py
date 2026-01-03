@@ -38,7 +38,7 @@ class DonationInitiation(Base):
     donation_type: Mapped[DonationType] = mapped_column(Enum(DonationType))
     source: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    user: Mapped[User] = relationship("User", backref="donation_initiations")
+    user: Mapped[User] = relationship(backref="donation_initiations")
 
 
 class Invoice(Base):
@@ -61,4 +61,4 @@ class Invoice(Base):
 
     invoice_type: Mapped[InvoiceType] = mapped_column(Enum(InvoiceType))
 
-    user: Mapped[User] = relationship("User", backref="invoices")
+    user: Mapped[User] = relationship(backref="invoices")

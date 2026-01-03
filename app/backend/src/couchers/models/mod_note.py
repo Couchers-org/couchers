@@ -33,7 +33,7 @@ class ModNote(Base):
 
     note_content: Mapped[str] = mapped_column(String)  # CommonMark without images
 
-    user: Mapped[User] = relationship("User", foreign_keys="ModNote.user_id", back_populates="mod_notes")
+    user: Mapped[User] = relationship(foreign_keys="ModNote.user_id", back_populates="mod_notes")
 
     def __repr__(self) -> str:
         return f"ModeNote(id={self.id}, user={self.user}, created={self.created}, ack'd={self.acknowledged})"

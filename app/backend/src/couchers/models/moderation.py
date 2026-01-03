@@ -121,7 +121,7 @@ class ModerationQueueItem(Base):
     resolved_by_log_id: Mapped[int | None] = mapped_column(ForeignKey("moderation_log.id"), index=True)
 
     # Relationships
-    moderation_state: Mapped[ModerationState] = relationship("ModerationState")
+    moderation_state: Mapped[ModerationState] = relationship()
 
     __table_args__ = (
         # Fast lookup of unresolved items
@@ -165,8 +165,8 @@ class ModerationLog(Base):
     reason: Mapped[str] = mapped_column(String)
 
     # Relationships
-    moderation_state: Mapped[ModerationState] = relationship("ModerationState")
-    moderator: Mapped[User] = relationship("User")
+    moderation_state: Mapped[ModerationState] = relationship()
+    moderator: Mapped[User] = relationship()
 
     __table_args__ = (
         # Fast lookup of log entries for a given state, ordered by time
