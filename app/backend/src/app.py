@@ -1,8 +1,14 @@
 import logging
 import signal
 import sys
+from collections.abc import Generator
+from contextlib import contextmanager
 from os import environ
 from tempfile import TemporaryDirectory
+
+import grpc_observability
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from opentelemetry.sdk.metrics import MeterProvider
 
 # these two lines need to be at the top of the file before we span child processes
 # this temp dir will be destroyed when prometheus_multiproc_dir is destroyed, aka at the end of the program
@@ -73,6 +79,24 @@ with session_scope() as session:
         raise Exception("Failed to connect to DB")
 
 
+@contextmanager
+def setup_otel(role: str) -> Generator[None]:
+    """Set up OpenTelemetry metrics for GRPC endpoints (latency, call count)
+    and export them to Prometheus.
+    """
+    if role not in ("api", "all"):
+        yield
+        return
+
+    meter_provider = MeterProvider(metric_readers=[PrometheusMetricReader()])
+    otel_plugin = grpc_observability.OpenTelemetryPlugin(meter_provider=meter_provider)
+    otel_plugin.register_global()
+    try:
+        yield
+    finally:
+        otel_plugin.deregister_global()
+
+
 # In other processes __name__ is __mp_main__
 if __name__ == "__main__":
     # used to export metrics
@@ -111,6 +135,6 @@ if __name__ == "__main__":
         media_server.start()
         logger.info("Serving on 1751 (secure) and 1753 (media)")
 
-    logger.info("App waiting for signal...")
-
-    signal.pause()
+    with setup_otel(config["ROLE"]):
+        logger.info("App waiting for signal...")
+        signal.pause()

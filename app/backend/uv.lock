@@ -243,12 +243,14 @@ dependencies = [
     { name = "geoalchemy2" },
     { name = "geoip2" },
     { name = "grpcio" },
+    { name = "grpcio-observability" },
     { name = "http-ece" },
     { name = "jinja2" },
     { name = "luhn" },
     { name = "markdown-it-py" },
     { name = "opentelemetry-api" },
     { name = "opentelemetry-exporter-otlp" },
+    { name = "opentelemetry-exporter-prometheus" },
     { name = "opentelemetry-instrumentation-grpc" },
     { name = "opentelemetry-instrumentation-sqlalchemy" },
     { name = "opentelemetry-instrumentation-threading" },
@@ -300,12 +302,14 @@ requires-dist = [
     { name = "geoalchemy2", specifier = ">=0.18.0" },
     { name = "geoip2", specifier = ">=5.1.0" },
     { name = "grpcio", specifier = ">=1.76.0" },
+    { name = "grpcio-observability", specifier = ">=1.76.0" },
     { name = "http-ece", specifier = ">=1.2.1" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "luhn", specifier = ">=0.2.0" },
     { name = "markdown-it-py", specifier = ">=4.0.0" },
     { name = "opentelemetry-api", specifier = ">=1.29.0" },
     { name = "opentelemetry-exporter-otlp", specifier = ">=1.29.0" },
+    { name = "opentelemetry-exporter-prometheus", specifier = ">=0.60b1" },
     { name = "opentelemetry-instrumentation-grpc", specifier = ">=0.50b0" },
     { name = "opentelemetry-instrumentation-sqlalchemy", specifier = ">=0.50b0" },
     { name = "opentelemetry-instrumentation-threading", specifier = ">=0.50b0" },
@@ -579,6 +583,26 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/4a/45/122df922d05655f63930cf42c9e3f72ba20aadb26c100ee105cad4ce4257/grpcio-1.76.0-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:1c9b93f79f48b03ada57ea24725d83a30284a012ec27eab2cf7e50a550cbbbcc", size = 7592214, upload-time = "2025-10-21T16:22:33.831Z" },
     { url = "https://files.pythonhosted.org/packages/4a/6e/0b899b7f6b66e5af39e377055fb4a6675c9ee28431df5708139df2e93233/grpcio-1.76.0-cp314-cp314-win32.whl", hash = "sha256:747fa73efa9b8b1488a95d0ba1039c8e2dca0f741612d80415b1e1c560febf4e", size = 4062961, upload-time = "2025-10-21T16:22:36.468Z" },
     { url = "https://files.pythonhosted.org/packages/19/41/0b430b01a2eb38ee887f88c1f07644a1df8e289353b78e82b37ef988fb64/grpcio-1.76.0-cp314-cp314-win_amd64.whl", hash = "sha256:922fa70ba549fce362d2e2871ab542082d66e2aaf0c19480ea453905b01f384e", size = 4834462, upload-time = "2025-10-21T16:22:39.772Z" },
+]
+
+[[package]]
+name = "grpcio-observability"
+version = "1.76.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "grpcio" },
+    { name = "opentelemetry-api" },
+    { name = "setuptools" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/56/bf/b7e834e25813d034ecf1d6d2c66ac79dc446702a65a45093231ebaa0e5b0/grpcio_observability-1.76.0.tar.gz", hash = "sha256:ebf4b41fc0ad1e2276c2d8e226384a851b0738b3aa5d68a0d94a346c725e6d91", size = 6249759, upload-time = "2025-10-21T16:28:50.833Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ac/4f/4f654cfe45780656e8c9a28df3e9d777b02e370d29d7144ed7361eb49cda/grpcio_observability-1.76.0-cp314-cp314-linux_armv7l.whl", hash = "sha256:54a7994ed3b2b701fda752f8471593c1234f83a62565ce596c34bb663926bd42", size = 352830, upload-time = "2025-10-21T16:28:11.33Z" },
+    { url = "https://files.pythonhosted.org/packages/54/e4/ddf665f5e9ed043ef861726a592ce56c35a7b21ba78cc82b1defb6c2b8aa/grpcio_observability-1.76.0-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:72e5547dbd717d8878daa7178e308f130203f8a4b9ce1ebbcbe37d2001813531", size = 372622, upload-time = "2025-10-21T16:27:21.621Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/cc/a3fd5d83d8bd51ae804dc0eb580f63c0ca2a20fb705b8786f68396b17a78/grpcio_observability-1.76.0-cp314-cp314-manylinux2014_i686.manylinux_2_17_i686.whl", hash = "sha256:b308bfcbd63935fc7bad37e135b8f5d0ca555593510e4ce4949fd7b2a2c03fdb", size = 420421, upload-time = "2025-10-21T16:27:30.243Z" },
+    { url = "https://files.pythonhosted.org/packages/db/43/8aba569fda8c53d885a557a31d307240c1aaea36918f38c8ba0421d4e6cc/grpcio_observability-1.76.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:68ae9ff8b96479d2563b7d1dcf3069e37c861a215992db3dca29e9823e04100e", size = 380117, upload-time = "2025-10-21T16:27:33.467Z" },
+    { url = "https://files.pythonhosted.org/packages/76/87/a509ad51cebc952972ff67300da5d5b05f8dea6ffd06b832a67bcae3d957/grpcio_observability-1.76.0-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:0e9c4468c80bcf5214b46c54e14b9430471cc4a5de65a7a5266529f02ab36a65", size = 774748, upload-time = "2025-10-21T16:28:32.317Z" },
+    { url = "https://files.pythonhosted.org/packages/99/e7/d2a99c739ed7ec4d66a1903a5e8d8c54a2b216cdcc58368bcb40dd9e7cda/grpcio_observability-1.76.0-cp314-cp314-musllinux_1_2_i686.whl", hash = "sha256:270ccbfaf2c77e799e3957a8941b6dd055cae3df72d7f8861e112b5d03f05ea9", size = 885729, upload-time = "2025-10-21T16:27:54.603Z" },
+    { url = "https://files.pythonhosted.org/packages/91/15/3487d0b5e2afa65810418544f7d2f2264563852a36247610b1e9ed5f0104/grpcio_observability-1.76.0-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:3816ea2489b537d5eff5adacb427636ae6ca492533e3bbb12089745adfa5f269", size = 805029, upload-time = "2025-10-21T16:28:25.041Z" },
 ]
 
 [[package]]
@@ -965,6 +989,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/80/04/2a08fa9c0214ae38880df01e8bfae12b067ec0793446578575e5080d6545/opentelemetry_exporter_otlp_proto_http-1.39.1.tar.gz", hash = "sha256:31bdab9745c709ce90a49a0624c2bd445d31a28ba34275951a6a362d16a0b9cb", size = 17288, upload-time = "2025-12-11T13:32:42.029Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/95/f1/b27d3e2e003cd9a3592c43d099d2ed8d0a947c15281bf8463a256db0b46c/opentelemetry_exporter_otlp_proto_http-1.39.1-py3-none-any.whl", hash = "sha256:d9f5207183dd752a412c4cd564ca8875ececba13be6e9c6c370ffb752fd59985", size = 19641, upload-time = "2025-12-11T13:32:22.248Z" },
+]
+
+[[package]]
+name = "opentelemetry-exporter-prometheus"
+version = "0.60b1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-sdk" },
+    { name = "prometheus-client" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/14/39/7dafa6fff210737267bed35a8855b6ac7399b9e582b8cf1f25f842517012/opentelemetry_exporter_prometheus-0.60b1.tar.gz", hash = "sha256:a4011b46906323f71724649d301b4dc188aaa068852e814f4df38cc76eac616b", size = 14976, upload-time = "2025-12-11T13:32:42.944Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9b/0d/4be6bf5477a3eb3d917d2f17d3c0b6720cd6cb97898444a61d43cc983f5c/opentelemetry_exporter_prometheus-0.60b1-py3-none-any.whl", hash = "sha256:49f59178de4f4590e3cef0b8b95cf6e071aae70e1f060566df5546fad773b8fd", size = 13019, upload-time = "2025-12-11T13:32:23.974Z" },
 ]
 
 [[package]]
@@ -1400,6 +1438,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b3/18/09875b4323b03ca9025bae7e6539797b27e4fc032998a466b4b9c3d24653/sentry_sdk-2.43.0.tar.gz", hash = "sha256:52ed6e251c5d2c084224d73efee56b007ef5c2d408a4a071270e82131d336e20", size = 368953, upload-time = "2025-10-29T11:26:08.156Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/69/31/8228fa962f7fd8814d634e4ebece8780e2cdcfbdf0cd2e14d4a6861a7cd5/sentry_sdk-2.43.0-py2.py3-none-any.whl", hash = "sha256:4aacafcf1756ef066d359ae35030881917160ba7f6fc3ae11e0e58b09edc2d5d", size = 400997, upload-time = "2025-10-29T11:26:05.77Z" },
+]
+
+[[package]]
+name = "setuptools"
+version = "80.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/18/5d/3bf57dcd21979b887f014ea83c24ae194cfcd12b9e0fda66b957c69d1fca/setuptools-80.9.0.tar.gz", hash = "sha256:f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c", size = 1319958, upload-time = "2025-05-27T00:56:51.443Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a3/dc/17031897dae0efacfea57dfd3a82fdd2a2aeb58e0ff71b77b87e44edc772/setuptools-80.9.0-py3-none-any.whl", hash = "sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922", size = 1201486, upload-time = "2025-05-27T00:56:49.664Z" },
 ]
 
 [[package]]
