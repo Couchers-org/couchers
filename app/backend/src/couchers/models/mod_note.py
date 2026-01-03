@@ -23,7 +23,7 @@ class ModNote(Base, init=False, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     acknowledged: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # this is an internal ID to allow the mods to track different types of notes

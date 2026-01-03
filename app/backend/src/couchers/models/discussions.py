@@ -24,7 +24,7 @@ class Discussion(Base, init=False, kw_only=True):
     title: Mapped[str] = mapped_column(String)
     content: Mapped[str] = mapped_column(String)
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     owner_cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
@@ -71,7 +71,7 @@ class Thread(Base, init=False, kw_only=True):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
@@ -87,7 +87,7 @@ class Comment(Base, init=False, kw_only=True):
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), index=True)
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     thread: Mapped[Thread] = relationship(init=False, backref="comments")
@@ -105,7 +105,7 @@ class Reply(Base, init=False, kw_only=True):
     comment_id: Mapped[int] = mapped_column(ForeignKey("comments.id"), index=True)
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     comment: Mapped[Comment] = relationship(init=False, backref="replies")

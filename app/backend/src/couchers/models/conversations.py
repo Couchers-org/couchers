@@ -24,7 +24,7 @@ class Conversation(Base, init=False, kw_only=True):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     # timezone should always be UTC
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     def __repr__(self) -> str:
         return f"Conversation(id={self.id}, created={self.created})"

@@ -52,7 +52,7 @@ class Node(Base, init=False, kw_only=True):
     # name and description come from the official cluster
     parent_node_id: Mapped[int | None] = mapped_column(ForeignKey("nodes.id"), nullable=True, index=True)
     geom: Mapped[Geom] = deferred(mapped_column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False))
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     parent_node: Mapped[Node] = relationship(init=False, back_populates="child_nodes", remote_side="Node.id")
     child_nodes: Mapped[list[Node]] = relationship(init=False)
@@ -82,7 +82,7 @@ class Cluster(Base, init=False, kw_only=True):
     name: Mapped[str] = mapped_column(String)
     # short description
     description: Mapped[str] = mapped_column(String)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     is_official_cluster: Mapped[bool] = mapped_column(Boolean, default=False)
 
@@ -330,7 +330,7 @@ class PageVersion(Base, init=False, kw_only=True):
     geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     # the human-readable address
     address: Mapped[str | None] = mapped_column(String, nullable=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     slug: Mapped[str] = column_property(func.slugify(title))
 

@@ -29,7 +29,7 @@ class DonationInitiation(Base, init=False, kw_only=True):
     __tablename__ = "donation_initiations"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     amount: Mapped[int] = mapped_column(Integer)
@@ -51,7 +51,7 @@ class Invoice(Base, init=False, kw_only=True):
     __tablename__ = "invoices"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     amount: Mapped[float] = mapped_column(Float)

@@ -190,7 +190,7 @@ class Notification(Base, init=False, kw_only=True):
     __tablename__ = "notifications"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # recipient user id
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -248,7 +248,7 @@ class NotificationDelivery(Base, init=False, kw_only=True):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     notification_id: Mapped[int] = mapped_column(ForeignKey("notifications.id"), index=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     delivered: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     read: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # todo: enum of "phone, web, digest"
@@ -298,7 +298,7 @@ class PushNotificationSubscription(Base, init=False, kw_only=True):
     __tablename__ = "push_notification_subscriptions"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # which user this is connected to
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)

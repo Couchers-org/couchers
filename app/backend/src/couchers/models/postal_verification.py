@@ -50,7 +50,7 @@ class PostalVerificationAttempt(Base, init=False, kw_only=True):
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     status: Mapped[PostalVerificationStatus] = mapped_column(
         Enum(PostalVerificationStatus),

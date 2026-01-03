@@ -22,7 +22,7 @@ class InitiatedUpload(Base, init=False, kw_only=True):
     key: Mapped[str] = mapped_column(String, primary_key=True)
 
     # timezones should always be UTC
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -44,7 +44,7 @@ class Upload(Base, init=False, kw_only=True):
     key: Mapped[str] = mapped_column(String, primary_key=True)
 
     filename: Mapped[str] = mapped_column(String)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     # photo credit, etc
@@ -77,7 +77,7 @@ class PhotoGallery(Base, init=False, kw_only=True):
     # in the future for communities, events, etc.
     owner_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     owner_user: Mapped[User] = relationship(foreign_keys=[owner_user_id], back_populates="galleries")
     photos: Mapped[list[PhotoGalleryItem]] = relationship(
@@ -104,7 +104,7 @@ class PhotoGalleryItem(Base, init=False, kw_only=True):
 
     caption: Mapped[str | None] = mapped_column(String)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     gallery: Mapped[PhotoGallery] = relationship(init=False, back_populates="photos")
     upload: Mapped[Upload] = relationship(init=False)

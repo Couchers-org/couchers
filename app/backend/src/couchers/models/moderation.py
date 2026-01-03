@@ -84,7 +84,7 @@ class ModerationState(Base, init=False, kw_only=True):
 
     visibility: Mapped[ModerationVisibility] = mapped_column(Enum(ModerationVisibility))
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     __table_args__ = (
@@ -113,7 +113,7 @@ class ModerationQueueItem(Base, init=False, kw_only=True):
     )
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
-    time_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    time_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     trigger: Mapped[ModerationTrigger] = mapped_column(Enum(ModerationTrigger))
     reason: Mapped[str] = mapped_column(String)
 

@@ -44,7 +44,7 @@ class UserSession(Base, init=False, kw_only=True):
     long_lived: Mapped[bool] = mapped_column(Boolean)
 
     # the time at which the session was created
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # the expiry of the session: the session *cannot* be refreshed past this
     expiry: Mapped[datetime] = mapped_column(
@@ -103,7 +103,7 @@ class LoginToken(Base, init=False, kw_only=True):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     # timezones should always be UTC
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     user: Mapped[User] = relationship(init=False, backref="login_tokens")
@@ -122,7 +122,7 @@ class PasswordResetToken(Base, init=False, kw_only=True):
     token: Mapped[str] = mapped_column(String, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     user: Mapped[User] = relationship(init=False, backref="password_reset_tokens")

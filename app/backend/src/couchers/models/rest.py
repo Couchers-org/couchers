@@ -51,7 +51,7 @@ class UserBadge(Base, init=False, kw_only=True):
     badge_id: Mapped[str] = mapped_column(String, index=True)
 
     # take this with a grain of salt, someone may get then lose a badge for whatever reason
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     user: Mapped[User] = relationship(init=False, back_populates="badges")
 
@@ -116,7 +116,7 @@ class ContributorForm(Base, init=False, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     ideas: Mapped[str | None] = mapped_column(String)
     features: Mapped[str | None] = mapped_column(String)
@@ -163,7 +163,7 @@ class SignupFlow(Base, init=False, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # housekeeping
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     flow_token: Mapped[str] = mapped_column(String, unique=True)
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     email_sent: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -233,7 +233,7 @@ class AccountDeletionToken(Base, init=False, kw_only=True):
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     user: Mapped[User] = relationship(init=False, backref="account_deletion_tokens")
@@ -475,7 +475,7 @@ class AccountDeletionReason(Base, init=False, kw_only=True):
     __tablename__ = "account_deletion_reason"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     reason: Mapped[str | None] = mapped_column(String)
 
@@ -490,7 +490,7 @@ class ModerationUserList(Base, init=False, kw_only=True):
     __tablename__ = "moderation_user_lists"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     users: Mapped[list[User]] = relationship(
         init=False, secondary="moderation_user_list_members", back_populates="moderation_user_lists"
@@ -512,7 +512,7 @@ class AntiBotLog(Base, init=False, kw_only=True):
     __tablename__ = "antibot_logs"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
 
     ip_address: Mapped[str | None] = mapped_column(String)
@@ -537,7 +537,7 @@ class RateLimitViolation(Base, init=False, kw_only=True):
     __tablename__ = "rate_limit_violations"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     action: Mapped[RateLimitAction] = mapped_column(Enum(RateLimitAction))
     is_hard_limit: Mapped[bool] = mapped_column(Boolean)

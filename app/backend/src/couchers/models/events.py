@@ -70,7 +70,7 @@ class Event(Base, init=False, kw_only=True):
     slug: Mapped[str] = column_property(func.slugify(title))
 
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     owner_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True)
     owner_cluster_id: Mapped[int | None] = mapped_column(ForeignKey("clusters.id"), index=True)
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
@@ -137,7 +137,7 @@ class EventOccurrence(Base, init=False, kw_only=True):
     # simplifies database constraints, etc
     during: Mapped[DateTimeTZRange] = mapped_column(TSTZRANGE)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     last_edited: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     creator_user: Mapped[User] = relationship(
@@ -273,7 +273,7 @@ class EventCommunityInviteRequest(Base, init=False, kw_only=True):
     occurrence_id: Mapped[int] = mapped_column(ForeignKey("event_occurrences.id"), index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     decided: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     decided_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
