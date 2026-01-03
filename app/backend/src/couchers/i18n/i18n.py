@@ -1,11 +1,16 @@
+import datetime
 import json
 from collections.abc import Mapping
 from functools import lru_cache
 from pathlib import Path
+from zoneinfo import ZoneInfo
+
+from google.protobuf.timestamp_pb2 import Timestamp
 
 from couchers.i18n.constants import LANGUAGE_FALLBACKS
 from couchers.i18n.i18next import I18Next
 from couchers.i18n.plurals import PluralRules
+from couchers.utils import to_aware_datetime
 
 
 @lru_cache(maxsize=1)
@@ -65,3 +70,44 @@ def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, s
         The translated string with substitutions applied
     """
     return get_i18next().localize(key, lang or "en", substitutions)
+
+
+def localize_date(date: datetime.date, locale: str) -> str:
+    """Formats a time- and timezone-agnostic date for the given locale."""
+    # TODO(#7590): Account for locale
+    return date.strftime("%A %-d %B %Y")
+
+
+def localize_time(time: datetime.time, locale: str) -> str:
+    """Formats a date- and timezone-agnostic time for the given locale."""
+    # TODO(#7590): Account for locale
+    return time.strftime("%-I:%M %p (%H:%M)")
+
+
+def localize_datetime(datetime: datetime.datetime, timezone: ZoneInfo | None, locale: str) -> str:
+    """
+    Formats a date and time for the given locale.
+
+    Args:
+        datetime: The date to be formatted.
+        timezone: An optional timezone in which to interpret the date. If None, uses datetime's timezone.
+        locale: The locale for which to format the date.
+
+    Returns:
+        The localized date and time string.
+    """
+    # A timezone-unaware datetime is almost certainly a bug, so we don't support it.
+    assert datetime.tzinfo is not None, "Cannot localize a timezone-unaware datetime."
+    if timezone is not None:
+        datetime = datetime.astimezone(timezone)
+    localized_date = localize_date(datetime.date(), locale)
+    localized_time = localize_time(datetime.time(), locale)
+    # TODO(#7590): Account for locale
+    return f"{localized_date} at {localized_time}"
+
+
+def localize_timestamp(timestamp: Timestamp, timezone: ZoneInfo, locale: str) -> str:
+    """
+    Formats a timestamp into date and time strings for the given timezone and locale
+    """
+    return localize_datetime(to_aware_datetime(timestamp), timezone, locale)
