@@ -795,7 +795,7 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
     assert push.content.title == "Strong Verification failed"
     assert (
         push.content.body
-        == "You tried to verify with a passport that has already been used for verification. Please use another passport."
+        == "You used a passport that has already been used for verification. Please use another passport."
     )
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
@@ -946,7 +946,7 @@ def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collecto
     assert push.content.title == "Strong Verification failed"
     assert (
         push.content.body
-        == "You tried to verify with a passport that has already been used for verification. Please use another passport."
+        == "You used a passport that has already been used for verification. Please use another passport."
     )
 
 
@@ -1021,5 +1021,5 @@ def test_strong_verification_non_passport(db, monkeypatch, push_collector: PushC
     assert push.content.title == "Strong Verification failed"
     assert (
         push.content.body
-        == "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification."
+        == "You used a document other than a passport. You can only use a passport for Strong Verification."
     )

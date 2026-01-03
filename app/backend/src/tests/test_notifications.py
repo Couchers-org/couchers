@@ -339,8 +339,8 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
     assert n.topic == "friend_request"
     assert n.action == "create"
     assert n.key == str(user2.id)
-    assert n.title == f"{user2.name} wants to be your friend"
-    assert n.body == f"You've received a friend request from {user2.name}"
+    assert n.title == f"Friend request from {user2.name}"
+    assert n.body == f"{user2.name} wants to be your friend."
     assert n.icon.startswith("http://localhost:5001/img/thumbnail/")
     assert n.url == "http://localhost:3000/connections/friends/"
 
@@ -369,7 +369,7 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
             if not page_token:
                 break
 
-    bodys = [f"Test message {16 - i}" for i in range(17)] + [f"You've received a friend request from {user2.name}"]
+    bodys = [f"Test message {16 - i}" for i in range(17)] + [f"{user2.name} wants to be your friend."]
     assert bodys == [n.body for n in all_notifs]
 
 
@@ -470,12 +470,12 @@ def test_SendTestPushNotification(db, push_collector: PushCollector):
 
     assert push_collector.count_for_user(user.id) == 1
     push = push_collector.get_for_user(user.id, index=0)
-    assert push.content.title == "Checking push notifications work!"
+    assert push.content.title == "Push notifications test"
     assert push.content.body == "If you see this, then it's working :)"
     # the above two are equivalent to this
 
     push = push_collector.get_for_user(user.id, index=0)
-    assert push.content.title == "Checking push notifications work!"
+    assert push.content.title == "Push notifications test"
     assert push.content.body == "If you see this, then it's working :)"
 
 
@@ -766,7 +766,7 @@ def test_SendTestMobilePushNotification(db, push_collector: PushCollector):
         notifications.SendTestMobilePushNotification(empty_pb2.Empty())
 
     push = push_collector.get_for_user(user.id)
-    assert push.content.title == "Checking mobile push notifications work!"
+    assert push.content.title == "Mobile notifications test"
     assert push.content.body == "If you see this on your phone, everything is wired up correctly 🎉"
 
 

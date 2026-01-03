@@ -291,8 +291,11 @@ def test_modnotes(db, push_collector: PushCollector):
 
         assert fields.subject == "[TEST] You have received a mod note"
         push = push_collector.get_for_user(user.id)
-        assert push.content.title == "You received a mod note"
-        assert push.content.body == "You need to read and acknowledge the note before continuing to use the platform."
+        assert push.content.title == "New moderator note"
+        assert (
+            push.content.body
+            == "You received a moderator note. Read and acknowledge it to continue using the platform."
+        )
 
     with real_jail_session(token) as jail:
         res = jail.JailInfo(empty_pb2.Empty())

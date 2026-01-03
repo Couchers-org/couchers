@@ -3,24 +3,19 @@ Renders a Notification model into a localized push notification.
 """
 
 import logging
+from datetime import date
 from typing import Any, assert_never
 
 from couchers import urls
 from couchers.i18n.localize import format_phone_number, localize_date_from_iso, localize_datetime_for_user
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.push import PushNotificationContent
-from couchers.proto import api_pb2, events_pb2, notification_data_pb2
+from couchers.proto import api_pb2, notification_data_pb2
+from couchers.utils import to_aware_datetime
 
 logger = logging.getLogger(__name__)
 
-# Best practices for push notification strings (Android/iOS lowest common denominator):
-# Title:
-#   - Describe the event, e.g. "Payment Successful"
-#   - <= 30 chars (Android), most important info in first 20 chars
-#   - Title-style capitalization, no ending punctuation
-# Body:
-#   - <= 80 chars (Android), first 40 visible when collapsed
-#   - Sentence-style capitalization with punctuation
+# See PushNotificationContent's documentation for notification writing guidelines.
 
 
 def render_push_notification(user: User, notification: Notification) -> PushNotificationContent:
@@ -50,7 +45,7 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
         case NotificationTopicAction.chat__message:
             return _chat__message(data)
         case NotificationTopicAction.chat__missed_messages:
-            return _chat__missed_messages()
+            return _chat__missed_messages(data)
         case NotificationTopicAction.donation__received:
             return _donation__received(data)
         case NotificationTopicAction.discussion__create:
@@ -66,17 +61,17 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
         case NotificationTopicAction.event__create_approved:
             return _event__create_approved(data, user)
         case NotificationTopicAction.event__update:
-            return _event__update(data, user)
+            return _event__update(data)
         case NotificationTopicAction.event__invite_organizer:
-            return _event__invite_organizer(data, user)
+            return _event__invite_organizer(data)
         case NotificationTopicAction.event__comment:
-            return _event__comment(data, user)
+            return _event__comment(data)
         case NotificationTopicAction.event__reminder:
             return _event__reminder(data, user)
         case NotificationTopicAction.event__cancel:
-            return _event__cancel(data, user)
+            return _event__cancel(data)
         case NotificationTopicAction.event__delete:
-            return _event__delete(data, user)
+            return _event__delete(data)
         case NotificationTopicAction.friend_request__create:
             return _friend_request__create(data)
         case NotificationTopicAction.friend_request__accept:
@@ -94,13 +89,13 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
         case NotificationTopicAction.host_request__reminder:
             return _host_request__reminder(data)
         case NotificationTopicAction.host_request__accept:
-            return _host_request__accept(data)
+            return _host_request__accept(data, user)
         case NotificationTopicAction.host_request__reject:
-            return _host_request__reject(data)
+            return _host_request__reject(data, user)
         case NotificationTopicAction.host_request__cancel:
-            return _host_request__cancel(data)
+            return _host_request__cancel(data, user)
         case NotificationTopicAction.host_request__confirm:
-            return _host_request__confirm(data)
+            return _host_request__confirm(data, user)
         case NotificationTopicAction.modnote__create:
             return _modnote__create()
         case NotificationTopicAction.onboarding__reminder:
@@ -148,52 +143,58 @@ def _avatar_url_or_default(user: api_pb2.User) -> str:
 
 def _account_deletion__start(data: notification_data_pb2.AccountDeletionStart) -> PushNotificationContent:
     return PushNotificationContent(
-        title="Account deletion initiated",
-        body="Someone initiated the deletion of your Couchers.org account. To delete your account, please follow the link in the email we sent you.",
+        title="Account deletion requested",
+        ios_title="Account Deletion Requested",
+        body="Use the link we emailed you to confirm.",
     )
 
 
 def _account_deletion__complete(data: notification_data_pb2.AccountDeletionComplete) -> PushNotificationContent:
     return PushNotificationContent(
-        title="Your Couchers.org account has been deleted",
-        body=f"You can still undo this by following the link we emailed to you within {data.undelete_days} days.",
+        title="Account deleted",
+        ios_title="Acccount Deleted",
+        body=f"You can restore it within {data.undelete_days} days using the link we emailed you.",
     )
 
 
 def _account_deletion__recovered() -> PushNotificationContent:
     return PushNotificationContent(
-        title="Your Couchers.org account has been recovered!",
-        body="We have recovered your Couchers.org account as per your request! Welcome back!",
+        title="Account restored",
+        ios_title="Account Restored",
+        body="Welcome back!",
     )
 
 
 def _activeness__probe(data: notification_data_pb2.ActivenessProbe) -> PushNotificationContent:
     return PushNotificationContent(
-        title="Are you still open to hosting on Couchers.org?",
-        body="Please log in to confirm your hosting status.",
+        title="Still open to hosting?",
+        ios_title="Still Open to Hosting?",
+        body="Log in to confirm your hosting status.",
     )
 
 
 def _api_key__create(data: notification_data_pb2.ApiKeyCreate) -> PushNotificationContent:
     return PushNotificationContent(
-        title="An API key was created for your account",
+        title="API key created",
+        ios_title="API Key Created",
         body="Details were sent to you via email.",
-        action_url=urls.app_link(),
     )
 
 
 def _badge__add(data: notification_data_pb2.BadgeAdd) -> PushNotificationContent:
     return PushNotificationContent(
-        title=f"The {data.badge_name} badge was added to your profile",
-        body="Check out your profile to see the new badge!",
+        title=f"New profile badge: {data.badge_name}",
+        ios_title="New Profile Badge",
+        body=f"The {data.badge_name} badge was added to your profile.",
         action_url=urls.profile_link(),
     )
 
 
 def _badge__remove(data: notification_data_pb2.BadgeRemove) -> PushNotificationContent:
     return PushNotificationContent(
-        title=f"The {data.badge_name} badge was removed from your profile",
-        body="You can see all your badges on your profile.",
+        title="Profile badge removed",
+        ios_title="Profile Badge Removed",
+        body=f"The {data.badge_name} badge was removed from your profile.",
         action_url=urls.profile_link(),
     )
 
@@ -201,41 +202,47 @@ def _badge__remove(data: notification_data_pb2.BadgeRemove) -> PushNotificationC
 def _birthdate__change(data: notification_data_pb2.BirthdateChange, user: User) -> PushNotificationContent:
     birth_date = localize_date_from_iso(data.birthdate, user.ui_language_preference or "en")
     return PushNotificationContent(
-        title="Your date of birth was changed",
-        body=f"Your date of birth on Couchers.org was changed to {birth_date} by an admin.",
+        title="Birthdate changed",
+        ios_title="Birthdate Changed",
+        body=f"An admin changed your date of birth to {birth_date}.",
         action_url=urls.account_settings_link(),
     )
 
 
 def _chat__message(data: notification_data_pb2.ChatMessage) -> PushNotificationContent:
     return PushNotificationContent(
-        title=data.message,
+        title=data.author.name,
+        ios_title=data.author.name,
         body=data.text,
         icon_url=_avatar_url_or_default(data.author),
         action_url=urls.chat_link(chat_id=data.group_chat_id),
     )
 
 
-def _chat__missed_messages() -> PushNotificationContent:
+def _chat__missed_messages(data: notification_data_pb2.ChatMissedMessages) -> PushNotificationContent:
     return PushNotificationContent(
-        title="You have unseen messages on Couchers.org",
-        body="Please check out any messages you missed.",
+        title=f"{len(data.messages)} missed messages",
+        ios_title=f"{len(data.messages)} missed messages",
+        body="You have new unseen messages.",
         action_url=urls.messages_link(),
     )
 
 
 def _donation__received(data: notification_data_pb2.DonationReceived) -> PushNotificationContent:
     return PushNotificationContent(
-        title="Thank you for your donation to Couchers.org!",
-        body=f"Thank you so much for your donation of ${data.amount} to Couchers.org.",
+        title="Donation Received",
+        ios_title="Donation Received",
+        body=f"Thank you so much for your donation of ${data.amount}!",
         action_url=data.receipt_url,
     )
 
 
 def _discussion__create(data: notification_data_pb2.DiscussionCreate) -> PushNotificationContent:
     return PushNotificationContent(
-        title=data.discussion.title,
-        body=f"{data.author.name} created a discussion in {data.discussion.owner_title}: {data.discussion.title}\n\n{data.discussion.content}",
+        title=f"New discussion: {data.discussion.title}",
+        ios_title="New Discussion",
+        ios_subtitle=data.discussion.title,
+        body=f"{data.author.name} started the discussion in {data.discussion.owner_title}.",
         icon_url=_avatar_url_or_default(data.author),
         action_url=urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug),
     )
@@ -243,8 +250,10 @@ def _discussion__create(data: notification_data_pb2.DiscussionCreate) -> PushNot
 
 def _discussion__comment(data: notification_data_pb2.DiscussionComment) -> PushNotificationContent:
     return PushNotificationContent(
-        title=data.discussion.title,
-        body=f"{data.author.name} commented:\n\n{data.reply.content}",
+        title=f"{data.author.name} • {data.discussion.title}",
+        ios_title=data.author.name,
+        ios_subtitle=data.discussion.title,
+        body=data.reply.content,
         icon_url=_avatar_url_or_default(data.author),
         action_url=urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug),
     )
@@ -252,108 +261,113 @@ def _discussion__comment(data: notification_data_pb2.DiscussionComment) -> PushN
 
 def _email_address__change(data: notification_data_pb2.EmailAddressChange) -> PushNotificationContent:
     return PushNotificationContent(
-        title="An email change was initiated on your account",
-        body=f"An email change to the email {data.new_email} was initiated on your account.",
+        title="Email change requested",
+        ios_title="Email Change Requested",
+        body=f"Use the link we sent to {data.new_email} to confirm your new address.",
         action_url=urls.account_settings_link(),
     )
 
 
 def _email_address__verify() -> PushNotificationContent:
     return PushNotificationContent(
-        title="Email change completed",
+        title="Email verified",
+        ios_title="Email Verified",
         body="Your new email address has been verified.",
         action_url=urls.account_settings_link(),
     )
 
 
-def _get_event_time_display(event: events_pb2.Event, user: User) -> str:
-    start_time = localize_datetime_for_user(event.start_time, user)
-    end_time = localize_datetime_for_user(event.end_time, user)
-    return f"{start_time} - {end_time}"
-
-
 def _event__create_any(data: notification_data_pb2.EventCreate, user: User) -> PushNotificationContent:
-    time_display = _get_event_time_display(data.event, user)
+    datetime_display = localize_datetime_for_user(data.event.start_time, user)
     return PushNotificationContent(
-        title=f'{data.inviting_user.name} created an event called "{data.event.title}"',
-        body=f"{time_display}\nCreated by {data.inviting_user.name}\n\n{data.event.content}",
-        icon_url=_avatar_url_or_default(data.inviting_user),
+        title=f"New Event: {data.event.title}",
+        ios_title="New Event",
+        ios_subtitle=data.event.title,
+        body=f"{data.inviting_user.name} created the event on {datetime_display}.",
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
 
 def _event__create_approved(data: notification_data_pb2.EventCreate, user: User) -> PushNotificationContent:
-    time_display = _get_event_time_display(data.event, user)
+    datetime_display = localize_datetime_for_user(data.event.start_time, user)
     return PushNotificationContent(
-        title=f'{data.inviting_user.name} invited you to "{data.event.title}"',
-        body=f"{time_display}\nInvited by {data.inviting_user.name}\n\n{data.event.content}",
-        icon_url=_avatar_url_or_default(data.inviting_user),
+        title=f"New Event: {data.event.title}",
+        ios_title="New Event",
+        ios_subtitle=data.event.title,
+        body=f"{data.inviting_user.name} invited you to the event on {datetime_display}.",
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
 
-def _event__update(data: notification_data_pb2.EventUpdate, user: User) -> PushNotificationContent:
-    time_display = _get_event_time_display(data.event, user)
-    updated_text = ", ".join(data.updated_items)
+def _event__update(data: notification_data_pb2.EventUpdate) -> PushNotificationContent:
+    # updated_items can include: title, content, start_time, end_time, location,
+    # but a list like that is tricky to localize.
     return PushNotificationContent(
-        title=f'{data.updating_user.name} updated "{data.event.title}"',
-        body=f"{time_display}\n{data.updating_user.name} updated: {updated_text}\n\n{data.event.content}",
-        icon_url=_avatar_url_or_default(data.updating_user),
+        title=f"Event updated: {data.event.title}",
+        ios_title="Event Updated",
+        ios_subtitle=data.event.title,
+        body=f"{data.updating_user.name} updated the event.",
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
 
-def _event__invite_organizer(data: notification_data_pb2.EventInviteOrganizer, user: User) -> PushNotificationContent:
-    time_display = _get_event_time_display(data.event, user)
+def _event__invite_organizer(data: notification_data_pb2.EventInviteOrganizer) -> PushNotificationContent:
     return PushNotificationContent(
-        title=f'{data.inviting_user.name} invited you to co-organize "{data.event.title}"',
-        body=f"{time_display}\nInvited to co-organize by {data.inviting_user.name}\n\n{data.event.content}",
-        icon_url=_avatar_url_or_default(data.inviting_user),
+        title=f"Event updated: {data.event.title}",
+        ios_title="Event Updated",
+        ios_subtitle=data.event.title,
+        body=f"{data.inviting_user.name} added you as an event co-organizer.",
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
 
-def _event__comment(data: notification_data_pb2.EventComment, user: User) -> PushNotificationContent:
-    time_display = _get_event_time_display(data.event, user)
+def _event__comment(data: notification_data_pb2.EventComment) -> PushNotificationContent:
     return PushNotificationContent(
-        title=f'{data.author.name} commented on "{data.event.title}"',
-        body=f"{time_display}\n{data.author.name} commented:\n\n{data.reply.content}",
+        title=f"{data.author.name} • {data.event.title}",
+        ios_title=data.author.name,
+        ios_subtitle=f"Commented on {data.event.title}",
+        body=data.reply.content,
         icon_url=_avatar_url_or_default(data.author),
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
 
 def _event__reminder(data: notification_data_pb2.EventReminder, user: User) -> PushNotificationContent:
-    time_display = _get_event_time_display(data.event, user)
+    time_display = v2time(to_aware_datetime(data.event.start_time), user)
     return PushNotificationContent(
-        title=f'"{data.event.title}" starts soon',
-        body=f"Don't forget your upcoming event on Couchers.org\n{time_display}\n{data.event.content}",
+        title=f"Upcoming event: {data.event.title}",
+        ios_title="Upcoming Event",
+        ios_subtitle=data.event.title,
+        body=f"The event starts at {time_display}.",
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
 
-def _event__cancel(data: notification_data_pb2.EventCancel, user: User) -> PushNotificationContent:
-    time_display = _get_event_time_display(data.event, user)
+def _event__cancel(data: notification_data_pb2.EventCancel) -> PushNotificationContent:
     return PushNotificationContent(
-        title=f'{data.cancelling_user.name} cancelled "{data.event.title}"',
-        body=f"{time_display}\nThe event has been cancelled by {data.cancelling_user.name}.\n\n{data.event.content}",
-        icon_url=_avatar_url_or_default(data.cancelling_user),
+        title=f"Event cancelled: {data.event.title}",
+        ios_title="Event Cancelled",
+        ios_subtitle=data.event.title,
+        body=f"{data.cancelling_user.name} cancelled the event.",
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
 
-def _event__delete(data: notification_data_pb2.EventDelete, user: User) -> PushNotificationContent:
-    time_display = _get_event_time_display(data.event, user)
+def _event__delete(data: notification_data_pb2.EventDelete) -> PushNotificationContent:
     return PushNotificationContent(
-        title=f'A moderator deleted "{data.event.title}"',
-        body=f"{time_display}\nThe event has been deleted by the moderators.",
+        title=f"Event deleted: {data.event.title}",
+        ios_title="Event Deleted",
+        ios_subtitle=data.event.title,
+        body="A moderator deleted the event.",
     )
 
 
 def _friend_request__create(data: notification_data_pb2.FriendRequestCreate) -> PushNotificationContent:
     return PushNotificationContent(
-        title=f"{data.other_user.name} wants to be your friend",
-        body=f"You've received a friend request from {data.other_user.name}",
+        title=f"Friend request from {data.other_user.name}",
+        ios_title=data.other_user.name,
+        ios_subtitle="Friend Request",
+        body=f"{data.other_user.name} wants to be your friend.",
         icon_url=_avatar_url_or_default(data.other_user),
         action_url=urls.friend_requests_link(),
     )
@@ -361,8 +375,10 @@ def _friend_request__create(data: notification_data_pb2.FriendRequestCreate) -> 
 
 def _friend_request__accept(data: notification_data_pb2.FriendRequestAccept) -> PushNotificationContent:
     return PushNotificationContent(
-        title=f"{data.other_user.name} accepted your friend request!",
-        body=f"{data.other_user.name} has accepted your friend request",
+        title=f"{data.other_user.name} accepted your friend request",
+        ios_title=data.other_user.name,
+        ios_subtitle="Accepted Your Friend Request",
+        body=f"You are now friends with {data.other_user.name}.",
         icon_url=_avatar_url_or_default(data.other_user),
         action_url=urls.user_link(username=data.other_user.username),
     )
@@ -370,8 +386,9 @@ def _friend_request__accept(data: notification_data_pb2.FriendRequestAccept) -> 
 
 def _gender__change(data: notification_data_pb2.GenderChange) -> PushNotificationContent:
     return PushNotificationContent(
-        title="Your gender was changed",
-        body=f"Your gender on Couchers.org was changed to {data.gender} by an admin.",
+        title="Gender changed",
+        ios_title="Gender Changed",
+        body=f"An admin changed your gender to {data.gender}.",
         action_url=urls.account_settings_link(),
     )
 
@@ -379,6 +396,8 @@ def _gender__change(data: notification_data_pb2.GenderChange) -> PushNotificatio
 def _general__new_blog_post(data: notification_data_pb2.GeneralNewBlogPost) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"New blog post: {data.title}",
+        ios_title="New Blog Post",
+        ios_subtitle=data.title,
         body=data.blurb,
         action_url=data.url,
     )
@@ -386,35 +405,33 @@ def _general__new_blog_post(data: notification_data_pb2.GeneralNewBlogPost) -> P
 
 def _host_request__create(data: notification_data_pb2.HostRequestCreate, user: User) -> PushNotificationContent:
     from_date = localize_date_from_iso(data.host_request.from_date, user.ui_language_preference or "en")
-    to_date = localize_date_from_iso(data.host_request.to_date, user.ui_language_preference or "en")
+    days = (date.fromisoformat(data.host_request.to_date) - date.fromisoformat(data.host_request.from_date)).days + 1
     return PushNotificationContent(
-        title=f"{data.surfer.name} sent you a host request",
-        body=f"Dates: {from_date} to {to_date}.\n\n{data.text}",
+        title=f"New host request from {data.surfer.name}",
+        ios_title=data.surfer.name,
+        ios_subtitle="New Host Request",
+        body=f"{data.surfer.name} wants to stay from {from_date} for {days} days.",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
         icon_url=_avatar_url_or_default(data.surfer),
     )
 
 
 def _host_request__message(data: notification_data_pb2.HostRequestMessage, user: User) -> PushNotificationContent:
-    if data.am_host:
-        title = f"{data.user.name} sent you a message in their host request"
-    else:
-        title = f"{data.user.name} sent you a message in your host request"
-    from_date = localize_date_from_iso(data.host_request.from_date, user.ui_language_preference or "en")
-    to_date = localize_date_from_iso(data.host_request.to_date, user.ui_language_preference or "en")
     return PushNotificationContent(
-        title=title,
-        body=f"Dates: {from_date} to {to_date}.\n\n{data.text}",
+        title=data.user.name,
+        ios_title=data.user.name,
+        body=data.text,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
         icon_url=_avatar_url_or_default(data.user),
     )
 
 
 def _host_request__missed_messages(data: notification_data_pb2.HostRequestMissedMessages) -> PushNotificationContent:
-    their_your = "their" if data.am_host else "your"
     return PushNotificationContent(
-        title=f"{data.user.name} sent you message(s) in {their_your} host request",
-        body="Check the app for more info.",
+        title=f"New messages from {data.user.name}",
+        ios_title=data.user.name,
+        ios_subtitle="Missed Messages",
+        body=f"You have new unseen messages from {data.user.name}.",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
         icon_url=_avatar_url_or_default(data.user),
     )
@@ -422,44 +439,58 @@ def _host_request__missed_messages(data: notification_data_pb2.HostRequestMissed
 
 def _host_request__reminder(data: notification_data_pb2.HostRequestReminder) -> PushNotificationContent:
     return PushNotificationContent(
-        title=f"You have a pending host request from {data.surfer.name}!",
-        body="Please respond to the request!",
+        title=f"Pending request by {data.surfer.name}",
+        ios_title="Host Request Pending",
+        ios_subtitle=data.surfer.name,
+        body=f"{data.surfer.name} is waiting for your response, please accept or decline the request.",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
         icon_url=_avatar_url_or_default(data.surfer),
     )
 
 
-def _host_request__accept(data: notification_data_pb2.HostRequestAccept) -> PushNotificationContent:
+def _host_request__accept(data: notification_data_pb2.HostRequestAccept, user: User) -> PushNotificationContent:
+    date = v2date(data.host_request.from_date, user)
     return PushNotificationContent(
-        title=f"{data.host.name} accepted your host request",
-        body="Check the app for more info.",
+        title=f"{data.host.name} accepted your request",
+        ios_title=data.host.name,
+        ios_subtitle="Host Request Accepted",
+        body=f"{data.host.name} accepted your host request for {date}.",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
         icon_url=_avatar_url_or_default(data.host),
     )
 
 
-def _host_request__reject(data: notification_data_pb2.HostRequestReject) -> PushNotificationContent:
+def _host_request__reject(data: notification_data_pb2.HostRequestReject, user: User) -> PushNotificationContent:
+    date = v2date(data.host_request.from_date, user)
     return PushNotificationContent(
-        title=f"{data.host.name} rejected your host request",
-        body="Check the app for more info.",
+        title=f"{data.host.name} declined your request",
+        ios_title=data.host.name,
+        ios_subtitle="Host Request Declined",
+        body=f"{data.host.name} declined your host request for {date}.",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
         icon_url=_avatar_url_or_default(data.host),
     )
 
 
-def _host_request__cancel(data: notification_data_pb2.HostRequestCancel) -> PushNotificationContent:
+def _host_request__cancel(data: notification_data_pb2.HostRequestCancel, user: User) -> PushNotificationContent:
+    date = v2date(data.host_request.from_date, user)
     return PushNotificationContent(
-        title=f"{data.surfer.name} cancelled their host request",
-        body="Check the app for more info.",
+        title=f"{data.surfer.name} cancelled their request",
+        ios_title=data.surfer.name,
+        ios_subtitle="Host Request Cancelled",
+        body=f"{data.surfer.name} cancelled their host request for {date}.",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
         icon_url=_avatar_url_or_default(data.surfer),
     )
 
 
-def _host_request__confirm(data: notification_data_pb2.HostRequestConfirm) -> PushNotificationContent:
+def _host_request__confirm(data: notification_data_pb2.HostRequestConfirm, user: User) -> PushNotificationContent:
+    date = v2date(data.host_request.from_date, user)
     return PushNotificationContent(
         title=f"{data.surfer.name} confirmed their host request",
-        body="Check the app for more info.",
+        ios_title=data.surfer.name,
+        ios_subtitle="Host Request Confirmed",
+        body=f"{data.surfer.name} confirmed their host request for {date}.",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
         icon_url=_avatar_url_or_default(data.surfer),
     )
@@ -467,22 +498,25 @@ def _host_request__confirm(data: notification_data_pb2.HostRequestConfirm) -> Pu
 
 def _modnote__create() -> PushNotificationContent:
     return PushNotificationContent(
-        title="You received a mod note",
-        body="You need to read and acknowledge the note before continuing to use the platform.",
+        title="New moderator note",
+        ios_title="New Moderator Note",
+        body="You received a moderator note. Read and acknowledge it to continue using the platform.",
     )
 
 
 def _onboarding__reminder(key: str, user: User) -> PushNotificationContent:
     if key == "1":
         return PushNotificationContent(
-            title="Welcome to Couchers.org and the future of couch surfing",
-            body=f"Hi {user.name}! We are excited that you have joined us! Please take a moment to complete your profile with a picture and a bit of text about yourself!",
+            title="Welcome to Couchers!",
+            ios_title="Welcome to Couchers!",
+            body="Please complete your profile with a picture and a bit of text about yourself.",
             action_url=urls.edit_profile_link(),
         )
     elif key == "2":
         return PushNotificationContent(
-            title="Please complete your profile on Couchers.org!",
-            body=f"Hi {user.name}! We would ask one big favour of you: please fill out your profile by adding a photo and some text.",
+            title="Remember to complete your profile",
+            ios_title="Profile Reminder",
+            body="Please complete your profile with a picture and a bit of text about yourself.",
             action_url=urls.edit_profile_link(),
         )
     else:
@@ -491,24 +525,27 @@ def _onboarding__reminder(key: str, user: User) -> PushNotificationContent:
 
 def _password__change() -> PushNotificationContent:
     return PushNotificationContent(
-        title="Your password was changed",
-        body="Your login password for Couchers.org was changed.",
+        title="Password changed",
+        ios_title="Password Changed",
+        body="Your password was changed.",
         action_url=urls.account_settings_link(),
     )
 
 
 def _password_reset__start(data: notification_data_pb2.PasswordResetStart) -> PushNotificationContent:
     return PushNotificationContent(
-        title="A password reset was initiated on your account",
-        body="Someone initiated a password change on your account.",
+        title="Password reset requested",
+        ios_title="Password Reset Requested",
+        body="Use the link we sent by email to complete it.",
         action_url=urls.account_settings_link(),
     )
 
 
 def _password_reset__complete() -> PushNotificationContent:
     return PushNotificationContent(
-        title="Your password was successfully reset",
-        body="Your password on Couchers.org was changed. If that was you, then no further action is needed.",
+        title="Password reset",
+        ios_title="Password Reset",
+        body="Your password was successfully reset.",
         action_url=urls.account_settings_link(),
     )
 
@@ -516,6 +553,7 @@ def _password_reset__complete() -> PushNotificationContent:
 def _phone_number__change(data: notification_data_pb2.PhoneNumberChange) -> PushNotificationContent:
     return PushNotificationContent(
         title="Phone verification started",
+        ios_title="Phone Verification Started",
         body=f"You started phone number verification with the number {format_phone_number(data.phone)}.",
         action_url=urls.feature_preview_link(),
     )
@@ -523,8 +561,9 @@ def _phone_number__change(data: notification_data_pb2.PhoneNumberChange) -> Push
 
 def _phone_number__verify(data: notification_data_pb2.PhoneNumberVerify) -> PushNotificationContent:
     return PushNotificationContent(
-        title="Phone successfully verified",
-        body=f"Your phone was successfully verified as {format_phone_number(data.phone)} on Couchers.org.",
+        title="Phone verification completed",
+        ios_title="Phone Verification completed",
+        body=f"Your phone number was successfully verified as {format_phone_number(data.phone)}.",
         action_url=urls.feature_preview_link(),
     )
 
@@ -533,37 +572,42 @@ def _postal_verification__postcard_sent(
     data: notification_data_pb2.PostalVerificationPostcardSent,
 ) -> PushNotificationContent:
     return PushNotificationContent(
-        title="Your verification postcard is on its way",
-        body=f"Postcard sent to {data.city}, {data.country}. Expect it within 1-3 weeks.",
+        title="Postal verification started",
+        ios_title="Postal Verification Started",
+        body=f"Your postcard is on its way to {data.city}, {data.country}. Expect it within 1-3 weeks.",
         action_url=urls.account_settings_link(),
     )
 
 
 def _postal_verification__success() -> PushNotificationContent:
     return PushNotificationContent(
-        title="Postal Verification succeeded",
-        body="You have been verified with Postal Verification! Your address has been confirmed.",
+        title="Postal verification completed",
+        ios_title="Postal Verification Completed",
+        body="Your address is now verified.",
         action_url=urls.account_settings_link(),
     )
 
 
 def _postal_verification__failed(data: notification_data_pb2.PostalVerificationFailed) -> PushNotificationContent:
     if data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED:
-        reason_message = "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can start a new verification attempt."
+        body = "Your verification code has expired. Codes are valid for 90 days after the postcard is sent. You can request a new postcard."
     elif data.reason == notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS:
-        reason_message = "Too many incorrect code attempts. You can start a new verification attempt."
+        body = "Too many incorrect code attempts. You can request a new postcard."
     else:
-        reason_message = "Your postal verification attempt has failed. You can start a new verification attempt."
+        body = "Your postal verification attempt has failed. You can request a new postcard."
     return PushNotificationContent(
-        title="Postal Verification failed",
-        body=reason_message,
+        title="Postal verification failed",
+        ios_title="Postal Verification Failed",
+        body=body,
         action_url=urls.account_settings_link(),
     )
 
 
 def _reference__receive_friend(data: notification_data_pb2.ReferenceReceiveFriend) -> PushNotificationContent:
     return PushNotificationContent(
-        title=f"You've received a friend reference from {data.from_user.name}!",
+        title=f"New friend reference from {data.from_user.name}",
+        ios_title=data.from_user.name,
+        ios_subtitle="New Friend Reference",
         body=data.text,
         icon_url=_avatar_url_or_default(data.from_user),
         action_url=urls.profile_references_link(),
@@ -577,16 +621,16 @@ def _reference__receive(
         body = data.text
         action_url = urls.profile_references_link()
     else:
-        body = (
-            "Please go and write a reference for them too. It's a nice gesture and helps us build a community together!"
-        )
+        body = f"{data.from_user.name} left you a reference, now it's your turn to write theirs!"
         action_url = urls.leave_reference_link(
             reference_type=reference_type,
             to_user_id=data.from_user.user_id,
             host_request_id=str(data.host_request_id),
         )
     return PushNotificationContent(
-        title=f"You've received a reference from {data.from_user.name}!",
+        title=f"New reference from {data.from_user.name}",
+        ios_title=data.from_user.name,
+        ios_subtitle="New Reference",
         body=body,
         icon_url=_avatar_url_or_default(data.from_user),
         action_url=action_url,
@@ -609,8 +653,10 @@ def _reference__reminder(data: notification_data_pb2.ReferenceReminder, referenc
         host_request_id=str(data.host_request_id),
     )
     return PushNotificationContent(
-        title=f"You have {data.days_left} days to write a reference for {data.other_user.name}!",
-        body="It's a nice gesture to write references and helps us build a community together! References will become visible 2 weeks after the stay, or when you've both written a reference for each other, whichever happens first.",
+        title=f"Write your reference for {data.other_user.name}",
+        ios_title="Write Your Reference",
+        ios_subtitle=data.other_user.name,
+        body=f"You still have {data.days_left} days to write a reference for {data.other_user.name}.",
         icon_url=_avatar_url_or_default(data.other_user),
         action_url=leave_reference_link,
     )
@@ -627,18 +673,21 @@ def _reference__reminder_hosted(data: notification_data_pb2.ReferenceReminder) -
 
 def _thread__reply(data: notification_data_pb2.ThreadReply) -> PushNotificationContent:
     parent = data.WhichOneof("reply_parent")
+    parent_title: str
     if parent == "event":
-        title = data.event.title
+        parent_title = data.event.title
         view_link = urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug)
     elif parent == "discussion":
-        title = data.discussion.title
+        parent_title = data.discussion.title
         view_link = urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug)
     else:
         raise Exception("Can only do replies to events and discussions")
 
     return PushNotificationContent(
-        title=title,
-        body=f"{data.author.name} replied:\n\n{data.reply.content}",
+        title=f"{data.author.name} • {parent_title}",
+        ios_title=data.author.name,
+        ios_subtitle=parent_title,
+        body=data.reply.content,
         icon_url=_avatar_url_or_default(data.author),
         action_url=view_link,
     )
@@ -646,8 +695,9 @@ def _thread__reply(data: notification_data_pb2.ThreadReply) -> PushNotificationC
 
 def _verification__sv_success() -> PushNotificationContent:
     return PushNotificationContent(
-        title="Strong Verification succeeded",
-        body="You have been verified with Strong Verification! You will now see a tick next to your name on the platform.",
+        title="Strong Verification completed",
+        ios_title="Strong Verification Completed",
+        body="You have been verified with Strong Verification.",
         action_url=urls.account_settings_link(),
     )
 
@@ -656,13 +706,16 @@ def _verification__sv_fail(data: notification_data_pb2.VerificationSVFail) -> Pu
     if data.reason == notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
         reason_message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
     elif data.reason == notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT:
-        reason_message = "You tried to verify with a document that is not a passport. You can only use a passport for Strong Verification."
+        reason_message = (
+            "You used a document other than a passport. You can only use a passport for Strong Verification."
+        )
     elif data.reason == notification_data_pb2.SV_FAIL_REASON_DUPLICATE:
-        reason_message = "You tried to verify with a passport that has already been used for verification. Please use another passport."
+        reason_message = "You used a passport that has already been used for verification. Please use another passport."
     else:
         raise Exception("Shouldn't get here")
     return PushNotificationContent(
         title="Strong Verification failed",
+        ios_title="Strong Verification Failed",
         body=reason_message,
         action_url=urls.account_settings_link(),
     )

@@ -125,8 +125,8 @@ def test_ChangeUserGender(db, push_collector: PushCollector):
     assert "Machine" in e.html
 
     push = push_collector.get_for_user(normal_user.id)
-    assert push.content.title == "Your gender was changed"
-    assert push.content.body == "Your gender on Couchers.org was changed to Machine by an admin."
+    assert push.content.title == "Gender changed"
+    assert push.content.body == "An admin changed your gender to Machine."
 
 
 def test_ChangeUserBirthdate(db, push_collector: PushCollector):
@@ -158,8 +158,8 @@ def test_ChangeUserBirthdate(db, push_collector: PushCollector):
     assert "1990" in e.html
 
     push = push_collector.get_for_user(normal_user.id)
-    assert push.content.title == "Your date of birth was changed"
-    assert push.content.body == "Your date of birth on Couchers.org was changed to Friday 25 May 1990 by an admin."
+    assert push.content.title == "Birthdate changed"
+    assert push.content.body == "An admin changed your date of birth to Friday 25 May 1990."
 
 
 def test_BanUser(db):
@@ -369,7 +369,7 @@ def test_CreateApiKey(db, push_collector: PushCollector):
     assert "support@couchers.org" in e.html
 
     push = push_collector.get_for_user(normal_user.id)
-    assert push.content.title == "An API key was created for your account"
+    assert push.content.title == "API key created"
     assert push.content.body == "Details were sent to you via email."
 
 
@@ -404,8 +404,8 @@ def test_badges(db, push_collector: PushCollector):
         mock.assert_not_called()
 
         push = push_collector.get_for_user(normal_user.id)
-        assert push.content.title == "The Swagster badge was added to your profile"
-        assert push.content.body == "Check out your profile to see the new badge!"
+        assert push.content.title == "New profile badge: Swagster"
+        assert push.content.body == "The Swagster badge was added to your profile."
 
         # can't add/edit special tags
         with pytest.raises(grpc.RpcError) as e:
@@ -429,8 +429,8 @@ def test_badges(db, push_collector: PushCollector):
         mock.assert_not_called()
 
         push = push_collector.get_for_user(normal_user.id, index=1)
-        assert push.content.title == "The Swagster badge was removed from your profile"
-        assert push.content.body == "You can see all your badges on your profile."
+        assert push.content.title == "Profile badge removed"
+        assert push.content.body == "The Swagster badge was removed from your profile."
 
         # not found on user
         with pytest.raises(grpc.RpcError) as e:
@@ -713,8 +713,8 @@ def test_admin_delete_account_url(db, push_collector: PushCollector):
             )
 
     push = push_collector.get_for_user(user_id, index=0)
-    assert push.content.title == "Your Couchers.org account has been deleted"
-    assert push.content.body == "You can still undo this by following the link we emailed to you within 7 days."
+    assert push.content.title == "Account deleted"
+    assert push.content.body == "You can restore it within 7 days using the link we emailed you."
     mock.assert_called_once()
     e = email_fields(mock)
 
