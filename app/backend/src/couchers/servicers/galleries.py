@@ -1,7 +1,5 @@
-from typing import cast
-
 import grpc
-from sqlalchemy import Table, select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -184,10 +182,7 @@ class Galleries(galleries_pb2_grpc.GalleriesServicer):
 
         if new_position is not None:
             session.execute(
-                cast(Table, PhotoGalleryItem.__table__)
-                .update()
-                .where(PhotoGalleryItem.id == request.item_id)
-                .values(position=new_position)
+                update(PhotoGalleryItem).where(PhotoGalleryItem.id == request.item_id).values(position=new_position)
             )
 
         session.flush()
