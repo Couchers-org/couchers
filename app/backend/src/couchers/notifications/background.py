@@ -10,7 +10,7 @@ from sqlalchemy.sql import exists, func
 from couchers import urls
 from couchers.config import config
 from couchers.context import make_background_user_context
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.email import queue_email
 from couchers.models import (
     Notification,
@@ -167,31 +167,34 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
             logger.info(f"Should notify by {delivery_type}")
             if delivery_type == NotificationDeliveryType.email:
                 # for emails we don't deliver straight up, wait until the email background worker gets around to it and handles deduplication
-                session.add(
+                add(
+                    session,
                     NotificationDelivery(
                         notification_id=notification.id,
                         delivered=func.now(),
                         delivery_type=NotificationDeliveryType.email,
-                    )
+                    ),
                 )
                 _send_email_notification(session, user, notification)
             elif delivery_type == NotificationDeliveryType.digest:
                 # for digest notifications, add to digest queue
-                session.add(
+                add(
+                    session,
                     NotificationDelivery(
                         notification_id=notification.id,
                         delivered=None,
                         delivery_type=NotificationDeliveryType.digest,
-                    )
+                    ),
                 )
             elif delivery_type == NotificationDeliveryType.push:
                 # for push notifications, we send them straight away (web + mobile)
-                session.add(
+                add(
+                    session,
                     NotificationDelivery(
                         notification_id=notification.id,
                         delivered=func.now(),
                         delivery_type=NotificationDeliveryType.push,
-                    )
+                    ),
                 )
                 _send_push_notification(session, user, notification)
 

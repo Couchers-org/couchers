@@ -5,7 +5,7 @@ import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import select, update
 
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import FriendRelationship, FriendStatus, LanguageFluency, RateLimitAction, User
@@ -1226,7 +1226,7 @@ def test_accept_friend_request(db):
 
     with session_scope() as session:
         friend_request = FriendRelationship(from_user_id=user1.id, to_user_id=user2.id, status=FriendStatus.pending)
-        session.add(friend_request)
+        add(session, friend_request)
         session.commit()
         friend_request_id = friend_request.id
 

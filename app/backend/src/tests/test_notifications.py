@@ -11,7 +11,7 @@ from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.jobs.worker import process_job
 from couchers.models import (
     DeviceType,
@@ -702,8 +702,7 @@ def test_RegisterMobilePushNotificationSubscription_re_enable(db):
             device_type=DeviceType.ios,
             disabled_at=now(),
         )
-        session.add(sub)
-        session.flush()
+        add(session, sub)
         sub_id = sub.id
 
     # Re-register with the same token
@@ -738,7 +737,7 @@ def test_RegisterMobilePushNotificationSubscription_already_exists(db):
             device_name="Existing Device",
             device_type=DeviceType.ios,
         )
-        session.add(sub)
+        add(session, sub)
 
     # Try to register with the same token - should just return without error
     with notifications_session(token) as notifications:
@@ -826,8 +825,7 @@ def test_check_expo_push_receipts_success(db):
             device_name="Test Device",
             device_type=DeviceType.ios,
         )
-        session.add(sub)
-        session.flush()
+        add(session, sub)
 
         attempt = PushNotificationDeliveryAttempt(
             push_notification_subscription_id=sub.id,
@@ -835,8 +833,7 @@ def test_check_expo_push_receipts_success(db):
             status_code=200,
             expo_ticket_id="test-ticket-id",
         )
-        session.add(attempt)
-        session.flush()
+        add(session, attempt)
         # Make the attempt old enough to be checked (>15 min)
         attempt.time = now() - timedelta(minutes=20)
         attempt_id = attempt.id
@@ -886,8 +883,7 @@ def test_check_expo_push_receipts_device_not_registered(db):
             device_name="Test Device",
             device_type=DeviceType.android,
         )
-        session.add(sub)
-        session.flush()
+        add(session, sub)
 
         attempt = PushNotificationDeliveryAttempt(
             push_notification_subscription_id=sub.id,
@@ -895,8 +891,7 @@ def test_check_expo_push_receipts_device_not_registered(db):
             status_code=200,
             expo_ticket_id="ticket-device-gone",
         )
-        session.add(attempt)
-        session.flush()
+        add(session, attempt)
         # Make the attempt old enough to be checked
         attempt.time = now() - timedelta(minutes=15)
         attempt_id = attempt.id
@@ -950,8 +945,7 @@ def test_check_expo_push_receipts_not_found(db):
             platform=PushNotificationPlatform.expo,
             token="ExponentPushToken[notfound]",
         )
-        session.add(sub)
-        session.flush()
+        add(session, sub)
 
         attempt = PushNotificationDeliveryAttempt(
             push_notification_subscription_id=sub.id,
@@ -959,8 +953,7 @@ def test_check_expo_push_receipts_not_found(db):
             status_code=200,
             expo_ticket_id="unknown-ticket",
         )
-        session.add(attempt)
-        session.flush()
+        add(session, attempt)
         # Make the attempt old enough to be checked
         attempt.time = now() - timedelta(minutes=15)
         attempt_id = attempt.id
@@ -1006,8 +999,7 @@ def test_check_expo_push_receipts_skips_already_checked(db):
             platform=PushNotificationPlatform.expo,
             token="ExponentPushToken[alreadychecked]",
         )
-        session.add(sub)
-        session.flush()
+        add(session, sub)
 
         attempt = PushNotificationDeliveryAttempt(
             push_notification_subscription_id=sub.id,
@@ -1017,8 +1009,7 @@ def test_check_expo_push_receipts_skips_already_checked(db):
             receipt_checked_at=now(),
             receipt_status="ok",
         )
-        session.add(attempt)
-        session.flush()
+        add(session, attempt)
         # Make the attempt old enough
         attempt.time = now() - timedelta(minutes=15)
 
@@ -1138,8 +1129,7 @@ def test_check_expo_push_receipts_skips_too_recent(db):
             platform=PushNotificationPlatform.expo,
             token="ExponentPushToken[recent]",
         )
-        session.add(sub)
-        session.flush()
+        add(session, sub)
 
         attempt = PushNotificationDeliveryAttempt(
             push_notification_subscription_id=sub.id,
@@ -1147,8 +1137,7 @@ def test_check_expo_push_receipts_skips_too_recent(db):
             status_code=200,
             expo_ticket_id="recent-ticket",
         )
-        session.add(attempt)
-        session.flush()
+        add(session, attempt)
         # Make the attempt only 5 minutes old (too recent)
         attempt.time = now() - timedelta(minutes=5)
 
@@ -1178,8 +1167,7 @@ def test_check_expo_push_receipts_batch(db):
             platform=PushNotificationPlatform.expo,
             token="ExponentPushToken[batch]",
         )
-        session.add(sub)
-        session.flush()
+        add(session, sub)
 
         for i in range(3):
             attempt = PushNotificationDeliveryAttempt(
@@ -1188,7 +1176,7 @@ def test_check_expo_push_receipts_batch(db):
                 status_code=200,
                 expo_ticket_id=f"batch-ticket-{i}",
             )
-            session.add(attempt)
+            add(session, attempt)
             session.flush()
             attempt.time = now() - timedelta(minutes=20)
             attempt_ids.append(attempt.id)

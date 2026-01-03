@@ -7,7 +7,7 @@ import couchers.email
 import couchers.jobs.handlers
 from couchers.config import config
 from couchers.crypto import random_hex, urlsafe_secure_token
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.models import (
     ContentReport,
     Email,
@@ -94,8 +94,7 @@ def test_reference_report_email_not_sent(db):
         to_user, api_token_reported = generate_user()
 
         friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.accepted)
-        session.add(friend_relationship)
-        session.flush()
+        add(session, friend_relationship)
 
         reference = Reference(
             from_user=from_user,
@@ -120,8 +119,7 @@ def test_reference_report_email(db):
         to_user, api_token_reported = generate_user()
 
         friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.accepted)
-        session.add(friend_relationship)
-        session.flush()
+        add(session, friend_relationship)
 
         reference = Reference(
             from_user=from_user,

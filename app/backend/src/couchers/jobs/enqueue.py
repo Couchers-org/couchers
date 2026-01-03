@@ -8,6 +8,7 @@ from collections.abc import Callable
 import google.protobuf.message
 from sqlalchemy.orm import Session
 
+from couchers.db import add
 from couchers.models import BackgroundJob
 
 logger = logging.getLogger(__name__)
@@ -20,11 +21,12 @@ def queue_job[T: google.protobuf.message.Message](
     max_tries: int | None = None,
     priority: int | None = None,
 ) -> None:
-    session.add(
+    add(
+        session,
         BackgroundJob(
             job_type=job.__name__,
             payload=payload.SerializeToString(),
             max_tries=max_tries,
             priority=priority,
-        )
+        ),
     )

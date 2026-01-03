@@ -26,6 +26,7 @@ from couchers.crypto import (
     verify_password,
     verify_token,
 )
+from couchers.db import add
 from couchers.experimentation import check_gate
 from couchers.helpers.geoip import geoip_approximate_location
 from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
@@ -294,8 +295,7 @@ class Account(account_pb2_grpc.AccountServicer):
             expertise=form.expertise or None,
         )
 
-        session.add(form)
-        session.flush()
+        add(session, form)
         maybe_send_contributor_form_email(session, form)
 
         user.filled_contributor_form = True
@@ -459,13 +459,14 @@ class Account(account_pb2_grpc.AccountServicer):
 
         iris_session_id = response.json()["id"]
         token = response.json()["token"]
-        session.add(
+        add(
+            session,
             StrongVerificationAttempt(
                 user_id=user.id,
                 verification_attempt_token=verification_attempt_token,
                 iris_session_id=iris_session_id,
                 iris_token=token,
-            )
+            ),
         )
 
         redirect_params = {
@@ -557,8 +558,7 @@ class Account(account_pb2_grpc.AccountServicer):
         reason = request.reason.strip()
         if reason:
             deletion_reason = AccountDeletionReason(user_id=user.id, reason=reason)
-            session.add(deletion_reason)
-            session.flush()
+            add(session, deletion_reason)
             send_account_deletion_report_email(session, deletion_reason)
 
         token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
@@ -572,7 +572,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 deletion_token=token.token,
             ),
         )
-        session.add(token)
+        add(session, token)
 
         account_deletion_initiations_counter.labels(user.gender).inc()
 
@@ -673,7 +673,7 @@ class Account(account_pb2_grpc.AccountServicer):
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.CreateInviteCodeRes:
         code = generate_invite_code()
-        session.add(InviteCode(id=code, creator_user_id=context.user_id))
+        add(session, InviteCode(id=code, creator_user_id=context.user_id))
 
         return account_pb2.CreateInviteCodeRes(
             code=code,
@@ -849,11 +849,12 @@ class Iris(iris_pb2_grpc.IrisServicer):
             .where(StrongVerificationAttempt.iris_session_id == json_data["session_id"])
         ).scalar_one()
         iris_status = json_data["session_state"]
-        session.add(
+        add(
+            session,
             StrongVerificationCallbackEvent(
                 verification_attempt_id=verification_attempt.id,
                 iris_status=iris_status,
-            )
+            ),
         )
         if iris_status == "INITIATED":
             # the user opened the session in the app

@@ -3,7 +3,7 @@ import pytest
 from google.protobuf import wrappers_pb2
 
 from couchers.crypto import random_hex
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread, Upload
 from couchers.proto import pages_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
@@ -572,14 +572,14 @@ def test_page_transfer(db):
     with session_scope() as session:
         # create a community
         node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])))
-        session.add(node)
+        add(session, node)
         community_cluster = Cluster(
             name="Testing Community",
             description="Description for testing community",
             parent_node=node,
             is_official_cluster=True,
         )
-        session.add(community_cluster)
+        add(session, community_cluster)
         main_page = Page(
             parent_node=community_cluster.parent_node,
             creator_user_id=user2.id,
@@ -587,14 +587,15 @@ def test_page_transfer(db):
             type=PageType.main_page,
             thread=Thread(),
         )
-        session.add(main_page)
-        session.add(
+        add(session, main_page)
+        add(
+            session,
             PageVersion(
                 page=main_page,
                 editor_user_id=user2.id,
                 title="Main page for the testing community",
                 content="Empty.",
-            )
+            ),
         )
         community_cluster.cluster_subscriptions.append(
             ClusterSubscription(
@@ -615,7 +616,7 @@ def test_page_transfer(db):
             description="Description for testing group",
             parent_node=node,
         )
-        session.add(group_cluster)
+        add(session, group_cluster)
         main_page = Page(
             parent_node=group_cluster.parent_node,
             creator_user_id=user2.id,
@@ -623,14 +624,15 @@ def test_page_transfer(db):
             type=PageType.main_page,
             thread=Thread(),
         )
-        session.add(main_page)
-        session.add(
+        add(session, main_page)
+        add(
+            session,
             PageVersion(
                 page=main_page,
                 editor_user_id=user2.id,
                 title="Main page for the testing community",
                 content="Empty.",
-            )
+            ),
         )
         group_cluster.cluster_subscriptions.append(
             ClusterSubscription(
@@ -815,12 +817,13 @@ def test_page_photo(db):
         filename1 = random_hex(32)
 
         with session_scope() as session:
-            session.add(
+            add(
+                session,
                 Upload(
                     key=key1,
                     filename=filename1,
                     creator_user_id=user.id,
-                )
+                ),
             )
 
         res = api.CreatePlace(
@@ -887,12 +890,13 @@ def test_page_photo(db):
         filename2 = random_hex(32)
 
         with session_scope() as session:
-            session.add(
+            add(
+                session,
                 Upload(
                     key=key2,
                     filename=filename2,
                     creator_user_id=user.id,
-                )
+                ),
             )
 
         res = api.UpdatePage(

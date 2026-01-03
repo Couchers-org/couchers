@@ -7,6 +7,7 @@ from sqlalchemy.sql import func
 
 from couchers.constants import GALLERY_MAX_PHOTOS_NOT_VERIFIED, GALLERY_MAX_PHOTOS_VERIFIED
 from couchers.context import CouchersContext
+from couchers.db import add
 from couchers.helpers.strong_verification import has_strong_verification
 from couchers.models import PhotoGallery, PhotoGalleryItem, Upload, User
 from couchers.proto import galleries_pb2, galleries_pb2_grpc
@@ -97,8 +98,7 @@ class Galleries(galleries_pb2_grpc.GalleriesServicer):
             position=0.0 if max_position is None else max_position + 1.0,
             caption=request.caption or None,
         )
-        session.add(item)
-        session.flush()
+        add(session, item)
         session.refresh(gallery)
 
         return _gallery_to_pb(gallery, context)

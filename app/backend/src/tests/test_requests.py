@@ -8,7 +8,7 @@ from sqlalchemy import select
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.materialized_views import refresh_materialized_view
 from couchers.models import (
     Message,
@@ -276,7 +276,7 @@ def add_message(db, text, author_id, conversation_id):
             conversation_id=conversation_id, author_id=author_id, text=text, message_type=MessageType.text
         )
 
-        session.add(message)
+        add(session, message)
 
 
 def test_GetHostRequest(db):

@@ -13,6 +13,7 @@ from couchers.constants import (
     POSTAL_VERIFICATION_RATE_LIMIT,
 )
 from couchers.context import CouchersContext
+from couchers.db import add
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import send_postal_verification_postcard
@@ -143,8 +144,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                 }
             ),
         )
-        session.add(attempt)
-        session.flush()
+        add(session, attempt)
 
         return postal_verification_pb2.InitiatePostalVerificationRes(
             postal_verification_attempt_id=attempt.id,

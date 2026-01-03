@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import random_hex
-from couchers.db import _get_base_engine, session_scope
+from couchers.db import _get_base_engine, add, session_scope
 from couchers.models import (
     Base,
     FriendRelationship,
@@ -213,23 +213,23 @@ def generate_user(
         } | kwargs
 
         user = User(**user_opts)
-        session.add(user)
+        add(session, user)
         session.flush()
 
         # Create a profile gallery for the user and link it
         profile_gallery = PhotoGallery(owner_user_id=user.id)
-        session.add(profile_gallery)
+        add(session, profile_gallery)
         session.flush()
         user.profile_gallery_id = profile_gallery.id
 
         for region in regions_visited:
-            session.add(RegionVisited(user_id=user.id, region_code=region))
+            add(session, RegionVisited(user_id=user.id, region_code=region))
 
         for region in regions_lived:
-            session.add(RegionLived(user_id=user.id, region_code=region))
+            add(session, RegionLived(user_id=user.id, region_code=region))
 
         for lang, fluency in language_abilities:
-            session.add(LanguageAbility(user_id=user.id, language_code=lang, fluency=fluency))
+            add(session, LanguageAbility(user_id=user.id, language_code=lang, fluency=fluency))
 
         # this expires the user, so now it's "dirty"
         token, _ = create_session(_MockCouchersContext(), session, user, False, set_cookie=False)
@@ -243,12 +243,13 @@ def generate_user(
         if complete_profile:
             key = random_hex(32)
             filename = random_hex(32) + ".jpg"
-            session.add(
+            add(
+                session,
                 Upload(
                     key=key,
                     filename=filename,
                     creator_user_id=user.id,
-                )
+                ),
             )
             session.flush()
             user.avatar_key = key
@@ -272,7 +273,7 @@ def generate_user(
                 iris_token=f"iris_token_{user.id}",
                 iris_session_id=user.id,
             )
-            session.add(attempt)
+            add(session, attempt)
             session.flush()
             assert attempt.has_strong_verification(user)
 
@@ -305,7 +306,7 @@ def make_friends(user1: User, user2: User) -> None:
             to_user_id=user2.id,
             status=FriendStatus.accepted,
         )
-        session.add(friend_relationship)
+        add(session, friend_relationship)
 
 
 def make_user_block(user1: User, user2: User) -> None:
@@ -314,7 +315,7 @@ def make_user_block(user1: User, user2: User) -> None:
             blocking_user_id=user1.id,
             blocked_user_id=user2.id,
         )
-        session.add(user_block)
+        add(session, user_block)
 
 
 def make_user_invisible(user_id: int) -> None:
@@ -342,7 +343,7 @@ def add_users_to_new_moderation_list(users: list[User]) -> int:
     """Group users as duplicated accounts"""
     with session_scope() as session:
         moderation_user_list = ModerationUserList()
-        session.add(moderation_user_list)
+        add(session, moderation_user_list)
         session.flush()
         for user in users:
             refreshed_user = session.get(User, user.id)

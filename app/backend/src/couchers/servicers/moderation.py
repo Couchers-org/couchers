@@ -5,6 +5,7 @@ from sqlalchemy import and_, exists, not_, or_, select
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
+from couchers.db import add
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import (
     observe_moderation_action,
@@ -340,7 +341,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             new_visibility=new_visibility,
             reason=reason,
         )
-        session.add(log_entry)
+        add(session, log_entry)
         session.flush()
 
         # Resolve any pending queue items
@@ -411,7 +412,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             trigger=trigger,
             reason=reason,
         )
-        session.add(queue_item)
+        add(session, queue_item)
         session.flush()
 
         observe_moderation_action(ModerationAction.FLAG, moderation_state.object_type)
@@ -454,7 +455,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             new_visibility=None,
             reason=reason,
         )
-        session.add(log_entry)
+        add(session, log_entry)
         session.flush()
 
         # Resolve any pending queue items (inline resolve_queue_item logic)

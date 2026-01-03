@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.config import config
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.metrics import push_notification_counter
 from couchers.models import (
     PushNotificationDeliveryAttempt,
@@ -199,14 +199,15 @@ def send_raw_push_notification_v2(payload: jobs_pb2.SendRawPushNotificationPaylo
                 raise ValueError(f"Unknown platform: {sub.platform}")
 
             # Success - receipt will be checked by the batch job check_expo_push_receipts
-            session.add(
+            add(
+                session,
                 PushNotificationDeliveryAttempt(
                     push_notification_subscription_id=sub.id,
                     outcome=PushNotificationDeliveryOutcome.success,
                     status_code=result.status_code,
                     response=result.response,
                     expo_ticket_id=result.expo_ticket_id,
-                )
+                ),
             )
 
             push_notification_counter.labels(platform=sub.platform.name, outcome="success").inc()
@@ -214,39 +215,42 @@ def send_raw_push_notification_v2(payload: jobs_pb2.SendRawPushNotificationPaylo
 
         except PermanentSubscriptionFailure as e:
             logger.info(f"Disabling push sub {sub.id} for user {sub.user_id}: {e}")
-            session.add(
+            add(
+                session,
                 PushNotificationDeliveryAttempt(
                     push_notification_subscription_id=sub.id,
                     outcome=PushNotificationDeliveryOutcome.permanent_subscription_failure,
                     status_code=e.status_code,
                     response=e.response,
-                )
+                ),
             )
             sub.disabled_at = func.now()
             push_notification_counter.labels(platform=sub.platform.name, outcome="permanent_subscription_failure").inc()
 
         except PermanentMessageFailure as e:
             logger.warning(f"Permanent message failure for sub {sub.id}: {e}")
-            session.add(
+            add(
+                session,
                 PushNotificationDeliveryAttempt(
                     push_notification_subscription_id=sub.id,
                     outcome=PushNotificationDeliveryOutcome.permanent_message_failure,
                     status_code=e.status_code,
                     response=e.response,
-                )
+                ),
             )
             push_notification_counter.labels(platform=sub.platform.name, outcome="permanent_message_failure").inc()
 
         except PushNotificationError as e:
             # Transient error - log attempt and re-raise to trigger retry
             logger.warning(f"Transient push failure for sub {sub.id}: {e}")
-            session.add(
+            add(
+                session,
                 PushNotificationDeliveryAttempt(
                     push_notification_subscription_id=sub.id,
                     outcome=PushNotificationDeliveryOutcome.transient_failure,
                     status_code=e.status_code,
                     response=e.response,
-                )
+                ),
             )
             push_notification_counter.labels(platform=sub.platform.name, outcome="transient_failure").inc()
             session.commit()

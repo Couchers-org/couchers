@@ -7,7 +7,7 @@ import grpc
 import pytest
 from google.protobuf import empty_pb2
 
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import update_randomized_locations
 from couchers.materialized_views import refresh_materialized_views_rapid
@@ -110,32 +110,35 @@ def test_GetDonationStats_with_donations(db):
 
     with session_scope() as session:
         # Add some on_platform donations (should be counted)
-        session.add(
+        add(
+            session,
             Invoice(
                 user_id=user.id,
                 amount=100,
                 stripe_payment_intent_id="pi_test_1",
                 stripe_receipt_url="https://example.com/receipt/1",
                 invoice_type=InvoiceType.on_platform,
-            )
+            ),
         )
-        session.add(
+        add(
+            session,
             Invoice(
                 user_id=user.id,
                 amount=250,
                 stripe_payment_intent_id="pi_test_2",
                 stripe_receipt_url="https://example.com/receipt/2",
                 invoice_type=InvoiceType.on_platform,
-            )
+            ),
         )
-        session.add(
+        add(
+            session,
             Invoice(
                 user_id=user.id,
                 amount=500,
                 stripe_payment_intent_id="pi_test_3",
                 stripe_receipt_url="https://example.com/receipt/3",
                 invoice_type=InvoiceType.on_platform,
-            )
+            ),
         )
 
     with (
@@ -155,24 +158,26 @@ def test_GetDonationStats_excludes_merch(db):
 
     with session_scope() as session:
         # Add on_platform donation (should be counted)
-        session.add(
+        add(
+            session,
             Invoice(
                 user_id=user.id,
                 amount=200,
                 stripe_payment_intent_id="pi_test_donation",
                 stripe_receipt_url="https://example.com/receipt/donation",
                 invoice_type=InvoiceType.on_platform,
-            )
+            ),
         )
         # Add external_shop/merch purchase (should NOT be counted)
-        session.add(
+        add(
+            session,
             Invoice(
                 user_id=user.id,
                 amount=50,
                 stripe_payment_intent_id="pi_test_merch",
                 stripe_receipt_url="https://example.com/receipt/merch",
                 invoice_type=InvoiceType.external_shop,
-            )
+            ),
         )
 
     with (
@@ -193,14 +198,15 @@ def test_GetDonationStats_excludes_previous_years(db):
 
     with session_scope() as session:
         # Add donation from this year (should be counted)
-        session.add(
+        add(
+            session,
             Invoice(
                 user_id=user.id,
                 amount=300,
                 stripe_payment_intent_id="pi_test_this_year",
                 stripe_receipt_url="https://example.com/receipt/this_year",
                 invoice_type=InvoiceType.on_platform,
-            )
+            ),
         )
         # Add donation from last year (should NOT be counted)
         last_year = datetime(datetime.now(UTC).year - 1, 6, 15, tzinfo=UTC)
@@ -211,8 +217,7 @@ def test_GetDonationStats_excludes_previous_years(db):
             stripe_receipt_url="https://example.com/receipt/last_year",
             invoice_type=InvoiceType.on_platform,
         )
-        session.add(invoice)
-        session.flush()
+        add(session, invoice)
         # Manually set the created date to last year
         invoice.created = last_year
 
@@ -238,39 +243,43 @@ def test_GetVolunteers_mixed_current_and_past(db):
     past2, _ = generate_user(username="past2")
 
     with session_scope() as session:
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=current1.id,
                 role="Current Role 1",
                 started_volunteering=datetime(2023, 1, 1).date(),
                 show_on_team_page=True,
-            )
+            ),
         )
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=current2.id,
                 role="Current Role 2",
                 started_volunteering=datetime(2024, 1, 1).date(),
                 show_on_team_page=True,
-            )
+            ),
         )
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=past1.id,
                 role="Past Role 1",
                 started_volunteering=datetime(2020, 1, 1).date(),
                 stopped_volunteering=datetime(2022, 6, 1).date(),
                 show_on_team_page=True,
-            )
+            ),
         )
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=past2.id,
                 role="Past Role 2",
                 started_volunteering=datetime(2021, 1, 1).date(),
                 stopped_volunteering=datetime(2023, 12, 31).date(),
                 show_on_team_page=True,
-            )
+            ),
         )
 
     refresh_materialized_views_rapid(None)
@@ -296,33 +305,36 @@ def test_GetVolunteers_custom_sort_key(db):
 
     with session_scope() as session:
         # user2 should be first (lowest sort_key)
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=user2.id,
                 role="Role 2",
                 started_volunteering=datetime(2023, 3, 1).date(),
                 sort_key=1.0,
                 show_on_team_page=True,
-            )
+            ),
         )
         # user3 should be second
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=user3.id,
                 role="Role 3",
                 started_volunteering=datetime(2023, 1, 1).date(),
                 sort_key=2.0,
                 show_on_team_page=True,
-            )
+            ),
         )
         # user1 should be last (no sort_key, falls back to started_volunteering)
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=user1.id,
                 role="Role 1",
                 started_volunteering=datetime(2023, 2, 1).date(),
                 show_on_team_page=True,
-            )
+            ),
         )
 
     refresh_materialized_views_rapid(None)
@@ -344,21 +356,23 @@ def test_GetVolunteers_excludes_hidden(db):
     user2, _ = generate_user(username="hidden")
 
     with session_scope() as session:
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=user1.id,
                 role="Visible Role",
                 started_volunteering=datetime(2023, 1, 1).date(),
                 show_on_team_page=True,
-            )
+            ),
         )
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=user2.id,
                 role="Hidden Role",
                 started_volunteering=datetime(2023, 1, 1).date(),
                 show_on_team_page=False,
-            )
+            ),
         )
 
     refresh_materialized_views_rapid(None)
@@ -379,16 +393,18 @@ def test_GetVolunteers_link_types(db):
 
     with session_scope() as session:
         # Volunteer with default couchers link
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=user_default.id,
                 role="Default Link",
                 started_volunteering=datetime(2023, 1, 1).date(),
                 show_on_team_page=True,
-            )
+            ),
         )
         # Volunteer with custom link
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=user_custom.id,
                 role="Custom Link",
@@ -397,7 +413,7 @@ def test_GetVolunteers_link_types(db):
                 link_text="contact@example.com",
                 link_url="mailto:contact@example.com",
                 show_on_team_page=True,
-            )
+            ),
         )
 
     refresh_materialized_views_rapid(None)
@@ -428,21 +444,23 @@ def test_GetVolunteers_board_member_flag(db):
     regular_volunteer, _ = generate_user(username="regular")
 
     with session_scope() as session:
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=board_member.id,
                 role="Board Member Role",
                 started_volunteering=datetime(2023, 1, 1).date(),
                 show_on_team_page=True,
-            )
+            ),
         )
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=regular_volunteer.id,
                 role="Regular Role",
                 started_volunteering=datetime(2023, 1, 1).date(),
                 show_on_team_page=True,
-            )
+            ),
         )
 
     refresh_materialized_views_rapid(None)
@@ -522,7 +540,8 @@ def test_GetPublicUser_limited_visibility(db):
     # Add a reference to test reference counting
     referrer, _ = generate_user(username="referrer")
     with session_scope() as session:
-        session.add(
+        add(
+            session,
             Reference(
                 from_user_id=referrer.id,
                 to_user_id=user.id,
@@ -530,7 +549,7 @@ def test_GetPublicUser_limited_visibility(db):
                 text="Great host!",
                 rating=0.8,
                 was_appropriate=True,
-            )
+            ),
         )
 
     with public_session() as public:

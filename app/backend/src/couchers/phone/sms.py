@@ -6,7 +6,7 @@ import luhn
 
 from couchers import crypto
 from couchers.config import config
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.models import SMS
 
 logger = logging.getLogger(__name__)
@@ -51,13 +51,14 @@ def send_sms(number: str, message: str) -> str:
     message_id = response["MessageId"]
 
     with session_scope() as session:
-        session.add(
+        add(
+            session,
             SMS(
                 message_id=message_id,
                 number=number,
                 message=message,
                 sms_sender_id=sender_id,
-            )
+            ),
         )
 
     return "success"

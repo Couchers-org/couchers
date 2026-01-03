@@ -7,7 +7,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     Conversation,
@@ -52,15 +52,15 @@ def create_host_request(
     to_date = today() - host_request_age
     fake_created = now() - host_request_age - timedelta(days=3)
     conversation = Conversation()
-    session.add(conversation)
-    session.flush()
-    session.add(
+    add(session, conversation)
+    add(
+        session,
         Message(
             time=fake_created + timedelta(seconds=1),
             conversation_id=conversation.id,
             author_id=surfer_user_id,
             message_type=MessageType.chat_created,
-        )
+        ),
     )
     message = Message(
         time=fake_created + timedelta(seconds=2),
@@ -69,8 +69,7 @@ def create_host_request(
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
     )
-    session.add(message)
-    session.flush()
+    add(session, message)
 
     moderation_state = create_moderation(
         session,
@@ -94,7 +93,7 @@ def create_host_request(
         hosting_radius=10,
         moderation_state_id=moderation_state.id,
     )
-    session.add(host_request)
+    add(session, host_request)
     session.commit()
     return host_request.conversation_id
 
@@ -110,16 +109,16 @@ def create_host_request_by_date(
     last_sent_request_reminder_time,
 ):
     conversation = Conversation()
-    session.add(conversation)
-    session.flush()
+    add(session, conversation)
 
-    session.add(
+    add(
+        session,
         Message(
             time=from_date + timedelta(seconds=1),
             conversation_id=conversation.id,
             author_id=surfer_user_id,
             message_type=MessageType.chat_created,
-        )
+        ),
     )
 
     # Unused for now, but every host request must have a message.
@@ -130,8 +129,7 @@ def create_host_request_by_date(
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
     )
-    session.add(message)
-    session.flush()
+    add(session, message)
 
     moderation_state = create_moderation(
         session,
@@ -155,7 +153,7 @@ def create_host_request_by_date(
         moderation_state_id=moderation_state.id,
     )
 
-    session.add(host_request)
+    add(session, host_request)
     session.commit()
     return host_request.conversation_id
 
@@ -195,7 +193,7 @@ def create_host_reference(session, from_user_id, to_user_id, reference_age, *, s
         reference.to_user_id = host_request.surfer_user_id
         assert from_user_id == host_request.host_user_id
 
-    session.add(reference)
+    add(session, reference)
     session.commit()
     return reference.id, actual_host_request_id
 
@@ -210,7 +208,7 @@ def create_friend_reference(session: Session, from_user_id: int, to_user_id: int
         rating=0.4,
         was_appropriate=True,
     )
-    session.add(reference)
+    add(session, reference)
     session.commit()
     return reference.id
 

@@ -20,6 +20,7 @@ from couchers.config import config
 from couchers.constants import SERVER_THREADS, WORKER_THREADS
 from couchers.context import CouchersContext
 from couchers.models import (
+    Base,
     Cluster,
     ClusterRole,
     ClusterSubscription,
@@ -267,3 +268,8 @@ def timezone_at_coordinate(session: Session, geom: WKBElement) -> str | None:
         select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom))
     ).scalar_one_or_none()
     return tzid
+
+
+def add(session: Session, obj: Base) -> None:
+    session.add(obj)
+    session.flush()

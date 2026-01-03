@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_, update
 
 from couchers.context import CouchersContext, make_background_user_context
-from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
+from couchers.db import add, can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AttendeeStatus,
@@ -447,7 +447,7 @@ class Events(events_pb2_grpc.EventsServicer):
             thread=Thread(),
             creator_user_id=context.user_id,
         )
-        session.add(event)
+        add(session, event)
 
         occurrence = EventOccurrence(
             event=event,
@@ -460,28 +460,31 @@ class Events(events_pb2_grpc.EventsServicer):
             during=DateTimeTZRange(start_time, end_time),
             creator_user_id=context.user_id,
         )
-        session.add(occurrence)
+        add(session, occurrence)
 
-        session.add(
+        add(
+            session,
             EventOrganizer(
                 user_id=context.user_id,
                 event=event,
-            )
+            ),
         )
 
-        session.add(
+        add(
+            session,
             EventSubscription(
                 user_id=context.user_id,
                 event=event,
-            )
+            ),
         )
 
-        session.add(
+        add(
+            session,
             EventOccurrenceAttendee(
                 user_id=context.user_id,
                 occurrence=occurrence,
                 attendee_status=AttendeeStatus.going,
-            )
+            ),
         )
 
         session.commit()
@@ -573,14 +576,15 @@ class Events(events_pb2_grpc.EventsServicer):
             during=during,
             creator_user_id=context.user_id,
         )
-        session.add(occurrence)
+        add(session, occurrence)
 
-        session.add(
+        add(
+            session,
             EventOccurrenceAttendee(
                 user_id=context.user_id,
                 occurrence=occurrence,
                 attendee_status=AttendeeStatus.going,
-            )
+            ),
         )
 
         session.flush()
@@ -800,8 +804,7 @@ class Events(events_pb2_grpc.EventsServicer):
             occurrence_id=request.event_id,
             user_id=context.user_id,
         )
-        session.add(req)
-        session.flush()
+        add(session, req)
 
         send_event_community_invite_request_email(session, req)
 
@@ -988,7 +991,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
         # if not subscribed, subscribe
         if request.subscribe and not current_subscription:
-            session.add(EventSubscription(user_id=context.user_id, event_id=event.id))
+            add(session, EventSubscription(user_id=context.user_id, event_id=event.id))
 
         # if subscribed but unsubbing, remove subscription
         if not request.subscribe and current_subscription:
@@ -1034,7 +1037,7 @@ class Events(events_pb2_grpc.EventsServicer):
                     occurrence_id=occurrence.id,
                     attendee_status=attendancestate2sql[request.attendance_state],
                 )
-                session.add(attendance)
+                add(session, attendance)
 
         session.flush()
 
@@ -1176,11 +1179,12 @@ class Events(events_pb2_grpc.EventsServicer):
         ).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        session.add(
+        add(
+            session,
             EventOrganizer(
                 user_id=request.user_id,
                 event=event,
-            )
+            ),
         )
         session.flush()
 

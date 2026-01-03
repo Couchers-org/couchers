@@ -12,7 +12,7 @@ import couchers.jobs.worker
 from couchers.config import config
 from couchers.constants import HOST_REQUEST_MAX_REMINDERS, HOST_REQUEST_REMINDER_INTERVAL
 from couchers.crypto import urlsafe_secure_token
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
 from couchers.jobs import handlers
@@ -118,7 +118,7 @@ def test_purge_login_tokens(db):
 
     with session_scope() as session:
         login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now())
-        session.add(login_token)
+        add(session, login_token)
         assert session.execute(select(func.count()).select_from(LoginToken)).scalar_one() == 1
 
         queue_job(session, job=purge_login_tokens, payload=empty_pb2.Empty())
@@ -151,7 +151,7 @@ def test_purge_password_reset_tokens(db):
 
     with session_scope() as session:
         password_reset_token = PasswordResetToken(token=urlsafe_secure_token(), user=user, expiry=now())
-        session.add(password_reset_token)
+        add(session, password_reset_token)
         assert session.execute(select(func.count()).select_from(PasswordResetToken)).scalar_one() == 1
 
         queue_job(session, job=purge_password_reset_tokens, payload=empty_pb2.Empty())
@@ -197,7 +197,7 @@ def test_purge_account_deletion_tokens(db):
             AccountDeletionToken(token=urlsafe_secure_token(), user=user3, expiry=now() + timedelta(hours=5)),
         ]
         for token in account_deletion_tokens:
-            session.add(token)
+            add(session, token)
         assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 3
 
         queue_job(session, job=purge_account_deletion_tokens, payload=empty_pb2.Empty())
@@ -1065,14 +1065,15 @@ def test_send_host_request_reminders(db, moderator):
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
-        session.add(
+        add(
+            session,
             Message(
                 time=now(),
                 conversation_id=hr7,
                 author_id=user14.id,
                 text="Looking forward to hosting you!",
                 message_type=MessageType.text,
-            )
+            ),
         )
 
     # Approve host requests so they're visible for notifications
@@ -1191,7 +1192,7 @@ def test_update_badges(db, push_collector: PushCollector):
     user6, _ = generate_user(last_donated=None)
 
     with session_scope() as session:
-        session.add(UserBadge(user_id=user5.id, badge_id="board_member"))
+        add(session, UserBadge(user_id=user5.id, badge_id="board_member"))
 
     update_badges(empty_pb2.Empty())
     process_jobs()
@@ -1455,30 +1456,32 @@ def test_update_badges_volunteers(db, push_collector: PushCollector):
 
     with session_scope() as session:
         # user3: active volunteer (stopped_volunteering is null)
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=user3.id,
                 role="Developer",
                 started_volunteering=date(2020, 1, 1),
                 stopped_volunteering=None,
-            )
+            ),
         )
 
         # user4: past volunteer (stopped_volunteering is set)
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=user4.id,
                 role="Designer",
                 started_volunteering=date(2020, 1, 1),
                 stopped_volunteering=date(2023, 6, 1),
-            )
+            ),
         )
 
         # user5: has old volunteer badge that should be removed (not a volunteer anymore)
-        session.add(UserBadge(user_id=user5.id, badge_id="volunteer"))
+        add(session, UserBadge(user_id=user5.id, badge_id="volunteer"))
 
         # user6: has old past_volunteer badge that should be removed
-        session.add(UserBadge(user_id=user6.id, badge_id="past_volunteer"))
+        add(session, UserBadge(user_id=user6.id, badge_id="past_volunteer"))
 
     update_badges(empty_pb2.Empty())
     process_jobs()
@@ -1529,13 +1532,14 @@ def test_update_badges_volunteer_status_change(db, push_collector: PushCollector
 
     with session_scope() as session:
         # user3: start as active volunteer
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=user3.id,
                 role="Developer",
                 started_volunteering=date(2020, 1, 1),
                 stopped_volunteering=None,
-            )
+            ),
         )
 
     update_badges(empty_pb2.Empty())

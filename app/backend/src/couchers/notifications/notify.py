@@ -4,6 +4,7 @@ from google.protobuf import empty_pb2
 from google.protobuf.message import Message
 from sqlalchemy.orm import Session
 
+from couchers.db import add
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Notification
 from couchers.notifications.utils import enum_from_topic_action
@@ -54,8 +55,7 @@ def notify(
         data=(data or empty_pb2.Empty()).SerializeToString(),
         moderation_state_id=moderation_state_id,
     )
-    session.add(notification)
-    session.flush()
+    add(session, notification)
 
     queue_job(
         session,

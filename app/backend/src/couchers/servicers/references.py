@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import and_, func, literal, or_, union_all
 
 from couchers.context import CouchersContext, make_background_user_context
-from couchers.db import are_friends
+from couchers.db import add, are_friends
 from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.notifications.notify import notify
@@ -274,7 +274,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             rating=request.rating,
             was_appropriate=request.was_appropriate,
         )
-        session.add(reference)
+        add(session, reference)
         session.commit()
 
         # send the recipient of the reference a reminder
@@ -325,7 +325,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             reference.to_user_id = host_request.surfer_user_id
             assert context.user_id == host_request.host_user_id
 
-        session.add(reference)
+        add(session, reference)
         session.commit()
 
         other_reference = session.execute(

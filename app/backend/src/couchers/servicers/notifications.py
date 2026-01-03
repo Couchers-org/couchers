@@ -12,6 +12,7 @@ from sqlalchemy.sql import or_
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import CouchersContext
+from couchers.db import add
 from couchers.models import (
     DeviceType,
     HostingStatus,
@@ -183,8 +184,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             full_subscription_info=request.full_subscription_json,
             user_agent=request.user_agent,
         )
-        session.add(subscription)
-        session.flush()
+        add(session, subscription)
         push_to_subscription(
             session,
             push_notification_subscription_id=subscription.id,
@@ -249,8 +249,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             device_name=request.device_name if request.device_name else None,
             device_type=device_type,
         )
-        session.add(subscription)
-        session.flush()
+        add(session, subscription)
 
         push_to_subscription(
             session,

@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
+from couchers.db import add
 from couchers.models import ContentReport, User
 from couchers.proto import reporting_pb2, reporting_pb2_grpc
 from couchers.sql import username_or_id
@@ -28,8 +29,7 @@ class Reporting(reporting_pb2_grpc.ReportingServicer):
             page=request.page,
         )
 
-        session.add(content_report)
-        session.flush()
+        add(session, content_report)
 
         send_content_report_email(session, content_report)
 

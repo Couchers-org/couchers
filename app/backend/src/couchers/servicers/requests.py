@@ -9,6 +9,7 @@ from sqlalchemy.sql import and_, func, or_
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext
+from couchers.db import add
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
@@ -238,15 +239,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
         conversation = Conversation()
-        session.add(conversation)
-        session.flush()
+        add(session, conversation)
 
-        session.add(
+        add(
+            session,
             Message(
                 conversation_id=conversation.id,
                 author_id=context.user_id,
                 message_type=MessageType.chat_created,
-            )
+            ),
         )
 
         message = Message(
@@ -255,8 +256,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             text=request.text,
             message_type=MessageType.text,
         )
-        session.add(message)
-        session.flush()
+        add(session, message)
 
         # Create moderation state for UMS (starts as SHADOWED)
         moderation_state = create_moderation(
@@ -281,8 +281,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             hosting_location=host.geom,
             hosting_radius=host.geom_radius,
         )
-        session.add(host_request)
-        session.flush()
+        add(session, host_request)
 
         notify(
             session,
@@ -586,7 +585,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         control_message.message_type = MessageType.host_request_status_changed
         control_message.conversation_id = host_request.conversation_id
         control_message.author_id = context.user_id
-        session.add(control_message)
+        add(session, control_message)
 
         if request.text:
             latest_message = Message()
@@ -594,7 +593,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             latest_message.text = request.text
             latest_message.author_id = context.user_id
             latest_message.message_type = MessageType.text
-            session.add(latest_message)
+            add(session, latest_message)
         else:
             latest_message = control_message
 
@@ -673,8 +672,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         message.author_id = context.user_id
         message.message_type = MessageType.text
         message.text = request.text
-        session.add(message)
-        session.flush()
+        add(session, message)
 
         if host_request.surfer_user_id == context.user_id:
             host_request.surfer_last_seen_message_id = message.id
@@ -860,14 +858,15 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if feedback:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "already_left_host_request_feedback")
 
-        session.add(
+        add(
+            session,
             HostRequestFeedback(
                 host_request_id=host_request.conversation_id,
                 from_user_id=host_request.host_user_id,
                 to_user_id=host_request.surfer_user_id,
                 request_quality=hostrequestquality2sql.get(request.host_request_quality),
                 decline_reason=request.decline_reason,
-            )
+            ),
         )
 
         return empty_pb2.Empty()

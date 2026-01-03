@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext, make_background_user_context
-from couchers.db import can_moderate_node, session_scope
+from couchers.db import add, can_moderate_node, session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Cluster, Discussion, Thread, User
 from couchers.notifications.notify import notify
@@ -104,8 +104,7 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
             owner_cluster=cluster,
             thread=Thread(),
         )
-        session.add(discussion)
-        session.flush()
+        add(session, discussion)
 
         queue_job(
             session,

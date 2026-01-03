@@ -12,7 +12,7 @@ from sqlalchemy.sql import exists, update
 
 from couchers import urls
 from couchers.context import CouchersContext
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.materialized_views import LiteUser
@@ -235,8 +235,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
             started_volunteering=started_volunteering,
             show_on_team_page=not request.hide_on_team_page,
         )
-        session.add(volunteer)
-        session.flush()
+        add(session, volunteer)
 
         return volunteer_to_pb(session, volunteer)
 

@@ -3,7 +3,7 @@ from datetime import timedelta
 import pytest
 from google.protobuf import wrappers_pb2
 
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
@@ -220,20 +220,23 @@ def test_user_filter_language(db):
     user_with_german_fluent, token13 = generate_user(hosting_status=HostingStatus.can_host)
 
     with session_scope() as session:
-        session.add(
+        add(
+            session,
             LanguageAbility(
                 user_id=user_with_german_beginner.id, language_code="deu", fluency=LanguageFluency.beginner
             ),
         )
-        session.add(
+        add(
+            session,
             LanguageAbility(
                 user_id=user_with_japanese_conversational.id,
                 language_code="jpn",
                 fluency=LanguageFluency.fluent,
-            )
+            ),
         )
-        session.add(
-            LanguageAbility(user_id=user_with_german_fluent.id, language_code="deu", fluency=LanguageFluency.fluent)
+        add(
+            session,
+            LanguageAbility(user_id=user_with_german_fluent.id, language_code="deu", fluency=LanguageFluency.fluent),
         )
 
     refresh_materialized_views_rapid(None)

@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, text
 
 from couchers.config import config
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.models import Language, Region, TimezoneArea
 
 logger = logging.getLogger(__name__)
@@ -142,11 +142,11 @@ def copy_resources_to_database(session: Session) -> None:
 
     session.execute(delete(Region))
     for code, name in regions:
-        session.add(Region(code=code, name=name))
+        add(session, Region(code=code, name=name))
 
     session.execute(delete(Language))
     for code, name in languages:
-        session.add(Language(code=code, name=name))
+        add(session, Language(code=code, name=name))
 
     session.execute(delete(TimezoneArea))
     session.execute(text(tz_sql))

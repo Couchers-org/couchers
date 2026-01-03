@@ -27,7 +27,7 @@ from couchers.constants import (
     UNKNOWN_ERROR_MESSAGE,
 )
 from couchers.context import CouchersContext, make_interactive_context, make_media_context
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserActivity, UserSession
@@ -113,14 +113,15 @@ def _try_get_and_update_user_details(
             if user_activity:
                 user_activity.api_calls += 1
             else:
-                session.add(
+                add(
+                    session,
                     UserActivity(
                         user_id=user.id,
                         period=_binned_now(),
                         ip_address=ip_address,
                         user_agent=user_agent,
                         api_calls=1,
-                    )
+                    ),
                 )
 
             session.commit()
@@ -202,7 +203,8 @@ def _store_log(
         if res_bytes and len(res_bytes) > truncate_res_bytes_length:
             res_bytes = res_bytes[:truncate_res_bytes_length]
             response_truncated = True
-        session.add(
+        add(
+            session,
             APICall(
                 is_api_key=is_api_key,
                 method=method,
@@ -216,7 +218,7 @@ def _store_log(
                 perf_report=perf_report,
                 ip_address=ip_address,
                 user_agent=user_agent,
-            )
+            ),
         )
     logger.debug(f"{user_id=}, {method=}, {duration=} ms")
 

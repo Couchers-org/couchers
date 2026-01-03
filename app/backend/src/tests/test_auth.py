@@ -8,7 +8,7 @@ from sqlalchemy.sql import delete, func
 
 from couchers import urls
 from couchers.crypto import hash_password, random_hex
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.models import (
     ContributeOption,
     ContributorForm,
@@ -1158,13 +1158,12 @@ def test_GetInviteCodeInfo(db):
             filename="test_avatar.jpg",
             creator_user_id=user.id,
         )
-        session.add(avatar)
-        session.flush()
+        add(session, avatar)
 
         session.execute(update(User).where(User.id == user.id).values(avatar_key=avatar.key))
 
         code = InviteCode(id=code_id, creator_user_id=user.id)
-        session.add(code)
+        add(session, code)
 
     with auth_api_session() as (auth, _):
         res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code_id))
@@ -1182,7 +1181,7 @@ def test_GetInviteCodeInfo_no_avatar(db):
         session.execute(update(User).where(User.id == user.id).values(avatar_key=None))
 
         code = InviteCode(id="NOAVTR1", creator_user_id=user.id)
-        session.add(code)
+        add(session, code)
 
     with auth_api_session() as (auth, _):
         res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code_id))
@@ -1208,7 +1207,7 @@ def test_SignupFlow_invite_code(db):
     with session_scope() as session:
         session.flush()
         invite = InviteCode(id=invite_code, creator_user_id=user.id)
-        session.add(invite)
+        add(session, invite)
 
     with auth_api_session() as (auth_api, _):
         # Signup basic step with invite code

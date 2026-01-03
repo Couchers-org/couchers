@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 
 from couchers import urls
 from couchers.crypto import hash_password, random_hex
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
     AccountDeletionReason,
@@ -136,12 +136,13 @@ def test_GetAccountInfo_regression(db):
     with session_scope() as session:
         key = random_hex(32)
         filename = random_hex(32) + ".jpg"
-        session.add(
+        add(
+            session,
             Upload(
                 key=key,
                 filename=filename,
                 creator_user_id=uploader_user.id,
-            )
+            ),
         )
 
     user, token = generate_user(about_me=None, avatar_key=key)
@@ -960,7 +961,7 @@ def test_DisableInviteCode(db):
     user, token = generate_user()
     code = "TEST1234"
     with session_scope() as session:
-        session.add(InviteCode(id=code, creator_user_id=user.id))
+        add(session, InviteCode(id=code, creator_user_id=user.id))
 
     with account_session(token) as account:
         account.DisableInviteCode(account_pb2.DisableInviteCodeReq(code=code))
@@ -976,7 +977,7 @@ def test_ListInviteCodes(db):
 
     code = "LIST1234"
     with session_scope() as session:
-        session.add(InviteCode(id=code, creator_user_id=user.id))
+        add(session, InviteCode(id=code, creator_user_id=user.id))
         session.execute(update(User).where(User.id == another_user.id).values(invite_code_id=code))
 
     with account_session(token) as account:
@@ -1132,7 +1133,8 @@ def test_volunteer_stuff(db):
         )
 
     with session_scope() as session:
-        session.add(
+        add(
+            session,
             Volunteer(
                 user_id=user.id,
                 display_name="Great Volunteer",
@@ -1140,7 +1142,7 @@ def test_volunteer_stuff(db):
                 role="Lead Tester",
                 started_volunteering=date(2020, 6, 1),
                 show_on_team_page=True,
-            )
+            ),
         )
 
     with account_session(token) as account:

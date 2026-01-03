@@ -11,6 +11,7 @@ from user_agents import parse as user_agents_parse
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.crypto import urlsafe_secure_token
+from couchers.db import add
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.geoip import geoip_approximate_location, geoip_asn
 from couchers.helpers.strong_verification import get_strong_verification_fields
@@ -331,13 +332,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
-        session.add(
+        add(
+            session,
             ModNote(
                 user_id=user.id,
                 internal_id=request.internal_id,
                 creator_user_id=context.user_id,
                 note_content=request.content,
-            )
+            ),
         )
         session.flush()
 
@@ -641,8 +643,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         # Create a new moderation user list if no one is provided
         else:
             moderation_user_list = ModerationUserList()
-            session.add(moderation_user_list)
-            session.flush()
+            add(session, moderation_user_list)
 
         # Add users to the moderation list only if not already in it
         for user in users:
@@ -696,7 +697,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         expiry_days = request.expiry_days or 7
         token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
-        session.add(token)
+        add(session, token)
         return admin_pb2.CreateAccountDeletionLinkRes(
             account_deletion_confirm_url=urls.delete_account_link(account_deletion_token=token.token)
         )

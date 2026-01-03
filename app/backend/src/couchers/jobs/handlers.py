@@ -49,7 +49,7 @@ from couchers.crypto import (
     simple_decrypt,
     stable_secure_uniform,
 )
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.helpers.badges import user_add_badge, user_remove_badge
@@ -147,7 +147,7 @@ def send_email(payload: jobs_pb2.SendEmailPayload) -> None:
         source_data=payload.source_data,
     )
     with session_scope() as session:
-        session.add(email)
+        add(session, email)
 
 
 def purge_login_tokens(payload: empty_pb2.Empty) -> None:
@@ -1017,7 +1017,7 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
                 new_probe_user_ids = sample(new_probe_user_ids, max_probe_size)
 
             for user_id in new_probe_user_ids:
-                session.add(ActivenessProbe(user_id=user_id))
+                add(session, ActivenessProbe(user_id=user_id))
 
             session.commit()
 

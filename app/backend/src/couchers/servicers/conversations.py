@@ -11,7 +11,7 @@ from sqlalchemy.sql import func, not_, or_
 
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.context import CouchersContext, make_background_user_context
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
 from couchers.models import (
@@ -226,8 +226,7 @@ def _add_message_to_subscription(session: Session, subscription: GroupChatSubscr
     """
     message = Message(conversation=subscription.group_chat.conversation, author_id=subscription.user_id, **kwargs)
 
-    session.add(message)
-    session.flush()
+    add(session, message)
 
     subscription.last_seen_message_id = message.id
 
@@ -250,8 +249,7 @@ def _create_chat(
     only_admins_invite: bool = True,
 ) -> GroupChat:
     conversation = Conversation()
-    session.add(conversation)
-    session.flush()
+    add(session, conversation)
 
     # Create moderation state for UMS (starts as SHADOWED)
     moderation_state = create_moderation(
@@ -269,23 +267,23 @@ def _create_chat(
         only_admins_invite=only_admins_invite,
         moderation_state_id=moderation_state.id,
     )
-    session.add(chat)
-    session.flush()
+    add(session, chat)
 
     creator_subscription = GroupChatSubscription(
         user_id=creator_id,
         group_chat=chat,
         role=GroupChatRole.admin,
     )
-    session.add(creator_subscription)
+    add(session, creator_subscription)
 
     for uid in recipient_ids:
-        session.add(
+        add(
+            session,
             GroupChatSubscription(
                 user_id=uid,
                 group_chat=chat,
                 role=GroupChatRole.participant,
-            )
+            ),
         )
 
     return chat
@@ -986,7 +984,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             group_chat=your_subscription.group_chat,
             role=GroupChatRole.participant,
         )
-        session.add(subscription)
+        add(session, subscription)
 
         _add_message_to_subscription(
             session, your_subscription, message_type=MessageType.user_invited, target_id=request.user_id

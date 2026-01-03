@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from couchers.context import CouchersContext, make_background_user_context
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Comment, Discussion, Event, EventOccurrence, Reply, Thread, User
 from couchers.notifications.notify import notify
@@ -291,9 +291,9 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             object_to_add = Reply(comment_id=database_id, author_user_id=context.user_id, content=content)
         else:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
-        session.add(object_to_add)
+
         try:
-            session.flush()
+            add(session, object_to_add)
         except sqlalchemy.exc.IntegrityError:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 

@@ -13,6 +13,7 @@ from couchers.config import config
 from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.context import CouchersContext
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
+from couchers.db import add
 from couchers.metrics import (
     account_deletion_completions_counter,
     account_recoveries_counter,
@@ -109,7 +110,7 @@ def create_session(
     if duration:
         user_session.expiry = func.now() + duration
 
-    session.add(user_session)
+    add(session, user_session)
     session.commit()
 
     logger.debug(f"Handing out {token=} to {user=}")
@@ -240,8 +241,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     email=request.basic.email,
                     invite_code_id=invite_id,
                 )
-                session.add(flow)
-                session.flush()
+                add(session, flow)
                 signup_initiations_counter.inc()
             else:
                 # not fresh signup
@@ -340,13 +340,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 invite_code_id=flow.invite_code_id,
             )
 
-            session.add(user)
-            session.flush()
+            add(session, user)
 
             # Create a profile gallery for the user
             profile_gallery = PhotoGallery(owner_user_id=user.id)
-            session.add(profile_gallery)
-            session.flush()
+            add(session, profile_gallery)
             user.profile_gallery_id = profile_gallery.id
 
             if flow.filled_feedback:
@@ -360,7 +358,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     expertise=flow.expertise or None,
                 )
 
-                session.add(form_)
+                add(session, form_)
 
                 user.filled_contributor_form = form_.is_filled
 
@@ -481,8 +479,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             password_reset_token = PasswordResetToken(
                 token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
             )
-            session.add(password_reset_token)
-            session.flush()
+            add(session, password_reset_token)
 
             notify(
                 session,
@@ -669,9 +666,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         log.score = resp.json()["riskAnalysis"]["score"]
         log.provider_data = resp.json()
 
-        session.add(log)
-
-        session.flush()
+        add(session, log)
 
         recaptchas_assessed_counter.labels(log.action).inc()
         recaptcha_score_histogram.labels(log.action).observe(log.score)

@@ -2,8 +2,6 @@
 # //docs/urls.md
 # Please make sure this file stays in sync with that file as well as
 # //app/web/src/routes.ts
-
-
 from couchers.config import config
 
 

@@ -15,6 +15,7 @@ from couchers.config import config
 from couchers.constants import GHOST_USERNAME
 from couchers.context import CouchersContext
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
+from couchers.db import add
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
@@ -403,12 +404,13 @@ class API(api_pb2_grpc.APIServicer):
             for language_ability in request.language_abilities.value:
                 if not language_is_allowed(language_ability.code):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_language")
-                session.add(
+                add(
+                    session,
                     LanguageAbility(
                         user=user,
                         language_code=language_ability.code,
                         fluency=fluency2sql[language_ability.fluency],
-                    )
+                    ),
                 )
 
         if request.HasField("regions_visited"):
@@ -417,11 +419,12 @@ class API(api_pb2_grpc.APIServicer):
             for region in request.regions_visited.value:
                 if not region_is_allowed(region):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_region")
-                session.add(
+                add(
+                    session,
                     RegionVisited(
                         user_id=user.id,
                         region_code=region,
-                    )
+                    ),
                 )
 
         if request.HasField("regions_lived"):
@@ -430,11 +433,12 @@ class API(api_pb2_grpc.APIServicer):
             for region in request.regions_lived.value:
                 if not region_is_allowed(region):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_region")
-                session.add(
+                add(
+                    session,
                     RegionLived(
                         user_id=user.id,
                         region_code=region,
-                    )
+                    ),
                 )
 
         if request.HasField("additional_information"):
@@ -727,8 +731,7 @@ class API(api_pb2_grpc.APIServicer):
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
 
         friend_relationship = FriendRelationship(from_user=user, to_user=to_user, status=FriendStatus.pending)
-        session.add(friend_relationship)
-        session.flush()
+        add(session, friend_relationship)
 
         notify(
             session,
@@ -851,7 +854,7 @@ class API(api_pb2_grpc.APIServicer):
         expiry = created + timedelta(minutes=20)
 
         upload = InitiatedUpload(key=key, created=created, expiry=expiry, initiator_user_id=context.user_id)
-        session.add(upload)
+        add(session, upload)
         session.commit()
 
         req = media_pb2.UploadRequest(

@@ -4,7 +4,7 @@ import textwrap
 import grpc
 import pytest
 
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.models import Thread
 from couchers.proto import threads_pb2
 from couchers.servicers.threads import pack_thread_id
@@ -23,8 +23,7 @@ def test_threads_basic(db):
     # Create a dummy Thread (should be replaced by pages later on)
     with session_scope() as session:
         dummy_thread = Thread()
-        session.add(dummy_thread)
-        session.flush()
+        add(session, dummy_thread)
         PARENT_THREAD_ID = pack_thread_id(database_id=dummy_thread.id, depth=0)
 
     with threads_session(token1) as api:
@@ -138,7 +137,7 @@ def test_threads_pagination(db):
 
     # Create a dummy Thread (should be replaced by pages later on)
     with session_scope() as session:
-        session.add(Thread(id=1))
+        add(session, Thread(id=1))
 
     with threads_session(token1) as api:
         comment_id = pagination_test(api, PARENT_THREAD_ID)

@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from couchers import urls
 from couchers.config import config
 from couchers.context import CouchersContext
+from couchers.db import add
 from couchers.helpers.badges import user_add_badge
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
 from couchers.notifications.notify import notify
@@ -80,14 +81,15 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             api_key=config["STRIPE_API_KEY"],
         )
 
-        session.add(
+        add(
+            session,
             DonationInitiation(
                 user_id=user.id,
                 amount=request.amount,
                 stripe_checkout_session_id=checkout_session.id,
                 donation_type=DonationType.recurring if request.recurring else DonationType.one_time,
                 source=request.source if request.source else None,
-            )
+            ),
         )
 
         return donations_pb2.InitiateDonationRes(
@@ -159,8 +161,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                     stripe_receipt_url=receipt_url,
                     invoice_type=InvoiceType.on_platform,
                 )
-                session.add(invoice)
-                session.flush()
+                add(session, invoice)
                 user.last_donated = invoice.created
 
                 notify(

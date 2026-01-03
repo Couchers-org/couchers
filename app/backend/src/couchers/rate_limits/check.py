@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from sqlalchemy import RowMapping, exists, select
 from sqlalchemy.orm import Session
 
+from couchers.db import add
 from couchers.models import RateLimitAction, RateLimitViolation
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_INTERVAL
 from couchers.tasks import send_rate_limit_violation_report_email
@@ -31,8 +32,7 @@ def _save_rate_limit_violation(
         action=action,
         is_hard_limit=is_hard_limit,
     )
-    session.add(violation)
-    session.flush()
+    add(session, violation)
     return violation
 
 

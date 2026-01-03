@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
 from couchers.crypto import secure_compare
+from couchers.db import add
 from couchers.interceptors import MediaInterceptor
 from couchers.models import InitiatedUpload, Upload
 from couchers.proto import media_pb2, media_pb2_grpc
@@ -38,7 +39,7 @@ class Media(media_pb2_grpc.MediaServicer):
             filename=request.filename,
             creator_user_id=initiated_upload.initiator_user_id,
         )
-        session.add(upload)
+        add(session, upload)
 
         # delete the old upload
         session.delete(initiated_upload)

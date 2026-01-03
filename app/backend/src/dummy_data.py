@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.crypto import hash_password
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -90,25 +90,24 @@ def add_dummy_users():
                 is_superuser=user.get("is_superuser", False),
                 is_editor=user.get("is_editor", user.get("is_superuser", False)),
             )
-            session.add(new_user)
-            session.flush()
+            add(session, new_user)
 
             # Create profile gallery for the user (same as in signup flow)
             profile_gallery = PhotoGallery(owner_user_id=new_user.id)
-            session.add(profile_gallery)
-            session.flush()
+            add(session, profile_gallery)
             new_user.profile_gallery_id = profile_gallery.id
 
             for language in user["languages"]:
-                session.add(
+                add(
+                    session,
                     LanguageAbility(
                         user_id=new_user.id, language_code=language[0], fluency=LanguageFluency[language[1]]
-                    )
+                    ),
                 )
             for region in user["regions_visited"]:
-                session.add(RegionVisited(user_id=new_user.id, region_code=region))
+                add(session, RegionVisited(user_id=new_user.id, region_code=region))
             for region in user["regions_lived"]:
-                session.add(RegionLived(user_id=new_user.id, region_code=region))
+                add(session, RegionLived(user_id=new_user.id, region_code=region))
 
             class _MockCouchersContext:
                 @property
@@ -139,7 +138,7 @@ def add_dummy_users():
                 to_user_id=session.execute(select(User).where(User.username == username2)).scalar_one().id,
                 status=FriendStatus.accepted,
             )
-            session.add(friend_relationship)
+            add(session, friend_relationship)
 
         session.commit()
 
@@ -157,7 +156,7 @@ def add_dummy_users():
                 rating=reference["rating"],
                 was_appropriate=reference["was_appropriate"],
             )
-            session.add(new_reference)
+            add(session, new_reference)
 
         session.commit()
 
@@ -167,8 +166,7 @@ def add_dummy_users():
             creator_id = session.execute(select(User).where(User.username == creator)).scalar_one().id
 
             conversation = Conversation()
-            session.add(conversation)
-            session.flush()
+            add(session, conversation)
 
             # Create moderation state for UMS (set as VISIBLE since this is dummy data)
             moderation_state = ModerationState(
@@ -176,17 +174,17 @@ def add_dummy_users():
                 object_id=conversation.id,
                 visibility=ModerationVisibility.VISIBLE,
             )
-            session.add(moderation_state)
-            session.flush()
+            add(session, moderation_state)
 
-            session.add(
+            add(
+                session,
                 ModerationLog(
                     moderation_state_id=moderation_state.id,
                     action=ModerationAction.CREATE,
                     moderator_user_id=creator_id,
                     new_visibility=ModerationVisibility.VISIBLE,
                     reason="Dummy data: group chat created.",
-                )
+                ),
             )
 
             chat = GroupChat(
@@ -196,7 +194,7 @@ def add_dummy_users():
                 is_dm=group_chat["is_dm"],
                 moderation_state_id=moderation_state.id,
             )
-            session.add(chat)
+            add(session, chat)
 
             for participant in group_chat["participants"]:
                 subscription = GroupChatSubscription(
@@ -207,10 +205,11 @@ def add_dummy_users():
                     role=GroupChatRole.admin if participant["username"] == creator else GroupChatRole.participant,
                     joined=parser.isoparse(participant["joined"]),
                 )
-                session.add(subscription)
+                add(session, subscription)
 
             for message in group_chat["messages"]:
-                session.add(
+                add(
+                    session,
                     Message(
                         message_type=MessageType.text,
                         conversation=chat.conversation,
@@ -219,7 +218,7 @@ def add_dummy_users():
                         .id,
                         time=parser.isoparse(message["time"]),
                         text=message["message"],
-                    )
+                    ),
                 )
 
         session.commit()
@@ -235,7 +234,7 @@ def add_dummy_users():
                 link_url=volunteer["link_url"],
             )
 
-            session.add(new_volunteer)
+            add(session, new_volunteer)
 
         session.commit()
 
@@ -284,7 +283,7 @@ def add_dummy_communities():
                 parent_node=parent_node if parent_name else None,
             )
 
-            session.add(node)
+            add(session, node)
 
             cluster = Cluster(
                 name=f"{name}",
@@ -293,7 +292,7 @@ def add_dummy_communities():
                 is_official_cluster=True,
             )
 
-            session.add(cluster)
+            add(session, cluster)
 
             main_page = Page(
                 parent_node=node,
@@ -303,7 +302,7 @@ def add_dummy_communities():
                 thread=Thread(),
             )
 
-            session.add(main_page)
+            add(session, main_page)
 
             page_version = PageVersion(
                 page=main_page,
@@ -312,7 +311,7 @@ def add_dummy_communities():
                 content="There is nothing here yet...",
             )
 
-            session.add(page_version)
+            add(session, page_version)
 
             for admin in admins:
                 cluster.cluster_subscriptions.append(
@@ -349,7 +348,7 @@ def add_dummy_communities():
                 parent_node=parent_node,
             )
 
-            session.add(cluster)
+            add(session, cluster)
 
             main_page = Page(
                 parent_node=cluster.parent_node,
@@ -359,7 +358,7 @@ def add_dummy_communities():
                 thread=Thread(),
             )
 
-            session.add(main_page)
+            add(session, main_page)
 
             page_version = PageVersion(
                 page=main_page,
@@ -368,7 +367,7 @@ def add_dummy_communities():
                 content="There is nothing here yet...",
             )
 
-            session.add(page_version)
+            add(session, page_version)
 
             for admin in admins:
                 cluster.cluster_subscriptions.append(
@@ -398,7 +397,7 @@ def add_dummy_communities():
                 thread=Thread(),
             )
 
-            session.add(page)
+            add(session, page)
 
             page_version = PageVersion(
                 page=page,
@@ -409,7 +408,7 @@ def add_dummy_communities():
                 geom=create_coordinate(place["coordinate"][1], place["coordinate"][0]),
             )
 
-            session.add(page_version)
+            add(session, page_version)
 
         for guide in data["guides"]:
             owner_cluster = session.execute(select(Cluster).where(Cluster.name == guide["owner"])).scalar_one()
@@ -423,7 +422,7 @@ def add_dummy_communities():
                 thread=Thread(),
             )
 
-            session.add(page)
+            add(session, page)
 
             page_version = PageVersion(
                 page=page,
@@ -435,7 +434,7 @@ def add_dummy_communities():
                 ),
             )
 
-            session.add(page_version)
+            add(session, page_version)
 
 
 def add_dummy_data():

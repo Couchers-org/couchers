@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.models import (
     NotificationDelivery,
     NotificationDeliveryType,
@@ -94,13 +94,14 @@ def set_preference(
     if current_pref:
         current_pref.deliver = deliver
     else:
-        session.add(
+        add(
+            session,
             NotificationPreference(
                 user_id=user_id,
                 topic_action=topic_action,
                 delivery_type=delivery_type,
                 deliver=deliver,
-            )
+            ),
         )
     session.flush()
 

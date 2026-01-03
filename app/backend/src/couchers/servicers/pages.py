@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
-from couchers.db import can_moderate_at, can_moderate_node, get_parent_node_at_location
+from couchers.db import add, can_moderate_at, can_moderate_node, get_parent_node_at_location
 from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, Upload, User
 from couchers.proto import pages_pb2, pages_pb2_grpc
 from couchers.servicers.threads import thread_to_pb
@@ -127,8 +127,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             owner_user_id=context.user_id,
             thread=Thread(),
         )
-        session.add(page)
-        session.flush()
+        add(session, page)
         page_version = PageVersion(
             page=page,
             editor_user_id=context.user_id,
@@ -138,7 +137,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             address=request.address,
             geom=geom,
         )
-        session.add(page_version)
+        add(session, page_version)
         session.commit()
         return page_to_pb(session, page, context)
 
@@ -182,8 +181,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             owner_user_id=context.user_id,
             thread=Thread(),
         )
-        session.add(page)
-        session.flush()
+        add(session, page)
         page_version = PageVersion(
             page=page,
             editor_user_id=context.user_id,
@@ -193,7 +191,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             address=address,
             geom=geom,
         )
-        session.add(page_version)
+        add(session, page_version)
         session.commit()
         return page_to_pb(session, page, context)
 
@@ -254,7 +252,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
         if request.HasField("location"):
             page_version.geom = create_coordinate(request.location.lat, request.location.lng)
 
-        session.add(page_version)
+        add(session, page_version)
         session.commit()
         return page_to_pb(session, page, context)
 

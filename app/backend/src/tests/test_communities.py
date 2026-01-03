@@ -7,7 +7,7 @@ from google.protobuf import wrappers_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from couchers.db import is_user_in_node_geography, session_scope
+from couchers.db import add, is_user_in_node_geography, session_scope
 from couchers.materialized_views import refresh_materialized_views
 from couchers.models import (
     Cluster,
@@ -59,14 +59,14 @@ def create_community(session, interval_lb, interval_ub, name, admins, extra_memb
         geom=to_multi(create_1d_polygon(interval_lb, interval_ub)),
         parent_node=parent,
     )
-    session.add(node)
+    add(session, node)
     cluster = Cluster(
         name=f"{name}",
         description=f"Description for {name}",
         parent_node=node,
         is_official_cluster=True,
     )
-    session.add(cluster)
+    add(session, cluster)
     main_page = Page(
         parent_node=cluster.parent_node,
         creator_user_id=admins[0].id,
@@ -74,14 +74,14 @@ def create_community(session, interval_lb, interval_ub, name, admins, extra_memb
         type=PageType.main_page,
         thread=Thread(),
     )
-    session.add(main_page)
+    add(session, main_page)
     page_version = PageVersion(
         page=main_page,
         editor_user_id=admins[0].id,
         title=f"Main page for the {name} community",
         content="There is nothing here yet...",
     )
-    session.add(page_version)
+    add(session, page_version)
     for admin in admins:
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
@@ -107,7 +107,7 @@ def create_group(session, name, admins, members, parent_community):
         description=f"Description for {name}",
         parent_node=parent_community,
     )
-    session.add(cluster)
+    add(session, cluster)
     main_page = Page(
         parent_node=cluster.parent_node,
         creator_user=admins[0],
@@ -115,14 +115,14 @@ def create_group(session, name, admins, members, parent_community):
         type=PageType.main_page,
         thread=Thread(),
     )
-    session.add(main_page)
+    add(session, main_page)
     page_version = PageVersion(
         page=main_page,
         editor_user=admins[0],
         title=f"Main page for the {name} community",
         content="There is nothing here yet...",
     )
-    session.add(page_version)
+    add(session, page_version)
     for admin in admins:
         cluster.cluster_subscriptions.append(
             ClusterSubscription(

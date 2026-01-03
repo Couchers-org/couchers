@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import func
 
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, Cluster, Node, Page, PageType, PageVersion, Thread
 from couchers.utils import create_polygon_lat_lng, to_multi
 from tests.fixtures.db import generate_user
@@ -19,21 +19,21 @@ def test_node_constraints(db):
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
             node = Node(geom=to_multi(create_1d_polygon(0, 2)))
-            session.add(node)
+            add(session, node)
             cluster1 = Cluster(
                 name="Testing community, cluster 1",
                 description="Testing community description",
                 parent_node=node,
                 is_official_cluster=True,
             )
-            session.add(cluster1)
+            add(session, cluster1)
             cluster2 = Cluster(
                 name="Testing community, cluster 2",
                 description="Testing community description",
                 parent_node=node,
                 is_official_cluster=True,
             )
-            session.add(cluster2)
+            add(session, cluster2)
     assert "violates unique constraint" in str(e.value)
     assert "ix_clusters_owner_parent_node_id_is_official_cluster" in str(e.value)
 
@@ -54,28 +54,28 @@ def test_page_constraints(db):
                 type=PageType.guide,
                 thread=Thread(),
             )
-            session.add(page)
-            session.add(
+            add(session, page)
+            add(
+                session,
                 PageVersion(
                     page=page,
                     editor_user_id=user.id,
                     title="Title",
                     content="Content",
-                )
+                ),
             )
     assert "violates check constraint" in str(e.value)
     assert "one_owner" in str(e.value)
 
     with session_scope() as session:
         node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])))
-        session.add(node)
+        add(session, node)
         cluster = Cluster(
             name="Testing Community",
             description="Description for testing community",
             parent_node=node,
         )
-        session.add(cluster)
-        session.flush()
+        add(session, cluster)
         cluster_parent_id = cluster.parent_node_id
         cluster_id = cluster.id
 
@@ -90,14 +90,15 @@ def test_page_constraints(db):
                 type=PageType.guide,
                 thread=Thread(),
             )
-            session.add(page)
-            session.add(
+            add(session, page)
+            add(
+                session,
                 PageVersion(
                     page=page,
                     editor_user_id=user.id,
                     title="Title",
                     content="Content",
-                )
+                ),
             )
     assert "violates check constraint" in str(e.value)
     assert "one_owner" in str(e.value)
@@ -113,14 +114,15 @@ def test_page_constraints(db):
                 type=PageType.main_page,
                 thread=Thread(),
             )
-            session.add(main_page)
-            session.add(
+            add(session, main_page)
+            add(
+                session,
                 PageVersion(
                     page=main_page,
                     editor_user_id=user.id,
                     title="Main page for the testing community",
                     content="Empty.",
-                )
+                ),
             )
     assert "violates check constraint" in str(e.value)
     assert "main_page_owned_by_cluster" in str(e.value)
@@ -135,14 +137,15 @@ def test_page_constraints(db):
                 type=PageType.main_page,
                 thread=Thread(),
             )
-            session.add(main_page1)
-            session.add(
+            add(session, main_page1)
+            add(
+                session,
                 PageVersion(
                     page=main_page1,
                     editor_user_id=user.id,
                     title="Main page 1 for the testing community",
                     content="Empty.",
-                )
+                ),
             )
             main_page2 = Page(
                 parent_node_id=cluster_parent_id,
@@ -151,14 +154,15 @@ def test_page_constraints(db):
                 type=PageType.main_page,
                 thread=Thread(),
             )
-            session.add(main_page2)
-            session.add(
+            add(session, main_page2)
+            add(
+                session,
                 PageVersion(
                     page=main_page2,
                     editor_user_id=user.id,
                     title="Main page 2 for the testing community",
                     content="Empty.",
-                )
+                ),
             )
     assert "violates unique constraint" in str(e.value)
     assert "ix_pages_owner_cluster_id_type" in str(e.value)
@@ -171,7 +175,7 @@ def test_activeness_probes_cant_have_multiple(db):
     with session_scope() as session:
         # we can create one
         first_probe = ActivenessProbe(user_id=user.id)
-        session.add(first_probe)
+        add(session, first_probe)
         session.commit()
 
         # change it to expired
@@ -180,11 +184,11 @@ def test_activeness_probes_cant_have_multiple(db):
         session.commit()
 
         # can create another one
-        session.add(ActivenessProbe(user_id=user.id))
+        add(session, ActivenessProbe(user_id=user.id))
         session.commit()
 
     # can't create one more
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
-            session.add(ActivenessProbe(user_id=user.id))
+            add(session, ActivenessProbe(user_id=user.id))
     assert "violates unique constraint" in str(e.value)

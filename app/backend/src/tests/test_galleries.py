@@ -3,7 +3,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.models import PhotoGallery, PhotoGalleryItem, Upload, User
 from couchers.proto import galleries_pb2
 from tests.fixtures.db import generate_user
@@ -22,7 +22,7 @@ def create_upload(session, user_id, filename="test.jpg"):
         filename=filename,
         creator_user_id=user_id,
     )
-    session.add(upload)
+    add(session, upload)
     session.commit()
     return upload.key
 
@@ -697,7 +697,7 @@ def test_database_constraints_upload_uniqueness(db):
         user = session.execute(select(User).where(User.id == user1.id)).scalar_one()
 
         upload = Upload(key="key1", filename="test.jpg", creator_user_id=user.id)
-        session.add(upload)
+        add(session, upload)
         session.flush()
 
         item1 = PhotoGalleryItem(gallery_id=user.profile_gallery_id, upload_key="key1", position=0.0)

@@ -9,7 +9,7 @@ from couchers import email, urls
 from couchers.config import config
 from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
-from couchers.db import session_scope
+from couchers.db import add, session_scope
 from couchers.models import (
     AccountDeletionReason,
     Cluster,
@@ -233,11 +233,12 @@ def enforce_community_memberships_for_user(session: Session, user: User) -> None
     )
 
     for cluster_id in cluster_ids:
-        session.add(
+        add(
+            session,
             ClusterSubscription(
                 user=user,
                 cluster_id=cluster_id,
                 role=ClusterRole.member,
-            )
+            ),
         )
     session.commit()

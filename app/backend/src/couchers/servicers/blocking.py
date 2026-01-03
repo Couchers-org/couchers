@@ -6,6 +6,7 @@ from sqlalchemy.sql import not_, or_, union
 
 from couchers import urls
 from couchers.context import CouchersContext
+from couchers.db import add
 from couchers.models import Upload, User, UserBlock
 from couchers.proto import blocking_pb2, blocking_pb2_grpc
 
@@ -64,7 +65,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
                 blocking_user_id=context.user_id,
                 blocked_user_id=blockee.id,
             )
-            session.add(user_block)
+            add(session, user_block)
             session.commit()
 
         return empty_pb2.Empty()
