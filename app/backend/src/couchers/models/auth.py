@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from couchers.models.users import User
 
 
-class UserSession(Base):
+class UserSession(Base, init=False, kw_only=True):
     """
     API keys/session cookies for the app
 
@@ -92,7 +92,7 @@ class UserSession(Base):
     )
 
 
-class LoginToken(Base):
+class LoginToken(Base, init=False, kw_only=True):
     """
     A login token sent in an email to a user, allows them to sign in between the times defined by created and expiry
     """
@@ -116,7 +116,7 @@ class LoginToken(Base):
         return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
 
 
-class PasswordResetToken(Base):
+class PasswordResetToken(Base, init=False, kw_only=True):
     __tablename__ = "password_reset_tokens"
 
     token: Mapped[str] = mapped_column(String, primary_key=True)

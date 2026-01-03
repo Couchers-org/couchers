@@ -95,14 +95,14 @@ class ProfilePublicVisibility(enum.Enum):
     full = enum.auto()
 
 
-class User(Base):
+class User(Base, init=False, kw_only=True):
     """
     Basic user and profile details
     """
 
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     username: Mapped[str] = mapped_column(String, unique=True)
     email: Mapped[str] = mapped_column(String, unique=True)
@@ -536,14 +536,14 @@ class LanguageFluency(enum.Enum):
     fluent = 3
 
 
-class LanguageAbility(Base):
+class LanguageAbility(Base, init=False, kw_only=True):
     __tablename__ = "language_abilities"
     __table_args__ = (
         # Users can only have one language ability per language
         UniqueConstraint("user_id", "language_code"),
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     language_code: Mapped[str] = mapped_column(ForeignKey("languages.code", deferrable=True))
     fluency: Mapped[LanguageFluency] = mapped_column(Enum(LanguageFluency))
@@ -552,19 +552,19 @@ class LanguageAbility(Base):
     language: Mapped[Language] = relationship()
 
 
-class RegionVisited(Base):
+class RegionVisited(Base, init=False, kw_only=True):
     __tablename__ = "regions_visited"
     __table_args__ = (UniqueConstraint("user_id", "region_code"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     region_code: Mapped[str] = mapped_column(ForeignKey("regions.code", deferrable=True))
 
 
-class RegionLived(Base):
+class RegionLived(Base, init=False, kw_only=True):
     __tablename__ = "regions_lived"
     __table_args__ = (UniqueConstraint("user_id", "region_code"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     region_code: Mapped[str] = mapped_column(ForeignKey("regions.code", deferrable=True))

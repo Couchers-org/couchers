@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from couchers.models import Cluster, User
 
 
-class Discussion(Base):
+class Discussion(Base, init=False, kw_only=True):
     """
     forum board
     """
@@ -41,7 +41,7 @@ class Discussion(Base):
     owner_cluster: Mapped[Cluster] = relationship(back_populates="owned_discussions", uselist=False)
 
 
-class DiscussionSubscription(Base):
+class DiscussionSubscription(Base, init=False, kw_only=True):
     """
     users subscriptions to discussions
     """
@@ -49,7 +49,7 @@ class DiscussionSubscription(Base):
     __tablename__ = "discussion_subscriptions"
     __table_args__ = (UniqueConstraint("discussion_id", "user_id"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     discussion_id: Mapped[int] = mapped_column(ForeignKey("discussions.id"), index=True)
@@ -60,27 +60,27 @@ class DiscussionSubscription(Base):
     discussion: Mapped[Discussion] = relationship(backref="discussion_subscriptions")
 
 
-class Thread(Base):
+class Thread(Base, init=False, kw_only=True):
     """
     Thread
     """
 
     __tablename__ = "threads"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
-class Comment(Base):
+class Comment(Base, init=False, kw_only=True):
     """
     Comment
     """
 
     __tablename__ = "comments"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), index=True)
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -91,14 +91,14 @@ class Comment(Base):
     thread: Mapped[Thread] = relationship(backref="comments")
 
 
-class Reply(Base):
+class Reply(Base, init=False, kw_only=True):
     """
     Reply
     """
 
     __tablename__ = "replies"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     comment_id: Mapped[int] = mapped_column(ForeignKey("comments.id"), index=True)
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -109,7 +109,7 @@ class Reply(Base):
     comment: Mapped[Comment] = relationship(backref="replies")
 
 
-class ClusterDiscussionAssociation(Base):
+class ClusterDiscussionAssociation(Base, init=False, kw_only=True):
     """
     discussions related to clusters
     """
@@ -117,7 +117,7 @@ class ClusterDiscussionAssociation(Base):
     __tablename__ = "cluster_discussion_associations"
     __table_args__ = (UniqueConstraint("discussion_id", "cluster_id"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     discussion_id: Mapped[int] = mapped_column(ForeignKey("discussions.id"), index=True)
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)

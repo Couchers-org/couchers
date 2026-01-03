@@ -167,10 +167,10 @@ class NotificationTopicAction(enum.Enum):
     general__new_blog_post = ("general:new_blog_post", [dt.push, dt.digest], True, nd.GeneralNewBlogPost)
 
 
-class NotificationPreference(Base):
+class NotificationPreference(Base, init=False, kw_only=True):
     __tablename__ = "notification_preferences"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     topic_action: Mapped[NotificationTopicAction] = mapped_column(Enum(NotificationTopicAction))
@@ -182,14 +182,14 @@ class NotificationPreference(Base):
     __table_args__ = (UniqueConstraint("user_id", "topic_action", "delivery_type"),)
 
 
-class Notification(Base):
+class Notification(Base, init=False, kw_only=True):
     """
     Table for accumulating notifications until it is time to send email digest
     """
 
     __tablename__ = "notifications"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # recipient user id
@@ -243,10 +243,10 @@ class Notification(Base):
         return self.topic_action.action
 
 
-class NotificationDelivery(Base):
+class NotificationDelivery(Base, init=False, kw_only=True):
     __tablename__ = "notification_deliveries"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     notification_id: Mapped[int] = mapped_column(ForeignKey("notifications.id"), index=True)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     delivered: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -294,10 +294,10 @@ class PushNotificationDeliveryOutcome(enum.Enum):
     permanent_subscription_failure = enum.auto()
 
 
-class PushNotificationSubscription(Base):
+class PushNotificationSubscription(Base, init=False, kw_only=True):
     __tablename__ = "push_notification_subscriptions"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # which user this is connected to
@@ -343,10 +343,10 @@ class PushNotificationSubscription(Base):
     )
 
 
-class PushNotificationDeliveryAttempt(Base):
+class PushNotificationDeliveryAttempt(Base, init=False, kw_only=True):
     __tablename__ = "push_notification_delivery_attempt"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     push_notification_subscription_id: Mapped[int] = mapped_column(

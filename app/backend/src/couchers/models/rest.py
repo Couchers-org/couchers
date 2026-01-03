@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from couchers.models import HostRequest, User
 
 
-class UserBadge(Base):
+class UserBadge(Base, init=False, kw_only=True):
     """
     A badge on a user's profile
     """
@@ -44,7 +44,7 @@ class UserBadge(Base):
     __tablename__ = "user_badges"
     __table_args__ = (UniqueConstraint("user_id", "badge_id"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     # corresponds to "id" in badges.json
@@ -63,7 +63,7 @@ class FriendStatus(enum.Enum):
     cancelled = enum.auto()
 
 
-class FriendRelationship(Base):
+class FriendRelationship(Base, init=False, kw_only=True):
     """
     Friendship relations between users
 
@@ -73,7 +73,7 @@ class FriendRelationship(Base):
 
     __tablename__ = "friend_relationships"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     from_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     to_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -104,14 +104,14 @@ class ContributeOption(enum.Enum):
     no = enum.auto()
 
 
-class ContributorForm(Base):
+class ContributorForm(Base, init=False, kw_only=True):
     """
     Someone filled in the contributor form
     """
 
     __tablename__ = "contributor_forms"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -149,7 +149,7 @@ class ContributorForm(Base):
         return False
 
 
-class SignupFlow(Base):
+class SignupFlow(Base, init=False, kw_only=True):
     """
     Signup flows/incomplete users
 
@@ -158,7 +158,7 @@ class SignupFlow(Base):
 
     __tablename__ = "signup_flows"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # housekeeping
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -224,7 +224,7 @@ class SignupFlow(Base):
         return self.email_verified & self.account_is_filled & (self.accepted_community_guidelines == GUIDELINES_VERSION)
 
 
-class AccountDeletionToken(Base):
+class AccountDeletionToken(Base, init=False, kw_only=True):
     __tablename__ = "account_deletion_tokens"
 
     token: Mapped[str] = mapped_column(String, primary_key=True)
@@ -244,7 +244,7 @@ class AccountDeletionToken(Base):
         return f"AccountDeletionToken(token={self.token}, user_id={self.user_id}, created={self.created}, expiry={self.expiry})"
 
 
-class UserActivity(Base):
+class UserActivity(Base, init=False, kw_only=True):
     """
     User activity: for each unique (user_id, period, ip_address, user_agent) tuple, keep track of number of api calls
 
@@ -253,7 +253,7 @@ class UserActivity(Base):
 
     __tablename__ = "user_activity"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     # the start of a period of time, e.g. 1 hour during which we bin activeness
@@ -279,7 +279,7 @@ class UserActivity(Base):
     )
 
 
-class InviteCode(Base):
+class InviteCode(Base, init=False, kw_only=True):
     __tablename__ = "invite_codes"
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
@@ -290,14 +290,14 @@ class InviteCode(Base):
     creator: Mapped[User] = relationship(foreign_keys=[creator_user_id])
 
 
-class ContentReport(Base):
+class ContentReport(Base, init=False, kw_only=True):
     """
     A piece of content reported to admins
     """
 
     __tablename__ = "content_reports"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -324,7 +324,7 @@ class ContentReport(Base):
     author_user: Mapped[User] = relationship(foreign_keys="ContentReport.author_user_id")
 
 
-class Email(Base):
+class Email(Base, init=False, kw_only=True):
     """
     Table of all dispatched emails for debugging purposes, etc.
     """
@@ -349,14 +349,14 @@ class Email(Base):
     source_data: Mapped[str | None] = mapped_column(String)
 
 
-class SMS(Base):
+class SMS(Base, init=False, kw_only=True):
     """
     Table of all sent SMSs for debugging purposes, etc.
     """
 
     __tablename__ = "smss"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # timezone should always be UTC
     time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -375,14 +375,14 @@ class ReferenceType(enum.Enum):
     hosted = enum.auto()  # The "from" user hosted the "to" user
 
 
-class Reference(Base):
+class Reference(Base, init=False, kw_only=True):
     """
     Reference from one user to another
     """
 
     __tablename__ = "references"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     # timezone should always be UTC
     time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -446,14 +446,14 @@ class Reference(Base):
         return bool(self.rating <= 0.4 or not self.was_appropriate or self.private_text)
 
 
-class UserBlock(Base):
+class UserBlock(Base, init=False, kw_only=True):
     """
     Table of blocked users
     """
 
     __tablename__ = "user_blocks"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     blocking_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     blocked_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -469,10 +469,10 @@ class UserBlock(Base):
     )
 
 
-class AccountDeletionReason(Base):
+class AccountDeletionReason(Base, init=False, kw_only=True):
     __tablename__ = "account_deletion_reason"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     reason: Mapped[str | None] = mapped_column(String)
@@ -480,14 +480,14 @@ class AccountDeletionReason(Base):
     user: Mapped[User] = relationship()
 
 
-class ModerationUserList(Base):
+class ModerationUserList(Base, init=False, kw_only=True):
     """
     Represents a list of users listed together by a moderator
     """
 
     __tablename__ = "moderation_user_lists"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     users: Mapped[list[User]] = relationship(
@@ -495,7 +495,7 @@ class ModerationUserList(Base):
     )
 
 
-class ModerationUserListMember(Base):
+class ModerationUserListMember(Base, init=False, kw_only=True):
     """
     Association table for many-to-many relationship between users and moderation_user_lists
     """
@@ -506,10 +506,10 @@ class ModerationUserListMember(Base):
     moderation_list_id: Mapped[int] = mapped_column(ForeignKey("moderation_user_lists.id"), primary_key=True)
 
 
-class AntiBotLog(Base):
+class AntiBotLog(Base, init=False, kw_only=True):
     __tablename__ = "antibot_logs"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
 
@@ -531,10 +531,10 @@ class RateLimitAction(enum.Enum):
     chat_initiation = "chat initiation"
 
 
-class RateLimitViolation(Base):
+class RateLimitViolation(Base, init=False, kw_only=True):
     __tablename__ = "rate_limit_violations"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     action: Mapped[RateLimitAction] = mapped_column(Enum(RateLimitAction))
@@ -548,10 +548,10 @@ class RateLimitViolation(Base):
     )
 
 
-class Volunteer(Base):
+class Volunteer(Base, init=False, kw_only=True):
     __tablename__ = "volunteers"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True)
 
     display_name: Mapped[str | None] = mapped_column(String)

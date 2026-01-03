@@ -21,14 +21,14 @@ class InvoiceType(enum.Enum):
     external_shop = enum.auto()
 
 
-class DonationInitiation(Base):
+class DonationInitiation(Base, init=False, kw_only=True):
     """
     Whenever someone initiates a donation through the platform
     """
 
     __tablename__ = "donation_initiations"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
@@ -41,7 +41,7 @@ class DonationInitiation(Base):
     user: Mapped[User] = relationship(backref="donation_initiations")
 
 
-class Invoice(Base):
+class Invoice(Base, init=False, kw_only=True):
     """
     Successful donations, both one-off and recurring
 
@@ -50,7 +50,7 @@ class Invoice(Base):
 
     __tablename__ = "invoices"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 

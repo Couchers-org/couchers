@@ -31,7 +31,7 @@ class HostRequestQuality(enum.Enum):
     low_quality = enum.auto()
 
 
-class HostRequest(Base):
+class HostRequest(Base, init=False, kw_only=True):
     """
     A request to stay with a host
     """
@@ -129,14 +129,14 @@ class HostRequest(Base):
         return f"HostRequest(id={self.conversation_id}, surfer_user_id={self.surfer_user_id}, host_user_id={self.host_user_id}...)"
 
 
-class HostRequestFeedback(Base):
+class HostRequestFeedback(Base, init=False, kw_only=True):
     """
     Private feedback from a host about a host request
     """
 
     __tablename__ = "host_request_feedbacks"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     host_request_id: Mapped[int] = mapped_column(ForeignKey("host_requests.id"))
 

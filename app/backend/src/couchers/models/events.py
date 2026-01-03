@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from couchers.models import Cluster, Node, Thread, Upload, User
 
 
-class ClusterEventAssociation(Base):
+class ClusterEventAssociation(Base, init=False, kw_only=True):
     """
     events related to clusters
     """
@@ -38,7 +38,7 @@ class ClusterEventAssociation(Base):
     __tablename__ = "cluster_event_associations"
     __table_args__ = (UniqueConstraint("event_id", "cluster_id"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), index=True)
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
@@ -47,7 +47,7 @@ class ClusterEventAssociation(Base):
     cluster: Mapped[Cluster] = relationship(backref="cluster_event_associations")
 
 
-class Event(Base):
+class Event(Base, init=False, kw_only=True):
     """
     An event is composed of two parts:
 
@@ -103,7 +103,7 @@ class Event(Base):
     )
 
 
-class EventOccurrence(Base):
+class EventOccurrence(Base, init=False, kw_only=True):
     __tablename__ = "event_occurrences"
 
     id: Mapped[int] = mapped_column(
@@ -191,7 +191,7 @@ class EventOccurrence(Base):
         return cast(ColumnElement[datetime], func.upper(cls.during))
 
 
-class EventSubscription(Base):
+class EventSubscription(Base, init=False, kw_only=True):
     """
     Users' subscriptions to events
     """
@@ -199,7 +199,7 @@ class EventSubscription(Base):
     __tablename__ = "event_subscriptions"
     __table_args__ = (UniqueConstraint("event_id", "user_id"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), index=True)
@@ -209,7 +209,7 @@ class EventSubscription(Base):
     event: Mapped[Event] = relationship()
 
 
-class EventOrganizer(Base):
+class EventOrganizer(Base, init=False, kw_only=True):
     """
     Organizers for events
     """
@@ -217,7 +217,7 @@ class EventOrganizer(Base):
     __tablename__ = "event_organizers"
     __table_args__ = (UniqueConstraint("event_id", "user_id"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), index=True)
@@ -232,7 +232,7 @@ class AttendeeStatus(enum.Enum):
     maybe = enum.auto()
 
 
-class EventOccurrenceAttendee(Base):
+class EventOccurrenceAttendee(Base, init=False, kw_only=True):
     """
     Attendees for events
     """
@@ -240,7 +240,7 @@ class EventOccurrenceAttendee(Base):
     __tablename__ = "event_occurrence_attendees"
     __table_args__ = (UniqueConstraint("occurrence_id", "user_id"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     occurrence_id: Mapped[int] = mapped_column(ForeignKey("event_occurrences.id"), index=True)
@@ -253,14 +253,14 @@ class EventOccurrenceAttendee(Base):
     reminder_sent: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
 
-class EventCommunityInviteRequest(Base):
+class EventCommunityInviteRequest(Base, init=False, kw_only=True):
     """
     Requests to send out invitation notifications/emails to the community for a given event occurrence
     """
 
     __tablename__ = "event_community_invite_requests"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     occurrence_id: Mapped[int] = mapped_column(ForeignKey("event_occurrences.id"), index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)

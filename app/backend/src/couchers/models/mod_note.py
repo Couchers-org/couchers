@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from couchers.models.users import User
 
 
-class ModNote(Base):
+class ModNote(Base, init=False, kw_only=True):
     """
     A moderator note to a user. This could be a warning, just a note "hey, we did X", or any other similar message.
 
@@ -20,7 +20,7 @@ class ModNote(Base):
 
     __tablename__ = "mod_notes"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

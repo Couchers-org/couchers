@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from couchers.models import Discussion, Event, Thread, Upload, User
 
 
-class Node(Base):
+class Node(Base, init=False, kw_only=True):
     """
     Node, i.e., geographical subdivision of the world
 
@@ -65,7 +65,7 @@ class Node(Base):
     )
 
 
-class Cluster(Base):
+class Cluster(Base, init=False, kw_only=True):
     """
     Cluster, administered grouping of content
     """
@@ -167,7 +167,7 @@ class Cluster(Base):
     )
 
 
-class NodeClusterAssociation(Base):
+class NodeClusterAssociation(Base, init=False, kw_only=True):
     """
     NodeClusterAssociation, grouping of nodes
     """
@@ -175,7 +175,7 @@ class NodeClusterAssociation(Base):
     __tablename__ = "node_cluster_associations"
     __table_args__ = (UniqueConstraint("node_id", "cluster_id"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
@@ -189,14 +189,14 @@ class ClusterRole(enum.Enum):
     admin = enum.auto()
 
 
-class ClusterSubscription(Base):
+class ClusterSubscription(Base, init=False, kw_only=True):
     """
     ClusterSubscription of a user
     """
 
     __tablename__ = "cluster_subscriptions"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
@@ -222,7 +222,7 @@ class ClusterSubscription(Base):
     )
 
 
-class ClusterPageAssociation(Base):
+class ClusterPageAssociation(Base, init=False, kw_only=True):
     """
     pages related to clusters
     """
@@ -230,7 +230,7 @@ class ClusterPageAssociation(Base):
     __tablename__ = "cluster_page_associations"
     __table_args__ = (UniqueConstraint("page_id", "cluster_id"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     page_id: Mapped[int] = mapped_column(ForeignKey("pages.id"), index=True)
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
@@ -245,7 +245,7 @@ class PageType(enum.Enum):
     guide = enum.auto()
 
 
-class Page(Base):
+class Page(Base, init=False, kw_only=True):
     """
     similar to a wiki page about a community, POI or guide
     """
@@ -303,14 +303,14 @@ class Page(Base):
         return f"Page({self.id=})"
 
 
-class PageVersion(Base):
+class PageVersion(Base, init=False, kw_only=True):
     """
     version of page content
     """
 
     __tablename__ = "page_versions"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     page_id: Mapped[int] = mapped_column(ForeignKey("pages.id"), index=True)
     editor_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)

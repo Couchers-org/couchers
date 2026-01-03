@@ -64,7 +64,7 @@ class ModerationObjectType(enum.Enum):
     GROUP_CHAT = enum.auto()
 
 
-class ModerationState(Base):
+class ModerationState(Base, init=False, kw_only=True):
     """
     Moderation state for any moderatable object on the platform
 
@@ -98,7 +98,7 @@ class ModerationState(Base):
         return f"ModerationState(id={self.id}, type={self.object_type}, object_id={self.object_id}, visibility={self.visibility})"
 
 
-class ModerationQueueItem(Base):
+class ModerationQueueItem(Base, init=False, kw_only=True):
     """
     Action items in the moderation queue
 
@@ -139,7 +139,7 @@ class ModerationQueueItem(Base):
         )
 
 
-class ModerationLog(Base):
+class ModerationLog(Base, init=False, kw_only=True):
     """
     History of moderation actions
 

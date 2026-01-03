@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from couchers.models.users import User
 
 
-class InitiatedUpload(Base):
+class InitiatedUpload(Base, init=False, kw_only=True):
     """
     Started downloads, not necessarily complete yet.
     """
@@ -34,7 +34,7 @@ class InitiatedUpload(Base):
         return (self.created <= func.now()) & (self.expiry >= func.now())
 
 
-class Upload(Base):
+class Upload(Base, init=False, kw_only=True):
     """
     Completed uploads.
     """
@@ -64,7 +64,7 @@ class Upload(Base):
         return self._url("full")
 
 
-class PhotoGallery(Base):
+class PhotoGallery(Base, init=False, kw_only=True):
     """
     Photo galleries for users or other entities.
     """
@@ -86,7 +86,7 @@ class PhotoGallery(Base):
     )
 
 
-class PhotoGalleryItem(Base):
+class PhotoGalleryItem(Base, init=False, kw_only=True):
     """
     Individual photos within a gallery with ordering and captions.
     """
@@ -95,8 +95,8 @@ class PhotoGalleryItem(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
-    gallery_id: Mapped[int] = mapped_column(ForeignKey("photo_galleries.id"), index=True)
-    upload_key: Mapped[str] = mapped_column(ForeignKey("uploads.key"))
+    gallery_id: Mapped[int] = mapped_column(ForeignKey("photo_galleries.id"), index=True, default=None)
+    upload_key: Mapped[str] = mapped_column(ForeignKey("uploads.key"), default=None)
 
     # Float position for ordering - allows inserting between items without shifting
     position: Mapped[float] = mapped_column(Float)

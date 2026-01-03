@@ -39,14 +39,14 @@ class PostalVerificationStatus(enum.Enum):
     cancelled = enum.auto()
 
 
-class PostalVerificationAttempt(Base):
+class PostalVerificationAttempt(Base, init=False, kw_only=True):
     """
     An attempt to perform postal verification by sending a postcard with a code.
     """
 
     __tablename__ = "postal_verification_attempts"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 

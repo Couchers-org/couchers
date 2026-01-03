@@ -59,7 +59,7 @@ class PassportSex(enum.Enum):
     unspecified = enum.auto()
 
 
-class StrongVerificationAttempt(Base):
+class StrongVerificationAttempt(Base, init=False, kw_only=True):
     """
     An attempt to perform strong verification
     """
@@ -67,7 +67,7 @@ class StrongVerificationAttempt(Base):
     __tablename__ = "strong_verification_attempts"
 
     # our verification id
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # this is returned in the callback, and we look up the attempt via this
     verification_attempt_token: Mapped[str] = mapped_column(String, unique=True)
@@ -202,10 +202,10 @@ class StrongVerificationAttempt(Base):
     )
 
 
-class StrongVerificationCallbackEvent(Base):
+class StrongVerificationCallbackEvent(Base, init=False, kw_only=True):
     __tablename__ = "strong_verification_callback_events"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     verification_attempt_id: Mapped[int] = mapped_column(ForeignKey("strong_verification_attempts.id"), index=True)

@@ -15,14 +15,14 @@ if TYPE_CHECKING:
     from couchers.models import ModerationState, User
 
 
-class Conversation(Base):
+class Conversation(Base, init=False, kw_only=True):
     """
     Conversation brings together the different types of message/conversation types
     """
 
     __tablename__ = "conversations"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     # timezone should always be UTC
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -30,7 +30,7 @@ class Conversation(Base):
         return f"Conversation(id={self.id}, created={self.created})"
 
 
-class GroupChat(Base):
+class GroupChat(Base, init=False, kw_only=True):
     """
     Group chat
     """
@@ -62,13 +62,13 @@ class GroupChatRole(enum.Enum):
     participant = enum.auto()
 
 
-class GroupChatSubscription(Base):
+class GroupChatSubscription(Base, init=False, kw_only=True):
     """
     The recipient of a thread and information about when they joined/left/etc.
     """
 
     __tablename__ = "group_chat_subscriptions"
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # TODO: DB constraint on only one user+group_chat combo at a given time
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -128,7 +128,7 @@ class MessageType(enum.Enum):
     user_removed = enum.auto()  # user is removed from group chat by amdin RemoveGroupChatUser
 
 
-class Message(Base):
+class Message(Base, init=False, kw_only=True):
     """
     A message.
 
@@ -137,7 +137,7 @@ class Message(Base):
 
     __tablename__ = "messages"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # which conversation the message belongs in
     conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"), index=True)
