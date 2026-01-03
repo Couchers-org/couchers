@@ -38,7 +38,7 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
         case NotificationTopicAction.account_deletion__complete:
             return _account_deletion__complete(data)
         case NotificationTopicAction.account_deletion__recovered:
-            return _account_deletion__recovered(data)
+            return _account_deletion__recovered()
         case NotificationTopicAction.activeness__probe:
             return _activeness__probe(data)
         case NotificationTopicAction.api_key__create:
@@ -52,7 +52,7 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
         case NotificationTopicAction.chat__message:
             return _chat__message(data)
         case NotificationTopicAction.chat__missed_messages:
-            return _chat__missed_messages(data)
+            return _chat__missed_messages()
         case NotificationTopicAction.donation__received:
             return _donation__received(data)
         case NotificationTopicAction.discussion__create:
@@ -62,7 +62,7 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
         case NotificationTopicAction.email_address__change:
             return _email_address__change(data)
         case NotificationTopicAction.email_address__verify:
-            return _email_address__verify(data)
+            return _email_address__verify()
         case NotificationTopicAction.event__create_any:
             return _event__create_any(data, user)
         case NotificationTopicAction.event__create_approved:
@@ -104,15 +104,15 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
         case NotificationTopicAction.host_request__confirm:
             return _host_request__confirm(data)
         case NotificationTopicAction.modnote__create:
-            return _modnote__create(data)
+            return _modnote__create()
         case NotificationTopicAction.onboarding__reminder:
-            return _onboarding__reminder(data, notification.key, user)
+            return _onboarding__reminder(notification.key, user)
         case NotificationTopicAction.password__change:
-            return _password__change(data)
+            return _password__change()
         case NotificationTopicAction.password_reset__start:
             return _password_reset__start(data)
         case NotificationTopicAction.password_reset__complete:
-            return _password_reset__complete(data)
+            return _password_reset__complete()
         case NotificationTopicAction.phone_number__change:
             return _phone_number__change(data)
         case NotificationTopicAction.phone_number__verify:
@@ -120,7 +120,7 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
         case NotificationTopicAction.postal_verification__postcard_sent:
             return _postal_verification__postcard_sent(data)
         case NotificationTopicAction.postal_verification__success:
-            return _postal_verification__success(data)
+            return _postal_verification__success()
         case NotificationTopicAction.postal_verification__failed:
             return _postal_verification__failed(data)
         case NotificationTopicAction.reference__receive_friend:
@@ -136,7 +136,7 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
         case NotificationTopicAction.thread__reply:
             return _thread__reply(data)
         case NotificationTopicAction.verification__sv_success:
-            return _verification__sv_success(data)
+            return _verification__sv_success()
         case NotificationTopicAction.verification__sv_fail:
             return _verification__sv_fail(data)
         case _:
@@ -158,7 +158,7 @@ def _account_deletion__complete(data: notification_data_pb2.AccountDeletionCompl
     )
 
 
-def _account_deletion__recovered(data: empty_pb2.Empty) -> PushNotificationContent:
+def _account_deletion__recovered() -> PushNotificationContent:
     return PushNotificationContent(
         title="Your Couchers.org account has been recovered!",
         body="We have recovered your Couchers.org account as per your request! Welcome back!",
@@ -213,7 +213,7 @@ def _chat__message(data: notification_data_pb2.ChatMessage) -> PushNotificationC
     )
 
 
-def _chat__missed_messages(data: empty_pb2.Empty) -> PushNotificationContent:
+def _chat__missed_messages() -> PushNotificationContent:
     return PushNotificationContent(
         title="You have unseen messages on Couchers.org",
         body="Please check out any messages you missed.",
@@ -255,7 +255,7 @@ def _email_address__change(data: notification_data_pb2.EmailAddressChange) -> Pu
     )
 
 
-def _email_address__verify(data: empty_pb2.Empty) -> PushNotificationContent:
+def _email_address__verify() -> PushNotificationContent:
     return PushNotificationContent(
         title="Email change completed",
         body="Your new email address has been verified.",
@@ -456,14 +456,14 @@ def _host_request__confirm(data: notification_data_pb2.HostRequestConfirm) -> Pu
     )
 
 
-def _modnote__create(data: empty_pb2.Empty) -> PushNotificationContent:
+def _modnote__create() -> PushNotificationContent:
     return PushNotificationContent(
         title="You received a mod note",
         body="You need to read and acknowledge the note before continuing to use the platform.",
     )
 
 
-def _onboarding__reminder(data: empty_pb2.Empty, key: str, user: User) -> PushNotificationContent:
+def _onboarding__reminder(key: str, user: User) -> PushNotificationContent:
     if key == "1":
         return PushNotificationContent(
             title="Welcome to Couchers.org and the future of couch surfing",
@@ -480,7 +480,7 @@ def _onboarding__reminder(data: empty_pb2.Empty, key: str, user: User) -> PushNo
         raise NotImplementedError(f"Unknown onboarding reminder key: {key}")
 
 
-def _password__change(data: empty_pb2.Empty) -> PushNotificationContent:
+def _password__change() -> PushNotificationContent:
     return PushNotificationContent(
         title="Your password was changed",
         body="Your login password for Couchers.org was changed.",
@@ -496,7 +496,7 @@ def _password_reset__start(data: notification_data_pb2.PasswordResetStart) -> Pu
     )
 
 
-def _password_reset__complete(data: empty_pb2.Empty) -> PushNotificationContent:
+def _password_reset__complete() -> PushNotificationContent:
     return PushNotificationContent(
         title="Your password was successfully reset",
         body="Your password on Couchers.org was changed. If that was you, then no further action is needed.",
@@ -530,7 +530,7 @@ def _postal_verification__postcard_sent(
     )
 
 
-def _postal_verification__success(data: empty_pb2.Empty) -> PushNotificationContent:
+def _postal_verification__success() -> PushNotificationContent:
     return PushNotificationContent(
         title="Postal Verification succeeded",
         body="You have been verified with Postal Verification! Your address has been confirmed.",
@@ -635,7 +635,7 @@ def _thread__reply(data: notification_data_pb2.ThreadReply) -> PushNotificationC
     )
 
 
-def _verification__sv_success(data: empty_pb2.Empty) -> PushNotificationContent:
+def _verification__sv_success() -> PushNotificationContent:
     return PushNotificationContent(
         title="Strong Verification succeeded",
         body="You have been verified with Strong Verification! You will now see a tick next to your name on the platform.",
