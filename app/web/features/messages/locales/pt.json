@@ -127,7 +127,6 @@
     "title_for_host": "Pedido de {{user}} - {{status}}",
     "title_for_surfer": "Pedido a {{user}} - {{status}}",
     "request_duration_one": "{{count}} noite",
-    "request_duration_many": "{{count}} noites",
     "request_duration_other": "{{count}} noites",
     "error_message": "ID de pedido de hospedagem inválido"
   },
