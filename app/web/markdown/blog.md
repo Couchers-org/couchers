@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [Introducing the Official Couchers.org Merchandise Shop!](/blog/2026/01/04/merch-shop-release)
+
+2026/01/04 by Iason
+
+We’re excited to share a milestone the community has been waiting for: The official Couchers Merchandise Shop is now live!
+
+[Read more.](/blog/2026/01/04/merch-shop-release)
+
 ## [Couchers.org Fall Release: What's New in v1.1?](/blog/2025/10/28/couchers-fall-release)
 
 2025/10/28 by Nicole.
