@@ -1,6 +1,7 @@
 import "@toast-ui/editor/dist/toastui-editor.css";
+import "@toast-ui/editor/dist/theme/toastui-editor-dark.css";
 
-import { styled } from "@mui/material";
+import { styled, useColorScheme } from "@mui/material";
 import ToastUIEditor from "@toast-ui/editor";
 import { ToolbarItem } from "@toast-ui/editor/types/ui";
 import { INSERT_IMAGE } from "components/MarkdownInput/constants";
@@ -69,6 +70,7 @@ export default function MarkdownInput({
   required,
   placeholder,
 }: MarkdownInputProps) {
+  const { mode } = useColorScheme();
   const { field, fieldState } = useController({
     name,
     control,
@@ -141,6 +143,7 @@ export default function MarkdownInput({
       toolbarItems,
       autofocus,
       extendedAutolinks: true,
+      theme: mode === "dark" ? "dark" : "light",
     });
 
     if (resetInputRef) {
@@ -173,6 +176,7 @@ export default function MarkdownInput({
     labelId,
     imageUpload,
     placeholder,
+    mode,
   ]);
 
   return (

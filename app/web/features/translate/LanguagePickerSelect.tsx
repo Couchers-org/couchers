@@ -38,8 +38,18 @@ const StyledSelect = styled(Select, {
   shouldForwardProp: (prop) => prop !== "displayMode",
 })<StyledMuiSelectProps>(({ theme, displayMode }) => ({
   borderRadius: displayMode === "round" ? 999 : theme.shape.borderRadius,
+  backgroundColor: "var(--mui-palette-grey-200)",
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "var(--mui-palette-grey-300)",
+  },
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "var(--mui-palette-grey-300)",
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "var(--mui-palette-grey-300)",
+  },
   "& .MuiSelect-icon": {
-    color: theme.palette.text.primary,
+    color: "var(--mui-palette-text-primary)",
     fontSize: "1.25rem",
     top: "50%",
     transform: "translateY(-50%)",
@@ -150,10 +160,10 @@ export default function LanguagePickerSelect({
               alignItems: "center",
               gap: theme.spacing(1),
               "& .Mui-selected": {
-                backgroundColor: theme.palette.action.selected,
+                backgroundColor: "var(--mui-palette-action-selected)",
               },
               "& .Mui-selected:hover": {
-                backgroundColor: theme.palette.action.hover,
+                backgroundColor: "var(--mui-palette-action-hover)",
               },
             }}
           >
@@ -185,7 +195,10 @@ export default function LanguagePickerSelect({
               </Stack>
               <div>
                 {locale === languageCode && (
-                  <CheckIcon fontSize="small" sx={{ color: "#00a69a" }} />
+                  <CheckIcon
+                    fontSize="small"
+                    sx={{ color: "var(--mui-palette-primary-main)" }}
+                  />
                 )}
               </div>
             </Stack>
@@ -203,7 +216,7 @@ export default function LanguagePickerSelect({
           alignItems: "center",
           gap: 1,
           pl: 1,
-          color: "#666666",
+          color: "var(--mui-palette-text-secondary)",
           fontWeight: "bold",
         }}
       >
@@ -252,18 +265,18 @@ export default function LanguagePickerSelect({
                 key="translation-progress"
                 onClick={handleTranslationProgressClick}
                 sx={{
-                  borderTop: `1px solid ${theme.palette.divider}`,
+                  borderTop: `1px solid var(--mui-palette-divider)`,
                   mt: 1,
                   pt: 1,
                   px: 2,
                   cursor: "pointer",
                   "&:hover": {
-                    backgroundColor: "action.hover",
+                    backgroundColor: "var(--mui-palette-action-hover)",
                   },
                 }}
               >
                 <Typography
-                  color="primary"
+                  color="var(--mui-palette-primary-main)"
                   sx={{ fontWeight: "bold" }}
                   onClick={handleTranslationProgressClick}
                 >
@@ -287,20 +300,20 @@ export default function LanguagePickerSelect({
               <Box
                 onClick={handleTranslationProgressClick}
                 sx={{
-                  borderTop: `1px solid ${theme.palette.divider}`,
+                  borderTop: `1px solid var(--mui-palette-divider)`,
                   mt: 1,
                   pt: 1,
                   px: 2,
                   py: 1,
                   cursor: "pointer",
                   "&:hover": {
-                    backgroundColor: "action.hover",
+                    backgroundColor: "var(--mui-palette-action-hover)",
                   },
                 }}
               >
                 <Typography
                   variant="body2"
-                  color="primary"
+                  color="var(--mui-palette-primary-main)"
                   onClick={handleTranslationProgressClick}
                 >
                   {t("global:language_preference.translation_progress.title")}

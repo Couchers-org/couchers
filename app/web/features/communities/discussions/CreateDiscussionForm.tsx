@@ -33,10 +33,10 @@ const StyledActionButtonsContainer = styled("div")(() => ({
 }));
 
 const StyledCancelButton = styled(Button)(() => ({
-  backgroundColor: theme.palette.grey[50],
-  color: theme.palette.grey[800],
+  backgroundColor: "var(--mui-palette-grey-50)",
+  color: "var(--mui-palette-grey-800)",
   "&:hover": {
-    backgroundColor: theme.palette.grey[100],
+    backgroundColor: "var(--mui-palette-grey-100)",
   },
 }));
 

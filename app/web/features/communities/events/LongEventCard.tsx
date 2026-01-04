@@ -22,10 +22,10 @@ const StyledCard = styled(Card)(({ theme }) => ({
   "&:not(:first-of-type)": {
     margin: theme.spacing(2, 0),
   },
-  border: `1px solid ${theme.palette.grey[300]}`,
+  border: `1px solid var(--mui-palette-grey-300)`,
   borderRadius: theme.spacing(1),
   "&:hover": {
-    backgroundColor: theme.palette.grey[50],
+    backgroundColor: "var(--mui-palette-grey-50)",
   },
 }));
 
@@ -96,11 +96,11 @@ const Attendees = styled("div")(({ theme }) => ({
   alignItems: "flex-end",
   justifyContent: "flex-end",
   minWidth: theme.spacing(10),
-  color: theme.palette.text.secondary,
+  color: "var(--mui-palette-text-secondary)",
 }));
 
 const StyledCommentsCount = styled(Typography)(({ theme }) => ({
-  color: theme.palette.primary.main,
+  color: "var(--mui-palette-primary-main)",
 }));
 
 const FlagWrapper = styled("div")(({ theme }) => ({
@@ -115,8 +115,8 @@ const FlagWrapper = styled("div")(({ theme }) => ({
 }));
 
 const CancelledPill = styled(Pill)(({ theme }) => ({
-  backgroundColor: theme.palette.error.main,
-  color: theme.palette.common.white,
+  backgroundColor: "var(--mui-palette-error-main)",
+  color: "var(--mui-palette-common-white)",
 }));
 
 const LongEventCard = ({

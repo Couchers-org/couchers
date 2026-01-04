@@ -146,7 +146,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   donation: (
     <Box
       sx={{
-        backgroundColor: theme.palette.common.white,
+        backgroundColor: theme.palette.background.paper,
         width: theme.spacing(2),
         height: theme.spacing(2),
         display: "flex",
@@ -205,7 +205,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   friend_request: (
     <Box
       sx={{
-        backgroundColor: theme.palette.common.white,
+        backgroundColor: theme.palette.background.paper,
         width: theme.spacing(2),
         height: theme.spacing(2),
         display: "flex",
@@ -264,7 +264,7 @@ const mapNotificationFeedTypeToIcon: { [key: string]: JSX.Element } = {
   modnote: (
     <Box
       sx={{
-        backgroundColor: theme.palette.common.white,
+        backgroundColor: theme.palette.background.paper,
         width: theme.spacing(2),
         height: theme.spacing(2),
         display: "flex",

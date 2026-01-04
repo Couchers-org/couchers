@@ -12,7 +12,7 @@ const StyledForm = styled("form")(({ theme }) => ({
 }));
 
 const StyledInputLabel = styled(InputLabel)(({ theme }) => ({
-  color: theme.palette.text.primary,
+  color: "var(--mui-palette-text-primary)",
   width: "100%",
   fontSize: "0.875rem",
   marginLeft: theme.spacing(0.5),
@@ -27,12 +27,15 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   width: "100%",
 
   "& .MuiInputBase-root": {
-    backgroundColor: theme.palette.common.white,
+    backgroundColor: "var(--mui-palette-background-paper)",
+    "&.Mui-focused": {
+      backgroundColor: "var(--mui-palette-background-paper)",
+    },
   },
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({
-  color: theme.palette.secondary.contrastText,
+  color: "var(--mui-palette-secondary-contrastText)",
   fontWeight: 700,
   marginTop: theme.spacing(2),
   fontSize: "1.4rem",

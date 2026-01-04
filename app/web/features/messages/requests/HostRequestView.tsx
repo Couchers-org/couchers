@@ -79,7 +79,7 @@ const StyledPageWrapper = styled("div")(({ theme }) => ({
 }));
 
 const StyledFooter = styled("div")(({ theme }) => ({
-  background: theme.palette.common.white,
+  background: "var(--mui-palette-background-default)",
   position: "sticky",
   bottom: 0,
   marginTop: "auto",

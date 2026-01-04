@@ -1,2 +1,34 @@
 {
+  "accept": "Aceitar",
+  "decline": "Recusar",
+  "blocked_list_title": "Usuários bloqueados",
+  "block_user": "Bloquear usuário",
+  "block_user_confirmation_dialog": {
+    "title": "Tem certeza de que quer bloquear {{name}}?",
+    "message": "Mensagens e pedidos dessa pessoa serão bloqueadas, e seu perfil, eventos e comentários não ficarão visíveis para ela. Ela não será informada de que você a bloqueou.",
+    "confirm": "Bloquear"
+  },
+  "no_blocked_users": "Nenhum usuário bloqueado",
+  "no_friends": "Nenhum amigo disponível",
+  "no_friend_requests": "Nenhum pedido de amizade pendente",
+  "no_friend_requests_sent": "Nenhum pedido de amizade pendente",
+  "pending": "Pendentes",
+  "remove_friend_confirmation_dialog": {
+    "title": "Remover amigo",
+    "message": "Tem certeza de que deseja remover {{name}}? Essa ação não pode ser desfeita.",
+    "confirm": "Remover"
+  },
+  "remove_friend": "Remover amigo",
+  "unblock_user": "Desbloquear usuário",
+  "unblock_user_confirmation_dialog": {
+    "title": "Tem certeza de que quer desbloquear {{name}}?",
+    "message": "Desbloquear permitirá que a pessoa veja seu perfil e envie pedidos a você. Se vocês eram amigos antes, ela vai voltar para sua lista de amigos. Ela não será notificada.",
+    "confirm": "Desbloquear"
+  },
+  "add_friend": "Adicionar amigo",
+  "my_connections": "Minhas conexões",
+  "friends": "Amigos",
+  "friend_list_title": "Seus amigos",
+  "friend_requests": "Pedidos de amizade",
+  "friend_requests_sent": "Pedidos de amizade enviados"
 }

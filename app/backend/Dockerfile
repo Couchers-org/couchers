@@ -1,4 +1,4 @@
-FROM python:3.13-slim-trixie AS base
+FROM python:3.14-slim-trixie AS base
 
 RUN <<EOT
 apt-get update -qy
@@ -13,7 +13,7 @@ EOT
 
 FROM base AS build
 
-ENV UV_VERSION=0.9.8
+ENV UV_VERSION=0.9.21
 
 WORKDIR /deps
 RUN apt-get update -qy && apt-get install -qyy zstd wget build-essential \

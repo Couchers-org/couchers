@@ -93,6 +93,7 @@ export function useEvent({ eventId }: { eventId: number }) {
 }
 
 export function useListMyEvents({
+  myCommunitiesExcludeGlobal,
   pastEvents,
   pageNumber,
   pageSize,
@@ -106,6 +107,7 @@ export function useListMyEvents({
     ],
     queryFn: ({ pageParam }) =>
       service.events.listMyEvents({
+        myCommunitiesExcludeGlobal,
         pastEvents,
         pageNumber,
         pageSize,
@@ -122,8 +124,6 @@ export function useEventSearch({
   isMyCommunities,
   isOnlineOnly,
   searchLocation,
-  attending,
-  organizing,
 }: {
   pageNumber: number;
   pageSize: number;
@@ -142,8 +142,6 @@ export function useEventSearch({
       pageNumber,
       pastEvents,
       searchLocation,
-      attending,
-      organizing,
     ],
     queryFn: () =>
       service.search.EventSearch({
@@ -153,8 +151,6 @@ export function useEventSearch({
         isMyCommunities,
         isOnlineOnly,
         searchLocation,
-        attending,
-        organizing,
       }),
   });
 }
