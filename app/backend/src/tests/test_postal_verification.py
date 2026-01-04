@@ -572,6 +572,7 @@ def test_postal_verification_code_case_insensitive(db, monkeypatch):
             select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id)
         ).scalar_one()
         verification_code = attempt.verification_code
+        assert verification_code
 
     # Verify with lowercase code
     with postal_verification_session(token) as pv:

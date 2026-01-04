@@ -536,7 +536,9 @@ def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):
         assert user_updated.email == user.email
         assert user_updated.new_email == new_email
         assert user_updated.new_email_token is not None
+        assert user_updated.new_email_token_created
         assert user_updated.new_email_token_created <= now()
+        assert user_updated.new_email_token_expiry
         assert user_updated.new_email_token_expiry >= now()
 
         token = user_updated.new_email_token
@@ -675,10 +677,10 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
     user_id = user.id
 
     with account_session(token) as account:
-        with pytest.raises(grpc.RpcError) as e:
+        with pytest.raises(grpc.RpcError) as err:
             account.DeleteAccount(account_pb2.DeleteAccountReq())
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "Please confirm your account deletion."
+        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert err.value.details() == "Please confirm your account deletion."
 
         # Check the right email is sent
         with mock_notification_email() as mock:
@@ -739,6 +741,7 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
         user_ = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert user_.is_deleted
         assert user_.undelete_token
+        assert user_.undelete_until
         assert user_.undelete_until > now()
 
         undelete_token = user_.undelete_token
@@ -801,7 +804,7 @@ def test_multiple_delete_tokens(db):
 
     with session_scope() as session:
         assert session.execute(select(func.count()).select_from(AccountDeletionToken)).scalar_one() == 3
-        token = session.execute(select(AccountDeletionToken).limit(1)).scalars().one_or_none().token
+        token = session.execute(select(AccountDeletionToken.token).limit(1)).scalar_one()
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.ConfirmDeleteAccount(
@@ -811,7 +814,7 @@ def test_multiple_delete_tokens(db):
         )
 
     with session_scope() as session:
-        assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
+        assert not session.execute(select(AccountDeletionToken.token)).scalar_one_or_none()
 
 
 def test_ListActiveSessions_pagination(db, fast_passwords):
@@ -996,7 +999,7 @@ def test_reminders(db, moderator):
     req_user1, req_user_token1 = generate_user(complete_profile=True)
     req_user2, req_user_token2 = generate_user(complete_profile=True)
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(complete_token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
             "complete_verification_reminder"
@@ -1041,7 +1044,7 @@ def test_reminders(db, moderator):
         ).host_request_id
     moderator.approve_host_request(host_request2_id)
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
         reminders = account.GetReminders(empty_pb2.Empty()).reminders
         assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
@@ -1066,7 +1069,7 @@ def test_reminders(db, moderator):
         ).host_request_id
     moderator.approve_host_request(host_request3_id)
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
         reminders = account.GetReminders(empty_pb2.Empty()).reminders
         assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
@@ -1091,7 +1094,7 @@ def test_reminders(db, moderator):
             )
         )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(token) as account:
         reminders = account.GetReminders(empty_pb2.Empty()).reminders
         assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
@@ -1212,7 +1215,7 @@ def test_volunteer_stuff(db):
         assert res.link_text == "tester@vontester.com.invalid"
         assert res.link_url == "mailto:tester@vontester.com.invalid"
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with public_session() as public:
         res = public.GetVolunteers(empty_pb2.Empty())

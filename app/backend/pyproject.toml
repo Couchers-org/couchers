@@ -130,6 +130,18 @@ module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "statsig_python_
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+# Test files don't require strict type checking
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+module = ["tests.fixtures.sessions"]
+# Mock gRPC infrastructure intentionally violates type contracts
+disable_error_code = ["arg-type"]
+
 
 # Coverage
 [tool.coverage.run]

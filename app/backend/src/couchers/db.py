@@ -154,7 +154,7 @@ def get_parent_node_at_location(session: Session, shape: WKBElement) -> Node | N
     """
     Finds the smallest node containing the shape.
 
-    Shape can be any PostGIS geo object, e.g. output from create_coordinate
+    Shape can be any PostGIS geo object, e.g., output from create_coordinate
     """
 
     # Find the lowest Node (in the Node tree) that contains the shape. By construction of nodes, the area of a sub-node

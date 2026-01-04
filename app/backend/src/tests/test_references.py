@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, datetime, timedelta
 from unittest.mock import patch
 
 import grpc
@@ -37,14 +37,14 @@ def _(testconfig):
 
 
 def create_host_request(
-    session,
-    surfer_user_id,
-    host_user_id,
-    host_request_age=timedelta(days=15),
-    status=HostRequestStatus.confirmed,
-    host_reason_didnt_meetup=None,
-    surfer_reason_didnt_meetup=None,
-):
+    session: Session,
+    surfer_user_id: int,
+    host_user_id: int,
+    host_request_age: timedelta = timedelta(days=15),
+    status: HostRequestStatus = HostRequestStatus.confirmed,
+    host_reason_didnt_meetup: str | None = None,
+    surfer_reason_didnt_meetup: str | None = None,
+) -> int:
     """
     Create a host request that's `host_request_age` old
     """
@@ -100,15 +100,15 @@ def create_host_request(
 
 
 def create_host_request_by_date(
-    session,
-    surfer_user_id,
-    host_user_id,
-    from_date,
-    to_date,
-    status,
-    host_sent_request_reminders,
-    last_sent_request_reminder_time,
-):
+    session: Session,
+    surfer_user_id: int,
+    host_user_id: int,
+    from_date: date,
+    to_date: date,
+    status: HostRequestStatus,
+    host_sent_request_reminders: int,
+    last_sent_request_reminder_time: datetime,
+) -> int:
     conversation = Conversation()
     session.add(conversation)
     session.flush()
@@ -160,7 +160,15 @@ def create_host_request_by_date(
     return host_request.conversation_id
 
 
-def create_host_reference(session, from_user_id, to_user_id, reference_age, *, surfing=True, host_request_id=None):
+def create_host_reference(
+    session: Session,
+    from_user_id: int,
+    to_user_id: int,
+    reference_age: timedelta,
+    *,
+    surfing: bool = True,
+    host_request_id: int | None = None,
+) -> tuple[int, int]:
     if host_request_id:
         actual_host_request_id = host_request_id
     else:
@@ -1032,7 +1040,7 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db, moderator
     moderator.approve_host_request(hr6)
     moderator.approve_host_request(hr7)
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with references_session(token1) as api:
         # can't write reference for invisible user
@@ -1193,7 +1201,7 @@ def test_regression_disappearing_refs(db, hs, moderator):
             )
         )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with references_session(token1) as api:
         res = api.ListPendingReferencesToWrite(empty_pb2.Empty())

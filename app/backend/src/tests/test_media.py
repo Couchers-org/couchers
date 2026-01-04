@@ -52,7 +52,7 @@ def test_media_upload(db):
                 .where(Upload.key == key)
                 .where(Upload.filename == filename)
                 .where(Upload.creator_user_id == user.id)
-            ).scalar_one()
+            ).scalar_one_or_none()
             is not None
         )
 

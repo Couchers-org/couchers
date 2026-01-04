@@ -118,7 +118,7 @@ def send_rate_limit_violation_report_email(
     logger.info(
         f"Sending rate limit moderation email for user '{rate_limit_violation.user_id}' ({rate_limit_violation.action})"
     )
-    user = session.get(User, rate_limit_violation.user_id)
+    user = session.get_one(User, rate_limit_violation.user_id)
     email.enqueue_system_email(
         session,
         config["REPORTS_EMAIL_RECIPIENT"],
