@@ -81,6 +81,7 @@ export default function MyEvents() {
         service.events.listMyEvents({
           pageToken: pageParam as string | undefined,
           pageSize: PAGE_SIZE,
+          myCommunities: true,
           myCommunitiesExcludeGlobal: true,
         }),
       getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,

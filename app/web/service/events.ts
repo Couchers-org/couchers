@@ -259,6 +259,7 @@ export async function listAllEvents({
 }
 
 export interface ListMyEventsInput {
+  myCommunities?: boolean;
   myCommunitiesExcludeGlobal?: boolean;
   pageNumber?: number;
   pageSize?: number;
@@ -268,6 +269,7 @@ export interface ListMyEventsInput {
 }
 
 export async function listMyEvents({
+  myCommunities,
   myCommunitiesExcludeGlobal,
   pageNumber,
   pageSize,
@@ -278,6 +280,10 @@ export async function listMyEvents({
   const req = new ListMyEventsReq();
   req.setAttending(true);
   req.setOrganizing(true);
+
+  if (myCommunities !== undefined) {
+    req.setMyCommunities(myCommunities);
+  }
 
   if (myCommunitiesExcludeGlobal !== undefined) {
     req.setMyCommunitiesExcludeGlobal(myCommunitiesExcludeGlobal);

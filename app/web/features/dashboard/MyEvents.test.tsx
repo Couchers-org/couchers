@@ -68,6 +68,7 @@ describe("My events", () => {
     expect(screen.getByRole("link")).toBeInTheDocument();
     expect(listMyEventsMock).toHaveBeenCalledWith(
       expect.objectContaining({
+        myCommunities: true,
         myCommunitiesExcludeGlobal: true,
       }),
     );
@@ -94,6 +95,7 @@ describe("My events", () => {
     expect(screen.getByRole("link")).toBeInTheDocument();
     expect(listMyEventsMock).toHaveBeenCalledWith(
       expect.objectContaining({
+        myCommunities: true,
         myCommunitiesExcludeGlobal: true,
       }),
     );
@@ -164,11 +166,18 @@ describe("My events", () => {
 
       const eventCardPerRow = 2;
       expect(listMyEventsMock.mock.calls).toEqual([
-        [{ pageSize: eventCardPerRow, myCommunitiesExcludeGlobal: true }],
+        [
+          {
+            pageSize: eventCardPerRow,
+            myCommunities: true,
+            myCommunitiesExcludeGlobal: true,
+          },
+        ],
         [
           {
             pageToken: "2",
             pageSize: eventCardPerRow,
+            myCommunities: true,
             myCommunitiesExcludeGlobal: true,
           },
         ],
@@ -217,11 +226,18 @@ describe("My events", () => {
 
       const eventCardPerRow = 2;
       expect(listMyEventsMock.mock.calls).toEqual([
-        [{ pageSize: eventCardPerRow, myCommunitiesExcludeGlobal: true }],
+        [
+          {
+            pageSize: eventCardPerRow,
+            myCommunities: true,
+            myCommunitiesExcludeGlobal: true,
+          },
+        ],
         [
           {
             pageToken: "2",
             pageSize: eventCardPerRow,
+            myCommunities: true,
             myCommunitiesExcludeGlobal: true,
           },
         ],
