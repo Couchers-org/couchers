@@ -372,7 +372,7 @@ export default function Navigation() {
               >
                 <MenuIcon
                   sx={{
-                    color: (theme) => theme.palette.text.primary,
+                    color: "var(--mui-palette-text-primary)",
                     fontSize: 24,
                   }}
                 />
