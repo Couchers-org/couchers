@@ -17,12 +17,14 @@ interface MarkdownProps {
 const StyledRoot = styled("div")(({ theme }) => ({
   fontSize: theme.typography.fontSize,
   fontFamily: theme.typography.fontFamily,
+  color: "var(--mui-palette-text-primary)",
   "& h1, & h2, & h3, & h4, & h5, & h6, & p": {
     borderBottom: "none",
     paddingBottom: 0,
     marginBottom: 0,
     marginTop: theme.spacing(2),
     overflowWrap: "break-word",
+    color: "var(--mui-palette-text-primary) !important",
   },
   "& h1": theme.typography.h1,
   "& h2": theme.typography.h2,
