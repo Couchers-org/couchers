@@ -43,8 +43,8 @@
   "all_communities_intro": "Below you can browse all community pages that exist so far. <strong>Click on a community name to see the other communities within it.</strong>",
   "community_missing": "Is your country or city missing? Use <1>this form </1> to request it!",
   "upcoming_events": "Upcoming events",
-  "member_count": "{{count}} member",
-  "member_count_plural": "{{count}} members",
+  "member_count_one": "{{count}} member",
+  "member_count_other": "{{count}} members",
   "profile_summary_edit": "Edit Profile",
   "profile_summary_view": "View my profile",
   "profile_mobile_summary_view": "Go to profile",
@@ -56,6 +56,6 @@
   "hero_image_alt": "Hot-air balloons in Capadocia",
   "hero_image_attribution": "Photo by <1>Mesut Kaya</1> on <3>Unsplash</3>",
   "events_empty_state": "No events at the moment. Why don't you <0>create</0> one ✨?",
-  "attendees_count": "{{count}} attendee",
-  "attendees_count_plural": "{{count}} attendees"
+  "attendees_count_one": "{{count}} attendee",
+  "attendees_count_other": "{{count}} attendees"
 }

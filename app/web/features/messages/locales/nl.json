@@ -147,8 +147,8 @@
     "error_message": "Ongeldig host verzoek-ID",
     "back_button_a11y_label": "Terug",
     "title_for_surfer": "Verzoek aan {{user}} - {{status}}",
-    "request_duration": "{{count}} nacht",
-    "request_duration_plural": "{{count}} nachten",
+    "request_duration_one": "{{count}} nacht",
+    "request_duration_many": "{{count}} nachten",
     "title_for_host": "Verzoek van {{user}} - {{status}}"
   },
   "unknown_user": "Onbekende gebruiker"
