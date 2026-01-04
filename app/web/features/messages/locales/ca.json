@@ -84,7 +84,6 @@
     "back_button_a11y_label": "Enrere",
     "title_for_host": "Sol·licitud de {{user}} - {{status}}",
     "request_duration_one": "{{count}} nit",
-    "request_duration_many": "{{count}} nits",
     "request_duration_other": "{{count}} nits",
     "title_for_surfer": "Sol·licitud a {{user}} - {{status}}"
   },

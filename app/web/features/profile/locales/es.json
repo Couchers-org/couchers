@@ -217,8 +217,7 @@
     "shared_room": "por ejemplo habitación compartida con tu propio espacio"
   },
   "helper_text": {
-    "missing_profile_photo": "Por favor añade una foto para completar tu perfil.",
-    "characters_remaining": "<bold>Por favor, escribe al menos {{count}} caracteres para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!"
+    "missing_profile_photo": "Por favor añade una foto para completar tu perfil."
   },
   "section_tabs_a11y_label": "pestañas para detalles de usuario",
   "incomplete_dialog": {

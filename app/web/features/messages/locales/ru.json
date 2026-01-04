@@ -105,7 +105,6 @@
   },
   "host_request_view": {
     "request_duration_one": "{{count}} ночь",
-    "request_duration_few": "{{count}} ночи",
     "request_duration_other": "{{count}} ночей",
     "error_message": "Неверный ID запроса хоста",
     "back_button_a11y_label": "Назад",
