@@ -2,8 +2,8 @@
   "location": "Locatie",
   "by_creator": "Door {{name}}",
   "cancelled": "Geannuleerd",
-  "attendees_count": "{{count}} deelnemer",
-  "attendees_count_plural": "{{count}} deelnemers",
+  "attendees_count_one": "{{count}} deelnemer",
+  "attendees_count_other": "{{count}} deelnemers",
   "cancel_event": "Event annuleren",
   "invite_community_dialog": {
     "title": "Vraag een community uitnodiging aan voor dit event"
