@@ -7,7 +7,7 @@
   },
   "search_result": {
     "people_range_message_one": "{{currentRange}} de {{count}} pessoa",
-    "people_range_message_many": "{{currentRange}} de {{count}} pessoas",
+    "people_range_message_many": "{{currentRange}} de {{count}} de pessoas",
     "people_range_message_other": "{{currentRange}} de {{count}} pessoas",
     "include_empty_profiles_button": "Mostrar todos os perfis",
     "no_user_result_message": "Nenhum usuário encontrado. Tente remover alguns filtros para ver mais resultados.",

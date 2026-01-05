@@ -1,2 +1,7 @@
 {
+  "host_request_view": {
+    "request_duration_one": "{{count}} noite",
+    "request_duration_many": "{{count}} de noites",
+    "request_duration_other": "{{count}} noites"
+  }
 }

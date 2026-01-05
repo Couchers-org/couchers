@@ -1,2 +1,8 @@
 {
+  "member_count_one": "{{count}} membro",
+  "member_count_many": "{{count}} de membros",
+  "member_count_other": "{{count}} membros",
+  "attendees_count_one": "{{count}} participante",
+  "attendees_count_many": "{{count}} de participantes",
+  "attendees_count_other": "{{count}} participantes"
 }

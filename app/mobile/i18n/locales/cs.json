@@ -1,1 +1,19 @@
-{}
+{
+    "tabs": {
+        "events": "Události",
+        "home": "Domů",
+        "messages": "Zprávy",
+        "communities": "Komunity",
+        "search": "Hledat"
+    },
+    "errors": {
+        "failed_to_load": "Nepodařilo se načíst",
+        "check_connection": "Zkontroluj své připojení k internetu a zkus to znovu.",
+        "try_again": "Zkus to znovu"
+    },
+    "not_found": {
+        "title": "Jejda!",
+        "go_home": "Přejdi na domovskou obrazovku!",
+        "message": "Tato obrazovka neexistuje."
+    }
+}
