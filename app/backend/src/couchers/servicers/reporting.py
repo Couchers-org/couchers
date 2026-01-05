@@ -23,7 +23,7 @@ class Reporting(reporting_pb2_grpc.ReportingServicer):
             reason=request.reason,
             description=request.description,
             content_ref=request.content_ref,
-            author_user=author_user,
+            author_user_id=author_user.id,
             user_agent=request.user_agent,
             page=request.page,
         )

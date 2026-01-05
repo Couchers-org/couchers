@@ -193,9 +193,9 @@ def test_purge_account_deletion_tokens(db):
         3) Account is irretrievable (and expired)
         """
         account_deletion_tokens = [
-            AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() - timedelta(hours=2)),
-            AccountDeletionToken(token=urlsafe_secure_token(), user=user2, expiry=now()),
-            AccountDeletionToken(token=urlsafe_secure_token(), user=user3, expiry=now() + timedelta(hours=5)),
+            AccountDeletionToken(token=urlsafe_secure_token(), user_id=user.id, expiry=now() - timedelta(hours=2)),
+            AccountDeletionToken(token=urlsafe_secure_token(), user_id=user2.id, expiry=now()),
+            AccountDeletionToken(token=urlsafe_secure_token(), user_id=user3.id, expiry=now() + timedelta(hours=5)),
         ]
         for token in account_deletion_tokens:
             session.add(token)
@@ -1462,6 +1462,7 @@ def test_update_badges_volunteers(db, push_collector: PushCollector):
                 role="Developer",
                 started_volunteering=date(2020, 1, 1),
                 stopped_volunteering=None,
+                show_on_team_page=True,
             )
         )
 
@@ -1472,6 +1473,7 @@ def test_update_badges_volunteers(db, push_collector: PushCollector):
                 role="Designer",
                 started_volunteering=date(2020, 1, 1),
                 stopped_volunteering=date(2023, 6, 1),
+                show_on_team_page=True,
             )
         )
 
@@ -1536,6 +1538,7 @@ def test_update_badges_volunteer_status_change(db, push_collector: PushCollector
                 role="Developer",
                 started_volunteering=date(2020, 1, 1),
                 stopped_volunteering=None,
+                show_on_team_page=True,
             )
         )
 

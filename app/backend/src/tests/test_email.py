@@ -43,7 +43,7 @@ def _(testconfig):
 def test_signup_verification_email(db):
     request_email = f"{random_hex(12)}@couchers.org.invalid"
 
-    flow = SignupFlow(name="Frodo", email=request_email)
+    flow = SignupFlow(name="Frodo", email=request_email, flow_token="")
 
     with session_scope() as session:
         with mock_notification_email() as mock:
@@ -62,11 +62,11 @@ def test_report_email(db):
     user_author, api_token_reported = generate_user()
 
     report = ContentReport(
-        reporting_user=user_reporter,
+        reporting_user_id=user_reporter.id,
         reason="spam",
         description="I think this is spam and does not belong on couchers",
         content_ref="comment/123",
-        author_user=user_author,
+        author_user_id=user_author.id,
         user_agent="n/a",
         page="https://couchers.org/comment/123",
     )
@@ -95,13 +95,15 @@ def test_reference_report_email_not_sent(db):
         from_user, api_token_author = generate_user()
         to_user, api_token_reported = generate_user()
 
-        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.accepted)
+        friend_relationship = FriendRelationship(
+            from_user_id=from_user.id, to_user_id=to_user.id, status=FriendStatus.accepted
+        )
         session.add(friend_relationship)
         session.flush()
 
         reference = Reference(
-            from_user=from_user,
-            to_user=to_user,
+            from_user_id=from_user.id,
+            to_user_id=to_user.id,
             reference_type=ReferenceType.friend,
             text="This person was very nice to me.",
             rating=0.9,
@@ -121,13 +123,15 @@ def test_reference_report_email(db):
         from_user, api_token_author = generate_user()
         to_user, api_token_reported = generate_user()
 
-        friend_relationship = FriendRelationship(from_user=from_user, to_user=to_user, status=FriendStatus.accepted)
+        friend_relationship = FriendRelationship(
+            from_user_id=from_user.id, to_user_id=to_user.id, status=FriendStatus.accepted
+        )
         session.add(friend_relationship)
         session.flush()
 
         reference = Reference(
-            from_user=from_user,
-            to_user=to_user,
+            from_user_id=from_user.id,
+            to_user_id=to_user.id,
             reference_type=ReferenceType.friend,
             text="This person was not nice to me.",
             rating=0.3,

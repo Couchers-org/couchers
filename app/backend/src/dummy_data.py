@@ -237,6 +237,7 @@ def add_dummy_users() -> None:
                 link_type=volunteer["link_type"],
                 link_text=volunteer["link_text"],
                 link_url=volunteer["link_url"],
+                show_on_team_page=True,
             )
 
             session.add(new_volunteer)

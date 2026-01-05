@@ -222,11 +222,9 @@ class Editor(editor_pb2_grpc.EditorServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_volunteer")
 
         # Parse started_volunteering date
-        started_volunteering = None
-        if request.started_volunteering:
-            started_volunteering = parse_date(request.started_volunteering)
-            if not started_volunteering:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_started_volunteering_date")
+        started_volunteering = parse_date(request.started_volunteering) if request.started_volunteering else None
+        if not started_volunteering:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_started_volunteering_date")
 
         # Create volunteer record
         volunteer = Volunteer(

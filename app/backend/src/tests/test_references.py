@@ -185,23 +185,25 @@ def create_host_reference(
         select(HostRequest).where(HostRequest.conversation_id == actual_host_request_id)
     ).scalar_one()
 
+    if host_request.surfer_user_id == from_user_id:
+        reference_type = ReferenceType.surfed
+        to_user_id = host_request.host_user_id
+        assert from_user_id == host_request.surfer_user_id
+    else:
+        reference_type = ReferenceType.hosted
+        to_user_id = host_request.surfer_user_id
+        assert from_user_id == host_request.host_user_id
+
     reference = Reference(
-        time=now() - reference_age,
         from_user_id=from_user_id,
+        to_user_id=to_user_id,
         host_request_id=host_request.conversation_id,
         text="Dummy reference",
         rating=0.5,
         was_appropriate=True,
+        reference_type=reference_type,
     )
-
-    if host_request.surfer_user_id == from_user_id:
-        reference.reference_type = ReferenceType.surfed
-        reference.to_user_id = host_request.host_user_id
-        assert from_user_id == host_request.surfer_user_id
-    else:
-        reference.reference_type = ReferenceType.hosted
-        reference.to_user_id = host_request.surfer_user_id
-        assert from_user_id == host_request.host_user_id
+    reference.time = now() - reference_age
 
     session.add(reference)
     session.commit()
@@ -210,7 +212,6 @@ def create_host_reference(
 
 def create_friend_reference(session: Session, from_user_id: int, to_user_id: int, reference_age: timedelta) -> int:
     reference = Reference(
-        time=now() - reference_age,
         from_user_id=from_user_id,
         to_user_id=to_user_id,
         reference_type=ReferenceType.friend,
@@ -218,6 +219,7 @@ def create_friend_reference(session: Session, from_user_id: int, to_user_id: int
         rating=0.4,
         was_appropriate=True,
     )
+    reference.time = now() - reference_age
     session.add(reference)
     session.commit()
     return reference.id

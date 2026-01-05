@@ -12,7 +12,7 @@ def print_dev_email(
     recipient: str,
     subject: str,
     plain: str,
-    html: str | None,
+    html: str,
     list_unsubscribe_header: str | None,
     source_data: str | None,
 ) -> Email:
