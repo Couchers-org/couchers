@@ -77,7 +77,11 @@ class Cluster(Base, kw_only=True):
     __tablename__ = "clusters"
 
     id: Mapped[int] = mapped_column(
-        BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value(), init=False,
+        BigInteger,
+        communities_seq,
+        primary_key=True,
+        server_default=communities_seq.next_value(),
+        init=False,
     )
     parent_node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
     name: Mapped[str] = mapped_column(String)
