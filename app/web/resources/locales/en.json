@@ -55,7 +55,7 @@
     "unspecified_info": "Didn't say"
   },
   "language_preference": {
-    "current_preferred_language": "Your preferred language is currently <bold>{{language}}</bold>.",
+    "current_preferred_language": "Your preferred language is currently <lang>{{language}}</lang>.",
     "form_title": "Language",
     "help_translate": "Help translate Couchers into your language.",
     "select_language": "Select language",

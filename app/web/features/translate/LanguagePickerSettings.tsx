@@ -31,7 +31,7 @@ export default function LanguagePickerSettings({
             t={t}
             i18nKey="global:language_preference.current_preferred_language"
             values={{ language: languageName }}
-            components={{ bold: <strong /> }}
+            components={{ lang: <strong /> }}
           />
         </Typography>
         <Typography
