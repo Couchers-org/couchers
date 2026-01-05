@@ -86,6 +86,7 @@
   },
   "members_label": "Miembros",
   "attendees_count_one": "{{count}} asistente",
+  "attendees_count_many": "{{count}} de asistentes",
   "attendees_count_other": "{{count}} asistentes",
   "page_content_field_label": "Contenido de la página",
   "by_creator": "Por {{name}}",
