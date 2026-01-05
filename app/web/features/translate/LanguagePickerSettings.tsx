@@ -1,5 +1,5 @@
 import { Link, Typography } from "@mui/material";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
@@ -18,6 +18,7 @@ export default function LanguagePickerSettings({
   const { t } = useTranslation([GLOBAL]);
   const router = useRouter();
   const { locale } = router;
+  const languageName = LANGUAGE_MAP[locale || "en"]?.name;
 
   return (
     <div className={className}>
@@ -26,8 +27,12 @@ export default function LanguagePickerSettings({
       </Typography>
       <>
         <Typography variant="body1">
-          {`${t("global:language_preference.current_preferred_language")}`}
-          <strong>{LANGUAGE_MAP[locale || "en"]?.name}</strong>
+          <Trans
+            t={t}
+            i18nKey="global:language_preference.current_preferred_language"
+            values={{ language: languageName }}
+            components={{ bold: <strong /> }}
+          />
         </Typography>
         <Typography
           variant="body1"
