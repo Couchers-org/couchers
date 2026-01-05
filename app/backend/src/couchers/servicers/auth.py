@@ -50,6 +50,7 @@ from couchers.tasks import (
 from couchers.utils import (
     create_coordinate,
     create_session_cookies,
+    is_geom,
     is_valid_email,
     is_valid_name,
     is_valid_username,
@@ -324,21 +325,22 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user = User(
                 name=flow.name,
                 email=flow.email,
-                username=flow.username,
-                hashed_password=flow.hashed_password,
-                birthdate=flow.birthdate,
-                gender=flow.gender,
-                hosting_status=flow.hosting_status,
-                city=flow.city,
-                geom=flow.geom,
-                geom_radius=flow.geom_radius,
-                accepted_tos=flow.accepted_tos,
-                accepted_community_guidelines=flow.accepted_community_guidelines,
-                onboarding_emails_sent=1,
+                username=not_none(flow.username),
+                hashed_password=not_none(flow.hashed_password),
+                birthdate=not_none(flow.birthdate),
+                gender=not_none(flow.gender),
+                hosting_status=not_none(flow.hosting_status),
+                city=not_none(flow.city),
+                geom=is_geom(flow.geom),
+                geom_radius=not_none(flow.geom_radius),
+                accepted_tos=not_none(flow.accepted_tos),
                 last_onboarding_email_sent=func.now(),
-                opt_out_of_newsletter=flow.opt_out_of_newsletter,
                 invite_code_id=flow.invite_code_id,
             )
+
+            user.accepted_community_guidelines = flow.accepted_community_guidelines
+            user.onboarding_emails_sent = 1
+            user.opt_out_of_newsletter = not_none(flow.opt_out_of_newsletter)
 
             session.add(user)
             session.flush()

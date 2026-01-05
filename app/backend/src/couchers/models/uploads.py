@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from couchers.models.users import User
 
 
-class InitiatedUpload(Base, init=False, kw_only=True):
+class InitiatedUpload(Base, kw_only=True):
     """
     Started downloads, not necessarily complete yet.
     """
@@ -22,7 +22,7 @@ class InitiatedUpload(Base, init=False, kw_only=True):
     key: Mapped[str] = mapped_column(String, primary_key=True)
 
     # timezones should always be UTC
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -34,7 +34,7 @@ class InitiatedUpload(Base, init=False, kw_only=True):
         return (self.created <= func.now()) & (self.expiry >= func.now())
 
 
-class Upload(Base, init=False, kw_only=True):
+class Upload(Base, kw_only=True):
     """
     Completed uploads.
     """
@@ -48,7 +48,7 @@ class Upload(Base, init=False, kw_only=True):
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     # photo credit, etc
-    credit: Mapped[str | None] = mapped_column(String, nullable=True)
+    credit: Mapped[str | None] = mapped_column(String, default=None)
 
     creator_user: Mapped[User] = relationship(init=False, backref="uploads", foreign_keys="Upload.creator_user_id")
 
@@ -64,14 +64,14 @@ class Upload(Base, init=False, kw_only=True):
         return self._url("full")
 
 
-class PhotoGallery(Base, init=False, kw_only=True):
+class PhotoGallery(Base, kw_only=True):
     """
     Photo galleries for users or other entities.
     """
 
     __tablename__ = "photo_galleries"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # For now, galleries are owned by users, but this could be extended
     # in the future for communities, events, etc.
@@ -79,7 +79,7 @@ class PhotoGallery(Base, init=False, kw_only=True):
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
-    owner_user: Mapped[User] = relationship(foreign_keys=[owner_user_id], back_populates="galleries")
+    owner_user: Mapped[User] = relationship(init=False, foreign_keys=[owner_user_id], back_populates="galleries")
     photos: Mapped[list[PhotoGalleryItem]] = relationship(
         init=False,
         back_populates="gallery",
@@ -87,22 +87,22 @@ class PhotoGallery(Base, init=False, kw_only=True):
     )
 
 
-class PhotoGalleryItem(Base, init=False, kw_only=True):
+class PhotoGalleryItem(Base, kw_only=True):
     """
     Individual photos within a gallery with ordering and captions.
     """
 
     __tablename__ = "photo_gallery_items"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
-    gallery_id: Mapped[int] = mapped_column(ForeignKey("photo_galleries.id"), index=True, default=None)
-    upload_key: Mapped[str] = mapped_column(ForeignKey("uploads.key"), default=None)
+    gallery_id: Mapped[int] = mapped_column(ForeignKey("photo_galleries.id"), index=True)
+    upload_key: Mapped[str] = mapped_column(ForeignKey("uploads.key"))
 
     # Float position for ordering - allows inserting between items without shifting
     position: Mapped[float] = mapped_column(Float)
 
-    caption: Mapped[str | None] = mapped_column(String)
+    caption: Mapped[str | None] = mapped_column(String, default=None)
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 

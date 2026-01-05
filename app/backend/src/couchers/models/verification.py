@@ -202,7 +202,7 @@ class StrongVerificationAttempt(Base, kw_only=True):
     )
 
 
-class StrongVerificationCallbackEvent(Base, init=False, kw_only=True):
+class StrongVerificationCallbackEvent(Base, kw_only=True):
     __tablename__ = "strong_verification_callback_events"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)

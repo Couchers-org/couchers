@@ -3,6 +3,7 @@ import signal
 import sys
 from os import environ
 from tempfile import TemporaryDirectory
+from types import TracebackType
 
 # these two lines need to be at the top of the file before we span child processes
 # this temp dir will be destroyed when prometheus_multiproc_dir is destroyed, aka at the end of the program
@@ -33,7 +34,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def log_unhandled_exception(exc_type, exc_value, exc_traceback):
+def log_unhandled_exception(
+    exc_type: type[BaseException],
+    exc_value: BaseException,
+    exc_traceback: TracebackType | None,
+) -> None:
     """Make sure that any unhandled exceptions will write to the logs"""
     if issubclass(exc_type, KeyboardInterrupt):
         # call the default excepthook saved at __excepthook__

@@ -4,7 +4,7 @@ import typing
 from collections.abc import Sequence
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
-from typing import Any, overload
+from typing import TYPE_CHECKING, Any, overload
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -20,6 +20,9 @@ from sqlalchemy.types import DateTime
 from couchers.config import config
 from couchers.constants import EMAIL_REGEX, PREFERRED_LANGUAGE_COOKIE_EXPIRY
 from couchers.crypto import decrypt_page_token, encrypt_page_token
+
+if TYPE_CHECKING:
+    from couchers.models import Geom
 
 utc = pytz.UTC
 
@@ -414,4 +417,11 @@ def get_tz_as_text(tz_name: str) -> str:
 def not_none[T](x: T | None) -> T:
     if x is None:
         raise ValueError("Expected a value but got None")
+    return x
+
+
+def is_geom(x: Geom | None) -> Geom:
+    """not_none does not work with unions."""
+    if x is None:
+        raise ValueError("Expected a Geom but got None")
     return x
