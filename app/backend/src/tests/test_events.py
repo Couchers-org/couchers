@@ -1792,7 +1792,7 @@ def test_ListMyEvents(db):
 
     start = now()
 
-    def new_event(hours_from_now, community_id, online=True):
+    def new_event(hours_from_now: int, community_id: int, online: bool = True) -> events_pb2.CreateEventReq:
         if online:
             return events_pb2.CreateEventReq(
                 title="Dummy Online Title",
@@ -2368,10 +2368,10 @@ def test_community_invite_requests(db):
         assert event_url in e.plain
 
         # can't send another req
-        with pytest.raises(grpc.RpcError) as e:
+        with pytest.raises(grpc.RpcError) as err:
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You have already requested a community invite for this event."
+        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert err.value.details() == "You have already requested a community invite for this event."
 
     # another user can send one though
     with events_session(token3) as api:
@@ -2379,10 +2379,10 @@ def test_community_invite_requests(db):
 
     # but not a non-admin
     with events_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with pytest.raises(grpc.RpcError) as err:
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You're not allowed to edit that event."
+        assert err.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert err.value.details() == "You're not allowed to edit that event."
 
     with real_editor_session(token5) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
@@ -2408,10 +2408,10 @@ def test_community_invite_requests(db):
 
     # not after approve
     with events_session(token4) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with pytest.raises(grpc.RpcError) as err:
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "A community invite has already been sent out for this event."
+        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert err.value.details() == "A community invite has already been sent out for this event."
 
 
 def test_update_event_should_notify_queues_job():

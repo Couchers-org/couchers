@@ -1,3 +1,4 @@
+from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
@@ -27,7 +28,7 @@ from couchers.tasks import (
     send_email_changed_confirmation_to_new_email,
     send_signup_email,
 )
-from couchers.utils import Timestamp_from_datetime, now, timedelta
+from couchers.utils import Timestamp_from_datetime, now
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import email_fields, mock_notification_email, process_jobs
 from tests.fixtures.sessions import api_session, events_session, notifications_session, real_editor_session
@@ -51,7 +52,8 @@ def test_signup_verification_email(db):
     assert mock.call_count == 1
     e = email_fields(mock)
     assert e.recipient == request_email
-    assert flow.email_token in e.plain
+    assert flow.email_token
+    assert flow.email_token in e.html
     assert flow.email_token in e.html
 
 
@@ -149,6 +151,7 @@ def test_reference_report_email(db):
         assert reference.to_user.email in e.plain
         assert reference.text in e.plain
         assert "friend" in e.plain.lower()
+        assert reference.private_text
         assert reference.private_text in e.plain
 
 

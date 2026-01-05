@@ -1,5 +1,6 @@
 import grpc
 import pytest
+from google.protobuf import empty_pb2
 from google.protobuf.wrappers_pb2 import BoolValue, DoubleValue, StringValue
 from sqlalchemy import select
 
@@ -288,7 +289,7 @@ def test_MakeUserVolunteer(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
             res = api.MakeUserVolunteer(
@@ -319,7 +320,7 @@ def test_MakeUserVolunteer_default_values(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
             api.MakeUserVolunteer(
@@ -331,7 +332,7 @@ def test_MakeUserVolunteer_default_values(db):
 
             volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == normal_user.id)).scalar_one()
             assert volunteer.role == "Test Volunteer"
-            assert volunteer.started_volunteering is not None  # defaults to today
+            assert volunteer.started_volunteering  # defaults to today
             assert volunteer.show_on_team_page is True  # hide_on_team_page defaults to False
 
 
@@ -340,7 +341,7 @@ def test_MakeUserVolunteer_hide_on_team_page(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
             api.MakeUserVolunteer(
@@ -377,7 +378,7 @@ def test_MakeUserVolunteer_already_volunteer(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with real_editor_session(editor_token) as api:
         # Create volunteer first time
         api.MakeUserVolunteer(
@@ -422,7 +423,7 @@ def test_UpdateVolunteer(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
             # Create volunteer first
@@ -458,6 +459,7 @@ def test_UpdateVolunteer(db):
             assert volunteer.role == "Updated Volunteer"
             assert volunteer.sort_key == 10.5
             assert volunteer.started_volunteering.isoformat() == "2023-06-01"
+            assert volunteer.stopped_volunteering
             assert volunteer.stopped_volunteering.isoformat() == "2024-12-31"
             assert volunteer.show_on_team_page is False
 
@@ -467,7 +469,7 @@ def test_UpdateVolunteer_partial_update(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
             # Create volunteer first
@@ -515,7 +517,7 @@ def test_UpdateVolunteer_invalid_started_date(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with real_editor_session(editor_token) as api:
         # Create volunteer first
         api.MakeUserVolunteer(
@@ -542,7 +544,7 @@ def test_UpdateVolunteer_invalid_stopped_date(db):
     editor_user, editor_token = generate_user(is_editor=True)
     normal_user, normal_token = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with real_editor_session(editor_token) as api:
         # Create volunteer first
         api.MakeUserVolunteer(
@@ -571,7 +573,7 @@ def test_ListVolunteers(db):
     user2, _ = generate_user()
     user3, _ = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
             # Create three volunteers
@@ -620,7 +622,7 @@ def test_ListVolunteers_with_past(db):
     user1, _ = generate_user()
     user2, _ = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
             # Create current volunteer
@@ -669,7 +671,7 @@ def test_ListVolunteers_ordering(db):
     user2, _ = generate_user()
     user3, _ = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with session_scope() as session:
         with real_editor_session(editor_token) as api:
             # Create volunteers with different sort keys
@@ -694,7 +696,7 @@ def test_ListVolunteers_empty(db):
     """ListVolunteers should return empty list when no volunteers exist"""
     editor_user, editor_token = generate_user(is_editor=True)
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
     with real_editor_session(editor_token) as api:
         res = api.ListVolunteers(editor_pb2.ListVolunteersReq(include_past=False))
         assert len(res.volunteers) == 0

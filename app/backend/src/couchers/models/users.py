@@ -316,7 +316,7 @@ class User(Base):
     age = column_property(func.date_part("year", func.age(birthdate)))
 
     # ID of the invite code used to sign up (if any)
-    invite_code_id: Mapped[int | None] = mapped_column(ForeignKey("invite_codes.id"), nullable=True)
+    invite_code_id: Mapped[str | None] = mapped_column(ForeignKey("invite_codes.id"), nullable=True)
     invite_code: Mapped[InviteCode | None] = relationship(foreign_keys=[invite_code_id])
 
     moderation_user_lists: Mapped[list[ModerationUserList]] = relationship(
