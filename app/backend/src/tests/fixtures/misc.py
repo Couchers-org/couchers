@@ -84,21 +84,6 @@ class PushCollector:
             return pushes[0]
         return pushes[index]
 
-    def assert_user_has_count(self, user_id: int, count: int) -> None:
-        assert len(self.by_user(user_id)) == count
-
-    def assert_user_push_matches_fields(self, user_id: int, ix: int = 0, **kwargs: Any) -> None:
-        push = self.by_user(user_id)[ix]
-        for kwarg in kwargs:
-            assert hasattr(push, kwarg), f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
-            assert getattr(push, kwarg) == kwargs[kwarg], (
-                f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{getattr(push, kwarg)}'"
-            )
-
-    def assert_user_has_single_matching(self, user_id: int, **kwargs: Any) -> None:
-        self.assert_user_has_count(user_id, 1)
-        self.assert_user_push_matches_fields(user_id, ix=0, **kwargs)
-
 
 class Moderator:
     """
