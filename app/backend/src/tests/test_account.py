@@ -18,11 +18,10 @@ from couchers.models import (
     InviteCode,
     Upload,
     User,
-    Volunteer,
 )
 from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from couchers.utils import now, today
-from tests.fixtures.db import generate_user
+from tests.fixtures.db import generate_user, make_volunteer
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
 from tests.fixtures.sessions import (
     account_session,
@@ -1136,13 +1135,12 @@ def test_volunteer_stuff(db):
 
     with session_scope() as session:
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=user.id,
                 display_name="Great Volunteer",
                 display_location="The Bitbucket",
                 role="Lead Tester",
                 started_volunteering=date(2020, 6, 1),
-                show_on_team_page=True,
             )
         )
 

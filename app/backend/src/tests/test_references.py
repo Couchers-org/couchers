@@ -54,22 +54,23 @@ def create_host_request(
     conversation = Conversation()
     session.add(conversation)
     session.flush()
-    session.add(
-        Message(
-            time=fake_created + timedelta(seconds=1),
-            conversation_id=conversation.id,
-            author_id=surfer_user_id,
-            message_type=MessageType.chat_created,
-        )
+
+    msg1 = Message(
+        conversation_id=conversation.id,
+        author_id=surfer_user_id,
+        message_type=MessageType.chat_created,
     )
-    message = Message(
-        time=fake_created + timedelta(seconds=2),
+    msg1.time = fake_created + timedelta(seconds=1)
+    session.add(msg1)
+
+    msg2 = Message(
         conversation_id=conversation.id,
         author_id=surfer_user_id,
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
     )
-    session.add(message)
+    msg2.time = fake_created + timedelta(seconds=2)
+    session.add(msg2)
     session.flush()
 
     moderation_state = create_moderation(
@@ -86,7 +87,7 @@ def create_host_request(
         from_date=from_date,
         to_date=to_date,
         status=status,
-        surfer_last_seen_message_id=message.id,
+        surfer_last_seen_message_id=msg2.id,
         host_reason_didnt_meetup=host_reason_didnt_meetup,
         surfer_reason_didnt_meetup=surfer_reason_didnt_meetup,
         hosting_city="Test City",
@@ -113,24 +114,23 @@ def create_host_request_by_date(
     session.add(conversation)
     session.flush()
 
-    session.add(
-        Message(
-            time=from_date + timedelta(seconds=1),
-            conversation_id=conversation.id,
-            author_id=surfer_user_id,
-            message_type=MessageType.chat_created,
-        )
+    msg1 = Message(
+        conversation_id=conversation.id,
+        author_id=surfer_user_id,
+        message_type=MessageType.chat_created,
     )
+    msg1.time = from_date + timedelta(seconds=1)  # type: ignore[assignment]
+    session.add(msg1)
 
     # Unused for now, but every host request must have a message.
-    message = Message(
-        time=from_date + timedelta(seconds=2),
+    msg2 = Message(
         conversation_id=conversation.id,
         author_id=surfer_user_id,
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
     )
-    session.add(message)
+    msg2.time = from_date + timedelta(seconds=2)  # type: ignore[assignment]
+    session.add(msg2)
     session.flush()
 
     moderation_state = create_moderation(
@@ -147,13 +147,13 @@ def create_host_request_by_date(
         from_date=from_date,
         to_date=to_date,
         status=status,
-        host_sent_request_reminders=host_sent_request_reminders,
-        last_sent_request_reminder_time=last_sent_request_reminder_time,
         hosting_city="Test City",
         hosting_location=create_coordinate(0, 0),
         hosting_radius=10,
         moderation_state_id=moderation_state.id,
     )
+    host_request.host_sent_request_reminders = host_sent_request_reminders
+    host_request.last_sent_request_reminder_time = last_sent_request_reminder_time
 
     session.add(host_request)
     session.commit()

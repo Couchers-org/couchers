@@ -102,10 +102,10 @@ def create_session(
 
     user_session = UserSession(
         token=token,
-        user=user,
+        user_id=user.id,
         long_lived=long_lived,
-        ip_address=context.headers.get("x-couchers-real-ip"),
-        user_agent=context.headers.get("user-agent"),
+        ip_address=cast(str | None, context.headers.get("x-couchers-real-ip")),
+        user_agent=cast(str | None, context.headers.get("user-agent")),
         is_api_key=is_api_key,
     )
     if duration:
@@ -482,7 +482,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         ).scalar_one_or_none()
         if user:
             password_reset_token = PasswordResetToken(
-                token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
+                token=urlsafe_secure_token(), user_id=user.id, expiry=now() + timedelta(hours=2)
             )
             session.add(password_reset_token)
             session.flush()

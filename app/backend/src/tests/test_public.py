@@ -17,11 +17,10 @@ from couchers.models import (
     ProfilePublicVisibility,
     Reference,
     ReferenceType,
-    Volunteer,
 )
 from couchers.proto import api_pb2, public_pb2
 from couchers.servicers.public import _get_donation_stats, _get_public_users, _get_signup_page_info, _get_volunteers
-from tests.fixtures.db import generate_user
+from tests.fixtures.db import generate_user, make_volunteer
 from tests.fixtures.misc import process_jobs
 from tests.fixtures.sessions import public_session
 
@@ -239,37 +238,33 @@ def test_GetVolunteers_mixed_current_and_past(db):
 
     with session_scope() as session:
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=current1.id,
                 role="Current Role 1",
                 started_volunteering=datetime(2023, 1, 1).date(),
-                show_on_team_page=True,
             )
         )
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=current2.id,
                 role="Current Role 2",
                 started_volunteering=datetime(2024, 1, 1).date(),
-                show_on_team_page=True,
             )
         )
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=past1.id,
                 role="Past Role 1",
                 started_volunteering=datetime(2020, 1, 1).date(),
                 stopped_volunteering=datetime(2022, 6, 1).date(),
-                show_on_team_page=True,
             )
         )
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=past2.id,
                 role="Past Role 2",
                 started_volunteering=datetime(2021, 1, 1).date(),
                 stopped_volunteering=datetime(2023, 12, 31).date(),
-                show_on_team_page=True,
             )
         )
 
@@ -297,31 +292,28 @@ def test_GetVolunteers_custom_sort_key(db):
     with session_scope() as session:
         # user2 should be first (lowest sort_key)
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=user2.id,
                 role="Role 2",
                 started_volunteering=datetime(2023, 3, 1).date(),
                 sort_key=1.0,
-                show_on_team_page=True,
             )
         )
         # user3 should be second
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=user3.id,
                 role="Role 3",
                 started_volunteering=datetime(2023, 1, 1).date(),
                 sort_key=2.0,
-                show_on_team_page=True,
             )
         )
         # user1 should be last (no sort_key, falls back to started_volunteering)
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=user1.id,
                 role="Role 1",
                 started_volunteering=datetime(2023, 2, 1).date(),
-                show_on_team_page=True,
             )
         )
 
@@ -345,15 +337,14 @@ def test_GetVolunteers_excludes_hidden(db):
 
     with session_scope() as session:
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=user1.id,
                 role="Visible Role",
                 started_volunteering=datetime(2023, 1, 1).date(),
-                show_on_team_page=True,
             )
         )
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=user2.id,
                 role="Hidden Role",
                 started_volunteering=datetime(2023, 1, 1).date(),
@@ -380,23 +371,21 @@ def test_GetVolunteers_link_types(db):
     with session_scope() as session:
         # Volunteer with default couchers link
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=user_default.id,
                 role="Default Link",
                 started_volunteering=datetime(2023, 1, 1).date(),
-                show_on_team_page=True,
             )
         )
         # Volunteer with custom link
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=user_custom.id,
                 role="Custom Link",
                 started_volunteering=datetime(2023, 1, 1).date(),
                 link_type="email",
                 link_text="contact@example.com",
                 link_url="mailto:contact@example.com",
-                show_on_team_page=True,
             )
         )
 
@@ -429,19 +418,17 @@ def test_GetVolunteers_board_member_flag(db):
 
     with session_scope() as session:
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=board_member.id,
                 role="Board Member Role",
                 started_volunteering=datetime(2023, 1, 1).date(),
-                show_on_team_page=True,
             )
         )
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=regular_volunteer.id,
                 role="Regular Role",
                 started_volunteering=datetime(2023, 1, 1).date(),
-                show_on_team_page=True,
             )
         )
 

@@ -235,7 +235,7 @@ def enforce_community_memberships_for_user(session: Session, user: User) -> None
     for cluster_id in cluster_ids:
         session.add(
             ClusterSubscription(
-                user=user,
+                user_id=user.id,
                 cluster_id=cluster_id,
                 role=ClusterRole.member,
             )

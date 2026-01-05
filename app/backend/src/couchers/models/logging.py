@@ -9,7 +9,7 @@ from couchers.config import config
 from couchers.models.base import Base
 
 
-class APICall(Base, init=False, kw_only=True):
+class APICall(Base, kw_only=True):
     """
     API call logs
     """
@@ -27,35 +27,35 @@ class APICall(Base, init=False, kw_only=True):
     version: Mapped[str] = mapped_column(String, default=config["VERSION"])
 
     # approximate time of the call
-    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # the method call name, e.g. "/org.couchers.api.core.API/ListFriends"
     method: Mapped[str] = mapped_column(String)
 
     # gRPC status code name, e.g. FAILED_PRECONDITION, None if success
-    status_code: Mapped[str | None] = mapped_column(String, nullable=True)
+    status_code: Mapped[str | None] = mapped_column(String, default=None)
 
     # handler duration (excluding serialization, etc)
     duration: Mapped[float] = mapped_column(Float)
 
     # user_id of caller, None means not logged in
-    user_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    user_id: Mapped[int | None] = mapped_column(BigInteger, default=None)
 
     # sanitized request bytes
-    request: Mapped[bytes | None] = mapped_column(Binary, nullable=True)
+    request: Mapped[bytes | None] = mapped_column(Binary, default=None)
 
     # sanitized response bytes
-    response: Mapped[bytes | None] = mapped_column(Binary, nullable=True)
+    response: Mapped[bytes | None] = mapped_column(Binary, default=None)
 
     # whether response bytes have been truncated
     response_truncated: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
 
     # the exception traceback, if any
-    traceback: Mapped[str | None] = mapped_column(String, nullable=True)
+    traceback: Mapped[str | None] = mapped_column(String, default=None)
 
     # human readable perf report
-    perf_report: Mapped[str | None] = mapped_column(String, nullable=True)
+    perf_report: Mapped[str | None] = mapped_column(String, default=None)
 
     # details of the browser, if available
-    ip_address: Mapped[str | None] = mapped_column(String, nullable=True)
-    user_agent: Mapped[str | None] = mapped_column(String, nullable=True)
+    ip_address: Mapped[str | None] = mapped_column(String, default=None)
+    user_agent: Mapped[str | None] = mapped_column(String, default=None)

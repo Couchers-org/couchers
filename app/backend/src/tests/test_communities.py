@@ -66,26 +66,32 @@ def create_community(
 ) -> Node:
     node = Node(
         geom=to_multi(create_1d_polygon(interval_lb, interval_ub)),
-        parent_node=parent,
+        parent_node_id=parent.id if parent else None,
     )
     session.add(node)
+    session.flush()
     cluster = Cluster(
         name=f"{name}",
         description=f"Description for {name}",
-        parent_node=node,
+        parent_node_id=node.id,
         is_official_cluster=True,
     )
     session.add(cluster)
+    session.flush()
+    thread = Thread()
+    session.add(thread)
+    session.flush()
     main_page = Page(
-        parent_node=cluster.parent_node,
+        parent_node_id=cluster.parent_node_id,
         creator_user_id=admins[0].id,
-        owner_cluster=cluster,
+        owner_cluster_id=cluster.id,
         type=PageType.main_page,
-        thread=Thread(),
+        thread_id=thread.id,
     )
     session.add(main_page)
+    session.flush()
     page_version = PageVersion(
-        page=main_page,
+        page_id=main_page.id,
         editor_user_id=admins[0].id,
         title=f"Main page for the {name} community",
         content="There is nothing here yet...",
@@ -95,6 +101,7 @@ def create_community(
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user_id=admin.id,
+                cluster_id=cluster.id,
                 role=ClusterRole.admin,
             )
         )
@@ -102,6 +109,7 @@ def create_community(
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user_id=member.id,
+                cluster_id=cluster.id,
                 role=ClusterRole.member,
             )
         )
@@ -113,23 +121,29 @@ def create_community(
 def create_group(
     session: Session, name: str, admins: list[User], members: list[User], parent_community: Node | None
 ) -> Cluster:
+    assert parent_community is not None
     cluster = Cluster(
         name=f"{name}",
         description=f"Description for {name}",
-        parent_node=parent_community,
+        parent_node_id=parent_community.id,
     )
     session.add(cluster)
+    session.flush()
+    thread = Thread()
+    session.add(thread)
+    session.flush()
     main_page = Page(
-        parent_node=cluster.parent_node,
-        creator_user=admins[0],
-        owner_cluster=cluster,
+        parent_node_id=cluster.parent_node_id,
+        creator_user_id=admins[0].id,
+        owner_cluster_id=cluster.id,
         type=PageType.main_page,
-        thread=Thread(),
+        thread_id=thread.id,
     )
     session.add(main_page)
+    session.flush()
     page_version = PageVersion(
-        page=main_page,
-        editor_user=admins[0],
+        page_id=main_page.id,
+        editor_user_id=admins[0].id,
         title=f"Main page for the {name} community",
         content="There is nothing here yet...",
     )
@@ -137,14 +151,16 @@ def create_group(
     for admin in admins:
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
-                user=admin,
+                user_id=admin.id,
+                cluster_id=cluster.id,
                 role=ClusterRole.admin,
             )
         )
     for member in members:
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
-                user=member,
+                user_id=member.id,
+                cluster_id=cluster.id,
                 role=ClusterRole.member,
             )
         )

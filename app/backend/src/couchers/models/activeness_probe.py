@@ -26,7 +26,7 @@ class ActivenessProbeStatus(enum.Enum):
     no_longer_active = enum.auto()
 
 
-class ActivenessProbe(Base, init=False, kw_only=True):
+class ActivenessProbe(Base, kw_only=True):
     """
     Activeness probes are used to gauge if users are still active: we send them a notification and ask them to respond,
     we use this data both to help indicate response rate, as well as to make sure only those who are actively hosting
@@ -39,9 +39,9 @@ class ActivenessProbe(Base, init=False, kw_only=True):
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     # the time this probe was initiated
-    probe_initiated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    probe_initiated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     # the number of reminders sent for this probe
-    notifications_sent: Mapped[int] = mapped_column(Integer, server_default="0")
+    notifications_sent: Mapped[int] = mapped_column(Integer, server_default="0", init=False)
 
     # the time of response
     responded: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)

@@ -281,7 +281,7 @@ class UserActivity(Base, kw_only=True):
     )
 
 
-class InviteCode(Base, init=False, kw_only=True):
+class InviteCode(Base, kw_only=True):
     __tablename__ = "invite_codes"
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
@@ -533,7 +533,7 @@ class RateLimitAction(enum.Enum):
     chat_initiation = "chat initiation"
 
 
-class RateLimitViolation(Base, init=False, kw_only=True):
+class RateLimitViolation(Base, kw_only=True):
     __tablename__ = "rate_limit_violations"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
@@ -564,7 +564,7 @@ class Volunteer(Base, kw_only=True):
     # custom sort order on team page, sorted ascending
     sort_key: Mapped[float | None] = mapped_column(Float, default=None)
 
-    started_volunteering: Mapped[date] = mapped_column(Date, server_default=text("CURRENT_DATE"))
+    started_volunteering: Mapped[date] = mapped_column(Date, server_default=text("CURRENT_DATE"), init=False)
     stopped_volunteering: Mapped[date | None] = mapped_column(Date, default=None)
 
     link_type: Mapped[str | None] = mapped_column(String, default=None)

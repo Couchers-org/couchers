@@ -1,7 +1,7 @@
 # Makefile for the backend of the application
 # Run 'make [command]' in app/backend to execute the specified command
 
-UV_VERSION=0.9.6
+UV_VERSION=0.9.21
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 PROTO_IMAGE=registry.gitlab.com/couchers/grpc
 

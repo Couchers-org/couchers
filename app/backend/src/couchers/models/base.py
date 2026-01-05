@@ -1,8 +1,6 @@
 from geoalchemy2 import WKBElement, WKTElement
-from sqlalchemy import MetaData, Sequence, inspect
-from sqlalchemy import __version__ as sqla_version
+from sqlalchemy import MetaData, Sequence
 from sqlalchemy.orm import (
-    MANYTOONE,
     DeclarativeBase,
     MappedAsDataclass,
 )
@@ -24,17 +22,6 @@ class MatViewBase(DeclarativeBase):
 
 class Base(MappedAsDataclass, DeclarativeBase):
     metadata = meta
-
-    def __post_init__(self) -> None:
-        """Needed until sqlalchemy 2.1 to avoid issues with relationships.
-        See https://github.com/sqlalchemy/sqlalchemy/issues/12168#issuecomment-2892092715.
-        """
-        if sqla_version.startswith("2.1"):  # pragma: no cover
-            raise RuntimeError("Time to remove this post init")
-
-        for m2o_rel in (r for r in inspect(self).mapper.relationships if r.direction is MANYTOONE):
-            if self.__dict__.get(m2o_rel.key, False) is None:
-                self.__dict__.pop(m2o_rel.key, None)
 
 
 communities_seq = Sequence("communities_seq")

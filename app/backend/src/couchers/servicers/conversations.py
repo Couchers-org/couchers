@@ -224,7 +224,7 @@ def _add_message_to_subscription(session: Session, subscription: GroupChatSubscr
 
     Specify the keyword args for Message
     """
-    message = Message(conversation=subscription.group_chat.conversation, author_id=subscription.user_id, **kwargs)
+    message = Message(conversation_id=subscription.group_chat.conversation.id, author_id=subscription.user_id, **kwargs)
 
     session.add(message)
     session.flush()
@@ -274,7 +274,7 @@ def _create_chat(
 
     creator_subscription = GroupChatSubscription(
         user_id=creator_id,
-        group_chat=chat,
+        group_chat_id=chat.conversation_id,
         role=GroupChatRole.admin,
     )
     session.add(creator_subscription)
@@ -283,7 +283,7 @@ def _create_chat(
         session.add(
             GroupChatSubscription(
                 user_id=uid,
-                group_chat=chat,
+                group_chat_id=chat.conversation_id,
                 role=GroupChatRole.participant,
             )
         )
@@ -759,7 +759,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if not result:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
 
-        subscription, group_chat = result
+        subscription, group_chat = result._tuple()
         if not _user_can_message(session, context, group_chat):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_message_in_chat")
 
@@ -963,7 +963,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         if not result:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
 
-        your_subscription, group_chat = result
+        your_subscription, group_chat = result._tuple()
 
         if request.user_id == context.user_id:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_invite_self")
@@ -983,7 +983,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         subscription = GroupChatSubscription(
             user_id=request.user_id,
-            group_chat=your_subscription.group_chat,
+            group_chat_id=your_subscription.group_chat.conversation_id,
             role=GroupChatRole.participant,
         )
         session.add(subscription)

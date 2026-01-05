@@ -61,32 +61,44 @@ def test_report_email(db):
     user_reporter, api_token_author = generate_user()
     user_author, api_token_reported = generate_user()
 
-    report = ContentReport(
-        reporting_user_id=user_reporter.id,
-        reason="spam",
-        description="I think this is spam and does not belong on couchers",
-        content_ref="comment/123",
-        author_user_id=user_author.id,
-        user_agent="n/a",
-        page="https://couchers.org/comment/123",
-    )
-
     with session_scope() as session:
+        report = ContentReport(
+            reporting_user_id=user_reporter.id,
+            reason="spam",
+            description="I think this is spam and does not belong on couchers",
+            content_ref="comment/123",
+            author_user_id=user_author.id,
+            user_agent="n/a",
+            page="https://couchers.org/comment/123",
+        )
+        session.add(report)
+        session.flush()
+
         with mock_notification_email() as mock:
             send_content_report_email(session, report)
+
+        # Load all data before session closes
+        author_username = report.author_user.username
+        author_id = report.author_user.id
+        author_email = report.author_user.email
+        reporting_username = report.reporting_user.username
+        reporting_id = report.reporting_user.id
+        reporting_email = report.reporting_user.email
+        reason = report.reason
+        description = report.description
 
     assert mock.call_count == 1
 
     e = email_fields(mock)
     assert e.recipient == "reports@couchers.org.invalid"
-    assert report.author_user.username in e.plain
-    assert str(report.author_user.id) in e.plain
-    assert report.author_user.email in e.plain
-    assert report.reporting_user.username in e.plain
-    assert str(report.reporting_user.id) in e.plain
-    assert report.reporting_user.email in e.plain
-    assert report.reason in e.plain
-    assert report.description in e.plain
+    assert author_username in e.plain
+    assert str(author_id) in e.plain
+    assert author_email in e.plain
+    assert reporting_username in e.plain
+    assert str(reporting_id) in e.plain
+    assert reporting_email in e.plain
+    assert reason in e.plain
+    assert description in e.plain
     assert "report" in e.subject.lower()
 
 
@@ -138,6 +150,8 @@ def test_reference_report_email(db):
             was_appropriate=False,
             private_text="This is some private text for support",
         )
+        session.add(reference)
+        session.flush()
 
         with mock_notification_email() as mock:
             maybe_send_reference_report_email(session, reference)

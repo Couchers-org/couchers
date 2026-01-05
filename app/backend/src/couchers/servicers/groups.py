@@ -297,6 +297,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user_id=context.user_id,
+                cluster_id=cluster.id,
                 role=ClusterRole.member,
             )
         )
