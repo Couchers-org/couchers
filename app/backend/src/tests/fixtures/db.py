@@ -3,12 +3,13 @@ from collections.abc import Sequence
 from contextlib import contextmanager
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from sqlalchemy import Connection, Engine, create_engine, or_, select, text, update
 from sqlalchemy.orm import Session
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
+from couchers.context import CouchersContext
 from couchers.crypto import random_hex
 from couchers.db import _get_base_engine, session_scope
 from couchers.models import (
@@ -232,7 +233,8 @@ def generate_user(
             session.add(LanguageAbility(user_id=user.id, language_code=lang, fluency=fluency))
 
         # this expires the user, so now it's "dirty"
-        token, _ = create_session(_MockCouchersContext(), session, user, False, set_cookie=False)
+        context = cast(CouchersContext, _MockCouchersContext())
+        token, _ = create_session(context, session, user, False, set_cookie=False)
 
         # deleted user aborts session creation, hence this follows and necessitates a second commit
         if delete_user:
@@ -323,7 +325,7 @@ def make_user_invisible(user_id: int) -> None:
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
-def get_friend_relationship(user1: User, user2: User) -> FriendRelationship:
+def get_friend_relationship(user1: User, user2: User) -> FriendRelationship | None:
     with session_scope() as session:
         friend_relationship = session.execute(
             select(FriendRelationship).where(
@@ -345,7 +347,7 @@ def add_users_to_new_moderation_list(users: list[User]) -> int:
         session.add(moderation_user_list)
         session.flush()
         for user in users:
-            refreshed_user = session.get(User, user.id)
+            refreshed_user = session.get_one(User, user.id)
             moderation_user_list.users.append(refreshed_user)
         return moderation_user_list.id
 

@@ -39,7 +39,7 @@ from couchers.proto import (
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.templates.v2 import v2timestamp
-from couchers.utils import now
+from couchers.utils import not_none, now
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
 from tests.fixtures.sessions import (
@@ -600,7 +600,7 @@ def test_event_reminder_email_sent(db):
 
     with mock_notification_email() as mock:
         with session_scope() as session:
-            user_in_session = session.get(User, user.id)
+            user_in_session = session.get_one(User, user.id)
 
             notify(
                 session,
@@ -1093,7 +1093,7 @@ def test_SendDevPushNotification_disabled(db, push_collector: PushCollector):
                 )
             )
         assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Development APIs are not enabled" in e.value.details()
+        assert "Development APIs are not enabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1114,7 +1114,7 @@ def test_SendDevPushNotification_push_notifications_disabled(db, push_collector:
                 )
             )
         assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Push notifications are currently disabled" in e.value.details()
+        assert "Push notifications are currently disabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
