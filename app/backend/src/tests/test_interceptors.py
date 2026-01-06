@@ -21,7 +21,7 @@ from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
     UserAuthInfo,
-    check_auth,
+    check_permissions,
     find_auth_level,
     parse_headers,
     validate_auth_level,
@@ -703,8 +703,7 @@ def test_validate_auth_level_with_admin():
 
 
 def test_check_auth_open_service_without_auth():
-    result = check_auth(None, annotations_pb2.AUTH_LEVEL_OPEN)
-    assert result is None
+    check_permissions(None, annotations_pb2.AUTH_LEVEL_OPEN)
 
 
 def test_check_auth_open_service_with_auth():
@@ -718,13 +717,12 @@ def test_check_auth_open_service_with_auth():
         token="abc123",
         is_api_key=False,
     )
-    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_OPEN)
-    assert result is None
+    check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_OPEN)
 
 
 def test_check_auth_secure_service_without_auth():
-    result = check_auth(None, annotations_pb2.AUTH_LEVEL_SECURE)
-    assert result is not None
+    with pytest.raises(AbortError):
+        check_permissions(None, annotations_pb2.AUTH_LEVEL_SECURE)
 
 
 def test_check_auth_secure_service_with_normal_auth():
@@ -738,8 +736,7 @@ def test_check_auth_secure_service_with_normal_auth():
         token="abc123",
         is_api_key=False,
     )
-    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_SECURE)
-    assert result is None
+    check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_SECURE)
 
 
 def test_check_auth_secure_service_with_jailed_user():
@@ -753,8 +750,8 @@ def test_check_auth_secure_service_with_jailed_user():
         token="abc123",
         is_api_key=False,
     )
-    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_SECURE)
-    assert result is not None
+    with pytest.raises(AbortError):
+        check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_SECURE)
 
 
 def test_check_auth_jailed_service_with_jailed_user():
@@ -768,13 +765,12 @@ def test_check_auth_jailed_service_with_jailed_user():
         token="abc123",
         is_api_key=False,
     )
-    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_JAILED)
-    assert result is None
+    check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_JAILED)
 
 
 def test_check_auth_jailed_service_without_auth():
-    result = check_auth(None, annotations_pb2.AUTH_LEVEL_JAILED)
-    assert result is not None
+    with pytest.raises(AbortError):
+        check_permissions(None, annotations_pb2.AUTH_LEVEL_JAILED)
 
 
 def test_check_auth_editor_service_without_editor():
@@ -788,8 +784,8 @@ def test_check_auth_editor_service_without_editor():
         token="abc123",
         is_api_key=False,
     )
-    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_EDITOR)
-    assert result is not None
+    with pytest.raises(AbortError):
+        check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_EDITOR)
 
 
 def test_check_auth_editor_service_with_editor():
@@ -803,8 +799,7 @@ def test_check_auth_editor_service_with_editor():
         token="abc123",
         is_api_key=False,
     )
-    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_EDITOR)
-    assert result is None
+    check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_EDITOR)
 
 
 def test_check_auth_admin_service_without_superuser():
@@ -818,8 +813,8 @@ def test_check_auth_admin_service_without_superuser():
         token="abc123",
         is_api_key=False,
     )
-    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_ADMIN)
-    assert result is not None
+    with pytest.raises(AbortError):
+        check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_ADMIN)
 
 
 def test_check_auth_admin_service_with_superuser():
@@ -833,10 +828,9 @@ def test_check_auth_admin_service_with_superuser():
         token="abc123",
         is_api_key=False,
     )
-    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_ADMIN)
-    assert result is None
+    check_permissions(auth_info, annotations_pb2.AUTH_LEVEL_ADMIN)
 
 
 def test_check_auth_admin_service_without_auth():
-    result = check_auth(None, annotations_pb2.AUTH_LEVEL_ADMIN)
-    assert result is not None
+    with pytest.raises(AbortError):
+        check_permissions(None, annotations_pb2.AUTH_LEVEL_ADMIN)

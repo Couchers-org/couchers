@@ -9,11 +9,15 @@ from grpc._server import _validate_generic_rpc_handlers
 from couchers.context import make_interactive_context
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
-from couchers.interceptors import CouchersMiddlewareInterceptor, UserAuthInfo, _try_get_and_update_user_details
+from couchers.interceptors import (
+    CouchersMiddlewareInterceptor,
+    _try_get_and_update_user_details,
+    check_permissions,
+    find_auth_level,
+)
 from couchers.proto import (
     account_pb2_grpc,
     admin_pb2_grpc,
-    annotations_pb2,
     api_pb2_grpc,
     auth_pb2_grpc,
     blocking_pb2_grpc,
@@ -103,45 +107,15 @@ class MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
 
 
 class FakeRpcError(grpc.RpcError):
-    def __init__(self, code, details):
+    def __init__(self, code: grpc.StatusCode, details: str):
         self._code = code
         self._details = details
 
-    def code(self):
+    def code(self) -> grpc.StatusCode:
         return self._code
 
-    def details(self):
+    def details(self) -> str:
         return self._details
-
-
-def _check_user_perms(method: str, auth_info: UserAuthInfo | None) -> None:
-    # method is of the form "/org.couchers.api.core.API/GetUser"
-    _, service_name, method_name = method.split("/")
-
-    service_options = get_descriptor_pool().FindServiceByName(service_name).GetOptions()
-    auth_level = service_options.Extensions[annotations_pb2.auth_level]
-    assert auth_level != annotations_pb2.AUTH_LEVEL_UNKNOWN
-    assert auth_level in [
-        annotations_pb2.AUTH_LEVEL_OPEN,
-        annotations_pb2.AUTH_LEVEL_JAILED,
-        annotations_pb2.AUTH_LEVEL_SECURE,
-        annotations_pb2.AUTH_LEVEL_EDITOR,
-        annotations_pb2.AUTH_LEVEL_ADMIN,
-    ]
-
-    if not auth_info:
-        assert auth_level == annotations_pb2.AUTH_LEVEL_OPEN
-    else:
-        assert not (auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not auth_info.is_superuser), (
-            "Non-superuser tried to call superuser API"
-        )
-        assert not (auth_level == annotations_pb2.AUTH_LEVEL_EDITOR and not auth_info.is_editor), (
-            "Non-editor tried to call editor API"
-        )
-        assert not (
-            auth_info.is_jailed
-            and auth_level not in [annotations_pb2.AUTH_LEVEL_OPEN, annotations_pb2.AUTH_LEVEL_JAILED]
-        ), "User is jailed but tried to call non-open/non-jailed API"
 
 
 class MockGrpcContext:
@@ -174,30 +148,29 @@ class FakeChannel:
     def __init__(self, token: str | None = None):
         self.handlers: dict[str, Any] = {}
         self._token = token
+        self._pool = get_descriptor_pool()
 
     def add_generic_rpc_handlers(self, generic_rpc_handlers: Any):
         _validate_generic_rpc_handlers(generic_rpc_handlers)
         self.handlers.update(generic_rpc_handlers[0]._method_handlers)
 
-    def unary_unary(self, uri, request_serializer, response_deserializer):
-        handler = self.handlers[uri]
+    def unary_unary(self, method, request_serializer, response_deserializer):
+        handler = self.handlers[method]
 
         def fake_handler(request):
-            # What does this test?
             auth_info = _try_get_and_update_user_details(
                 self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
             )
-            _check_user_perms(uri, auth_info)
+            auth_level = find_auth_level(self._pool, method)
+            check_permissions(auth_info, auth_level)
 
             # Do a full serialization cycle on the request and the
             # response to catch accidental use of unserializable data.
             request = handler.request_deserializer(request_serializer(request))
 
             with session_scope() as session:
-                mock_grpc_ctx = MockGrpcContext()
-
                 context = make_interactive_context(
-                    grpc_context=mock_grpc_ctx,
+                    grpc_context=MockGrpcContext(),
                     user_id=auth_info.user_id if auth_info else None,
                     is_api_key=False,
                     token=self._token if auth_info else None,

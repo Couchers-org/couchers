@@ -189,7 +189,7 @@ def _sanitized_bytes(proto: Message | None) -> bytes | None:
 def _store_log(
     *,
     method: str,
-    status_code: str | None,
+    status_code: str | None = None,
     duration: float,
     user_id: int | None,
     is_api_key: bool,
@@ -258,8 +258,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
         try:
             auth_level = find_auth_level(self._pool, method)
-        except AbortError as bal:
-            return abort_handler(bal.msg, bal.code)
+        except AbortError as ae:
+            return abort_handler(ae.msg, ae.code)
 
         try:
             headers = parse_headers(dict(handler_call_details.invocation_metadata))
@@ -270,8 +270,10 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             headers.token, headers.is_api_key, headers.ip_address, headers.user_agent
         )
 
-        if error_handler := check_auth(auth_info, auth_level):
-            return error_handler
+        try:
+            check_permissions(auth_info, auth_level)
+        except AbortError as ae:
+            return unauthenticated_handler(ae.msg, ae.code)
 
         if not (handler := continuation(handler_call_details)):
             raise RuntimeError(f"No handler in '{method}'")
@@ -444,29 +446,25 @@ def validate_auth_level(auth_level: AuthLevel.ValueType) -> None:
         raise AbortError(MISSING_AUTH_LEVEL_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
 
 
-def check_auth(
-    auth_info: UserAuthInfo | None, auth_level: AuthLevel.ValueType
-) -> grpc.RpcMethodHandler[Any, Any] | None:
+def check_permissions(auth_info: UserAuthInfo | None, auth_level: AuthLevel.ValueType) -> None:
     if not auth_info:
         # if this isn't an open service, fail
         if auth_level != annotations_pb2.AUTH_LEVEL_OPEN:
-            return unauthenticated_handler(UNAUTHORIZED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
+            raise AbortError(UNAUTHORIZED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
     else:
         # a valid user session was found - check permissions
         if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not auth_info.is_superuser:
-            return unauthenticated_handler(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
+            raise AbortError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
 
         if auth_level == annotations_pb2.AUTH_LEVEL_EDITOR and not auth_info.is_editor:
-            return unauthenticated_handler(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
+            raise AbortError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
 
         # if the user is jailed and this isn't an open or jailed service, fail
         if auth_info.is_jailed and auth_level not in [
             annotations_pb2.AUTH_LEVEL_OPEN,
             annotations_pb2.AUTH_LEVEL_JAILED,
         ]:
-            return unauthenticated_handler(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
-
-    return None
+            raise AbortError(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
 
 
 class MediaInterceptor(grpc.ServerInterceptor):
