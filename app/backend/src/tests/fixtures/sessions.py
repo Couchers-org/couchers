@@ -1,7 +1,7 @@
 from collections.abc import Generator
 from concurrent import futures
 from contextlib import contextmanager
-from typing import Any
+from typing import Any, NoReturn
 
 import grpc
 from grpc._server import _validate_generic_rpc_handlers
@@ -91,7 +91,7 @@ class CookieMetadataPlugin(grpc.AuthMetadataPlugin):
         callback((("cookie", f"couchers-sesh={self.token}"),), None)
 
 
-class _MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
+class MetadataKeeperInterceptor(grpc.UnaryUnaryClientInterceptor):
     def __init__(self):
         self.latest_headers = {}
 
@@ -151,12 +151,12 @@ class MockGrpcContext:
 
     def __init__(self):
         self._initial_metadata = []
-        self._invocation_metadata = []
+        self._invocation_metadata: list[tuple[str, str]] = []
 
-    def abort(self, code, details):
+    def abort(self, code: grpc.StatusCode, details: str) -> NoReturn:
         raise FakeRpcError(code, details)
 
-    def invocation_metadata(self):
+    def invocation_metadata(self) -> list[tuple[str, str]]:
         return self._invocation_metadata
 
     def send_initial_metadata(self, metadata):
@@ -167,7 +167,7 @@ class FakeChannel:
     """
     Mock gRPC channel for testing that orchestrates context creation.
 
-    This holds test state (token) and creates proper CouchersContext
+    This holds the test state (token) and creates proper CouchersContext
     instances when handlers are invoked.
     """
 
@@ -183,10 +183,10 @@ class FakeChannel:
         handler = self.handlers[uri]
 
         def fake_handler(request):
+            # What does this test?
             auth_info = _try_get_and_update_user_details(
                 self._token, is_api_key=False, ip_address="127.0.0.1", user_agent="Testing User-Agent"
             )
-
             _check_user_perms(uri, auth_info)
 
             # Do a full serialization cycle on the request and the
@@ -226,7 +226,7 @@ def run_server(grpc_channel_options=(), token: str | None = None):
 
         try:
             with grpc.secure_channel(f"localhost:{port}", creds, options=grpc_channel_options) as channel:
-                metadata_interceptor = _MetadataKeeperInterceptor()
+                metadata_interceptor = MetadataKeeperInterceptor()
                 channel = grpc.intercept_channel(channel, metadata_interceptor)
                 yield srv, channel, metadata_interceptor
         finally:
@@ -237,7 +237,7 @@ def run_server(grpc_channel_options=(), token: str | None = None):
 @contextmanager
 def auth_api_session(
     grpc_channel_options=(),
-) -> Generator[tuple[auth_pb2_grpc.AuthStub, grpc.UnaryUnaryClientInterceptor]]:
+) -> Generator[tuple[auth_pb2_grpc.AuthStub, MetadataKeeperInterceptor]]:
     """
     Create an Auth API for testing
 

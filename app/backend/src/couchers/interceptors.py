@@ -73,7 +73,7 @@ def _try_get_and_update_user_details(
 
     Also updates the user's last active time, token last active time, and increments API call count.
 
-    Returns UserAuthInfo if valid session found, None otherwise.
+    Returns UserAuthInfo if a valid session is found, None otherwise.
     """
     if not token:
         return None
@@ -99,40 +99,40 @@ def _try_get_and_update_user_details(
 
         if not result:
             return None
+
+        user, user_session, user_activity = result._tuple()
+
+        # update user last active time if it's been a while
+        if now() - user.last_active > timedelta(minutes=5):
+            user.last_active = func.now()
+
+        # let's update the token
+        user_session.last_seen = func.now()
+        user_session.api_calls += 1
+
+        if user_activity:
+            user_activity.api_calls += 1
         else:
-            user, user_session, user_activity = result._tuple()
-
-            # update user last active time if it's been a while
-            if now() - user.last_active > timedelta(minutes=5):
-                user.last_active = func.now()
-
-            # let's update the token
-            user_session.last_seen = func.now()
-            user_session.api_calls += 1
-
-            if user_activity:
-                user_activity.api_calls += 1
-            else:
-                session.add(
-                    UserActivity(
-                        user_id=user.id,
-                        period=_binned_now(),
-                        ip_address=ip_address,
-                        user_agent=user_agent,
-                        api_calls=1,
-                    )
+            session.add(
+                UserActivity(
+                    user_id=user.id,
+                    period=_binned_now(),
+                    ip_address=ip_address,
+                    user_agent=user_agent,
+                    api_calls=1,
                 )
-
-            session.commit()
-
-            return UserAuthInfo(
-                user_id=user.id,
-                is_jailed=user.is_jailed,
-                is_editor=user.is_editor,
-                is_superuser=user.is_superuser,
-                token_expiry=user_session.expiry,
-                ui_language_preference=user.ui_language_preference,
             )
+
+        session.commit()
+
+        return UserAuthInfo(
+            user_id=user.id,
+            is_jailed=user.is_jailed,
+            is_editor=user.is_editor,
+            is_superuser=user.is_superuser,
+            token_expiry=user_session.expiry,
+            ui_language_preference=user.ui_language_preference,
+        )
 
 
 def abort_handler[T, R](
