@@ -1,22 +1,37 @@
 from concurrent import futures
 from contextlib import contextmanager
+from unittest.mock import Mock
 
 import grpc
 import pytest
 from google.protobuf import empty_pb2
+from google.protobuf.descriptor import ServiceDescriptor
+from google.protobuf.descriptor_pool import DescriptorPool
 from sqlalchemy import select
 
+from couchers.constants import (
+    MISSING_AUTH_LEVEL_ERROR_MESSAGE,
+    NONEXISTENT_API_CALL_ERROR_MESSAGE,
+)
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.interceptors import (
+    AbortError,
+    BadHeaders,
     CouchersMiddlewareInterceptor,
     ErrorSanitizationInterceptor,
+    UserAuthInfo,
+    check_auth,
+    find_auth_level,
+    parse_headers,
+    validate_auth_level,
 )
 from couchers.metrics import servicer_duration_histogram
 from couchers.models import APICall, UserSession
-from couchers.proto import account_pb2, admin_pb2, api_pb2, auth_pb2
+from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
+from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import real_admin_session
 
@@ -555,3 +570,273 @@ def test_auth_levels(db):
             call_rpc(empty_pb2.Empty())
         assert err.value.code() == grpc.StatusCode.INTERNAL
         assert err.value.details() == "Internal authentication error."
+
+
+def test_parse_headers_with_session_cookie():
+    headers = {"cookie": "couchers-sesh=abc123; other-cookie=value"}
+    result = parse_headers(headers)
+    assert result.token == "abc123"
+    assert result.is_api_key is False
+
+
+def test_parse_headers_with_authorization_header():
+    headers = {"authorization": "Bearer abc123"}
+    result = parse_headers(headers)
+    assert result.token == "abc123"
+    assert result.is_api_key is True
+
+
+def test_parse_headers_with_both_cookie_and_authorization():
+    headers = {"cookie": "couchers-sesh=abc123", "authorization": "Bearer xyz789"}
+    with pytest.raises(BadHeaders, match="Both cookies and authorization are present in headers"):
+        parse_headers(headers)
+
+
+def test_parse_headers_with_neither_cookie_nor_authorization():
+    result = parse_headers({})
+    assert result.token is None
+    assert result.is_api_key is False
+
+
+def test_parse_headers_with_all_optional_headers():
+    headers = {
+        "cookie": "couchers-sesh=abc123; couchers-user-id=42; NEXT_LOCALE=en",
+        "x-couchers-real-ip": "192.168.1.1",
+        "user-agent": "TestAgent/1.0",
+    }
+    result = parse_headers(headers)
+    assert result.token == "abc123"
+    assert result.is_api_key is False
+    assert result.ip_address == "192.168.1.1"
+    assert result.user_agent == "TestAgent/1.0"
+    assert result.ui_lang == "en"
+    assert result.user_id == "42"
+
+
+def test_parse_headers_with_bytes_ip_address():
+    headers: dict[str, str | bytes] = {
+        "cookie": "couchers-sesh=abc123",
+        "x-couchers-real-ip": b"192.168.1.1",
+    }
+    result = parse_headers(headers)
+    assert result.ip_address is None
+
+
+def test_parse_headers_with_bytes_user_agent():
+    headers: dict[str, str | bytes] = {
+        "cookie": "couchers-sesh=abc123",
+        "user-agent": b"TestAgent/1.0",
+    }
+    result = parse_headers(headers)
+    assert result.user_agent is None
+
+
+def test_parse_headers_malformed_authorization():
+    headers = {"authorization": "bearer abc123"}
+    result = parse_headers(headers)
+    assert result.token is None
+    assert result.is_api_key is True
+
+
+def test_find_auth_level_with_valid_service():
+    pool = Mock(spec=DescriptorPool)
+    service_desc = Mock(spec=ServiceDescriptor)
+    service_options = Mock()
+    service_options.Extensions = {annotations_pb2.auth_level: annotations_pb2.AUTH_LEVEL_SECURE}
+    service_desc.GetOptions.return_value = service_options
+    pool.FindServiceByName.return_value = service_desc
+
+    result = find_auth_level(pool, "/org.couchers.api.core.API/GetUser")
+    assert result == annotations_pb2.AUTH_LEVEL_SECURE
+    pool.FindServiceByName.assert_called_once_with("org.couchers.api.core.API")
+
+
+def test_find_auth_level_with_nonexistent_service():
+    pool = Mock(spec=DescriptorPool)
+    pool.FindServiceByName.side_effect = KeyError("Service not found")
+
+    with pytest.raises(AbortError) as exc:
+        find_auth_level(pool, "/org.couchers.nonexistent.Service/Method")
+    assert exc.value.msg == NONEXISTENT_API_CALL_ERROR_MESSAGE
+    assert exc.value.code == grpc.StatusCode.UNIMPLEMENTED
+
+
+def test_find_auth_level_with_unknown_auth_level():
+    pool = Mock(spec=DescriptorPool)
+    service_desc = Mock(spec=ServiceDescriptor)
+    service_options = Mock()
+    service_options.Extensions = {annotations_pb2.auth_level: annotations_pb2.AUTH_LEVEL_UNKNOWN}
+    service_desc.GetOptions.return_value = service_options
+    pool.FindServiceByName.return_value = service_desc
+
+    with pytest.raises(AbortError) as exc:
+        find_auth_level(pool, "/org.couchers.api.core.API/GetUser")
+    assert exc.value.msg == MISSING_AUTH_LEVEL_ERROR_MESSAGE
+    assert exc.value.code == grpc.StatusCode.INTERNAL
+
+
+def test_validate_auth_level_with_unknown():
+    with pytest.raises(AbortError) as exc:
+        validate_auth_level(annotations_pb2.AUTH_LEVEL_UNKNOWN)
+    assert exc.value.msg == MISSING_AUTH_LEVEL_ERROR_MESSAGE
+    assert exc.value.code == grpc.StatusCode.INTERNAL
+
+
+def test_validate_auth_level_with_open():
+    validate_auth_level(annotations_pb2.AUTH_LEVEL_OPEN)
+
+
+def test_validate_auth_level_with_jailed():
+    validate_auth_level(annotations_pb2.AUTH_LEVEL_JAILED)
+
+
+def test_validate_auth_level_with_secure():
+    validate_auth_level(annotations_pb2.AUTH_LEVEL_SECURE)
+
+
+def test_validate_auth_level_with_editor():
+    validate_auth_level(annotations_pb2.AUTH_LEVEL_EDITOR)
+
+
+def test_validate_auth_level_with_admin():
+    validate_auth_level(annotations_pb2.AUTH_LEVEL_ADMIN)
+
+
+def test_check_auth_open_service_without_auth():
+    result = check_auth(None, annotations_pb2.AUTH_LEVEL_OPEN)
+    assert result is None
+
+
+def test_check_auth_open_service_with_auth():
+    auth_info = UserAuthInfo(
+        user_id=1,
+        is_jailed=False,
+        is_editor=False,
+        is_superuser=False,
+        token_expiry=now(),
+        ui_language_preference="en",
+        token="abc123",
+        is_api_key=False,
+    )
+    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_OPEN)
+    assert result is None
+
+
+def test_check_auth_secure_service_without_auth():
+    result = check_auth(None, annotations_pb2.AUTH_LEVEL_SECURE)
+    assert result is not None
+
+
+def test_check_auth_secure_service_with_normal_auth():
+    auth_info = UserAuthInfo(
+        user_id=1,
+        is_jailed=False,
+        is_editor=False,
+        is_superuser=False,
+        token_expiry=now(),
+        ui_language_preference="en",
+        token="abc123",
+        is_api_key=False,
+    )
+    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_SECURE)
+    assert result is None
+
+
+def test_check_auth_secure_service_with_jailed_user():
+    auth_info = UserAuthInfo(
+        user_id=1,
+        is_jailed=True,
+        is_editor=False,
+        is_superuser=False,
+        token_expiry=now(),
+        ui_language_preference="en",
+        token="abc123",
+        is_api_key=False,
+    )
+    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_SECURE)
+    assert result is not None
+
+
+def test_check_auth_jailed_service_with_jailed_user():
+    auth_info = UserAuthInfo(
+        user_id=1,
+        is_jailed=True,
+        is_editor=False,
+        is_superuser=False,
+        token_expiry=now(),
+        ui_language_preference="en",
+        token="abc123",
+        is_api_key=False,
+    )
+    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_JAILED)
+    assert result is None
+
+
+def test_check_auth_jailed_service_without_auth():
+    result = check_auth(None, annotations_pb2.AUTH_LEVEL_JAILED)
+    assert result is not None
+
+
+def test_check_auth_editor_service_without_editor():
+    auth_info = UserAuthInfo(
+        user_id=1,
+        is_jailed=False,
+        is_editor=False,
+        is_superuser=False,
+        token_expiry=now(),
+        ui_language_preference="en",
+        token="abc123",
+        is_api_key=False,
+    )
+    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_EDITOR)
+    assert result is not None
+
+
+def test_check_auth_editor_service_with_editor():
+    auth_info = UserAuthInfo(
+        user_id=1,
+        is_jailed=False,
+        is_editor=True,
+        is_superuser=False,
+        token_expiry=now(),
+        ui_language_preference="en",
+        token="abc123",
+        is_api_key=False,
+    )
+    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_EDITOR)
+    assert result is None
+
+
+def test_check_auth_admin_service_without_superuser():
+    auth_info = UserAuthInfo(
+        user_id=1,
+        is_jailed=False,
+        is_editor=True,
+        is_superuser=False,
+        token_expiry=now(),
+        ui_language_preference="en",
+        token="abc123",
+        is_api_key=False,
+    )
+    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_ADMIN)
+    assert result is not None
+
+
+def test_check_auth_admin_service_with_superuser():
+    auth_info = UserAuthInfo(
+        user_id=1,
+        is_jailed=False,
+        is_editor=True,
+        is_superuser=True,
+        token_expiry=now(),
+        ui_language_preference="en",
+        token="abc123",
+        is_api_key=False,
+    )
+    result = check_auth(auth_info, annotations_pb2.AUTH_LEVEL_ADMIN)
+    assert result is None
+
+
+def test_check_auth_admin_service_without_auth():
+    result = check_auth(None, annotations_pb2.AUTH_LEVEL_ADMIN)
+    assert result is not None

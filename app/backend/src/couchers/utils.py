@@ -1,7 +1,7 @@
 import http.cookies
 import re
 import typing
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
@@ -275,7 +275,7 @@ def create_lang_cookie(lang: str) -> list[str]:
     ]
 
 
-def parse_session_cookie(headers: dict[str, str | bytes]) -> str | None:
+def parse_session_cookie(headers: Mapping[str, str | bytes]) -> str | None:
     """
     Returns our session cookie value (aka token) or None
     """
@@ -293,7 +293,7 @@ def parse_session_cookie(headers: dict[str, str | bytes]) -> str | None:
     return cookie.value
 
 
-def parse_user_id_cookie(headers: dict[str, str | bytes]) -> str | None:
+def parse_user_id_cookie(headers: Mapping[str, str | bytes]) -> str | None:
     """
     Returns our session cookie value (aka token) or None
     """
@@ -311,7 +311,7 @@ def parse_user_id_cookie(headers: dict[str, str | bytes]) -> str | None:
     return cookie.value
 
 
-def parse_ui_lang_cookie(headers: dict[str, str | bytes]) -> str | None:
+def parse_ui_lang_cookie(headers: Mapping[str, str | bytes]) -> str | None:
     """
     Returns language cookie or None
     """
@@ -329,7 +329,7 @@ def parse_ui_lang_cookie(headers: dict[str, str | bytes]) -> str | None:
     return cookie.value
 
 
-def parse_api_key(headers: dict[str, str | bytes]) -> str | None:
+def parse_api_key(headers: Mapping[str, str | bytes]) -> str | None:
     """
     Returns a bearer token (API key) from the `authorization` header, or None if invalid/not present
     """

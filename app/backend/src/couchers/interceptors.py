@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -195,8 +195,8 @@ def _store_log(
     is_api_key: bool,
     request: Message,
     response: Message | None,
-    traceback: str | None,
-    perf_report: str | None,
+    traceback: str | None = None,
+    perf_report: str | None = None,
     ip_address: str | None,
     user_agent: str | None,
 ) -> None:
@@ -296,14 +296,11 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     duration = (finished - start) / 1e6  # ms
                     _store_log(
                         method=method,
-                        status_code=None,
                         duration=duration,
                         user_id=couchers_context._user_id,
                         is_api_key=cast(bool, couchers_context._is_api_key),
                         request=req,
                         response=res,
-                        traceback=None,
-                        perf_report=None,
                         ip_address=headers.ip_address,
                         user_agent=headers.user_agent,
                     )
@@ -328,7 +325,6 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         request=req,
                         response=None,
                         traceback=traceback,
-                        perf_report=None,
                         ip_address=headers.ip_address,
                         user_agent=headers.user_agent,
                     )
@@ -376,7 +372,7 @@ class CouchersHeaders:
     user_id: str | None
 
 
-def parse_headers(headers: dict[str, str | bytes]) -> CouchersHeaders:
+def parse_headers(headers: Mapping[str, str | bytes]) -> CouchersHeaders:
     if "cookie" in headers and "authorization" in headers:
         # for security reasons, only one of "cookie" or "authorization" can be present
         raise BadHeaders("Both cookies and authorization are present in headers")
@@ -427,6 +423,7 @@ def find_auth_level(pool: DescriptorPool, method: str) -> AuthLevel.ValueType:
         raise AbortError(NONEXISTENT_API_CALL_ERROR_MESSAGE, grpc.StatusCode.UNIMPLEMENTED) from None
 
     level = service_options.Extensions[annotations_pb2.auth_level]
+
     validate_auth_level(level)
 
     return level

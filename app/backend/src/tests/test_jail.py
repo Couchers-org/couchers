@@ -21,7 +21,7 @@ def test_jail_basic(db):
     user1, token1 = generate_user()
 
     with real_api_session(token1) as api:
-        res = api.Ping(api_pb2.PingReq())
+        api.Ping(api_pb2.PingReq())
 
     with real_jail_session(token1) as jail:
         res = jail.JailInfo(empty_pb2.Empty())
@@ -35,7 +35,7 @@ def test_jail_basic(db):
     user2, token2 = generate_user(accepted_tos=0)
 
     with real_api_session(token2) as api, pytest.raises(grpc.RpcError) as e:
-        res = api.Ping(api_pb2.PingReq())
+        api.Ping(api_pb2.PingReq())
     assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
 
     with real_jail_session(token2) as jail:
