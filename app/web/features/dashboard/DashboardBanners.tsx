@@ -13,6 +13,8 @@ import { routeToEditProfile } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
+import ReminderItem from "./ReminderItem";
+
 const StyledAlert = styled(MuiAlert)(() => ({
   marginBottom: theme.spacing(2),
 }));
@@ -67,6 +69,9 @@ export default function DashboardBanners() {
               </Typography>
               <Typography variant="inherit">
                 {t("dashboard:complete_profile_explanation")}
+              </Typography>
+              <Typography variant="inherit">
+                <ReminderItem />
               </Typography>
             </StyledAlert>
           )}

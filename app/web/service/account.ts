@@ -204,6 +204,10 @@ export async function getMyVolunteerInfo() {
   return (await client.account.getMyVolunteerInfo(new Empty())).toObject();
 }
 
+export async function getReminders() {
+  return (await client.account.getReminders(new Empty())).toObject();
+}
+
 export async function createInviteCode() {
   const res = await client.account.createInviteCode(new CreateInviteCodeReq());
   return res.toObject();
