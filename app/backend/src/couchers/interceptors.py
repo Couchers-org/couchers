@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Callable
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from os import getpid
 from threading import get_ident
@@ -12,6 +12,7 @@ from typing import Any, NoReturn, cast, overload
 import grpc
 import sentry_sdk
 from google.protobuf.descriptor import ServiceDescriptor
+from google.protobuf.descriptor_pool import DescriptorPool
 from google.protobuf.message import Message
 from opentelemetry import trace
 from sqlalchemy import Function, select
@@ -32,6 +33,7 @@ from couchers.descriptor_pool import get_descriptor_pool
 from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserActivity, UserSession
 from couchers.proto import annotations_pb2
+from couchers.proto.annotations_pb2 import AuthLevel
 from couchers.utils import (
     create_lang_cookie,
     create_session_cookies,
@@ -45,13 +47,9 @@ from couchers.utils import (
 logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class UserAuthInfo:
-    """
-    Information about an authenticated user session.
-
-    Returned by _try_get_and_update_user_details when a valid session is found.
-    """
+    """Information about an authenticated user session."""
 
     user_id: int
     is_jailed: bool
@@ -59,6 +57,8 @@ class UserAuthInfo:
     is_superuser: bool
     token_expiry: datetime
     ui_language_preference: str | None
+    token: str = field(repr=False)
+    is_api_key: bool
 
 
 def _binned_now() -> Function[Any]:
@@ -132,6 +132,8 @@ def _try_get_and_update_user_details(
             is_superuser=user.is_superuser,
             token_expiry=user_session.expiry,
             ui_language_preference=user.ui_language_preference,
+            token=token,
+            is_api_key=is_api_key,
         )
 
 
@@ -253,88 +255,39 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         start = perf_counter_ns()
 
         method = handler_call_details.method
-        # method is of the form "/org.couchers.api.core.API/GetUser"
-        _, service_name, method_name = method.split("/")
 
         try:
-            service: ServiceDescriptor = self._pool.FindServiceByName(service_name)  # type: ignore[no-untyped-call]
-            service_options = service.GetOptions()
-        except KeyError:
-            return abort_handler(NONEXISTENT_API_CALL_ERROR_MESSAGE, grpc.StatusCode.UNIMPLEMENTED)
+            auth_level = find_auth_level(self._pool, method)
+        except AbortError as bal:
+            return abort_handler(bal.msg, bal.code)
 
-        auth_level = service_options.Extensions[annotations_pb2.auth_level]
-
-        # if unknown auth level, then it wasn't set and something's wrong
-        if auth_level == annotations_pb2.AUTH_LEVEL_UNKNOWN:
-            return abort_handler(MISSING_AUTH_LEVEL_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
-
-        assert auth_level in [
-            annotations_pb2.AUTH_LEVEL_OPEN,
-            annotations_pb2.AUTH_LEVEL_JAILED,
-            annotations_pb2.AUTH_LEVEL_SECURE,
-            annotations_pb2.AUTH_LEVEL_EDITOR,
-            annotations_pb2.AUTH_LEVEL_ADMIN,
-        ]
-
-        headers = dict(handler_call_details.invocation_metadata)
-
-        if "cookie" in headers and "authorization" in headers:
-            # for security reasons, only one of "cookie" or "authorization" can be present
+        try:
+            headers = parse_headers(dict(handler_call_details.invocation_metadata))
+        except BadHeaders:
             return unauthenticated_handler(COOKIES_AND_AUTH_HEADER_ERROR_MESSAGE)
-        elif "cookie" in headers:
-            # the session token is passed in cookies, i.e. in the `cookie` header
-            token, is_api_key = parse_session_cookie(headers), False
-        elif "authorization" in headers:
-            # the session token is passed in the `authorization` header
-            token, is_api_key = parse_api_key(headers), True
-        else:
-            # no session found
-            token, is_api_key = None, False
 
-        ip_address = cast(str | None, headers.get("x-couchers-real-ip"))
-        user_agent = cast(str | None, headers.get("user-agent"))
+        auth_info = _try_get_and_update_user_details(
+            headers.token, headers.is_api_key, headers.ip_address, headers.user_agent
+        )
 
-        auth_info = _try_get_and_update_user_details(token, is_api_key, ip_address, user_agent)
+        if error_handler := check_auth(auth_info, auth_level):
+            return error_handler
 
-        if not auth_info:
-            # Invalid or no session - clear credentials
-            token = None
-            is_api_key = False
-
-            # if this isn't an open service, fail
-            if auth_level != annotations_pb2.AUTH_LEVEL_OPEN:
-                return unauthenticated_handler(UNAUTHORIZED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
-        else:
-            # a valid user session was found - check permissions
-            if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not auth_info.is_superuser:
-                return unauthenticated_handler(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
-
-            if auth_level == annotations_pb2.AUTH_LEVEL_EDITOR and not auth_info.is_editor:
-                return unauthenticated_handler(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
-
-            # if the user is jailed and this is isn't an open or jailed service, fail
-            if auth_info.is_jailed and auth_level not in [
-                annotations_pb2.AUTH_LEVEL_OPEN,
-                annotations_pb2.AUTH_LEVEL_JAILED,
-            ]:
-                return unauthenticated_handler(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
-
-        handler = continuation(handler_call_details)
-        if not handler:
+        if not (handler := continuation(handler_call_details)):
             raise RuntimeError(f"No handler in '{method}'")
 
-        prev_function = handler.unary_unary
-        if not prev_function:
+        if not (prev_function := handler.unary_unary):
             raise RuntimeError(f"No prev_function in '{method}', {handler}")
 
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
-            couchers_context: CouchersContext = make_interactive_context(
+            couchers_context = make_interactive_context(
                 grpc_context=grpc_context,
                 user_id=auth_info.user_id if auth_info else None,
-                is_api_key=is_api_key,
-                token=token,
+                is_api_key=auth_info.is_api_key if auth_info else False,
+                token=auth_info.token if auth_info else None,
                 ui_language_preference=auth_info.ui_language_preference if auth_info else None,
             )
+
             with session_scope() as session:
                 try:
                     _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
@@ -351,8 +304,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         response=res,
                         traceback=None,
                         perf_report=None,
-                        ip_address=ip_address,
-                        user_agent=user_agent,
+                        ip_address=headers.ip_address,
+                        user_agent=headers.user_agent,
                     )
                     observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
                 except Exception as e:
@@ -376,8 +329,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         response=None,
                         traceback=traceback,
                         perf_report=None,
-                        ip_address=ip_address,
-                        user_agent=user_agent,
+                        ip_address=headers.ip_address,
+                        user_agent=headers.user_agent,
                     )
                     observe_in_servicer_duration_histogram(
                         method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
@@ -390,19 +343,13 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
 
                     raise e
 
-            if auth_info and not is_api_key:
-                # Sanity check. If auth_info is present, then we should have a token.
-                if token is None:
-                    raise RuntimeError(f"{token=}, {auth_info.token_expiry=}")
-
+            if auth_info and not auth_info.is_api_key:
                 # check the two cookies are in sync & that language preference cookie is correct
-                if parse_user_id_cookie(headers) != str(auth_info.user_id):
+                if headers.user_id != str(auth_info.user_id):
                     couchers_context.set_cookies(
-                        create_session_cookies(token, auth_info.user_id, auth_info.token_expiry)
+                        create_session_cookies(auth_info.token, auth_info.user_id, auth_info.token_expiry)
                     )
-                if auth_info.ui_language_preference and auth_info.ui_language_preference != parse_ui_lang_cookie(
-                    headers
-                ):
+                if auth_info.ui_language_preference and auth_info.ui_language_preference != headers.ui_lang:
                     couchers_context.set_cookies(create_lang_cookie(auth_info.ui_language_preference))
 
             if not grpc_context.is_active():
@@ -417,6 +364,112 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             request_deserializer=handler.request_deserializer,
             response_serializer=handler.response_serializer,
         )
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class CouchersHeaders:
+    token: str | None = field(repr=False)
+    is_api_key: bool
+    ip_address: str | None
+    user_agent: str | None
+    ui_lang: str | None
+    user_id: str | None
+
+
+def parse_headers(headers: dict[str, str | bytes]) -> CouchersHeaders:
+    if "cookie" in headers and "authorization" in headers:
+        # for security reasons, only one of "cookie" or "authorization" can be present
+        raise BadHeaders("Both cookies and authorization are present in headers")
+    elif "cookie" in headers:
+        # the session token is passed in cookies, i.e., in the `cookie` header
+        token, is_api_key = parse_session_cookie(headers), False
+    elif "authorization" in headers:
+        # the session token is passed in the `authorization` header
+        token, is_api_key = parse_api_key(headers), True
+    else:
+        # no session found
+        token, is_api_key = None, False
+
+    ip_address = headers.get("x-couchers-real-ip")
+    user_agent = headers.get("user-agent")
+
+    ui_lang = parse_ui_lang_cookie(headers)
+    user_id = parse_user_id_cookie(headers)
+
+    return CouchersHeaders(
+        token=token,
+        is_api_key=is_api_key,
+        ip_address=ip_address if isinstance(ip_address, str) else None,
+        user_agent=user_agent if isinstance(user_agent, str) else None,
+        ui_lang=ui_lang,
+        user_id=user_id,
+    )
+
+
+class BadHeaders(Exception):
+    pass
+
+
+class AbortError(Exception):
+    def __init__(self, msg: str, code: grpc.StatusCode) -> None:
+        self.msg = msg
+        self.code = code
+
+
+def find_auth_level(pool: DescriptorPool, method: str) -> AuthLevel.ValueType:
+    # method is of the form "/org.couchers.api.core.API/GetUser"
+    _, service_name, method_name = method.split("/")
+
+    try:
+        service: ServiceDescriptor = pool.FindServiceByName(service_name)  # type: ignore[no-untyped-call]
+        service_options = service.GetOptions()
+    except KeyError:
+        raise AbortError(NONEXISTENT_API_CALL_ERROR_MESSAGE, grpc.StatusCode.UNIMPLEMENTED) from None
+
+    level = service_options.Extensions[annotations_pb2.auth_level]
+    validate_auth_level(level)
+
+    return level
+
+
+def validate_auth_level(auth_level: AuthLevel.ValueType) -> None:
+    # if unknown auth level, then it wasn't set and something's wrong
+    if auth_level == annotations_pb2.AUTH_LEVEL_UNKNOWN:
+        raise AbortError(MISSING_AUTH_LEVEL_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
+
+    if auth_level not in {
+        annotations_pb2.AUTH_LEVEL_OPEN,
+        annotations_pb2.AUTH_LEVEL_JAILED,
+        annotations_pb2.AUTH_LEVEL_SECURE,
+        annotations_pb2.AUTH_LEVEL_EDITOR,
+        annotations_pb2.AUTH_LEVEL_ADMIN,
+    }:
+        raise AbortError(MISSING_AUTH_LEVEL_ERROR_MESSAGE, grpc.StatusCode.INTERNAL)
+
+
+def check_auth(
+    auth_info: UserAuthInfo | None, auth_level: AuthLevel.ValueType
+) -> grpc.RpcMethodHandler[Any, Any] | None:
+    if not auth_info:
+        # if this isn't an open service, fail
+        if auth_level != annotations_pb2.AUTH_LEVEL_OPEN:
+            return unauthenticated_handler(UNAUTHORIZED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
+    else:
+        # a valid user session was found - check permissions
+        if auth_level == annotations_pb2.AUTH_LEVEL_ADMIN and not auth_info.is_superuser:
+            return unauthenticated_handler(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
+
+        if auth_level == annotations_pb2.AUTH_LEVEL_EDITOR and not auth_info.is_editor:
+            return unauthenticated_handler(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.PERMISSION_DENIED)
+
+        # if the user is jailed and this isn't an open or jailed service, fail
+        if auth_info.is_jailed and auth_level not in [
+            annotations_pb2.AUTH_LEVEL_OPEN,
+            annotations_pb2.AUTH_LEVEL_JAILED,
+        ]:
+            return unauthenticated_handler(PERMISSION_DENIED_ERROR_MESSAGE, grpc.StatusCode.UNAUTHENTICATED)
+
+    return None
 
 
 class MediaInterceptor(grpc.ServerInterceptor):
