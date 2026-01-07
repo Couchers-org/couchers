@@ -57,6 +57,7 @@ dev = [
     "types-boto3>=1.40.69",
     "types-cachetools",
     "types-psycopg2",
+    "types-python-dateutil>=2.9.0.20251115",
 ]
 
 

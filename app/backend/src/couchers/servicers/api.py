@@ -57,6 +57,7 @@ from couchers.utils import (
     is_valid_name,
     is_valid_user_id,
     is_valid_username,
+    not_none,
     now,
 )
 
@@ -405,9 +406,9 @@ class API(api_pb2_grpc.APIServicer):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_language")
                 session.add(
                     LanguageAbility(
-                        user=user,
+                        user_id=user.id,
                         language_code=language_ability.code,
-                        fluency=fluency2sql[language_ability.fluency],
+                        fluency=not_none(fluency2sql[language_ability.fluency]),
                     )
                 )
 

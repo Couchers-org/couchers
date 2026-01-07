@@ -2,12 +2,14 @@ import json
 import logging
 import os
 from datetime import date, timedelta
+from typing import Any, cast
 
 from dateutil import parser
 from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
+from couchers.context import CouchersContext
 from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.models import (
@@ -53,7 +55,7 @@ logger = logging.getLogger(__name__)
 SRC_DIR = os.path.dirname(__file__)
 
 
-def add_dummy_users():
+def add_dummy_users() -> None:
     logger.info("Adding dummy users")
     with session_scope() as session:
         if session.execute(select(func.count()).select_from(User)).scalar_one() > 0:
@@ -80,16 +82,17 @@ def add_dummy_users():
                 occupation=user["occupation"],
                 about_me=user["about_me"],
                 about_place=user["about_place"],
-                hosting_status=hostingstatus2sql[
+                hosting_status=hostingstatus2sql[  # type: ignore[arg-type]
                     HostingStatus.Value(
                         user["hosting_status"] if "hosting_status" in user else "HOSTING_STATUS_CANT_HOST"
                     )
                 ],
                 accepted_tos=TOS_VERSION,
-                accepted_community_guidelines=GUIDELINES_VERSION,
-                is_superuser=user.get("is_superuser", False),
-                is_editor=user.get("is_editor", user.get("is_superuser", False)),
             )
+            new_user.accepted_community_guidelines = GUIDELINES_VERSION
+            new_user.is_superuser = user.get("is_superuser", False)
+            new_user.is_editor = user.get("is_editor", user.get("is_superuser", False))
+
             session.add(new_user)
             session.flush()
 
@@ -112,12 +115,13 @@ def add_dummy_users():
 
             class _MockCouchersContext:
                 @property
-                def headers(self):
+                def headers(self) -> dict[str, str]:
                     return {}
 
+            ctx = cast(CouchersContext, _MockCouchersContext())
             if user.get("make_api_key", False):
                 token, _ = create_session(
-                    _MockCouchersContext(),
+                    ctx,
                     session,
                     new_user,
                     long_lived=True,
@@ -128,7 +132,7 @@ def add_dummy_users():
                 logger.info(f"API key for {new_user.username}: {token}")
 
             if user.get("make_session", False):
-                token, _ = create_session(_MockCouchersContext(), session, new_user, long_lived=False, set_cookie=False)
+                token, _ = create_session(ctx, session, new_user, long_lived=False, set_cookie=False)
                 logger.info(f"Session cookie for {new_user.username}: {token}")
 
         session.commit()
@@ -240,7 +244,7 @@ def add_dummy_users():
         session.commit()
 
 
-def add_dummy_communities():
+def add_dummy_communities() -> None:
     logger.info("Adding dummy communities")
     with session_scope() as session:
         if session.execute(select(func.count()).select_from(Node)).scalar_one() > 0:
@@ -251,9 +255,8 @@ def add_dummy_communities():
             data = json.loads(f.read())
 
         for community in data["communities"]:
-            geom = None
             if "coordinates" in community:
-                geom = create_polygon_lng_lat(community["coordinates"])
+                geom: Any = create_polygon_lng_lat(community["coordinates"])
             elif "osm_id" in community:
                 with open(f"{SRC_DIR}/data/osm/{community['osm_id']}.geojson") as f:
                     geojson = json.loads(f.read())
@@ -438,6 +441,6 @@ def add_dummy_communities():
             session.add(page_version)
 
 
-def add_dummy_data():
+def add_dummy_data() -> None:
     add_dummy_users()
     add_dummy_communities()

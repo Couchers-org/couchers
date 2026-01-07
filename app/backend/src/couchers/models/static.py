@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from couchers.models.base import Base, Geom
 
 
-class Language(Base):
+class Language(Base, init=False, kw_only=True):
     """
     Table of allowed languages (a subset of ISO639-3)
     """
@@ -19,7 +19,7 @@ class Language(Base):
     name: Mapped[str] = mapped_column(String, unique=True)
 
 
-class TimezoneArea(Base):
+class TimezoneArea(Base, init=False, kw_only=True):
     __tablename__ = "timezone_areas"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
@@ -36,7 +36,7 @@ class TimezoneArea(Base):
     )
 
 
-class Region(Base):
+class Region(Base, init=False, kw_only=True):
     """
     Table of regions
     """

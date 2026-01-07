@@ -31,7 +31,7 @@ class HostRequestQuality(enum.Enum):
     low_quality = enum.auto()
 
 
-class HostRequest(Base):
+class HostRequest(Base, init=False, kw_only=True):
     """
     A request to stay with a host
     """
@@ -84,10 +84,14 @@ class HostRequest(Base):
     host_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, nullable=True)
     surfer_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    surfer: Mapped[User] = relationship(backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id")
-    host: Mapped[User] = relationship(backref="host_requests_received", foreign_keys="HostRequest.host_user_id")
-    conversation: Mapped[Conversation] = relationship()
-    moderation_state: Mapped[ModerationState] = relationship()
+    surfer: Mapped[User] = relationship(
+        init=False, backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id"
+    )
+    host: Mapped[User] = relationship(
+        init=False, backref="host_requests_received", foreign_keys="HostRequest.host_user_id"
+    )
+    conversation: Mapped[Conversation] = relationship(init=False)
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # allows fast lookup as to whether they didn't meet up
@@ -129,14 +133,14 @@ class HostRequest(Base):
         return f"HostRequest(id={self.conversation_id}, surfer_user_id={self.surfer_user_id}, host_user_id={self.host_user_id}...)"
 
 
-class HostRequestFeedback(Base):
+class HostRequestFeedback(Base, init=False, kw_only=True):
     """
     Private feedback from a host about a host request
     """
 
     __tablename__ = "host_request_feedbacks"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     host_request_id: Mapped[int] = mapped_column(ForeignKey("host_requests.id"))
 
@@ -146,7 +150,7 @@ class HostRequestFeedback(Base):
     request_quality: Mapped[HostRequestQuality | None] = mapped_column(Enum(HostRequestQuality), nullable=True)
     decline_reason: Mapped[str | None] = mapped_column(String, nullable=True)  # plain text
 
-    host_request: Mapped[HostRequest] = relationship()
+    host_request: Mapped[HostRequest] = relationship(init=False)
 
     __table_args__ = (
         # Each user can leave at most one friend reference to another user

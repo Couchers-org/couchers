@@ -8,11 +8,10 @@ from datetime import date, timedelta
 from math import cos, pi, sin, sqrt
 from random import sample
 from typing import Any
-from typing import cast as t_cast
 
 import requests
 from google.protobuf import empty_pb2
-from sqlalchemy import ColumnElement, Float, Function, Integer, Table, select
+from sqlalchemy import ColumnElement, Float, Function, Integer, select
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import (
     and_,
@@ -814,12 +813,7 @@ def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
             .outerjoin(hr_subquery, hr_subquery.c.user_id == User.id)
         ).subquery()
 
-        session.execute(
-            t_cast(Table, User.__table__)
-            .update()
-            .values(recommendation_score=scores.c.score)
-            .where(User.id == scores.c.user_id)
-        )
+        session.execute(update(User).values(recommendation_score=scores.c.score).where(User.id == scores.c.user_id))
 
     logger.info("Updated recommendation scores")
 
