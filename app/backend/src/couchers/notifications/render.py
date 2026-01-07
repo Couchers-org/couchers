@@ -4,7 +4,7 @@ from typing import Any
 
 from couchers import urls
 from couchers.i18n.i18n import localize_string
-from couchers.models import Notification, User
+from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.proto import notification_data_pb2
 from couchers.templates.v2 import v2date, v2esc, v2phone, v2timestamp
@@ -138,7 +138,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 },
                 topic_action_unsubscribe_text="Pending host request reminders",
             )
-    elif notification.topic_action.display == "password:change":
+    elif notification.topic_action == NotificationTopicAction.password__change:
         title = "Your password was changed"
         message = "Your login password for Couchers.org was changed."
         return RenderedEmailNotification(
@@ -151,7 +151,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "message": message,
             },
         )
-    elif notification.topic_action.display == "password_reset:start":
+    elif notification.topic_action == NotificationTopicAction.password_reset__start:
         message = "Someone initiated a password change on your account."
         return RenderedEmailNotification(
             is_critical=True,
@@ -162,7 +162,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "password_reset_link": urls.password_reset_link(password_reset_token=data.password_reset_token)
             },
         )
-    elif notification.topic_action.display == "password_reset:complete":
+    elif notification.topic_action == NotificationTopicAction.password_reset__complete:
         title = "Your password was successfully reset"
         message = "Your password on Couchers.org was changed. If that was you, then no further action is needed."
         return RenderedEmailNotification(
@@ -175,7 +175,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "message": message,
             },
         )
-    elif notification.topic_action.display == "email_address:change":
+    elif notification.topic_action == NotificationTopicAction.email_address__change:
         title = "An email change was initiated on your account"
         message = f"An email change to the email <b>{data.new_email}</b> was initiated on your account."
         return RenderedEmailNotification(
@@ -188,7 +188,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "message": message,
             },
         )
-    elif notification.topic_action.display == "email_address:verify":
+    elif notification.topic_action == NotificationTopicAction.email_address__verify:
         title = "Email change completed"
         message = "Your new email address has been verified."
         return RenderedEmailNotification(
@@ -201,7 +201,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "message": message,
             },
         )
-    elif notification.topic_action.display == "phone_number:change":
+    elif notification.topic_action == NotificationTopicAction.phone_number__change:
         title = "Phone verification started"
         message = f"You started phone number verification with the number <b>{v2phone(data.phone)}</b>."
         return RenderedEmailNotification(
@@ -214,7 +214,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "message": message,
             },
         )
-    elif notification.topic_action.display == "phone_number:verify":
+    elif notification.topic_action == NotificationTopicAction.phone_number__verify:
         title = "Phone successfully verified"
         message = f"Your phone was successfully verified as <b>{v2phone(data.phone)}</b> on Couchers.org."
         message_plain = f"Your phone was successfully verified as {v2phone(data.phone)} on Couchers.org."
@@ -228,7 +228,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "message": message,
             },
         )
-    elif notification.topic_action.display == "gender:change":
+    elif notification.topic_action == NotificationTopicAction.gender__change:
         title = "Your gender was changed"
         message = f"Your gender on Couchers.org was changed to <b>{data.gender}</b> by an admin."
         message_plain = f"Your gender on Couchers.org was changed to {data.gender} by an admin."
@@ -242,7 +242,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "message": message,
             },
         )
-    elif notification.topic_action.display == "birthdate:change":
+    elif notification.topic_action == NotificationTopicAction.birthdate__change:
         title = "Your date of birth was changed"
         message = (
             f"Your date of birth on Couchers.org was changed to <b>{v2date(data.birthdate, user)}</b> by an admin."
@@ -258,7 +258,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "message": message,
             },
         )
-    elif notification.topic_action.display == "api_key:create":
+    elif notification.topic_action == NotificationTopicAction.api_key__create:
         return RenderedEmailNotification(
             is_critical=True,
             subject="Your API key for Couchers.org",
@@ -284,7 +284,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             topic_action_unsubscribe_text="badge additions" if notification.action == "add" else "badge removals",
             list_unsubscribe_url=generate_unsub_topic_action(notification),
         )
-    elif notification.topic_action.display == "donation:received":
+    elif notification.topic_action == NotificationTopicAction.donation__received:
         title = get_localized_string("notifications.donation_received.title")
         message = get_localized_string(
             "notifications.donation_received.thanks_amount",
@@ -302,7 +302,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "receipt_url": data.receipt_url,
             },
         )
-    elif notification.topic_action.display == "friend_request:create":
+    elif notification.topic_action == NotificationTopicAction.friend_request__create:
         other = data.other_user
         preview = f"You've received a friend request from {other.name}"
         return RenderedEmailNotification(
@@ -315,7 +315,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             },
             topic_action_unsubscribe_text="new friend requests",
         )
-    elif notification.topic_action.display == "friend_request:accept":
+    elif notification.topic_action == NotificationTopicAction.friend_request__accept:
         other = data.other_user
         title = f"{other.name} accepted your friend request!"
         preview = f"{v2esc(other.name)} has accepted your friend request"
@@ -329,7 +329,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             },
             topic_action_unsubscribe_text="accepted friend requests",
         )
-    elif notification.topic_action.display == "account_deletion:start":
+    elif notification.topic_action == NotificationTopicAction.account_deletion__start:
         return RenderedEmailNotification(
             is_critical=True,
             allow_deleted=True,
@@ -340,7 +340,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "deletion_link": urls.delete_account_link(account_deletion_token=data.deletion_token),
             },
         )
-    elif notification.topic_action.display == "account_deletion:complete":
+    elif notification.topic_action == NotificationTopicAction.account_deletion__complete:
         title = "Your Couchers.org account has been deleted"
         return RenderedEmailNotification(
             is_critical=True,
@@ -353,7 +353,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "days": data.undelete_days,
             },
         )
-    elif notification.topic_action.display == "account_deletion:recovered":
+    elif notification.topic_action == NotificationTopicAction.account_deletion__recovered:
         title = "Your Couchers.org account has been recovered!"
         subtitle = "We have recovered your Couchers.org account as per your request! Welcome back!"
         return RenderedEmailNotification(
@@ -366,7 +366,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "app_link": urls.app_link(),
             },
         )
-    elif notification.topic_action.display == "chat:message":
+    elif notification.topic_action == NotificationTopicAction.chat__message:
         return RenderedEmailNotification(
             subject=data.message,
             preview="You received a message on Couchers.org!",
@@ -380,7 +380,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             topic_action_unsubscribe_text="new chat messages",
             topic_key_unsubscribe_text="this chat (mute)",
         )
-    elif notification.topic_action.display == "chat:missed_messages":
+    elif notification.topic_action == NotificationTopicAction.chat__missed_messages:
         return RenderedEmailNotification(
             subject="You have unseen messages on Couchers.org!",
             preview="You missed some messages on the platform.",
@@ -543,7 +543,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 },
                 topic_action_unsubscribe_text="discussion comments",
             )
-    elif notification.topic_action.display == "thread:reply":
+    elif notification.topic_action == NotificationTopicAction.thread__reply:
         parent = data.WhichOneof("reply_parent")
         if parent == "event":
             title = data.event.title
@@ -630,7 +630,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 },
                 topic_action_unsubscribe_text=("surfed" if surfed else "hosted") + " reference reminders",
             )
-    elif notification.topic_action.display == "onboarding:reminder":
+    elif notification.topic_action == NotificationTopicAction.onboarding__reminder:
         if notification.key == "1":
             return RenderedEmailNotification(
                 subject="Welcome to Couchers.org and the future of couch surfing",
@@ -652,7 +652,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 },
                 topic_action_unsubscribe_text="onboarding emails",
             )
-    elif notification.topic_action.display == "modnote:create":
+    elif notification.topic_action == NotificationTopicAction.modnote__create:
         title = "You have received a mod note"
         message = "You have received an important note from the moderators. You must read and acknowledge it before continuing to use the platform."
         return RenderedEmailNotification(
@@ -662,7 +662,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             template_name="mod_note",
             template_args={"title": title},
         )
-    elif notification.topic_action.display == "verification:sv_success":
+    elif notification.topic_action == NotificationTopicAction.verification__sv_success:
         title = "Strong Verification succeeded"
         message = "You have been verified with Strong Verification! You will now see a tick next to your name on the platform."
         return RenderedEmailNotification(
@@ -674,7 +674,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "message": message,
             },
         )
-    elif notification.topic_action.display == "verification:sv_fail":
+    elif notification.topic_action == NotificationTopicAction.verification__sv_fail:
         title = "Strong Verification failed"
         if data.reason == notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER:
             reason_message = "The date of birth or gender on your profile does not match the date of birth or sex on your passport. Please contact the support team to update your date of birth or gender, or if your passport sex does not match your gender identity."
@@ -741,7 +741,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                     "message": reason_message,
                 },
             )
-    elif notification.topic_action.display == "activeness:probe":
+    elif notification.topic_action == NotificationTopicAction.activeness__probe:
         title = "Are you still open to hosting on Couchers.org?"
         return RenderedEmailNotification(
             subject=title,
@@ -752,7 +752,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "days_left": (to_aware_datetime(data.deadline) - now()).days,
             },
         )
-    elif notification.topic_action.display == "general:new_blog_post":
+    elif notification.topic_action == NotificationTopicAction.general__new_blog_post:
         title = f"New blog post: {data.title}"
         return RenderedEmailNotification(
             subject=title,

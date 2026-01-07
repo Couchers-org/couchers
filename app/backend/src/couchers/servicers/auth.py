@@ -36,6 +36,7 @@ from couchers.models import (
     User,
     UserSession,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.notifications.quick_links import respond_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
@@ -379,7 +380,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="onboarding:reminder",
+                topic_action=NotificationTopicAction.onboarding__reminder,
                 key="1",
             )
 
@@ -489,7 +490,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="password_reset:start",
+                topic_action=NotificationTopicAction.password_reset__start,
                 key="",
                 data=notification_data_pb2.PasswordResetStart(
                     password_reset_token=password_reset_token.token,
@@ -525,7 +526,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="password_reset:complete",
+                topic_action=NotificationTopicAction.password_reset__complete,
                 key="",
             )
 
@@ -557,7 +558,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="email_address:verify",
+            topic_action=NotificationTopicAction.email_address__verify,
             key="",
         )
 
@@ -592,7 +593,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="account_deletion:complete",
+            topic_action=NotificationTopicAction.account_deletion__complete,
             key="",
             data=notification_data_pb2.AccountDeletionComplete(
                 undelete_token=user.undelete_token,
@@ -624,7 +625,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="account_deletion:recovered",
+            topic_action=NotificationTopicAction.account_deletion__recovered,
             key="",
         )
 

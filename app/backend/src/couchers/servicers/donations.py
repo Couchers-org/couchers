@@ -12,6 +12,7 @@ from couchers.config import config
 from couchers.context import CouchersContext
 from couchers.helpers.badges import user_add_badge
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
@@ -166,7 +167,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 notify(
                     session,
                     user_id=user.id,
-                    topic_action="donation:received",
+                    topic_action=NotificationTopicAction.donation__received,
                     key="",
                     data=notification_data_pb2.DonationReceived(
                         amount=amount,
