@@ -147,5 +147,6 @@
   "search_communities": "Suche und besuche eine Community",
   "no_results_found_with_link": "Keine Communitys gefunden. <0>Diese Community anfordern!</0>",
   "search_communities_placeholder": "Suche nach Stadt- oder Ländernamen...",
-  "event_title_label": "Titel"
+  "event_title_label": "Titel",
+  "discussion_creation_date": "Erstellt am {{dateOnly}}"
 }
