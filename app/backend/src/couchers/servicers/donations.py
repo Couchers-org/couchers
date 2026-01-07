@@ -167,7 +167,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 notify(
                     session,
                     user_id=user.id,
-                    topic_action=NotificationTopicAction.donation__received.display,
+                    topic_action=NotificationTopicAction.donation__received,
                     key="",
                     data=notification_data_pb2.DonationReceived(
                         amount=amount,

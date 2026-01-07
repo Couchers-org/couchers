@@ -203,7 +203,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             notify(
                 session,
                 user_id=user_id,
-                topic_action=NotificationTopicAction.chat__message.display,
+                topic_action=NotificationTopicAction.chat__message,
                 key=str(message.conversation_id),
                 data=notification_data_pb2.ChatMessage(
                     author=user_model_to_pb(

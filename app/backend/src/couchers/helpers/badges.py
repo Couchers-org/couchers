@@ -18,7 +18,7 @@ def user_add_badge(session: Session, user_id: int, badge_id: str, do_notify: boo
         notify(
             session,
             user_id=user_id,
-            topic_action=NotificationTopicAction.badge__add.display,
+            topic_action=NotificationTopicAction.badge__add,
             key=badge.id,
             data=notification_data_pb2.BadgeAdd(
                 badge_id=badge.id,
@@ -37,7 +37,7 @@ def user_remove_badge(session: Session, user_id: int, badge_id: str) -> None:
     notify(
         session,
         user_id=user_id,
-        topic_action=NotificationTopicAction.badge__remove.display,
+        topic_action=NotificationTopicAction.badge__remove,
         key=badge.id,
         data=notification_data_pb2.BadgeRemove(
             badge_id=badge.id,

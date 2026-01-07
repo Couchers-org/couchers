@@ -293,12 +293,15 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             if is_not_visible(session, user.id, creator.id):
                 continue
             context = make_background_user_context(user_id=user.id)
+            topic_action = (
+                NotificationTopicAction.event__create_approved
+                if payload.approved
+                else NotificationTopicAction.event__create_any
+            )
             notify(
                 session,
                 user_id=user.id,
-                topic_action=NotificationTopicAction.event__create_approved.display
-                if payload.approved
-                else "event:create_any",
+                topic_action=topic_action,
                 key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventCreate(
                     event=event_to_pb(session, occurrence, context),
@@ -325,7 +328,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
             notify(
                 session,
                 user_id=user_id,
-                topic_action=NotificationTopicAction.event__update.display,
+                topic_action=NotificationTopicAction.event__update,
                 key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventUpdate(
                     event=event_to_pb(session, occurrence, context),
@@ -351,7 +354,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
             notify(
                 session,
                 user_id=user_id,
-                topic_action=NotificationTopicAction.event__cancel.display,
+                topic_action=NotificationTopicAction.event__cancel,
                 key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventCancel(
                     event=event_to_pb(session, occurrence, context),
@@ -374,7 +377,7 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
             notify(
                 session,
                 user_id=user_id,
-                topic_action=NotificationTopicAction.event__delete.display,
+                topic_action=NotificationTopicAction.event__delete,
                 key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventDelete(
                     event=event_to_pb(session, occurrence, context),
@@ -1196,7 +1199,7 @@ class Events(events_pb2_grpc.EventsServicer):
         notify(
             session,
             user_id=request.user_id,
-            topic_action=NotificationTopicAction.event__invite_organizer.display,
+            topic_action=NotificationTopicAction.event__invite_organizer,
             key=str(event.id),
             data=notification_data_pb2.EventInviteOrganizer(
                 event=event_to_pb(session, occurrence, other_user_context),

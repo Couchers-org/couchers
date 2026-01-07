@@ -282,7 +282,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         notify(
             session,
             user_id=request.to_user_id,
-            topic_action=NotificationTopicAction.reference__receive_friend.display,
+            topic_action=NotificationTopicAction.reference__receive_friend,
             key=str(reference.id),
             data=notification_data_pb2.ReferenceReceiveFriend(
                 from_user=user_model_to_pb(user, session, make_background_user_context(user_id=request.to_user_id)),
@@ -336,12 +336,15 @@ class References(references_pb2_grpc.ReferencesServicer):
         ).scalar_one_or_none()
 
         # send notification out
+        topic_action = (
+            NotificationTopicAction.reference__receive_surfed
+            if surfed
+            else NotificationTopicAction.reference__receive_hosted
+        )
         notify(
             session,
             user_id=reference.to_user_id,
-            topic_action=NotificationTopicAction.reference__receive_surfed.display
-            if surfed
-            else "reference:receive_hosted",
+            topic_action=topic_action,
             key=str(host_request.conversation_id),
             data=notification_data_pb2.ReferenceReceiveHostRequest(
                 host_request_id=host_request.conversation_id,

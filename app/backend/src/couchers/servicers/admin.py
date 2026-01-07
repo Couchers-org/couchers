@@ -181,7 +181,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action=NotificationTopicAction.gender__change.display,
+            topic_action=NotificationTopicAction.gender__change,
             key="",
             data=notification_data_pb2.GenderChange(
                 gender=request.gender,
@@ -205,7 +205,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action=NotificationTopicAction.birthdate__change.display,
+            topic_action=NotificationTopicAction.birthdate__change,
             key="",
             data=notification_data_pb2.BirthdateChange(
                 birthdate=request.birthdate,
@@ -346,7 +346,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             notify(
                 session,
                 user_id=user.id,
-                topic_action=NotificationTopicAction.modnote__create.display,
+                topic_action=NotificationTopicAction.modnote__create,
                 key="",
             )
 
@@ -392,7 +392,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action=NotificationTopicAction.api_key__create.display,
+            topic_action=NotificationTopicAction.api_key__create,
             key="",
             data=notification_data_pb2.ApiKeyCreate(
                 api_key=token,

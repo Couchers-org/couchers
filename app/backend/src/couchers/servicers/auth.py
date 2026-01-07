@@ -378,7 +378,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             notify(
                 session,
                 user_id=user.id,
-                topic_action=NotificationTopicAction.onboarding__reminder.display,
+                topic_action=NotificationTopicAction.onboarding__reminder,
                 key="1",
             )
 
@@ -488,7 +488,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             notify(
                 session,
                 user_id=user.id,
-                topic_action=NotificationTopicAction.password_reset__start.display,
+                topic_action=NotificationTopicAction.password_reset__start,
                 key="",
                 data=notification_data_pb2.PasswordResetStart(
                     password_reset_token=password_reset_token.token,
@@ -524,7 +524,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             notify(
                 session,
                 user_id=user.id,
-                topic_action=NotificationTopicAction.password_reset__complete.display,
+                topic_action=NotificationTopicAction.password_reset__complete,
                 key="",
             )
 
@@ -556,7 +556,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action=NotificationTopicAction.email_address__verify.display,
+            topic_action=NotificationTopicAction.email_address__verify,
             key="",
         )
 
@@ -591,7 +591,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action=NotificationTopicAction.account_deletion__complete.display,
+            topic_action=NotificationTopicAction.account_deletion__complete,
             key="",
             data=notification_data_pb2.AccountDeletionComplete(
                 undelete_token=user.undelete_token,
@@ -623,7 +623,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action=NotificationTopicAction.account_deletion__recovered.display,
+            topic_action=NotificationTopicAction.account_deletion__recovered,
             key="",
         )
 

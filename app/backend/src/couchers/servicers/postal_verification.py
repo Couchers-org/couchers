@@ -294,7 +294,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             notify(
                 session,
                 user_id=context.user_id,
-                topic_action=NotificationTopicAction.postal_verification__failed.display,
+                topic_action=NotificationTopicAction.postal_verification__failed,
                 key="",
                 data=notification_data_pb2.PostalVerificationFailed(
                     reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED
@@ -315,7 +315,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                 notify(
                     session,
                     user_id=context.user_id,
-                    topic_action=NotificationTopicAction.postal_verification__failed.display,
+                    topic_action=NotificationTopicAction.postal_verification__failed,
                     key="",
                     data=notification_data_pb2.PostalVerificationFailed(
                         reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS
@@ -338,7 +338,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         notify(
             session,
             user_id=context.user_id,
-            topic_action=NotificationTopicAction.postal_verification__success.display,
+            topic_action=NotificationTopicAction.postal_verification__success,
             key="",
         )
 

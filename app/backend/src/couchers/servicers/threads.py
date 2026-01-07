@@ -95,7 +95,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     notify(
                         session,
                         user_id=user_id,
-                        topic_action=NotificationTopicAction.event__comment.display,
+                        topic_action=NotificationTopicAction.event__comment,
                         key=str(occurrence.id),
                         data=notification_data_pb2.EventComment(
                             reply=reply,
@@ -120,7 +120,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     notify(
                         session,
                         user_id=user_id,
-                        topic_action=NotificationTopicAction.discussion__comment.display,
+                        topic_action=NotificationTopicAction.discussion__comment,
                         key=str(discussion.id),
                         data=notification_data_pb2.DiscussionComment(
                             reply=reply,
@@ -177,7 +177,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     notify(
                         session,
                         user_id=user_id,
-                        topic_action=NotificationTopicAction.thread__reply.display,
+                        topic_action=NotificationTopicAction.thread__reply,
                         key=str(occurrence.id),
                         data=notification_data_pb2.ThreadReply(
                             reply=reply,
@@ -192,7 +192,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     notify(
                         session,
                         user_id=user_id,
-                        topic_action=NotificationTopicAction.thread__reply.display,
+                        topic_action=NotificationTopicAction.thread__reply,
                         key=str(discussion.id),
                         data=notification_data_pb2.ThreadReply(
                             reply=reply,
