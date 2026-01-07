@@ -99,6 +99,7 @@ from couchers.models import (
     UserBadge,
     Volunteer,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.postal.postcard_service import send_postcard
@@ -264,7 +265,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
             notify(
                 session,
                 user_id=user.id,
-                topic_action="chat:missed_messages",
+                topic_action=NotificationTopicAction.chat__missed_messages.display,
                 key="",
                 data=notification_data_pb2.ChatMissedMessages(
                     messages=[
@@ -380,7 +381,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 notify(
                     session,
                     user_id=user.id,
-                    topic_action="host_request:missed_messages",
+                    topic_action=NotificationTopicAction.host_request__missed_messages.display,
                     key=str(host_request.conversation_id),
                     data=notification_data_pb2.HostRequestMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
@@ -396,7 +397,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 notify(
                     session,
                     user_id=user.id,
-                    topic_action="host_request:missed_messages",
+                    topic_action=NotificationTopicAction.host_request__missed_messages.display,
                     key=str(host_request.conversation_id),
                     data=notification_data_pb2.HostRequestMissedMessages(
                         host_request=host_request_to_pb(host_request, session, context),
@@ -422,7 +423,7 @@ def send_onboarding_emails(payload: empty_pb2.Empty) -> None:
             notify(
                 session,
                 user_id=user.id,
-                topic_action="onboarding:reminder",
+                topic_action=NotificationTopicAction.onboarding__reminder.display,
                 key="1",
             )
             user.onboarding_emails_sent = 1
@@ -447,7 +448,7 @@ def send_onboarding_emails(payload: empty_pb2.Empty) -> None:
             notify(
                 session,
                 user_id=user.id,
-                topic_action="onboarding:reminder",
+                topic_action=NotificationTopicAction.onboarding__reminder.display,
                 key="2",
             )
             user.onboarding_emails_sent = 2
@@ -536,7 +537,9 @@ def send_reference_reminders(payload: empty_pb2.Empty) -> None:
                 notify(
                     session,
                     user_id=user.id,
-                    topic_action="reference:reminder_surfed" if surfed else "reference:reminder_hosted",
+                    topic_action=NotificationTopicAction.reference__reminder_surfed.display
+                    if surfed
+                    else NotificationTopicAction.reference__reminder_hosted.display,
                     key=str(host_request.conversation_id),
                     data=notification_data_pb2.ReferenceReminder(
                         host_request_id=host_request.conversation_id,
@@ -586,7 +589,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
             notify(
                 session,
                 user_id=host_request.host_user_id,
-                topic_action="host_request:reminder",
+                topic_action=NotificationTopicAction.host_request__reminder.display,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestReminder(
                     host_request=host_request_to_pb(host_request, session, context),
@@ -903,7 +906,7 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
             notify(
                 session,
                 user_id=verification_attempt.user_id,
-                topic_action="verification:sv_fail",
+                topic_action=NotificationTopicAction.verification__sv_fail.display,
                 key="",
                 data=notification_data_pb2.VerificationSVFail(
                     reason=notification_data_pb2.SV_FAIL_REASON_NOT_A_PASSPORT
@@ -941,7 +944,7 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
             notify(
                 session,
                 user_id=verification_attempt.user_id,
-                topic_action="verification:sv_fail",
+                topic_action=NotificationTopicAction.verification__sv_fail.display,
                 key="",
                 data=notification_data_pb2.VerificationSVFail(reason=notification_data_pb2.SV_FAIL_REASON_DUPLICATE),
             )
@@ -968,12 +971,17 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
                 return
 
             user_add_badge(session, user.id, badge_id, do_notify=False)
-            notify(session, user_id=verification_attempt.user_id, topic_action="verification:sv_success", key="")
+            notify(
+                session,
+                user_id=verification_attempt.user_id,
+                topic_action=NotificationTopicAction.verification__sv_success.display,
+                key="",
+            )
         else:
             notify(
                 session,
                 user_id=verification_attempt.user_id,
-                topic_action="verification:sv_fail",
+                topic_action=NotificationTopicAction.verification__sv_fail.display,
                 key="",
                 data=notification_data_pb2.VerificationSVFail(
                     reason=notification_data_pb2.SV_FAIL_REASON_WRONG_BIRTHDATE_OR_GENDER
@@ -1040,7 +1048,7 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
                 notify(
                     session,
                     user_id=probe.user.id,
-                    topic_action="activeness:probe",
+                    topic_action=NotificationTopicAction.activeness__probe.display,
                     key=str(probe.id),
                     data=notification_data_pb2.ActivenessProbe(
                         reminder_number=probe_number_minus_1 + 1,
@@ -1137,7 +1145,7 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
                 notify(
                     session,
                     user_id=user.id,
-                    topic_action="event:reminder",
+                    topic_action=NotificationTopicAction.event__reminder.display,
                     key=str(occurrence.id),
                     data=notification_data_pb2.EventReminder(
                         event=event_to_pb(session, occurrence, context),
@@ -1261,7 +1269,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             notify(
                 session,
                 user_id=attempt.user_id,
-                topic_action="postal_verification:postcard_sent",
+                topic_action=NotificationTopicAction.postal_verification__postcard_sent.display,
                 key="",
                 data=notification_data_pb2.PostalVerificationPostcardSent(
                     city=attempt.city,

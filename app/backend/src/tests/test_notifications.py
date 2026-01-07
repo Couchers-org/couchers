@@ -605,7 +605,7 @@ def test_event_reminder_email_sent(db):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="event:reminder",
+                topic_action=NotificationTopicAction.event__reminder.display,
                 key="",
                 data=notification_data_pb2.EventReminder(
                     event=events_pb2.Event(

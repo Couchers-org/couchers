@@ -17,6 +17,7 @@ from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import are_friends
 from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, Reference, ReferenceType, User
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import notification_data_pb2, references_pb2, references_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
@@ -281,7 +282,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         notify(
             session,
             user_id=request.to_user_id,
-            topic_action="reference:receive_friend",
+            topic_action=NotificationTopicAction.reference__receive_friend.display,
             key=str(reference.id),
             data=notification_data_pb2.ReferenceReceiveFriend(
                 from_user=user_model_to_pb(user, session, make_background_user_context(user_id=request.to_user_id)),
@@ -338,7 +339,9 @@ class References(references_pb2_grpc.ReferencesServicer):
         notify(
             session,
             user_id=reference.to_user_id,
-            topic_action="reference:receive_surfed" if surfed else "reference:receive_hosted",
+            topic_action=NotificationTopicAction.reference__receive_surfed.display
+            if surfed
+            else "reference:receive_hosted",
             key=str(host_request.conversation_id),
             data=notification_data_pb2.ReferenceReceiveHostRequest(
                 host_request_id=host_request.conversation_id,

@@ -41,6 +41,7 @@ from couchers.models import (
     User,
     UserBadge,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
@@ -733,7 +734,7 @@ class API(api_pb2_grpc.APIServicer):
         notify(
             session,
             user_id=friend_relationship.to_user_id,
-            topic_action="friend_request:create",
+            topic_action=NotificationTopicAction.friend_request__create.display,
             key=str(friend_relationship.from_user_id),
             data=notification_data_pb2.FriendRequestCreate(
                 other_user=user_model_to_pb(friend_relationship.from_user, session, context),
@@ -809,7 +810,7 @@ class API(api_pb2_grpc.APIServicer):
             notify(
                 session,
                 user_id=friend_request.from_user_id,
-                topic_action="friend_request:accept",
+                topic_action=NotificationTopicAction.friend_request__accept.display,
                 key=str(friend_request.to_user_id),
                 data=notification_data_pb2.FriendRequestAccept(
                     other_user=user_model_to_pb(friend_request.to_user, session, context),

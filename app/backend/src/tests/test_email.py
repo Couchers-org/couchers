@@ -19,6 +19,7 @@ from couchers.models import (
     SignupFlow,
     User,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import api_pb2, editor_pb2, events_pb2, notification_data_pb2, notifications_pb2
 from couchers.tasks import (
@@ -218,7 +219,7 @@ def test_do_not_email_security(db):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="password_reset:start",
+                topic_action=NotificationTopicAction.password_reset__start.display,
                 key="",
                 data=notification_data_pb2.PasswordResetStart(
                     password_reset_token=password_reset_token,
@@ -280,7 +281,7 @@ def test_email_prefix_config(db, monkeypatch):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="donation:received",
+                topic_action=NotificationTopicAction.donation__received.display,
                 key="",
                 data=notification_data_pb2.DonationReceived(
                     amount=20,
@@ -306,7 +307,7 @@ def test_email_prefix_config(db, monkeypatch):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="donation:received",
+                topic_action=NotificationTopicAction.donation__received.display,
                 key="",
                 data=notification_data_pb2.DonationReceived(
                     amount=20,
@@ -333,7 +334,7 @@ def test_send_donation_email(db, monkeypatch):
         notify(
             session,
             user_id=user.id,
-            topic_action="donation:received",
+            topic_action=NotificationTopicAction.donation__received.display,
             key="",
             data=notification_data_pb2.DonationReceived(
                 amount=20,
