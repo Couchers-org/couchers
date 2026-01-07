@@ -12,8 +12,7 @@ environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_multiproc_dir.name
 # ruff: noqa: E402
 
 import sentry_sdk
-from sentry_sdk.integrations import argv, atexit, dedupe, modules, stdlib, threading
-from sentry_sdk.integrations import logging as sentry_logging
+from sentry_sdk.integrations import excepthook
 from sqlalchemy.sql import text
 
 from couchers.config import check_config, config
@@ -56,18 +55,9 @@ if config["SENTRY_ENABLED"]:
         traces_sample_rate=0.0,
         environment=config["COOKIE_DOMAIN"],
         release=config["VERSION"],
-        default_integrations=False,
-        integrations=[
-            # we need to manually list out the integrations, there is no other way of disabling
-            # the global excepthook integration we want to disable that because it seems to be
-            # picking up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
-            argv.ArgvIntegration(),
-            atexit.AtexitIntegration(),
-            dedupe.DedupeIntegration(),
-            sentry_logging.LoggingIntegration(),
-            modules.ModulesIntegration(),
-            stdlib.StdlibIntegration(),
-            threading.ThreadingIntegration(),
+        # It seems to be picking up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
+        disabled_integrations=[
+            excepthook.ExcepthookIntegration(),
         ],
     )
 
