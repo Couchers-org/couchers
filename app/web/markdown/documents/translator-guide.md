@@ -16,9 +16,9 @@ Translating software is a little different from translating a document. Feel fre
 
 Each string has a few components:
 
-- A **key**, which uniquely identifies the string across languages, for example `new_event.title_label`.
-- A **source [language] string**: in our case the English text of the string, which serves as a reference for translations, for example `Title: `.
-- One **target [language] string** per target language: those are the translations, for example `Título: `.
+- A **key**, which uniquely identifies the string across languages, for example `profile.home_heading`.
+- A **source language string**: in our case the English text of the string, which serves as a reference for translations, for example `My Home`.
+- One **target language string** per target language: those are the translations, for example `Mi casa`.
 - **Comments** and **screenshots**: additional information to help translators understand the context in which the string appears.
 
 ### Where do strings come from?
@@ -29,7 +29,7 @@ As engineers build Couchers features, they might need to add or update applicati
 
 ### Lead translators
 
-As a lead translator, you are responsible for the overall quality of the Couchers experience in your language and associated countries. It's worth taking a step back and defining standards for translators of your language, including yourself.
+As a lead translator, you are responsible for the overall quality of the Couchers experience in your language and associated countries. It's worth taking a step back and defining standards for translating to your language.
 
 - Define the voice and style for your language, for example the level of formality and grammatical preferences like the use of imperative vs infinitive.
 - Build a glossary that standardizes key terms' translations to ensure consistency between translators.
@@ -61,8 +61,8 @@ We recommend you also join our Slack workspace for more direct communication wit
 Strings can contain special content which require extra care:
 
 - **Placeholders**: If the English string contains a word surrounded by double curly braces, such as `{{name}}`, this is a placeholder. When navigating the website, it will replaced with the actual information, like `Bob`. You must preserve that placeholder, including its curly braces, but you may move it around based on the grammar of your language.
-- **Pluralizable placeholders**: The `{{count}}` placeholder is special. When it appears, Weblate should allow you to enter plural variants, such as `{{count}} user` for the singular and `{{count}} users` for the plural. Every language has a different set of plural categories, and we follow the [Unicode CLDR rules]([Plural Rules](https://cldr.unicode.org/index/cldr-spec/plural-rules)). Take a moment to get familiar with the definitions for [your language]([Language Plural Rules](https://www.unicode.org/cldr/charts/48/supplemental/language_plural_rules.html)).
-- **Markup**: Occasionally, strings may contain HTML markup like `Make sure you have a <bold>biometric</bold> passport`. The `<bold>` and `</bold>` define the beginning and end of a special formatting of the string, and must such be preserved (do not translate "bold"), but you may move that begin/end pair around based on the grammar of your language.
+- **Pluralizable placeholders**: The `{{count}}` placeholder is special. When it appears, Weblate should allow you to enter plural variants, such as `{{count}} user` for the singular and `{{count}} users` for the plural. Every language has a different set of plural categories, and we follow the [Unicode CLDR rules](https://cldr.unicode.org/index/cldr-spec/plural-rules). Take a moment to get familiar with the definitions for [your language](https://www.unicode.org/cldr/charts/48/supplemental/language_plural_rules.html).
+- **Markup**: Occasionally, strings may contain HTML-like markup like `Make sure you have a <bold>biometric</bold> passport`. The `<bold>` and `</bold>` define the beginning and end of a special formatting of the string, and must such be preserved (do not translate "bold"), but you may move that begin/end pair around based on the grammar of your language.
 
 ## Collaborating with engineers
 
