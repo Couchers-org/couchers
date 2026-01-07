@@ -56,6 +56,8 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         email_lang = user.ui_language_preference or "en"
 
     template_args = {
+        "header_subject": rendered.subject,
+        "header_preview": rendered.preview,
         "user": user,
         "time": notification.created,
         "footer_email_is_critical": rendered.is_critical,
