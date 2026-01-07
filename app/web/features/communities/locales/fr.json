@@ -1,7 +1,6 @@
 {
-  "attendees_count_0": "{{count}} participant.e",
-  "attendees_count_1": "{{count}} participant.e.s",
-  "attendees_count_2": "{{count}} participant.e.s",
+  "attendees_count_one": "{{count}} participant.e",
+  "attendees_count_other": "{{count}} participant.e.s",
   "by_creator": "écrit par {{name}}",
   "cancel_event": "Annuler l'événement",
   "show_cancelled_events": "Montrer les événements annulés",

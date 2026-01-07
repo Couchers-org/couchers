@@ -10,6 +10,7 @@ from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Comment, Discussion, Event, EventOccurrence, Reply, Thread, User
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
 from couchers.proto.internal import jobs_pb2
@@ -94,7 +95,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     notify(
                         session,
                         user_id=user_id,
-                        topic_action="event:comment",
+                        topic_action=NotificationTopicAction.event__comment,
                         key=str(occurrence.id),
                         data=notification_data_pb2.EventComment(
                             reply=reply,
@@ -119,7 +120,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     notify(
                         session,
                         user_id=user_id,
-                        topic_action="discussion:comment",
+                        topic_action=NotificationTopicAction.discussion__comment,
                         key=str(discussion.id),
                         data=notification_data_pb2.DiscussionComment(
                             reply=reply,
@@ -176,7 +177,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     notify(
                         session,
                         user_id=user_id,
-                        topic_action="thread:reply",
+                        topic_action=NotificationTopicAction.thread__reply,
                         key=str(occurrence.id),
                         data=notification_data_pb2.ThreadReply(
                             reply=reply,
@@ -191,7 +192,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                     notify(
                         session,
                         user_id=user_id,
-                        topic_action="thread:reply",
+                        topic_action=NotificationTopicAction.thread__reply,
                         key=str(discussion.id),
                         data=notification_data_pb2.ThreadReply(
                             reply=reply,

@@ -203,7 +203,6 @@
   "edit": "编辑个人资料",
   "active": "活跃",
   "helper_text": {
-    "characters_remaining": "<bold>请至少输入{{count}}个字符以解锁消息和请求。</bold>真实的个人资料有助于建立信任社区。你分享得越多，越容易建立联系！",
     "missing_profile_photo": "请添加一张照片以完善您的个人资料。"
   }
 }

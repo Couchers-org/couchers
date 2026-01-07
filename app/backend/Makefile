@@ -26,7 +26,7 @@ format:
 fmt: format
 
 mypy:
-	uv run mypy src/couchers
+	uv run mypy src
 
 # Downgrade the local database to the previous migration. Good if you ran a migration on a branch and will run the backend on another branch after.
 # Usage:

@@ -188,6 +188,17 @@
       "title": "Username",
       "description": "Your username is <1>{{username}}</1>.",
       "explanation": "Your username is set when you create your account."
+    },
+    "appearance_section": {
+      "title": "Appearance",
+      "current_mode": "Your current mode:",
+      "click_to_change": "Click the button below to cycle through Light, Dark, and System modes.",
+      "change_mode": "Change appearance mode",
+      "modes": {
+        "light": "Light mode",
+        "dark": "Dark mode",
+        "system": "System mode (follows your device)"
+      }
     }
   },
   "feature_preview": {

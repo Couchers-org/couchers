@@ -1,7 +1,8 @@
 from datetime import timedelta
+from typing import Any
 
 import pytest
-from google.protobuf import wrappers_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
@@ -49,8 +50,8 @@ def test_UserSearch(testing_communities):
     """Test that UserSearch returns all users if no filter is set."""
     user, token = generate_user()
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token) as api:
         res = api.UserSearch(search_pb2.UserSearchReq())
@@ -79,8 +80,8 @@ def test_regression_search_in_area(db):
     # outside
     user5, token5 = generate_user(geom=create_coordinate(10, 10), geom_radius=100)
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token5) as api:
         res = api.UserSearch(
@@ -126,8 +127,8 @@ def test_user_search_in_rectangle(db):
     # outside
     user7, token7 = generate_user(geom=create_coordinate(10, 10), geom_radius=100)
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token5) as api:
         res = api.UserSearch(
@@ -163,8 +164,8 @@ def test_user_filter_complete_profile(db):
 
     user_incomplete_profile, token7 = generate_user(complete_profile=False)
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token7) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(profile_completed=wrappers_pb2.BoolValue(value=False)))
@@ -189,8 +190,8 @@ def test_user_filter_meetup_status(db):
 
     user_does_not_want_to_meet, token9 = generate_user(meetup_status=MeetupStatus.does_not_want_to_meetup)
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token8) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(meetup_status_filter=[api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP]))
@@ -236,8 +237,8 @@ def test_user_filter_language(db):
             LanguageAbility(user_id=user_with_german_fluent.id, language_code="deu", fluency=LanguageFluency.fluent)
         )
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token11) as api:
         res = api.UserSearch(
@@ -296,8 +297,8 @@ def test_user_filter_strong_verification(db):
     user4, _ = generate_user(strong_verification=True)
     user5, _ = generate_user(strong_verification=True)
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token1) as api:
         res = api.UserSearch(search_pb2.UserSearchReq(only_with_strong_verification=False))
@@ -319,8 +320,8 @@ def test_regression_search_only_with_references(db):
     user3, _ = generate_user()
     user4, _ = generate_user(delete_user=True)
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with session_scope() as session:
         # user 2 has references
@@ -356,8 +357,8 @@ def test_user_search_exactly_user_ids(db):
     user4, _ = generate_user(meetup_status=MeetupStatus.wants_to_meetup)
     user5, _ = generate_user(delete_user=True)  # Deleted user
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token1) as api:
         # Test that exactly_user_ids returns only the specified users
@@ -400,7 +401,7 @@ def test_user_search_exactly_user_ids(db):
 
 
 @pytest.fixture
-def sample_event_data() -> dict:
+def sample_event_data() -> dict[str, Any]:
     """Dummy data for creating events."""
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)
@@ -421,7 +422,7 @@ def create_event(sample_event_data):
 
     def _create_event(event_api, **kwargs) -> EventOccurrence:
         """Create an event with default values, unless overridden by kwargs."""
-        return event_api.CreateEvent(events_pb2.CreateEventReq(**{**sample_event_data, **kwargs}))
+        return event_api.CreateEvent(events_pb2.CreateEventReq(**{**sample_event_data, **kwargs}))  # type: ignore
 
     return _create_event
 
@@ -750,8 +751,8 @@ def test_regression_search_multiple_pages(db):
         other_user, _ = generate_user()
         user_ids.append(other_user.id)
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token) as api:
         res = api.UserSearchV2(search_pb2.UserSearchReq(page_size=5))
@@ -766,8 +767,8 @@ def test_regression_search_no_results(db):
     # put us far away
     user, token = generate_user()
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token) as api:
         res = api.UserSearchV2(search_pb2.UserSearchReq(only_with_references=True))
@@ -783,8 +784,8 @@ def test_user_filter_same_gender_only(db):
     man_without_sv, _ = generate_user(strong_verification=False, gender="Man")
     other_woman_with_sv, _ = generate_user(strong_verification=True, gender="Woman")
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     # Test 1: Woman with strong verification should see only women when same_gender_only=True
     with search_session(token_woman_with_sv) as api:
@@ -860,8 +861,8 @@ def test_user_filter_same_gender_only_with_other_filters(db):
     woman_cant_host, _ = generate_user(strong_verification=True, gender="Woman", hosting_status=HostingStatus.cant_host)
     man_host, _ = generate_user(strong_verification=True, gender="Man", hosting_status=HostingStatus.can_host)
 
-    refresh_materialized_views_rapid(None)
-    refresh_materialized_views(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     # Test: Combine same_gender_only with hosting_status filter
     with search_session(token_woman) as api:

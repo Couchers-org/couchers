@@ -1,6 +1,10 @@
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from unittest.mock import patch
+from typing import Any
+from unittest.mock import Mock, patch
+
+from sqlalchemy.orm import Session
 
 from couchers.jobs.worker import process_job
 from couchers.models import User
@@ -9,13 +13,13 @@ from couchers.proto import moderation_pb2
 from tests.fixtures.sessions import real_moderation_session
 
 
-def process_jobs():
+def process_jobs() -> None:
     while process_job():
         pass
 
 
 @contextmanager
-def mock_notification_email():
+def mock_notification_email() -> Generator[Mock]:
     with patch("couchers.email._queue_email") as mock:
         yield mock
         process_jobs()
@@ -33,7 +37,7 @@ class EmailData:
     list_unsubscribe_header: str
 
 
-def email_fields(mock, call_ix=0):
+def email_fields(mock: Mock, call_ix: int = 0) -> EmailData:
     _, kw = mock.call_args_list[call_ix]
     return EmailData(
         sender_name=kw.get("sender_name"),
@@ -63,7 +67,7 @@ class PushCollector:
     def by_user(self, user_id: int) -> list[Push]:
         return [push for uid, push in self.pushes if uid == user_id]
 
-    def push_to_user(self, session, user_id: int, **kwargs) -> None:
+    def push_to_user(self, session: Session, user_id: int, **kwargs: Any) -> None:
         self.pushes.append((user_id, Push(**kwargs)))
 
     def count_for_user(self, user_id: int) -> int:
@@ -79,21 +83,6 @@ class PushCollector:
             assert len(pushes) == 1, "Expected a single user notification"
             return pushes[0]
         return pushes[index]
-
-    def assert_user_has_count(self, user_id, count):
-        assert len(self.by_user(user_id)) == count
-
-    def assert_user_push_matches_fields(self, user_id, ix=0, **kwargs):
-        push = self.by_user(user_id)[ix]
-        for kwarg in kwargs:
-            assert hasattr(push, kwarg), f"Push notification {user_id=}, {ix=} missing field '{kwarg}'"
-            assert getattr(push, kwarg) == kwargs[kwarg], (
-                f"Push notification {user_id=}, {ix=} mismatch in field '{kwarg}', expected '{kwargs[kwarg]}' but got '{getattr(push, kwarg)}'"
-            )
-
-    def assert_user_has_single_matching(self, user_id, **kwargs):
-        self.assert_user_has_count(user_id, 1)
-        self.assert_user_push_matches_fields(user_id, ix=0, **kwargs)
 
 
 class Moderator:

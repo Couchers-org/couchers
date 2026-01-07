@@ -19,7 +19,7 @@ class TestGIS:
     def test_GetUsers(testing_communities):
         _, token = generate_user()
 
-        refresh_materialized_views_rapid(None)
+        refresh_materialized_views_rapid(empty_pb2.Empty())
 
         with gis_session(token) as gis:
             http_body = gis.GetUsers(empty_pb2.Empty())
@@ -33,7 +33,7 @@ class TestGIS:
     def test_GetClusteredUsers(testing_communities):
         _, token = generate_user()
 
-        refresh_materialized_views(None)
+        refresh_materialized_views(empty_pb2.Empty())
 
         with gis_session(token) as gis:
             http_body = gis.GetClusteredUsers(empty_pb2.Empty())

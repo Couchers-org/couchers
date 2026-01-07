@@ -66,9 +66,8 @@
     }
   },
   "host_request_view": {
-    "request_duration_0": "{{count}} nuit",
-    "request_duration_1": "{{count}} nuits",
-    "request_duration_2": "{{count}} nuits",
+    "request_duration_one": "{{count}} nuit",
+    "request_duration_other": "{{count}} nuits",
     "error_message": "Identification de demande d’hôte invalide",
     "back_button_a11y_label": "Retourner",
     "title_for_host": "Demande de {{user}} - {{status}}",

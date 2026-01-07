@@ -287,9 +287,9 @@ def test_modnotes(db, push_collector: PushCollector):
                 )
             )
         mock.assert_called_once()
-        e = email_fields(mock)
+        fields = email_fields(mock)
 
-        assert e.subject == "[TEST] You have received a mod note"
+        assert fields.subject == "[TEST] You have received a mod note"
         push = push_collector.get_for_user(user.id)
         assert push.content.title == "You received a mod note"
         assert push.content.body == "You need to read and acknowledge the note before continuing to use the platform."

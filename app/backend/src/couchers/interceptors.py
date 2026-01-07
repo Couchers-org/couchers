@@ -7,7 +7,7 @@ from os import getpid
 from threading import get_ident
 from time import perf_counter_ns
 from traceback import format_exception
-from typing import Any, NoReturn, cast
+from typing import Any, NoReturn, cast, overload
 
 import grpc
 import sentry_sdk
@@ -152,6 +152,10 @@ def unauthenticated_handler[T, R](
     return abort_handler(message, status_code)
 
 
+@overload
+def _sanitized_bytes(proto: Message) -> bytes: ...
+@overload
+def _sanitized_bytes(proto: None) -> None: ...
 def _sanitized_bytes(proto: Message | None) -> bytes | None:
     """
     Remove fields marked sensitive and return serialized bytes

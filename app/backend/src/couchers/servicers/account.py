@@ -54,6 +54,7 @@ from couchers.models import (
     UserSession,
     Volunteer,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
@@ -211,7 +212,7 @@ class Account(account_pb2_grpc.AccountServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="password:change",
+            topic_action=NotificationTopicAction.password__change,
             key="",
         )
 
@@ -255,7 +256,7 @@ class Account(account_pb2_grpc.AccountServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="email_address:change",
+            topic_action=NotificationTopicAction.email_address__change,
             key="",
             data=notification_data_pb2.EmailAddressChange(
                 new_email=request.new_email,
@@ -349,7 +350,7 @@ class Account(account_pb2_grpc.AccountServicer):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="phone_number:change",
+                topic_action=NotificationTopicAction.phone_number__change,
                 key="",
                 data=notification_data_pb2.PhoneNumberChange(
                     phone=phone,
@@ -404,7 +405,7 @@ class Account(account_pb2_grpc.AccountServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="phone_number:verify",
+            topic_action=NotificationTopicAction.phone_number__verify,
             key="",
             data=notification_data_pb2.PhoneNumberVerify(
                 phone=user.phone,
@@ -566,7 +567,7 @@ class Account(account_pb2_grpc.AccountServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="account_deletion:start",
+            topic_action=NotificationTopicAction.account_deletion__start,
             key="",
             data=notification_data_pb2.AccountDeletionStart(
                 deletion_token=token.token,

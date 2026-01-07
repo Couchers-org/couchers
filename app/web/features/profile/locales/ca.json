@@ -157,8 +157,7 @@
     "continue_editing": "Continua editant"
   },
   "helper_text": {
-    "missing_profile_photo": "Si us plau, afegeix una foto per completar el teu perfil.",
-    "characters_remaining": "<bold>Si us plau, escriu almenys {{count}} caràcters per desbloquejar els missatges i les sol·licituds.</bold> Els perfils genuïns construeixen una comunitat de confiança. Com més comparteixis, més fàcil serà connectar!"
+    "missing_profile_photo": "Si us plau, afegeix una foto per completar el teu perfil."
   },
   "active": "Actiu"
 }
