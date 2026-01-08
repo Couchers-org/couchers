@@ -67,11 +67,13 @@ In another terminal, run the backend locally:
 
 ```sh
 cd app/backend
-# Apply backend environment variables with overrides for containerized services.
+
+# Use backend environment variables, overriding the host names of containerized services.
 set -a && source ../backend.dev.env && set +a
 export DATABASE_CONNECTION_STRING=${DATABASE_CONNECTION_STRING/postgres:6545/localhost:6545}
 export SMTP_HOST=localhost
 export OPENTELEMETRY_ENDPOINT=localhost:4317
+
 uv run src/app.py
 ```
 
