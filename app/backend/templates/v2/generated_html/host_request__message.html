@@ -172,7 +172,7 @@
                               </tr>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;"><b>{{ message|v2esc }}</b> at {{ time|v2time(user) }}.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;"><b>{{ message|v2esc }}</b> at {{ time|v2time }}.</div>
                                 </td>
                               </tr>
                             </tbody>
@@ -203,7 +203,7 @@
                                       </td>
                                       <td>
                                         <b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br>{{ other.city|v2esc }}
-                                        <br>From <b>{{ host_request.from_date|v2date(user) }}</b> to <b>{{ host_request.to_date|v2date(user) }}</b>.
+                                        <br>From <b>{{ host_request.from_date|v2date }}</b> to <b>{{ host_request.to_date|v2date }}</b>.
                                       </td>
                                     </tr>
                                   </table>

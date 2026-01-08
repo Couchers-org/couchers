@@ -3,11 +3,11 @@ from dataclasses import dataclass
 from typing import Any
 
 from couchers import urls
-from couchers.i18n.i18n import localize_string
+from couchers.i18n.i18n import format_phone_number, localize_date_from_iso, localize_datetime_for_user, localize_string
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.proto import notification_data_pb2
-from couchers.templates.v2 import v2date, v2esc, v2phone, v2timestamp
+from couchers.templates.v2 import v2esc
 from couchers.utils import now, to_aware_datetime
 
 logger = logging.getLogger(__name__)
@@ -203,7 +203,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         )
     elif notification.topic_action == NotificationTopicAction.phone_number__change:
         title = "Phone verification started"
-        message = f"You started phone number verification with the number <b>{v2phone(data.phone)}</b>."
+        message = f"You started phone number verification with the number <b>{format_phone_number(data.phone)}</b>."
         return RenderedEmailNotification(
             is_critical=True,
             subject=title,
@@ -216,8 +216,8 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         )
     elif notification.topic_action == NotificationTopicAction.phone_number__verify:
         title = "Phone successfully verified"
-        message = f"Your phone was successfully verified as <b>{v2phone(data.phone)}</b> on Couchers.org."
-        message_plain = f"Your phone was successfully verified as {v2phone(data.phone)} on Couchers.org."
+        message = f"Your phone was successfully verified as <b>{format_phone_number(data.phone)}</b> on Couchers.org."
+        message_plain = f"Your phone was successfully verified as {format_phone_number(data.phone)} on Couchers.org."
         return RenderedEmailNotification(
             is_critical=True,
             subject=title,
@@ -244,10 +244,9 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         )
     elif notification.topic_action == NotificationTopicAction.birthdate__change:
         title = "Your date of birth was changed"
-        message = (
-            f"Your date of birth on Couchers.org was changed to <b>{v2date(data.birthdate, user)}</b> by an admin."
-        )
-        message_plain = f"Your date of birth on Couchers.org was changed to {v2date(data.birthdate, user)} by an admin."
+        birthdate = localize_date_from_iso(data.birthdate, user.ui_language_preference or "en")
+        message = f"Your date of birth on Couchers.org was changed to <b>{birthdate}</b> by an admin."
+        message_plain = f"Your date of birth on Couchers.org was changed to {birthdate} by an admin."
         return RenderedEmailNotification(
             is_critical=True,
             subject=title,
@@ -400,7 +399,9 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         )
     elif notification.topic == "event":
         event = data.event
-        time_display = f"{v2timestamp(event.start_time, user)} - {v2timestamp(event.end_time, user)}"
+        start_time = localize_datetime_for_user(event.start_time, user)
+        end_time = localize_datetime_for_user(event.end_time, user)
+        time_display = f"{start_time} - {end_time}"
         event_link = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
         if notification.action in ["create_approved", "create_any"]:
             # create_approved = invitation, approved by mods

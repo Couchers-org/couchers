@@ -6,10 +6,12 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from google.protobuf.timestamp_pb2 import Timestamp
+import phonenumbers
 
 from couchers.i18n.constants import LANGUAGE_FALLBACKS
 from couchers.i18n.i18next import I18Next
 from couchers.i18n.plurals import PluralRules
+from couchers.models.users import User
 from couchers.utils import to_aware_datetime
 
 
@@ -78,36 +80,50 @@ def localize_date(date: datetime.date, locale: str) -> str:
     return date.strftime("%A %-d %B %Y")
 
 
+def localize_date_from_iso(date: str, locale: str) -> str:
+    """Formats a date in ISO YYYY-MM-DD format for the given locale."""
+    return localize_date(datetime.date.fromisoformat(date), locale)
+
+
 def localize_time(time: datetime.time, locale: str) -> str:
     """Formats a date- and timezone-agnostic time for the given locale."""
     # TODO(#7590): Account for locale
     return time.strftime("%-I:%M %p (%H:%M)")
 
 
-def localize_datetime(datetime: datetime.datetime, timezone: ZoneInfo | None, locale: str) -> str:
+def localize_datetime(datetime: datetime.datetime | Timestamp, timezone: ZoneInfo | None, locale: str) -> str:
     """
     Formats a date and time for the given locale.
 
     Args:
-        datetime: The date to be formatted.
+        datetime: The datetime or timestamp to be formatted.
         timezone: An optional timezone in which to interpret the date. If None, uses datetime's timezone.
         locale: The locale for which to format the date.
 
     Returns:
         The localized date and time string.
     """
+    if isinstance(datetime, Timestamp):
+        datetime = to_aware_datetime(datetime)
+
     # A timezone-unaware datetime is almost certainly a bug, so we don't support it.
     assert datetime.tzinfo is not None, "Cannot localize a timezone-unaware datetime."
+
     if timezone is not None:
         datetime = datetime.astimezone(timezone)
+
     localized_date = localize_date(datetime.date(), locale)
     localized_time = localize_time(datetime.time(), locale)
+
     # TODO(#7590): Account for locale
     return f"{localized_date} at {localized_time}"
 
 
-def localize_timestamp(timestamp: Timestamp, timezone: ZoneInfo, locale: str) -> str:
-    """
-    Formats a timestamp into date and time strings for the given timezone and locale
-    """
-    return localize_datetime(to_aware_datetime(timestamp), timezone, locale)
+def localize_datetime_for_user(datetime: datetime.datetime | Timestamp, user: User) -> str:
+    timezone = ZoneInfo(user.timezone or "Etc/UTC")
+    return localize_datetime(datetime, timezone, user.ui_language_preference or "en")
+
+
+def format_phone_number(value: str) -> str:
+    """Formats a phone number from E.164 format to the international format."""
+    return phonenumbers.format_number(phonenumbers.parse(value), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
