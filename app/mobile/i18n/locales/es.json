@@ -1,33 +1,18 @@
 {
-    "biometrics": {
-        "cancel_button": "Cancelar",
-        "use_password_button": "Usar contraseña",
-        "enable_message": "¿Te gustaría usar {{biometricType}} para iniciar sesión más rápido la próxima vez?",
-        "enable_button": "Habilitar",
-        "not_now_button": "Ahora no",
-        "confirm_prompt": "Confirmar {{biometricType}}",
-        "face_id": "Face ID",
-        "biometrics_generic": "biometría",
-        "enable_title": "¿Habilitar {{biometricType}}?",
-        "login_prompt": "Autentícate para continuar",
-        "touch_id": "Touch ID",
-        "pin_prompt": "Usa el PIN de tu dispositivo para continuar",
-        "pin_fallback_label": "Usar PIN del dispositivo"
-    },
-    "errors": {
-        "try_again": "Inténtalo de nuevo",
-        "failed_to_load": "Error al cargar",
-        "check_connection": "Comprueba tu conexión a internet y vuélvelo a intentar."
-    },
-    "not_found": {
-        "title": "¡Ups!",
-        "message": "Esta pantalla no existe.",
-        "go_home": "¡Ve a la pantalla de inicio!"
-    },
-    "tabs": {
-        "home": "Inicio",
-        "messages": "Mensajes",
-        "communities": "Comunidades",
-        "search": "Buscar"
-    }
+  "errors": {
+    "try_again": "Inténtalo de nuevo",
+    "failed_to_load": "Error al cargar",
+    "check_connection": "Comprueba tu conexión a internet y vuélvelo a intentar."
+  },
+  "not_found": {
+    "title": "¡Ups!",
+    "message": "Esta pantalla no existe.",
+    "go_home": "¡Ve a la pantalla de inicio!"
+  },
+  "tabs": {
+    "home": "Inicio",
+    "messages": "Mensajes",
+    "communities": "Comunidades",
+    "search": "Buscar"
+  }
 }
