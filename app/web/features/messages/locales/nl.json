@@ -71,7 +71,8 @@
     "group_title_field_label": "Titel",
     "no_friends_found_message": "Kon geen vrienden vinden",
     "user_load_error_message": "(Fout bij het laden van gebruikers)",
-    "friends_input_label": "Vrienden"
+    "friends_input_label": "Vrienden",
+    "title_label": "Titel"
   },
   "chat_input": {
     "label": "Bericht"
@@ -148,6 +149,7 @@
     "back_button_a11y_label": "Terug",
     "title_for_surfer": "Verzoek aan {{user}} - {{status}}",
     "request_duration_one": "{{count}} nacht",
+    "request_duration_other": "{{count}} nachten",
     "title_for_host": "Verzoek van {{user}} - {{status}}"
   },
   "unknown_user": "Onbekende gebruiker"
