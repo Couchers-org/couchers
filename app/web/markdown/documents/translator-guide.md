@@ -48,19 +48,19 @@ As a lead translator, you are responsible for the overall quality of the Coucher
 
 We host a [Weblate instance](https://translate.couchershq.org/projects/couchers/) as our computer-assisted translation tool, it integrates many useful tools:
 
-- **Translation memory**: As part of the translation process, it is normal to translate several similar, maybe even identical strings. The "Automatic suggestions" tab will offer suggestions based on similar previously translated strings, as well as automated translations providers.
-- **Glossary**: Use your language's glossary defines standard translations for key terms, like "host", that should be translated identically by all translators. Weblate will highlight string words that have a glossary entry, but note that you need to define redundant entries for variants of the term (e.g. "host" and "hosts").
+- **Translation memory**: As part of the translation process, it is normal to translate several similar, maybe even identical strings. Approved translators will have access to the "Automatic suggestions" tab, which offer suggestions based on similar previously translated strings as well as automated translations providers.
+- **Glossary**: Your language's glossary defines standard translations for key terms, like "host", that should be translated identically by all translators. Weblate will highlight string words that have a glossary entry, but note that redundant entries for variants of the term (e.g. "host" and "hosts") need to be defined.
 - **Special characters**: Some languages require hard-to-type characters such as ellipses (…), special quotation marks («») or non-breaking spaces. Weblate offers quick buttons to input these.
 - **Comments**: Add comments to raise problems with a string to fellow translators or for engineers to look at.
-- **Screenshots and explanations**: Attach extra contextual information to help translate the string.
+- **Screenshots and explanations**: Additional contextual information to help translate the string.
 
-We recommend you also join our Slack workspace for more direct communication with the engineering team and other translators.
+Approved translators should join our Slack workspace for more direct communication with the engineering team and other translators.
 
 ### Special strings
 
 Strings can contain special content which require extra care:
 
-- **Placeholders**: If the English string contains a word surrounded by double curly braces, such as `{{name}}`, this is a placeholder. When navigating the website, it will replaced with the actual information, like `Bob`. You must preserve that placeholder, including its curly braces, but you may move it around based on the grammar of your language.
+- **Placeholders**: If the English string contains a word surrounded by double curly braces, such as `{{name}}`, this is a placeholder. When navigating the website, it will replaced with the actual information, like `Bob`. You must preserve that placeholder (i.e. do not modify the text, including its curly braces), but you may move it around based on the grammar of your language.
 - **Pluralizable placeholders**: The `{{count}}` placeholder is special. When it appears, Weblate should allow you to enter plural variants, such as `{{count}} user` for the singular and `{{count}} users` for the plural. Every language has a different set of plural categories, and we follow the [Unicode CLDR rules](https://cldr.unicode.org/index/cldr-spec/plural-rules). Take a moment to get familiar with the definitions for [your language](https://www.unicode.org/cldr/charts/48/supplemental/language_plural_rules.html).
 - **Markup**: Occasionally, strings may contain HTML-like markup like `Make sure you have a <bold>biometric</bold> passport`. The `<bold>` and `</bold>` define the beginning and end of a special formatting of the string, and must such be preserved (do not translate "bold"), but you may move that begin/end pair around based on the grammar of your language.
 
