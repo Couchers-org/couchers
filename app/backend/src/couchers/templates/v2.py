@@ -2,9 +2,9 @@
 template mailer/push notification formatter v2
 """
 
-from dataclasses import dataclass
 import logging
 import re
+from dataclasses import dataclass
 from datetime import date, datetime
 from html import escape
 from pathlib import Path
@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
-from couchers.i18n.i18n import format_phone_number, localize_date, localize_string, localize_time, localize_datetime
+from couchers.i18n.i18n import format_phone_number, localize_date, localize_datetime, localize_string, localize_time
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -35,6 +35,7 @@ md = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading",
 
 # Special context values expected by v2 filters
 CONTEXT_YEAR_KEY = "_year"
+
 
 @dataclass(slots=True, kw_only=True)
 class FilterContext:
@@ -78,8 +79,10 @@ def v2phone(value: str) -> str:
 
 
 @pass_context
-def v2date(context: Context, value: date) -> str:
+def v2date(context: Context, value: date | str) -> str:
     filter_context = FilterContext.get(context)
+    if isinstance(value, str):
+        value = date.fromisoformat(value)
     return localize_date(value, filter_context.locale)
 
 
@@ -185,7 +188,7 @@ def send_simple_pretty_email(
         # Not yet localizable
         timezone=ZoneInfo("Etc/UTC"),
         locale="en",
-        plaintext=True
+        plaintext=True,
     )
 
     template_args[FilterContext.KEY] = filter_context

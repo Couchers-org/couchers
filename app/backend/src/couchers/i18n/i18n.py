@@ -5,8 +5,8 @@ from functools import lru_cache
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from google.protobuf.timestamp_pb2 import Timestamp
 import phonenumbers
+from google.protobuf.timestamp_pb2 import Timestamp
 
 from couchers.i18n.constants import LANGUAGE_FALLBACKS
 from couchers.i18n.i18next import I18Next
