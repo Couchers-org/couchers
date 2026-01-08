@@ -166,6 +166,8 @@ def send_simple_pretty_email(
     template_args[CONTEXT_TRANSLATION_LANGUAGE_KEY] = "en"  # Not yet localizable
     template_args[CONTEXT_YEAR_KEY] = now().year
     template_args[CONTEXT_TIMEZONE_DISPLAY_KEY] = get_tz_as_text("Etc/UTC")
+
+    template_args["header_subject"] = subject
     template_args["footer_email_is_critical"] = True  # Results in no unsubscribe footer.
 
     plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
