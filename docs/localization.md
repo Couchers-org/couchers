@@ -13,7 +13,7 @@ All user-visible strings should be externalized to `en.json` files as to be loca
 ### Writing strings
 
 - ✅ **DO** use placeholders to inject information known by the code into the string, e.g. a user's name into a greeting.
-- ✅ **DO** use include simple HTML/Markdown sentence-internal markup in the string, e.g. `This user is <bold>inactive</bold>`, rather than breaking it up and concatenating its parts.
+- ✅ **DO** use simple HTML/Markdown sentence-internal markup in the string, e.g. `This user is <bold>inactive</bold>`, rather than breaking it up and concatenating its parts.
 - ❌ **AVOID**: leading/trailing whitespace or commas as they are confusing for translators and they are a sign of concatenation.
 
 ### Choosing string keys
