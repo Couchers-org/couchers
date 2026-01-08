@@ -1,33 +1,19 @@
 {
-    "biometrics": {
-        "login_prompt": "Devam etmek için kimlik doğrulaması yapın",
-        "pin_prompt": "Devam etmek için cihaz PIN'ini kullan",
-        "cancel_button": "İptal et",
-        "enable_title": "{{biometricType}} etkinleştirilsin mi?",
-        "enable_message": "Bir dahaki girişinizde daha hızlı oturum açmak için {{biometricType}}'ı kullanmak ister misiniz?",
-        "enable_button": "Etkinleştir",
-        "not_now_button": "Şimdi Değil",
-        "confirm_prompt": "{{biometricType}}'ı Onayla",
-        "face_id": "Face ID",
-        "touch_id": "Touch ID",
-        "biometrics_generic": "biyometri",
-        "pin_fallback_label": "Cihaz PIN'ini kullan"
-    },
-    "errors": {
-        "failed_to_load": "Yüklenemedi",
-        "check_connection": "İnternet bağlantınızı kontrol edip tekrar deneyin.",
-        "try_again": "Tekrar dene"
-    },
-    "not_found": {
-        "title": "Hay aksi!",
-        "message": "Bu ekran bulunamadı.",
-        "go_home": "Ana sayfaya git!"
-    },
-    "tabs": {
-        "events": "Etkinlikler",
-        "search": "Ara",
-        "home": "Ana Sayfa",
-        "messages": "Mesajlar",
-        "communities": "Topluluklar"
-    }
+  "errors": {
+    "failed_to_load": "Yüklenemedi",
+    "check_connection": "İnternet bağlantınızı kontrol edip tekrar deneyin.",
+    "try_again": "Tekrar dene"
+  },
+  "not_found": {
+    "title": "Hay aksi!",
+    "message": "Bu ekran bulunamadı.",
+    "go_home": "Ana sayfaya git!"
+  },
+  "tabs": {
+    "events": "Etkinlikler",
+    "search": "Ara",
+    "home": "Ana Sayfa",
+    "messages": "Mesajlar",
+    "communities": "Topluluklar"
+  }
 }
