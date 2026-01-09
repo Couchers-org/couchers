@@ -1,6 +1,6 @@
-import datetime
 import json
 from collections.abc import Mapping
+from datetime import date, datetime, time
 from functools import lru_cache
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -74,24 +74,24 @@ def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, s
     return get_i18next().localize(key, lang or "en", substitutions)
 
 
-def localize_date(date: datetime.date, locale: str) -> str:
+def localize_date(value: date, locale: str) -> str:
     """Formats a time- and timezone-agnostic date for the given locale."""
     # TODO(#7590): Account for locale
-    return date.strftime("%A %-d %B %Y")
+    return value.strftime("%A %-d %B %Y")
 
 
-def localize_date_from_iso(date: str, locale: str) -> str:
+def localize_date_from_iso(value: str, locale: str) -> str:
     """Formats a date in ISO YYYY-MM-DD format for the given locale."""
-    return localize_date(datetime.date.fromisoformat(date), locale)
+    return localize_date(date.fromisoformat(value), locale)
 
 
-def localize_time(time: datetime.time, locale: str) -> str:
+def localize_time(value: time, locale: str) -> str:
     """Formats a date- and timezone-agnostic time for the given locale."""
     # TODO(#7590): Account for locale
-    return time.strftime("%-I:%M %p (%H:%M)")
+    return value.strftime("%-I:%M %p (%H:%M)")
 
 
-def localize_datetime(datetime: datetime.datetime | Timestamp, timezone: ZoneInfo | None, locale: str) -> str:
+def localize_datetime(value: datetime | Timestamp, timezone: ZoneInfo | None, locale: str) -> str:
     """
     Formats a date and time for the given locale.
 
@@ -103,25 +103,25 @@ def localize_datetime(datetime: datetime.datetime | Timestamp, timezone: ZoneInf
     Returns:
         The localized date and time string.
     """
-    if isinstance(datetime, Timestamp):
-        datetime = to_aware_datetime(datetime)
+    if isinstance(value, Timestamp):
+        value = to_aware_datetime(value)
 
     # A timezone-unaware datetime is almost certainly a bug, so we don't support it.
-    assert datetime.tzinfo is not None, "Cannot localize a timezone-unaware datetime."
+    assert value.tzinfo is not None, "Cannot localize a timezone-unaware datetime."
 
     if timezone is not None:
-        datetime = datetime.astimezone(timezone)
+        value = value.astimezone(timezone)
 
-    localized_date = localize_date(datetime.date(), locale)
-    localized_time = localize_time(datetime.time(), locale)
+    localized_date = localize_date(value.date(), locale)
+    localized_time = localize_time(value.time(), locale)
 
     # TODO(#7590): Account for locale
     return f"{localized_date} at {localized_time}"
 
 
-def localize_datetime_for_user(datetime: datetime.datetime | Timestamp, user: User) -> str:
+def localize_datetime_for_user(value: datetime | Timestamp, user: User) -> str:
     timezone = ZoneInfo(user.timezone or "Etc/UTC")
-    return localize_datetime(datetime, timezone, user.ui_language_preference or "en")
+    return localize_datetime(value, timezone, user.ui_language_preference or "en")
 
 
 def format_phone_number(value: str) -> str:
