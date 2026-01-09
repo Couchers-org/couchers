@@ -53,7 +53,7 @@ class FilterContext:
     """If true, strips html tags from localized strings."""
 
     @staticmethod
-    def get(jinja2_context: Context) -> FilterContext:
+    def from_jinja(jinja2_context: Context) -> FilterContext:
         filter_context: FilterContext = jinja2_context[FilterContext.KEY]
         return filter_context
 
@@ -80,7 +80,7 @@ def v2phone(value: str) -> str:
 
 @pass_context
 def v2date(context: Context, value: date | str) -> str:
-    filter_context = FilterContext.get(context)
+    filter_context = FilterContext.from_jinja(context)
     if isinstance(value, str):
         value = date.fromisoformat(value)
     return localize_date(value, filter_context.locale)
@@ -88,14 +88,14 @@ def v2date(context: Context, value: date | str) -> str:
 
 @pass_context
 def v2time(context: Context, value: datetime) -> str:
-    filter_context = FilterContext.get(context)
+    filter_context = FilterContext.from_jinja(context)
     value = value.astimezone(filter_context.timezone)
     return localize_time(value.time(), filter_context.locale)
 
 
 @pass_context
 def v2timestamp(context: Context, value: Timestamp) -> str:
-    filter_context = FilterContext.get(context)
+    filter_context = FilterContext.from_jinja(context)
     return localize_datetime(value, filter_context.timezone, filter_context.locale)
 
 
@@ -136,7 +136,7 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
         {{ "greeting_key"|v2translate(name=user.name) }}
     """
 
-    filter_context = FilterContext.get(context)
+    filter_context = FilterContext.from_jinja(context)
 
     # Prevent html injection
     escaped_substitutions = {k: escape(str(v)) for k, v in kwargs.items()}
