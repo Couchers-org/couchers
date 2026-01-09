@@ -176,8 +176,6 @@ message CreateEventReq {
   google.protobuf.Timestamp end_time = 10;
   // the tzdata timezone identifier, empty string means tz of creating user
   string timezone = 11;
-  // if duplicating an event, provide the event ID to copy the photo from
-  int64 duplicate_from_event_id = 12;
 }
 
 message ScheduleEventReq {

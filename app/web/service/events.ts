@@ -121,7 +121,6 @@ interface EventInput {
   title: string;
   startTime: Date;
   endTime: Date;
-  duplicateFromEventId?: number;
 }
 
 interface OnlineEventInput extends EventInput {
@@ -149,10 +148,6 @@ export async function createEvent(input: CreateEventInput) {
 
   if (input.photoKey) {
     req.setPhotoKey(input.photoKey);
-  }
-
-  if (input.duplicateFromEventId) {
-    req.setDuplicateFromEventId(input.duplicateFromEventId);
   }
 
   if (input.isOnline) {

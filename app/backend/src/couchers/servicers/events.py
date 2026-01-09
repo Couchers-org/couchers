@@ -447,23 +447,6 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
-        # Handle photo duplication from source event
-        photo_key_to_use = request.photo_key if request.photo_key != "" else None
-        if request.duplicate_from_event_id > 0:
-            # Validate that the source event exists
-            source_occurrence = session.execute(
-                select(EventOccurrence).where(EventOccurrence.id == request.duplicate_from_event_id)
-            ).scalar_one_or_none()
-
-            if not source_occurrence:
-                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "source_event_not_found")
-
-            # If no new photo provided, copy from source if user is the creator
-            if not photo_key_to_use and source_occurrence.photo_key:
-                source_event = source_occurrence.event
-                if source_event.creator_user_id == context.user_id:
-                    photo_key_to_use = source_occurrence.photo_key
-
         event = Event(
             title=request.title,
             parent_node_id=parent_node.id,
@@ -479,7 +462,7 @@ class Events(events_pb2_grpc.EventsServicer):
             geom=geom,
             address=address,
             link=link,
-            photo_key=photo_key_to_use,
+            photo_key=request.photo_key if request.photo_key != "" else None,
             # timezone=timezone,
             during=DateTimeTZRange(start_time, end_time),
             creator_user_id=context.user_id,

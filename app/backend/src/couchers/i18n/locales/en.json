@@ -73,7 +73,6 @@
     "event_not_found": "Event not found.",
     "event_too_far_in_future": "The event needs to start within the next year.",
     "event_too_long": "Events cannot last longer than 7 days.",
-    "source_event_not_found": "Source event not found.",
     "event_transfer_permission_denied": "You're not allowed to transfer that event.",
     "events_not_enabled": "Events are not enabled in this group or community.",
     "friend_request_not_found": "Couldn't find that friend request.",
