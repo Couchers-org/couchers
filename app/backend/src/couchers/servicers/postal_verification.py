@@ -17,6 +17,7 @@ from couchers.helpers.postal_verification import generate_postal_verification_co
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import send_postal_verification_postcard
 from couchers.models import User
+from couchers.models.notifications import NotificationTopicAction
 from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
 from couchers.notifications.notify import notify
 from couchers.postal.address_validation import AddressValidationError, validate_address
@@ -293,7 +294,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             notify(
                 session,
                 user_id=context.user_id,
-                topic_action="postal_verification:failed",
+                topic_action=NotificationTopicAction.postal_verification__failed,
                 key="",
                 data=notification_data_pb2.PostalVerificationFailed(
                     reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED
@@ -314,7 +315,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                 notify(
                     session,
                     user_id=context.user_id,
-                    topic_action="postal_verification:failed",
+                    topic_action=NotificationTopicAction.postal_verification__failed,
                     key="",
                     data=notification_data_pb2.PostalVerificationFailed(
                         reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_TOO_MANY_ATTEMPTS
@@ -337,7 +338,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         notify(
             session,
             user_id=context.user_id,
-            topic_action="postal_verification:success",
+            topic_action=NotificationTopicAction.postal_verification__success,
             key="",
         )
 

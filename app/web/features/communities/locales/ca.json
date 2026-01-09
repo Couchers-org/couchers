@@ -1,7 +1,6 @@
 {
-  "attendees_count_0": "{{count}} participant",
-  "attendees_count_1": "{{count}} participants",
-  "attendees_count_2": "{{count}} participants",
+  "attendees_count_one": "{{count}} participant",
+  "attendees_count_other": "{{count}} participants",
   "make_co_organizer": {
     "title": "Fes coorganitzador",
     "dialog_title": "Fes que {{name}} sigui coorganitzador",

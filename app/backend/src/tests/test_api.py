@@ -13,24 +13,18 @@ from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notificat
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict
 from couchers.utils import create_coordinate, to_aware_datetime
-from tests.test_fixtures import (  # noqa
-    PushCollector,
+from tests.fixtures.db import generate_user, make_friends, make_user_block
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.sessions import (
     api_session,
     blocking_session,
-    db,
-    email_fields,
-    generate_user,
-    make_friends,
-    make_user_block,
-    make_user_invisible,
-    mock_notification_email,
     notifications_session,
-    push_collector,
     real_api_session,
     real_jail_session,
-    testconfig,
 )
-from tests.test_fixtures import real_admin_session as admin_session
+from tests.fixtures.sessions import (
+    real_admin_session as admin_session,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -63,7 +57,7 @@ def test_ping(db):
     assert res.user.pronouns == user.pronouns
     assert res.user.age == user.age
 
-    assert (res.user.lat, res.user.lng) == (user.coordinates or (0, 0))
+    assert (res.user.lat, res.user.lng) == user.coordinates
 
     # the joined time is fuzzed
     # but shouldn't be before actual joined time, or more than one hour behind
@@ -96,7 +90,7 @@ def test_coords(db):
     with api_session(token2) as api:
         res = api.Ping(api_pb2.PingReq())
         assert res.user.city == user2.city
-        lat, lng = user2.coordinates or (0, 0)
+        lat, lng = user2.coordinates
         assert res.user.lat == lat
         assert res.user.lng == lng
         assert res.user.radius == user2.geom_radius
@@ -183,7 +177,7 @@ def test_user_model_to_pb_ghost_user(db, flag):
     with session_scope() as session:
         session.execute(update(User).where(User.id == user2.id).values(**{flag: True}))
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token1) as api:
         user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
@@ -249,7 +243,7 @@ def test_user_model_to_pb_ghost_user_blocked(db):
     with blocking_session(token1) as user_blocks:
         user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user2.username))
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token1) as api:
         user_pb = api.GetUser(api_pb2.GetUserReq(user=user2.username))
@@ -338,12 +332,12 @@ def test_lite_coords(db):
     user1, token1 = generate_user(geom=create_coordinate(0, 0), geom_radius=0, needs_to_update_location=True)
     user2, token2 = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token2) as api:
         res = api.Ping(api_pb2.PingReq())
         assert res.user.city == user2.city
-        lat, lng = user2.coordinates or (0, 0)
+        lat, lng = user2.coordinates
         assert res.user.lat == lat
         assert res.user.lng == lng
         assert res.user.radius == user2.geom_radius
@@ -360,7 +354,7 @@ def test_lite_coords(db):
     user4, token4 = generate_user(geom=create_coordinate(40.0, 20.0))
     user5, token5 = generate_user(geom=create_coordinate(90.5, 20.0))
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token3) as api:
         res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user3.username))
@@ -399,7 +393,7 @@ def test_lite_coords(db):
         assert not res.jailed
         assert not res.needs_to_update_location
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token2) as api:
         res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user1.username))
@@ -413,7 +407,7 @@ def test_lite_get_user(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token1) as api:
         res = api.GetLiteUser(api_pb2.GetLiteUserReq(user=user2.username))
@@ -438,7 +432,7 @@ def test_GetLiteUsers(db):
 
     make_user_block(user4, user1)
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token1) as api:
         res = api.GetLiteUsers(
@@ -646,8 +640,8 @@ def test_language_abilities(db):
         assert len(res.language_abilities) == 2
 
         # can't add non-existent languages
-        with pytest.raises(grpc.RpcError) as e:
-            res = api.UpdateProfile(
+        with pytest.raises(grpc.RpcError) as err:
+            api.UpdateProfile(
                 api_pb2.UpdateProfileReq(
                     language_abilities=api_pb2.RepeatedLanguageAbilityValue(
                         value=[
@@ -659,12 +653,12 @@ def test_language_abilities(db):
                     ),
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Invalid language."
+        assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert err.value.details() == "Invalid language."
 
         # can't have multiple languages of the same type
-        with pytest.raises(Exception) as e:
-            res = api.UpdateProfile(
+        with pytest.raises(Exception) as err2:
+            api.UpdateProfile(
                 api_pb2.UpdateProfileReq(
                     language_abilities=api_pb2.RepeatedLanguageAbilityValue(
                         value=[
@@ -680,7 +674,7 @@ def test_language_abilities(db):
                     ),
                 )
             )
-        assert "violates unique constraint" in str(e.value)
+        assert "violates unique constraint" in str(err2.value)
 
         # nothing changed
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -830,13 +824,11 @@ def test_friend_request_flow(db, push_collector: PushCollector):
     assert "http://localhost:3000/connections/friends/" in e.html
 
     with session_scope() as session:
-        friend_request_id = (
-            session.execute(
-                select(FriendRelationship).where(
-                    FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id
-                )
-            ).scalar_one_or_none()
-        ).id
+        friend_request_id = session.execute(
+            select(FriendRelationship.id).where(
+                FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id
+            )
+        ).scalar_one_or_none()
 
     with api_session(token1) as api:
         # check it went through
@@ -904,10 +896,10 @@ def test_friend_request_flow(db, push_collector: PushCollector):
 
     with api_session(token1) as api:
         # we can't unfriend if we aren't friends
-        with pytest.raises(grpc.RpcError) as e:
+        with pytest.raises(grpc.RpcError) as err:
             api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user3.id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You aren't friends with that user!"
+        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert err.value.details() == "You aren't friends with that user!"
 
         # we can unfriend
         res = api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user2.id))
@@ -1527,7 +1519,7 @@ def test_GetLiteUser_ghost_user_by_username(db, flag):
         session.commit()
 
     # Refresh the materialized view
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token1) as api:
         # Query by username
@@ -1559,7 +1551,7 @@ def test_GetLiteUser_ghost_user_by_id(db, flag):
         session.commit()
 
     # Refresh the materialized view
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token1) as api:
         # Query by ID
@@ -1587,7 +1579,7 @@ def test_GetLiteUser_blocked_user(db):
     make_user_block(user1, user2)
 
     # Refresh the materialized view
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token1) as api:
         # Query by username
@@ -1616,7 +1608,7 @@ def test_GetLiteUser_blocking_user(db):
     make_user_block(user2, user1)
 
     # Refresh the materialized view
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token1) as api:
         # Query by username
@@ -1653,7 +1645,7 @@ def test_GetLiteUsers_ghost_users(db, flag):
         session.commit()
 
     # Refresh the materialized view
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token1) as api:
         res = api.GetLiteUsers(
@@ -1714,7 +1706,7 @@ def test_GetLiteUsers_blocked_users(db):
     make_user_block(user4, user1)
 
     # Refresh the materialized view
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token1) as api:
         res = api.GetLiteUsers(

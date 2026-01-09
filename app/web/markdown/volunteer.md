@@ -29,15 +29,27 @@ We value being highly collaborative in order to learn and develop together while
 
 You can read more about our [Mission & Values here](/mission).
 
+## What we look for in volunteers
+
+Our experience shows that the single most important quality in a successful volunteer is the grit to take full ownership of a project and push it through to completion. This means identifying what needs to be done (in the intersection of what you want to do and what is the highest priority for Couchers at a given time), then starting the work without waiting for perfect instructions, and never being afraid to ping people if you get stuck. Being productive in any dynamic organization — Couchers included — requires navigating some level of confusion and chaos. We look for self-starters who don't let things fall through the cracks and are willing to push through the noise to make things happen.
+
+In addition to this, we look for volunteers that balance having a level of seniority in their area, having experience and skills that match what we need, an understanding and past experience with couch surfing, as well as just being a fun friendly person that we would like to work with.
+
 ## How to join us as a volunteer ― our recruitment process
 
-_If you are software engineer, feel free to hop over to [GitHub](https://github.com/Couchers-org/couchers/) and contribute code._
+Our volunteer recruiting process has evolved through the years as our project has matured and we've gained more experience.
 
-1. Find one of the open positions below and apply via the form!
+**Ideally, the process looks like this**:
 
-2. We'll review and get back to you as soon as possible — setting up a Zoom call so we can get to know you and you can meet the team.
+1. You apply via one of the defined open "positions" below, filling out the application form.
+
+2. We'll review your application and if your profile seems appropriate, we schedule a quick Zoom call to get to know each other.
 
 3. After accepting the position, we'll send you some volunteer agreements and then get you onboarded with the people you're going to directly work with.
+
+**In reality however, this process is rarely as smooth as it sounds**. It takes considerable effort from our all-volunteer team, and like anything else at Couchers we do not always have a lot of bandwidth for recruiting. This means that we tend to recruit in waves: we will sometimes do a volunteer drive and schedule a lot of intro calls, and at other times we put our heads down to work with our current team.
+
+If you are motivated, really want to contribute, and you have the seniority and skills we are looking for, we encourage you to think about how you could directly help us out on our active priority projects and how we could onboard you easily. If we see that you are a good fit for our current priorities and are motivated, in other words if it seems it wouldn't take a lot of effort from our side, we are much more likely to schedule a chat soon!
 
 ## Open positions
 

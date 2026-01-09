@@ -30,7 +30,7 @@ const SUB_GRID_ITEM_AMOUNT = 2;
 
 const StyledForm = styled("form")(() => ({
   padding: theme.spacing(2),
-  border: `2px solid ${theme.palette.grey[200]}`,
+  border: `2px solid var(--mui-palette-grey-200)`,
   borderRadius: theme.shape.borderRadius * 2,
   display: "flex",
   flexDirection: "column",
@@ -57,9 +57,9 @@ const StyledLabelledRadioButton = styled(RadioFormControlLabel)(() => ({
   boxShadow: "initial",
   margin: 0,
   "&:hover > .MuiFormControlLabel-label": {
-    border: `2px solid ${theme.palette.primary.main}`,
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.primary.main,
+    border: `2px solid var(--mui-palette-primary-main)`,
+    backgroundColor: "var(--mui-palette-background-paper)",
+    color: "var(--mui-palette-primary-main)",
     transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   },
   "& > .MuiRadio-root": {
@@ -67,23 +67,23 @@ const StyledLabelledRadioButton = styled(RadioFormControlLabel)(() => ({
     left: "-10000px",
   },
   "& > .MuiFormControlLabel-label": {
-    color: theme.palette.grey[600],
+    color: "var(--mui-palette-grey-600)",
     fontWeight: 700,
     fontSize: theme.typography.button.fontSize,
     transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
     justifyContent: "center",
     alignItems: "center",
-    border: `2px solid ${theme.palette.grey[200]}`,
+    border: `2px solid var(--mui-palette-grey-200)`,
     borderRadius: "0.5rem",
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: "var(--mui-palette-grey-200)",
     margin: "initial",
     height: "100%",
     width: "100%",
     display: "flex",
   },
   "& > .Mui-checked ~.MuiFormControlLabel-label": {
-    border: `2px solid ${theme.palette.primary.main}`,
-    backgroundColor: theme.palette.background.paper,
+    border: `2px solid var(--mui-palette-primary-main)`,
+    backgroundColor: "var(--mui-palette-background-paper)",
   },
 }));
 
@@ -110,26 +110,26 @@ const StyledAmountButton = styled("button", {
   shouldForwardProp: (propName) => propName !== "isActive",
 })<{ isActive: boolean }>(({ isActive }) => ({
   boxShadow: "initial",
-  color: theme.palette.grey[600],
+  color: "var(--mui-palette-grey-600)",
   cursor: "pointer",
   fontWeight: 700,
   fontSize: theme.typography.button.fontSize,
   transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   justifyContent: "center",
   alignItems: "center",
-  border: `2px solid ${isActive ? theme.palette.primary.main : theme.palette.grey[200]}`,
+  border: `2px solid ${isActive ? "var(--mui-palette-primary-main)" : "var(--mui-palette-grey-200)"}`,
   borderRadius: "0.5rem",
   backgroundColor: isActive
-    ? theme.palette.background.paper
-    : theme.palette.grey[200],
+    ? "var(--mui-palette-background-paper)"
+    : "var(--mui-palette-grey-200)",
   margin: "initial",
   height: "100%",
   width: "100%",
   display: "flex",
   "&:hover": {
-    border: `2px solid ${theme.palette.primary.main}`,
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.primary.main,
+    border: `2px solid var(--mui-palette-primary-main)`,
+    backgroundColor: "var(--mui-palette-background-paper)",
+    color: "var(--mui-palette-primary-main)",
     transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   },
 }));
@@ -142,7 +142,7 @@ const StyledAmountInputWrapper = styled("div")(() => ({
     top: "50%",
     transform: "translateY(-50%)",
     left: theme.spacing(1),
-    color: theme.palette.grey[600],
+    color: "var(--mui-palette-grey-600)",
     fontWeight: 700,
     fontSize: theme.typography.button.fontSize,
   },
@@ -153,9 +153,9 @@ const StyledAmountInput = styled("input", {
 })<{ isActive: boolean }>(({ isActive }) => ({
   width: "100%",
   height: "100%",
-  border: `2px solid ${isActive ? theme.palette.primary.main : theme.palette.grey[200]}`,
+  border: `2px solid ${isActive ? "var(--mui-palette-primary-main)" : "var(--mui-palette-grey-200)"}`,
   paddingLeft: theme.spacing(2),
-  color: theme.palette.grey[600],
+  color: "var(--mui-palette-grey-600)",
   fontWeight: 700,
   fontSize: theme.typography.button.fontSize,
   "&&": {
@@ -163,10 +163,10 @@ const StyledAmountInput = styled("input", {
     boxShadow: "initial",
   },
   "&:hover": {
-    border: `2px solid ${theme.palette.primary.main}`,
+    border: `2px solid var(--mui-palette-primary-main)`,
   },
   "&:focus-visible": {
-    border: `2px solid ${theme.palette.primary.main}`,
+    border: `2px solid var(--mui-palette-primary-main)`,
     outline: "none",
     boxShadow: "none",
   },
@@ -189,7 +189,7 @@ function AmountGrid(props: PropsWithChildren) {
 }
 
 const StyledSubmitButton = styled(Button)(() => ({
-  backgroundColor: theme.palette.primary.main,
+  backgroundColor: "var(--mui-palette-primary-main)",
 
   borderRadius: "0.5rem",
   boxShadow: "initial",
@@ -197,13 +197,13 @@ const StyledSubmitButton = styled(Button)(() => ({
   marginBottom: theme.spacing(2),
   "&:hover": {
     opacity: 0.4,
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: "var(--mui-palette-primary-main)",
   },
   "& .MuiButton-label": {
-    color: theme.palette.background.paper,
+    color: "var(--mui-palette-background-paper)",
     transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   },
-  color: theme.palette.background.paper,
+  color: "var(--mui-palette-background-paper)",
   fontWeight: 700,
   transition: `color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   alignSelf: "stretch",

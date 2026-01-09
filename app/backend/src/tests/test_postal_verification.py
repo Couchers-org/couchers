@@ -19,7 +19,8 @@ from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt
 from couchers.proto import postal_verification_pb2
 from couchers.utils import now
-from tests.test_fixtures import generate_user, postal_verification_session
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import postal_verification_session
 
 
 @pytest.fixture(autouse=True)
@@ -571,6 +572,7 @@ def test_postal_verification_code_case_insensitive(db, monkeypatch):
             select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id)
         ).scalar_one()
         verification_code = attempt.verification_code
+        assert verification_code
 
     # Verify with lowercase code
     with postal_verification_session(token) as pv:

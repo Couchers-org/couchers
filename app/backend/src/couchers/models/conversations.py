@@ -15,22 +15,22 @@ if TYPE_CHECKING:
     from couchers.models import ModerationState, User
 
 
-class Conversation(Base):
+class Conversation(Base, init=False, kw_only=True):
     """
     Conversation brings together the different types of message/conversation types
     """
 
     __tablename__ = "conversations"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     # timezone should always be UTC
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     def __repr__(self) -> str:
         return f"Conversation(id={self.id}, created={self.created})"
 
 
-class GroupChat(Base):
+class GroupChat(Base, init=False, kw_only=True):
     """
     Group chat
     """
@@ -48,10 +48,10 @@ class GroupChat(Base):
     # Unified Moderation System
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
-    conversation: Mapped["Conversation"] = relationship("Conversation", backref="group_chat")
-    creator: Mapped["User"] = relationship("User", backref="created_group_chats")
-    moderation_state: Mapped["ModerationState"] = relationship("ModerationState")
-    subscriptions: DynamicMapped["GroupChatSubscription"] = relationship("GroupChatSubscription", lazy="dynamic")
+    conversation: Mapped[Conversation] = relationship(init=False, backref="group_chat")
+    creator: Mapped[User] = relationship(init=False, backref="created_group_chats")
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
+    subscriptions: DynamicMapped[GroupChatSubscription] = relationship(lazy="dynamic")
 
     def __repr__(self) -> str:
         return f"GroupChat(conversation={self.conversation}, title={self.title or 'None'}, only_admins_invite={self.only_admins_invite}, creator={self.creator}, is_dm={self.is_dm})"
@@ -62,13 +62,13 @@ class GroupChatRole(enum.Enum):
     participant = enum.auto()
 
 
-class GroupChatSubscription(Base):
+class GroupChatSubscription(Base, init=False, kw_only=True):
     """
     The recipient of a thread and information about when they joined/left/etc.
     """
 
     __tablename__ = "group_chat_subscriptions"
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # TODO: DB constraint on only one user+group_chat combo at a given time
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -87,8 +87,8 @@ class GroupChatSubscription(Base):
         DateTime(timezone=True), server_default=DATETIME_MINUS_INFINITY.isoformat()
     )
 
-    user: Mapped["User"] = relationship("User", backref="group_chat_subscriptions")
-    group_chat: Mapped["GroupChat"] = relationship("GroupChat", back_populates="subscriptions")
+    user: Mapped[User] = relationship(init=False, backref="group_chat_subscriptions")
+    group_chat: Mapped[GroupChat] = relationship(init=False, back_populates="subscriptions")
 
     def muted_display(self) -> tuple[bool, datetime | None]:
         """
@@ -128,7 +128,7 @@ class MessageType(enum.Enum):
     user_removed = enum.auto()  # user is removed from group chat by amdin RemoveGroupChatUser
 
 
-class Message(Base):
+class Message(Base, init=False, kw_only=True):
     """
     A message.
 
@@ -137,7 +137,7 @@ class Message(Base):
 
     __tablename__ = "messages"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # which conversation the message belongs in
     conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"), index=True)
@@ -160,11 +160,9 @@ class Message(Base):
     # the new host request status if the message type is host_request_status_changed
     host_request_status_target: Mapped[HostRequestStatus | None] = mapped_column(Enum(HostRequestStatus), nullable=True)
 
-    conversation: Mapped["Conversation"] = relationship(
-        "Conversation", backref="messages", order_by="Message.time.desc()"
-    )
-    author: Mapped["User"] = relationship("User", foreign_keys="Message.author_id")
-    target: Mapped["User | None"] = relationship("User", foreign_keys="Message.target_id")
+    conversation: Mapped[Conversation] = relationship(init=False, backref="messages", order_by="Message.time.desc()")
+    author: Mapped[User] = relationship(foreign_keys="Message.author_id")
+    target: Mapped[User | None] = relationship(foreign_keys="Message.target_id")
 
     @property
     def is_normal_message(self) -> bool:

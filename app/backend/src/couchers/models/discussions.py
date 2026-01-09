@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from couchers.models import Cluster, User
 
 
-class Discussion(Base):
+class Discussion(Base, init=False, kw_only=True):
     """
     forum board
     """
@@ -24,26 +24,26 @@ class Discussion(Base):
     title: Mapped[str] = mapped_column(String)
     content: Mapped[str] = mapped_column(String)
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     owner_cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
     slug: Mapped[str] = column_property(func.slugify(title))
 
-    thread: Mapped["Thread"] = relationship("Thread", backref="discussion", uselist=False)
+    thread: Mapped[Thread] = relationship(init=False, backref="discussion", uselist=False)
 
-    subscribers: Mapped[list["User"]] = relationship(
-        "User", backref="discussions", secondary="discussion_subscriptions", viewonly=True
+    subscribers: Mapped[list[User]] = relationship(
+        init=False, backref="discussions", secondary="discussion_subscriptions", viewonly=True
     )
 
-    creator_user: Mapped["User"] = relationship(
-        "User", backref="created_discussions", foreign_keys="Discussion.creator_user_id"
+    creator_user: Mapped[User] = relationship(
+        init=False, backref="created_discussions", foreign_keys="Discussion.creator_user_id"
     )
-    owner_cluster: Mapped["Cluster"] = relationship("Cluster", back_populates="owned_discussions", uselist=False)
+    owner_cluster: Mapped[Cluster] = relationship(init=False, back_populates="owned_discussions", uselist=False)
 
 
-class DiscussionSubscription(Base):
+class DiscussionSubscription(Base, init=False, kw_only=True):
     """
     users subscriptions to discussions
     """
@@ -51,67 +51,67 @@ class DiscussionSubscription(Base):
     __tablename__ = "discussion_subscriptions"
     __table_args__ = (UniqueConstraint("discussion_id", "user_id"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     discussion_id: Mapped[int] = mapped_column(ForeignKey("discussions.id"), index=True)
     joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     left: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    user: Mapped["User"] = relationship("User", backref="discussion_subscriptions")
-    discussion: Mapped["Discussion"] = relationship("Discussion", backref="discussion_subscriptions")
+    user: Mapped[User] = relationship(init=False, backref="discussion_subscriptions")
+    discussion: Mapped[Discussion] = relationship(init=False, backref="discussion_subscriptions")
 
 
-class Thread(Base):
+class Thread(Base, init=False, kw_only=True):
     """
     Thread
     """
 
     __tablename__ = "threads"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
-class Comment(Base):
+class Comment(Base, init=False, kw_only=True):
     """
     Comment
     """
 
     __tablename__ = "comments"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), index=True)
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    thread: Mapped["Thread"] = relationship("Thread", backref="comments")
+    thread: Mapped[Thread] = relationship(init=False, backref="comments")
 
 
-class Reply(Base):
+class Reply(Base, init=False, kw_only=True):
     """
     Reply
     """
 
     __tablename__ = "replies"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     comment_id: Mapped[int] = mapped_column(ForeignKey("comments.id"), index=True)
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    comment: Mapped["Comment"] = relationship("Comment", backref="replies")
+    comment: Mapped[Comment] = relationship(init=False, backref="replies")
 
 
-class ClusterDiscussionAssociation(Base):
+class ClusterDiscussionAssociation(Base, init=False, kw_only=True):
     """
     discussions related to clusters
     """
@@ -119,10 +119,10 @@ class ClusterDiscussionAssociation(Base):
     __tablename__ = "cluster_discussion_associations"
     __table_args__ = (UniqueConstraint("discussion_id", "cluster_id"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     discussion_id: Mapped[int] = mapped_column(ForeignKey("discussions.id"), index=True)
     cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
 
-    discussion: Mapped["Discussion"] = relationship("Discussion", backref="cluster_discussion_associations")
-    cluster: Mapped["Cluster"] = relationship("Cluster", backref="cluster_discussion_associations")
+    discussion: Mapped[Discussion] = relationship(init=False, backref="cluster_discussion_associations")
+    cluster: Mapped[Cluster] = relationship(init=False, backref="cluster_discussion_associations")

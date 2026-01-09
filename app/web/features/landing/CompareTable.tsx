@@ -52,10 +52,9 @@ export default function CompareTable() {
         sx={{
           overflowX: "auto",
           position: "relative",
-          border: `1px solid ${theme.palette.grey[200]}`,
+          border: `1px solid var(--mui-palette-grey-200)`,
           borderRadius: 2,
           p: 1.5,
-          bgcolor: theme.palette.background.paper,
         }}
         ref={tableRef}
         onScroll={(e) =>
@@ -86,7 +85,7 @@ export default function CompareTable() {
               px: { xs: 0.5, md: 1 },
             },
             "& tbody tr:nth-of-type(odd)": {
-              backgroundColor: theme.palette.grey[50],
+              backgroundColor: "var(--mui-palette-grey-50)",
             },
           }}
         >

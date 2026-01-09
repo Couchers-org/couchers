@@ -33,7 +33,7 @@ const MapViewToggle = ({ mapView, onMapViewChange }: MapViewToggleProps) => {
       sx={{
         borderRadius: "20px",
         boxShadow: theme.shadows[4],
-        backgroundColor: theme.palette.common.white,
+        backgroundColor: "var(--mui-palette-background-paper)",
       }}
     >
       <ToggleButton

@@ -3,6 +3,7 @@ import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
+import DarkModeSettings from "features/auth/DarkModeSettings";
 import ChangeEmail from "features/auth/email/ChangeEmail";
 import DoNotEmail from "features/auth/email/DoNotEmail";
 import { ChangePassword } from "features/auth/password";
@@ -147,6 +148,9 @@ export default function Settings() {
           </MarginWrapper>
           <MarginWrapper>
             <LanguagePickerSettings />
+          </MarginWrapper>
+          <MarginWrapper>
+            <DarkModeSettings />
           </MarginWrapper>
           <MarginWrapper>
             <DoNotEmail />

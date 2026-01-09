@@ -7,20 +7,9 @@ from couchers.models import users
 from couchers.proto import admin_pb2, api_pb2, jail_pb2
 from couchers.servicers import jail as servicers_jail
 from couchers.utils import create_coordinate, to_aware_datetime
-from tests.test_fixtures import (  # noqa
-    PushCollector,
-    db,
-    email_fields,
-    fast_passwords,
-    generate_user,
-    mock_notification_email,
-    push_collector,
-    real_account_session,
-    real_admin_session,
-    real_api_session,
-    real_jail_session,
-    testconfig,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.sessions import real_account_session, real_admin_session, real_api_session, real_jail_session
 
 
 @pytest.fixture(autouse=True)
@@ -298,9 +287,9 @@ def test_modnotes(db, push_collector: PushCollector):
                 )
             )
         mock.assert_called_once()
-        e = email_fields(mock)
+        fields = email_fields(mock)
 
-        assert e.subject == "[TEST] You have received a mod note"
+        assert fields.subject == "[TEST] You have received a mod note"
         push = push_collector.get_for_user(user.id)
         assert push.content.title == "You received a mod note"
         assert push.content.body == "You need to read and acknowledge the note before continuing to use the platform."

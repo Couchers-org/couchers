@@ -36,8 +36,8 @@ const StyledGrid = styled("div")(({ theme }) => ({
   gap: theme.spacing(2, 2),
 }));
 
-const StyledAvatar = styled(Avatar)(({ theme }) => ({
-  backgroundColor: theme.palette.grey[300],
+const StyledAvatar = styled(Avatar)(() => ({
+  backgroundColor: "var(--mui-palette-primary-main)",
   "& img": {
     fill: "none",
     width: "2rem",

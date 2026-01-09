@@ -19,7 +19,7 @@ add_filters(_env)
 
 def _render_template(
     template_str: str,
-    translation_dict: dict,
+    translation_dict: dict[str, dict[str, str]],
     template_args: dict[str, Any] | None = None,
     plain: bool = False,
     lang: str = "en",
@@ -41,7 +41,7 @@ def _render_template(
         return template.render(template_args)
 
 
-def _greeting_dict(value: str) -> dict:
+def _greeting_dict(value: str) -> dict[str, dict[str, str]]:
     return {"en": {"greeting": value}}
 
 

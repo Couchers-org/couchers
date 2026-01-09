@@ -17,6 +17,7 @@ from couchers.helpers.clusters import create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.materialized_views import LiteUser
 from couchers.models import EventCommunityInviteRequest, Node, User, Volunteer
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import communities_pb2, editor_pb2, editor_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
@@ -68,7 +69,7 @@ def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNo
             notify(
                 session,
                 user_id=user_id,
-                topic_action="general:new_blog_post",
+                topic_action=NotificationTopicAction.general__new_blog_post,
                 key=payload.url,
                 data=notification_data_pb2.GeneralNewBlogPost(
                     url=payload.url,

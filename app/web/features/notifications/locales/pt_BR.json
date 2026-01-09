@@ -21,7 +21,9 @@
                     "create_any": "Um usuário cria um evento em sua comunidade (não verificado por um administrador)",
                     "update": "Um evento do qual você vai participar é atualizado",
                     "cancel": "Um evento do qual você vai participar é cancelado",
-                    "delete": "Um evento do qual você vai participar é excluído"
+                    "delete": "Um evento do qual você vai participar é excluído",
+                    "reminder": "Lembrete de que um evento ao qual você vai está prestes a acontecer",
+                    "comment": " Um usuário comenta em um evento que você irá participar"
                 },
                 "host_request": {
                     "reject": "Alguém recusa sua solicitação de hospedagem",
@@ -30,7 +32,8 @@
                     "confirm": "Alguém confirma a solicitação de hospedagem recebida",
                     "cancel": "Alguém cancela sua solicitação de hospedagem",
                     "message": "Alguém envia uma mensagem em uma solicitação de hospedagem",
-                    "missed_messages": "Você tem mensagens pendentes em uma solicitação de hospedagem"
+                    "missed_messages": "Você tem mensagens pendentes em uma solicitação de hospedagem",
+                    "reminder": "Você não respondeu a uma solicitação pendente de hospedagem"
                 },
                 "badge": {
                     "remove": "Uma insígnia foi removida da sua conta",
@@ -74,9 +77,19 @@
                 },
                 "donation": {
                     "received": "Sua doação foi recebida"
+                },
+                "discussion": {
+                    "comment": "Alguém comenta em uma discussão que você está seguindo",
+                    "create": "Alguém cria uma discussão em uma comunidade da qual você faz parte"
+                },
+                "thread": {
+                    "reply": "Alguém responde o seu comentário"
+                },
+                "general": {
+                    "new_blog_post": "Um nova postagem foi publicada no blog"
                 }
             },
-            "description": "Você ainda pode receber notificações importantes sobre sua conta e conteúdo, apesar de suas preferências de notificações.",
+            "description": "Qualquer alteração feita abaixo é salva automaticamente. Você ainda pode receber notificações importantes sobre sua conta e conteúdo, apesar de suas preferências de notificações.",
             "error_loading": "Erro ao carregar preferências de notificações",
             "list_items": {
                 "chat": "Mensagens",
@@ -85,9 +98,14 @@
                 "friend_request": "Solicitações de amizade",
                 "reference": "Referências",
                 "account_security": "Segurança da conta",
-                "account_settings": "Configurações da conta"
+                "account_settings": "Configurações da conta",
+                "other_notifications": "Outras notificações",
+                "discussion": "Discussões",
+                "reply": "Respostas"
             },
-            "title": "Preferências de Notificações"
+            "title": "Preferências de Notificações",
+            "expand_all": "Expandir tudo",
+            "collapse_all": "Recolher tudo"
         },
         "push_notifications": {
             "permission_denied": {
@@ -115,9 +133,21 @@
             "error_generic": "Erro durante a inscrição para notificações por push",
             "error_unsupported": "Não há suporte para notificações por push ou Service Workers neste navegador.",
             "enabled_message": "Atualmente as notificações por push estão <1>habilitadas</1>.",
-            "disabled_message": "Atualmente as notificações por push estão <1>desabilitadas</1>."
+            "disabled_message": "Atualmente as notificações por push estão <1>desabilitadas</1>.",
+            "error_not_granted": "Você não deu permissão para envio de notificações por push."
         },
         "edit_in_console": "Você pode alterar suas preferências de notificações <2>nesta página</2>. Em breve, elas serão movidas para cá.",
         "go_to_button": "Gerenciar preferências de notificações"
-    }
+    },
+    "push_notification_banner": {
+        "message": "Não perca solicitações, respostas ou mensagens. Podemos enviar notificações por push para você?",
+        "confirm": "Sim, por favor!"
+    },
+    "unread": "Não lidas",
+    "mark_unread": "Marcar como não lida",
+    "mark_all_read": "Marcar todas como lidas",
+    "no_new_notifications": "Nenhuma nova notificação",
+    "error_loading": "Erro ao carregar notificações",
+    "all": "Todas",
+    "error_updating_notifications": "Erro ao atualizar notificações"
 }

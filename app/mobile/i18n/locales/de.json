@@ -1,34 +1,19 @@
 {
-    "biometrics": {
-        "login_prompt": "Authentifizieren um fortzufahren",
-        "cancel_button": "Abbrechen",
-        "use_password_button": "Passwort verwenden",
-        "enable_title": "{{biometricType}} aktivieren?",
-        "enable_message": "Möchtest du {{biometricType}} für schnellere Anmeldung nutzen?",
-        "enable_button": "Aktivieren",
-        "not_now_button": "Nicht jetzt",
-        "confirm_prompt": "{{biometricType}} bestätigen",
-        "face_id": "Face ID",
-        "biometrics_generic": "Biometrie",
-        "touch_id": "Touch ID",
-        "pin_prompt": "Verwende deine Geräte-PIN, um fortzufahren",
-        "pin_fallback_label": "Geräte-PIN verwenden"
-    },
-    "errors": {
-        "failed_to_load": "Laden fehlgeschlagen",
-        "check_connection": "Überprüfe deine Internetverbindung und versuche es erneut.",
-        "try_again": "Erneut versuchen"
-    },
-    "not_found": {
-        "title": "Upps!",
-        "message": "Dieser Bildschirm existiert nicht.",
-        "go_home": "Gehe zum Startbildschirm!"
-    },
-    "tabs": {
-        "home": "Startseite",
-        "messages": "Chats",
-        "communities": "Communitys",
-        "search": "Suche",
-        "events": "Events"
-    }
+  "errors": {
+    "failed_to_load": "Laden fehlgeschlagen",
+    "check_connection": "Überprüfe deine Internetverbindung und versuche es erneut.",
+    "try_again": "Erneut versuchen"
+  },
+  "not_found": {
+    "title": "Upps!",
+    "message": "Dieser Bildschirm existiert nicht.",
+    "go_home": "Gehe zum Startbildschirm!"
+  },
+  "tabs": {
+    "home": "Startseite",
+    "messages": "Chats",
+    "communities": "Communitys",
+    "search": "Suche",
+    "events": "Events"
+  }
 }

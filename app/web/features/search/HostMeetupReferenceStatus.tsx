@@ -28,7 +28,9 @@ const StyledTypography = styled(Typography, {
   display: "flex",
   alignItems: "center",
   fontWeight: 600,
-  color: isNegative ? theme.palette.grey[600] : theme.palette.common.black,
+  color: isNegative
+    ? "var(--mui-palette-grey-600)"
+    : "var(--mui-palette-text-primary)",
   fontSize: "0.875rem",
 
   [theme.breakpoints.down("md")]: {
@@ -37,7 +39,7 @@ const StyledTypography = styled(Typography, {
 }));
 
 const VerticalLine = styled("div")(({ theme }) => ({
-  color: theme.palette.grey[300],
+  color: "var(--mui-palette-grey-300)",
   paddingRight: theme.spacing(0.5),
   paddingLeft: theme.spacing(0.5),
 }));
@@ -78,7 +80,7 @@ const HostMeetupReferenceStatus = ({
           <CheckCircleOutlineRounded
             fontSize="small"
             sx={{
-              color: theme.palette.success.main,
+              color: "var(--mui-palette-success-main)",
               fontSize: "0.875rem",
               marginRight: theme.spacing(0.5),
             }}
@@ -88,7 +90,7 @@ const HostMeetupReferenceStatus = ({
           <DoDisturb
             fontSize="small"
             sx={{
-              color: theme.palette.error.main,
+              color: "var(--mui-palette-error-main)",
               fontSize: "0.875rem",
               marginRight: theme.spacing(0.5),
             }}
@@ -98,7 +100,7 @@ const HostMeetupReferenceStatus = ({
           <PendingRounded
             fontSize="small"
             sx={{
-              color: theme.palette.grey[600],
+              color: "var(--mui-palette-grey-600)",
               fontSize: "0.875rem",
               marginRight: theme.spacing(0.5),
             }}
@@ -118,7 +120,7 @@ const HostMeetupReferenceStatus = ({
           <CheckCircleOutlineRounded
             fontSize="small"
             sx={{
-              color: theme.palette.success.main,
+              color: "var(--mui-palette-success-main)",
               fontSize: "0.875rem",
               marginRight: theme.spacing(0.5),
             }}
@@ -129,7 +131,7 @@ const HostMeetupReferenceStatus = ({
           <DoDisturb
             fontSize="small"
             sx={{
-              color: theme.palette.error.main,
+              color: "var(--mui-palette-error-main)",
               fontSize: "0.875rem",
               marginRight: theme.spacing(0.5),
             }}
@@ -139,7 +141,7 @@ const HostMeetupReferenceStatus = ({
           <PendingRounded
             fontSize="small"
             sx={{
-              color: theme.palette.grey[600],
+              color: "var(--mui-palette-grey-600)",
               fontSize: "0.875rem",
               marginRight: theme.spacing(0.5),
             }}
@@ -153,7 +155,7 @@ const HostMeetupReferenceStatus = ({
           <CheckCircleOutlineRounded
             fontSize="small"
             sx={{
-              color: theme.palette.success.main,
+              color: "var(--mui-palette-success-main)",
               fontSize: "0.875rem",
               marginRight: theme.spacing(0.5),
             }}

@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from re import match
 
 import grpc
@@ -17,26 +17,17 @@ from couchers.models import (
     UserSession,
 )
 from couchers.proto import admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
-from couchers.utils import Timestamp_from_datetime, now, parse_date, timedelta
-from tests.test_communities import create_community
-from tests.test_fixtures import (  # noqa
-    PushCollector,
-    add_users_to_new_moderation_list,
+from couchers.utils import Timestamp_from_datetime, now, parse_date
+from tests.fixtures.db import add_users_to_new_moderation_list, generate_user, make_friends
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.sessions import (
     auth_api_session,
-    db,
-    email_fields,
     events_session,
-    generate_user,
-    get_user_id_and_token,
-    make_friends,
-    mock_notification_email,
-    push_collector,
     real_admin_session,
     references_session,
     reporting_session,
-    requests_session,
-    testconfig,
 )
+from tests.test_communities import create_community
 
 
 @pytest.fixture(autouse=True)
@@ -284,7 +275,9 @@ def test_admin_content_reports(db):
         )
 
     with session_scope() as session:
-        id_by_description = dict(session.execute(select(ContentReport.description, ContentReport.id)).all())
+        id_by_description: dict[str, int] = dict(
+            session.execute(select(ContentReport.description, ContentReport.id)).all()  # type: ignore[arg-type]
+        )
 
     with real_admin_session(super_token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -487,7 +480,7 @@ def test_DeleteEvent(db):
                     event_id=event_id,
                 )
             )
-            occurrence = session.get(EventOccurrence, ident=event_id)
+            occurrence = session.get_one(EventOccurrence, ident=event_id)
             assert occurrence.is_deleted
 
 
@@ -536,7 +529,7 @@ def test_EditReferenceText(db):
 
         modified_reference = session.execute(
             select(Reference).where(Reference.id == reference.reference_id)
-        ).scalar_one_or_none()
+        ).scalar_one()
         assert modified_reference.text == test_new_text
 
 
@@ -566,7 +559,7 @@ def test_DeleteReference(db):
     with session_scope() as session:
         modified_reference = session.execute(
             select(Reference).where(Reference.id == reference.reference_id)
-        ).scalar_one_or_none()
+        ).scalar_one()
         assert modified_reference.is_deleted
 
 
@@ -627,7 +620,7 @@ def test_AddUsersToModerationUserList(db):
             )
             assert res2.moderation_list_id == moderation_list_id
             with session_scope() as session:
-                moderation_user_list = session.get(ModerationUserList, moderation_list_id)
+                moderation_user_list = session.get_one(ModerationUserList, moderation_list_id)
                 assert len(moderation_user_list.users) == 3
                 assert {user1.id, user4.id, user5.id}.issubset({user.id for user in moderation_user_list.users})
 
@@ -674,7 +667,7 @@ def test_RemoveUserFromModerationUserList(db):
             admin_pb2.RemoveUserFromModerationUserListReq(user=user1.username, moderation_list_id=moderation_list_id)
         )
         with session_scope() as session:
-            moderation_user_list = session.get(ModerationUserList, moderation_list_id)
+            moderation_user_list = session.get_one(ModerationUserList, moderation_list_id)
             assert user1.id not in {user.id for user in moderation_user_list.users}
             assert user2.id in {user.id for user in moderation_user_list.users}
 

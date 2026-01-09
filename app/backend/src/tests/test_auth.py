@@ -1,4 +1,5 @@
 import http.cookies
+from typing import cast
 
 import grpc
 import pytest
@@ -21,19 +22,9 @@ from couchers.models import (
     UserSession,
 )
 from couchers.proto import api_pb2, auth_pb2
-from tests.test_fixtures import (  # noqa
-    PushCollector,
-    api_session,
-    auth_api_session,
-    db,
-    email_fields,
-    fast_passwords,
-    generate_user,
-    mock_notification_email,
-    push_collector,
-    real_api_session,
-    testconfig,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.sessions import api_session, auth_api_session, real_api_session
 
 
 @pytest.fixture(autouse=True)
@@ -264,7 +255,7 @@ def _quick_signup() -> int:
     sesh, uid = get_session_cookie_tokens(metadata_interceptor)
     assert sesh == token
 
-    return res.auth_res.user_id
+    return cast(int, res.auth_res.user_id)
 
 
 def test_signup(db):
@@ -317,9 +308,9 @@ def test_login_part_signed_up_verified_email(db):
 
     with mock_notification_email() as mock:
         with auth_api_session() as (auth_api, metadata_interceptor):
-            with pytest.raises(grpc.RpcError) as e:
+            with pytest.raises(grpc.RpcError) as err:
                 auth_api.Authenticate(auth_pb2.AuthReq(user="email@couchers.org.invalid", password="wrong pwd"))
-            assert e.value.details() == "Please check your email for a link to continue signing up."
+            assert err.value.details() == "Please check your email for a link to continue signing up."
 
     assert mock.call_count == 1
     e = email_fields(mock)
@@ -353,9 +344,9 @@ def test_login_part_signed_up_not_verified_email(db):
 
     with mock_notification_email() as mock:
         with auth_api_session() as (auth_api, metadata_interceptor):
-            with pytest.raises(grpc.RpcError) as e:
+            with pytest.raises(grpc.RpcError) as err:
                 auth_api.Authenticate(auth_pb2.AuthReq(user="frodo", password="wrong pwd"))
-            assert e.value.details() == "Please check your email for a link to continue signing up."
+            assert err.value.details() == "Please check your email for a link to continue signing up."
 
     with session_scope() as session:
         flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
@@ -364,6 +355,7 @@ def test_login_part_signed_up_not_verified_email(db):
     assert mock.call_count == 1
     e = email_fields(mock)
     assert e.recipient == "email@couchers.org.invalid"
+    assert email_token
     assert email_token in e.plain
     assert email_token in e.html
 
@@ -439,18 +431,18 @@ def test_password_reset_v2(db, push_collector: PushCollector):
     assert push.content.body == "Someone initiated a password change on your account."
     # make sure bad password are caught
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with pytest.raises(grpc.RpcError) as err:
             auth_api.CompletePasswordResetV2(
                 auth_pb2.CompletePasswordResetV2Req(password_reset_token=password_reset_token, new_password="password")
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The password is insecure. Please use one that is not easily guessable."
+        assert err.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert err.value.details() == "The password is insecure. Please use one that is not easily guessable."
 
     # make sure we can set a good password
     with auth_api_session() as (auth_api, metadata_interceptor):
         pwd = random_hex()
         with mock_notification_email() as mock:
-            res = auth_api.CompletePasswordResetV2(
+            auth_api.CompletePasswordResetV2(
                 auth_pb2.CompletePasswordResetV2Req(password_reset_token=password_reset_token, new_password=pwd)
             )
 
@@ -475,14 +467,14 @@ def test_password_reset_v2(db, push_collector: PushCollector):
 
     # make sure we can't set a password again
     with auth_api_session() as (auth_api, metadata_interceptor):
-        with pytest.raises(grpc.RpcError) as e:
+        with pytest.raises(grpc.RpcError) as err:
             auth_api.CompletePasswordResetV2(
                 auth_pb2.CompletePasswordResetV2Req(
                     password_reset_token=password_reset_token, new_password=random_hex()
                 )
             )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Invalid token."
+        assert err.value.code() == grpc.StatusCode.NOT_FOUND
+        assert err.value.details() == "Invalid token."
 
     with session_scope() as session:
         user = session.execute(select(User)).scalar_one()
@@ -500,9 +492,7 @@ def test_password_reset_no_such_user(db):
         )
 
     with session_scope() as session:
-        res = session.execute(select(PasswordResetToken)).scalar_one_or_none()
-
-    assert res is None
+        assert session.execute(select(PasswordResetToken)).scalar_one_or_none() is None
 
 
 def test_password_reset_invalid_token_v2(db):
@@ -772,6 +762,7 @@ def test_signup_resend_email(db):
         assert mock.call_count == 1
         e = email_fields(mock)
         assert e.recipient == "email@couchers.org.invalid"
+        assert email_token
         assert email_token in e.plain
         assert email_token in e.html
 
@@ -1265,5 +1256,7 @@ def test_SignupFlow_invite_code(db):
 
     # Check that invite_code_id is stored in the final User object
     with session_scope() as session:
-        user = session.execute(select(User).where(User.username == "invited_user")).scalar_one()
-        assert user.invite_code_id == invite_code
+        invite_code_id = session.execute(
+            select(User.invite_code_id).where(User.username == "invited_user")
+        ).scalar_one()
+        assert invite_code_id == invite_code

@@ -1,4 +1,5 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from typing import Any
 from unittest.mock import call, patch
 
 import pytest
@@ -40,6 +41,7 @@ from couchers.models import (
     BackgroundJob,
     BackgroundJobState,
     Email,
+    HostRequest,
     HostRequestStatus,
     LoginToken,
     Message,
@@ -51,25 +53,14 @@ from couchers.models import (
 )
 from couchers.proto import conversations_pb2, requests_pb2
 from couchers.utils import now, today
-from tests.test_fixtures import (  # noqa
-    PushCollector,
-    auth_api_session,
-    conversations_session,
-    db,
-    generate_user,
-    make_friends,
-    make_user_block,
-    moderator,
-    process_jobs,
-    push_collector,
-    requests_session,
-    testconfig,
-)
+from tests.fixtures.db import generate_user, make_friends, make_user_block
+from tests.fixtures.misc import PushCollector, process_jobs
+from tests.fixtures.sessions import conversations_session, requests_session
 from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
 from tests.test_requests import valid_request_text
 
 
-def now_5_min_in_future():
+def now_5_min_in_future() -> datetime:
     return now() + timedelta(minutes=5)
 
 
@@ -349,7 +340,7 @@ def test_scheduler(db, monkeypatch):
 
     realized_schedule = []
 
-    def mock_run_job_and_schedule(sched, job: Job, frequency: timedelta) -> None:
+    def mock_run_job_and_schedule(sched, job: Job[Any], frequency: timedelta) -> None:
         realized_schedule.append((current_time, job.name))
         _run_job_and_schedule(sched, job, frequency)
 
@@ -404,7 +395,7 @@ def test_scheduler(db, monkeypatch):
 def test_job_retry(db):
     called_count = 0
 
-    def mock_job(payload: empty_pb2.Empty) -> empty_pb2.Empty:
+    def mock_job(payload: empty_pb2.Empty) -> None:
         nonlocal called_count
         called_count += 1
         raise Exception()
@@ -412,7 +403,7 @@ def test_job_retry(db):
     with session_scope() as session:
         queue_job(session, job=mock_job, payload=empty_pb2.Empty())
 
-    MOCK_JOBS = {
+    MOCK_JOBS: dict[str, Job[Any]] = {
         "mock_job": Job(mock_job),
     }
     create_prometheus_server(port=8000)
@@ -1220,7 +1211,7 @@ def test_update_badges(db, push_collector: PushCollector):
         (user5.id, "phone_verified"),
     ]
 
-    assert badge_tuples == expected
+    assert badge_tuples == expected  # type: ignore[comparison-overlap]
 
     print(push_collector.pushes)
 
@@ -1370,8 +1361,6 @@ def test_send_host_request_reminders_blocked_users_no_notification(db, moderator
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
         # Reset the reminder counter so we can test again
-        from couchers.models import HostRequest
-
         host_request = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr)).scalar_one()
         host_request.host_sent_request_reminders = 0
         host_request.last_sent_request_reminder_time = now() - HOST_REQUEST_REMINDER_INTERVAL

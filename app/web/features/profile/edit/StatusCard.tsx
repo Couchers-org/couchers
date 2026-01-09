@@ -32,11 +32,11 @@ const StatusCard = styled(Paper, {
   padding: theme.spacing(2),
   cursor: "pointer",
   border: selected
-    ? `2px solid ${theme.palette.primary.main}`
-    : `1px solid ${theme.palette.grey[200]}`,
+    ? `2px solid var(--mui-palette-primary-main)`
+    : `1px solid var(--mui-palette-grey-200)`,
   backgroundColor: selected
-    ? `${theme.palette.primary.main}15`
-    : theme.palette.common.white,
+    ? `var(--mui-palette-primary-main)15`
+    : "var(--mui-palette-background-paper)",
   transition: "all 0.2s ease-in-out",
   height: "100%",
   display: "flex",
@@ -46,10 +46,10 @@ const StatusCard = styled(Paper, {
   minHeight: "100px",
 
   "&:hover": {
-    borderColor: theme.palette.primary.main,
+    borderColor: "var(--mui-palette-primary-main)",
     backgroundColor: selected
-      ? `${theme.palette.primary.main}20`
-      : theme.palette.grey[50],
+      ? "var(--mui-palette-primary-main)20"
+      : "var(--mui-palette-grey-50)",
     transform: "translateY(-2px)",
     boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
   },
@@ -68,6 +68,10 @@ const StatusCardContent = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   textAlign: "center",
   gap: theme.spacing(1),
+  color: "var(--mui-palette-text-primary)",
+  "& svg": {
+    fill: "var(--mui-palette-text-primary)",
+  },
 
   [theme.breakpoints.down("md")]: {
     display: "grid",
@@ -100,7 +104,9 @@ const StatusTitle = styled(Typography, {
 })<{ selected?: boolean }>(({ theme, selected }) => ({
   fontSize: "1rem",
   fontWeight: 600,
-  color: selected ? theme.palette.primary.main : theme.palette.text.primary,
+  color: selected
+    ? "var(--mui-palette-primary-main)"
+    : "var(--mui-palette-text-primary)",
   marginBottom: 0,
   textAlign: "left",
 
@@ -113,6 +119,7 @@ const StatusDescription = styled(Typography)(({ theme }) => ({
   textAlign: "center",
   fontSize: "0.75rem",
   lineHeight: 1.4,
+  color: "var(--mui-palette-text-secondary)",
 
   [theme.breakpoints.down("md")]: {
     fontSize: "0.75rem",

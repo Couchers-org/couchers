@@ -41,6 +41,7 @@ from couchers.models import (
     User,
     UserBadge,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
@@ -57,6 +58,7 @@ from couchers.utils import (
     is_valid_name,
     is_valid_user_id,
     is_valid_username,
+    not_none,
     now,
 )
 
@@ -405,9 +407,9 @@ class API(api_pb2_grpc.APIServicer):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_language")
                 session.add(
                     LanguageAbility(
-                        user=user,
+                        user_id=user.id,
                         language_code=language_ability.code,
-                        fluency=fluency2sql[language_ability.fluency],
+                        fluency=not_none(fluency2sql[language_ability.fluency]),
                     )
                 )
 
@@ -733,7 +735,7 @@ class API(api_pb2_grpc.APIServicer):
         notify(
             session,
             user_id=friend_relationship.to_user_id,
-            topic_action="friend_request:create",
+            topic_action=NotificationTopicAction.friend_request__create,
             key=str(friend_relationship.from_user_id),
             data=notification_data_pb2.FriendRequestCreate(
                 other_user=user_model_to_pb(friend_relationship.from_user, session, context),
@@ -809,7 +811,7 @@ class API(api_pb2_grpc.APIServicer):
             notify(
                 session,
                 user_id=friend_request.from_user_id,
-                topic_action="friend_request:accept",
+                topic_action=NotificationTopicAction.friend_request__accept,
                 key=str(friend_request.to_user_id),
                 data=notification_data_pb2.FriendRequestAccept(
                     other_user=user_model_to_pb(friend_request.to_user, session, context),
@@ -954,7 +956,8 @@ def user_model_to_pb(
     # note that this function should work also for banned/deleted users as it's called from Admin.GetUser
     # note that this function is sometimes called by a logged out user, in which case context comes from make_logged_out_context
 
-    if not is_admin_see_ghosts and is_not_visible(session, context.user_id, db_user.id):
+    viewer_user_id = context.user_id if context.is_logged_in() else None
+    if not is_admin_see_ghosts and is_not_visible(session, viewer_user_id, db_user.id):
         # User is not visible (deleted, banned, or blocked)
         if is_get_user_return_ghosts:
             # Return an anonymized "ghost" user profile
@@ -971,14 +974,10 @@ def user_model_to_pb(
         )
 
     num_references = get_num_references(session, [db_user.id]).get(db_user.id, 0)
-
-    # returns (lat, lng)
-    # we put people without coords on null island
-    # https://en.wikipedia.org/wiki/Null_Island
-    lat, lng = db_user.coordinates or (0, 0)
+    lat, lng = db_user.coordinates
 
     pending_friend_request = None
-    if db_user.id == context.user_id:
+    if context.is_logged_out() or db_user.id == context.user_id:
         friends_status = api_pb2.User.FriendshipStatus.NA
     else:
         friend_relationship = session.execute(
@@ -1167,7 +1166,7 @@ def lite_user_to_pb(
             f"Context user_id: {context.user_id}, lite_user id: {lite_user.id} (username: {lite_user.username})"
         )
 
-    lat, lng = get_coordinates(lite_user.geom) or (0, 0)
+    lat, lng = get_coordinates(lite_user.geom)
 
     return api_pb2.LiteUser(
         user_id=lite_user.id,

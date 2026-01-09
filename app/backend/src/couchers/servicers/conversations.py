@@ -25,6 +25,7 @@ from couchers.models import (
     RateLimitAction,
     User,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import conversations_pb2, conversations_pb2_grpc, notification_data_pb2
@@ -145,7 +146,7 @@ def _user_can_message(session: Session, context: CouchersContext, group_chat: Gr
     if not group_chat.is_dm:
         return True
 
-    query = func.exists(
+    query = select(
         where_users_column_visible(
             select(GroupChatSubscription)
             .where(GroupChatSubscription.user_id != context.user_id)
@@ -153,9 +154,9 @@ def _user_can_message(session: Session, context: CouchersContext, group_chat: Gr
             .where(GroupChatSubscription.left == None),
             context=context,
             column=GroupChatSubscription.user_id,
-        )
+        ).exists()
     )
-    return cast(bool, session.execute(query).scalar_one())
+    return session.execute(query).scalar_one()
 
 
 def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotificationsPayload) -> None:
@@ -202,7 +203,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             notify(
                 session,
                 user_id=user_id,
-                topic_action="chat:message",
+                topic_action=NotificationTopicAction.chat__message,
                 key=str(message.conversation_id),
                 data=notification_data_pb2.ChatMessage(
                     author=user_model_to_pb(

@@ -7,7 +7,7 @@ from couchers.db import can_moderate_at, can_moderate_node, get_parent_node_at_l
 from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, Upload, User
 from couchers.proto import pages_pb2, pages_pb2_grpc
 from couchers.servicers.threads import thread_to_pb
-from couchers.utils import Timestamp_from_datetime, create_coordinate, remove_duplicates_retain_order
+from couchers.utils import Timestamp_from_datetime, create_coordinate, not_none, remove_duplicates_retain_order
 
 MAX_PAGINATION_LENGTH = 25
 
@@ -31,7 +31,7 @@ def _is_page_owner(page: Page, user_id: int) -> bool:
     if page.owner_user:
         return page.owner_user_id == user_id
     # otherwise owned by a cluster
-    return page.owner_cluster.admins.where(User.id == user_id).one_or_none() is not None
+    return not_none(page.owner_cluster).admins.where(User.id == user_id).one_or_none() is not None
 
 
 def _can_moderate_page(session: Session, page: Page, user_id: int) -> bool:

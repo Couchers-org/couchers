@@ -25,8 +25,8 @@ interface PillProps {
 
 export default function Pill({
   children,
-  backgroundColor = theme.palette.grey[200],
-  color = theme.palette.text.primary,
+  backgroundColor = "var(--mui-palette-grey-200)",
+  color = "var(--mui-palette-text-primary)",
   onClick,
   variant = "rounded",
   sx,

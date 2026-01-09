@@ -42,3 +42,22 @@ To run the app locally in development, use `yarn start` (not Docker)
 - Use StyledLink.tsx component or import from next/link for links to preserve routing, NOT MUI Link
 - Always put types at the top of the file below the imports
 
+## Internationalization (i18n)
+- **Never hardcode English text** - always use the `t()` function or `<Trans>` component for user-facing text
+- Store all translations in the appropriate locale files (`features/*/locales/en.json`)
+- Use `<Trans>` component for text with embedded components (like links)
+- When using `<Trans>`, make sure components in the translation JSON match the components prop exactly
+
+## Dark Mode
+- **Always use CSS variables for theme colors** to ensure dark mode compatibility:
+  - Use `"var(--mui-palette-primary-main)"` instead of `theme.palette.primary.main` in styled components
+  - Use `"var(--mui-palette-text-primary)"` for text colors
+  - Use `"var(--mui-palette-background-paper)"` for backgrounds
+  - Use `"var(--mui-palette-background-default)"` for page backgrounds
+  - Use `"var(--mui-palette-divider)"` for borders/dividers
+  - Use `"var(--mui-palette-grey-XXX)"` for grey shades (e.g., grey-50, grey-200, grey-300)
+  - Use `"var(--mui-palette-action-hover)"` for hover states
+- **Exception**: Use `theme.palette.*` values when you need to pass colors to functions like `alpha()` that require actual color values, not CSS variables
+- **For styled components**: Add `({ theme })` parameter only when you need `theme.spacing()`, `theme.breakpoints`, or functions like `alpha()`
+- Test all components in both light and dark mode to ensure proper color contrast and visibility
+

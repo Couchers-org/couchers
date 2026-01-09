@@ -124,7 +124,7 @@ def upgrade() -> None:
     # Backfill moderation_state_id for host_request notifications
     # The notification key contains the conversation_id, which is the host_request.id
     # Only process rows where key is non-empty and numeric
-    op.execute("""
+    op.execute(r"""
         UPDATE notifications n
         SET moderation_state_id = hr.moderation_state_id
         FROM host_requests hr
@@ -137,7 +137,7 @@ def upgrade() -> None:
 
     # Backfill moderation_state_id for chat notifications
     # The notification key contains the conversation_id, which is the group_chat.id
-    op.execute("""
+    op.execute(r"""
         UPDATE notifications n
         SET moderation_state_id = gc.moderation_state_id
         FROM group_chats gc

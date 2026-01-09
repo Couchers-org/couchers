@@ -9,7 +9,7 @@ from couchers.config import config
 from couchers.models.base import Base
 
 
-class APICall(Base):
+class APICall(Base, init=False, kw_only=True):
     """
     API call logs
     """
@@ -17,7 +17,7 @@ class APICall(Base):
     __tablename__ = "api_calls"
     __table_args__ = {"schema": "logging"}
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # whether the call was made using an api key or session cookies
     is_api_key: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())

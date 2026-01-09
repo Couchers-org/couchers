@@ -3,7 +3,6 @@ import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import React, { useMemo } from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
-import { theme } from "theme";
 import { Dayjs } from "utils/dayjs";
 
 interface TimepickerProps {
@@ -80,12 +79,12 @@ const Timepicker = ({
               InputLabelProps: { shrink: true },
               sx: {
                 "& .MuiOutlinedInput-root": {
-                  backgroundColor: theme.palette.primary.main,
-                  color: theme.palette.text.primary,
+                  backgroundColor: "var(--mui-palette-primary-main)",
+                  color: "var(--mui-palette-text-primary)",
                 },
                 "& .MuiPaper-root": {
-                  backgroundColor: theme.palette.primary.main,
-                  color: theme.palette.text.primary,
+                  backgroundColor: "var(--mui-palette-primary-main)",
+                  color: "var(--mui-palette-text-primary)",
                 },
               },
             },

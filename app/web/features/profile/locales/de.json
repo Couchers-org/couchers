@@ -38,13 +38,13 @@
   "my_connections": "Meine Kontakte",
   "profile_tag_input": {
     "remove_button_a11y_text": "{{tag}} entfernen",
-    "header_text": "Drück zum Hinzufügen die Eingabetaste\n<support_link>Sende uns eine E-Mail</support_link>, um einen Eintrag hinzuzufügen"
+    "header_text": "Drück zum Hinzufügen die Eingabetaste\n<0>Sende uns eine E-Mail<0>, um einen Eintrag hinzuzufügen"
   },
   "view_in_admin_console": "Benutzer in Admin-Panel ansehen",
   "helper_text": {
     "missing_profile_photo": "Bitte fügen ein Foto hinzu, um dein Profil zu vervollständigen.",
-    "characters_remaining": "<bold>Bitte schreib mindestens {{count}} Zeichen, um Chats und Anfragen freizuschalten.</bold> Authentische Profile bilden eine Community des Vertrauens. Je mehr du teilst, desto einfacher ist es, Kontakte zu knüpfen!",
-    "characters_remaining_plural": "<bold>Bitte schreib mindestens {{count}} Zeichen, um Chats und Anfragen freizuschalten.</bold> Authentische Profile bilden eine Community des Vertrauens. Je mehr du teilst, desto einfacher ist es, Kontakte zu knüpfen!"
+    "characters_remaining_one": "<bold>Bitte schreib mindestens {{count}} Zeichen, um Chats und Anfragen freizuschalten.</bold> Authentische Profile bilden eine Community des Vertrauens. Je mehr du teilst, desto einfacher ist es, Kontakte zu knüpfen!",
+    "characters_remaining_other": "<bold>Bitte schreib mindestens {{count}} Zeichen, um Chats und Anfragen freizuschalten.</bold> Authentische Profile bilden eine Community des Vertrauens. Je mehr du teilst, desto einfacher ist es, Kontakte zu knüpfen!"
   },
   "section_tabs_a11y_label": "tabs für User details",
   "incomplete_dialog": {

@@ -36,7 +36,7 @@ const WhyCouchersSection = () => {
           size={{ xs: 12, md: 4 }}
           display="flex"
           sx={{
-            backgroundColor: theme.palette.grey[50],
+            backgroundColor: "var(--mui-palette-grey-50)",
             padding: 3,
             borderRadius: theme.shape.borderRadius,
             flex: { md: 1 },
@@ -64,7 +64,7 @@ const WhyCouchersSection = () => {
           size={{ xs: 12, md: 4 }}
           display="flex"
           sx={{
-            backgroundColor: theme.palette.grey[50],
+            backgroundColor: "var(--mui-palette-grey-50)",
             padding: 3,
             borderRadius: theme.shape.borderRadius,
             flex: { md: 1 },
@@ -91,7 +91,7 @@ const WhyCouchersSection = () => {
           size={{ xs: 12, md: 4 }}
           display="flex"
           sx={{
-            backgroundColor: theme.palette.grey[50],
+            backgroundColor: "var(--mui-palette-grey-50)",
             padding: 3,
             borderRadius: theme.shape.borderRadius,
             flex: { md: 1 },

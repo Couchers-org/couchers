@@ -11,6 +11,7 @@ from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
+from couchers.db import session_scope
 from couchers.jobs.worker import process_job
 from couchers.models import (
     DeviceType,
@@ -38,24 +39,15 @@ from couchers.proto import (
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.templates.v2 import v2timestamp
-from couchers.utils import now
-from tests.test_fixtures import (  # noqa
-    PushCollector,
+from couchers.utils import not_none, now
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
+from tests.fixtures.sessions import (
     api_session,
     auth_api_session,
     conversations_session,
-    db,
-    email_fields,
-    generate_user,
-    mock_notification_email,
-    moderator,
     notifications_session,
-    process_jobs,
-    push_collector,
-    real_admin_session,
     real_editor_session,
-    session_scope,
-    testconfig,
 )
 
 
@@ -89,7 +81,7 @@ def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
         notify(
             session,
             user_id=user.id,
-            topic_action=topic_action.display,
+            topic_action=topic_action,
             key="",
             data=notification_data_pb2.BadgeAdd(
                 badge_id="volunteer",
@@ -167,7 +159,7 @@ def test_unsubscribe(db):
             notify(
                 session,
                 user_id=user.id,
-                topic_action=topic_action.display,
+                topic_action=topic_action,
                 key="",
                 data=notification_data_pb2.BadgeAdd(
                     badge_id="volunteer",
@@ -217,7 +209,7 @@ def test_unsubscribe(db):
             notify(
                 session,
                 user_id=user.id,
-                topic_action=topic_action.display,
+                topic_action=topic_action,
                 key="",
                 data=notification_data_pb2.BadgeAdd(
                     badge_id="volunteer",
@@ -608,12 +600,12 @@ def test_event_reminder_email_sent(db):
 
     with mock_notification_email() as mock:
         with session_scope() as session:
-            user_in_session = session.get(User, user.id)
+            user_in_session = session.get_one(User, user.id)
 
             notify(
                 session,
                 user_id=user.id,
-                topic_action="event:reminder",
+                topic_action=NotificationTopicAction.event__reminder,
                 key="",
                 data=notification_data_pb2.EventReminder(
                     event=events_pb2.Event(
@@ -1101,7 +1093,7 @@ def test_SendDevPushNotification_disabled(db, push_collector: PushCollector):
                 )
             )
         assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Development APIs are not enabled" in e.value.details()
+        assert "Development APIs are not enabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 
@@ -1122,7 +1114,7 @@ def test_SendDevPushNotification_push_notifications_disabled(db, push_collector:
                 )
             )
         assert e.value.code() == grpc.StatusCode.UNAVAILABLE
-        assert "Push notifications are currently disabled" in e.value.details()
+        assert "Push notifications are currently disabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
 

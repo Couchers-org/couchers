@@ -132,7 +132,6 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
             if subscription is None:
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
 
-            assert subscription is not None
             subscription.muted_until = DATETIME_INFINITY
             return context.get_localized_string("quick_links.chat_unsub")
         else:

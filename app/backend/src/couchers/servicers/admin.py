@@ -35,6 +35,7 @@ from couchers.models import (
     UserActivity,
     UserBadge,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import admin_pb2, admin_pb2_grpc, api_pb2, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
@@ -180,7 +181,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="gender:change",
+            topic_action=NotificationTopicAction.gender__change,
             key="",
             data=notification_data_pb2.GenderChange(
                 gender=request.gender,
@@ -204,7 +205,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="birthdate:change",
+            topic_action=NotificationTopicAction.birthdate__change,
             key="",
             data=notification_data_pb2.BirthdateChange(
                 birthdate=request.birthdate,
@@ -345,7 +346,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="modnote:create",
+                topic_action=NotificationTopicAction.modnote__create,
                 key="",
             )
 
@@ -391,7 +392,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="api_key:create",
+            topic_action=NotificationTopicAction.api_key__create,
             key="",
             data=notification_data_pb2.ApiKeyCreate(
                 api_key=token,

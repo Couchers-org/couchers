@@ -1,0 +1,34 @@
+# Runs all services except the backend, configuring them to talk to a backend running outside of docker.
+# Use the BACKEND_HOST variable to override the address of the backend as visible from within containers.
+# Run with: docker compose --file docker-compose.local-backend.yml up --build
+services:
+  jaeger:
+    extends:
+      file: docker-compose.yml
+      service: jaeger
+    # Make it visible to the backend outside of the container
+    ports:
+      - 4317:4317
+  maildev:
+    extends:
+      file: docker-compose.yml
+      service: maildev
+  media:
+    extends:
+      file: docker-compose.yml
+      service: media
+    # Tell it to use the local backend
+    depends_on: !reset []
+    extra_hosts:
+      backend: ${BACKEND_HOST:-172.17.0.1}
+  postgres:
+    extends:
+      file: docker-compose.yml
+      service: postgres
+  proxy:
+    extends:
+      file: docker-compose.yml
+      service: proxy
+    # Tell it how to find the local backend
+    extra_hosts:
+      backend: ${BACKEND_HOST:-172.17.0.1}

@@ -26,7 +26,7 @@ class ActivenessProbeStatus(enum.Enum):
     no_longer_active = enum.auto()
 
 
-class ActivenessProbe(Base):
+class ActivenessProbe(Base, init=False, kw_only=True):
     """
     Activeness probes are used to gauge if users are still active: we send them a notification and ask them to respond,
     we use this data both to help indicate response rate, as well as to make sure only those who are actively hosting
@@ -35,7 +35,7 @@ class ActivenessProbe(Base):
 
     __tablename__ = "activeness_probes"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     # the time this probe was initiated
@@ -54,7 +54,7 @@ class ActivenessProbe(Base):
     def is_pending(self) -> bool:
         return self.responded == None
 
-    user: Mapped["User"] = relationship("User", back_populates="pending_activeness_probe")
+    user: Mapped[User] = relationship(init=False, back_populates="pending_activeness_probe")
 
     __table_args__ = (
         # a user can have at most one pending activeness probe at a time

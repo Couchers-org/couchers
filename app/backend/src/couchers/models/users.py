@@ -95,23 +95,23 @@ class ProfilePublicVisibility(enum.Enum):
     full = enum.auto()
 
 
-class User(Base):
+class User(Base, kw_only=True):
     """
     Basic user and profile details
     """
 
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     username: Mapped[str] = mapped_column(String, unique=True)
     email: Mapped[str] = mapped_column(String, unique=True)
     # stored in libsodium hash format, can be null for email login
     hashed_password: Mapped[bytes] = mapped_column(Binary)
     # phone number in E.164 format with leading +, for example "+46701740605"
-    phone: Mapped[str | None] = mapped_column(String, nullable=True, server_default=expression.null())
+    phone: Mapped[str | None] = mapped_column(String, default=None, server_default=expression.null())
     # language preference -- defaults to empty string
-    ui_language_preference: Mapped[str | None] = mapped_column(String, nullable=True, server_default="")
+    ui_language_preference: Mapped[str | None] = mapped_column(String, default=None, server_default="")
 
     # timezones should always be UTC
     ## location
@@ -119,138 +119,142 @@ class User(Base):
     # by GPS, it has the WGS84 geoid with lat/lon
     geom: Mapped[Geom] = mapped_column(Geometry(geometry_type="POINT", srid=4326))
     # randomized coordinates within a radius of 0.02-0.1 degrees, equates to about 2-10 km
-    randomized_geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    randomized_geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), default=None)
     # their display location (displayed to other users), in meters
     geom_radius: Mapped[float] = mapped_column(Float)
     # the display address (text) shown on their profile
     city: Mapped[str] = mapped_column(String)
     # "Grew up in" on profile
-    hometown: Mapped[str | None] = mapped_column(String, nullable=True)
+    hometown: Mapped[str | None] = mapped_column(String, default=None)
 
-    regions_visited: Mapped[list["Region"]] = relationship(
-        "Region", secondary="regions_visited", order_by="Region.name"
+    regions_visited: Mapped[list[Region]] = relationship(
+        init=False, secondary="regions_visited", order_by="Region.name"
     )
-    regions_lived: Mapped[list["Region"]] = relationship("Region", secondary="regions_lived", order_by="Region.name")
+    regions_lived: Mapped[list[Region]] = relationship(init=False, secondary="regions_lived", order_by="Region.name")
 
     timezone = column_property(
         sa_select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom)).limit(1).scalar_subquery(),
         deferred=True,
     )
 
-    joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    last_active: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    profile_last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    last_active: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    profile_last_updated: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), init=False
+    )
 
     public_visibility: Mapped[ProfilePublicVisibility] = mapped_column(
-        Enum(ProfilePublicVisibility), server_default="map_only"
+        Enum(ProfilePublicVisibility), server_default="map_only", init=False
     )
-    has_modified_public_visibility: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    has_modified_public_visibility: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
     # id of the last message that they received a notification about
     last_notified_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
     # same as above for host requests
-    last_notified_request_message_id: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
+    last_notified_request_message_id: Mapped[int] = mapped_column(BigInteger, server_default=text("0"), init=False)
 
     # display name
     name: Mapped[str] = mapped_column(String)
     gender: Mapped[str] = mapped_column(String)
-    pronouns: Mapped[str | None] = mapped_column(String, nullable=True)
+    pronouns: Mapped[str | None] = mapped_column(String, default=None)
     birthdate: Mapped[date] = mapped_column(Date)  # in the timezone of birthplace
 
-    avatar_key: Mapped[str | None] = mapped_column(ForeignKey("uploads.key"), nullable=True)
+    avatar_key: Mapped[str | None] = mapped_column(ForeignKey("uploads.key"), default=None)
 
     # Profile photo gallery for this user (photos about themselves)
-    profile_gallery_id: Mapped[int | None] = mapped_column(ForeignKey("photo_galleries.id"), nullable=True)
+    profile_gallery_id: Mapped[int | None] = mapped_column(ForeignKey("photo_galleries.id"), default=None)
 
     hosting_status: Mapped[HostingStatus] = mapped_column(Enum(HostingStatus))
-    meetup_status: Mapped[MeetupStatus] = mapped_column(Enum(MeetupStatus), server_default="open_to_meetup")
+    meetup_status: Mapped[MeetupStatus] = mapped_column(Enum(MeetupStatus), server_default="open_to_meetup", init=False)
 
     # community standing score
-    community_standing: Mapped[float | None] = mapped_column(Float, nullable=True)
+    community_standing: Mapped[float | None] = mapped_column(Float, default=None)
 
-    occupation: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
-    education: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    occupation: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
+    education: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
 
     # "Who I am" under "About Me" tab
-    about_me: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    about_me: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
     # "What I do in my free time" under "About Me" tab
-    things_i_like: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    things_i_like: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
     # "About my home" under "My Home" tab
-    about_place: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    about_place: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
     # "Additional information" under "About Me" tab
-    additional_information: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    additional_information: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
 
-    is_banned: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
-    is_deleted: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
-    is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
-    is_editor: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    is_banned: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
+    is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
+    is_editor: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
     # the undelete token allows a user to recover their account for a couple of days after deletion in case it was
     # accidental or they changed their mind
     # constraints make sure these are non-null only if is_deleted and that these are null in unison
-    undelete_token: Mapped[str | None] = mapped_column(String, nullable=True)
+    undelete_token: Mapped[str | None] = mapped_column(String, default=None)
     # validity of the undelete token
-    undelete_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    undelete_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     # hosting preferences
-    max_guests: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    last_minute: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    has_pets: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    accepts_pets: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    pet_details: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
-    has_kids: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    accepts_kids: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    kid_details: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
-    has_housemates: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    housemate_details: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
-    wheelchair_accessible: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    smoking_allowed: Mapped[SmokingLocation | None] = mapped_column(Enum(SmokingLocation), nullable=True)
-    smokes_at_home: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    drinking_allowed: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
-    drinks_at_home: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    max_guests: Mapped[int | None] = mapped_column(Integer, default=None)
+    last_minute: Mapped[bool | None] = mapped_column(Boolean, default=None)
+    has_pets: Mapped[bool | None] = mapped_column(Boolean, default=None)
+    accepts_pets: Mapped[bool | None] = mapped_column(Boolean, default=None)
+    pet_details: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
+    has_kids: Mapped[bool | None] = mapped_column(Boolean, default=None)
+    accepts_kids: Mapped[bool | None] = mapped_column(Boolean, default=None)
+    kid_details: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
+    has_housemates: Mapped[bool | None] = mapped_column(Boolean, default=None)
+    housemate_details: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
+    wheelchair_accessible: Mapped[bool | None] = mapped_column(Boolean, default=None)
+    smoking_allowed: Mapped[SmokingLocation | None] = mapped_column(Enum(SmokingLocation), default=None)
+    smokes_at_home: Mapped[bool | None] = mapped_column(Boolean, default=None)
+    drinking_allowed: Mapped[bool | None] = mapped_column(Boolean, default=None)
+    drinks_at_home: Mapped[bool | None] = mapped_column(Boolean, default=None)
     # "Additional information" under "My Home" tab
-    other_host_info: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    other_host_info: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
 
     # "Sleeping privacy" (not long-form text)
-    sleeping_arrangement: Mapped[SleepingArrangement | None] = mapped_column(Enum(SleepingArrangement), nullable=True)
+    sleeping_arrangement: Mapped[SleepingArrangement | None] = mapped_column(Enum(SleepingArrangement), default=None)
     # "Sleeping arrangement" under "My Home" tab
-    sleeping_details: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    sleeping_details: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
     # "Local area information" under "My Home" tab
-    area: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
+    area: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
     # "House rules" under "My Home" tab
-    house_rules: Mapped[str | None] = mapped_column(String, nullable=True)  # CommonMark without images
-    parking: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    house_rules: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
+    parking: Mapped[bool | None] = mapped_column(Boolean, default=None)
     parking_details: Mapped[ParkingDetails | None] = mapped_column(
-        Enum(ParkingDetails), nullable=True
+        Enum(ParkingDetails), default=None
     )  # CommonMark without images
-    camping_ok: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    camping_ok: Mapped[bool | None] = mapped_column(Boolean, default=None)
 
     accepted_tos: Mapped[int] = mapped_column(Integer, default=0)
-    accepted_community_guidelines: Mapped[int] = mapped_column(Integer, server_default="0")
+    accepted_community_guidelines: Mapped[int] = mapped_column(Integer, server_default="0", init=False)
     # whether the user has filled in the contributor form
-    filled_contributor_form: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    filled_contributor_form: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
     # number of onboarding emails sent
-    onboarding_emails_sent: Mapped[int] = mapped_column(Integer, server_default="0")
-    last_onboarding_email_sent: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    onboarding_emails_sent: Mapped[int] = mapped_column(Integer, server_default="0", init=False)
+    last_onboarding_email_sent: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     # whether we need to sync the user's newsletter preferences with the newsletter server
-    in_sync_with_newsletter: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    in_sync_with_newsletter: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
     # opted out of the newsletter
-    opt_out_of_newsletter: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    opt_out_of_newsletter: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
     # set to null to receive no digests
-    digest_frequency: Mapped[timedelta | None] = mapped_column(Interval, nullable=True)
-    last_digest_sent: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=text("to_timestamp(0)"))
+    digest_frequency: Mapped[timedelta | None] = mapped_column(Interval, default=None)
+    last_digest_sent: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("to_timestamp(0)"), init=False
+    )
 
     # for changing their email
-    new_email: Mapped[str | None] = mapped_column(String, nullable=True)
+    new_email: Mapped[str | None] = mapped_column(String, default=None)
 
-    new_email_token: Mapped[str | None] = mapped_column(String, nullable=True)
-    new_email_token_created: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    new_email_token_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    new_email_token: Mapped[str | None] = mapped_column(String, default=None)
+    new_email_token_created: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    new_email_token_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
-    recommendation_score: Mapped[float] = mapped_column(Float, server_default="0")
+    recommendation_score: Mapped[float] = mapped_column(Float, server_default="0", init=False)
 
     # Columns for verifying their phone number. State chart:
     #                                       ,-------------------,
@@ -277,64 +281,74 @@ class User(Base):
 
     # randomly generated Luhn 6-digit string
     phone_verification_token: Mapped[str | None] = mapped_column(
-        String(6), nullable=True, server_default=expression.null()
+        String(6), default=None, server_default=expression.null(), init=False
     )
 
     phone_verification_sent: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=text("to_timestamp(0)")
+        DateTime(timezone=True), server_default=text("to_timestamp(0)"), init=False
     )
     phone_verification_verified: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True, server_default=expression.null()
+        DateTime(timezone=True), default=None, server_default=expression.null(), init=False
     )
-    phone_verification_attempts: Mapped[int] = mapped_column(Integer, server_default=text("0"))
+    phone_verification_attempts: Mapped[int] = mapped_column(Integer, server_default=text("0"), init=False)
 
     # the stripe customer identifier if the user has donated to Couchers
     # e.g. cus_JjoXHttuZopv0t
     # for new US entity
-    stripe_customer_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    stripe_customer_id: Mapped[str | None] = mapped_column(String, default=None)
     # for old AU entity
-    stripe_customer_id_old: Mapped[str | None] = mapped_column(String, nullable=True)
+    stripe_customer_id_old: Mapped[str | None] = mapped_column(String, default=None)
 
-    has_passport_sex_gender_exception: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    has_passport_sex_gender_exception: Mapped[bool] = mapped_column(
+        Boolean, server_default=expression.false(), init=False
+    )
 
     #  checking for phone verification
     last_donated: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True, server_default=expression.null()
+        DateTime(timezone=True), default=None, server_default=expression.null()
     )
 
     # whether this user has all emails turned off
-    do_not_email: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    do_not_email: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
-    avatar: Mapped[Upload | None] = relationship("Upload", foreign_keys="User.avatar_key")
-    profile_gallery: Mapped["PhotoGallery | None"] = relationship(
-        "PhotoGallery", foreign_keys="User.profile_gallery_id"
-    )
+    avatar: Mapped[Upload | None] = relationship(init=False, foreign_keys="User.avatar_key")
+    profile_gallery: Mapped[PhotoGallery | None] = relationship(init=False, foreign_keys="User.profile_gallery_id")
 
-    admin_note: Mapped[str] = mapped_column(String, server_default=text("''"))
+    admin_note: Mapped[str] = mapped_column(String, server_default=text("''"), init=False)
 
     # whether mods have marked this user has having to update their location
-    needs_to_update_location: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    needs_to_update_location: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
-    last_antibot: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=text("to_timestamp(0)"))
+    last_antibot: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("to_timestamp(0)"), init=False
+    )
 
     age = column_property(func.date_part("year", func.age(birthdate)))
 
     # ID of the invite code used to sign up (if any)
-    invite_code_id: Mapped[int | None] = mapped_column(ForeignKey("invite_codes.id"), nullable=True)
-    invite_code: Mapped["InviteCode | None"] = relationship("InviteCode", foreign_keys=[invite_code_id])
+    invite_code_id: Mapped[str | None] = mapped_column(ForeignKey("invite_codes.id"), default=None)
+    invite_code: Mapped[InviteCode | None] = relationship(init=False, foreign_keys=[invite_code_id])
 
-    moderation_user_lists: Mapped[list["ModerationUserList"]] = relationship(
-        "ModerationUserList", secondary="moderation_user_list_members", back_populates="users"
+    moderation_user_lists: Mapped[list[ModerationUserList]] = relationship(
+        init=False, secondary="moderation_user_list_members", back_populates="users"
     )
-    language_abilities: Mapped[list["LanguageAbility"]] = relationship("LanguageAbility", back_populates="user")
-    galleries: Mapped[list["PhotoGallery"]] = relationship(
-        "PhotoGallery", foreign_keys="PhotoGallery.owner_user_id", back_populates="owner_user"
+    language_abilities: Mapped[list[LanguageAbility]] = relationship(init=False, back_populates="user")
+    galleries: Mapped[list[PhotoGallery]] = relationship(
+        init=False, foreign_keys="PhotoGallery.owner_user_id", back_populates="owner_user"
     )
-    mod_notes: DynamicMapped["ModNote"] = relationship(
-        "ModNote", foreign_keys="ModNote.user_id", back_populates="user", lazy="dynamic"
+    mod_notes: DynamicMapped[ModNote] = relationship(
+        init=False, foreign_keys="ModNote.user_id", back_populates="user", lazy="dynamic"
     )
 
-    badges: Mapped[list["UserBadge"]] = relationship("UserBadge", back_populates="user")
+    badges: Mapped[list[UserBadge]] = relationship(init=False, back_populates="user")
+
+    pending_activeness_probe: Mapped[ActivenessProbe | None] = relationship(
+        init=False,
+        primaryjoin="and_(ActivenessProbe.user_id == User.id, ActivenessProbe.is_pending)",
+        uselist=False,
+        back_populates="user",
+    )
+
     __table_args__ = (
         # Verified phone numbers should be unique
         Index(
@@ -461,7 +475,7 @@ class User(Base):
     @hybrid_property
     def jailed_pending_activeness_probe(self) -> Any:
         # search for User.pending_activeness_probe
-        return self.pending_activeness_probe != None  # type: ignore[attr-defined]
+        return self.pending_activeness_probe != None
 
     @hybrid_property
     def is_jailed(self) -> Any:
@@ -526,14 +540,6 @@ class User(Base):
         return f"User(id={self.id}, email={self.email}, username={self.username})"
 
 
-User.pending_activeness_probe = relationship(
-    ActivenessProbe,
-    primaryjoin="and_(ActivenessProbe.user_id == User.id, ActivenessProbe.is_pending)",
-    uselist=False,
-    back_populates="user",
-)
-
-
 class LanguageFluency(enum.Enum):
     # note that the numbering is important here, these are ordinal
     beginner = 1
@@ -541,35 +547,35 @@ class LanguageFluency(enum.Enum):
     fluent = 3
 
 
-class LanguageAbility(Base):
+class LanguageAbility(Base, kw_only=True):
     __tablename__ = "language_abilities"
     __table_args__ = (
         # Users can only have one language ability per language
         UniqueConstraint("user_id", "language_code"),
     )
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     language_code: Mapped[str] = mapped_column(ForeignKey("languages.code", deferrable=True))
     fluency: Mapped[LanguageFluency] = mapped_column(Enum(LanguageFluency))
 
-    user: Mapped["User"] = relationship("User", back_populates="language_abilities")
-    language: Mapped[Language] = relationship("Language")
+    user: Mapped[User] = relationship(init=False, back_populates="language_abilities")
+    language: Mapped[Language] = relationship(init=False)
 
 
-class RegionVisited(Base):
+class RegionVisited(Base, kw_only=True):
     __tablename__ = "regions_visited"
     __table_args__ = (UniqueConstraint("user_id", "region_code"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     region_code: Mapped[str] = mapped_column(ForeignKey("regions.code", deferrable=True))
 
 
-class RegionLived(Base):
+class RegionLived(Base, kw_only=True):
     __tablename__ = "regions_lived"
     __table_args__ = (UniqueConstraint("user_id", "region_code"),)
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     region_code: Mapped[str] = mapped_column(ForeignKey("regions.code", deferrable=True))

@@ -167,30 +167,30 @@ class NotificationTopicAction(enum.Enum):
     general__new_blog_post = ("general:new_blog_post", [dt.push, dt.digest], True, nd.GeneralNewBlogPost)
 
 
-class NotificationPreference(Base):
+class NotificationPreference(Base, init=False, kw_only=True):
     __tablename__ = "notification_preferences"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     topic_action: Mapped[NotificationTopicAction] = mapped_column(Enum(NotificationTopicAction))
     delivery_type: Mapped[NotificationDeliveryType] = mapped_column(Enum(NotificationDeliveryType))
     deliver: Mapped[bool] = mapped_column(Boolean)
 
-    user: Mapped["User"] = relationship("User", foreign_keys="NotificationPreference.user_id")
+    user: Mapped[User] = relationship(foreign_keys="NotificationPreference.user_id")
 
     __table_args__ = (UniqueConstraint("user_id", "topic_action", "delivery_type"),)
 
 
-class Notification(Base):
+class Notification(Base, init=False, kw_only=True):
     """
     Table for accumulating notifications until it is time to send email digest
     """
 
     __tablename__ = "notifications"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # recipient user id
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -209,10 +209,8 @@ class Notification(Base):
         ForeignKey("moderation_states.id"), nullable=True, index=True
     )
 
-    user: Mapped["User"] = relationship("User", foreign_keys="Notification.user_id")
-    moderation_state: Mapped["ModerationState"] = relationship(
-        "ModerationState", foreign_keys="Notification.moderation_state_id"
-    )
+    user: Mapped[User] = relationship(foreign_keys="Notification.user_id")
+    moderation_state: Mapped[ModerationState] = relationship(foreign_keys="Notification.moderation_state_id")
 
     __table_args__ = (
         # used in looking up which notifications need delivery
@@ -245,21 +243,19 @@ class Notification(Base):
         return self.topic_action.action
 
 
-class NotificationDelivery(Base):
+class NotificationDelivery(Base, init=False, kw_only=True):
     __tablename__ = "notification_deliveries"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     notification_id: Mapped[int] = mapped_column(ForeignKey("notifications.id"), index=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     delivered: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     read: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # todo: enum of "phone, web, digest"
     delivery_type: Mapped[NotificationDeliveryType] = mapped_column(Enum(NotificationDeliveryType))
     # todo: device id
     # todo: receipt id, etc
-    notification: Mapped["Notification"] = relationship(
-        "Notification", foreign_keys="NotificationDelivery.notification_id"
-    )
+    notification: Mapped[Notification] = relationship(foreign_keys="NotificationDelivery.notification_id")
 
     __table_args__ = (
         UniqueConstraint("notification_id", "delivery_type"),
@@ -298,11 +294,11 @@ class PushNotificationDeliveryOutcome(enum.Enum):
     permanent_subscription_failure = enum.auto()
 
 
-class PushNotificationSubscription(Base):
+class PushNotificationSubscription(Base, init=False, kw_only=True):
     __tablename__ = "push_notification_subscriptions"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # which user this is connected to
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -331,7 +327,7 @@ class PushNotificationSubscription(Base):
     # when it was disabled
     disabled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=DATETIME_INFINITY.isoformat())
 
-    user: Mapped["User"] = relationship("User")
+    user: Mapped[User] = relationship(init=False)
 
     __table_args__ = (
         # web_push platform requires: endpoint, auth_key, p256dh_key, full_subscription_info
@@ -347,10 +343,10 @@ class PushNotificationSubscription(Base):
     )
 
 
-class PushNotificationDeliveryAttempt(Base):
+class PushNotificationDeliveryAttempt(Base, init=False, kw_only=True):
     __tablename__ = "push_notification_delivery_attempt"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     push_notification_subscription_id: Mapped[int] = mapped_column(
@@ -372,6 +368,4 @@ class PushNotificationDeliveryAttempt(Base):
     receipt_status: Mapped[str | None] = mapped_column(String)  # "ok" or "error"
     receipt_error_code: Mapped[str | None] = mapped_column(String)  # e.g., "DeviceNotRegistered"
 
-    push_notification_subscription: Mapped["PushNotificationSubscription"] = relationship(
-        "PushNotificationSubscription"
-    )
+    push_notification_subscription: Mapped[PushNotificationSubscription] = relationship(init=False)

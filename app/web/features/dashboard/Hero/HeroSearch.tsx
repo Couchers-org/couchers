@@ -14,8 +14,8 @@ import { GeocodeResult } from "utils/hooks";
 
 const StyledSearchBoxContainer = styled("form")(() => ({
   padding: theme.spacing(4, 2, 6, 2),
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: theme.palette.background.paper,
+  borderRadius: "var(--mui-shape-borderRadius)",
+  backgroundColor: "var(--mui-palette-background-paper)",
 }));
 
 export default function HeroSearch() {

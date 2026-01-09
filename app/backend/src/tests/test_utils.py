@@ -1,11 +1,14 @@
+from datetime import UTC, datetime
+from unittest.mock import patch
+
 import pytest
 from sqlalchemy import select, update
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
 from couchers.models import User
-from couchers.utils import dt_from_page_token, dt_to_page_token, now, wrap_coordinate
-from tests.test_fixtures import db, generate_user, testconfig  # noqa
+from couchers.utils import dt_from_page_token, dt_to_page_token, http_date, now, wrap_coordinate
+from tests.fixtures.db import generate_user
 
 
 @pytest.fixture(autouse=True)
@@ -35,6 +38,25 @@ def test_page_token_time_db(db):
         # make sure euqality is still equality
         user = session.execute(select(User).where(User.joined == roundtrip)).scalar_one()
         assert user.joined == roundtrip
+
+
+def test_http_date_with_datetime():
+    """Test http_date with a specific datetime to verify usegmt=True is used"""
+    dt = datetime(2024, 1, 15, 10, 30, 45, tzinfo=UTC)
+
+    result = http_date(dt)
+
+    assert result == "Mon, 15 Jan 2024 10:30:45 GMT"
+
+
+def test_http_date_without_datetime():
+    """Test http_date with dt=None to verify it uses now() and usegmt=True"""
+    mock_now = datetime(2024, 3, 20, 14, 25, 30, tzinfo=UTC)
+
+    with patch("couchers.utils.now", return_value=mock_now):
+        result = http_date()
+
+    assert result == "Wed, 20 Mar 2024 14:25:30 GMT"
 
 
 def test_wrap_coordinate():

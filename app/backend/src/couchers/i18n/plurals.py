@@ -148,9 +148,7 @@ class PluralRules:
             return PluralCategory.ONE
         elif count % 10 in range(2, 5) and count % 100 not in range(12, 15):
             return PluralCategory.FEW
-        elif count % 10 == 0 or count % 10 >= 5 or count % 100 in range(11, 15):
-            return PluralCategory.MANY
-        return PluralCategory.OTHER
+        return PluralCategory.MANY  # OTHER is only for numbers with decimal separator.
 
     @staticmethod
     def sv(count: int) -> PluralCategory:

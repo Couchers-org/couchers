@@ -146,8 +146,7 @@
     "error_message": "无效的留宿请求ID",
     "back_button_a11y_label": "返回",
     "title_for_host": "来自{{user}} 的请求 - {{status}}",
-    "title_for_surfer": "向 {{user}} 发出的请求 - {{status}}",
-    "request_duration_0": "{{count}} 晚"
+    "title_for_surfer": "向 {{user}} 发出的请求 - {{status}}"
   },
   "past_request_help_text": "该请求已过期，你仍可发送消息，但无法进行其他修改。",
   "unknown_user": "未知用户"

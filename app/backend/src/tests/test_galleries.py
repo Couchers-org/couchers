@@ -6,12 +6,8 @@ from sqlalchemy.exc import IntegrityError
 from couchers.db import session_scope
 from couchers.models import PhotoGallery, PhotoGalleryItem, Upload, User
 from couchers.proto import galleries_pb2
-from tests.test_fixtures import (  # noqa
-    db,
-    galleries_session,
-    generate_user,
-    testconfig,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import galleries_session
 
 
 @pytest.fixture(autouse=True)
@@ -704,8 +700,11 @@ def test_database_constraints_upload_uniqueness(db):
         session.add(upload)
         session.flush()
 
-        item1 = PhotoGalleryItem(gallery_id=user.profile_gallery_id, upload_key="key1", position=0.0)
-        item2 = PhotoGalleryItem(gallery_id=user.profile_gallery_id, upload_key="key1", position=1.0)
+        gallery_id = user.profile_gallery_id
+        assert gallery_id
+
+        item1 = PhotoGalleryItem(gallery_id=gallery_id, upload_key="key1", position=0.0)
+        item2 = PhotoGalleryItem(gallery_id=gallery_id, upload_key="key1", position=1.0)
         session.add_all([item1, item2])
 
         with pytest.raises(IntegrityError):

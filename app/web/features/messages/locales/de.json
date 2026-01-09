@@ -147,8 +147,8 @@
     "back_button_a11y_label": "Zurück",
     "title_for_host": "Anfrage von {{user}} – {{status}}",
     "title_for_surfer": "Anfrage an {{user}} – {{status}}",
-    "request_duration": "{{count}} Nacht",
-    "request_duration_plural": "{{count}} Nächte"
+    "request_duration_one": "{{count}} Nacht",
+    "request_duration_other": "{{count}} Nächte"
   },
   "surfer_declined_request_help_text": "<0>Lies unseren Leitfaden</0>, wie man eine Anfrage schreibt, die angenommen wird.",
   "past_request_help_text": "Diese Anfrage liegt in der Vergangenheit, du kannst weiterhin Nachrichten versenden, aber keine sonstige Änderungen vornehmen.",

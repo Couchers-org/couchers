@@ -12,17 +12,9 @@ from couchers.db import session_scope
 from couchers.models import SMS, User
 from couchers.proto import account_pb2, api_pb2
 from couchers.utils import now
-from tests.test_fixtures import (  # noqa
-    PushCollector,
-    account_session,
-    api_session,
-    db,
-    generate_user,
-    notifications_session,
-    process_jobs,
-    push_collector,
-    testconfig,
-)
+from tests.fixtures.db import generate_user
+from tests.fixtures.misc import PushCollector, process_jobs
+from tests.fixtures.sessions import account_session, api_session
 
 
 @pytest.fixture(autouse=True)
@@ -75,6 +67,7 @@ def test_ChangePhone(db, monkeypatch, push_collector: PushCollector):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == user_id)).scalar_one()
             assert user.phone == "+46701740605"
+            assert user.phone_verification_token
             assert len(user.phone_verification_token) == 6
 
         process_jobs()
@@ -116,6 +109,7 @@ def test_ChangePhone_ratelimit(db, monkeypatch):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == user_id)).scalar_one()
             assert user.phone == "+46701740605"
+            assert user.phone_verification_token
             assert len(user.phone_verification_token) == 6
 
 
@@ -152,15 +146,13 @@ def test_VerifyPhone(push_collector: PushCollector):
 
 
 def test_VerifyPhone_antibrute():
-    user, token = generate_user()
-    with account_session(token) as account:
-        with session_scope() as session:
-            session.execute(
-                update(User)
-                .where(User.id == user.id)
-                .values(phone_verification_token="111112", phone_verification_sent=now(), phone="+46701740605")
-            )
+    user, token = generate_user(
+        phone_verification_token="111112",
+        phone_verification_sent=now(),
+        phone="+46701740605",
+    )
 
+    with account_session(token) as account:
         for _ in range(10):
             with pytest.raises(grpc.RpcError) as e:
                 account.VerifyPhone(account_pb2.VerifyPhoneReq(token="123455"))

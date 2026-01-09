@@ -3,7 +3,6 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { Box, IconButton, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import { theme } from "theme";
 
 interface PlusMinusSelectorProps {
   onChange: (value: number) => void;
@@ -26,7 +25,7 @@ const PlusMinusSelector = ({ onChange, value }: PlusMinusSelectorProps) => {
         onClick={handleDecrease}
         sx={{
           borderRadius: "50%",
-          border: `1px solid ${theme.palette.grey[300]}`,
+          border: `1px solid var(--mui-palette-grey-300)`,
           width: 30,
           height: 30,
         }}
@@ -43,7 +42,7 @@ const PlusMinusSelector = ({ onChange, value }: PlusMinusSelectorProps) => {
         onClick={handleIncrease}
         sx={{
           borderRadius: "50%",
-          border: `1px solid ${theme.palette.grey[300]}`,
+          border: `1px solid var(--mui-palette-grey-300)`,
           width: 30,
           height: 30,
         }}

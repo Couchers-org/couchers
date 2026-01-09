@@ -149,8 +149,8 @@
     "back_button_a11y_label": "Back",
     "title_for_host": "Request from {{user}} - {{status}}",
     "title_for_surfer": "Request to {{user}} - {{status}}",
-    "request_duration": "{{count}} night",
-    "request_duration_plural": "{{count}} nights"
+    "request_duration_one": "{{count}} night",
+    "request_duration_other": "{{count}} nights"
   },
   "unknown_user": "Unknown user"
 }

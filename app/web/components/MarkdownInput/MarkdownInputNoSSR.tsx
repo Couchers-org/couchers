@@ -1,6 +1,7 @@
 import "@toast-ui/editor/dist/toastui-editor.css";
+import "@toast-ui/editor/dist/theme/toastui-editor-dark.css";
 
-import { styled } from "@mui/material";
+import { styled, useColorScheme } from "@mui/material";
 import ToastUIEditor from "@toast-ui/editor";
 import { ToolbarItem } from "@toast-ui/editor/types/ui";
 import { INSERT_IMAGE } from "components/MarkdownInput/constants";
@@ -37,7 +38,7 @@ const StyledWrapper = styled("div", {
     "& ul": theme.typography.body1,
     "& blockquote": theme.typography.body1,
     "& a": {
-      color: theme.palette.primary.main,
+      color: "var(--mui-palette-primary-main)",
     },
     "& img": {
       width: "100%",
@@ -52,7 +53,7 @@ const StyledWrapper = styled("div", {
 }));
 
 const StyledErrorText = styled("div")(({ theme }) => ({
-  color: theme.palette.error.main,
+  color: "var(--mui-palette-error-main)",
   marginTop: theme.spacing(0.25),
   fontSize: "0.875rem",
 }));
@@ -69,6 +70,7 @@ export default function MarkdownInput({
   required,
   placeholder,
 }: MarkdownInputProps) {
+  const { mode } = useColorScheme();
   const { field, fieldState } = useController({
     name,
     control,
@@ -141,6 +143,7 @@ export default function MarkdownInput({
       toolbarItems,
       autofocus,
       extendedAutolinks: true,
+      theme: mode === "dark" ? "dark" : "light",
     });
 
     if (resetInputRef) {
@@ -173,6 +176,7 @@ export default function MarkdownInput({
     labelId,
     imageUpload,
     placeholder,
+    mode,
   ]);
 
   return (

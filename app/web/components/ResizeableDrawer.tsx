@@ -6,7 +6,6 @@ import { styled } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import React from "react";
-import { theme } from "theme";
 
 import IconButton from "./IconButton";
 
@@ -27,17 +26,17 @@ const DrawerContentWrapper = styled("div")(() => ({
   position: "relative",
 }));
 
-const StyledDragger = styled("div")(({ theme }) => ({
+const StyledDragger = styled("div")(() => ({
   width: "8px",
-  borderLeft: `1px solid ${theme.palette.divider}`,
-  backgroundColor: theme.palette.grey[50],
+  borderLeft: `1px solid var(--mui-palette-divider)`,
+  backgroundColor: "var(--mui-palette-grey-50)",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   position: "relative",
 }));
 
-const ScrollableContent = styled("div")(({ theme }) => ({
+const ScrollableContent = styled("div")(() => ({
   overflowY: "auto",
   overflowX: "hidden",
   height: "100%",
@@ -80,10 +79,10 @@ export default function ResizeableDrawer({
           <IconButton
             onClick={handleDrawerExpansion}
             aria-label={t(`global:${isExpanded ? "retract" : "expand"}`)}
-            sx={{
+            sx={(theme) => ({
               fontSize: "24px",
-              backgroundColor: theme.palette.common.white,
-              border: `1px solid ${theme.palette.divider}`,
+              backgroundColor: "var(--mui-palette-background-paper)",
+              border: `1px solid var(--mui-palette-divider)`,
               height: "35px",
               width: "35px",
               zIndex: 100,
@@ -91,23 +90,23 @@ export default function ResizeableDrawer({
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
 
               "&:hover": {
-                backgroundColor: theme.palette.grey[50],
-                borderColor: theme.palette.grey[400],
+                backgroundColor: "var(--mui-palette-grey-50)",
+                borderColor: "var(--mui-palette-grey-400)",
                 boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
                 transform: "scale(1.05)",
               },
 
               "&:active": {
                 transform: "scale(0.98)",
-                backgroundColor: theme.palette.grey[100],
+                backgroundColor: "var(--mui-palette-grey-100)",
               },
-            }}
+            })}
           >
             {isExpanded ? (
               <KeyboardDoubleArrowLeft
                 sx={{
                   "&:hover": {
-                    color: theme.palette.primary.main,
+                    color: "var(--mui-palette-primary-main)",
                   },
                 }}
               />
@@ -115,7 +114,7 @@ export default function ResizeableDrawer({
               <KeyboardDoubleArrowRight
                 sx={{
                   "&:hover": {
-                    color: theme.palette.primary.main,
+                    color: "var(--mui-palette-primary-main)",
                   },
                 }}
               />

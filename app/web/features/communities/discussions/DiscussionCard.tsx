@@ -18,7 +18,7 @@ import getContentSummary from "../getContentSummary";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   "&:hover": {
-    backgroundColor: theme.palette.grey[50],
+    backgroundColor: "var(--mui-palette-grey-50)",
   },
   width: "100%",
 }));
@@ -52,7 +52,7 @@ const StyledDiscussionSummary = styled("div")(({ theme }) => ({
 const StyledCommentsCount = styled(Typography)(({ theme }) => ({
   alignSelf: "flex-end",
   flexShrink: 0,
-  color: theme.palette.primary.main,
+  color: "var(--mui-palette-primary-main)",
 }));
 
 export const DISCUSSION_CARD_TEST_ID = "discussion-card";

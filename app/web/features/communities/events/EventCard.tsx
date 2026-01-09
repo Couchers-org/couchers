@@ -27,11 +27,11 @@ const StyledCard = styled(Card, {
   gridTemplateRows: "1fr auto",
   overflow: "hidden",
   "&:hover": {
-    backgroundColor: theme.palette.grey[50],
+    backgroundColor: "var(--mui-palette-grey-50)",
   },
   ...(isCancelled && {
     opacity: 0.6,
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: "var(--mui-palette-grey-200)",
   }),
 }));
 
@@ -156,7 +156,7 @@ export default function EventCard({
           sx={{
             position: "relative",
             padding: 1,
-            backgroundColor: (theme) => theme.palette.grey[200],
+            backgroundColor: "var(--mui-palette-grey-200)",
             height: { xs: 80, sm: 100, md: 120 },
             backgroundImage: `url(${eventImageSrc})`,
             backgroundSize:

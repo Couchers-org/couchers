@@ -3,7 +3,7 @@ from datetime import timedelta
 import grpc
 import pytest
 from geoalchemy2 import WKBElement
-from google.protobuf import wrappers_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -19,22 +19,20 @@ from couchers.models import (
     PageVersion,
     SignupFlow,
     Thread,
+    User,
 )
 from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, events_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
-from tests.test_auth import get_session_cookie_tokens
-from tests.test_fixtures import (  # noqa
+from tests.fixtures.db import generate_user, get_user_id_and_token
+from tests.fixtures.sessions import (
     auth_api_session,
     communities_session,
-    db,
     discussions_session,
     events_session,
-    generate_user,
-    get_user_id_and_token,
     pages_session,
-    testconfig,
 )
+from tests.test_auth import get_session_cookie_tokens
 
 
 @pytest.fixture(autouse=True)
@@ -57,7 +55,15 @@ def create_1d_point(x: int) -> WKBElement:
     return create_coordinate(x, 1)
 
 
-def create_community(session, interval_lb, interval_ub, name, admins, extra_members, parent):
+def create_community(
+    session: Session,
+    interval_lb: int,
+    interval_ub: int,
+    name: str,
+    admins: list[User],
+    extra_members: list[User],
+    parent: Node | None,
+) -> Node:
     node = Node(
         geom=to_multi(create_1d_polygon(interval_lb, interval_ub)),
         parent_node=parent,
@@ -104,7 +110,9 @@ def create_community(session, interval_lb, interval_ub, name, admins, extra_memb
     return node
 
 
-def create_group(session, name, admins, members, parent_community):
+def create_group(
+    session: Session, name: str, admins: list[User], members: list[User], parent_community: Node | None
+) -> Cluster:
     cluster = Cluster(
         name=f"{name}",
         description=f"Description for {name}",
@@ -144,9 +152,9 @@ def create_group(session, name, admins, members, parent_community):
     return cluster
 
 
-def create_place(token, title, content, address, x):
+def create_place(token: str, title: str, content: str, address: str, x: float) -> None:
     with pages_session(token) as api:
-        res = api.CreatePlace(
+        api.CreatePlace(
             pages_pb2.CreatePlaceReq(
                 title=title,
                 content=content,
@@ -159,10 +167,10 @@ def create_place(token, title, content, address, x):
         )
 
 
-def create_discussion(token, community_id, group_id, title, content):
+def create_discussion(token: str, community_id: int | None, group_id: int | None, title: str, content: str) -> None:
     # set group_id or community_id to None
     with discussions_session(token) as api:
-        res = api.CreateDiscussion(
+        api.CreateDiscussion(
             discussions_pb2.CreateDiscussionReq(
                 title=title,
                 content=content,
@@ -172,7 +180,9 @@ def create_discussion(token, community_id, group_id, title, content):
         )
 
 
-def create_event(token, community_id, group_id, title, content, start_td):
+def create_event(
+    token: str, community_id: int | None, group_id: int | None, title: str, content: str, start_td: timedelta
+) -> None:
     with events_session(token) as api:
         res = api.CreateEvent(
             events_pb2.CreateEventReq(
@@ -279,7 +289,7 @@ def testing_communities(db_class, testconfig):
     create_place(token8, "Global, Attraction", "Place content", "Somewhere in w", 51.5)
     create_place(token6, "Country 2, Region 1, Attraction", "Place content", "Somewhere in c2r1", 59)
 
-    refresh_materialized_views(None)
+    refresh_materialized_views(empty_pb2.Empty())
 
     yield
 

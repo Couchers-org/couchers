@@ -219,7 +219,7 @@ class Public(public_pb2_grpc.PublicServicer):
                     num_references=num_references,
                     gender=user.gender,
                     pronouns=user.pronouns,
-                    age=user.age,
+                    age=int(user.age),
                     joined=Timestamp_from_datetime(user.display_joined),
                     last_active=Timestamp_from_datetime(user.display_last_active),
                     hosting_status=hostingstatus2api[user.hosting_status],

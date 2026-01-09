@@ -13,7 +13,7 @@ interface PreviousNextPaginationProps {
   onNextClick: () => void;
 }
 
-const StyledPaginationButton = styled(Button)(({ theme }) => ({
+const StyledPaginationButton = styled(Button)(() => ({
   minWidth: "110px",
   height: "35px",
   fontSize: "1rem",
@@ -37,9 +37,9 @@ const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
         height: "50px",
         position: "sticky",
         bottom: 0,
-        backgroundColor: theme.palette.common.white,
+        backgroundColor: "var(--mui-palette-background-paper)",
         padding: theme.spacing(0, 2),
-        borderTop: `1px solid ${theme.palette.grey[200]}`,
+        borderTop: `1px solid var(--mui-palette-grey-200)`,
       }}
     >
       <StyledPaginationButton
@@ -48,10 +48,6 @@ const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
         disabled={!hasPreviousPage}
         startIcon={<ChevronLeftIcon />}
         variant="contained"
-        sx={{
-          backgroundColor: theme.palette.primary.main,
-          color: theme.palette.common.white,
-        }}
       >
         {t("global:previous")}
       </StyledPaginationButton>
@@ -61,10 +57,6 @@ const PreviousNextPagination: React.FC<PreviousNextPaginationProps> = ({
         disabled={!hasNextPage}
         endIcon={<ChevronRightIcon />}
         variant="contained"
-        sx={{
-          backgroundColor: theme.palette.primary.main,
-          color: theme.palette.common.white,
-        }}
       >
         {t("global:next")}
       </StyledPaginationButton>

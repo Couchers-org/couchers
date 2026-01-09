@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from couchers.models.users import User
 
 
-class UserSession(Base):
+class UserSession(Base, init=False, kw_only=True):
     """
     API keys/session cookies for the app
 
@@ -44,7 +44,7 @@ class UserSession(Base):
     long_lived: Mapped[bool] = mapped_column(Boolean)
 
     # the time at which the session was created
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # the expiry of the session: the session *cannot* be refreshed past this
     expiry: Mapped[datetime] = mapped_column(
@@ -65,7 +65,7 @@ class UserSession(Base):
     ip_address: Mapped[str | None] = mapped_column(String, default=None)
     user_agent: Mapped[str | None] = mapped_column(String, default=None)
 
-    user: Mapped["User"] = relationship("User", backref="sessions")
+    user: Mapped[User] = relationship(init=False, backref="sessions")
 
     @hybrid_property
     def is_valid(self) -> Any:
@@ -92,7 +92,7 @@ class UserSession(Base):
     )
 
 
-class LoginToken(Base):
+class LoginToken(Base, init=False, kw_only=True):
     """
     A login token sent in an email to a user, allows them to sign in between the times defined by created and expiry
     """
@@ -103,10 +103,10 @@ class LoginToken(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     # timezones should always be UTC
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
-    user: Mapped["User"] = relationship("User", backref="login_tokens")
+    user: Mapped[User] = relationship(init=False, backref="login_tokens")
 
     @hybrid_property
     def is_valid(self) -> Any:
@@ -116,16 +116,16 @@ class LoginToken(Base):
         return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
 
 
-class PasswordResetToken(Base):
+class PasswordResetToken(Base, init=False, kw_only=True):
     __tablename__ = "password_reset_tokens"
 
     token: Mapped[str] = mapped_column(String, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
-    user: Mapped["User"] = relationship("User", backref="password_reset_tokens")
+    user: Mapped[User] = relationship(init=False, backref="password_reset_tokens")
 
     @hybrid_property
     def is_valid(self) -> Any:

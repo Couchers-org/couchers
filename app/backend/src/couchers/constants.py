@@ -83,6 +83,11 @@ EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)
 
 COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
 
+# Maximum node ID considered a "global" community (excluded from some notifications and event filters)
+# Node IDs <= this value are treated as too large for email notifications, etc.
+# Currently this is just the Global Community (node_id=1)
+GLOBAL_COMMUNITY_MAX_NODE_ID = 1
+
 UNKNOWN_ERROR_MESSAGE = "An unknown backend error occurred. Please consider filing a bug!"
 
 # NOTE: these codes are on purpose not translatable
@@ -99,7 +104,7 @@ GHOST_USERNAME = "ghost"
 
 # Donation drive start date - set to None to disable donation drive banner
 # When set, users who haven't donated since this date will see a donation banner
-DONATION_DRIVE_START = pytz.UTC.localize(datetime(2025, 11, 1))
+DONATION_DRIVE_START: datetime | None = None
 
 DONATION_GOAL_USD = 5000
 # exclude big donations from Aapeli + Itsi that we're hoping to do without :)

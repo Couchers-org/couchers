@@ -134,7 +134,18 @@
       "description": "Dein Benutzername lautet <1>{{username}}</1>.",
       "explanation": "Dein Benutzername wird festgelegt, wenn du deinen Account erstellst."
     },
-    "title": "Kontoeinstellungen"
+    "title": "Kontoeinstellungen",
+    "appearance_section": {
+      "current_mode": "Dein aktueller Modus:",
+      "change_mode": "Erscheinungsmodus ändern",
+      "modes": {
+        "dark": "Dark-Modus",
+        "light": "Light-Modus",
+        "system": "System-Modus (folgt deinem Gerät)"
+      },
+      "click_to_change": "Klick auf die Schaltfläche unten, um zwischen Licht-, Dunkel- und Systemmodus zu wechseln.",
+      "title": "Aussehen"
+    }
   },
   "feature_preview": {
     "disclaimer": "Bitte beachte, dass diese Features experimentell sind. Sie funktionieren vielleicht nicht wie vorgesehen und können sich während der Entwicklung noch stark ändern. Gib uns gerne Feedback dazu, indem du die Schaltfläche \"Ein Problem melden\" verwendest um Bugs zu melden!",

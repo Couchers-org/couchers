@@ -2,7 +2,7 @@
 name = "couchers"
 version = "0.1.0"
 description = "Couchers.org backend application"
-requires-python = "==3.13.*"
+requires-python = "==3.14.*"
 dependencies = [
     "alembic>=1.17.1",
     "boto3>=1.39.3",
@@ -57,6 +57,7 @@ dev = [
     "types-boto3>=1.40.69",
     "types-cachetools",
     "types-psycopg2",
+    "types-python-dateutil>=2.9.0.20251115",
 ]
 
 
@@ -96,9 +97,24 @@ known-first-party = ["couchers", "proto", "tests", "dummy_data"]
 extra-standard-library = ["zoneinfo"]
 
 
+# Pytest
+[tool.pytest]
+strict = true
+filterwarnings = [
+    "error",  # Treat all warnings as errors by default
+    # Ignore scalar subquery warning from geoalchemy2 library (not fixable in our code)
+    "ignore:implicitly coercing SELECT object to scalar subquery:sqlalchemy.exc.SAWarning:geoalchemy2",
+    # Ignore SQLAlchemy session management warnings (informational, from SQLAlchemy internals)
+    "ignore:Object of type .* not in session:sqlalchemy.exc.SAWarning",
+]
+
+
 # Mypy
 [tool.mypy]
 strict = true
+# These aren't covered by strict.
+warn_unreachable = true
+strict_equality_for_none = true
 
 [[tool.mypy.overrides]]
 module = ["couchers.proto.*"]
@@ -115,11 +131,36 @@ module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "statsig_python_
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+# Test files don't require strict type checking
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+module = ["tests.fixtures.sessions"]
+# Mock gRPC infrastructure intentionally violates type contracts
+disable_error_code = ["arg-type"]
+
 
 # Coverage
 [tool.coverage.run]
 omit = ["src/couchers/proto/**", "src/couchers/migrations/versions/**", "src/dummy_data.py"]
+branch = true
 
+[tool.coverage.report]
+exclude_also = [
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+skip_covered = true
+show_missing = true
 
 # Build
 [build-system]

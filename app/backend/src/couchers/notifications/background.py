@@ -24,7 +24,8 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
-from couchers.notifications.render import render_notification, render_push_notification
+from couchers.notifications.render import render_email_notification
+from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import moderation_state_column_visible
@@ -48,61 +49,63 @@ add_filters(env)
 
 
 def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
-    rendered = render_notification(user, notification)
+    rendered = render_email_notification(user, notification)
 
     email_lang = "en"
-    if config.get("ENABLE_NOTIFICATION_TRANSLATIONS", False):
+    if config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
         email_lang = user.ui_language_preference or "en"
 
     template_args = {
+        "header_subject": rendered.subject,
+        "header_preview": rendered.preview,
         "user": user,
         "time": notification.created,
         "footer_email_is_critical": rendered.is_critical,
         "footer_manage_notifications_link": urls.notification_settings_link(),
-        "footer_notification_topic_action": rendered.email_topic_action_unsubscribe_text,
+        "footer_notification_topic_action": rendered.topic_action_unsubscribe_text,
         "footer_notification_topic_action_link": generate_unsub_topic_action(notification),
-        "footer_notification_topic_key": rendered.email_topic_key_unsubscribe_text,
+        "footer_notification_topic_key": rendered.topic_key_unsubscribe_text,
         "footer_notification_topic_key_link": generate_unsub_topic_key(notification),
         "footer_do_not_email_link": generate_do_not_email(user),
         CONTEXT_TRANSLATION_LANGUAGE_KEY: email_lang,
         CONTEXT_YEAR_KEY: now().year,
         CONTEXT_TIMEZONE_DISPLAY_KEY: get_tz_as_text(user.timezone or "Etc/UTC"),
-        **rendered.email_template_args,
+        **rendered.template_args,
     }
 
-    plain_tmplt = (template_folder / f"{rendered.email_template_name}.txt").read_text()
+    plain_tmplt = (template_folder / f"{rendered.template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
     plain_template_args = {**template_args, CONTEXT_PLAINTEXT_KEY: True}  # Strip html from translations.
     plain = env.from_string(plain_tmplt + plain_tmplt_footer).render(plain_template_args)
 
-    html_tmplt = (template_folder / "generated_html" / f"{rendered.email_template_name}.html").read_text()
+    html_tmplt = (template_folder / "generated_html" / f"{rendered.template_name}.html").read_text()
     html = env.from_string(html_tmplt).render(template_args)
 
     if user.do_not_email and not rendered.is_critical:
-        logger.info(f"Not emailing {user} based on template {rendered.email_template_name} due to emails turned off")
+        logger.info(f"Not emailing {user} based on template {rendered.template_name} due to emails turned off")
         return
 
     if user.is_banned:
-        logger.info(f"Tried emailing {user} based on template {rendered.email_template_name} but user is banned")
+        logger.info(f"Tried emailing {user} based on template {rendered.template_name} but user is banned")
         return
 
     if user.is_deleted and not rendered.allow_deleted:
-        logger.info(f"Tried emailing {user} based on template {rendered.email_template_name} but user is deleted")
+        logger.info(f"Tried emailing {user} based on template {rendered.template_name} but user is deleted")
         return
 
     list_unsubscribe_header = None
-    if rendered.email_list_unsubscribe_url:
-        list_unsubscribe_header = f"<{rendered.email_list_unsubscribe_url}>"
+    if rendered.list_unsubscribe_url:
+        list_unsubscribe_header = f"<{rendered.list_unsubscribe_url}>"
 
     queue_email(
         session,
         sender_name=config["NOTIFICATION_EMAIL_SENDER"],
         sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient=user.email,
-        subject=config["NOTIFICATION_PREFIX"] + rendered.email_subject,
+        subject=config["NOTIFICATION_PREFIX"] + rendered.subject,
         plain=plain,
         html=html,
-        source_data=config["VERSION"] + f"/{rendered.email_template_name}",
+        source_data=config["VERSION"] + f"/{rendered.template_name}",
         list_unsubscribe_header=list_unsubscribe_header,
     )
 

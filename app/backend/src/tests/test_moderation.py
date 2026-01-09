@@ -13,6 +13,7 @@ from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.handlers import auto_approve_moderation_queue
 from couchers.models import (
+    GroupChat,
     HostRequest,
     ModerationAction,
     ModerationLog,
@@ -25,20 +26,13 @@ from couchers.models import (
 from couchers.moderation.utils import create_moderation
 from couchers.proto import conversations_pb2, moderation_pb2, notifications_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, now, today
-from tests.test_fixtures import (  # noqa
-    PushCollector,
+from tests.fixtures.db import generate_user, make_friends
+from tests.fixtures.misc import PushCollector, mock_notification_email, process_jobs
+from tests.fixtures.sessions import (
     conversations_session,
-    db,
-    email_fields,
-    generate_user,
-    mock_notification_email,
-    moderator,
     notifications_session,
-    process_jobs,
-    push_collector,
     real_moderation_session,
     requests_session,
-    testconfig,
 )
 from tests.test_requests import valid_request_text
 
@@ -86,7 +80,6 @@ def test_create_moderation(db):
             creator_user_id=user.id,
         )
 
-        assert moderation_state.id is not None
         assert moderation_state.object_type == ModerationObjectType.HOST_REQUEST
         assert moderation_state.object_id == 123
         assert moderation_state.visibility == ModerationVisibility.SHADOWED
@@ -189,7 +182,7 @@ def test_moderate_content(db):
 
     # Check that state was updated in database
     with session_scope() as session:
-        updated_state = session.get(ModerationState, state_id)
+        updated_state = session.get_one(ModerationState, state_id)
         assert updated_state.visibility == ModerationVisibility.VISIBLE
 
         # Check that log entry was created
@@ -308,7 +301,7 @@ def test_approve_content_via_api(db):
 
     # Check that state was updated to VISIBLE
     with session_scope() as session:
-        updated_state = session.get(ModerationState, state_id)
+        updated_state = session.get_one(ModerationState, state_id)
         assert updated_state.visibility == ModerationVisibility.VISIBLE
 
         # Check log entry
@@ -350,8 +343,6 @@ def test_create_host_request_creates_moderation_state(db):
         host_request = session.execute(
             select(HostRequest).where(HostRequest.conversation_id == host_request_id)
         ).scalar_one()
-
-        assert host_request.moderation_state_id is not None
 
         # Check moderation state properties
         moderation_state = session.execute(
@@ -881,7 +872,7 @@ def test_moderation_queue_workflow(db):
         assert queue_item_id not in [item.id for item in unresolved_items]
 
         # Verify the queue item was linked to a log entry
-        queue_item = session.get(ModerationQueueItem, queue_item_id)
+        queue_item = session.get_one(ModerationQueueItem, queue_item_id)
         assert queue_item.resolved_by_log_id is not None
 
 
@@ -1470,7 +1461,7 @@ def test_ModerateContent_approve(db):
 
     # Verify state was updated in database
     with session_scope() as session:
-        state = session.get(ModerationState, state_id)
+        state = session.get_one(ModerationState, state_id)
         assert state.visibility == ModerationVisibility.VISIBLE
 
 
@@ -1515,7 +1506,7 @@ def test_ModerateContent_hide(db):
 
     # Verify state was updated in database
     with session_scope() as session:
-        state = session.get(ModerationState, state_id)
+        state = session.get_one(ModerationState, state_id)
         assert state.visibility == ModerationVisibility.HIDDEN
 
 
@@ -1542,7 +1533,7 @@ def test_ModerateContent_shadow(db):
 
     # Verify state was updated in database
     with session_scope() as session:
-        state = session.get(ModerationState, state_id)
+        state = session.get_one(ModerationState, state_id)
         assert state.visibility == ModerationVisibility.SHADOWED
 
 
@@ -1597,6 +1588,7 @@ def test_FlagContentForReview(db):
             .scalars()
             .first()
         )
+        assert queue_item
         assert queue_item.trigger == ModerationTrigger.MODERATOR_REVIEW
         assert queue_item.resolved_by_log_id is None
 
@@ -1608,10 +1600,6 @@ def test_FlagContentForReview(db):
 
 def test_group_chat_created_with_moderation_state(db):
     """Test that group chats are created with moderation state"""
-    from couchers.models import GroupChat
-    from couchers.proto import conversations_pb2
-    from tests.test_fixtures import conversations_session, make_friends
-
     user1, token1 = generate_user()
     user2, _ = generate_user()
     make_friends(user1, user2)
@@ -1624,8 +1612,6 @@ def test_group_chat_created_with_moderation_state(db):
     with session_scope() as session:
         group_chat = session.execute(select(GroupChat).where(GroupChat.conversation_id == group_chat_id)).scalar_one()
 
-        assert group_chat.moderation_state_id is not None
-        assert group_chat.moderation_state is not None
         assert group_chat.moderation_state.object_type == ModerationObjectType.GROUP_CHAT
         assert group_chat.moderation_state.object_id == group_chat_id
         # Group chats start as SHADOWED
@@ -1647,9 +1633,6 @@ def test_group_chat_created_with_moderation_state(db):
 
 def test_group_chat_GetModerationState(db):
     """Test GetModerationState API for group chats"""
-    from couchers.proto import conversations_pb2
-    from tests.test_fixtures import conversations_session, make_friends
-
     user1, token1 = generate_user()
     user2, _ = generate_user()
     moderator, mod_token = generate_user(is_superuser=True)
@@ -1675,9 +1658,6 @@ def test_group_chat_GetModerationState(db):
 
 def test_group_chat_moderation_hide(db):
     """Test that a moderator can hide a group chat and participants can no longer see it"""
-    from couchers.proto import conversations_pb2
-    from tests.test_fixtures import conversations_session, make_friends
-
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     moderator, mod_token = generate_user(is_superuser=True)
@@ -1748,9 +1728,6 @@ def test_group_chat_moderation_hide(db):
 
 def test_group_chat_moderation_shadow(db):
     """Test that shadowing a group chat hides it from non-creator participants"""
-    from couchers.proto import conversations_pb2
-    from tests.test_fixtures import conversations_session, make_friends
-
     user1, token1 = generate_user()  # Creator
     user2, token2 = generate_user()  # Participant
     moderator, mod_token = generate_user(is_superuser=True)

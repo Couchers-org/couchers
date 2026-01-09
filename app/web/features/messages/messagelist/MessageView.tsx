@@ -54,20 +54,20 @@ const StyledCard = styled(Card, {
     borderRadius: theme.shape.borderRadius * 3,
 
     ...(isLoading && {
-      borderColor: theme.palette.text.secondary,
+      borderColor: "var(--mui-palette-text-secondary)",
     }),
 
     ...(isCurrentUser &&
       !isLoading && {
-        borderColor: theme.palette.primary.main,
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.common.white,
+        borderColor: "var(--mui-palette-primary-main)",
+        backgroundColor: "var(--mui-palette-primary-main)",
+        color: "var(--mui-palette-common-white)",
       }),
 
     ...(!isCurrentUser &&
       !isLoading && {
-        borderColor: theme.palette.grey[300],
-        backgroundColor: theme.palette.grey[200],
+        borderColor: "var(--mui-palette-grey-300)",
+        backgroundColor: "var(--mui-palette-grey-200)",
       }),
   }),
 );

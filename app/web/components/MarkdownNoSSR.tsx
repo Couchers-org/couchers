@@ -1,6 +1,7 @@
 import "@toast-ui/editor/dist/toastui-editor-viewer.css";
+import "@toast-ui/editor/dist/theme/toastui-editor-dark.css";
 
-import { styled } from "@mui/material";
+import { styled, useColorScheme } from "@mui/material";
 import ToastUIEditorViewer from "@toast-ui/editor/dist/toastui-editor-viewer";
 import { increaseMarkdownHeaderLevel } from "components/Markdown";
 import { useEffect, useRef } from "react";
@@ -16,12 +17,14 @@ interface MarkdownProps {
 const StyledRoot = styled("div")(({ theme }) => ({
   fontSize: theme.typography.fontSize,
   fontFamily: theme.typography.fontFamily,
+  color: "var(--mui-palette-text-primary)",
   "& h1, & h2, & h3, & h4, & h5, & h6, & p": {
     borderBottom: "none",
     paddingBottom: 0,
     marginBottom: 0,
     marginTop: theme.spacing(2),
     overflowWrap: "break-word",
+    color: "var(--mui-palette-text-primary) !important",
   },
   "& h1": theme.typography.h1,
   "& h2": theme.typography.h2,
@@ -49,6 +52,7 @@ export default function Markdown({
   topHeaderLevel = 2,
   allowImages = "none",
 }: MarkdownProps) {
+  const { mode } = useColorScheme();
   const rootEl = useRef<HTMLDivElement>(null);
   const viewer = useRef<ToastUIEditorViewer>(undefined);
   useEffect(() => {
@@ -71,9 +75,20 @@ export default function Markdown({
       el: rootEl.current!,
       initialValue: sanitizedSource,
       extendedAutolinks: true,
+      theme: mode === "dark" ? "dark" : "light",
     });
+
+    // Update theme class on root element
+    if (rootEl.current) {
+      if (mode === "dark") {
+        rootEl.current.classList.add("toastui-editor-dark");
+      } else {
+        rootEl.current.classList.remove("toastui-editor-dark");
+      }
+    }
+
     return () => viewer.current?.destroy();
-  }, [source, topHeaderLevel, allowImages]);
+  }, [source, topHeaderLevel, allowImages, mode]);
 
   return <StyledRoot className={className} ref={rootEl} />;
 }

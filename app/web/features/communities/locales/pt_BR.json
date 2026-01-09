@@ -1,3 +1,7 @@
 {
-  "location": "Localização"
+  "location": "Localização",
+  "attendees_count_one": "{{count}} participante",
+  "attendees_count_many": "{{count}} de participantes",
+  "attendees_count_other": "{{count}} participantes",
+  "comments_count": "Comentários | {{count}}"
 }

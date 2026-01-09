@@ -157,7 +157,8 @@
     "landing_page": "Úvodní stránka",
     "invite_members": "Pozvat členy",
     "faq": "Často kladené otázky",
-    "about": "O aplikaci"
+    "about": "O aplikaci",
+    "merch_shop": "Obchod s merchem"
   },
   "html_meta": {
     "default_description": "Sdílej svůj svět a objevuj ten jejich. Autentické místní zážitky postavené na důvěře a skutečném spojení — ne na transakcích.",
@@ -177,7 +178,8 @@
       "press_enter_to_search": "Stiskni Enter pro vyhledávání",
       "invalid_coordinate": "Chybí souřadnice, prosím vyber na mapě výše dané místo",
       "location_warn": "Klikni a přetáhni kruh níže, abys ukázal(a) lidem přibližnou polohu svého domova. Ujisti se, že tvůj domov není ve středu kruhu, aby lidé nepoznali přesnou polohu.",
-      "no_map_support": "Tvé zařízení nepodporuje zobrazení mapy. Zkontroluj, že máš zapnutý WebGL2, nebo zkus jiné zařízení/prohlížeč. Omlouváme se za komplikace!"
+      "no_map_support": "Tvé zařízení nepodporuje zobrazení mapy. Zkontroluj, že máš zapnutý WebGL2, nebo zkus jiné zařízení/prohlížeč. Omlouváme se za komplikace!",
+      "display_location_not_empty": "Vyplň prosím zobrazovanou adresu"
     },
     "datepicker": {
       "change_date": "Změnit datum"
@@ -211,20 +213,26 @@
   "no_invite_codes": "Zatím žádné pozvánky",
   "community_standing": "Postavení v komunitě",
   "relative_time": {
-    "one_year_ago": "před rokem",
-    "x_years_ago": "Před {{date}} lety",
     "less_than_a_minute_ago": "před méně než minutou",
-    "one_minute_ago": "před minutou",
-    "x_minutes_ago": "před {{date}} minutami",
     "less_than_one_hour_ago": "Před méně než hodinou",
-    "one_hour_ago": "před 1 hodinou",
-    "x_hours_ago": "Před {{date}} hodinami",
-    "one_day_ago": "před 1 dnem",
-    "x_days_ago": "Před {{date}} dny",
-    "one_week_ago": "před týdnem",
-    "x_weeks_ago": "Před {{date}} týdny",
-    "one_month_ago": "před měsícem",
-    "x_months_ago": "před {{date}} měsíci"
+    "n_minutes_ago_one": "Před {{count}} minutou",
+    "n_minutes_ago_few": "Před {{count}} minuty",
+    "n_minutes_ago_other": "Před {{count}} minutami",
+    "n_weeks_ago_one": "Před {{count}} týdnem",
+    "n_weeks_ago_few": "Před {{count}} týdny",
+    "n_weeks_ago_other": "Před {{count}} týdny",
+    "n_months_ago_one": "Před {{count}} měsícem",
+    "n_months_ago_few": "Před {{count}} měsíci",
+    "n_months_ago_other": "Před {{count}} měsíci",
+    "n_years_ago_one": "Před {{count}} rokem",
+    "n_years_ago_few": "Před {{count}} lety",
+    "n_years_ago_other": "Před {{count}} lety",
+    "n_hours_ago_one": "Před {{count}} hodinou",
+    "n_hours_ago_few": "Před {{count}} hodinami",
+    "n_hours_ago_other": "Před {{count}} hodinami",
+    "n_days_ago_one": "Před {{count}} dnem",
+    "n_days_ago_few": "Před {{count}} dny",
+    "n_days_ago_other": "Před {{count}} dny"
   },
   "join_us": "Přidej se k nám",
   "ok": "Dobře",
@@ -261,21 +269,26 @@
       "meetups_communities": "Setkání a místní komunity",
       "non_transactional": "Netaransakční komunitní model",
       "no_investor_pressure": "Žádný tlak investorů",
-      "social_expectation": "Povzbuzen k trávení času s hostitelem"
+      "social_expectation": "Povzbuzen k trávení času s hostitelem",
+      "free_to_stay": "Ubytování zdarma"
     },
     "timeline": {
       "early_2000s_year": "Začátek 21. století",
       "2020_text": "Hlavní platforma přechází na ziskový model; Couchers.org se spouští jako nezisková, komunitou řízená alternativa.",
       "2020_year": "2020",
       "today_year": "Dnes",
-      "today_text": "Couchers.org vytváří další kapitolu: moderní, bezpečnější, neziskové couchsurfování — vytvořené komunitou a pro komunitu."
+      "today_text": "Couchers.org vytváří další kapitolu: moderní, bezpečnější, neziskové couchsurfování — vytvořené komunitou a pro komunitu.",
+      "early_2000s_text": "Zrodilo se online hnutí couchsurfingu: zůstaň u místních, sdílej kulturu.",
+      "2010s_year": "2010s",
+      "2010s_text": "Komunity a události vzkvétají, reference budují důvěru — svět začíná působit jako jedno přátelské sousedství."
     },
     "description_1": "Couchsurfing je koncept, kdy někteří členové (nazývaní hostitelé) zveřejňují na platformě informaci, že jsou ochotni ubytovat jiné členy (nazývané surfaři), kteří navštěvují jejich město.",
     "actions": {
       "join_discussions": "Připoj se k diskuzím nebo je založ ve své místní komunitě",
       "host": "Ubytuj cestovatele, kteří navštíví tvé město",
       "attend_events": "Navštěvuj akce s místními i ostatními cestovateli",
-      "find_people": "Najdi podobně smýšlející lidi ve svém městě a setkejte se"
+      "find_people": "Najdi podobně smýšlející lidi ve svém městě a setkejte se",
+      "surf": "Cestuj a poznávej svět s místními"
     },
     "why_people_points": {
       "everyone": "<bold>Pro všechny</bold>: komunita, kultura a propojení — ne transakce",
@@ -330,11 +343,12 @@
   },
   "donation_banner": {
     "message": "Couchers.org funguje na laskavosti – stejně jako samotné couchsurfování. Pomozte nám to tak udržet i během těchto svátků. Snažíme se vybrat {{goal}} na pokrytí nákladů nutných na provoz Couchers.org.",
-    "button": "Přispět teď"
+    "button": "Přispět teď",
+    "progress_label": "Průběh sbírky"
   },
   "team": {
     "description": "Jsme nadšení couchsurfaři a zkušení profesionálové, kteří se zavázali vytvářet lepší, bezpečnější a inkluzivnější platformu. Tuto platformu budujeme s cílem podpořit a udržitelně rozvíjet komunitu couchsurfingu a zároveň sdílet její hodnoty se světem. Pokud sdílíte naše nadšení a chceš přispět, rádi o tobě uslyšíme.",
-    "tap_press_to_flip": " Klikni / stiskni pro otočení",
+    "tap_press_to_flip": "Klikni / stiskni pro otočení",
     "fill_form_description": "Couchers.org je komunitně řízený projekt, vyvíjený lidmi jako jsi ty, pro dobro celosvětové komunity couchsurfingu. Pokud máš zájem se k této vzrušující iniciativě připojit, klikni prosím na tlačítko níže a vyplň krátký formulář.",
     "current_members": "Současní členové",
     "past_members": "Bývalí členové",
@@ -366,5 +380,7 @@
   },
   "error_loading_languages": "Nepodařilo se načíst jazykové možnosti",
   "uses": "Použití",
-  "retract": "Stáhnout"
+  "retract": "Stáhnout",
+  "not_found_text_2": "Chceš prostě <1>jít domů?</1>",
+  "contribute_title": "Zaregistruj se a zapoj se"
 }

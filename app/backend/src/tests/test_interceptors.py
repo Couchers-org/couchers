@@ -17,7 +17,8 @@ from couchers.models import APICall, UserSession
 from couchers.proto import account_pb2, admin_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
-from tests.test_fixtures import db, generate_user, real_admin_session, testconfig  # noqa
+from tests.fixtures.db import generate_user
+from tests.fixtures.sessions import real_admin_session
 
 
 @pytest.fixture(autouse=True)
@@ -184,7 +185,9 @@ def test_tracing_interceptor_ok_open(db):
         assert trace.method == "/org.couchers.auth.Auth/SignupFlow"
         assert not trace.status_code
         assert not trace.user_id
+        assert trace.request is not None
         assert len(trace.request) == 0
+        assert trace.response is not None
         assert len(trace.response) == 0
         assert not trace.traceback
 
@@ -213,9 +216,11 @@ def test_tracing_interceptor_sensitive(db):
         assert not trace.status_code
         assert not trace.user_id
         assert not trace.traceback
+        assert trace.request is not None
         req = auth_pb2.SignupFlowReq.FromString(trace.request)
         assert not req.account.password
         assert req.account.username == "not removed"
+        assert trace.response
         res = auth_pb2.AuthReq.FromString(trace.response)
         assert res.user == "this is not secret"
         assert not res.password
@@ -257,7 +262,9 @@ def test_tracing_interceptor_exception(db):
         assert trace.method == "/org.couchers.auth.Auth/SignupFlow"
         assert not trace.status_code
         assert not trace.user_id
+        assert trace.traceback
         assert "Some error message" in trace.traceback
+        assert trace.request is not None
         req = auth_pb2.SignupAccount.FromString(trace.request)
         assert not req.password
         assert req.username == "not removed"
@@ -286,7 +293,9 @@ def test_tracing_interceptor_abort(db):
         assert trace.method == "/org.couchers.auth.Auth/SignupFlow"
         assert trace.status_code == "FAILED_PRECONDITION"
         assert not trace.user_id
+        assert trace.traceback
         assert "now a grpc abort" in trace.traceback
+        assert trace.request is not None
         req = auth_pb2.SignupAccount.FromString(trace.request)
         assert not req.password
         assert req.username == "not removed"
@@ -405,6 +414,7 @@ def test_tracing_interceptor_auth_cookies(db):
         assert not trace.status_code
         assert trace.user_id == user.id
         assert not trace.is_api_key
+        assert trace.request is not None
         assert len(trace.request) == 0
         assert not trace.traceback
 
@@ -444,6 +454,7 @@ def test_tracing_interceptor_auth_api_key(db):
         assert not trace.status_code
         assert trace.user_id == user.id
         assert trace.is_api_key
+        assert trace.request is not None
         assert len(trace.request) == 0
         assert not trace.traceback
 
@@ -522,25 +533,25 @@ def test_auth_levels(db):
             if should_work:
                 call_rpc(empty_pb2.Empty(), metadata=metadata)
             else:
-                with pytest.raises(grpc.RpcError) as e:
+                with pytest.raises(grpc.RpcError) as err:
                     call_rpc(empty_pb2.Empty(), metadata=metadata)
-                assert e.value.code() == code
-                assert e.value.details() == message
+                assert err.value.code() == code
+                assert err.value.details() == message
 
     # a non-existent RPC
     nonexistent = gen_args("org.couchers.nonexistent.NA", "GetNothing")
 
     with interceptor_dummy_api(**nonexistent) as call_rpc:
-        with pytest.raises(Exception) as e:
+        with pytest.raises(grpc.RpcError) as err:
             call_rpc(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.UNIMPLEMENTED
-        assert e.value.details() == "API call does not exist. Please refresh and try again."
+        assert err.value.code() == grpc.StatusCode.UNIMPLEMENTED
+        assert err.value.details() == "API call does not exist. Please refresh and try again."
 
     # an RPC without a service level
     invalid_args = gen_args("org.couchers.media.Media", "UploadConfirmation")
 
     with interceptor_dummy_api(**invalid_args) as call_rpc:
-        with pytest.raises(Exception) as e:
+        with pytest.raises(grpc.RpcError) as err:
             call_rpc(empty_pb2.Empty())
-        assert e.value.code() == grpc.StatusCode.INTERNAL
-        assert e.value.details() == "Internal authentication error."
+        assert err.value.code() == grpc.StatusCode.INTERNAL
+        assert err.value.details() == "Internal authentication error."
