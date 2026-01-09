@@ -218,7 +218,9 @@
   },
   "helper_text": {
     "missing_profile_photo": "Por favor añade una foto para completar tu perfil.",
-    "characters_remaining": "<bold>Por favor, escribe al menos {{count}} caracteres para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!"
+    "characters_remaining_one": "<bold>Por favor, escribe al menos {{count}} caracter para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!",
+    "characters_remaining_many": "<bold>Por favor, escribe al menos {{count}} de caracteres para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!",
+    "characters_remaining_other": "<bold>Por favor, escribe al menos {{count}} caracteres para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!"
   },
   "section_tabs_a11y_label": "pestañas para detalles de usuario",
   "incomplete_dialog": {

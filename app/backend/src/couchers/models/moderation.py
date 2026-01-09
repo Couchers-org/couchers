@@ -64,7 +64,7 @@ class ModerationObjectType(enum.Enum):
     GROUP_CHAT = enum.auto()
 
 
-class ModerationState(Base):
+class ModerationState(Base, init=False, kw_only=True):
     """
     Moderation state for any moderatable object on the platform
 
@@ -84,7 +84,7 @@ class ModerationState(Base):
 
     visibility: Mapped[ModerationVisibility] = mapped_column(Enum(ModerationVisibility))
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     __table_args__ = (
@@ -98,7 +98,7 @@ class ModerationState(Base):
         return f"ModerationState(id={self.id}, type={self.object_type}, object_id={self.object_id}, visibility={self.visibility})"
 
 
-class ModerationQueueItem(Base):
+class ModerationQueueItem(Base, init=False, kw_only=True):
     """
     Action items in the moderation queue
 
@@ -113,7 +113,7 @@ class ModerationQueueItem(Base):
     )
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
-    time_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    time_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     trigger: Mapped[ModerationTrigger] = mapped_column(Enum(ModerationTrigger))
     reason: Mapped[str] = mapped_column(String)
 
@@ -121,7 +121,7 @@ class ModerationQueueItem(Base):
     resolved_by_log_id: Mapped[int | None] = mapped_column(ForeignKey("moderation_log.id"), index=True)
 
     # Relationships
-    moderation_state: Mapped["ModerationState"] = relationship("ModerationState")
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # Fast lookup of unresolved items
@@ -139,7 +139,7 @@ class ModerationQueueItem(Base):
         )
 
 
-class ModerationLog(Base):
+class ModerationLog(Base, init=False, kw_only=True):
     """
     History of moderation actions
 
@@ -165,8 +165,8 @@ class ModerationLog(Base):
     reason: Mapped[str] = mapped_column(String)
 
     # Relationships
-    moderation_state: Mapped["ModerationState"] = relationship("ModerationState")
-    moderator: Mapped["User"] = relationship("User")
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
+    moderator: Mapped[User] = relationship(init=False)
 
     __table_args__ = (
         # Fast lookup of log entries for a given state, ordered by time

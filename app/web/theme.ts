@@ -26,7 +26,56 @@ declare module "@mui/material/styles" {
 }
 
 const themeOptions: ThemeOptions = {
+  cssVariables: {
+    colorSchemeSelector: "data-mui-color-scheme",
+  },
+  colorSchemes: {
+    dark: {
+      palette: {
+        background: {
+          default: "#313539",
+          paper: "#313539",
+        },
+        primary: {
+          main: "#6bc4a6",
+          light: "#8fd4ba",
+          dark: "#00a398",
+        },
+        secondary: {
+          main: "#fe982a",
+          light: "#ffad52",
+          dark: "#e47701",
+        },
+        text: {
+          primary: "#fff",
+          secondary: "rgba(255, 255, 255, 0.7)",
+        },
+        divider: "rgba(255, 255, 255, 0.12)",
+        grey: {
+          50: "#2a2e32",
+          100: "#3d4347",
+          200: "#4a5056",
+          300: "#5a6066",
+          500: "#8a8f94",
+          600: "#b0b5ba",
+          900: "#1a1d20",
+        },
+        action: {
+          active: "#fff",
+          hover: "rgba(255, 255, 255, 0.08)",
+          selected: "rgba(255, 255, 255, 0.16)",
+          disabled: "rgba(255, 255, 255, 0.3)",
+          disabledBackground: "rgba(255, 255, 255, 0.12)",
+        },
+      },
+    },
+  },
   components: {
+    MuiAppBar: {
+      defaultProps: {
+        elevation: 0,
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: {
         a: {
@@ -44,6 +93,36 @@ const themeOptions: ThemeOptions = {
     },
     MuiInputBase: {
       styleOverrides: {
+        root: {
+          // Target autofill on the input element with high specificity
+          "& input:-webkit-autofill": {
+            WebkitBoxShadow:
+              "0 0 0 1000px var(--mui-palette-background-paper) inset !important",
+            WebkitTextFillColor: "var(--mui-palette-text-primary)",
+            caretColor: "var(--mui-palette-text-primary)",
+            borderRadius: "inherit",
+            transition:
+              "background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s",
+          },
+          "& input:-webkit-autofill:hover": {
+            WebkitBoxShadow:
+              "0 0 0 1000px var(--mui-palette-background-paper) inset !important",
+            WebkitTextFillColor: "var(--mui-palette-text-primary)",
+            caretColor: "var(--mui-palette-text-primary)",
+          },
+          "& input:-webkit-autofill:focus": {
+            WebkitBoxShadow:
+              "0 0 0 1000px var(--mui-palette-background-paper) inset !important",
+            WebkitTextFillColor: "var(--mui-palette-text-primary)",
+            caretColor: "var(--mui-palette-text-primary)",
+          },
+          "& input:-webkit-autofill:active": {
+            WebkitBoxShadow:
+              "0 0 0 1000px var(--mui-palette-background-paper) inset !important",
+            WebkitTextFillColor: "var(--mui-palette-text-primary)",
+            caretColor: "var(--mui-palette-text-primary)",
+          },
+        },
         input: {
           fontSize: "1rem",
         },
@@ -74,7 +153,6 @@ const themeOptions: ThemeOptions = {
       },
     },
   },
-  cssVariables: true,
   palette: {
     background: {
       default: "#fcfcfc",

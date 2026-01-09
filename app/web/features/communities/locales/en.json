@@ -1,6 +1,6 @@
 {
-  "attendees_count": "{{count}} attendee",
-  "attendees_count_plural": "{{count}} attendees",
+  "attendees_count_one": "{{count}} attendee",
+  "attendees_count_other": "{{count}} attendees",
   "by_creator": "By {{name}}",
   "cancelled": "Cancelled",
   "cancel_event": "Cancel event",

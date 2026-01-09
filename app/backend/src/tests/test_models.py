@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
-from couchers.models import User
+from tests.fixtures.db import make_user
 
 
 @pytest.fixture(autouse=True)
@@ -24,20 +24,22 @@ def test_user_age(db):
 
 
 def test_user_display_joined():
-    assert User(joined=datetime(2020, 7, 10, 16, 34, 1, 1)).display_joined == datetime(2020, 7, 10, 16, 0, 0, 0)
-    assert User(joined=datetime(2025, 7, 10, 16, 59, 1, 1)).display_joined == datetime(2025, 7, 10, 16, 0, 0, 0)
-    assert User(joined=datetime(2020, 7, 10, 16, 0, 1, 1)).display_joined == datetime(2020, 7, 10, 16, 0, 0, 0)
-    assert User(joined=datetime(2020, 7, 10, 0, 0, 0, 0)).display_joined == datetime(2020, 7, 10, 0, 0, 0, 0)
+    assert make_user(joined=datetime(2020, 7, 10, 16, 34, 1, 1)).display_joined == datetime(2020, 7, 10, 16, 0, 0, 0)
+    assert make_user(joined=datetime(2025, 7, 10, 16, 59, 1, 1)).display_joined == datetime(2025, 7, 10, 16, 0, 0, 0)
+    assert make_user(joined=datetime(2020, 7, 10, 16, 0, 1, 1)).display_joined == datetime(2020, 7, 10, 16, 0, 0, 0)
+    assert make_user(joined=datetime(2020, 7, 10, 0, 0, 0, 0)).display_joined == datetime(2020, 7, 10, 0, 0, 0, 0)
 
 
 def test_user_display_last_active():
-    assert User(last_active=datetime(2020, 7, 10, 16, 34, 1, 1)).display_last_active == datetime(
+    assert make_user(last_active=datetime(2020, 7, 10, 16, 34, 1, 1)).display_last_active == datetime(
         2020, 7, 10, 16, 0, 0, 0
     )
-    assert User(last_active=datetime(2025, 7, 10, 17, 59, 1, 1)).display_last_active == datetime(
+    assert make_user(last_active=datetime(2025, 7, 10, 17, 59, 1, 1)).display_last_active == datetime(
         2025, 7, 10, 17, 0, 0, 0
     )
-    assert User(last_active=datetime(2020, 7, 10, 16, 0, 1, 1)).display_last_active == datetime(
+    assert make_user(last_active=datetime(2020, 7, 10, 16, 0, 1, 1)).display_last_active == datetime(
         2020, 7, 10, 16, 0, 0, 0
     )
-    assert User(last_active=datetime(2020, 7, 10, 0, 0, 0, 0)).display_last_active == datetime(2020, 7, 10, 0, 0, 0, 0)
+    assert make_user(last_active=datetime(2020, 7, 10, 0, 0, 0, 0)).display_last_active == datetime(
+        2020, 7, 10, 0, 0, 0, 0
+    )

@@ -19,10 +19,12 @@ interface StyledBubbleProps extends React.ComponentProps<typeof Box> {
 const StyledBubble = styled(Box, {
   shouldForwardProp: (prop) => prop !== "selected",
 })<StyledBubbleProps>(({ theme, selected }) => ({
-  color: selected ? theme.palette.common.white : theme.palette.text.primary,
+  color: selected
+    ? "var(--mui-palette-common-white)"
+    : "var(--mui-palette-text-primary)",
   backgroundColor: selected
     ? theme.palette.primary.main
-    : theme.palette.grey[50],
+    : "var(--mui-palette-grey-50)",
   padding: theme.spacing(1),
   borderRadius: theme.shape.borderRadius,
   display: "flex",
@@ -108,7 +110,6 @@ const CouchersMission = () => {
           <Typography
             gutterBottom
             sx={{
-              color: theme.palette.common.black,
               fontSize: "1.2rem",
               fontWeight: 500,
               marginBottom: 0,
@@ -152,7 +153,7 @@ const CouchersMission = () => {
               transform: "translateY(-50%)",
               zIndex: 1,
               display: { xs: "flex", md: "none" },
-              color: theme.palette.common.white,
+              color: "var(--mui-palette-common-white)",
             }}
             onClick={() => {
               scrollRef.current?.scrollBy({
@@ -192,7 +193,7 @@ const CouchersMission = () => {
               transform: "translateY(-50%)",
               zIndex: 2,
               display: { xs: "flex", md: "none" },
-              color: theme.palette.common.white,
+              color: "var(--mui-palette-common-white)",
             }}
             onClick={() => {
               scrollRef.current?.scrollBy({
@@ -208,7 +209,7 @@ const CouchersMission = () => {
       <Grid
         sx={{
           marginTop: 2,
-          backgroundColor: theme.palette.grey[50],
+          backgroundColor: "var(--mui-palette-grey-50)",
           padding: 5,
           borderRadius: theme.shape.borderRadius,
           width: "100%",

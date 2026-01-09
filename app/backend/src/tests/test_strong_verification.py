@@ -258,7 +258,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
     _, superuser_token = generate_user(is_superuser=True)
 
     update_badges(empty_pb2.Empty())
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -295,7 +295,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         assert verification_attempt.passport_last_three_document_chars == "855"
 
     update_badges(empty_pb2.Empty())
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     # the user should now have strong verification
     with api_session(token) as api:
@@ -314,7 +314,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         session.execute(update(User).where(User.id == user.id).values(birthdate=date(1988, 1, 2)))
 
     update_badges(empty_pb2.Empty())
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -332,7 +332,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         session.execute(update(User).where(User.id == user.id).values(birthdate=date(1988, 1, 1), gender="Woman"))
 
     update_badges(empty_pb2.Empty())
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -356,7 +356,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         session.execute(update(User).where(User.id == user.id).values(gender="Man"))
 
     update_badges(empty_pb2.Empty())
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -388,7 +388,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         admin.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=user.username, gender="Woman"))
 
     update_badges(empty_pb2.Empty())
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -419,7 +419,7 @@ def test_strong_verification_happy_path(db, monkeypatch):
         )
 
     update_badges(empty_pb2.Empty())
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         res = api.GetUser(api_pb2.GetUserReq(user=user.username))
@@ -451,7 +451,7 @@ def test_strong_verification_delete_data(db, monkeypatch):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
@@ -476,7 +476,7 @@ def test_strong_verification_delete_data(db, monkeypatch):
         nationality="US",
     )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     # the user should now have strong verification
     with api_session(token) as api:
@@ -490,7 +490,7 @@ def test_strong_verification_delete_data(db, monkeypatch):
     with account_session(token) as account:
         account.DeleteStrongVerificationData(empty_pb2.Empty())
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
@@ -524,7 +524,7 @@ def test_strong_verification_expiry(db, monkeypatch):
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
@@ -580,7 +580,7 @@ def test_strong_verification_expiry(db, monkeypatch):
         nationality="AU",
     )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
@@ -642,7 +642,7 @@ def test_strong_verification_regression2(db, monkeypatch):
         nationality="AU",
     )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         assert api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
@@ -668,7 +668,7 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
     user, token = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
@@ -689,7 +689,7 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
         nationality="US",
     )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     # the user should now have strong verification
     with api_session(token) as api:
@@ -703,7 +703,7 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
     with account_session(token) as account:
         account.DeleteStrongVerificationData(empty_pb2.Empty())
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
@@ -798,7 +798,7 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
         == "You tried to verify with a passport that has already been used for verification. Please use another passport."
     )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
@@ -815,7 +815,7 @@ def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collecto
     user2, token2 = generate_user(birthdate=date(1988, 1, 1), gender="Man")
     _, superuser_token = generate_user(is_superuser=True)
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
@@ -840,7 +840,7 @@ def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collecto
         nationality="US",
     )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     # the user should now have strong verification
     with api_session(token) as api:
@@ -854,7 +854,7 @@ def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collecto
     with account_session(token) as account:
         account.DeleteStrongVerificationData(empty_pb2.Empty())
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with api_session(token) as api:
         assert not api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification

@@ -20,7 +20,7 @@ import MyEvents from "./MyEvents";
 
 const { t } = i18n;
 
-// ListMyEvents by default does not return cancelled events
+// EventSearch by default does not return cancelled events
 const nonCancelledEvents = events.filter((event) => !event.isCancelled);
 
 const listMyEventsMock = service.events.listMyEvents as jest.MockedFunction<
@@ -45,6 +45,60 @@ describe("My events", () => {
       screen.getByRole("heading", { name: t("dashboard:upcoming_events") }),
     ).toBeVisible();
     expect(screen.getAllByRole("link")).toHaveLength(3);
+  });
+
+  it("shows events from user's communities (not attending)", async () => {
+    const communityEvent = {
+      ...nonCancelledEvents[0],
+      attendanceState: 0, // NOT_GOING
+      organizer: false,
+      ownerCommunityId: 123,
+    };
+    listMyEventsMock.mockResolvedValue({
+      eventsList: [communityEvent],
+      nextPageToken: "",
+      totalItems: 1,
+    });
+
+    render(<MyEvents />, { wrapper });
+
+    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+    // Should display the event even though user is not attending
+    expect(screen.getByRole("link")).toBeInTheDocument();
+    expect(listMyEventsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        myCommunities: true,
+        myCommunitiesExcludeGlobal: true,
+      }),
+    );
+  });
+
+  it("shows events user is attending from any community", async () => {
+    const attendingEvent = {
+      ...nonCancelledEvents[0],
+      attendanceState: 2, // GOING
+      organizer: false,
+      ownerCommunityId: 456, // Different community
+    };
+    listMyEventsMock.mockResolvedValue({
+      eventsList: [attendingEvent],
+      nextPageToken: "",
+      totalItems: 1,
+    });
+
+    render(<MyEvents />, { wrapper });
+
+    await waitForElementToBeRemoved(screen.getByRole("progressbar"));
+
+    // Should display the event because user is attending
+    expect(screen.getByRole("link")).toBeInTheDocument();
+    expect(listMyEventsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        myCommunities: true,
+        myCommunitiesExcludeGlobal: true,
+      }),
+    );
   });
 
   it("renders the empty state if there are no events", async () => {
@@ -94,6 +148,7 @@ describe("My events", () => {
           totalItems: nonCancelledEvents.length,
         };
       });
+
       render(<MyEvents />, { wrapper });
       await waitForElementToBeRemoved(screen.getByRole("progressbar"));
       expect(screen.getAllByRole("link")).toHaveLength(2);
@@ -111,8 +166,21 @@ describe("My events", () => {
 
       const eventCardPerRow = 2;
       expect(listMyEventsMock.mock.calls).toEqual([
-        [{ pageSize: eventCardPerRow }],
-        [{ pageToken: "2", pageSize: eventCardPerRow }],
+        [
+          {
+            pageSize: eventCardPerRow,
+            myCommunities: true,
+            myCommunitiesExcludeGlobal: true,
+          },
+        ],
+        [
+          {
+            pageToken: "2",
+            pageSize: eventCardPerRow,
+            myCommunities: true,
+            myCommunitiesExcludeGlobal: true,
+          },
+        ],
       ]);
     });
   });
@@ -158,8 +226,21 @@ describe("My events", () => {
 
       const eventCardPerRow = 2;
       expect(listMyEventsMock.mock.calls).toEqual([
-        [{ pageSize: eventCardPerRow }],
-        [{ pageToken: "2", pageSize: eventCardPerRow }],
+        [
+          {
+            pageSize: eventCardPerRow,
+            myCommunities: true,
+            myCommunitiesExcludeGlobal: true,
+          },
+        ],
+        [
+          {
+            pageToken: "2",
+            pageSize: eventCardPerRow,
+            myCommunities: true,
+            myCommunitiesExcludeGlobal: true,
+          },
+        ],
       ]);
     });
   });

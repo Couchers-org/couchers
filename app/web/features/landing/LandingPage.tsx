@@ -49,7 +49,7 @@ export default function LandingPage() {
         sx={{
           display: "flex",
           justifyContent: "center",
-          backgroundColor: theme.palette.grey[50],
+          backgroundColor: "var(--mui-palette-grey-50)",
         }}
       >
         <SocialProof />
@@ -73,7 +73,7 @@ export default function LandingPage() {
             bottom: 0,
             left: 0,
             right: 0,
-            backgroundColor: theme.palette.background.paper,
+            backgroundColor: "var(--mui-palette-background-paper)",
             padding: theme.spacing(2),
             boxShadow: theme.shadows[1],
             zIndex: 10,

@@ -35,7 +35,7 @@ const ContentWrapper = styled("div")(({ theme }) => ({
 
 const Message = styled("span")(({ theme }) => ({
   fontSize: "0.875rem",
-  color: theme.palette.text.secondary,
+  color: "var(--mui-palette-text-secondary)",
   [theme.breakpoints.down("md")]: {
     textAlign: "center",
   },
@@ -71,9 +71,9 @@ export default function DonationDriveBlock({
         alignItems: "center",
         ".MuiAlert-message": { width: "100%", py: 0.5 },
         backgroundColor: alpha(theme.palette.secondary.main, 0.08),
-        color: theme.palette.text.primary,
+        color: "var(--mui-palette-text-primary)",
         "& .MuiAlert-icon": {
-          color: theme.palette.secondary.main,
+          color: "var(--mui-palette-secondary-main)",
           alignSelf: "center",
         },
         [theme.breakpoints.down("md")]: {

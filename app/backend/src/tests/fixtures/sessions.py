@@ -1,6 +1,7 @@
 from collections.abc import Generator
 from concurrent import futures
 from contextlib import contextmanager
+from typing import Any
 
 import grpc
 from grpc._server import _validate_generic_rpc_handlers
@@ -113,7 +114,7 @@ class FakeRpcError(grpc.RpcError):
         return self._details
 
 
-def _check_user_perms(method: str, auth_info: UserAuthInfo) -> None:
+def _check_user_perms(method: str, auth_info: UserAuthInfo | None) -> None:
     # method is of the form "/org.couchers.api.core.API/GetUser"
     _, service_name, method_name = method.split("/")
 
@@ -171,10 +172,10 @@ class FakeChannel:
     """
 
     def __init__(self, token: str | None = None):
-        self.handlers = {}
+        self.handlers: dict[str, Any] = {}
         self._token = token
 
-    def add_generic_rpc_handlers(self, generic_rpc_handlers):
+    def add_generic_rpc_handlers(self, generic_rpc_handlers: Any):
         _validate_generic_rpc_handlers(generic_rpc_handlers)
         self.handlers.update(generic_rpc_handlers[0]._method_handlers)
 

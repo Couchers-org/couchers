@@ -104,9 +104,9 @@
     "pending": "Этот запрос все еще находится в ожидании"
   },
   "host_request_view": {
-    "request_duration_0": "{{count}} ночь",
-    "request_duration_1": "{{count}} ночи",
-    "request_duration_2": "{{count}} ночей",
+    "request_duration_one": "{{count}} ночь",
+    "request_duration_few": "{{count}} ночи",
+    "request_duration_many": "{{count}} ночей",
     "error_message": "Неверный ID запроса хоста",
     "back_button_a11y_label": "Назад",
     "title_for_host": "Запрос от {{user}} - {{status}}",

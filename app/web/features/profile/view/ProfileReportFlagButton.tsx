@@ -44,14 +44,14 @@ const FlagButtonWrapper = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  color: theme.palette.primary.main,
+  color: "var(--mui-palette-primary-main)",
   cursor: "pointer",
   width: "100%",
 
   "&:hover": {
-    backgroundColor: theme.palette.primary.main + "0.1",
+    backgroundColor: "var(--mui-palette-primary-main)" + "0.1",
     borderRadius: theme.shape.borderRadius,
-    color: theme.palette.primary.dark,
+    color: "var(--mui-palette-primary-dark)",
   },
 }));
 
@@ -338,15 +338,6 @@ export default function ProfileReportFlagButton({
             <Button
               onClick={() => handleClose({}, "button")}
               variant="outlined"
-              sx={{
-                color: theme.palette.common.black,
-                borderColor: theme.palette.grey[300],
-
-                "&:hover": {
-                  borderColor: theme.palette.grey[300],
-                  backgroundColor: "#3135390A",
-                },
-              }}
             >
               {t("cancel")}
             </Button>

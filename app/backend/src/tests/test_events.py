@@ -1783,12 +1783,16 @@ def test_ListMyEvents(db):
     user5, token5 = generate_user()
 
     with session_scope() as session:
-        c_id = create_community(session, 0, 2, "Community", [user3], [], None).id
-        c2_id = create_community(session, 0, 2, "Community", [user4], [], None).id
+        # Create global community first (node_id=1), then a child community (node_id=2)
+        # This allows testing my_communities_exclude_global
+        global_community = create_community(session, 0, 100, "Global", [user3], [], None)
+        c_id = global_community.id
+        child_community = create_community(session, 0, 50, "Child Community", [user3, user4], [], global_community)
+        c2_id = child_community.id
 
     start = now()
 
-    def new_event(hours_from_now, community_id, online=True):
+    def new_event(hours_from_now: int, community_id: int, online: bool = True) -> events_pb2.CreateEventReq:
         if online:
             return events_pb2.CreateEventReq(
                 title="Dummy Online Title",
@@ -1810,6 +1814,7 @@ def test_ListMyEvents(db):
                     lat=0.1,
                     lng=0.2,
                 ),
+                parent_community_id=community_id,
                 timezone="UTC",
                 start_time=Timestamp_from_datetime(start + timedelta(hours=hours_from_now)),
                 end_time=Timestamp_from_datetime(start + timedelta(hours=hours_from_now + 0.5)),
@@ -1914,8 +1919,9 @@ def test_ListMyEvents(db):
         assert [event.event_id for event in res.events] == [e1, e5]
 
     with events_session(token3) as api:
+        # user3 is member of both global (c_id) and child (c2_id) communities
         res = api.ListMyEvents(events_pb2.ListMyEventsReq())
-        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5]
+        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5, e6]
 
         res = api.ListMyEvents(events_pb2.ListMyEventsReq(subscribed=True))
         assert [event.event_id for event in res.events] == [e2, e4]
@@ -1926,8 +1932,25 @@ def test_ListMyEvents(db):
         res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True))
         assert [event.event_id for event in res.events] == [e3, e4]
 
+        # my_communities returns events from both communities user3 is a member of
         res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True))
-        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5]
+        assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5, e6]
+
+        # my_communities_exclude_global filters out events from global community (node_id=1)
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities=True, my_communities_exclude_global=True))
+        assert [event.event_id for event in res.events] == [e6]
+
+        # my_communities_exclude_global works independently of my_communities flag
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(my_communities_exclude_global=True))
+        assert [event.event_id for event in res.events] == [e6]
+
+        # my_communities_exclude_global filters organizing results too
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(organizing=True, my_communities_exclude_global=True))
+        assert [event.event_id for event in res.events] == []
+
+        # my_communities_exclude_global filters subscribed results too
+        res = api.ListMyEvents(events_pb2.ListMyEventsReq(subscribed=True, my_communities_exclude_global=True))
+        assert [event.event_id for event in res.events] == []
 
     with events_session(token5) as api:
         res = api.ListAllEvents(events_pb2.ListAllEventsReq())
@@ -2345,10 +2368,10 @@ def test_community_invite_requests(db):
         assert event_url in e.plain
 
         # can't send another req
-        with pytest.raises(grpc.RpcError) as e:
+        with pytest.raises(grpc.RpcError) as err:
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You have already requested a community invite for this event."
+        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert err.value.details() == "You have already requested a community invite for this event."
 
     # another user can send one though
     with events_session(token3) as api:
@@ -2356,10 +2379,10 @@ def test_community_invite_requests(db):
 
     # but not a non-admin
     with events_session(token2) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with pytest.raises(grpc.RpcError) as err:
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.PERMISSION_DENIED
-        assert e.value.details() == "You're not allowed to edit that event."
+        assert err.value.code() == grpc.StatusCode.PERMISSION_DENIED
+        assert err.value.details() == "You're not allowed to edit that event."
 
     with real_editor_session(token5) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())
@@ -2385,10 +2408,10 @@ def test_community_invite_requests(db):
 
     # not after approve
     with events_session(token4) as api:
-        with pytest.raises(grpc.RpcError) as e:
+        with pytest.raises(grpc.RpcError) as err:
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
-        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "A community invite has already been sent out for this event."
+        assert err.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert err.value.details() == "A community invite has already been sent out for this event."
 
 
 def test_update_event_should_notify_queues_job():

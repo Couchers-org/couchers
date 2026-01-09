@@ -21,14 +21,14 @@ class BackgroundJobState(enum.Enum):
     failed = enum.auto()
 
 
-class BackgroundJob(Base):
+class BackgroundJob(Base, init=False, kw_only=True):
     """
     This table implements a queue of background jobs.
     """
 
     __tablename__ = "background_jobs"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # used to discern which function should be triggered to service it
     job_type: Mapped[str] = mapped_column(String)

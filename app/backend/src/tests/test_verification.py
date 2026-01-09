@@ -67,6 +67,7 @@ def test_ChangePhone(db, monkeypatch, push_collector: PushCollector):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == user_id)).scalar_one()
             assert user.phone == "+46701740605"
+            assert user.phone_verification_token
             assert len(user.phone_verification_token) == 6
 
         process_jobs()
@@ -108,6 +109,7 @@ def test_ChangePhone_ratelimit(db, monkeypatch):
         with session_scope() as session:
             user = session.execute(select(User).where(User.id == user_id)).scalar_one()
             assert user.phone == "+46701740605"
+            assert user.phone_verification_token
             assert len(user.phone_verification_token) == 6
 
 

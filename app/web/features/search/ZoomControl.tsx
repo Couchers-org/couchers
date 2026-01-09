@@ -3,7 +3,6 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { Box, IconButton, styled } from "@mui/material";
 import React from "react";
 import { MapRef } from "react-map-gl/maplibre";
-import { theme } from "theme";
 
 import { MAX_ZOOM_LEVEL, MIN_ZOOM_LEVEL } from "./utils/constants";
 
@@ -57,7 +56,7 @@ const ZoomControl = ({
         right: 10,
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "white",
+        backgroundColor: "background.paper",
         borderRadius: 2,
         boxShadow: 3,
         zIndex: 10,
@@ -68,7 +67,7 @@ const ZoomControl = ({
         <AddIcon
           sx={{
             "&:hover": {
-              color: theme.palette.primary.main,
+              color: "var(--mui-palette-primary-main)",
             },
           }}
         />
@@ -77,7 +76,7 @@ const ZoomControl = ({
         <RemoveIcon
           sx={{
             "&:hover": {
-              color: theme.palette.primary.main,
+              color: "var(--mui-palette-primary-main)",
             },
           }}
         />

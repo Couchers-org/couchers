@@ -9,6 +9,7 @@ from sqlalchemy import Row, Select, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_, update
 
+from couchers.constants import GLOBAL_COMMUNITY_MAX_NODE_ID
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
 from couchers.jobs.enqueue import queue_job
@@ -27,6 +28,7 @@ from couchers.models import (
     Upload,
     User,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import events_pb2, events_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
@@ -246,7 +248,7 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
     Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
     """
     cluster = occurrence.event.parent_node.official_cluster
-    if cluster.parent_node_id == 1:
+    if cluster.parent_node_id <= GLOBAL_COMMUNITY_MAX_NODE_ID:
         logger.info("The Global Community is too big for email notifications.")
         return [], occurrence.event.parent_node_id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
@@ -291,10 +293,15 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             if is_not_visible(session, user.id, creator.id):
                 continue
             context = make_background_user_context(user_id=user.id)
+            topic_action = (
+                NotificationTopicAction.event__create_approved
+                if payload.approved
+                else NotificationTopicAction.event__create_any
+            )
             notify(
                 session,
                 user_id=user.id,
-                topic_action="event:create_approved" if payload.approved else "event:create_any",
+                topic_action=topic_action,
                 key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventCreate(
                     event=event_to_pb(session, occurrence, context),
@@ -321,7 +328,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
             notify(
                 session,
                 user_id=user_id,
-                topic_action="event:update",
+                topic_action=NotificationTopicAction.event__update,
                 key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventUpdate(
                     event=event_to_pb(session, occurrence, context),
@@ -347,7 +354,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
             notify(
                 session,
                 user_id=user_id,
-                topic_action="event:cancel",
+                topic_action=NotificationTopicAction.event__cancel,
                 key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventCancel(
                     event=event_to_pb(session, occurrence, context),
@@ -370,7 +377,7 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
             notify(
                 session,
                 user_id=user_id,
-                topic_action="event:delete",
+                topic_action=NotificationTopicAction.event__delete,
                 key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventDelete(
                     event=event_to_pb(session, occurrence, context),
@@ -1119,6 +1126,9 @@ class Events(events_pb2_grpc.EventsServicer):
 
         query = query.where(or_(*where_))
 
+        if request.my_communities_exclude_global:
+            query = query.where(Event.parent_node_id > GLOBAL_COMMUNITY_MAX_NODE_ID)
+
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)
 
@@ -1206,7 +1216,7 @@ class Events(events_pb2_grpc.EventsServicer):
         notify(
             session,
             user_id=request.user_id,
-            topic_action="event:invite_organizer",
+            topic_action=NotificationTopicAction.event__invite_organizer,
             key=str(event.id),
             data=notification_data_pb2.EventInviteOrganizer(
                 event=event_to_pb(session, occurrence, other_user_context),

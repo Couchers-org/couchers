@@ -50,7 +50,7 @@ const StyledButtonsContainer = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "space-between",
   height: "auto",
-  backgroundColor: theme.palette.common.white,
+  backgroundColor: "var(--mui-palette-background-paper)",
   borderRadius: "50px",
   boxShadow: theme.shadows[4],
   width: "100%",
@@ -100,7 +100,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 }));
 
 const StyledSelect = styled(Select)(({ theme }) => ({
-  backgroundColor: "white",
+  backgroundColor: "var(--mui-palette-background-default)",
   borderRadius: "100px",
   border: "none",
   padding: theme.spacing(1),
@@ -124,10 +124,10 @@ const StyledSelect = styled(Select)(({ theme }) => ({
 
 const StyledTuneIcon = styled(Tune, {
   shouldForwardProp: (prop) => prop !== "hasActiveFilters",
-})<{ hasActiveFilters: boolean }>(({ theme, hasActiveFilters }) => ({
+})<{ hasActiveFilters: boolean }>(({ hasActiveFilters }) => ({
   color: hasActiveFilters
-    ? theme.palette.primary.main
-    : theme.palette.grey[500],
+    ? "var(--mui-palette-primary-main)"
+    : "var(--mui-palette-grey-500)",
   fontSize: "38px",
   cursor: "pointer",
   height: "20px",
@@ -139,8 +139,8 @@ const StyledClearIcon = styled(Clear, {
   shouldForwardProp: (prop) => prop !== "hasActiveFilters",
 })<{ hasActiveFilters?: boolean }>(({ theme, hasActiveFilters }) => ({
   color: hasActiveFilters
-    ? theme.palette.primary.main
-    : theme.palette.grey[500],
+    ? "var(--mui-palette-primary-main)"
+    : "var(--mui-palette-grey-500)",
   fontSize: "30px",
   paddingRight: theme.spacing(1),
   height: "18px",
@@ -298,7 +298,7 @@ const FloatingSearchControls = ({
                               >
                                 <Clear
                                   sx={{
-                                    color: theme.palette.primary.main,
+                                    color: "var(--mui-palette-primary-main)",
                                     fontSize: "20px",
                                   }}
                                 />

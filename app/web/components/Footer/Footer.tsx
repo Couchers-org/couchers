@@ -59,7 +59,6 @@ const StyledUpperOuterContainer = styled("div")(({ theme }) => ({
   paddingBlockStart: theme.spacing(3),
   paddingBlockEnd: theme.spacing(3),
   borderTop: `solid 1px ${theme.palette.divider}`,
-  backgroundColor: theme.palette.background.paper,
 }));
 
 const StyledUpperContainer = styled("div")(({ theme }) => ({
@@ -85,7 +84,6 @@ const StyledUpperContainer = styled("div")(({ theme }) => ({
 
 const StyledMiddleOuterContainer = styled("div")(({ theme }) => ({
   paddingBlockEnd: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
 }));
 
 const StyledMiddleContainer = styled("div")(({ theme }) => ({
@@ -103,8 +101,6 @@ const StyledMiddleContainer = styled("div")(({ theme }) => ({
 const StyledLowerOuterContainer = styled("div")(({ theme }) => ({
   paddingBlockStart: theme.spacing(2),
   paddingBlockEnd: theme.spacing(2),
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.getContrastText(theme.palette.primary.main),
 }));
 
 const StyledLowerContainer = styled("div")(({ theme }) => ({

@@ -1,6 +1,11 @@
 import { Favorite, Language, Star } from "@mui/icons-material";
-import { Box, Skeleton, Typography, useMediaQuery } from "@mui/material";
-import Divider from "components/Divider";
+import {
+  Box,
+  Divider,
+  Skeleton,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useState } from "react";
@@ -73,7 +78,10 @@ const SocialProof = () => {
         {t("landing:what_couchsurfing_description")}
       </Typography>
       <Divider
-        sx={{ backgroundColor: theme.palette.common.black, marginTop: 4 }}
+        sx={{
+          backgroundColor: "var(--mui-palette-divider)",
+          marginTop: 4,
+        }}
       />
       <Box
         display="flex"

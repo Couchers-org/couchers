@@ -85,9 +85,9 @@
     "open": "Invitar a la comunidad"
   },
   "members_label": "Miembros",
-  "attendees_count_0": "{{count}} asistente",
-  "attendees_count_1": "{{count}} asistentes",
-  "attendees_count_2": "{{count}} asistentes",
+  "attendees_count_one": "{{count}} asistente",
+  "attendees_count_many": "{{count}} de asistentes",
+  "attendees_count_other": "{{count}} asistentes",
   "page_content_field_label": "Contenido de la página",
   "by_creator": "Por {{name}}",
   "cancel_event": "Cancelar evento",

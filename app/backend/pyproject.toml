@@ -2,7 +2,7 @@
 name = "couchers"
 version = "0.1.0"
 description = "Couchers.org backend application"
-requires-python = "==3.13.*"
+requires-python = "==3.14.*"
 dependencies = [
     "alembic>=1.17.1",
     "boto3>=1.39.3",
@@ -57,6 +57,7 @@ dev = [
     "types-boto3>=1.40.69",
     "types-cachetools",
     "types-psycopg2",
+    "types-python-dateutil>=2.9.0.20251115",
 ]
 
 
@@ -129,6 +130,18 @@ ignore_errors = true
 module = ["http_ece", "py_vapid", "luhn", "sqlalchemy_utils.*", "statsig_python_core", "user_agents"]
 # These libraries don't have type stubs or py.typed markers
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+# Test files don't require strict type checking
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+module = ["tests.fixtures.sessions"]
+# Mock gRPC infrastructure intentionally violates type contracts
+disable_error_code = ["arg-type"]
 
 
 # Coverage

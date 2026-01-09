@@ -81,7 +81,9 @@
     "missing_about_description": "{{name}} heeft nog niks over zichzelf geschreven",
     "no_user_result_message": "Geen gebruikers gevonden. Probeer wat filters te verwijderen om meer resultaten te zien.",
     "few_results_suggestion": "Standaard worden lege profielen en profielen met \"kan niet hosten\" verborgen.",
-    "include_empty_profiles_button": "Toon alle profielen"
+    "include_empty_profiles_button": "Toon alle profielen",
+    "people_range_message_one": "{{currentRange}} van {{count}} persoon",
+    "people_range_message_other": "{{currentRange}} van {{count}} personen"
   },
   "views": {
     "map_and_list": "Kaart & Lijst",

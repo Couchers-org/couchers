@@ -99,6 +99,7 @@ export function useEvent({
 }
 
 export function useListMyEvents({
+  myCommunitiesExcludeGlobal,
   pastEvents,
   pageNumber,
   pageSize,
@@ -112,6 +113,7 @@ export function useListMyEvents({
     ],
     queryFn: ({ pageParam }) =>
       service.events.listMyEvents({
+        myCommunitiesExcludeGlobal,
         pastEvents,
         pageNumber,
         pageSize,
@@ -135,6 +137,8 @@ export function useEventSearch({
   isMyCommunities?: boolean;
   isOnlineOnly?: boolean;
   searchLocation?: GeocodeResult | "";
+  attending?: boolean;
+  organizing?: boolean;
 }) {
   return useQuery<EventSearchRes.AsObject, RpcError>({
     queryKey: [

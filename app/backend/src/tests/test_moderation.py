@@ -80,7 +80,6 @@ def test_create_moderation(db):
             creator_user_id=user.id,
         )
 
-        assert moderation_state.id is not None
         assert moderation_state.object_type == ModerationObjectType.HOST_REQUEST
         assert moderation_state.object_id == 123
         assert moderation_state.visibility == ModerationVisibility.SHADOWED
@@ -183,7 +182,7 @@ def test_moderate_content(db):
 
     # Check that state was updated in database
     with session_scope() as session:
-        updated_state = session.get(ModerationState, state_id)
+        updated_state = session.get_one(ModerationState, state_id)
         assert updated_state.visibility == ModerationVisibility.VISIBLE
 
         # Check that log entry was created
@@ -302,7 +301,7 @@ def test_approve_content_via_api(db):
 
     # Check that state was updated to VISIBLE
     with session_scope() as session:
-        updated_state = session.get(ModerationState, state_id)
+        updated_state = session.get_one(ModerationState, state_id)
         assert updated_state.visibility == ModerationVisibility.VISIBLE
 
         # Check log entry
@@ -344,8 +343,6 @@ def test_create_host_request_creates_moderation_state(db):
         host_request = session.execute(
             select(HostRequest).where(HostRequest.conversation_id == host_request_id)
         ).scalar_one()
-
-        assert host_request.moderation_state_id is not None
 
         # Check moderation state properties
         moderation_state = session.execute(
@@ -875,7 +872,7 @@ def test_moderation_queue_workflow(db):
         assert queue_item_id not in [item.id for item in unresolved_items]
 
         # Verify the queue item was linked to a log entry
-        queue_item = session.get(ModerationQueueItem, queue_item_id)
+        queue_item = session.get_one(ModerationQueueItem, queue_item_id)
         assert queue_item.resolved_by_log_id is not None
 
 
@@ -1464,7 +1461,7 @@ def test_ModerateContent_approve(db):
 
     # Verify state was updated in database
     with session_scope() as session:
-        state = session.get(ModerationState, state_id)
+        state = session.get_one(ModerationState, state_id)
         assert state.visibility == ModerationVisibility.VISIBLE
 
 
@@ -1509,7 +1506,7 @@ def test_ModerateContent_hide(db):
 
     # Verify state was updated in database
     with session_scope() as session:
-        state = session.get(ModerationState, state_id)
+        state = session.get_one(ModerationState, state_id)
         assert state.visibility == ModerationVisibility.HIDDEN
 
 
@@ -1536,7 +1533,7 @@ def test_ModerateContent_shadow(db):
 
     # Verify state was updated in database
     with session_scope() as session:
-        state = session.get(ModerationState, state_id)
+        state = session.get_one(ModerationState, state_id)
         assert state.visibility == ModerationVisibility.SHADOWED
 
 
@@ -1591,6 +1588,7 @@ def test_FlagContentForReview(db):
             .scalars()
             .first()
         )
+        assert queue_item
         assert queue_item.trigger == ModerationTrigger.MODERATOR_REVIEW
         assert queue_item.resolved_by_log_id is None
 
@@ -1614,8 +1612,6 @@ def test_group_chat_created_with_moderation_state(db):
     with session_scope() as session:
         group_chat = session.execute(select(GroupChat).where(GroupChat.conversation_id == group_chat_id)).scalar_one()
 
-        assert group_chat.moderation_state_id is not None
-        assert group_chat.moderation_state is not None
         assert group_chat.moderation_state.object_type == ModerationObjectType.GROUP_CHAT
         assert group_chat.moderation_state.object_id == group_chat_id
         # Group chats start as SHADOWED

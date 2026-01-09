@@ -91,7 +91,7 @@ def test_GetPublicMapLayer(db):
 
 def test_GetDonationStats_empty(db):
     """Test GetDonationStats with no donations returns zero and goal"""
-    _get_donation_stats.cache.clear()
+    _get_donation_stats.cache_clear()
 
     with (
         patch("couchers.servicers.public.DONATION_GOAL_USD", 2500),
@@ -105,7 +105,7 @@ def test_GetDonationStats_empty(db):
 
 def test_GetDonationStats_with_donations(db):
     """Test GetDonationStats sums on_platform donations correctly"""
-    _get_donation_stats.cache.clear()
+    _get_donation_stats.cache_clear()
     user, _ = generate_user()
 
     with session_scope() as session:
@@ -150,7 +150,7 @@ def test_GetDonationStats_with_donations(db):
 
 def test_GetDonationStats_excludes_merch(db):
     """Test GetDonationStats excludes external_shop (merch) invoices"""
-    _get_donation_stats.cache.clear()
+    _get_donation_stats.cache_clear()
     user, _ = generate_user()
 
     with session_scope() as session:
@@ -188,7 +188,7 @@ def test_GetDonationStats_excludes_merch(db):
 
 def test_GetDonationStats_excludes_previous_years(db):
     """Test GetDonationStats only counts current year donations"""
-    _get_donation_stats.cache.clear()
+    _get_donation_stats.cache_clear()
     user, _ = generate_user()
 
     with session_scope() as session:
@@ -273,7 +273,7 @@ def test_GetVolunteers_mixed_current_and_past(db):
             )
         )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with public_session() as public:
         res = public.GetVolunteers(empty_pb2.Empty())
@@ -288,7 +288,7 @@ def test_GetVolunteers_mixed_current_and_past(db):
 def test_GetVolunteers_custom_sort_key(db):
     """Test GetVolunteers respects custom sort_key"""
 
-    _get_volunteers.cache.clear()
+    _get_volunteers.cache_clear()
 
     user1, _ = generate_user(username="user1")
     user2, _ = generate_user(username="user2")
@@ -325,7 +325,7 @@ def test_GetVolunteers_custom_sort_key(db):
             )
         )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with public_session() as public:
         res = public.GetVolunteers(empty_pb2.Empty())
@@ -338,7 +338,7 @@ def test_GetVolunteers_custom_sort_key(db):
 def test_GetVolunteers_excludes_hidden(db):
     """Test GetVolunteers excludes volunteers with show_on_team_page=False"""
 
-    _get_volunteers.cache.clear()
+    _get_volunteers.cache_clear()
 
     user1, _ = generate_user(username="visible")
     user2, _ = generate_user(username="hidden")
@@ -361,7 +361,7 @@ def test_GetVolunteers_excludes_hidden(db):
             )
         )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with public_session() as public:
         res = public.GetVolunteers(empty_pb2.Empty())
@@ -400,7 +400,7 @@ def test_GetVolunteers_link_types(db):
             )
         )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with public_session() as public:
         res = public.GetVolunteers(empty_pb2.Empty())
@@ -445,7 +445,7 @@ def test_GetVolunteers_board_member_flag(db):
             )
         )
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     # Mock the static badge dict to include board_member
     with patch("couchers.servicers.public.get_static_badge_dict", return_value={"board_member": [board_member.id]}):
@@ -469,7 +469,7 @@ def test_GetSignupPageInfo(db):
     user2, _ = generate_user(username="user2")
     user3, _ = generate_user(username="user3")
 
-    refresh_materialized_views_rapid(None)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
 
     with public_session() as public:
         res = public.GetSignupPageInfo(empty_pb2.Empty())

@@ -87,9 +87,9 @@
     "error_message": "ID de solicitud de alojamiento inválida",
     "title_for_host": "Solicitud de {{user}} - {{status}}",
     "title_for_surfer": "Solicitud a {{user}} - {{status}}",
-    "request_duration_0": "{{count}} noche",
-    "request_duration_1": "{{count}} noches",
-    "request_duration_2": "{{count}} noches"
+    "request_duration_one": "{{count}} noche",
+    "request_duration_many": "{{count}} de noches",
+    "request_duration_other": "{{count}} noches"
   },
   "close_request_dialog_title": "¿Has terminado de enviar mensajes?",
   "close_request_dialog_surfer": "Por favor, asegúrate de que has terminado la conversación antes de cancelar tu solicitud.",

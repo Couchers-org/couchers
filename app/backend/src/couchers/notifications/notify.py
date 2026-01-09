@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Notification
-from couchers.notifications.utils import enum_from_topic_action
+from couchers.models.notifications import NotificationTopicAction
 from couchers.proto.internal import jobs_pb2
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ def notify(
     session: Session,
     *,
     user_id: int,
-    topic_action: str,
+    topic_action: NotificationTopicAction,
     key: str,
     data: Message | None = None,
     moderation_state_id: int | None = None,
@@ -41,15 +41,13 @@ def notify(
     The key parameter is required. Pass key="" for notifications that intentionally don't have a key
     (e.g., security notifications like password changes, or aggregated notifications like chat:missed_messages).
     """
-    logger.info(f"Generating notification of type {topic_action} for user {user_id}")
+    logger.info(f"Generating notification of type {topic_action.display} for user {user_id}")
     # Import here to avoid circular dependency
     from couchers.notifications.background import handle_notification
 
-    topic, action = topic_action.split(":")
-
     notification = Notification(
         user_id=user_id,
-        topic_action=enum_from_topic_action[topic, action],
+        topic_action=topic_action,
         key=key,
         data=(data or empty_pb2.Empty()).SerializeToString(),
         moderation_state_id=moderation_state_id,

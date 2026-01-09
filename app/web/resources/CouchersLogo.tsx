@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { baseRoute, dashboardRoute } from "routes";
 
 const Logo = styled(SvgIcon)(({ theme }) => ({
-  fill: theme.palette.secondary.main,
+  fill: "var(--mui-palette-secondary-main)",
   height: theme.typography.pxToRem(40),
   width: theme.typography.pxToRem(40),
   display: "flex",

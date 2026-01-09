@@ -8,6 +8,7 @@ from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import can_moderate_node, session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Cluster, Discussion, Thread, User
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import discussions_pb2, discussions_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
@@ -60,7 +61,7 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
             notify(
                 session,
                 user_id=user.id,
-                topic_action="discussion:create",
+                topic_action=NotificationTopicAction.discussion__create,
                 key=str(payload.discussion_id),
                 data=notification_data_pb2.DiscussionCreate(
                     author=user_model_to_pb(discussion.creator_user, session, context),

@@ -70,14 +70,9 @@ const ProfileSection = styled(Box)(({ theme }) => ({
   padding: theme.spacing(4),
   marginBottom: theme.spacing(4),
   borderRadius: theme.spacing(2),
-  backgroundColor: theme.palette.common.white,
-  border: `1px solid ${theme.palette.grey[200]}`,
+  border: `1px solid var(--mui-palette-primary-light)`,
   position: "relative",
-
-  "&:hover": {
-    borderColor: theme.palette.primary.light,
-    boxShadow: `0 4px 20px rgba(0, 163, 152, 0.08)`,
-  },
+  boxShadow: `0 4px 20px rgba(0, 163, 152, 0.08)`,
 }));
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
@@ -85,7 +80,7 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
   marginBottom: theme.spacing(3),
   paddingBottom: theme.spacing(1),
-  borderBottom: `2px solid ${theme.palette.primary.light}`,
+  borderBottom: `2px solid var(--mui-palette-primary-light)`,
 }));
 
 const SectionSubtitle = styled(Typography)(({ theme }) => ({
@@ -118,7 +113,7 @@ const AvatarContainer = styled(Box)(({ theme }) => ({
   alignItems: "center",
   marginBottom: theme.spacing(3),
   padding: theme.spacing(2),
-  backgroundColor: theme.palette.grey[50],
+  backgroundColor: "var(--mui-palette-grey-50)",
   borderRadius: theme.spacing(1),
   width: "100%",
 
@@ -158,8 +153,8 @@ const StickySaveBar = styled(Box)(({ theme }) => ({
   bottom: 0,
   left: 0,
   right: 0,
-  backgroundColor: theme.palette.common.white,
-  borderTop: `1px solid ${theme.palette.grey[200]}`,
+  backgroundColor: "var(--mui-palette-background-paper)",
+  borderTop: `1px solid var(--mui-palette-grey-200)`,
   boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
   padding: theme.spacing(1.5, 3),
   zIndex: 1000,
@@ -566,8 +561,8 @@ export default function EditProfileForm() {
                                 color:
                                   field.value ===
                                   HostingStatus.HOSTING_STATUS_CAN_HOST
-                                    ? "primary.main"
-                                    : "grey.100",
+                                    ? "var(--mui-palette-primary-main)"
+                                    : "var(--mui-palette-grey-100)",
                               }}
                             />
                           ),
@@ -585,8 +580,8 @@ export default function EditProfileForm() {
                                 color:
                                   field.value ===
                                   HostingStatus.HOSTING_STATUS_MAYBE
-                                    ? "primary.main"
-                                    : "grey.100",
+                                    ? "var(--mui-palette-primary-main)"
+                                    : "var(--mui-palette-grey-100)",
                               }}
                             />
                           ),
@@ -604,8 +599,8 @@ export default function EditProfileForm() {
                                 color:
                                   field.value ===
                                   HostingStatus.HOSTING_STATUS_CANT_HOST
-                                    ? "primary.main"
-                                    : "grey.100",
+                                    ? "var(--mui-palette-primary-main)"
+                                    : "var(--mui-palette-grey-100)",
                               }}
                             />
                           ),
@@ -640,8 +635,8 @@ export default function EditProfileForm() {
                                 color:
                                   field.value ===
                                   MeetupStatus.MEETUP_STATUS_WANTS_TO_MEETUP
-                                    ? "primary.main"
-                                    : "grey.100",
+                                    ? "var(--mui-palette-primary-main)"
+                                    : "var(--mui-palette-grey-100)",
                               }}
                             />
                           ),
@@ -659,8 +654,8 @@ export default function EditProfileForm() {
                                 color:
                                   field.value ===
                                   MeetupStatus.MEETUP_STATUS_OPEN_TO_MEETUP
-                                    ? "primary.main"
-                                    : "grey.100",
+                                    ? "var(--mui-palette-primary-main)"
+                                    : "var(--mui-palette-grey-100)",
                               }}
                             />
                           ),
@@ -681,8 +676,8 @@ export default function EditProfileForm() {
                                 color:
                                   field.value ===
                                   MeetupStatus.MEETUP_STATUS_DOES_NOT_WANT_TO_MEETUP
-                                    ? "primary.main"
-                                    : "grey.100",
+                                    ? "var(--mui-palette-primary-main)"
+                                    : "var(--mui-palette-grey-100)",
                               }}
                             />
                           ),
@@ -856,7 +851,7 @@ export default function EditProfileForm() {
                         display: "flex",
                         alignItems: "center",
                         gap: 1,
-                        backgroundColor: "grey.50",
+                        backgroundColor: "var(--mui-palette-grey-50)",
                         padding: 1.5,
                         borderRadius: theme.spacing(1),
                         marginTop: 1,
@@ -864,7 +859,9 @@ export default function EditProfileForm() {
                         fontSize: "0.875rem",
                       }}
                     >
-                      <InfoOutlined sx={{ color: "primary.main" }} />
+                      <InfoOutlined
+                        sx={{ color: "var(--mui-palette-primary-main)" }}
+                      />
                       {t("profile:search_indicator")}
                     </Typography>
                   }

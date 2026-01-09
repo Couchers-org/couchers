@@ -4,7 +4,6 @@ import { Trans, useTranslation } from "i18n";
 import { NOTIFICATIONS } from "i18n/namespaces";
 import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect, useState } from "react";
-import { theme } from "theme";
 
 import { useIsNativeEmbed } from "../../platform/nativeLink";
 import { checkPushEnabled, turnPushNotificationsOn } from "./utils/helpers";
@@ -101,7 +100,7 @@ export function PushNotificationBanner() {
         <Trans i18nKey="notifications:push_notification_banner.message" />
         <Button
           variant="outlined"
-          sx={{ backgroundColor: theme.palette.common.white }}
+          sx={{ backgroundColor: "var(--mui-palette-common-paper)" }}
           onClick={turnPushNotificationsOnWrap}
         >
           {t("notifications:push_notification_banner.confirm")}

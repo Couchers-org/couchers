@@ -9,25 +9,19 @@ import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { usePersistedState } from "platform/usePersistedState";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { theme } from "theme";
 
 interface MessageFormData {
   text: string;
 }
 
-const StyledButton = styled(Button)<ButtonProps>({
-  display: "block",
+const StyledButton = styled(Button)<ButtonProps>(() => ({
   flexShrink: 0,
-  marginInlineStart: theme.spacing(1),
-  height: theme.spacing(5),
-  marginBottom: 0,
-  marginTop: "auto",
-  alignItems: "center",
-});
+}));
 
 const StyledForm = styled("form")(({ theme }) => ({
-  alignItems: "flex-start",
+  alignItems: "center",
   display: "flex",
+  gap: theme.spacing(1),
   marginTop: theme.spacing(3),
 }));
 
@@ -88,7 +82,7 @@ export default function GroupChatSendField({
         }}
         maxRows={4}
         size="small"
-        sx={{ background: theme.palette.common.white }}
+        sx={{ background: "var(--mui-palette-background-paper)" }}
       />
 
       <StyledButton

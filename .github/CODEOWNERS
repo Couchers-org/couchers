@@ -1,3 +1,4 @@
 * @aapeliv
 /app/web/ @nabramow
 /docs/ @aapeliv @nabramow
+/app/**/locales/*.json @tristanlabelle

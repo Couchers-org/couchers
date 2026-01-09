@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
+import { OpenInNewIcon } from "components/Icons";
 import PageTitle from "components/PageTitle";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
@@ -11,8 +12,6 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { InitiateStrongVerificationRes } from "proto/account_pb";
 import { service } from "service";
 import { theme } from "theme";
-
-import { OpenInNewIcon } from "../../../components/Icons";
 
 export default function StrongVerificationInstructions() {
   const { t } = useTranslation([GLOBAL, AUTH]);
@@ -150,7 +149,7 @@ export default function StrongVerificationInstructions() {
 
         <Box
           sx={{
-            backgroundColor: theme.palette.grey[50],
+            backgroundColor: "var(--mui-palette-grey-50)",
             borderRadius: theme.shape.borderRadius,
             padding: theme.spacing(3),
             marginBottom: theme.spacing(4),
@@ -165,7 +164,9 @@ export default function StrongVerificationInstructions() {
               marginBottom: theme.spacing(1),
             }}
           >
-            <NfcIcon sx={{ fontSize: 28, color: theme.palette.primary.main }} />
+            <NfcIcon
+              sx={{ fontSize: 28, color: "var(--mui-palette-primary-main)" }}
+            />
             <Typography variant="h3">
               {t("auth:strong_verification.instructions.chip_location.heading")}
             </Typography>

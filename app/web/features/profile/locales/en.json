@@ -38,7 +38,8 @@
   },
   "edit": "Edit Profile",
   "helper_text": {
-    "characters_remaining": "<bold>Please write at least {{count}} characters to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
+    "characters_remaining_one": "<bold>Please write at least {{count}} character to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
+    "characters_remaining_other": "<bold>Please write at least {{count}} characters to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
     "missing_profile_photo": "Please add a photo to complete your profile."
   },
   "section_tabs_a11y_label": "tabs for user's details",
@@ -276,7 +277,7 @@
   "image_uploading_warning": "Your profile image is still uploading. Are you sure you want to leave the page?",
   "click_replace_image": "Click to replace image",
   "profile_tag_input": {
-    "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
+    "header_text": "Press 'Enter' to add\n<0>Email us</0> to add an entry",
     "remove_button_a11y_text": "Remove {{tag}}"
   },
   "view_in_admin_console": "View user in admin console",

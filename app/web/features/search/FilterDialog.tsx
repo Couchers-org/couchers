@@ -96,13 +96,9 @@ const StyledSlider = styled(Slider)(({ theme }) => ({
     height: 3,
   },
   "& .MuiSlider-rail": {
-    color: theme.palette.grey[200],
+    color: "var(--mui-palette-grey-200)",
     opacity: 1,
     height: 3,
-    ...theme.applyStyles("dark", {
-      color: "#bfbfbf",
-      opacity: undefined,
-    }),
   },
 }));
 
@@ -248,7 +244,7 @@ const FilterDialog = ({
           position: "absolute",
           right: 8,
           top: 8,
-          color: theme.palette.grey[500],
+          color: "var(--mui-palette-grey-500)",
         })}
       >
         <CloseIcon />
@@ -264,7 +260,7 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={filters.showEmptyProfile || false}
             onClick={handleShowEmptyProfileChange}
-            customColor={theme.palette.primary.main}
+            customColor="var(--mui-palette-primary-main)"
           />
         </FilterItemRow>
         <FilterItemRow>
@@ -392,7 +388,7 @@ const FilterDialog = ({
                 <InfoOutlined
                   sx={{
                     fontSize: "16px",
-                    color: theme.palette.primary.main,
+                    color: "var(--mui-palette-primary-main)",
                     marginLeft: theme.spacing(0.5),
 
                     "$:hover": {
@@ -406,7 +402,7 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={filters.hasStrongVerification || false}
             onClick={handleHasStrongVerificationChange}
-            customColor={theme.palette.primary.main}
+            customColor="var(--mui-palette-primary-main)"
           />
         </FilterItemRow>
         <FilterItemRow>
@@ -415,7 +411,7 @@ const FilterDialog = ({
               <Typography
                 sx={{
                   color: !currentUser?.hasStrongVerification
-                    ? theme.palette.grey[400]
+                    ? "var(--mui-palette-grey-400)"
                     : "inherit",
                 }}
               >
@@ -427,14 +423,14 @@ const FilterDialog = ({
               <Typography
                 variant="body2"
                 sx={{
-                  color: theme.palette.grey[600],
+                  color: "var(--mui-palette-grey-600)",
                   marginTop: theme.spacing(0.5),
                 }}
               >
                 {t("search:form.general_filters.same_gender_only_helper_text")}{" "}
                 <a
                   href={`${settingsRoute}#strong-verification`}
-                  style={{ color: theme.palette.primary.main }}
+                  style={{ color: "var(--mui-palette-primary-main)" }}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -446,7 +442,7 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={filters.sameGenderOnly || false}
             onClick={handleSameGenderOnlyChange}
-            customColor={theme.palette.primary.main}
+            customColor="var(--mui-palette-primary-main)"
             disabled={!currentUser?.hasStrongVerification}
           />
         </FilterItemRow>
@@ -457,7 +453,7 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={filters.acceptsLastMinRequests || false}
             onClick={handleAcceptsLastMinRequestsChange}
-            customColor={theme.palette.primary.main}
+            customColor="var(--mui-palette-primary-main)"
           />
         </FilterItemRow>
         <Divider />
@@ -469,7 +465,7 @@ const FilterDialog = ({
           <CustomColorSwitch
             checked={filters.acceptsKids || false}
             onClick={handleAcceptsKidsChange}
-            customColor={theme.palette.primary.main}
+            customColor="var(--mui-palette-primary-main)"
           />
         </FilterItemRow>
         <FilterItemRow>
@@ -686,17 +682,7 @@ const FilterDialog = ({
         <Button onClick={handleClearFilters}>
           {t("search:form.clear_filters")}
         </Button>
-        <Button
-          onClick={handleApplyFilters}
-          sx={{
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.common.white,
-
-            "&:hover": {
-              backgroundColor: theme.palette.primary.dark,
-            },
-          }}
-        >
+        <Button onClick={handleApplyFilters} variant="contained">
           {t("search:form.submit_button_label")}
         </Button>
       </DialogActions>

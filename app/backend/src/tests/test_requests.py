@@ -5,11 +5,11 @@ from urllib.parse import parse_qs, urlparse
 import grpc
 import pytest
 from sqlalchemy import select
+from sqlalchemy_utils import refresh_materialized_view
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
-from couchers.materialized_views import refresh_materialized_view
 from couchers.models import (
     Message,
     MessageType,

@@ -126,9 +126,8 @@
     "back_button_a11y_label": "Voltar",
     "title_for_host": "Pedido de {{user}} - {{status}}",
     "title_for_surfer": "Pedido a {{user}} - {{status}}",
-    "request_duration_0": "{{count}} noite",
-    "request_duration_1": "{{count}} noites",
-    "request_duration_2": "{{count}} noites",
+    "request_duration_one": "{{count}} noite",
+    "request_duration_other": "{{count}} noites",
     "error_message": "ID de pedido de hospedagem inválido"
   },
   "write_reference_button_text": "Escreve uma Referência",

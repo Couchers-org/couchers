@@ -6,6 +6,7 @@ import {
   List,
   ListItem,
   styled,
+  Theme,
   Toolbar,
   useMediaQuery,
 } from "@mui/material";
@@ -223,7 +224,6 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   bottom: "auto",
   top: 0,
   boxShadow: "none",
-  backgroundColor: theme.palette.common.white,
 }));
 
 const StyledFlexbox = styled("div")(({ theme }) => ({
@@ -318,7 +318,7 @@ export default function Navigation() {
                 border: "none",
 
                 "&:hover": {
-                  backgroundColor: theme.palette.grey[200],
+                  backgroundColor: (theme) => theme.palette.grey[200],
                 },
               }}
             >
@@ -371,7 +371,10 @@ export default function Navigation() {
                 sx={{ marginLeft: theme.spacing(1) }}
               >
                 <MenuIcon
-                  sx={{ color: theme.palette.text.primary, fontSize: 24 }}
+                  sx={{
+                    color: "var(--mui-palette-text-primary)",
+                    fontSize: 24,
+                  }}
                 />
               </IconButton>
               <StyledDrawer
@@ -426,12 +429,14 @@ export default function Navigation() {
         </StyledNav>
         <StyledMenuContainer>
           {authState.authenticated && isMounted ? (
-            <LoggedInMenu
-              menuOpen={menuOpen}
-              notificationCount={pingData?.unseenNotificationCount}
-              setMenuOpen={setMenuOpen}
-              items={loggedInMenuItems}
-            />
+            <>
+              <LoggedInMenu
+                menuOpen={menuOpen}
+                notificationCount={pingData?.unseenNotificationCount}
+                setMenuOpen={setMenuOpen}
+                items={loggedInMenuItems}
+              />
+            </>
           ) : (
             <Box
               sx={{
@@ -449,7 +454,8 @@ export default function Navigation() {
                   sx={{
                     fontSize: "1.3rem",
                     borderRadius: theme.spacing(1),
-                    border: `1.5px solid ${theme.palette.primary.main}`,
+                    border: (theme: Theme) =>
+                      `1.5px solid var(--mui-palette-primary-main)`,
                   }}
                   onClick={() => router.push(loginRoute)}
                 >

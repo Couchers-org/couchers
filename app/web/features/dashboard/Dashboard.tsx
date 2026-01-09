@@ -43,8 +43,8 @@ export default function Dashboard() {
             <Alert severity="info" sx={{ marginBottom: theme.spacing(2) }}>
               <Typography variant="body1">
                 New blog post:{" "}
-                <StyledLink href={dashboardNews["2025-10-28"].link}>
-                  {dashboardNews["2025-10-28"].title}
+                <StyledLink href={dashboardNews["2026-01-04"].link}>
+                  {dashboardNews["2026-01-04"].title}
                 </StyledLink>
               </Typography>
             </Alert>

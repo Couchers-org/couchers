@@ -36,6 +36,21 @@ export const theme = {
       secondary: "#767676",
     },
   },
+  dark: {
+    background: {
+      default: "#313539",
+    },
+    primary: {
+      main: "#6bc4a6",
+    },
+    text: {
+      primary: "#fff",
+      secondary: "rgba(255, 255, 255, 0.7)",
+    },
+    grey: {
+      100: "#3d4347",
+    },
+  },
   props: {
     MuiButtonBase: {
       disableRipple: true,

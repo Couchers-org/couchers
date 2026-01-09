@@ -1,3 +1,4 @@
+import nacl.utils
 import pytest
 
 from couchers import crypto
@@ -42,7 +43,7 @@ def test_stable_secure_uniform():
 
     # make sure it's rand unif
     for _ in range(1000):
-        u = crypto.stable_secure_uniform(key=b"test", seed=crypto.random_bytes(32))
+        u = crypto.stable_secure_uniform(key=b"test", seed=nacl.utils.random(32))
         assert u > 0 and u < 1
         print(u)
 

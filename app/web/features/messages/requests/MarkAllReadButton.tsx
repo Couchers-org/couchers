@@ -7,14 +7,13 @@ import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { service } from "service";
-import { theme } from "theme";
 import getAllPages from "utils/getAllPages";
 
 const MarkAsReadButtonStyled = styled(Button)(({ theme }) => ({
-  border: `1px solid ${theme.palette.grey[800]}`,
+  border: `1px solid var(--mui-palette-grey-800)`,
   borderRadius: theme.shape.borderRadius,
   marginBottom: theme.spacing(1),
-  color: theme.palette.text.primary,
+  color: "var(--mui-palette-text-primary)",
 }));
 
 const MarkAsReadIconStyled = styled(DoneAllIcon)(({ theme }) => ({
@@ -93,7 +92,7 @@ export default function MarkAllReadButton({
         loading={markAll.isPending}
         variant="text"
         onClick={() => markAll.mutate()}
-        sx={{ color: theme.palette.text.primary }}
+        sx={{ color: "var(--mui-palette-text-primary)" }}
       >
         <MarkAsReadIconStyled />
         <Typography component="span">

@@ -1,6 +1,9 @@
 from geoalchemy2 import WKBElement, WKTElement
 from sqlalchemy import MetaData, Sequence
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    MappedAsDataclass,
+)
 
 meta = MetaData(
     naming_convention={
@@ -13,7 +16,11 @@ meta = MetaData(
 )
 
 
-class Base(DeclarativeBase):
+class MatViewBase(DeclarativeBase):
+    metadata = meta
+
+
+class Base(MappedAsDataclass, DeclarativeBase):
     metadata = meta
 
 

@@ -1,33 +1,18 @@
 {
-    "biometrics": {
-        "cancel_button": "Отменить",
-        "use_password_button": "Использовать пароль",
-        "enable_title": "Включить {{biometricType}}?",
-        "enable_message": "Хотите использовать {{biometricType}} для более быстрого входа в следующий раз?",
-        "enable_button": "Включить",
-        "not_now_button": "Не сейчас",
-        "confirm_prompt": "Подтвердить {{biometricType}}",
-        "face_id": "Face ID",
-        "pin_prompt": "Используйте PIN-код вашего устройства, чтобы продолжить",
-        "touch_id": "Touch ID",
-        "biometrics_generic": "биометрия",
-        "pin_fallback_label": "Используйте PIN-код устройства",
-        "login_prompt": "Авторизуйтесь, чтобы продолжить"
-    },
-    "errors": {
-        "failed_to_load": "Не удалось загрузить",
-        "check_connection": "Проверьте подключение к интернету и попробуйте снова.",
-        "try_again": "Попробуйте еще раз"
-    },
-    "not_found": {
-        "title": "Ой!",
-        "go_home": "Перейдите на главный экран!",
-        "message": "Этот экран не существует."
-    },
-    "tabs": {
-        "home": "Главная",
-        "messages": "Сообщения",
-        "communities": "Сообщества",
-        "search": "Поиск"
-    }
+  "errors": {
+    "failed_to_load": "Не удалось загрузить",
+    "check_connection": "Проверьте подключение к интернету и попробуйте снова.",
+    "try_again": "Попробуйте еще раз"
+  },
+  "not_found": {
+    "title": "Ой!",
+    "go_home": "Перейдите на главный экран!",
+    "message": "Этот экран не существует."
+  },
+  "tabs": {
+    "home": "Главная",
+    "messages": "Сообщения",
+    "communities": "Сообщества",
+    "search": "Поиск"
+  }
 }

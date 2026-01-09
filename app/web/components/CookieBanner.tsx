@@ -6,7 +6,6 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { Trans, useTranslation } from "i18n";
 import { usePersistedState } from "platform/usePersistedState";
 import { tosRoute } from "routes";
-import { theme } from "theme";
 import { useIsMounted } from "utils/hooks";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
@@ -14,10 +13,10 @@ const StyledWrapper = styled("div")(({ theme }) => ({
   zIndex: theme.zIndex.snackbar,
   left: theme.spacing(0),
   right: theme.spacing(0),
-  backgroundColor: theme.palette.primary.contrastText,
+  backgroundColor: "var(--mui-palette-background-paper)",
   bottom: 0,
   padding: theme.spacing(2, 4),
-  boxShadow: `0 -1px 4px ${theme.palette.primary.dark}33`,
+  boxShadow: theme.shadows[4],
 
   "& .content": {
     width: "75%",
@@ -60,7 +59,7 @@ export default function CookieBanner() {
             are happy with it. You can read more about our
             <StyledLink
               href={tosRoute}
-              sx={{ color: theme.palette.secondary.light }}
+              sx={{ color: "var(--mui-palette-secondary-light)" }}
             >
               Terms of Service
             </StyledLink>

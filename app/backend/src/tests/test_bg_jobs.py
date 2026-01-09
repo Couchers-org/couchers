@@ -1,4 +1,5 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from typing import Any
 from unittest.mock import call, patch
 
 import pytest
@@ -59,7 +60,7 @@ from tests.test_references import create_host_reference, create_host_request, cr
 from tests.test_requests import valid_request_text
 
 
-def now_5_min_in_future():
+def now_5_min_in_future() -> datetime:
     return now() + timedelta(minutes=5)
 
 
@@ -339,7 +340,7 @@ def test_scheduler(db, monkeypatch):
 
     realized_schedule = []
 
-    def mock_run_job_and_schedule(sched, job: Job, frequency: timedelta) -> None:
+    def mock_run_job_and_schedule(sched, job: Job[Any], frequency: timedelta) -> None:
         realized_schedule.append((current_time, job.name))
         _run_job_and_schedule(sched, job, frequency)
 
@@ -394,7 +395,7 @@ def test_scheduler(db, monkeypatch):
 def test_job_retry(db):
     called_count = 0
 
-    def mock_job(payload: empty_pb2.Empty) -> empty_pb2.Empty:
+    def mock_job(payload: empty_pb2.Empty) -> None:
         nonlocal called_count
         called_count += 1
         raise Exception()
@@ -402,7 +403,7 @@ def test_job_retry(db):
     with session_scope() as session:
         queue_job(session, job=mock_job, payload=empty_pb2.Empty())
 
-    MOCK_JOBS = {
+    MOCK_JOBS: dict[str, Job[Any]] = {
         "mock_job": Job(mock_job),
     }
     create_prometheus_server(port=8000)
@@ -1210,7 +1211,7 @@ def test_update_badges(db, push_collector: PushCollector):
         (user5.id, "phone_verified"),
     ]
 
-    assert badge_tuples == expected
+    assert badge_tuples == expected  # type: ignore[comparison-overlap]
 
     print(push_collector.pushes)
 

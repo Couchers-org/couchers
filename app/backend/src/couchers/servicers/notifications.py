@@ -1,11 +1,10 @@
 import functools
 import json
 import logging
-from typing import cast
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import Table, select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_
 
@@ -23,7 +22,7 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.push import PushNotificationContent, push_to_subscription, push_to_user
-from couchers.notifications.render import render_push_notification
+from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import (
     PreferenceNotUserEditableError,
     get_topic_actions_by_delivery_type,
@@ -148,8 +147,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         self, request: notifications_pb2.MarkAllNotificationsSeenReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         session.execute(
-            cast(Table, Notification.__table__)
-            .update()
+            update(Notification)
             .values(is_seen=True)
             .where(Notification.user_id == context.user_id)
             .where(Notification.id <= request.latest_notification_id)

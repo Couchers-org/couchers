@@ -12,13 +12,13 @@ import DonationDriveBlock from "./DonationDriveBlock";
 const TIME_BETWEEN_NAGS_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 const StyledButton = styled(Button)(({ theme }) => ({
-  backgroundColor: theme.palette.secondary.main,
+  backgroundColor: "var(--mui-palette-secondary-main)",
   flexShrink: 0,
   alignSelf: "center",
   paddingLeft: theme.spacing(3),
   paddingRight: theme.spacing(3),
   "&:hover": {
-    backgroundColor: theme.palette.secondary.dark,
+    backgroundColor: "var(--mui-palette-secondary-dark)",
   },
   [theme.breakpoints.down("md")]: {
     width: "100%",

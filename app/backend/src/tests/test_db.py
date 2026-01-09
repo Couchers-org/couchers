@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 from pathlib import Path
+from typing import Any
 
 import pytest
 from google.protobuf import empty_pb2
@@ -24,13 +25,13 @@ from tests.fixtures.db import create_schema_from_models, drop_database, generate
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
 
 
-def test_is_valid_user_id():
+def test_is_valid_user_id() -> None:
     assert is_valid_user_id("10")
     assert not is_valid_user_id("1a")
     assert not is_valid_user_id("01")
 
 
-def test_is_valid_email():
+def test_is_valid_email() -> None:
     assert is_valid_email("a@b.cc")
     assert is_valid_email("te.st+email.valid@a.org.au.xx.yy")
     assert is_valid_email("invalid@yahoo.co.uk")
@@ -41,7 +42,7 @@ def test_is_valid_email():
     assert not is_valid_email("b@xxb....blabla")
 
 
-def test_is_valid_username():
+def test_is_valid_username() -> None:
     assert is_valid_username("user")
     assert is_valid_username("us")
     assert is_valid_username("us_er")
@@ -52,7 +53,7 @@ def test_is_valid_username():
     assert not is_valid_username("User")
 
 
-def test_is_valid_name():
+def test_is_valid_name() -> None:
     assert is_valid_name("a")
     assert is_valid_name("a b")
     assert is_valid_name("1")
@@ -62,7 +63,7 @@ def test_is_valid_name():
     assert not is_valid_name(" ")
 
 
-def test_parse_date():
+def test_parse_date() -> None:
     assert parse_date("2020-01-01") is not None
     assert parse_date("1900-01-01") is not None
     assert parse_date("2099-01-01") is not None
@@ -87,21 +88,21 @@ def test_get_parent_node_at_location(testing_communities):
         c2r1_id = get_community_id(session, "Country 2, Region 1")  # 52 to 71
         c2r1c1_id = get_community_id(session, "Country 2, Region 1, City 1")  # 53 to 70
 
-        assert get_parent_node_at_location(session, create_1d_point(1)).id == c1r1c1_id
-        assert get_parent_node_at_location(session, create_1d_point(3)).id == c1r1c1_id
-        assert get_parent_node_at_location(session, create_1d_point(6)).id == c1r1_id
-        assert get_parent_node_at_location(session, create_1d_point(8)).id == c1r1c2_id
-        assert get_parent_node_at_location(session, create_1d_point(15)).id == c1_id
-        assert get_parent_node_at_location(session, create_1d_point(51)).id == w_id
+        assert get_parent_node_at_location(session, create_1d_point(1)).id == c1r1c1_id  # type: ignore[union-attr]
+        assert get_parent_node_at_location(session, create_1d_point(3)).id == c1r1c1_id  # type: ignore[union-attr]
+        assert get_parent_node_at_location(session, create_1d_point(6)).id == c1r1_id  # type: ignore[union-attr]
+        assert get_parent_node_at_location(session, create_1d_point(8)).id == c1r1c2_id  # type: ignore[union-attr]
+        assert get_parent_node_at_location(session, create_1d_point(15)).id == c1_id  # type: ignore[union-attr]
+        assert get_parent_node_at_location(session, create_1d_point(51)).id == w_id  # type: ignore[union-attr]
 
 
-def pg_dump():
+def pg_dump() -> str:
     return subprocess.run(
         ["pg_dump", "-s", config["DATABASE_CONNECTION_STRING"]], stdout=subprocess.PIPE, encoding="ascii", check=True
     ).stdout
 
 
-def sort_pg_dump_output(output):
+def sort_pg_dump_output(output: str) -> str:
     """Sorts the tables, functions and indices dumped by pg_dump in
     alphabetic order. Also sorts all lists enclosed with parentheses
     in alphabetic order.
@@ -123,16 +124,16 @@ def sort_pg_dump_output(output):
     return s.replace("§", "\n")
 
 
-def test_sort_pg_dump_output():
+def test_sort_pg_dump_output() -> None:
     assert sort_pg_dump_output(" (\nb,\nc,\na\n);\n") == " (\na,\nb,\nc\n);\n"
 
 
-def strip_leading_whitespace(lines):
+def strip_leading_whitespace(lines: list[str]) -> list[str]:
     return [s.lstrip() for s in lines]
 
 
 @pytest.mark.skipif(not run_migration_test(), reason="Migration test disabled")
-def test_migrations(db, testconfig):
+def test_migrations(db, testconfig: dict[str, Any]) -> None:
     """
     This test will only run successfully if you have `pg_dump` installed and everything set up, which only happens if the
     test is being run within Gitlab CI where we do all that setup. So we disable it unless explicitly marked to run.
@@ -164,7 +165,7 @@ def test_migrations(db, testconfig):
         (output_path / "schema_from_migrations.sql").write_text(with_migrations)
         (output_path / "schema_from_models.sql").write_text(from_scratch)
 
-    def message(s):
+    def message(s: str) -> list[str]:
         s = sort_pg_dump_output(s)
 
         # filter out alembic tables
@@ -213,7 +214,7 @@ def test_slugify(db):
         )
 
 
-def test_database_consistency_check(db, testconfig):
+def test_database_consistency_check(db, testconfig: dict[str, Any]) -> None:
     """The database consistency check should pass with valid user/gallery setup"""
     # Create a few users (which auto-creates their profile galleries)
     generate_user()

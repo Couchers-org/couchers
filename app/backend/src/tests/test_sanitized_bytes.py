@@ -28,7 +28,6 @@ class TestSanitizedBytes:
         proto = auth_pb2.AuthRes(user_id=12345, jailed=False)
         result = _sanitized_bytes(proto)
 
-        assert result is not None
         deserialized = auth_pb2.AuthRes.FromString(result)
         assert deserialized.user_id == 12345
         assert deserialized.jailed is False
@@ -39,7 +38,6 @@ class TestSanitizedBytes:
         proto = auth_pb2.AuthReq(user="testuser", password="supersecret123", remember_device=True)
         result = _sanitized_bytes(proto)
 
-        assert result is not None
         deserialized = auth_pb2.AuthReq.FromString(result)
 
         # Non-sensitive fields should remain
@@ -58,7 +56,6 @@ class TestSanitizedBytes:
         )
         result = _sanitized_bytes(proto)
 
-        assert result is not None
         deserialized = auth_pb2.SignupFlowReq.FromString(result)
 
         # Top-level fields should remain
@@ -83,7 +80,6 @@ class TestSanitizedBytes:
         )
         result = _sanitized_bytes(proto)
 
-        assert result is not None
         deserialized = auth_pb2.SignupFlowRes.FromString(result)
         assert deserialized.flow_token == "token456"
         assert deserialized.need_basic is True
@@ -105,7 +101,6 @@ class TestSanitizedBytes:
         )
         result = _sanitized_bytes(proto)
 
-        assert result is not None
         deserialized = conversations_pb2.GetGroupChatMessagesRes.FromString(result)
         assert deserialized.last_message_id == 999
         assert deserialized.no_more is True
@@ -131,7 +126,6 @@ class TestSanitizedBytes:
 
         result = _sanitized_bytes(proto)
 
-        assert result is not None
         deserialized = conversations_pb2.GetGroupChatMessagesRes.FromString(result)
 
         # Check that repeated messages are preserved
@@ -154,7 +148,6 @@ class TestSanitizedBytes:
         )
         result = _sanitized_bytes(proto)
 
-        assert result is not None
         deserialized = auth_pb2.SignupFlowRes.FromString(result)
 
         # All nested data should be preserved (no sensitive fields in this structure)
@@ -178,7 +171,6 @@ class TestSanitizedBytes:
         )
         result = _sanitized_bytes(proto)
 
-        assert result is not None
         deserialized = auth_pb2.SignupFlowReq.FromString(result)
 
         # Check basic nested message
@@ -215,7 +207,6 @@ class TestSanitizedBytes:
         proto = auth_pb2.AuthRes(user_id=12345, jailed=True)
         result = _sanitized_bytes(proto)
 
-        assert result is not None
         deserialized = auth_pb2.AuthRes.FromString(result)
         assert deserialized.user_id == 12345
         assert deserialized.jailed is True
@@ -243,7 +234,6 @@ class TestSanitizedBytes:
 
         result = _sanitized_bytes(proto)
 
-        assert result is not None
         deserialized = auth_pb2.SignupFlowReq.FromString(result)
 
         # Verify all non-sensitive fields are preserved
