@@ -2,14 +2,14 @@
 
 from typing import Any
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 from jinja2 import Environment
 
 from couchers.i18n.i18next import I18Next
 from couchers.i18n.plurals import PluralRules
 from couchers.templates.v2 import (
-    CONTEXT_PLAINTEXT_KEY,
-    CONTEXT_TRANSLATION_LANGUAGE_KEY,
+    FilterContext,
     add_filters,
 )
 
@@ -25,12 +25,8 @@ def _render_template(
     lang: str = "en",
 ) -> str:
     template = _env.from_string(template_str)
-    template_args = {
-        **(template_args or {}),
-        CONTEXT_TRANSLATION_LANGUAGE_KEY: lang,
-    }
-    if plain:
-        template_args[CONTEXT_PLAINTEXT_KEY] = True
+    template_args = (template_args or {}).copy()
+    template_args[FilterContext.KEY] = FilterContext(timezone=ZoneInfo("Etc/UTC"), locale=lang, plaintext=plain)
 
     mock_i18next = I18Next()
     for lang_code, strings in translation_dict.items():

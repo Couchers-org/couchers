@@ -4,13 +4,13 @@ template mailer/push notification formatter v2
 
 import logging
 import re
+from dataclasses import dataclass
 from datetime import date, datetime
 from html import escape
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 from zoneinfo import ZoneInfo
 
-import phonenumbers
 from google.protobuf.timestamp_pb2 import Timestamp
 from jinja2 import Environment, FileSystemLoader, pass_context
 from jinja2.runtime import Context
@@ -20,9 +20,8 @@ from sqlalchemy.orm import Session
 from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
-from couchers.i18n.i18n import localize_string
-from couchers.models import User
-from couchers.utils import get_tz_as_text, now, to_aware_datetime
+from couchers.i18n.i18n import format_phone_number, localize_date, localize_datetime, localize_string, localize_time
+from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +35,27 @@ md = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading",
 
 # Special context values expected by v2 filters
 CONTEXT_YEAR_KEY = "_year"
-CONTEXT_TIMEZONE_DISPLAY_KEY = "_timezone_display"
-CONTEXT_TRANSLATION_LANGUAGE_KEY = "_lang"
-CONTEXT_PLAINTEXT_KEY = "_plain"
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class FilterContext:
+    """Context passed to filter functions."""
+
+    KEY: ClassVar[str] = "_filter_context"
+
+    timezone: ZoneInfo
+    """The timezone to use when formatting times."""
+
+    locale: str
+    """The locale to use when localizing strings or formatting times."""
+
+    plaintext: bool
+    """If true, strips html tags from localized strings."""
+
+    @staticmethod
+    def from_jinja(jinja2_context: Context) -> FilterContext:
+        filter_context: FilterContext = jinja2_context[FilterContext.KEY]
+        return filter_context
 
 
 def v2esc(value: Any) -> str:
@@ -58,24 +75,28 @@ def v2url(value: str) -> str:
 
 
 def v2phone(value: str) -> str:
-    return phonenumbers.format_number(phonenumbers.parse(value), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+    return format_phone_number(value)
 
 
-def v2date(value: date | str, user: User) -> str:
-    # todo: user locale-based date formatting
+@pass_context
+def v2date(context: Context, value: date | str) -> str:
+    filter_context = FilterContext.from_jinja(context)
     if isinstance(value, str):
         value = date.fromisoformat(value)
-    return value.strftime("%A %-d %B %Y")
+    return localize_date(value, filter_context.locale)
 
 
-def v2time(value: datetime, user: User) -> str:
-    tz = ZoneInfo(user.timezone or "Etc/UTC")
-    return value.astimezone(tz=tz).strftime("%-I:%M %p (%H:%M)")
+@pass_context
+def v2time(context: Context, value: datetime) -> str:
+    filter_context = FilterContext.from_jinja(context)
+    value = value.astimezone(filter_context.timezone)
+    return localize_time(value.time(), filter_context.locale)
 
 
-def v2timestamp(value: Timestamp, user: User) -> str:
-    tz = ZoneInfo(user.timezone or "Etc/UTC")
-    return to_aware_datetime(value).astimezone(tz=tz).strftime("%A %-d %B %Y at %-I:%M %p (%H:%M)")
+@pass_context
+def v2timestamp(context: Context, value: Timestamp) -> str:
+    filter_context = FilterContext.from_jinja(context)
+    return localize_datetime(value, filter_context.timezone, filter_context.locale)
 
 
 def v2avatar(user: Any) -> str:
@@ -115,16 +136,16 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
         {{ "greeting_key"|v2translate(name=user.name) }}
     """
 
-    lang: str = context[CONTEXT_TRANSLATION_LANGUAGE_KEY]
+    filter_context = FilterContext.from_jinja(context)
 
     # Prevent html injection
     escaped_substitutions = {k: escape(str(v)) for k, v in kwargs.items()}
 
-    translated = localize_string(lang, key, substitutions=escaped_substitutions)
+    translated = localize_string(filter_context.locale, key, substitutions=escaped_substitutions)
 
     # Translations may include simple formatting HTML like <b> or <a>,
     # but those should not appear in plain text emails.
-    if context.parent.get(CONTEXT_PLAINTEXT_KEY) == True:
+    if filter_context.plaintext:
         # Doesn't support nesting, but should be sufficient for our needs
         translated = re.sub(r"<(\w+).*?>(.*?)</\1>", replace_tag, translated)
         translated = re.sub(r"<br\s*/?>", "\n", translated)
@@ -163,17 +184,29 @@ def send_simple_pretty_email(
 
     It's for the few security emails where we don't have a user to email but send directly to an email address.
     """
-    template_args[CONTEXT_TRANSLATION_LANGUAGE_KEY] = "en"  # Not yet localizable
-    template_args[CONTEXT_YEAR_KEY] = now().year
-    template_args[CONTEXT_TIMEZONE_DISPLAY_KEY] = get_tz_as_text("Etc/UTC")
 
+    template_args[CONTEXT_YEAR_KEY] = now().year
     template_args["header_subject"] = subject
     template_args["footer_email_is_critical"] = True  # Results in no unsubscribe footer.
 
+    # Format plaintext template
+    template_args[FilterContext.KEY] = FilterContext(
+        # Not yet localizable
+        timezone=ZoneInfo("Etc/UTC"),
+        locale="en",
+        plaintext=True,
+    )
     plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
     plain = env.from_string(plain_tmplt + plain_tmplt_footer).render(template_args)
 
+    # Format html template
+    template_args[FilterContext.KEY] = FilterContext(
+        # Not yet localizable
+        timezone=ZoneInfo("Etc/UTC"),
+        locale="en",
+        plaintext=False,
+    )
     html_tmplt = (template_folder / "generated_html" / f"{template_name}.html").read_text()
     html = env.from_string(html_tmplt).render(template_args)
 

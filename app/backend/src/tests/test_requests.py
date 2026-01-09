@@ -10,6 +10,7 @@ from sqlalchemy_utils import refresh_materialized_view
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
+from couchers.i18n.i18n import localize_date
 from couchers.models import (
     Message,
     MessageType,
@@ -23,7 +24,6 @@ from couchers.proto import (
 )
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
-from couchers.templates.v2 import v2date
 from couchers.utils import create_coordinate, now, today
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
@@ -57,16 +57,19 @@ def test_create_request(db, moderator):
         geom_radius=hosting_radius,
     )
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
-    today_minus_2 = (today() - timedelta(days=2)).isoformat()
-    today_minus_3 = (today() - timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
+    today_minus_2 = today() - timedelta(days=2)
+    today_minus_3 = today() - timedelta(days=3)
 
     with requests_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user1.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
+                    host_user_id=user1.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text=valid_request_text(),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -75,7 +78,10 @@ def test_create_request(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=999, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
+                    host_user_id=999,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text=valid_request_text(),
                 )
             )
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
@@ -84,7 +90,10 @@ def test_create_request(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date=today_plus_3, to_date=today_plus_2, text=valid_request_text()
+                    host_user_id=user2.id,
+                    from_date=today_plus_3.isoformat(),
+                    to_date=today_plus_2.isoformat(),
+                    text=valid_request_text(),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -93,7 +102,10 @@ def test_create_request(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date=today_minus_3, to_date=today_plus_2, text=valid_request_text()
+                    host_user_id=user2.id,
+                    from_date=today_minus_3.isoformat(),
+                    to_date=today_plus_2.isoformat(),
+                    text=valid_request_text(),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -102,7 +114,10 @@ def test_create_request(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date=today_plus_2, to_date=today_minus_2, text=valid_request_text()
+                    host_user_id=user2.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_minus_2.isoformat(),
+                    text=valid_request_text(),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -111,7 +126,10 @@ def test_create_request(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date="2020-00-06", to_date=today_minus_2, text=valid_request_text()
+                    host_user_id=user2.id,
+                    from_date="2020-00-06",
+                    to_date=today_minus_2.isoformat(),
+                    text=valid_request_text(),
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -120,7 +138,10 @@ def test_create_request(db, moderator):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text="Too short."
+                    host_user_id=user2.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text="Too short.",
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
@@ -129,8 +150,8 @@ def test_create_request(db, moderator):
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text(),
             )
         )
@@ -153,14 +174,14 @@ def test_create_request(db, moderator):
 
     today_ = today()
     today_plus_one_year = today_ + timedelta(days=365)
-    today_plus_one_year_plus_2 = (today_plus_one_year + timedelta(days=2)).isoformat()
-    today_plus_one_year_plus_3 = (today_plus_one_year + timedelta(days=3)).isoformat()
+    today_plus_one_year_plus_2 = today_plus_one_year + timedelta(days=2)
+    today_plus_one_year_plus_3 = today_plus_one_year + timedelta(days=3)
     with pytest.raises(grpc.RpcError) as e:
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_one_year_plus_2,
-                to_date=today_plus_one_year_plus_3,
+                from_date=today_plus_one_year_plus_2.isoformat(),
+                to_date=today_plus_one_year_plus_3.isoformat(),
                 text=valid_request_text("Test from date after one year"),
             )
         )
@@ -171,8 +192,8 @@ def test_create_request(db, moderator):
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_one_year_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_one_year_plus_3.isoformat(),
                 text=valid_request_text("Test to date one year after from date"),
             )
         )
@@ -183,13 +204,16 @@ def test_create_request(db, moderator):
 def test_create_request_incomplete_profile(db):
     user1, token1 = generate_user(complete_profile=False)
     user2, _ = generate_user()
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
     with requests_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
+                    host_user_id=user2.id,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
+                    text=valid_request_text(),
                 )
             )
     assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -199,8 +223,8 @@ def test_create_request_incomplete_profile(db):
 def test_excessive_requests_are_reported(db):
     """Test that excessive host requests are first reported in a warning email and finally lead blocking of further requests."""
     user, token = generate_user()
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
     rate_limit_definition = RATE_LIMIT_DEFINITIONS[RateLimitAction.host_request]
     with requests_session(token) as api:
         # Test warning email
@@ -210,8 +234,8 @@ def test_excessive_requests_are_reported(db):
                 _ = api.CreateHostRequest(
                     requests_pb2.CreateHostRequestReq(
                         host_user_id=host_user.id,
-                        from_date=today_plus_2,
-                        to_date=today_plus_3,
+                        from_date=today_plus_2.isoformat(),
+                        to_date=today_plus_3.isoformat(),
                         text=valid_request_text(),
                     )
                 )
@@ -221,8 +245,8 @@ def test_excessive_requests_are_reported(db):
             _ = api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
                     host_user_id=host_user.id,
-                    from_date=today_plus_2,
-                    to_date=today_plus_3,
+                    from_date=today_plus_2.isoformat(),
+                    to_date=today_plus_3.isoformat(),
                     text=valid_request_text("Excessive test request"),
                 )
             )
@@ -239,8 +263,8 @@ def test_excessive_requests_are_reported(db):
                 _ = api.CreateHostRequest(
                     requests_pb2.CreateHostRequestReq(
                         host_user_id=host_user.id,
-                        from_date=today_plus_2,
-                        to_date=today_plus_3,
+                        from_date=today_plus_2.isoformat(),
+                        to_date=today_plus_3.isoformat(),
                         text=valid_request_text(),
                     )
                 )
@@ -251,8 +275,8 @@ def test_excessive_requests_are_reported(db):
                 _ = api.CreateHostRequest(
                     requests_pb2.CreateHostRequestReq(
                         host_user_id=host_user.id,
-                        from_date=today_plus_2,
-                        to_date=today_plus_3,
+                        from_date=today_plus_2.isoformat(),
+                        to_date=today_plus_3.isoformat(),
                         text=valid_request_text("Excessive test request"),
                     )
                 )
@@ -283,14 +307,14 @@ def test_GetHostRequest(db):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request 1"),
             )
         ).host_request_id
@@ -312,14 +336,14 @@ def test_ListHostRequests(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
     with requests_session(token1) as api:
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request 1"),
             )
         ).host_request_id
@@ -327,8 +351,8 @@ def test_ListHostRequests(db, moderator):
         host_request_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user3.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request 2"),
             )
         ).host_request_id
@@ -360,8 +384,8 @@ def test_ListHostRequests(db, moderator):
         host_request_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user1.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request 3"),
             )
         ).host_request_id
@@ -391,14 +415,14 @@ def test_ListHostRequests_pagination_regression(db, moderator):
     """
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
     with requests_session(token1) as api:
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request 1"),
             )
         ).host_request_id
@@ -406,8 +430,8 @@ def test_ListHostRequests_pagination_regression(db, moderator):
         host_request_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request 2"),
             )
         ).host_request_id
@@ -415,8 +439,8 @@ def test_ListHostRequests_pagination_regression(db, moderator):
         host_request_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request 3"),
             )
         ).host_request_id
@@ -486,15 +510,15 @@ def test_ListHostRequests_pagination_regression(db, moderator):
 def test_ListHostRequests_active_filter(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
 
     with requests_session(token1) as api:
         request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request 1"),
             )
         ).host_request_id
@@ -519,15 +543,15 @@ def test_RespondHostRequests(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
 
     with requests_session(token1) as api:
         request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request 1"),
             )
         ).host_request_id
@@ -650,14 +674,14 @@ def test_RespondHostRequests(db, moderator):
 def test_get_host_request_messages(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
     with requests_session(token1) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request 1"),
             )
         )
@@ -723,14 +747,14 @@ def test_SendHostRequestMessage(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request 1"),
             )
         ).host_request_id
@@ -815,14 +839,14 @@ def test_get_updates(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test message 0"),
             )
         ).host_request_id
@@ -847,8 +871,8 @@ def test_get_updates(db, moderator):
         api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test message 4"),
             )
         )
@@ -899,15 +923,15 @@ def test_archive_host_request(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
 
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test message 0"),
             )
         ).host_request_id
@@ -944,14 +968,14 @@ def test_mark_last_seen(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test message 0"),
             )
         ).host_request_id
@@ -959,8 +983,8 @@ def test_mark_last_seen(db, moderator):
         host_request_id_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test message 0a"),
             )
         ).host_request_id
@@ -1015,8 +1039,8 @@ def test_mark_last_seen(db, moderator):
         host_request_id_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user1.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Another test request"),
             )
         ).host_request_id
@@ -1049,8 +1073,8 @@ def test_response_rate(db, moderator):
     user2, token2 = generate_user()
     user3, token3 = generate_user(delete_user=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
 
     with session_scope() as session:
         refresh_materialized_view(session, "user_response_rates")
@@ -1070,8 +1094,8 @@ def test_response_rate(db, moderator):
         host_request_1 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request"),
             )
         ).host_request_id
@@ -1092,8 +1116,8 @@ def test_response_rate(db, moderator):
         host_request_2 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request"),
             )
         ).host_request_id
@@ -1114,8 +1138,8 @@ def test_response_rate(db, moderator):
         host_request_3 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request"),
             )
         ).host_request_id
@@ -1195,8 +1219,8 @@ def test_response_rate(db, moderator):
         host_request_4 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request"),
             )
         ).host_request_id
@@ -1213,8 +1237,8 @@ def test_response_rate(db, moderator):
         host_request_5 = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=user2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("Test request"),
             )
         ).host_request_id
@@ -1277,15 +1301,15 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
 
     with requests_session(surfer_token) as api:
         hr_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("can i stay plz"),
             )
         ).host_request_id
@@ -1303,10 +1327,10 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
     assert "quick decline" in e.html.lower()
     assert surfer.name in e.plain
     assert surfer.name in e.html
-    assert v2date(today_plus_2, host) in e.plain
-    assert v2date(today_plus_2, host) in e.html
-    assert v2date(today_plus_3, host) in e.plain
-    assert v2date(today_plus_3, host) in e.html
+    assert localize_date(today_plus_2, host.ui_language_preference or "en") in e.plain
+    assert localize_date(today_plus_2, host.ui_language_preference or "en") in e.html
+    assert localize_date(today_plus_3, host.ui_language_preference or "en") in e.plain
+    assert localize_date(today_plus_3, host.ui_language_preference or "en") in e.html
     assert "http://localhost:5001/img/thumbnail/" not in e.plain
     assert "http://localhost:5001/img/thumbnail/" in e.html
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
@@ -1331,10 +1355,10 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
     assert host.name in e.html
     assert surfer.name in e.plain
     assert surfer.name in e.html
-    assert v2date(today_plus_2, surfer) in e.plain
-    assert v2date(today_plus_2, surfer) in e.html
-    assert v2date(today_plus_3, surfer) in e.plain
-    assert v2date(today_plus_3, surfer) in e.html
+    assert localize_date(today_plus_2, surfer.ui_language_preference or "en") in e.plain
+    assert localize_date(today_plus_2, surfer.ui_language_preference or "en") in e.html
+    assert localize_date(today_plus_3, surfer.ui_language_preference or "en") in e.plain
+    assert localize_date(today_plus_3, surfer.ui_language_preference or "en") in e.html
     assert "http://localhost:5001/img/thumbnail/" not in e.plain
     assert "http://localhost:5001/img/thumbnail/" in e.html
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
@@ -1347,15 +1371,15 @@ def test_quick_decline(db, push_collector: PushCollector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
 
     with requests_session(surfer_token) as api:
         hr_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("can i stay plz"),
             )
         ).host_request_id
@@ -1373,10 +1397,10 @@ def test_quick_decline(db, push_collector: PushCollector, moderator):
     assert "quick decline" in e.html.lower()
     assert surfer.name in e.plain
     assert surfer.name in e.html
-    assert v2date(today_plus_2, host) in e.plain
-    assert v2date(today_plus_2, host) in e.html
-    assert v2date(today_plus_3, host) in e.plain
-    assert v2date(today_plus_3, host) in e.html
+    assert localize_date(today_plus_2, host.ui_language_preference or "en") in e.plain
+    assert localize_date(today_plus_2, host.ui_language_preference or "en") in e.html
+    assert localize_date(today_plus_3, host.ui_language_preference or "en") in e.plain
+    assert localize_date(today_plus_3, host.ui_language_preference or "en") in e.html
     assert "http://localhost:5001/img/thumbnail/" not in e.plain
     assert "http://localhost:5001/img/thumbnail/" in e.html
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
@@ -1418,31 +1442,31 @@ def test_host_req_feedback(db, moderator):
     host3, host3_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    today_plus_2 = (today() + timedelta(days=2)).isoformat()
-    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    today_plus_2 = today() + timedelta(days=2)
+    today_plus_3 = today() + timedelta(days=3)
 
     with requests_session(surfer_token) as api:
         hr_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=host.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("can i stay plz"),
             )
         ).host_request_id
         hr2_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=host2.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("can i stay plz"),
             )
         ).host_request_id
         hr3_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=host3.id,
-                from_date=today_plus_2,
-                to_date=today_plus_3,
+                from_date=today_plus_2.isoformat(),
+                to_date=today_plus_3.isoformat(),
                 text=valid_request_text("can i stay plz"),
             )
         ).host_request_id
