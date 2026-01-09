@@ -37,7 +37,7 @@ md = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading",
 CONTEXT_YEAR_KEY = "_year"
 
 
-@dataclass(slots=True, kw_only=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class FilterContext:
     """Context passed to filter functions."""
 
@@ -184,26 +184,29 @@ def send_simple_pretty_email(
 
     It's for the few security emails where we don't have a user to email but send directly to an email address.
     """
-    filter_context = FilterContext(
+
+    template_args[CONTEXT_YEAR_KEY] = now().year
+    template_args["header_subject"] = subject
+    template_args["footer_email_is_critical"] = True  # Results in no unsubscribe footer.
+
+    # Format plaintext template
+    template_args[FilterContext.KEY] = FilterContext(
         # Not yet localizable
         timezone=ZoneInfo("Etc/UTC"),
         locale="en",
         plaintext=True,
     )
-
-    template_args[FilterContext.KEY] = filter_context
-
-    template_args[CONTEXT_YEAR_KEY] = now().year
-
-    template_args["header_subject"] = subject
-    template_args["footer_email_is_critical"] = True  # Results in no unsubscribe footer.
-
     plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    filter_context.plaintext = True
     plain = env.from_string(plain_tmplt + plain_tmplt_footer).render(template_args)
 
-    filter_context.plaintext = False
+    # Format html template
+    template_args[FilterContext.KEY] = FilterContext(
+        # Not yet localizable
+        timezone=ZoneInfo("Etc/UTC"),
+        locale="en",
+        plaintext=False,
+    )
     html_tmplt = (template_folder / "generated_html" / f"{template_name}.html").read_text()
     html = env.from_string(html_tmplt).render(template_args)
 

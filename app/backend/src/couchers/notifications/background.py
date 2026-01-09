@@ -53,15 +53,13 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     email_lang = "en"
     if config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
         email_lang = user.ui_language_preference or "en"
-
-    filter_context = FilterContext(timezone=ZoneInfo(user.timezone or "Etc/UTC"), locale=email_lang, plaintext=True)
+    timezone = ZoneInfo(user.timezone or "Etc/UTC")
 
     template_args = {
         "header_subject": rendered.subject,
         "header_preview": rendered.preview,
         "user": user,
         "time": notification.created,
-        FilterContext.KEY: filter_context,
         "footer_email_is_critical": rendered.is_critical,
         "footer_manage_notifications_link": urls.notification_settings_link(),
         "footer_notification_topic_action": rendered.topic_action_unsubscribe_text,
@@ -73,13 +71,15 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         **rendered.template_args,
     }
 
+    # Format plaintext template
+    template_args[FilterContext.KEY] = FilterContext(timezone=timezone, locale=email_lang, plaintext=True)
     plain_tmplt = (template_folder / f"{rendered.template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    filter_context.plaintext = True
     plain = env.from_string(plain_tmplt + plain_tmplt_footer).render(template_args)
 
+    # Format html template
+    template_args[FilterContext.KEY] = FilterContext(timezone=timezone, locale=email_lang, plaintext=False)
     html_tmplt = (template_folder / "generated_html" / f"{rendered.template_name}.html").read_text()
-    filter_context.plaintext = False
     html = env.from_string(html_tmplt).render(template_args)
 
     if user.do_not_email and not rendered.is_critical:
