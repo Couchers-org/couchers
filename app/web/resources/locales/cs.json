@@ -66,7 +66,6 @@
       "description": "Podívej se na stav našich překladů do různých jazyků. Pomozte nám zpřístupnit Couchers více lidem po celém světě!"
     },
     "help_translate": "Pomoc s překladem Couchers do tvého jazyka.",
-    "current_preferred_language": "Tvá jazyková preference je aktuálně ",
     "form_title": "Jazyk",
     "select_language": "Vyber jazyk",
     "success_message": "Tvé změny byly uloženy.",
