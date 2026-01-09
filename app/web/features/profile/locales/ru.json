@@ -238,9 +238,7 @@
   "unsaved_changes_warning": "Вы не сохранили изменения. Вы уверены, что хотите покинуть страницу?",
   "image_uploading_warning": "Ваше изображение профиля все еще загружается. Вы уверены, что хотите покинуть страницу?",
   "reference_amounts": {
-    "no_references": "Нет отзывов",
-    "references_single": "отзыв",
-    "references_plural": "отзывы"
+    "no_references": "Нет отзывов"
   },
   "incomplete_profile_haiku": "Безликий аватар,\nТайна скрыта за молчанием —\nКто ты, незнакомец?",
   "reference_filter_label": {

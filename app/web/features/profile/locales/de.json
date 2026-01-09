@@ -284,9 +284,7 @@
   "image_uploading_warning": "Dein Profilbild wird noch hochgeladen. Bist du sicher, dass du die Seite verlassen willst?",
   "click_replace_image": "Klick hier zum ändern des Bildes",
   "reference_amounts": {
-    "no_references": "Keine Referenzen",
-    "references_single": "Referenz",
-    "references_plural": "Referenzen"
+    "no_references": "Keine Referenzen"
   },
   "incomplete_profile_haiku": "Leeres Bild blickt stumm,\nGeheimnis hinter Schweigen—\nWer bist du, Fremder?",
   "open_profile_new_tab": "Profil in neuem Tab öffnen",

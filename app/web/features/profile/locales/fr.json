@@ -196,6 +196,7 @@
   },
   "helper_text": {
     "characters_remaining_one": "<bold>Veuillez écrire {{count}} caractère supplémentaire pour compléter votre profil.</bold> Les profils authentiques construisent une communauté de confiance. Plus vous partagez, plus il est facile de faire des contacts !",
+    "characters_remaining_many": "",
     "characters_remaining_other": "<bold>Veuillez écrire {{count}} caractères supplémentaires pour compléter votre profil.</bold> Les profils authentiques construisent une communauté de confiance. Plus vous partagez, plus il est facile de faire des contacts !",
     "missing_profile_photo": "Veuillez ajouter une photo pour compléter votre profil."
   },
@@ -283,9 +284,7 @@
   },
   "open_profile_new_tab": "Ouvrir le profile dans un nouvel onglet",
   "reference_amounts": {
-    "no_references": "Aucune référence",
-    "references_single": "référence",
-    "references_plural": "références"
+    "no_references": "Aucune référence"
   },
   "view_in_admin_console": "Afficher ce membre dans le console d'administration",
   "response_time_text_some": "Peut-être en {{p33}}",
