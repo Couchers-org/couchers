@@ -1,5 +1,8 @@
+from collections.abc import Callable, Generator
 from concurrent import futures
 from contextlib import contextmanager
+from datetime import timedelta
+from typing import Any
 from unittest.mock import Mock
 
 import grpc
@@ -7,7 +10,7 @@ import pytest
 from google.protobuf import empty_pb2
 from google.protobuf.descriptor import ServiceDescriptor
 from google.protobuf.descriptor_pool import DescriptorPool
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from couchers.constants import (
     MISSING_AUTH_LEVEL_ERROR_MESSAGE,
@@ -15,6 +18,7 @@ from couchers.constants import (
 )
 from couchers.crypto import random_hex
 from couchers.db import session_scope
+from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import (
     AbortError,
     BadHeaders,
@@ -27,7 +31,7 @@ from couchers.interceptors import (
     validate_auth_level,
 )
 from couchers.metrics import servicer_duration_histogram
-from couchers.models import APICall, UserSession
+from couchers.models import APICall, User, UserActivity, UserSession
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
@@ -50,7 +54,7 @@ def interceptor_dummy_api(
     request_type=empty_pb2.Empty,
     response_type=empty_pb2.Empty,
     creds=None,
-):
+) -> Generator[Callable[..., Any]]:
     with futures.ThreadPoolExecutor(1) as executor:
         server = grpc.server(executor, interceptors=interceptors)
         port = server.add_secure_port("localhost:0", grpc.local_server_credentials())
@@ -322,16 +326,24 @@ def test_tracing_interceptor_abort(db):
     )
 
 
+def cookie_auth(token: str) -> tuple[str, str]:
+    return "cookie", f"couchers-sesh={token}"
+
+
+def api_auth(token: str) -> tuple[str, str]:
+    return "authorization", f"Bearer {token}"
+
+
 def test_auth_interceptor(db):
     super_user, super_token = generate_user(is_superuser=True)
     user, token = generate_user()
+    deleted_user, deleted_token = generate_user(delete_user=True)
 
     with real_admin_session(super_token) as api:
         api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=user.username))
 
     with session_scope() as session:
-        api_session = session.execute(select(UserSession).where(UserSession.is_api_key == True)).scalar_one()
-        api_key = api_session.token
+        api_key = session.execute(select(UserSession.token).where(UserSession.is_api_key)).scalar_one()
 
     account = Account()
 
@@ -344,7 +356,7 @@ def test_auth_interceptor(db):
         "response_type": account_pb2.GetAccountInfoRes,
     }
 
-    # no creds, no go for secure APIs
+    # no creds, no-go for secure APIs
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
         with pytest.raises(grpc.RpcError) as e:
             call_rpc(empty_pb2.Empty())
@@ -353,25 +365,33 @@ def test_auth_interceptor(db):
 
     # can auth with cookie
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
-        res1 = call_rpc(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}"),))
+        res1 = call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
     assert res1.username == user.username
 
-    # can't auth with wrong cookie
+    with session_scope() as session:
+        api_calls = session.execute(select(UserActivity.api_calls).where(UserActivity.user_id == user.id)).scalar_one()
+        assert api_calls == 1
+
+    # can't auth with a wrong cookie
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
         with pytest.raises(grpc.RpcError) as e:
-            call_rpc(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={random_hex(32)}"),))
+            call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(random_hex(32)),))
         assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
         assert e.value.details() == "Unauthorized"
 
-    # can auth with api key
+    # can auth with an api key
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
-        res2 = call_rpc(empty_pb2.Empty(), metadata=(("authorization", f"Bearer {api_key}"),))
+        res2 = call_rpc(empty_pb2.Empty(), metadata=(api_auth(api_key),))
     assert res2.username == user.username
 
-    # can't auth with wrong api key
+    with session_scope() as session:
+        api_calls = session.execute(select(UserActivity.api_calls).where(UserActivity.user_id == user.id)).scalar_one()
+        assert api_calls == 2
+
+    # can't auth with a wrong api key
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
         with pytest.raises(grpc.RpcError) as e:
-            call_rpc(empty_pb2.Empty(), metadata=(("authorization", f"Bearer {random_hex(32)}"),))
+            call_rpc(empty_pb2.Empty(), metadata=(api_auth(random_hex(32)),))
         assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
         assert e.value.details() == "Unauthorized"
 
@@ -386,13 +406,7 @@ def test_auth_interceptor(db):
     # can't auth with both
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
         with pytest.raises(grpc.RpcError) as e:
-            call_rpc(
-                empty_pb2.Empty(),
-                metadata=(
-                    ("cookie", f"couchers-sesh={token}"),
-                    ("authorization", f"Bearer {api_key}"),
-                ),
-            )
+            call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token), api_auth(api_key)))
         assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
         assert e.value.details() == 'Both "cookie" and "authorization" in request'
 
@@ -402,6 +416,97 @@ def test_auth_interceptor(db):
             call_rpc(empty_pb2.Empty(), metadata=(("authorization", f"bearer {api_key}"),))
         assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
         assert e.value.details() == "Unauthorized"
+
+    # Invisible (deleted) user
+    with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(deleted_token),))
+        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+        assert e.value.details() == "Unauthorized"
+
+    # Invalid (expired) session
+    long_ago = now() - timedelta(weeks=100)
+    with session_scope() as session:
+        session.execute(update(UserSession).values(last_seen=long_ago).where(UserSession.token == token))
+
+    with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
+        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+        assert e.value.details() == "Unauthorized"
+
+    # API key token, but session is for session cookie (probably impossible, but...)
+    with session_scope() as session:
+        session.execute(update(UserSession).values(last_seen=now(), is_api_key=True).where(UserSession.token == token))
+
+    with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
+        with pytest.raises(grpc.RpcError) as e:
+            call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
+        assert e.value.code() == grpc.StatusCode.UNAUTHENTICATED
+        assert e.value.details() == "Unauthorized"
+
+    # Check that metadata are updated
+    six_minutes_ago = now() - timedelta(minutes=6)
+    with session_scope() as session:
+        # Return the session to normal
+        user_session = session.execute(select(UserSession).where(UserSession.token == token)).scalar_one()
+        user_session.is_api_key = False
+        api_calls = user_session.api_calls
+
+    with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
+        res4 = call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
+        assert res4.username == user.username
+
+    with session_scope() as session:
+        user_session = session.execute(select(UserSession).where(UserSession.token == token)).scalar_one()
+        assert user_session.api_calls == api_calls + 1
+        assert user_session.last_seen > now() - timedelta(seconds=1)
+
+        # Simulate user inactivity, so last_active is updated on the next api call.
+        session.execute(update(User).values(last_active=six_minutes_ago).where(User.id == user.id))
+
+    # Check that last_active is updated if it wasn't updated in a while.
+    with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
+        call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
+
+    with session_scope() as session:
+        last_active = session.execute(select(User.last_active).where(User.id == user.id)).scalar_one()
+        assert last_active > now() - timedelta(seconds=1)
+
+    # Check that last_active is untouched (since it was already updated recently)
+    with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
+        call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
+
+    with session_scope() as session:
+        last_active_2 = session.execute(select(User.last_active).where(User.id == user.id)).scalar_one()
+        assert last_active_2 == last_active
+
+    # Check that activity is split by IP.
+    with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
+        call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token), ("x-couchers-real-ip", "1.1.1.1")))
+
+    with session_scope() as session:
+        api_calls = session.execute(
+            select(UserActivity.api_calls).where(UserActivity.ip_address == "1.1.1.1")
+        ).scalar_one()
+        assert api_calls == 1
+
+    # Check that activity is split in time bins.
+    # Update all UserActivity to be in the far past so that a new row is inserted on the next request.
+    with session_scope() as session:
+        session.execute(update(UserActivity).values(period=long_ago).where(UserActivity.user_id == user.id))
+
+    with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
+        call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
+
+    with session_scope() as session:
+        api_calls = session.execute(
+            select(UserActivity.api_calls)
+            .where(UserActivity.user_id == user.id)
+            .order_by(UserActivity.id.desc())
+            .limit(1)
+        ).scalar_one()
+        assert api_calls == 1
 
 
 def test_tracing_interceptor_auth_cookies(db):
@@ -442,8 +547,7 @@ def test_tracing_interceptor_auth_api_key(db):
         api.CreateApiKey(admin_pb2.CreateApiKeyReq(user=user.username))
 
     with session_scope() as session:
-        api_session = session.execute(select(UserSession).where(UserSession.is_api_key == True)).scalar_one()
-        api_key = api_session.token
+        api_key = session.execute(select(UserSession.token).where(UserSession.is_api_key)).scalar_one()
 
     account = Account()
 
@@ -639,21 +743,14 @@ def test_parse_headers_malformed_authorization():
 
 
 def test_find_auth_level_with_valid_service():
-    pool = Mock(spec=DescriptorPool)
-    service_desc = Mock(spec=ServiceDescriptor)
-    service_options = Mock()
-    service_options.Extensions = {annotations_pb2.auth_level: annotations_pb2.AUTH_LEVEL_SECURE}
-    service_desc.GetOptions.return_value = service_options
-    pool.FindServiceByName.return_value = service_desc
+    pool = get_descriptor_pool()
 
     result = find_auth_level(pool, "/org.couchers.api.core.API/GetUser")
     assert result == annotations_pb2.AUTH_LEVEL_SECURE
-    pool.FindServiceByName.assert_called_once_with("org.couchers.api.core.API")
 
 
 def test_find_auth_level_with_nonexistent_service():
-    pool = Mock(spec=DescriptorPool)
-    pool.FindServiceByName.side_effect = KeyError("Service not found")
+    pool = get_descriptor_pool()
 
     with pytest.raises(AbortError) as exc:
         find_auth_level(pool, "/org.couchers.nonexistent.Service/Method")
