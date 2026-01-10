@@ -1,9 +1,7 @@
 import logging
-from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from google.protobuf import empty_pb2
-from jinja2 import Environment, FileSystemLoader
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, func
@@ -25,26 +23,15 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
-from couchers.notifications.render import render_email_notification
+from couchers.notifications.render_email import render_email_notification
 from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import moderation_state_column_visible
-from couchers.templates.v2 import (
-    CONTEXT_YEAR_KEY,
-    FilterContext,
-    add_filters,
-)
+from couchers.templates.v2 import CONTEXT_YEAR_KEY, Context, render_template, template_folder
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
-
-template_folder = Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2"
-
-loader = FileSystemLoader(template_folder)
-env = Environment(loader=loader, trim_blocks=True)
-
-add_filters(env)
 
 
 def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
@@ -72,15 +59,15 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     }
 
     # Format plaintext template
-    template_args[FilterContext.KEY] = FilterContext(timezone=timezone, locale=email_lang, plaintext=True)
     plain_tmplt = (template_folder / f"{rendered.template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain = env.from_string(plain_tmplt + plain_tmplt_footer).render(template_args)
+    plain = render_template(
+        plain_tmplt + plain_tmplt_footer, template_args, Context(timezone=timezone, locale=email_lang, plaintext=True)
+    )
 
     # Format html template
-    template_args[FilterContext.KEY] = FilterContext(timezone=timezone, locale=email_lang, plaintext=False)
     html_tmplt = (template_folder / "generated_html" / f"{rendered.template_name}.html").read_text()
-    html = env.from_string(html_tmplt).render(template_args)
+    html = render_template(html_tmplt, template_args, Context(timezone=timezone, locale=email_lang, plaintext=False))
 
     if user.do_not_email and not rendered.is_critical:
         logger.info(f"Not emailing {user} based on template {rendered.template_name} due to emails turned off")

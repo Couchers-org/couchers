@@ -10,7 +10,7 @@ from couchers.i18n.localize import format_phone_number, localize_date_from_iso, 
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.push import PushNotificationContent
 from couchers.proto import events_pb2, notification_data_pb2
-from couchers.templates.v2 import v2avatar, v2esc
+from couchers.templates.v2 import v2avatar
 
 logger = logging.getLogger(__name__)
 
@@ -359,7 +359,7 @@ def _friend_request__create(data: notification_data_pb2.FriendRequestCreate) -> 
 def _friend_request__accept(data: notification_data_pb2.FriendRequestAccept) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"{data.other_user.name} accepted your friend request!",
-        body=f"{v2esc(data.other_user.name)} has accepted your friend request",
+        body=f"{data.other_user.name} has accepted your friend request",
         icon_url=v2avatar(data.other_user),
         action_url=urls.user_link(username=data.other_user.username),
     )
@@ -473,13 +473,13 @@ def _onboarding__reminder(key: str, user: User) -> PushNotificationContent:
     if key == "1":
         return PushNotificationContent(
             title="Welcome to Couchers.org and the future of couch surfing",
-            body=f"Hi {v2esc(user.name)}! We are excited that you have joined us! Please take a moment to complete your profile with a picture and a bit of text about yourself!",
+            body=f"Hi {user.name}! We are excited that you have joined us! Please take a moment to complete your profile with a picture and a bit of text about yourself!",
             action_url=urls.edit_profile_link(),
         )
     elif key == "2":
         return PushNotificationContent(
             title="Please complete your profile on Couchers.org!",
-            body=f"Hi {v2esc(user.name)}! We would ask one big favour of you: please fill out your profile by adding a photo and some text.",
+            body=f"Hi {user.name}! We would ask one big favour of you: please fill out your profile by adding a photo and some text.",
             action_url=urls.edit_profile_link(),
         )
     else:
@@ -571,7 +571,7 @@ def _reference__receive(
     data: notification_data_pb2.ReferenceReceiveHostRequest, reference_type: str
 ) -> PushNotificationContent:
     if data.text:
-        body = v2esc(data.text)
+        body = data.text
         action_url = urls.profile_references_link()
     else:
         body = (

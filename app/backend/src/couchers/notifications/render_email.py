@@ -12,7 +12,6 @@ from couchers.i18n.localize import (
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.proto import notification_data_pb2
-from couchers.templates.v2 import v2esc
 from couchers.utils import now, to_aware_datetime
 
 logger = logging.getLogger(__name__)
@@ -322,7 +321,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
     elif notification.topic_action == NotificationTopicAction.friend_request__accept:
         other = data.other_user
         title = f"{other.name} accepted your friend request!"
-        preview = f"{v2esc(other.name)} has accepted your friend request"
+        preview = f"{other.name} has accepted your friend request"
         return RenderedEmailNotification(
             subject=title,
             preview=preview,
@@ -577,7 +576,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             title = f"You've received a friend reference from {data.from_user.name}!"
             return RenderedEmailNotification(
                 subject=title,
-                preview=v2esc(data.text),
+                preview=data.text,
                 template_name="friend_reference",
                 template_args={
                     "from_user": data.from_user,
@@ -597,12 +596,12 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             )
             profile_references_link = urls.profile_references_link()
             if data.text:
-                body = v2esc(data.text)
+                preview = data.text
             else:
-                body = "Please go and write a reference for them too. It's a nice gesture and helps us build a community together!"
+                preview = "Please go and write a reference for them too. It's a nice gesture and helps us build a community together!"
             return RenderedEmailNotification(
                 subject=title,
-                preview=body,
+                preview=preview,
                 template_name="host_reference",
                 template_args={
                     "from_user": data.from_user,

@@ -4,17 +4,12 @@ from typing import Any
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
-from jinja2 import Environment
-
 from couchers.i18n.i18next import I18Next
 from couchers.i18n.plurals import PluralRules
 from couchers.templates.v2 import (
-    FilterContext,
-    add_filters,
+    Context,
+    render_template,
 )
-
-_env = Environment()
-add_filters(_env)
 
 
 def _render_template(
@@ -24,17 +19,15 @@ def _render_template(
     plain: bool = False,
     lang: str = "en",
 ) -> str:
-    template = _env.from_string(template_str)
-    template_args = (template_args or {}).copy()
-    template_args[FilterContext.KEY] = FilterContext(timezone=ZoneInfo("Etc/UTC"), locale=lang, plaintext=plain)
-
     mock_i18next = I18Next()
     for lang_code, strings in translation_dict.items():
         language = mock_i18next.add_language(lang_code, PluralRules.en)
         language.load_json_dict(strings)
 
     with patch("couchers.i18n.localize.get_i18next", new=lambda: mock_i18next):
-        return template.render(template_args)
+        return render_template(
+            template_str, template_args or {}, Context(timezone=ZoneInfo("Etc/UTC"), locale=lang, plaintext=plain)
+        )
 
 
 def _greeting_dict(value: str) -> dict[str, dict[str, str]]:
