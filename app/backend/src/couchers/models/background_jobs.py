@@ -21,7 +21,7 @@ class BackgroundJobState(enum.Enum):
     failed = enum.auto()
 
 
-class BackgroundJob(Base, init=False, kw_only=True):
+class BackgroundJob(Base, kw_only=True):
     """
     This table implements a queue of background jobs.
     """
@@ -35,10 +35,10 @@ class BackgroundJob(Base, init=False, kw_only=True):
     state: Mapped[BackgroundJobState] = mapped_column(Enum(BackgroundJobState), default=BackgroundJobState.pending)
 
     # time queued
-    queued: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    queued: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # time at which we may next attempt it, for implementing exponential backoff
-    next_attempt_after: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    next_attempt_after: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # used to count number of retries for failed jobs
     try_count: Mapped[int] = mapped_column(Integer, default=0)
@@ -46,13 +46,13 @@ class BackgroundJob(Base, init=False, kw_only=True):
     max_tries: Mapped[int] = mapped_column(Integer, default=5)
 
     # higher is more important
-    priority: Mapped[int] = mapped_column(Integer, server_default=text("10"))
+    priority: Mapped[int] = mapped_column(Integer, server_default=text("10"), init=False)
 
     # protobuf encoded job payload
     payload: Mapped[bytes] = mapped_column(Binary)
 
     # if the job failed, we write that info here
-    failure_info: Mapped[str | None] = mapped_column(String)
+    failure_info: Mapped[str | None] = mapped_column(String, default=None)
 
     __table_args__ = (
         # used in looking up background jobs to attempt

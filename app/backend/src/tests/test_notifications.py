@@ -700,8 +700,8 @@ def test_RegisterMobilePushNotificationSubscription_re_enable(db):
             token="ExponentPushToken[reeeeeeeeeeeeeeeeeeeee]",
             device_name="Old Device",
             device_type=DeviceType.ios,
-            disabled_at=now(),
         )
+        sub.disabled_at = now()
         session.add(sub)
         session.flush()
         sub_id = sub.id

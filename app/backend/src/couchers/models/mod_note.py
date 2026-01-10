@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from couchers.models.users import User
 
 
-class ModNote(Base, init=False, kw_only=True):
+class ModNote(Base, kw_only=True):
     """
     A moderator note to a user. This could be a warning, just a note "hey, we did X", or any other similar message.
 
@@ -24,7 +24,7 @@ class ModNote(Base, init=False, kw_only=True):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
-    acknowledged: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    acknowledged: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     # this is an internal ID to allow the mods to track different types of notes
     internal_id: Mapped[str] = mapped_column(String)
@@ -33,7 +33,7 @@ class ModNote(Base, init=False, kw_only=True):
 
     note_content: Mapped[str] = mapped_column(String)  # CommonMark without images
 
-    user: Mapped[User] = relationship(foreign_keys="ModNote.user_id", back_populates="mod_notes")
+    user: Mapped[User] = relationship(init=False, foreign_keys="ModNote.user_id", back_populates="mod_notes")
 
     def __repr__(self) -> str:
         return f"ModeNote(id={self.id}, user={self.user}, created={self.created}, ack'd={self.acknowledged})"

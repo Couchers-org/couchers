@@ -97,7 +97,7 @@ class StrongVerificationAttempt(Base, kw_only=True):
     iris_token: Mapped[str] = mapped_column(String, unique=True)
     iris_session_id: Mapped[int] = mapped_column(BigInteger, unique=True)
 
-    passport_expiry_datetime = column_property(date_in_timezone(passport_expiry_date, "Etc/UTC"))  # type: ignore[arg-type]
+    passport_expiry_datetime = column_property(date_in_timezone(passport_expiry_date, "Etc/UTC"))
 
     user: Mapped[User] = relationship(init=False)
 

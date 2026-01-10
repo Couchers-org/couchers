@@ -286,7 +286,7 @@ class Account(account_pb2_grpc.AccountServicer):
         form = request.contributor_form
 
         form = ContributorForm(
-            user=user,
+            user_id=user.id,
             ideas=form.ideas or None,
             features=form.features or None,
             experience=form.experience or None,
@@ -562,7 +562,7 @@ class Account(account_pb2_grpc.AccountServicer):
             session.flush()
             send_account_deletion_report_email(session, deletion_reason)
 
-        token = AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2))
+        token = AccountDeletionToken(token=urlsafe_secure_token(), user_id=user.id, expiry=now() + timedelta(hours=2))
 
         notify(
             session,

@@ -30,6 +30,7 @@ from couchers.models import (
     User,
     UserBlock,
     UserSession,
+    Volunteer,
 )
 from couchers.servicers.auth import create_session
 from couchers.utils import create_coordinate, now
@@ -357,3 +358,10 @@ def add_users_to_new_moderation_list(users: list[User]) -> int:
 
 def run_migration_test():
     return os.environ.get("RUN_MIGRATION_TEST", "false").lower() == "true"
+
+
+def make_volunteer(started_volunteering: date, show_on_team_page: bool = True, **kwargs: Any) -> Volunteer:
+    vol = Volunteer(show_on_team_page=show_on_team_page, **kwargs)
+    vol.started_volunteering = started_volunteering
+
+    return vol

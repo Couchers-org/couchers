@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from couchers.models import Discussion, Event, Thread, Upload, User
 
 
-class Node(Base, init=False, kw_only=True):
+class Node(Base, kw_only=True):
     """
     Node, i.e., geographical subdivision of the world
 
@@ -47,10 +47,11 @@ class Node(Base, init=False, kw_only=True):
         communities_seq,
         primary_key=True,
         server_default=communities_seq.next_value(),
+        init=False,
     )
 
     # name and description come from the official cluster
-    parent_node_id: Mapped[int | None] = mapped_column(ForeignKey("nodes.id"), nullable=True, index=True)
+    parent_node_id: Mapped[int | None] = mapped_column(ForeignKey("nodes.id"), default=None, index=True)
     geom: Mapped[Geom] = deferred(mapped_column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False))
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
@@ -68,7 +69,7 @@ class Node(Base, init=False, kw_only=True):
     )
 
 
-class Cluster(Base, init=False, kw_only=True):
+class Cluster(Base, kw_only=True):
     """
     Cluster, administered grouping of content
     """
@@ -76,7 +77,11 @@ class Cluster(Base, init=False, kw_only=True):
     __tablename__ = "clusters"
 
     id: Mapped[int] = mapped_column(
-        BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value()
+        BigInteger,
+        communities_seq,
+        primary_key=True,
+        server_default=communities_seq.next_value(),
+        init=False,
     )
     parent_node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
     name: Mapped[str] = mapped_column(String)
@@ -143,8 +148,8 @@ class Cluster(Base, init=False, kw_only=True):
     )
 
     cluster_subscriptions: Mapped[list[ClusterSubscription]] = relationship(init=False)
-    owned_pages: DynamicMapped[Page] = relationship(lazy="dynamic")
-    owned_discussions: DynamicMapped[Discussion] = relationship(lazy="dynamic")
+    owned_pages: DynamicMapped[Page] = relationship(init=False, lazy="dynamic")
+    owned_discussions: DynamicMapped[Discussion] = relationship(init=False, lazy="dynamic")
 
     main_page: Mapped[Page] = relationship(
         init=False,
@@ -177,7 +182,7 @@ class Cluster(Base, init=False, kw_only=True):
     )
 
 
-class NodeClusterAssociation(Base, init=False, kw_only=True):
+class NodeClusterAssociation(Base, kw_only=True):
     """
     NodeClusterAssociation, grouping of nodes
     """
@@ -199,7 +204,7 @@ class ClusterRole(enum.Enum):
     admin = enum.auto()
 
 
-class ClusterSubscription(Base, init=False, kw_only=True):
+class ClusterSubscription(Base, kw_only=True):
     """
     ClusterSubscription of a user
     """
@@ -232,7 +237,7 @@ class ClusterSubscription(Base, init=False, kw_only=True):
     )
 
 
-class ClusterPageAssociation(Base, init=False, kw_only=True):
+class ClusterPageAssociation(Base, kw_only=True):
     """
     pages related to clusters
     """
@@ -255,7 +260,7 @@ class PageType(enum.Enum):
     guide = enum.auto()
 
 
-class Page(Base, init=False, kw_only=True):
+class Page(Base, kw_only=True):
     """
     similar to a wiki page about a community, POI or guide
     """
@@ -263,14 +268,14 @@ class Page(Base, init=False, kw_only=True):
     __tablename__ = "pages"
 
     id: Mapped[int] = mapped_column(
-        BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value()
+        BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value(), init=False
     )
 
     parent_node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
     type: Mapped[PageType] = mapped_column(Enum(PageType))
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
-    owner_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
-    owner_cluster_id: Mapped[int | None] = mapped_column(ForeignKey("clusters.id"), nullable=True, index=True)
+    owner_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), default=None, index=True)
+    owner_cluster_id: Mapped[int | None] = mapped_column(ForeignKey("clusters.id"), default=None, index=True)
 
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
 
@@ -285,7 +290,7 @@ class Page(Base, init=False, kw_only=True):
         init=False, back_populates="owned_pages", uselist=False, foreign_keys="Page.owner_cluster_id"
     )
 
-    editors: Mapped[list[User]] = relationship(secondary="page_versions", viewonly=True)
+    editors: Mapped[list[User]] = relationship(init=False, secondary="page_versions", viewonly=True)
     versions: Mapped[list[PageVersion]] = relationship(init=False, back_populates="page", order_by="PageVersion.id")
 
     __table_args__ = (
@@ -313,7 +318,7 @@ class Page(Base, init=False, kw_only=True):
         return f"Page({self.id=})"
 
 
-class PageVersion(Base, init=False, kw_only=True):
+class PageVersion(Base, kw_only=True):
     """
     version of page content
     """
@@ -326,10 +331,10 @@ class PageVersion(Base, init=False, kw_only=True):
     editor_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     title: Mapped[str] = mapped_column(String)
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
-    photo_key: Mapped[str | None] = mapped_column(ForeignKey("uploads.key"), nullable=True)
-    geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    photo_key: Mapped[str | None] = mapped_column(ForeignKey("uploads.key"), default=None)
+    geom: Mapped[Geom | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326), default=None)
     # the human-readable address
-    address: Mapped[str | None] = mapped_column(String, nullable=True)
+    address: Mapped[str | None] = mapped_column(String, default=None)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     slug: Mapped[str] = column_property(func.slugify(title))

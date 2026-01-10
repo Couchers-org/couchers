@@ -31,7 +31,7 @@ class HostRequestQuality(enum.Enum):
     low_quality = enum.auto()
 
 
-class HostRequest(Base, init=False, kw_only=True):
+class HostRequest(Base, kw_only=True):
     """
     A request to stay with a host
     """
@@ -58,11 +58,11 @@ class HostRequest(Base, init=False, kw_only=True):
     to_date: Mapped[date] = mapped_column(Date)
 
     # timezone-aware start and end times of the request, can be compared to now()
-    start_time = column_property(date_in_timezone(from_date, timezone))  # type: ignore[arg-type]
-    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))  # type: ignore[arg-type]
-    start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))  # type: ignore[arg-type]
+    start_time = column_property(date_in_timezone(from_date, timezone))
+    end_time = column_property(date_in_timezone(to_date, timezone) + text("interval '1 days'"))
+    start_time_to_write_reference = column_property(date_in_timezone(to_date, timezone))
     # notice 1 day for midnight at the *end of the day*, then 14 days to write a ref
-    end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))  # type: ignore[arg-type]
+    end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
 
     status: Mapped[HostRequestStatus] = mapped_column(Enum(HostRequestStatus))
     is_host_archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
@@ -72,17 +72,17 @@ class HostRequest(Base, init=False, kw_only=True):
     surfer_last_seen_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
 
     # number of reference reminders sent out
-    host_sent_reference_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
-    surfer_sent_reference_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
-    host_sent_request_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
+    host_sent_reference_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"), init=False)
+    surfer_sent_reference_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"), init=False)
+    host_sent_request_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"), init=False)
     last_sent_request_reminder_time: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
+        DateTime(timezone=True), server_default=func.now(), init=False
     )
 
     # reason why the host/surfer marked that they didn't meet up
     # if null then they haven't marked it such
-    host_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, nullable=True)
-    surfer_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, nullable=True)
+    host_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, default=None)
+    surfer_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, default=None)
 
     surfer: Mapped[User] = relationship(
         init=False, backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id"
@@ -133,7 +133,7 @@ class HostRequest(Base, init=False, kw_only=True):
         return f"HostRequest(id={self.conversation_id}, surfer_user_id={self.surfer_user_id}, host_user_id={self.host_user_id}...)"
 
 
-class HostRequestFeedback(Base, init=False, kw_only=True):
+class HostRequestFeedback(Base, kw_only=True):
     """
     Private feedback from a host about a host request
     """
@@ -141,14 +141,14 @@ class HostRequestFeedback(Base, init=False, kw_only=True):
     __tablename__ = "host_request_feedbacks"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
-    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     host_request_id: Mapped[int] = mapped_column(ForeignKey("host_requests.id"))
 
     from_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     to_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
-    request_quality: Mapped[HostRequestQuality | None] = mapped_column(Enum(HostRequestQuality), nullable=True)
-    decline_reason: Mapped[str | None] = mapped_column(String, nullable=True)  # plain text
+    request_quality: Mapped[HostRequestQuality | None] = mapped_column(Enum(HostRequestQuality), default=None)
+    decline_reason: Mapped[str | None] = mapped_column(String, default=None)  # plain text
 
     host_request: Mapped[HostRequest] = relationship(init=False)
 

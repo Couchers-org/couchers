@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from couchers.models import Cluster, User
 
 
-class Discussion(Base, init=False, kw_only=True):
+class Discussion(Base, kw_only=True):
     """
     forum board
     """
@@ -18,7 +18,7 @@ class Discussion(Base, init=False, kw_only=True):
     __tablename__ = "discussions"
 
     id: Mapped[int] = mapped_column(
-        BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value()
+        BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value(), init=False
     )
 
     title: Mapped[str] = mapped_column(String)
@@ -43,7 +43,7 @@ class Discussion(Base, init=False, kw_only=True):
     owner_cluster: Mapped[Cluster] = relationship(init=False, back_populates="owned_discussions", uselist=False)
 
 
-class DiscussionSubscription(Base, init=False, kw_only=True):
+class DiscussionSubscription(Base, kw_only=True):
     """
     users subscriptions to discussions
     """
@@ -55,14 +55,14 @@ class DiscussionSubscription(Base, init=False, kw_only=True):
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     discussion_id: Mapped[int] = mapped_column(ForeignKey("discussions.id"), index=True)
-    joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    left: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    joined: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    left: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     user: Mapped[User] = relationship(init=False, backref="discussion_subscriptions")
     discussion: Mapped[Discussion] = relationship(init=False, backref="discussion_subscriptions")
 
 
-class Thread(Base, init=False, kw_only=True):
+class Thread(Base, kw_only=True):
     """
     Thread
     """
@@ -72,10 +72,10 @@ class Thread(Base, init=False, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
-    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
 
-class Comment(Base, init=False, kw_only=True):
+class Comment(Base, kw_only=True):
     """
     Comment
     """
@@ -88,12 +88,12 @@ class Comment(Base, init=False, kw_only=True):
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
-    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     thread: Mapped[Thread] = relationship(init=False, backref="comments")
 
 
-class Reply(Base, init=False, kw_only=True):
+class Reply(Base, kw_only=True):
     """
     Reply
     """
@@ -106,12 +106,12 @@ class Reply(Base, init=False, kw_only=True):
     author_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
-    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     comment: Mapped[Comment] = relationship(init=False, backref="replies")
 
 
-class ClusterDiscussionAssociation(Base, init=False, kw_only=True):
+class ClusterDiscussionAssociation(Base, kw_only=True):
     """
     discussions related to clusters
     """

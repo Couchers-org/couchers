@@ -229,13 +229,14 @@ class Editor(editor_pb2_grpc.EditorServicer):
             if not started_volunteering:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_started_volunteering_date")
 
-        # Create volunteer record
+        # Create a volunteer record
         volunteer = Volunteer(
             user_id=request.user_id,
             role=request.role,
-            started_volunteering=started_volunteering,
             show_on_team_page=not request.hide_on_team_page,
         )
+        if started_volunteering:
+            volunteer.started_volunteering = started_volunteering
         session.add(volunteer)
         session.flush()
 

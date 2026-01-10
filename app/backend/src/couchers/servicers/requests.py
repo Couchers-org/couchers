@@ -476,7 +476,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if host_request.end_time < now():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "host_request_in_past")
 
-        control_message = Message()
+        control_message = Message(
+            message_type=MessageType.host_request_status_changed,
+            conversation_id=host_request.conversation_id,
+            author_id=context.user_id,
+        )
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
             # only host can accept
@@ -584,17 +588,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             count_host_response(host_request.host_user_id, "cancelled")
 
-        control_message.message_type = MessageType.host_request_status_changed
-        control_message.conversation_id = host_request.conversation_id
-        control_message.author_id = context.user_id
         session.add(control_message)
 
         if request.text:
-            latest_message = Message()
-            latest_message.conversation_id = host_request.conversation_id
-            latest_message.text = request.text
-            latest_message.author_id = context.user_id
-            latest_message.message_type = MessageType.text
+            latest_message = Message(
+                conversation_id=host_request.conversation_id,
+                text=request.text,
+                author_id=context.user_id,
+                message_type=MessageType.text,
+            )
+
             session.add(latest_message)
         else:
             latest_message = control_message
@@ -669,11 +672,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if host_request.host_user_id == context.user_id:
             _possibly_observe_first_response_time(session, host_request, context.user_id, "message")
 
-        message = Message()
-        message.conversation_id = host_request.conversation_id
-        message.author_id = context.user_id
-        message.message_type = MessageType.text
-        message.text = request.text
+        message = Message(
+            conversation_id=host_request.conversation_id,
+            author_id=context.user_id,
+            message_type=MessageType.text,
+            text=request.text,
+        )
+
         session.add(message)
         session.flush()
 

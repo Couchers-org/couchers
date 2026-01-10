@@ -14,6 +14,7 @@ from google.protobuf.duration_pb2 import Duration
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
 from sqlalchemy import Function, cast
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
@@ -353,10 +354,10 @@ def remove_duplicates_retain_order[T](list_: Sequence[T]) -> list[T]:
     return out
 
 
-def date_in_timezone(date_: date, timezone: str) -> Function[Any]:
+def date_in_timezone(date_: Mapped[date | None], timezone: str) -> Function[Any]:
     """
     Given a naive postgres date object (postgres doesn't have tzd dates), returns a timezone-aware timestamp for the
-    start of that date in that timezone. E.g. if postgres is in 'America/New_York',
+    start of that date in that timezone. E.g., if postgres is in 'America/New_York',
 
     SET SESSION TIME ZONE 'America/New_York';
 

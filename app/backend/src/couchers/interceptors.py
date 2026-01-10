@@ -100,7 +100,7 @@ def _try_get_and_update_user_details(
         if not result:
             return None
         else:
-            user, user_session, user_activity = result
+            user, user_session, user_activity = result._tuple()
 
             # update user last active time if it's been a while
             if now() - user.last_active > timedelta(minutes=5):
@@ -187,7 +187,7 @@ def _sanitized_bytes(proto: Message | None) -> bytes | None:
 def _store_log(
     *,
     method: str,
-    status_code: grpc.StatusCode | None,
+    status_code: str | None,
     duration: float,
     user_id: int | None,
     is_api_key: bool,
@@ -358,7 +358,13 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 except Exception as e:
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
-                    code = getattr(couchers_context._grpc_context.code(), "name", None)  # type: ignore[union-attr]
+
+                    if couchers_context._grpc_context:
+                        context_code = couchers_context._grpc_context.code()  # type: ignore[attr-defined]
+                        code = getattr(context_code, "name", None)
+                    else:
+                        code = None
+
                     traceback = "".join(format_exception(type(e), e, e.__traceback__))
                     _store_log(
                         method=method,

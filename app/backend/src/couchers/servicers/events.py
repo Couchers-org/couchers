@@ -5,7 +5,7 @@ from typing import Any, cast
 import grpc
 from google.protobuf import empty_pb2
 from psycopg2.extras import DateTimeTZRange
-from sqlalchemy import Row, Select, select
+from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_, update
 
@@ -222,14 +222,16 @@ def _get_event_and_occurrence_query(occurrence_id: int, include_deleted: bool) -
 
 def _get_event_and_occurrence_one(
     session: Session, occurrence_id: int, include_deleted: bool = False
-) -> Row[tuple[Event, EventOccurrence]]:
-    return session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one()
+) -> tuple[Event, EventOccurrence]:
+    result = session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one()
+    return result._tuple()
 
 
 def _get_event_and_occurrence_one_or_none(
     session: Session, occurrence_id: int, include_deleted: bool = False
-) -> Row[tuple[Event, EventOccurrence]] | None:
-    return session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one_or_none()
+) -> tuple[Event, EventOccurrence] | None:
+    result = session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one_or_none()
+    return result._tuple() if result else None
 
 
 def _check_occurrence_time_validity(start_time: datetime, end_time: datetime, context: CouchersContext) -> None:
@@ -447,17 +449,22 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
+        thread = Thread()
+        session.add(thread)
+        session.flush()
+
         event = Event(
             title=request.title,
             parent_node_id=parent_node.id,
             owner_user_id=context.user_id,
-            thread=Thread(),
+            thread_id=thread.id,
             creator_user_id=context.user_id,
         )
         session.add(event)
+        session.flush()
 
         occurrence = EventOccurrence(
-            event=event,
+            event_id=event.id,
             content=request.content,
             geom=geom,
             address=address,
@@ -468,25 +475,26 @@ class Events(events_pb2_grpc.EventsServicer):
             creator_user_id=context.user_id,
         )
         session.add(occurrence)
+        session.flush()
 
         session.add(
             EventOrganizer(
                 user_id=context.user_id,
-                event=event,
+                event_id=event.id,
             )
         )
 
         session.add(
             EventSubscription(
                 user_id=context.user_id,
-                event=event,
+                event_id=event.id,
             )
         )
 
         session.add(
             EventOccurrenceAttendee(
                 user_id=context.user_id,
-                occurrence=occurrence,
+                occurrence_id=occurrence.id,
                 attendee_status=AttendeeStatus.going,
             )
         )
@@ -570,7 +578,7 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_overlap")
 
         occurrence = EventOccurrence(
-            event=event,
+            event_id=event.id,
             content=request.content,
             geom=geom,
             address=address,
@@ -581,11 +589,12 @@ class Events(events_pb2_grpc.EventsServicer):
             creator_user_id=context.user_id,
         )
         session.add(occurrence)
+        session.flush()
 
         session.add(
             EventOccurrenceAttendee(
                 user_id=context.user_id,
-                occurrence=occurrence,
+                occurrence_id=occurrence.id,
                 attendee_status=AttendeeStatus.going,
             )
         )
@@ -1039,7 +1048,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 attendance = EventOccurrenceAttendee(
                     user_id=context.user_id,
                     occurrence_id=occurrence.id,
-                    attendee_status=attendancestate2sql[request.attendance_state],
+                    attendee_status=not_none(attendancestate2sql[request.attendance_state]),
                 )
                 session.add(attendance)
 
@@ -1189,7 +1198,7 @@ class Events(events_pb2_grpc.EventsServicer):
         session.add(
             EventOrganizer(
                 user_id=request.user_id,
-                event=event,
+                event_id=event.id,
             )
         )
         session.flush()

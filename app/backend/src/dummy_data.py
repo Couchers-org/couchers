@@ -194,7 +194,7 @@ def add_dummy_users() -> None:
             )
 
             chat = GroupChat(
-                conversation=conversation,
+                conversation_id=conversation.id,
                 title=group_chat["title"],
                 creator_id=creator_id,
                 is_dm=group_chat["is_dm"],
@@ -207,24 +207,22 @@ def add_dummy_users() -> None:
                     user_id=session.execute(select(User).where(User.username == participant["username"]))
                     .scalar_one()
                     .id,
-                    group_chat=chat,
+                    group_chat_id=chat.conversation_id,
                     role=GroupChatRole.admin if participant["username"] == creator else GroupChatRole.participant,
-                    joined=parser.isoparse(participant["joined"]),
                 )
+                subscription.joined = parser.isoparse(participant["joined"])
                 session.add(subscription)
 
             for message in group_chat["messages"]:
-                session.add(
-                    Message(
-                        message_type=MessageType.text,
-                        conversation=chat.conversation,
-                        author_id=session.execute(select(User).where(User.username == message["author"]))
-                        .scalar_one()
-                        .id,
-                        time=parser.isoparse(message["time"]),
-                        text=message["message"],
-                    )
+                msg = Message(
+                    message_type=MessageType.text,
+                    conversation_id=chat.conversation.id,
+                    author_id=session.execute(select(User).where(User.username == message["author"])).scalar_one().id,
+                    text=message["message"],
                 )
+                msg.time = parser.isoparse(message["time"])
+
+                session.add(msg)
 
         session.commit()
 
@@ -232,12 +230,13 @@ def add_dummy_users() -> None:
             new_volunteer = Volunteer(
                 user_id=session.execute(select(User).where(User.username == volunteer["username"])).scalar_one().id,
                 role=volunteer["role"],
-                started_volunteering=volunteer["started_volunteering"],
                 stopped_volunteering=volunteer["stopped_volunteering"],
                 link_type=volunteer["link_type"],
                 link_text=volunteer["link_text"],
                 link_url=volunteer["link_url"],
+                show_on_team_page=True,
             )
+            new_volunteer.started_volunteering = volunteer["started_volunteering"]
 
             session.add(new_volunteer)
 
@@ -284,33 +283,40 @@ def add_dummy_communities() -> None:
 
             node = Node(
                 geom=to_multi(geom),
-                parent_node=parent_node if parent_name else None,
+                parent_node_id=parent_node.id if parent_name else None,
             )
 
             session.add(node)
+            session.flush()
 
             cluster = Cluster(
                 name=f"{name}",
                 description=f"Description for {name}",
-                parent_node=node,
+                parent_node_id=node.id,
                 is_official_cluster=True,
             )
 
             session.add(cluster)
+            session.flush()
+
+            thread = Thread()
+            session.add(thread)
+            session.flush()
 
             main_page = Page(
-                parent_node=node,
-                creator_user=admins[0],
-                owner_cluster=cluster,
+                parent_node_id=node.id,
+                creator_user_id=admins[0].id,
+                owner_cluster_id=cluster.id,
                 type=PageType.main_page,
-                thread=Thread(),
+                thread_id=thread.id,
             )
 
             session.add(main_page)
+            session.flush()
 
             page_version = PageVersion(
-                page=main_page,
-                editor_user=admins[0],
+                page_id=main_page.id,
+                editor_user_id=admins[0].id,
                 title=f"Main page for the {name} community",
                 content="There is nothing here yet...",
             )
@@ -320,7 +326,8 @@ def add_dummy_communities() -> None:
             for admin in admins:
                 cluster.cluster_subscriptions.append(
                     ClusterSubscription(
-                        user=admin,
+                        user_id=admin.id,
+                        cluster_id=cluster.id,
                         role=ClusterRole.admin,
                     )
                 )
@@ -328,7 +335,8 @@ def add_dummy_communities() -> None:
             for member in members:
                 cluster.cluster_subscriptions.append(
                     ClusterSubscription(
-                        user=member,
+                        user_id=member.id,
+                        cluster_id=cluster.id,
                         role=ClusterRole.member,
                     )
                 )
@@ -349,24 +357,30 @@ def add_dummy_communities() -> None:
             cluster = Cluster(
                 name=f"{name}",
                 description=f"Description for the group {name}",
-                parent_node=parent_node,
+                parent_node_id=parent_node.id,
             )
 
             session.add(cluster)
+            session.flush()
+
+            thread = Thread()
+            session.add(thread)
+            session.flush()
 
             main_page = Page(
-                parent_node=cluster.parent_node,
-                creator_user=admins[0],
-                owner_cluster=cluster,
+                parent_node_id=cluster.parent_node_id,
+                creator_user_id=admins[0].id,
+                owner_cluster_id=cluster.id,
                 type=PageType.main_page,
-                thread=Thread(),
+                thread_id=thread.id,
             )
 
             session.add(main_page)
+            session.flush()
 
             page_version = PageVersion(
-                page=main_page,
-                editor_user=admins[0],
+                page_id=main_page.id,
+                editor_user_id=admins[0].id,
                 title=f"Main page for the {name} group",
                 content="There is nothing here yet...",
             )
@@ -376,7 +390,8 @@ def add_dummy_communities() -> None:
             for admin in admins:
                 cluster.cluster_subscriptions.append(
                     ClusterSubscription(
-                        user=admin,
+                        user_id=admin.id,
+                        cluster_id=cluster.id,
                         role=ClusterRole.admin,
                     )
                 )
@@ -384,7 +399,8 @@ def add_dummy_communities() -> None:
             for member in members:
                 cluster.cluster_subscriptions.append(
                     ClusterSubscription(
-                        user=member,
+                        user_id=member.id,
+                        cluster_id=cluster.id,
                         role=ClusterRole.member,
                     )
                 )
@@ -393,19 +409,24 @@ def add_dummy_communities() -> None:
             owner_cluster = session.execute(select(Cluster).where(Cluster.name == place["owner"])).scalar_one()
             creator = session.execute(select(User).where(User.username == place["creator"])).scalar_one()
 
+            thread = Thread()
+            session.add(thread)
+            session.flush()
+
             page = Page(
-                parent_node=owner_cluster.parent_node,
-                creator_user=creator,
-                owner_cluster=owner_cluster,
+                parent_node_id=owner_cluster.parent_node_id,
+                creator_user_id=creator.id,
+                owner_cluster_id=owner_cluster.id,
                 type=PageType.place,
-                thread=Thread(),
+                thread_id=thread.id,
             )
 
             session.add(page)
+            session.flush()
 
             page_version = PageVersion(
-                page=page,
-                editor_user=creator,
+                page_id=page.id,
+                editor_user_id=creator.id,
                 title=place["title"],
                 content=place["content"],
                 address=place["address"],
@@ -418,19 +439,24 @@ def add_dummy_communities() -> None:
             owner_cluster = session.execute(select(Cluster).where(Cluster.name == guide["owner"])).scalar_one()
             creator = session.execute(select(User).where(User.username == guide["creator"])).scalar_one()
 
+            thread = Thread()
+            session.add(thread)
+            session.flush()
+
             page = Page(
-                parent_node=owner_cluster.parent_node,
-                creator_user=creator,
-                owner_cluster=owner_cluster,
+                parent_node_id=owner_cluster.parent_node_id,
+                creator_user_id=creator.id,
+                owner_cluster_id=owner_cluster.id,
                 type=PageType.guide,
-                thread=Thread(),
+                thread_id=thread.id,
             )
 
             session.add(page)
+            session.flush()
 
             page_version = PageVersion(
-                page=page,
-                editor_user=creator,
+                page_id=page.id,
+                editor_user_id=creator.id,
                 title=guide["title"],
                 content=guide["content"],
                 geom=(

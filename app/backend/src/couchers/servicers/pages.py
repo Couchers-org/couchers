@@ -120,17 +120,23 @@ class Pages(pages_pb2_grpc.PagesServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
+        parent_node = get_parent_node_at_location(session, geom)
+        if not parent_node:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "location_not_in_any_community")
+        thread = Thread()
+        session.add(thread)
+        session.flush()
         page = Page(
-            parent_node=get_parent_node_at_location(session, geom),
+            parent_node_id=parent_node.id,
             type=PageType.place,
             creator_user_id=context.user_id,
             owner_user_id=context.user_id,
-            thread=Thread(),
+            thread_id=thread.id,
         )
         session.add(page)
         session.flush()
         page_version = PageVersion(
-            page=page,
+            page_id=page.id,
             editor_user_id=context.user_id,
             title=request.title,
             content=request.content,
@@ -175,17 +181,20 @@ class Pages(pages_pb2_grpc.PagesServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
+        thread = Thread()
+        session.add(thread)
+        session.flush()
         page = Page(
-            parent_node=parent_node,
+            parent_node_id=parent_node.id,
             type=PageType.guide,
             creator_user_id=context.user_id,
             owner_user_id=context.user_id,
-            thread=Thread(),
+            thread_id=thread.id,
         )
         session.add(page)
         session.flush()
         page_version = PageVersion(
-            page=page,
+            page_id=page.id,
             editor_user_id=context.user_id,
             title=request.title,
             content=request.content,
@@ -217,7 +226,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
         current_version = page.versions[-1]
 
         page_version = PageVersion(
-            page=page,
+            page_id=page.id,
             editor_user_id=context.user_id,
             title=current_version.title,
             content=current_version.content,
