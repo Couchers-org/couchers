@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from couchers import urls
 from couchers.config import config
 from couchers.email import queue_email
-from couchers.i18n.i18n import format_phone_number, localize_date, localize_datetime, localize_string, localize_time
+from couchers.i18n.localize import format_phone_number, localize_date, localize_datetime, localize_string, localize_time
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)

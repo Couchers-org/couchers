@@ -2,7 +2,7 @@ from typing import NoReturn, cast
 
 import grpc
 
-from couchers.i18n.i18n import localize_string
+from couchers.i18n.localize import localize_string
 
 
 class NonInteractiveContextException(Exception):

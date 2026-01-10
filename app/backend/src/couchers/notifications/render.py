@@ -3,7 +3,12 @@ from dataclasses import dataclass
 from typing import Any
 
 from couchers import urls
-from couchers.i18n.i18n import format_phone_number, localize_date_from_iso, localize_datetime_for_user, localize_string
+from couchers.i18n.localize import (
+    format_phone_number,
+    localize_date_from_iso,
+    localize_datetime_for_user,
+    localize_string,
+)
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.proto import notification_data_pb2

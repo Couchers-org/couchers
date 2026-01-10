@@ -19,7 +19,7 @@ from sqlalchemy.sql import text
 from couchers.config import check_config, config
 from couchers.db import apply_migrations, session_scope
 from couchers.experimentation import setup_experimentation
-from couchers.i18n.i18n import get_i18next
+from couchers.i18n.localize import get_i18next
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.metrics import create_prometheus_server
 from couchers.server import create_main_server, create_media_server

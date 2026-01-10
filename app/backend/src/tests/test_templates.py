@@ -33,7 +33,7 @@ def _render_template(
         language = mock_i18next.add_language(lang_code, PluralRules.en)
         language.load_json_dict(strings)
 
-    with patch("couchers.i18n.i18n.get_i18next", new=lambda: mock_i18next):
+    with patch("couchers.i18n.localize.get_i18next", new=lambda: mock_i18next):
         return template.render(template_args)
 
 

@@ -12,7 +12,7 @@ from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
 from couchers.db import session_scope
-from couchers.i18n.i18n import localize_datetime_for_user
+from couchers.i18n.localize import localize_datetime_for_user
 from couchers.jobs.worker import process_job
 from couchers.models import (
     DeviceType,
