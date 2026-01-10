@@ -55,7 +55,7 @@ if config["SENTRY_ENABLED"]:
         traces_sample_rate=0.0,
         environment=config["COOKIE_DOMAIN"],
         release=config["VERSION"],
-        # It seems to be picking up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
+        # The global excepthook picks up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
         disabled_integrations=[
             excepthook.ExcepthookIntegration(),
         ],
