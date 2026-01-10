@@ -10,7 +10,7 @@ from sqlalchemy_utils import refresh_materialized_view
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
-from couchers.i18n.i18n import localize_date
+from couchers.i18n.localize import localize_date
 from couchers.models import (
     Message,
     MessageType,
