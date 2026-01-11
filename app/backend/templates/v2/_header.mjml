@@ -1,7 +1,7 @@
 <mjml>
   <mj-head>
-    <mj-title>{{ header_subject }}</mj-title>
-    <mj-preview>{{ header_preview }}</mj-preview>
+    <mj-title>{{ header_subject|v2esc }}</mj-title>
+    <mj-preview>{{ header_preview|v2esc }}</mj-preview>
     <mj-attributes>
       <mj-text color="#333" />
     </mj-attributes>
