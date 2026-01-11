@@ -59,30 +59,32 @@ class Push:
     ttl: int | None = None
 
 
+@dataclass(frozen=True, slots=True, init=False)
 class PushCollector:
-    def __init__(self):
-        # pairs of (user_id, push)
-        self.pushes: list[tuple[int, Push]] = []
+    by_user: dict[int, list[Push]]
+    """Collected notifications by user id, chronologically."""
 
-    def by_user(self, user_id: int) -> list[Push]:
-        return [push for uid, push in self.pushes if uid == user_id]
+    def __init__(self):
+        self.by_user = {}
 
     def push_to_user(self, session: Session, user_id: int, **kwargs: Any) -> None:
-        self.pushes.append((user_id, Push(**kwargs)))
+        if user_id not in self.by_user:
+            self.by_user[user_id] = []
+        self.by_user[user_id].append(Push(**kwargs))
 
     def count_for_user(self, user_id: int) -> int:
-        return len(self.by_user(user_id))
+        return len(self.by_user.get(user_id, []))
 
-    def get_for_user(
-        self,
-        user_id: int,
-        index: int | None = None,
-    ) -> Push:
-        pushes = self.by_user(user_id)
-        if index is None:
-            assert len(pushes) == 1, "Expected a single user notification"
-            return pushes[0]
-        return pushes[index]
+    def pop_for_user(self, user_id: int, last: bool = False) -> Push:
+        """
+        Removes and returns the oldest push notification received by the given user,
+        optionally asserting that it is the last one.
+        """
+        pushes = self.by_user.get(user_id)
+        assert pushes, f"No notifications to pop for user {user_id}."
+        if last:
+            assert len(pushes) == 1, f"Expected a single notification for user {user_id}."
+        return pushes.pop(0)
 
 
 class Moderator:
