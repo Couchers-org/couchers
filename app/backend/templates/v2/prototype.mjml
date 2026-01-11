@@ -1,0 +1,43 @@
+<!-- begin-section:text -->
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>{{ text }}</mj-text>
+  </mj-column>
+</mj-section>
+<!-- end-section:text -->
+
+<!-- begin-section:button -->
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ url }}">
+      <b>{{ label }}</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<!-- end-section:button -->
+
+<!-- begin-section:person -->
+<mj-section padding="0px" text-align="left">
+  <mj-column>
+    <mj-table>
+      <tr>
+        <td style="width: 100px;">
+          <img width="80px" style="border-radius: 80px" src="{{ avatar_url }}" />
+        </td>
+        <td>
+          <b>{{ name }}</b>, {{ age }}<br />
+          {{ city }}
+        </td>
+      </tr>
+    </mj-table>
+  </mj-column>
+</mj-section>
+<!-- end-section:person -->
+
+<!-- begin-section:quote -->
+<mj-section padding="10px 20px" text-align="left">
+  <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
+    <mj-text>{{ text }}</mj-text>
+  </mj-column>
+</mj-section>
+<!-- end-section:quote -->
