@@ -4,41 +4,52 @@ template mailer/push notification formatter v2
 
 import logging
 import re
+from dataclasses import dataclass
 from datetime import date, datetime
+from functools import lru_cache
 from html import escape
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 from zoneinfo import ZoneInfo
 
-import phonenumbers
 from google.protobuf.timestamp_pb2 import Timestamp
 from jinja2 import Environment, FileSystemLoader, pass_context
-from jinja2.runtime import Context
+from jinja2.runtime import Context as JinjaContext
 from markdown_it import MarkdownIt
-from sqlalchemy.orm import Session
 
 from couchers import urls
-from couchers.config import config
-from couchers.email import queue_email
-from couchers.i18n.i18n import localize_string
-from couchers.models import User
-from couchers.utils import get_tz_as_text, now, to_aware_datetime
+from couchers.i18n.localize import format_phone_number, localize_date, localize_datetime, localize_string, localize_time
 
 logger = logging.getLogger(__name__)
 
 template_folder = Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2"
-
-loader = FileSystemLoader(template_folder)
-env = Environment(loader=loader, trim_blocks=True)
 
 md = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading", "hr", "list", "link", "emphasis"])
 
 
 # Special context values expected by v2 filters
 CONTEXT_YEAR_KEY = "_year"
-CONTEXT_TIMEZONE_DISPLAY_KEY = "_timezone_display"
-CONTEXT_TRANSLATION_LANGUAGE_KEY = "_lang"
-CONTEXT_PLAINTEXT_KEY = "_plain"
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class Context:
+    """Context available to filter functions during templating."""
+
+    KEY: ClassVar[str] = "_filter_context"
+
+    timezone: ZoneInfo
+    """The timezone to use when formatting times."""
+
+    locale: str
+    """The locale to use when localizing strings or formatting times."""
+
+    plaintext: bool
+    """If true, strips html tags from localized strings."""
+
+    @staticmethod
+    def from_jinja(jinja_context: JinjaContext) -> Context:
+        context: Context = jinja_context[Context.KEY]
+        return context
 
 
 def v2esc(value: Any) -> str:
@@ -58,24 +69,28 @@ def v2url(value: str) -> str:
 
 
 def v2phone(value: str) -> str:
-    return phonenumbers.format_number(phonenumbers.parse(value), phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+    return format_phone_number(value)
 
 
-def v2date(value: date | str, user: User) -> str:
-    # todo: user locale-based date formatting
+@pass_context
+def v2date(jinja_context: JinjaContext, value: date | str) -> str:
+    context = Context.from_jinja(jinja_context)
     if isinstance(value, str):
         value = date.fromisoformat(value)
-    return value.strftime("%A %-d %B %Y")
+    return localize_date(value, context.locale)
 
 
-def v2time(value: datetime, user: User) -> str:
-    tz = ZoneInfo(user.timezone or "Etc/UTC")
-    return value.astimezone(tz=tz).strftime("%-I:%M %p (%H:%M)")
+@pass_context
+def v2time(jinja_context: JinjaContext, value: datetime) -> str:
+    context = Context.from_jinja(jinja_context)
+    value = value.astimezone(context.timezone)
+    return localize_time(value.time(), context.locale)
 
 
-def v2timestamp(value: Timestamp, user: User) -> str:
-    tz = ZoneInfo(user.timezone or "Etc/UTC")
-    return to_aware_datetime(value).astimezone(tz=tz).strftime("%A %-d %B %Y at %-I:%M %p (%H:%M)")
+@pass_context
+def v2timestamp(jinja_context: JinjaContext, value: Timestamp) -> str:
+    context = Context.from_jinja(jinja_context)
+    return localize_datetime(value, context.timezone, context.locale)
 
 
 def v2avatar(user: Any) -> str:
@@ -107,7 +122,7 @@ def replace_tag(match: re.Match[str]) -> str:
 
 
 @pass_context
-def v2translate(context: Context, key: str, **kwargs: Any) -> str:
+def v2translate(jinja_context: JinjaContext, key: str, **kwargs: Any) -> str:
     """
     Jinja2 filter to translate a string key with substitutions.
 
@@ -115,16 +130,16 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
         {{ "greeting_key"|v2translate(name=user.name) }}
     """
 
-    lang: str = context[CONTEXT_TRANSLATION_LANGUAGE_KEY]
+    context = Context.from_jinja(jinja_context)
 
     # Prevent html injection
     escaped_substitutions = {k: escape(str(v)) for k, v in kwargs.items()}
 
-    translated = localize_string(lang, key, substitutions=escaped_substitutions)
+    translated = localize_string(context.locale, key, substitutions=escaped_substitutions)
 
     # Translations may include simple formatting HTML like <b> or <a>,
     # but those should not appear in plain text emails.
-    if context.parent.get(CONTEXT_PLAINTEXT_KEY) == True:
+    if context.plaintext:
         # Doesn't support nesting, but should be sufficient for our needs
         translated = re.sub(r"<(\w+).*?>(.*?)</\1>", replace_tag, translated)
         translated = re.sub(r"<br\s*/?>", "\n", translated)
@@ -137,7 +152,10 @@ def v2translate(context: Context, key: str, **kwargs: Any) -> str:
     return translated
 
 
-def add_filters(env: Environment) -> None:
+@lru_cache(maxsize=1)
+def _get_jinja2_env() -> Environment:
+    loader = FileSystemLoader(template_folder)
+    env = Environment(loader=loader, trim_blocks=True)
     env.filters["v2esc"] = v2esc
     env.filters["v2multiline"] = v2multiline
     env.filters["v2sf"] = v2sf
@@ -150,40 +168,13 @@ def add_filters(env: Environment) -> None:
     env.filters["v2quote"] = v2quote
     env.filters["v2markdown"] = v2markdown
     env.filters["v2translate"] = v2translate
+    return env
 
 
-add_filters(env)
+def render_template(template: str, args: dict[str, Any], context: Context) -> str:
+    """Renders an a jinja2 template which may use our jinja2 filters."""
 
-
-def send_simple_pretty_email(
-    session: Session, recipient: str, subject: str, template_name: str, template_args: dict[str, Any]
-) -> None:
-    """
-    This is a simplified version of couchers.notifications.background._send_email_notification
-
-    It's for the few security emails where we don't have a user to email but send directly to an email address.
-    """
-    template_args[CONTEXT_TRANSLATION_LANGUAGE_KEY] = "en"  # Not yet localizable
-    template_args[CONTEXT_YEAR_KEY] = now().year
-    template_args[CONTEXT_TIMEZONE_DISPLAY_KEY] = get_tz_as_text("Etc/UTC")
-
-    template_args["header_subject"] = subject
-    template_args["footer_email_is_critical"] = True  # Results in no unsubscribe footer.
-
-    plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
-    plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain = env.from_string(plain_tmplt + plain_tmplt_footer).render(template_args)
-
-    html_tmplt = (template_folder / "generated_html" / f"{template_name}.html").read_text()
-    html = env.from_string(html_tmplt).render(template_args)
-
-    queue_email(
-        session,
-        sender_name=config["NOTIFICATION_EMAIL_SENDER"],
-        sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
-        recipient=recipient,
-        subject=config["NOTIFICATION_PREFIX"] + subject,
-        plain=plain,
-        html=html,
-        source_data=config["VERSION"] + f"/{template_name}",
-    )
+    # Append to the context values used by filters
+    env = _get_jinja2_env()
+    args = {**args, Context.KEY: context}
+    return env.from_string(template).render(args)

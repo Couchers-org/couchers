@@ -20,11 +20,12 @@ def queue_job[T: google.protobuf.message.Message](
     max_tries: int | None = None,
     priority: int | None = None,
 ) -> None:
-    session.add(
-        BackgroundJob(
-            job_type=job.__name__,
-            payload=payload.SerializeToString(),
-            max_tries=max_tries,
-            priority=priority,
-        )
-    )
+    job_model = BackgroundJob(job_type=job.__name__, payload=payload.SerializeToString())
+
+    if max_tries is not None:
+        job_model.max_tries = max_tries
+
+    if priority is not None:
+        job_model.priority = priority
+
+    session.add(job_model)

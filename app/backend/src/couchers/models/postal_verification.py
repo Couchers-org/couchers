@@ -39,7 +39,7 @@ class PostalVerificationStatus(enum.Enum):
     cancelled = enum.auto()
 
 
-class PostalVerificationAttempt(Base, init=False, kw_only=True):
+class PostalVerificationAttempt(Base, kw_only=True):
     """
     An attempt to perform postal verification by sending a postcard with a code.
     """
@@ -61,25 +61,25 @@ class PostalVerificationAttempt(Base, init=False, kw_only=True):
     # Required: address_line_1, city, country
     # Optional: address_line_2, state, postal_code (varies by country)
     address_line_1: Mapped[str] = mapped_column(String)
-    address_line_2: Mapped[str | None] = mapped_column(String, nullable=True)
+    address_line_2: Mapped[str | None] = mapped_column(String, default=None)
     city: Mapped[str] = mapped_column(String)
-    state: Mapped[str | None] = mapped_column(String, nullable=True)
-    postal_code: Mapped[str | None] = mapped_column(String, nullable=True)
+    state: Mapped[str | None] = mapped_column(String, default=None)
+    postal_code: Mapped[str | None] = mapped_column(String, default=None)
     country: Mapped[str] = mapped_column(String)  # ISO 3166-1 alpha-2
 
     # The original address as entered by user (for audit), stored as JSON
-    original_address_json: Mapped[str | None] = mapped_column(String, nullable=True)
+    original_address_json: Mapped[str | None] = mapped_column(String, default=None)
 
     # Verification code (6 chars, uppercase alphanumeric)
-    verification_code: Mapped[str | None] = mapped_column(String, nullable=True)
+    verification_code: Mapped[str | None] = mapped_column(String, default=None)
 
     # Timestamps
-    address_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    postcard_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    address_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    postcard_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     # Code entry attempts
-    code_attempts: Mapped[int] = mapped_column(Integer, server_default=text("0"))
+    code_attempts: Mapped[int] = mapped_column(Integer, server_default=text("0"), init=False)
 
     # Hybrid properties
     @hybrid_property

@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from typing import cast
 
 import grpc
 import requests
@@ -102,10 +103,10 @@ def create_session(
 
     user_session = UserSession(
         token=token,
-        user=user,
+        user_id=user.id,
         long_lived=long_lived,
-        ip_address=context.headers.get("x-couchers-real-ip"),
-        user_agent=context.headers.get("user-agent"),
+        ip_address=cast(str | None, context.headers.get("x-couchers-real-ip")),
+        user_agent=cast(str | None, context.headers.get("user-agent")),
         is_api_key=is_api_key,
     )
     if duration:
@@ -354,12 +355,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             if flow.filled_feedback:
                 form_ = ContributorForm(
-                    user=user,
+                    user_id=user.id,
                     ideas=flow.ideas or None,
                     features=flow.features or None,
                     experience=flow.experience or None,
                     contribute=flow.contribute or None,
-                    contribute_ways=flow.contribute_ways,
+                    contribute_ways=not_none(flow.contribute_ways),
                     expertise=flow.expertise or None,
                 )
 
@@ -482,7 +483,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         ).scalar_one_or_none()
         if user:
             password_reset_token = PasswordResetToken(
-                token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
+                token=urlsafe_secure_token(), user_id=user.id, expiry=now() + timedelta(hours=2)
             )
             session.add(password_reset_token)
             session.flush()
@@ -642,38 +643,37 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not config["RECAPTHCA_ENABLED"]:
             return auth_pb2.AntiBotRes()
 
-        ip_address = context.headers.get("x-couchers-real-ip")
-        user_agent = context.headers.get("user-agent")
-
-        log = AntiBotLog(
-            token=request.token,
-            user_agent=user_agent,
-            ip_address=ip_address,
-            action=request.action,
-            user_id=context.user_id if context.is_logged_in() else None,
-        )
+        ip_address = cast(str | None, context.headers.get("x-couchers-real-ip"))
+        user_agent = cast(str | None, context.headers.get("user-agent"))
+        user_id = context.user_id if context.is_logged_in() else None
 
         resp = requests.post(
             f"https://recaptchaenterprise.googleapis.com/v1/projects/{config['RECAPTHCA_PROJECT_ID']}/assessments?key={config['RECAPTHCA_API_KEY']}",
             json={
                 "event": {
-                    "token": log.token,
+                    "token": request.token,
                     "siteKey": config["RECAPTHCA_SITE_KEY"],
-                    "userAgent": log.user_agent,
-                    "userIpAddress": log.ip_address,
-                    "expectedAction": log.action,
-                    "userInfo": {"accountId": str(log.user_id) if log.user_id else None},
+                    "userAgent": user_agent,
+                    "userIpAddress": ip_address,
+                    "expectedAction": request.action,
+                    "userInfo": {"accountId": str(user_id) if user_id else None},
                 }
             },
         )
 
         resp.raise_for_status()
 
-        log.score = resp.json()["riskAnalysis"]["score"]
-        log.provider_data = resp.json()
+        log = AntiBotLog(
+            token=request.token,
+            user_agent=user_agent,
+            ip_address=ip_address,
+            action=request.action,
+            user_id=user_id,
+            score=resp.json()["riskAnalysis"]["score"],
+            provider_data=resp.json(),
+        )
 
         session.add(log)
-
         session.flush()
 
         recaptchas_assessed_counter.labels(log.action).inc()

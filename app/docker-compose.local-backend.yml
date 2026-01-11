@@ -21,10 +21,6 @@ services:
     depends_on: !reset []
     extra_hosts:
       backend: ${BACKEND_HOST:-172.17.0.1}
-  postgres:
-    extends:
-      file: docker-compose.yml
-      service: postgres
   proxy:
     extends:
       file: docker-compose.yml
@@ -32,3 +28,22 @@ services:
     # Tell it how to find the local backend
     extra_hosts:
       backend: ${BACKEND_HOST:-172.17.0.1}
+  # Not extending, because we want to build image locally, so that it buids the correct
+  # image on Macs. Dockerhub has images only for x86, and they are very slow on ARM Macs.
+  postgres:
+    build:
+      context: postgis
+    env_file: postgres.dev.env
+    # uncomment this line if you want postgres to log all queries
+    # command: ["postgres", "-c", "log_statement=all"]
+    volumes:
+      - "./data/postgres/pgdata:/var/lib/postgresql/data"
+    restart: unless-stopped
+    ports:
+      - 6545:6545
+    healthcheck:
+      test: [ "CMD-SHELL", "psql -U postgres -c 'SELECT PostGIS_Version();' || exit 1" ]
+      interval: 1s
+      timeout: 10s
+      start_period: 5s
+      retries: 10

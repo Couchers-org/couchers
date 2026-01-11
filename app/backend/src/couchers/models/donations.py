@@ -21,7 +21,7 @@ class InvoiceType(enum.Enum):
     external_shop = enum.auto()
 
 
-class DonationInitiation(Base, init=False, kw_only=True):
+class DonationInitiation(Base, kw_only=True):
     """
     Whenever someone initiates a donation through the platform
     """
@@ -36,12 +36,12 @@ class DonationInitiation(Base, init=False, kw_only=True):
     stripe_checkout_session_id: Mapped[str] = mapped_column(String)
 
     donation_type: Mapped[DonationType] = mapped_column(Enum(DonationType))
-    source: Mapped[str | None] = mapped_column(String, nullable=True)
+    source: Mapped[str | None] = mapped_column(String, default=None)
 
     user: Mapped[User] = relationship(init=False, backref="donation_initiations")
 
 
-class Invoice(Base, init=False, kw_only=True):
+class Invoice(Base, kw_only=True):
     """
     Successful donations, both one-off and recurring
 

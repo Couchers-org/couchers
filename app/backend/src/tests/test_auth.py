@@ -24,7 +24,7 @@ from couchers.models import (
 from couchers.proto import api_pb2, auth_pb2
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
-from tests.fixtures.sessions import api_session, auth_api_session, real_api_session
+from tests.fixtures.sessions import MetadataKeeperInterceptor, api_session, auth_api_session, real_api_session
 
 
 @pytest.fixture(autouse=True)
@@ -32,7 +32,7 @@ def _(testconfig, fast_passwords):
     pass
 
 
-def get_session_cookie_tokens(metadata_interceptor):
+def get_session_cookie_tokens(metadata_interceptor: MetadataKeeperInterceptor) -> tuple[str, str]:
     set_cookies = [val for key, val in metadata_interceptor.latest_header_raw if key == "set-cookie"]
     sesh = http.cookies.SimpleCookie([v for v in set_cookies if "sesh" in v][0])["couchers-sesh"].value
     uid = http.cookies.SimpleCookie([v for v in set_cookies if "user-id" in v][0])["couchers-user-id"].value

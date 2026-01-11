@@ -35,17 +35,20 @@ def create_cluster(
     )
     session.add(cluster)
     session.flush()
+    thread = Thread()
+    session.add(thread)
+    session.flush()
     main_page = Page(
-        parent_node=cluster.parent_node,
+        parent_node_id=cluster.parent_node_id,
         creator_user_id=creator_user_id,
-        owner_cluster=cluster,
+        owner_cluster_id=cluster.id,
         type=PageType.main_page,
-        thread=Thread(),
+        thread_id=thread.id,
     )
     session.add(main_page)
     session.flush()
     page_version = PageVersion(
-        page=main_page,
+        page_id=main_page.id,
         editor_user_id=creator_user_id,
         title=DEFAULT_PAGE_TITLE_TEMPLATE.format(name=name, type=cluster_type),
         content=DEFAULT_PAGE_CONTENT,
@@ -55,6 +58,7 @@ def create_cluster(
         cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user_id=admin_id,
+                cluster_id=cluster.id,
                 role=ClusterRole.admin,
             )
         )

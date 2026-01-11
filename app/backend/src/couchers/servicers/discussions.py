@@ -98,12 +98,16 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         if not cluster.discussions_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cannot_create_discussion")
 
+        thread = Thread()
+        session.add(thread)
+        session.flush()
+
         discussion = Discussion(
             title=request.title,
             content=request.content,
             creator_user_id=context.user_id,
-            owner_cluster=cluster,
-            thread=Thread(),
+            owner_cluster_id=cluster.id,
+            thread_id=thread.id,
         )
         session.add(discussion)
         session.flush()

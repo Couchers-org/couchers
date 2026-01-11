@@ -9,7 +9,7 @@ description: "Help us translate Couchers.org!"
 
 **This is a remote position**
 
-Couchers.org is seeking native speakers to help us translate our website into various languages. Please create an account on our [Weblate](https://translate.couchershq.org/) and start putting in translation suggestions. Once you’ve reached 50+ suggestions and you would like to take on more responsibilities you can apply for the role of language lead.
+Couchers.org is seeking native speakers to help us translate our website into various languages. Please review our short [Translator Guide](/documents/translator-guide) first, then create an account on our [Weblate](https://translate.couchershq.org/) and start submitting translation suggestions. Once you’ve reached 50+ suggestions and you would like to take on more responsibilities you can apply for the role of language lead.
 
 Can’t see your language on weblate? Use the report a problem button (technical problem) to request it!
 

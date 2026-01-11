@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from couchers.models.users import User
 
 
-class UserSession(Base, init=False, kw_only=True):
+class UserSession(Base, kw_only=True):
     """
     API keys/session cookies for the app
 
@@ -48,14 +48,14 @@ class UserSession(Base, init=False, kw_only=True):
 
     # the expiry of the session: the session *cannot* be refreshed past this
     expiry: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now() + text("interval '730 days'")
+        DateTime(timezone=True), server_default=func.now() + text("interval '730 days'"), init=False
     )
 
     # the time at which the token was invalidated, allows users to delete sessions
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     # the last time this session was used
-    last_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    last_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # count of api calls made with this token/session (if we're updating last_seen, might as well update this too)
     api_calls: Mapped[int] = mapped_column(Integer, default=0)
@@ -92,7 +92,7 @@ class UserSession(Base, init=False, kw_only=True):
     )
 
 
-class LoginToken(Base, init=False, kw_only=True):
+class LoginToken(Base, kw_only=True):
     """
     A login token sent in an email to a user, allows them to sign in between the times defined by created and expiry
     """
@@ -116,7 +116,7 @@ class LoginToken(Base, init=False, kw_only=True):
         return f"LoginToken(token={self.token}, user={self.user}, created={self.created}, expiry={self.expiry})"
 
 
-class PasswordResetToken(Base, init=False, kw_only=True):
+class PasswordResetToken(Base, kw_only=True):
     __tablename__ = "password_reset_tokens"
 
     token: Mapped[str] = mapped_column(String, primary_key=True)

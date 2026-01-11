@@ -10,6 +10,7 @@ from couchers.config import config
 from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
+from couchers.email.send import send_simple_pretty_email
 from couchers.models import (
     AccountDeletionReason,
     Cluster,
@@ -27,7 +28,6 @@ from couchers.models import (
     User,
 )
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
-from couchers.templates.v2 import send_simple_pretty_email
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -235,7 +235,7 @@ def enforce_community_memberships_for_user(session: Session, user: User) -> None
     for cluster_id in cluster_ids:
         session.add(
             ClusterSubscription(
-                user=user,
+                user_id=user.id,
                 cluster_id=cluster_id,
                 role=ClusterRole.member,
             )

@@ -1,7 +1,7 @@
 import http.cookies
 import re
 import typing
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
@@ -14,6 +14,7 @@ from google.protobuf.duration_pb2 import Duration
 from google.protobuf.timestamp_pb2 import Timestamp
 from shapely.geometry import Point, Polygon, shape
 from sqlalchemy import Function, cast
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
@@ -274,7 +275,7 @@ def create_lang_cookie(lang: str) -> list[str]:
     ]
 
 
-def parse_session_cookie(headers: dict[str, str | bytes]) -> str | None:
+def parse_session_cookie(headers: Mapping[str, str | bytes]) -> str | None:
     """
     Returns our session cookie value (aka token) or None
     """
@@ -292,7 +293,7 @@ def parse_session_cookie(headers: dict[str, str | bytes]) -> str | None:
     return cookie.value
 
 
-def parse_user_id_cookie(headers: dict[str, str | bytes]) -> str | None:
+def parse_user_id_cookie(headers: Mapping[str, str | bytes]) -> str | None:
     """
     Returns our session cookie value (aka token) or None
     """
@@ -310,7 +311,7 @@ def parse_user_id_cookie(headers: dict[str, str | bytes]) -> str | None:
     return cookie.value
 
 
-def parse_ui_lang_cookie(headers: dict[str, str | bytes]) -> str | None:
+def parse_ui_lang_cookie(headers: Mapping[str, str | bytes]) -> str | None:
     """
     Returns language cookie or None
     """
@@ -328,7 +329,7 @@ def parse_ui_lang_cookie(headers: dict[str, str | bytes]) -> str | None:
     return cookie.value
 
 
-def parse_api_key(headers: dict[str, str | bytes]) -> str | None:
+def parse_api_key(headers: Mapping[str, str | bytes]) -> str | None:
     """
     Returns a bearer token (API key) from the `authorization` header, or None if invalid/not present
     """
@@ -353,10 +354,10 @@ def remove_duplicates_retain_order[T](list_: Sequence[T]) -> list[T]:
     return out
 
 
-def date_in_timezone(date_: date, timezone: str) -> Function[Any]:
+def date_in_timezone(date_: Mapped[date | None], timezone: str) -> Function[Any]:
     """
     Given a naive postgres date object (postgres doesn't have tzd dates), returns a timezone-aware timestamp for the
-    start of that date in that timezone. E.g. if postgres is in 'America/New_York',
+    start of that date in that timezone. E.g., if postgres is in 'America/New_York',
 
     SET SESSION TIME ZONE 'America/New_York';
 

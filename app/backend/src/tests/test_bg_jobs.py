@@ -53,7 +53,7 @@ from couchers.models import (
 )
 from couchers.proto import conversations_pb2, requests_pb2
 from couchers.utils import now, today
-from tests.fixtures.db import generate_user, make_friends, make_user_block
+from tests.fixtures.db import generate_user, make_friends, make_user_block, make_volunteer
 from tests.fixtures.misc import PushCollector, process_jobs
 from tests.fixtures.sessions import conversations_session, requests_session
 from tests.test_references import create_host_reference, create_host_request, create_host_request_by_date
@@ -118,7 +118,7 @@ def test_purge_login_tokens(db):
     user, api_token = generate_user()
 
     with session_scope() as session:
-        login_token = LoginToken(token=urlsafe_secure_token(), user=user, expiry=now())
+        login_token = LoginToken(token=urlsafe_secure_token(), user_id=user.id, expiry=now())
         session.add(login_token)
         assert session.execute(select(func.count()).select_from(LoginToken)).scalar_one() == 1
 
@@ -151,7 +151,7 @@ def test_purge_password_reset_tokens(db):
     user, api_token = generate_user()
 
     with session_scope() as session:
-        password_reset_token = PasswordResetToken(token=urlsafe_secure_token(), user=user, expiry=now())
+        password_reset_token = PasswordResetToken(token=urlsafe_secure_token(), user_id=user.id, expiry=now())
         session.add(password_reset_token)
         assert session.execute(select(func.count()).select_from(PasswordResetToken)).scalar_one() == 1
 
@@ -193,9 +193,9 @@ def test_purge_account_deletion_tokens(db):
         3) Account is irretrievable (and expired)
         """
         account_deletion_tokens = [
-            AccountDeletionToken(token=urlsafe_secure_token(), user=user, expiry=now() - timedelta(hours=2)),
-            AccountDeletionToken(token=urlsafe_secure_token(), user=user2, expiry=now()),
-            AccountDeletionToken(token=urlsafe_secure_token(), user=user3, expiry=now() + timedelta(hours=5)),
+            AccountDeletionToken(token=urlsafe_secure_token(), user_id=user.id, expiry=now() - timedelta(hours=2)),
+            AccountDeletionToken(token=urlsafe_secure_token(), user_id=user2.id, expiry=now()),
+            AccountDeletionToken(token=urlsafe_secure_token(), user_id=user3.id, expiry=now() + timedelta(hours=5)),
         ]
         for token in account_deletion_tokens:
             session.add(token)
@@ -1066,15 +1066,14 @@ def test_send_host_request_reminders(db, moderator):
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
-        session.add(
-            Message(
-                time=now(),
-                conversation_id=hr7,
-                author_id=user14.id,
-                text="Looking forward to hosting you!",
-                message_type=MessageType.text,
-            )
+        msg = Message(
+            conversation_id=hr7,
+            author_id=user14.id,
+            text="Looking forward to hosting you!",
+            message_type=MessageType.text,
         )
+        msg.time = now()
+        session.add(msg)
 
     # Approve host requests so they're visible for notifications
     moderator.approve_host_request(hr1)
@@ -1457,7 +1456,7 @@ def test_update_badges_volunteers(db, push_collector: PushCollector):
     with session_scope() as session:
         # user3: active volunteer (stopped_volunteering is null)
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=user3.id,
                 role="Developer",
                 started_volunteering=date(2020, 1, 1),
@@ -1467,7 +1466,7 @@ def test_update_badges_volunteers(db, push_collector: PushCollector):
 
         # user4: past volunteer (stopped_volunteering is set)
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=user4.id,
                 role="Designer",
                 started_volunteering=date(2020, 1, 1),
@@ -1531,11 +1530,12 @@ def test_update_badges_volunteer_status_change(db, push_collector: PushCollector
     with session_scope() as session:
         # user3: start as active volunteer
         session.add(
-            Volunteer(
+            make_volunteer(
                 user_id=user3.id,
                 role="Developer",
                 started_volunteering=date(2020, 1, 1),
                 stopped_volunteering=None,
+                show_on_team_page=True,
             )
         )
 

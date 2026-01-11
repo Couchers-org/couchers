@@ -54,22 +54,23 @@ def create_host_request(
     conversation = Conversation()
     session.add(conversation)
     session.flush()
-    session.add(
-        Message(
-            time=fake_created + timedelta(seconds=1),
-            conversation_id=conversation.id,
-            author_id=surfer_user_id,
-            message_type=MessageType.chat_created,
-        )
+
+    msg1 = Message(
+        conversation_id=conversation.id,
+        author_id=surfer_user_id,
+        message_type=MessageType.chat_created,
     )
-    message = Message(
-        time=fake_created + timedelta(seconds=2),
+    msg1.time = fake_created + timedelta(seconds=1)
+    session.add(msg1)
+
+    msg2 = Message(
         conversation_id=conversation.id,
         author_id=surfer_user_id,
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
     )
-    session.add(message)
+    msg2.time = fake_created + timedelta(seconds=2)
+    session.add(msg2)
     session.flush()
 
     moderation_state = create_moderation(
@@ -86,7 +87,7 @@ def create_host_request(
         from_date=from_date,
         to_date=to_date,
         status=status,
-        surfer_last_seen_message_id=message.id,
+        surfer_last_seen_message_id=msg2.id,
         host_reason_didnt_meetup=host_reason_didnt_meetup,
         surfer_reason_didnt_meetup=surfer_reason_didnt_meetup,
         hosting_city="Test City",
@@ -113,24 +114,23 @@ def create_host_request_by_date(
     session.add(conversation)
     session.flush()
 
-    session.add(
-        Message(
-            time=from_date + timedelta(seconds=1),
-            conversation_id=conversation.id,
-            author_id=surfer_user_id,
-            message_type=MessageType.chat_created,
-        )
+    msg1 = Message(
+        conversation_id=conversation.id,
+        author_id=surfer_user_id,
+        message_type=MessageType.chat_created,
     )
+    msg1.time = from_date + timedelta(seconds=1)  # type: ignore[assignment]
+    session.add(msg1)
 
     # Unused for now, but every host request must have a message.
-    message = Message(
-        time=from_date + timedelta(seconds=2),
+    msg2 = Message(
         conversation_id=conversation.id,
         author_id=surfer_user_id,
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
     )
-    session.add(message)
+    msg2.time = from_date + timedelta(seconds=2)  # type: ignore[assignment]
+    session.add(msg2)
     session.flush()
 
     moderation_state = create_moderation(
@@ -147,13 +147,13 @@ def create_host_request_by_date(
         from_date=from_date,
         to_date=to_date,
         status=status,
-        host_sent_request_reminders=host_sent_request_reminders,
-        last_sent_request_reminder_time=last_sent_request_reminder_time,
         hosting_city="Test City",
         hosting_location=create_coordinate(0, 0),
         hosting_radius=10,
         moderation_state_id=moderation_state.id,
     )
+    host_request.host_sent_request_reminders = host_sent_request_reminders
+    host_request.last_sent_request_reminder_time = last_sent_request_reminder_time
 
     session.add(host_request)
     session.commit()
@@ -185,23 +185,25 @@ def create_host_reference(
         select(HostRequest).where(HostRequest.conversation_id == actual_host_request_id)
     ).scalar_one()
 
+    if host_request.surfer_user_id == from_user_id:
+        reference_type = ReferenceType.surfed
+        to_user_id = host_request.host_user_id
+        assert from_user_id == host_request.surfer_user_id
+    else:
+        reference_type = ReferenceType.hosted
+        to_user_id = host_request.surfer_user_id
+        assert from_user_id == host_request.host_user_id
+
     reference = Reference(
-        time=now() - reference_age,
         from_user_id=from_user_id,
+        to_user_id=to_user_id,
         host_request_id=host_request.conversation_id,
         text="Dummy reference",
         rating=0.5,
         was_appropriate=True,
+        reference_type=reference_type,
     )
-
-    if host_request.surfer_user_id == from_user_id:
-        reference.reference_type = ReferenceType.surfed
-        reference.to_user_id = host_request.host_user_id
-        assert from_user_id == host_request.surfer_user_id
-    else:
-        reference.reference_type = ReferenceType.hosted
-        reference.to_user_id = host_request.surfer_user_id
-        assert from_user_id == host_request.host_user_id
+    reference.time = now() - reference_age
 
     session.add(reference)
     session.commit()
@@ -210,7 +212,6 @@ def create_host_reference(
 
 def create_friend_reference(session: Session, from_user_id: int, to_user_id: int, reference_age: timedelta) -> int:
     reference = Reference(
-        time=now() - reference_age,
         from_user_id=from_user_id,
         to_user_id=to_user_id,
         reference_type=ReferenceType.friend,
@@ -218,6 +219,7 @@ def create_friend_reference(session: Session, from_user_id: int, to_user_id: int
         rating=0.4,
         was_appropriate=True,
     )
+    reference.time = now() - reference_age
     session.add(reference)
     session.commit()
     return reference.id
