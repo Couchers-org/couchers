@@ -1,5 +1,4 @@
-import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import { ContentCopyOutlined, EditOutlined } from "@mui/icons-material";
 import {
   Card,
   Chip,
@@ -325,7 +324,7 @@ export default function EventPage({
                         aria-label={t("communities:edit_event")}
                         tabIndex={event.isCancelled || isPastEvent ? -1 : 0}
                       >
-                        <EditOutlinedIcon />
+                        <EditOutlined />
                       </StyledIconButton>
                     </span>
                   </Tooltip>
@@ -347,7 +346,7 @@ export default function EventPage({
                         aria-label={t("communities:duplicate_event")}
                         tabIndex={event.isCancelled || isPastEvent ? -1 : 0}
                       >
-                        <ContentCopyOutlinedIcon />
+                        <ContentCopyOutlined />
                       </StyledIconButton>
                     </span>
                   </Tooltip>

@@ -94,10 +94,10 @@ export default function CreateEventPage() {
         .add(endTime.get("minute"), "minute")
         .toDate();
 
-      // Use uploaded photo if provided, otherwise use photo from duplicated event
+      // Use uploaded photo, or reuse photo from event being duplicated
       const photoKey =
         data.eventImage ||
-        (eventToDuplicate
+        (eventToDuplicate?.photoUrl
           ? extractPhotoKeyFromUrl(eventToDuplicate.photoUrl)
           : undefined);
 

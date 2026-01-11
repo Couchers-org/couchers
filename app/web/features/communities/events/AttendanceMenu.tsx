@@ -83,12 +83,6 @@ export default function AttendanceMenu({
             )
           ) : undefined
         }
-        sx={{
-          color: isAttending
-            ? theme.palette.common.black
-            : theme.palette.common.white,
-          borderColor: theme.palette.grey[300],
-        }}
       >
         {isAttending
           ? t("communities:going_to_event")
@@ -101,8 +95,10 @@ export default function AttendanceMenu({
         open={open}
         onClose={handleClose}
         aria-hidden={!open}
-        MenuListProps={{
-          "aria-labelledby": buttonId,
+        slotProps={{
+          list: {
+            "aria-labelledby": buttonId,
+          },
         }}
         anchorOrigin={{
           vertical: "bottom",
