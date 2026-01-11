@@ -22,6 +22,7 @@ from couchers.models import (
     ModerationUserList,
     PassportSex,
     PhotoGallery,
+    PhotoGalleryItem,
     RegionLived,
     RegionVisited,
     StrongVerificationAttempt,
@@ -249,14 +250,23 @@ def generate_user(
         if complete_profile:
             key = random_hex(32)
             filename = random_hex(32) + ".jpg"
-            session.add(
-                Upload(
-                    key=key,
-                    filename=filename,
-                    creator_user_id=user.id,
-                )
+            upload = Upload(
+                key=key,
+                filename=filename,
+                creator_user_id=user.id,
             )
+            session.add(upload)
             session.flush()
+
+            # Add photo to profile gallery (required for has_completed_profile)
+            photo_item = PhotoGalleryItem(
+                gallery_id=profile_gallery.id,
+                upload_key=key,
+                position=0,
+            )
+            session.add(photo_item)
+            session.flush()
+
             user.avatar_key = key
             user.about_me = "I have a complete profile!\n" * 20
 

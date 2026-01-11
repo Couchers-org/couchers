@@ -167,7 +167,7 @@ class User(Base, kw_only=True):
 
     # Denormalized field: true if user has a photo and about_me >= 150 chars
     # Kept in sync via SQLAlchemy events (see bottom of file)
-    has_completed_profile: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    has_completed_profile: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), default=False)
 
     hosting_status: Mapped[HostingStatus] = mapped_column(Enum(HostingStatus))
     meetup_status: Mapped[MeetupStatus] = mapped_column(Enum(MeetupStatus), server_default="open_to_meetup", init=False)
