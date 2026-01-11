@@ -5,7 +5,7 @@ from typing import Any, cast
 import grpc
 from google.protobuf import empty_pb2
 from psycopg2.extras import DateTimeTZRange
-from sqlalchemy import Row, Select, select
+from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_, update
 
@@ -28,6 +28,7 @@ from couchers.models import (
     Upload,
     User,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import events_pb2, events_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
@@ -221,14 +222,16 @@ def _get_event_and_occurrence_query(occurrence_id: int, include_deleted: bool) -
 
 def _get_event_and_occurrence_one(
     session: Session, occurrence_id: int, include_deleted: bool = False
-) -> Row[tuple[Event, EventOccurrence]]:
-    return session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one()
+) -> tuple[Event, EventOccurrence]:
+    result = session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one()
+    return result._tuple()
 
 
 def _get_event_and_occurrence_one_or_none(
     session: Session, occurrence_id: int, include_deleted: bool = False
-) -> Row[tuple[Event, EventOccurrence]] | None:
-    return session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one_or_none()
+) -> tuple[Event, EventOccurrence] | None:
+    result = session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one_or_none()
+    return result._tuple() if result else None
 
 
 def _check_occurrence_time_validity(start_time: datetime, end_time: datetime, context: CouchersContext) -> None:
@@ -292,10 +295,15 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             if is_not_visible(session, user.id, creator.id):
                 continue
             context = make_background_user_context(user_id=user.id)
+            topic_action = (
+                NotificationTopicAction.event__create_approved
+                if payload.approved
+                else NotificationTopicAction.event__create_any
+            )
             notify(
                 session,
                 user_id=user.id,
-                topic_action="event:create_approved" if payload.approved else "event:create_any",
+                topic_action=topic_action,
                 key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventCreate(
                     event=event_to_pb(session, occurrence, context),
@@ -322,7 +330,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
             notify(
                 session,
                 user_id=user_id,
-                topic_action="event:update",
+                topic_action=NotificationTopicAction.event__update,
                 key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventUpdate(
                     event=event_to_pb(session, occurrence, context),
@@ -348,7 +356,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
             notify(
                 session,
                 user_id=user_id,
-                topic_action="event:cancel",
+                topic_action=NotificationTopicAction.event__cancel,
                 key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventCancel(
                     event=event_to_pb(session, occurrence, context),
@@ -371,7 +379,7 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
             notify(
                 session,
                 user_id=user_id,
-                topic_action="event:delete",
+                topic_action=NotificationTopicAction.event__delete,
                 key=str(payload.occurrence_id),
                 data=notification_data_pb2.EventDelete(
                     event=event_to_pb(session, occurrence, context),
@@ -441,17 +449,22 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
+        thread = Thread()
+        session.add(thread)
+        session.flush()
+
         event = Event(
             title=request.title,
             parent_node_id=parent_node.id,
             owner_user_id=context.user_id,
-            thread=Thread(),
+            thread_id=thread.id,
             creator_user_id=context.user_id,
         )
         session.add(event)
+        session.flush()
 
         occurrence = EventOccurrence(
-            event=event,
+            event_id=event.id,
             content=request.content,
             geom=geom,
             address=address,
@@ -462,25 +475,26 @@ class Events(events_pb2_grpc.EventsServicer):
             creator_user_id=context.user_id,
         )
         session.add(occurrence)
+        session.flush()
 
         session.add(
             EventOrganizer(
                 user_id=context.user_id,
-                event=event,
+                event_id=event.id,
             )
         )
 
         session.add(
             EventSubscription(
                 user_id=context.user_id,
-                event=event,
+                event_id=event.id,
             )
         )
 
         session.add(
             EventOccurrenceAttendee(
                 user_id=context.user_id,
-                occurrence=occurrence,
+                occurrence_id=occurrence.id,
                 attendee_status=AttendeeStatus.going,
             )
         )
@@ -564,7 +578,7 @@ class Events(events_pb2_grpc.EventsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_overlap")
 
         occurrence = EventOccurrence(
-            event=event,
+            event_id=event.id,
             content=request.content,
             geom=geom,
             address=address,
@@ -575,11 +589,12 @@ class Events(events_pb2_grpc.EventsServicer):
             creator_user_id=context.user_id,
         )
         session.add(occurrence)
+        session.flush()
 
         session.add(
             EventOccurrenceAttendee(
                 user_id=context.user_id,
-                occurrence=occurrence,
+                occurrence_id=occurrence.id,
                 attendee_status=AttendeeStatus.going,
             )
         )
@@ -1033,7 +1048,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 attendance = EventOccurrenceAttendee(
                     user_id=context.user_id,
                     occurrence_id=occurrence.id,
-                    attendee_status=attendancestate2sql[request.attendance_state],
+                    attendee_status=not_none(attendancestate2sql[request.attendance_state]),
                 )
                 session.add(attendance)
 
@@ -1183,7 +1198,7 @@ class Events(events_pb2_grpc.EventsServicer):
         session.add(
             EventOrganizer(
                 user_id=request.user_id,
-                event=event,
+                event_id=event.id,
             )
         )
         session.flush()
@@ -1193,7 +1208,7 @@ class Events(events_pb2_grpc.EventsServicer):
         notify(
             session,
             user_id=request.user_id,
-            topic_action="event:invite_organizer",
+            topic_action=NotificationTopicAction.event__invite_organizer,
             key=str(event.id),
             data=notification_data_pb2.EventInviteOrganizer(
                 event=event_to_pb(session, occurrence, other_user_context),

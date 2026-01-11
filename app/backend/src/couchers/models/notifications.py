@@ -167,30 +167,30 @@ class NotificationTopicAction(enum.Enum):
     general__new_blog_post = ("general:new_blog_post", [dt.push, dt.digest], True, nd.GeneralNewBlogPost)
 
 
-class NotificationPreference(Base):
+class NotificationPreference(Base, kw_only=True):
     __tablename__ = "notification_preferences"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     topic_action: Mapped[NotificationTopicAction] = mapped_column(Enum(NotificationTopicAction))
     delivery_type: Mapped[NotificationDeliveryType] = mapped_column(Enum(NotificationDeliveryType))
     deliver: Mapped[bool] = mapped_column(Boolean)
 
-    user: Mapped[User] = relationship(foreign_keys="NotificationPreference.user_id")
+    user: Mapped[User] = relationship(init=False, foreign_keys="NotificationPreference.user_id")
 
     __table_args__ = (UniqueConstraint("user_id", "topic_action", "delivery_type"),)
 
 
-class Notification(Base):
+class Notification(Base, kw_only=True):
     """
     Table for accumulating notifications until it is time to send email digest
     """
 
     __tablename__ = "notifications"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # recipient user id
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
@@ -201,16 +201,18 @@ class Notification(Base):
     data: Mapped[bytes] = mapped_column(Binary)
 
     # whether the user has marked this notification as seen or not
-    is_seen: Mapped[bool] = mapped_column(Boolean, server_default=expression.false())
+    is_seen: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
     # optional link to moderation state for content that requires moderation approval
     # if set, notification delivery is deferred until content becomes VISIBLE/UNLISTED
     moderation_state_id: Mapped[int | None] = mapped_column(
-        ForeignKey("moderation_states.id"), nullable=True, index=True
+        ForeignKey("moderation_states.id"), default=None, index=True
     )
 
-    user: Mapped[User] = relationship(foreign_keys="Notification.user_id")
-    moderation_state: Mapped[ModerationState] = relationship(foreign_keys="Notification.moderation_state_id")
+    user: Mapped[User] = relationship(init=False, foreign_keys="Notification.user_id")
+    moderation_state: Mapped[ModerationState] = relationship(
+        init=False, foreign_keys="Notification.moderation_state_id"
+    )
 
     __table_args__ = (
         # used in looking up which notifications need delivery
@@ -243,19 +245,19 @@ class Notification(Base):
         return self.topic_action.action
 
 
-class NotificationDelivery(Base):
+class NotificationDelivery(Base, kw_only=True):
     __tablename__ = "notification_deliveries"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     notification_id: Mapped[int] = mapped_column(ForeignKey("notifications.id"), index=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    delivered: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    read: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    delivered: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    read: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     # todo: enum of "phone, web, digest"
     delivery_type: Mapped[NotificationDeliveryType] = mapped_column(Enum(NotificationDeliveryType))
     # todo: device id
     # todo: receipt id, etc
-    notification: Mapped[Notification] = relationship(foreign_keys="NotificationDelivery.notification_id")
+    notification: Mapped[Notification] = relationship(init=False, foreign_keys="NotificationDelivery.notification_id")
 
     __table_args__ = (
         UniqueConstraint("notification_id", "delivery_type"),
@@ -294,11 +296,11 @@ class PushNotificationDeliveryOutcome(enum.Enum):
     permanent_subscription_failure = enum.auto()
 
 
-class PushNotificationSubscription(Base):
+class PushNotificationSubscription(Base, kw_only=True):
     __tablename__ = "push_notification_subscriptions"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # which user this is connected to
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -308,26 +310,28 @@ class PushNotificationSubscription(Base):
     ## platform specific: web_push
     # these come from https://developer.mozilla.org/en-US/docs/Web/API/PushSubscription
     # the endpoint
-    endpoint: Mapped[str | None] = mapped_column(String)
+    endpoint: Mapped[str | None] = mapped_column(String, default=None)
     # the "auth" key
-    auth_key: Mapped[bytes | None] = mapped_column(Binary)
+    auth_key: Mapped[bytes | None] = mapped_column(Binary, default=None)
     # the "p256dh" key
-    p256dh_key: Mapped[bytes | None] = mapped_column(Binary)
+    p256dh_key: Mapped[bytes | None] = mapped_column(Binary, default=None)
 
-    full_subscription_info: Mapped[str | None] = mapped_column(String)
+    full_subscription_info: Mapped[str | None] = mapped_column(String, default=None)
 
     # the browser user-agent, so we can tell the user what browser notifications are going to
-    user_agent: Mapped[str | None] = mapped_column(String)
+    user_agent: Mapped[str | None] = mapped_column(String, default=None)
 
     ## platform specific: expo
-    token: Mapped[str | None] = mapped_column(String, unique=True, index=True)
-    device_name: Mapped[str | None] = mapped_column(String)
-    device_type: Mapped[DeviceType | None] = mapped_column(Enum(DeviceType))
+    token: Mapped[str | None] = mapped_column(String, unique=True, index=True, default=None)
+    device_name: Mapped[str | None] = mapped_column(String, default=None)
+    device_type: Mapped[DeviceType | None] = mapped_column(Enum(DeviceType), default=None)
 
     # when it was disabled
-    disabled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=DATETIME_INFINITY.isoformat())
+    disabled_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=DATETIME_INFINITY.isoformat(), init=False
+    )
 
-    user: Mapped[User] = relationship()
+    user: Mapped[User] = relationship(init=False)
 
     __table_args__ = (
         # web_push platform requires: endpoint, auth_key, p256dh_key, full_subscription_info
@@ -343,11 +347,11 @@ class PushNotificationSubscription(Base):
     )
 
 
-class PushNotificationDeliveryAttempt(Base):
+class PushNotificationDeliveryAttempt(Base, kw_only=True):
     __tablename__ = "push_notification_delivery_attempt"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     push_notification_subscription_id: Mapped[int] = mapped_column(
         ForeignKey("push_notification_subscriptions.id"), index=True
@@ -355,17 +359,17 @@ class PushNotificationDeliveryAttempt(Base):
 
     outcome: Mapped[PushNotificationDeliveryOutcome] = mapped_column(Enum(PushNotificationDeliveryOutcome))
     # the HTTP status code, 201 is success, or similar for other platforms
-    status_code: Mapped[int | None] = mapped_column(Integer)
+    status_code: Mapped[int | None] = mapped_column(Integer, default=None)
 
     # can be null if it was a success
-    response: Mapped[str | None] = mapped_column(String)
+    response: Mapped[str | None] = mapped_column(String, default=None)
 
     # Expo-specific: ticket ID for receipt checking
-    expo_ticket_id: Mapped[str | None] = mapped_column(String)
+    expo_ticket_id: Mapped[str | None] = mapped_column(String, default=None)
 
     # Receipt check results (populated by delayed job)
-    receipt_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    receipt_status: Mapped[str | None] = mapped_column(String)  # "ok" or "error"
-    receipt_error_code: Mapped[str | None] = mapped_column(String)  # e.g., "DeviceNotRegistered"
+    receipt_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    receipt_status: Mapped[str | None] = mapped_column(String, default=None)  # "ok" or "error"
+    receipt_error_code: Mapped[str | None] = mapped_column(String, default=None)  # e.g., "DeviceNotRegistered"
 
-    push_notification_subscription: Mapped[PushNotificationSubscription] = relationship()
+    push_notification_subscription: Mapped[PushNotificationSubscription] = relationship(init=False)

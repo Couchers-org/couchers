@@ -17,6 +17,7 @@ from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import are_friends
 from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, Reference, ReferenceType, User
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import notification_data_pb2, references_pb2, references_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
@@ -281,7 +282,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         notify(
             session,
             user_id=request.to_user_id,
-            topic_action="reference:receive_friend",
+            topic_action=NotificationTopicAction.reference__receive_friend,
             key=str(reference.id),
             data=notification_data_pb2.ReferenceReceiveFriend(
                 from_user=user_model_to_pb(user, session, make_background_user_context(user_id=request.to_user_id)),
@@ -305,25 +306,27 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         reference_text = request.text.strip()
 
+        if surfed:
+            # we requested to surf with someone
+            reference_type = ReferenceType.surfed
+            to_user_id = host_request.host_user_id
+            assert context.user_id == host_request.surfer_user_id
+        else:
+            # we hosted someone
+            reference_type = ReferenceType.hosted
+            to_user_id = host_request.surfer_user_id
+            assert context.user_id == host_request.host_user_id
+
         reference = Reference(
             from_user_id=context.user_id,
+            to_user_id=to_user_id,
             host_request_id=host_request.conversation_id,
             text=reference_text,
             private_text=request.private_text.strip(),
             rating=request.rating,
             was_appropriate=request.was_appropriate,
+            reference_type=reference_type,
         )
-
-        if surfed:
-            # we requested to surf with someone
-            reference.reference_type = ReferenceType.surfed
-            reference.to_user_id = host_request.host_user_id
-            assert context.user_id == host_request.surfer_user_id
-        else:
-            # we hosted someone
-            reference.reference_type = ReferenceType.hosted
-            reference.to_user_id = host_request.surfer_user_id
-            assert context.user_id == host_request.host_user_id
 
         session.add(reference)
         session.commit()
@@ -335,10 +338,15 @@ class References(references_pb2_grpc.ReferencesServicer):
         ).scalar_one_or_none()
 
         # send notification out
+        topic_action = (
+            NotificationTopicAction.reference__receive_surfed
+            if surfed
+            else NotificationTopicAction.reference__receive_hosted
+        )
         notify(
             session,
             user_id=reference.to_user_id,
-            topic_action="reference:receive_surfed" if surfed else "reference:receive_hosted",
+            topic_action=topic_action,
             key=str(host_request.conversation_id),
             data=notification_data_pb2.ReferenceReceiveHostRequest(
                 host_request_id=host_request.conversation_id,

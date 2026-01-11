@@ -21,27 +21,27 @@ class InvoiceType(enum.Enum):
     external_shop = enum.auto()
 
 
-class DonationInitiation(Base):
+class DonationInitiation(Base, kw_only=True):
     """
     Whenever someone initiates a donation through the platform
     """
 
     __tablename__ = "donation_initiations"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     amount: Mapped[int] = mapped_column(Integer)
     stripe_checkout_session_id: Mapped[str] = mapped_column(String)
 
     donation_type: Mapped[DonationType] = mapped_column(Enum(DonationType))
-    source: Mapped[str | None] = mapped_column(String, nullable=True)
+    source: Mapped[str | None] = mapped_column(String, default=None)
 
-    user: Mapped[User] = relationship(backref="donation_initiations")
+    user: Mapped[User] = relationship(init=False, backref="donation_initiations")
 
 
-class Invoice(Base):
+class Invoice(Base, kw_only=True):
     """
     Successful donations, both one-off and recurring
 
@@ -50,8 +50,8 @@ class Invoice(Base):
 
     __tablename__ = "invoices"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     amount: Mapped[float] = mapped_column(Float)
@@ -61,4 +61,4 @@ class Invoice(Base):
 
     invoice_type: Mapped[InvoiceType] = mapped_column(Enum(InvoiceType))
 
-    user: Mapped[User] = relationship(backref="invoices")
+    user: Mapped[User] = relationship(init=False, backref="invoices")

@@ -19,7 +19,6 @@ from couchers.models import (
     HostingStatus,
     LanguageAbility,
     LanguageFluency,
-    MeetupStatus,
     ModerationUserList,
     PassportSex,
     PhotoGallery,
@@ -31,6 +30,7 @@ from couchers.models import (
     User,
     UserBlock,
     UserSession,
+    Volunteer,
 )
 from couchers.servicers.auth import create_session
 from couchers.utils import create_coordinate, now
@@ -158,6 +158,46 @@ def autocommit_engine(url: str):
     engine.dispose()
 
 
+def make_user(**kwargs: Any) -> User:
+    username = "test_user_" + random_hex(16)
+
+    user = User(
+        username=username,
+        email=f"{username}@dev.couchers.org",
+        hashed_password=b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
+        name=username.capitalize(),
+        hosting_status=HostingStatus.cant_host,
+        city="Testing city",
+        hometown="Test hometown",
+        community_standing=0.5,
+        birthdate=date(year=2000, month=1, day=1),
+        gender="Woman",
+        pronouns="",
+        occupation="Tester",
+        education="UST(esting)",
+        about_me="I test things",
+        things_i_like="Code",
+        about_place="My place has a lot of testing paraphenelia",
+        additional_information="I can be a bit testy",
+        accepted_tos=TOS_VERSION,
+        geom=create_coordinate(40.7108, -73.9740),
+        geom_radius=100,
+        last_onboarding_email_sent=now(),
+        last_donated=now(),
+    )
+    user.accepted_community_guidelines = GUIDELINES_VERSION
+    user.onboarding_emails_sent = 1
+
+    # Ensure superusers are also editors (DB constraint)
+    if kwargs.get("is_superuser") and "is_editor" not in kwargs:
+        kwargs["is_editor"] = True
+
+    for key, value in kwargs.items():
+        setattr(user, key, value)
+
+    return user
+
+
 def generate_user(
     *,
     delete_user=False,
@@ -176,44 +216,8 @@ def generate_user(
     Use this most of the time
     """
     with session_scope() as session:
-        # Ensure superusers are also editors (DB constraint)
-        if kwargs.get("is_superuser") and "is_editor" not in kwargs:
-            kwargs["is_editor"] = True
+        user = make_user(**kwargs)
 
-        # default args
-        username = "test_user_" + random_hex(16)
-        user_opts = {
-            "username": username,
-            "email": f"{username}@dev.couchers.org",
-            # password is just 'password'
-            # this is hardcoded because the password is slow to hash (so would slow down tests otherwise)
-            "hashed_password": b"$argon2id$v=19$m=65536,t=2,p=1$4cjGg1bRaZ10k+7XbIDmFg$tZG7JaLrkfyfO7cS233ocq7P8rf3znXR7SAfUt34kJg",
-            "name": username.capitalize(),
-            "hosting_status": HostingStatus.cant_host,
-            "meetup_status": MeetupStatus.open_to_meetup,
-            "city": "Testing city",
-            "hometown": "Test hometown",
-            "community_standing": 0.5,
-            "birthdate": date(year=2000, month=1, day=1),
-            "gender": "Woman",
-            "pronouns": "",
-            "occupation": "Tester",
-            "education": "UST(esting)",
-            "about_me": "I test things",
-            "things_i_like": "Code",
-            "about_place": "My place has a lot of testing paraphenelia",
-            "additional_information": "I can be a bit testy",
-            # you need to make sure to update this logic to make sure the user is jailed/not on request
-            "accepted_tos": TOS_VERSION,
-            "accepted_community_guidelines": GUIDELINES_VERSION,
-            "geom": create_coordinate(40.7108, -73.9740),
-            "geom_radius": 100,
-            "onboarding_emails_sent": 1,
-            "last_onboarding_email_sent": now(),
-            "last_donated": now(),
-        } | kwargs
-
-        user = User(**user_opts)
         session.add(user)
         session.flush()
 
@@ -354,3 +358,10 @@ def add_users_to_new_moderation_list(users: list[User]) -> int:
 
 def run_migration_test():
     return os.environ.get("RUN_MIGRATION_TEST", "false").lower() == "true"
+
+
+def make_volunteer(started_volunteering: date, show_on_team_page: bool = True, **kwargs: Any) -> Volunteer:
+    vol = Volunteer(show_on_team_page=show_on_team_page, **kwargs)
+    vol.started_volunteering = started_volunteering
+
+    return vol

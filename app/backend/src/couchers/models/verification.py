@@ -59,7 +59,7 @@ class PassportSex(enum.Enum):
     unspecified = enum.auto()
 
 
-class StrongVerificationAttempt(Base):
+class StrongVerificationAttempt(Base, kw_only=True):
     """
     An attempt to perform strong verification
     """
@@ -67,13 +67,13 @@ class StrongVerificationAttempt(Base):
     __tablename__ = "strong_verification_attempts"
 
     # our verification id
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     # this is returned in the callback, and we look up the attempt via this
     verification_attempt_token: Mapped[str] = mapped_column(String, unique=True)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     status: Mapped[StrongVerificationAttemptStatus] = mapped_column(
         Enum(StrongVerificationAttemptStatus),
@@ -83,23 +83,23 @@ class StrongVerificationAttempt(Base):
     ## full data
     has_full_data: Mapped[bool] = mapped_column(Boolean, default=False)
     # the data returned from iris, encrypted with a public key whose private key is kept offline
-    passport_encrypted_data: Mapped[bytes | None] = mapped_column(Binary, nullable=True)
-    passport_date_of_birth: Mapped[date | None] = mapped_column(Date, nullable=True)
-    passport_sex: Mapped[PassportSex | None] = mapped_column(Enum(PassportSex), nullable=True)
+    passport_encrypted_data: Mapped[bytes | None] = mapped_column(Binary, default=None)
+    passport_date_of_birth: Mapped[date | None] = mapped_column(Date, default=None)
+    passport_sex: Mapped[PassportSex | None] = mapped_column(Enum(PassportSex), default=None)
 
     ## minimal data: this will not be deleted
     has_minimal_data: Mapped[bool] = mapped_column(Boolean, default=False)
-    passport_expiry_date: Mapped[date | None] = mapped_column(Date, nullable=True)
-    passport_nationality: Mapped[str | None] = mapped_column(String, nullable=True)
+    passport_expiry_date: Mapped[date | None] = mapped_column(Date, default=None)
+    passport_nationality: Mapped[str | None] = mapped_column(String, default=None)
     # last three characters of the passport number
-    passport_last_three_document_chars: Mapped[str | None] = mapped_column(String, nullable=True)
+    passport_last_three_document_chars: Mapped[str | None] = mapped_column(String, default=None)
 
     iris_token: Mapped[str] = mapped_column(String, unique=True)
     iris_session_id: Mapped[int] = mapped_column(BigInteger, unique=True)
 
-    passport_expiry_datetime = column_property(date_in_timezone(passport_expiry_date, "Etc/UTC"))  # type: ignore[arg-type]
+    passport_expiry_datetime = column_property(date_in_timezone(passport_expiry_date, "Etc/UTC"))
 
-    user: Mapped[User] = relationship()
+    user: Mapped[User] = relationship(init=False)
 
     @hybrid_property
     def is_valid(self) -> bool:
@@ -202,11 +202,11 @@ class StrongVerificationAttempt(Base):
     )
 
 
-class StrongVerificationCallbackEvent(Base):
+class StrongVerificationCallbackEvent(Base, kw_only=True):
     __tablename__ = "strong_verification_callback_events"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     verification_attempt_id: Mapped[int] = mapped_column(ForeignKey("strong_verification_attempts.id"), index=True)
 

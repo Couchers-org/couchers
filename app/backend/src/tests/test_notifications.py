@@ -12,6 +12,7 @@ from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
 from couchers.db import session_scope
+from couchers.i18n.localize import localize_datetime_for_user
 from couchers.jobs.worker import process_job
 from couchers.models import (
     DeviceType,
@@ -38,7 +39,6 @@ from couchers.proto import (
 )
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
-from couchers.templates.v2 import v2timestamp
 from couchers.utils import not_none, now
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
@@ -81,7 +81,7 @@ def test_SetNotificationSettings_preferences_respected_editable(db, enabled):
         notify(
             session,
             user_id=user.id,
-            topic_action=topic_action.display,
+            topic_action=topic_action,
             key="",
             data=notification_data_pb2.BadgeAdd(
                 badge_id="volunteer",
@@ -159,7 +159,7 @@ def test_unsubscribe(db):
             notify(
                 session,
                 user_id=user.id,
-                topic_action=topic_action.display,
+                topic_action=topic_action,
                 key="",
                 data=notification_data_pb2.BadgeAdd(
                     badge_id="volunteer",
@@ -209,7 +209,7 @@ def test_unsubscribe(db):
             notify(
                 session,
                 user_id=user.id,
-                topic_action=topic_action.display,
+                topic_action=topic_action,
                 key="",
                 data=notification_data_pb2.BadgeAdd(
                     badge_id="volunteer",
@@ -596,7 +596,7 @@ def test_event_reminder_email_sent(db):
     user, token = generate_user()
     title = "Board Game Night"
     start_event_time = timestamp_pb2.Timestamp(seconds=1751690400)
-    expected_time_str = v2timestamp(start_event_time, user)
+    expected_time_str = localize_datetime_for_user(start_event_time, user)
 
     with mock_notification_email() as mock:
         with session_scope() as session:
@@ -605,7 +605,7 @@ def test_event_reminder_email_sent(db):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="event:reminder",
+                topic_action=NotificationTopicAction.event__reminder,
                 key="",
                 data=notification_data_pb2.EventReminder(
                     event=events_pb2.Event(
@@ -700,8 +700,8 @@ def test_RegisterMobilePushNotificationSubscription_re_enable(db):
             token="ExponentPushToken[reeeeeeeeeeeeeeeeeeeee]",
             device_name="Old Device",
             device_type=DeviceType.ios,
-            disabled_at=now(),
         )
+        sub.disabled_at = now()
         session.add(sub)
         session.flush()
         sub_id = sub.id

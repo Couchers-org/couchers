@@ -20,17 +20,18 @@ def test_node_constraints(db):
         with session_scope() as session:
             node = Node(geom=to_multi(create_1d_polygon(0, 2)))
             session.add(node)
+            session.flush()
             cluster1 = Cluster(
                 name="Testing community, cluster 1",
                 description="Testing community description",
-                parent_node=node,
+                parent_node_id=node.id,
                 is_official_cluster=True,
             )
             session.add(cluster1)
             cluster2 = Cluster(
                 name="Testing community, cluster 2",
                 description="Testing community description",
-                parent_node=node,
+                parent_node_id=node.id,
                 is_official_cluster=True,
             )
             session.add(cluster2)
@@ -47,17 +48,21 @@ def test_page_constraints(db):
     # check we can't create a page without an owner
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
+            thread = Thread()
+            session.add(thread)
+            session.flush()
             page = Page(
                 parent_node_id=c_id,
                 # note no owner
                 creator_user_id=user.id,
                 type=PageType.guide,
-                thread=Thread(),
+                thread_id=thread.id,
             )
             session.add(page)
+            session.flush()
             session.add(
                 PageVersion(
-                    page=page,
+                    page_id=page.id,
                     editor_user_id=user.id,
                     title="Title",
                     content="Content",
@@ -69,10 +74,11 @@ def test_page_constraints(db):
     with session_scope() as session:
         node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])))
         session.add(node)
+        session.flush()
         cluster = Cluster(
             name="Testing Community",
             description="Description for testing community",
-            parent_node=node,
+            parent_node_id=node.id,
         )
         session.add(cluster)
         session.flush()
@@ -82,18 +88,22 @@ def test_page_constraints(db):
     # check we can't create a page with two owners
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
+            thread = Thread()
+            session.add(thread)
+            session.flush()
             page = Page(
                 parent_node_id=cluster_parent_id,
                 creator_user_id=user.id,
                 owner_cluster_id=cluster_id,
                 owner_user_id=user.id,
                 type=PageType.guide,
-                thread=Thread(),
+                thread_id=thread.id,
             )
             session.add(page)
+            session.flush()
             session.add(
                 PageVersion(
-                    page=page,
+                    page_id=page.id,
                     editor_user_id=user.id,
                     title="Title",
                     content="Content",
@@ -105,18 +115,22 @@ def test_page_constraints(db):
     # main page must be owned by the right cluster
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
+            thread = Thread()
+            session.add(thread)
+            session.flush()
             main_page = Page(
                 parent_node_id=cluster_parent_id,
                 # note owner is not cluster
                 creator_user_id=user.id,
                 owner_user_id=user.id,
                 type=PageType.main_page,
-                thread=Thread(),
+                thread_id=thread.id,
             )
             session.add(main_page)
+            session.flush()
             session.add(
                 PageVersion(
-                    page=main_page,
+                    page_id=main_page.id,
                     editor_user_id=user.id,
                     title="Main page for the testing community",
                     content="Empty.",
@@ -128,33 +142,41 @@ def test_page_constraints(db):
     # can only have one main page
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
+            thread1 = Thread()
+            session.add(thread1)
+            session.flush()
             main_page1 = Page(
                 parent_node_id=cluster_parent_id,
                 creator_user_id=user.id,
                 owner_cluster_id=cluster_id,
                 type=PageType.main_page,
-                thread=Thread(),
+                thread_id=thread1.id,
             )
             session.add(main_page1)
+            session.flush()
             session.add(
                 PageVersion(
-                    page=main_page1,
+                    page_id=main_page1.id,
                     editor_user_id=user.id,
                     title="Main page 1 for the testing community",
                     content="Empty.",
                 )
             )
+            thread2 = Thread()
+            session.add(thread2)
+            session.flush()
             main_page2 = Page(
                 parent_node_id=cluster_parent_id,
                 creator_user_id=user.id,
                 owner_cluster_id=cluster_id,
                 type=PageType.main_page,
-                thread=Thread(),
+                thread_id=thread2.id,
             )
             session.add(main_page2)
+            session.flush()
             session.add(
                 PageVersion(
-                    page=main_page2,
+                    page_id=main_page2.id,
                     editor_user_id=user.id,
                     title="Main page 2 for the testing community",
                     content="Empty.",

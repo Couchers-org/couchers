@@ -47,14 +47,12 @@ const VerticalLine = styled("div")(({ theme }) => ({
 const generateReferenceText = (numberReferences: number, t: TFunction) => {
   if (numberReferences === 0) {
     return t("profile:reference_amounts.no_references");
-  } else if (numberReferences === 1) {
-    return `1 ${t("profile:reference_amounts.references_single")}`;
-  } else if (numberReferences >= 100) {
-    return `100+ ${t("profile:reference_amounts.references_plural")}`;
+  } else if (numberReferences < 100) {
+    return t("profile:reference_amounts.count_references", {
+      count: numberReferences,
+    });
   } else {
-    return `${numberReferences} ${t(
-      "profile:reference_amounts.references_plural",
-    )}`;
+    return t("profile:reference_amounts.hundred_or_more_references");
   }
 };
 

@@ -1,7 +1,7 @@
 # Makefile for the backend of the application
 # Run 'make [command]' in app/backend to execute the specified command
 
-UV_VERSION=0.9.6
+UV_VERSION=0.9.21
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 PROTO_IMAGE=registry.gitlab.com/couchers/grpc
 
@@ -26,7 +26,7 @@ format:
 fmt: format
 
 mypy:
-	uv run mypy src/couchers src/tests
+	uv run mypy src
 
 # Downgrade the local database to the previous migration. Good if you ran a migration on a branch and will run the backend on another branch after.
 # Usage:

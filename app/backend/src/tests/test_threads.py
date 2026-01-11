@@ -138,7 +138,7 @@ def test_threads_pagination(db):
 
     # Create a dummy Thread (should be replaced by pages later on)
     with session_scope() as session:
-        session.add(Thread(id=1))
+        session.add(Thread())
 
     with threads_session(token1) as api:
         comment_id = pagination_test(api, PARENT_THREAD_ID)

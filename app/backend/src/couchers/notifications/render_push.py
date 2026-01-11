@@ -6,10 +6,11 @@ import logging
 from typing import Any, assert_never
 
 from couchers import urls
+from couchers.i18n.localize import format_phone_number, localize_date_from_iso, localize_datetime_for_user
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.push import PushNotificationContent
 from couchers.proto import events_pb2, notification_data_pb2
-from couchers.templates.v2 import v2avatar, v2date, v2esc, v2phone, v2timestamp
+from couchers.templates.v2 import v2avatar
 
 logger = logging.getLogger(__name__)
 
@@ -195,9 +196,10 @@ def _badge__remove(data: notification_data_pb2.BadgeRemove) -> PushNotificationC
 
 
 def _birthdate__change(data: notification_data_pb2.BirthdateChange, user: User) -> PushNotificationContent:
+    birth_date = localize_date_from_iso(data.birthdate, user.ui_language_preference or "en")
     return PushNotificationContent(
         title="Your date of birth was changed",
-        body=f"Your date of birth on Couchers.org was changed to {v2date(data.birthdate, user)} by an admin.",
+        body=f"Your date of birth on Couchers.org was changed to {birth_date} by an admin.",
         action_url=urls.account_settings_link(),
     )
 
@@ -262,7 +264,9 @@ def _email_address__verify() -> PushNotificationContent:
 
 
 def _get_event_time_display(event: events_pb2.Event, user: User) -> str:
-    return f"{v2timestamp(event.start_time, user)} - {v2timestamp(event.end_time, user)}"
+    start_time = localize_datetime_for_user(event.start_time, user)
+    end_time = localize_datetime_for_user(event.end_time, user)
+    return f"{start_time} - {end_time}"
 
 
 def _event__create_any(data: notification_data_pb2.EventCreate, user: User) -> PushNotificationContent:
@@ -355,7 +359,7 @@ def _friend_request__create(data: notification_data_pb2.FriendRequestCreate) -> 
 def _friend_request__accept(data: notification_data_pb2.FriendRequestAccept) -> PushNotificationContent:
     return PushNotificationContent(
         title=f"{data.other_user.name} accepted your friend request!",
-        body=f"{v2esc(data.other_user.name)} has accepted your friend request",
+        body=f"{data.other_user.name} has accepted your friend request",
         icon_url=v2avatar(data.other_user),
         action_url=urls.user_link(username=data.other_user.username),
     )
@@ -378,9 +382,11 @@ def _general__new_blog_post(data: notification_data_pb2.GeneralNewBlogPost) -> P
 
 
 def _host_request__create(data: notification_data_pb2.HostRequestCreate, user: User) -> PushNotificationContent:
+    from_date = localize_date_from_iso(data.host_request.from_date, user.ui_language_preference or "en")
+    to_date = localize_date_from_iso(data.host_request.to_date, user.ui_language_preference or "en")
     return PushNotificationContent(
         title=f"{data.surfer.name} sent you a host request",
-        body=f"Dates: {v2date(data.host_request.from_date, user)} to {v2date(data.host_request.to_date, user)}.\n\n{data.text}",
+        body=f"Dates: {from_date} to {to_date}.\n\n{data.text}",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
         icon_url=v2avatar(data.surfer),
     )
@@ -391,9 +397,11 @@ def _host_request__message(data: notification_data_pb2.HostRequestMessage, user:
         title = f"{data.user.name} sent you a message in their host request"
     else:
         title = f"{data.user.name} sent you a message in your host request"
+    from_date = localize_date_from_iso(data.host_request.from_date, user.ui_language_preference or "en")
+    to_date = localize_date_from_iso(data.host_request.to_date, user.ui_language_preference or "en")
     return PushNotificationContent(
         title=title,
-        body=f"Dates: {v2date(data.host_request.from_date, user)} to {v2date(data.host_request.to_date, user)}.\n\n{data.text}",
+        body=f"Dates: {from_date} to {to_date}.\n\n{data.text}",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
         icon_url=v2avatar(data.user),
     )
@@ -465,13 +473,13 @@ def _onboarding__reminder(key: str, user: User) -> PushNotificationContent:
     if key == "1":
         return PushNotificationContent(
             title="Welcome to Couchers.org and the future of couch surfing",
-            body=f"Hi {v2esc(user.name)}! We are excited that you have joined us! Please take a moment to complete your profile with a picture and a bit of text about yourself!",
+            body=f"Hi {user.name}! We are excited that you have joined us! Please take a moment to complete your profile with a picture and a bit of text about yourself!",
             action_url=urls.edit_profile_link(),
         )
     elif key == "2":
         return PushNotificationContent(
             title="Please complete your profile on Couchers.org!",
-            body=f"Hi {v2esc(user.name)}! We would ask one big favour of you: please fill out your profile by adding a photo and some text.",
+            body=f"Hi {user.name}! We would ask one big favour of you: please fill out your profile by adding a photo and some text.",
             action_url=urls.edit_profile_link(),
         )
     else:
@@ -505,7 +513,7 @@ def _password_reset__complete() -> PushNotificationContent:
 def _phone_number__change(data: notification_data_pb2.PhoneNumberChange) -> PushNotificationContent:
     return PushNotificationContent(
         title="Phone verification started",
-        body=f"You started phone number verification with the number {v2phone(data.phone)}.",
+        body=f"You started phone number verification with the number {format_phone_number(data.phone)}.",
         action_url=urls.feature_preview_link(),
     )
 
@@ -513,7 +521,7 @@ def _phone_number__change(data: notification_data_pb2.PhoneNumberChange) -> Push
 def _phone_number__verify(data: notification_data_pb2.PhoneNumberVerify) -> PushNotificationContent:
     return PushNotificationContent(
         title="Phone successfully verified",
-        body=f"Your phone was successfully verified as {v2phone(data.phone)} on Couchers.org.",
+        body=f"Your phone was successfully verified as {format_phone_number(data.phone)} on Couchers.org.",
         action_url=urls.feature_preview_link(),
     )
 
@@ -563,7 +571,7 @@ def _reference__receive(
     data: notification_data_pb2.ReferenceReceiveHostRequest, reference_type: str
 ) -> PushNotificationContent:
     if data.text:
-        body = v2esc(data.text)
+        body = data.text
         action_url = urls.profile_references_link()
     else:
         body = (

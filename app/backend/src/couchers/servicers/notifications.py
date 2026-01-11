@@ -1,11 +1,10 @@
 import functools
 import json
 import logging
-from typing import cast
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import Table, select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_
 
@@ -148,8 +147,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         self, request: notifications_pb2.MarkAllNotificationsSeenReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         session.execute(
-            cast(Table, Notification.__table__)
-            .update()
+            update(Notification)
             .values(is_seen=True)
             .where(Notification.user_id == context.user_id)
             .where(Notification.id <= request.latest_notification_id)

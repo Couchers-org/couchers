@@ -459,6 +459,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         node.official_cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user_id=context.user_id,
+                cluster_id=node.official_cluster.id,
                 role=ClusterRole.member,
             )
         )

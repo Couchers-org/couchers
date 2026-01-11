@@ -1,33 +1,19 @@
 {
-    "biometrics": {
-        "cancel_button": "Annuleren",
-        "enable_title": "{{biometricType}} aanzetten?",
-        "enable_button": "Aanzetten",
-        "not_now_button": "Niet nu",
-        "confirm_prompt": "{{biometricType}} bevestigen",
-        "face_id": "Face ID",
-        "biometrics_generic": "biometrie",
-        "login_prompt": "Authenticeer om door te gaan",
-        "use_password_button": "Gebruik wachtwoord",
-        "enable_message": "Wil je de volgende keer {{biometricType}} gebruiken om sneller in te loggen?",
-        "touch_id": "Touch ID",
-        "pin_prompt": "Gebruik de pincode van je apparaat om door te gaan",
-        "pin_fallback_label": "Gebruik pincode apparaat"
-    },
-    "errors": {
-        "failed_to_load": "Laden mislukt",
-        "check_connection": "Check of je wel bent verbonden met internet en probeer het opnieuw.",
-        "try_again": "Opnieuw proberen"
-    },
-    "not_found": {
-        "title": "Oeps!",
-        "message": "Dit scherm bestaat niet.",
-        "go_home": "Terug naar startscherm!"
-    },
-    "tabs": {
-        "home": "Home",
-        "messages": "Berichten",
-        "communities": "Communities",
-        "search": "Zoeken"
-    }
+  "errors": {
+    "failed_to_load": "Laden mislukt",
+    "check_connection": "Check of je wel bent verbonden met internet en probeer het opnieuw.",
+    "try_again": "Opnieuw proberen"
+  },
+  "not_found": {
+    "title": "Oeps!",
+    "message": "Dit scherm bestaat niet.",
+    "go_home": "Terug naar startscherm!"
+  },
+  "tabs": {
+    "home": "Home",
+    "messages": "Berichten",
+    "communities": "Communities",
+    "search": "Zoeken",
+    "events": "Events"
+  }
 }

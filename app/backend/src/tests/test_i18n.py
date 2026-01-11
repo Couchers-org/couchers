@@ -1,6 +1,6 @@
 import pytest
 
-from couchers.i18n.i18n import get_i18next
+from couchers.i18n.localize import get_i18next
 
 
 @pytest.fixture(autouse=True)

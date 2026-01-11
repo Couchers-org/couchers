@@ -29,6 +29,7 @@ from couchers.models import (
     RateLimitAction,
     User,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import conversations_pb2, notification_data_pb2, requests_pb2, requests_pb2_grpc
@@ -287,7 +288,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         notify(
             session,
             user_id=host_request.host_user_id,
-            topic_action="host_request:create",
+            topic_action=NotificationTopicAction.host_request__create,
             key=str(host_request.conversation_id),
             data=notification_data_pb2.HostRequestCreate(
                 host_request=host_request_to_pb(host_request, session, context),
@@ -475,7 +476,11 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if host_request.end_time < now():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "host_request_in_past")
 
-        control_message = Message()
+        control_message = Message(
+            message_type=MessageType.host_request_status_changed,
+            conversation_id=host_request.conversation_id,
+            author_id=context.user_id,
+        )
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
             # only host can accept
@@ -496,7 +501,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             notify(
                 session,
                 user_id=host_request.surfer_user_id,
-                topic_action="host_request:accept",
+                topic_action=NotificationTopicAction.host_request__accept,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestAccept(
                     host_request=host_request_to_pb(host_request, session, context),
@@ -522,7 +527,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             notify(
                 session,
                 user_id=host_request.surfer_user_id,
-                topic_action="host_request:reject",
+                topic_action=NotificationTopicAction.host_request__reject,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestReject(
                     host_request=host_request_to_pb(host_request, session, context),
@@ -547,7 +552,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             notify(
                 session,
                 user_id=host_request.host_user_id,
-                topic_action="host_request:confirm",
+                topic_action=NotificationTopicAction.host_request__confirm,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestConfirm(
                     host_request=host_request_to_pb(host_request, session, context),
@@ -572,7 +577,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             notify(
                 session,
                 user_id=host_request.host_user_id,
-                topic_action="host_request:cancel",
+                topic_action=NotificationTopicAction.host_request__cancel,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestCancel(
                     host_request=host_request_to_pb(host_request, session, context),
@@ -583,17 +588,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             count_host_response(host_request.host_user_id, "cancelled")
 
-        control_message.message_type = MessageType.host_request_status_changed
-        control_message.conversation_id = host_request.conversation_id
-        control_message.author_id = context.user_id
         session.add(control_message)
 
         if request.text:
-            latest_message = Message()
-            latest_message.conversation_id = host_request.conversation_id
-            latest_message.text = request.text
-            latest_message.author_id = context.user_id
-            latest_message.message_type = MessageType.text
+            latest_message = Message(
+                conversation_id=host_request.conversation_id,
+                text=request.text,
+                author_id=context.user_id,
+                message_type=MessageType.text,
+            )
+
             session.add(latest_message)
         else:
             latest_message = control_message
@@ -668,11 +672,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if host_request.host_user_id == context.user_id:
             _possibly_observe_first_response_time(session, host_request, context.user_id, "message")
 
-        message = Message()
-        message.conversation_id = host_request.conversation_id
-        message.author_id = context.user_id
-        message.message_type = MessageType.text
-        message.text = request.text
+        message = Message(
+            conversation_id=host_request.conversation_id,
+            author_id=context.user_id,
+            message_type=MessageType.text,
+            text=request.text,
+        )
+
         session.add(message)
         session.flush()
 
@@ -682,7 +688,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             notify(
                 session,
                 user_id=host_request.host_user_id,
-                topic_action="host_request:message",
+                topic_action=NotificationTopicAction.host_request__message,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestMessage(
                     host_request=host_request_to_pb(host_request, session, context),
@@ -699,7 +705,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             notify(
                 session,
                 user_id=host_request.surfer_user_id,
-                topic_action="host_request:message",
+                topic_action=NotificationTopicAction.host_request__message,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestMessage(
                     host_request=host_request_to_pb(host_request, session, context),

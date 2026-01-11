@@ -1,8 +1,7 @@
 import logging
-from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from google.protobuf import empty_pb2
-from jinja2 import Environment, FileSystemLoader
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, func
@@ -24,28 +23,15 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
-from couchers.notifications.render import render_email_notification
+from couchers.notifications.render_email import render_email_notification
 from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import moderation_state_column_visible
-from couchers.templates.v2 import (
-    CONTEXT_PLAINTEXT_KEY,
-    CONTEXT_TIMEZONE_DISPLAY_KEY,
-    CONTEXT_TRANSLATION_LANGUAGE_KEY,
-    CONTEXT_YEAR_KEY,
-    add_filters,
-)
-from couchers.utils import get_tz_as_text, now
+from couchers.templates.v2 import CONTEXT_YEAR_KEY, Context, render_template, template_folder
+from couchers.utils import now
 
 logger = logging.getLogger(__name__)
-
-template_folder = Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2"
-
-loader = FileSystemLoader(template_folder)
-env = Environment(loader=loader, trim_blocks=True)
-
-add_filters(env)
 
 
 def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
@@ -54,8 +40,11 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     email_lang = "en"
     if config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
         email_lang = user.ui_language_preference or "en"
+    timezone = ZoneInfo(user.timezone or "Etc/UTC")
 
     template_args = {
+        "header_subject": rendered.subject,
+        "header_preview": rendered.preview,
         "user": user,
         "time": notification.created,
         "footer_email_is_critical": rendered.is_critical,
@@ -65,19 +54,20 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         "footer_notification_topic_key": rendered.topic_key_unsubscribe_text,
         "footer_notification_topic_key_link": generate_unsub_topic_key(notification),
         "footer_do_not_email_link": generate_do_not_email(user),
-        CONTEXT_TRANSLATION_LANGUAGE_KEY: email_lang,
         CONTEXT_YEAR_KEY: now().year,
-        CONTEXT_TIMEZONE_DISPLAY_KEY: get_tz_as_text(user.timezone or "Etc/UTC"),
         **rendered.template_args,
     }
 
+    # Format plaintext template
     plain_tmplt = (template_folder / f"{rendered.template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain_template_args = {**template_args, CONTEXT_PLAINTEXT_KEY: True}  # Strip html from translations.
-    plain = env.from_string(plain_tmplt + plain_tmplt_footer).render(plain_template_args)
+    plain = render_template(
+        plain_tmplt + plain_tmplt_footer, template_args, Context(timezone=timezone, locale=email_lang, plaintext=True)
+    )
 
+    # Format html template
     html_tmplt = (template_folder / "generated_html" / f"{rendered.template_name}.html").read_text()
-    html = env.from_string(html_tmplt).render(template_args)
+    html = render_template(html_tmplt, template_args, Context(timezone=timezone, locale=email_lang, plaintext=False))
 
     if user.do_not_email and not rendered.is_critical:
         logger.info(f"Not emailing {user} based on template {rendered.template_name} due to emails turned off")

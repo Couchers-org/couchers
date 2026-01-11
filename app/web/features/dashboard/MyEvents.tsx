@@ -1,21 +1,22 @@
 import { styled, Typography, useMediaQuery } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
-import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HorizontalScroller from "components/HorizontalScroller";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import EventCard from "features/communities/events/EventCard";
-import { myEventsKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
-import { ListMyEventsRes } from "proto/events_pb";
 import { routeToNewEvent } from "routes";
-import { service } from "service";
 import { theme } from "theme";
-import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
+
+import Button from "../../components/Button";
+import { ListMyEventsRes } from "../../proto/events_pb";
+import { service } from "../../service";
+import hasAtLeastOnePage from "../../utils/hasAtLeastOnePage";
+import { myEventsKey } from "../queryKeys";
 
 const StyledCardContainer = styled(HorizontalScroller)(() => ({
   paddingLeft: theme.spacing(1),
@@ -80,6 +81,8 @@ export default function MyEvents() {
         service.events.listMyEvents({
           pageToken: pageParam as string | undefined,
           pageSize: PAGE_SIZE,
+          myCommunities: true,
+          myCommunitiesExcludeGlobal: true,
         }),
       getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
       initialPageParam: undefined,
@@ -114,7 +117,19 @@ export default function MyEvents() {
           </StyledCardContainer>
           {hasNextPage && !isBelowSm && (
             <StyledButtonContainer>
-              <Button onClick={() => fetchNextPage()}>
+              <Button
+                onClick={() => fetchNextPage()}
+                variant="primary"
+                // sx={{
+                //   color: theme.palette.common.black,
+                //   borderColor: theme.palette.grey[300],
+
+                //   "&:hover": {
+                //     borderColor: theme.palette.grey[300],
+                //     backgroundColor: "#3135390A",
+                //   },
+                // }}
+              >
                 {t("dashboard:load_more")}
               </Button>
             </StyledButtonContainer>

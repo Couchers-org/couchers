@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from typing import cast
 
 import grpc
 import requests
@@ -36,6 +37,7 @@ from couchers.models import (
     User,
     UserSession,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.notifications.quick_links import respond_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
@@ -50,6 +52,7 @@ from couchers.tasks import (
 from couchers.utils import (
     create_coordinate,
     create_session_cookies,
+    is_geom,
     is_valid_email,
     is_valid_name,
     is_valid_username,
@@ -100,10 +103,10 @@ def create_session(
 
     user_session = UserSession(
         token=token,
-        user=user,
+        user_id=user.id,
         long_lived=long_lived,
-        ip_address=context.headers.get("x-couchers-real-ip"),
-        user_agent=context.headers.get("user-agent"),
+        ip_address=cast(str | None, context.headers.get("x-couchers-real-ip")),
+        user_agent=cast(str | None, context.headers.get("user-agent")),
         is_api_key=is_api_key,
     )
     if duration:
@@ -324,21 +327,22 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user = User(
                 name=flow.name,
                 email=flow.email,
-                username=flow.username,
-                hashed_password=flow.hashed_password,
-                birthdate=flow.birthdate,
-                gender=flow.gender,
-                hosting_status=flow.hosting_status,
-                city=flow.city,
-                geom=flow.geom,
-                geom_radius=flow.geom_radius,
-                accepted_tos=flow.accepted_tos,
-                accepted_community_guidelines=flow.accepted_community_guidelines,
-                onboarding_emails_sent=1,
+                username=not_none(flow.username),
+                hashed_password=not_none(flow.hashed_password),
+                birthdate=not_none(flow.birthdate),
+                gender=not_none(flow.gender),
+                hosting_status=not_none(flow.hosting_status),
+                city=not_none(flow.city),
+                geom=is_geom(flow.geom),
+                geom_radius=not_none(flow.geom_radius),
+                accepted_tos=not_none(flow.accepted_tos),
                 last_onboarding_email_sent=func.now(),
-                opt_out_of_newsletter=flow.opt_out_of_newsletter,
                 invite_code_id=flow.invite_code_id,
             )
+
+            user.accepted_community_guidelines = flow.accepted_community_guidelines
+            user.onboarding_emails_sent = 1
+            user.opt_out_of_newsletter = not_none(flow.opt_out_of_newsletter)
 
             session.add(user)
             session.flush()
@@ -351,12 +355,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             if flow.filled_feedback:
                 form_ = ContributorForm(
-                    user=user,
+                    user_id=user.id,
                     ideas=flow.ideas or None,
                     features=flow.features or None,
                     experience=flow.experience or None,
                     contribute=flow.contribute or None,
-                    contribute_ways=flow.contribute_ways,
+                    contribute_ways=not_none(flow.contribute_ways),
                     expertise=flow.expertise or None,
                 )
 
@@ -377,7 +381,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="onboarding:reminder",
+                topic_action=NotificationTopicAction.onboarding__reminder,
                 key="1",
             )
 
@@ -479,7 +483,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         ).scalar_one_or_none()
         if user:
             password_reset_token = PasswordResetToken(
-                token=urlsafe_secure_token(), user=user, expiry=now() + timedelta(hours=2)
+                token=urlsafe_secure_token(), user_id=user.id, expiry=now() + timedelta(hours=2)
             )
             session.add(password_reset_token)
             session.flush()
@@ -487,7 +491,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="password_reset:start",
+                topic_action=NotificationTopicAction.password_reset__start,
                 key="",
                 data=notification_data_pb2.PasswordResetStart(
                     password_reset_token=password_reset_token.token,
@@ -523,7 +527,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             notify(
                 session,
                 user_id=user.id,
-                topic_action="password_reset:complete",
+                topic_action=NotificationTopicAction.password_reset__complete,
                 key="",
             )
 
@@ -555,7 +559,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="email_address:verify",
+            topic_action=NotificationTopicAction.email_address__verify,
             key="",
         )
 
@@ -590,7 +594,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="account_deletion:complete",
+            topic_action=NotificationTopicAction.account_deletion__complete,
             key="",
             data=notification_data_pb2.AccountDeletionComplete(
                 undelete_token=user.undelete_token,
@@ -622,7 +626,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         notify(
             session,
             user_id=user.id,
-            topic_action="account_deletion:recovered",
+            topic_action=NotificationTopicAction.account_deletion__recovered,
             key="",
         )
 
@@ -639,38 +643,37 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not config["RECAPTHCA_ENABLED"]:
             return auth_pb2.AntiBotRes()
 
-        ip_address = context.headers.get("x-couchers-real-ip")
-        user_agent = context.headers.get("user-agent")
-
-        log = AntiBotLog(
-            token=request.token,
-            user_agent=user_agent,
-            ip_address=ip_address,
-            action=request.action,
-            user_id=context.user_id if context.is_logged_in() else None,
-        )
+        ip_address = cast(str | None, context.headers.get("x-couchers-real-ip"))
+        user_agent = cast(str | None, context.headers.get("user-agent"))
+        user_id = context.user_id if context.is_logged_in() else None
 
         resp = requests.post(
             f"https://recaptchaenterprise.googleapis.com/v1/projects/{config['RECAPTHCA_PROJECT_ID']}/assessments?key={config['RECAPTHCA_API_KEY']}",
             json={
                 "event": {
-                    "token": log.token,
+                    "token": request.token,
                     "siteKey": config["RECAPTHCA_SITE_KEY"],
-                    "userAgent": log.user_agent,
-                    "userIpAddress": log.ip_address,
-                    "expectedAction": log.action,
-                    "userInfo": {"accountId": str(log.user_id) if log.user_id else None},
+                    "userAgent": user_agent,
+                    "userIpAddress": ip_address,
+                    "expectedAction": request.action,
+                    "userInfo": {"accountId": str(user_id) if user_id else None},
                 }
             },
         )
 
         resp.raise_for_status()
 
-        log.score = resp.json()["riskAnalysis"]["score"]
-        log.provider_data = resp.json()
+        log = AntiBotLog(
+            token=request.token,
+            user_agent=user_agent,
+            ip_address=ip_address,
+            action=request.action,
+            user_id=user_id,
+            score=resp.json()["riskAnalysis"]["score"],
+            provider_data=resp.json(),
+        )
 
         session.add(log)
-
         session.flush()
 
         recaptchas_assessed_counter.labels(log.action).inc()

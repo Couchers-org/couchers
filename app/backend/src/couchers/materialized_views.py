@@ -35,6 +35,7 @@ from couchers.models import (
     ClusterSubscription,
     Geom,
     HostRequest,
+    MatViewBase,
     Message,
     MessageType,
     StrongVerificationAttempt,
@@ -98,7 +99,7 @@ cluster_subscription_counts = create_materialized_view(
 )
 
 
-class ClusterSubscriptionCount(Base):
+class ClusterSubscriptionCount(MatViewBase):
     __table__ = cluster_subscription_counts
 
     cluster_id: Mapped[int]
@@ -131,7 +132,7 @@ cluster_admin_counts = create_materialized_view(
 )
 
 
-class ClusterAdminCount(Base):
+class ClusterAdminCount(MatViewBase):
     __table__ = cluster_admin_counts
 
     cluster_id: Mapped[int]
@@ -205,7 +206,7 @@ lite_users = create_materialized_view_with_different_ddl(
 )
 
 
-class LiteUser(Base):
+class LiteUser(MatViewBase):
     __table__ = lite_users
 
     # A subset enough to make mypy happy. Taken from "make_lite_users_selectable".
@@ -275,7 +276,7 @@ clustered_users = create_materialized_view_with_different_ddl(
 )
 
 
-class ClusteredUser(Base):
+class ClusteredUser(MatViewBase):
     __table__ = clustered_users
 
     geom: Mapped[Geom]
@@ -343,7 +344,7 @@ user_response_rates = create_materialized_view(
 )
 
 
-class UserResponseRate(Base):
+class UserResponseRate(MatViewBase):
     __table__ = user_response_rates
 
     user_id: Mapped[int]

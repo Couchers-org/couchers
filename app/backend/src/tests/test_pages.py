@@ -573,24 +573,30 @@ def test_page_transfer(db):
         # create a community
         node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])))
         session.add(node)
+        session.flush()
         community_cluster = Cluster(
             name="Testing Community",
             description="Description for testing community",
-            parent_node=node,
+            parent_node_id=node.id,
             is_official_cluster=True,
         )
         session.add(community_cluster)
+        session.flush()
+        thread = Thread()
+        session.add(thread)
+        session.flush()
         main_page = Page(
-            parent_node=community_cluster.parent_node,
+            parent_node_id=community_cluster.parent_node_id,
             creator_user_id=user2.id,
-            owner_cluster=community_cluster,
+            owner_cluster_id=community_cluster.id,
             type=PageType.main_page,
-            thread=Thread(),
+            thread_id=thread.id,
         )
         session.add(main_page)
+        session.flush()
         session.add(
             PageVersion(
-                page=main_page,
+                page_id=main_page.id,
                 editor_user_id=user2.id,
                 title="Main page for the testing community",
                 content="Empty.",
@@ -599,12 +605,14 @@ def test_page_transfer(db):
         community_cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user_id=user2.id,
+                cluster_id=community_cluster.id,
                 role=ClusterRole.admin,
             )
         )
         community_cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user_id=user3.id,
+                cluster_id=community_cluster.id,
                 role=ClusterRole.member,
             )
         )
@@ -613,20 +621,25 @@ def test_page_transfer(db):
         group_cluster = Cluster(
             name="Testing Group",
             description="Description for testing group",
-            parent_node=node,
+            parent_node_id=node.id,
         )
         session.add(group_cluster)
+        session.flush()
+        thread = Thread()
+        session.add(thread)
+        session.flush()
         main_page = Page(
-            parent_node=group_cluster.parent_node,
+            parent_node_id=group_cluster.parent_node_id,
             creator_user_id=user2.id,
-            owner_cluster=group_cluster,
+            owner_cluster_id=group_cluster.id,
             type=PageType.main_page,
-            thread=Thread(),
+            thread_id=thread.id,
         )
         session.add(main_page)
+        session.flush()
         session.add(
             PageVersion(
-                page=main_page,
+                page_id=main_page.id,
                 editor_user_id=user2.id,
                 title="Main page for the testing community",
                 content="Empty.",
@@ -635,12 +648,14 @@ def test_page_transfer(db):
         group_cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user_id=user2.id,
+                cluster_id=group_cluster.id,
                 role=ClusterRole.admin,
             )
         )
         group_cluster.cluster_subscriptions.append(
             ClusterSubscription(
                 user_id=user3.id,
+                cluster_id=group_cluster.id,
                 role=ClusterRole.member,
             )
         )

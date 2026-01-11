@@ -56,12 +56,6 @@ make setup
 uv sync --frozen
 ```
 
-You'll also need to edit `app/backend.dev.env` to configure the backend to find hosts whose names only exist within the docker network:
-
-- `DATABASE_CONNECTION_STRING`: Replace `postgres:6545` with `localhost:6545`
-- `SMTP_HOST`: Replace `maildev` with `localhost`
-- `OPENTELEMETRY_ENDPOINT`: Replace `jaeger` with `localhost`
-
 In a terminal, run all containerized services except the backend.
 
 ```sh
@@ -73,6 +67,13 @@ In another terminal, run the backend locally:
 
 ```sh
 cd app/backend
+
+# Use backend environment variables, overriding the host names of containerized services.
+set -a && source ../backend.dev.env && set +a
+export DATABASE_CONNECTION_STRING=${DATABASE_CONNECTION_STRING/postgres:6545/localhost:6545}
+export SMTP_HOST=localhost
+export OPENTELEMETRY_ENDPOINT=localhost:4317
+
 uv run src/app.py
 ```
 

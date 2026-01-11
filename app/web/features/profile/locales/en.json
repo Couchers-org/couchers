@@ -291,8 +291,9 @@
   "open_profile_new_tab": "Open profile in new tab",
   "reference_amounts": {
     "no_references": "No references",
-    "references_single": "reference",
-    "references_plural": "references"
+    "count_references_one": "{{count}} reference",
+    "count_references_other": "{{count}} references",
+    "hundred_or_more_references": "100+ references"
   },
   "incomplete_profile_haiku": "Blank avatar stares,\nMystery behind silence—\nWho are you, stranger?",
   "search_indicator": "The beginning of this section is visible in search results when other members search for you",

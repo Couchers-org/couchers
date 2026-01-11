@@ -41,6 +41,7 @@ from couchers.models import (
     User,
     UserBadge,
 )
+from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
@@ -57,6 +58,7 @@ from couchers.utils import (
     is_valid_name,
     is_valid_user_id,
     is_valid_username,
+    not_none,
     now,
 )
 
@@ -405,9 +407,9 @@ class API(api_pb2_grpc.APIServicer):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_language")
                 session.add(
                     LanguageAbility(
-                        user=user,
+                        user_id=user.id,
                         language_code=language_ability.code,
-                        fluency=fluency2sql[language_ability.fluency],
+                        fluency=not_none(fluency2sql[language_ability.fluency]),
                     )
                 )
 
@@ -726,14 +728,16 @@ class API(api_pb2_grpc.APIServicer):
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
 
-        friend_relationship = FriendRelationship(from_user=user, to_user=to_user, status=FriendStatus.pending)
+        friend_relationship = FriendRelationship(
+            from_user_id=user.id, to_user_id=to_user.id, status=FriendStatus.pending
+        )
         session.add(friend_relationship)
         session.flush()
 
         notify(
             session,
             user_id=friend_relationship.to_user_id,
-            topic_action="friend_request:create",
+            topic_action=NotificationTopicAction.friend_request__create,
             key=str(friend_relationship.from_user_id),
             data=notification_data_pb2.FriendRequestCreate(
                 other_user=user_model_to_pb(friend_relationship.from_user, session, context),
@@ -809,7 +813,7 @@ class API(api_pb2_grpc.APIServicer):
             notify(
                 session,
                 user_id=friend_request.from_user_id,
-                topic_action="friend_request:accept",
+                topic_action=NotificationTopicAction.friend_request__accept,
                 key=str(friend_request.to_user_id),
                 data=notification_data_pb2.FriendRequestAccept(
                     other_user=user_model_to_pb(friend_request.to_user, session, context),

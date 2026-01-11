@@ -64,7 +64,7 @@ class ModerationObjectType(enum.Enum):
     GROUP_CHAT = enum.auto()
 
 
-class ModerationState(Base):
+class ModerationState(Base, kw_only=True):
     """
     Moderation state for any moderatable object on the platform
 
@@ -75,7 +75,7 @@ class ModerationState(Base):
     __tablename__ = "moderation_states"
 
     id: Mapped[int] = mapped_column(
-        BigInteger, moderation_seq, primary_key=True, server_default=moderation_seq.next_value()
+        BigInteger, moderation_seq, primary_key=True, server_default=moderation_seq.next_value(), init=False
     )
 
     # Generic reference to the moderated object
@@ -84,8 +84,10 @@ class ModerationState(Base):
 
     visibility: Mapped[ModerationVisibility] = mapped_column(Enum(ModerationVisibility))
 
-    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    updated: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), init=False
+    )
 
     __table_args__ = (
         # Each object can only have one moderation state
@@ -98,7 +100,7 @@ class ModerationState(Base):
         return f"ModerationState(id={self.id}, type={self.object_type}, object_id={self.object_id}, visibility={self.visibility})"
 
 
-class ModerationQueueItem(Base):
+class ModerationQueueItem(Base, kw_only=True):
     """
     Action items in the moderation queue
 
@@ -109,19 +111,19 @@ class ModerationQueueItem(Base):
     __tablename__ = "moderation_queue"
 
     id: Mapped[int] = mapped_column(
-        BigInteger, moderation_seq, primary_key=True, server_default=moderation_seq.next_value()
+        BigInteger, moderation_seq, primary_key=True, server_default=moderation_seq.next_value(), init=False
     )
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
-    time_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    time_created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     trigger: Mapped[ModerationTrigger] = mapped_column(Enum(ModerationTrigger))
     reason: Mapped[str] = mapped_column(String)
 
     # When resolved, this links to the log entry that resolved it
-    resolved_by_log_id: Mapped[int | None] = mapped_column(ForeignKey("moderation_log.id"), index=True)
+    resolved_by_log_id: Mapped[int | None] = mapped_column(ForeignKey("moderation_log.id"), index=True, default=None)
 
     # Relationships
-    moderation_state: Mapped[ModerationState] = relationship()
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # Fast lookup of unresolved items
@@ -139,7 +141,7 @@ class ModerationQueueItem(Base):
         )
 
 
-class ModerationLog(Base):
+class ModerationLog(Base, kw_only=True):
     """
     History of moderation actions
 
@@ -150,23 +152,23 @@ class ModerationLog(Base):
     __tablename__ = "moderation_log"
 
     id: Mapped[int] = mapped_column(
-        BigInteger, moderation_seq, primary_key=True, server_default=moderation_seq.next_value()
+        BigInteger, moderation_seq, primary_key=True, server_default=moderation_seq.next_value(), init=False
     )
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
-    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     action: Mapped[ModerationAction] = mapped_column(Enum(ModerationAction))
     moderator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     # State changes (nullable - only include fields that changed)
-    new_visibility: Mapped[ModerationVisibility | None] = mapped_column(Enum(ModerationVisibility), nullable=True)
+    new_visibility: Mapped[ModerationVisibility | None] = mapped_column(Enum(ModerationVisibility), default=None)
 
     # Explanation for the action
     reason: Mapped[str] = mapped_column(String)
 
     # Relationships
-    moderation_state: Mapped[ModerationState] = relationship()
-    moderator: Mapped[User] = relationship()
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
+    moderator: Mapped[User] = relationship(init=False)
 
     __table_args__ = (
         # Fast lookup of log entries for a given state, ordered by time
