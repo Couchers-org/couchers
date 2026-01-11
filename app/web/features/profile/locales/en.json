@@ -315,7 +315,7 @@
   "select_an_image": "Select an image",
   "names_profile_photo": "{{name}}'s profile photo",
   "gallery": {
-    "photo": "Photo",
+    "photo_item_a11y": "Photo",
     "primary": "Primary",
     "add_photo": "Add photo",
     "uploading": "Uploading...",

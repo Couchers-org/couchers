@@ -108,7 +108,7 @@ export default function ProfilePhotoGallery({
             tabIndex={0}
             aria-label={
               photo.caption ||
-              `${t("profile:gallery.photo")} ${index + 1} of ${gallery.photosList.length}`
+              `${t("profile:gallery.photo_item_a11y")} ${index + 1} of ${gallery.photosList.length}`
             }
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
