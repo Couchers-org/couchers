@@ -1,6 +1,7 @@
 # Couchers.org app
 
-Our docs are divided between the **web frontend** (TypeScript/React) and the **backend** (everything else). To run everything locally, refer to the backend guide which will point you to the right place.
+Our docs are divided between the **web frontend** (TypeScript/React) and the **backend** (everything else).
+To run everything locally, refer to the backend guide which will point you to the right place.
 
 ## Frontend
 

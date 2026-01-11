@@ -122,7 +122,7 @@ class HostRequest(Base, kw_only=True):
         )
 
     @can_write_reference.expression
-    def can_write_reference_expr(cls) -> Any:  # noqa: ARG003,D102
+    def can_write_reference_expr(cls) -> Any:
         return (
             ((cls.status == HostRequestStatus.confirmed) | (cls.status == HostRequestStatus.accepted))
             & (func.now() >= cls.start_time_to_write_reference)

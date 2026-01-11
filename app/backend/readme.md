@@ -1,83 +1,91 @@
 # Couchers.org backend
 
-This is the backend for Couchers.org built in Python. The React web frontend and React Native apps make API calls to it using [gRPC](https://grpc.io/) which are defined via [Protocol Buffers](https://protobuf.dev/). The business logic manipulates a [PostgreSQL](https://www.postgresql.org/) database via [SQLAlchemy](https://www.sqlalchemy.org/). Geospatial features are provided by the [PostGIS extension](https://postgis.net/).
+This is the backend for Couchers.org built in Python. The React web frontend and React Native apps 
+make API calls to it using [gRPC](https://grpc.io/) which are defined via [Protocol Buffers](https://protobuf.dev/). The business
+logic manipulates a [PostgreSQL](https://www.postgresql.org/) database via [SQLAlchemy](https://www.sqlalchemy.org/). Geospatial features are provided 
+by the [PostGIS extension](https://postgis.net/).
 
 ## Prerequisites
 
-- **Linux or macOS**. If you are using Windows, please [install Ubuntu via WSL2](https://documentation.ubuntu.com/wsl/en/latest/guides/install-ubuntu-wsl2/), then follow these instructions inside Ubuntu.
+- **Linux or macOS**. If you are using Windows, please [install Ubuntu via WSL2](https://documentation.ubuntu.com/wsl/en/latest/guides/install-ubuntu-wsl2/), then 
+  follow these instructions inside Ubuntu.
 - **Docker engine**. Please refer to the [Docker install documentation](https://docs.docker.com/engine/install/) for how to set it up.
+- **just command runner**. [Find a package for your OS](https://just.systems/man/en/packages.html). 
 - **A clone of the Couchers git repo**. `git clone https://github.com/Couchers-org/couchers.git`
 
 ### Up-to-date protocol buffers
 
-All steps assume you have up-to-date API definitions generated using protobuf and grpc. If you make or pull changes to \*.proto files, you'll need to rerun this:
+All steps assume you have up-to-date API definitions generated using protobuf and grpc. 
+If you make or pull changes to \*.proto files, you'll need to rerun this:
 
 ```sh
-cd app
-docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
+just protos
 ```
 
 ## Building and running in Docker
 
-To spin up a complete copy of the database, backend, and proxies needed to run the platform, run the following command:
+To spin up a complete copy of the database, backend, and proxies needed to run the platform,
+run the following command:
 
 ```sh
 docker compose up --build
 ```
 
-This will not currently run the frontend, to do that, please follow the instructions in [app/web/readme.md](../web/readme.md) under *Quick Start*, then *Running against a local backend*.
+This will not currently run the frontend, to do that, please follow the instructions 
+in [app/web/readme.md](../web/readme.md) under *Quick Start*, then *Running against a local backend*.
 
-### Running tests in docker
+[//]: # (These commands don't exist - probably invented by claude? But we should add them.)
+[//]: # (### Running tests in docker)
 
-You can run all backend tests in docker with the following commands:
+[//]: # ()
+[//]: # (You can run all backend tests in docker with the following commands:)
 
-```sh
-cd app/backend
+[//]: # ()
+[//]: # (```sh)
 
-# Run all tests
-make docker-test
+[//]: # (cd app/backend)
 
-# Or run a single file's tests
-make docker-test file=test_filename.py
+[//]: # ()
+[//]: # (# Run all tests)
 
-# Teardown the test database when done
-make teardown-docker-test
-```
+[//]: # (make docker-test)
+
+[//]: # ()
+[//]: # (# Or run a single file's tests)
+
+[//]: # (make docker-test file=test_filename.py)
+
+[//]: # ()
+[//]: # (# Teardown the test database when done)
+
+[//]: # (make teardown-docker-test)
+
+[//]: # (```)
 
 ## Running the backend locally
 
-For quicker iteration, you can run the backend locally and have it talk to the rest of the containerized services.
+For quicker iteration, you can run the backend locally and have it talk to the rest 
+of the containerized services.
 
 You'll need to have Python UV installed and dependencies sync'ed:
 
 ```sh
 cd app/backend
-make setup
+# other installation methods https://github.com/astral-sh/uv?tab=readme-ov-file#installation
+curl -fsSL https://astral.sh/uv/install.sh | sh  
 uv sync --frozen
 ```
 
-In a terminal, run all containerized services except the backend.
+Run backend and all containerized services needed for it.
 
 ```sh
-cd app
-docker compose --file docker-compose.local-backend.yml up --build
+just run-backend
+# or 'just rb' for short
 ```
 
-In another terminal, run the backend locally:
 
-```sh
-cd app/backend
-
-# Use backend environment variables, overriding the host names of containerized services.
-set -a && source ../backend.dev.env && set +a
-export DATABASE_CONNECTION_STRING=${DATABASE_CONNECTION_STRING/postgres:6545/localhost:6545}
-export SMTP_HOST=localhost
-export OPENTELEMETRY_ENDPOINT=localhost:4317
-
-uv run src/app.py
-```
-
-If you find that the proxy/media services can't talk to your local backend, try setting the `BACKEND_HOST=host.docker.internal` environment variable before running the services via `docker compose`.
+If you find that the proxy/media services can't talk to your local backend, try setting 
+the `BACKEND_HOST=host.docker.internal` environment variable before running `just run-backend`
 
 ### Running tests locally
 
@@ -86,14 +94,12 @@ This is the recommended approach.
 ```sh
 cd app/backend
 
-# Start the test database
-make setup-db
+# Will set up a postgres database in docker, and run all tests
+just test
 
-# Now run the test against the testing postgres database
-make test
-
-# Or run a single file's tests, add your filename
-make test file=[test_filename.py]
+# Run a single file, or a particular test
+just test src/tests/test_account.py
+just test src/tests/test_account.py::test_reminders
 ```
 
 ## Q/A:
