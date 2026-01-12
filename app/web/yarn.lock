@@ -254,7 +254,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.27.1"
 
-"@babel/runtime@^7.12.5", "@babel/runtime@^7.18.3", "@babel/runtime@^7.23.2", "@babel/runtime@^7.27.6", "@babel/runtime@^7.28.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
+"@babel/runtime@^7.12.5", "@babel/runtime@^7.18.3", "@babel/runtime@^7.23.2", "@babel/runtime@^7.28.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
   version "7.28.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.28.4.tgz#a70226016fabe25c5783b2f22d3e1c9bc5ca3326"
   integrity sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==
@@ -7314,12 +7314,12 @@ react-hook-form@^7.54.0:
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.68.0.tgz#733c6871fa4ec5e5bfb13e7650a3a912eafe1721"
   integrity sha512-oNN3fjrZ/Xo40SWlHf1yCjlMK417JxoSJVUXQjGdvdRCU07NTFei1i1f8ApUAts+IVh14e4EdakeLEA+BEAs/Q==
 
-react-i18next@^16.5.0:
-  version "16.5.0"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-16.5.0.tgz#107e4323742344a2f8792feb905cea551da6fd2c"
-  integrity sha512-IMpPTyCTKxEj8klCrLKUTIUa8uYTd851+jcu2fJuUB9Agkk9Qq8asw4omyeHVnOXHrLgQJGTm5zTvn8HpaPiqw==
+react-i18next@^16.5.2:
+  version "16.5.2"
+  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-16.5.2.tgz#6fab6f5494cfe00e9da36c3f5eb23fcbe60e5f24"
+  integrity sha512-GG/SBVxx9dvrO1uCs8VYdKfOP8NEBUhNP+2VDQLCifRJ8DL1qPq296k2ACNGyZMDe7iyIlz/LMJTQOs8HXSRvw==
   dependencies:
-    "@babel/runtime" "^7.27.6"
+    "@babel/runtime" "^7.28.4"
     html-parse-stringify "^3.0.1"
     use-sync-external-store "^1.6.0"
 
