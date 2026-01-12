@@ -4,6 +4,7 @@ React Native mobile app built with [Expo](https://expo.dev).
 
 ## Table of Contents
 
+- [Quick start](#quick-start)
 - [First Time Setup](#first-time-setup)
 - [Local Development](#local-development)
 - [Seeing web or backend changes on the mobile app](#seeing-web-or-backend-changes-on-the-local-mobile-app)
@@ -11,6 +12,20 @@ React Native mobile app built with [Expo](https://expo.dev).
 - [Publish Your Changes - TestFlight / Play Store Builds](#publish-your-changes---testflight--play-store-builds)
 - [Submitting Builds for Testing](#submitting-builds-for-testing)
 - [Learn More](#learn-more)
+
+## Quick Start
+
+If you already have a development build and haven't changed any native dependencies, app.json, app icons, or updated the Expo SDK:
+
+```bash
+npm install
+npm run build:protos
+npx expo start
+```
+
+Then scan the QR code with your phone's camera. Your changes will automatically reload on your device as you code.
+
+For JavaScript/TypeScript changes (most development), just run Metro and your changes hot-reload automatically.
 
 
 ## First Time Setup
@@ -28,13 +43,18 @@ React Native mobile app built with [Expo](https://expo.dev).
 4. Connect your iPhone via USB, enable developer mode
 
 **Android:**
-- Install **[Android Studio](https://developer.android.com/studio)**
-- Add to `~/.zshrc`:
-  ```bash
-  export ANDROID_HOME=$HOME/Library/Android/sdk
-  export PATH=$PATH:$ANDROID_HOME/emulator
-  export PATH=$PATH:$ANDROID_HOME/platform-tools
-  ```
+- Follow the **[Expo Android Studio Emulator guide](https://docs.expo.dev/workflow/android-studio-emulator/)** to install Android Studio, Java, and configure environment variables
+- **Firebase setup** (required for push notifications):
+  1. Get `google-services.json` from [Firebase Console](https://console.firebase.google.com/) → Project Settings → Your apps → Android app → Download
+  2. Place it in `app/mobile/google-services.json`
+  3. This file is gitignored - ask a team member if you don't have Firebase access
+
+**EAS CLI (for cloud builds):**
+```bash
+npm install -g eas-cli
+eas login  # log in with your Expo account
+```
+Or use `npx eas-cli` without installing globally.
 
 ## Local Development
 
@@ -58,19 +78,6 @@ eas build --platform ios --profile staging # leave out "--profile staging" for p
 # Android (requires Android Studio setup above, and running emulator)
 npx expo run:android --device # and plug your device in to computer via USB
 ```
-
-If you already have a development build and haven't changed any native dependencies, app.json, app icons, or updated the Expo SDK:
-
-```bash
-npm install
-npm run build:protos
-npx expo start
-```
-
-Then scan the QR code with your phone's camera. Your changes will automatically reload on your device as you code.
-
-For JavaScript/TypeScript changes (most development), just run Metro and your changes hot-reload automatically!
-
 
 **Android Emulator users:** Use localhost mode if you get connection errors:
 ```bash

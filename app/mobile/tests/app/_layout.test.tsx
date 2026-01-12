@@ -7,6 +7,7 @@ import { Text, View } from "react-native";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
+import { getNotificationPath } from "@/utils/getNotificationPath";
 
 jest.mock("expo-router", () => ({
   ...jest.requireActual("expo-router"),
@@ -26,6 +27,7 @@ jest.mock("expo-notifications", () => ({
   addNotificationResponseReceivedListener: jest.fn(() => ({
     remove: jest.fn(),
   })),
+  getLastNotificationResponse: jest.fn(() => null),
 }));
 
 jest.mock("@/features/auth/AuthContext", () => ({
@@ -83,25 +85,36 @@ function TestRootNavigator() {
   );
 }
 
-// Test component mimicking PushNotificationsRegistrar
+// Test component mimicking PushNotificationsRegistrar with useNotificationObserver
 function TestPushNotificationsRegistrar() {
   const router = useRouter();
   useRegisterPushNotifications();
 
   useEffect(() => {
+    function redirect(notification: {
+      request: { content: { data?: { url?: string } } };
+    }) {
+      const path = getNotificationPath(notification.request.content.data?.url);
+      if (path) {
+        router.push(path as Href);
+      }
+    }
+
+    // Check for cold start notification
+    const lastResponse = Notifications.getLastNotificationResponse();
+    if (lastResponse?.notification) {
+      redirect(
+        lastResponse.notification as {
+          request: { content: { data?: { url?: string } } };
+        },
+      );
+    }
+
     const subscription = Notifications.addNotificationResponseReceivedListener(
       (response: {
         notification: { request: { content: { data?: { url?: string } } } };
       }) => {
-        const url = response.notification.request.content.data?.url;
-        if (url) {
-          try {
-            const path = new URL(url).pathname;
-            router.push(`/(tabs)${path}` as Href);
-          } catch {
-            router.push(`/(tabs)${url}` as Href);
-          }
-        }
+        redirect(response.notification);
       },
     );
 
@@ -196,15 +209,32 @@ describe("PushNotificationsRegistrar", () => {
     notificationCallback({
       notification: {
         request: {
-          content: { data: { url: "https://couchers.org/messages/123" } },
+          content: {
+            data: { url: "https://couchers.org/messages/requests/123" },
+          },
         },
       },
     });
 
-    expect(mockRouter.push).toHaveBeenCalledWith("/(tabs)/messages/123");
+    // Paths are extracted from URL and pushed directly
+    expect(mockRouter.push).toHaveBeenCalledWith("/messages/requests/123");
   });
 
-  it("handles notification with path-only URL", () => {
+  it("navigates to base path directly", () => {
+    render(<TestPushNotificationsRegistrar />);
+
+    notificationCallback({
+      notification: {
+        request: {
+          content: { data: { url: "https://couchers.org/messages" } },
+        },
+      },
+    });
+
+    expect(mockRouter.push).toHaveBeenCalledWith("/messages");
+  });
+
+  it("handles notification with path-only URL as fallback", () => {
     render(<TestPushNotificationsRegistrar />);
 
     notificationCallback({
@@ -213,7 +243,26 @@ describe("PushNotificationsRegistrar", () => {
       },
     });
 
-    expect(mockRouter.push).toHaveBeenCalledWith("/(tabs)/messages/456");
+    // Path-only URLs that fail URL parsing use fallback (push as-is)
+    expect(mockRouter.push).toHaveBeenCalledWith("/messages/456");
+  });
+
+  it("navigates to leave-reference paths correctly", () => {
+    render(<TestPushNotificationsRegistrar />);
+
+    notificationCallback({
+      notification: {
+        request: {
+          content: {
+            data: { url: "https://couchers.org/leave-reference/surfed/91/320" },
+          },
+        },
+      },
+    });
+
+    expect(mockRouter.push).toHaveBeenCalledWith(
+      "/leave-reference/surfed/91/320",
+    );
   });
 
   it("ignores notifications without URL", () => {
