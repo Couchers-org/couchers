@@ -9,8 +9,7 @@ from couchers import urls
 from couchers.i18n.localize import format_phone_number, localize_date_from_iso, localize_datetime_for_user
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.push import PushNotificationContent
-from couchers.proto import events_pb2, notification_data_pb2
-from couchers.templates.v2 import v2avatar
+from couchers.proto import api_pb2, events_pb2, notification_data_pb2
 
 logger = logging.getLogger(__name__)
 
@@ -143,6 +142,10 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
             assert_never(notification.topic_action)
 
 
+def _avatar_url_or_default(user: api_pb2.User) -> str:
+    return user.avatar_thumbnail_url or urls.icon_url()
+
+
 def _account_deletion__start(data: notification_data_pb2.AccountDeletionStart) -> PushNotificationContent:
     return PushNotificationContent(
         title="Account deletion initiated",
@@ -208,7 +211,7 @@ def _chat__message(data: notification_data_pb2.ChatMessage) -> PushNotificationC
     return PushNotificationContent(
         title=data.message,
         body=data.text,
-        icon_url=v2avatar(data.author),
+        icon_url=_avatar_url_or_default(data.author),
         action_url=urls.chat_link(chat_id=data.group_chat_id),
     )
 
@@ -233,7 +236,7 @@ def _discussion__create(data: notification_data_pb2.DiscussionCreate) -> PushNot
     return PushNotificationContent(
         title=data.discussion.title,
         body=f"{data.author.name} created a discussion in {data.discussion.owner_title}: {data.discussion.title}\n\n{data.discussion.content}",
-        icon_url=v2avatar(data.author),
+        icon_url=_avatar_url_or_default(data.author),
         action_url=urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug),
     )
 
@@ -242,7 +245,7 @@ def _discussion__comment(data: notification_data_pb2.DiscussionComment) -> PushN
     return PushNotificationContent(
         title=data.discussion.title,
         body=f"{data.author.name} commented:\n\n{data.reply.content}",
-        icon_url=v2avatar(data.author),
+        icon_url=_avatar_url_or_default(data.author),
         action_url=urls.discussion_link(discussion_id=data.discussion.discussion_id, slug=data.discussion.slug),
     )
 
@@ -274,7 +277,7 @@ def _event__create_any(data: notification_data_pb2.EventCreate, user: User) -> P
     return PushNotificationContent(
         title=f'{data.inviting_user.name} created an event called "{data.event.title}"',
         body=f"{time_display}\nCreated by {data.inviting_user.name}\n\n{data.event.content}",
-        icon_url=v2avatar(data.inviting_user),
+        icon_url=_avatar_url_or_default(data.inviting_user),
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
@@ -284,7 +287,7 @@ def _event__create_approved(data: notification_data_pb2.EventCreate, user: User)
     return PushNotificationContent(
         title=f'{data.inviting_user.name} invited you to "{data.event.title}"',
         body=f"{time_display}\nInvited by {data.inviting_user.name}\n\n{data.event.content}",
-        icon_url=v2avatar(data.inviting_user),
+        icon_url=_avatar_url_or_default(data.inviting_user),
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
@@ -295,7 +298,7 @@ def _event__update(data: notification_data_pb2.EventUpdate, user: User) -> PushN
     return PushNotificationContent(
         title=f'{data.updating_user.name} updated "{data.event.title}"',
         body=f"{time_display}\n{data.updating_user.name} updated: {updated_text}\n\n{data.event.content}",
-        icon_url=v2avatar(data.updating_user),
+        icon_url=_avatar_url_or_default(data.updating_user),
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
@@ -305,7 +308,7 @@ def _event__invite_organizer(data: notification_data_pb2.EventInviteOrganizer, u
     return PushNotificationContent(
         title=f'{data.inviting_user.name} invited you to co-organize "{data.event.title}"',
         body=f"{time_display}\nInvited to co-organize by {data.inviting_user.name}\n\n{data.event.content}",
-        icon_url=v2avatar(data.inviting_user),
+        icon_url=_avatar_url_or_default(data.inviting_user),
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
@@ -315,7 +318,7 @@ def _event__comment(data: notification_data_pb2.EventComment, user: User) -> Pus
     return PushNotificationContent(
         title=f'{data.author.name} commented on "{data.event.title}"',
         body=f"{time_display}\n{data.author.name} commented:\n\n{data.reply.content}",
-        icon_url=v2avatar(data.author),
+        icon_url=_avatar_url_or_default(data.author),
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
@@ -334,7 +337,7 @@ def _event__cancel(data: notification_data_pb2.EventCancel, user: User) -> PushN
     return PushNotificationContent(
         title=f'{data.cancelling_user.name} cancelled "{data.event.title}"',
         body=f"{time_display}\nThe event has been cancelled by {data.cancelling_user.name}.\n\n{data.event.content}",
-        icon_url=v2avatar(data.cancelling_user),
+        icon_url=_avatar_url_or_default(data.cancelling_user),
         action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
     )
 
@@ -351,7 +354,7 @@ def _friend_request__create(data: notification_data_pb2.FriendRequestCreate) -> 
     return PushNotificationContent(
         title=f"{data.other_user.name} wants to be your friend",
         body=f"You've received a friend request from {data.other_user.name}",
-        icon_url=v2avatar(data.other_user),
+        icon_url=_avatar_url_or_default(data.other_user),
         action_url=urls.friend_requests_link(),
     )
 
@@ -360,7 +363,7 @@ def _friend_request__accept(data: notification_data_pb2.FriendRequestAccept) -> 
     return PushNotificationContent(
         title=f"{data.other_user.name} accepted your friend request!",
         body=f"{data.other_user.name} has accepted your friend request",
-        icon_url=v2avatar(data.other_user),
+        icon_url=_avatar_url_or_default(data.other_user),
         action_url=urls.user_link(username=data.other_user.username),
     )
 
@@ -388,7 +391,7 @@ def _host_request__create(data: notification_data_pb2.HostRequestCreate, user: U
         title=f"{data.surfer.name} sent you a host request",
         body=f"Dates: {from_date} to {to_date}.\n\n{data.text}",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
-        icon_url=v2avatar(data.surfer),
+        icon_url=_avatar_url_or_default(data.surfer),
     )
 
 
@@ -403,7 +406,7 @@ def _host_request__message(data: notification_data_pb2.HostRequestMessage, user:
         title=title,
         body=f"Dates: {from_date} to {to_date}.\n\n{data.text}",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
-        icon_url=v2avatar(data.user),
+        icon_url=_avatar_url_or_default(data.user),
     )
 
 
@@ -413,7 +416,7 @@ def _host_request__missed_messages(data: notification_data_pb2.HostRequestMissed
         title=f"{data.user.name} sent you message(s) in {their_your} host request",
         body="Check the app for more info.",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
-        icon_url=v2avatar(data.user),
+        icon_url=_avatar_url_or_default(data.user),
     )
 
 
@@ -422,7 +425,7 @@ def _host_request__reminder(data: notification_data_pb2.HostRequestReminder) -> 
         title=f"You have a pending host request from {data.surfer.name}!",
         body="Please respond to the request!",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
-        icon_url=v2avatar(data.surfer),
+        icon_url=_avatar_url_or_default(data.surfer),
     )
 
 
@@ -431,7 +434,7 @@ def _host_request__accept(data: notification_data_pb2.HostRequestAccept) -> Push
         title=f"{data.host.name} accepted your host request",
         body="Check the app for more info.",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
-        icon_url=v2avatar(data.host),
+        icon_url=_avatar_url_or_default(data.host),
     )
 
 
@@ -440,7 +443,7 @@ def _host_request__reject(data: notification_data_pb2.HostRequestReject) -> Push
         title=f"{data.host.name} rejected your host request",
         body="Check the app for more info.",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
-        icon_url=v2avatar(data.host),
+        icon_url=_avatar_url_or_default(data.host),
     )
 
 
@@ -449,7 +452,7 @@ def _host_request__cancel(data: notification_data_pb2.HostRequestCancel) -> Push
         title=f"{data.surfer.name} cancelled their host request",
         body="Check the app for more info.",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
-        icon_url=v2avatar(data.surfer),
+        icon_url=_avatar_url_or_default(data.surfer),
     )
 
 
@@ -458,7 +461,7 @@ def _host_request__confirm(data: notification_data_pb2.HostRequestConfirm) -> Pu
         title=f"{data.surfer.name} confirmed their host request",
         body="Check the app for more info.",
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
-        icon_url=v2avatar(data.surfer),
+        icon_url=_avatar_url_or_default(data.surfer),
     )
 
 
@@ -562,7 +565,7 @@ def _reference__receive_friend(data: notification_data_pb2.ReferenceReceiveFrien
     return PushNotificationContent(
         title=f"You've received a friend reference from {data.from_user.name}!",
         body=data.text,
-        icon_url=v2avatar(data.from_user),
+        icon_url=_avatar_url_or_default(data.from_user),
         action_url=urls.profile_references_link(),
     )
 
@@ -585,7 +588,7 @@ def _reference__receive(
     return PushNotificationContent(
         title=f"You've received a reference from {data.from_user.name}!",
         body=body,
-        icon_url=v2avatar(data.from_user),
+        icon_url=_avatar_url_or_default(data.from_user),
         action_url=action_url,
     )
 
@@ -608,7 +611,7 @@ def _reference__reminder(data: notification_data_pb2.ReferenceReminder, referenc
     return PushNotificationContent(
         title=f"You have {data.days_left} days to write a reference for {data.other_user.name}!",
         body="It's a nice gesture to write references and helps us build a community together! References will become visible 2 weeks after the stay, or when you've both written a reference for each other, whichever happens first.",
-        icon_url=v2avatar(data.other_user),
+        icon_url=_avatar_url_or_default(data.other_user),
         action_url=leave_reference_link,
     )
 
@@ -636,7 +639,7 @@ def _thread__reply(data: notification_data_pb2.ThreadReply) -> PushNotificationC
     return PushNotificationContent(
         title=title,
         body=f"{data.author.name} replied:\n\n{data.reply.content}",
-        icon_url=v2avatar(data.author),
+        icon_url=_avatar_url_or_default(data.author),
         action_url=view_link,
     )
 
