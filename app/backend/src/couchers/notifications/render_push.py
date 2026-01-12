@@ -11,7 +11,6 @@ from couchers.i18n.localize import format_phone_number, localize_date_from_iso, 
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.push import PushNotificationContent
 from couchers.proto import api_pb2, notification_data_pb2
-from couchers.utils import to_aware_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -333,7 +332,7 @@ def _event__comment(data: notification_data_pb2.EventComment) -> PushNotificatio
 
 
 def _event__reminder(data: notification_data_pb2.EventReminder, user: User) -> PushNotificationContent:
-    time_display = v2time(to_aware_datetime(data.event.start_time), user)
+    time_display = localize_datetime_for_user(data.event.start_time, user)
     return PushNotificationContent(
         title=f"Upcoming event: {data.event.title}",
         ios_title="Upcoming Event",
@@ -449,7 +448,7 @@ def _host_request__reminder(data: notification_data_pb2.HostRequestReminder) -> 
 
 
 def _host_request__accept(data: notification_data_pb2.HostRequestAccept, user: User) -> PushNotificationContent:
-    date = v2date(data.host_request.from_date, user)
+    date = localize_date_from_iso(data.host_request.from_date, user.ui_language_preference or "en")
     return PushNotificationContent(
         title=f"{data.host.name} accepted your request",
         ios_title=data.host.name,
@@ -461,7 +460,7 @@ def _host_request__accept(data: notification_data_pb2.HostRequestAccept, user: U
 
 
 def _host_request__reject(data: notification_data_pb2.HostRequestReject, user: User) -> PushNotificationContent:
-    date = v2date(data.host_request.from_date, user)
+    date = localize_date_from_iso(data.host_request.from_date, user.ui_language_preference or "en")
     return PushNotificationContent(
         title=f"{data.host.name} declined your request",
         ios_title=data.host.name,
@@ -473,7 +472,7 @@ def _host_request__reject(data: notification_data_pb2.HostRequestReject, user: U
 
 
 def _host_request__cancel(data: notification_data_pb2.HostRequestCancel, user: User) -> PushNotificationContent:
-    date = v2date(data.host_request.from_date, user)
+    date = localize_date_from_iso(data.host_request.from_date, user.ui_language_preference or "en")
     return PushNotificationContent(
         title=f"{data.surfer.name} cancelled their request",
         ios_title=data.surfer.name,
@@ -485,7 +484,7 @@ def _host_request__cancel(data: notification_data_pb2.HostRequestCancel, user: U
 
 
 def _host_request__confirm(data: notification_data_pb2.HostRequestConfirm, user: User) -> PushNotificationContent:
-    date = v2date(data.host_request.from_date, user)
+    date = localize_date_from_iso(data.host_request.from_date, user.ui_language_preference or "en")
     return PushNotificationContent(
         title=f"{data.surfer.name} confirmed their host request",
         ios_title=data.surfer.name,
