@@ -9,7 +9,7 @@
     <mj-table>
       <tr>
         <td style="width: 100px;">
-          <img width="80px" style="border-radius: 80px" src="{{ author|v2avatar }}" />
+          <img width="80px" style="border-radius: 80px" src="{{ author.avatar_url }}" />
         </td>
         <td>
           <b>{{ author.name|v2esc }}</b>, {{ author.age|v2esc }}<br />{{ author.city|v2esc }}

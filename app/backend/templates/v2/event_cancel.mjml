@@ -13,7 +13,7 @@
     <mj-table>
       <tr>
         <td style="width: 100px;">
-          <img width="80px" style="border-radius: 80px" src="{{ cancelling_user|v2avatar }}" />
+          <img width="80px" style="border-radius: 80px" src="{{ cancelling_user.avatar_url }}" />
         </td>
         <td>
           <b>Cancelled by {{ cancelling_user.name|v2esc }}</b>, {{ cancelling_user.age|v2esc }}<br />{{ cancelling_user.city|v2esc }}

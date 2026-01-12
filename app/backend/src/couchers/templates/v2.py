@@ -17,7 +17,6 @@ from jinja2 import Environment, FileSystemLoader, pass_context
 from jinja2.runtime import Context as JinjaContext
 from markdown_it import MarkdownIt
 
-from couchers import urls
 from couchers.i18n.localize import format_phone_number, localize_date, localize_datetime, localize_string, localize_time
 
 logger = logging.getLogger(__name__)
@@ -93,12 +92,6 @@ def v2timestamp(jinja_context: JinjaContext, value: Timestamp) -> str:
     return localize_datetime(value, context.timezone, context.locale)
 
 
-def v2avatar(user: Any) -> str:
-    if not user.avatar_thumbnail_url:
-        return urls.icon_url()
-    return user.avatar_thumbnail_url  # type: ignore[no-any-return]
-
-
 def v2quote(value: str) -> str:
     """
     Multiline quote, use in place of markdown in plaintext emails
@@ -164,7 +157,6 @@ def _get_jinja2_env() -> Environment:
     env.filters["v2date"] = v2date
     env.filters["v2time"] = v2time
     env.filters["v2timestamp"] = v2timestamp
-    env.filters["v2avatar"] = v2avatar
     env.filters["v2quote"] = v2quote
     env.filters["v2markdown"] = v2markdown
     env.filters["v2translate"] = v2translate
