@@ -33,7 +33,7 @@
     "@mui/material": "^7.3.5",
     "@mui/material-nextjs": "^7.3.6",
     "@mui/system": "^7.3.5",
-    "@mui/utils": "^7.3.2",
+    "@mui/utils": "^7.3.7",
     "@mui/x-date-pickers": "^8.24.0",
     "@sentry/nextjs": "^10.32.1",
     "@sentry/react": "^10.32.1",
