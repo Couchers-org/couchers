@@ -772,7 +772,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
 
 
-@dataclass(frozen=True, slots=True, kw_args=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class UserTemplateArgs:
     """
     A user's information for email template placeholders.
