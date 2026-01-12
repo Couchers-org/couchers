@@ -6654,10 +6654,10 @@ next-i18next@^15.4.3:
     hoist-non-react-statics "^3.3.2"
     i18next-fs-backend "^2.6.0"
 
-next-router-mock@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/next-router-mock/-/next-router-mock-1.0.4.tgz#209027eb794a1fb5e2957cedbddc5849baee4eb8"
-  integrity sha512-EBOd/J2PxgZ9WH732ppfEojZgSTSOkjEz0DgQn+9c/PELKnc9P19PAcmQUi7fSlk3LAKbMGzl5DEOb40x7l8kA==
+next-router-mock@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/next-router-mock/-/next-router-mock-1.0.5.tgz#fb6b25e64235000efd6eb15daeeb6c946ea706ad"
+  integrity sha512-mEndN1KdRlofR1Hf+FvfHogabpx1SQ8cbXYENCm3SA1W5Bj3UlaIW814DA6vg5gmPF6tBw5E1rX2JY4ogN9aaQ==
 
 next@^15.5.7:
   version "15.5.7"
