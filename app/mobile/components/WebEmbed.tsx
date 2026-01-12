@@ -210,12 +210,21 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     nativeEvent: { targetUrl: string };
   }) => {
     const { targetUrl } = syntheticEvent.nativeEvent;
-    // Open target="_blank" links in device's browser (Safari/Chrome)
-    Linking.openURL(targetUrl).catch((err) => {
-      if (__DEV__) {
-        console.error("Failed to open external link:", err);
-      }
-    });
+
+    // Check if link is internal (within our app)
+    if (targetUrl.startsWith(WEB_BASE_URL)) {
+      // Internal link: navigate within WebView instead of opening externally
+      webviewRef.current?.injectJavaScript(
+        `window.location.href = "${targetUrl}"; true;`,
+      );
+    } else {
+      // External link: open in device's browser (Safari/Chrome)
+      Linking.openURL(targetUrl).catch((err) => {
+        if (__DEV__) {
+          console.error("Failed to open external link:", err);
+        }
+      });
+    }
   };
 
   // Show error screen

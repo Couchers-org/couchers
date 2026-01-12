@@ -46,6 +46,10 @@ React Native mobile app built with [Expo](https://expo.dev).
 - Update Expo SDK version
 
 ```bash
+npm install
+
+npm run build:protos
+
 # iOS (requires Xcode setup above)
 npx expo run:ios --device # and plug your device in to computer via USB
    # OR #
