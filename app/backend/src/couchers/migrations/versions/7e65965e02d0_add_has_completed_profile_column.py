@@ -56,9 +56,14 @@ def upgrade() -> None:
             ((users.max_guests IS NOT NULL) AND (users.sleeping_arrangement IS NOT NULL) AND ((users.about_place IS NOT NULL) OR (users.other_host_info IS NOT NULL) OR (users.sleeping_details IS NOT NULL) OR (users.area IS NOT NULL) OR (users.house_rules IS NOT NULL))) AS has_completed_my_home,
             COALESCE(sv_subquery."true", false) AS has_strong_verification
         FROM users
-        LEFT OUTER JOIN photo_galleries ON photo_galleries.id = users.profile_gallery_id
-        LEFT OUTER JOIN photo_gallery_items ON photo_gallery_items.gallery_id = photo_galleries.id AND photo_gallery_items.position = 1
-        LEFT OUTER JOIN uploads ON uploads.key = photo_gallery_items.upload_key
+        LEFT OUTER JOIN (
+            SELECT DISTINCT ON (photo_gallery_items.gallery_id)
+                photo_gallery_items.gallery_id,
+                photo_gallery_items.upload_key
+            FROM photo_gallery_items
+            ORDER BY photo_gallery_items.gallery_id, photo_gallery_items.position
+        ) first_photo ON first_photo.gallery_id = users.profile_gallery_id
+        LEFT OUTER JOIN uploads ON uploads.key = first_photo.upload_key
         LEFT OUTER JOIN
             (SELECT DISTINCT
                 users_1.id,
