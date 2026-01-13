@@ -554,7 +554,7 @@ def _phone_number__change(data: notification_data_pb2.PhoneNumberChange) -> Push
         title="Phone verification started",
         ios_title="Phone Verification Started",
         body=f"You started phone number verification with the number {format_phone_number(data.phone)}.",
-        action_url=urls.feature_preview_link(),
+        action_url=urls.account_settings_link(),
     )
 
 
@@ -563,7 +563,7 @@ def _phone_number__verify(data: notification_data_pb2.PhoneNumberVerify) -> Push
         title="Phone verification completed",
         ios_title="Phone Verification completed",
         body=f"Your phone number was successfully verified as {format_phone_number(data.phone)}.",
-        action_url=urls.feature_preview_link(),
+        action_url=urls.account_settings_link(),
     )
 
 
