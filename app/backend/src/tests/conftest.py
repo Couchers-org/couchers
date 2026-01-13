@@ -238,6 +238,11 @@ def testconfig():
     # Dev APIs disabled by default in tests
     config["ENABLE_DEV_APIS"] = False
 
+    # Slack notifications disabled by default in tests
+    config["ENABLE_SLACK"] = False
+    config["SLACK_BOT_TOKEN"] = ""
+    config["SLACK_DONATIONS_CHANNEL"] = ""
+
     config["ENABLE_NOTIFICATION_TRANSLATIONS"] = False
 
     yield None

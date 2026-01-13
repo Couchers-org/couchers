@@ -121,6 +121,10 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("MODERATION_BOT_USER_ID", int),
     # Enable development APIs (e.g., SendDevPushNotification)
     ("ENABLE_DEV_APIS", bool),
+    # Slack notifications
+    ("ENABLE_SLACK", bool),
+    ("SLACK_BOT_TOKEN", str),
+    ("SLACK_DONATIONS_CHANNEL", str),
 ]
 
 
