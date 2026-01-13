@@ -354,7 +354,7 @@ class API(api_pb2_grpc.APIServicer):
                 if user.profile_gallery:
                     # Add the new avatar as the only photo
                     item = PhotoGalleryItem(
-                        gallery_id=user.profile_gallery_id,
+                        gallery_id=user.profile_gallery.id,
                         upload_key=request.avatar_key.value,
                         position=0.0,
                     )
