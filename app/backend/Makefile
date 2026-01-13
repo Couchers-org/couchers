@@ -57,6 +57,13 @@ setup-db:
 teardown-db:
 	docker compose -f ../docker-compose.test.yml down
 
+# Create a new Alembic migration
+# Usage:
+# make migrate name="add users table"
+migrate:
+	DATABASE_CONNECTION_STRING="postgresql://postgres:203d805f4b62c0a1b2f1f6b82d4583dfe563ec1619b83ce22ee414e8376a25e7@localhost:6545/postgres" \
+	uv run alembic revision --autogenerate -m "$(name)"
+
 # Run backend tests with optional file argument
 # Usage:
 # make test                    → runs all tests
