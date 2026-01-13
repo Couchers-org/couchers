@@ -60,7 +60,7 @@ export default function SignupFormContent({
             values={{
               user_count: signupInfo?.userCount
                 ? Number(signupInfo.userCount).toLocaleString()
-                : "56k+",
+                : "65k+",
             }}
             components={{
               2: <Link href={baseRoute} underline="hover" />,
