@@ -12,6 +12,7 @@ from couchers.config import config
 from couchers.context import CouchersContext
 from couchers.event_log import log_event
 from couchers.helpers.badges import user_add_badge
+from couchers.helpers.slack import send_slack_message
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
@@ -181,6 +182,15 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                         amount=amount,
                         receipt_url=receipt_url,
                     ),
+                )
+
+                # Recurring donations go through Stripe invoices, one-time don't
+                is_recurring = data_object.get("invoice") is not None
+                donation_type = "recurring" if is_recurring else "one-time"
+                user_link = urls.user_link(username=user.username)
+                send_slack_message(
+                    config["SLACK_DONATIONS_CHANNEL"],
+                    f"Donation received: ${amount} ({donation_type}) from <{user_link}|{user.name}>",
                 )
         else:
             logger.info(f"Unhandled event from Stripe: {event_type}")

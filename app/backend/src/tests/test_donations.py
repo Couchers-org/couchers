@@ -329,6 +329,66 @@ def test_merch_invoice_flow_nonexistent_user(db, monkeypatch):
         assert len(badge_count) == 0
 
 
+def test_slack_notification_on_one_time_donation(db, monkeypatch):
+    """Test that a Slack notification is sent when a one-time donation is received."""
+    user, token = generate_user()
+
+    new_config = config.copy()
+    new_config["ENABLE_DONATIONS"] = True
+    new_config["STRIPE_API_KEY"] = "dummy_api_key"
+    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
+    new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1KIbmbIfR5z29g5kFWPEUnC6"
+    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+
+    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+
+    # Initiate a one-time donation
+    with donations_session(token) as donations:
+        with patch("couchers.servicers.donations.stripe") as mock:
+            mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4uq0gT0rDZWN"})
+            mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), one_time_STRIPE_SESSION)
+            donations.InitiateDonation(donations_pb2.InitiateDonationReq(amount=100, recurring=False))
+
+    # Fire the charge.succeeded webhook and check Slack message
+    with patch("couchers.servicers.donations.send_slack_message") as mock_slack:
+        fire_stripe_event("evt_3P5El3IfR5z29g5k0TLWlfHq")
+        mock_slack.assert_called_once()
+        call_args = mock_slack.call_args[0][1]
+        assert "$100" in call_args
+        assert "(one-time)" in call_args
+        assert user.name in call_args
+
+
+def test_slack_notification_on_recurring_donation(db, monkeypatch):
+    """Test that a Slack notification is sent when a recurring donation is received."""
+    user, token = generate_user()
+
+    new_config = config.copy()
+    new_config["ENABLE_DONATIONS"] = True
+    new_config["STRIPE_API_KEY"] = "dummy_api_key"
+    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
+    new_config["STRIPE_RECURRING_PRODUCT_ID"] = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
+    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+
+    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+
+    # Initiate a recurring donation
+    with donations_session(token) as donations:
+        with patch("couchers.servicers.donations.stripe") as mock:
+            mock.Customer.create.return_value = type("__MockCustomer", (), {"id": "cus_Pv4w8dxBpTVUsQ"})
+            mock.checkout.Session.create.return_value = type("__MockCheckoutSession", (), RECURRING_STRIPE_SESSION)
+            donations.InitiateDonation(donations_pb2.InitiateDonationReq(amount=25, recurring=True))
+
+    # Fire the charge.succeeded webhook and check Slack message
+    with patch("couchers.servicers.donations.send_slack_message") as mock_slack:
+        fire_stripe_event("evt_3P5EmzIfR5z29g5k0bA1H9Vg")
+        mock_slack.assert_called_once()
+        call_args = mock_slack.call_args[0][1]
+        assert "$25" in call_args
+        assert "(recurring)" in call_args
+        assert user.name in call_args
+
+
 def fire_stripe_event(event_id):
     event = json.loads(STRIPE_WEBHOOK_EVENTS[event_id])
     with real_stripe_session() as api:
