@@ -2157,8 +2157,8 @@ def test_event_threads(db, push_collector: PushCollector):
 
     process_jobs()
 
-    assert push_collector.get_for_user(user1.id).content.title == f'{user2.name} commented on "Dummy Title"'
-    assert push_collector.get_for_user(user2.id).content.title == "Dummy Title"
+    assert push_collector.get_for_user(user1.id).content.title == f"{user2.name} • Dummy Title"
+    assert push_collector.get_for_user(user2.id).content.title == f"{user3.name} • Dummy Title"
     assert push_collector.count_for_user(user4_id) == 0
 
 

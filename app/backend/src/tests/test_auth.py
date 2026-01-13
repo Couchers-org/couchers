@@ -427,8 +427,8 @@ def test_password_reset_v2(db, push_collector: PushCollector):
         user.id,
         index=0,
     )
-    assert push.content.title == "A password reset was initiated on your account"
-    assert push.content.body == "Someone initiated a password change on your account."
+    assert push.content.title == "Password reset requested"
+    assert push.content.body == "Use the link we sent by email to complete it."
     # make sure bad password are caught
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as err:
@@ -447,11 +447,8 @@ def test_password_reset_v2(db, push_collector: PushCollector):
             )
 
     push = push_collector.get_for_user(user.id, index=1)
-    assert push.content.title == "Your password was successfully reset"
-    assert (
-        push.content.body
-        == "Your password on Couchers.org was changed. If that was you, then no further action is needed."
-    )
+    assert push.content.title == "Password reset"
+    assert push.content.body == "Your password was successfully reset."
 
     session_token, _ = get_session_cookie_tokens(metadata_interceptor)
 

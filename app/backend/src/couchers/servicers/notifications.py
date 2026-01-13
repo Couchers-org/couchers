@@ -189,7 +189,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             user_id=context.user_id,
             topic_action="adhoc:setup",
             content=PushNotificationContent(
-                title="Checking push notifications work!", body="Hi, thanks for enabling push notifications!"
+                title="Push notifications test",
+                ios_title="Push Notifications Test",
+                body="Hi, thanks for enabling push notifications!",
             ),
         )
 
@@ -206,7 +208,8 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             user_id=context.user_id,
             topic_action="adhoc:testing",
             content=PushNotificationContent(
-                title="Checking push notifications work!",
+                title="Push notifications test",
+                ios_title="Push Notifications Test",
                 body="If you see this, then it's working :)",
             ),
         )
@@ -256,7 +259,8 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             user_id=context.user_id,
             topic_action="adhoc:setup",
             content=PushNotificationContent(
-                title="Push notifications enabled!",
+                title="Push notifications enabled",
+                ios_title="Push Notifications Enabled",
                 body="You'll now receive notifications on this device.",
             ),
         )
@@ -274,7 +278,8 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             user_id=context.user_id,
             topic_action="adhoc:testing",
             content=PushNotificationContent(
-                title="Checking mobile push notifications work!",
+                title="Mobile notifications test",
+                ios_title="Mobile Notifications Test",
                 body="If you see this on your phone, everything is wired up correctly 🎉",
             ),
         )
@@ -296,6 +301,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             topic_action="adhoc:testing",
             content=PushNotificationContent(
                 title=request.title,
+                ios_title=request.title,
                 body=request.body,
                 action_url=request.url or None,
                 icon_url=request.icon or None,
