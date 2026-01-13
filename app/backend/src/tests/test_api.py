@@ -8,7 +8,15 @@ from sqlalchemy import select, update
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
-from couchers.models import FriendRelationship, FriendStatus, LanguageFluency, RateLimitAction, User
+from couchers.models import (
+    FriendRelationship,
+    FriendStatus,
+    LanguageFluency,
+    PhotoGalleryItem,
+    RateLimitAction,
+    Upload,
+    User,
+)
 from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict
@@ -625,6 +633,90 @@ def test_update_profile_do_not_email(db):
             api.UpdateProfile(api_pb2.UpdateProfileReq(meetup_status=api_pb2.MEETUP_STATUS_OPEN_TO_MEETUP))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "You cannot enable meeting up while you have emails turned off in your settings."
+
+
+def test_update_profile_avatar_dual_write(db):
+    """Test that setting avatar_key also writes to profile gallery (dual-write)"""
+    user, token = generate_user()
+
+    # Create an upload for the user
+    with session_scope() as session:
+        upload = Upload(
+            key="test_avatar_key_123",
+            filename="avatar.jpg",
+            creator_user_id=user.id,
+        )
+        session.add(upload)
+        session.commit()
+
+    # Set avatar via UpdateProfile
+    with api_session(token) as api:
+        api.UpdateProfile(api_pb2.UpdateProfileReq(avatar_key=api_pb2.NullableStringValue(value="test_avatar_key_123")))
+
+    # Verify both avatar_key and gallery were updated
+    with session_scope() as session:
+        db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
+
+        # avatar_key should be set
+        assert db_user.avatar_key == "test_avatar_key_123"
+
+        # Gallery should also have the photo
+        gallery_items = (
+            session.execute(select(PhotoGalleryItem).where(PhotoGalleryItem.gallery_id == db_user.profile_gallery_id))
+            .scalars()
+            .all()
+        )
+        assert len(gallery_items) == 1
+        assert gallery_items[0].upload_key == "test_avatar_key_123"
+        assert gallery_items[0].position == 0.0
+
+
+def test_update_profile_avatar_dual_write_clear(db):
+    """Test that clearing avatar_key also clears the profile gallery"""
+    user, token = generate_user()
+
+    # Create an upload and set it as avatar
+    with session_scope() as session:
+        upload = Upload(
+            key="test_avatar_to_clear",
+            filename="avatar.jpg",
+            creator_user_id=user.id,
+        )
+        session.add(upload)
+        session.commit()
+
+    with api_session(token) as api:
+        # First set the avatar
+        api.UpdateProfile(
+            api_pb2.UpdateProfileReq(avatar_key=api_pb2.NullableStringValue(value="test_avatar_to_clear"))
+        )
+
+    # Verify it's set
+    with session_scope() as session:
+        db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        assert db_user.avatar_key == "test_avatar_to_clear"
+        gallery_items = (
+            session.execute(select(PhotoGalleryItem).where(PhotoGalleryItem.gallery_id == db_user.profile_gallery_id))
+            .scalars()
+            .all()
+        )
+        assert len(gallery_items) == 1
+
+    # Now clear the avatar
+    with api_session(token) as api:
+        api.UpdateProfile(api_pb2.UpdateProfileReq(avatar_key=api_pb2.NullableStringValue(is_null=True)))
+
+    # Verify both are cleared
+    with session_scope() as session:
+        db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        assert db_user.avatar_key is None
+
+        gallery_items = (
+            session.execute(select(PhotoGalleryItem).where(PhotoGalleryItem.gallery_id == db_user.profile_gallery_id))
+            .scalars()
+            .all()
+        )
+        assert len(gallery_items) == 0
 
 
 def test_language_abilities(db):

@@ -32,6 +32,7 @@ from couchers.models import (
     Notification,
     NotificationDeliveryType,
     ParkingDetails,
+    PhotoGalleryItem,
     RateLimitAction,
     Reference,
     RegionLived,
@@ -343,8 +344,21 @@ class API(api_pb2_grpc.APIServicer):
         if request.HasField("avatar_key"):
             if request.avatar_key.is_null:
                 user.avatar_key = None
+                # Also remove all photos from gallery?
+                if user.profile_gallery:
+                    for photo in user.profile_gallery.photos:
+                        session.delete(photo)
             else:
                 user.avatar_key = request.avatar_key.value
+                # Also add to gallery at position 0 (dual-write)
+                if user.profile_gallery:
+                    # Add the new avatar as the only photo
+                    item = PhotoGalleryItem(
+                        gallery_id=user.profile_gallery_id,
+                        upload_key=request.avatar_key.value,
+                        position=0.0,
+                    )
+                    session.add(item)
 
         # if request.HasField("gender"):
         #     user.gender = request.gender.value
