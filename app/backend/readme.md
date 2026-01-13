@@ -10,7 +10,7 @@ by the [PostGIS extension](https://postgis.net/).
 - **Linux or macOS**. If you are using Windows, please [install Ubuntu via WSL2](https://documentation.ubuntu.com/wsl/en/latest/guides/install-ubuntu-wsl2/), then 
   follow these instructions inside Ubuntu.
 - **Docker engine**. Please refer to the [Docker install documentation](https://docs.docker.com/engine/install/) for how to set it up.
-- **just command runner**. [Find a package for your OS](https://just.systems/man/en/packages.html). 
+- **just command runner**. [Find a package for your OS here](https://just.systems/man/en/packages.html). 
 - **A clone of the Couchers git repo**. `git clone https://github.com/Couchers-org/couchers.git`
 
 ### Up-to-date protocol buffers

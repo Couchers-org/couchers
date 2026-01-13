@@ -4,16 +4,19 @@ This is the react/nextjs web frontend for Couchers.org. We are using Typescript 
 
 Communication with the backend is via [protobuf messages](https://github.com/protocolbuffers/protobuf-javascript) over [grpc-web](https://github.com/grpc/grpc-web). You can find some helpful documentation on [protobuf messages in javascript here](https://protobuf.dev/protobuf-javascript/).
 
-_Readme last updated: 2025/08/23._
+_Readme last updated: 2026/01/13._
 
 ## Quick Start
 
 _These instructions should work directly on Linux and macOS. If you are using Windows, please [install Ubuntu via WSL2](https://documentation.ubuntu.com/wsl/en/latest/guides/install-ubuntu-wsl2/), then follow these instructions inside Ubuntu._
 
+First, install `just`. It's a command runner that we use instead of `make`. 
+[Find a package for your OS here](https://just.systems/man/en/packages.html). 
+
 You need `nodejs` v20. We recommend using `nvm` (the [node version manager](https://github.com/nvm-sh/nvm)) to do this. You can install it with:
 
 ```sh
-curl -sL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+curl -sL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 ```
 
 **You will need to restart your terminal before `nvm` becomes available.**
@@ -34,25 +37,14 @@ You also need `git`, `curl`, and `tar`, they should be preinstalled or be availa
 Now run the following commands to get up and running:
 
 ```sh
-## Check out the repo and navigate to app/web
-# clone the git repo
+# Clone the git repo
 git clone https://github.com/Couchers-org/couchers.git
-# navigate into the repo and app/web
-cd couchers/app/web
 
-## Set up node & yarn
-# install the requires node version
-nvm install
-# install yarn
-npm install --global yarn
+# Install everything you need for frontend (assumes you have nvm and just installed, see Quick Start above)
+just setup-frontend
 
-## Download & extract the latest protos
-curl -sL https://develop--protos.preview.couchershq.org/ts.tar.gz | tar xz
-
-# install dependencies
-yarn install
-# start the frontend
-yarn start
+# Run the frontend
+just run-frontend  # or 'just rf'
 ```
 
 The frontend will now be up at <http://localhost:3000>.
@@ -105,8 +97,7 @@ The React frontend communicates with the backend using Protocol Buffers over gRP
 You can compile the protos locally if you have [installed Docker](https://docs.docker.com/engine/install/) (this is how the built protos are generated in the CI pipeline):
 
 ```sh
-cd app
-docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
+just protos
 ```
 
 The TypeScript definitions will be generated into `app/web/proto` (all the other definitions will also be generated into the right places, for the Python backend, etc).
@@ -117,7 +108,7 @@ You can always download the latest protos at <https://develop--protos.preview.co
 
 The Quick Start instructions show you how to run only the frontend, pointing to the staging (next) backend/database. This is normally enough for most frontend development (since generally backend features are developed before the frontend implementation), but there may be cases where you want to run a modified backend. In order to do so, you need to do two things:
 
-1. compile the protos locally (see above) and run the local backend, and
+1. compile the protos locally (by running `just protos`, see above) and run the local backend, and
 2. update the frontend environment variables to point to the local backend.
 
 The following shows the quick version. You'll need docker and docker compose installed.
@@ -128,9 +119,10 @@ In one terminal, compile protos, run the backend and rest of the infrastructure:
 ## terminal 1
 cd app
 # compile protos
-docker run --rm -w /app -v $(pwd):/app registry.gitlab.com/couchers/grpc ./generate_protos.sh
-# launch the rest of the docker containers
-docker compose up
+just protos
+# launch docker containers
+docker compose up 
+# or "docker compose up -d" to launch them in the background
 ```
 
 In another one, run the frontend:
@@ -146,7 +138,7 @@ yarn start
 
 ## Sentry error logging
 
-We self-host sentry to capture errors. It can be accessed at https://couchers.sentry.io/.
+We use Sentry to capture errors. It can be accessed at https://couchers.sentry.io.
 
 ## Other dev commands
 

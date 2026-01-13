@@ -15,7 +15,7 @@ qc: fmt mypy test
 qqc: fmt mypy
 
 # Run backend locally with all needed dependencies (db etc).
-run-backend:
+run:
     #!/usr/bin/env bash
     set -euo pipefail
     docker compose -f ../docker-compose.local-backend.yml up -d --build --wait
@@ -24,7 +24,7 @@ run-backend:
     export OPENTELEMETRY_ENDPOINT=localhost:4317
     uv run src/app.py
 
-alias rb := run-backend
+alias rb := run
 
 # Connect to the local development database
 db:

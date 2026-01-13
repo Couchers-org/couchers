@@ -20,6 +20,19 @@ db:
 run-backend:
     #!/usr/bin/env bash
     cd app/backend
-    just run-backend
+    just run
 
 alias rb := run-backend
+
+
+setup-frontend:
+    #!/usr/bin/env bash
+    cd app/web
+    just setup
+
+run-frontend:
+    #!/usr/bin/env bash
+    cd app/web
+    just run
+
+alias rf := run-frontend

@@ -1,0 +1,20 @@
+setup:
+    #!/usr/bin/env bash
+    ## Set up node & yarn
+    # install the requires node version
+    which nvm > /dev/null 2>1 || "You need to install nvm. Install it with 'curl -sL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash'"
+    nvm install
+
+    # install yarn
+    npm install --global yarn
+
+    ## Download & extract the latest protos
+    curl -sL https://develop--protos.preview.couchershq.org/ts.tar.gz | tar xz
+
+    # install dependencies
+    yarn install
+
+run:
+     yarn start
+
+alias rf := run
