@@ -58,16 +58,6 @@ export default function CreateEventPage() {
     error: duplicateEventError,
   } = useEvent({ eventId: duplicateEventId!, enabled: !!duplicateEventId });
 
-  // Extract photo key from URL if duplicating and no new photo provided
-  // URL format: https://media.couchers.org/img/full/{key}.jpg
-  const extractPhotoKeyFromUrl = (
-    photoUrl: string | undefined,
-  ): string | undefined => {
-    if (!photoUrl) return undefined;
-    const match = photoUrl.match(/\/([^/]+)\.jpg$/);
-    return match ? match[1] : undefined;
-  };
-
   const queryClient = useQueryClient();
   const {
     mutate: createEvent,
@@ -95,11 +85,7 @@ export default function CreateEventPage() {
         .toDate();
 
       // Use uploaded photo, or reuse photo from event being duplicated
-      const photoKey =
-        data.eventImage ||
-        (eventToDuplicate?.photoUrl
-          ? extractPhotoKeyFromUrl(eventToDuplicate.photoUrl)
-          : undefined);
+      const photoKey = data.eventImage || eventToDuplicate?.photoKey || undefined;
 
       if (data.isOnline) {
         createEventInput = {
