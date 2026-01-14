@@ -1,9 +1,9 @@
 """backfill_missing_profile_galleries
 
 This migration completes the transition from avatar_key to profile_gallery system:
-1. Creates profile galleries for any users who don't have one
-2. Migrates existing avatar_key photos into the galleries
-3. Updates lite_users materialized view to use profile galleries instead of avatar_key
+1. Migrates existing avatar_key photos into the galleries
+2. Adds has_completed_profile column to users
+3. Updates lite_users materialized view to use profile galleries and has_completed_profile
 4. Removes the avatar_key column from users table
 
 Revision ID: 6862ecf6494d
@@ -23,24 +23,6 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Create profile galleries for users who don't have one
-    # Uses a CTE to insert galleries and update users in one operation
-    op.execute(
-        """
-        WITH new_galleries AS (
-            INSERT INTO photo_galleries (owner_user_id)
-            SELECT id
-            FROM users
-            WHERE profile_gallery_id IS NULL
-            RETURNING id, owner_user_id
-        )
-        UPDATE users
-        SET profile_gallery_id = new_galleries.id
-        FROM new_galleries
-        WHERE users.id = new_galleries.owner_user_id
-        """
-    )
-
     # Migrate existing avatar photos into galleries
     # For users who have an avatar_key, add it as the first photo in their gallery
     op.execute(
@@ -57,8 +39,26 @@ def upgrade() -> None:
         """
     )
 
-    # Update lite_users materialized view to use profile galleries
-    # Changes has_completed_profile to check for photos in gallery instead of avatar_key
+    # Add the has_completed_profile column with default False
+    op.add_column("users", sa.Column("has_completed_profile", sa.Boolean(), server_default=sa.false(), nullable=False))
+
+    # Backfill existing users based on whether they have photos and about_me >= 150 chars
+    op.execute(
+        """
+        UPDATE users
+        SET has_completed_profile = (
+            (users.profile_gallery_id IS NOT NULL)
+            AND EXISTS (
+                SELECT 1
+                FROM photo_gallery_items
+                WHERE photo_gallery_items.gallery_id = users.profile_gallery_id
+            )
+            AND character_length(users.about_me) >= 150
+        );
+        """
+    )
+
+    # Update lite_users materialized view to use profile galleries and has_completed_profile column
     op.execute(
         """
         DROP MATERIALIZED VIEW lite_users;
@@ -73,9 +73,7 @@ def upgrade() -> None:
             users.geom_radius AS radius,
             (NOT (users.is_banned OR users.is_deleted)) AS is_visible,
             uploads.filename AS avatar_filename,
-            ((users.profile_gallery_id IS NOT NULL) AND (EXISTS (SELECT 1
-                FROM photo_gallery_items
-                WHERE photo_gallery_items.gallery_id = users.profile_gallery_id)) AND (character_length(users.about_me) >= 150)) AS has_completed_profile,
+            users.has_completed_profile,
             ((users.max_guests IS NOT NULL) AND (users.sleeping_arrangement IS NOT NULL) AND ((users.about_place IS NOT NULL) OR (users.other_host_info IS NOT NULL) OR (users.sleeping_details IS NOT NULL) OR (users.area IS NOT NULL) OR (users.house_rules IS NOT NULL))) AS has_completed_my_home,
             COALESCE(sv_subquery."true", false) AS has_strong_verification
         FROM users
@@ -186,6 +184,9 @@ def downgrade() -> None:
         """
     )
 
+    # Drop the has_completed_profile column
+    op.drop_column("users", "has_completed_profile")
+
     # Remove migrated avatar photos from galleries
     # Only remove items where the upload_key matches the user's avatar_key
     # and it's at position 0.0 (first position)
@@ -198,46 +199,6 @@ def downgrade() -> None:
             JOIN users u ON u.profile_gallery_id = pgi.gallery_id
             WHERE pgi.upload_key = u.avatar_key
             AND pgi.position = 0.0
-        )
-        """
-    )
-
-    # Remove profile galleries that were created by this migration
-    # and set profile_gallery_id back to NULL for those users
-    op.execute(
-        """
-        WITH galleries_to_delete AS (
-            SELECT pg.id, pg.owner_user_id
-            FROM photo_galleries pg
-            LEFT JOIN photo_gallery_items pgi ON pg.id = pgi.gallery_id
-            WHERE pgi.id IS NULL  -- Only delete empty galleries
-            AND pg.id IN (
-                SELECT profile_gallery_id
-                FROM users
-                WHERE profile_gallery_id IS NOT NULL
-            )
-        )
-        UPDATE users
-        SET profile_gallery_id = NULL
-        FROM galleries_to_delete
-        WHERE users.id = galleries_to_delete.owner_user_id
-        """
-    )
-
-    # Delete the empty galleries
-    op.execute(
-        """
-        DELETE FROM photo_galleries
-        WHERE id IN (
-            SELECT pg.id
-            FROM photo_galleries pg
-            LEFT JOIN photo_gallery_items pgi ON pg.id = pgi.gallery_id
-            WHERE pgi.id IS NULL  -- Only delete empty galleries
-            AND pg.id NOT IN (
-                SELECT profile_gallery_id
-                FROM users
-                WHERE profile_gallery_id IS NOT NULL
-            )
         )
         """
     )
