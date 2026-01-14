@@ -167,6 +167,7 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         slug=event.slug,
         content=occurrence.content,
         photo_url=occurrence.photo.full_url if occurrence.photo else None,
+        photo_key=occurrence.photo_key or "",
         online_information=(
             events_pb2.OnlineEventInformation(
                 link=occurrence.link,

@@ -1,9 +1,10 @@
+import { ContentCopyOutlined, EditOutlined } from "@mui/icons-material";
 import {
   Card,
   Chip,
-  darken,
-  Link as MuiLink,
+  IconButton,
   styled,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,17 +17,23 @@ import HtmlMeta from "components/HtmlMeta";
 import { BackIcon, CalendarIcon } from "components/Icons";
 import Markdown from "components/Markdown";
 import Snackbar from "components/Snackbar";
+import StyledLink from "components/StyledLink";
+import { useAuthContext } from "features/auth/AuthProvider";
 import EventAttendees from "features/communities/events/EventAttendees";
 import NotFoundPage from "features/NotFoundPage";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { AttendanceState, Event } from "proto/events_pb";
 import { useEffect, useState } from "react";
-import { eventsRoute, routeToEditEvent, routeToEvent } from "routes";
+import {
+  eventsRoute,
+  routeToDuplicateEvent,
+  routeToEditEvent,
+  routeToEvent,
+} from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
@@ -99,12 +106,8 @@ const StyledCancelledChip = styled(Chip)(() => ({
   fontWeight: "bold",
 }));
 
-const StyledCancelButton = styled(Button)(() => ({
+const StyledIconButton = styled(IconButton)(() => ({
   flexShrink: 0,
-  "&:hover": {
-    backgroundColor: darken(theme.palette.error.main, 0.1),
-  },
-  backgroundColor: theme.palette.error.main,
 }));
 
 const StyledActionButtonsContainer = styled("div")(() => ({
@@ -186,6 +189,7 @@ export default function EventPage({
   const { t } = useTranslation([COMMUNITIES]);
   const router = useRouter();
   const queryClient = useQueryClient();
+  const currentUserId = useAuthContext().authState.userId;
   const {
     data: event,
     error: eventError,
@@ -225,6 +229,8 @@ export default function EventPage({
   const isPastEvent = event?.endTime
     ? dayjs().isAfter(timestamp2Date(event.endTime))
     : false;
+
+  const isCreator = currentUserId === event?.creatorUserId;
 
   const handleBackClick = () => {
     if (window.history.length > 1) {
@@ -281,12 +287,13 @@ export default function EventPage({
                     <StyledEventTypeText variant="body1">
                       {t("communities:virtual_event")}
                     </StyledEventTypeText>
-                    <MuiLink
+                    <StyledLink
                       href={event.onlineInformation.link}
-                      underline="hover"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       {t("communities:event_link")}
-                    </MuiLink>
+                    </StyledLink>
                   </StyledOnlineInfoContainer>
                 ) : (
                   <StyledEventTypeText variant="body1">
@@ -298,47 +305,67 @@ export default function EventPage({
                 )}
               </StyledTitle>
               <StyledActionButtonsContainer>
-                {event.canEdit ? (
+                {event.canEdit && (
+                  <Tooltip
+                    title={
+                      event.isCancelled || isPastEvent
+                        ? ""
+                        : t("communities:edit_event")
+                    }
+                  >
+                    <span>
+                      <StyledIconButton
+                        onClick={() =>
+                          router.push(
+                            routeToEditEvent(event.eventId, event.slug),
+                          )
+                        }
+                        disabled={event.isCancelled || isPastEvent}
+                        aria-label={t("communities:edit_event")}
+                        tabIndex={event.isCancelled || isPastEvent ? -1 : 0}
+                      >
+                        <EditOutlined />
+                      </StyledIconButton>
+                    </span>
+                  </Tooltip>
+                )}
+                {isCreator && (
+                  <Tooltip
+                    title={
+                      event.isCancelled || isPastEvent
+                        ? ""
+                        : t("communities:duplicate_event")
+                    }
+                  >
+                    <span>
+                      <StyledIconButton
+                        onClick={() =>
+                          router.push(routeToDuplicateEvent(event.eventId))
+                        }
+                        disabled={event.isCancelled || isPastEvent}
+                        aria-label={t("communities:duplicate_event")}
+                        tabIndex={event.isCancelled || isPastEvent ? -1 : 0}
+                      >
+                        <ContentCopyOutlined />
+                      </StyledIconButton>
+                    </span>
+                  </Tooltip>
+                )}
+                {event.canEdit && (
                   <>
                     <Button
-                      component={Link}
-                      variant="outlined"
+                      onClick={() => setInviteCommunityDialogIsOpen(true)}
+                      variant="contained"
+                      color="primary"
                       disabled={event.isCancelled || isPastEvent}
-                      href={routeToEditEvent(event.eventId, event.slug)}
+                      aria-label={t(
+                        "communities:invite_community_dialog_buttons.open",
+                      )}
                       sx={{
-                        color: theme.palette.common.black,
-                        borderColor: theme.palette.grey[300],
-
-                        "&:hover": {
-                          borderColor: theme.palette.grey[300],
-                          backgroundColor: "#3135390A",
-                        },
-
                         [theme.breakpoints.down("md")]: {
                           ...ActionButtonSx,
                         },
                       }}
-                    >
-                      {t("communities:edit_event")}
-                    </Button>
-                    <StyledCancelButton
-                      onClick={() => setCancelDialogIsOpen(true)}
-                      variant="contained"
-                      color="primary"
-                      disabled={event.isCancelled || isPastEvent}
-                    >
-                      {t("communities:cancel_event")}
-                    </StyledCancelButton>
-                    <CancelEventDialog
-                      open={cancelDialogIsOpen}
-                      onClose={() => setCancelDialogIsOpen(false)}
-                      eventId={eventId}
-                    />
-                    <Button
-                      onClick={() => setInviteCommunityDialogIsOpen(true)}
-                      variant="contained"
-                      color="secondary"
-                      disabled={event.isCancelled || isPastEvent}
                     >
                       {t("communities:invite_community_dialog_buttons.open")}
                     </Button>
@@ -348,8 +375,26 @@ export default function EventPage({
                       onClose={() => setInviteCommunityDialogIsOpen(false)}
                       eventId={eventId}
                     />
+                    <Button
+                      onClick={() => setCancelDialogIsOpen(true)}
+                      variant="outlined"
+                      disabled={event.isCancelled || isPastEvent}
+                      aria-label={t("communities:cancel_event")}
+                      sx={{
+                        [theme.breakpoints.down("md")]: {
+                          ...ActionButtonSx,
+                        },
+                      }}
+                    >
+                      {t("communities:cancel_event")}
+                    </Button>
+                    <CancelEventDialog
+                      open={cancelDialogIsOpen}
+                      onClose={() => setCancelDialogIsOpen(false)}
+                      eventId={eventId}
+                    />
                   </>
-                ) : null}
+                )}
 
                 <AttendanceMenu
                   loading={isSetEventAttendanceLoading}
