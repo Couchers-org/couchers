@@ -367,15 +367,21 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             .subquery()
         )
 
+        query = (
+            select(t, GroupChat, GroupChatSubscription, Message)
+            .join(Message, Message.id == t.c.message_id)
+            .join(GroupChatSubscription, GroupChatSubscription.id == t.c.group_chat_subscriptions_id)
+            .join(GroupChat, GroupChat.conversation_id == t.c.group_chat_id)
+            .where(or_(t.c.message_id < request.last_message_id, to_bool(request.last_message_id == 0)))
+        )
+
+        # Filter by archive status if specified
+        if request.HasField("only_archived"):
+            query = query.where(GroupChatSubscription.is_archived == request.only_archived)
+
         results = session.execute(
             where_moderated_content_visible(
-                select(t, GroupChat, GroupChatSubscription, Message)
-                .join(Message, Message.id == t.c.message_id)
-                .join(GroupChatSubscription, GroupChatSubscription.id == t.c.group_chat_subscriptions_id)
-                .join(GroupChat, GroupChat.conversation_id == t.c.group_chat_id)
-                .where(or_(t.c.message_id < request.last_message_id, to_bool(request.last_message_id == 0)))
-                .order_by(t.c.message_id.desc())
-                .limit(page_size + 1),
+                query.order_by(t.c.message_id.desc()).limit(page_size + 1),
                 context,
                 GroupChat,
                 is_list_operation=True,
@@ -442,6 +448,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             latest_message=_message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
             can_message=_user_can_message(session, context, result.GroupChat),
+            is_archived=result.GroupChatSubscription.is_archived,
         )
 
     def GetDirectMessage(
@@ -497,6 +504,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             latest_message=_message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
             can_message=_user_can_message(session, context, result.GroupChat),
+            is_archived=result.GroupChatSubscription.is_archived,
         )
 
     def GetUpdates(

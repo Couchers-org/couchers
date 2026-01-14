@@ -74,6 +74,36 @@ def test_list_group_chats(db, moderator):
         assert len(res.group_chats) == 1
         assert res.no_more
 
+    # Test archive filtering: archive group_chat1 for user1
+    with session_scope() as session:
+        subscription = session.execute(
+            select(GroupChatSubscription)
+            .where(GroupChatSubscription.group_chat_id == group_chat1_id)
+            .where(GroupChatSubscription.user_id == user1.id)
+        ).scalar_one()
+        subscription.is_archived = True
+
+    with conversations_session(token1) as c:
+        # Without filter, returns all chats
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        assert len(res.group_chats) == 2
+
+        # only_archived=False returns non-archived chats only
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=False))
+        assert len(res.group_chats) == 1
+
+        # only_archived=True returns archived chats only
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=True))
+        assert len(res.group_chats) == 1
+
+    # user2 should still see both as non-archived (archive is per-user)
+    with conversations_session(token2) as c:
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=False))
+        assert len(res.group_chats) == 2
+
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=True))
+        assert len(res.group_chats) == 0
+
 
 def test_list_empty_group_chats(db, moderator):
     user1, token1 = generate_user()
@@ -442,6 +472,7 @@ def test_get_group_chat_info(db):
         assert to_aware_datetime(res.created) <= now()
         assert res.only_admins_invite
         assert res.is_dm
+        assert not res.is_archived
 
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat2_id))
         assert not res.title
@@ -451,6 +482,7 @@ def test_get_group_chat_info(db):
         assert to_aware_datetime(res.created) <= now()
         assert res.only_admins_invite
         assert not res.is_dm
+        assert not res.is_archived
 
 
 def test_get_group_chat_info_denied(db):
@@ -1347,6 +1379,7 @@ def test_GetDirectMessage(db):
         # now should exist
         res = c.GetDirectMessage(conversations_pb2.GetDirectMessageReq(user_id=user2.id))
         assert res.group_chat_id == gcid
+        assert not res.is_archived
 
         # create DM with user 3
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user3.id]))
