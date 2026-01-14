@@ -68,10 +68,6 @@ const loggedInDrawerMenu = (
   pingData: PingData,
 ): Array<MenuItemProps> => [
   {
-    name: t("nav.dashboard"),
-    route: dashboardRoute,
-  },
-  {
     name: t("nav.messages"),
     route: messagesRoute,
     notificationCount:
@@ -157,7 +153,6 @@ const loggedOutDrawerMenu = (
 // shown on desktop and big screens in the top right corner when logged in
 const loggedInMenuDropDown = (
   t: TFunction<"global", undefined>,
-  pingData: PingData,
 ): Array<LoggedInMenuItem> => [
   {
     type: "link",
@@ -351,10 +346,7 @@ export default function Navigation() {
     </div>
   );
 
-  const loggedInMenuItems = useMemo(
-    () => loggedInMenuDropDown(t, pingData),
-    [t, pingData],
-  );
+  const loggedInMenuItems = useMemo(() => loggedInMenuDropDown(t), [t]);
 
   return (
     <StyledAppBar position="sticky" color="inherit">
