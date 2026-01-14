@@ -41,6 +41,7 @@ import {
   routeToProfile,
   searchRoute,
   settingsRoute,
+  shopRoute,
   signupRoute,
   volunteerRoute,
 } from "routes";
@@ -66,10 +67,6 @@ const loggedInDrawerMenu = (
   t: TFunction<"global", undefined>,
   pingData: PingData,
 ): Array<MenuItemProps> => [
-  {
-    name: t("nav.dashboard"),
-    route: dashboardRoute,
-  },
   {
     name: t("nav.messages"),
     route: messagesRoute,
@@ -97,10 +94,6 @@ const loggedInNavMenu = (
   t: TFunction<"global", undefined>,
   pingData: PingData,
 ): Array<MenuItemProps> => [
-  {
-    name: t("nav.dashboard"),
-    route: dashboardRoute,
-  },
   {
     name: t("nav.messages"),
     route: messagesRoute,
@@ -160,7 +153,6 @@ const loggedOutDrawerMenu = (
 // shown on desktop and big screens in the top right corner when logged in
 const loggedInMenuDropDown = (
   t: TFunction<"global", undefined>,
-  pingData: PingData,
 ): Array<LoggedInMenuItem> => [
   {
     type: "link",
@@ -170,12 +162,8 @@ const loggedInMenuDropDown = (
   },
   {
     type: "link",
-    name: t("nav.messages"),
-    route: messagesRoute,
-    notificationCount:
-      (pingData?.unseenMessageCount ?? 0) +
-      (pingData?.unseenReceivedHostRequestCount ?? 0) +
-      (pingData?.unseenSentHostRequestCount ?? 0),
+    name: t("nav.dashboard"),
+    route: dashboardRoute,
   },
   {
     type: "link",
@@ -209,6 +197,11 @@ const loggedInMenuDropDown = (
     name: t("report.label"),
     dialogComponent: ReportDialog,
     dialogLabel: t("report.label"),
+  },
+  {
+    type: "link",
+    name: t("nav.merch_shop"),
+    route: shopRoute,
     hasBottomDivider: true,
   },
   {
@@ -353,10 +346,7 @@ export default function Navigation() {
     </div>
   );
 
-  const loggedInMenuItems = useMemo(
-    () => loggedInMenuDropDown(t, pingData),
-    [t, pingData],
-  );
+  const loggedInMenuItems = useMemo(() => loggedInMenuDropDown(t), [t]);
 
   return (
     <StyledAppBar position="sticky" color="inherit">
