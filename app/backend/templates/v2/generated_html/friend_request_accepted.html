@@ -199,7 +199,7 @@
                                   <table cellpadding="0" cellspacing="0" width="100%" border="0" style="color:#000000;font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;border:none;">
                                     <tr>
                                       <td style="width: 100px;">
-                                        <img width="80px" style="border-radius: 80px" src="{{ other|v2avatar }}">
+                                        <img width="80px" style="border-radius: 80px" src="{{ other.avatar_url }}">
                                       </td>
                                       <td>
                                         <b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br>{{ other.city|v2esc }}
@@ -233,7 +233,7 @@
                                     <tbody>
                                       <tr>
                                         <td align="center" bgcolor="#00a398" role="presentation" style="border:none;border-radius:5px;cursor:auto;mso-padding-alt:10px 25px;background:#00a398;" valign="middle">
-                                          <a href="{{ other_user_link|v2url }}" style="display: inline-block; background: #00a398; color: white; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 5px;" target="_blank">
+                                          <a href="{{ other.profile_url|v2url }}" style="display: inline-block; background: #00a398; color: white; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 5px;" target="_blank">
                                             <b>View their profile</b>
                                           </a>
                                         </td>

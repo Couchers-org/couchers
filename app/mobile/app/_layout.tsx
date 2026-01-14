@@ -18,14 +18,16 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
-import { Href, Stack, useRouter } from "expo-router";
+import { Href, router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { getNotificationPath } from "@/utils/getNotificationPath";
 
 const IS_PROD =
   (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
@@ -96,6 +98,8 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        {/* Set status bar style based on theme: dark icons for light mode, light icons for dark mode */}
+        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
         <AuthProvider>
           <PushNotificationsRegistrar />
           <RootNavigator fontsLoaded={fontsLoaded} />
@@ -105,33 +109,39 @@ export default function RootLayout() {
   );
 }
 
-function PushNotificationsRegistrar() {
-  const router = useRouter();
-  useRegisterPushNotifications();
-
+/**
+ * Handles push notification navigation following Expo's recommended pattern.
+ * @see https://docs.expo.dev/versions/latest/sdk/notifications/#handle-push-notifications-with-navigation
+ */
+function useNotificationObserver() {
   useEffect(() => {
-    // Handle notification taps - navigate to the URL in the notification data
+    function redirect(notification: Notifications.Notification) {
+      const url = notification.request.content.data?.url as string | undefined;
+      const path = getNotificationPath(url);
+      if (path) {
+        router.push(path as Href);
+      }
+    }
+
+    // Handle cold start: check if app was opened via notification tap
+    const response = Notifications.getLastNotificationResponse();
+    if (response?.notification) {
+      redirect(response.notification);
+    }
+
+    // Handle warm start: listen for notification taps while app is running
     const subscription = Notifications.addNotificationResponseReceivedListener(
       (response) => {
-        const url = response.notification.request.content.data?.url as
-          | string
-          | undefined;
-
-        if (url) {
-          try {
-            // Extract path from full URL (e.g., "https://couchers.org/messages/" -> "/messages/")
-            const path = new URL(url).pathname;
-            router.push(`/(tabs)${path}` as Href);
-          } catch {
-            // If URL parsing fails, use as-is
-            router.push(`/(tabs)${url}` as Href);
-          }
-        }
+        redirect(response.notification);
       },
     );
 
     return () => subscription.remove();
-  }, [router]);
+  }, []);
+}
 
+function PushNotificationsRegistrar() {
+  useRegisterPushNotifications();
+  useNotificationObserver();
   return null;
 }

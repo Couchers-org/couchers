@@ -168,8 +168,8 @@ def test_ChangePasswordV2_normal(db, fast_passwords, push_collector: PushCollect
     assert email_fields(mock).subject == "[TEST] Your password was changed"
 
     push = push_collector.get_for_user(user.id)
-    assert push.content.title == "Your password was changed"
-    assert push.content.body == "Your login password for Couchers.org was changed."
+    assert push.content.title == "Password changed"
+    assert push.content.body == "Your password was changed."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -544,8 +544,8 @@ def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):
 
     process_jobs()
     push = push_collector.get_for_user(user_id, index=0)
-    assert push.content.title == "An email change was initiated on your account"
-    assert push.content.body == f"An email change to the email {new_email} was initiated on your account."
+    assert push.content.title == "Email change requested"
+    assert push.content.body == f"Use the link we sent to {new_email} to confirm your new address."
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         auth_api.ConfirmChangeEmailV2(
@@ -564,7 +564,7 @@ def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):
 
     process_jobs()
     push = push_collector.get_for_user(user_id, index=1)
-    assert push.content.title == "Email change completed"
+    assert push.content.title == "Email verified"
     assert push.content.body == "Your new email address has been verified."
 
 
@@ -595,8 +595,8 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector: P
         )
 
     push = push_collector.get_for_user(user.id)
-    assert push.content.title == "An email change was initiated on your account"
-    assert push.content.body == f"An email change to the email {new_email} was initiated on your account."
+    assert push.content.title == "Email change requested"
+    assert push.content.body == f"Use the link we sent to {new_email} to confirm your new address."
 
 
 def test_ChangeLanguagePreference(db, fast_passwords):
@@ -686,11 +686,8 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
             account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
 
     push = push_collector.get_for_user(user_id, index=0)
-    assert push.content.title == "Account deletion initiated"
-    assert (
-        push.content.body
-        == "Someone initiated the deletion of your Couchers.org account. To delete your account, please follow the link in the email we sent you."
-    )
+    assert push.content.title == "Account deletion requested"
+    assert push.content.body == "Use the link we emailed you to confirm."
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -728,8 +725,8 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
             )
 
     push = push_collector.get_for_user(user_id, index=1)
-    assert push.content.title == "Your Couchers.org account has been deleted"
-    assert push.content.body == "You can still undo this by following the link we emailed to you within 7 days."
+    assert push.content.title == "Account deleted"
+    assert push.content.body == "You can restore it within 7 days using the link we emailed you."
 
     mock.assert_called_once()
     e = email_fields(mock)
@@ -767,8 +764,8 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
             )
 
     push = push_collector.get_for_user(user_id, index=2)
-    assert push.content.title == "Your Couchers.org account has been recovered!"
-    assert push.content.body == "We have recovered your Couchers.org account as per your request! Welcome back!"
+    assert push.content.title == "Account restored"
+    assert push.content.body == "Welcome back!"
 
     mock.assert_called_once()
     e = email_fields(mock)

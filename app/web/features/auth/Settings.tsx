@@ -94,28 +94,30 @@ export default function Settings() {
           <TopMarginWrapper>
             {isNativeEmbed ? null : <PushNotificationSettings />}
           </TopMarginWrapper>
-          {process.env.NODE_ENV === "development" && (
-            <MarginWrapper>
-              <Button
-                variant="contained"
-                onClick={handleTestPush}
-                disabled={testPushLoading}
+          <MarginWrapper
+            style={
+              process.env.NODE_ENV === "production" ? { display: "none" } : {}
+            }
+          >
+            <Button
+              variant="contained"
+              onClick={handleTestPush}
+              disabled={testPushLoading}
+            >
+              {testPushLoading
+                ? "Sending..."
+                : "🔔 Test Mobile Push Notification"}
+            </Button>
+            {testPushMessage && (
+              <Alert
+                severity={
+                  testPushMessage.startsWith("✅") ? "success" : "error"
+                }
               >
-                {testPushLoading
-                  ? "Sending..."
-                  : "🔔 Test Mobile Push Notification"}
-              </Button>
-              {testPushMessage && (
-                <Alert
-                  severity={
-                    testPushMessage.startsWith("✅") ? "success" : "error"
-                  }
-                >
-                  {testPushMessage}
-                </Alert>
-              )}
-            </MarginWrapper>
-          )}
+                {testPushMessage}
+              </Alert>
+            )}
+          </MarginWrapper>
           <MarginWrapper>
             <NotificationSettings />
           </MarginWrapper>

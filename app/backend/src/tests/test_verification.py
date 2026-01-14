@@ -134,8 +134,8 @@ def test_VerifyPhone(push_collector: PushCollector):
 
         process_jobs()
         push = push_collector.get_for_user(user.id)
-        assert push.content.title == "Phone successfully verified"
-        assert push.content.body == "Your phone was successfully verified as +46 70 174 06 05 on Couchers.org."
+        assert push.content.title == "Phone verification completed"
+        assert push.content.body == "Your phone number was successfully verified as +46 70 174 06 05."
 
         res = api.GetUser(api_pb2.GetUserReq(user=str(user.id)))
         assert res.verification == 1.0

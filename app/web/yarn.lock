@@ -254,7 +254,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.27.1"
 
-"@babel/runtime@^7.12.5", "@babel/runtime@^7.18.3", "@babel/runtime@^7.23.2", "@babel/runtime@^7.27.6", "@babel/runtime@^7.28.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
+"@babel/runtime@^7.12.5", "@babel/runtime@^7.18.3", "@babel/runtime@^7.23.2", "@babel/runtime@^7.28.4", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.7":
   version "7.28.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.28.4.tgz#a70226016fabe25c5783b2f22d3e1c9bc5ca3326"
   integrity sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==
@@ -1160,42 +1160,42 @@
     csstype "^3.1.3"
     prop-types "^15.8.1"
 
-"@mui/types@^7.4.7", "@mui/types@^7.4.9":
-  version "7.4.9"
-  resolved "https://registry.yarnpkg.com/@mui/types/-/types-7.4.9.tgz#99accc87920b4c8c4ce33c5076a58f7f81b528fa"
-  integrity sha512-dNO8Z9T2cujkSIaCnWwprfeKmTWh97cnjkgmpFJ2sbfXLx8SMZijCYHOtP/y5nnUb/Rm2omxbDMmtUoSaUtKaw==
+"@mui/types@^7.4.10", "@mui/types@^7.4.7", "@mui/types@^7.4.9":
+  version "7.4.10"
+  resolved "https://registry.yarnpkg.com/@mui/types/-/types-7.4.10.tgz#c80ed5850a1da7802a01c1d0153d8603ce41be10"
+  integrity sha512-0+4mSjknSu218GW3isRqoxKRTOrTLd/vHi/7UC4+wZcUrOAqD9kRk7UQRL1mcrzqRoe7s3UT6rsRpbLkW5mHpQ==
   dependencies:
     "@babel/runtime" "^7.28.4"
 
-"@mui/utils@^7.3.2", "@mui/utils@^7.3.3", "@mui/utils@^7.3.5", "@mui/utils@^7.3.6":
-  version "7.3.6"
-  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-7.3.6.tgz#508fbe864832f99b215d134eb89e1198cdc66b34"
-  integrity sha512-jn+Ba02O6PiFs7nKva8R2aJJ9kJC+3kQ2R0BbKNY3KQQ36Qng98GnPRFTlbwYTdMD6hLEBKaMLUktyg/rTfd2w==
+"@mui/utils@^7.3.3", "@mui/utils@^7.3.5", "@mui/utils@^7.3.6", "@mui/utils@^7.3.7":
+  version "7.3.7"
+  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-7.3.7.tgz#71443559a7fbd993b5b90fcb843fa26a60046f99"
+  integrity sha512-+YjnjMRnyeTkWnspzoxRdiSOgkrcpTikhNPoxOZW0APXx+urHtUoXJ9lbtCZRCA5a4dg5gSbd19alL1DvRs5fg==
   dependencies:
     "@babel/runtime" "^7.28.4"
-    "@mui/types" "^7.4.9"
+    "@mui/types" "^7.4.10"
     "@types/prop-types" "^15.7.15"
     clsx "^2.1.1"
     prop-types "^15.8.1"
-    react-is "^19.2.0"
+    react-is "^19.2.3"
 
-"@mui/x-date-pickers@^8.23.0":
-  version "8.23.0"
-  resolved "https://registry.yarnpkg.com/@mui/x-date-pickers/-/x-date-pickers-8.23.0.tgz#fe2940550bde75d7faafea6ab4bdfd3127ba61ae"
-  integrity sha512-uKtam5wqMEuErmRxZLPEX/7CZZFTMfrl05V9cWNjBkpGTcdDBIs1Kba8z2pfQU93e9lSLrRlxbCMJzCu6iF0Rg==
+"@mui/x-date-pickers@^8.24.0":
+  version "8.24.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-date-pickers/-/x-date-pickers-8.24.0.tgz#f50034acc453ae170b66f9b26c75d7011fd22725"
+  integrity sha512-wxh/BuL3OGcMa1Z90mcBgew7v0VW2M044bCOIpypu8cJeOv8mEcxRl/JE/e9xFyPq4/C1B1gXtf2j6tpYIM1lQ==
   dependencies:
     "@babel/runtime" "^7.28.4"
     "@mui/utils" "^7.3.5"
-    "@mui/x-internals" "8.23.0"
+    "@mui/x-internals" "8.24.0"
     "@types/react-transition-group" "^4.4.12"
     clsx "^2.1.1"
     prop-types "^15.8.1"
     react-transition-group "^4.4.5"
 
-"@mui/x-internals@8.23.0":
-  version "8.23.0"
-  resolved "https://registry.yarnpkg.com/@mui/x-internals/-/x-internals-8.23.0.tgz#f02c126e68896b2fc23b877a0112d2a7f2d110c6"
-  integrity sha512-FN7wdqwTxqq1tJBYVz8TA/HMcViuaHS0Jphr4pEjT/8Iuf94Yt3P82WbsTbXyYrgOQDQl07UqE7qWcJetRcHcg==
+"@mui/x-internals@8.24.0":
+  version "8.24.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-internals/-/x-internals-8.24.0.tgz#99f8c61f82ab7075135cc0b7ec41fbc053ac3cbe"
+  integrity sha512-tHPk8eUcuwvhNsAc4zcia8y+issjC+bLGssrQQSdLLeLIf9ewFbcwAURNTSnNhreyj/4RJOemVrSxKXpjkdVvQ==
   dependencies:
     "@babel/runtime" "^7.28.4"
     "@mui/utils" "^7.3.5"
@@ -2110,6 +2110,11 @@
   resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.30.2.tgz#87635228dc55fc33b9377b2bcf3d70276f8fbff4"
   integrity sha512-F3u1+LDml6IFz/tMbSYI0pEOMR13OHM71lLJ3RuoWpK2KpCwfsHpt7kBmUKJxUXZ05CP/jWgmhG/ROj7eqDCPQ==
 
+"@statsig/client-core@3.31.1":
+  version "3.31.1"
+  resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.31.1.tgz#389db2ecdc4543e061d475bfec8c2f252cfa3f71"
+  integrity sha512-2JfRl1owOIZa6/LSvNicluRhsU+J+bGGbYLkUSwtgjsNgt/nZgl2AcSY+8wGCnX/r9yCmk4cIt0VmrsWm73wDQ==
+
 "@statsig/js-client@3.30.2":
   version "3.30.2"
   resolved "https://registry.yarnpkg.com/@statsig/js-client/-/js-client-3.30.2.tgz#2bcbbb4c62f9fee26a86ed3f6bc11dd3aaceb2d9"
@@ -2117,13 +2122,20 @@
   dependencies:
     "@statsig/client-core" "3.30.2"
 
-"@statsig/react-bindings@^3.30.2":
-  version "3.30.2"
-  resolved "https://registry.yarnpkg.com/@statsig/react-bindings/-/react-bindings-3.30.2.tgz#e8090b908fb25d9efddc01d00c73f078c00ad4e0"
-  integrity sha512-tICFOSpKXaZBiuR+nJrI17hCVOFm0d//dXt41auw9Mhkbn43GwwEdBR8LjUiwxvQ6zVvWshjRUkYi13miBnh4g==
+"@statsig/js-client@3.31.1":
+  version "3.31.1"
+  resolved "https://registry.yarnpkg.com/@statsig/js-client/-/js-client-3.31.1.tgz#acd4513caf62eca314aa00a7f313a5fa500d97b1"
+  integrity sha512-HGC3NQFb/suBppE9Z/Mu4doesyqfiqTozLO31rZNFU8wsy2ZRQo3+/MXQLkyhVWrk5T5tQowHqQoyBczVK0NQA==
   dependencies:
-    "@statsig/client-core" "3.30.2"
-    "@statsig/js-client" "3.30.2"
+    "@statsig/client-core" "3.31.1"
+
+"@statsig/react-bindings@^3.31.1":
+  version "3.31.1"
+  resolved "https://registry.yarnpkg.com/@statsig/react-bindings/-/react-bindings-3.31.1.tgz#f034e4869445690db7c87bb645f250613836709b"
+  integrity sha512-Ou97Hie5gTrR4vbnDyR1mPrDFHaFNl+4rST9ypa7+vJViOK2xCv00s9LHJ1GW68GWvigDGMQvH7yFW+9dWKKxg==
+  dependencies:
+    "@statsig/client-core" "3.31.1"
+    "@statsig/js-client" "3.31.1"
 
 "@statsig/session-replay@^3.30.2":
   version "3.30.2"
@@ -6654,10 +6666,10 @@ next-i18next@^15.4.3:
     hoist-non-react-statics "^3.3.2"
     i18next-fs-backend "^2.6.0"
 
-next-router-mock@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/next-router-mock/-/next-router-mock-1.0.4.tgz#209027eb794a1fb5e2957cedbddc5849baee4eb8"
-  integrity sha512-EBOd/J2PxgZ9WH732ppfEojZgSTSOkjEz0DgQn+9c/PELKnc9P19PAcmQUi7fSlk3LAKbMGzl5DEOb40x7l8kA==
+next-router-mock@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/next-router-mock/-/next-router-mock-1.0.5.tgz#fb6b25e64235000efd6eb15daeeb6c946ea706ad"
+  integrity sha512-mEndN1KdRlofR1Hf+FvfHogabpx1SQ8cbXYENCm3SA1W5Bj3UlaIW814DA6vg5gmPF6tBw5E1rX2JY4ogN9aaQ==
 
 next@^15.5.7:
   version "15.5.7"
@@ -7314,12 +7326,12 @@ react-hook-form@^7.54.0:
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.68.0.tgz#733c6871fa4ec5e5bfb13e7650a3a912eafe1721"
   integrity sha512-oNN3fjrZ/Xo40SWlHf1yCjlMK417JxoSJVUXQjGdvdRCU07NTFei1i1f8ApUAts+IVh14e4EdakeLEA+BEAs/Q==
 
-react-i18next@^16.5.0:
-  version "16.5.0"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-16.5.0.tgz#107e4323742344a2f8792feb905cea551da6fd2c"
-  integrity sha512-IMpPTyCTKxEj8klCrLKUTIUa8uYTd851+jcu2fJuUB9Agkk9Qq8asw4omyeHVnOXHrLgQJGTm5zTvn8HpaPiqw==
+react-i18next@^16.5.2:
+  version "16.5.2"
+  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-16.5.2.tgz#6fab6f5494cfe00e9da36c3f5eb23fcbe60e5f24"
+  integrity sha512-GG/SBVxx9dvrO1uCs8VYdKfOP8NEBUhNP+2VDQLCifRJ8DL1qPq296k2ACNGyZMDe7iyIlz/LMJTQOs8HXSRvw==
   dependencies:
-    "@babel/runtime" "^7.27.6"
+    "@babel/runtime" "^7.28.4"
     html-parse-stringify "^3.0.1"
     use-sync-external-store "^1.6.0"
 
@@ -7343,10 +7355,10 @@ react-is@^18.0.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.3.1.tgz#e83557dc12eae63a99e003a46388b1dcbb44db7e"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
-react-is@^19.2.0:
-  version "19.2.1"
-  resolved "https://registry.yarnpkg.com/react-is/-/react-is-19.2.1.tgz#712fa6ee30c8398dc34260017325dad92b9224c5"
-  integrity sha512-L7BnWgRbMwzMAubQcS7sXdPdNLmKlucPlopgAzx7FtYbksWZgEWiuYM5x9T6UqS2Ne0rsgQTq5kY2SGqpzUkYA==
+react-is@^19.2.0, react-is@^19.2.3:
+  version "19.2.3"
+  resolved "https://registry.yarnpkg.com/react-is/-/react-is-19.2.3.tgz#eec2feb69c7fb31f77d0b5c08c10ae1c88886b29"
+  integrity sha512-qJNJfu81ByyabuG7hPFEbXqNcWSU3+eVus+KJs+0ncpGfMyYdvSmxiJxbWR65lYi1I+/0HBcliO029gc4F+PnA==
 
 react-lines-ellipsis@^0.16.1:
   version "0.16.1"

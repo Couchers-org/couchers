@@ -1215,32 +1215,32 @@ def test_update_badges(db, push_collector: PushCollector):
     print(push_collector.pushes)
 
     push = push_collector.get_for_user(user1.id, index=0)
-    assert push.content.title == "The Founder badge was added to your profile"
-    assert push.content.body == "Check out your profile to see the new badge!"
+    assert push.content.title == "New profile badge: Founder"
+    assert push.content.body == "The Founder badge was added to your profile."
 
     push = push_collector.get_for_user(user1.id, index=1)
-    assert push.content.title == "The Board Member badge was added to your profile"
-    assert push.content.body == "Check out your profile to see the new badge!"
+    assert push.content.title == "New profile badge: Board Member"
+    assert push.content.body == "The Board Member badge was added to your profile."
 
     push = push_collector.get_for_user(user2.id, index=0)
-    assert push.content.title == "The Founder badge was added to your profile"
-    assert push.content.body == "Check out your profile to see the new badge!"
+    assert push.content.title == "New profile badge: Founder"
+    assert push.content.body == "The Founder badge was added to your profile."
 
     push = push_collector.get_for_user(user2.id, index=1)
-    assert push.content.title == "The Board Member badge was added to your profile"
-    assert push.content.body == "Check out your profile to see the new badge!"
+    assert push.content.title == "New profile badge: Board Member"
+    assert push.content.body == "The Board Member badge was added to your profile."
 
     push = push_collector.get_for_user(user4.id, index=0)
-    assert push.content.title == "The Verified Phone badge was added to your profile"
-    assert push.content.body == "Check out your profile to see the new badge!"
+    assert push.content.title == "New profile badge: Verified Phone"
+    assert push.content.body == "The Verified Phone badge was added to your profile."
 
     push = push_collector.get_for_user(user5.id, index=0)
-    assert push.content.title == "The Board Member badge was removed from your profile"
-    assert push.content.body == "You can see all your badges on your profile."
+    assert push.content.title == "Profile badge removed"
+    assert push.content.body == "The Board Member badge was removed from your profile."
 
     push = push_collector.get_for_user(user5.id, index=1)
-    assert push.content.title == "The Verified Phone badge was added to your profile"
-    assert push.content.body == "Check out your profile to see the new badge!"
+    assert push.content.title == "New profile badge: Verified Phone"
+    assert push.content.body == "The Verified Phone badge was added to your profile."
 
 
 def test_send_request_notifications_blocked_users_no_notification(db, moderator):
@@ -1504,20 +1504,20 @@ def test_update_badges_volunteers(db, push_collector: PushCollector):
 
     # Check notifications for volunteer badge users
     push = push_collector.get_for_user(user3.id)
-    assert push.content.title == "The Active Volunteer badge was added to your profile"
-    assert push.content.body == "Check out your profile to see the new badge!"
+    assert push.content.title == "New profile badge: Active Volunteer"
+    assert push.content.body == "The Active Volunteer badge was added to your profile."
 
     push = push_collector.get_for_user(user4.id)
-    assert push.content.title == "The Past Volunteer badge was added to your profile"
-    assert push.content.body == "Check out your profile to see the new badge!"
+    assert push.content.title == "New profile badge: Past Volunteer"
+    assert push.content.body == "The Past Volunteer badge was added to your profile."
 
     push = push_collector.get_for_user(user5.id)
-    assert push.content.title == "The Active Volunteer badge was removed from your profile"
-    assert push.content.body == "You can see all your badges on your profile."
+    assert push.content.title == "Profile badge removed"
+    assert push.content.body == "The Active Volunteer badge was removed from your profile."
 
     push = push_collector.get_for_user(user6.id)
-    assert push.content.title == "The Past Volunteer badge was removed from your profile"
-    assert push.content.body == "You can see all your badges on your profile."
+    assert push.content.title == "Profile badge removed"
+    assert push.content.body == "The Past Volunteer badge was removed from your profile."
 
 
 def test_update_badges_volunteer_status_change(db, push_collector: PushCollector):
@@ -1548,8 +1548,8 @@ def test_update_badges_volunteer_status_change(db, push_collector: PushCollector
         assert "past_volunteer" not in user3_badges
 
     push = push_collector.get_for_user(user3.id)
-    assert push.content.title == "The Active Volunteer badge was added to your profile"
-    assert push.content.body == "Check out your profile to see the new badge!"
+    assert push.content.title == "New profile badge: Active Volunteer"
+    assert push.content.body == "The Active Volunteer badge was added to your profile."
 
     # Now change the volunteer to past volunteer
     with session_scope() as session:
@@ -1566,12 +1566,12 @@ def test_update_badges_volunteer_status_change(db, push_collector: PushCollector
 
     # Check both badges were updated
     push = push_collector.get_for_user(user3.id, index=1)
-    assert push.content.title == "The Active Volunteer badge was removed from your profile"
-    assert push.content.body == "You can see all your badges on your profile."
+    assert push.content.title == "Profile badge removed"
+    assert push.content.body == "The Active Volunteer badge was removed from your profile."
 
     push = push_collector.get_for_user(user3.id, index=2)
-    assert push.content.title == "The Past Volunteer badge was added to your profile"
-    assert push.content.body == "Check out your profile to see the new badge!"
+    assert push.content.title == "New profile badge: Past Volunteer"
+    assert push.content.body == "The Past Volunteer badge was added to your profile."
 
 
 def test_send_message_notifications_empty_unseen_simple(monkeypatch):
