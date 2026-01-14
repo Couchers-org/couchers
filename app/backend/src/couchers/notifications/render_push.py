@@ -199,13 +199,12 @@ class _Renderer:
         key = f"{self._get_string_key_prefix(string_group)}.{key}"
         return localize_string(self.locale, key, substitutions=substitutions)
 
-    def _get_string_key_prefix(string_group: NotificationTopicAction | str) -> str:
+    def _get_string_key_prefix(self, string_group: NotificationTopicAction | str) -> str:
         if isinstance(string_group, NotificationTopicAction):
             string_group = string_group.display.replace(":", "__")
         return f"push_notifs.{string_group}"
 
-
-    def _avatar_url_or_default(user: api_pb2.User) -> str:
+    def _avatar_url_or_default(self, user: api_pb2.User) -> str:
         return user.avatar_thumbnail_url or urls.icon_url()
 
     def account_deletion__start(self, data: notification_data_pb2.AccountDeletionStart) -> PushNotificationContent:
@@ -316,7 +315,7 @@ class _Renderer:
             substitutions={
                 "title": data.event.title,
                 "user": data.inviting_user.name,
-                "date_and_time": localize_datetime(data.event.start_time, self.locale, self.timezone),
+                "date_and_time": localize_datetime(data.event.start_time, self.timezone, self.locale),
             },
             action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
         )
@@ -327,7 +326,7 @@ class _Renderer:
             substitutions={
                 "title": data.event.title,
                 "user": data.inviting_user.name,
-                "date_and_time": localize_datetime(data.event.start_time, self.locale, self.timezone),
+                "date_and_time": localize_datetime(data.event.start_time, self.timezone, self.locale),
             },
             action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
         )
@@ -349,7 +348,7 @@ class _Renderer:
             NotificationTopicAction.event__invite_organizer,
             substitutions={
                 "title": data.event.title,
-                "user": data.updating_user.name,
+                "user": data.inviting_user.name,
             },
             action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
         )
@@ -371,7 +370,7 @@ class _Renderer:
             NotificationTopicAction.event__reminder,
             substitutions={
                 "title": data.event.title,
-                "date_and_time": localize_datetime(data.event.start_time, self.locale, self.timezone),
+                "date_and_time": localize_datetime(data.event.start_time, self.timezone, self.locale),
             },
             action_url=urls.event_link(occurrence_id=data.event.event_id, slug=data.event.slug),
         )
@@ -458,7 +457,7 @@ class _Renderer:
     def host_request__reminder(self, data: notification_data_pb2.HostRequestReminder) -> PushNotificationContent:
         return self._get_content(
             NotificationTopicAction.host_request__reminder,
-            substitutions={"user": data.user.name},
+            substitutions={"user": data.surfer.name},
             icon_user=data.surfer,
             action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
         )
@@ -599,8 +598,9 @@ class _Renderer:
             body = data.text
             action_url = urls.profile_references_link()
         else:
-            body = self._get_string("reference__receive", "body_must_write_yours",
-                substitutions={"user": data.from_user.name})
+            body = self._get_string(
+                "reference__receive", "body_must_write_yours", substitutions={"user": data.from_user.name}
+            )
             action_url = urls.leave_reference_link(
                 reference_type=leave_reference_type,
                 to_user_id=data.from_user.user_id,
