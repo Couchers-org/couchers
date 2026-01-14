@@ -110,34 +110,32 @@ export default function RootLayout() {
 }
 
 /**
- * Handles push notification navigation following Expo's recommended pattern.
+ * Handles push notification navigation using Expo's reactive hook pattern.
+ * Waits for authentication check to complete before navigating to ensure
+ * the navigation structure is ready (fixes cold start issues).
  * @see https://docs.expo.dev/versions/latest/sdk/notifications/#handle-push-notifications-with-navigation
  */
 function useNotificationObserver() {
+  const lastNotificationResponse = Notifications.useLastNotificationResponse();
+  const { authenticated, checkedAuthStatus } = useAuthContext();
+
   useEffect(() => {
-    function redirect(notification: Notifications.Notification) {
-      const url = notification.request.content.data?.url as string | undefined;
+    // Wait until navigation structure is ready (auth check complete and user authenticated)
+    if (!authenticated || !checkedAuthStatus) return;
+
+    if (
+      lastNotificationResponse &&
+      lastNotificationResponse.actionIdentifier ===
+        Notifications.DEFAULT_ACTION_IDENTIFIER
+    ) {
+      const url = lastNotificationResponse.notification.request.content.data
+        ?.url as string | undefined;
       const path = getNotificationPath(url);
       if (path) {
         router.push(path as Href);
       }
     }
-
-    // Handle cold start: check if app was opened via notification tap
-    const response = Notifications.getLastNotificationResponse();
-    if (response?.notification) {
-      redirect(response.notification);
-    }
-
-    // Handle warm start: listen for notification taps while app is running
-    const subscription = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        redirect(response.notification);
-      },
-    );
-
-    return () => subscription.remove();
-  }, []);
+  }, [lastNotificationResponse, authenticated, checkedAuthStatus]);
 }
 
 function PushNotificationsRegistrar() {
