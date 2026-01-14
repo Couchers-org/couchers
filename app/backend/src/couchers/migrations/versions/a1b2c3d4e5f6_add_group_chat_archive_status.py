@@ -1,7 +1,7 @@
 """Add group chat archive status
 
 Revision ID: a1b2c3d4e5f6
-Revises: 7d04ba82351c
+Revises: f8b4ef6e3819
 Create Date: 2026-01-13 00:00:00.000000
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "a1b2c3d4e5f6"
-down_revision = "7d04ba82351c"
+down_revision = "f8b4ef6e3819"
 branch_labels = None
 depends_on = None
 
