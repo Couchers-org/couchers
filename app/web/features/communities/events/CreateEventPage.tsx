@@ -85,7 +85,8 @@ export default function CreateEventPage() {
         .toDate();
 
       // Use uploaded photo, or reuse photo from event being duplicated
-      const photoKey = data.eventImage || eventToDuplicate?.photoKey || undefined;
+      const photoKey =
+        data.eventImage || eventToDuplicate?.photoKey || undefined;
 
       if (data.isOnline) {
         createEventInput = {
