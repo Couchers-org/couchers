@@ -729,6 +729,7 @@ class Account(account_pb2_grpc.AccountServicer):
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.GetRemindersRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        print("************ hi I'm here ************")
 
         # responding to reqs comes first in desc order of when they were received
         query = select(HostRequest.conversation_id, LiteUser).join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)

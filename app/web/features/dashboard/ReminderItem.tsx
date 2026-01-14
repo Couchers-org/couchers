@@ -1,28 +1,40 @@
-import { useQuery } from "@tanstack/react-query";
-import { RpcError } from "grpc-web";
-import { GetRemindersRes } from "proto/account_pb";
-import { service } from "service";
+// interface ReminderItemProps {
+//   reminder: any;
+// }
+
+import { Typography } from "@mui/material";
+import Button from "components/Button";
+import Link from "next/link";
 
 export default function ReminderItem() {
-  const { data, error, isLoading } = useQuery<
-    GetRemindersRes.AsObject,
-    RpcError
-  >({
-    queryKey: ["reminders"],
-    queryFn: () => service.account.getReminders(),
-  });
-
-  console.log("reminders data:", data);
-  console.log("reminders error:", error);
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
+  // { reminder }: ReminderItemProps
   return (
-    <div>
-      {data?.remindersList.map((reminder, index) => (
-        <div key={index}>{JSON.stringify(reminder)}</div>
-      ))}
-    </div>
+    <>
+      {/* {JSON.stringify(reminder)}
+      <div>{reminder}</div> */}
+      {/* <Box
+        sx={{
+          bgcolor: "#fff5e4",
+        }}
+        maxWidth="lg"
+      > */}
+      <button>×</button>
+
+      <Typography
+        variant="h1"
+        component="h2"
+        sx={{
+          marginBottom: "16px",
+        }}
+      >
+        Title
+      </Typography>
+      <p>Description</p>
+
+      <Button component={Link} color="primary" href={""}>
+        Button
+      </Button>
+      {/* </Box> */}
+    </>
   );
 }
