@@ -110,6 +110,11 @@ const StyledIconButton = styled(IconButton)(() => ({
   flexShrink: 0,
 }));
 
+const StyledIconButtonGroup = styled("div")(() => ({
+  display: "flex",
+  gap: theme.spacing(0.5),
+}));
+
 const StyledActionButtonsContainer = styled("div")(() => ({
   display: "grid",
   gridAutoFlow: "column",
@@ -305,51 +310,55 @@ export default function EventPage({
                 )}
               </StyledTitle>
               <StyledActionButtonsContainer>
-                {event.canEdit && (
-                  <Tooltip
-                    title={
-                      event.isCancelled || isPastEvent
-                        ? ""
-                        : t("communities:edit_event")
-                    }
-                  >
-                    <span>
-                      <StyledIconButton
-                        onClick={() =>
-                          router.push(
-                            routeToEditEvent(event.eventId, event.slug),
-                          )
+                {(event.canEdit || isCreator) && (
+                  <StyledIconButtonGroup>
+                    {event.canEdit && (
+                      <Tooltip
+                        title={
+                          event.isCancelled || isPastEvent
+                            ? ""
+                            : t("communities:edit_event")
                         }
-                        disabled={event.isCancelled || isPastEvent}
-                        aria-label={t("communities:edit_event")}
-                        tabIndex={event.isCancelled || isPastEvent ? -1 : 0}
                       >
-                        <EditOutlined />
-                      </StyledIconButton>
-                    </span>
-                  </Tooltip>
-                )}
-                {isCreator && (
-                  <Tooltip
-                    title={
-                      event.isCancelled || isPastEvent
-                        ? ""
-                        : t("communities:duplicate_event")
-                    }
-                  >
-                    <span>
-                      <StyledIconButton
-                        onClick={() =>
-                          router.push(routeToDuplicateEvent(event.eventId))
+                        <span>
+                          <StyledIconButton
+                            onClick={() =>
+                              router.push(
+                                routeToEditEvent(event.eventId, event.slug),
+                              )
+                            }
+                            disabled={event.isCancelled || isPastEvent}
+                            aria-label={t("communities:edit_event")}
+                            tabIndex={event.isCancelled || isPastEvent ? -1 : 0}
+                          >
+                            <EditOutlined />
+                          </StyledIconButton>
+                        </span>
+                      </Tooltip>
+                    )}
+                    {isCreator && (
+                      <Tooltip
+                        title={
+                          event.isCancelled || isPastEvent
+                            ? ""
+                            : t("communities:duplicate_event")
                         }
-                        disabled={event.isCancelled || isPastEvent}
-                        aria-label={t("communities:duplicate_event")}
-                        tabIndex={event.isCancelled || isPastEvent ? -1 : 0}
                       >
-                        <ContentCopyOutlined />
-                      </StyledIconButton>
-                    </span>
-                  </Tooltip>
+                        <span>
+                          <StyledIconButton
+                            onClick={() =>
+                              router.push(routeToDuplicateEvent(event.eventId))
+                            }
+                            disabled={event.isCancelled || isPastEvent}
+                            aria-label={t("communities:duplicate_event")}
+                            tabIndex={event.isCancelled || isPastEvent ? -1 : 0}
+                          >
+                            <ContentCopyOutlined />
+                          </StyledIconButton>
+                        </span>
+                      </Tooltip>
+                    )}
+                  </StyledIconButtonGroup>
                 )}
                 {event.canEdit && (
                   <>
