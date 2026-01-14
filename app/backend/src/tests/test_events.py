@@ -7,7 +7,7 @@ from psycopg2.extras import DateTimeTZRange
 from sqlalchemy.sql.expression import update
 
 from couchers.db import session_scope
-from couchers.models import BackgroundJob, EventOccurrence
+from couchers.models import BackgroundJob, EventOccurrence, Upload
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
@@ -2157,8 +2157,8 @@ def test_event_threads(db, push_collector: PushCollector):
 
     process_jobs()
 
-    assert push_collector.get_for_user(user1.id).content.title == f'{user2.name} commented on "Dummy Title"'
-    assert push_collector.get_for_user(user2.id).content.title == "Dummy Title"
+    assert push_collector.get_for_user(user1.id).content.title == f"{user2.name} • Dummy Title"
+    assert push_collector.get_for_user(user2.id).content.title == f"{user3.name} • Dummy Title"
     assert push_collector.count_for_user(user4_id) == 0
 
 
@@ -2471,3 +2471,69 @@ def test_update_event_should_notify_queues_job():
     with session_scope() as session:
         jobs = session.query(BackgroundJob).all()
         assert len(jobs) == job_length_before_update + 1
+
+
+def test_event_photo_key(db):
+    """Test that events return the photo_key field when a photo is set."""
+    user, token = generate_user()
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    # Create a community and an upload for the event photo
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user], [], None)
+        upload = Upload(
+            key="test_event_photo_key_123",
+            filename="test_event_photo_key_123.jpg",
+            creator_user_id=user.id,
+        )
+        session.add(upload)
+
+    with events_session(token) as api:
+        # Create event without photo
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Event Without Photo",
+                content="No photo content.",
+                photo_key=None,
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+
+        assert res.photo_key == ""
+        assert res.photo_url == ""
+
+        # Create event with photo
+        res_with_photo = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Event With Photo",
+                content="Has photo content.",
+                photo_key="test_event_photo_key_123",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time + timedelta(days=1)),
+                end_time=Timestamp_from_datetime(end_time + timedelta(days=1)),
+                timezone="UTC",
+            )
+        )
+
+        assert res_with_photo.photo_key == "test_event_photo_key_123"
+        assert "test_event_photo_key_123" in res_with_photo.photo_url
+
+        event_id = res_with_photo.event_id
+
+        # Verify photo_key is returned when getting the event
+        get_res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert get_res.photo_key == "test_event_photo_key_123"
+        assert "test_event_photo_key_123" in get_res.photo_url

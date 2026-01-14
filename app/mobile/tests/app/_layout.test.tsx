@@ -7,6 +7,7 @@ import { Text, View } from "react-native";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
+import { getNotificationPath } from "@/utils/getNotificationPath";
 
 jest.mock("expo-router", () => ({
   ...jest.requireActual("expo-router"),
@@ -23,9 +24,8 @@ jest.mock("expo-splash-screen", () => ({
 
 jest.mock("expo-notifications", () => ({
   setNotificationHandler: jest.fn(),
-  addNotificationResponseReceivedListener: jest.fn(() => ({
-    remove: jest.fn(),
-  })),
+  useLastNotificationResponse: jest.fn(() => null),
+  DEFAULT_ACTION_IDENTIFIER: "expo.modules.notifications.actions.DEFAULT",
 }));
 
 jest.mock("@/features/auth/AuthContext", () => ({
@@ -83,30 +83,30 @@ function TestRootNavigator() {
   );
 }
 
-// Test component mimicking PushNotificationsRegistrar
+// Test component mimicking PushNotificationsRegistrar with useNotificationObserver
 function TestPushNotificationsRegistrar() {
   const router = useRouter();
+  const lastNotificationResponse = Notifications.useLastNotificationResponse();
+  const { authenticated, checkedAuthStatus } = useAuthContext();
   useRegisterPushNotifications();
 
   useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener(
-      (response: {
-        notification: { request: { content: { data?: { url?: string } } } };
-      }) => {
-        const url = response.notification.request.content.data?.url;
-        if (url) {
-          try {
-            const path = new URL(url).pathname;
-            router.push(`/(tabs)${path}` as Href);
-          } catch {
-            router.push(`/(tabs)${url}` as Href);
-          }
-        }
-      },
-    );
+    // Wait until navigation structure is ready
+    if (!authenticated || !checkedAuthStatus) return;
 
-    return () => subscription.remove();
-  }, [router]);
+    if (
+      lastNotificationResponse &&
+      lastNotificationResponse.actionIdentifier ===
+        Notifications.DEFAULT_ACTION_IDENTIFIER
+    ) {
+      const url = lastNotificationResponse.notification.request.content.data
+        ?.url as string | undefined;
+      const path = getNotificationPath(url);
+      if (path) {
+        router.push(path as Href);
+      }
+    }
+  }, [lastNotificationResponse, authenticated, checkedAuthStatus, router]);
 
   return null;
 }
@@ -164,20 +164,15 @@ describe("RootNavigator", () => {
 
 describe("PushNotificationsRegistrar", () => {
   const mockRouter = { push: jest.fn() };
-  let notificationCallback: (response: {
-    notification: { request: { content: { data?: { url?: string } } } };
-  }) => void;
 
   beforeEach(() => {
     jest.clearAllMocks();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (useRegisterPushNotifications as jest.Mock).mockReturnValue(undefined);
-
-    (
-      Notifications.addNotificationResponseReceivedListener as jest.Mock
-    ).mockImplementation((callback) => {
-      notificationCallback = callback;
-      return { remove: jest.fn() };
+    // Default: authenticated and ready
+    (useAuthContext as jest.Mock).mockReturnValue({
+      authenticated: true,
+      checkedAuthStatus: true,
     });
   });
 
@@ -185,56 +180,143 @@ describe("PushNotificationsRegistrar", () => {
     render(<TestPushNotificationsRegistrar />);
 
     expect(useRegisterPushNotifications).toHaveBeenCalled();
-    expect(
-      Notifications.addNotificationResponseReceivedListener,
-    ).toHaveBeenCalled();
   });
 
-  it("navigates to path from notification URL", () => {
-    render(<TestPushNotificationsRegistrar />);
-
-    notificationCallback({
+  it("navigates to path from notification URL when authenticated", () => {
+    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
+      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
       notification: {
         request: {
-          content: { data: { url: "https://couchers.org/messages/123" } },
+          content: {
+            data: { url: "https://couchers.org/messages/requests/123" },
+          },
         },
       },
     });
 
-    expect(mockRouter.push).toHaveBeenCalledWith("/(tabs)/messages/123");
-  });
-
-  it("handles notification with path-only URL", () => {
     render(<TestPushNotificationsRegistrar />);
 
-    notificationCallback({
+    // Paths are extracted from URL and pushed directly
+    expect(mockRouter.push).toHaveBeenCalledWith("/messages/requests/123");
+  });
+
+  it("navigates to base path directly", () => {
+    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
+      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
+      notification: {
+        request: {
+          content: { data: { url: "https://couchers.org/messages" } },
+        },
+      },
+    });
+
+    render(<TestPushNotificationsRegistrar />);
+
+    expect(mockRouter.push).toHaveBeenCalledWith("/messages");
+  });
+
+  it("handles notification with path-only URL as fallback", () => {
+    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
+      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
       notification: {
         request: { content: { data: { url: "/messages/456" } } },
       },
     });
 
-    expect(mockRouter.push).toHaveBeenCalledWith("/(tabs)/messages/456");
+    render(<TestPushNotificationsRegistrar />);
+
+    // Path-only URLs that fail URL parsing use fallback (push as-is)
+    expect(mockRouter.push).toHaveBeenCalledWith("/messages/456");
+  });
+
+  it("navigates to leave-reference paths correctly", () => {
+    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
+      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
+      notification: {
+        request: {
+          content: {
+            data: { url: "https://couchers.org/leave-reference/surfed/91/320" },
+          },
+        },
+      },
+    });
+
+    render(<TestPushNotificationsRegistrar />);
+
+    expect(mockRouter.push).toHaveBeenCalledWith(
+      "/leave-reference/surfed/91/320",
+    );
   });
 
   it("ignores notifications without URL", () => {
-    render(<TestPushNotificationsRegistrar />);
-
-    notificationCallback({
+    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
+      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
       notification: { request: { content: { data: {} } } },
     });
+
+    render(<TestPushNotificationsRegistrar />);
 
     expect(mockRouter.push).not.toHaveBeenCalled();
   });
 
-  it("cleans up listener on unmount", () => {
-    const mockRemove = jest.fn();
-    (
-      Notifications.addNotificationResponseReceivedListener as jest.Mock
-    ).mockReturnValue({ remove: mockRemove });
+  it("does not navigate when not authenticated", () => {
+    (useAuthContext as jest.Mock).mockReturnValue({
+      authenticated: false,
+      checkedAuthStatus: true,
+    });
+    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
+      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
+      notification: {
+        request: {
+          content: {
+            data: { url: "https://couchers.org/leave-reference/surfed/91/320" },
+          },
+        },
+      },
+    });
 
-    const { unmount } = render(<TestPushNotificationsRegistrar />);
-    unmount();
+    render(<TestPushNotificationsRegistrar />);
 
-    expect(mockRemove).toHaveBeenCalled();
+    // Should NOT navigate because user is not authenticated
+    expect(mockRouter.push).not.toHaveBeenCalled();
+  });
+
+  it("does not navigate while auth status is being checked", () => {
+    (useAuthContext as jest.Mock).mockReturnValue({
+      authenticated: false,
+      checkedAuthStatus: false,
+    });
+    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
+      actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
+      notification: {
+        request: {
+          content: {
+            data: { url: "https://couchers.org/leave-reference/surfed/91/320" },
+          },
+        },
+      },
+    });
+
+    render(<TestPushNotificationsRegistrar />);
+
+    // Should NOT navigate because auth status hasn't been checked yet
+    expect(mockRouter.push).not.toHaveBeenCalled();
+  });
+
+  it("ignores non-default action notifications", () => {
+    (Notifications.useLastNotificationResponse as jest.Mock).mockReturnValue({
+      actionIdentifier: "some.other.action",
+      notification: {
+        request: {
+          content: {
+            data: { url: "https://couchers.org/messages/123" },
+          },
+        },
+      },
+    });
+
+    render(<TestPushNotificationsRegistrar />);
+
+    expect(mockRouter.push).not.toHaveBeenCalled();
   });
 });

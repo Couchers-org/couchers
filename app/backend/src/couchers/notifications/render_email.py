@@ -11,7 +11,7 @@ from couchers.i18n.localize import (
 )
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
-from couchers.proto import notification_data_pb2
+from couchers.proto import api_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                     "view_link": view_link,
                     "host_request": data.host_request,
                     "message": message,
-                    "other": other,
+                    "other": UserTemplateArgs.from_protobuf_user(other),
                 },
                 topic_action_unsubscribe_text="missed messages in host requests",
             )
@@ -75,7 +75,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                     "quick_decline_link": generate_quick_decline_link(data.host_request),
                     "host_request": data.host_request,
                     "message": message,
-                    "other": other,
+                    "other": UserTemplateArgs.from_protobuf_user(other),
                     "text": data.text,
                 },
                 topic_action_unsubscribe_text="new host requests",
@@ -95,7 +95,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                     "view_link": view_link,
                     "host_request": data.host_request,
                     "message": message,
-                    "other": other,
+                    "other": UserTemplateArgs.from_protobuf_user(other),
                     "text": data.text,
                 },
                 topic_action_unsubscribe_text=topic_action_unsub_text,
@@ -123,7 +123,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                     "view_link": view_link,
                     "host_request": data.host_request,
                     "message": message,
-                    "other": other,
+                    "other": UserTemplateArgs.from_protobuf_user(other),
                 },
                 topic_action_unsubscribe_text=f"{actioned} host requests",
             )
@@ -138,7 +138,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                     "view_link": view_link,
                     "host_request": data.host_request,
                     "message": description,
-                    "other": data.surfer,
+                    "other": UserTemplateArgs.from_protobuf_user(data.surfer),
                 },
                 topic_action_unsubscribe_text="Pending host request reminders",
             )
@@ -314,7 +314,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             template_name="friend_request",
             template_args={
                 "friend_requests_link": urls.friend_requests_link(),
-                "other": other,
+                "other": UserTemplateArgs.from_protobuf_user(other),
             },
             topic_action_unsubscribe_text="new friend requests",
         )
@@ -327,8 +327,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             preview=preview,
             template_name="friend_request_accepted",
             template_args={
-                "other_user_link": urls.user_link(username=other.username),
-                "other": other,
+                "other": UserTemplateArgs.from_protobuf_user(other),
             },
             topic_action_unsubscribe_text="accepted friend requests",
         )
@@ -375,7 +374,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             preview="You received a message on Couchers.org!",
             template_name="chat_message",
             template_args={
-                "author": data.author,
+                "author": UserTemplateArgs.from_protobuf_user(data.author),
                 "message": data.message,
                 "text": data.text,
                 "view_link": urls.chat_link(chat_id=data.group_chat_id),
@@ -391,7 +390,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             template_args={
                 "items": [
                     {
-                        "author": item.author,
+                        "author": UserTemplateArgs.from_protobuf_user(item.author),
                         "message": item.message,
                         "text": item.text,
                         "view_link": urls.chat_link(chat_id=item.group_chat_id),
@@ -410,7 +409,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         if notification.action in ["create_approved", "create_any"]:
             # create_approved = invitation, approved by mods
             # create_any = new event created by anyone (no need for approval) -- off by default
-            body = f"{time_display}\n"
             if notification.action == "create_approved":
                 subject = f'{data.inviting_user.name} invited you to "{event.title}"'
                 start_text = "You've been invited to a new event"
@@ -427,7 +425,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 preview=f"{start_text} on Couchers.org!",
                 template_name="event_create",
                 template_args={
-                    "inviting_user": data.inviting_user,
+                    "inviting_user": UserTemplateArgs.from_protobuf_user(data.inviting_user),
                     "time_display": time_display,
                     "start_text": start_text,
                     "nearby": "nearby" if data.nearby else None,
@@ -449,7 +447,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 preview="An event you are subscribed to was updated.",
                 template_name="event_update",
                 template_args={
-                    "updating_user": data.updating_user,
+                    "updating_user": UserTemplateArgs.from_protobuf_user(data.updating_user),
                     "time_display": time_display,
                     "event": event,
                     "updated_text": updated_text,
@@ -463,7 +461,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 preview="An event you are subscribed to has been cancelled.",
                 template_name="event_cancel",
                 template_args={
-                    "cancelling_user": data.cancelling_user,
+                    "cancelling_user": UserTemplateArgs.from_protobuf_user(data.cancelling_user),
                     "time_display": time_display,
                     "event": event,
                     "view_link": event_link,
@@ -487,7 +485,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 preview="You were invited to co-organize an event on Couchers.org.",
                 template_name="event_invite_organizer",
                 template_args={
-                    "inviting_user": data.inviting_user,
+                    "inviting_user": UserTemplateArgs.from_protobuf_user(data.inviting_user),
                     "time_display": time_display,
                     "event": event,
                     "view_link": event_link,
@@ -500,7 +498,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 preview="Someone commented on an event you are attending.",
                 template_name="event_comment",
                 template_args={
-                    "author": data.author,
+                    "author": UserTemplateArgs.from_protobuf_user(data.author),
                     "time_display": time_display,
                     "event": event,
                     "content": data.reply.content,
@@ -529,7 +527,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 preview="Someone created a discussion in a community or group you are subscribed to.",
                 template_name="discussion_create",
                 template_args={
-                    "author": data.author,
+                    "author": UserTemplateArgs.from_protobuf_user(data.author),
                     "discussion": discussion,
                     "view_link": discussion_link,
                 },
@@ -541,7 +539,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 preview="Someone commented on your discussion.",
                 template_name="discussion_comment",
                 template_args={
-                    "author": data.author,
+                    "author": UserTemplateArgs.from_protobuf_user(data.author),
                     "discussion": discussion,
                     "reply": data.reply,
                     "view_link": discussion_link,
@@ -564,7 +562,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             preview="Someone replied in a comment thread you have participated in.",
             template_name="comment_reply",
             template_args={
-                "author": data.author,
+                "author": UserTemplateArgs.from_protobuf_user(data.author),
                 "title": title,
                 "reply": data.reply,
                 "view_link": view_link,
@@ -579,7 +577,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 preview=data.text,
                 template_name="friend_reference",
                 template_args={
-                    "from_user": data.from_user,
+                    "from_user": UserTemplateArgs.from_protobuf_user(data.from_user),
                     "profile_references_link": urls.profile_references_link(),
                     "text": data.text,
                 },
@@ -604,7 +602,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 preview=preview,
                 template_name="host_reference",
                 template_args={
-                    "from_user": data.from_user,
+                    "from_user": UserTemplateArgs.from_protobuf_user(data.from_user),
                     "leave_reference_link": leave_reference_link,
                     "profile_references_link": profile_references_link,
                     "text": data.text,
@@ -628,7 +626,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 preview=preview,
                 template_name="reference_reminder",
                 template_args={
-                    "other_user": data.other_user,
+                    "other_user": UserTemplateArgs.from_protobuf_user(data.other_user),
                     "leave_reference_link": leave_reference_link,
                     "days_left": str(data.days_left),
                     "surfed": surfed,
@@ -772,3 +770,27 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         )
 
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class UserTemplateArgs:
+    """
+    A user's information for email template placeholders.
+    Allows decoupling from protocol buffer objects.
+    """
+
+    name: str
+    age: int
+    city: str
+    avatar_url: str
+    profile_url: str
+
+    @staticmethod
+    def from_protobuf_user(user: api_pb2.User) -> UserTemplateArgs:
+        return UserTemplateArgs(
+            name=user.name,
+            age=user.age,
+            city=user.city,
+            avatar_url=user.avatar_thumbnail_url or urls.icon_url(),
+            profile_url=urls.user_link(username=user.username),
+        )

@@ -90,8 +90,8 @@ def test_create_and_get_discussion(db, push_collector: PushCollector):
     process_jobs()
 
     push = push_collector.get_for_user(user2_id)
-    assert push.content.title == "dummy title"
-    assert push.content.body == f"{user.name} created a discussion in Testing Community: dummy title\n\ndummy content"
+    assert push.content.title == "New discussion: dummy title"
+    assert push.content.body == f"{user.name} started the discussion in Testing Community."
 
     with discussions_session(token) as api:
         res = api.GetDiscussion(
@@ -190,11 +190,15 @@ def test_discussion_notifications_regression(db, push_collector: PushCollector):
 
     # User2 should get 2 notifications about 2 replies to their comment, User3 should get 1 notification about 1 reply
     assert push_collector.count_for_user(user2_id) == 2
-    for i in range(2):
-        push = push_collector.get_for_user(user2_id, index=i)
-        assert push.content.title == "dummy title"
-        assert push.topic_action == "thread:reply"
+
+    push = push_collector.get_for_user(user2_id, index=0)
+    assert push.content.title == f"{user3.name} • dummy title"
+    assert push.topic_action == "thread:reply"
+
+    push = push_collector.get_for_user(user2_id, index=1)
+    assert push.content.title == f"{user.name} • dummy title"
+    assert push.topic_action == "thread:reply"
 
     push = push_collector.get_for_user(user3.id)
-    assert push.content.title == "dummy title"
+    assert push.content.title == f"{user.name} • dummy title"
     assert push.topic_action == "thread:reply"

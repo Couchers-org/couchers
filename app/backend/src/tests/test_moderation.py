@@ -2199,7 +2199,7 @@ def test_host_request_message_notifications_suppressed_before_approval(db, push_
     # 3. host_request:message (Follow-up message 2)
     assert push_collector.count_for_user(host.id) == 3
     push = push_collector.get_for_user(host.id, index=0)
-    assert push.content.title == f"{surfer.name} sent you a host request"
+    assert push.content.title == f"New host request from {surfer.name}"
 
 
 def test_host_request_status_notifications_suppressed_before_approval(db, push_collector: PushCollector, moderator):
@@ -2286,7 +2286,7 @@ def test_host_request_notifications_sent_after_approval(db, push_collector: Push
     # Surfer should have 1 notification (the accept notification)
     assert push_collector.count_for_user(surfer.id) == 1
     push = push_collector.get_for_user(surfer.id, index=0)
-    assert push.content.title == f"{host.name} accepted your host request"
+    assert push.content.title == f"{host.name} accepted your request"
 
     # Surfer confirms - host should be notified
     with requests_session(surfer_token) as api:
@@ -2363,7 +2363,7 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
 
     # User2 should now have 1 notification for the first message sent before approval
     push = push_collector.get_for_user(user2.id)
-    assert push.content.title == f"{user1.name} sent you a message"
+    assert push.content.title == user1.name
     assert push.content.body == "Hello before approval"
 
     # Send a message AFTER approval

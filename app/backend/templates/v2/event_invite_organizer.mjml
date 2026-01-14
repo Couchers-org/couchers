@@ -13,7 +13,7 @@
     <mj-table>
       <tr>
         <td style="width: 100px;">
-          <img width="80px" style="border-radius: 80px" src="{{ inviting_user|v2avatar }}" />
+          <img width="80px" style="border-radius: 80px" src="{{ inviting_user.avatar_url }}" />
         </td>
         <td>
           <b>Invited by {{ inviting_user.name|v2esc }}</b>, {{ inviting_user.age|v2esc }}<br />{{ inviting_user.city|v2esc }}

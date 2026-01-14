@@ -116,6 +116,7 @@ message Event {
   string content = 7; // CommonMark without images
   // empty string if no photo
   string photo_url = 8;
+  string photo_key = 35;
 
   oneof mode {
     OnlineEventInformation online_information = 9;

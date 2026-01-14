@@ -14,7 +14,7 @@
     <mj-table>
       <tr>
         <td style="width: 100px;">
-          <img width="80px" style="border-radius: 80px" src="{{ updating_user|v2avatar }}" />
+          <img width="80px" style="border-radius: 80px" src="{{ updating_user.avatar_url }}" />
         </td>
         <td>
           <b>Updated by {{ updating_user.name|v2esc }}</b>, {{ updating_user.age|v2esc }}<br />{{ updating_user.city|v2esc }}

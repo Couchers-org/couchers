@@ -81,6 +81,7 @@ def _try_get_and_update_user_details(
     with session_scope() as session:
         result = session.execute(
             select(User, UserSession, UserActivity)
+            .select_from(UserSession)
             .join(User, User.id == UserSession.user_id)
             .outerjoin(
                 UserActivity,
@@ -409,7 +410,7 @@ class BadHeaders(Exception):
 
 
 class AbortError(Exception):
-    def __init__(self, msg: str, code: grpc.StatusCode) -> None:
+    def __init__(self, msg: str, code: grpc.StatusCode):
         self.msg = msg
         self.code = code
 
