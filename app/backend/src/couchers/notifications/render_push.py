@@ -9,9 +9,9 @@ from typing import Any, assert_never
 from zoneinfo import ZoneInfo
 
 from couchers import urls
+from couchers.i18n.i18next import LocalizationError
 from couchers.i18n.localize import (
     format_phone_number,
-    get_i18next,
     localize_date_from_iso,
     localize_datetime,
     localize_string,
@@ -180,10 +180,11 @@ class _Renderer:
         if ios_title is None:
             ios_title = localize_string(self.locale, f"{key_prefix}.ios_title", substitutions=substitutions)
         if ios_subtitle is None:
-            # The subtitle is optional, so only check if a string exists
-            string = get_i18next().find_string(f"{key_prefix}.ios_subtitle", self.locale, substitutions=substitutions)
-            if string is not None:
-                ios_subtitle = string.render(substitutions=substitutions)
+            try:
+                ios_subtitle = localize_string(self.locale, f"{key_prefix}.ios_subtitle", substitutions=substitutions)
+            except LocalizationError:
+                # Not all notifications have subtitles
+                pass
         if body is None:
             body = localize_string(self.locale, f"{key_prefix}.body", substitutions=substitutions)
 
