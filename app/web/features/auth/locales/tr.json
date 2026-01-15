@@ -56,7 +56,7 @@
   },
   "reset_password_form": {
     "enter_email": "Kullanıcı adınızı/e-posta adresinizi girin",
-    "success_message": "Şifrenizi sıfırlamak için e-postanızı kontrol edin!"
+    "success_message": "Bu hesapla ilişkili olan emaile bir şifre sıfırlama maili gönderildi. Link bazen emailinin spam kutusuna düşebilir."
   },
   "account_form": {
     "username": {
