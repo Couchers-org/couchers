@@ -436,25 +436,25 @@
       "body": "{{user}} is waiting for your response, please accept or decline the request."
     },
     "host_request__accept": {
-      "title": "{{user}} accepted your request",
+      "title": "{{user}} accepted your host request",
       "ios_title": "{{user}}",
       "ios_subtitle": "Host Request Accepted",
       "body": "{{user}} accepted your host request for {{date}}."
     },
     "host_request__reject": {
-      "title": "{{user}} declined your request",
+      "title": "{{user}} declined your host request",
       "ios_title": "{{user}}",
       "ios_subtitle": "Host Request Declined",
       "body": "{{user}} declined your host request for {{date}}."
     },
     "host_request__cancel": {
-      "title": "{{user}} cancelled their request",
+      "title": "{{user}} cancelled their host request",
       "ios_title": "{{user}}",
       "ios_subtitle": "Host Request Cancelled",
       "body": "{{user}} cancelled their host request for {{date}}."
     },
     "host_request__confirm": {
-      "title": "{{user}} confirmed their request",
+      "title": "{{user}} confirmed their host request",
       "ios_title": "{{user}}",
       "ios_subtitle": "Host Request Confirmed",
       "body": "{{user}} confirmed their host request for {{date}}."
@@ -533,12 +533,12 @@
       "title": "Write your reference for {{user}}",
       "ios_title": "Write Your Reference",
       "ios_subtitle": "{{user}}",
-      "body_must_write_yours_one": "You still have {{count}} day to write a reference for {{user}}.",
-      "body_must_write_yours_other": "You still have {{count}} days to write a reference for {{user}}."
+      "body_one": "You still have {{count}} day to write a reference for {{user}}.",
+      "body_other": "You still have {{count}} days to write a reference for {{user}}."
     },
     "thread__reply": {
       "title": "{{user}} • {{title}}",
-      "ios_title": "{{author}}",
+      "ios_title": "{{user}}",
       "ios_subtitle": "{{title}}"
     },
     "verification__sv_success": {

@@ -688,7 +688,7 @@ class _Renderer:
                 raise Exception("Shouldn't get here")
 
         return self._get_content(
-            NotificationTopicAction.verification__sv_success,
+            NotificationTopicAction.verification__sv_fail,
             body=self._get_string(NotificationTopicAction.verification__sv_fail, body_key),
             action_url=urls.account_settings_link(),
         )
