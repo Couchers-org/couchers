@@ -1,11 +1,13 @@
+*Describe briefly what this PR is doing and why.*
+
 <!--
-Describe briefly what this PR is doing and why.
 Reference issues with "closes #1234", or simply "#1234" if not closing.
 -->
 
-# Testing
+## Testing
+*Explain how you tested this PR and give clear steps so the reviewer can replicate.*
+
 <!--
-Explain how you tested this PR and give clear steps so the reviewer can replicate.
 Include any necessary dev environment adjustments such as editing .env files.
 Fill applicable checklists below, or remove those that don't apply.
 -->
