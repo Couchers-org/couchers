@@ -1,13 +1,13 @@
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text>Hi {{ user.name }},</mj-text>
     <mj-text>I hope you've taken a bit of time to look around the Couchers.org platform!</mj-text>
     <mj-text>We would ask one big favour of you: please fill out your profile by adding a photo and some text.</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ edit_profile_link|v2url }}">
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ edit_profile_link }}">
       <b>Go to edit your profile</b>
     </mj-button>
   </mj-column>

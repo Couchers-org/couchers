@@ -1,18 +1,18 @@
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text>Hi {{ user.name }},</mj-text>
     <mj-text>We published a new blog post:</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-text><b>{{ title|v2esc }}</b></mj-text>
-    <mj-text>{{ blurb|v2esc }}</mj-text>
+    <mj-text><b>{{ title }}</b></mj-text>
+    <mj-text>{{ blurb }}</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ url|v2url }}">
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ url }}">
       <b>Read the post</b>
     </mj-button>
   </mj-column>

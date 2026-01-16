@@ -2,7 +2,7 @@
 <html lang="und" dir="auto" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
 <head>
-  <title>{{ header_subject|v2esc }}</title>
+  <title>{{ header_subject }}</title>
   <!--[if !mso]><!-->
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <!--<![endif]-->
@@ -95,8 +95,8 @@
 </head>
 
 <body style="word-spacing:normal;background-color:#eeeeee;">
-  <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">{{ header_preview|v2esc }}</div>
-  <div aria-label="{{ header_subject|v2esc }}" aria-roledescription="email" style="background-color:#eeeeee;" role="article" lang="und" dir="auto">
+  <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">{{ header_preview }}</div>
+  <div aria-label="{{ header_subject }}" aria-roledescription="email" style="background-color:#eeeeee;" role="article" lang="und" dir="auto">
     <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
     <div style="margin:0px auto;max-width:600px;">
       <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
@@ -167,7 +167,7 @@
                             <tbody>
                               <tr>
                                 <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">Hi {{ flow.name|v2esc }},</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#333333;">Hi {{ flow.name }},</div>
                                 </td>
                               </tr>
                               <tr>
@@ -205,7 +205,7 @@
                                     <tbody>
                                       <tr>
                                         <td align="center" bgcolor="#00a398" role="presentation" style="border:none;border-radius:5px;cursor:auto;mso-padding-alt:10px 25px;background:#00a398;" valign="middle">
-                                          <a href="{{ signup_link|v2url }}" style="display: inline-block; background: #00a398; color: white; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 5px;" target="_blank">
+                                          <a href="{{ signup_link }}" style="display: inline-block; background: #00a398; color: white; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 5px;" target="_blank">
                                             <b>Finish signing up</b>
                                           </a>
                                         </td>
@@ -277,7 +277,7 @@
                               </tr>
                               <tr>
                                 <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:12px;text-align:center;color:#333333;">You're receiving this email because you signed up for Couchers.org.<br> You can reach our support team at <a href="mailto:support@couchers.org" style="color: #00a398;">support@couchers.org</a>.<br> All times are in {{ footer_timezone_name|v2sf }}, based on your profile location.</div>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:10px;line-height:12px;text-align:center;color:#333333;">You're receiving this email because you signed up for Couchers.org.<br> You can reach our support team at <a href="mailto:support@couchers.org" style="color: #00a398;">support@couchers.org</a>.<br> All times are in {{ footer_timezone_name }}, based on your profile location.</div>
                                 </td>
                               </tr>
                               <tr>
@@ -287,7 +287,7 @@
                               </tr>
                               <tr>
                                 <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:8px;line-height:10px;text-align:center;color:#333333;">&copy; {{ footer_copyright_year|v2sf }} Couchers, Inc.<br> 3120 Winkler Ave, Unit 9. Fort Myers, FL 33916, USA.<br>
+                                  <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:8px;line-height:10px;text-align:center;color:#333333;">&copy; {{ footer_copyright_year }} Couchers, Inc.<br> 3120 Winkler Ave, Unit 9. Fort Myers, FL 33916, USA.<br>
                                     <i>Couchers.org is a project of Couchers, Inc. a U.S. 501(c)(3) non-profit, tax-exempt organization.</i>
                                   </div>
                                 </td>
