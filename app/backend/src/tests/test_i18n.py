@@ -1,6 +1,6 @@
 import pytest
 
-from couchers.i18n.localize import get_i18next
+from couchers.i18n.localize import get_main_i18next
 
 
 @pytest.fixture(autouse=True)
@@ -10,7 +10,7 @@ def _(testconfig):
 
 def test_translations_loaded():
     """Test that translations are loaded from JSON files"""
-    i18next = get_i18next()
+    i18next = get_main_i18next()
 
     # Should have at least English errors loaded
     en_lang = i18next.languages_by_code.get("en")
@@ -23,7 +23,7 @@ def test_translations_loaded():
 
 def test_fallback_chain():
     """Test that fallbacks are correctly set up"""
-    i18next = get_i18next()
+    i18next = get_main_i18next()
 
     # Example: fr-CA should fallback to fr, which should fallback to en
     fr_CA = i18next.languages_by_code["fr-CA"]

@@ -2,19 +2,21 @@
 Renders a Notification model into a localized push notification.
 """
 
+from functools import lru_cache
 import logging
 from dataclasses import dataclass
 from datetime import date
+from pathlib import Path
 from typing import Any, assert_never
 from zoneinfo import ZoneInfo
 
 from couchers import urls
-from couchers.i18n.i18next import LocalizationError
+from couchers.i18n.i18next import I18Next, LocalizationError
 from couchers.i18n.localize import (
     format_phone_number,
+    load_i18next,
     localize_date_from_iso,
     localize_datetime,
-    localize_string,
 )
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.push import PushNotificationContent
@@ -29,7 +31,6 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
     data: Any = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     renderer = _Renderer(locale=user.ui_language_preference or "en", timezone=ZoneInfo(user.timezone or "Etc/UTC"))
     return renderer.render(notification.topic_action, data, notification.key)
-
 
 @dataclass(frozen=True)
 class _Renderer:
@@ -172,21 +173,19 @@ class _Renderer:
 
         Localized strings have the provided substitutions applied.
         """
-        key_prefix = self._get_string_key_prefix(string_group)
-
         # Look up the localized string for any string that was not provided
         if title is None:
-            title = localize_string(self.locale, f"{key_prefix}.title", substitutions=substitutions)
+            title = self._get_string(string_group, "title", substitutions)
         if ios_title is None:
-            ios_title = localize_string(self.locale, f"{key_prefix}.ios_title", substitutions=substitutions)
+            ios_title = self._get_string(string_group, "ios_title", substitutions)
         if ios_subtitle is None:
             try:
-                ios_subtitle = localize_string(self.locale, f"{key_prefix}.ios_subtitle", substitutions=substitutions)
+                ios_subtitle = self._get_string(string_group, "ios_subtitle", substitutions)
             except LocalizationError:
                 # Not all notifications have subtitles
                 pass
         if body is None:
-            body = localize_string(self.locale, f"{key_prefix}.body", substitutions=substitutions)
+            body = self._get_string(string_group, "body", substitutions)
 
         icon_url = self._avatar_url_or_default(icon_user) if icon_user else None
 
@@ -197,13 +196,10 @@ class _Renderer:
     def _get_string(
         self, string_group: NotificationTopicAction | str, key: str, substitutions: dict[str, str | int] | None = None
     ) -> str:
-        key = f"{self._get_string_key_prefix(string_group)}.{key}"
-        return localize_string(self.locale, key, substitutions=substitutions)
-
-    def _get_string_key_prefix(self, string_group: NotificationTopicAction | str) -> str:
         if isinstance(string_group, NotificationTopicAction):
             string_group = string_group.display.replace(":", "__")
-        return f"push_notifs.{string_group}"
+        key = f"push.{string_group}.{key}"
+        return _get_notifs_i18next().localize(key, self.locale, substitutions)
 
     def _avatar_url_or_default(self, user: api_pb2.User) -> str:
         return user.avatar_thumbnail_url or urls.icon_url()
@@ -692,3 +688,8 @@ class _Renderer:
             body=self._get_string(NotificationTopicAction.verification__sv_fail, body_key),
             action_url=urls.account_settings_link(),
         )
+
+@lru_cache(maxsize=1)
+def _get_notifs_i18next() -> I18Next:
+    """Gets the I18Next instance for notifications."""
+    return load_i18next(Path(__file__).parent / "locales")
