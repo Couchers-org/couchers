@@ -2,10 +2,10 @@
 Renders a Notification model into a localized push notification.
 """
 
-from functools import lru_cache
 import logging
 from dataclasses import dataclass
 from datetime import date
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, assert_never
 from zoneinfo import ZoneInfo
@@ -31,6 +31,7 @@ def render_push_notification(user: User, notification: Notification) -> PushNoti
     data: Any = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     renderer = _Renderer(locale=user.ui_language_preference or "en", timezone=ZoneInfo(user.timezone or "Etc/UTC"))
     return renderer.render(notification.topic_action, data, notification.key)
+
 
 @dataclass(frozen=True)
 class _Renderer:
@@ -688,6 +689,7 @@ class _Renderer:
             body=self._get_string(NotificationTopicAction.verification__sv_fail, body_key),
             action_url=urls.account_settings_link(),
         )
+
 
 @lru_cache(maxsize=1)
 def _get_notifs_i18next() -> I18Next:
