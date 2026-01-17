@@ -117,7 +117,8 @@
       "midway": "Auf halbem Weg",
       "just_started": "Gerade angefangen"
     },
-    "error_loading_languages": "Das Laden der Sprachoptionen ist fehlgeschlagen. Bitte versuche es später erneut."
+    "error_loading_languages": "Das Laden der Sprachoptionen ist fehlgeschlagen. Bitte versuche es später erneut.",
+    "current_preferred_language": "Deine bevorzugte Sprache ist derzeit <lang>{{language}}</lang>."
   },
   "meetup_status": {
     "wants_to_meetup": "Möchte sich treffen",
