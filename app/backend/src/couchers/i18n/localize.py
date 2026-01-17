@@ -16,20 +16,17 @@ from couchers.utils import to_aware_datetime
 
 
 @lru_cache(maxsize=1)
-def get_i18next() -> I18Next:
-    """
-    Load all translation files from the locales directory and apply fallbacks.
+def get_main_i18next() -> I18Next:
+    """Gets the I18Next instance for the main locales files."""
+    return load_i18next(Path(__file__).parent / "locales")
 
-    Returns:
-        An I18Next object that can localize the application strings.
 
-    The result is cached so that translations are only loaded once per process.
-    """
+def load_i18next(locales_dir: Path) -> I18Next:
+    """Load all translation files from a locales directory and apply fallbacks."""
 
     i18next = I18Next()
 
     # Load all locale JSON files from the locales directory
-    locales_dir = Path(__file__).parent / "locales"
     for locale_file in locales_dir.glob("*.json"):
         lang_code = locale_file.stem  # e.g., "en" from "en.json"
 
@@ -71,7 +68,7 @@ def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, s
     Returns:
         The translated string with substitutions applied
     """
-    return get_i18next().localize(key, lang or "en", substitutions)
+    return get_main_i18next().localize(key, lang or "en", substitutions)
 
 
 def localize_date(value: date, locale: str) -> str:

@@ -1364,7 +1364,7 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
 
-    assert push_collector.get_for_user(surfer.id).content.title == f"{host.name} accepted your request"
+    assert push_collector.get_for_user(surfer.id).content.title == f"{host.name} accepted your host request"
 
 
 def test_quick_decline(db, push_collector: PushCollector, moderator):
