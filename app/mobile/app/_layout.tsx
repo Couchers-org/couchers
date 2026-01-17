@@ -68,7 +68,6 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   // - Removes screens that are no longer accessible
   // - Resets the navigation state appropriately
   // - Prevents back navigation to screens that shouldn't be accessible
-  // This eliminates the need for manual CommonActions.reset or setTimeout hacks
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={authenticated}>
