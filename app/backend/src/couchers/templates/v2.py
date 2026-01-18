@@ -60,7 +60,7 @@ class Context:
 
 def _make_jinja_env(context: Context) -> Environment:
     env = Environment(trim_blocks=True)
-    env.autoescape = False # We do escaping in _format_default
+    env.autoescape = False  # We do escaping in _format_default
     env.finalize = lambda value: _format_default(value, context)
     env.filters["multiline"] = _filter_multiline
     env.filters["quotelines"] = _filter_quotelines
@@ -71,6 +71,7 @@ def _make_jinja_env(context: Context) -> Environment:
     env.filters["datetime"] = _filter_datetime
     env.filters["translate"] = _filter_translate
     return env
+
 
 def _format_default(value: Any, context: Context) -> str:
     """Formats a placeholder value into a jinja template with useful defaults."""
@@ -94,7 +95,7 @@ def _filter_multiline(jinja_context: JinjaContext, value: Any) -> str | Markup:
     """Converts newlines to HTML line breaks, if rendering HTML."""
     context = Context.from_jinja(jinja_context)
     if Context.from_jinja(jinja_context).output_html:
-        value = _format_default(value, context) # Escape input HTML unless Markup()
+        value = _format_default(value, context)  # Escape input HTML unless Markup()
         return Markup(value.replace("\n", "<br>"))
     else:
         return value
