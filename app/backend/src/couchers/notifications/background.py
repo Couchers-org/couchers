@@ -1,4 +1,5 @@
 import logging
+from dataclasses import replace
 from zoneinfo import ZoneInfo
 
 from google.protobuf import empty_pb2
@@ -41,7 +42,9 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     locale = "en"
     if config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
         locale = user.ui_language_preference or "en"
-    timezone = ZoneInfo(user.timezone or "Etc/UTC")
+
+    html_context = Context(output_html=True, timezone=ZoneInfo(user.timezone or "Etc/UTC"), locale=email_lang)
+    plaintext_context = replace(html_context, output_html=False)
 
     template_args = {
         **rendered.template_args,
@@ -63,13 +66,11 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     # Format plaintext template
     plain_tmplt = (template_folder / f"{rendered.template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain = render_template(
-        plain_tmplt + plain_tmplt_footer, template_args, Context(timezone=timezone, locale=locale, plaintext=True)
-    )
+    plain = render_template(plain_tmplt + plain_tmplt_footer, template_args, plaintext_context)
 
     # Format html template
     html_tmplt = (template_folder / "generated_html" / f"{rendered.template_name}.html").read_text()
-    html = render_template(html_tmplt, template_args, Context(timezone=timezone, locale=locale, plaintext=False))
+    html = render_template(html_tmplt, template_args, html_context)
 
     if user.do_not_email and not rendered.is_critical:
         logger.info(f"Not emailing {user} based on template {rendered.template_name} due to emails turned off")

@@ -34,13 +34,29 @@ def send_simple_pretty_email(
     # Format plaintext template
     plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain_context = Context(timezone=timezone, locale="en", plaintext=True)
-    plain = render_template(plain_tmplt + plain_tmplt_footer, template_args, plain_context)
+    plain = render_template(
+        plain_tmplt + plain_tmplt_footer,
+        template_args,
+        Context(
+            output_html=False,
+            # Not yet localizable
+            timezone=ZoneInfo("Etc/UTC"),
+            locale="en",
+        ),
+    )
 
     # Format html template
     html_tmplt = (template_folder / "generated_html" / f"{template_name}.html").read_text()
-    html_context = Context(timezone=timezone, locale="en", plaintext=False)
-    html = render_template(html_tmplt, template_args, html_context)
+    html = render_template(
+        html_tmplt,
+        template_args,
+        Context(
+            output_html=True,
+            # Not yet localizable
+            timezone=ZoneInfo("Etc/UTC"),
+            locale="en",
+        ),
+    )
 
     queue_email(
         session,
