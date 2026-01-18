@@ -43,6 +43,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     timezone = ZoneInfo(user.timezone or "Etc/UTC")
 
     template_args = {
+        **rendered.template_args,
         "header_subject": rendered.subject,
         "header_preview": rendered.preview,
         "user": user,
@@ -55,7 +56,6 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         "footer_notification_topic_key": rendered.topic_key_unsubscribe_text,
         "footer_notification_topic_key_link": generate_unsub_topic_key(notification),
         "footer_do_not_email_link": generate_do_not_email(user),
-        **rendered.template_args,
     }
 
     # Format plaintext template

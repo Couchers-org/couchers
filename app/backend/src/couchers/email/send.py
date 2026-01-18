@@ -22,7 +22,7 @@ def send_simple_pretty_email(
         **template_args,
         "header_subject": subject,
         "footer_copyright_year": now().year,
-        "footer_email_is_critical": True  # Results in no unsubscribe footer.
+        "footer_email_is_critical": True,  # Results in no unsubscribe footer.
     }
 
     # Format plaintext template
