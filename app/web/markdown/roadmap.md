@@ -82,7 +82,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="1"</td>
-	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Host Address Verification</td>
+	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Host Address Verification</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -230,7 +230,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="3"</td>
-      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Translate Couchers to Spanish</td>
+      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Translate Couchers to Spanish</td>
     </tr>
     <tr >
       <td rowspan="15" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Operations</td>
@@ -243,7 +243,7 @@ hide_title: true
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Attract New Volunteers</td>
     </tr>
     <tr >
-      <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Grow Community to 100k Members</td>
+      <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Grow Community to 100k Members</td>
     </tr>
     <tr >
       <td colspan="1"</td>
@@ -279,7 +279,7 @@ hide_title: true
     </tr>
     <tr >
       <td colspan="3"</td>
-      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">✔️ Create New Moderation Dashboard for Mods</td>
+      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Create New Moderation Dashboard for Mods</td>
     </tr>
     <tr >
       <td colspan="3"</td>
@@ -292,7 +292,7 @@ hide_title: true
   </tbody>
 </table>
 
-✅Completed ✔️Partially completed
+✅Completed <span class="partial-check">✔️</span>Partially completed
 
 ## About the Roadmap
 

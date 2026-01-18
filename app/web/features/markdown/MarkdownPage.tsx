@@ -117,6 +117,16 @@ const StyledMarkdown = styled("div")(({ theme }) => ({
       background:
         "linear-gradient(to right, rgba(254, 152, 42, 0.3), transparent) !important",
     },
+  // Completed items with green gradient - fade to dark background instead of white
+  '[data-mui-color-scheme="dark"] & td[style*="linear-gradient(to right, #20686C"]':
+    {
+      background:
+        "linear-gradient(to right, #20686C, #00A398, #313539) !important",
+    },
+  // Partially completed checkmark - make it white in dark mode
+  '[data-mui-color-scheme="dark"] & .partial-check': {
+    filter: "grayscale(1) brightness(10)",
+  },
 }));
 
 const StyledTitle = styled(Typography)(({ theme }) => ({
