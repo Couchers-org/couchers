@@ -29,6 +29,9 @@ import { useRegisterPushNotifications } from "@/features/notifications/useRegist
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { getNotificationPath } from "@/utils/getNotificationPath";
 
+// Module-level Set to track handled notification IDs (persists across component remounts)
+const handledNotificationIds = new Set<string>();
+
 const IS_PROD =
   (process.env.NEXT_PUBLIC_COUCHERS_ENV ||
     process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
@@ -65,7 +68,6 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   // - Removes screens that are no longer accessible
   // - Resets the navigation state appropriately
   // - Prevents back navigation to screens that shouldn't be accessible
-  // This eliminates the need for manual CommonActions.reset or setTimeout hacks
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={authenticated}>
@@ -110,34 +112,73 @@ export default function RootLayout() {
 }
 
 /**
- * Handles push notification navigation following Expo's recommended pattern.
- * @see https://docs.expo.dev/versions/latest/sdk/notifications/#handle-push-notifications-with-navigation
+ * Generates a unique ID for a notification response to prevent duplicate handling.
+ */
+function getNotificationResponseId(
+  response: Notifications.NotificationResponse,
+): string {
+  return response.notification.request.identifier + response.notification.date;
+}
+
+/**
+ * Handles navigation from a notification response.
+ * Uses module-level Set to track handled notifications (persists across remounts).
+ */
+function handleNotificationResponse(
+  response: Notifications.NotificationResponse,
+): void {
+  if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) {
+    return;
+  }
+
+  const responseId = getNotificationResponseId(response);
+
+  // Skip if already handled
+  if (handledNotificationIds.has(responseId)) {
+    return;
+  }
+  handledNotificationIds.add(responseId);
+
+  const url = response.notification.request.content.data?.url as
+    | string
+    | undefined;
+  const path = getNotificationPath(url);
+
+  if (path) {
+    router.push(path as Href);
+  }
+}
+
+/**
+ * Handles push notification deep linking using Expo's listener-based pattern.
+ * - Cold start: getLastNotificationResponse() called once when auth is ready
+ * - Foreground/background: addNotificationResponseReceivedListener for interactions
+ * @see https://docs.expo.dev/versions/latest/sdk/notifications/#notification-event-listeners
  */
 function useNotificationObserver() {
+  const { authenticated, checkedAuthStatus } = useAuthContext();
+
   useEffect(() => {
-    function redirect(notification: Notifications.Notification) {
-      const url = notification.request.content.data?.url as string | undefined;
-      const path = getNotificationPath(url);
-      if (path) {
-        router.push(path as Href);
-      }
+    // Wait for auth to be checked and user to be authenticated
+    if (!checkedAuthStatus || !authenticated) return;
+
+    // Handle cold start: check if app was opened from a notification tap
+    const initialResponse = Notifications.getLastNotificationResponse();
+    if (initialResponse) {
+      handleNotificationResponse(initialResponse);
     }
 
-    // Handle cold start: check if app was opened via notification tap
-    const response = Notifications.getLastNotificationResponse();
-    if (response?.notification) {
-      redirect(response.notification);
-    }
-
-    // Handle warm start: listen for notification taps while app is running
+    // Handle foreground/background: listen for notification interactions
     const subscription = Notifications.addNotificationResponseReceivedListener(
       (response) => {
-        redirect(response.notification);
+        handleNotificationResponse(response);
       },
     );
 
-    return () => subscription.remove();
-  }, []);
+    return () => {
+      subscription.remove();
+    };
+  }, [authenticated, checkedAuthStatus]);
 }
 
 function PushNotificationsRegistrar() {
