@@ -6,6 +6,7 @@ import logging
 import re
 from dataclasses import dataclass, field
 from datetime import date, datetime, time
+from functools import lru_cache
 from html import escape
 from pathlib import Path
 from typing import Any, ClassVar
@@ -18,7 +19,7 @@ from markdown_it import MarkdownIt
 from markupsafe import Markup
 
 from couchers.i18n.i18next import I18Next
-from couchers.i18n.localize import get_i18next, localize_date, localize_datetime, localize_time
+from couchers.i18n.localize import get_main_i18next, localize_date, localize_datetime, localize_time
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ def render_template(template: str, args: dict[str, Any], context: Context) -> st
     """Renders an a jinja2 template which may use our jinja2 filters."""
 
     args = {**args, Context.KEY: context}
-    return _make_jinja_env(context).from_string(template).render(args)
+    return _get_jinja_env().from_string(template).render(args)
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -49,7 +50,7 @@ class Context:
     timezone: ZoneInfo
     """The timezone to use when formatting times."""
 
-    i18next: I18Next = field(default_factory=get_i18next)
+    i18next: I18Next = field(default_factory=get_main_i18next)
     """The I18Next instance to be used to resolve localized strings."""
 
     @staticmethod
@@ -58,10 +59,11 @@ class Context:
         return context
 
 
-def _make_jinja_env(context: Context) -> Environment:
+@lru_cache(maxsize=1)
+def _get_jinja_env() -> Environment:
     env = Environment(trim_blocks=True)
-    env.autoescape = False  # We do escaping in _format_default
-    env.finalize = lambda value: _format_default(value, context)
+    env.autoescape = False  # We do escaping in _finalize
+    env.finalize = _finalize
     env.filters["multiline"] = _filter_multiline
     env.filters["quotelines"] = _filter_quotelines
     env.filters["markdown"] = _filter_markdown
@@ -71,6 +73,11 @@ def _make_jinja_env(context: Context) -> Environment:
     env.filters["datetime"] = _filter_datetime
     env.filters["translate"] = _filter_translate
     return env
+
+
+@pass_context
+def _finalize(jinja_context: JinjaContext, value: Any) -> str:
+    return _format_default(value, Context.from_jinja(jinja_context))
 
 
 def _format_default(value: Any, context: Context) -> str:
