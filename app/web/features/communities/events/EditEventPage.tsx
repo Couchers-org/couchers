@@ -6,7 +6,7 @@ import HtmlMeta from "components/HtmlMeta";
 import NotFoundPage from "features/NotFoundPage";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { service } from "service";
 import type { UpdateEventInput } from "service/events";
@@ -19,7 +19,7 @@ import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
 
 export default function EditEventPage({ eventId }: { eventId: number }) {
-  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES, PROFILE]);
   const router = useRouter();
 
   const {

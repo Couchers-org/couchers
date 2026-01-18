@@ -1,7 +1,7 @@
 export default {
   name: "Couchers",
   slug: "mobile",
-  version: "1.1.5",
+  version: "1.1.7",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   scheme: "couchers",
@@ -33,6 +33,14 @@ export default {
   },
   plugins: [
     "expo-router",
+    [
+      "expo-build-properties",
+      {
+        ios: {
+          enableUserScriptSandboxing: false,
+        },
+      },
+    ],
     [
       "expo-splash-screen",
       {

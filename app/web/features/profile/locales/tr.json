@@ -29,7 +29,7 @@
     "lived_section": "Yaşadığı Ülkeler",
     "map_section": "Yolculuk haritası",
     "age_verification_verified": "Bu kullanıcı doğum tarihini doğruladı",
-    "hometown": "'da büyüdü",
+    "hometown": "Büyüdüğü yer",
     "hosting_status": "Ev sahipliği durumu",
     "joined": "Koltuk sörfüne başlama tarihi",
     "languages_conversational": "Dillerde konuşabiliyor",
@@ -44,7 +44,11 @@
   "section_tabs_a11y_label": "kullanıcı detayları için sekmeler",
   "incomplete_dialog": {
     "description": "Şunu tamamlayana dek istekler ve mesajlar göndermeyeceksin ve etkinlikler oluşturamayacaksın:",
-    "continue_editing": "Düzenlemeye devam et"
+    "continue_editing": "Düzenlemeye devam et",
+    "title": "Profil Eksik",
+    "about_me_message": "''Ben Kimim'' bölümünü en az 150 karakter uzunluğunda yapmalısın.",
+    "missing_photo_message": "Profil fotoğrafı ekle.",
+    "save_anyway": "Yine de kaydet?"
   },
   "edit": "Profili Düzenle",
   "leave_reference": {
@@ -52,6 +56,51 @@
   },
   "home_info_headings": {
     "about_home": "Evim hakkında",
-    "general": "Genel"
-  }
+    "general": "Genel",
+    "has_kids": "Çocukları var",
+    "has_pets": "Evcil hayvanları var",
+    "host_smoking": "Evde sigara içer",
+    "host_drinking": "Evde içki içer",
+    "hosting_preferences": "Ev Sahipliği Tercihleri",
+    "house_rules": "Ev kuralları",
+    "housemates": "Ev arkadaşları",
+    "housemate_details": "Ev arkadaşı detayları",
+    "last_minute": "Son dakika istekleri kabul eder",
+    "local_area": "Yerel bölge bilgisi",
+    "max_guests": "Maksimum misafir sayısı",
+    "my_home": "Evim",
+    "parking": "Otopark mevcut",
+    "transportation": "Ulaşım, Otopark, Erişilebilirlik",
+    "other_info": "Ek bilgiler",
+    "parking_heading": "Otopark",
+    "household_details": "Ev Halkı Detayları",
+    "household_members": "Ev Halkının Üyeleri",
+    "household_habits": "Ev Halkının Alışkanlıkları",
+    "household_details_subtitle": "Ev halkın hakkında daha fazla detay ver",
+    "general_subtitle": "Eviniz ve çevresi hakkında ek detaylar",
+    "sleeping_arrangement": "Uyku düzeni",
+    "space": "Uyurken gizlilik",
+    "wheelchair": "Tekerlekli sandalye ile erişilebilir",
+    "kid_details": "Çocuk detayları",
+    "parking_details": "Otopark detayları",
+    "pet_details": "Evcil hayvan detayları",
+    "about_home_subtitle": "Misafirlere ev hakkında ve evde neler bekleyebileceği hakkında birşeyler de",
+    "has_housemates": "Ev arkadaşları var",
+    "home_facilities": "Ev Olanakları"
+  },
+  "edit_profile_headings": {
+    "regions_visited": "Ziyaret Ettiğim Bölgeler",
+    "regions_lived": "Yaşamış Olduğum Bölgeler",
+    "gender": "Cinsiyet",
+    "languages_spoken": "Akıcı şekilde konuştuğum diller",
+    "meetup_status": "Buluşma durumu",
+    "hosting_status": "Ev sahipliği durumu",
+    "pronouns": "Kişi Zamirleri (Cinsiyet Ekleri)",
+    "hometown": "Büyüdüğü yer",
+    "occupation": "Meslek",
+    "education": "Eğitim",
+    "basic_information": "Temel Bilgiler",
+    "name": "İsim"
+  },
+  "edit_profile_helper_text": "Nereden başlayağına karar vermek için ilham mı arıyorsun? <2>Harika bir profil yaratmak üzerine olan rehberimize bak</2>."
 }

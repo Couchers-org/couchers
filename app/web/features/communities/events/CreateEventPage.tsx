@@ -1,6 +1,7 @@
 import { styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
+import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon } from "components/Icons";
@@ -8,7 +9,7 @@ import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileI
 import useAccountInfo from "features/auth/useAccountInfo";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Event } from "proto/events_pb";
 import { dashboardRoute, eventsRoute, routeToEvent } from "routes";
@@ -20,6 +21,7 @@ import stringOrFirstString from "utils/stringOrFirstString";
 
 import { communityEventsBaseKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
+import { useEvent } from "./hooks";
 
 const StyledBackButton = styled(HeaderButton)(() => ({
   gridArea: "backButton",
@@ -29,7 +31,7 @@ const StyledBackButton = styled(HeaderButton)(() => ({
 }));
 
 export default function CreateEventPage() {
-  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const { t } = useTranslation([GLOBAL, COMMUNITIES, PROFILE]);
   const router = useRouter();
 
   const urlCommunityIdString =
@@ -40,6 +42,21 @@ export default function CreateEventPage() {
     urlCommunityIdString && !isNaN(Number.parseInt(urlCommunityIdString))
       ? Number.parseInt(urlCommunityIdString)
       : undefined;
+
+  const duplicateEventIdString =
+    typeof window !== "undefined"
+      ? stringOrFirstString(router.query.duplicateEventId)
+      : undefined;
+  const duplicateEventId =
+    duplicateEventIdString && !isNaN(Number.parseInt(duplicateEventIdString))
+      ? Number.parseInt(duplicateEventIdString)
+      : undefined;
+
+  const {
+    data: eventToDuplicate,
+    isLoading: isDuplicateEventLoading,
+    error: duplicateEventError,
+  } = useEvent({ eventId: duplicateEventId!, enabled: !!duplicateEventId });
 
   const queryClient = useQueryClient();
   const {
@@ -67,12 +84,16 @@ export default function CreateEventPage() {
         .add(endTime.get("minute"), "minute")
         .toDate();
 
+      // Use uploaded photo, or reuse photo from event being duplicated
+      const photoKey =
+        data.eventImage || eventToDuplicate?.photoKey || undefined;
+
       if (data.isOnline) {
         createEventInput = {
           isOnline: data.isOnline,
           title: data.title,
           content: data.content,
-          photoKey: data.eventImage,
+          photoKey,
           startTime: finalStartDate,
           endTime: finalEndDate,
           // TODO: not hardcode this and allow user to specify community ID?
@@ -84,7 +105,7 @@ export default function CreateEventPage() {
           isOnline: data.isOnline,
           title: data.title,
           content: data.content,
-          photoKey: data.eventImage,
+          photoKey,
           startTime: finalStartDate,
           endTime: finalEndDate,
           address: data.location.name,
@@ -127,6 +148,10 @@ export default function CreateEventPage() {
     }
   };
 
+  if (isDuplicateEventLoading) {
+    return <CenteredSpinner />;
+  }
+
   return (
     <>
       <HtmlMeta title={t("communities:create_event_page_title")} />
@@ -139,11 +164,12 @@ export default function CreateEventPage() {
         <BackIcon />
       </StyledBackButton>
       <EventForm
-        error={error}
+        error={error || duplicateEventError}
         isMutationLoading={isPending}
         mutate={createEvent}
         title={t("communities:create_event_page_title")}
         isEdit={false}
+        event={eventToDuplicate}
       >
         {({ isMutationLoading }) => (
           <>

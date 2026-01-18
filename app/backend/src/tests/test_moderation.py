@@ -2286,7 +2286,7 @@ def test_host_request_notifications_sent_after_approval(db, push_collector: Push
     # Surfer should have 1 notification (the accept notification)
     assert push_collector.count_for_user(surfer.id) == 1
     push = push_collector.get_for_user(surfer.id, index=0)
-    assert push.content.title == f"{host.name} accepted your request"
+    assert push.content.title == f"{host.name} accepted your host request"
 
     # Surfer confirms - host should be notified
     with requests_session(surfer_token) as api:

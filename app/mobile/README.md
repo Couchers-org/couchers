@@ -37,10 +37,11 @@ For JavaScript/TypeScript changes (most development), just run Metro and your ch
 - Install **CocoaPods**: `brew install cocoapods`
 
 **iOS Physical Device Setup:**
-1. Open `ios/Couchers.xcworkspace` in Xcode
-2. Go to **Signing & Capabilities** tab
-3. Enable **"Automatically manage signing"** and select your Team
-4. Connect your iPhone via USB, enable developer mode
+
+Follow instructions here to set up XCode and connect your certificates and signing info:
+https://github.com/expo/fyi/blob/main/setup-xcode-signing.md
+
+Connect your iPhone via USB, enable developer mode in Settings > Privacy > Enable Developer Mode (it might ask to restart device)
 
 **Android:**
 - Follow the **[Expo Android Studio Emulator guide](https://docs.expo.dev/workflow/android-studio-emulator/)** to install Android Studio, Java, and configure environment variables

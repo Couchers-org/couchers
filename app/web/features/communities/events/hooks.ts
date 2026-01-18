@@ -76,13 +76,19 @@ export function useEventAttendees({
   };
 }
 
-export function useEvent({ eventId }: { eventId: number }) {
+export function useEvent({
+  eventId,
+  enabled,
+}: {
+  eventId: number;
+  enabled?: boolean;
+}) {
   const isValidEventId = eventId > 0;
 
   const eventQuery = useQuery<Event.AsObject, RpcError>({
     queryKey: eventKey(eventId),
     queryFn: () => service.events.getEvent(eventId),
-    enabled: isValidEventId,
+    enabled: enabled !== undefined ? enabled && isValidEventId : isValidEventId,
   });
 
   return {
