@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from couchers.config import config
 from couchers.email import queue_email
-from couchers.templates.v2 import CONTEXT_YEAR_KEY, Context, render_template, template_folder
+from couchers.templates.v2 import Context, render_template, template_folder
 from couchers.utils import now
 
 
@@ -18,9 +18,12 @@ def send_simple_pretty_email(
     It's for the few security emails where we don't have a user to email but send directly to an email address.
     """
 
-    template_args[CONTEXT_YEAR_KEY] = now().year
-    template_args["header_subject"] = subject
-    template_args["footer_email_is_critical"] = True  # Results in no unsubscribe footer.
+    template_args = {
+        **template_args,
+        "header_subject": subject,
+        "footer_copyright_year": now().year,
+        "footer_email_is_critical": True  # Results in no unsubscribe footer.
+    }
 
     # Format plaintext template
     plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
