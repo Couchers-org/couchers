@@ -104,8 +104,10 @@ def _filter_multiline(jinja_context: JinjaContext, value: Any) -> str | Markup:
     if Context.from_jinja(jinja_context).output_html:
         value = _format_default(value, context)  # Escape input HTML unless Markup()
         return Markup(value.replace("\n", "<br>"))
-    else:
+    elif isinstance(value, Markup):
         return value
+    else:
+        return _format_default(value, context)
 
 
 @pass_context
@@ -202,8 +204,12 @@ def _replace_html_tag_match(match: re.Match[str]) -> str:
         # <a href="url">text</a> -> <url>
         # If no url, fallback to text.
         href_attr = re.search(r'\bhref="([^"]+)"', match.group("attrs"))
-        plaintext = href_attr.group(1) if href_attr else inner_text
-        return f"<{plaintext}>"
+        link_text: str
+        if href_attr:
+            link_text = href_attr.group(1).removeprefix("mailto:")
+        else:
+            link_text = inner_text
+        return f"<{link_text}>"
     else:
         # <b>hello</b> -> hello
         return inner_text

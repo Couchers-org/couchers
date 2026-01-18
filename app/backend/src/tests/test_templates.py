@@ -137,3 +137,12 @@ def test_translate_plain_strip_links() -> None:
         output_html=False,
     )
     assert rendered == "<https://example.com>"
+
+
+def test_translate_plain_strip_mailto() -> None:
+    rendered = _render_template(
+        '{{ "greeting"|translate }}',
+        translation_dict=_greeting_dict('<a href="mailto:me@example.com">Hello!</a>'),
+        output_html=False,
+    )
+    assert rendered == "<me@example.com>"
