@@ -1,7 +1,7 @@
 {
   "name": "couchers.org",
   "main": "expo-router/entry",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "scripts": {
     "start": "expo start",
     "start:localhost": "expo start --localhost",
