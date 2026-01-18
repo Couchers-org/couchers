@@ -258,7 +258,7 @@ describe("Event page", () => {
     expect(duplicateButton).toHaveAttribute("tabIndex", "-1");
   });
 
-  it("disables the 'duplicate event' button for past events", async () => {
+  it("allows duplicating past events", async () => {
     const pastEvent = {
       ...firstEvent,
       creatorUserId: 1,
@@ -270,8 +270,8 @@ describe("Event page", () => {
     const duplicateButton = await screen.findByRole("button", {
       name: t("communities:duplicate_event"),
     });
-    expect(duplicateButton).toBeDisabled();
-    expect(duplicateButton).toHaveAttribute("tabIndex", "-1");
+    expect(duplicateButton).toBeEnabled();
+    expect(duplicateButton).not.toHaveAttribute("tabIndex", "-1");
   });
 
   it("navigates to create event page with duplicate query param when clicked", async () => {

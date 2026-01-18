@@ -339,7 +339,7 @@ export default function EventPage({
                     {isCreator && (
                       <Tooltip
                         title={
-                          event.isCancelled || isPastEvent
+                          event.isCancelled
                             ? ""
                             : t("communities:duplicate_event")
                         }
@@ -349,9 +349,9 @@ export default function EventPage({
                             onClick={() =>
                               router.push(routeToDuplicateEvent(event.eventId))
                             }
-                            disabled={event.isCancelled || isPastEvent}
+                            disabled={event.isCancelled}
                             aria-label={t("communities:duplicate_event")}
-                            tabIndex={event.isCancelled || isPastEvent ? -1 : 0}
+                            tabIndex={event.isCancelled ? -1 : 0}
                           >
                             <ContentCopyOutlined />
                           </StyledIconButton>
