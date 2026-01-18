@@ -15,11 +15,11 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   padding: theme.spacing(4, 2),
 
   [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(8, 2),
+    padding: theme.spacing(6, 2),
   },
 
   [theme.breakpoints.up("md")]: {
-    padding: theme.spacing(12, 2),
+    padding: theme.spacing(8, 2),
   },
 }));
 
