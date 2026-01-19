@@ -18,7 +18,10 @@
     "new_password": "Nové heslo",
     "password_mismatch_error": "Nové heslo se neshoduje.",
     "password_changed_success": "Změna hesla proběhla úspěšně. Zároveň jsme poslali upozornění na tvůj email.",
-    "reset_password_success": "Tvé heslo bylo úspěšně změněno!"
+    "reset_password_success": "Tvé heslo bylo úspěšně změněno!",
+    "subtitle": "Použij tento formulář k obnovení svého přihlašovacího hesla.",
+    "reset_password_error": "Chyba při resetování hesla: {{message}}",
+    "token_error": "Došlo k chybě při zpracování tokenu pro resetování hesla, zkus prosím znovu otevřít odkaz z e-mailu."
   },
   "reset_password_form": {
     "enter_email": "Zadej své uživatelské jméno/e-mail",
@@ -27,13 +30,15 @@
   "login_page": {
     "title": "Přihlásit se",
     "header": "Vítej zpět!",
-    "no_account_prompt": "Nemáš ještě účet? <2>Sign up</2>",
+    "no_account_prompt": "Nemáš ještě účet? <2>Přidej se</2>",
     "form": {
       "password_field_label": "Heslo",
       "username_field_label": "E-mail/Uživatelské jméno",
       "forgot_password": "Zapomenuté heslo?",
       "no_password_login_prompt": "Zkontroluj svou e-mailovou schránku a klikni na odkaz pro přihlášení! :)",
-      "remember_me": "Zamapatovat jméno a heslo"
+      "remember_me": "Zamapatovat jméno a heslo",
+      "show_password": "Zobrazit heslo",
+      "hide_password": "Skrýt heslo"
     }
   },
   "basic_sign_up_form": {
@@ -47,18 +52,22 @@
       "field_label": "Uživatelské jméno",
       "required_error": "Zadej své uživatelské jméno",
       "username_taken_error": "Toto uživatelské jméno už používá někdo jiný.",
-      "validation_error": "Uživatelské jméno může být složeno pouze z písmen, čísel, _ a musí začínat písmenem."
+      "validation_error": "Uživatelské jméno může být složeno pouze z písmen, čísel, _ a musí začínat písmenem.",
+      "helper_text": "Toto je tvé jedinečné přihlašovací ID, nikoli zobrazované jméno."
     },
     "birthday": {
       "field_label": "Datum narození",
       "required_error": "Zadej své datum narození",
-      "validation_error": "Datum narození musí být datum v minulosti."
+      "validation_error": "Datum narození musí být datum v minulosti.",
+      "too_young_error": "Musíš mít alespoň 18 let pro registraci na Couchers",
+      "not_real_date_error": "Zadej prosím skutečné datum narození"
     },
     "hosting_status": {
       "field_label": "Status hostitele",
       "cant_host": "Nepřijímám hosty",
       "maybe": "Možná přijímám hosty",
-      "can_host": "Přijímám hosty"
+      "can_host": "Přijímám hosty",
+      "any": "Jakékoli"
     },
     "gender": {
       "field_label": "Identifikuji se jako…",
@@ -73,11 +82,12 @@
       "required_error": "Zadej heslo",
       "field_label": "Heslo",
       "validation_error": "Heslo musí mít 8 až 256 znaků a nesmí být příliš snadno uhodnutelné."
-    }
+    },
+    "opt_in_newsletter": "Přihlaš se k odběru našeho nepravidelného newsletteru o novinkách v komunitě."
   },
   "basic_form": {
     "name": {
-      "field_label": "Tvé jméno",
+      "field_label": "Jméno",
       "empty_error": "Prosím, zadej své jméno",
       "required_error": "Jméno nemůže být prázdné."
     },
@@ -89,7 +99,8 @@
   },
   "community_guidelines_form": {
     "guideline": {
-      "required_error": "Všechna pole jsou povinná"
+      "required_error": "Všechna pole jsou povinná",
+      "checkbox_label": "Dobře, rozumím"
     },
     "header": "Pravidla komunity"
   },
@@ -97,7 +108,8 @@
     "title": "Nastavení účtu",
     "username_section": {
       "title": "Uživatelské jméno",
-      "description": "Tvé uživatelské jméno je <1>{{username}}</1>."
+      "description": "Tvé uživatelské jméno je <1>{{username}}</1>.",
+      "explanation": "Tvé uživatelské jméno je nastaveno při vytváření účtu."
     },
     "gender_section": {
       "title": "Změnit pohlaví",
@@ -106,6 +118,22 @@
     "birth_date_section": {
       "title": "Změnit datum narození",
       "explanation": "Admini ti rádi pomůžou se změnou data tvého narození. Prosím, kontaktuj support@couchers.org!"
+    },
+    "appearance_section": {
+      "title": "Vzhled",
+      "change_mode": "Změnit režim vzhledu",
+      "modes": {
+        "light": "Světlý režim",
+        "dark": "Tmavý režim",
+        "system": "Režim systému (řídí se tvým zařízením)"
+      },
+      "current_mode": "Tvůj aktuální režim:",
+      "click_to_change": "Klikni na tlačítko níže pro přepínání mezi světlým, tmavým a systémovým režimem."
+    },
+    "timezone_section": {
+      "explanation": "Tento čas a časové pásmo jsou určeny na základě tvé domovské polohy. Pokud je údaj nesprávný, nahlas nám prosím chybu.",
+      "description": "Tvé časové pásmo je <1>{{timezone}}</1>. Na základě toho je tvůj místní čas přibližně <4>{{time}}</4>.",
+      "title": "Časové pásmo a místní nastavení"
     }
   },
   "delete_account": {
@@ -150,9 +178,26 @@
         "active_text": "Uložit",
         "inactive_text": "Díky!"
       },
-      "title": "Aktualizuj prosím svou polohu"
+      "title": "Aktualizuj prosím svou polohu",
+      "resubmit_button_text": "Znovu odeslat",
+      "explanation": "Zdá se, že tvé souřadnice nebyly správné. Prosím, aktualizuj svou polohu, aby bylo možné pokračovat."
     },
-    "title": "Potřebujeme více informací"
+    "title": "Potřebujeme více informací",
+    "terms_of_service_section": {
+      "description": "Aktualizovali jsme naše Podmínky služby. Chceš-li pokračovat, přečti si je a potvrď nové <1></1>."
+    },
+    "mod_note_section": {
+      "acknowledge": "Potvrdit zprávu",
+      "title": "Máš novou zprávu od moderátorů",
+      "description": "Moderátoři ti poslali následující poznámku. Pečlivě si ji prosím přečti a potvrď, že ji rozumíš, než budeš pokračovat.",
+      "note_title": "Poznámka moderátora obdržena dne {{time}}:"
+    },
+    "activeness_probe": {
+      "note": "Aktualizujeme tvůj profil, aby odpovídal této volbě!",
+      "still_hosting": "Pořád chci hostit!",
+      "not_hosting": "Už nemohu dále hostit."
+    },
+    "description": "Zkontroluj prosím následující, aby bylo možné pokračovat."
   },
   "logged_out_message": "Byl/a jsi odhlášen/a.",
   "sign_up_completed_title": "Děkujeme za přihlášení!",
@@ -161,12 +206,27 @@
     "status": {
       "no_emails_disabled_message": "E-maily jsou pro tvůj účet momentálně <1>povoleny</1>.",
       "no_emails_enabled_message": "E-maily jsou pro tvůj účet momentálně <1>zakázány</1>."
-    }
+    },
+    "title": "Neposílejte mi e-maily",
+    "action_button": {
+      "no_emails_enable_text": "Neposílejte mi e-maily",
+      "no_emails_disable_text": "Znovu povolit e-maily"
+    },
+    "caveat": "Povolením tohoto nastavení bude tvůj účet nastaven tak, aby nepřijímal žádosti o hostování. Stále budeš dostávat bezpečnostní e-maily (například pro resetování hesla). Můžeš také nadále dostávat newsletter, ze kterého se můžeš odhlásit pomocí odkazu v patičce newsletteru."
   },
   "location": {
-    "field_label": "Tvá poloha"
+    "field_label": "Tvá poloha",
+    "validation_error": "Vyber prosím platnou lokalitu."
   },
   "sign_up_completed_prompt": "Na tvou e-mailovou adresu jsme zaslali e-mail s ověřovacím odkazem. Pro aktivaci tvého účtu prosím klikni na odkaz.",
   "sign_up_confirmed_prompt": "Hotovo! Pokud nebudeš přesměrován/a, zkus se přihlásit.",
-  "unhandled_sign_up_state": "Chyba: unhandled signup flow state."
+  "unhandled_sign_up_state": "Chyba: unhandled signup flow state.",
+  "feedback_form": {
+    "skip_step_text": "Nemáš zájem? <2>Přeskoč tento krok</2>"
+  },
+  "sign_up_need_verification_title": "Už jsme skoro hotovi, ještě poslední věc!",
+  "feature_preview": {
+    "title": "Náhled funkcionality"
+  },
+  "sign_up_resend_verification_done": "Hotovo! Poslali jsme ti další e-mail."
 }
