@@ -691,6 +691,11 @@ class _Renderer:
         )
 
 
+def render_custom(string_group: str, locale: str) -> PushNotificationContent:
+    renderer = _Renderer(locale, timezone=ZoneInfo("Etc/UTC")) # Timezone irrelevant, we're not formatting dates
+    return renderer._get_content(string_group=string_group)
+
+
 @lru_cache(maxsize=1)
 def _get_notifs_i18next() -> I18Next:
     """Gets the I18Next instance for notifications."""
