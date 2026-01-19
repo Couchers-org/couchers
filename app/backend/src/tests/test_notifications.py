@@ -469,12 +469,7 @@ def test_SendTestPushNotification(db, push_collector: PushCollector):
         notifications.SendTestPushNotification(empty_pb2.Empty())
 
     assert push_collector.count_for_user(user.id) == 1
-    push = push_collector.get_for_user(user.id, index=0)
-    assert push.content.title == "Push notifications test"
-    assert push.content.body == "If you see this, then it's working :)"
-    # the above two are equivalent to this
-
-    push = push_collector.get_for_user(user.id, index=0)
+    push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Push notifications test"
     assert push.content.body == "If you see this, then it's working :)"
 
@@ -539,12 +534,12 @@ def test_SendBlogPostNotification(db, push_collector: PushCollector):
     assert "https://couchers.org/blog/2025/05/11/v0.9.9-release" in email_fields(mock).html
     assert "https://couchers.org/blog/2025/05/11/v0.9.9-release" in email_fields(mock).plain
 
-    push = push_collector.get_for_user(user1.id)
+    push = push_collector.pop_for_user(user1.id, last=True)
     assert push.content.title == "New blog post: Couchers.org v0.9.9 Release Notes"
     assert push.content.body == "Read about last major updates before v1!"
     assert push.content.action_url == "https://couchers.org/blog/2025/05/11/v0.9.9-release"
 
-    push = push_collector.get_for_user(user2.id)
+    push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == "New blog post: Couchers.org v0.9.9 Release Notes"
     assert push.content.body == "Read about last major updates before v1!"
     assert push.content.action_url == "https://couchers.org/blog/2025/05/11/v0.9.9-release"
@@ -765,7 +760,7 @@ def test_SendTestMobilePushNotification(db, push_collector: PushCollector):
     with notifications_session(token) as notifications:
         notifications.SendTestMobilePushNotification(empty_pb2.Empty())
 
-    push = push_collector.get_for_user(user.id)
+    push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Mobile notifications test"
     assert push.content.body == "If you see this on your phone, everything is wired up correctly 🎉"
 
@@ -1047,7 +1042,7 @@ def test_SendDevPushNotification_success(db, push_collector: PushCollector):
             )
         )
 
-    push = push_collector.get_for_user(user.id)
+    push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Test Dev Title"
     assert push.content.body == "Test dev notification body"
     assert push.content.action_url == "https://example.com/action"
@@ -1071,7 +1066,7 @@ def test_SendDevPushNotification_minimal(db, push_collector: PushCollector):
             )
         )
 
-    push = push_collector.get_for_user(user.id)
+    push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Minimal Title"
     assert push.content.body == "Minimal body"
     assert push.topic_action == "adhoc:testing"

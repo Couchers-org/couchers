@@ -423,12 +423,10 @@ def test_password_reset_v2(db, push_collector: PushCollector):
     assert "support@couchers.org" in e.plain
     assert "support@couchers.org" in e.html
 
-    push = push_collector.get_for_user(
-        user.id,
-        index=0,
-    )
+    push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Password reset requested"
     assert push.content.body == "Use the link we sent by email to complete it."
+
     # make sure bad password are caught
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as err:
@@ -446,7 +444,7 @@ def test_password_reset_v2(db, push_collector: PushCollector):
                 auth_pb2.CompletePasswordResetV2Req(password_reset_token=password_reset_token, new_password=pwd)
             )
 
-    push = push_collector.get_for_user(user.id, index=1)
+    push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Password reset"
     assert push.content.body == "Your password was successfully reset."
 

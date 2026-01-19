@@ -124,7 +124,7 @@ def test_ChangeUserGender(db, push_collector: PushCollector):
     assert "Machine" in e.plain
     assert "Machine" in e.html
 
-    push = push_collector.get_for_user(normal_user.id)
+    push = push_collector.pop_for_user(normal_user.id, last=True)
     assert push.content.title == "Gender changed"
     assert push.content.body == "An admin changed your gender to Machine."
 
@@ -157,7 +157,7 @@ def test_ChangeUserBirthdate(db, push_collector: PushCollector):
     assert "1990" in e.plain
     assert "1990" in e.html
 
-    push = push_collector.get_for_user(normal_user.id)
+    push = push_collector.pop_for_user(normal_user.id, last=True)
     assert push.content.title == "Birthdate changed"
     assert push.content.body == "An admin changed your date of birth to Friday 25 May 1990."
 
@@ -368,7 +368,7 @@ def test_CreateApiKey(db, push_collector: PushCollector):
     assert "support@couchers.org" in e.plain
     assert "support@couchers.org" in e.html
 
-    push = push_collector.get_for_user(normal_user.id)
+    push = push_collector.pop_for_user(normal_user.id, last=True)
     assert push.content.title == "API key created"
     assert push.content.body == "Details were sent to you via email."
 
@@ -403,7 +403,7 @@ def test_badges(db, push_collector: PushCollector):
         # badge emails are disabled by default
         mock.assert_not_called()
 
-        push = push_collector.get_for_user(normal_user.id)
+        push = push_collector.pop_for_user(normal_user.id, last=True)
         assert push.content.title == "New profile badge: Swagster"
         assert push.content.body == "The Swagster badge was added to your profile."
 
@@ -428,7 +428,7 @@ def test_badges(db, push_collector: PushCollector):
         # badge emails are disabled by default
         mock.assert_not_called()
 
-        push = push_collector.get_for_user(normal_user.id, index=1)
+        push = push_collector.pop_for_user(normal_user.id, last=True)
         assert push.content.title == "Profile badge removed"
         assert push.content.body == "The Swagster badge was removed from your profile."
 
@@ -712,7 +712,7 @@ def test_admin_delete_account_url(db, push_collector: PushCollector):
                 )
             )
 
-    push = push_collector.get_for_user(user_id, index=0)
+    push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Account deleted"
     assert push.content.body == "You can restore it within 7 days using the link we emailed you."
     mock.assert_called_once()

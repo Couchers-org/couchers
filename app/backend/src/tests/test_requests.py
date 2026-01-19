@@ -1336,7 +1336,7 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
 
-    assert push_collector.get_for_user(host.id).content.title == f"New host request from {surfer.name}"
+    assert push_collector.pop_for_user(host.id, last=True).content.title == f"New host request from {surfer.name}"
 
     with requests_session(host_token) as api:
         with mock_notification_email() as mock:
@@ -1364,7 +1364,7 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
 
-    assert push_collector.get_for_user(surfer.id).content.title == f"{host.name} accepted your host request"
+    assert push_collector.pop_for_user(surfer.id, last=True).content.title == f"{host.name} accepted your host request"
 
 
 def test_quick_decline(db, push_collector: PushCollector, moderator):
@@ -1406,7 +1406,7 @@ def test_quick_decline(db, push_collector: PushCollector, moderator):
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
 
-    assert push_collector.get_for_user(host.id).content.title == f"New host request from {surfer.name}"
+    assert push_collector.pop_for_user(host.id, last=True).content.title == f"New host request from {surfer.name}"
 
     # very ugly
     # http://localhost:3000/quick-link?payload=CAEiGAoOZnJpZW5kX3JlcXVlc3QSBmFjY2VwdA==&sig=BQdk024NTATm8zlR0krSXTBhP5U9TlFv7VhJeIHZtUg=
