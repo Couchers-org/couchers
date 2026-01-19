@@ -327,7 +327,8 @@
       "nothing": "<1>Nada</1>: me ocultar completamente",
       "map_only": "<1>Apenas mapa</1>: mostrar um pin anônimo e aleatório sem mais informações",
       "limited": "<1>Limitado</1>: mostrar meu nome, localização, status de hospedagem/encontro, insígnias, número de referências e há quanto tempo sou Coucher",
-      "most": "<1>A maior parte</1>: mostrar toda a seção \"Sobre mim\" exceto \"Informações adicionais\""
+      "most": "<1>A maior parte</1>: mostrar toda a seção \"Sobre mim\" exceto \"Informações adicionais\"",
+      "full_profile": "<1>Perfil completo</1>: mostrar meu perfil completo (exceto referências)"
     },
     "title": "Visibilidade do perfil"
   },
