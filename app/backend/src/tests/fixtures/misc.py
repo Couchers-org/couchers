@@ -59,13 +59,10 @@ class Push:
     ttl: int | None = None
 
 
-@dataclass(frozen=True, slots=True, init=False)
 class PushCollector:
-    by_user: dict[int, list[Push]]
-    """Collected notifications by user id, chronologically."""
-
     def __init__(self):
-        self.by_user = {}
+        self.by_user: dict[int, list[Push]] = {}
+        """Collected notifications by user id, chronologically."""
 
     def push_to_user(self, session: Session, user_id: int, **kwargs: Any) -> None:
         if user_id not in self.by_user:
