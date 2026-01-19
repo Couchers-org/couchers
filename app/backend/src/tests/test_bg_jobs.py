@@ -1212,7 +1212,7 @@ def test_update_badges(db, push_collector: PushCollector):
 
     assert badge_tuples == expected  # type: ignore[comparison-overlap]
 
-    print(push_collector.pushes)
+    print(push_collector.by_user)
 
     push = push_collector.pop_for_user(user1.id, last=False)
     assert push.content.title == "New profile badge: Founder"

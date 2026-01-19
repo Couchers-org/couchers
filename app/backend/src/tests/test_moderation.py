@@ -2359,7 +2359,7 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
         gc = session.execute(select(GroupChat).where(GroupChat.conversation_id == gc_id)).scalar_one()
         assert gc.moderation_state.visibility == ModerationVisibility.VISIBLE
 
-    # User2 should now have 1 notification for the first message sent before approval
+    # User2 should have received 1 notification for the first message sent before approval
     push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == user1.name
     assert push.content.body == "Hello before approval"
@@ -2377,5 +2377,5 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
     while process_job():
         pass
 
-    # User2 SHOULD now have 2 notifications total
-    assert push_collector.count_for_user(user2.id) == 2
+    # User2 should have received another notification
+    assert push_collector.count_for_user(user2.id) == 1

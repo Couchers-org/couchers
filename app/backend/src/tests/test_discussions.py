@@ -189,11 +189,11 @@ def test_discussion_notifications_regression(db, push_collector: PushCollector):
     process_jobs()
 
     # User2 should get 2 notifications about 2 replies to their comment, User3 should get 1 notification about 1 reply
-    push = push_collector.get_for_user(user2_id, last=False)
+    push = push_collector.pop_for_user(user2_id, last=False)
     assert push.content.title == f"{user3.name} • dummy title"
     assert push.topic_action == "thread:reply"
 
-    push = push_collector.get_for_user(user2_id, last=True)
+    push = push_collector.pop_for_user(user2_id, last=True)
     assert push.content.title == f"{user.name} • dummy title"
     assert push.topic_action == "thread:reply"
 

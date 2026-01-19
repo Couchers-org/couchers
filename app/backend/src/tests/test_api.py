@@ -865,7 +865,7 @@ def test_friend_request_flow(db, push_collector: PushCollector):
         assert len(res.user_ids) == 1
         assert res.user_ids[0] == user1.id
 
-    assert push_collector.count_for_user(user2.id) == 1
+    assert push_collector.count_for_user(user2.id) == 0
     push = push_collector.pop_for_user(user1.id, last=True)
     assert push.content.title == f"{user2.name} accepted your friend request"
     assert push.content.body == f"You are now friends with {user2.name}."
