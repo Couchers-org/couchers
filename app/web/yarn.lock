@@ -2115,12 +2115,10 @@
   resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.31.1.tgz#389db2ecdc4543e061d475bfec8c2f252cfa3f71"
   integrity sha512-2JfRl1owOIZa6/LSvNicluRhsU+J+bGGbYLkUSwtgjsNgt/nZgl2AcSY+8wGCnX/r9yCmk4cIt0VmrsWm73wDQ==
 
-"@statsig/js-client@3.30.2":
-  version "3.30.2"
-  resolved "https://registry.yarnpkg.com/@statsig/js-client/-/js-client-3.30.2.tgz#2bcbbb4c62f9fee26a86ed3f6bc11dd3aaceb2d9"
-  integrity sha512-Cjs4uzyAxt1sw44oa6qSNWuZdO11jmgrpOVBC2NajtpA55GBmAfjZ3vQdXizUffUZMRmFiEpGwxi9zmjFEG7Sw==
-  dependencies:
-    "@statsig/client-core" "3.30.2"
+"@statsig/client-core@3.31.2":
+  version "3.31.2"
+  resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.31.2.tgz#556ff33b5194847d6bd5097e5f4a52cde9055887"
+  integrity sha512-Tfa3JC0fJJL0Pd13Le9ZxqZp1QD8XKQ9pyPaBeyhpB6QWzr6qqGusGFaSmmCJXu9ViN672Lgg87/43mANg2LBw==
 
 "@statsig/js-client@3.31.1":
   version "3.31.1"
@@ -2128,6 +2126,13 @@
   integrity sha512-HGC3NQFb/suBppE9Z/Mu4doesyqfiqTozLO31rZNFU8wsy2ZRQo3+/MXQLkyhVWrk5T5tQowHqQoyBczVK0NQA==
   dependencies:
     "@statsig/client-core" "3.31.1"
+
+"@statsig/js-client@3.31.2":
+  version "3.31.2"
+  resolved "https://registry.yarnpkg.com/@statsig/js-client/-/js-client-3.31.2.tgz#1d7321aac86fe08de890422ad0236abf50253b99"
+  integrity sha512-uEIt2Zg0NTgIhg4jaMQYtdttrTDgQRtlk4E8N6cNBcq2i/Igea1DzVYD7RyEV9oiq3InHDOfuuP+p+w5oO+qeA==
+  dependencies:
+    "@statsig/client-core" "3.31.2"
 
 "@statsig/react-bindings@^3.31.1":
   version "3.31.1"
@@ -2146,13 +2151,13 @@
     "@statsig/client-core" "3.30.2"
     rrweb "2.0.0-alpha.17"
 
-"@statsig/web-analytics@^3.30.2":
-  version "3.30.2"
-  resolved "https://registry.yarnpkg.com/@statsig/web-analytics/-/web-analytics-3.30.2.tgz#cc73c2545ea29700502072774124ba37a3f557c3"
-  integrity sha512-KfrBtUp7xsXTosdeLuzK63R/cXOZBE/BOLX8Z2+XcnMZO8rZycG89anN/zVGgGQpqKAoaCQFD9nEoMot3KcGXQ==
+"@statsig/web-analytics@^3.31.2":
+  version "3.31.2"
+  resolved "https://registry.yarnpkg.com/@statsig/web-analytics/-/web-analytics-3.31.2.tgz#adf6c76c3155cf1058283e58192b1fedba565146"
+  integrity sha512-9Y1I9s+7IK6YYK4E7hfSH/82zk2na3TDAKB3E6P6o9Z/E96vCRbfMETKyJKofPweEg35Asec/qcT9rpbDuuurw==
   dependencies:
-    "@statsig/client-core" "3.30.2"
-    "@statsig/js-client" "3.30.2"
+    "@statsig/client-core" "3.31.2"
+    "@statsig/js-client" "3.31.2"
     web-vitals "5.0.3"
 
 "@stripe/stripe-js@^8.6.0":
