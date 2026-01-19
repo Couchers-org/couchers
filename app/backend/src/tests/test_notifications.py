@@ -473,6 +473,7 @@ def test_SendTestPushNotification(db, push_collector: PushCollector):
     assert push.content.title == "Push notifications test"
     assert push.content.body == "If you see this, then it's working :)"
 
+
 def test_SendBlogPostNotification(db, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
 
