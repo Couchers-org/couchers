@@ -1217,3 +1217,138 @@ def test_check_expo_push_receipts_batch(db):
             ).scalar_one()
             assert attempt.receipt_checked_at is not None
             assert attempt.receipt_status == "ok"
+
+
+def test_DebugRedeliverPushNotification_success(db, push_collector: PushCollector):
+    """Test DebugRedeliverPushNotification redelivers an existing notification."""
+    user, token = generate_user()
+
+    config["ENABLE_DEV_APIS"] = True
+
+    # Create a notification for the user
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=NotificationTopicAction.badge__add,
+            key="test-badge",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer for Couchers.org",
+            ),
+        )
+
+    process_job()
+
+    # Get the notification_id and count existing pushes
+    with session_scope() as session:
+        notification = session.execute(select(Notification).where(Notification.user_id == user.id)).scalar_one()
+        notification_id = notification.id
+
+    existing_push_count = push_collector.count_for_user(user.id)
+
+    # Redeliver the notification
+    with notifications_session(token) as notifications:
+        notifications.DebugRedeliverPushNotification(
+            notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=notification_id)
+        )
+
+    # Verify a new push was sent
+    assert push_collector.count_for_user(user.id) == existing_push_count + 1
+    push = push_collector.get_for_user(user.id, index=existing_push_count)
+    assert "Active Volunteer" in push.content.title
+    assert push.topic_action == "badge:add"
+    assert push.key == "test-badge"
+
+
+def test_DebugRedeliverPushNotification_not_found(db, push_collector: PushCollector):
+    """Test DebugRedeliverPushNotification fails when notification doesn't exist."""
+    user, token = generate_user()
+
+    config["ENABLE_DEV_APIS"] = True
+
+    with notifications_session(token) as notifications:
+        with pytest.raises(grpc.RpcError) as e:
+            notifications.DebugRedeliverPushNotification(
+                notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=999999)
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert "notification not found" in not_none(e.value.details()).lower()
+
+    assert push_collector.count_for_user(user.id) == 0
+
+
+def test_DebugRedeliverPushNotification_wrong_user(db, push_collector: PushCollector):
+    """Test DebugRedeliverPushNotification fails when notification belongs to another user."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    config["ENABLE_DEV_APIS"] = True
+
+    # Create a notification for user1
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user1.id,
+            topic_action=NotificationTopicAction.badge__add,
+            key="test-badge",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer for Couchers.org",
+            ),
+        )
+
+    process_job()
+
+    # Get the notification_id
+    with session_scope() as session:
+        notification = session.execute(select(Notification).where(Notification.user_id == user1.id)).scalar_one()
+        notification_id = notification.id
+
+    # user2 tries to redeliver user1's notification
+    with notifications_session(token2) as notifications:
+        with pytest.raises(grpc.RpcError) as e:
+            notifications.DebugRedeliverPushNotification(
+                notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=notification_id)
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert "notification not found" in not_none(e.value.details()).lower()
+
+    assert push_collector.count_for_user(user2.id) == 0
+
+
+def test_DebugRedeliverPushNotification_disabled(db, push_collector: PushCollector):
+    """Test DebugRedeliverPushNotification fails when ENABLE_DEV_APIS is disabled."""
+    user, token = generate_user()
+
+    config["ENABLE_DEV_APIS"] = False
+
+    with notifications_session(token) as notifications:
+        with pytest.raises(grpc.RpcError) as e:
+            notifications.DebugRedeliverPushNotification(
+                notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=1)
+            )
+        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+        assert "Development APIs are not enabled" in not_none(e.value.details())
+
+    assert push_collector.count_for_user(user.id) == 0
+
+
+def test_DebugRedeliverPushNotification_push_notifications_disabled(db, push_collector: PushCollector):
+    """Test DebugRedeliverPushNotification fails when push notifications are disabled."""
+    user, token = generate_user()
+
+    config["ENABLE_DEV_APIS"] = True
+    config["PUSH_NOTIFICATIONS_ENABLED"] = False
+
+    with notifications_session(token) as notifications:
+        with pytest.raises(grpc.RpcError) as e:
+            notifications.DebugRedeliverPushNotification(
+                notifications_pb2.DebugRedeliverPushNotificationReq(notification_id=1)
+            )
+        assert e.value.code() == grpc.StatusCode.UNAVAILABLE
+        assert "Push notifications are currently disabled" in not_none(e.value.details())
+
+    assert push_collector.count_for_user(user.id) == 0

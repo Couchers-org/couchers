@@ -311,3 +311,36 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         )
 
         return empty_pb2.Empty()
+
+    def DebugRedeliverPushNotification(
+        self,
+        request: notifications_pb2.DebugRedeliverPushNotificationReq,
+        context: CouchersContext,
+        session: Session,
+    ) -> empty_pb2.Empty:
+        if not config["ENABLE_DEV_APIS"]:
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "dev_apis_disabled")
+
+        if not config["PUSH_NOTIFICATIONS_ENABLED"]:
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
+
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+
+        notification = session.execute(
+            select(Notification)
+            .where(Notification.id == request.notification_id)
+            .where(Notification.user_id == context.user_id)
+        ).scalar_one_or_none()
+
+        if not notification:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "notification_not_found")
+
+        push_to_user(
+            session,
+            user_id=context.user_id,
+            topic_action=notification.topic_action.display,
+            content=render_push_notification(user, notification),
+            key=notification.key,
+        )
+
+        return empty_pb2.Empty()
