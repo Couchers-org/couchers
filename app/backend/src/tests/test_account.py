@@ -167,7 +167,7 @@ def test_ChangePasswordV2_normal(db, fast_passwords, push_collector: PushCollect
     mock.assert_called_once()
     assert email_fields(mock).subject == "[TEST] Your password was changed"
 
-    push = push_collector.get_for_user(user.id)
+    push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Password changed"
     assert push.content.body == "Your password was changed."
 
@@ -543,7 +543,7 @@ def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):
         token = user_updated.new_email_token
 
     process_jobs()
-    push = push_collector.get_for_user(user_id, index=0)
+    push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Email change requested"
     assert push.content.body == f"Use the link we sent to {new_email} to confirm your new address."
 
@@ -563,7 +563,7 @@ def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):
         assert user.new_email_token_expiry is None
 
     process_jobs()
-    push = push_collector.get_for_user(user_id, index=1)
+    push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Email verified"
     assert push.content.body == "Your new email address has been verified."
 
@@ -594,7 +594,7 @@ def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector: P
             uq_str2 in jobs[0].payload and uq_str1 in jobs[1].payload
         )
 
-    push = push_collector.get_for_user(user.id)
+    push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Email change requested"
     assert push.content.body == f"Use the link we sent to {new_email} to confirm your new address."
 
@@ -685,7 +685,7 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
         with mock_notification_email() as mock:
             account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
 
-    push = push_collector.get_for_user(user_id, index=0)
+    push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Account deletion requested"
     assert push.content.body == "Use the link we emailed you to confirm."
 
@@ -724,7 +724,7 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
                 )
             )
 
-    push = push_collector.get_for_user(user_id, index=1)
+    push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Account deleted"
     assert push.content.body == "You can restore it within 7 days using the link we emailed you."
 
@@ -763,7 +763,7 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
                 )
             )
 
-    push = push_collector.get_for_user(user_id, index=2)
+    push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Account restored"
     assert push.content.body == "Welcome back!"
 

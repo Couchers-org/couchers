@@ -33,6 +33,10 @@ service Notifications {
   // Development API: Send an arbitrary push notification to the current user.
   // Gated behind ENABLE_DEV_APIS config.
   rpc SendDevPushNotification(SendDevPushNotificationReq) returns (google.protobuf.Empty);
+
+  // Debug API: Redeliver a push notification by notification_id.
+  // Gated behind ENABLE_DEV_APIS config.
+  rpc DebugRedeliverPushNotification(DebugRedeliverPushNotificationReq) returns (google.protobuf.Empty);
 }
 
 message GetNotificationSettingsReq {}
@@ -166,4 +170,9 @@ message SendDevPushNotificationReq {
 
   // Time to live in seconds (optional, 0 = default)
   uint32 ttl = 6;
+}
+
+message DebugRedeliverPushNotificationReq {
+  // The notification to redeliver
+  int64 notification_id = 1;
 }

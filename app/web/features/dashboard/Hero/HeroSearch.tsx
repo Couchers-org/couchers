@@ -1,4 +1,4 @@
-import { styled, Typography } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 import LocationAutocomplete from "components/LocationAutocomplete";
 import { Coordinates } from "features/search/utils/constants";
 import { DASHBOARD } from "i18n/namespaces";
@@ -9,13 +9,19 @@ import { HostingStatus } from "proto/api_pb";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { routeToSearch } from "routes";
-import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
-const StyledSearchBoxContainer = styled("form")(() => ({
-  padding: theme.spacing(4, 2, 6, 2),
+import HeroLinks from "./HeroLinks";
+
+const StyledSearchBoxContainer = styled("form")(({ theme }) => ({
+  padding: theme.spacing(4, 6, 6, 6),
   borderRadius: "var(--mui-shape-borderRadius)",
   backgroundColor: "var(--mui-palette-background-paper)",
+  margin: theme.spacing(4, 0),
+
+  [theme.breakpoints.down("md")]: {
+    margin: theme.spacing(3, 0),
+  },
 }));
 
 export default function HeroSearch() {
@@ -32,6 +38,7 @@ export default function HeroSearch() {
 
   return (
     <StyledSearchBoxContainer>
+      <HeroLinks />
       <Typography
         variant="h2"
         component="label"
@@ -39,49 +46,68 @@ export default function HeroSearch() {
         htmlFor={searchInputId}
         sx={{
           marginBottom: "16px",
+          textAlign: "center",
         }}
       >
         {t("search_input_label")}
       </Typography>
-      <LocationAutocomplete
-        control={control}
-        name="location"
-        id={searchInputId}
-        variant="outlined"
-        placeholder={t("search_input_placeholder")}
-        defaultValue={""}
-        onChange={(value) => {
-          if (value && value.bbox && value.simplifiedName) {
-            const newBbox: Coordinates = [
-              value.bbox[2],
-              value.bbox[3],
-              value.bbox[0],
-              value.bbox[1],
-            ];
-            const searchRouteWithSearchQuery = routeToSearch({
-              location: value.simplifiedName,
-              hostingStatus: [
-                HostingStatus.HOSTING_STATUS_CAN_HOST,
-                HostingStatus.HOSTING_STATUS_MAYBE,
-              ],
-              bbox: newBbox,
-              showEmptyProfile: false,
-            });
 
-            // Use startTransition in WebView to allow autocomplete to complete before navigation
-            if (isNativeEmbed) {
-              startTransition(() => {
-                router.push(searchRouteWithSearchQuery);
-              });
-            } else {
-              router.push(searchRouteWithSearchQuery);
-            }
-          }
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          marginTop: 1,
         }}
-        fieldError={errors.location?.message}
-        disableRegions
-        autocompleteContext="hero-search"
-      />
+      >
+        <LocationAutocomplete
+          control={control}
+          name="location"
+          id={searchInputId}
+          variant="outlined"
+          placeholder={t("search_input_placeholder")}
+          defaultValue={""}
+          onChange={(value) => {
+            if (value && value.bbox && value.simplifiedName) {
+              const newBbox: Coordinates = [
+                value.bbox[2],
+                value.bbox[3],
+                value.bbox[0],
+                value.bbox[1],
+              ];
+              const searchRouteWithSearchQuery = routeToSearch({
+                location: value.simplifiedName,
+                hostingStatus: [
+                  HostingStatus.HOSTING_STATUS_CAN_HOST,
+                  HostingStatus.HOSTING_STATUS_MAYBE,
+                ],
+                bbox: newBbox,
+                showEmptyProfile: false,
+              });
+
+              // Use startTransition in WebView to allow autocomplete to complete before navigation
+              if (isNativeEmbed) {
+                startTransition(() => {
+                  router.push(searchRouteWithSearchQuery);
+                });
+              } else {
+                router.push(searchRouteWithSearchQuery);
+              }
+            }
+          }}
+          fieldError={errors.location?.message}
+          disableRegions
+          autocompleteContext="hero-search"
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              maxHeight: "40px",
+            },
+            width: "100%",
+            maxWidth: "650px",
+          }}
+        />
+      </Box>
     </StyledSearchBoxContainer>
   );
 }

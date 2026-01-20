@@ -182,7 +182,6 @@ const NotificationsFeed = ({
           data-testid="notifications-feed--more-options"
           open={isInternalMenuOpen}
           onClose={handleInternalMenuClose}
-          onClick={handleInternalMenuClose}
           slotProps={{
             paper: {
               elevation: 0,

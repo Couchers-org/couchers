@@ -12,6 +12,7 @@ export const tosQueryKey = "tos";
 export const communityGuidelinesQueryKey = "communityGuidelines";
 export const notificationSettingsQueryKey = "notificationSettings";
 export const listNotificationsQueryKey = "listNotifications";
+export const pingQueryKey = "ping";
 export const username2Id = "username2Id";
 export const volunteerInfoQueryKey = "volunteerInfo";
 

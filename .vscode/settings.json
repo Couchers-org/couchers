@@ -55,5 +55,9 @@
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "files.trimTrailingWhitespace": true,
-  "eslint.useFlatConfig": false
+  "eslint.useFlatConfig": false,
+  "python.defaultInterpreterPath": "app/backend/.venv/bin/python3",
+  "python.testing.cwd": "app/backend/src/tests",
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
 }

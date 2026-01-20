@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { friendRequestKey, userKey } from "features/queryKeys";
+import { friendRequestKey, pingQueryKey, userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { FriendRequest, User } from "proto/api_pb";
 import { service } from "service";
@@ -72,7 +72,7 @@ export default function useRespondToFriendRequest() {
         queryKey: userKey(friendRequest.userId),
       });
       queryClient.invalidateQueries({
-        queryKey: ["ping"],
+        queryKey: [pingQueryKey],
       });
     },
   });

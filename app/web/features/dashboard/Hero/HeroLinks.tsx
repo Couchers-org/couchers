@@ -3,15 +3,14 @@ import StyledLink from "components/StyledLink";
 import { DASHBOARD } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { routeToEditProfile } from "routes";
-import { theme } from "theme";
 
-const StyledLinksContainer = styled("div")(() => ({
+const StyledLinksContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexWrap: "wrap",
   rowGap: theme.spacing(2),
   columnGap: theme.spacing(4),
   justifyContent: "center",
-  margin: theme.spacing(4, 0),
+  marginBottom: theme.spacing(3),
 }));
 
 const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(
@@ -19,10 +18,11 @@ const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(
 ) => {
   return styled(component, {
     shouldForwardProp: (prop) => prop !== "isSelected",
-  })<{ isSelected?: boolean }>((props) => ({
+  })<{ isSelected?: boolean }>(({ theme, isSelected }) => ({
     position: "relative",
     paddingBottom: theme.spacing(1),
-    color: theme.palette.common.white,
+    color: "var(--mui-palette-text-primary)",
+    fontWeight: 600,
     "&::after": {
       content: '""',
       position: "absolute",
@@ -31,9 +31,9 @@ const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(
       transform: "translateX(-50%)",
       width: 40,
       height: 2,
-      background: theme.palette.common.white,
+      background: "var(--mui-palette-primary-main)",
       transition: `opacity ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
-      opacity: props.isSelected ? 1 : 0,
+      opacity: isSelected ? 1 : 0,
     },
     "&:hover::after": {
       opacity: 1,

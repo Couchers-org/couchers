@@ -1,0 +1,36 @@
+{
+  "push": {
+    "account_deletion__start": {
+      "title": "Hesap silinmesi istendi",
+      "ios_title": "Hesap Silinmesi İstendi",
+      "body": "Doğrulamak için size yolladığımız linki kullanın."
+    },
+    "account_deletion__complete": {
+      "title": "Hesap silindi",
+      "ios_title": "Hesap Silindi"
+    },
+    "account_deletion__recovered": {
+      "title": "Hesap eski haline getirildi",
+      "ios_title": "Hesap Eski Haline Getirildi",
+      "body": "Tekrardan hoşgeldin!"
+    },
+    "activeness__probe": {
+      "body": "Ev sahipliği yapma durumunu onaylamak için giriş yap.",
+      "title": "Hâlâ ev sahipliği yapmaya açık mısın?",
+      "ios_title": "Hâlâ ev sahipliği yapmaya açık mısın?"
+    },
+    "api_key__create": {
+      "body": "Detaylar size e-mail ile gönderildi."
+    },
+    "badge__add": {
+      "title": "Yeni profil rozeti: {{badge_name}}",
+      "ios_title": "Yeni Profil Rozeti",
+      "body": "{{badge_name}} rozeti profiline eklendi."
+    },
+    "badge__remove": {
+      "title": "Profil rozeti kaldırıldı",
+      "ios_title": "Profil Rozeti Kaldırıldı",
+      "body": "{{badge_name}} rozeti profilinizden kaldırıldı."
+    }
+  }
+}

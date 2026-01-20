@@ -51,7 +51,7 @@ def test_activeness_probes_happy_path_inactive(db, push_collector: PushCollector
         assert res.hosting_status == api_pb2.HOSTING_STATUS_CANT_HOST
         assert res.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
 
-    push = push_collector.get_for_user(user.id)
+    push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Still open to hosting?"
     assert push.content.body == "Log in to confirm your hosting status."
 
@@ -84,7 +84,7 @@ def test_activeness_probes_happy_path_active(db, push_collector: PushCollector):
         assert res.hosting_status == api_pb2.HOSTING_STATUS_CAN_HOST
         assert res.meetup_status == api_pb2.MEETUP_STATUS_WANTS_TO_MEETUP
 
-    push = push_collector.get_for_user(user.id)
+    push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Still open to hosting?"
     assert push.content.body == "Log in to confirm your hosting status."
 

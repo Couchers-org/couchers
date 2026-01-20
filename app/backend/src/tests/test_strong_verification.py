@@ -699,6 +699,9 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
             == api.GetUser(api_pb2.GetUserReq(user=user.username)).has_strong_verification
         )
 
+    # There should be a notification confirming it
+    push_collector.pop_for_user(user.id, last=True)
+
     # check removing SV data
     with account_session(token) as account:
         account.DeleteStrongVerificationData(empty_pb2.Empty())
@@ -791,7 +794,7 @@ def test_strong_verification_delete_data_cant_reverify(db, monkeypatch, push_col
         assert verification_attempt.user_id == user.id
         assert verification_attempt.status == StrongVerificationAttemptStatus.duplicate
 
-    push = push_collector.get_for_user(user.id, index=1)
+    push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Strong Verification failed"
     assert (
         push.content.body
@@ -942,7 +945,7 @@ def test_strong_verification_duplicate_other_user(db, monkeypatch, push_collecto
         assert verification_attempt.user_id == user2.id
         assert verification_attempt.status == StrongVerificationAttemptStatus.duplicate
 
-    push = push_collector.get_for_user(user2.id, index=0)
+    push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == "Strong Verification failed"
     assert (
         push.content.body
@@ -1017,7 +1020,7 @@ def test_strong_verification_non_passport(db, monkeypatch, push_collector: PushC
         assert verification_attempt.user_id == user.id
         assert verification_attempt.status == StrongVerificationAttemptStatus.failed
 
-    push = push_collector.get_for_user(user.id, index=0)
+    push = push_collector.pop_for_user(user.id, last=True)
     assert push.content.title == "Strong Verification failed"
     assert (
         push.content.body

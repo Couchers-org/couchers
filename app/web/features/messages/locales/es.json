@@ -50,7 +50,8 @@
     "group_title_field_label": "Título",
     "friends_input_label": "Amigos",
     "no_friends_found_message": "No se encontraron amigos",
-    "user_load_error_message": "(Error de carga de usuario)"
+    "user_load_error_message": "(Error de carga de usuario)",
+    "title_label": "Título"
   },
   "chat_input": {
     "label": "Mensaje"

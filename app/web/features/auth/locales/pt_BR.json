@@ -26,16 +26,18 @@
   },
   "reset_password_form": {
     "enter_email": "Digite seu nome de usuário/e-mail",
-    "success_message": "Verifique no seu email o link para redefinir a senha!"
+    "success_message": "Um link para redefinir a senha foi enviado para o e-mail associado a essa conta, se ele existe e está ativo. O e-mail pode ir para a caixa de spam."
   },
   "login_page": {
-    "no_account_prompt": "Ainda não tem uma conta? <2>Registre-se!</2>",
+    "no_account_prompt": "Ainda não tem uma conta? <2>Junte-se a nós</2>",
     "form": {
       "remember_me": "Lembrar-se de mim",
       "username_field_label": "E-mail/Nome de usuário",
       "password_field_label": "Senha",
       "no_password_login_prompt": "Verifique no seu e-mail o link para entrar! :)",
-      "forgot_password": "Esqueceu a senha?"
+      "forgot_password": "Esqueceu a senha?",
+      "hide_password": "Ocultar senha",
+      "show_password": "Mostrar senha"
     },
     "title": "Iniciar sessão",
     "header": "Bem-vindo de volta!"
@@ -51,7 +53,8 @@
       "field_label": "Nome de usuário",
       "required_error": "Digite seu nome de usuário",
       "username_taken_error": "Este nome de usuário já existe.",
-      "validation_error": "O nome de usuário só pode conter números ou _, e deve começar com uma letra."
+      "validation_error": "O nome de usuário só pode conter números ou _, e deve começar com uma letra.",
+      "helper_text": "Este é seu ID de login exclusivo, não seu nome de exibição."
     },
     "gender": {
       "field_label": "Identifico-me como…",
@@ -90,7 +93,7 @@
   "basic_form": {
     "name": {
       "empty_error": "Digite seu nome",
-      "field_label": "Seu nome",
+      "field_label": "Nome",
       "required_error": "Este campo não pode estar em branco."
     },
     "email": {
@@ -115,11 +118,12 @@
   "jail": {
     "location_section": {
       "resubmit_button_text": "Reenviar",
-      "title": "Adicione a sua localização",
+      "title": "Atualize a sua localização",
       "submit_button": {
         "active_text": "Salvar",
         "inactive_text": "Obrigado!"
-      }
+      },
+      "explanation": "Parece que suas coordenadas não estavam corretas. Atualize sua localização para continuar."
     },
     "title": "É necessária mais informação",
     "description": "Para continuar, marque a seguir para continuar.",
@@ -135,7 +139,7 @@
     "activeness_probe": {
       "still_hosting": "Eu ainda quero hospedar!",
       "not_hosting": "Eu não quero mais hospedar.",
-      "note": "Vamos atualizar seu perfil para atender essa escolha!",
+      "note": "Atualizamos seu perfil para atender essa escolha!",
       "title": "Você ainda quer hospedar surfers?",
       "description": "Notamos que já faz um tempo que você não faz login, e queremos verificar se você ainda quer hospedar surfers."
     }
@@ -159,6 +163,17 @@
       "title": "Nome de usuário",
       "description": "Seu nome de usuário é <1>{{username}}</1>.",
       "explanation": "Seu nome de usuário é definido quando você cria sua conta."
+    },
+    "appearance_section": {
+      "title": "Aparência",
+      "current_mode": "Seu modo atual:",
+      "click_to_change": "Clique no botão abaixo para alternar entre os modos Claro, Escuro e Padrão do sistema.",
+      "change_mode": "Alterar modo de aparência",
+      "modes": {
+        "light": "Claro",
+        "system": "Padrão do sistema (segue seu dispositivo)",
+        "dark": "Escuro"
+      }
     }
   },
   "about_us": "Sobre nós",
@@ -269,9 +284,93 @@
     "delete_my_data_button": "Excluir meus dados",
     "delete_button": "Excluir meus dados da Autenticação Forte",
     "delete_success": "Os dados do seu passaporte foram excluídos.",
-    "learn_more": "Saiba mais sobre Autenticação Multifator <a>aqui</a>."
+    "learn_more": "Saiba mais sobre Autenticação Multifator <a>aqui</a>.",
+    "donation_title": "Obrigado por fazer a verificação. Você está ajudando a tornar o Couchers.org mais seguro para todos.",
+    "donation_message1": "A verificação é gratuita para você, mas tem um custo para nós. Como uma empresa sem fins lucrativos administrada por voluntários, contamos com doações para cobrir despesas como manutenção dos nossos servidores, verificação e ferramentas para voluntários e organizadores da comunidade.",
+    "donation_message2": "Se puder, considere doar para ajudar a manter o Couchers.org funcionando e crescendo.",
+    "instructions": {
+      "title": "Como Completar a Verificação Forte",
+      "warning": "Importante: a etapa de digitalização do chip do passaporte pode ser complicada. Leia as instruções primeiro!",
+      "step1": "Baixe o app <strong>Iris ID</strong>",
+      "step1_apple_note": "<strong>Usuários Apple:</strong> você pode pular o download e usar o navegador em vez disso. É só clicar em \"Abrir\" quando solicitado.",
+      "step2": "Clique em <strong>\"Iniciar Verificação Forte\"</strong> abaixo (abre em uma nova aba)",
+      "step3": "Digitalize o código QR com seu telefone",
+      "step4": "Se solicitado, abra o app e digitalize o código QR novamente",
+      "step5": "Selecione <strong>Passaporte</strong> (não há suporte para documentos de identidade)",
+      "download_app_store": "Baixar na App Store",
+      "download_google_play": "Baixar na Google Play",
+      "chip_location": {
+        "heading": "Localizando o Chip NFC do seu Passaporte",
+        "description": "O local do chip varia conforme o país. Você pode precisar tentar com páginas diferentes. Aqui estão alguns exemplos de locais:",
+        "us_germany_mexico": "<strong>Brasil, EUA, Alemanha (2016), Indonésia, México:</strong> Verso",
+        "finland_germany_new": "<strong>Finlândia, Alemanha (a partir de 2017), Rússia:</strong> Página da foto",
+        "australia": "<strong>Austrália:</strong> Página do meio (marcada com o símbolo + \"nome do chip\")"
+      },
+      "step7": "Segure o telefone sobre a página do passaporte com o chip NFC (veja dicas abaixo)",
+      "step8": "Você saberá que deu certo quando vir uma porcentagem crescente e uma barra de carregamento",
+      "step6": "Tire uma foto nítida da página do passaporte com números na parte inferior"
+    },
+    "donate_button": "Doe para apoiar o Couchers.org"
   },
   "sign_up_resend_verification_email_help": "Não recebeu o e-mail? Clique <2>aqui para reenviar o link de verificação</2>.",
   "sign_up_resend_verification_done": "Pronto! Enviamos outro e-mail.",
-  "sign_up_need_verification_title": "Quase lá, falta só mais uma coisa!"
+  "sign_up_need_verification_title": "Quase lá, falta só mais uma coisa!",
+  "quick_links": {
+    "title": "Ação rápida por e-mail",
+    "button_text": "Confirmar ação",
+    "error_message": "Erro: {{message}}",
+    "missing_payload_or_sig": "URL inválida"
+  },
+  "profile_visibility": {
+    "choose": "Escolha quais informações ficarão visíveis para usuários deslogados",
+    "visiblility_options": {
+      "nothing": "<1>Nada</1>: me ocultar completamente",
+      "map_only": "<1>Apenas mapa</1>: mostrar um pin anônimo e aleatório sem mais informações",
+      "limited": "<1>Limitado</1>: mostrar meu nome, localização, status de hospedagem/encontro, insígnias, número de referências e há quanto tempo sou Coucher",
+      "most": "<1>A maior parte</1>: mostrar toda a seção \"Sobre mim\" exceto \"Informações adicionais\"",
+      "full_profile": "<1>Perfil completo</1>: mostrar meu perfil completo (exceto referências)"
+    },
+    "title": "Visibilidade do perfil"
+  },
+  "volunteer_management": {
+    "title": "Gerenciamento de Voluntários",
+    "card_preview_label": "Lista da página da sua equipe",
+    "current_volunteer": "Na equipe de voluntários desde {{startDate}}.",
+    "past_volunteer": "Foi voluntário de {{startDate}} a {{endDate}}.",
+    "shown_on_team_page_current": "Mostrado na página da equipe como um membro atual da equipe.",
+    "shown_on_team_page_past": "Mostrado na página da equipe como voluntário no passado.",
+    "not_shown_on_team_page": "Oculto na página da equipe.",
+    "form": {
+      "title": "Atualizar suas informações de voluntário",
+      "override_name_label": "Usar um nome diferente na página da equipe (em vez de \"{{profileName}}\")",
+      "display_name_label": "Nome de exibição",
+      "link_type_label": "Tipo de link",
+      "link_type_email": "E-mail",
+      "link_text_website_placeholder": "https://seu-website.com",
+      "link_text_linkedin_helper": "O nome de usuário da URL do seu perfil (por ex., linkedin.com/in/ana-silva-a1b2c3)",
+      "link_text_email_helper": "Seu endereço de e-mail",
+      "link_text_required": "Insira um valor para o link",
+      "link_text_email_invalid": "Insira um endereço de e-mail válido",
+      "link_url_label": "URL do link",
+      "link_url_placeholder": "https://seu-website.com",
+      "link_url_helper": "A URL completa para a qual o link deve direcionar",
+      "link_url_required": "Insira uma URL para o website",
+      "link_url_invalid": "Insira uma URL válida começando com http:// ou https://",
+      "link_type_website": "Website",
+      "link_type_linkedin": "LinkedIn",
+      "link_text_label": "Valor do link",
+      "link_text_linkedin_placeholder": "ana-silva-a1b2c3",
+      "link_text_email_placeholder": "seu@e-mail.com",
+      "save_button": "Salvar alterações",
+      "link_type_couchers": "Perfil do Couchers",
+      "display_location_label": "Localização de exibição",
+      "show_on_team_page_label": "Me mostre na página da equipe",
+      "link_text_linkedin_invalid": "Insira um nome de usuário de LinkedIn válido (apenas letras, números e hifens)",
+      "override_location_label": "Usar uma localização diferente na página da equipe (em vez de \"{{profileLocation}}\")",
+      "link_text_website_helper": "O texto de exibição para o link"
+    },
+    "description": "Se sua função ou datas estiverem incorretas, avise-nos.",
+    "not_a_volunteer_message": "De acordo com nossos registros, você não é ou foi um voluntário. Se essa informação estiver incorreta, avise-nos preenchendo <1>este formulário<1>.",
+    "update_success": "Suas informações de voluntário foram atualizadas."
+  }
 }

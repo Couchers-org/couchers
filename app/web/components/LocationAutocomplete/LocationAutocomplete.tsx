@@ -1,4 +1,4 @@
-import { AutocompleteChangeReason } from "@mui/material";
+import { AutocompleteChangeReason, SxProps, Theme } from "@mui/material";
 import Autocomplete from "components/Autocomplete";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
@@ -26,6 +26,7 @@ interface LocationAutocompleteProps {
   showFullDisplayName?: boolean;
   disableRegions?: boolean;
   autocompleteContext: string;
+  sx?: SxProps<Theme>;
 }
 
 const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
@@ -48,6 +49,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
     showFullDisplayName = false,
     disableRegions = false,
     autocompleteContext,
+    sx,
   } = props;
 
   const { t } = useTranslation(GLOBAL);
@@ -125,6 +127,7 @@ const LocationAutocomplete = React.forwardRef(function LocationAutocomplete(
       fullWidth={fullWidth}
       variant={variant}
       placeholder={placeholder}
+      sx={sx}
       helperText={
         fieldError === t("location_autocomplete.select_location_hint")
           ? t("location_autocomplete.select_location_hint")
