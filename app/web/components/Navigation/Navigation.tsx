@@ -48,6 +48,7 @@ import {
 import { theme } from "theme";
 
 import { useIsNativeEmbed } from "../../platform/nativeLink";
+import DarkModeToggle from "./DarkModeToggle";
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
 import NavButton from "./NavButton";
 import ReportDialog from "./ReportDialog";
@@ -420,6 +421,7 @@ export default function Navigation() {
         <StyledMenuContainer>
           {authState.authenticated && isMounted ? (
             <>
+              <DarkModeToggle />
               <LoggedInMenu
                 menuOpen={menuOpen}
                 notificationCount={pingData?.unseenNotificationCount}
@@ -437,6 +439,7 @@ export default function Navigation() {
               }}
             >
               {!isMobile && <LanguagePickerSelect />}
+              <DarkModeToggle />
               {!isLoginPage && (
                 <Button
                   variant="outlined"
