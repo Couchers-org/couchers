@@ -14,9 +14,14 @@ import { GeocodeResult } from "utils/hooks";
 import HeroLinks from "./HeroLinks";
 
 const StyledSearchBoxContainer = styled("form")(({ theme }) => ({
-  padding: theme.spacing(4, 2, 6, 2),
+  padding: theme.spacing(4, 6, 6, 6),
   borderRadius: "var(--mui-shape-borderRadius)",
   backgroundColor: "var(--mui-palette-background-paper)",
+  margin: theme.spacing(4, 0),
+
+  [theme.breakpoints.down("md")]: {
+    margin: theme.spacing(3, 0),
+  },
 }));
 
 export default function HeroSearch() {

@@ -12,19 +12,21 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   position: "relative",
   display: "flex",
   flexDirection: "column",
-  padding: theme.spacing(4, 2),
+  padding: theme.spacing(4, 0),
 
   [theme.breakpoints.up("sm")]: {
-    padding: theme.spacing(6, 2),
+    padding: theme.spacing(6, 0),
   },
 
   [theme.breakpoints.up("md")]: {
-    padding: theme.spacing(8, 2),
+    padding: theme.spacing(8, 0),
   },
 }));
 
 const StyledOuterContainer = styled("div")({
   position: "relative",
+  display: "flex",
+  justifyContent: "center",
 });
 
 export default function Hero() {
@@ -32,7 +34,7 @@ export default function Hero() {
 
   return (
     <StyledOuterContainer>
-      <StyledContainer maxWidth="md">
+      <StyledContainer maxWidth="sm" disableGutters>
         <HeroSearch />
       </StyledContainer>
       <HeroImageAttribution />
