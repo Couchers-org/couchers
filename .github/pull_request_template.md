@@ -25,11 +25,12 @@ Fill applicable checklists below, or remove those that don't apply.
 - [ ] Clicked around my changes running locally and it works
 - [ ] Checked Desktop, Mobile and Tablet screen sizes
 
-<!--
-Maintainers may push commits to or merge your branch unless you uncomment the following:
-**Maintainers: Do not push commits to my branch.**
-**Maintainers: Do not merge this PR.**
+## Merging
+<!-- Untick the following if you'd prefer that maintainers don't push commits/merge your branch. -->
+- [x] Maintainers can push commits to my branch
+- [x] Maintainers can merge this PR for me
 
+<!--
 Remember to request review from couchers-org/web, couchers-org/backend or an individual.
-Once your code is approved, you can merge it if you have write access
+Once your code is approved, you can merge it if you have write access.
 --->
