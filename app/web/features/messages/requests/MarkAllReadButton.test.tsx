@@ -85,7 +85,7 @@ describe("MarkAllReadButton", () => {
     const user = userEvent.setup();
     await user.click(
       await screen.findByRole("button", {
-        name: t("messages:mark_all_read_button_text"),
+        name: t("messages:mark_all_read_button_text_chats"),
       }),
     );
 
@@ -107,7 +107,7 @@ describe("MarkAllReadButton", () => {
 
     await user.click(
       await screen.findByRole("button", {
-        name: t("messages:mark_all_read_button_text"),
+        name: t("messages:mark_all_read_button_text_hosting"),
       }),
     );
 
@@ -133,7 +133,7 @@ describe("MarkAllReadButton", () => {
 
     await user.click(
       await screen.findByRole("button", {
-        name: t("messages:mark_all_read_button_text"),
+        name: t("messages:mark_all_read_button_text_chats"),
       }),
     );
 

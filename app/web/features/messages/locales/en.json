@@ -1,5 +1,8 @@
 {
   "mark_all_read_button_text": "Mark all as read",
+  "mark_all_read_button_text_chats": "Mark all chats as read",
+  "mark_all_read_button_text_hosting": "Mark all host requests as read",
+  "mark_all_read_button_text_surfing": "Mark all surf requests as read",
   "request_closed_message": "This host request is closed. To continue chatting, send the other person a normal message.",
   "write_reference_button_text": "Write a Reference",
   "close_request_dialog_title": "Are you done messaging?",
