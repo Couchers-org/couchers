@@ -3,7 +3,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
-import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
+import {
+  groupChatsListKey,
+  hostRequestsListKey,
+  pingQueryKey,
+} from "features/queryKeys";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { service } from "service";
@@ -74,10 +78,14 @@ export default function MarkAllReadButton({
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [hostRequestsListKey()],
+        queryKey: hostRequestsListKey(),
       });
       queryClient.invalidateQueries({
         queryKey: [groupChatsListKey],
+      });
+      // Invalidate ping to update badge counts in tabs
+      queryClient.invalidateQueries({
+        queryKey: [pingQueryKey],
       });
     },
   });
@@ -96,7 +104,7 @@ export default function MarkAllReadButton({
       >
         <MarkAsReadIconStyled />
         <Typography component="span">
-          {t("mark_all_read_button_text")}
+          {t(`mark_all_read_button_text_${type}`)}
         </Typography>
       </MarkAsReadButtonStyled>
     </>

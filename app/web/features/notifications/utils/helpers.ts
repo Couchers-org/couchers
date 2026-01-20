@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { listNotificationsQueryKey } from "features/queryKeys";
+import { listNotificationsQueryKey, pingQueryKey } from "features/queryKeys";
 import Sentry from "platform/sentry";
 import { ListNotificationsRes } from "proto/notifications_pb";
 import { service } from "service";
@@ -187,6 +187,12 @@ export const useMarkAllNotificationsSeen = () => {
           };
         },
       );
+    },
+    onSuccess: () => {
+      // Invalidate the ping query to update the notification badge count
+      queryClient.invalidateQueries({
+        queryKey: [pingQueryKey],
+      });
     },
     onError: (error) => {
       Sentry.captureException(error, {
