@@ -4,6 +4,7 @@ import {
   COMMUNITIES,
   DASHBOARD,
   GLOBAL,
+  LANDING,
   NOTIFICATIONS,
   PROFILE,
 } from "i18n/namespaces";
@@ -15,7 +16,7 @@ export const getStaticProps: GetStaticProps = async ({ locale }) => ({
   props: {
     ...(await serverSideTranslations(
       locale ?? "en",
-      [GLOBAL, DASHBOARD, NOTIFICATIONS, PROFILE, COMMUNITIES],
+      [GLOBAL, DASHBOARD, LANDING, NOTIFICATIONS, PROFILE, COMMUNITIES],
       nextI18nextConfig,
     )),
   },

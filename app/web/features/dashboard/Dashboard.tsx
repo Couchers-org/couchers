@@ -49,16 +49,6 @@ export default function Dashboard() {
               </Typography>
             </Alert>
 
-            <Typography
-              variant="h1"
-              component="h2"
-              sx={{
-                marginBottom: "16px",
-              }}
-            >
-              {t("dashboard:dashboard")}
-            </Typography>
-
             <DashboardBanners />
 
             <Divider spacing={3} />
