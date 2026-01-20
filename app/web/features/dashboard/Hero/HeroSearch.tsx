@@ -41,6 +41,7 @@ export default function HeroSearch() {
         htmlFor={searchInputId}
         sx={{
           marginBottom: "16px",
+          textAlign: "center",
         }}
       >
         {t("search_input_label")}
