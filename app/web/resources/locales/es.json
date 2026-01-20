@@ -21,7 +21,8 @@
       "complete_percent": "{{percent}}% completo",
       "view_progress": "Ver progreso de traducción"
     },
-    "error_loading_languages": "No se pudieron cargar las opciones de idioma. Por favor inténtalo de nuevo más tarde."
+    "error_loading_languages": "No se pudieron cargar las opciones de idioma. Por favor inténtalo de nuevo más tarde.",
+    "current_preferred_language": "Su idioma preferido actualmente es <lang>{{language}}</lang>."
   },
   "retract": "Retractarse",
   "close": "Cerrar",
@@ -168,7 +169,8 @@
     "contact_us": "Contáctanos",
     "built_with": "Código abierto",
     "landing_page": "Página de inicio",
-    "invite_members": "Invitar a miembros"
+    "invite_members": "Invitar a miembros",
+    "merch_shop": "Tienda de merchandising"
   },
   "ok": "De acuerdo",
   "relative_time": {
