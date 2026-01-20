@@ -206,7 +206,9 @@
     "built_with": "Open Source",
     "landing_page": "Landing Page",
     "invite_members": "Invite members",
-    "merch_shop": "Merch Shop"
+    "merch_shop": "Merch Shop",
+    "switch_to_light_mode": "Switch to light mode",
+    "switch_to_dark_mode": "Switch to dark mode"
   },
   "invites": {
     "title": "Invite members",
