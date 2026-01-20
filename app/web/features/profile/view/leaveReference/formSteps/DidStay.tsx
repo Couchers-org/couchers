@@ -91,10 +91,10 @@ const DidStay = ({
   const { didStay, reasonDidntMeetup } = watch();
 
   const onSubmitDidNotStay = handleSubmit(async () => {
-    if (!didStay && hostRequestId && reasonDidntMeetup) {
+    if (!didStay && hostRequestId) {
       await indicateDidntMeetup({
         hostRequestId,
-        reasonDidntMeetup,
+        reasonDidntMeetup: reasonDidntMeetup || "",
       });
 
       setReferenceValues({ ...referenceData, didStay: false });

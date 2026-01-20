@@ -1236,12 +1236,13 @@ def test_DebugRedeliverPushNotification_success(db, push_collector: PushCollecto
 
     process_job()
 
-    # Get the notification_id and count existing pushes
+    # Pop the initial push notification
+    push_collector.pop_for_user(user.id, last=True)
+
+    # Get the notification_id
     with session_scope() as session:
         notification = session.execute(select(Notification).where(Notification.user_id == user.id)).scalar_one()
         notification_id = notification.id
-
-    existing_push_count = push_collector.count_for_user(user.id)
 
     # Redeliver the notification
     with notifications_session(token) as notifications:
@@ -1250,8 +1251,7 @@ def test_DebugRedeliverPushNotification_success(db, push_collector: PushCollecto
         )
 
     # Verify a new push was sent
-    assert push_collector.count_for_user(user.id) == existing_push_count + 1
-    push = push_collector.get_for_user(user.id, index=existing_push_count)
+    push = push_collector.pop_for_user(user.id, last=True)
     assert "Active Volunteer" in push.content.title
     assert push.topic_action == "badge:add"
     assert push.key == "test-badge"
