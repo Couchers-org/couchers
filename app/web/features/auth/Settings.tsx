@@ -119,6 +119,9 @@ export default function Settings() {
             )}
           </MarginWrapper>
           <MarginWrapper>
+            <DarkModeSettings />
+          </MarginWrapper>
+          <MarginWrapper>
             <NotificationSettings />
           </MarginWrapper>
           <MarginWrapper>
@@ -150,9 +153,6 @@ export default function Settings() {
           </MarginWrapper>
           <MarginWrapper>
             <LanguagePickerSettings />
-          </MarginWrapper>
-          <MarginWrapper>
-            <DarkModeSettings />
           </MarginWrapper>
           <MarginWrapper>
             <DoNotEmail />
