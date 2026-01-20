@@ -290,7 +290,7 @@ def test_modnotes(db, push_collector: PushCollector):
         fields = email_fields(mock)
 
         assert fields.subject == "[TEST] You have received a mod note"
-        push = push_collector.get_for_user(user.id)
+        push = push_collector.pop_for_user(user.id, last=True)
         assert push.content.title == "New moderator note"
         assert (
             push.content.body

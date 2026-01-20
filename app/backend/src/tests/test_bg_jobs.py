@@ -1212,33 +1212,33 @@ def test_update_badges(db, push_collector: PushCollector):
 
     assert badge_tuples == expected  # type: ignore[comparison-overlap]
 
-    print(push_collector.pushes)
+    print(push_collector.by_user)
 
-    push = push_collector.get_for_user(user1.id, index=0)
+    push = push_collector.pop_for_user(user1.id, last=False)
     assert push.content.title == "New profile badge: Founder"
     assert push.content.body == "The Founder badge was added to your profile."
 
-    push = push_collector.get_for_user(user1.id, index=1)
+    push = push_collector.pop_for_user(user1.id, last=True)
     assert push.content.title == "New profile badge: Board Member"
     assert push.content.body == "The Board Member badge was added to your profile."
 
-    push = push_collector.get_for_user(user2.id, index=0)
+    push = push_collector.pop_for_user(user2.id, last=False)
     assert push.content.title == "New profile badge: Founder"
     assert push.content.body == "The Founder badge was added to your profile."
 
-    push = push_collector.get_for_user(user2.id, index=1)
+    push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == "New profile badge: Board Member"
     assert push.content.body == "The Board Member badge was added to your profile."
 
-    push = push_collector.get_for_user(user4.id, index=0)
+    push = push_collector.pop_for_user(user4.id, last=True)
     assert push.content.title == "New profile badge: Verified Phone"
     assert push.content.body == "The Verified Phone badge was added to your profile."
 
-    push = push_collector.get_for_user(user5.id, index=0)
+    push = push_collector.pop_for_user(user5.id, last=False)
     assert push.content.title == "Profile badge removed"
     assert push.content.body == "The Board Member badge was removed from your profile."
 
-    push = push_collector.get_for_user(user5.id, index=1)
+    push = push_collector.pop_for_user(user5.id, last=True)
     assert push.content.title == "New profile badge: Verified Phone"
     assert push.content.body == "The Verified Phone badge was added to your profile."
 
@@ -1503,19 +1503,19 @@ def test_update_badges_volunteers(db, push_collector: PushCollector):
         assert "past_volunteer" not in user6_badges
 
     # Check notifications for volunteer badge users
-    push = push_collector.get_for_user(user3.id)
+    push = push_collector.pop_for_user(user3.id, last=True)
     assert push.content.title == "New profile badge: Active Volunteer"
     assert push.content.body == "The Active Volunteer badge was added to your profile."
 
-    push = push_collector.get_for_user(user4.id)
+    push = push_collector.pop_for_user(user4.id, last=True)
     assert push.content.title == "New profile badge: Past Volunteer"
     assert push.content.body == "The Past Volunteer badge was added to your profile."
 
-    push = push_collector.get_for_user(user5.id)
+    push = push_collector.pop_for_user(user5.id, last=True)
     assert push.content.title == "Profile badge removed"
     assert push.content.body == "The Active Volunteer badge was removed from your profile."
 
-    push = push_collector.get_for_user(user6.id)
+    push = push_collector.pop_for_user(user6.id, last=True)
     assert push.content.title == "Profile badge removed"
     assert push.content.body == "The Past Volunteer badge was removed from your profile."
 
@@ -1547,7 +1547,7 @@ def test_update_badges_volunteer_status_change(db, push_collector: PushCollector
         assert "volunteer" in user3_badges
         assert "past_volunteer" not in user3_badges
 
-    push = push_collector.get_for_user(user3.id)
+    push = push_collector.pop_for_user(user3.id, last=True)
     assert push.content.title == "New profile badge: Active Volunteer"
     assert push.content.body == "The Active Volunteer badge was added to your profile."
 
@@ -1565,11 +1565,11 @@ def test_update_badges_volunteer_status_change(db, push_collector: PushCollector
         assert "past_volunteer" in user3_badges
 
     # Check both badges were updated
-    push = push_collector.get_for_user(user3.id, index=1)
+    push = push_collector.pop_for_user(user3.id, last=False)
     assert push.content.title == "Profile badge removed"
     assert push.content.body == "The Active Volunteer badge was removed from your profile."
 
-    push = push_collector.get_for_user(user3.id, index=2)
+    push = push_collector.pop_for_user(user3.id, last=True)
     assert push.content.title == "New profile badge: Past Volunteer"
     assert push.content.body == "The Past Volunteer badge was added to your profile."
 

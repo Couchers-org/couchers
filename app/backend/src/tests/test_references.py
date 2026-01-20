@@ -538,7 +538,7 @@ def test_WriteFriendReference_with_private_text(db, push_collector: PushCollecto
     assert e.subject == f"[TEST] You've received a friend reference from {user1.name}!"
     assert e.recipient == user2.email
 
-    push = push_collector.get_for_user(user2.id)
+    push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == f"New friend reference from {user1.name}"
     assert push.content.body == "They were nice!"
 
@@ -865,7 +865,7 @@ def test_WriteHostRequestReference_private_text(db, push_collector: PushCollecto
     assert e.subject == f"[TEST] You've received a reference from {user1.name}!"
     assert e.recipient == user2.email
 
-    push = push_collector.get_for_user(user2.id)
+    push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == f"New reference from {user1.name}"
     assert push.content.body == f"{user1.name} left you a reference, now it's your turn to write theirs!"
 

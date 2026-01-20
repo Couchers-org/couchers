@@ -71,7 +71,7 @@ def test_ChangePhone(db, monkeypatch, push_collector: PushCollector):
             assert len(user.phone_verification_token) == 6
 
         process_jobs()
-        push = push_collector.get_for_user(user_id)
+        push = push_collector.pop_for_user(user_id, last=True)
         assert push.content.title == "Phone verification started"
         assert push.content.body == "You started phone number verification with the number +46 70 174 06 05."
 
@@ -133,7 +133,7 @@ def test_VerifyPhone(push_collector: PushCollector):
         account.VerifyPhone(account_pb2.VerifyPhoneReq(token="111112"))
 
         process_jobs()
-        push = push_collector.get_for_user(user.id)
+        push = push_collector.pop_for_user(user.id, last=True)
         assert push.content.title == "Phone verification completed"
         assert push.content.body == "Your phone number was successfully verified as +46 70 174 06 05."
 

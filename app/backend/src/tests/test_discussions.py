@@ -89,7 +89,7 @@ def test_create_and_get_discussion(db, push_collector: PushCollector):
 
     process_jobs()
 
-    push = push_collector.get_for_user(user2_id)
+    push = push_collector.pop_for_user(user2_id, last=True)
     assert push.content.title == "New discussion: dummy title"
     assert push.content.body == f"{user.name} started the discussion in Testing Community."
 
@@ -189,16 +189,14 @@ def test_discussion_notifications_regression(db, push_collector: PushCollector):
     process_jobs()
 
     # User2 should get 2 notifications about 2 replies to their comment, User3 should get 1 notification about 1 reply
-    assert push_collector.count_for_user(user2_id) == 2
-
-    push = push_collector.get_for_user(user2_id, index=0)
+    push = push_collector.pop_for_user(user2_id, last=False)
     assert push.content.title == f"{user3.name} • dummy title"
     assert push.topic_action == "thread:reply"
 
-    push = push_collector.get_for_user(user2_id, index=1)
+    push = push_collector.pop_for_user(user2_id, last=True)
     assert push.content.title == f"{user.name} • dummy title"
     assert push.topic_action == "thread:reply"
 
-    push = push_collector.get_for_user(user3.id)
+    push = push_collector.pop_for_user(user3.id, last=True)
     assert push.content.title == f"{user.name} • dummy title"
     assert push.topic_action == "thread:reply"
