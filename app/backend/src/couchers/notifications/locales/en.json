@@ -1,12 +1,5 @@
 {
   "push": {
-    "adhoc": {
-      "push_enabled": {
-        "title": "Push notifications enabled",
-        "ios_title": "Push Notifications Enabled",
-        "body": "You'll now receive notifications on this device."
-      }
-    },
     "account_deletion__start": {
       "title": "Account deletion requested",
       "ios_title": "Account Deletion Requested",
@@ -27,6 +20,11 @@
       "title": "Still open to hosting?",
       "ios_title": "Still Open to Hosting?",
       "body": "Log in to confirm your hosting status."
+    },
+    "adhoc__push_enabled": {
+      "title": "Push notifications enabled",
+      "ios_title": "Push Notifications Enabled",
+      "body": "You'll now receive notifications on this device."
     },
     "api_key__create": {
       "title": "API key created",

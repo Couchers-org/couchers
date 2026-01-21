@@ -694,7 +694,7 @@ class _Renderer:
 def render_adhoc_push_notification(name: str, locale: str) -> PushNotificationContent:
     """Renders a push notification that doesn't have an assigned topic-action."""
     renderer = _Renderer(locale, timezone=ZoneInfo("Etc/UTC")) # Timezone irrelevant, we're not formatting dates
-    return renderer._get_content(string_group=f"adhoc.{name}")
+    return renderer._get_content(string_group=f"adhoc__{name}")
 
 
 @lru_cache(maxsize=1)

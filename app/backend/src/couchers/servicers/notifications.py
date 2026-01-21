@@ -257,7 +257,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             session,
             push_notification_subscription_id=subscription.id,
             user_id=context.user_id,
-            topic_action="adhoc:setup",
+            topic_action="adhoc:push_enabled",
             content=render_adhoc_push_notification(
                 "push_enabled",
                 locale=context.ui_language_preference or "en"),
