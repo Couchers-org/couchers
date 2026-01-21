@@ -52,6 +52,7 @@ from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.helpers.badges import user_add_badge, user_remove_badge
+from couchers.helpers.profile import has_completed_profile_expression
 from couchers.materialized_views import (
     UserResponseRate,
 )
@@ -437,7 +438,7 @@ def send_onboarding_emails(payload: empty_pb2.Empty) -> None:
                 .where(User.is_visible)
                 .where(User.onboarding_emails_sent == 1)
                 .where(now() - User.last_onboarding_email_sent > timedelta(days=7))
-                .where(User.has_completed_profile == False)
+                .where(~has_completed_profile_expression())
             )
             .scalars()
             .all()
@@ -692,7 +693,7 @@ def update_recommendation_scores(payload: empty_pb2.Empty) -> None:
             home_text += func.coalesce(field, "")  # type: ignore[assignment]
         home_length = func.length(home_text)
 
-        filled_profile = int_(User.has_completed_profile)
+        filled_profile = int_(has_completed_profile_expression())
         has_text = int_(text_length > 500)
         long_text = int_(text_length > 2000)
         can_host = int_(User.hosting_status == HostingStatus.can_host)

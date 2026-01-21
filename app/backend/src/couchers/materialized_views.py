@@ -11,6 +11,7 @@ from sqlalchemy.sql import (
     and_,
     case,
     cast,
+    exists,
     func,
     literal,
     literal_column,
@@ -38,6 +39,7 @@ from couchers.models import (
     MatViewBase,
     Message,
     MessageType,
+    PhotoGalleryItem,
     StrongVerificationAttempt,
     Upload,
     User,
@@ -159,6 +161,13 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
     # Subquery to get the first photo from each user's profile gallery
     first_gallery_photo_subquery = get_first_gallery_photo_subquery(name="first_photo")
 
+    # Compute has_completed_profile: user has at least one photo and about_me >= 150 chars
+    has_completed_profile_expr = and_(
+        User.profile_gallery_id != None,
+        exists(sa_select(PhotoGalleryItem.id).where(PhotoGalleryItem.gallery_id == User.profile_gallery_id)),
+        func.coalesce(func.length(User.about_me), 0) >= 150,
+    )
+
     # Be sure to modify the LiteUser type if you add/remove columns!
     return (
         sa_select(
@@ -171,7 +180,7 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
             User.geom_radius.label("radius"),
             User.is_visible.label("is_visible"),
             Upload.filename.label("avatar_filename"),
-            User.has_completed_profile.label("has_completed_profile"),
+            has_completed_profile_expr.label("has_completed_profile"),
             User.has_completed_my_home.label("has_completed_my_home"),
             func.coalesce(strong_verification_subquery.c.true, False).label("has_strong_verification"),
         )

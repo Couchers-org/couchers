@@ -12,7 +12,17 @@ from couchers import urls
 from couchers.constants import DONATION_GOAL_USD, DONATION_OFFSET_USD
 from couchers.context import CouchersContext, make_logged_out_context
 from couchers.materialized_views import LiteUser
-from couchers.models import Cluster, Invoice, InvoiceType, Node, ProfilePublicVisibility, Reference, User, Volunteer
+from couchers.models import (
+    Cluster,
+    Invoice,
+    InvoiceType,
+    Node,
+    PhotoGalleryItem,
+    ProfilePublicVisibility,
+    Reference,
+    User,
+    Volunteer,
+)
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 from couchers.resources import get_static_badge_dict
@@ -210,8 +220,6 @@ class Public(public_pb2_grpc.PublicServicer):
 
         if user.public_visibility == ProfilePublicVisibility.most:
             # Get first photo from profile gallery for avatar
-            from couchers.models import PhotoGalleryItem
-
             first_gallery_photo = session.execute(
                 select(PhotoGalleryItem)
                 .where(PhotoGalleryItem.gallery_id == user.profile_gallery_id)

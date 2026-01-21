@@ -18,7 +18,6 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
     and_,
-    event,
     func,
     not_,
     or_,
@@ -26,9 +25,8 @@ from sqlalchemy import (
 )
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy import select as sa_select
-from sqlalchemy.engine import Connection
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import DynamicMapped, Mapped, Mapper, column_property, mapped_column, relationship
+from sqlalchemy.orm import DynamicMapped, Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -43,7 +41,6 @@ from couchers.models.activeness_probe import ActivenessProbe
 from couchers.models.base import Base, Geom
 from couchers.models.mod_note import ModNote
 from couchers.models.static import Language, Region, TimezoneArea
-from couchers.models.uploads import PhotoGalleryItem
 from couchers.utils import get_coordinates, last_active_coarsen, now
 
 if TYPE_CHECKING:
@@ -164,10 +161,6 @@ class User(Base, kw_only=True):
     # Profile photo gallery for this user (photos about themselves)
     # The first photo in the gallery (by position) is used as the avatar
     profile_gallery_id: Mapped[int | None] = mapped_column(ForeignKey("photo_galleries.id"), default=None)
-
-    # Denormalized field: true if user has a photo and about_me >= 150 chars
-    # Kept in sync via SQLAlchemy events (see bottom of file)
-    has_completed_profile: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), default=False)
 
     hosting_status: Mapped[HostingStatus] = mapped_column(Enum(HostingStatus))
     meetup_status: Mapped[MeetupStatus] = mapped_column(Enum(MeetupStatus), server_default="open_to_meetup", init=False)
@@ -574,50 +567,3 @@ class RegionLived(Base, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     region_code: Mapped[str] = mapped_column(ForeignKey("regions.code", deferrable=True))
-
-
-# Event handlers to keep User.has_completed_profile in sync
-@event.listens_for(User, "after_update")
-@event.listens_for(User, "after_insert")
-def _user_updated(mapper: Mapper[User], connection: Connection, target: User) -> None:
-    """When a user's profile_gallery_id or about_me changes, update has_completed_profile."""
-    # Use raw SQL to update has_completed_profile based on current database state
-    stmt = text(
-        """
-        UPDATE users
-        SET has_completed_profile = (
-            EXISTS (
-                SELECT 1
-                FROM photo_gallery_items
-                WHERE photo_gallery_items.gallery_id = users.profile_gallery_id
-            )
-            AND COALESCE(character_length(users.about_me), 0) >= 150
-        )
-        WHERE users.id = :user_id
-        """
-    ).bindparams(user_id=target.id)
-    connection.execute(stmt)
-
-
-@event.listens_for(PhotoGalleryItem, "after_insert")
-@event.listens_for(PhotoGalleryItem, "after_delete")
-def _photo_gallery_item_changed(
-    mapper: Mapper[PhotoGalleryItem], connection: Connection, target: PhotoGalleryItem
-) -> None:
-    """When photos are added/removed from a gallery, update has_completed_profile for affected users."""
-    # Find users who have this gallery as their profile_gallery_id
-    stmt = text(
-        """
-        UPDATE users
-        SET has_completed_profile = (
-            EXISTS (
-                SELECT 1
-                FROM photo_gallery_items
-                WHERE photo_gallery_items.gallery_id = users.profile_gallery_id
-            )
-            AND COALESCE(character_length(users.about_me), 0) >= 150
-        )
-        WHERE users.profile_gallery_id = :gallery_id
-        """
-    ).bindparams(gallery_id=target.gallery_id)
-    connection.execute(stmt)

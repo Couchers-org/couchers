@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, String, UniqueConstraint, func
+from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, String, UniqueConstraint, func, select
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.selectable import Select, Subquery
@@ -126,8 +126,6 @@ def get_first_gallery_photo_subquery(name: str = "first_photo") -> Subquery:
         first_photo = get_first_gallery_photo_subquery()
         query = select(User).outerjoin(first_photo, first_photo.c.gallery_id == User.profile_gallery_id)
     """
-    from sqlalchemy import select
-
     return (
         select(
             PhotoGalleryItem.gallery_id,
@@ -148,8 +146,6 @@ def get_first_gallery_photo_query(gallery_id: int) -> Select[tuple[PhotoGalleryI
     Usage:
         first_photo = session.execute(get_first_gallery_photo_query(gallery_id)).scalar_one_or_none()
     """
-    from sqlalchemy import select
-
     return (
         select(PhotoGalleryItem)
         .where(PhotoGalleryItem.gallery_id == gallery_id)

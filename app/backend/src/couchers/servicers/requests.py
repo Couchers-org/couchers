@@ -9,6 +9,7 @@ from sqlalchemy.sql import and_, func, or_
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext
+from couchers.helpers.profile import has_completed_profile
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,
@@ -183,7 +184,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         self, request: requests_pb2.CreateHostRequestReq, context: CouchersContext, session: Session
     ) -> requests_pb2.CreateHostRequestRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        if not user.has_completed_profile:
+        if not has_completed_profile(session, user):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_send_request")
 
         if request.host_user_id == context.user_id:

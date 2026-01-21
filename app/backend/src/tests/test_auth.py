@@ -1160,6 +1160,7 @@ def test_GetInviteCodeInfo(db):
 
         # Add avatar to profile gallery (first photo is the avatar)
         user_obj = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        assert user_obj.profile_gallery_id is not None
         session.add(
             PhotoGalleryItem(
                 gallery_id=user_obj.profile_gallery_id,

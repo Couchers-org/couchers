@@ -12,6 +12,7 @@ from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.context import CouchersContext
 from couchers.crypto import random_hex
 from couchers.db import _get_base_engine, session_scope
+from couchers.helpers.profile import has_completed_profile
 from couchers.models import (
     Base,
     FriendRelationship,
@@ -267,7 +268,6 @@ def generate_user(
             session.add(photo_item)
             session.flush()
 
-            user.avatar_key = key
             user.about_me = "I have a complete profile!\n" * 20
 
         if strong_verification:
@@ -294,7 +294,7 @@ def generate_user(
 
         session.commit()
 
-        assert user.has_completed_profile == complete_profile
+        assert has_completed_profile(session, user) == complete_profile
 
         # refresh it, undoes the expiry
         session.refresh(user)

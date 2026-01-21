@@ -20,6 +20,7 @@ from sqlalchemy.sql import distinct, func
 from sqlalchemy.sql.selectable import Select
 
 from couchers.db import session_scope
+from couchers.helpers.profile import has_completed_profile_expression
 from couchers.models import BackgroundJob, EventOccurrenceAttendee, HostingStatus, HostRequest, Message, Reference, User
 from couchers.models.moderation import (
     ModerationAction,
@@ -152,7 +153,7 @@ maybe_gauge: Gauge = _make_gauge_from_query(
 completed_profile_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_completed_profile",
     "Total number of users with a completed profile",
-    select(func.count()).select_from(User).where(User.is_visible).where(User.has_completed_profile),
+    select(func.count()).select_from(User).where(User.is_visible).where(has_completed_profile_expression()),
 )
 
 completed_my_home_gauge: Gauge = _make_gauge_from_query(

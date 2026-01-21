@@ -13,6 +13,7 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
+from couchers.helpers.profile import has_completed_profile_expression
 from couchers.helpers.strong_verification import has_strong_verification
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
@@ -484,7 +485,10 @@ def _user_search_inner(
             statement = statement.where(or_(*language_options))
 
         if request.HasField("profile_completed"):
-            statement = statement.where(User.has_completed_profile == request.profile_completed.value)
+            if request.profile_completed.value:
+                statement = statement.where(has_completed_profile_expression())
+            else:
+                statement = statement.where(~has_completed_profile_expression())
         if request.HasField("guests"):
             statement = statement.where(User.max_guests >= request.guests.value)
         if request.HasField("last_minute"):

@@ -2,9 +2,8 @@
 
 This migration completes the transition from avatar_key to profile_gallery system:
 1. Migrates existing avatar_key photos into the galleries
-2. Adds has_completed_profile column to users
-3. Updates lite_users materialized view to use profile galleries and has_completed_profile
-4. Removes the avatar_key column from users table
+2. Updates lite_users materialized view to use profile galleries (computing has_completed_profile)
+3. Removes the avatar_key column from users table
 
 Revision ID: 6862ecf6494d
 Revises: f8b4ef6e3819
@@ -39,26 +38,8 @@ def upgrade() -> None:
         """
     )
 
-    # Add the has_completed_profile column with default False
-    op.add_column("users", sa.Column("has_completed_profile", sa.Boolean(), server_default=sa.false(), nullable=False))
-
-    # Backfill existing users based on whether they have photos and about_me >= 150 chars
-    op.execute(
-        """
-        UPDATE users
-        SET has_completed_profile = (
-            (users.profile_gallery_id IS NOT NULL)
-            AND EXISTS (
-                SELECT 1
-                FROM photo_gallery_items
-                WHERE photo_gallery_items.gallery_id = users.profile_gallery_id
-            )
-            AND character_length(users.about_me) >= 150
-        );
-        """
-    )
-
-    # Update lite_users materialized view to use profile galleries and has_completed_profile column
+    # Update lite_users materialized view to use profile galleries
+    # has_completed_profile is now computed: user has at least one photo and about_me >= 150 chars
     op.execute(
         """
         DROP MATERIALIZED VIEW lite_users;
@@ -73,7 +54,9 @@ def upgrade() -> None:
             users.geom_radius AS radius,
             (NOT (users.is_banned OR users.is_deleted)) AS is_visible,
             uploads.filename AS avatar_filename,
-            users.has_completed_profile,
+            ((users.profile_gallery_id IS NOT NULL)
+                AND EXISTS (SELECT 1 FROM photo_gallery_items WHERE photo_gallery_items.gallery_id = users.profile_gallery_id)
+                AND COALESCE(char_length(users.about_me), 0) >= 150) AS has_completed_profile,
             ((users.max_guests IS NOT NULL) AND (users.sleeping_arrangement IS NOT NULL) AND ((users.about_place IS NOT NULL) OR (users.other_host_info IS NOT NULL) OR (users.sleeping_details IS NOT NULL) OR (users.area IS NOT NULL) OR (users.house_rules IS NOT NULL))) AS has_completed_my_home,
             COALESCE(sv_subquery."true", false) AS has_strong_verification
         FROM users
@@ -183,9 +166,6 @@ def downgrade() -> None:
         CREATE INDEX ix_lite_users_username_visible ON lite_users USING hash (username) WHERE is_visible;
         """
     )
-
-    # Drop the has_completed_profile column
-    op.drop_column("users", "has_completed_profile")
 
     # Remove migrated avatar photos from galleries
     # Only remove items where the upload_key matches the user's avatar_key
