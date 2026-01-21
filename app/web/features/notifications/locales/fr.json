@@ -44,7 +44,7 @@
                     "receive_hosted": "Vous recevez une référence de la part de quelqu’un.e qui vous a hébergé.e.",
                     "receive_friend": "Vous avez reçu une référence d’un ami",
                     "reminder_hosted": "Rappel d'écrire une référence pour quelqu'un.e que vous avez hébergé.e",
-                    "reminder_surfed": "Attention : Rappel d'écrire une référence pour quelqu'un.e avec qui vous avez surfé",
+                    "reminder_surfed": "Attention : Rappel d'écrire une référence pour quelqu'un.e avec qui vous avez surfé",
                     "receive_surfed": "Vous recevez une référence de la part de quelqu’un.e que vous avez hébergé.e"
                 },
                 "friend_request": {
@@ -57,7 +57,7 @@
                     "delete": "Un événement auquel vous participez a été supprimé",
                     "invite_organizer": "Quelqu'un.e vous invite à coorganiser un événement",
                     "comment": " Un utilisateur commente un événement auquel vous participez",
-                    "reminder": "Rappel : un événement auquel vous participez aura lieu bientôt",
+                    "reminder": "Rappel : un événement auquel vous participez aura lieu bientôt",
                     "create_approved": "Un événement approuvé par les modérateurs a été créé dans votre communauté",
                     "create_any": "Un utilisateur crée un événement dans votre communauté (non vérifié par un administrateur)"
                 },
@@ -136,7 +136,7 @@
                     "safari": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. Dans Safari, allez dans Préférences > Sites web > Notifications pour modifier les autorisations.",
                     "chrome": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. DAns Chrome, cliquez sur l’icône de cadenas dans la barre d’adresse, puis ajustez le paramètre « Notifications »."
                 },
-                "platform_settings_description": "Vous rencontrez toujours des problèmes après avoir activé les notifications dans votre navigateur ? Vous devrez peut-être ajuster les paramètres de votre plateforme."
+                "platform_settings_description": "Vous rencontrez toujours des problèmes après avoir activé les notifications dans votre navigateur ? Vous devrez peut-être ajuster les paramètres de votre plateforme."
             },
             "allow_push": "Cliquez sur le bouton « Autoriser » dans la fenêtre push-up de votre navigateur pour activer les notifications poussées.",
             "error_unsupported": "Les notifications pousées ou les « Service Workers » ne sont pas prises en charge dans ce navigateur.",
@@ -147,7 +147,7 @@
     "error_loading": "Erreur de chargement des notifications",
     "error_updating_notifications": "Erreur lors de la mise à jour des notifications",
     "push_notification_banner": {
-        "message": "Ne manquez pas de demandes d'hébergement, de réponses ou de messages ; pouvons-nous vous envoyer des notifications poussées ?",
-        "confirm": "Oui, s'il vous plaît !"
+        "message": "Ne manquez pas de demandes d'hébergement, de réponses ou de messages ; pouvons-nous vous envoyer des notifications poussées ?",
+        "confirm": "Oui, s'il vous plaît !"
     }
 }
