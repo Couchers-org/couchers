@@ -26,10 +26,6 @@ template_folder = Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2
 md = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading", "hr", "list", "link", "emphasis"])
 
 
-# Special context values expected by v2 filters
-CONTEXT_YEAR_KEY = "_year"
-
-
 @dataclass(frozen=True, slots=True, kw_only=True)
 class Context:
     """Context available to filter functions during templating."""

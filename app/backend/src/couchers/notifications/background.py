@@ -28,7 +28,7 @@ from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import moderation_state_column_visible
-from couchers.templates.v2 import CONTEXT_YEAR_KEY, Context, render_template, template_folder
+from couchers.templates.v2 import Context, render_template, template_folder
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
@@ -43,10 +43,12 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     timezone = ZoneInfo(user.timezone or "Etc/UTC")
 
     template_args = {
+        **rendered.template_args,
         "header_subject": rendered.subject,
         "header_preview": rendered.preview,
         "user": user,
         "time": notification.created,
+        "footer_copyright_year": now().year,
         "footer_email_is_critical": rendered.is_critical,
         "footer_manage_notifications_link": urls.notification_settings_link(),
         "footer_notification_topic_action": rendered.topic_action_unsubscribe_text,
@@ -54,8 +56,6 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         "footer_notification_topic_key": rendered.topic_key_unsubscribe_text,
         "footer_notification_topic_key_link": generate_unsub_topic_key(notification),
         "footer_do_not_email_link": generate_do_not_email(user),
-        CONTEXT_YEAR_KEY: now().year,
-        **rendered.template_args,
     }
 
     # Format plaintext template
