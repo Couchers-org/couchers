@@ -6,8 +6,8 @@
   "show_cancelled_events": "Montrer les événements annulés",
   "cancel_event_success_message": "L'événement a été annulé avec succès.",
   "cancel_event_dialog": {
-    "title": "Annuleer l'événement ?",
-    "message": "Êtes-vous sûr d'annuler cet événement ?"
+    "title": "Annuleer l'événement ?",
+    "message": "Êtes-vous sûr d'annuler cet événement ?"
   },
   "cancelled": "Annulé",
   "invite_community_dialog": {
@@ -27,7 +27,7 @@
   "comment": "Commenter",
   "comments": "Commentaires",
   "comments_count": "Commentaires | {{count}}",
-  "fill_out_comment": "Vous devez d'abord écrire quelque chose !",
+  "fill_out_comment": "Vous devez d'abord écrire quelque chose !",
   "community_image_input_alt": "Sélection d'image de la communauté",
   "upload_helper_text_replace": "Cliquez pour changer l'image",
   "community_moderators": "Organisateurs.trices de la communauté",
