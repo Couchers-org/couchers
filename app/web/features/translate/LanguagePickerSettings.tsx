@@ -1,4 +1,4 @@
-import { Link, Typography } from "@mui/material";
+import { Checkbox, FormControlLabel, Link, Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
 import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
@@ -7,6 +7,7 @@ import { translateJobURL, translateRoute } from "routes";
 
 import Button from "../../components/Button";
 import LanguagePickerSelect from "./LanguagePickerSelect";
+import { useShowAllLanguages } from "./useShowAllLanguages";
 
 interface ChangeLanguageProps {
   className?: string;
@@ -19,6 +20,8 @@ export default function LanguagePickerSettings({
   const router = useRouter();
   const { locale } = router;
   const languageName = LANGUAGE_MAP[locale || "en"]?.name;
+  const { isAvailable, showAllLanguages, setShowAllLanguages } =
+    useShowAllLanguages();
 
   return (
     <div className={className}>
@@ -60,6 +63,28 @@ export default function LanguagePickerSettings({
             {t("global:language_preference.translation_progress.view_progress")}
           </Button>
         </Typography>
+        {isAvailable && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={showAllLanguages}
+                onChange={(e) => setShowAllLanguages(e.target.checked)}
+              />
+            }
+            label={
+              <div>
+                <Typography variant="body1" component="span" fontWeight="bold">
+                  {t("global:language_preference.show_all_languages")}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {t(
+                    "global:language_preference.show_all_languages_description",
+                  )}
+                </Typography>
+              </div>
+            }
+          />
+        )}
       </>
     </div>
   );

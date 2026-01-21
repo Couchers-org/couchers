@@ -28,6 +28,7 @@ import { service } from "service";
 import { theme } from "theme";
 
 import { ALMOST_DONE_CUTOFF } from "./constants";
+import { useShowAllLanguages } from "./useShowAllLanguages";
 import { getAvailableLanguages } from "./utils";
 
 interface StyledMuiSelectProps {
@@ -75,6 +76,7 @@ export default function LanguagePickerSelect({
   const { t } = useTranslation([GLOBAL]);
 
   const { data: languages, isLoading, error } = useWeblateStats();
+  const { showAllLanguages } = useShowAllLanguages();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
@@ -118,10 +120,10 @@ export default function LanguagePickerSelect({
   };
 
   const renderFlag = (flagCode: string, percent?: number) => {
+    const shouldGreyOut = percent !== undefined && percent < ALMOST_DONE_CUTOFF;
     const commonStyles = {
-      filter:
-        percent && percent < ALMOST_DONE_CUTOFF ? "grayscale(100%)" : "none",
-      opacity: percent && percent < ALMOST_DONE_CUTOFF ? 0.4 : 1,
+      filter: shouldGreyOut ? "grayscale(100%)" : "none",
+      opacity: shouldGreyOut ? 0.4 : 1,
     } as const;
 
     if (flagCode === "CAT") {
@@ -141,9 +143,9 @@ export default function LanguagePickerSelect({
       />
     );
   };
-  // Languages with < 50% translated are hidden from language selector
+  // Languages with < 50% translated are hidden from language selector (unless showAllLanguages is enabled)
   // Languages with < 80% translated are greyed out
-  const availableLanguages = getAvailableLanguages(languages);
+  const availableLanguages = getAvailableLanguages(languages, showAllLanguages);
 
   const menuItems: React.ReactNode[] | undefined = isLoading
     ? []

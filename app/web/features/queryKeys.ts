@@ -155,3 +155,6 @@ export const newUsersListKey = "newUsersList";
 // Public
 export const volunteersKey = "volunteers";
 export const donationStatsKey = "donationStats";
+
+// Translate
+export const showAllLanguagesQueryKey = "showAllLanguages";
