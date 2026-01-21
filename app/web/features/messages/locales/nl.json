@@ -152,5 +152,8 @@
     "request_duration_other": "{{count}} nachten",
     "title_for_host": "Verzoek van {{user}} - {{status}}"
   },
-  "unknown_user": "Onbekende gebruiker"
+  "unknown_user": "Onbekende gebruiker",
+  "mark_all_read_button_text_surfing": "Markeer alle surfverzoeken als gelezen",
+  "mark_all_read_button_text_chats": "Markeer alle chats als gelezen",
+  "mark_all_read_button_text_hosting": "Markeer alle hostverzoeken als gelezen"
 }

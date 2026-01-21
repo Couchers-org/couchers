@@ -125,12 +125,29 @@
       "error_unsupported": "Pushberichten of Service Workers worden niet ondersteund in deze browser.",
       "permission_denied": {
         "instructions": {
-          "chrome": "Je hebt meldingen geblokkeerd. Schakel meldingen in via de instellingen van je browser om door te gaan. Klik in Chrome op het hangslot-icoon in de adresbalk en pas de instelling 'Meldingen' aan."
+          "chrome": "Je hebt meldingen geblokkeerd. Schakel meldingen in via de instellingen van je browser om door te gaan. Klik in Chrome op het hangslot-icoon in de adresbalk en pas de instelling 'Meldingen' aan.",
+          "firefox": "Je hebt notificaties geblokkeerd. Zet pushberichten in de instellingen van je browser weer aan om verder te gaan. In Firefox ga je naar Instellingen > Privacy & Beveiliging > Toestemmingen > Notificaties om toestemming te geven.",
+          "safari": "Je hebt notificaties geblokkeerd. Zet pushberichten in de instellingen van je browser weer aan om verder te gaan. In Safari ga je naar Instellingen > Websites > Meldingen om toestemming te geven.",
+          "generic": "Je hebt notificaties geblokkeerd. Zet pushberichten in de instellingen van je browser weer aan om verder te gaan.",
+          "macos": "In macOS ga je naar Systeeminstellingen > Meldingen om toestemming te geven.",
+          "windows": "In Windows ga je naar Instellingen > Systeem > Meldingen om toestemming te geven.",
+          "linux": {
+            "gnome": "In GNOME ga je naar Instellingen > Meldingen om toestemming te geven.",
+            "kde": "In KDE ga je naar Systeeminstellingen > Notificaties om toestemming te geven."
+          },
+          "mobile": {
+            "os": "Zet in de instellingen van je mobiel de notificaties aan.",
+            "browser": "Geef in de instellingen van je browser onze website toestemming om notificaties te sturen."
+          }
         },
         "platform_settings_description": "Heb je nog steeds problemen nadat je meldingen in je browser hebt ingeschakeld? Mogelijk moet je de platforminstellingen aanpassen."
       },
       "error_not_granted": "Je hebt geen toestemming gegeven om pushberichten te verzenden.",
       "allow_push": "Klik op de knop 'Toestaan' in de pop-up van je browser om pushberichten in te schakelen."
     }
+  },
+  "push_notification_banner": {
+    "confirm": "Ja, graag!",
+    "message": "Mis nooit meer verzoeken, reacties of berichten; mogen we je pushberichten sturen?"
   }
 }
