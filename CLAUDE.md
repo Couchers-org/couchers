@@ -63,6 +63,10 @@ make mypy
 - Run `make protos` from backend after changes
 - Internal job payloads in `/app/backend/proto/internal/jobs.proto`
 
+### Localization
+- Do not hard-code English text strings, store them in the appropriate locale files (`features/*/locales/en.json`)
+- When adding strings to an `en.json` file, refer to `/docs/localization.md` for string key and text guidance
+
 ## Testing
 
 ### Backend Tests
