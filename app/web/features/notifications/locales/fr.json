@@ -134,12 +134,12 @@
                         "os": "Dans les paramètres de notification de votre portable, ajustez les autorisations pour permettre les notifications."
                     },
                     "safari": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. Dans Safari, allez dans Préférences > Sites web > Notifications pour modifier les autorisations.",
-                    "chrome": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. DAns Chrome, cliquez sur l’icône de cadenas dans la barre d’adresse, puis ajustez le paramètre « Notifications »."
+                    "chrome": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. DAns Chrome, cliquez sur l’icône de cadenas dans la barre d’adresse, puis ajustez le paramètre « Notifications »."
                 },
                 "platform_settings_description": "Vous rencontrez toujours des problèmes après avoir activé les notifications dans votre navigateur ? Vous devrez peut-être ajuster les paramètres de votre plateforme."
             },
-            "allow_push": "Cliquez sur le bouton « Autoriser » dans la fenêtre push-up de votre navigateur pour activer les notifications poussées.",
-            "error_unsupported": "Les notifications pousées ou les « Service Workers » ne sont pas prises en charge dans ce navigateur.",
+            "allow_push": "Cliquez sur le bouton « Autoriser » dans la fenêtre push-up de votre navigateur pour activer les notifications poussées.",
+            "error_unsupported": "Les notifications pousées ou les « Service Workers » ne sont pas prises en charge dans ce navigateur.",
             "error_not_granted": "Vous n'avez pas donné l'autorisation d'envoyer des notifications poussées."
         }
     },

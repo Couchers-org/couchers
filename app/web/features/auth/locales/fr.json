@@ -189,10 +189,10 @@
     "instructions": {
       "title": "Comment effectuer une vérification rigoureuse",
       "warning": "Important : L'étape de la numérisation de la puce du passeport peut être délicate—lisez d'abord toutes les instructions !",
-      "step2": "Cliquez sur <strong>« Démarrer la vérification rigoureuse»</strong> ci-dessous (s’ouvre dans un nouvel onglet)",
+      "step2": "Cliquez sur <strong>« Démarrer la vérification rigoureuse»</strong> ci-dessous (s’ouvre dans un nouvel onglet)",
       "step3": "Scannez le code QR avec votre téléphone",
       "step1": "Télécharger l’application <strong>Iris ID</strong>",
-      "step1_apple_note": "<strong>Utilisateurs.trices Apple :</strong> Vous pouvez ignorer le téléchargement et utiliser votre navigateur à la place de l'application. Cliquez simplement sur « Ouvrir » lorsque vous y êtes invité.e.",
+      "step1_apple_note": "<strong>Utilisateurs.trices Apple :</strong> Vous pouvez ignorer le téléchargement et utiliser votre navigateur à la place de l'application. Cliquez simplement sur « Ouvrir » lorsque vous y êtes invité.e.",
       "step8": "Vous saurez que la vérification a réussi lorsque vous verrez grâce à l'augmentation des pourcentages et à un indicateur de chargement",
       "step4": "Si vous êtes demandé.e, ouvrez l’application et scannez à nouveau le code QR",
       "step5": "Sélectionnez <strong>Passeport</strong> (les cartes d'identité ne sont pas acceptées)",
@@ -244,7 +244,7 @@
     },
     "title": "Aperçu des fonctionnalités",
     "explanation": "Cette page vous permet d’essayer des fonctionnalités encore en cours de développement avant qu’elles ne soient prêtes à être utilisées par tous.",
-    "disclaimer": "Veuillez garder à l'esprit que ces fonctionnalités sont expérimentales. Elles peuvent ne pas fonctionner comme prévu et peuvent évoluer rapidement au fur et à mesure de leur développement. N'hésitez pas à donner votre avis en utilisant le bouton « Signaler un problème » pour signaler tout bug !"
+    "disclaimer": "Veuillez garder à l'esprit que ces fonctionnalités sont expérimentales. Elles peuvent ne pas fonctionner comme prévu et peuvent évoluer rapidement au fur et à mesure de leur développement. N'hésitez pas à donner votre avis en utilisant le bouton « Signaler un problème » pour signaler tout bug !"
   },
   "active_logins": {
     "heading": "Utilisateurs connectés actuels",
@@ -287,7 +287,7 @@
   "profile_visibility": {
     "visiblility_options": {
       "map_only": "<1>Sur la carte uniquement</1> : afficher une épingle de carte aléatoire et anonyme sans aucune autre information",
-      "most": "<1>La plupart de détails</1> : afficher la section complète « À propos de moi » sauf « Informations supplémentaires »",
+      "most": "<1>La plupart de détails</1> : afficher la section complète « À propos de moi » sauf « Informations supplémentaires »",
       "nothing": "<1>Rien</1> : cachez-moi complètement",
       "limited": "<1>Limité</1> : afficher mon nom, ma localisation, mon statut d’hébergement/rencontre, mes badges, le nombre de références et depuis combien de temps je suis membre de Couchers.org",
       "full_profile": "<1>Profil complet</1> : afficher mon profil complet (sauf les références)"

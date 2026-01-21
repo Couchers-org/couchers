@@ -57,7 +57,7 @@
     "reason_didnt_meetup": "Pourquoi ne vous êtes-vous pas rencontré(e)s ? (Facultatif)",
     "appropriate_explanation": "Vos commentaires privés sur cette page, ainsi que votre référence publique sur la page suivante, sont essentiels pour maintenir la communauté sûre, digne de confiance et accueillante. Merci de contribuer à la sécurité de la communauté !",
     "writing_for_text": "Vous rédigez une référence pour la personne suivante :",
-    "public_answer": "Cette référence apparaîtra publiquement dans la section « Références » sur leur profil.",
+    "public_answer": "Cette référence apparaîtra publiquement dans la section « Références » sur leur profil.",
     "appropriate_question": "Vous êtes-vous senti.e en sécurité face au comportement de cette personne ?",
     "public_text_label": "Vous laissez la référence publique suivante qui apparaîtra sur le profil de {{name}} :",
     "reference_form_heading_friend": "Vous avez rencontré {{name}}",
@@ -86,7 +86,7 @@
     "thank_you_message": "Nous vous remercions d'avoir pris le temps de rédiger une référence réfléchie qui aidera d'autres personnes à l'avenir. Vous trouverez ci-dessous un résumé que vous pouvez consulter avant de soumettre.",
     "thank_you_donation_prompt": "Envisagez de <2>faire un don</2> ! Couchers.org est une organisation à but non lucratif 501(c)(3) et nous avons besoin de dons pour maintenir nos serveurs en fonctionnement.",
     "was_appropriate_required": "Pour nous aider à garder notre communauté sûre, cette question est obligatoire.",
-    "did_stay_explanation": "Sélectionnez « Non » si vous ne vous êtes pas réellement rencontré(e)s. Vous ne pourrez pas écrire de référence publique, mais vous pouvez, si vous le souhaitez, partager des informations <strong>privées</strong> avec nous sur ce qui s'est passé. L'autre membre ne sera pas informée, mais pourra tout de même laisser une référence si il/elle affirme que vous vous êtes rencontré(e)s.",
+    "did_stay_explanation": "Sélectionnez « Non » si vous ne vous êtes pas réellement rencontré(e)s. Vous ne pourrez pas écrire de référence publique, mais vous pouvez, si vous le souhaitez, partager des informations <strong>privées</strong> avec nous sur ce qui s'est passé. L'autre membre ne sera pas informée, mais pourra tout de même laisser une référence si il/elle affirme que vous vous êtes rencontré(e)s.",
     "private_text_explanation_2": "Cette réponse ne sera vue que par notre équipe de sécurité et restera privée. Plus vous donnez de détails, mieux c’est, mais même une brève explication peut beaucoup aider. En savoir plus <2>ici</2>.",
     "cant_write_reference_expired": "Le délai pour écrire une référence s'est écoulé (après 14 jours).",
     "cant_write_reference_didnt_stay": "Vous ne pouvez pas écrire de référence car vous avez indiqué que vous n'avez pas surfé chez ce membre.",
@@ -102,7 +102,7 @@
   },
   "incomplete_dialog": {
     "title": "Profil incomplet",
-    "about_me_message": "Rédigez votre section « Qui suis-je ? » en utilisant au moins de 150 caractères.",
+    "about_me_message": "Rédigez votre section « Qui suis-je ? » en utilisant au moins de 150 caractères.",
     "missing_photo_message": "Ajoutez une photo de profil.",
     "description": "Vous ne pourrez pas envoyer de demandes d'hébérgements, de messages ou créer des événements tant que vous n’aurez pas :",
     "save_anyway": "Enregistrer quand même ?",
@@ -273,7 +273,7 @@
   "references_filter_a11y_label": "Afficher les références : ",
   "profile_tag_input": {
     "remove_button_a11y_text": "Enlever {{tag}}",
-    "header_text": "Tapez sur la touche « Entrée » pour ajouter\n<support_link>Contactez-nous</support_link> pour ajouter une entrée"
+    "header_text": "Tapez sur la touche « Entrée » pour ajouter\n<support_link>Contactez-nous</support_link> pour ajouter une entrée"
   },
   "badges": {
     "no_people": "Il n'y a personne qui possède ce badge.",
