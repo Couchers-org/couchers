@@ -13,6 +13,7 @@ from .mod_note import *  # noqa: F401,F403
 from .moderation import *  # noqa: F401,F403
 from .notifications import *  # noqa: F401,F403
 from .postal_verification import *  # noqa: F401,F403
+from .public_trips import *  # noqa: F401,F403
 from .rest import *  # noqa: F401,F403
 from .static import *  # noqa: F401,F403
 from .uploads import *  # noqa: F401,F403
