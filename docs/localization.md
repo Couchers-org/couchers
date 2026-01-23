@@ -13,21 +13,27 @@ All user-visible strings should be externalized to `en.json` files as to be loca
 ### Writing strings
 
 - ✅ **DO** use placeholders to inject information known by the code into the string, e.g. a user's name into a greeting.
-- ✅ **DO** use simple HTML/Markdown sentence-internal markup in the string, e.g. `This user is <bold>inactive</bold>`, rather than breaking it up and concatenating its parts.
+- ✅ **DO** use simple HTML/Markdown sentence-internal markup in the string, rather than breaking it up and concatenating its parts.
+  - **Good** 👍: `inactive_label` = `This user is <bold>inactive</bold>`.
+  - **Bad** 👎: `inactive_label_start` = `This user is ` and `inactive_label_bold` = `inactive`.
 - ❌ **AVOID**: leading/trailing whitespace or commas as they are confusing for translators and they are a sign of concatenation.
 
 ### Choosing string keys
 
 String keys are our main way to communicate context to translators. It's okay to be verbose! A good rule of thumb is that short strings especially need long keys.
 
-- ✅ **DO** describe what the string is for, independently of its English phrasing, e.g. `home_page_title` for a string like `{{name}}'s page'`. A user familiar with the app should be able to deduce the likely location of the string in the UI from its key.
-- ✅ **DO** disambiguate the string's role in the UI using suffixes, especially for short strings, e.g. (non-exhaustively):
+- ✅ **DO** describe what the string is for, independently of its English phrasing. A user familiar with the app should be able to deduce the likely location of the string in the UI from its key.
+  - **Good** 👍: `home_page.heading` (for a string like `{{name}}'s page`), `photo_gallery.upload_button`.
+  - **Bad** 👎: `profile`, `photos`, `upload`.
+- ✅ **DO** disambiguate the string's role in the UI using suffixes, especially for short strings. Examples:
   - `_header`: The string introduces a section of the UI.
   - `_button`/`_link`: The string can be clicked to perform an action.
-  - `_label`: The string describes a related control that allows input, e.g. a textfield or radio button.
+  - `_label`: The string describes a related input control, e.g. a textfield or radio button.
   - `_message`: The string informs the user about the result of an action.
   - `_a11y`: The string is the accessible description of a control, e.g. for screen readers.
-- ✅ **DO** group related strings hierarchically, e.g. `communities.events.start_date_label`. This provides extra context to translators.
+  - `_tooltip`: The string is displayed as a tooltip when hovering over a control.
+- ✅ **DO** group related strings hierarchically. This provides extra context to translators.
+  - **Good** 👍: `communities.event.start_date_label`.
 - ❌ **AVOID** using single words or very short keys (see above!)
 - ❌ **AVOID** string keys that replicate the English strings.
 - ❌ **AVOID** defining generic strings and using them in many different contexts, e.g. `update` or `label`, since those could translate to different words depending on context. Translators have tools to reuse translations if they want to, so duplication is not a concern.
@@ -36,9 +42,12 @@ String keys are our main way to communicate context to translators. It's okay to
 
 Placeholders allow inserting values known at runtime into the string. They are always preferable to concatenating strings in code, since they allow for reordering based on the language's grammar.
 
-- ✅ **DO** use descriptive placeholder names that allow translators to anticipate the format of the substituted string, e.g. `{{fullName}}`. It's okay to be verbose!
-- ✅ **DO** use separate placeholders for `{{date}}` and `{{time}}`.
+- ✅ **DO** use descriptive placeholder names that allow translators to anticipate the format of the substituted string. It's okay to be verbose!
+  - **Good** 👍: `{{full_name}}`, `{{date_and_time_with_day}}`, `{{amount_and_currency}}`.
+  - **Bad** 👎: `{{when}}`, `{{value}}`, `{{x}}`.
 - ✅ **DO** allow for pluralization of integer values. i18next requires the placeholder to be named `{{count}}` and Weblate requires `en.json` to define both `***_one` and `***_other` string variants.
+  - **Good** 👍: `member_count_one` = `{{count}} member` and `member_count_other` = `{{count}} members`.
+  - **Bad** 👎: `member_count` = `{{members}} members`, `member_count_plural` = `{{count}} members`.
 - ✅ **DO** change the string key if the format or name of a placeholder changes, to force retranslation. If necessary, add a version suffix like "mystring2".
 - ❌ **AVOID** placeholders with custom complex content, e.g. a range `[10, 20)`, since the internal format may vary between locales. Date/times are okay if generated in a locale-aware way.
 
