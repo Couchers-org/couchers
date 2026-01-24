@@ -86,6 +86,22 @@ def _content_report_to_pb(content_report: ContentReport) -> admin_pb2.ContentRep
     )
 
 
+def _reference_to_pb(reference: Reference) -> admin_pb2.AdminReference:
+    return admin_pb2.AdminReference(
+        reference_id=reference.id,
+        from_user_id=reference.from_user_id,
+        to_user_id=reference.to_user_id,
+        reference_type=reference.reference_type.name,
+        text=reference.text,
+        private_text=reference.private_text or "",
+        time=Timestamp_from_datetime(reference.time),
+        host_request_id=reference.host_request_id or 0,
+        rating=reference.rating,
+        was_appropriate=reference.was_appropriate,
+        is_deleted=reference.is_deleted,
+    )
+
+
 def append_admin_note(session: Session, context: CouchersContext, user: User, note: str) -> None:
     if not note.strip():
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
@@ -590,6 +606,30 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         reference.is_deleted = True
         return empty_pb2.Empty()
+
+    def GetUserReferences(
+        self, request: admin_pb2.GetUserReferencesReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.GetUserReferencesRes:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        references_from = (
+            session.execute(select(Reference).where(Reference.from_user_id == user.id).order_by(Reference.id.desc()))
+            .scalars()
+            .all()
+        )
+
+        references_to = (
+            session.execute(select(Reference).where(Reference.to_user_id == user.id).order_by(Reference.id.desc()))
+            .scalars()
+            .all()
+        )
+
+        return admin_pb2.GetUserReferencesRes(
+            references_from=[_reference_to_pb(ref) for ref in references_from],
+            references_to=[_reference_to_pb(ref) for ref in references_to],
+        )
 
     def EditDiscussion(
         self, request: admin_pb2.EditDiscussionReq, context: CouchersContext, session: Session
