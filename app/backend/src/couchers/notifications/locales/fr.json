@@ -46,10 +46,10 @@
     },
     "email_address__verify": {
       "title": "Adresse de mail vérifiée",
-      "ios_title": "E-mail vérifié"
+      "ios_title": "Adresse de mail vérifiée"
     },
     "birthdate__change": {
-      "body": "Un administrateur a changé votre date de naissance au {{birthdate}}.",
+      "body": "L'administrateur.trice a changé votre date de naissance au {{birthdate}}.",
       "title": "Date de naissance modifiée",
       "ios_title": "Date de naissance modifiée"
     },
@@ -59,9 +59,9 @@
       "body": "Le badge {{badge_name}} a été supprimé de votre profil."
     },
     "chat__missed_messages": {
-      "title_one": "{{count}} message manqué",
-      "title_many": "{{count}} de messages manqués",
-      "title_other": "{{count}} messages manqués"
+      "title_one": "{{count}} discussion manqué",
+      "title_many": "{{count}} de discussions manqués",
+      "title_other": "{{count}} discussions manqués"
     }
   }
 }
