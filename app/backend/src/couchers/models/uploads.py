@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, String, UniqueConstraint, exists, func, literal, select
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.selectable import Subquery
 
 from couchers import urls
@@ -141,18 +142,16 @@ def get_avatar_upload(session: Session, user: User) -> Upload | None:
     """
     Returns the Upload for the user's avatar (first photo in their profile gallery), or None.
     """
-    if not user.profile_gallery_id:
-        return None
-    avatar_photo = session.execute(
-        select(PhotoGalleryItem)
+    return session.execute(
+        select(Upload)
+        .join(PhotoGalleryItem, PhotoGalleryItem.upload_key == Upload.key)
         .where(PhotoGalleryItem.gallery_id == user.profile_gallery_id)
         .order_by(PhotoGalleryItem.position)
         .limit(1)
     ).scalar_one_or_none()
-    return avatar_photo.upload if avatar_photo else None
 
 
-def has_avatar_photo_expression(user: Any) -> Any:
+def has_avatar_photo_expression(user: type[User] | User) -> ColumnElement[bool]:
     """
     Returns an EXISTS expression that checks if a user has at least one photo in their profile gallery.
 

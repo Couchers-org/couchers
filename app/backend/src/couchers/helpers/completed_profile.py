@@ -13,7 +13,7 @@ def has_completed_profile(session: Session, user: User) -> bool:
     """
     if not user.profile_gallery_id or not user.about_me or len(user.about_me) < COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH:
         return False
-    return session.execute(select(has_avatar_photo_expression(user))).scalar()
+    return bool(session.execute(select(has_avatar_photo_expression(user))).scalar())
 
 
 def has_completed_profile_expression() -> ColumnElement[bool]:
