@@ -44,6 +44,10 @@ service Conversations {
     // when muted, you don't get notifications from that group chat
   }
 
+  rpc SetGroupChatArchiveStatus(SetGroupChatArchiveStatusReq) returns (SetGroupChatArchiveStatusRes) {
+    // Archives or unarchives a group chat
+  }
+
   rpc CreateGroupChat(CreateGroupChatReq) returns (GroupChat) {
     // Creates a new group chat
   }
@@ -224,6 +228,16 @@ message MuteGroupChatReq {
     bool forever = 3;
     google.protobuf.Duration for_duration = 4;
   }
+}
+
+message SetGroupChatArchiveStatusReq {
+  uint64 group_chat_id = 1;
+  bool is_archived = 2;
+}
+
+message SetGroupChatArchiveStatusRes {
+  uint64 group_chat_id = 1;
+  bool is_archived = 2;
 }
 
 message CreateGroupChatReq {

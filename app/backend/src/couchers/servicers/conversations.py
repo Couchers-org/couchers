@@ -403,6 +403,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     latest_message=_message_to_pb(result.Message) if result.Message else None,
                     mute_info=_mute_info(result.GroupChatSubscription),
                     can_message=_user_can_message(session, context, result.GroupChat),
+                    is_archived=result.GroupChatSubscription.is_archived,
                 )
                 for result in results[:page_size]
             ],
@@ -613,6 +614,21 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             subscription.muted_until = now() + duration
 
         return empty_pb2.Empty()
+
+    def SetGroupChatArchiveStatus(
+        self, request: conversations_pb2.SetGroupChatArchiveStatusReq, context: CouchersContext, session: Session
+    ) -> conversations_pb2.SetGroupChatArchiveStatusRes:
+        subscription = _get_visible_message_subscription(session, context, request.group_chat_id)
+
+        if not subscription:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
+
+        subscription.is_archived = request.is_archived
+
+        return conversations_pb2.SetGroupChatArchiveStatusRes(
+            group_chat_id=request.group_chat_id,
+            is_archived=request.is_archived,
+        )
 
     def SearchMessages(
         self, request: conversations_pb2.SearchMessagesReq, context: CouchersContext, session: Session
