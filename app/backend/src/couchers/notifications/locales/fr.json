@@ -17,7 +17,8 @@
       "ios_title": "Compte restauré"
     },
     "activeness__probe": {
-      "title": "Toujours disposé.e à héberger ?"
+      "title": "Toujours disposé.e à héberger ?",
+      "ios_title": "Toujours disposé à héberger ?"
     }
   }
 }
