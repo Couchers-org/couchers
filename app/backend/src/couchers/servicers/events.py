@@ -12,7 +12,7 @@ from sqlalchemy.sql import and_, func, or_, update
 from couchers.constants import GLOBAL_COMMUNITY_MAX_NODE_ID
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
-from couchers.helpers.profile import has_completed_profile
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AttendeeStatus,

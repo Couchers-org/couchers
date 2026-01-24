@@ -52,7 +52,7 @@ from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
 from couchers.helpers.badges import user_add_badge, user_remove_badge
-from couchers.helpers.profile import has_completed_profile_expression
+from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.materialized_views import (
     UserResponseRate,
 )

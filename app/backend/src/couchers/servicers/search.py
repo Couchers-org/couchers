@@ -13,7 +13,7 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
-from couchers.helpers.profile import has_completed_profile_expression
+from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.strong_verification import has_strong_verification
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (

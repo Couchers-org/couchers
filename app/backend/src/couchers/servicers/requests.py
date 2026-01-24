@@ -9,7 +9,7 @@ from sqlalchemy.sql import and_, func, or_
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext
-from couchers.helpers.profile import has_completed_profile
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.materialized_views import UserResponseRate
 from couchers.metrics import (
     account_age_on_host_request_create_histogram,

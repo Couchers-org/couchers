@@ -12,7 +12,7 @@ from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.context import CouchersContext
 from couchers.crypto import random_hex
 from couchers.db import _get_base_engine, session_scope
-from couchers.helpers.profile import has_completed_profile
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.models import (
     Base,
     FriendRelationship,

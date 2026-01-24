@@ -12,7 +12,7 @@ from sqlalchemy.sql import func, not_, or_
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
-from couchers.helpers.profile import has_completed_profile
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
 from couchers.models import (

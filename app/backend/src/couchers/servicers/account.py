@@ -27,8 +27,8 @@ from couchers.crypto import (
     verify_token,
 )
 from couchers.experimentation import check_gate
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.geoip import geoip_approximate_location
-from couchers.helpers.profile import has_completed_profile
 from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import finalize_strong_verification

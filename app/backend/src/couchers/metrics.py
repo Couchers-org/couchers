@@ -20,7 +20,7 @@ from sqlalchemy.sql import distinct, func
 from sqlalchemy.sql.selectable import Select
 
 from couchers.db import session_scope
-from couchers.helpers.profile import has_completed_profile_expression
+from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.models import BackgroundJob, EventOccurrenceAttendee, HostingStatus, HostRequest, Message, Reference, User
 from couchers.models.moderation import (
     ModerationAction,
