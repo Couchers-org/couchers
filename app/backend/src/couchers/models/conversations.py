@@ -83,7 +83,7 @@ class GroupChatSubscription(Base, kw_only=True):
 
     last_seen_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
 
-    is_archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
+    is_archived: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
     # when this chat is muted until, DATETIME_INFINITY for "forever"
     muted_until: Mapped[datetime] = mapped_column(
