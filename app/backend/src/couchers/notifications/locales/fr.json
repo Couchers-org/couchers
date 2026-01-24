@@ -23,7 +23,7 @@
     "api_key__create": {
       "title": "Clé d'API créée",
       "ios_title": "Clé d'API créée",
-      "body": "Les détails vous ont été envoyés par e-mail."
+      "body": "Les détails vous ont été envoyés par mail."
     }
   }
 }
