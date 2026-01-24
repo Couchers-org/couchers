@@ -1,4 +1,4 @@
-from sqlalchemy import and_, exists, func, select
+from sqlalchemy import and_, exists, func, literal, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -21,7 +21,7 @@ def has_completed_profile(session: Session, user: User) -> bool:
         return False
 
     has_photo = session.execute(
-        select(exists(select(PhotoGalleryItem.id).where(PhotoGalleryItem.gallery_id == user.profile_gallery_id)))
+        select(exists(select(literal(1)).where(PhotoGalleryItem.gallery_id == user.profile_gallery_id)))
     ).scalar()
 
     return bool(has_photo)
@@ -38,6 +38,6 @@ def has_completed_profile_expression() -> ColumnElement[bool]:
     """
     return and_(
         User.profile_gallery_id != None,
-        exists(select(PhotoGalleryItem.id).where(PhotoGalleryItem.gallery_id == User.profile_gallery_id)),
-        func.coalesce(func.length(User.about_me), 0) >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
+        exists(select(literal(1)).where(PhotoGalleryItem.gallery_id == User.profile_gallery_id)),
+        func.coalesce(func.character_length(User.about_me), 0) >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
     )

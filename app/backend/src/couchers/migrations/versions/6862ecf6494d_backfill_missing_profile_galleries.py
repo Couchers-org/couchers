@@ -6,7 +6,7 @@ This migration completes the transition from avatar_key to profile_gallery syste
 3. Removes the avatar_key column from users table
 
 Revision ID: 6862ecf6494d
-Revises: f8b4ef6e3819
+Revises: a1b2c3d4e5f6
 Create Date: 2025-12-26 18:34:10.385471
 
 """
@@ -16,7 +16,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "6862ecf6494d"
-down_revision = "f8b4ef6e3819"
+down_revision = "a1b2c3d4e5f6"
 branch_labels = None
 depends_on = None
 
@@ -55,8 +55,8 @@ def upgrade() -> None:
             (NOT (users.is_banned OR users.is_deleted)) AS is_visible,
             uploads.filename AS avatar_filename,
             ((users.profile_gallery_id IS NOT NULL)
-                AND EXISTS (SELECT 1 FROM photo_gallery_items WHERE photo_gallery_items.gallery_id = users.profile_gallery_id)
-                AND COALESCE(char_length(users.about_me), 0) >= 150) AS has_completed_profile,
+                AND EXISTS (SELECT 1 AS anon_1 FROM photo_gallery_items WHERE photo_gallery_items.gallery_id = users.profile_gallery_id)
+                AND COALESCE(character_length(users.about_me), 0) >= 150) AS has_completed_profile,
             ((users.max_guests IS NOT NULL) AND (users.sleeping_arrangement IS NOT NULL) AND ((users.about_place IS NOT NULL) OR (users.other_host_info IS NOT NULL) OR (users.sleeping_details IS NOT NULL) OR (users.area IS NOT NULL) OR (users.house_rules IS NOT NULL))) AS has_completed_my_home,
             COALESCE(sv_subquery."true", false) AS has_strong_verification
         FROM users
