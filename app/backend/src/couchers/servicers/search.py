@@ -485,10 +485,7 @@ def _user_search_inner(
             statement = statement.where(or_(*language_options))
 
         if request.HasField("profile_completed"):
-            if request.profile_completed.value:
-                statement = statement.where(has_completed_profile_expression())
-            else:
-                statement = statement.where(~has_completed_profile_expression())
+            statement = statement.where(has_completed_profile_expression() == request.profile_completed.value)
         if request.HasField("guests"):
             statement = statement.where(User.max_guests >= request.guests.value)
         if request.HasField("last_minute"):

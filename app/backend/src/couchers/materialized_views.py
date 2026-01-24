@@ -43,7 +43,7 @@ from couchers.models import (
     Upload,
     User,
 )
-from couchers.models.uploads import get_first_gallery_photo_subquery
+from couchers.models.uploads import get_avatar_photo_subquery
 
 logger = logging.getLogger(__name__)
 
@@ -158,7 +158,7 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
     )
 
     # Subquery to get the first photo from each user's profile gallery
-    first_gallery_photo_subquery = get_first_gallery_photo_subquery(name="first_photo")
+    avatar_photo_subquery = get_avatar_photo_subquery(name="avatar_photo")
 
     # Be sure to modify the LiteUser type if you add/remove columns!
     return (
@@ -178,10 +178,10 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
         )
         .select_from(User)
         .outerjoin(
-            first_gallery_photo_subquery,
-            first_gallery_photo_subquery.c.gallery_id == User.profile_gallery_id,
+            avatar_photo_subquery,
+            avatar_photo_subquery.c.gallery_id == User.profile_gallery_id,
         )
-        .outerjoin(Upload, Upload.key == first_gallery_photo_subquery.c.upload_key)
+        .outerjoin(Upload, Upload.key == avatar_photo_subquery.c.upload_key)
         .outerjoin(strong_verification_subquery, strong_verification_subquery.c.id == User.id)
     )
 

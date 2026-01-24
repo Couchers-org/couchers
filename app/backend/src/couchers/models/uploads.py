@@ -116,15 +116,15 @@ class PhotoGalleryItem(Base, kw_only=True):
     )
 
 
-def get_first_gallery_photo_subquery(name: str = "first_photo") -> Subquery:
+def get_avatar_photo_subquery(name: str = "avatar_photo") -> Subquery:
     """
     Returns a subquery that selects the first photo (by position) from each photo gallery.
 
     The subquery has columns: gallery_id, upload_key
 
     Usage:
-        first_photo = get_first_gallery_photo_subquery()
-        query = select(User).outerjoin(first_photo, first_photo.c.gallery_id == User.profile_gallery_id)
+        avatar_photo = get_avatar_photo_subquery()
+        query = select(User).outerjoin(avatar_photo, avatar_photo.c.gallery_id == User.profile_gallery_id)
     """
     return (
         select(
@@ -137,14 +137,14 @@ def get_first_gallery_photo_subquery(name: str = "first_photo") -> Subquery:
     )
 
 
-def get_first_gallery_photo_query(gallery_id: int) -> Select[tuple[PhotoGalleryItem]]:
+def get_avatar_photo_query(gallery_id: int) -> Select[tuple[PhotoGalleryItem]]:
     """
     Returns a select statement for the first photo (by position) in a specific gallery.
 
     Returns a PhotoGalleryItem or None.
 
     Usage:
-        first_photo = session.execute(get_first_gallery_photo_query(gallery_id)).scalar_one_or_none()
+        avatar_photo = session.execute(get_avatar_photo_query(gallery_id)).scalar_one_or_none()
     """
     return (
         select(PhotoGalleryItem)

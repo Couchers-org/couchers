@@ -7,7 +7,7 @@ from sqlalchemy.sql import not_, or_, union
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.models import Upload, User, UserBlock
-from couchers.models.uploads import get_first_gallery_photo_subquery
+from couchers.models.uploads import get_avatar_photo_subquery
 from couchers.proto import blocking_pb2, blocking_pb2_grpc
 
 
@@ -97,16 +97,16 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> blocking_pb2.GetBlockedUsersRes:
         # Subquery to get first photo from each user's profile gallery
-        first_photo_subquery = get_first_gallery_photo_subquery()
+        avatar_photo_subquery = get_avatar_photo_subquery()
 
         blocked_users = session.execute(
             select(User.username, User.name, Upload.filename)
             .join(UserBlock, UserBlock.blocked_user_id == User.id)
             .outerjoin(
-                first_photo_subquery,
-                first_photo_subquery.c.gallery_id == User.profile_gallery_id,
+                avatar_photo_subquery,
+                avatar_photo_subquery.c.gallery_id == User.profile_gallery_id,
             )
-            .outerjoin(Upload, Upload.key == first_photo_subquery.c.upload_key)
+            .outerjoin(Upload, Upload.key == avatar_photo_subquery.c.upload_key)
             .where(User.is_visible)
             .where(UserBlock.blocking_user_id == context.user_id)
         ).all()

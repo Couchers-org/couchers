@@ -66,8 +66,8 @@ def upgrade() -> None:
                 photo_gallery_items.upload_key
             FROM photo_gallery_items
             ORDER BY photo_gallery_items.gallery_id, photo_gallery_items.position
-        ) first_photo ON first_photo.gallery_id = users.profile_gallery_id
-        LEFT OUTER JOIN uploads ON uploads.key = first_photo.upload_key
+        ) avatar_photo ON avatar_photo.gallery_id = users.profile_gallery_id
+        LEFT OUTER JOIN uploads ON uploads.key = avatar_photo.upload_key
         LEFT OUTER JOIN
             (SELECT DISTINCT
                 users_1.id,
@@ -109,15 +109,15 @@ def downgrade() -> None:
     op.execute(
         """
         UPDATE users
-        SET avatar_key = first_photo.upload_key
+        SET avatar_key = avatar_photo.upload_key
         FROM (
             SELECT DISTINCT ON (photo_gallery_items.gallery_id)
                 photo_gallery_items.gallery_id,
                 photo_gallery_items.upload_key
             FROM photo_gallery_items
             ORDER BY photo_gallery_items.gallery_id, photo_gallery_items.position
-        ) first_photo
-        WHERE first_photo.gallery_id = users.profile_gallery_id
+        ) avatar_photo
+        WHERE avatar_photo.gallery_id = users.profile_gallery_id
         """
     )
 

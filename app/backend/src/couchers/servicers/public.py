@@ -17,12 +17,12 @@ from couchers.models import (
     Invoice,
     InvoiceType,
     Node,
-    PhotoGalleryItem,
     ProfilePublicVisibility,
     Reference,
     User,
     Volunteer,
 )
+from couchers.models.uploads import get_avatar_photo_query
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 from couchers.resources import get_static_badge_dict
@@ -220,15 +220,10 @@ class Public(public_pb2_grpc.PublicServicer):
 
         if user.public_visibility == ProfilePublicVisibility.most:
             # Get first photo from profile gallery for avatar
-            first_gallery_photo = session.execute(
-                select(PhotoGalleryItem)
-                .where(PhotoGalleryItem.gallery_id == user.profile_gallery_id)
-                .order_by(PhotoGalleryItem.position)
-                .limit(1)
-            ).scalar_one_or_none()
+            avatar_photo = session.execute(get_avatar_photo_query(user.profile_gallery_id)).scalar_one_or_none()
 
-            avatar_url = first_gallery_photo.upload.full_url if first_gallery_photo else None
-            avatar_thumbnail_url = first_gallery_photo.upload.thumbnail_url if first_gallery_photo else None
+            avatar_url = avatar_photo.upload.full_url if avatar_photo else None
+            avatar_thumbnail_url = avatar_photo.upload.thumbnail_url if avatar_photo else None
 
             return public_pb2.GetPublicUserRes(
                 most_user=public_pb2.MostUser(
