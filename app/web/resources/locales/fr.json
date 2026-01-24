@@ -91,7 +91,9 @@
         "external": "Incident hors plateforme",
         "harassment": "Harcèlement, intimidation, discours haineux/discriminatoire ou contenu illégal",
         "guidelines_breach": "Violation des règles ou de la politique (demande d'argent, nudisme, partage de lit, etc)."
-      }
+      },
+      "block_user": "Bloquer {{username}}",
+      "block_user_explainer": "Les messages et demandes de cette personne seront bloqués, et votre profil, événements et commentaires ne seront pas visibles par cette personne. Elle ne sera pas informée que vous l'avez bloquée."
     },
     "bug": {
       "expect_label": "Que s'est-il passé ? Qu'aurait-il dû se passer ?",
@@ -108,7 +110,8 @@
     "title": "Signaler un problème",
     "content": {
       "button_label": "Signaler des contenus ou comportements inappropriés",
-      "dialog_message": "Nous travaillons actuellement à la mise en place d'outils de signalement et de modération efficaces. En attendant, veuillez nous envoyer un mail à l'adresse ci-dessous. Veuillez inclure des détails tels que le nom d'utilisateur.trice concerné.e, le contenu inapproprié et où vous l'avez vu."
+      "dialog_message": "Nous travaillons actuellement à la mise en place d'outils de signalement et de modération efficaces. En attendant, veuillez nous envoyer un mail à l'adresse ci-dessous. Veuillez inclure des détails tels que le nom d'utilisateur.trice concerné.e, le contenu inapproprié et où vous l'avez vu.",
+      "success_message": "Merci pour votre signalement et d'avoir fait de Couchers une meilleure plateforme pour tous ."
     }
   },
   "expand": "Gonfler",
