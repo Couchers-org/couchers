@@ -64,7 +64,8 @@
       "title_other": "{{count}} discussions manqués",
       "ios_title_one": "{{count}} discussion manqué",
       "ios_title_many": "{{count}} de discionssions manqués",
-      "ios_title_other": "{{count}} discussions manqués"
+      "ios_title_other": "{{count}} discussions manqués",
+      "body": "Vous avez de nouveaux messages non lus."
     }
   }
 }
