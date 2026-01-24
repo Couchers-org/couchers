@@ -43,7 +43,7 @@
       "body": "Utilisez le lien que nous avons envoyé à {{email}} pour confirmer votre nouvelle adresse."
     },
     "email_address__verify": {
-      "title": "E-mail vérifié"
+      "title": "Adresse de mail vérifiée"
     }
   }
 }
