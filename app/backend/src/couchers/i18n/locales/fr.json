@@ -28,6 +28,6 @@
     "cannot_leave_containing_community": "Votre localisation sur votre profil se trouve au sein de cette communauté, donc vous ne pouvez pas la quitter. Cependant, vous pouvez ajuster vos notifications dans les paramètres de votre compte.",
     "cant_make_self_admin": "Vous ne pouvez pas vous nommer admin.",
     "cant_message_in_chat": "Vous ne pouvez pas envoyer de message dans cette discussion.",
-    "cant_remove_last_admin": "Vous ne pouvez pas enlever le dernier administrateur."
+    "cant_remove_last_admin": "Vous ne pouvez pas enlever le dernier administrateur.trice."
   }
 }
