@@ -47,7 +47,7 @@
     "email_address__verify": {
       "title": "Adresse de mail vérifiée",
       "ios_title": "Adresse de mail vérifiée",
-      "body": "Votre nouvelle adresse e-mail a été vérifiée."
+      "body": "Votre nouvelle adresse mail a été vérifiée."
     },
     "birthdate__change": {
       "body": "L'administrateur.trice a changé votre date de naissance au {{birthdate}}.",
@@ -71,7 +71,7 @@
     "donation__received": {
       "title": "Don reçu",
       "ios_title": "Don reçu",
-      "body": "Merci énormément pour votre don de {{amount_with_currency}} !"
+      "body": "Nous vous remercions énormément pour votre don de {{amount_with_currency}} !"
     }
   }
 }
