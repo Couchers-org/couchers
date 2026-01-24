@@ -96,6 +96,15 @@
       "ios_title": "Événement mis à jour",
       "ios_subtitle": "{{title}}",
       "body": "{{user}} vous a ajouté comme coorganisateur.trice de l'événement."
+    },
+    "event__comment": {
+      "title": "{{user}} • {{title}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "A commenté sur {{title}}"
+    },
+    "event__reminder": {
+      "title": "Événement à venir : {{title}}",
+      "ios_title": "Événement à venir"
     }
   }
 }
