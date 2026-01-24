@@ -1,49 +1,36 @@
-**Describe briefly what this PR is doing and why**
+*Describe briefly what this PR is doing and why.*
 
-*Please reference any issues this closes with `closes #[issue number]`.*
+<!--
+Reference issues with "closes #1234", or simply "#1234" if not closing.
+-->
 
-<!---
-Please describe the pull request here.
-If it closes an issue, make sure to write "closes #1234"
-If there is an issue but it isn't completely closed, still refer to the issue number, eg. "part of #1234"
---->
+## Testing
+*Explain how you tested this PR and give clear steps so the reviewer can replicate.*
 
+<!--
+Include screenshots and any necessary dev environment adjustments such as editing .env files.
+Fill applicable checklists below, or remove those that don't apply.
+-->
 
-**Please give clear steps for how the reviewer can best test this PR**
-
-*Please include any necessary dev environment, .env, etc. adjustments.*
-
--
--
--
-
-<!---
-Checklists - you can remove one that is not applicable (ie. remove backend checklist if you only worked on the web frontend)
-If you need help with any of these, please ask :)
---->
 **Backend checklist**
-- [ ] Formatted my code by running `make format` in `app/backend`
+<!-- To avoid CI failures, first run `make format` in app/backend and run tests locally. -->
 - [ ] Added tests for any new code or added a regression test if fixing a bug
-- [ ] All tests pass
 - [ ] Run the backend locally and it works
 - [ ] Added migrations if there are any database changes, rebased onto `develop` if necessary for linear migration history
 
 **Web frontend checklist**
-- [ ] Formatted my code with `yarn format`
-- [ ] There are no warnings from `yarn lint --fix`
+<!-- To avoid CI failures, first run `yarn format` and `yarn lint --fix` in app/web, and run tests locally. -->
 - [ ] There are no console warnings when running the app
 - [ ] Added tests where relevant
-- [ ] All tests pass
 - [ ] Clicked around my changes running locally and it works
 - [ ] Checked Desktop, Mobile and Tablet screen sizes
 
-**Other**
-*Untick the following if you'd prefer that maintainers don't push commits/merge your branch.*
-- [x] A maintainer can push commits to my branch
-- [x] A maintainer can merge my PR (you can also merge after approval)
+## For maintainers
+<!-- Untick the following if you'd prefer that maintainers don't push commits/merge your branch. -->
+- [x] Maintainers can push commits to my branch
+- [x] Maintainers can merge this PR for me
 
-
-<!---
+<!--
 Remember to request review from couchers-org/web, couchers-org/backend or an individual.
-Once your code is approved, remember to merge it if you have write access
+Once your code is approved, you can merge it if you have write access.
 --->
