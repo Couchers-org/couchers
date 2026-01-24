@@ -84,6 +84,18 @@
       "ios_title": "Nouvel événement",
       "ios_subtitle": "{{title}}",
       "body": "{{user}} vous a invité à l'événement le {{date_and_time}}."
+    },
+    "event__update": {
+      "title": "Événement mis à jour : {{title}}",
+      "ios_title": "Événement mis à jour",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} a mis à jour l'événement."
+    },
+    "event__invite_organizer": {
+      "title": "Événement mis à jour : {{title}}",
+      "ios_title": "Événement mis à jour",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} vous a ajouté comme coorganisateur de l'événement."
     }
   }
 }
