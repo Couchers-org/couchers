@@ -38,7 +38,7 @@ from couchers.models import (
     UserSession,
 )
 from couchers.models.notifications import NotificationTopicAction
-from couchers.models.uploads import get_avatar_photo_query
+from couchers.models.uploads import get_avatar_upload
 from couchers.notifications.notify import notify
 from couchers.notifications.quick_links import respond_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
@@ -711,12 +711,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         user = session.execute(select(User).where(User.id == invite.creator_user_id)).scalar_one()
 
-        # Get first photo from profile gallery for avatar
-        avatar_photo = session.execute(get_avatar_photo_query(user.profile_gallery_id)).scalar_one_or_none()
+        avatar_upload = get_avatar_upload(session, user)
 
         return auth_pb2.GetInviteCodeInfoRes(
             name=user.name,
             username=user.username,
-            avatar_url=avatar_photo.upload.thumbnail_url if avatar_photo else None,
+            avatar_url=avatar_upload.thumbnail_url if avatar_upload else None,
             url=urls.invite_code_link(code=request.code),
         )

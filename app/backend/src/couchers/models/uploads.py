@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, String, UniqueConstraint, func, select
+from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, String, UniqueConstraint, exists, func, literal, select
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql.selectable import Select, Subquery
+from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+from sqlalchemy.sql.selectable import Subquery
 
 from couchers import urls
 from couchers.models.base import Base
@@ -137,18 +137,32 @@ def get_avatar_photo_subquery(name: str = "avatar_photo") -> Subquery:
     )
 
 
-def get_avatar_photo_query(gallery_id: int) -> Select[tuple[PhotoGalleryItem]]:
+def get_avatar_upload(session: Session, user: User) -> Upload | None:
     """
-    Returns a select statement for the first photo (by position) in a specific gallery.
-
-    Returns a PhotoGalleryItem or None.
-
-    Usage:
-        avatar_photo = session.execute(get_avatar_photo_query(gallery_id)).scalar_one_or_none()
+    Returns the Upload for the user's avatar (first photo in their profile gallery), or None.
     """
-    return (
+    if not user.profile_gallery_id:
+        return None
+    avatar_photo = session.execute(
         select(PhotoGalleryItem)
-        .where(PhotoGalleryItem.gallery_id == gallery_id)
+        .where(PhotoGalleryItem.gallery_id == user.profile_gallery_id)
         .order_by(PhotoGalleryItem.position)
         .limit(1)
-    )
+    ).scalar_one_or_none()
+    return avatar_photo.upload if avatar_photo else None
+
+
+def has_avatar_photo_expression(user: Any) -> Any:
+    """
+    Returns an EXISTS expression that checks if a user has at least one photo in their profile gallery.
+
+    Can be used with a User instance or the User class (for SQL expressions).
+
+    Usage:
+        # In a query filter
+        statement.where(has_avatar_photo_expression(User))
+
+        # With a concrete value
+        session.execute(select(has_avatar_photo_expression(user))).scalar()
+    """
+    return exists(select(literal(1)).where(PhotoGalleryItem.gallery_id == user.profile_gallery_id))

@@ -1,9 +1,10 @@
-from sqlalchemy import and_, exists, func, literal, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.constants import COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH
-from couchers.models import PhotoGalleryItem, User
+from couchers.models import User
+from couchers.models.uploads import has_avatar_photo_expression
 
 
 def has_completed_profile(session: Session, user: User) -> bool:
@@ -12,9 +13,7 @@ def has_completed_profile(session: Session, user: User) -> bool:
     """
     if not user.profile_gallery_id or not user.about_me or len(user.about_me) < COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH:
         return False
-    return session.execute(
-        select(exists(select(literal(1)).where(PhotoGalleryItem.gallery_id == user.profile_gallery_id)))
-    ).scalar()
+    return session.execute(select(has_avatar_photo_expression(user))).scalar()
 
 
 def has_completed_profile_expression() -> ColumnElement[bool]:
@@ -28,6 +27,6 @@ def has_completed_profile_expression() -> ColumnElement[bool]:
     """
     return and_(
         User.profile_gallery_id != None,
-        exists(select(literal(1)).where(PhotoGalleryItem.gallery_id == User.profile_gallery_id)),
+        has_avatar_photo_expression(User),
         func.coalesce(func.character_length(User.about_me), 0) >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
     )

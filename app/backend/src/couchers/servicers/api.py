@@ -42,7 +42,7 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.models.notifications import NotificationTopicAction
-from couchers.models.uploads import get_avatar_photo_query
+from couchers.models.uploads import get_avatar_upload
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
@@ -1027,10 +1027,7 @@ def user_model_to_pb(
         select(UserResponseRate).where(UserResponseRate.user_id == db_user.id)
     ).scalar_one_or_none()
 
-    # Get first photo from profile gallery for avatar
-    avatar_photo = None
-    if db_user.profile_gallery_id:
-        avatar_photo = session.execute(get_avatar_photo_query(db_user.profile_gallery_id)).scalar_one_or_none()
+    avatar_upload = get_avatar_upload(session, db_user)
 
     verification_score = 0.0
     if db_user.phone_verification_verified:
@@ -1073,8 +1070,8 @@ def user_model_to_pb(
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
         sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
         parking_details=parkingdetails2api[db_user.parking_details],
-        avatar_url=avatar_photo.upload.full_url if avatar_photo else None,
-        avatar_thumbnail_url=avatar_photo.upload.thumbnail_url if avatar_photo else None,
+        avatar_url=avatar_upload.full_url if avatar_upload else None,
+        avatar_thumbnail_url=avatar_upload.thumbnail_url if avatar_upload else None,
         profile_gallery_id=db_user.profile_gallery_id,
         badges=session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == db_user.id).order_by(UserBadge.id))
         .scalars()

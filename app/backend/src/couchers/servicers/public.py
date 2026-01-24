@@ -22,7 +22,7 @@ from couchers.models import (
     User,
     Volunteer,
 )
-from couchers.models.uploads import get_avatar_photo_query
+from couchers.models.uploads import get_avatar_upload
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 from couchers.resources import get_static_badge_dict
@@ -219,11 +219,7 @@ class Public(public_pb2_grpc.PublicServicer):
             )
 
         if user.public_visibility == ProfilePublicVisibility.most:
-            # Get first photo from profile gallery for avatar
-            avatar_photo = session.execute(get_avatar_photo_query(user.profile_gallery_id)).scalar_one_or_none()
-
-            avatar_url = avatar_photo.upload.full_url if avatar_photo else None
-            avatar_thumbnail_url = avatar_photo.upload.thumbnail_url if avatar_photo else None
+            avatar_upload = get_avatar_upload(session, user)
 
             return public_pb2.GetPublicUserRes(
                 most_user=public_pb2.MostUser(
@@ -250,8 +246,8 @@ class Public(public_pb2_grpc.PublicServicer):
                     ],
                     regions_visited=[region.code for region in user.regions_visited],
                     regions_lived=[region.code for region in user.regions_lived],
-                    avatar_url=avatar_url,
-                    avatar_thumbnail_url=avatar_thumbnail_url,
+                    avatar_url=avatar_upload.full_url if avatar_upload else None,
+                    avatar_thumbnail_url=avatar_upload.thumbnail_url if avatar_upload else None,
                     badges=[badge.badge_id for badge in user.badges],
                 )
             )

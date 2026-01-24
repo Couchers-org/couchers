@@ -1294,9 +1294,9 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
     errors = []
 
     with session_scope() as session:
-        # Check that all non-deleted users have a profile gallery
+        # Check that all users have a profile gallery
         users_without_gallery = session.execute(
-            select(User.id, User.username).where(User.is_deleted == False).where(User.profile_gallery_id.is_(None))
+            select(User.id, User.username).where(User.profile_gallery_id.is_(None))
         ).all()
         if users_without_gallery:
             errors.append(f"Users without profile gallery: {users_without_gallery}")
