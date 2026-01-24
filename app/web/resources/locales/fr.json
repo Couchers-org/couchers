@@ -63,7 +63,8 @@
     "error_loading_languages": "Échec de chargement des options de langues. Veuillez réessayer plus tard.",
     "translation_progress": {
       "description": "Découvrez l'étendue de nos traductions dans diverses langues. Aidez-nous à rendre Couchers accessible à davantage de personnes à travers le monde !",
-      "title": "Avancement de la traduction"
+      "title": "Avancement de la traduction",
+      "help_translate": "Aidez à traduire Couchers dans votre langue."
     }
   }
 }
