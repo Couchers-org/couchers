@@ -101,7 +101,7 @@
       "title_helper": "Brève description du bug",
       "problem_helper": "Brève description du problème et de la façon de le reproduire",
       "problem_label": "Qu'avez-vous fait pour déclencher le bug ?",
-      "expect_helper": "Brève description de ce qui était censé se produire à la place."
+      "expect_helper": "Brève description de ce qui était censé se produire à la place"
     },
     "label": "Signaler un problème",
     "title": "Signaler un problème"
