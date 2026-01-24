@@ -95,7 +95,7 @@
       "title": "Événement mis à jour : {{title}}",
       "ios_title": "Événement mis à jour",
       "ios_subtitle": "{{title}}",
-      "body": "{{user}} vous a ajouté comme coorganisateur de l'événement."
+      "body": "{{user}} vous a ajouté comme coorganisateur.trice de l'événement."
     }
   }
 }
