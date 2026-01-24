@@ -24,6 +24,9 @@
       "title": "Clé d'API créée",
       "ios_title": "Clé d'API créée",
       "body": "Les détails vous ont été envoyés par mail."
+    },
+    "badge__add": {
+      "title": "Nouveau badge : {{badge_name}}"
     }
   }
 }
