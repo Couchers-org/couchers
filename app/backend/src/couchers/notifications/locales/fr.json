@@ -61,7 +61,10 @@
     "chat__missed_messages": {
       "title_one": "{{count}} discussion manqué",
       "title_many": "{{count}} de discussions manqués",
-      "title_other": "{{count}} discussions manqués"
+      "title_other": "{{count}} discussions manqués",
+      "ios_title_one": "{{count}} message manqué",
+      "ios_title_many": "{{count}} de messages manqués",
+      "ios_title_other": "{{count}} messages manqués"
     }
   }
 }
