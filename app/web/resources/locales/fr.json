@@ -102,12 +102,12 @@
       "problem_helper": "Brève description du problème et de la façon de le reproduire",
       "problem_label": "Qu'avez-vous fait pour déclencher le bug ?",
       "expect_helper": "Brève description de ce qui était censé se produire à la place",
-      "success_message": "Merci d'avoir signalé ce problème et rendu Couchers meilleur. Un rapport a été envoyé aux développeurs.Le numéro de l'erreur est "
+      "success_message": "Merci d'avoir signalé ce problème et rendu Couchers meilleur. Un rapport a été envoyé aux développeurs. Le numéro de l'erreur est "
     },
     "label": "Signaler un problème",
     "title": "Signaler un problème",
     "content": {
-      "button_label": "Signaler des contenus ou comportements inappropriés."
+      "button_label": "Signaler des contenus ou comportements inappropriés"
     }
   },
   "expand": "Gonfler",
