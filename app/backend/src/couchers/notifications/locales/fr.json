@@ -38,7 +38,8 @@
       "title": "{{user}} • {{title}}"
     },
     "email_address__change": {
-      "title": "Demande de changement de mail"
+      "title": "Demande de changement de mail",
+      "ios_title": "Requête de changement d'e-mail"
     }
   }
 }

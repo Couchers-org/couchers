@@ -74,5 +74,6 @@
   "date_required": "Veuillez entrer une date.",
   "end_time_error": "L'heure de fin de l'événement doit être après l'heure de début.",
   "time_required": "Veuillez entrer une heure.",
-  "find_host": "Trouver un.e hôte"
+  "find_host": "Trouver un.e hôte",
+  "community_info_page_title": "Information générale"
 }
