@@ -8,7 +8,7 @@ Reference issues with "closes #1234", or simply "#1234" if not closing.
 *Explain how you tested this PR and give clear steps so the reviewer can replicate.*
 
 <!--
-Include any necessary dev environment adjustments such as editing .env files.
+Include screenshots and any necessary dev environment adjustments such as editing .env files.
 Fill applicable checklists below, or remove those that don't apply.
 -->
 
@@ -25,7 +25,7 @@ Fill applicable checklists below, or remove those that don't apply.
 - [ ] Clicked around my changes running locally and it works
 - [ ] Checked Desktop, Mobile and Tablet screen sizes
 
-## Merging
+## For maintainers
 <!-- Untick the following if you'd prefer that maintainers don't push commits/merge your branch. -->
 - [x] Maintainers can push commits to my branch
 - [x] Maintainers can merge this PR for me
