@@ -27,6 +27,18 @@
     },
     "badge__add": {
       "title": "Nouveau badge : {{badge_name}}"
+    },
+    "discussion__create": {
+      "title": "Nouvelle discussion : {{title}}",
+      "ios_title": "Nouvelle discussion",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} a commencé la discussion dans {{group_or_community}}."
+    },
+    "discussion__comment": {
+      "title": "{{user}} • {{title}}"
+    },
+    "email_address__change": {
+      "title": "Requête de changement d'e-mail"
     }
   }
 }
