@@ -39,7 +39,7 @@
     },
     "email_address__change": {
       "title": "Demande de changement de mail",
-      "ios_title": "Requête de changement d'e-mail"
+      "ios_title": "Demande de changement de mail"
     }
   }
 }
