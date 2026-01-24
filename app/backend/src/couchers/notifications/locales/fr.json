@@ -39,7 +39,11 @@
     },
     "email_address__change": {
       "title": "Demande de changement de mail",
-      "ios_title": "Demande de changement de mail"
+      "ios_title": "Demande de changement de mail",
+      "body": "Utilisez le lien que nous avons envoyé à {{email}} pour confirmer votre nouvelle adresse."
+    },
+    "email_address__verify": {
+      "title": "E-mail vérifié"
     }
   }
 }
