@@ -67,6 +67,7 @@
   },
   "host_request_view": {
     "request_duration_one": "{{count}} nuit",
+    "request_duration_many": "",
     "request_duration_other": "{{count}} nuits",
     "error_message": "Identification de demande d’hôte invalide",
     "back_button_a11y_label": "Retourner",
@@ -104,7 +105,8 @@
     "group_title": "Créer une discussion de groupe",
     "group_title_field_label": "Titre",
     "user_load_error_message": "(Erreur de chargement)",
-    "friends_input_label": "Ami.e.s"
+    "friends_input_label": "Ami.e.s",
+    "title_label": "Titre"
   },
   "leave_chat_dialog": {
     "message": "Êtes-vous sûr.e de vouloir quitter cette discussion ?",

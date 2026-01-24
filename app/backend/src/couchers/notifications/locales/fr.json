@@ -72,6 +72,18 @@
       "title": "Don reçu",
       "ios_title": "Don reçu",
       "body": "Nous vous remercions énormément pour votre don de {{amount_with_currency}} !"
+    },
+    "event__create_any": {
+      "title": "Nouvel événement : {{title}}",
+      "ios_title": "Nouvel événement",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} a créé l'événement le {{date_and_time}}."
+    },
+    "event__create_approved": {
+      "title": "Nouvel événement : {{title}}",
+      "ios_title": "Nouvel événement",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} vous a invité à l'événement du {{date_and_time}}."
     }
   }
 }
