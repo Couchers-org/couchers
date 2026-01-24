@@ -1,4 +1,5 @@
 import logging
+import multiprocessing
 import signal
 import sys
 from os import environ
@@ -31,6 +32,11 @@ logging.basicConfig(
     format="[%(process)5d:%(thread)20d] %(asctime)s: %(name)s:%(lineno)d: %(message)s", level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
+# This is required so that the worker processes export metrics to prometheus.
+# Not sure what is going on here, but Python 3.14 changed the default method to "forkserver",
+# and it appears to have broken the metrics.
+multiprocessing.set_start_method("fork")
 
 
 def log_unhandled_exception(
