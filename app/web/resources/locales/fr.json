@@ -107,7 +107,8 @@
     "label": "Signaler un problème",
     "title": "Signaler un problème",
     "content": {
-      "button_label": "Signaler des contenus ou comportements inappropriés"
+      "button_label": "Signaler des contenus ou comportements inappropriés",
+      "dialog_message": "Nous travaillons actuellement à la mise en place d'outils de signalement et de modération efficaces. En attendant, veuillez nous envoyer un e-mail à l'adresse ci-dessous. Veuillez inclure des détails tels que le nom d'utilisateur concerné, le contenu inapproprié et où vous l'avez vu."
     }
   },
   "expand": "Gonfler",
