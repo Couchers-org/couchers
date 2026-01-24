@@ -5,7 +5,6 @@ from collections.abc import Mapping, Sequence
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
-from zoneinfo import ZoneInfo
 
 import pytz
 from geoalchemy2 import WKBElement, WKTElement
