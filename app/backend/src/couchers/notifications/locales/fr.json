@@ -2,7 +2,22 @@
   "push": {
     "account_deletion__start": {
       "title": "Demande de suppression de compte",
-      "ios_title": "Demande de suppression de compte"
+      "ios_title": "Demande de suppression de compte",
+      "body": "Utilisez le lien que nous vous avons envoyé par e-mail pour confirmer."
+    },
+    "account_deletion__complete": {
+      "ios_title": "Compte supprimé",
+      "body_one": "Vous pouvez le restaurer durant {{count}} jour en utilisant le lien que nous vous avons envoyé par e-mail.",
+      "body_many": "Vous pouvez le restaurer durant {{count}} de jours en utilisant le lien que nous vous avons envoyé par e-mail.",
+      "body_other": "Vous pouvez le restaurer durant {{count}} jours en utilisant le lien que nous vous avons envoyé par e-mail.",
+      "title": "Compte supprimé"
+    },
+    "account_deletion__recovered": {
+      "title": "Compte restauré",
+      "ios_title": "Compte restauré"
+    },
+    "activeness__probe": {
+      "title": "Toujours disposé à héberger ?"
     }
   }
 }
