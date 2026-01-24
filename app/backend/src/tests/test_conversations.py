@@ -74,6 +74,35 @@ def test_list_group_chats(db, moderator):
         assert len(res.group_chats) == 1
         assert res.no_more
 
+    # Test archive filtering: archive group_chat1 for user1
+    with conversations_session(token1) as c:
+        res = c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=group_chat1_id, is_archived=True)
+        )
+        assert res.group_chat_id == group_chat1_id
+        assert res.is_archived
+
+    with conversations_session(token1) as c:
+        # Without filter, returns all chats
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        assert len(res.group_chats) == 2
+
+        # only_archived=False returns non-archived chats only
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=False))
+        assert len(res.group_chats) == 1
+
+        # only_archived=True returns archived chats only
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=True))
+        assert len(res.group_chats) == 1
+
+    # user2 should still see both as non-archived (archive is per-user)
+    with conversations_session(token2) as c:
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=False))
+        assert len(res.group_chats) == 2
+
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=True))
+        assert len(res.group_chats) == 0
+
 
 def test_list_empty_group_chats(db, moderator):
     user1, token1 = generate_user()
@@ -442,6 +471,7 @@ def test_get_group_chat_info(db):
         assert to_aware_datetime(res.created) <= now()
         assert res.only_admins_invite
         assert res.is_dm
+        assert not res.is_archived
 
         res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=group_chat2_id))
         assert not res.title
@@ -451,6 +481,7 @@ def test_get_group_chat_info(db):
         assert to_aware_datetime(res.created) <= now()
         assert res.only_admins_invite
         assert not res.is_dm
+        assert not res.is_archived
 
 
 def test_get_group_chat_info_denied(db):
@@ -1347,6 +1378,7 @@ def test_GetDirectMessage(db):
         # now should exist
         res = c.GetDirectMessage(conversations_pb2.GetDirectMessageReq(user_id=user2.id))
         assert res.group_chat_id == gcid
+        assert not res.is_archived
 
         # create DM with user 3
         res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user3.id]))
@@ -1537,6 +1569,321 @@ def test_muting(db, moderator):
         assert res.mute_info.HasField("muted_until")
         assert to_aware_datetime(res.mute_info.muted_until) >= now() + timedelta(hours=1, minutes=59)
         assert to_aware_datetime(res.mute_info.muted_until) <= now() + timedelta(hours=2, minutes=1)
+
+
+def test_archiving(db, moderator):
+    """Test SetGroupChatArchiveStatus RPC with GetGroupChat and ListGroupChats"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+    make_friends(user2, user3)
+
+    # Create a distraction chat to ensure we're testing the right one
+    with conversations_session(token3) as c:
+        gcid_distraction = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user1.id])
+        ).group_chat_id
+        moderator.approve_group_chat(gcid_distraction)
+
+    with conversations_session(token1) as c:
+        gcid = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
+        ).group_chat_id
+        moderator.approve_group_chat(gcid)
+
+    # Test basic archive/unarchive functionality
+    with conversations_session(token2) as c:
+        # Initially not archived
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert not res.is_archived
+
+        # Archive the chat
+        archive_res = c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=True)
+        )
+        assert archive_res.group_chat_id == gcid
+        assert archive_res.is_archived
+
+        # Verify archived via GetGroupChat
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.is_archived
+
+        # Unarchive the chat
+        archive_res = c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=False)
+        )
+        assert archive_res.group_chat_id == gcid
+        assert not archive_res.is_archived
+
+        # Verify unarchived via GetGroupChat
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert not res.is_archived
+
+
+def test_archiving_per_user(db, moderator):
+    """Test that archiving is per-user - one user archiving doesn't affect others"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    with conversations_session(token1) as c:
+        gcid = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
+        moderator.approve_group_chat(gcid)
+
+    # User1 archives the chat
+    with conversations_session(token1) as c:
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=True)
+        )
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.is_archived
+
+    # User2 should NOT see it as archived
+    with conversations_session(token2) as c:
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert not res.is_archived
+
+    # User2 archives it too
+    with conversations_session(token2) as c:
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=True)
+        )
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.is_archived
+
+    # User1 unarchives - user2 should still see it as archived
+    with conversations_session(token1) as c:
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=False)
+        )
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert not res.is_archived
+
+    with conversations_session(token2) as c:
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.is_archived
+
+
+def test_archiving_with_list_group_chats(db, moderator):
+    """Test archive filtering with ListGroupChats endpoint"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+
+    with conversations_session(token1) as c:
+        # Create 3 chats
+        gcid1 = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid1, text="Chat 1"))
+        moderator.approve_group_chat(gcid1)
+
+        gcid2 = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user3.id])).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid2, text="Chat 2"))
+        moderator.approve_group_chat(gcid2)
+
+        gcid3 = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
+        ).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid3, text="Chat 3"))
+        moderator.approve_group_chat(gcid3)
+
+    with conversations_session(token1) as c:
+        # Initially all 3 chats should be visible
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        assert len(res.group_chats) == 3
+
+        # All should be non-archived
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=False))
+        assert len(res.group_chats) == 3
+
+        # None should be archived
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=True))
+        assert len(res.group_chats) == 0
+
+        # Archive chat 1
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid1, is_archived=True)
+        )
+
+        # Without filter, still see all 3
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq())
+        assert len(res.group_chats) == 3
+
+        # Non-archived should show 2
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=False))
+        assert len(res.group_chats) == 2
+        assert gcid1 not in [gc.group_chat_id for gc in res.group_chats]
+
+        # Archived should show 1
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=True))
+        assert len(res.group_chats) == 1
+        assert res.group_chats[0].group_chat_id == gcid1
+        assert res.group_chats[0].is_archived
+
+        # Archive chat 2 as well
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid2, is_archived=True)
+        )
+
+        # Non-archived should show 1
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=False))
+        assert len(res.group_chats) == 1
+        assert res.group_chats[0].group_chat_id == gcid3
+
+        # Archived should show 2
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=True))
+        assert len(res.group_chats) == 2
+        archived_ids = {gc.group_chat_id for gc in res.group_chats}
+        assert archived_ids == {gcid1, gcid2}
+
+        # Unarchive chat 1
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid1, is_archived=False)
+        )
+
+        # Non-archived should show 2
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=False))
+        assert len(res.group_chats) == 2
+
+        # Archived should show 1
+        res = c.ListGroupChats(conversations_pb2.ListGroupChatsReq(only_archived=True))
+        assert len(res.group_chats) == 1
+        assert res.group_chats[0].group_chat_id == gcid2
+
+
+def test_archiving_chat_not_found(db, moderator):
+    """Test that archiving a non-existent or non-accessible chat fails"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    make_friends(user1, user2)
+
+    with conversations_session(token1) as c:
+        gcid = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
+        moderator.approve_group_chat(gcid)
+
+    # User3 is not in the chat - should get NOT_FOUND
+    with conversations_session(token3) as c:
+        with pytest.raises(grpc.RpcError) as e:
+            c.SetGroupChatArchiveStatus(
+                conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=True)
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+    # Non-existent chat ID should fail
+    with conversations_session(token1) as c:
+        with pytest.raises(grpc.RpcError) as e:
+            c.SetGroupChatArchiveStatus(
+                conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=99999, is_archived=True)
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_archiving_after_leaving_chat(db, moderator):
+    """Test that you can't archive a chat after leaving it"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+    make_friends(user2, user3)
+
+    with conversations_session(token1) as c:
+        gcid = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id, user3.id])
+        ).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
+        moderator.approve_group_chat(gcid)
+
+    # User2 leaves the chat
+    with conversations_session(token2) as c:
+        c.LeaveGroupChat(conversations_pb2.LeaveGroupChatReq(group_chat_id=gcid))
+
+    # User2 should not be able to archive it now
+    with conversations_session(token2) as c:
+        with pytest.raises(grpc.RpcError) as e:
+            c.SetGroupChatArchiveStatus(
+                conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=True)
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_archiving_dm(db, moderator):
+    """Test that archiving works for DMs as well as group chats"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    with conversations_session(token1) as c:
+        # Create a DM
+        gcid = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
+        moderator.approve_group_chat(gcid)
+
+        # Verify it's a DM
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.is_dm
+        assert not res.is_archived
+
+        # Archive the DM
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=True)
+        )
+
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.is_archived
+
+        # Unarchive it
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=False)
+        )
+
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert not res.is_archived
+
+
+def test_archiving_idempotent(db, moderator):
+    """Test that archiving/unarchiving is idempotent"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    with conversations_session(token1) as c:
+        gcid = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])).group_chat_id
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=gcid, text="Hello"))
+        moderator.approve_group_chat(gcid)
+
+        # Archive twice - should work without error
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=True)
+        )
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=True)
+        )
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert res.is_archived
+
+        # Unarchive twice - should work without error
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=False)
+        )
+        c.SetGroupChatArchiveStatus(
+            conversations_pb2.SetGroupChatArchiveStatusReq(group_chat_id=gcid, is_archived=False)
+        )
+        res = c.GetGroupChat(conversations_pb2.GetGroupChatReq(group_chat_id=gcid))
+        assert not res.is_archived
 
 
 def test_chat_notifications(db, moderator):
