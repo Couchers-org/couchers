@@ -411,10 +411,6 @@ def last_active_coarsen(dt: datetime) -> datetime:
     return dt.replace(minute=0, second=0, microsecond=0)
 
 
-def get_tz_as_text(tz_name: str) -> str:
-    return datetime.now(tz=ZoneInfo(tz_name)).strftime("%Z/UTC%z")
-
-
 def not_none[T](x: T | None) -> T:
     if x is None:
         raise ValueError("Expected a value but got None")

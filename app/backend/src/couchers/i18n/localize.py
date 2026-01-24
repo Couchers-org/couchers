@@ -120,6 +120,9 @@ def localize_datetime_for_user(value: datetime | Timestamp, user: User) -> str:
     timezone = ZoneInfo(user.timezone or "Etc/UTC")
     return localize_datetime(value, timezone, user.ui_language_preference or "en")
 
+def localize_timezone(timezone: ZoneInfo, locale: str) -> str:
+    # TODO(#7590): Account for locale
+    return datetime.now(tz=timezone).strftime("%Z/UTC%z")
 
 def format_phone_number(value: str) -> str:
     """Formats a phone number from E.164 format to the international format."""

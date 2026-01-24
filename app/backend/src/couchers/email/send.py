@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from couchers.config import config
 from couchers.email import queue_email
+from couchers.i18n.localize import localize_timezone
 from couchers.templates.v2 import Context, render_template, template_folder
 from couchers.utils import now
 
@@ -18,9 +19,14 @@ def send_simple_pretty_email(
     It's for the few security emails where we don't have a user to email but send directly to an email address.
     """
 
+    # Not yet localizable
+    timezone = ZoneInfo("Etc/UTC")
+    locale = "en"
+
     template_args = {
         **template_args,
         "header_subject": subject,
+        "footer_timezone_name": localize_timezone(timezone, locale),
         "footer_copyright_year": now().year,
         "footer_email_is_critical": True,  # Results in no unsubscribe footer.
     }
@@ -28,29 +34,13 @@ def send_simple_pretty_email(
     # Format plaintext template
     plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain = render_template(
-        plain_tmplt + plain_tmplt_footer,
-        template_args,
-        Context(
-            # Not yet localizable
-            timezone=ZoneInfo("Etc/UTC"),
-            locale="en",
-            plaintext=True,
-        ),
-    )
+    plain_context = Context(timezone=timezone, locale="en", plaintext=True)
+    plain = render_template(plain_tmplt + plain_tmplt_footer, template_args, plain_context)
 
     # Format html template
     html_tmplt = (template_folder / "generated_html" / f"{template_name}.html").read_text()
-    html = render_template(
-        html_tmplt,
-        template_args,
-        Context(
-            # Not yet localizable
-            timezone=ZoneInfo("Etc/UTC"),
-            locale="en",
-            plaintext=False,
-        ),
-    )
+    html_context = Context(timezone=timezone, locale="en", plaintext=False)
+    html = render_template(html_tmplt, template_args, html_context)
 
     queue_email(
         session,
