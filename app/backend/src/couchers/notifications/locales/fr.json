@@ -19,6 +19,11 @@
     "activeness__probe": {
       "title": "Toujours disposé.e à héberger ?",
       "ios_title": "Toujours disposé.e à héberger ?"
+    },
+    "api_key__create": {
+      "title": "Clé d'API créée",
+      "ios_title": "Clé d'API créée",
+      "body": "Les détails vous ont été envoyés par e-mail."
     }
   }
 }
