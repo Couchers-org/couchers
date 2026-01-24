@@ -83,7 +83,7 @@
       "title": "Nouvel événement : {{title}}",
       "ios_title": "Nouvel événement",
       "ios_subtitle": "{{title}}",
-      "body": "{{user}} vous a invité à l'événement du {{date_and_time}}."
+      "body": "{{user}} vous a invité à l'événement le {{date_and_time}}."
     }
   }
 }

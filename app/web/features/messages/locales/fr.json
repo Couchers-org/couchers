@@ -106,7 +106,7 @@
     "group_title_field_label": "Titre",
     "user_load_error_message": "(Erreur de chargement)",
     "friends_input_label": "Ami.e.s",
-    "title_label": "Titre"
+    "title_label": "Sujet"
   },
   "leave_chat_dialog": {
     "message": "Êtes-vous sûr.e de vouloir quitter cette discussion ?",

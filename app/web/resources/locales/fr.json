@@ -52,6 +52,6 @@
   "hosting_status": {
     "can_host": "Peut héberger",
     "maybe": "Peut peut-être héberger",
-    "cant_host": "Ne peux pas héberger"
+    "cant_host": "Ne peut pas héberger"
   }
 }
