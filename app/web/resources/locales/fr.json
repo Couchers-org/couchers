@@ -53,7 +53,8 @@
     "can_host": "Peut héberger",
     "maybe": "Peut peut-être héberger",
     "cant_host": "Ne peut pas héberger",
-    "unspecified_info": "Non précisé"
+    "unspecified_info": "Non précisé",
+    "any": "Tous"
   },
   "language_preference": {
     "form_title": "Langue",
@@ -67,7 +68,46 @@
       "help_translate": "Aidez à traduire Couchers dans votre langue",
       "loading": "Chargement de la traduction en cours...",
       "error_loading": "Échec de chargement de l'avancement de la traduction",
-      "no_data": "Aucune donnée de traduction disponible."
-    }
+      "no_data": "Aucune donnée de traduction disponible",
+      "midway": "À mi-chemin",
+      "complete": "Complet",
+      "almost_there": "Presque là",
+      "in_progress": "En cours",
+      "just_started": "Elle vient de commencer",
+      "complete_percent": "{{percent}}% terminé",
+      "info_text": "💡 Les langues ayant un taux de complétion de 50 à 80 % apparaissent en grisé dans le sélecteur de langue. Les langues ayant moins de 50 % de complétion sont cachées du sélecteur de langue. Pour encourager les contributeurs.trices, les langues en dessous de 20 % sont affichées sur ce site.",
+      "view_progress": "Afficher la progression de la traduction"
+    },
+    "show_all_languages_description": "Lorsqu'il est activé, le sélecteur de langue affichera toutes les langues, quel que soit le pourcentage d'avancement de la traduction. Cela s'affiche uniquement afin d'aider à tester les langues encore en cours de traduction.",
+    "show_all_languages": "Afficher toutes les langues dans le sélecteur de langue",
+    "current_preferred_language": "Votre langue préférée est actuellement <lang>{{language}}</lang>."
+  },
+  "report": {
+    "flag": {
+      "success": "Nous vous remercions pour votre rapport et pour contribuer à rendre Couchers une meilleure plateforme pour tous et pour toutes !",
+      "reason": {
+        "dating": "Comportement flirtant ou draguant ou similaire",
+        "external": "Incident hors plateforme",
+        "harassment": "Harcèlement, intimidation, discours haineux/discriminatoire ou contenu illégal"
+      }
+    },
+    "bug": {
+      "expect_label": "Que s'est-il passé ? Qu'aurait-il dû se passer ?",
+      "button_label": "Signaler un problème technique",
+      "warning_message": "Veuillez noter que ces informations, ainsi que les informations de diagnostic telles que la page sur laquelle vous vous trouvez, le navigateur que vous utilisez et votre nom d'utilisateur.trice, seront enregistrées dans une liste publique de bugs.",
+      "title_label": "Titre de signalement",
+      "title_helper": "Brève description du bug",
+      "problem_helper": "Brève description du problème et de la façon de le reproduire",
+      "problem_label": "Qu'avez-vous fait pour déclencher le bug ?"
+    },
+    "label": "Signaler un problème",
+    "title": "Signaler un problème"
+  },
+  "expand": "Gonfler",
+  "meetup_status": {
+    "open_to_meetup": "Ouvert.e à une rencontre",
+    "unspecified_info": "Non précisé",
+    "wants_to_meetup": "Veut rencontrer",
+    "does_not_want_to_meetup": "Ne peux pas rencontrer"
   }
 }
