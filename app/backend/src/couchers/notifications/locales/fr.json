@@ -1,1 +1,7 @@
-{}
+{
+  "push": {
+    "account_deletion__start": {
+      "title": "Requête de suppression de compte"
+    }
+  }
+}
