@@ -1,7 +1,8 @@
 {
   "push": {
     "account_deletion__start": {
-      "title": "Demande de suppression de compte"
+      "title": "Demande de suppression de compte",
+      "ios_title": "Requête de suppression de compte"
     }
   }
 }
