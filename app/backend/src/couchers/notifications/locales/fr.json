@@ -26,7 +26,9 @@
       "body": "Les détails vous ont été envoyés par mail."
     },
     "badge__add": {
-      "title": "Nouveau badge : {{badge_name}}"
+      "title": "Nouveau badge : {{badge_name}}",
+      "ios_title": "Nouveau badge de profil",
+      "body": "Le badge {{badge_name}} a été ajouté à votre profil."
     },
     "discussion__create": {
       "title": "Nouvelle discussion : {{title}}",
@@ -43,7 +45,23 @@
       "body": "Utilisez le lien que nous avons envoyé à {{email}} pour confirmer votre nouvelle adresse."
     },
     "email_address__verify": {
-      "title": "Adresse de mail vérifiée"
+      "title": "Adresse de mail vérifiée",
+      "ios_title": "E-mail vérifié"
+    },
+    "birthdate__change": {
+      "body": "Un administrateur a changé votre date de naissance au {{birthdate}}.",
+      "title": "Date de naissance modifiée",
+      "ios_title": "Date de naissance modifiée"
+    },
+    "badge__remove": {
+      "title": "Badge de profil supprimé",
+      "ios_title": "Badge de profil supprimé",
+      "body": "Le badge {{badge_name}} a été supprimé de votre profil."
+    },
+    "chat__missed_messages": {
+      "title_one": "{{count}} message manqué",
+      "title_many": "{{count}} de messages manqués",
+      "title_other": "{{count}} messages manqués"
     }
   }
 }
