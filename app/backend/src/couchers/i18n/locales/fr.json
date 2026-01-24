@@ -32,6 +32,7 @@
     "cant_remove_self": "Vous ne pouvez pas vous enlever vous-même.",
     "cant_request_self": "Vous ne pouvez pas envoyer de demande d'hébergement à vous-même.",
     "cant_unaccept_community_guidelines": "Vous ne pouvez pas révoquer votre acceptation des règles de la communauté.",
-    "cant_unaccept_tos": "Vous ne pouvez pas révoquer votre acceptation des conditions d'utilisation."
+    "cant_unaccept_tos": "Vous ne pouvez pas révoquer votre acceptation des conditions d'utilisation.",
+    "chat_not_found": "Impossible de trouver cette conversation."
   }
 }
