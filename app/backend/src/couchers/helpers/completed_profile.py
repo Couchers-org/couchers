@@ -8,23 +8,13 @@ from couchers.models import PhotoGalleryItem, User
 
 def has_completed_profile(session: Session, user: User) -> bool:
     """
-    Check if a user has completed their profile.
-
-    A profile is considered complete when:
-    1. The user has at least one photo in their profile gallery
-    2. The user has an about_me text of at least 150 characters
+    Check if a user has completed their profile (has photo + 150 char about_me).
     """
-    if user.about_me is None or len(user.about_me) < COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH:
+    if not user.profile_gallery_id or not user.about_me or len(user.about_me) < COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH:
         return False
-
-    if user.profile_gallery_id is None:
-        return False
-
-    has_photo = session.execute(
+    return session.execute(
         select(exists(select(literal(1)).where(PhotoGalleryItem.gallery_id == user.profile_gallery_id)))
     ).scalar()
-
-    return bool(has_photo)
 
 
 def has_completed_profile_expression() -> ColumnElement[bool]:
