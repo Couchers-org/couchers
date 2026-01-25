@@ -1,4 +1,4 @@
-import os
+import subprocess
 from collections.abc import Sequence
 from contextlib import contextmanager
 from datetime import date, timedelta
@@ -356,8 +356,9 @@ def add_users_to_new_moderation_list(users: list[User]) -> int:
         return moderation_user_list.id
 
 
-def run_migration_test():
-    return os.environ.get("RUN_MIGRATION_TEST", "false").lower() == "true"
+def pg_dump_is_available() -> bool:
+    result = subprocess.run(["which", "pg_dump"], stdout=subprocess.PIPE, encoding="ascii")
+    return result.returncode == 0
 
 
 def make_volunteer(started_volunteering: date, show_on_team_page: bool = True, **kwargs: Any) -> Volunteer:

@@ -309,7 +309,6 @@ test:backend:
   variables:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/testdb"
-    RUN_MIGRATION_TEST: true
     TEST_SCHEMA_OUTPUT_DIR: /app/schema_dumps
   before_script:
     # install the latest postgres from their repos to get pg_dump compatible with later postgres
