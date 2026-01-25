@@ -146,7 +146,7 @@ yarn start
 
 ## Sentry error logging
 
-We self-host sentry to capture errors. It can be accessed at https://couchers.sentry.io/.
+We use Sentry to capture errors. It can be accessed at https://couchers.sentry.io/.
 
 ## Other dev commands
 
