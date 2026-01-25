@@ -1011,7 +1011,7 @@ def test_reminders(db, moderator):
     with requests_session(req_user_token1) as api:
         host_request1_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id,
+                recipient_user_id=user.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text("Test request 1"),
@@ -1032,7 +1032,7 @@ def test_reminders(db, moderator):
     with requests_session(req_user_token2) as api:
         host_request2_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id,
+                recipient_user_id=user.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text("Test request 2"),
@@ -1057,7 +1057,7 @@ def test_reminders(db, moderator):
     with requests_session(req_user_token1) as api:
         host_request3_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user.id,
+                recipient_user_id=user.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text("Test request 3"),

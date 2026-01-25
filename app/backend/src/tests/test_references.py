@@ -38,12 +38,12 @@ def _(testconfig):
 
 def create_host_request(
     session: Session,
-    surfer_user_id: int,
-    host_user_id: int,
+    initiator_user_id: int,
+    recipient_user_id: int,
     host_request_age: timedelta = timedelta(days=15),
     status: HostRequestStatus = HostRequestStatus.confirmed,
-    host_reason_didnt_meetup: str | None = None,
-    surfer_reason_didnt_meetup: str | None = None,
+    recipient_reason_didnt_meetup: str | None = None,
+    initiator_reason_didnt_meetup: str | None = None,
 ) -> int:
     """
     Create a host request that's `host_request_age` old
@@ -57,7 +57,7 @@ def create_host_request(
 
     msg1 = Message(
         conversation_id=conversation.id,
-        author_id=surfer_user_id,
+        author_id=initiator_user_id,
         message_type=MessageType.chat_created,
     )
     msg1.time = fake_created + timedelta(seconds=1)
@@ -65,7 +65,7 @@ def create_host_request(
 
     msg2 = Message(
         conversation_id=conversation.id,
-        author_id=surfer_user_id,
+        author_id=initiator_user_id,
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
     )
@@ -77,19 +77,19 @@ def create_host_request(
         session,
         ModerationObjectType.HOST_REQUEST,
         conversation.id,
-        surfer_user_id,
+        initiator_user_id,
     )
 
     host_request = HostRequest(
         conversation_id=conversation.id,
-        surfer_user_id=surfer_user_id,
-        host_user_id=host_user_id,
+        initiator_user_id=initiator_user_id,
+        recipient_user_id=recipient_user_id,
         from_date=from_date,
         to_date=to_date,
         status=status,
-        surfer_last_seen_message_id=msg2.id,
-        host_reason_didnt_meetup=host_reason_didnt_meetup,
-        surfer_reason_didnt_meetup=surfer_reason_didnt_meetup,
+        initiator_last_seen_message_id=msg2.id,
+        recipient_reason_didnt_meetup=recipient_reason_didnt_meetup,
+        initiator_reason_didnt_meetup=initiator_reason_didnt_meetup,
         hosting_city="Test City",
         hosting_location=create_coordinate(0, 0),
         hosting_radius=10,
@@ -102,12 +102,12 @@ def create_host_request(
 
 def create_host_request_by_date(
     session: Session,
-    surfer_user_id: int,
-    host_user_id: int,
+    initiator_user_id: int,
+    recipient_user_id: int,
     from_date: date,
     to_date: date,
     status: HostRequestStatus,
-    host_sent_request_reminders: int,
+    recipient_sent_request_reminders: int,
     last_sent_request_reminder_time: datetime,
 ) -> int:
     conversation = Conversation()
@@ -116,7 +116,7 @@ def create_host_request_by_date(
 
     msg1 = Message(
         conversation_id=conversation.id,
-        author_id=surfer_user_id,
+        author_id=initiator_user_id,
         message_type=MessageType.chat_created,
     )
     msg1.time = from_date + timedelta(seconds=1)  # type: ignore[assignment]
@@ -125,7 +125,7 @@ def create_host_request_by_date(
     # Unused for now, but every host request must have a message.
     msg2 = Message(
         conversation_id=conversation.id,
-        author_id=surfer_user_id,
+        author_id=initiator_user_id,
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
     )
@@ -137,13 +137,13 @@ def create_host_request_by_date(
         session,
         ModerationObjectType.HOST_REQUEST,
         conversation.id,
-        surfer_user_id,
+        initiator_user_id,
     )
 
     host_request = HostRequest(
         conversation_id=conversation.id,
-        surfer_user_id=surfer_user_id,
-        host_user_id=host_user_id,
+        initiator_user_id=initiator_user_id,
+        recipient_user_id=recipient_user_id,
         from_date=from_date,
         to_date=to_date,
         status=status,
@@ -152,7 +152,7 @@ def create_host_request_by_date(
         hosting_radius=10,
         moderation_state_id=moderation_state.id,
     )
-    host_request.host_sent_request_reminders = host_sent_request_reminders
+    host_request.recipient_sent_request_reminders = recipient_sent_request_reminders
     host_request.last_sent_request_reminder_time = last_sent_request_reminder_time
 
     session.add(host_request)
@@ -185,14 +185,14 @@ def create_host_reference(
         select(HostRequest).where(HostRequest.conversation_id == actual_host_request_id)
     ).scalar_one()
 
-    if host_request.surfer_user_id == from_user_id:
+    if host_request.initiator_user_id == from_user_id:
         reference_type = ReferenceType.surfed
-        to_user_id = host_request.host_user_id
-        assert from_user_id == host_request.surfer_user_id
+        to_user_id = host_request.recipient_user_id
+        assert from_user_id == host_request.initiator_user_id
     else:
         reference_type = ReferenceType.hosted
-        to_user_id = host_request.surfer_user_id
-        assert from_user_id == host_request.host_user_id
+        to_user_id = host_request.initiator_user_id
+        assert from_user_id == host_request.recipient_user_id
 
     reference = Reference(
         from_user_id=from_user_id,
@@ -697,13 +697,15 @@ def test_WriteHostRequestReference(db, moderator):
         # too old
         hr1 = create_host_request(session, user3.id, user1.id, timedelta(days=20))
         # valid host req, surfer said we didn't show up but we can still write a req
-        hr2 = create_host_request(session, user3.id, user1.id, timedelta(days=10), surfer_reason_didnt_meetup="No show")
+        hr2 = create_host_request(
+            session, user3.id, user1.id, timedelta(days=10), initiator_reason_didnt_meetup="No show"
+        )
         # valid surfing req
         hr3 = create_host_request(session, user1.id, user3.id, timedelta(days=7))
         # not yet complete
         hr4 = create_host_request(session, user2.id, user1.id, timedelta(days=1), status=HostRequestStatus.pending)
         # we indicated we didn't meet
-        hr5 = create_host_request(session, user4.id, user1.id, timedelta(days=7), host_reason_didnt_meetup="")
+        hr5 = create_host_request(session, user4.id, user1.id, timedelta(days=7), recipient_reason_didnt_meetup="")
         # we will indicate we didn't meet
         hr6 = create_host_request(session, user4.id, user1.id, timedelta(days=8))
 
@@ -920,11 +922,11 @@ def test_GetHostRequestReferenceStatus(db, moderator):
         hr_expired = create_host_request(session, user2.id, user1.id, timedelta(days=20))
         # current user (host) indicated didn't meet up
         hr_didnt_stay_host = create_host_request(
-            session, user2.id, user1.id, timedelta(days=10), host_reason_didnt_meetup=""
+            session, user2.id, user1.id, timedelta(days=10), recipient_reason_didnt_meetup=""
         )
         # other user (surfer) indicated didn't meet up
         hr_other_didnt_stay = create_host_request(
-            session, user2.id, user1.id, timedelta(days=10), surfer_reason_didnt_meetup="No show"
+            session, user2.id, user1.id, timedelta(days=10), initiator_reason_didnt_meetup="No show"
         )
 
     moderator.approve_host_request(hr_expired)
@@ -1010,19 +1012,21 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db, moderator
         hr_user7 = create_host_request(session, user1.id, user7.id, timedelta(days=5))
 
         # hosted but we indicated we didn't meet up, no reason; should not show up
-        hr_user8 = create_host_request(session, user8.id, user1.id, timedelta(days=11), host_reason_didnt_meetup="")
+        hr_user8 = create_host_request(
+            session, user8.id, user1.id, timedelta(days=11), recipient_reason_didnt_meetup=""
+        )
 
         # surfed but we indicated we didn't meet up, has reason; should not show up
         hr_user9 = create_host_request(
-            session, user1.id, user9.id, timedelta(days=10), surfer_reason_didnt_meetup="They never showed up!"
+            session, user1.id, user9.id, timedelta(days=10), initiator_reason_didnt_meetup="They never showed up!"
         )
 
         # surfed but they indicated we didn't meet up, no reason; should show up
-        hr6 = create_host_request(session, user1.id, user10.id, timedelta(days=4), host_reason_didnt_meetup="")
+        hr6 = create_host_request(session, user1.id, user10.id, timedelta(days=4), recipient_reason_didnt_meetup="")
 
         # hosted but they indicated we didn't meet up, has reason; should show up
         hr7 = create_host_request(
-            session, user11.id, user1.id, timedelta(days=3), surfer_reason_didnt_meetup="They never showed up!!"
+            session, user11.id, user1.id, timedelta(days=3), initiator_reason_didnt_meetup="They never showed up!!"
         )
 
     # Approve all host requests so both participants can see them
@@ -1172,7 +1176,7 @@ def test_regression_disappearing_refs(db, hs, moderator):
     with requests_session(token1) as api:
         res = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                host_user_id=user2.id, from_date=req_start, to_date=req_end, text=valid_request_text()
+                recipient_user_id=user2.id, from_date=req_start, to_date=req_end, text=valid_request_text()
             )
         )
         host_request_id = res.host_request_id

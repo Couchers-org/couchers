@@ -118,7 +118,7 @@ def host_request_to_pb(
     lat, lng = get_coordinates(host_request.hosting_location)
 
     need_feedback = False
-    if context.user_id == host_request.host_user_id and host_request.status == HostRequestStatus.rejected:
+    if context.user_id == host_request.recipient_user_id and host_request.status == HostRequestStatus.rejected:
         need_feedback = not session.execute(
             select(
                 exists().where(
@@ -130,16 +130,16 @@ def host_request_to_pb(
 
     return requests_pb2.HostRequest(
         host_request_id=host_request.conversation_id,
-        surfer_user_id=host_request.surfer_user_id,
-        host_user_id=host_request.host_user_id,
+        initiator_user_id=host_request.initiator_user_id,
+        recipient_user_id=host_request.recipient_user_id,
         status=hostrequeststatus2api[host_request.status],
         created=Timestamp_from_datetime(initial_message.time),
         from_date=date_to_api(host_request.from_date),
         to_date=date_to_api(host_request.to_date),
         last_seen_message_id=(
-            host_request.surfer_last_seen_message_id
-            if context.user_id == host_request.surfer_user_id
-            else host_request.host_last_seen_message_id
+            host_request.initiator_last_seen_message_id
+            if context.user_id == host_request.initiator_user_id
+            else host_request.recipient_last_seen_message_id
         ),
         latest_message=message_to_pb(latest_message),
         hosting_city=host_request.hosting_city,
@@ -154,7 +154,7 @@ def _possibly_observe_first_response_time(
     session: Session, host_request: HostRequest, user_id: int, response_type: str
 ) -> None:
     # if this is the first response then there's nothing by this user yet
-    assert host_request.host_user_id == user_id
+    assert host_request.recipient_user_id == user_id
 
     number_messages_by_host = session.execute(
         select(func.count())
@@ -163,8 +163,10 @@ def _possibly_observe_first_response_time(
     ).scalar_one_or_none()
 
     if number_messages_by_host == 0:
-        host_gender = session.execute(select(User.gender).where(User.id == host_request.host_user_id)).scalar_one()
-        surfer_gender = session.execute(select(User.gender).where(User.id == host_request.surfer_user_id)).scalar_one()
+        host_gender = session.execute(select(User.gender).where(User.id == host_request.recipient_user_id)).scalar_one()
+        surfer_gender = session.execute(
+            select(User.gender).where(User.id == host_request.initiator_user_id)
+        ).scalar_one()
         host_request_first_response_histogram.labels(host_gender, surfer_gender, response_type).observe(
             (now() - host_request.conversation.created).total_seconds()
         )
@@ -186,14 +188,14 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not user.has_completed_profile:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_send_request")
 
-        if request.host_user_id == context.user_id:
+        if request.recipient_user_id == context.user_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_request_self")
 
-        # just to check host exists and is visible
-        host = session.execute(
-            select(User).where(users_visible(context, User)).where(User.id == request.host_user_id)
+        # just to check recipient exists and is visible
+        recipient = session.execute(
+            select(User).where(users_visible(context, User)).where(User.id == request.recipient_user_id)
         ).scalar_one_or_none()
-        if not host:
+        if not recipient:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         from_date = parse_date(request.from_date)
@@ -202,7 +204,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not from_date or not to_date:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
 
-        today = today_in_timezone(host.timezone)
+        today = today_in_timezone(recipient.timezone)
 
         # request starts from the past
         if from_date < today:
@@ -269,38 +271,38 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         host_request = HostRequest(
             conversation_id=conversation.id,
-            surfer_user_id=context.user_id,
-            host_user_id=host.id,
+            initiator_user_id=context.user_id,
+            recipient_user_id=recipient.id,
             moderation_state_id=moderation_state.id,
             from_date=from_date,
             to_date=to_date,
             status=HostRequestStatus.pending,
-            surfer_last_seen_message_id=message.id,
+            initiator_last_seen_message_id=message.id,
             # TODO: tz
-            # timezone=host.timezone,
-            hosting_city=host.city,
-            hosting_location=host.geom,
-            hosting_radius=host.geom_radius,
+            # timezone=recipient.timezone,
+            hosting_city=recipient.city,
+            hosting_location=recipient.geom,
+            hosting_radius=recipient.geom_radius,
         )
         session.add(host_request)
         session.flush()
 
         notify(
             session,
-            user_id=host_request.host_user_id,
+            user_id=host_request.recipient_user_id,
             topic_action=NotificationTopicAction.host_request__create,
             key=str(host_request.conversation_id),
             data=notification_data_pb2.HostRequestCreate(
                 host_request=host_request_to_pb(host_request, session, context),
-                surfer=user_model_to_pb(host_request.surfer, session, context),
+                surfer=user_model_to_pb(host_request.initiator, session, context),
                 text=request.text,
             ),
             moderation_state_id=moderation_state.id,
         )
 
-        host_requests_sent_counter.labels(user.gender, host.gender).inc()
+        host_requests_sent_counter.labels(user.gender, recipient.gender).inc()
         sent_messages_counter.labels(user.gender, "host request send").inc()
-        account_age_on_host_request_create_histogram.labels(user.gender, host.gender).observe(
+        account_age_on_host_request_create_histogram.labels(user.gender, recipient.gender).observe(
             (now() - user.joined).total_seconds()
         )
 
@@ -315,17 +317,19 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     where_users_column_visible(
                         select(HostRequest),
                         context,
-                        HostRequest.surfer_user_id,
+                        HostRequest.initiator_user_id,
                     ),
                     context,
-                    HostRequest.host_user_id,
+                    HostRequest.recipient_user_id,
                 ),
                 context,
                 HostRequest,
                 is_list_operation=False,
             )
             .where(HostRequest.conversation_id == request.host_request_id)
-            .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
+            .where(
+                or_(HostRequest.initiator_user_id == context.user_id, HostRequest.recipient_user_id == context.user_id)
+            )
         ).scalar_one_or_none()
 
         if not host_request:
@@ -356,10 +360,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     .join(HostRequest, HostRequest.conversation_id == Message.conversation_id)
                     .join(Conversation, Conversation.id == HostRequest.conversation_id),
                     context,
-                    HostRequest.surfer_user_id,
+                    HostRequest.initiator_user_id,
                 ),
                 context,
-                HostRequest.host_user_id,
+                HostRequest.recipient_user_id,
             ),
             context,
             HostRequest,
@@ -369,25 +373,25 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if request.last_request_id != 0:
             statement = statement.where(Message.id < request.last_request_id)
         if request.only_sent:
-            statement = statement.where(HostRequest.surfer_user_id == context.user_id)
+            statement = statement.where(HostRequest.initiator_user_id == context.user_id)
         elif request.only_received:
-            statement = statement.where(HostRequest.host_user_id == context.user_id)
+            statement = statement.where(HostRequest.recipient_user_id == context.user_id)
         elif request.HasField("only_archived"):
             statement = statement.where(
                 or_(
                     and_(
-                        HostRequest.surfer_user_id == context.user_id,
-                        HostRequest.is_surfer_archived == request.only_archived,
+                        HostRequest.initiator_user_id == context.user_id,
+                        HostRequest.is_initiator_archived == request.only_archived,
                     ),
                     and_(
-                        HostRequest.host_user_id == context.user_id,
-                        HostRequest.is_host_archived == request.only_archived,
+                        HostRequest.recipient_user_id == context.user_id,
+                        HostRequest.is_recipient_archived == request.only_archived,
                     ),
                 )
             )
         else:
             statement = statement.where(
-                or_(HostRequest.host_user_id == context.user_id, HostRequest.surfer_user_id == context.user_id)
+                or_(HostRequest.recipient_user_id == context.user_id, HostRequest.initiator_user_id == context.user_id)
             )
 
         # TODO: I considered having the latest control message be the single source of truth for
@@ -412,16 +416,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             host_requests.append(
                 requests_pb2.HostRequest(
                     host_request_id=result.HostRequest.conversation_id,
-                    surfer_user_id=result.HostRequest.surfer_user_id,
-                    host_user_id=result.HostRequest.host_user_id,
+                    initiator_user_id=result.HostRequest.initiator_user_id,
+                    recipient_user_id=result.HostRequest.recipient_user_id,
                     status=hostrequeststatus2api[result.HostRequest.status],
                     created=Timestamp_from_datetime(result.Conversation.created),
                     from_date=date_to_api(result.HostRequest.from_date),
                     to_date=date_to_api(result.HostRequest.to_date),
                     last_seen_message_id=(
-                        result.HostRequest.surfer_last_seen_message_id
-                        if context.user_id == result.HostRequest.surfer_user_id
-                        else result.HostRequest.host_last_seen_message_id
+                        result.HostRequest.initiator_last_seen_message_id
+                        if context.user_id == result.HostRequest.initiator_user_id
+                        else result.HostRequest.recipient_last_seen_message_id
                     ),
                     latest_message=message_to_pb(result.Message),
                     hosting_city=result.HostRequest.hosting_city,
@@ -453,10 +457,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     where_users_column_visible(
                         select(HostRequest),
                         context,
-                        HostRequest.surfer_user_id,
+                        HostRequest.initiator_user_id,
                     ),
                     context,
-                    HostRequest.host_user_id,
+                    HostRequest.recipient_user_id,
                 ),
                 context,
                 HostRequest,
@@ -467,7 +471,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not host_request:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
-        if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
+        if host_request.initiator_user_id != context.user_id and host_request.recipient_user_id != context.user_id:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_PENDING:
@@ -484,7 +488,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_ACCEPTED:
             # only host can accept
-            if context.user_id != host_request.host_user_id:
+            if context.user_id != host_request.recipient_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "not_the_host")
             # can't accept a cancelled or confirmed request (only reject), or already accepted
             if (
@@ -500,21 +504,21 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             notify(
                 session,
-                user_id=host_request.surfer_user_id,
+                user_id=host_request.initiator_user_id,
                 topic_action=NotificationTopicAction.host_request__accept,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestAccept(
                     host_request=host_request_to_pb(host_request, session, context),
-                    host=user_model_to_pb(host_request.host, session, context),
+                    host=user_model_to_pb(host_request.recipient, session, context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.surfer_user_id, "accepted")
+            count_host_response(host_request.initiator_user_id, "accepted")
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
             # only host can reject
-            if context.user_id != host_request.host_user_id:
+            if context.user_id != host_request.recipient_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             # can't reject a cancelled or already rejected request
             if host_request.status == HostRequestStatus.cancelled or host_request.status == HostRequestStatus.rejected:
@@ -526,21 +530,21 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             notify(
                 session,
-                user_id=host_request.surfer_user_id,
+                user_id=host_request.initiator_user_id,
                 topic_action=NotificationTopicAction.host_request__reject,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestReject(
                     host_request=host_request_to_pb(host_request, session, context),
-                    host=user_model_to_pb(host_request.host, session, context),
+                    host=user_model_to_pb(host_request.recipient, session, context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.surfer_user_id, "rejected")
+            count_host_response(host_request.initiator_user_id, "rejected")
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
             # only surfer can confirm
-            if context.user_id != host_request.surfer_user_id:
+            if context.user_id != host_request.initiator_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             # can only confirm an accepted request
             if host_request.status != HostRequestStatus.accepted:
@@ -551,21 +555,21 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             notify(
                 session,
-                user_id=host_request.host_user_id,
+                user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__confirm,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestConfirm(
                     host_request=host_request_to_pb(host_request, session, context),
-                    surfer=user_model_to_pb(host_request.surfer, session, context),
+                    surfer=user_model_to_pb(host_request.initiator, session, context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.host_user_id, "confirmed")
+            count_host_response(host_request.recipient_user_id, "confirmed")
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
             # only surfer can cancel
-            if context.user_id != host_request.surfer_user_id:
+            if context.user_id != host_request.initiator_user_id:
                 context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "invalid_host_request_status")
             # can't' cancel an already cancelled or rejected request
             if host_request.status == HostRequestStatus.rejected or host_request.status == HostRequestStatus.cancelled:
@@ -576,17 +580,17 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
             notify(
                 session,
-                user_id=host_request.host_user_id,
+                user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__cancel,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestCancel(
                     host_request=host_request_to_pb(host_request, session, context),
-                    surfer=user_model_to_pb(host_request.surfer, session, context),
+                    surfer=user_model_to_pb(host_request.initiator, session, context),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
 
-            count_host_response(host_request.host_user_id, "cancelled")
+            count_host_response(host_request.recipient_user_id, "cancelled")
 
         session.add(control_message)
 
@@ -604,10 +608,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
 
         session.flush()
 
-        if host_request.surfer_user_id == context.user_id:
-            host_request.surfer_last_seen_message_id = latest_message.id
+        if host_request.initiator_user_id == context.user_id:
+            host_request.initiator_last_seen_message_id = latest_message.id
         else:
-            host_request.host_last_seen_message_id = latest_message.id
+            host_request.recipient_last_seen_message_id = latest_message.id
         session.commit()
 
         return empty_pb2.Empty()
@@ -624,7 +628,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not host_request:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
-        if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
+        if host_request.initiator_user_id != context.user_id and host_request.recipient_user_id != context.user_id:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
         pagination = request.number if request.number > 0 else DEFAULT_PAGINATION_LENGTH
@@ -666,10 +670,10 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not host_request:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
-        if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
+        if host_request.initiator_user_id != context.user_id and host_request.recipient_user_id != context.user_id:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
-        if host_request.host_user_id == context.user_id:
+        if host_request.recipient_user_id == context.user_id:
             _possibly_observe_first_response_time(session, host_request, context.user_id, "message")
 
         message = Message(
@@ -682,17 +686,17 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         session.add(message)
         session.flush()
 
-        if host_request.surfer_user_id == context.user_id:
-            host_request.surfer_last_seen_message_id = message.id
+        if host_request.initiator_user_id == context.user_id:
+            host_request.initiator_last_seen_message_id = message.id
 
             notify(
                 session,
-                user_id=host_request.host_user_id,
+                user_id=host_request.recipient_user_id,
                 topic_action=NotificationTopicAction.host_request__message,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestMessage(
                     host_request=host_request_to_pb(host_request, session, context),
-                    user=user_model_to_pb(host_request.surfer, session, context),
+                    user=user_model_to_pb(host_request.initiator, session, context),
                     text=request.text,
                     am_host=True,
                 ),
@@ -700,16 +704,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             )
 
         else:
-            host_request.host_last_seen_message_id = message.id
+            host_request.recipient_last_seen_message_id = message.id
 
             notify(
                 session,
-                user_id=host_request.surfer_user_id,
+                user_id=host_request.initiator_user_id,
                 topic_action=NotificationTopicAction.host_request__message,
                 key=str(host_request.conversation_id),
                 data=notification_data_pb2.HostRequestMessage(
                     host_request=host_request_to_pb(host_request, session, context),
-                    user=user_model_to_pb(host_request.host, session, context),
+                    user=user_model_to_pb(host_request.recipient, session, context),
                     text=request.text,
                     am_host=False,
                 ),
@@ -752,12 +756,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         )
 
         if request.only_sent:
-            statement = statement.where(HostRequest.surfer_user_id == context.user_id)
+            statement = statement.where(HostRequest.initiator_user_id == context.user_id)
         elif request.only_received:
-            statement = statement.where(HostRequest.host_user_id == context.user_id)
+            statement = statement.where(HostRequest.recipient_user_id == context.user_id)
         else:
             statement = statement.where(
-                or_(HostRequest.host_user_id == context.user_id, HostRequest.surfer_user_id == context.user_id)
+                or_(HostRequest.recipient_user_id == context.user_id, HostRequest.initiator_user_id == context.user_id)
             )
 
         statement = statement.order_by(Message.id.asc()).limit(pagination + 1)
@@ -791,17 +795,17 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not host_request:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
-        if host_request.surfer_user_id != context.user_id and host_request.host_user_id != context.user_id:
+        if host_request.initiator_user_id != context.user_id and host_request.recipient_user_id != context.user_id:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
-        if host_request.surfer_user_id == context.user_id:
-            if not host_request.surfer_last_seen_message_id <= request.last_seen_message_id:
+        if host_request.initiator_user_id == context.user_id:
+            if not host_request.initiator_last_seen_message_id <= request.last_seen_message_id:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
-            host_request.surfer_last_seen_message_id = request.last_seen_message_id
+            host_request.initiator_last_seen_message_id = request.last_seen_message_id
         else:
-            if not host_request.host_last_seen_message_id <= request.last_seen_message_id:
+            if not host_request.recipient_last_seen_message_id <= request.last_seen_message_id:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
-            host_request.host_last_seen_message_id = request.last_seen_message_id
+            host_request.recipient_last_seen_message_id = request.last_seen_message_id
 
         session.commit()
         return empty_pb2.Empty()
@@ -812,16 +816,18 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         host_request = session.execute(
             where_moderated_content_visible(select(HostRequest), context, HostRequest, is_list_operation=False)
             .where(HostRequest.conversation_id == request.host_request_id)
-            .where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
+            .where(
+                or_(HostRequest.initiator_user_id == context.user_id, HostRequest.recipient_user_id == context.user_id)
+            )
         ).scalar_one_or_none()
 
         if not host_request:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "host_request_not_found")
 
-        if context.user_id == host_request.surfer_user_id:
-            host_request.is_surfer_archived = request.is_archived
+        if context.user_id == host_request.initiator_user_id:
+            host_request.is_initiator_archived = request.is_archived
         else:
-            host_request.is_host_archived = request.is_archived
+            host_request.is_recipient_archived = request.is_archived
 
         return requests_pb2.SetHostRequestArchiveStatusRes(
             host_request_id=host_request.conversation_id,
@@ -851,7 +857,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         host_request = session.execute(
             where_moderated_content_visible(select(HostRequest), context, HostRequest, is_list_operation=False)
             .where(HostRequest.conversation_id == request.host_request_id)
-            .where(HostRequest.host_user_id == context.user_id)
+            .where(HostRequest.recipient_user_id == context.user_id)
         ).scalar_one_or_none()
 
         if not host_request:
@@ -869,8 +875,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         session.add(
             HostRequestFeedback(
                 host_request_id=host_request.conversation_id,
-                from_user_id=host_request.host_user_id,
-                to_user_id=host_request.surfer_user_id,
+                from_user_id=host_request.recipient_user_id,
+                to_user_id=host_request.initiator_user_id,
                 request_quality=hostrequestquality2sql.get(request.host_request_quality),
                 decline_reason=request.decline_reason,
             )

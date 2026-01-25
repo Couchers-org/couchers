@@ -171,8 +171,8 @@ sent_request_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_sent_request",
     "Total number of users who have sent a host request",
     (
-        select(func.count(distinct(HostRequest.surfer_user_id)))
-        .join(User, User.id == HostRequest.surfer_user_id)
+        select(func.count(distinct(HostRequest.initiator_user_id)))
+        .join(User, User.id == HostRequest.initiator_user_id)
         .where(User.is_visible)
     ),
 )

@@ -108,7 +108,7 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
     # Get the author user ID
     if object_type == ModerationObjectType.HOST_REQUEST:
         author_user_id = session.execute(
-            select(HostRequest.surfer_user_id).where(HostRequest.conversation_id == object_id)
+            select(HostRequest.initiator_user_id).where(HostRequest.conversation_id == object_id)
         ).scalar_one()
     elif object_type == ModerationObjectType.GROUP_CHAT:
         author_user_id = session.execute(
@@ -189,7 +189,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             hr_exists = exists().where(
                 and_(
                     HostRequest.moderation_state_id == ModerationQueueItem.moderation_state_id,
-                    HostRequest.surfer_user_id == author_user_id,
+                    HostRequest.initiator_user_id == author_user_id,
                 )
             )
             gc_exists = exists().where(

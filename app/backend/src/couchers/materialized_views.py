@@ -298,11 +298,13 @@ s = (
 all_responses = union_all(
     # host request responses
     sa_select(
-        HostRequest.host_user_id.label("user_id"),
+        HostRequest.recipient_user_id.label("user_id"),
         (s.c.time - t.c.time).label("response_time"),
     )
     .join(t, t.c.conversation_id == HostRequest.conversation_id)
-    .outerjoin(s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.host_user_id)),
+    .outerjoin(
+        s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.recipient_user_id)
+    ),
     # activeness probes
     sa_select(
         ActivenessProbe.user_id,

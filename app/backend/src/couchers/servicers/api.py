@@ -168,10 +168,10 @@ class API(api_pb2_grpc.APIServicer):
         # auth ought to make sure the user exists
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-        sent_reqs_query = select(HostRequest.conversation_id, HostRequest.surfer_last_seen_message_id).where(
-            HostRequest.surfer_user_id == context.user_id
+        sent_reqs_query = select(HostRequest.conversation_id, HostRequest.initiator_last_seen_message_id).where(
+            HostRequest.initiator_user_id == context.user_id
         )
-        sent_reqs_query = where_users_column_visible(sent_reqs_query, context, HostRequest.host_user_id)
+        sent_reqs_query = where_users_column_visible(sent_reqs_query, context, HostRequest.recipient_user_id)
         sent_reqs_query = where_moderated_content_visible(sent_reqs_query, context, HostRequest, is_list_operation=True)
         sent_reqs_last_seen_message_ids = sent_reqs_query.subquery()
 
@@ -181,14 +181,14 @@ class API(api_pb2_grpc.APIServicer):
                 Message,
                 Message.conversation_id == sent_reqs_last_seen_message_ids.c.conversation_id,
             )
-            .where(sent_reqs_last_seen_message_ids.c.surfer_last_seen_message_id < Message.id)
+            .where(sent_reqs_last_seen_message_ids.c.initiator_last_seen_message_id < Message.id)
             .where(Message.id != None)
         ).scalar_one()
 
-        received_reqs_query = select(HostRequest.conversation_id, HostRequest.host_last_seen_message_id).where(
-            HostRequest.host_user_id == context.user_id
+        received_reqs_query = select(HostRequest.conversation_id, HostRequest.recipient_last_seen_message_id).where(
+            HostRequest.recipient_user_id == context.user_id
         )
-        received_reqs_query = where_users_column_visible(received_reqs_query, context, HostRequest.surfer_user_id)
+        received_reqs_query = where_users_column_visible(received_reqs_query, context, HostRequest.initiator_user_id)
         received_reqs_query = where_moderated_content_visible(
             received_reqs_query, context, HostRequest, is_list_operation=True
         )
@@ -200,7 +200,7 @@ class API(api_pb2_grpc.APIServicer):
                 Message,
                 Message.conversation_id == received_reqs_last_seen_message_ids.c.conversation_id,
             )
-            .where(received_reqs_last_seen_message_ids.c.host_last_seen_message_id < Message.id)
+            .where(received_reqs_last_seen_message_ids.c.recipient_last_seen_message_id < Message.id)
             .where(Message.id != None)
         ).scalar_one()
 
