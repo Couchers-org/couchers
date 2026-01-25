@@ -69,7 +69,10 @@
     "form_title": "Jazyk",
     "select_language": "Vyber jazyk",
     "success_message": "Tvé změny byly uloženy.",
-    "error_loading_languages": "Nepodařilo se načíst výběr jazyka. Zkus to prosím později."
+    "error_loading_languages": "Nepodařilo se načíst výběr jazyka. Zkus to prosím později.",
+    "show_all_languages": "Zobrazit všechny jazyky ve výběru jazyka",
+    "show_all_languages_description": "Když je tato možnost povolena, zobrazí se ti všechny jazyky k výběru bez ohledu na procento dokončení překladu. Toto se zobrazuje pouze na testovacím prostředí, aby bylo možné testovat jazyky, které jsou stále ještě ve vývoji.",
+    "current_preferred_language": "Tvá jazyková preference je aktuálně <lang>{{language}}</lang>."
   },
   "meetup_status": {
     "wants_to_meetup": "Chci se setkat",
@@ -157,7 +160,9 @@
     "invite_members": "Pozvat členy",
     "faq": "Často kladené otázky",
     "about": "O aplikaci",
-    "merch_shop": "Obchod s merchem"
+    "merch_shop": "Obchod s merchem",
+    "switch_to_light_mode": "Přepnout na světlý režim",
+    "switch_to_dark_mode": "Přepnout do tmavého režimu"
   },
   "html_meta": {
     "default_description": "Sdílej svůj svět a objevuj ten jejich. Autentické místní zážitky postavené na důvěře a skutečném spojení — ne na transakcích.",

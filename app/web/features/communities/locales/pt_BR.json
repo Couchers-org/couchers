@@ -3,5 +3,19 @@
   "attendees_count_one": "{{count}} participante",
   "attendees_count_many": "{{count}} de participantes",
   "attendees_count_other": "{{count}} participantes",
-  "comments_count": "Comentários | {{count}}"
+  "comments_count": "Comentários | {{count}}",
+  "events_empty_state": "Nenhum evento no momento. Por que você não <0>cria</0> um ✨?",
+  "cancel_event": "Cancelar evento",
+  "show_cancelled_events": "Mostrar eventos cancelados",
+  "cancel_event_success_message": "O evento foi cancelado com sucesso.",
+  "cancel_event_dialog": {
+    "title": "Cancelar evento?",
+    "message": "Tem certeza de que deseja cancelar este evento?"
+  },
+  "invite_community_dialog": {
+    "title": "Solicitar um convite da comunidade para este evento"
+  },
+  "unknown_user": "Usuário desconhecido",
+  "by_creator": "Por {{name}}",
+  "cancelled": "Cancelado"
 }
