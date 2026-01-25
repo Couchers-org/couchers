@@ -24,7 +24,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { settingsRoute } from "routes";
 import { service } from "service";
 
-import GalleryItem from "./GalleryItem";
+import GalleryItem, { DropPlaceholder } from "./GalleryItem";
 
 export interface GalleryItemData {
   itemId: number;
@@ -135,7 +135,7 @@ export default function GalleryEditor({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [draggedItemId, setDraggedItemId] = useState<number | null>(null);
-  const [dragOverItemId, setDragOverItemId] = useState<number | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [deletingItemId, setDeletingItemId] = useState<number | null>(null);
@@ -238,40 +238,72 @@ export default function GalleryEditor({
 
   const handleDragEnd = () => {
     setDraggedItemId(null);
-    setDragOverItemId(null);
+    setDropIndex(null);
   };
 
-  const handleDragOver = (e: React.DragEvent, targetItemId: number) => {
+  const handleDragOver = (
+    e: React.DragEvent,
+    targetItemId: number,
+    targetIndex: number,
+  ) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    setDragOverItemId(targetItemId);
+
+    if (!draggedItemId) return;
+
+    const draggedIndex = photos.findIndex((p) => p.itemId === draggedItemId);
+    if (draggedIndex === -1) return;
+
+    // Determine drop position based on cursor position within target element
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const isLeftHalf = x < rect.width / 2;
+
+    // Calculate the drop index
+    let newDropIndex: number;
+    if (isLeftHalf) {
+      newDropIndex = targetIndex;
+    } else {
+      newDropIndex = targetIndex + 1;
+    }
+
+    // Adjust for the fact that dragged item will be removed from its position
+    if (draggedIndex < newDropIndex) {
+      newDropIndex -= 1;
+    }
+
+    // Don't show indicator at the current position
+    if (newDropIndex === draggedIndex) {
+      setDropIndex(null);
+    } else {
+      setDropIndex(newDropIndex);
+    }
   };
 
-  const handleDrop = async (e: React.DragEvent, targetItemId: number) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     const draggedId = draggedItemId;
+    const currentDropIndex = dropIndex;
     setDraggedItemId(null);
-    setDragOverItemId(null);
+    setDropIndex(null);
 
-    if (!draggedId || draggedId === targetItemId) return;
+    if (!draggedId || currentDropIndex === null) return;
 
-    // Find the positions of dragged and target items
     const draggedIndex = photos.findIndex((p) => p.itemId === draggedId);
-    const targetIndex = photos.findIndex((p) => p.itemId === targetItemId);
+    if (draggedIndex === -1 || currentDropIndex === draggedIndex) return;
 
-    if (draggedIndex === -1 || targetIndex === -1) return;
-
-    // Determine afterItemId:
-    // - If dropping at first position (targetIndex === 0 and dragged is after), afterItemId = 0
-    // - Otherwise, afterItemId = the item we want to place after
+    // Determine afterItemId based on dropIndex
     let afterItemId: number;
-
-    if (draggedIndex > targetIndex) {
-      // Moving left/up - place after the item before target
-      afterItemId = targetIndex === 0 ? 0 : photos[targetIndex - 1].itemId;
+    if (currentDropIndex === 0) {
+      afterItemId = 0; // Move to first position
     } else {
-      // Moving right/down - place after target
-      afterItemId = targetItemId;
+      // Get the item that will be before our dropped item
+      // If dragging forward, account for the shift
+      const beforeIndex =
+        draggedIndex < currentDropIndex
+          ? currentDropIndex
+          : currentDropIndex - 1;
+      afterItemId = photos[beforeIndex].itemId;
     }
 
     try {
@@ -298,6 +330,8 @@ export default function GalleryEditor({
     if (!touchStartItemId) return;
 
     const touch = e.touches[0];
+    const draggedIndex = photos.findIndex((p) => p.itemId === touchStartItemId);
+    if (draggedIndex === -1) return;
 
     // Find which item we're currently over
     const element = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -305,42 +339,65 @@ export default function GalleryEditor({
 
     if (imageListItem) {
       const itemId = Number(imageListItem.getAttribute("data-item-id"));
-      if (itemId && itemId !== touchStartItemId) {
-        setDragOverItemId(itemId);
+      const targetIndex = photos.findIndex((p) => p.itemId === itemId);
+
+      if (itemId && targetIndex !== -1) {
+        // Determine drop position based on touch position within the element
+        const rect = imageListItem.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const isLeftHalf = x < rect.width / 2;
+
+        // Calculate new drop index
+        let newDropIndex: number;
+        if (isLeftHalf) {
+          newDropIndex = targetIndex;
+        } else {
+          newDropIndex = targetIndex + 1;
+        }
+
+        // Adjust for the dragged item being removed
+        if (draggedIndex < newDropIndex) {
+          newDropIndex -= 1;
+        }
+
+        // Don't show indicator at current position
+        if (newDropIndex === draggedIndex) {
+          setDropIndex(null);
+        } else {
+          setDropIndex(newDropIndex);
+        }
       }
     }
   };
 
   const handleTouchEnd = async () => {
-    if (!touchStartItemId || !dragOverItemId) {
+    if (!touchStartItemId || dropIndex === null) {
       setTouchStartItemId(null);
       setDraggedItemId(null);
-      setDragOverItemId(null);
+      setDropIndex(null);
       return;
     }
 
     const draggedId = touchStartItemId;
-    const targetItemId = dragOverItemId;
+    const currentDropIndex = dropIndex;
 
     setTouchStartItemId(null);
     setDraggedItemId(null);
-    setDragOverItemId(null);
+    setDropIndex(null);
 
-    if (draggedId === targetItemId) return;
-
-    // Find the positions of dragged and target items
     const draggedIndex = photos.findIndex((p) => p.itemId === draggedId);
-    const targetIndex = photos.findIndex((p) => p.itemId === targetItemId);
+    if (draggedIndex === -1 || currentDropIndex === draggedIndex) return;
 
-    if (draggedIndex === -1 || targetIndex === -1) return;
-
-    // Determine afterItemId
+    // Determine afterItemId based on dropIndex
     let afterItemId: number;
-
-    if (draggedIndex > targetIndex) {
-      afterItemId = targetIndex === 0 ? 0 : photos[targetIndex - 1].itemId;
+    if (currentDropIndex === 0) {
+      afterItemId = 0;
     } else {
-      afterItemId = targetItemId;
+      const beforeIndex =
+        draggedIndex < currentDropIndex
+          ? currentDropIndex
+          : currentDropIndex - 1;
+      afterItemId = photos[beforeIndex].itemId;
     }
 
     try {
@@ -488,26 +545,120 @@ export default function GalleryEditor({
           </EmptyState>
         )
       ) : (
-        <StyledImageList cols={getCols()} gap={12} rowHeight={180}>
-          {photos.map((item, index) => (
-            <GalleryItem
-              key={item.itemId}
-              item={item}
-              isFirst={index === 0}
-              isDragging={draggedItemId === item.itemId}
-              isDragOver={dragOverItemId === item.itemId}
-              isDeleting={deletingItemId === item.itemId}
-              canEdit={canEdit}
-              onDelete={handleDelete}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            />
-          ))}
+        <StyledImageList
+          cols={getCols()}
+          gap={12}
+          rowHeight={180}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleDrop}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {(() => {
+            const draggedIndex = draggedItemId
+              ? photos.findIndex((p) => p.itemId === draggedItemId)
+              : -1;
+
+            // Determine if this is a touch drag (simpler preview) or mouse drag (full reorder preview)
+            const isTouchDrag = touchStartItemId !== null;
+
+            // For MOUSE drag: full reorder preview with items moving
+            if (!isTouchDrag && dropIndex !== null && draggedIndex !== -1) {
+              // Build a reordered array with placeholder
+              const reorderedItems: (GalleryItemData | "placeholder")[] = [];
+              let photoIndex = 0;
+
+              for (let i = 0; i <= photos.length; i++) {
+                if (i === dropIndex) {
+                  // Insert placeholder at drop position
+                  reorderedItems.push("placeholder");
+                }
+                if (photoIndex < photos.length) {
+                  // Skip the dragged item in its original position
+                  if (photos[photoIndex].itemId === draggedItemId) {
+                    photoIndex++;
+                  }
+                  if (photoIndex < photos.length) {
+                    reorderedItems.push(photos[photoIndex]);
+                    photoIndex++;
+                  }
+                }
+              }
+
+              // Find index of first real item (not placeholder)
+              const firstRealItemIndex = reorderedItems.findIndex(
+                (i) => i !== "placeholder",
+              );
+
+              return reorderedItems.map((item, renderIndex) => {
+                if (item === "placeholder") {
+                  return (
+                    <DropPlaceholder
+                      key="drop-placeholder"
+                      onDragOver={(e) => e.preventDefault()}
+                    />
+                  );
+                }
+
+                // Find original index for drag handlers
+                const originalIndex = photos.findIndex(
+                  (p) => p.itemId === item.itemId,
+                );
+
+                return (
+                  <GalleryItem
+                    key={item.itemId}
+                    item={item}
+                    isFirst={renderIndex === firstRealItemIndex}
+                    isDragging={false}
+                    isDeleting={deletingItemId === item.itemId}
+                    canEdit={canEdit}
+                    onDelete={handleDelete}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={(e) =>
+                      handleDragOver(e, item.itemId, originalIndex)
+                    }
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                  />
+                );
+              });
+            }
+
+            // For TOUCH drag or normal render: keep items in original order
+            // Show placeholder at dropIndex position for touch drag
+            const items = photos.map((item, index) => (
+              <React.Fragment key={item.itemId}>
+                {/* Show placeholder before this item if dropIndex matches */}
+                {isTouchDrag && dropIndex === index && (
+                  <DropPlaceholder key={`drop-placeholder-${index}`} />
+                )}
+                <GalleryItem
+                  item={item}
+                  isFirst={index === 0}
+                  isDragging={draggedItemId === item.itemId}
+                  isDeleting={deletingItemId === item.itemId}
+                  canEdit={canEdit}
+                  onDelete={handleDelete}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => handleDragOver(e, item.itemId, index)}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                />
+              </React.Fragment>
+            ));
+
+            // Add placeholder at end if dropping at last position
+            if (isTouchDrag && dropIndex === photos.length) {
+              items.push(<DropPlaceholder key="drop-placeholder-end" />);
+            }
+
+            return items;
+          })()}
         </StyledImageList>
       )}
     </Root>

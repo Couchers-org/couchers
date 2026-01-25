@@ -19,63 +19,43 @@ interface GalleryItemProps {
   item: GalleryItemData;
   isFirst: boolean;
   isDragging: boolean;
-  isDragOver: boolean;
   isDeleting: boolean;
   canEdit: boolean;
   onDelete: (itemId: number) => void;
   onDragStart: (e: React.DragEvent, itemId: number) => void;
   onDragEnd: (e: React.DragEvent) => void;
-  onDragOver: (e: React.DragEvent, targetItemId: number) => void;
-  onDrop: (e: React.DragEvent, targetItemId: number) => void;
+  onDragOver: (e: React.DragEvent) => void;
   onTouchStart: (e: React.TouchEvent, itemId: number) => void;
   onTouchMove: (e: React.TouchEvent) => void;
   onTouchEnd: () => void;
 }
 
 const StyledImageListItem = styled(ImageListItem, {
-  shouldForwardProp: (prop) => prop !== "isDragging" && prop !== "isDragOver",
-})<{ isDragging: boolean; isDragOver: boolean }>(
-  ({ theme, isDragging, isDragOver }) => ({
-    position: "relative",
-    borderRadius: theme.shape.borderRadius,
-    overflow: "hidden",
-    cursor: "grab",
-    opacity: isDragging ? 0.5 : 1,
-    transition: "opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease",
-    boxShadow: isDragOver ? theme.shadows[8] : undefined,
-    transform: isDragOver ? "scale(1.02)" : undefined,
-    touchAction: "none",
-    userSelect: "none",
-    WebkitUserSelect: "none",
-    "&::after": {
-      content: '""',
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      border: isDragOver
-        ? `4px solid ${theme.palette.primary.main}`
-        : "4px solid transparent",
-      borderRadius: theme.shape.borderRadius,
-      pointerEvents: "none",
-      transition: "border-color 0.2s ease",
-      zIndex: 2,
+  shouldForwardProp: (prop) => prop !== "isDragging",
+})<{ isDragging: boolean }>(({ theme, isDragging }) => ({
+  position: "relative",
+  borderRadius: theme.shape.borderRadius,
+  overflow: "hidden",
+  cursor: "grab",
+  opacity: isDragging ? 0.4 : 1,
+  transform: isDragging ? "scale(0.95)" : undefined,
+  transition: "opacity 0.15s ease-out, transform 0.15s ease-out",
+  touchAction: "none",
+  userSelect: "none",
+  WebkitUserSelect: "none",
+  "&:hover": {
+    boxShadow: isDragging ? undefined : theme.shadows[4],
+    "& .drag-handle": {
+      opacity: 1,
     },
-    "&:hover": {
-      boxShadow: theme.shadows[4],
-      "& .drag-handle": {
-        opacity: 1,
-      },
-      "& .MuiImageListItemBar-root": {
-        opacity: 1,
-      },
+    "& .MuiImageListItemBar-root": {
+      opacity: 1,
     },
-    "&:active": {
-      cursor: "grabbing",
-    },
-  }),
-);
+  },
+  "&:active": {
+    cursor: "grabbing",
+  },
+}));
 
 const StyledImage = styled("img")({
   width: "100%",
@@ -145,18 +125,28 @@ const LoadingOverlay = styled(Box)({
   zIndex: 2,
 });
 
+// Placeholder box that shows where the item will be dropped
+export const DropPlaceholder = styled(ImageListItem)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius,
+  border: `2px dashed ${theme.palette.primary.main}`,
+  backgroundColor: "var(--mui-palette-action-hover)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  opacity: 0.8,
+  touchAction: "none",
+}));
+
 export default function GalleryItem({
   item,
   isFirst,
   isDragging,
-  isDragOver,
   isDeleting,
   canEdit,
   onDelete,
   onDragStart,
   onDragEnd,
   onDragOver,
-  onDrop,
   onTouchStart,
   onTouchMove,
   onTouchEnd,
@@ -171,10 +161,6 @@ export default function GalleryItem({
     onDragStart(e, item.itemId);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    onDragOver(e, item.itemId);
-  };
-
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!canEdit) return;
     onTouchStart(e, item.itemId);
@@ -183,12 +169,10 @@ export default function GalleryItem({
   return (
     <StyledImageListItem
       isDragging={isDragging}
-      isDragOver={isDragOver}
       draggable={canEdit}
       onDragStart={handleDragStart}
       onDragEnd={onDragEnd}
-      onDragOver={handleDragOver}
-      onDrop={(e) => onDrop(e, item.itemId)}
+      onDragOver={onDragOver}
       onTouchStart={handleTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
