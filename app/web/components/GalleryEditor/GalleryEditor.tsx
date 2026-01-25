@@ -8,6 +8,7 @@ import {
   useTheme,
 } from "@mui/material";
 import Alert from "components/Alert";
+import BetaFlag from "components/BetaFlag";
 import Button from "components/Button";
 import CircularProgress from "components/CircularProgress";
 import {
@@ -431,12 +432,15 @@ export default function GalleryEditor({
         <HeaderRow>
           <Box>
             {title && (
-              <Typography variant="h3" gutterBottom>
-                {title}
-              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography variant="h3" gutterBottom sx={{ mb: 0 }}>
+                  {title}
+                </Typography>
+                <BetaFlag />
+              </Box>
             )}
             {description && (
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 {description}
               </Typography>
             )}
