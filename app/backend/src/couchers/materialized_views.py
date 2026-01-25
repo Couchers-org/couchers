@@ -157,7 +157,6 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
         .subquery(name="sv_subquery")
     )
 
-    # Subquery to get the first photo from each user's profile gallery
     avatar_photo_subquery = get_avatar_photo_subquery(name="avatar_photo")
 
     # Be sure to modify the LiteUser type if you add/remove columns!

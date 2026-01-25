@@ -96,7 +96,6 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
     def GetBlockedUsers(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> blocking_pb2.GetBlockedUsersRes:
-        # Subquery to get first photo from each user's profile gallery
         avatar_photo_subquery = get_avatar_photo_subquery()
 
         blocked_users = session.execute(
