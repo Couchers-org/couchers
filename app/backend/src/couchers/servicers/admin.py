@@ -36,6 +36,7 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.models.notifications import NotificationTopicAction
+from couchers.models.uploads import has_avatar_photo_expression
 from couchers.notifications.notify import notify
 from couchers.proto import admin_pb2, admin_pb2_grpc, api_pb2, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
@@ -170,10 +171,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if request.HasField("is_banned"):
             statement = statement.where(User.is_banned == request.is_banned.value)
         if request.HasField("has_avatar"):
-            if request.has_avatar.value:
-                statement = statement.where(User.avatar_key != None)
-            else:
-                statement = statement.where(User.avatar_key == None)
+            statement = statement.where(has_avatar_photo_expression(User) == request.has_avatar.value)
         users = (
             session.execute(statement.where(User.id >= next_user_id).order_by(User.id).limit(page_size + 1))
             .scalars()

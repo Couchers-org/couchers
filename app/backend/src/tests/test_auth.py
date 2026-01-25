@@ -13,18 +13,22 @@ from couchers.db import session_scope
 from couchers.models import (
     ContributeOption,
     ContributorForm,
-    InviteCode,
     LoginToken,
     PasswordResetToken,
     SignupFlow,
-    Upload,
     User,
     UserSession,
 )
-from couchers.proto import api_pb2, auth_pb2
+from couchers.proto import account_pb2, api_pb2, auth_pb2
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
-from tests.fixtures.sessions import MetadataKeeperInterceptor, api_session, auth_api_session, real_api_session
+from tests.fixtures.sessions import (
+    MetadataKeeperInterceptor,
+    account_session,
+    api_session,
+    auth_api_session,
+    real_api_session,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -1145,47 +1149,35 @@ def test_banned_username(db):
 
 
 def test_GetInviteCodeInfo(db):
-    user, token = generate_user()
-    code_id = "TST12345"
+    user, token = generate_user(complete_profile=True)
 
-    with session_scope() as session:
-        avatar = Upload(
-            key="test_avatar.jpg",
-            filename="test_avatar.jpg",
-            creator_user_id=user.id,
-        )
-        session.add(avatar)
-        session.flush()
-
-        session.execute(update(User).where(User.id == user.id).values(avatar_key=avatar.key))
-
-        code = InviteCode(id=code_id, creator_user_id=user.id)
-        session.add(code)
+    with account_session(token) as account:
+        code = account.CreateInviteCode(account_pb2.CreateInviteCodeReq()).code
 
     with auth_api_session() as (auth, _):
-        res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code_id))
+        res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code))
         assert res.name == user.name
         assert res.username == user.username
-        assert res.avatar_url.endswith("/img/thumbnail/test_avatar.jpg")
-        assert res.url == urls.invite_code_link(code=code_id)
+        # Avatar URL should be a thumbnail URL with a hashed filename
+        assert "/img/thumbnail/" in res.avatar_url
+        assert res.avatar_url.endswith(".jpg")
+        # Verify the hashed filename looks correct (64 char hex hash)
+        assert len(res.avatar_url.split("/")[-1].replace(".jpg", "")) == 64
+        assert res.url == urls.invite_code_link(code=code)
 
 
 def test_GetInviteCodeInfo_no_avatar(db):
-    user, token = generate_user()
-    code_id = "NOAVTR1"
+    user, token = generate_user(complete_profile=False)
 
-    with session_scope() as session:
-        session.execute(update(User).where(User.id == user.id).values(avatar_key=None))
-
-        code = InviteCode(id="NOAVTR1", creator_user_id=user.id)
-        session.add(code)
+    with account_session(token) as account:
+        code = account.CreateInviteCode(account_pb2.CreateInviteCodeReq()).code
 
     with auth_api_session() as (auth, _):
-        res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code_id))
+        res = auth.GetInviteCodeInfo(auth_pb2.GetInviteCodeInfoReq(code=code))
         assert res.name == user.name
         assert res.username == user.username
         assert res.avatar_url == ""
-        assert res.url == urls.invite_code_link(code=code_id)
+        assert res.url == urls.invite_code_link(code=code)
 
 
 def test_GetInviteCodeInfo_not_found(db):
@@ -1200,11 +1192,9 @@ def test_GetInviteCodeInfo_not_found(db):
 
 def test_SignupFlow_invite_code(db):
     user, token = generate_user()
-    invite_code = "INV12345"
-    with session_scope() as session:
-        session.flush()
-        invite = InviteCode(id=invite_code, creator_user_id=user.id)
-        session.add(invite)
+
+    with account_session(token) as account:
+        invite_code = account.CreateInviteCode(account_pb2.CreateInviteCodeReq()).code
 
     with auth_api_session() as (auth_api, _):
         # Signup basic step with invite code

@@ -12,7 +12,17 @@ from couchers import urls
 from couchers.constants import DONATION_GOAL_USD, DONATION_OFFSET_USD
 from couchers.context import CouchersContext, make_logged_out_context
 from couchers.materialized_views import LiteUser
-from couchers.models import Cluster, Invoice, InvoiceType, Node, ProfilePublicVisibility, Reference, User, Volunteer
+from couchers.models import (
+    Cluster,
+    Invoice,
+    InvoiceType,
+    Node,
+    ProfilePublicVisibility,
+    Reference,
+    User,
+    Volunteer,
+)
+from couchers.models.uploads import get_avatar_upload
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 from couchers.resources import get_static_badge_dict
@@ -209,6 +219,8 @@ class Public(public_pb2_grpc.PublicServicer):
             )
 
         if user.public_visibility == ProfilePublicVisibility.most:
+            avatar_upload = get_avatar_upload(session, user)
+
             return public_pb2.GetPublicUserRes(
                 most_user=public_pb2.MostUser(
                     username=user.username,
@@ -234,8 +246,8 @@ class Public(public_pb2_grpc.PublicServicer):
                     ],
                     regions_visited=[region.code for region in user.regions_visited],
                     regions_lived=[region.code for region in user.regions_lived],
-                    avatar_url=user.avatar.full_url if user.avatar else None,
-                    avatar_thumbnail_url=user.avatar.thumbnail_url if user.avatar else None,
+                    avatar_url=avatar_upload.full_url if avatar_upload else None,
+                    avatar_thumbnail_url=avatar_upload.thumbnail_url if avatar_upload else None,
                     badges=[badge.badge_id for badge in user.badges],
                 )
             )

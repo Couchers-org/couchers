@@ -11,13 +11,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
+import Avatar from "components/Avatar";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import EditLocationMap from "components/EditLocationMap";
-import ImageInput from "components/ImageInput";
+import GalleryEditor from "components/GalleryEditor/GalleryEditor";
 import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
 import { useLanguages } from "features/profile/hooks/useLanguages";
@@ -26,7 +26,6 @@ import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
-import { userKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
@@ -34,7 +33,7 @@ import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { FormEvent, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { howToMakeGreatProfileUrl } from "routes";
-import { service, UpdateUserProfileData } from "service/index";
+import { UpdateUserProfileData } from "service/index";
 import { theme } from "theme";
 import {
   useIsMounted,
@@ -199,11 +198,6 @@ const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
 };
 const StyledProfileTextInput = styledField(ProfileTextInput);
 
-const StyledAvatarInput = styled(ImageInput)(() => ({
-  width: 120,
-  height: 120,
-}));
-
 const StyledProfileMarkdownInput = styledField(ProfileMarkdownInput);
 
 const StyledRadioGroup = styled(RadioGroup)(() => ({
@@ -232,10 +226,6 @@ export default function EditProfileForm() {
   const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
     useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
-
-  const [isUploading, setIsUploading] = useState(false);
-
-  const queryClient = useQueryClient();
 
   const {
     control,
@@ -319,11 +309,9 @@ export default function EditProfileForm() {
   const aboutMeField = watch("aboutMe") ?? "";
 
   useUnsavedChangesWarning({
-    isDirty: isDirty || isUploading,
+    isDirty: isDirty,
     isSubmitted: isSubmitted,
-    warningMessage: isUploading
-      ? t("profile:image_uploading_warning")
-      : t("profile:unsaved_changes_warning"),
+    warningMessage: t("profile:unsaved_changes_warning"),
   });
 
   const onSubmit = handleSubmit(
@@ -373,10 +361,6 @@ export default function EditProfileForm() {
         setShowIncompleteProfileDialog(false);
       }
     },
-    // All field validation errors should scroll to their respective field
-    // Except the avatar, so this scrolls to top on avatar validation error
-    (errors) =>
-      errors.avatarKey && window.scroll({ top: 0, behavior: "smooth" }),
   );
 
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
@@ -394,11 +378,6 @@ export default function EditProfileForm() {
       {updateError && (
         <Alert severity="error">
           {errorMessage || t("global:error.unknown")}
-        </Alert>
-      )}
-      {errors.avatarKey && (
-        <Alert severity="error">
-          {errors.avatarKey?.message || t("global:error.unknown")}
         </Alert>
       )}
       {!user?.avatarUrl && (
@@ -430,43 +409,45 @@ export default function EditProfileForm() {
                 {t("profile:edit_profile_headings.basic_information_subtitle")}
               </SectionSubtitle>
 
-              <AvatarContainer>
-                <AvatarImageWrapper>
-                  <StyledAvatarInput
-                    control={control}
-                    id="profile-picture"
-                    name="avatarKey"
-                    initialPreviewSrc={user.avatarUrl}
-                    userName={user.name}
-                    type="avatar"
-                    onUploading={setIsUploading}
-                    onSuccess={async (data) => {
-                      await service.user.updateAvatar(data.key);
-                      if (user)
-                        queryClient.invalidateQueries({
-                          queryKey: userKey(user.userId),
-                        });
-                    }}
-                  />
-                </AvatarImageWrapper>
-                <AvatarTextWrapper>
-                  <Typography>
-                    <InfoOutlined
-                      sx={{
-                        color: "primary.main",
-                        fontSize: 18,
-                        verticalAlign: "text-bottom",
-                        mr: 1,
-                        display: "inline",
-                      }}
+              {user.avatarUrl && (
+                <AvatarContainer>
+                  <AvatarImageWrapper>
+                    <Avatar
+                      user={user}
+                      isProfileLink={false}
+                      style={{ width: 120, height: 120 }}
                     />
-                    <Trans
-                      i18nKey="profile:avatar_photo_info"
-                      components={{ bold: <b /> }}
-                    />
-                  </Typography>
-                </AvatarTextWrapper>
-              </AvatarContainer>
+                  </AvatarImageWrapper>
+                  <AvatarTextWrapper>
+                    <Typography>
+                      <InfoOutlined
+                        sx={{
+                          color: "primary.main",
+                          fontSize: 18,
+                          verticalAlign: "text-bottom",
+                          mr: 1,
+                          display: "inline",
+                        }}
+                      />
+                      <Trans
+                        t={t}
+                        i18nKey="profile:avatar_photo_info"
+                        components={{ bold: <strong /> }}
+                      />
+                    </Typography>
+                  </AvatarTextWrapper>
+                </AvatarContainer>
+              )}
+
+              <FieldGroup>
+                <GalleryEditor
+                  galleryId={user.profileGalleryId}
+                  userId={user.userId}
+                  title={t("profile:gallery.profile_photos_title")}
+                  description={t("profile:gallery.profile_photos_description")}
+                  hasStrongVerification={user.hasStrongVerification}
+                />
+              </FieldGroup>
 
               <FieldGroup>
                 <StyledProfileTextInput
@@ -959,14 +940,14 @@ export default function EditProfileForm() {
           </form>
 
           {/* Sticky Save Bar */}
-          {user && (isDirty || isUploading) && (
+          {user && isDirty && (
             <StickySaveBar>
               <SaveButton
                 type="submit"
                 variant="contained"
                 color="primary"
-                loading={updateIsLoading || isUploading}
-                disabled={!isDirty || updateIsLoading || isUploading}
+                loading={updateIsLoading}
+                disabled={!isDirty || updateIsLoading}
                 onClick={handleSubmitButtonClick}
               >
                 {t("global:save_changes")}

@@ -12,6 +12,7 @@ from sqlalchemy.sql import func, not_, or_
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
 from couchers.models import (
@@ -674,7 +675,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         self, request: conversations_pb2.CreateGroupChatReq, context: CouchersContext, session: Session
     ) -> conversations_pb2.GroupChat:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        if not user.has_completed_profile:
+        if not has_completed_profile(session, user):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_send_message")
 
         recipient_user_ids = list(
@@ -805,7 +806,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         recipient_id = request.recipient_user_id
 
-        if not user.has_completed_profile:
+        if not has_completed_profile(session, user):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_send_message")
 
         if not recipient_id:

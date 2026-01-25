@@ -42,6 +42,7 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.models.notifications import NotificationTopicAction
+from couchers.models.uploads import get_avatar_upload
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
@@ -339,12 +340,6 @@ class API(api_pb2_grpc.APIServicer):
 
         if request.HasField("radius"):
             user.geom_radius = request.radius.value
-
-        if request.HasField("avatar_key"):
-            if request.avatar_key.is_null:
-                user.avatar_key = None
-            else:
-                user.avatar_key = request.avatar_key.value
 
         # if request.HasField("gender"):
         #     user.gender = request.gender.value
@@ -1032,6 +1027,8 @@ def user_model_to_pb(
         select(UserResponseRate).where(UserResponseRate.user_id == db_user.id)
     ).scalar_one_or_none()
 
+    avatar_upload = get_avatar_upload(session, db_user)
+
     verification_score = 0.0
     if db_user.phone_verification_verified:
         verification_score += 1.0 * db_user.phone_is_verified
@@ -1073,8 +1070,9 @@ def user_model_to_pb(
         smoking_allowed=smokinglocation2api[db_user.smoking_allowed],
         sleeping_arrangement=sleepingarrangement2api[db_user.sleeping_arrangement],
         parking_details=parkingdetails2api[db_user.parking_details],
-        avatar_url=db_user.avatar.full_url if db_user.avatar else None,
-        avatar_thumbnail_url=db_user.avatar.thumbnail_url if db_user.avatar else None,
+        avatar_url=avatar_upload.full_url if avatar_upload else None,
+        avatar_thumbnail_url=avatar_upload.thumbnail_url if avatar_upload else None,
+        profile_gallery_id=db_user.profile_gallery_id,
         badges=session.execute(select(UserBadge.badge_id).where(UserBadge.user_id == db_user.id).order_by(UserBadge.id))
         .scalars()
         .all(),

@@ -27,6 +27,7 @@ from couchers.crypto import (
     verify_token,
 )
 from couchers.experimentation import check_gate
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.geoip import geoip_approximate_location
 from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
 from couchers.jobs.enqueue import queue_job
@@ -179,7 +180,7 @@ class Account(account_pb2_grpc.AccountServicer):
             phone=user.phone if (user.phone_is_verified or not user.phone_code_expired) else None,
             has_donated=user.last_donated is not None,
             phone_verified=user.phone_is_verified,
-            profile_complete=user.has_completed_profile,
+            profile_complete=has_completed_profile(session, user),
             my_home_complete=user.has_completed_my_home,
             timezone=user.timezone,
             is_superuser=user.is_superuser,
@@ -762,7 +763,7 @@ class Account(account_pb2_grpc.AccountServicer):
             for host_request_id, reference_type, _, lite_user in get_pending_references_to_write(session, context)
         ]
 
-        if not user.has_completed_profile:
+        if not has_completed_profile(session, user):
             reminders.append(account_pb2.Reminder(complete_profile_reminder=account_pb2.CompleteProfileReminder()))
 
         if not has_strong_verification(session, user):
