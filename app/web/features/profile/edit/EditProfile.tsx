@@ -8,7 +8,6 @@ import {
   Radio,
   RadioGroup,
   styled,
-  TextField,
   Typography,
 } from "@mui/material";
 import Alert from "components/Alert";
@@ -20,6 +19,7 @@ import EditLocationMap from "components/EditLocationMap";
 import GalleryEditor from "components/GalleryEditor/GalleryEditor";
 import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
+import TextField from "components/TextField";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useRegions } from "features/profile/hooks/useRegions";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
@@ -722,6 +722,7 @@ export default function EditProfileForm() {
                             control={<Radio />}
                             label={
                               <TextField
+                                id="pronouns-other"
                                 variant="standard"
                                 onChange={(event) =>
                                   field.onChange(event.target.value)

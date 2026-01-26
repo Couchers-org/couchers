@@ -3,9 +3,9 @@ import {
   Autocomplete as MuiAutocomplete,
   InputAdornment,
   styled,
-  TextField,
 } from "@mui/material";
 import StyledLink from "components/StyledLink";
+import TextField from "components/TextField";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
@@ -155,6 +155,7 @@ export default function CommunitySearch() {
       renderInput={(params) => (
         <TextField
           {...params}
+          id="community-search"
           label={t("communities:search_communities")}
           variant="outlined"
           placeholder={t("communities:search_communities_placeholder")}
