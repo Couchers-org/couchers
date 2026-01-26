@@ -36,12 +36,25 @@ export default function DarkModeSettings() {
 
   const handleToggle = () => {
     setIsTransitioning(true);
+    let newMode: "light" | "dark" | "system";
     if (mode === "light") {
-      setMode("dark");
+      newMode = "dark";
     } else if (mode === "dark") {
-      setMode("system");
+      newMode = "system";
     } else {
-      setMode("light");
+      newMode = "light";
+    }
+    setMode(newMode);
+
+    // Notify native mobile app of color scheme change
+    // For "system" mode, send null so native follows system preference
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({
+          type: "COLOR_SCHEME_CHANGE",
+          mode: newMode === "system" ? null : newMode,
+        }),
+      );
     }
   };
 

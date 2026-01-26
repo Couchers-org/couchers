@@ -480,17 +480,20 @@ export default function GalleryEditor({
             {!canAddMore && !hasStrongVerification && (
               <InfoBox
                 sx={{
-                  backgroundColor: theme.palette.grey[50],
-                  border: `1px solid ${theme.palette.grey[300]}`,
+                  backgroundColor: "var(--mui-palette-grey-50)",
+                  border: `1px solid var(--mui-palette-grey-300)`,
                   marginTop: 1,
                 }}
               >
                 <InfoOutlined fontSize="small" sx={{ color: "primary.main" }} />
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  color="var(--mui-palette-text-secondary)"
+                >
                   {t("profile:gallery.verification_required_for_more_photos")}{" "}
                   <a
                     href={`${settingsRoute}#strong-verification`}
-                    style={{ color: theme.palette.primary.main }}
+                    style={{ color: "var(--mui-palette-primary-main)" }}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

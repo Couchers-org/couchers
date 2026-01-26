@@ -34,7 +34,7 @@ const StyledImageListItem = styled(ImageListItem)(({ theme }) => ({
   overflow: "hidden",
   borderRadius: theme.shape.borderRadius,
   transition: "box-shadow 0.2s ease, transform 0.2s ease",
-  border: `1px solid ${theme.palette.grey[300]}`,
+  border: `1px solid var(--mui-palette-grey-300)`,
   "&:hover": {
     boxShadow: theme.shadows[4],
     transform: "scale(1.02)",
