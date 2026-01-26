@@ -438,8 +438,8 @@ export default function Navigation() {
                 gap: 2,
               }}
             >
-              {!isMobile && <LanguagePickerSelect />}
               <DarkModeToggle />
+              {!isMobile && <LanguagePickerSelect />}
               {!isLoginPage && (
                 <Button
                   variant="outlined"
