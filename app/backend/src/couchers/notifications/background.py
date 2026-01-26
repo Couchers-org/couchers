@@ -11,6 +11,7 @@ from couchers.config import config
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.email import queue_email
+from couchers.i18n.localize import localize_timezone
 from couchers.models import (
     Notification,
     NotificationDelivery,
@@ -37,9 +38,9 @@ logger = logging.getLogger(__name__)
 def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
     rendered = render_email_notification(user, notification)
 
-    email_lang = "en"
+    locale = "en"
     if config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
-        email_lang = user.ui_language_preference or "en"
+        locale = user.ui_language_preference or "en"
     timezone = ZoneInfo(user.timezone or "Etc/UTC")
 
     template_args = {
@@ -48,6 +49,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         "header_preview": rendered.preview,
         "user": user,
         "time": notification.created,
+        "footer_timezone_name": localize_timezone(timezone, locale),
         "footer_copyright_year": now().year,
         "footer_email_is_critical": rendered.is_critical,
         "footer_manage_notifications_link": urls.notification_settings_link(),
@@ -62,12 +64,12 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     plain_tmplt = (template_folder / f"{rendered.template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
     plain = render_template(
-        plain_tmplt + plain_tmplt_footer, template_args, Context(timezone=timezone, locale=email_lang, plaintext=True)
+        plain_tmplt + plain_tmplt_footer, template_args, Context(timezone=timezone, locale=locale, plaintext=True)
     )
 
     # Format html template
     html_tmplt = (template_folder / "generated_html" / f"{rendered.template_name}.html").read_text()
-    html = render_template(html_tmplt, template_args, Context(timezone=timezone, locale=email_lang, plaintext=False))
+    html = render_template(html_tmplt, template_args, Context(timezone=timezone, locale=locale, plaintext=False))
 
     if user.do_not_email and not rendered.is_critical:
         logger.info(f"Not emailing {user} based on template {rendered.template_name} due to emails turned off")
