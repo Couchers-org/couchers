@@ -63,7 +63,7 @@ Or use `npx eas-cli` without installing globally.
 
 **When do you need a new build?** Only when you:
 - Add/remove native dependencies (`npm install` of native modules)
-- Change `app.json` configuration
+- Change `app.config.js` configuration
 - Update Expo SDK version
 
 ```bash
