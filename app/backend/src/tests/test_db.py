@@ -163,6 +163,9 @@ def test_migrations(db, testconfig: dict[str, Any], restore_db_after_migration_t
     empty database and dumped with pg_dump. Any unexplainable
     differences in the output are reported in a unified diff format and
     fail the test.
+
+    Note: this takes about 2 minutes in CI, because the real timezone_areas.sql file
+    is used, and it's big. Locally, timezone_areas.sql-fake is used.
     """
     drop_database()
     # rebuild it with alembic migrations
