@@ -2123,11 +2123,6 @@
   resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.31.2.tgz#556ff33b5194847d6bd5097e5f4a52cde9055887"
   integrity sha512-Tfa3JC0fJJL0Pd13Le9ZxqZp1QD8XKQ9pyPaBeyhpB6QWzr6qqGusGFaSmmCJXu9ViN672Lgg87/43mANg2LBw==
 
-"@statsig/client-core@3.31.2":
-  version "3.31.2"
-  resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.31.2.tgz#556ff33b5194847d6bd5097e5f4a52cde9055887"
-  integrity sha512-Tfa3JC0fJJL0Pd13Le9ZxqZp1QD8XKQ9pyPaBeyhpB6QWzr6qqGusGFaSmmCJXu9ViN672Lgg87/43mANg2LBw==
-
 "@statsig/js-client@3.31.2":
   version "3.31.2"
   resolved "https://registry.yarnpkg.com/@statsig/js-client/-/js-client-3.31.2.tgz#1d7321aac86fe08de890422ad0236abf50253b99"
@@ -2161,10 +2156,10 @@
     "@statsig/js-client" "3.31.2"
     web-vitals "5.0.3"
 
-"@stripe/stripe-js@^8.6.0":
-  version "8.6.0"
-  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-8.6.0.tgz#ce7d32cdea44faa353f71e2c93dff7fd5f5eef25"
-  integrity sha512-EB0/GGgs4hfezzkiMkinlRgWtjz8fSdwVQhwYS7Sg/RQrSvuNOz+ssPjD+lAzqaYTCB0zlbrt0fcqVziLJrufQ==
+"@stripe/stripe-js@^8.6.4":
+  version "8.6.4"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-8.6.4.tgz#84debdee29edd08af71a6e4c70749824214721e3"
+  integrity sha512-ipBq9+YEt5i4FxotkwNlQDqXvt//9ts23XQ4zgwm7yOkU/k3ZHnNRnm7dR418r5nC455dVYEzP7eERUHLrIYhA==
 
 "@swc/helpers@0.5.15":
   version "0.5.15"
