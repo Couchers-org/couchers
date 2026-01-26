@@ -138,9 +138,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
     const normalizedUrl = url.split("#")[0];
 
-    // Prevent navigation to external sites
+    // Skip external URLs - they're handled by onShouldStartLoadWithRequest
     if (!normalizedUrl.startsWith(WEB_BASE_URL)) {
-      webviewRef.current?.stopLoading();
       return;
     }
 
@@ -210,6 +209,42 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     }
   };
 
+  // URLs that should always load inside the WebView (not opened externally)
+  const shouldLoadInWebView = (url: string): boolean => {
+    // Internal app URLs
+    if (url.startsWith(WEB_BASE_URL)) return true;
+
+    // Special browser URLs (about:blank, data:, blob:, javascript:)
+    if (!url.startsWith("http://") && !url.startsWith("https://")) return true;
+
+    // reCAPTCHA (needed for form protection)
+    if (
+      url.includes("google.com/recaptcha") ||
+      url.includes("gstatic.com/recaptcha")
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  // Intercept URL requests before they load
+  const handleShouldStartLoad = (event: { url: string }): boolean => {
+    const { url } = event;
+
+    if (shouldLoadInWebView(url)) {
+      return true;
+    }
+
+    // External HTTP/HTTPS URLs (Stripe, etc.): open in device's browser
+    Linking.openURL(url).catch((err) => {
+      if (__DEV__) {
+        console.error("Failed to open external URL:", err);
+      }
+    });
+    return false;
+  };
+
   const handleOpenWindow = (syntheticEvent: {
     nativeEvent: { targetUrl: string };
   }) => {
@@ -277,6 +312,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
           </View>
         )}
         onNavigationStateChange={handleNavigationStateChange}
+        onShouldStartLoadWithRequest={handleShouldStartLoad}
         injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
         onOpenWindow={handleOpenWindow}
         onMessage={handleMessage}

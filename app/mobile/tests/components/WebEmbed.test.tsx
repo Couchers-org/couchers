@@ -43,6 +43,7 @@ let capturedWebViewProps: {
   onMessage?: (event: { nativeEvent: { data: string } }) => void;
   onError?: (event: { nativeEvent: unknown }) => void;
   onOpenWindow?: (event: { nativeEvent: { targetUrl: string } }) => void;
+  onShouldStartLoadWithRequest?: (event: { url: string }) => boolean;
 } = {};
 
 // BackHandler mock - captures the hardware back press listener
@@ -253,18 +254,59 @@ describe("WebEmbed", () => {
       expect(mockRouter.navigate).not.toHaveBeenCalled();
     });
 
-    it("stops loading for external URLs", () => {
+    it("blocks external URLs via onShouldStartLoadWithRequest", () => {
+      const openURLSpy = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
+
       render(<WebEmbed path="/dashboard" />);
 
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: "https://external-site.com/page",
-          loading: false,
-        });
+      // External URLs should return false to prevent loading in WebView
+      const result = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: "https://external-site.com/page",
       });
 
-      expect(mockWebViewRef.stopLoading).toHaveBeenCalled();
+      expect(result).toBe(false);
+      expect(openURLSpy).toHaveBeenCalledWith("https://external-site.com/page");
       expect(mockRouter.navigate).not.toHaveBeenCalled();
+
+      openURLSpy.mockRestore();
+    });
+
+    it("allows internal URLs via onShouldStartLoadWithRequest", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      const result = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: `${mockWebBaseUrl}/some-page`,
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it("allows special URLs like about:blank via onShouldStartLoadWithRequest", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      const aboutBlank = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: "about:blank",
+      });
+      const dataUrl = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: "data:text/html,<h1>Test</h1>",
+      });
+
+      expect(aboutBlank).toBe(true);
+      expect(dataUrl).toBe(true);
+    });
+
+    it("allows reCAPTCHA URLs via onShouldStartLoadWithRequest", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      const recaptcha = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: "https://www.google.com/recaptcha/api2/anchor",
+      });
+      const gstatic = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: "https://www.gstatic.com/recaptcha/releases/abc123/recaptcha.js",
+      });
+
+      expect(recaptcha).toBe(true);
+      expect(gstatic).toBe(true);
     });
   });
 
