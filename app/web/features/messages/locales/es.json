@@ -153,5 +153,8 @@
   },
   "close_request_dialog_host": "Por favor, asegúrate de que has terminado la conversación antes de declinar su solicitud.",
   "past_request_help_text": "Esta solicitud está pasada, todavía puedes enviar mensajes pero no puedes modificarla.",
-  "request_closed_message": "Esta solicitud de alojamiento está cerrada. Para continuar hablando, envía a la otra persona un mensaje normal."
+  "request_closed_message": "Esta solicitud de alojamiento está cerrada. Para continuar hablando, envía a la otra persona un mensaje normal.",
+  "mark_all_read_button_text_chats": "Marcar todas las conversaciones como leídas",
+  "mark_all_read_button_text_hosting": "Marcar todas las solicitudes de alojamiento como leídas",
+  "mark_all_read_button_text_surfing": "Marcar todas las solicitudes de hospedaje como leídas"
 }
