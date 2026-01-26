@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 function getReactNativeWebView(): typeof window.ReactNativeWebView {
-  if (window && window.ReactNativeWebView) {
+  if (typeof window !== "undefined" && window.ReactNativeWebView) {
     return window.ReactNativeWebView;
   }
 }
@@ -11,12 +11,7 @@ function isNativeEmbed(): boolean {
 }
 
 export function useIsNativeEmbed(): boolean {
-  const [isNative, setIsNative] = useState(false);
-
-  useEffect(() => {
-    setIsNative(isNativeEmbed());
-  }, []);
-
+  const [isNative] = useState(() => isNativeEmbed());
   return isNative;
 }
 

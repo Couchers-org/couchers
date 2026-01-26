@@ -4,6 +4,7 @@ import {
   TextFieldProps,
 } from "@mui/material";
 import { BaseTextFieldProps } from "@mui/material/TextField";
+import { useIsNativeEmbed } from "platform/nativeLink";
 import React, { forwardRef } from "react";
 
 const StyledMuiTextField = styled(MuiTextField)<TextFieldProps>(
@@ -33,7 +34,9 @@ const StyledMuiTextField = styled(MuiTextField)<TextFieldProps>(
 );
 
 type AccessibleTextFieldProps = Omit<TextFieldProps, "variant"> & {
-  id: BaseTextFieldProps["id"];
+  // id is required for accessibility, but optional when used inside Autocomplete
+  // (Autocomplete provides the id via inputProps)
+  id?: BaseTextFieldProps["id"];
   onChange?: TextFieldProps["onChange"];
   variant?: "filled" | "outlined" | "standard";
 };
@@ -43,9 +46,20 @@ const TextField = forwardRef<
   AccessibleTextFieldProps
 >(
   (
-    { className, variant = "outlined", helperText, name, ...otherProps },
+    {
+      className,
+      variant = "outlined",
+      helperText,
+      name,
+      slotProps,
+      ...otherProps
+    },
     ref,
   ) => {
+    // In WebViews, MUI's floating label positioning can break due to CSS transform issues.
+    // Force labels to always be in "shrunk" position to avoid overlap with input border.
+    const isNativeEmbed = useIsNativeEmbed();
+
     return (
       <StyledMuiTextField
         {...otherProps}
@@ -57,6 +71,15 @@ const TextField = forwardRef<
         }
         multiline={otherProps.multiline !== undefined}
         className={className}
+        slotProps={{
+          ...slotProps,
+          inputLabel: {
+            ...(typeof slotProps?.inputLabel === "object"
+              ? slotProps.inputLabel
+              : {}),
+            ...(isNativeEmbed && { shrink: true }),
+          },
+        }}
       />
     );
   },
