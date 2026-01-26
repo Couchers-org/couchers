@@ -36,7 +36,7 @@
     "@mui/utils": "^7.3.7",
     "@mui/x-date-pickers": "^8.24.0",
     "@sentry/nextjs": "^10.32.1",
-    "@sentry/react": "^10.32.1",
+    "@sentry/react": "^10.36.0",
     "@statsig/react-bindings": "^3.31.2",
     "@statsig/session-replay": "^3.30.2",
     "@statsig/web-analytics": "^3.31.2",
