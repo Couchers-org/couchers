@@ -14,12 +14,21 @@ export default function TabLayout() {
       ? theme.palette.common.white
       : theme.palette.primary.main;
 
+  // Use the same background color as the top bar in WebEmbed
+  const backgroundColor =
+    colorScheme === "dark"
+      ? theme.palette.common.black
+      : theme.palette.common.white;
+
   return (
     <Tabs
       initialRouteName="dashboard"
       screenOptions={{
         tabBarActiveTintColor: activeTintColor,
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor,
+        },
       }}
     >
       <Tabs.Screen
