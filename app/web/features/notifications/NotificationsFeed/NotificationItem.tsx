@@ -36,8 +36,8 @@ const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
   alignItems: "center",
   padding: theme.spacing(1.5, 1),
   cursor: "pointer",
-  "&:hover": {
-    backgroundColor: theme.palette.action.hover,
+  "&:hover, &:focus, &:active": {
+    backgroundColor: "var(--mui-palette-action-hover)",
   },
 }));
 
@@ -157,7 +157,7 @@ const NotificationItem = ({
       {!notification.isSeen && (
         <Circle
           sx={{
-            color: theme.palette.primary.main,
+            color: "var(--mui-palette-primary-main)",
             fontSize: ".9rem",
             position: "absolute",
             right: theme.spacing(1),
@@ -173,16 +173,16 @@ const NotificationItem = ({
           onClick={handleMarkUnreadMenuOpen}
           size="small"
           sx={{
-            backgroundColor: theme.palette.common.white,
             position: "absolute",
             bottom: 0,
             right: 0,
             padding: theme.spacing(0),
             margin: theme.spacing(1),
             visibility: isMobile ? "visible" : "hidden",
+            color: "var(--mui-palette-text-secondary)",
 
-            "&:hover": {
-              backgroundColor: theme.palette.grey[300],
+            "&:hover, &:focus, &:active": {
+              backgroundColor: "var(--mui-palette-action-hover)",
             },
           }}
         >
@@ -216,7 +216,7 @@ const NotificationItem = ({
                 right: 14,
                 width: 10,
                 height: 10,
-                bgcolor: "background.paper",
+                bgcolor: "var(--mui-palette-background-paper)",
                 transform: "translateY(-50%) rotate(45deg)",
                 zIndex: 0,
               },
