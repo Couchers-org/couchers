@@ -33,8 +33,17 @@ export default function Snackbar({
         onClose();
       }}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      // Prevent snackbar from blocking touch interactions on mobile WebViews
+      disableWindowBlurListener
+      slotProps={{
+        clickAwayListener: {
+          mouseEvent: false,
+          touchEvent: false,
+        },
+      }}
+      sx={{ pointerEvents: "none" }}
     >
-      <MuiAlert severity={severity}>
+      <MuiAlert severity={severity} sx={{ pointerEvents: "auto" }}>
         {
           // Search for the error in the ugly grpc error object keys
           // Replace it with the nice error if found
