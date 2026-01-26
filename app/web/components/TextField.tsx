@@ -34,7 +34,9 @@ const StyledMuiTextField = styled(MuiTextField)<TextFieldProps>(
 );
 
 type AccessibleTextFieldProps = Omit<TextFieldProps, "variant"> & {
-  id: BaseTextFieldProps["id"];
+  // id is required for accessibility, but optional when used inside Autocomplete
+  // (Autocomplete provides the id via inputProps)
+  id?: BaseTextFieldProps["id"];
   onChange?: TextFieldProps["onChange"];
   variant?: "filled" | "outlined" | "standard";
 };

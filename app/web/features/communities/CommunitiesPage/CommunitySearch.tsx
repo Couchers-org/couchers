@@ -155,7 +155,6 @@ export default function CommunitySearch() {
       renderInput={(params) => (
         <TextField
           {...params}
-          id="community-search"
           label={t("communities:search_communities")}
           variant="outlined"
           placeholder={t("communities:search_communities_placeholder")}
