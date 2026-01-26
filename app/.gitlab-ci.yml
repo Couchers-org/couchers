@@ -642,7 +642,10 @@ preview:backend-coverage:
     - coverage html --rcfile=.coveragerc
     # Merge test durations from all parallel workers into a single test_durations.json.
     # This file can then be put into src/tests/.test_durations to update the way the
-    # tests are split between the nodes by pytest-split.
+    # tests are split between the nodes by pytest-split. This only has to be done when
+    # slow tests are added - unknown tests are assumed to have average run time.
+    # Note that this has to be done on a CI machine, as test run time can be very different
+    # from your local machine.
     - |
       python3 << 'EOF'
       import json
