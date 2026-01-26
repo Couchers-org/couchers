@@ -1084,10 +1084,10 @@
     strict-event-emitter "^0.2.4"
     web-encoding "^1.1.5"
 
-"@mui/core-downloads-tracker@^7.3.6":
-  version "7.3.6"
-  resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-7.3.6.tgz#e7e3a4dc161a377be8224aa988410e89571ab40a"
-  integrity sha512-QaYtTHlr8kDFN5mE1wbvVARRKH7Fdw1ZuOjBJcFdVpfNfRYKF3QLT4rt+WaB6CKJvpqxRsmEo0kpYinhH5GeHg==
+"@mui/core-downloads-tracker@^7.3.7":
+  version "7.3.7"
+  resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-7.3.7.tgz#99d9c60be3ce5632ec915b2c287682020ce19a99"
+  integrity sha512-8jWwS6FweMkpyRkrJooamUGe1CQfO1yJ+lM43IyUJbrhHW/ObES+6ry4vfGi8EKaldHL3t3BG1bcLcERuJPcjg==
 
 "@mui/icons-material@^7.3.4":
   version "7.3.6"
@@ -1115,22 +1115,22 @@
   dependencies:
     "@babel/runtime" "^7.28.4"
 
-"@mui/material@^7.3.5":
-  version "7.3.6"
-  resolved "https://registry.yarnpkg.com/@mui/material/-/material-7.3.6.tgz#6bd4705ca97d80fd5ae1b6b2b7c56ba0cfab0d6a"
-  integrity sha512-R4DaYF3dgCQCUAkr4wW1w26GHXcf5rCmBRHVBuuvJvaGLmZdD8EjatP80Nz5JCw0KxORAzwftnHzXVnjR8HnFw==
+"@mui/material@^7.3.7":
+  version "7.3.7"
+  resolved "https://registry.yarnpkg.com/@mui/material/-/material-7.3.7.tgz#50fc9b9f8645a4d26a48d7c5f7fa0c9876a8c679"
+  integrity sha512-6bdIxqzeOtBAj2wAsfhWCYyMKPLkRO9u/2o5yexcL0C3APqyy91iGSWgT3H7hg+zR2XgE61+WAu12wXPON8b6A==
   dependencies:
     "@babel/runtime" "^7.28.4"
-    "@mui/core-downloads-tracker" "^7.3.6"
-    "@mui/system" "^7.3.6"
-    "@mui/types" "^7.4.9"
-    "@mui/utils" "^7.3.6"
+    "@mui/core-downloads-tracker" "^7.3.7"
+    "@mui/system" "^7.3.7"
+    "@mui/types" "^7.4.10"
+    "@mui/utils" "^7.3.7"
     "@popperjs/core" "^2.11.8"
     "@types/react-transition-group" "^4.4.12"
     clsx "^2.1.1"
-    csstype "^3.1.3"
+    csstype "^3.2.3"
     prop-types "^15.8.1"
-    react-is "^19.2.0"
+    react-is "^19.2.3"
     react-transition-group "^4.4.5"
 
 "@mui/private-theming@^7.3.7":
@@ -1154,7 +1154,7 @@
     csstype "^3.2.3"
     prop-types "^15.8.1"
 
-"@mui/system@^7.3.3", "@mui/system@^7.3.6", "@mui/system@^7.3.7":
+"@mui/system@^7.3.3", "@mui/system@^7.3.7":
   version "7.3.7"
   resolved "https://registry.yarnpkg.com/@mui/system/-/system-7.3.7.tgz#530932e078ba58031cd9bcc71494a544fa635a27"
   integrity sha512-DovL3k+FBRKnhmatzUMyO5bKkhMLlQ9L7Qw5qHrre3m8zCZmE+31NDVBFfqrbrA7sq681qaEIHdkWD5nmiAjyQ==
@@ -1168,14 +1168,14 @@
     csstype "^3.2.3"
     prop-types "^15.8.1"
 
-"@mui/types@^7.4.10", "@mui/types@^7.4.7", "@mui/types@^7.4.9":
+"@mui/types@^7.4.10", "@mui/types@^7.4.7":
   version "7.4.10"
   resolved "https://registry.yarnpkg.com/@mui/types/-/types-7.4.10.tgz#c80ed5850a1da7802a01c1d0153d8603ce41be10"
   integrity sha512-0+4mSjknSu218GW3isRqoxKRTOrTLd/vHi/7UC4+wZcUrOAqD9kRk7UQRL1mcrzqRoe7s3UT6rsRpbLkW5mHpQ==
   dependencies:
     "@babel/runtime" "^7.28.4"
 
-"@mui/utils@^7.3.3", "@mui/utils@^7.3.5", "@mui/utils@^7.3.6", "@mui/utils@^7.3.7":
+"@mui/utils@^7.3.3", "@mui/utils@^7.3.5", "@mui/utils@^7.3.7":
   version "7.3.7"
   resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-7.3.7.tgz#71443559a7fbd993b5b90fcb843fa26a60046f99"
   integrity sha512-+YjnjMRnyeTkWnspzoxRdiSOgkrcpTikhNPoxOZW0APXx+urHtUoXJ9lbtCZRCA5a4dg5gSbd19alL1DvRs5fg==
@@ -3782,7 +3782,7 @@ cssstyle@^2.3.0:
   dependencies:
     cssom "~0.3.6"
 
-csstype@^3.0.2, csstype@^3.1.3, csstype@^3.2.2, csstype@^3.2.3:
+csstype@^3.0.2, csstype@^3.2.2, csstype@^3.2.3:
   version "3.2.3"
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.2.3.tgz#ec48c0f3e993e50648c86da559e2610995cf989a"
   integrity sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==
@@ -7460,7 +7460,7 @@ react-is@^18.0.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.3.1.tgz#e83557dc12eae63a99e003a46388b1dcbb44db7e"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
-react-is@^19.2.0, react-is@^19.2.3:
+react-is@^19.2.3:
   version "19.2.3"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-19.2.3.tgz#eec2feb69c7fb31f77d0b5c08c10ae1c88886b29"
   integrity sha512-qJNJfu81ByyabuG7hPFEbXqNcWSU3+eVus+KJs+0ncpGfMyYdvSmxiJxbWR65lYi1I+/0HBcliO029gc4F+PnA==
