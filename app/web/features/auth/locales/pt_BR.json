@@ -273,7 +273,7 @@
     "start_button": "Iniciar Autenticação Forte",
     "information_text2": "Ao clicar no botão abaixo, você será redirecionado para o website do Iris ID para concluir o processo de verificação de passaporte.",
     "status": {
-      "disabled_message": "Você< 1>não foi</1> verificado com Autenticação Forte.",
+      "disabled_message": "Você <1>não foi</1> verificado com Autenticação Forte.",
       "enabled_message": "Você <1>foi</1> verificado com Autenticação Forte."
     },
     "complete_title": "Estamos processando sua tentativa de Autenticação Forte",
