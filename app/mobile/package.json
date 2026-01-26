@@ -27,7 +27,7 @@
     "@expo/xcpretty": "^4.3.2",
     "@react-navigation/drawer": "^7.3.9",
     "@react-navigation/native": "^7.1.6",
-    "expo": "~54.0.31",
+    "expo": "~54.0.32",
     "expo-build-properties": "^1.0.10",
     "expo-constants": "~18.0.11",
     "expo-dev-client": "~6.0.20",

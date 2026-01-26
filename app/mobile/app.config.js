@@ -11,6 +11,10 @@ export default {
     supportsTablet: true,
     bundleIdentifier: "org.couchers.ios",
     icon: "./assets/images/icon_ios.png",
+    associatedDomains: [
+      "applinks:couchers.org",
+      "applinks:next.couchershq.org",
+    ],
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
@@ -25,6 +29,25 @@ export default {
       foregroundImage: "./assets/images/adaptive_icon_foreground.png",
       backgroundColor: "#E47701",
     },
+    intentFilters: [
+      {
+        action: "VIEW",
+        autoVerify: true,
+        data: [
+          {
+            scheme: "https",
+            host: "couchers.org",
+            pathPrefix: "/",
+          },
+          {
+            scheme: "https",
+            host: "next.couchershq.org",
+            pathPrefix: "/",
+          },
+        ],
+        category: ["BROWSABLE", "DEFAULT"],
+      },
+    ],
   },
   web: {
     bundler: "metro",
