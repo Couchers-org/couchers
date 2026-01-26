@@ -176,7 +176,7 @@ describe("WebEmbed", () => {
       expect(mockRouter.navigate).toHaveBeenCalledWith("/communities");
     });
 
-    it("does not trigger native navigation for non-tab routes", () => {
+    it("triggers native navigation for non-tab routes (catch-all)", () => {
       render(<WebEmbed path="/dashboard" />);
 
       act(() => {
@@ -186,8 +186,8 @@ describe("WebEmbed", () => {
         });
       });
 
-      // WebView handles internal navigation without triggering native router
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
+      // Non-tab routes navigate to catch-all with full path (fixes bottom nav stuck issue)
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/user/123");
     });
 
     it("does not navigate when URL is still loading", () => {
@@ -229,8 +229,9 @@ describe("WebEmbed", () => {
       expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
     });
 
-    it("does not trigger navigation for query parameter changes", () => {
-      render(<WebEmbed path="/dashboard" />);
+    it("does not trigger navigation for query parameter changes on same route", () => {
+      // Start on a user page (catch-all route)
+      render(<WebEmbed path="/user/username" />);
 
       act(() => {
         capturedWebViewProps.onNavigationStateChange?.({
@@ -464,7 +465,8 @@ describe("WebEmbed", () => {
         expectedPath: "/communities",
       },
       { webPath: "/events", expectedTab: "events", expectedPath: "/events" },
-      { webPath: "/user/789", expectedTab: null, expectedPath: null },
+      // Non-tab routes now navigate to catch-all with full path (fixes bottom nav stuck issue)
+      { webPath: "/user/789", expectedTab: null, expectedPath: "/user/789" },
     ];
 
     testCases.forEach(({ webPath, expectedTab, expectedPath }) => {
@@ -483,11 +485,8 @@ describe("WebEmbed", () => {
           // Same tab - no navigation
           expect(mockRouter.navigate).not.toHaveBeenCalled();
         } else if (expectedPath) {
-          // Different main tab - navigate to that tab (preserving query params)
+          // Different route - navigate (main tabs or catch-all)
           expect(mockRouter.navigate).toHaveBeenCalledWith(expectedPath);
-        } else {
-          // Non-tab route - let WebView handle it internally, don't trigger native navigation
-          expect(mockRouter.navigate).not.toHaveBeenCalled();
         }
       });
     });

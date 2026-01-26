@@ -1,8 +1,8 @@
 import { Tabs } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { useColorScheme } from "react-native";
 
 import { TabBarIcon } from "@/components/TabBarIcon";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { theme } from "@/theme";
 
 export default function TabLayout() {

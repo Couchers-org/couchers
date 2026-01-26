@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
+  Appearance,
   BackHandler,
   Image,
   Linking,
@@ -163,14 +164,10 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     const currentRoute = getRouteNameForPath(path);
 
     // Navigate native router when the route changes
-    // Only sync for main tab routes - catch-all routes don't need native navigation
-    if (
-      targetRoute !== currentRoute &&
-      targetRoute &&
-      targetRoute !== "[...slug]"
-    ) {
-      if (targetRoute === "md/[...slug]") {
-        // For markdown routes, pass the full path including /md/
+    if (targetRoute !== currentRoute && targetRoute) {
+      if (targetRoute === "[...slug]" || targetRoute === "md/[...slug]") {
+        // For catch-all routes (detail pages, markdown, etc.), navigate with full path
+        // This ensures the native router updates even for non-tab routes
         router.navigate(webPathWithoutQuery as Href);
       } else {
         // For main tab routes, preserve query parameters
@@ -196,6 +193,13 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         // Web app says user logged out - clear mobile state and navigate to login
         markLoggedOut();
         router.replace("/login" as Href);
+      } else if (payload?.type === "COLOR_SCHEME_CHANGE") {
+        // Web app toggled dark mode - sync native UI using React Native's built-in API
+        // mode can be "light", "dark", or null (follow system)
+        const mode = payload.mode;
+        if (mode === "light" || mode === "dark" || mode === null) {
+          Appearance.setColorScheme(mode);
+        }
       }
     } catch (error) {
       // Silently ignore non-JSON messages (expected from browser/WebView internals)
@@ -304,7 +308,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
               errorDesc,
             );
           }
-          return <View />; // We handle this with hasError state
+          return <View />;
         }}
       />
     </View>
