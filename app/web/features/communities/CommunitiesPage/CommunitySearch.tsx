@@ -3,9 +3,9 @@ import {
   Autocomplete as MuiAutocomplete,
   InputAdornment,
   styled,
-  TextField,
 } from "@mui/material";
 import StyledLink from "components/StyledLink";
+import TextField from "components/TextField";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";

@@ -203,7 +203,7 @@ const NotificationsFeed = ({
                   right: 14,
                   width: 10,
                   height: 10,
-                  bgcolor: "background.paper",
+                  bgcolor: "var(--mui-palette-background-paper)",
                   transform: "translateY(-50%) rotate(45deg)",
                   zIndex: 0,
                 },
@@ -237,7 +237,7 @@ const NotificationsFeed = ({
             variant="rounded"
             backgroundColor={
               notificationsFilter === "all"
-                ? theme.palette.primary.light
+                ? "var(--mui-palette-primary-light)"
                 : undefined
             }
             onClick={() => handleNotificationsFilterChange("all")}
@@ -246,8 +246,8 @@ const NotificationsFeed = ({
               "&:hover": {
                 backgroundColor:
                   notificationsFilter === "all"
-                    ? theme.palette.primary.dark
-                    : theme.palette.grey[300],
+                    ? "var(--mui-palette-primary-dark)"
+                    : "var(--mui-palette-grey-300)",
               },
             }}
           >
@@ -257,7 +257,7 @@ const NotificationsFeed = ({
             variant="rounded"
             backgroundColor={
               notificationsFilter === "unread"
-                ? theme.palette.primary.light
+                ? "var(--mui-palette-primary-light)"
                 : undefined
             }
             onClick={() => handleNotificationsFilterChange("unread")}
@@ -267,8 +267,8 @@ const NotificationsFeed = ({
               "&:hover": {
                 backgroundColor:
                   notificationsFilter === "unread"
-                    ? theme.palette.primary.dark
-                    : theme.palette.grey[300],
+                    ? "var(--mui-palette-primary-dark)"
+                    : "var(--mui-palette-grey-300)",
               },
             }}
           >

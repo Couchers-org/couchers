@@ -174,14 +174,14 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
               />
             </DialogContent>
             <DialogActions>
-              <Button type="submit" loading={isPending} onClick={onSubmit}>
-                {t("submit")}
-              </Button>
               <Button
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
               >
                 {t("cancel")}
+              </Button>
+              <Button type="submit" loading={isPending} onClick={onSubmit}>
+                {t("submit")}
               </Button>
             </DialogActions>
           </form>

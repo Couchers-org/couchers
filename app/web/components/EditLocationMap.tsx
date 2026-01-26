@@ -342,7 +342,7 @@ export default function EditLocationMap({
           error={error !== ""}
           id="display-address"
           ref={locationDisplayRef}
-          InputLabelProps={{ shrink: shrinkLabel }}
+          slotProps={{ inputLabel: { shrink: shrinkLabel } }}
           fullWidth
           variant={variant}
           label={t("components.edit_location_map.display_location_label")}
