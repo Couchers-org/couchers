@@ -22,7 +22,7 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.push import PushNotificationContent, push_to_subscription, push_to_user
-from couchers.notifications.render_push import render_push_notification
+from couchers.notifications.render_push import render_adhoc_push_notification, render_push_notification
 from couchers.notifications.settings import (
     PreferenceNotUserEditableError,
     get_topic_actions_by_delivery_type,
@@ -257,12 +257,8 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             session,
             push_notification_subscription_id=subscription.id,
             user_id=context.user_id,
-            topic_action="adhoc:setup",
-            content=PushNotificationContent(
-                title="Push notifications enabled",
-                ios_title="Push Notifications Enabled",
-                body="You'll now receive notifications on this device.",
-            ),
+            topic_action="adhoc:push_enabled",
+            content=render_adhoc_push_notification("push_enabled", locale=context.ui_language_preference or "en"),
         )
 
         return empty_pb2.Empty()
