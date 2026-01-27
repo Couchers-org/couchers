@@ -7,6 +7,7 @@ import {
 } from "@mui/material";
 import CircularProgress from "components/CircularProgress";
 import { useGallery } from "features/profile/hooks/useGallery";
+import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { useState } from "react";
@@ -58,6 +59,7 @@ export default function ProfilePhotoGallery({
 }: ProfilePhotoGalleryProps) {
   const { t } = useTranslation([PROFILE]);
   const { data: gallery, isLoading } = useGallery(galleryId);
+  const profileUser = useProfileUser();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
@@ -131,10 +133,12 @@ export default function ProfilePhotoGallery({
           fullUrl: photo.fullUrl,
           thumbnailUrl: photo.thumbnailUrl,
           caption: photo.caption,
+          itemId: photo.itemId,
         }))}
         initialIndex={selectedPhotoIndex}
         open={lightboxOpen}
         onClose={handleCloseLightbox}
+        galleryOwnerId={profileUser.userId}
       />
     </GalleryContainer>
   );
