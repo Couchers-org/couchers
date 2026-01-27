@@ -2,6 +2,7 @@ declare namespace NodeJS {
   interface ProcessEnv {
     NODE_ENV: "development" | "production" | "test";
     NEXT_PUBLIC_COUCHERS_ENV: "prod" | "preview" | "dev";
+    NEXT_PUBLIC_BASE_URL: string;
     NEXT_PUBLIC_API_BASE_URL: string;
     NEXT_PUBLIC_MEDIA_BASE_URL: string;
     NEXT_PUBLIC_CONSOLE_BASE_URL: string;

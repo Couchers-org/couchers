@@ -117,19 +117,7 @@ export default function MyEvents() {
           </StyledCardContainer>
           {hasNextPage && !isBelowSm && (
             <StyledButtonContainer>
-              <Button
-                onClick={() => fetchNextPage()}
-                variant="primary"
-                // sx={{
-                //   color: theme.palette.common.black,
-                //   borderColor: theme.palette.grey[300],
-
-                //   "&:hover": {
-                //     borderColor: theme.palette.grey[300],
-                //     backgroundColor: "#3135390A",
-                //   },
-                // }}
-              >
+              <Button onClick={() => fetchNextPage()}>
                 {t("dashboard:load_more")}
               </Button>
             </StyledButtonContainer>

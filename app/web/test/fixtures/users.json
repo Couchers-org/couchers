@@ -60,7 +60,8 @@
     "hasStrongVerification": true,
     "birthdateVerificationStatus": 2,
     "genderVerificationStatus": 2,
-    "lastMinute": { "value": true }
+    "lastMinute": { "value": true },
+    "profileGalleryId": 1
   },
   {
     "name": "Funny Dog",
@@ -107,7 +108,8 @@
     "badgesList": ["strong_verification"],
     "hasStrongVerification": true,
     "birthdateVerificationStatus": 2,
-    "genderVerificationStatus": 2
+    "genderVerificationStatus": 2,
+    "profileGalleryId": 2
   },
   {
     "name": "Funny Kid",
@@ -154,7 +156,8 @@
     "badgesList": ["phone_verified"],
     "hasStrongVerification": false,
     "birthdateVerificationStatus": 1,
-    "genderVerificationStatus": 1
+    "genderVerificationStatus": 1,
+    "profileGalleryId": 3
   },
   {
     "name": "Funny Chicken",
@@ -201,7 +204,8 @@
     "badgesList": ["volunteer"],
     "hasStrongVerification": false,
     "birthdateVerificationStatus": 1,
-    "genderVerificationStatus": 3
+    "genderVerificationStatus": 3,
+    "profileGalleryId": 4
   },
   {
     "name": "Friendly Cow",
@@ -248,6 +252,7 @@
     "badgesList": [],
     "hasStrongVerification": false,
     "birthdateVerificationStatus": 3,
-    "genderVerificationStatus": 1
+    "genderVerificationStatus": 1,
+    "profileGalleryId": 5
   }
 ]

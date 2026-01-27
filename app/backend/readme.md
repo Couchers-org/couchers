@@ -62,28 +62,26 @@ cd app/backend
 uv sync
 ```
 
-In a terminal, run all containerized services except the backend with config set up for .
+Then start a local backend with all dependencies (postgres, maildev, etc.):
 
 ```sh
-cd app
-docker compose --file docker-compose.local-backend.yml up --build
-```
-
-In another terminal, run the backend outside Docker:
-
-```sh
-cd app/backend
-
-# Use backend environment variables, overriding the host names of containerized services.
-set -a && source ../backend.dev.env && set +a
-export DATABASE_CONNECTION_STRING=${DATABASE_CONNECTION_STRING/postgres:6545/localhost:6545}
-export SMTP_HOST=localhost
-export OPENTELEMETRY_ENDPOINT=localhost:4317
-
-uv run src/app.py
+make run
 ```
 
 If you find that the proxy/media services can't talk to your local backend, try setting the `BACKEND_HOST=host.docker.internal` environment variable before running the services via `docker compose`.
+
+
+## Running under a debugger
+
+Run dependencies with docker compose:
+```sh
+cd app/backend
+make run-deps
+```
+
+Then execute app/backend/src/run_locally.py with your debugger of choice. It will have all the correct 
+env variables and will connect to the services (db, etc.) running in docker.
+
 
 ### Running tests outside Docker
 

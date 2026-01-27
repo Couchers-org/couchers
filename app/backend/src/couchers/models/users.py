@@ -41,7 +41,6 @@ from couchers.models.activeness_probe import ActivenessProbe
 from couchers.models.base import Base, Geom
 from couchers.models.mod_note import ModNote
 from couchers.models.static import Language, Region, TimezoneArea
-from couchers.models.uploads import Upload
 from couchers.utils import get_coordinates, last_active_coarsen, now
 
 if TYPE_CHECKING:
@@ -159,9 +158,8 @@ class User(Base, kw_only=True):
     pronouns: Mapped[str | None] = mapped_column(String, default=None)
     birthdate: Mapped[date] = mapped_column(Date)  # in the timezone of birthplace
 
-    avatar_key: Mapped[str | None] = mapped_column(ForeignKey("uploads.key"), default=None)
-
     # Profile photo gallery for this user (photos about themselves)
+    # The first photo in the gallery (by position) is used as the avatar
     profile_gallery_id: Mapped[int | None] = mapped_column(ForeignKey("photo_galleries.id"), default=None)
 
     hosting_status: Mapped[HostingStatus] = mapped_column(Enum(HostingStatus))
@@ -311,7 +309,6 @@ class User(Base, kw_only=True):
     # whether this user has all emails turned off
     do_not_email: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
-    avatar: Mapped[Upload | None] = relationship(init=False, foreign_keys="User.avatar_key")
     profile_gallery: Mapped[PhotoGallery | None] = relationship(init=False, foreign_keys="User.profile_gallery_id")
 
     admin_note: Mapped[str] = mapped_column(String, server_default=text("''"), init=False)
@@ -416,15 +413,6 @@ class User(Base, kw_only=True):
             name="superuser_is_editor",
         ),
     )
-
-    @hybrid_property
-    def has_completed_profile(self) -> bool:
-        return self.avatar_key is not None and self.about_me is not None and len(self.about_me) >= 150
-
-    @has_completed_profile.inplace.expression
-    @classmethod
-    def _has_completed_profile_expression(cls) -> ColumnElement[bool]:
-        return (cls.avatar_key != None) & (func.character_length(cls.about_me) >= 150)
 
     @hybrid_property
     def has_completed_my_home(self) -> bool:

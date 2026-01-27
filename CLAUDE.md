@@ -48,6 +48,8 @@ make mypy
 - Imports always occur at the top of the file. The two exceptions are when this is required during type checking or in tests that really require inline imports
 - Do not use `session.get(...)`. Use `session.execute(select(...))` instead
 - For URLs, use `from couchers import urls` and then `urls.whatever()`
+- Always import `from couchers.sql import couchers_select as select` instead of something else
+- Avoid inline imports whenever possible
 - To filter out invisible users (deleted/banned/blocked), use the helper functions from `couchers.sql`: `where(users_visible(context))` when User is already joined, `where(users_column_visible(context, column))` when you have a user_id column, or `where(users_visible_to_each_other(user1, user2))` for mutual visibility. Never use `User.is_visible` directly in queries
 
 ### Web (TypeScript/React)
@@ -62,6 +64,10 @@ make mypy
 - Located in `/app/proto`
 - Run `make protos` from backend after changes
 - Internal job payloads in `/app/backend/proto/internal/jobs.proto`
+
+### Localization
+- Do not hard-code English text strings, store them in the appropriate locale files (`features/*/locales/en.json`)
+- When adding strings to an `en.json` file, refer to `/docs/localization.md` for string key and text guidance
 
 ## Testing
 

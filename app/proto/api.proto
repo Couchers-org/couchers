@@ -290,6 +290,7 @@ message User {
 
   string avatar_url = 32;
   string avatar_thumbnail_url = 44;
+  uint64 profile_gallery_id = 123;
   repeated LanguageAbility language_abilities = 37;
 
   repeated string badges = 38;
@@ -388,7 +389,8 @@ message UpdateProfileReq {
   google.protobuf.DoubleValue lng = 23;
   google.protobuf.DoubleValue radius = 24; // metres
 
-  NullableStringValue avatar_key = 25; // result from media server
+  // deprecated: avatar is now the first picture in the profile gallery
+  // NullableStringValue avatar_key = 25; // result from media server
   NullableStringValue pronouns = 101;
   NullableStringValue occupation = 4;
   NullableStringValue education = 102; // CommonMark without images

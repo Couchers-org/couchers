@@ -5,7 +5,6 @@ from collections.abc import Mapping, Sequence
 from datetime import date, datetime, timedelta
 from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
-from zoneinfo import ZoneInfo
 
 import pytz
 from geoalchemy2 import WKBElement, WKTElement
@@ -409,10 +408,6 @@ def last_active_coarsen(dt: datetime) -> datetime:
     Coarsens a "last active" time to the accuracy we use for last active times, currently to the last hour, e.g. if the current time is 27th June 2021, 16:53 UTC, this returns 27th June 2021, 16:00 UTC
     """
     return dt.replace(minute=0, second=0, microsecond=0)
-
-
-def get_tz_as_text(tz_name: str) -> str:
-    return datetime.now(tz=ZoneInfo(tz_name)).strftime("%Z/UTC%z")
 
 
 def not_none[T](x: T | None) -> T:

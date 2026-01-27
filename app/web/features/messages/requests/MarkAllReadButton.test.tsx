@@ -148,18 +148,21 @@ const defaultChats: GroupChat.AsObject[] = [
     groupChatId: 1,
     lastSeenMessageId: 1,
     latestMessage: { ...messages[0], messageId: 1 },
+    isArchived: false,
   },
   {
     ...chat,
     groupChatId: 2,
     lastSeenMessageId: 1,
     latestMessage: { ...messages[0], messageId: 2 },
+    isArchived: false,
   },
   {
     ...chat,
     groupChatId: 3,
     lastSeenMessageId: 4,
     latestMessage: { ...messages[0], messageId: 3 },
+    isArchived: false,
   },
 ];
 

@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.config import config
-from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
+from couchers.db import _get_base_engine, apply_migrations, get_parent_node_at_location, session_scope
 from couchers.jobs.handlers import DatabaseInconsistencyError, check_database_consistency
 from couchers.models import User
 from couchers.utils import (
@@ -21,7 +21,13 @@ from couchers.utils import (
     is_valid_username,
     parse_date,
 )
-from tests.fixtures.db import create_schema_from_models, drop_database, generate_user, run_migration_test
+from tests.fixtures.db import (
+    create_schema_from_models,
+    drop_database,
+    generate_user,
+    pg_dump_is_available,
+    populate_testing_resources,
+)
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
 
 
@@ -132,8 +138,25 @@ def strip_leading_whitespace(lines: list[str]) -> list[str]:
     return [s.lstrip() for s in lines]
 
 
-@pytest.mark.skipif(not run_migration_test(), reason="Migration test disabled")
-def test_migrations(db, testconfig: dict[str, Any]) -> None:
+@pytest.fixture
+def restore_db_after_migration_test(db):
+    try:
+        yield
+    finally:
+        # Dispose the engine's connection pool since we dropped/recreated PostGIS extension,
+        # which invalidates cached operator OIDs in existing connections
+        engine = _get_base_engine()
+        engine.dispose()
+
+        # Restore test resources since we destroyed the database
+        # This is needed because setup_testdb is session-scoped and won't run again
+        with engine.connect() as conn:
+            populate_testing_resources(conn)
+            conn.commit()
+
+
+@pytest.mark.skipif(not pg_dump_is_available(), reason="Can't run migration tests without pg_dump")
+def test_migrations(db, testconfig: dict[str, Any], restore_db_after_migration_test) -> None:
     """
     This test will only run successfully if you have `pg_dump` installed and everything set up, which only happens if the
     test is being run within Gitlab CI where we do all that setup. So we disable it unless explicitly marked to run.

@@ -22,9 +22,7 @@ service Requests {
   rpc RespondHostRequest(RespondHostRequestReq) returns (google.protobuf.Empty);
 
   // Archive a host request. This will remove it from the list of requests
-
   rpc SetHostRequestArchiveStatus(SetHostRequestArchiveStatusReq) returns (SetHostRequestArchiveStatusRes);
-
 
   rpc ListHostRequests(ListHostRequestsReq) returns (ListHostRequestsRes);
 

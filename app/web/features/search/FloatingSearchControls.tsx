@@ -6,13 +6,13 @@ import {
   Select,
   SelectChangeEvent,
   styled,
-  TextField,
   Tooltip,
   useMediaQuery,
 } from "@mui/material";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
 import LocationAutocompleteOutlined from "components/LocationAutocomplete/LocationAutocompleteOutlined";
+import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { useState } from "react";
@@ -254,6 +254,7 @@ const FloatingSearchControls = ({
             )}
             {searchType === "keyword" && (
               <StyledTextField
+                id="keyword-search"
                 fullWidth={false}
                 placeholder={t("search:form.keywords.field_label")}
                 name={t("search:form.keywords.field_label")}

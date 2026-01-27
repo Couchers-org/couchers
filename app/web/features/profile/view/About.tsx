@@ -7,6 +7,7 @@ import { User } from "proto/api_pb";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 
 import { useRegions } from "../hooks/useRegions";
+import ProfilePhotoGallery from "./ProfilePhotoGallery";
 import { AgeGenderLanguagesLabels, RemainingAboutLabels } from "./userLabels";
 
 interface AboutProps {
@@ -32,7 +33,16 @@ export default function About({ user }: AboutProps) {
       </Typography>
       <AgeGenderLanguagesLabels user={user} />
       <RemainingAboutLabels user={user} />
-      <StyledDivider />
+
+      {user.profileGalleryId && user.profileGalleryId > 0 && (
+        <>
+          <ProfilePhotoGallery galleryId={user.profileGalleryId} />
+          <StyledDivider />
+        </>
+      )}
+
+      {!user.profileGalleryId && <StyledDivider />}
+
       {user.aboutMe && (
         <>
           <Typography variant="h1">

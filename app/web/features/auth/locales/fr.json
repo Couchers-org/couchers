@@ -27,8 +27,8 @@
   },
   "change_email_confirmation": {
     "change_in_progress": "Changement d’adresse e-mail en cours…",
-    "success_message": "Votre adresse e-mail a bien été changée !",
-    "error_message": "Erreur lors du changement de l'adresse mail : {{message}}"
+    "success_message": "Votre adresse e-mail a bien été changée !",
+    "error_message": "Erreur lors du changement de l'adresse mail : {{message}}"
   },
   "change_password_form": {
     "confirm_password": "Confirmer le mot de passe",
@@ -37,30 +37,30 @@
     "new_password": "Nouveau mot de passe",
     "subtitle": "Utilisez ce formulaire pour réinitialiser votre mot de passe.",
     "password_changed_success": "Votre nouveau mot de passe a été changé et une notification a été envoyé à votre adresse mail.",
-    "reset_password_success": "Votre mot de passe a été changé avec succès !",
-    "reset_password_error": "Erreur lors de la réinitialisation du mot de passe : {{message}}",
+    "reset_password_success": "Votre mot de passe a été changé avec succès !",
+    "reset_password_error": "Erreur lors de la réinitialisation du mot de passe : {{message}}",
     "password_mismatch_error": "Les mots de passe ne correspondent pas.",
     "user_logged_error": "Vous ne pouvez pas réinitialiser votre mot de passe si vous êtes connecté.e. Vous pouvez changer votre mot de passe dans les paramètres ou si vous déconnecter pour le réinitialiser.",
     "token_error": "Une erreur s'est produite lors du traitement du jeton de réinitialisation du mot de passe, veuillez réessayer d'ouvrir le lien dans le mail que vous avez reçu."
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Déjà inscrit·e ? <2>Se connecter</2>",
-    "header": "Lancer l'inscription !",
+    "existing_user_prompt": "Déjà inscrit·e ? <2>Se connecter</2>",
+    "header": "Lancer l'inscription !",
     "sign_up_agreement_explainer": "En continuant, vous acceptez nos <2>conditions d'utilisations</2>, incluant l'emploi de cookies, de votre mail, et la conservation de vos données."
   },
   "login_page": {
     "title": "Se connecter",
-    "header": "Bienvenue de nouveau !",
+    "header": "Bienvenue de nouveau !",
     "form": {
       "password_field_label": "Mot de passe",
-      "forgot_password": "Mot de passe oublié ?",
+      "forgot_password": "Mot de passe oublié ?",
       "remember_me": "Se souvenir de moi",
       "username_field_label": "Mail/Nom d'utilisateur",
-      "no_password_login_prompt": "Vérifiez vos mails pour obtenir le lien de connexion ! :)",
+      "no_password_login_prompt": "Vérifiez vos mails pour obtenir le lien de connexion ! :)",
       "hide_password": "Masquer le mot de passe",
       "show_password": "Montrer le mot de passe"
     },
-    "no_account_prompt": "Pas encore de compte ? <2>Rejoignez-nous</2>"
+    "no_account_prompt": "Pas encore de compte ? <2>Rejoignez-nous</2>"
   },
   "do_not_email": {
     "status": {
@@ -72,24 +72,24 @@
       "no_emails_disable_text": "Réactiver les mails"
     },
     "title": "Veuillez ne pas m'envoyer de mail",
-    "caveat": "En activant cette option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
+    "caveat": "En activant cette option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
   },
   "reset_password_form": {
     "success_message": "Un lien de réinitialiser votre mot de passe a été envoyé à votre adresse mail à ce compte, si elle existe et est active. Veuillez noter que ce mail peut parfois se retrouver dans vos courriers indésirables.",
     "enter_email": "Entrez votre nom d’utilisateur/adresse mail"
   },
-  "sign_up_completed_title": "Merci pour votre inscription !",
-  "sign_up_confirmed_prompt": "Vous avez terminé ! Si vous n'êtes pas redirigé, essayez de vous connecter.",
+  "sign_up_completed_title": "Merci pour votre inscription !",
+  "sign_up_confirmed_prompt": "Vous avez terminé ! Si vous n'êtes pas redirigé, essayez de vous connecter.",
   "unhandled_sign_up_state": "Erreur inconnue dans le processus d'inscription.",
   "account_settings_page": {
     "title": "Paramètres de votre compte",
     "birth_date_section": {
       "title": "Changer ma date de naissance",
-      "explanation": "Les administrateurs seront ravis de changer votre date d'anniversaire. Contactez support@couchers.org !"
+      "explanation": "Les administrateurs seront ravis de changer votre date d'anniversaire. Contactez support@couchers.org !"
     },
     "gender_section": {
       "title": "Changement du genre",
-      "explanation": "Les administrateurs seront ravis de changer l'étiquetage de votre genre. Contactez support@couchers.org !"
+      "explanation": "Les administrateurs seront ravis de changer l'étiquetage de votre genre. Contactez support@couchers.org !"
     },
     "timezone_section": {
       "title": "Fuseau horaire et localisation",
@@ -158,18 +158,18 @@
       "title": "Veuillez mettre à jour votre localisation",
       "submit_button": {
         "active_text": "Sauvegarder",
-        "inactive_text": "Merci !"
+        "inactive_text": "Merci !"
       },
       "resubmit_button_text": "Renvoyer",
       "explanation": "Il semble que vos coordonnées n'étaient pas correctes. Veuillez mettre à jour votre localisation géographique pour continuer."
     },
     "description": "Veuillez vérifier la suite afin de continuer.",
     "activeness_probe": {
-      "title": "Êtes-vous toujours ouvert.e à accueillir/héberger des voyageurs ?",
+      "title": "Êtes-vous toujours ouvert.e à accueillir/héberger des voyageurs ?",
       "description": "Nous avons remarqué que vous ne vous êtes pas connecté.e depuis un certain temps et nous voulions savoir si vous êtes toujours disposé.e à accueillir des voyageurs.",
-      "still_hosting": "Je veux toujours héberger les voyageurs !",
+      "still_hosting": "Je veux toujours héberger les voyageurs !",
       "not_hosting": "Je ne peux plus héberger les voyageurs.",
-      "note": "Nous mettrons à jour votre profil pour correspondre à ce choix !"
+      "note": "Nous mettrons à jour votre profil pour correspondre à ce choix !"
     },
     "mod_note_section": {
       "note_title": "Note de modération reçue à {{time}} :",
@@ -188,11 +188,11 @@
     "subtitle": "La Vérification Rigoureuse est une fonctionnalité de sécurité supplémentaire qui vous permet de vérifier votre date de naissance et votre genre à l'aide de votre passeport biométrique.",
     "instructions": {
       "title": "Comment effectuer une vérification rigoureuse",
-      "warning": "Important : L'étape de la numérisation de la puce du passeport peut être délicate—lisez d'abord toutes les instructions !",
-      "step2": "Cliquez sur <strong>« Démarrer la vérification rigoureuse»</strong> ci-dessous (s’ouvre dans un nouvel onglet)",
+      "warning": "Important : L'étape de la numérisation de la puce du passeport peut être délicate—lisez d'abord toutes les instructions !",
+      "step2": "Cliquez sur <strong>« Démarrer la vérification rigoureuse»</strong> ci-dessous (s’ouvre dans un nouvel onglet)",
       "step3": "Scannez le code QR avec votre téléphone",
       "step1": "Télécharger l’application <strong>Iris ID</strong>",
-      "step1_apple_note": "<strong>Utilisateurs.trices Apple :</strong> Vous pouvez ignorer le téléchargement et utiliser votre navigateur à la place de l'application. Cliquez simplement sur « Ouvrir » lorsque vous y êtes invité.e.",
+      "step1_apple_note": "<strong>Utilisateurs.trices Apple :</strong> Vous pouvez ignorer le téléchargement et utiliser votre navigateur à la place de l'application. Cliquez simplement sur « Ouvrir » lorsque vous y êtes invité.e.",
       "step8": "Vous saurez que la vérification a réussi lorsque vous verrez grâce à l'augmentation des pourcentages et à un indicateur de chargement",
       "step4": "Si vous êtes demandé.e, ouvrez l’application et scannez à nouveau le code QR",
       "step5": "Sélectionnez <strong>Passeport</strong> (les cartes d'identité ne sont pas acceptées)",
@@ -202,9 +202,9 @@
       "download_google_play": "Télécharger-le sur Google Play",
       "chip_location": {
         "heading": "Trouver la puce NFC de votre passeport",
-        "us_germany_mexico": "<strong>le Brésil, les États-Unis, l'Allemagne (2016), l'Indonésie, le Mexique :</strong> Page en arrière",
-        "finland_germany_new": "<strong>la Finlande, l'Allemagne (2017+), la Russie :</strong> Page de photo",
-        "australia": "<strong>l'Australie :</strong> Page du milieu (marquée avec le symbole + \"nom de la puce\")"
+        "us_germany_mexico": "<strong>le Brésil, les États-Unis, l'Allemagne (2016), l'Indonésie, le Mexique :</strong> Page en arrière",
+        "finland_germany_new": "<strong>la Finlande, l'Allemagne (2017+), la Russie :</strong> Page de photo",
+        "australia": "<strong>l'Australie :</strong> Page du milieu (marquée avec le symbole + \"nom de la puce\")"
       }
     },
     "status": {
@@ -231,20 +231,20 @@
     "donate_button": "Faire un don pour soutenir Couchers.org"
   },
   "feedback_form": {
-    "skip_step_text": "Pas intéressé.e ? <2>Sautez cette étape</2>",
+    "skip_step_text": "Pas intéressé.e ? <2>Sautez cette étape</2>",
     "header": "Donnez votres avis"
   },
-  "sign_up_need_verification_title": "On y est presque là, mais encore une dernière chose !",
-  "sign_up_resend_verification_email_help": "N'avez-vous pas reçu le mail ? Cliquez <2>ici pour renvoyer le lien de vérification</2>.",
-  "sign_up_resend_verification_done": "C'est fait ! Nous vous avons envoyé un autre mail.",
+  "sign_up_need_verification_title": "On y est presque là, mais encore une dernière chose !",
+  "sign_up_resend_verification_email_help": "N'avez-vous pas reçu le mail ? Cliquez <2>ici pour renvoyer le lien de vérification</2>.",
+  "sign_up_resend_verification_done": "C'est fait ! Nous vous avons envoyé un autre mail.",
   "feature_preview": {
     "no_previews": {
       "title": "Aucune fonctionnalité n'est actuellement en préversion",
-      "explanation": "Il n'y a actuellement aucune fonctionnalité en préversion, veuillez revenir plus tard !"
+      "explanation": "Il n'y a actuellement aucune fonctionnalité en préversion, veuillez revenir plus tard !"
     },
     "title": "Aperçu des fonctionnalités",
     "explanation": "Cette page vous permet d’essayer des fonctionnalités encore en cours de développement avant qu’elles ne soient prêtes à être utilisées par tous.",
-    "disclaimer": "Veuillez garder à l'esprit que ces fonctionnalités sont expérimentales. Elles peuvent ne pas fonctionner comme prévu et peuvent évoluer rapidement au fur et à mesure de leur développement. N'hésitez pas à donner votre avis en utilisant le bouton « Signaler un problème » pour signaler tout bug !"
+    "disclaimer": "Veuillez garder à l'esprit que ces fonctionnalités sont expérimentales. Elles peuvent ne pas fonctionner comme prévu et peuvent évoluer rapidement au fur et à mesure de leur développement. N'hésitez pas à donner votre avis en utilisant le bouton « Signaler un problème » pour signaler tout bug !"
   },
   "active_logins": {
     "heading": "Utilisateurs connectés actuels",
@@ -271,23 +271,23 @@
       "title": "Supprimer mon compte"
     },
     "confirm": {
-      "error_message": "Échec de la confirmation de la suppression de votre compte : {{message}}",
+      "error_message": "Échec de la confirmation de la suppression de votre compte : {{message}}",
       "button_text": "Confirmer la suppression de votre compte",
-      "account_deleted": "Compte supprimé. Merci d'avoir utilisé Couchers.org !",
+      "account_deleted": "Compte supprimé. Merci d'avoir utilisé Couchers.org !",
       "title": "Confirmer la suppression de votre compte"
     },
     "recover": {
       "title": "Récupérez votre compte Couchers.org",
-      "error_message": "Échec de la récupération de votre compte : {{message}}",
+      "error_message": "Échec de la récupération de votre compte : {{message}}",
       "button_text": "Récupérer votre compte",
-      "success": "Votre compte a été récupéré, vous pouvez à nouveau vous connecter. Nous sommes ravis de vous retrouver !"
+      "success": "Votre compte a été récupéré, vous pouvez à nouveau vous connecter. Nous sommes ravis de vous retrouver !"
     },
     "missing_token": "Erreur"
   },
   "profile_visibility": {
     "visiblility_options": {
       "map_only": "<1>Sur la carte uniquement</1> : afficher une épingle de carte aléatoire et anonyme sans aucune autre information",
-      "most": "<1>La plupart de détails</1> : afficher la section complète « À propos de moi » sauf « Informations supplémentaires »",
+      "most": "<1>La plupart de détails</1> : afficher la section complète « À propos de moi » sauf « Informations supplémentaires »",
       "nothing": "<1>Rien</1> : cachez-moi complètement",
       "limited": "<1>Limité</1> : afficher mon nom, ma localisation, mon statut d’hébergement/rencontre, mes badges, le nombre de références et depuis combien de temps je suis membre de Couchers.org",
       "full_profile": "<1>Profil complet</1> : afficher mon profil complet (sauf les références)"
@@ -301,7 +301,7 @@
     "phone_label": "Votre numéro de téléphone",
     "add_button_text": "Ajouter un numéro de téléphone",
     "add_success": "Téléphone ajouté.",
-    "phone_not_verified_description": "Nous vous avons envoyé un code à <2>{{phone}}</2>. Pour vérifier votre numéro, veuillez saisir le code ci-dessous :",
+    "phone_not_verified_description": "Nous vous avons envoyé un code à <2>{{phone}}</2>. Pour vérifier votre numéro, veuillez saisir le code ci-dessous :",
     "wrong_code": "Le code est incorrect.",
     "verify_button_text": "Vérifier le numéro de téléphone",
     "verify_success": "Téléphone vérifié.",
@@ -314,7 +314,7 @@
     "title": "Numéro de téléphone"
   },
   "quick_links": {
-    "error_message": "Erreur : {{message}}",
+    "error_message": "Erreur : {{message}}",
     "missing_payload_or_sig": "URL non valide",
     "title": "Action rapide par mail",
     "button_text": "Confirmer l'action"

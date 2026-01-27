@@ -33,10 +33,13 @@ export function isLanguageProductionReady(
 }
 
 /**
- * Filter languages for display in language picker (>= 50% translated)
+ * Filter languages for display in language picker (>= 50% translated by default)
+ * @param languages - Array of languages with translation stats
+ * @param showAll - If true, bypasses the SELECTOR_CUTOFF filter (for translators on stage)
  */
 export function getAvailableLanguages(
   languages: WeblateLanguage[] | undefined,
+  showAll = false,
 ): WeblateLanguage[] {
   if (!languages) {
     return [];
@@ -46,7 +49,7 @@ export function getAvailableLanguages(
     .filter(
       (language) =>
         LANGUAGE_MAP[language.code.replace("_", "-")] &&
-        language.translated_percent >= SELECTOR_CUTOFF,
+        (showAll || language.translated_percent >= SELECTOR_CUTOFF),
     )
     .sort((a, b) => {
       // Sort by translation percentage (>= 80% first), then alphabetically

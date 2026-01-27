@@ -1,4 +1,4 @@
-import os
+import subprocess
 from collections.abc import Sequence
 from contextlib import contextmanager
 from datetime import date, timedelta
@@ -12,6 +12,7 @@ from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.context import CouchersContext
 from couchers.crypto import random_hex
 from couchers.db import _get_base_engine, session_scope
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.models import (
     Base,
     FriendRelationship,
@@ -22,6 +23,7 @@ from couchers.models import (
     ModerationUserList,
     PassportSex,
     PhotoGallery,
+    PhotoGalleryItem,
     RegionLived,
     RegionVisited,
     StrongVerificationAttempt,
@@ -248,16 +250,22 @@ def generate_user(
 
         if complete_profile:
             key = random_hex(32)
-            filename = random_hex(32) + ".jpg"
             session.add(
                 Upload(
                     key=key,
-                    filename=filename,
+                    filename=random_hex(32) + ".jpg",
                     creator_user_id=user.id,
                 )
             )
+            session.add(
+                PhotoGalleryItem(
+                    gallery_id=profile_gallery.id,
+                    upload_key=key,
+                    position=0,
+                )
+            )
             session.flush()
-            user.avatar_key = key
+
             user.about_me = "I have a complete profile!\n" * 20
 
         if strong_verification:
@@ -284,7 +292,7 @@ def generate_user(
 
         session.commit()
 
-        assert user.has_completed_profile == complete_profile
+        assert has_completed_profile(session, user) == complete_profile
 
         # refresh it, undoes the expiry
         session.refresh(user)
@@ -356,8 +364,9 @@ def add_users_to_new_moderation_list(users: list[User]) -> int:
         return moderation_user_list.id
 
 
-def run_migration_test():
-    return os.environ.get("RUN_MIGRATION_TEST", "false").lower() == "true"
+def pg_dump_is_available() -> bool:
+    result = subprocess.run(["which", "pg_dump"], stdout=subprocess.PIPE, encoding="ascii")
+    return result.returncode == 0
 
 
 def make_volunteer(started_volunteering: date, show_on_team_page: bool = True, **kwargs: Any) -> Volunteer:

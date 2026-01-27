@@ -36,6 +36,7 @@ from couchers.models import (
     UserBadge,
 )
 from couchers.models.notifications import NotificationTopicAction
+from couchers.models.uploads import has_avatar_photo_expression
 from couchers.notifications.notify import notify
 from couchers.proto import admin_pb2, admin_pb2_grpc, api_pb2, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
@@ -83,6 +84,22 @@ def _content_report_to_pb(content_report: ContentReport) -> admin_pb2.ContentRep
         content_ref=content_report.content_ref,
         user_agent=content_report.user_agent,
         page=content_report.page,
+    )
+
+
+def _reference_to_pb(reference: Reference) -> admin_pb2.AdminReference:
+    return admin_pb2.AdminReference(
+        reference_id=reference.id,
+        from_user_id=reference.from_user_id,
+        to_user_id=reference.to_user_id,
+        reference_type=reference.reference_type.name,
+        text=reference.text,
+        private_text=reference.private_text or "",
+        time=Timestamp_from_datetime(reference.time),
+        host_request_id=reference.host_request_id or 0,
+        rating=reference.rating,
+        was_appropriate=reference.was_appropriate,
+        is_deleted=reference.is_deleted,
     )
 
 
@@ -154,10 +171,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if request.HasField("is_banned"):
             statement = statement.where(User.is_banned == request.is_banned.value)
         if request.HasField("has_avatar"):
-            if request.has_avatar.value:
-                statement = statement.where(User.avatar_key != None)
-            else:
-                statement = statement.where(User.avatar_key == None)
+            statement = statement.where(has_avatar_photo_expression(User) == request.has_avatar.value)
         users = (
             session.execute(statement.where(User.id >= next_user_id).order_by(User.id).limit(page_size + 1))
             .scalars()
@@ -590,6 +604,30 @@ class Admin(admin_pb2_grpc.AdminServicer):
 
         reference.is_deleted = True
         return empty_pb2.Empty()
+
+    def GetUserReferences(
+        self, request: admin_pb2.GetUserReferencesReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.GetUserReferencesRes:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        references_from = (
+            session.execute(select(Reference).where(Reference.from_user_id == user.id).order_by(Reference.id.desc()))
+            .scalars()
+            .all()
+        )
+
+        references_to = (
+            session.execute(select(Reference).where(Reference.to_user_id == user.id).order_by(Reference.id.desc()))
+            .scalars()
+            .all()
+        )
+
+        return admin_pb2.GetUserReferencesRes(
+            references_from=[_reference_to_pb(ref) for ref in references_from],
+            references_to=[_reference_to_pb(ref) for ref in references_to],
+        )
 
     def EditDiscussion(
         self, request: admin_pb2.EditDiscussionReq, context: CouchersContext, session: Session

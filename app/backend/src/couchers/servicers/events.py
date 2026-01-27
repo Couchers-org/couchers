@@ -12,6 +12,7 @@ from sqlalchemy.sql import and_, func, or_, update
 from couchers.constants import GLOBAL_COMMUNITY_MAX_NODE_ID
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     AttendeeStatus,
@@ -393,7 +394,7 @@ class Events(events_pb2_grpc.EventsServicer):
         self, request: events_pb2.CreateEventReq, context: CouchersContext, session: Session
     ) -> events_pb2.Event:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        if not user.has_completed_profile:
+        if not has_completed_profile(session, user):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_create_event")
         if not request.title:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_title")
@@ -502,7 +503,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
         session.commit()
 
-        if user.has_completed_profile:
+        if has_completed_profile(session, user):
             queue_job(
                 session,
                 job=generate_event_create_notifications,

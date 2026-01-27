@@ -24,7 +24,6 @@ export default function DarkModeToggle() {
   const isDark = resolvedMode === "dark";
 
   const handleToggle = () => {
-    // Simply toggle between light and dark
     setMode(isDark ? "light" : "dark");
   };
 

@@ -20,7 +20,11 @@ const StyledSearchBoxContainer = styled("form")(({ theme }) => ({
   margin: theme.spacing(4, 0),
 
   [theme.breakpoints.down("md")]: {
-    margin: theme.spacing(3, 0),
+    margin: theme.spacing(3, 2),
+  },
+
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(3, 2, 4, 2),
   },
 }));
 

@@ -17,6 +17,7 @@ git clone git@github.com:Couchers-org/web-frontend.git
 
 ```
 NEXT_PUBLIC_COUCHERS_ENV=dev
+NEXT_PUBLIC_BASE_URL=/
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8888
 NEXT_PUBLIC_MEDIA_BASE_URL="http://localhost:5001"
 NEXT_PUBLIC_CONSOLE_BASE_URL="http://localhost:10027"

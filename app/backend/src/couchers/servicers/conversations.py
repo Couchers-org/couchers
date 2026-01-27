@@ -12,6 +12,7 @@ from sqlalchemy.sql import func, not_, or_
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
 from couchers.models import (
@@ -362,6 +363,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             .where(GroupChatSubscription.user_id == context.user_id)
             .where(Message.time >= GroupChatSubscription.joined)
             .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
+            .where(
+                or_(
+                    to_bool(request.HasField("only_archived") == False),
+                    GroupChatSubscription.is_archived == request.only_archived,
+                )
+            )
             .group_by(GroupChatSubscription.group_chat_id)
             .order_by(func.max(Message.id).desc())
             .subquery()
@@ -397,6 +404,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     latest_message=_message_to_pb(result.Message) if result.Message else None,
                     mute_info=_mute_info(result.GroupChatSubscription),
                     can_message=_user_can_message(session, context, result.GroupChat),
+                    is_archived=result.GroupChatSubscription.is_archived,
                 )
                 for result in results[:page_size]
             ],
@@ -442,6 +450,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             latest_message=_message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
             can_message=_user_can_message(session, context, result.GroupChat),
+            is_archived=result.GroupChatSubscription.is_archived,
         )
 
     def GetDirectMessage(
@@ -497,6 +506,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             latest_message=_message_to_pb(result.Message) if result.Message else None,
             mute_info=_mute_info(result.GroupChatSubscription),
             can_message=_user_can_message(session, context, result.GroupChat),
+            is_archived=result.GroupChatSubscription.is_archived,
         )
 
     def GetUpdates(
@@ -606,6 +616,21 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         return empty_pb2.Empty()
 
+    def SetGroupChatArchiveStatus(
+        self, request: conversations_pb2.SetGroupChatArchiveStatusReq, context: CouchersContext, session: Session
+    ) -> conversations_pb2.SetGroupChatArchiveStatusRes:
+        subscription = _get_visible_message_subscription(session, context, request.group_chat_id)
+
+        if not subscription:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
+
+        subscription.is_archived = request.is_archived
+
+        return conversations_pb2.SetGroupChatArchiveStatusRes(
+            group_chat_id=request.group_chat_id,
+            is_archived=request.is_archived,
+        )
+
     def SearchMessages(
         self, request: conversations_pb2.SearchMessagesReq, context: CouchersContext, session: Session
     ) -> conversations_pb2.SearchMessagesRes:
@@ -650,7 +675,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         self, request: conversations_pb2.CreateGroupChatReq, context: CouchersContext, session: Session
     ) -> conversations_pb2.GroupChat:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        if not user.has_completed_profile:
+        if not has_completed_profile(session, user):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_send_message")
 
         recipient_user_ids = list(
@@ -781,7 +806,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         recipient_id = request.recipient_user_id
 
-        if not user.has_completed_profile:
+        if not has_completed_profile(session, user):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_send_message")
 
         if not recipient_id:

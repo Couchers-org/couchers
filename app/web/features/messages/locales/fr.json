@@ -31,7 +31,7 @@
     "cannot_message_text": "Vous ne pouvez pas envoyer de messages dans cette discussion",
     "mute": {
       "unmute_button_label": "Réactiver la discussion",
-      "dialog_title": "Combien de temps voulez-vous mettre en sourdine ?",
+      "dialog_title": "Combien de temps voulez-vous mettre en sourdine ?",
       "1_hour_label": "1 heure",
       "8_hours_label": "8 heures",
       "1_day_label": "1 jour",
@@ -44,17 +44,17 @@
       "a11y_label": "Muet.te"
     }
   },
-  "close_request_dialog_title": "Avez-vous fini de discuter ?",
+  "close_request_dialog_title": "Avez-vous fini de discuter ?",
   "request_closed_message": "Cette demande d’hôte est fermée. Pour continuer à discuter, envoyez un message normal au destinataire.",
   "close_request_dialog_host": "Veuillez vous assurer d'avoir terminé la conversation avant de refuser leur demande.",
   "close_request_dialog_surfer": "Veuillez vous assurer d'avoir terminé de discuter avant d'annuler votre demande.",
-  "past_request_help_text": "Cette demande est passée ; vous pourrez toujours envoyer des messages, mais vous ne pourrez pas la modifier autrement.",
+  "past_request_help_text": "Cette demande est passée ; vous pourrez toujours envoyer des messages, mais vous ne pourrez pas la modifier autrement.",
   "host_pending_request_help_text": "<0>Les choses à prendre en compte</0> avant de répondre.",
   "surfer_declined_request_help_text": "<0>Consultez notre guide</0> sur la façon de rédiger une demande d'hébergement qui augmentera la chance d'être acceptée.",
   "admins_dialog": {
     "step_down_confirmation_dialog": {
-      "title": "Démissionner en tant qu'administrateur ?",
-      "message": "Êtes-vous sûr.e de vouloir cesser d’être administrateur.trice de cette discussion de groupe ? Vous ne pourrez redevenir administrateur.trice que si un autre administrateur.trice vous ajoute de nouveau."
+      "title": "Démissionner en tant qu'administrateur ?",
+      "message": "Êtes-vous sûr.e de vouloir cesser d’être administrateur.trice de cette discussion de groupe ? Vous ne pourrez redevenir administrateur.trice que si un autre administrateur.trice vous ajoute de nouveau."
     },
     "add_admin": {
       "action_a11y_label": "Ajouter en tant qu'administrateur.trice",
@@ -67,6 +67,7 @@
   },
   "host_request_view": {
     "request_duration_one": "{{count}} nuit",
+    "request_duration_many": "",
     "request_duration_other": "{{count}} nuits",
     "error_message": "Identification de demande d’hôte invalide",
     "back_button_a11y_label": "Retourner",
@@ -104,11 +105,12 @@
     "group_title": "Créer une discussion de groupe",
     "group_title_field_label": "Titre",
     "user_load_error_message": "(Erreur de chargement)",
-    "friends_input_label": "Ami.e.s"
+    "friends_input_label": "Ami.e.s",
+    "title_label": "Sujet"
   },
   "leave_chat_dialog": {
-    "message": "Êtes-vous sûr.e de vouloir quitter cette discussion ?",
-    "title": "Quitter la discussion ?"
+    "message": "Êtes-vous sûr.e de vouloir quitter cette discussion ?",
+    "title": "Quitter la discussion ?"
   },
   "control_message": {
     "admin_assignment_text": "{{user}} a fait de {{target_user}} un.e administrateur.trice",

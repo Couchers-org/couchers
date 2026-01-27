@@ -5,6 +5,9 @@ UV_VERSION=0.9.21
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 PROTO_IMAGE=registry.gitlab.com/couchers/grpc
 
+DB_PASSWORD := "203d805f4b62c0a1b2f1f6b82d4583dfe563ec1619b83ce22ee414e8376a25e7"
+DB_CONNECTION_STRING := "postgresql://postgres:${DB_PASSWORD}@localhost:6545/postgres"
+
 protos:
 	docker pull -q ${PROTO_IMAGE}
 	docker run --rm -w /app -v $(realpath ${ROOT_DIR}..):/app ${PROTO_IMAGE} ./generate_protos.sh
@@ -64,3 +67,13 @@ teardown-db:
 # make test file=test_file.py::TestClass::test_method → runs a specific test
 test:
 	uv run pytest $(if $(file),src/tests/$(file),src/tests)
+
+
+run-deps:
+	docker compose -f ../docker-compose.local-backend.yml up -d --build --wait
+
+# Run backend locally with all needed dependencies (db etc).
+# You can also execute "run_locally.py" from an IDE to attach a debugger to it
+# (be sure to run "make run-deps" before!)
+run: run-deps
+	uv run src/run_locally.py

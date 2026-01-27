@@ -563,6 +563,90 @@ def test_DeleteReference(db):
         assert modified_reference.is_deleted
 
 
+def test_GetUserReferences(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    user1, user1_token = generate_user()
+    user2, user2_token = generate_user()
+    user3, user3_token = generate_user()
+    make_friends(user1, user2)
+    make_friends(user1, user3)
+    make_friends(user2, user3)
+
+    # user1 writes reference about user2
+    with references_session(user1_token) as api:
+        ref1 = api.WriteFriendReference(
+            references_pb2.WriteFriendReferenceReq(
+                to_user_id=user2.id,
+                text="Reference from user1 to user2",
+                private_text="",
+                was_appropriate=True,
+                rating=1,
+            )
+        )
+
+    # user2 writes reference about user1
+    with references_session(user2_token) as api:
+        ref2 = api.WriteFriendReference(
+            references_pb2.WriteFriendReferenceReq(
+                to_user_id=user1.id,
+                text="Reference from user2 to user1",
+                private_text="Private note",
+                was_appropriate=True,
+                rating=0.8,
+            )
+        )
+
+    # user3 writes reference about user1
+    with references_session(user3_token) as api:
+        ref3 = api.WriteFriendReference(
+            references_pb2.WriteFriendReferenceReq(
+                to_user_id=user1.id,
+                text="Reference from user3 to user1",
+                private_text="",
+                was_appropriate=False,
+                rating=0.5,
+            )
+        )
+
+    # Delete ref3
+    with real_admin_session(super_token) as admin_api:
+        admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=ref3.reference_id))
+
+    # Test GetUserReferences for user1
+    with real_admin_session(super_token) as admin_api:
+        res = admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user=user1.username))
+
+        # user1 wrote 1 reference
+        assert len(res.references_from) == 1
+        assert res.references_from[0].reference_id == ref1.reference_id
+        assert res.references_from[0].from_user_id == user1.id
+        assert res.references_from[0].to_user_id == user2.id
+        assert res.references_from[0].text == "Reference from user1 to user2"
+        assert res.references_from[0].is_deleted is False
+
+        # user1 received 2 references (including the deleted one)
+        assert len(res.references_to) == 2
+        # Ordered by id descending, so ref3 comes first
+        assert res.references_to[0].reference_id == ref3.reference_id
+        assert res.references_to[0].is_deleted is True
+        assert res.references_to[0].was_appropriate is False
+
+        assert res.references_to[1].reference_id == ref2.reference_id
+        assert res.references_to[1].private_text == "Private note"
+        assert res.references_to[1].rating == 0.8
+        assert res.references_to[1].is_deleted is False
+
+
+def test_GetUserReferences_not_found(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as admin_api:
+        with pytest.raises(grpc.RpcError) as e:
+            admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user="nonexistent"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
 def test_AddUsersToModerationUserList(db):
     super_user, super_token = generate_user(is_superuser=True)
     user1, _ = generate_user()

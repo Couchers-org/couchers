@@ -11,6 +11,12 @@ const StyledLinksContainer = styled("div")(({ theme }) => ({
   columnGap: theme.spacing(4),
   justifyContent: "center",
   marginBottom: theme.spacing(3),
+
+  [theme.breakpoints.down("sm")]: {
+    columnGap: theme.spacing(0.5),
+    rowGap: theme.spacing(0.5),
+    marginBottom: theme.spacing(2),
+  },
 }));
 
 const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(
@@ -37,6 +43,30 @@ const makeStyledTab = <C extends React.ComponentType<React.ComponentProps<C>>>(
     },
     "&:hover::after": {
       opacity: 1,
+    },
+
+    // Mobile pill style
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "0.7rem",
+      fontWeight: 500,
+      padding: theme.spacing(0.5, 1),
+      paddingBottom: theme.spacing(0.5),
+      borderRadius: "9999px",
+      backgroundColor: isSelected
+        ? "var(--mui-palette-primary-main)"
+        : "var(--mui-palette-grey-200)",
+      color: isSelected
+        ? "var(--mui-palette-primary-contrastText)"
+        : "var(--mui-palette-text-primary)",
+      whiteSpace: "nowrap",
+      "&::after": {
+        display: "none",
+      },
+      "&:hover": {
+        backgroundColor: isSelected
+          ? "var(--mui-palette-primary-main)"
+          : "var(--mui-palette-grey-300)",
+      },
     },
   }));
 };

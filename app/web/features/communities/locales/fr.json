@@ -1,13 +1,14 @@
 {
   "attendees_count_one": "{{count}} participant.e",
+  "attendees_count_many": "",
   "attendees_count_other": "{{count}} participant.e.s",
   "by_creator": "écrit par {{name}}",
   "cancel_event": "Annuler l'événement",
   "show_cancelled_events": "Montrer les événements annulés",
   "cancel_event_success_message": "L'événement a été annulé avec succès.",
   "cancel_event_dialog": {
-    "title": "Annuleer l'événement ?",
-    "message": "Êtes-vous sûr d'annuler cet événement ?"
+    "title": "Annuleer l'événement ?",
+    "message": "Êtes-vous sûr d'annuler cet événement ?"
   },
   "cancelled": "Annulé",
   "invite_community_dialog": {
@@ -27,7 +28,7 @@
   "comment": "Commenter",
   "comments": "Commentaires",
   "comments_count": "Commentaires | {{count}}",
-  "fill_out_comment": "Vous devez d'abord écrire quelque chose !",
+  "fill_out_comment": "Vous devez d'abord écrire quelque chose !",
   "community_image_input_alt": "Sélection d'image de la communauté",
   "upload_helper_text_replace": "Cliquez pour changer l'image",
   "community_moderators": "Organisateurs.trices de la communauté",
@@ -72,5 +73,7 @@
   "end_date_error": "La date de fin de l'événement doit être après la date de début.",
   "date_required": "Veuillez entrer une date.",
   "end_time_error": "L'heure de fin de l'événement doit être après l'heure de début.",
-  "time_required": "Veuillez entrer une heure."
+  "time_required": "Veuillez entrer une heure.",
+  "find_host": "Trouver un.e hôte",
+  "community_info_page_title": "Information générale"
 }

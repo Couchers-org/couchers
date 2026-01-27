@@ -33,7 +33,6 @@ describe("updateUserProfile action", () => {
     const {
       aboutMe,
       additionalInformation,
-      avatarUrl,
       radius,
       regionsLivedList,
       regionsVisitedList,
@@ -50,7 +49,6 @@ describe("updateUserProfile action", () => {
       // Unchanged data
       aboutMe,
       additionalInformation,
-      avatarKey: avatarUrl,
       regionsLived: regionsLivedList,
       education,
       hometown,
@@ -127,7 +125,6 @@ describe("updateUserProfile action", () => {
           languageAbilities: {
             valueList: defaultUser.languageAbilitiesList,
           },
-          avatarKey: defaultUser.avatarUrl,
         },
         setMutationError: setError,
       }),

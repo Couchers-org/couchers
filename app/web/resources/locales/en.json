@@ -77,7 +77,9 @@
       "complete_percent": "{{percent}}% complete",
       "info_text": "💡 Languages with 50-80% completion appear greyed out in the language picker. Languages with less than 50% completion are hidden from the language picker. To encourage contributors, languages below 20% are shown on this site.",
       "view_progress": "View translation progress"
-    }
+    },
+    "show_all_languages": "Show all languages in language picker",
+    "show_all_languages_description": "When enabled, the language picker will show all languages regardless of translation completion percentage. This shows on staging only to help test languages that are still in progress."
   },
   "meetup_status": {
     "wants_to_meetup": "Wants to meet",
