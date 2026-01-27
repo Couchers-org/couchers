@@ -29,6 +29,10 @@ export default {
       foregroundImage: "./assets/images/adaptive_icon_foreground.png",
       backgroundColor: "#E47701",
     },
+    notification: {
+      icon: "./assets/images/notification_icon.png",
+      color: "#E47701",
+    },
     intentFilters: [
       {
         action: "VIEW",
@@ -80,8 +84,8 @@ export default {
     [
       "expo-notifications",
       {
-        icon: "./assets/images/icon.png",
-        color: "#ffffff",
+        icon: "./assets/images/notification_icon.png",
+        color: "#E47701",
       },
     ],
   ],

@@ -1,36 +1,70 @@
+import * as Notifications from "expo-notifications";
 import { useLocalSearchParams } from "expo-router";
+import { Platform } from "react-native";
 
 import WebEmbed from "@/components/WebEmbed";
 import { buildWebEmbedPath } from "@/utils/buildWebEmbedPath";
 
-// UNCOMMENT BELOW TO ENABLE DEBUG BUTTON
-// import { View, TouchableOpacity, Text, StyleSheet, Alert } from "react-native";
-// import client from "@/service/client";
-// import { SendDevPushNotificationReq } from "@/proto/notifications_pb";
+// UNCOMMENT BELOW TO ENABLE DEBUG NOTIFICATION BUTTON
+// import {
+//   View,
+//   TouchableOpacity,
+//   Text,
+//   StyleSheet,
+//   Alert,
+// } from "react-native";
+
+// Set notification handler to show notifications when app is in foreground
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
+// Set up notification channel for Android
+if (Platform.OS === "android") {
+  Notifications.setNotificationChannelAsync("default", {
+    name: "Default",
+    importance: Notifications.AndroidImportance.MAX,
+    sound: null,
+  });
+}
 
 export default function DashboardScreen() {
   const params = useLocalSearchParams();
   const path = buildWebEmbedPath("/dashboard", params);
 
-  // UNCOMMENT BELOW TO ENABLE DEBUG BUTTON
-  // const handleTestNotification = async () => {
-  //   try {
-  //     const req = new SendDevPushNotificationReq();
-  //     req.setTitle("Write your reference for Test User");
-  //     req.setBody("You still have 7 days to write a reference for Test User.");
-  //     // Use your local BASE_URL - adjust user_id and host_request_id as needed
-  //     req.setUrl("http://192.168.110.150:3000/leave-reference/hosted/10/4");
-  //     await client.notifications.sendDevPushNotification(req);
-  //     Alert.alert("Success", "Test notification sent!");
-  //   } catch (error) {
-  //     console.error("Failed to send test notification:", error);
-  //     Alert.alert("Error", `Failed to send notification: ${error}`);
-  //   }
-  // };
-
   return <WebEmbed path={path} />;
 
-  // UNCOMMENT BELOW TO ENABLE DEBUG BUTTON (and comment out the line above)
+  // UNCOMMENT BELOW TO ENABLE DEBUG NOTIFICATION BUTTON
+  // const handleTestNotification = async () => {
+  //   try {
+  //     const { status } = await Notifications.requestPermissionsAsync();
+  //     if (status !== "granted") {
+  //       Alert.alert("Permission needed", "Please enable notifications");
+  //       return;
+  //     }
+  //     await Notifications.scheduleNotificationAsync({
+  //       content: {
+  //         title: "Write your reference for Test User",
+  //         body: "You still have 7 days to write a reference for Test User.",
+  //         data: { test: true },
+  //       },
+  //       trigger: {
+  //         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+  //         seconds: 1,
+  //       },
+  //     });
+  //     Alert.alert("Success", "Check the status bar in 1 second!");
+  //   } catch (error) {
+  //     console.error("Failed to send test notification:", error);
+  //     Alert.alert("Error", `Failed: ${error}`);
+  //   }
+  // };
   // return (
   //   <View style={styles.container}>
   //     <WebEmbed path={path} />
@@ -38,15 +72,13 @@ export default function DashboardScreen() {
   //       style={styles.debugButton}
   //       onPress={handleTestNotification}
   //     >
-  //       <Text style={styles.debugButtonText}>
-  //         🔔 Test Leave Reference Notif
-  //       </Text>
+  //       <Text style={styles.debugButtonText}>🔔 Test Notification Icon</Text>
   //     </TouchableOpacity>
   //   </View>
   // );
 }
 
-// UNCOMMENT BELOW TO ENABLE DEBUG BUTTON
+// UNCOMMENT BELOW TO ENABLE DEBUG NOTIFICATION BUTTON
 // const styles = StyleSheet.create({
 //   container: {
 //     flex: 1,
