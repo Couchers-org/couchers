@@ -6,7 +6,9 @@ import {
   Typography,
 } from "@mui/material";
 import CircularProgress from "components/CircularProgress";
+import FlagButton from "features/FlagButton";
 import { useGallery } from "features/profile/hooks/useGallery";
+import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { useState } from "react";
@@ -35,6 +37,7 @@ const StyledImageListItem = styled(ImageListItem)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   transition: "box-shadow 0.2s ease, transform 0.2s ease",
   border: `1px solid var(--mui-palette-grey-300)`,
+  position: "relative",
   "&:hover": {
     boxShadow: theme.shadows[4],
     transform: "scale(1.02)",
@@ -44,6 +47,27 @@ const StyledImageListItem = styled(ImageListItem)(({ theme }) => ({
     height: "100%",
     objectFit: "cover",
     display: "block",
+  },
+}));
+
+const ThumbnailReportButton = styled(Box)(({ theme }) => ({
+  position: "absolute",
+  bottom: theme.spacing(0.5),
+  right: theme.spacing(0.5),
+  zIndex: 2,
+  "& .MuiIconButton-root": {
+    padding: theme.spacing(0.5),
+    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    borderRadius: "50%",
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.2)",
+    transition: "all 0.2s ease",
+    "&:hover": {
+      backgroundColor: "rgba(255, 255, 255, 1)",
+      transform: "scale(1.1)",
+    },
+    "& svg": {
+      fontSize: "1rem",
+    },
   },
 }));
 
@@ -60,6 +84,7 @@ export default function ProfilePhotoGallery({
   const { data: gallery, isLoading } = useGallery(galleryId);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const profileUser = useProfileUser();
 
   if (isLoading) {
     return (
@@ -122,6 +147,15 @@ export default function ProfilePhotoGallery({
               alt={photo.caption || ""}
               loading="lazy"
             />
+            <ThumbnailReportButton
+              onClick={(e) => e.stopPropagation()}
+              aria-label={t("profile:gallery.report_photo")}
+            >
+              <FlagButton
+                contentRef={`photo/${photo.itemId}`}
+                authorUser={profileUser.userId}
+              />
+            </ThumbnailReportButton>
           </StyledImageListItem>
         ))}
       </StyledImageList>
