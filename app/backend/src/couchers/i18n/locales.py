@@ -18,6 +18,7 @@ _LOCALE_FALLBACKS: dict[str, str] = {
     "fr-CA": "fr",
 }
 
+
 def get_locale_fallbacks(locale: str) -> list[str]:
     """Gets the list of locales to which to fallback to if the given one is unavailable."""
     if fallback := _LOCALE_FALLBACKS.get(locale):

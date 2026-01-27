@@ -7,8 +7,8 @@ from zoneinfo import ZoneInfo
 import phonenumbers
 from google.protobuf.timestamp_pb2 import Timestamp
 
-from couchers.i18n.locales import load_locales
 from couchers.i18n.i18next import I18Next
+from couchers.i18n.locales import load_locales
 from couchers.models.users import User
 from couchers.utils import to_aware_datetime
 
