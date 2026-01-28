@@ -190,23 +190,23 @@ const ThumbnailImage = styled("img")<{ isActive: boolean }>(
 
 const ReportButtonContainer = styled(Box)(({ theme }) => ({
   position: "absolute",
-  bottom: theme.spacing(12),
+  bottom: theme.spacing(16),
   left: "50%",
   transform: "translateX(-50%)",
   display: "flex",
   alignItems: "center",
-  backgroundColor: "rgba(255, 255, 255, 0.85)",
-  borderRadius: theme.shape.borderRadius * 3,
+  backgroundColor: "rgba(255, 255, 255, 0.8)",
+  borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(0.5, 2),
   zIndex: 10,
   cursor: "pointer",
   transition: "all 0.2s ease",
   "&:hover": {
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     transform: "translateX(-50%) scale(1.05)",
   },
   [theme.breakpoints.down("sm")]: {
-    bottom: theme.spacing(10),
+    bottom: theme.spacing(14),
   },
 }));
 
