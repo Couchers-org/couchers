@@ -61,24 +61,12 @@ const ThumbnailContainer = styled(Box)({
   height: "100%",
 });
 
-const ThumbnailReportButton = styled(Box)(({ theme }) => ({
+const FlagButtonWrapper = styled(Box)(({ theme }) => ({
   position: "absolute",
   bottom: theme.spacing(0.5),
   right: theme.spacing(0.5),
-  backgroundColor: "rgba(255, 255, 255, 0.8)",
-  borderRadius: "50%",
-  opacity: 0.7,
-  transition: "all 0.2s ease",
-  zIndex: 1,
-  "& .MuiIconButton-root": {
-    padding: theme.spacing(0.5),
-    "& svg": {
-      fontSize: "1rem",
-    },
-  },
-  "&:hover": {
-    opacity: 1,
-    transform: "scale(1.1)",
+  "& svg": {
+    fontSize: 16,
   },
 }));
 
@@ -153,7 +141,7 @@ export default function ProfilePhotoGallery({
                 alt={photo.caption || ""}
                 loading="lazy"
               />
-              <ThumbnailReportButton
+              <FlagButtonWrapper
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
@@ -163,7 +151,7 @@ export default function ProfilePhotoGallery({
                   contentRef={`photo/${photo.itemId}`}
                   authorUser={profileUser.userId}
                 />
-              </ThumbnailReportButton>
+              </FlagButtonWrapper>
             </ThumbnailContainer>
           </StyledImageListItem>
         ))}
