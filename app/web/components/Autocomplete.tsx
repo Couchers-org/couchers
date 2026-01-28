@@ -54,7 +54,19 @@ export default function Autocomplete<
       options={otherProps.options}
       className={className}
       id={id}
-      sx={{ display: "block", ...sx }}
+      sx={{
+        display: "block",
+        ...(endAdornment && {
+          "&.MuiAutocomplete-hasPopupIcon .MuiOutlinedInput-root, &.MuiAutocomplete-hasClearIcon .MuiOutlinedInput-root":
+            {
+              paddingRight: "14px",
+            },
+          "& .MuiAutocomplete-endAdornment": {
+            display: "none",
+          },
+        }),
+        ...sx,
+      }}
       renderInput={(params) => (
         <TextField
           {...params}
@@ -64,18 +76,14 @@ export default function Autocomplete<
           label={label}
           placeholder={placeholder}
           helperText={error || helperText}
-          InputProps={
+          slotProps={
             endAdornment
               ? {
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {params.InputProps.endAdornment}
-                      {endAdornment}
-                    </>
-                  ),
+                  input: {
+                    endAdornment: endAdornment,
+                  },
                 }
-              : params.InputProps
+              : undefined
           }
         />
       )}
