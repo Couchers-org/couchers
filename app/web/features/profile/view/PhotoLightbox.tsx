@@ -1,5 +1,6 @@
 import { ArrowBackIos, ArrowForwardIos, Close } from "@mui/icons-material";
 import { Box, IconButton, Modal, styled, Typography } from "@mui/material";
+import { FlagIcon } from "components/Icons";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
@@ -194,17 +195,23 @@ const ReportButtonContainer = styled(Box)(({ theme }) => ({
   transform: "translateX(-50%)",
   display: "flex",
   alignItems: "center",
-  backgroundColor: "rgba(0, 0, 0, 0.7)",
+  backgroundColor: "rgba(255, 255, 255, 0.85)",
   borderRadius: theme.shape.borderRadius * 3,
-  padding: theme.spacing(0.5, 1),
+  padding: theme.spacing(0.5, 2),
   zIndex: 10,
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+  "&:hover": {
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    transform: "translateX(-50%) scale(1.05)",
+  },
   [theme.breakpoints.down("sm")]: {
     bottom: theme.spacing(10),
   },
 }));
 
 const ReportButtonLabel = styled(Typography)(({ theme }) => ({
-  color: theme.palette.common.white,
+  color: theme.palette.text.primary,
   marginLeft: theme.spacing(0.5),
   fontSize: "0.875rem",
   fontWeight: 500,
@@ -309,13 +316,26 @@ export default function PhotoLightbox(props: PhotoLightboxProps) {
         )}
 
         {galleryOwnerId && currentPhoto.itemId && (
-          <ReportButtonContainer onClick={(e) => e.stopPropagation()}>
-            <FlagButton
-              contentRef={`photo/${currentPhoto.itemId}`}
-              authorUser={galleryOwnerId}
-            />
-            <ReportButtonLabel>{t("gallery.report_photo")}</ReportButtonLabel>
-          </ReportButtonContainer>
+          <FlagButton
+            contentRef={`photo/${currentPhoto.itemId}`}
+            authorUser={galleryOwnerId}
+            renderButton={(onClick) => (
+              <ReportButtonContainer
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClick(e);
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={t("gallery.report_photo")}
+              >
+                <FlagIcon color="primary" />
+                <ReportButtonLabel>
+                  {t("gallery.report_photo")}
+                </ReportButtonLabel>
+              </ReportButtonContainer>
+            )}
+          />
         )}
 
         <CloseButton

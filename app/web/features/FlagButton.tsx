@@ -1,4 +1,10 @@
-import { FormControl, IconButton, InputLabel, Select } from "@mui/material";
+import {
+  FormControl,
+  IconButton,
+  InputLabel,
+  Portal,
+  Select,
+} from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -26,12 +32,15 @@ interface FlagButtonProps {
   contentRef: string;
   authorUser: string | number;
   className?: string;
+  /** Custom render function for the button. Receives onClick handler to open the dialog. */
+  renderButton?: (onClick: (event: { preventDefault: () => void }) => void) => React.ReactNode;
 }
 
 export default function FlagButton({
   contentRef,
   authorUser,
   className,
+  renderButton,
 }: FlagButtonProps) {
   const { t } = useTranslation(GLOBAL);
 
@@ -133,24 +142,33 @@ export default function FlagButton({
   return (
     <>
       {report && (
-        <Snackbar severity="success">
-          {t("report.content.success_message")}
-        </Snackbar>
+        <Portal>
+          <Snackbar severity="success">
+            {t("report.content.success_message")}
+          </Snackbar>
+        </Portal>
       )}
-      <IconButton
-        aria-label={t("report.flag.button_aria_label")}
-        className={className}
-        onClick={handleFlagButtonClick}
-        color="primary"
-        size="large"
-      >
-        <FlagIcon />
-      </IconButton>
+      {renderButton ? (
+        renderButton(handleFlagButtonClick)
+      ) : (
+        <IconButton
+          aria-label={t("report.flag.button_aria_label")}
+          className={className}
+          onClick={handleFlagButtonClick}
+          color="primary"
+          size="large"
+        >
+          <FlagIcon />
+        </IconButton>
+      )}
       <Dialog
         aria-labelledby="content-reporter"
         open={isOpen}
         onClose={handleClose}
         onClick={(event) => {
+          event.stopPropagation();
+        }}
+        onKeyDown={(event) => {
           event.stopPropagation();
         }}
       >
