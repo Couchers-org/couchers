@@ -1,14 +1,21 @@
 import { ArrowBackIos, ArrowForwardIos, Close } from "@mui/icons-material";
 import { Box, IconButton, Modal, styled, Typography } from "@mui/material";
+import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { useCallback, useEffect, useState } from "react";
 
 interface PhotoLightboxProps {
-  photos: Array<{ fullUrl: string; thumbnailUrl: string; caption?: string }>;
+  photos: Array<{
+    fullUrl: string;
+    thumbnailUrl: string;
+    caption?: string;
+    itemId?: number;
+  }>;
   initialIndex: number;
   open: boolean;
   onClose: () => void;
+  galleryOwnerId?: number;
 }
 
 const Backdrop = styled(Box)({
@@ -180,8 +187,31 @@ const ThumbnailImage = styled("img")<{ isActive: boolean }>(
   }),
 );
 
+const ReportButtonContainer = styled(Box)(({ theme }) => ({
+  position: "absolute",
+  bottom: theme.spacing(12),
+  left: "50%",
+  transform: "translateX(-50%)",
+  display: "flex",
+  alignItems: "center",
+  backgroundColor: "rgba(0, 0, 0, 0.7)",
+  borderRadius: theme.shape.borderRadius * 3,
+  padding: theme.spacing(0.5, 1),
+  zIndex: 10,
+  [theme.breakpoints.down("sm")]: {
+    bottom: theme.spacing(10),
+  },
+}));
+
+const ReportButtonLabel = styled(Typography)(({ theme }) => ({
+  color: theme.palette.common.white,
+  marginLeft: theme.spacing(0.5),
+  fontSize: "0.875rem",
+  fontWeight: 500,
+}));
+
 export default function PhotoLightbox(props: PhotoLightboxProps) {
-  const { photos, initialIndex, open, onClose } = props;
+  const { photos, initialIndex, open, onClose, galleryOwnerId } = props;
   const { t } = useTranslation([PROFILE]);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
@@ -276,6 +306,16 @@ export default function PhotoLightbox(props: PhotoLightboxProps) {
               ))}
             </ThumbnailStrip>
           </>
+        )}
+
+        {galleryOwnerId && currentPhoto.itemId && (
+          <ReportButtonContainer onClick={(e) => e.stopPropagation()}>
+            <FlagButton
+              contentRef={`photo/${currentPhoto.itemId}`}
+              authorUser={galleryOwnerId}
+            />
+            <ReportButtonLabel>{t("gallery.report_photo")}</ReportButtonLabel>
+          </ReportButtonContainer>
         )}
 
         <CloseButton

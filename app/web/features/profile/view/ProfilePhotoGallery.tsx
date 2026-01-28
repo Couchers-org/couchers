@@ -6,7 +6,9 @@ import {
   Typography,
 } from "@mui/material";
 import CircularProgress from "components/CircularProgress";
+import FlagButton from "features/FlagButton";
 import { useGallery } from "features/profile/hooks/useGallery";
+import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { useState } from "react";
@@ -53,11 +55,39 @@ const LoadingContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
 }));
 
+const ThumbnailContainer = styled(Box)({
+  position: "relative",
+  width: "100%",
+  height: "100%",
+});
+
+const ThumbnailReportButton = styled(Box)(({ theme }) => ({
+  position: "absolute",
+  bottom: theme.spacing(0.5),
+  right: theme.spacing(0.5),
+  backgroundColor: "rgba(255, 255, 255, 0.8)",
+  borderRadius: "50%",
+  opacity: 0.7,
+  transition: "all 0.2s ease",
+  zIndex: 1,
+  "& .MuiIconButton-root": {
+    padding: theme.spacing(0.5),
+    "& svg": {
+      fontSize: "1rem",
+    },
+  },
+  "&:hover": {
+    opacity: 1,
+    transform: "scale(1.1)",
+  },
+}));
+
 export default function ProfilePhotoGallery({
   galleryId,
 }: ProfilePhotoGalleryProps) {
   const { t } = useTranslation([PROFILE]);
   const { data: gallery, isLoading } = useGallery(galleryId);
+  const profileUser = useProfileUser();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
@@ -117,11 +147,24 @@ export default function ProfilePhotoGallery({
               }
             }}
           >
-            <img
-              src={photo.thumbnailUrl || photo.fullUrl}
-              alt={photo.caption || ""}
-              loading="lazy"
-            />
+            <ThumbnailContainer>
+              <img
+                src={photo.thumbnailUrl || photo.fullUrl}
+                alt={photo.caption || ""}
+                loading="lazy"
+              />
+              <ThumbnailReportButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                aria-label={t("profile:gallery.report_photo")}
+              >
+                <FlagButton
+                  contentRef={`photo/${photo.itemId}`}
+                  authorUser={profileUser.userId}
+                />
+              </ThumbnailReportButton>
+            </ThumbnailContainer>
           </StyledImageListItem>
         ))}
       </StyledImageList>
@@ -131,10 +174,12 @@ export default function ProfilePhotoGallery({
           fullUrl: photo.fullUrl,
           thumbnailUrl: photo.thumbnailUrl,
           caption: photo.caption,
+          itemId: photo.itemId,
         }))}
         initialIndex={selectedPhotoIndex}
         open={lightboxOpen}
         onClose={handleCloseLightbox}
+        galleryOwnerId={profileUser.userId}
       />
     </GalleryContainer>
   );
