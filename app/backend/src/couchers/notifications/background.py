@@ -42,8 +42,9 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     locale = "en"
     if config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
         locale = user.ui_language_preference or "en"
+    timezone = ZoneInfo(user.timezone or "Etc/UTC")
 
-    html_context = Context(output_html=True, timezone=ZoneInfo(user.timezone or "Etc/UTC"), locale=email_lang)
+    html_context = Context(output_html=True, timezone=timezone, locale=locale)
     plaintext_context = replace(html_context, output_html=False)
 
     template_args = {

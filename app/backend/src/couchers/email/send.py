@@ -32,8 +32,7 @@ def send_simple_pretty_email(
         "footer_email_is_critical": True,  # Results in no unsubscribe footer.
     }
 
-    # Not yet localizable
-    html_context = Context(output_html=True, timezone=ZoneInfo("Etc/UTC"), locale="en")
+    html_context = Context(output_html=True, timezone=timezone, locale=locale)
     plaintext_context = replace(html_context, output_html=False)
 
     # Format plaintext template
