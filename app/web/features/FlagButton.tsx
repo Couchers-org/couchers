@@ -32,15 +32,12 @@ interface FlagButtonProps {
   contentRef: string;
   authorUser: string | number;
   className?: string;
-  /** Custom render function for the button. Receives onClick handler to open the dialog. */
-  renderButton?: (onClick: (event: { preventDefault: () => void }) => void) => React.ReactNode;
 }
 
 export default function FlagButton({
   contentRef,
   authorUser,
   className,
-  renderButton,
 }: FlagButtonProps) {
   const { t } = useTranslation(GLOBAL);
 
@@ -134,11 +131,6 @@ export default function FlagButton({
     reportContent({ ...data, reason: reasonMap[data.reason] });
   });
 
-  const handleFlagButtonClick = (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-    setIsOpen(true);
-  };
-
   return (
     <>
       {report && (
@@ -148,19 +140,18 @@ export default function FlagButton({
           </Snackbar>
         </Portal>
       )}
-      {renderButton ? (
-        renderButton(handleFlagButtonClick)
-      ) : (
-        <IconButton
-          aria-label={t("report.flag.button_aria_label")}
-          className={className}
-          onClick={handleFlagButtonClick}
-          color="primary"
-          size="large"
-        >
-          <FlagIcon />
-        </IconButton>
-      )}
+      <IconButton
+        aria-label={t("report.flag.button_aria_label")}
+        className={className}
+        onClick={(event) => {
+          event.preventDefault();
+          setIsOpen(true);
+        }}
+        color="primary"
+        size="large"
+      >
+        <FlagIcon />
+      </IconButton>
       <Dialog
         aria-labelledby="content-reporter"
         open={isOpen}
