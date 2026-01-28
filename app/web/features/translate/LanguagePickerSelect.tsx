@@ -105,10 +105,11 @@ export default function LanguagePickerSelect({
       changeLanguageMutation(newLocale);
     }
 
+    onSelect?.();
+
     router.push({ pathname, query }, asPath, { locale: newLocale });
 
     setIsChangingLanguage(false);
-    onSelect?.();
   };
 
   const handleTranslationProgressClick = (e: React.MouseEvent) => {
@@ -170,7 +171,7 @@ export default function LanguagePickerSelect({
             }}
           >
             <Stack
-              sx={{ width: "100%" }}
+              sx={{ width: "100%", pointerEvents: "none" }}
               direction="row"
               alignItems="center"
               justifyContent="space-between"
