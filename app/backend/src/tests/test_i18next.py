@@ -22,7 +22,7 @@ def test_localized():
     en.add_string("greeting", "hello")
     fr = i18next.add_language("fr", PluralRules.en)
     fr.add_string("greeting", "bonjour")
-    fr.fallback = en
+    fr.fallbacks.append(en)
     assert i18next.localize("greeting", "fr") == "bonjour"
 
 
@@ -31,8 +31,20 @@ def test_fallback():
     en = i18next.add_language("en", PluralRules.en)
     en.add_string("greeting", "hello")
     fr = i18next.add_language("fr", PluralRules.en)
-    fr.fallback = en
+    fr.fallbacks.append(en)
     assert i18next.localize("greeting", "fr") == "hello"
+
+
+def test_mutual_fallback():
+    i18next = I18Next()
+    pt_pt = i18next.add_language("pt-PT", PluralRules.en)
+    pt_pt.add_string("greeting", "olá")
+    pt_br = i18next.add_language("pt-BR", PluralRules.en)
+    pt_br.add_string("farewell", "tchau")
+    pt_pt.fallbacks.append(pt_br)
+    pt_br.fallbacks.append(pt_pt)
+    assert i18next.localize("greeting", "pt-BR") == "olá"
+    assert i18next.localize("farewell", "pt-PT") == "tchau"
 
 
 def test_plural_suffixes():
@@ -133,5 +145,5 @@ def test_missing_substitution_fallback():
     en.add_string("greeting", "hello {{name}}")
     fr = i18next.add_language("fr", PluralRules.fr)
     fr.add_string("greeting", "bonjour {{nom}}")
-    fr.fallback = en
+    fr.fallbacks.append(en)
     assert i18next.localize("greeting", "fr", substitutions={"name": "world"}) == "hello world"

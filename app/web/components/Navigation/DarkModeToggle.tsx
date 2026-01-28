@@ -24,15 +24,7 @@ export default function DarkModeToggle() {
   const isDark = resolvedMode === "dark";
 
   const handleToggle = () => {
-    const newMode = isDark ? "light" : "dark";
-    setMode(newMode);
-
-    // Notify native mobile app of color scheme change
-    if (window.ReactNativeWebView) {
-      window.ReactNativeWebView.postMessage(
-        JSON.stringify({ type: "COLOR_SCHEME_CHANGE", mode: newMode }),
-      );
-    }
+    setMode(isDark ? "light" : "dark");
   };
 
   const tooltipText = isDark

@@ -30,8 +30,8 @@ def test_fallback_chain():
     fr = i18next.languages_by_code["fr"]
     en = i18next.languages_by_code["en"]
 
-    assert fr_CA.fallback == fr
-    assert fr.fallback == en
-    assert en.fallback is None
+    assert fr_CA.fallbacks == [fr, en]
+    assert fr.fallbacks == [en]
+    assert en.fallbacks == []
 
     assert i18next.default_language == en

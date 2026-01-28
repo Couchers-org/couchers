@@ -12,9 +12,9 @@ from zoneinfo import ZoneInfo
 
 from couchers import urls
 from couchers.i18n.i18next import I18Next, LocalizationError
+from couchers.i18n.locales import load_locales
 from couchers.i18n.localize import (
     format_phone_number,
-    load_i18next,
     localize_date_from_iso,
     localize_datetime,
 )
@@ -700,4 +700,4 @@ def render_adhoc_push_notification(name: str, locale: str) -> PushNotificationCo
 @lru_cache(maxsize=1)
 def _get_notifs_i18next() -> I18Next:
     """Gets the I18Next instance for notifications."""
-    return load_i18next(Path(__file__).parent / "locales")
+    return load_locales(Path(__file__).parent / "locales")
