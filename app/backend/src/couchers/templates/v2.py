@@ -77,11 +77,15 @@ def _get_jinja_env() -> Environment:
 
 @pass_context
 def _finalize(jinja_context: JinjaContext, value: Any) -> str:
+    """
+    Converts a placeholder value into a string for output in a jinja template.
+    For example, "{{ my_date }}" will honor the context's locale and timezone.
+    """
     return _format_default(value, Context.from_jinja(jinja_context))
 
 
 def _format_default(value: Any, context: Context) -> str:
-    """Formats a placeholder value into a jinja template with useful defaults."""
+    """Formats a placeholder value into a string with useful defaults."""
     match value:
         case date():
             return localize_date(value, context.locale)
