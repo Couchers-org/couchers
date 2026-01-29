@@ -171,7 +171,7 @@ export default function LanguagePickerSelect({
             }}
           >
             <Stack
-              sx={{ width: "100%", pointerEvents: "none" }}
+              sx={{ width: "100%" }}
               direction="row"
               alignItems="center"
               justifyContent="space-between"
