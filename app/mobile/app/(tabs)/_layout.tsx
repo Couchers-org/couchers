@@ -1,4 +1,5 @@
 import { Tabs } from "expo-router";
+import { useEffect, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 import { useColorScheme } from "react-native";
 
@@ -7,7 +8,17 @@ import { theme } from "@/theme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  // Expo Router caches Tabs.Screen options and doesn't re-read them on re-render.
+  // We must manually listen for language changes and force a re-render to update tab labels.
+  const [, forceUpdate] = useReducer((x: number) => x + 1, 0);
+  useEffect(() => {
+    i18n.on("languageChanged", forceUpdate);
+    return () => {
+      i18n.off("languageChanged", forceUpdate);
+    };
+  }, [i18n]);
 
   const activeTintColor =
     colorScheme === "dark"

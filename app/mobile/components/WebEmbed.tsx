@@ -149,8 +149,9 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     currentWebPathRef.current = webPath;
 
     // Extract locale from URL and sync with mobile app's i18n
-    const webLocale = extractLocaleFromPath(webPathWithoutQuery);
-    if (webLocale && webLocale !== i18n.language) {
+    // If no locale in URL, default to English (Next.js default locale)
+    const webLocale = extractLocaleFromPath(webPathWithoutQuery) || "en";
+    if (webLocale !== i18n.language) {
       i18n.changeLanguage(webLocale).catch((err) => {
         if (__DEV__) {
           console.error("Failed to change mobile app language:", err);
