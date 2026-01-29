@@ -46,6 +46,10 @@ def test_is_valid_email() -> None:
     assert not is_valid_email(".testemail@couchers.org")
     assert not is_valid_email("testemail@couchersorg")
     assert not is_valid_email("b@xxb....blabla")
+    # These are rejected by Python's email.headerregistry.Address
+    # (dot before @ is not RFC 5321 compliant)
+    assert not is_valid_email("user.@example.com")
+    assert not is_valid_email("user..name@example.com")
 
 
 def test_is_valid_username() -> None:

@@ -3,6 +3,7 @@ import re
 import typing
 from collections.abc import Mapping, Sequence
 from datetime import date, datetime, timedelta
+from email.headerregistry import Address
 from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
 
@@ -58,7 +59,19 @@ def is_valid_name(field: str) -> bool:
 
 
 def is_valid_email(field: str) -> bool:
-    return re.match(EMAIL_REGEX, field) is not None
+    if re.match(EMAIL_REGEX, field) is None:
+        return False
+    # Also check that Python's email library can parse this email
+    # This catches additional invalid emails like "user.@example.com" which have
+    # a dot immediately before @ (not RFC 5321 compliant)
+    try:
+        addr = Address(addr_spec=field)
+        # Check for defects - these indicate the email doesn't fully comply with standards
+        if addr.addr_spec != field:
+            return False
+    except Exception:
+        return False
+    return True
 
 
 def Timestamp_from_datetime(dt: datetime) -> Timestamp:
