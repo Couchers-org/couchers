@@ -1,12 +1,12 @@
-<!-- begin-section:text -->
+<!-- begin-block:text -->
 <mj-section padding="0px">
   <mj-column>
     <mj-text>{{ text }}</mj-text>
   </mj-column>
 </mj-section>
-<!-- end-section:text -->
+<!-- end-block:text -->
 
-<!-- begin-section:button -->
+<!-- begin-block:button -->
 <mj-section padding="0px">
   <mj-column>
     <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ url }}">
@@ -14,9 +14,9 @@
     </mj-button>
   </mj-column>
 </mj-section>
-<!-- end-section:button -->
+<!-- end-block:button -->
 
-<!-- begin-section:person -->
+<!-- begin-block:person -->
 <mj-section padding="0px" text-align="left">
   <mj-column>
     <mj-table>
@@ -32,12 +32,12 @@
     </mj-table>
   </mj-column>
 </mj-section>
-<!-- end-section:person -->
+<!-- end-block:person -->
 
-<!-- begin-section:quote -->
+<!-- begin-block:quote -->
 <mj-section padding="10px 20px" text-align="left">
   <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
     <mj-text>{{ text }}</mj-text>
   </mj-column>
 </mj-section>
-<!-- end-section:quote -->
+<!-- end-block:quote -->
