@@ -20,5 +20,9 @@
     "n_hours_ago_many": "{{count}} de horas atrás",
     "n_hours_ago_other": "{{count}} horas atrás"
   },
-  "load_more": "Carregar mais"
+  "load_more": "Carregar mais",
+  "close": "Fechar",
+  "create_account": "Criar Conta",
+  "expand": "Expandir",
+  "back": "Voltar"
 }
