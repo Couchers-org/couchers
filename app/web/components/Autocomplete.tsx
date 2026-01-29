@@ -56,15 +56,16 @@ export default function Autocomplete<
       id={id}
       sx={{
         display: "block",
-        ...(endAdornment && {
-          "&.MuiAutocomplete-hasPopupIcon .MuiOutlinedInput-root, &.MuiAutocomplete-hasClearIcon .MuiOutlinedInput-root":
-            {
-              paddingRight: "14px",
-            },
-          "& .MuiAutocomplete-endAdornment": {
-            display: "none",
+        // Override MUI's absolute positioning so X appears before search icon
+        "& .MuiAutocomplete-endAdornment": {
+          position: "static",
+          transform: "none",
+        },
+        // Remove extra padding MUI adds for absolutely-positioned icons
+        "&.MuiAutocomplete-hasPopupIcon .MuiOutlinedInput-root, &.MuiAutocomplete-hasClearIcon .MuiOutlinedInput-root":
+          {
+            paddingRight: "9px",
           },
-        }),
         ...sx,
       }}
       renderInput={(params) => (
@@ -76,15 +77,17 @@ export default function Autocomplete<
           label={label}
           placeholder={placeholder}
           helperText={error || helperText}
-          slotProps={
-            endAdornment
-              ? {
-                  input: {
-                    endAdornment: endAdornment,
-                  },
-                }
-              : undefined
-          }
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {params.InputProps.endAdornment}
+                  {endAdornment}
+                </>
+              ),
+            },
+          }}
         />
       )}
     ></MuiAutocomplete>
