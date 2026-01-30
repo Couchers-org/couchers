@@ -340,6 +340,7 @@ export default function Navigation() {
             maxWidth: "10.5rem",
             padding: theme.spacing(1, 4),
           }}
+          onClick={(e) => e.stopPropagation()}
         >
           <LanguagePickerSelect onSelect={handleDrawerClose} />
         </ListItem>

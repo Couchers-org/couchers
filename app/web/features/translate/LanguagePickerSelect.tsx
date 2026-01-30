@@ -105,10 +105,11 @@ export default function LanguagePickerSelect({
       changeLanguageMutation(newLocale);
     }
 
+    onSelect?.();
+
     router.push({ pathname, query }, asPath, { locale: newLocale });
 
     setIsChangingLanguage(false);
-    onSelect?.();
   };
 
   const handleTranslationProgressClick = (e: React.MouseEvent) => {
