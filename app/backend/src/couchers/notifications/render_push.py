@@ -701,6 +701,7 @@ def _render_postal_verification__failed(
 
     return _get_content(
         NotificationTopicAction.postal_verification__failed,
+        loc_context,
         body=_get_string(NotificationTopicAction.postal_verification__failed, body_key, loc_context),
         action_url=urls.account_settings_link(),
     )
@@ -728,7 +729,7 @@ def _render_reference__receive(
         action_url = urls.profile_references_link()
     else:
         body = _get_string(
-            NotificationTopicAction.reference__receive,
+            "reference__receive",
             "body_must_write_yours",
             loc_context,
             substitutions={"user": data.from_user.name},
@@ -782,13 +783,13 @@ def _render_reference__reminder_surfed(
     data: notification_data_pb2.ReferenceReminder, loc_context: LocContext
 ) -> PushNotificationContent:
     # Surfed reminder means I need to leave a surfed reference
-    return _render_reference__reminder(data, leave_reference_type="surfed")
+    return _render_reference__reminder(data, leave_reference_type="surfed", loc_context=loc_context)
 
 
 def _render_reference__reminder_hosted(
     data: notification_data_pb2.ReferenceReminder, loc_context: LocContext
 ) -> PushNotificationContent:
-    return _render_reference__reminder(data, leave_reference_type="hosted")
+    return _render_reference__reminder(data, leave_reference_type="hosted", loc_context=loc_context)
 
 
 def _render_thread__reply(data: notification_data_pb2.ThreadReply, loc_context: LocContext) -> PushNotificationContent:
@@ -806,6 +807,7 @@ def _render_thread__reply(data: notification_data_pb2.ThreadReply, loc_context: 
 
     return _get_content(
         NotificationTopicAction.thread__reply,
+        loc_context=loc_context,
         body=data.reply.content,
         substitutions={"user": data.author.name, "title": parent_title},
         icon_user=data.author,

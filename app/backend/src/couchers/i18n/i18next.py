@@ -21,9 +21,11 @@ class I18Next:
     default_language: Language | None = None
     """The language used to look up strings in unsupported languages."""
 
-    def add_language(self, code: str, plural_rule: PluralRule) -> Language:
+    def add_language(self, code: str, plural_rule: PluralRule, *, json_dict: dict[str, Any] | None = None) -> Language:
         language = Language(code, plural_rule)
         self.languages_by_code[code] = language
+        if json_dict:
+            language.load_json_dict(json_dict)
         return language
 
     def find_string(

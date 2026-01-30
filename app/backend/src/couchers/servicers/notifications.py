@@ -1,6 +1,7 @@
 import functools
 import json
 import logging
+from zoneinfo import ZoneInfo
 
 import grpc
 from google.protobuf import empty_pb2
@@ -254,12 +255,14 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         session.add(subscription)
         session.flush()
 
+        loc_context = LocContext(locale=context.ui_language_preference or "en", timezone=ZoneInfo("Etc/UTC"))
+        push_content = render_adhoc_push_notification("push_enabled", loc_context)
         push_to_subscription(
             session,
             push_notification_subscription_id=subscription.id,
             user_id=context.user_id,
             topic_action="adhoc:push_enabled",
-            content=render_adhoc_push_notification("push_enabled", locale=context.ui_language_preference or "en"),
+            content=push_content,
         )
 
         return empty_pb2.Empty()

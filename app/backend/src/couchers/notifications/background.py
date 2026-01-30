@@ -1,6 +1,4 @@
 import logging
-from dataclasses import replace
-from zoneinfo import ZoneInfo
 
 from google.protobuf import empty_pb2
 from sqlalchemy import select
@@ -13,7 +11,6 @@ from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.email import queue_email
 from couchers.i18n import LocContext
-from couchers.i18n.localize import localize_timezone
 from couchers.models import (
     Notification,
     NotificationDelivery,
@@ -31,22 +28,16 @@ from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import moderation_state_column_visible
-from couchers.templates.v2 import Context, render_template, template_folder
+from couchers.templates.v2 import Jinja2Template, template_folder
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
 
 def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
-    rendered = render_email_notification(user, notification)
+    loc_context = LocContext.from_user(user) if config["ENABLE_NOTIFICATION_TRANSLATIONS"] else LocContext.EN_UTC
 
-    locale = "en"
-    if config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
-        locale = user.ui_language_preference or "en"
-    timezone = ZoneInfo(user.timezone or "Etc/UTC")
-
-    html_context = Context(output_html=True, timezone=timezone, locale=locale)
-    plaintext_context = replace(html_context, output_html=False)
+    rendered = render_email_notification(notification, loc_context)
 
     template_args = {
         **rendered.template_args,
@@ -54,7 +45,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         "header_preview": rendered.preview,
         "user": user,
         "time": notification.created,
-        "footer_timezone_name": localize_timezone(timezone, locale),
+        "footer_timezone_name": loc_context.localized_timezone,
         "footer_copyright_year": now().year,
         "footer_email_is_critical": rendered.is_critical,
         "footer_manage_notifications_link": urls.notification_settings_link(),
@@ -66,13 +57,16 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     }
 
     # Format plaintext template
-    plain_tmplt = (template_folder / f"{rendered.template_name}.txt").read_text()
+    plain_tmplt_body = (template_folder / f"{rendered.template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain = render_template(plain_tmplt + plain_tmplt_footer, template_args, plaintext_context)
+    plain_tmplt = Jinja2Template(source=plain_tmplt_body + plain_tmplt_footer, html=False)
+    plain = plain_tmplt.render(template_args, loc_context)
 
     # Format html template
-    html_tmplt = (template_folder / "generated_html" / f"{rendered.template_name}.html").read_text()
-    html = render_template(html_tmplt, template_args, html_context)
+    html_tmplt = Jinja2Template(
+        source=(template_folder / "generated_html" / f"{rendered.template_name}.html").read_text(), html=True
+    )
+    html = html_tmplt.render(template_args, loc_context)
 
     if user.do_not_email and not rendered.is_critical:
         logger.info(f"Not emailing {user} based on template {rendered.template_name} due to emails turned off")

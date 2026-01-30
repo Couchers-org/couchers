@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import date, datetime, time
+from typing import ClassVar
 from zoneinfo import ZoneInfo
 
 from google.protobuf.timestamp_pb2 import Timestamp
@@ -23,6 +24,8 @@ class LocContext:
     Future settings like 12/24h clock preference would go here as well.
     """
 
+    EN_UTC: ClassVar[LocContext]
+
     # The language or locale code (e.g. 'en', 'pt-BR'), used to lookup translations and format dates/numbers.
     locale: str
 
@@ -33,21 +36,27 @@ class LocContext:
     def localized_timezone(self) -> str:
         return localize_timezone(self.timezone, self.locale)
 
-    def localize_string(self, key: str, *, i18next: I18Next | None = None, substitutions: dict[str, str | int] | None = None) -> str:
+    def localize_string(
+        self, key: str, *, i18next: I18Next | None = None, substitutions: dict[str, str | int] | None = None
+    ) -> str:
         i18next = i18next or get_main_i18next()
         return i18next.localize(key, self.locale, substitutions=substitutions)
 
-    def localize_date(self, value: date) -> str:
+    def localize_date(self, value: date | datetime) -> str:
+        if isinstance(value, datetime):
+            value = value.astimezone(self.timezone).date()
         return localize_date(value, self.locale)
 
     def localize_date_from_iso(self, value: str) -> str:
         return localize_date_from_iso(value, self.locale)
 
     def localize_datetime(self, value: datetime | Timestamp) -> str:
-        return localize_datetime(value, self.locale, self.timezone)
+        return localize_datetime(value, self.timezone, self.locale)
 
-    def localize_time(self, value: time) -> str:
-        return localize_time(value, self.locale, self.timezone)
+    def localize_time(self, value: datetime | time) -> str:
+        if isinstance(value, datetime):
+            value = value.astimezone(self.timezone).time()
+        return localize_time(value, self.locale)
 
     @staticmethod
     def from_user(user: User) -> LocContext:
@@ -55,3 +64,6 @@ class LocContext:
             locale=user.ui_language_preference or "en",
             timezone=ZoneInfo(user.timezone or "Etc/UTC"),
         )
+
+
+LocContext.EN_UTC = LocContext(locale="en", timezone=ZoneInfo("Etc/UTC"))
