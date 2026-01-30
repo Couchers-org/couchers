@@ -283,18 +283,12 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             raise RuntimeError(f"No prev_function in '{method}', {handler}")
 
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
-            ui_language_preference: str | None = None
-            if auth_info and auth_info.ui_language_preference:
-                ui_language_preference = auth_info.ui_language_preference
-            elif headers.ui_lang:
-                ui_language_preference = headers.ui_lang
-
             couchers_context = make_interactive_context(
                 grpc_context=grpc_context,
                 user_id=auth_info.user_id if auth_info else None,
                 is_api_key=auth_info.is_api_key if auth_info else False,
                 token=auth_info.token if auth_info else None,
-                ui_language_preference=ui_language_preference,
+                ui_language_preference=(auth_info.ui_language_preference if auth_info else None) or headers.ui_lang,
             )
 
             with session_scope() as session:
