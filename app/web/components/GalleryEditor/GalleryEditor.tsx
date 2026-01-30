@@ -20,11 +20,11 @@ import {
 } from "features/profile/hooks/useGallery";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
-import { useNativeImagePicker } from "platform/nativeLink";
 import Sentry from "platform/sentry";
 import React, { useEffect, useRef, useState } from "react";
 import { settingsRoute } from "routes";
 import { service } from "service";
+import { base64ToFile, useNativeImagePicker } from "utils/nativeLink";
 
 import GalleryItem, { DropPlaceholder } from "./GalleryItem";
 
@@ -150,11 +150,7 @@ export default function GalleryEditor({
   // Native image picker for mobile app
   const { isNative, pickImage } = useNativeImagePicker();
 
-  const {
-    data: gallery,
-    isLoading: galleryLoading,
-    refetch: refetchGallery,
-  } = useGallery(galleryId);
+  const { data: gallery, isLoading: galleryLoading } = useGallery(galleryId);
   const { data: editInfo, isLoading: editInfoLoading } =
     useGalleryEditInfo(galleryId);
 
@@ -197,14 +193,21 @@ export default function GalleryEditor({
 
   const handleUploadClick = async () => {
     // Use native image picker in mobile app (WebView file input crashes)
-    if (isNative && galleryId) {
+    if (isNative) {
       setIsUploading(true);
       setUploadError(null);
+      setShowUploadSuccess(false);
       try {
-        const result = await pickImage(galleryId);
+        const result = await pickImage();
         if (result.success) {
-          // Native app uploaded the image, refresh gallery to show it
-          await refetchGallery();
+          // Convert base64 to File and upload using existing service
+          const file = base64ToFile(
+            result.imageBase64,
+            result.mimeType,
+            `photo.${result.mimeType.split("/")[1] || "jpg"}`,
+          );
+          const uploadResult = await service.api.uploadFile(file);
+          await addPhotoMutation.mutateAsync({ uploadKey: uploadResult.key });
           setShowUploadSuccess(true);
         } else if (!result.canceled) {
           setUploadError(result.error || "Upload failed");

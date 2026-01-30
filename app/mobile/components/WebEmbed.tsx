@@ -190,7 +190,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   // Send result back to web app
   const sendImagePickResult = (result: {
     success: boolean;
-    uploadKey?: string;
+    imageBase64?: string;
+    mimeType?: string;
     canceled?: boolean;
     error?: string;
   }) => {
@@ -201,9 +202,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   };
 
   // Handle image picking from camera or library
-  const handleImagePick = async (galleryId: number) => {
-    const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL!;
-
+  const handleImagePick = async () => {
     // Show action sheet to choose camera or library
     const showPicker = async (source: "camera" | "library") => {
       try {
@@ -223,6 +222,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
             allowsEditing: true,
             aspect: [1, 1],
             quality: 0.8,
+            base64: true, // Get base64 data to send to web app
           });
         } else {
           result = await ImagePicker.launchImageLibraryAsync({
@@ -230,6 +230,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
             allowsEditing: true,
             aspect: [1, 1],
             quality: 0.8,
+            base64: true, // Get base64 data to send to web app
           });
         }
 
@@ -240,72 +241,25 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
         const asset = result.assets[0];
 
-        // Upload the image to the API
-        // First, get upload URL
-        const initResponse = await fetch(
-          `${API_BASE_URL}/api/InitiateMediaUpload`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-          },
-        );
-
-        if (!initResponse.ok) {
-          throw new Error("Failed to initiate upload");
+        if (!asset.base64) {
+          throw new Error("Failed to get image data");
         }
 
-        const { upload_url } = await initResponse.json();
-
-        // Upload the file
-        const formData = new FormData();
-        const filename = asset.uri.split("/").pop() || "photo.jpg";
-        const match = /\.(\w+)$/.exec(filename);
-        const type = match ? `image/${match[1]}` : "image/jpeg";
-
-        formData.append("file", {
-          uri: asset.uri,
-          name: filename,
-          type,
-        } as unknown as Blob);
-
-        const uploadResponse = await fetch(upload_url, {
-          method: "POST",
-          body: formData,
+        // Send base64 image back to web app for upload
+        const mimeType = asset.mimeType || "image/jpeg";
+        sendImagePickResult({
+          success: true,
+          imageBase64: asset.base64,
+          mimeType,
         });
-
-        if (!uploadResponse.ok) {
-          throw new Error("Failed to upload image");
-        }
-
-        const uploadResult = await uploadResponse.json();
-
-        // Add photo to gallery
-        const addPhotoResponse = await fetch(
-          `${API_BASE_URL}/api/galleries.Galleries/AddPhotoToGallery`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              gallery_id: galleryId,
-              upload_key: uploadResult.key,
-            }),
-          },
-        );
-
-        if (!addPhotoResponse.ok) {
-          throw new Error("Failed to add photo to gallery");
-        }
-
-        sendImagePickResult({ success: true, uploadKey: uploadResult.key });
       } catch (error) {
         if (__DEV__) {
           console.error("Image pick error:", error);
         }
         sendImagePickResult({
           success: false,
-          error: error instanceof Error ? error.message : "Upload failed",
+          error:
+            error instanceof Error ? error.message : "Failed to pick image",
         });
       }
     };
@@ -370,10 +324,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         }
       } else if (payload?.type === "REQUEST_IMAGE_PICK") {
         // Web app requests native image picker (WebView file input crashes on mobile)
-        const galleryId = payload.data?.galleryId;
-        if (galleryId) {
-          handleImagePick(galleryId);
-        }
+        handleImagePick();
       }
     } catch (error) {
       // Silently ignore non-JSON messages (expected from browser/WebView internals)

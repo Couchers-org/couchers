@@ -34,7 +34,7 @@ export function clearState(key: string) {
 
 // Image picker bridge for native mobile app
 export type ImagePickResult =
-  | { success: true; uploadKey: string }
+  | { success: true; imageBase64: string; mimeType: string }
   | { success: false; canceled?: boolean; error?: string };
 
 type ImagePickCallback = (result: ImagePickResult) => void;
@@ -57,30 +57,40 @@ if (typeof window !== "undefined") {
   });
 }
 
-export function requestNativeImagePick(
-  options: { galleryId: number },
-  callback: ImagePickCallback,
-) {
+export function requestNativeImagePick(callback: ImagePickCallback) {
   if (!isNativeEmbed()) {
     callback({ success: false, error: "Not in native app" });
     return;
   }
   imagePickCallback = callback;
-  sendToNative("REQUEST_IMAGE_PICK", options);
+  sendToNative("REQUEST_IMAGE_PICK", {});
 }
 
 // Hook for components to use
 export function useNativeImagePicker() {
   const isNative = useIsNativeEmbed();
 
-  const pickImage = useCallback(
-    (galleryId: number): Promise<ImagePickResult> => {
-      return new Promise((resolve) => {
-        requestNativeImagePick({ galleryId }, resolve);
-      });
-    },
-    [],
-  );
+  const pickImage = useCallback((): Promise<ImagePickResult> => {
+    return new Promise((resolve) => {
+      requestNativeImagePick(resolve);
+    });
+  }, []);
 
   return { isNative, pickImage };
+}
+
+// Helper to convert base64 to File object
+export function base64ToFile(
+  base64: string,
+  mimeType: string,
+  filename: string,
+): File {
+  const byteString = atob(base64);
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  const blob = new Blob([ab], { type: mimeType });
+  return new File([blob], filename, { type: mimeType });
 }

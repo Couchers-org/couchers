@@ -4,12 +4,12 @@ import { Coordinates } from "features/search/utils/constants";
 import { DASHBOARD } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import { useIsNativeEmbed } from "platform/nativeLink";
 import { HostingStatus } from "proto/api_pb";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { routeToSearch } from "routes";
 import { GeocodeResult } from "utils/hooks";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 import HeroLinks from "./HeroLinks";
 
