@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from couchers.config import config
 from couchers.email import queue_email
-from couchers.i18n.localize import localize_timezone
+from couchers.i18n import LocContext
 from couchers.templates.v2 import Context, render_template, template_folder
 from couchers.utils import now
 
@@ -21,18 +21,17 @@ def send_simple_pretty_email(
     """
 
     # Not yet localizable
-    timezone = ZoneInfo("Etc/UTC")
-    locale = "en"
+    loc_context = LocContext(locale="en", timezone=ZoneInfo("Etc/UTC"))
 
     template_args = {
         **template_args,
         "header_subject": subject,
-        "footer_timezone_name": localize_timezone(timezone, locale),
+        "footer_timezone_name": loc_context.localized_timezone,
         "footer_copyright_year": now().year,
         "footer_email_is_critical": True,  # Results in no unsubscribe footer.
     }
 
-    html_context = Context(output_html=True, timezone=timezone, locale=locale)
+    html_context = Context(output_html=True, timezone=loc_context.timezone, locale=loc_context.locale)
     plaintext_context = replace(html_context, output_html=False)
 
     # Format plaintext template

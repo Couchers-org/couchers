@@ -11,6 +11,7 @@ from sqlalchemy.sql import or_
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import CouchersContext
+from couchers.i18n import LocContext
 from couchers.models import (
     DeviceType,
     HostingStatus,
@@ -45,7 +46,7 @@ def get_vapid_public_key() -> str:
 
 
 def notification_to_pb(user: User, notification: Notification) -> notifications_pb2.Notification:
-    content = render_push_notification(user, notification)
+    content = render_push_notification(notification, LocContext.from_user(user))
     return notifications_pb2.Notification(
         notification_id=notification.id,
         created=Timestamp_from_datetime(notification.created),
@@ -335,7 +336,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             session,
             user_id=context.user_id,
             topic_action=notification.topic_action.display,
-            content=render_push_notification(user, notification),
+            content=render_push_notification(notification, LocContext.from_user(user)),
             key=notification.key,
         )
 

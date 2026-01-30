@@ -11,7 +11,7 @@ from sqlalchemy_utils import refresh_materialized_view
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.crypto import b64decode
 from couchers.db import session_scope
-from couchers.i18n.localize import localize_date
+from couchers.i18n import LocContext
 from couchers.models import (
     Message,
     MessageType,
@@ -1302,6 +1302,9 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
+    host_loc_context = LocContext.from_user(host)
+    surfer_loc_context = LocContext.from_user(surfer)
+
     today_plus_2 = today() + timedelta(days=2)
     today_plus_3 = today() + timedelta(days=3)
 
@@ -1328,10 +1331,10 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
     assert "quick decline" in e.html.lower()
     assert surfer.name in e.plain
     assert surfer.name in e.html
-    assert localize_date(today_plus_2, host.ui_language_preference or "en") in e.plain
-    assert localize_date(today_plus_2, host.ui_language_preference or "en") in e.html
-    assert localize_date(today_plus_3, host.ui_language_preference or "en") in e.plain
-    assert localize_date(today_plus_3, host.ui_language_preference or "en") in e.html
+    assert host_loc_context.localize_date(today_plus_2) in e.plain
+    assert host_loc_context.localize_date(today_plus_2) in e.html
+    assert host_loc_context.localize_date(today_plus_3) in e.plain
+    assert host_loc_context.localize_date(today_plus_3) in e.html
     assert "http://localhost:5001/img/thumbnail/" not in e.plain
     assert "http://localhost:5001/img/thumbnail/" in e.html
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
@@ -1356,10 +1359,10 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
     assert host.name in e.html
     assert surfer.name in e.plain
     assert surfer.name in e.html
-    assert localize_date(today_plus_2, surfer.ui_language_preference or "en") in e.plain
-    assert localize_date(today_plus_2, surfer.ui_language_preference or "en") in e.html
-    assert localize_date(today_plus_3, surfer.ui_language_preference or "en") in e.plain
-    assert localize_date(today_plus_3, surfer.ui_language_preference or "en") in e.html
+    assert surfer_loc_context.localize_date(today_plus_2) in e.plain
+    assert surfer_loc_context.localize_date(today_plus_2) in e.html
+    assert surfer_loc_context.localize_date(today_plus_3) in e.plain
+    assert surfer_loc_context.localize_date(today_plus_3) in e.html
     assert "http://localhost:5001/img/thumbnail/" not in e.plain
     assert "http://localhost:5001/img/thumbnail/" in e.html
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain

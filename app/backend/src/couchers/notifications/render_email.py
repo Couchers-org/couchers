@@ -3,13 +3,9 @@ from dataclasses import dataclass
 from typing import Any
 
 from couchers import urls
-from couchers.i18n.localize import (
-    format_phone_number,
-    localize_date_from_iso,
-    localize_datetime_for_user,
-    localize_string,
-)
-from couchers.models import Notification, NotificationTopicAction, User
+from couchers.i18n import LocContext
+from couchers.i18n.localize import format_phone_number
+from couchers.models import Notification, NotificationTopicAction
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.proto import api_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
@@ -39,10 +35,7 @@ class RenderedEmailNotification:
     list_unsubscribe_url: str | None = None
 
 
-def render_email_notification(user: User, notification: Notification) -> RenderedEmailNotification:
-    def get_localized_string(key: str, *, substitutions: dict[str, str | int] | None = None) -> str:
-        return localize_string(user.ui_language_preference, key, substitutions=substitutions)
-
+def render_email_notification(notification: Notification, loc_context: LocContext) -> RenderedEmailNotification:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic == "host_request":
         view_link = urls.host_request(host_request_id=data.host_request.host_request_id)
@@ -248,7 +241,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         )
     elif notification.topic_action == NotificationTopicAction.birthdate__change:
         title = "Your date of birth was changed"
-        birthdate = localize_date_from_iso(data.birthdate, user.ui_language_preference or "en")
+        birthdate = loc_context.localize_date_from_iso(data.birthdate)
         message = f"Your date of birth on Couchers.org was changed to <b>{birthdate}</b> by an admin."
         message_plain = f"Your date of birth on Couchers.org was changed to {birthdate} by an admin."
         return RenderedEmailNotification(
@@ -288,8 +281,8 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             list_unsubscribe_url=generate_unsub_topic_action(notification),
         )
     elif notification.topic_action == NotificationTopicAction.donation__received:
-        title = get_localized_string("notifications.donation_received.title")
-        message = get_localized_string(
+        title = loc_context.localize_string("notifications.donation_received.title")
+        message = loc_context.localize_string(
             "notifications.donation_received.thanks_amount",
             substitutions={
                 "amount": data.amount,
@@ -402,8 +395,8 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         )
     elif notification.topic == "event":
         event = data.event
-        start_time = localize_datetime_for_user(event.start_time, user)
-        end_time = localize_datetime_for_user(event.end_time, user)
+        start_time = loc_context.localize_datetime(event.start_time)
+        end_time = loc_context.localize_datetime(event.end_time)
         time_display = f"{start_time} - {end_time}"
         event_link = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
         if notification.action in ["create_approved", "create_any"]:

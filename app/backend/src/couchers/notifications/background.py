@@ -12,6 +12,7 @@ from couchers.config import config
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.email import queue_email
+from couchers.i18n import LocContext
 from couchers.i18n.localize import localize_timezone
 from couchers.models import (
     Notification,
@@ -105,7 +106,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
 def _send_push_notification(session: Session, user: User, notification: Notification) -> None:
     logger.debug(f"Formatting push notification for {user}")
 
-    content = render_push_notification(user, notification)
+    content = render_push_notification(notification, LocContext.from_user(user))
     push_to_user(
         session,
         user_id=user.id,
