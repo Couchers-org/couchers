@@ -1375,6 +1375,8 @@ def test_quick_decline(db, push_collector: PushCollector, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
+    host_loc_context = LocContext.from_user(host)
+
     today_plus_2 = today() + timedelta(days=2)
     today_plus_3 = today() + timedelta(days=3)
 
@@ -1401,10 +1403,10 @@ def test_quick_decline(db, push_collector: PushCollector, moderator):
     assert "quick decline" in e.html.lower()
     assert surfer.name in e.plain
     assert surfer.name in e.html
-    assert localize_date(today_plus_2, host.ui_language_preference or "en") in e.plain
-    assert localize_date(today_plus_2, host.ui_language_preference or "en") in e.html
-    assert localize_date(today_plus_3, host.ui_language_preference or "en") in e.plain
-    assert localize_date(today_plus_3, host.ui_language_preference or "en") in e.html
+    assert host_loc_context.localize_date(today_plus_2) in e.plain
+    assert host_loc_context.localize_date(today_plus_2) in e.html
+    assert host_loc_context.localize_date(today_plus_3) in e.plain
+    assert host_loc_context.localize_date(today_plus_3) in e.html
     assert "http://localhost:5001/img/thumbnail/" not in e.plain
     assert "http://localhost:5001/img/thumbnail/" in e.html
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
