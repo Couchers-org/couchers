@@ -1,8 +1,12 @@
+import * as ImagePicker from "expo-image-picker";
 import { Href, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  ActionSheetIOS,
   ActivityIndicator,
+  Alert,
+  Appearance,
   BackHandler,
   Image,
   Linking,
@@ -183,6 +187,168 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     }
   };
 
+  // Send result back to web app
+  const sendImagePickResult = (result: {
+    success: boolean;
+    uploadKey?: string;
+    canceled?: boolean;
+    error?: string;
+  }) => {
+    webviewRef.current?.injectJavaScript(`
+      window.postMessage(${JSON.stringify({ type: "IMAGE_PICK_RESULT", result })}, "*");
+      true;
+    `);
+  };
+
+  // Handle image picking from camera or library
+  const handleImagePick = async (galleryId: number) => {
+    const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL!;
+
+    // Show action sheet to choose camera or library
+    const showPicker = async (source: "camera" | "library") => {
+      try {
+        let result: ImagePicker.ImagePickerResult;
+
+        if (source === "camera") {
+          const { status } = await ImagePicker.requestCameraPermissionsAsync();
+          if (status !== "granted") {
+            sendImagePickResult({
+              success: false,
+              error: t("errors.camera_permission_denied"),
+            });
+            return;
+          }
+          result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ["images"],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          });
+        } else {
+          result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ["images"],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          });
+        }
+
+        if (result.canceled) {
+          sendImagePickResult({ success: false, canceled: true });
+          return;
+        }
+
+        const asset = result.assets[0];
+
+        // Upload the image to the API
+        // First, get upload URL
+        const initResponse = await fetch(
+          `${API_BASE_URL}/api/InitiateMediaUpload`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          },
+        );
+
+        if (!initResponse.ok) {
+          throw new Error("Failed to initiate upload");
+        }
+
+        const { upload_url } = await initResponse.json();
+
+        // Upload the file
+        const formData = new FormData();
+        const filename = asset.uri.split("/").pop() || "photo.jpg";
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : "image/jpeg";
+
+        formData.append("file", {
+          uri: asset.uri,
+          name: filename,
+          type,
+        } as unknown as Blob);
+
+        const uploadResponse = await fetch(upload_url, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error("Failed to upload image");
+        }
+
+        const uploadResult = await uploadResponse.json();
+
+        // Add photo to gallery
+        const addPhotoResponse = await fetch(
+          `${API_BASE_URL}/api/galleries.Galleries/AddPhotoToGallery`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              gallery_id: galleryId,
+              upload_key: uploadResult.key,
+            }),
+          },
+        );
+
+        if (!addPhotoResponse.ok) {
+          throw new Error("Failed to add photo to gallery");
+        }
+
+        sendImagePickResult({ success: true, uploadKey: uploadResult.key });
+      } catch (error) {
+        if (__DEV__) {
+          console.error("Image pick error:", error);
+        }
+        sendImagePickResult({
+          success: false,
+          error: error instanceof Error ? error.message : "Upload failed",
+        });
+      }
+    };
+
+    // Show platform-specific action sheet
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: [
+            t("common.cancel"),
+            t("common.take_photo"),
+            t("common.choose_from_library"),
+          ],
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            showPicker("camera");
+          } else if (buttonIndex === 2) {
+            showPicker("library");
+          } else {
+            sendImagePickResult({ success: false, canceled: true });
+          }
+        },
+      );
+    } else {
+      // Android: use Alert
+      Alert.alert(t("common.add_photo"), t("common.choose_photo_source"), [
+        {
+          text: t("common.cancel"),
+          style: "cancel",
+          onPress: () =>
+            sendImagePickResult({ success: false, canceled: true }),
+        },
+        { text: t("common.take_photo"), onPress: () => showPicker("camera") },
+        {
+          text: t("common.choose_from_library"),
+          onPress: () => showPicker("library"),
+        },
+      ]);
+    }
+  };
+
   const handleMessage = (event: WebViewMessageEvent) => {
     try {
       const payload = JSON.parse(event.nativeEvent.data);
@@ -196,6 +362,18 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         // Web app says user logged out - clear mobile state and navigate to login
         markLoggedOut();
         router.replace("/login" as Href);
+      } else if (payload?.type === "COLOR_SCHEME_CHANGE") {
+        // Web app toggled dark mode - sync native UI
+        const mode = payload.mode;
+        if (mode === "light" || mode === "dark" || mode === null) {
+          Appearance.setColorScheme(mode);
+        }
+      } else if (payload?.type === "REQUEST_IMAGE_PICK") {
+        // Web app requests native image picker (WebView file input crashes on mobile)
+        const galleryId = payload.data?.galleryId;
+        if (galleryId) {
+          handleImagePick(galleryId);
+        }
       }
     } catch (error) {
       // Silently ignore non-JSON messages (expected from browser/WebView internals)

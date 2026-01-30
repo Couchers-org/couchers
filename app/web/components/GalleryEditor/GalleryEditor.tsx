@@ -20,6 +20,7 @@ import {
 } from "features/profile/hooks/useGallery";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
+import { useNativeImagePicker } from "platform/nativeLink";
 import Sentry from "platform/sentry";
 import React, { useEffect, useRef, useState } from "react";
 import { settingsRoute } from "routes";
@@ -146,7 +147,14 @@ export default function GalleryEditor({
   // Touch support for mobile
   const [touchStartItemId, setTouchStartItemId] = useState<number | null>(null);
 
-  const { data: gallery, isLoading: galleryLoading } = useGallery(galleryId);
+  // Native image picker for mobile app
+  const { isNative, pickImage } = useNativeImagePicker();
+
+  const {
+    data: gallery,
+    isLoading: galleryLoading,
+    refetch: refetchGallery,
+  } = useGallery(galleryId);
   const { data: editInfo, isLoading: editInfoLoading } =
     useGalleryEditInfo(galleryId);
 
@@ -187,7 +195,34 @@ export default function GalleryEditor({
     return 4;
   };
 
-  const handleUploadClick = () => {
+  const handleUploadClick = async () => {
+    // Use native image picker in mobile app (WebView file input crashes)
+    if (isNative && galleryId) {
+      setIsUploading(true);
+      setUploadError(null);
+      try {
+        const result = await pickImage(galleryId);
+        if (result.success) {
+          // Native app uploaded the image, refresh gallery to show it
+          await refetchGallery();
+          setShowUploadSuccess(true);
+        } else if (!result.canceled) {
+          setUploadError(result.error || "Upload failed");
+        }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Upload failed";
+        setUploadError(errorMessage);
+        Sentry.captureException(error, {
+          tags: { component: "GalleryEditor", native: true },
+        });
+      } finally {
+        setIsUploading(false);
+      }
+      return;
+    }
+
+    // Standard web file input
     if (inputRef.current) {
       inputRef.current.value = "";
       inputRef.current.click();
