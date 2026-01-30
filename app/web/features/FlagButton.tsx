@@ -22,7 +22,7 @@ import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 import { ReportInput } from "service/reporting";
@@ -32,12 +32,14 @@ interface FlagButtonProps {
   contentRef: string;
   authorUser: string | number;
   className?: string;
+  renderButton?: (onClick: (event: React.MouseEvent) => void) => React.ReactNode;
 }
 
 export default function FlagButton({
   contentRef,
   authorUser,
   className,
+  renderButton,
 }: FlagButtonProps) {
   const { t } = useTranslation(GLOBAL);
 
@@ -131,6 +133,11 @@ export default function FlagButton({
     reportContent({ ...data, reason: reasonMap[data.reason] });
   });
 
+  const handleButtonClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setIsOpen(true);
+  };
+
   return (
     <>
       {report && (
@@ -140,18 +147,19 @@ export default function FlagButton({
           </Snackbar>
         </Portal>
       )}
-      <IconButton
-        aria-label={t("report.flag.button_aria_label")}
-        className={className}
-        onClick={(event) => {
-          event.preventDefault();
-          setIsOpen(true);
-        }}
-        color="primary"
-        size="large"
-      >
-        <FlagIcon />
-      </IconButton>
+      {renderButton ? (
+        renderButton(handleButtonClick)
+      ) : (
+        <IconButton
+          aria-label={t("report.flag.button_aria_label")}
+          className={className}
+          onClick={handleButtonClick}
+          color="primary"
+          size="large"
+        >
+          <FlagIcon />
+        </IconButton>
+      )}
       <Dialog
         aria-labelledby="content-reporter"
         open={isOpen}

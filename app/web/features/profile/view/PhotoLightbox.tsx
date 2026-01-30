@@ -1,5 +1,6 @@
 import { ArrowBackIos, ArrowForwardIos, Close } from "@mui/icons-material";
 import { Box, IconButton, Modal, styled, Typography } from "@mui/material";
+import { FlagIcon } from "components/Icons";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
@@ -187,29 +188,29 @@ const ThumbnailImage = styled("img")<{ isActive: boolean }>(
   }),
 );
 
-const StyledFlagButton = styled(FlagButton)(({ theme }) => ({
+const ReportButtonContainer = styled("div")(({ theme }) => ({
   position: "absolute",
   bottom: theme.spacing(16),
   left: "50%",
   transform: "translateX(-50%)",
   backgroundColor: "rgba(0, 0, 0, 0.7)",
-  color: theme.palette.common.white,
-  width: 56,
-  height: 56,
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(1, 2),
+  borderRadius: theme.shape.borderRadius,
   border: "2px solid rgba(255, 255, 255, 0.9)",
   boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
   transition: "all 0.2s ease",
   zIndex: 10,
+  cursor: "pointer",
   "&:hover": {
     backgroundColor: "rgba(0, 0, 0, 0.9)",
-    transform: "translateX(-50%) scale(1.1)",
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
     borderColor: theme.palette.primary.main,
   },
   [theme.breakpoints.down("sm")]: {
     bottom: theme.spacing(14),
-    width: 48,
-    height: 48,
+    padding: theme.spacing(0.75, 1.5),
   },
 }));
 
@@ -312,9 +313,24 @@ export default function PhotoLightbox(props: PhotoLightboxProps) {
         )}
 
         {galleryOwnerId && currentPhoto.itemId && (
-          <StyledFlagButton
+          <FlagButton
             contentRef={`photo/${currentPhoto.itemId}`}
             authorUser={galleryOwnerId}
+            renderButton={(onClick) => (
+              <ReportButtonContainer
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClick(e);
+                }}
+              >
+                <FlagIcon
+                  sx={{ color: "primary.main", marginRight: 1, fontSize: 20 }}
+                />
+                <Typography sx={{ color: "common.white", fontSize: ".875rem" }}>
+                  {t("gallery.report_photo")}
+                </Typography>
+              </ReportButtonContainer>
+            )}
           />
         )}
 
