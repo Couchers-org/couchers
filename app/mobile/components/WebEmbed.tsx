@@ -48,6 +48,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
   const [hasError, setHasError] = useState(false);
+  const retryCountRef = useRef(0);
+  const MAX_RETRIES = 2; // Auto-retry up to 2 times for timeout errors
   const [canGoBack, setCanGoBack] = useState(false);
 
   // Track the current WebView URL to detect when it drifts from the expected path
@@ -143,6 +145,9 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     if (!url || loading) {
       return;
     }
+
+    // Reset retry count on successful page load
+    retryCountRef.current = 0;
 
     const normalizedUrl = url.split("#")[0];
 
@@ -446,9 +451,23 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         onOpenWindow={handleOpenWindow}
         onMessage={handleMessage}
         onError={(syntheticEvent) => {
+          const { nativeEvent } = syntheticEvent;
+          const isTimeout = nativeEvent.code === -1001;
+
+          // Auto-retry on timeout (server might be cold/slow)
+          if (isTimeout && retryCountRef.current < MAX_RETRIES) {
+            retryCountRef.current += 1;
+            if (__DEV__) {
+              console.log(
+                `Timeout, retrying (${retryCountRef.current}/${MAX_RETRIES})...`,
+              );
+            }
+            webviewRef.current?.reload();
+            return;
+          }
+
           setHasError(true);
           if (__DEV__) {
-            const { nativeEvent } = syntheticEvent;
             console.error("WebView error:", nativeEvent);
             console.error("URL:", WEB_BASE_URL + path);
           }
