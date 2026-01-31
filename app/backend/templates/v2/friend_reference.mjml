@@ -1,7 +1,7 @@
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-    <mj-text><b>{{ from_user.name|v2esc }} wrote a friend reference for you</b> at {{ time|v2time }}!</mj-text>
+    <mj-text>Hi {{ user.name }},</mj-text>
+    <mj-text><b>{{ from_user.name }} wrote a friend reference for you</b> at {{ time|time }}!</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px" text-align="left">
@@ -12,7 +12,7 @@
           <img width="80px" style="border-radius: 80px" src="{{ from_user.avatar_url }}" />
         </td>
         <td>
-          <b>{{ from_user.name|v2esc }}</b>, {{ from_user.age|v2esc }}<br />{{ from_user.city|v2esc }}
+          <b>{{ from_user.name }}</b>, {{ from_user.age }}<br />{{ from_user.city }}
         </td>
       </tr>
     </mj-table>
@@ -20,12 +20,12 @@
 </mj-section>
 <mj-section padding="10px 20px" text-align="left">
   <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
-    <mj-text>{{ text|v2esc|v2multiline }}</mj-text>
+    <mj-text>{{ text|multiline }}</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ profile_references_link|v2url }}">
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ profile_references_link }}">
       <b>View the reference on your profile</b>
     </mj-button>
   </mj-column>

@@ -136,7 +136,7 @@ class StringTemplate:
     def parse(value: str) -> StringTemplate:
         last_index = 0
         segments: list[StringSegment] = []
-        for match in re.finditer(r"\{\{([^\}]+)\}\}", value):
+        for match in re.finditer(r"\{\{\s*([^\}]+?)\s*\}\}", value):
             if match.start() > last_index:
                 segments.append(StringSegment(text=value[last_index : match.start()], is_variable=False))
             segments.append(StringSegment(text=match.group(1), is_variable=True))

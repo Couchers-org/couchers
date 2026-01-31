@@ -1,3 +1,4 @@
+import html
 import json
 import re
 from urllib.parse import parse_qs, urlparse
@@ -176,7 +177,7 @@ def test_unsubscribe(db):
         if "payload" not in link:
             continue
         print(link)
-        url_parts = urlparse(link)
+        url_parts = urlparse(html.unescape(link))
         params = parse_qs(url_parts.query)
         print(params["payload"][0])
         payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))
@@ -237,7 +238,7 @@ def test_unsubscribe_do_not_email(db):
         if "payload" not in link:
             continue
         print(link)
-        url_parts = urlparse(link)
+        url_parts = urlparse(html.unescape(link))
         params = parse_qs(url_parts.query)
         print(params["payload"][0])
         payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))

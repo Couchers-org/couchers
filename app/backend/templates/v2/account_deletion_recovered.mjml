@@ -1,13 +1,13 @@
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
+    <mj-text>Hi {{ user.name }},</mj-text>
     <mj-text><b>Your account on Couchers.org has been successfully recovered!</b></mj-text>
     <mj-text>We are so glad you decided to stay! To log back in, click the following link:</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ app_link|v2url }}">
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ app_link }}">
       <b>Log back in</b>
     </mj-button>
   </mj-column>
