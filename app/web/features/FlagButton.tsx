@@ -32,7 +32,9 @@ interface FlagButtonProps {
   contentRef: string;
   authorUser: string | number;
   className?: string;
-  renderButton?: (onClick: (event: React.MouseEvent) => void) => React.ReactNode;
+  renderButton?: (
+    onClick: (event: React.MouseEvent) => void,
+  ) => React.ReactNode;
 }
 
 export default function FlagButton({
