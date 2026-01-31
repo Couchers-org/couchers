@@ -32,6 +32,7 @@ import {
 import { useAuthContext } from "@/features/auth/AuthContext";
 import errorGraphic from "@/resources/404graphic.png";
 import { theme } from "@/theme";
+
 import { privacyPolicyRoute, tosRoute } from "../routes";
 
 type WebEmbedProps = {
