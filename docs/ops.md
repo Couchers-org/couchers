@@ -1,8 +1,68 @@
 # Server Operations cheat sheet
 
 
-## Server setup
+## Setting up your machine for deployment
 
+Before you can deploy, you need to set up AWS credentials and SSH access. These instructions work on Linux and macOS.
+
+### AWS credentials
+
+1. Install the AWS CLI if you don't have it: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+2. Get AWS IAM credentials from Aapeli
+3. Configure the AWS CLI with a profile named `couchers`:
+
+```sh
+aws configure --profile couchers
+# Enter your Access Key ID, Secret Access Key, and set region to us-east-1
+```
+
+### SSH access
+
+1. Create an ed25519 SSH key if you don't already have one:
+
+```sh
+# Check if you already have one
+ls -la ~/.ssh/id_ed25519.pub
+
+# If not, create one, just press enter on all the prompts
+ssh-keygen -t ed25519
+```
+
+2. Send your public key to Aapeli so he can add it to the server (to `~/.ssh/authorized_keys`):
+
+```sh
+# send the full output of this
+cat ~/.ssh/id_ed25519.pub
+```
+
+3. Add the following to your SSH config (`~/.ssh/config`), create the file if it doesn't exist:
+
+```
+Host couchers2
+    HostName api.couchers.org
+    User ubuntu
+    IdentityFile ~/.ssh/id_ed25519
+```
+
+4. Test the connection:
+
+```sh
+ssh couchers2
+```
+
+### Deploying
+
+Once set up, deploy by running:
+
+```sh
+git checkout develop
+git pull
+cd app/deployment
+./deploy.sh
+```
+
+
+## Server setup
 
 ### Deployment
 
