@@ -1,6 +1,6 @@
 import { useColorScheme } from "@mui/material/styles";
-import { useIsNativeEmbed } from "platform/nativeLink";
 import { useEffect } from "react";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 /**
  * Syncs the web app's color scheme to the native mobile app on initial load.

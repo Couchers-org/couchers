@@ -2,7 +2,8 @@
   "errors": {
     "failed_to_load": "Failed to load",
     "check_connection": "Check your internet connection and try again.",
-    "try_again": "Try Again"
+    "try_again": "Try Again",
+    "camera_permission_denied": "Camera permission is required to take photos."
   },
   "not_found": {
     "title": "Oops!",
@@ -15,5 +16,12 @@
     "communities": "Communities",
     "search": "Search",
     "events": "Events"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "add_photo": "Add Photo",
+    "choose_photo_source": "Choose where to get your photo from",
+    "take_photo": "Take Photo",
+    "choose_from_library": "Choose from Library"
   }
 }

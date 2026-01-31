@@ -24,6 +24,7 @@ import Sentry from "platform/sentry";
 import React, { useEffect, useRef, useState } from "react";
 import { settingsRoute } from "routes";
 import { service } from "service";
+import { base64ToFile, useNativeImagePicker } from "utils/nativeLink";
 
 import GalleryItem, { DropPlaceholder } from "./GalleryItem";
 
@@ -146,6 +147,9 @@ export default function GalleryEditor({
   // Touch support for mobile
   const [touchStartItemId, setTouchStartItemId] = useState<number | null>(null);
 
+  // Native image picker for mobile app
+  const { isNative, pickImage } = useNativeImagePicker();
+
   const { data: gallery, isLoading: galleryLoading } = useGallery(galleryId);
   const { data: editInfo, isLoading: editInfoLoading } =
     useGalleryEditInfo(galleryId);
@@ -187,7 +191,41 @@ export default function GalleryEditor({
     return 4;
   };
 
-  const handleUploadClick = () => {
+  const handleUploadClick = async () => {
+    // Use native image picker in mobile app (WebView file input crashes)
+    if (isNative) {
+      setIsUploading(true);
+      setUploadError(null);
+      setShowUploadSuccess(false);
+      try {
+        const result = await pickImage();
+        if (result.success) {
+          // Convert base64 to File and upload using existing service
+          const file = base64ToFile(
+            result.imageBase64,
+            result.mimeType,
+            `photo.${result.mimeType.split("/")[1] || "jpg"}`,
+          );
+          const uploadResult = await service.api.uploadFile(file);
+          await addPhotoMutation.mutateAsync({ uploadKey: uploadResult.key });
+          setShowUploadSuccess(true);
+        } else if (!result.canceled) {
+          setUploadError(result.error || "Upload failed");
+        }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Upload failed";
+        setUploadError(errorMessage);
+        Sentry.captureException(error, {
+          tags: { component: "GalleryEditor", native: true },
+        });
+      } finally {
+        setIsUploading(false);
+      }
+      return;
+    }
+
+    // Standard web file input
     if (inputRef.current) {
       inputRef.current.value = "";
       inputRef.current.click();
