@@ -15,7 +15,8 @@ import useOnVisibleEffect from "utils/useOnVisibleEffect";
 
 const StyledWrapper = styled("div")(() => ({
   position: "relative",
-  minHeight: "80px",
+  flex: 1,
+  minHeight: 0,
 
   "&::-webkit-scrollbar": {
     background: "rgba(0,0,0,0)",
