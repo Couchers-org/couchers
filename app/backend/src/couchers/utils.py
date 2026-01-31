@@ -19,7 +19,14 @@ from sqlalchemy.types import DateTime
 
 from couchers.config import config
 from couchers.constants import EMAIL_REGEX, PREFERRED_LANGUAGE_COOKIE_EXPIRY
-from couchers.crypto import decrypt_page_token, encrypt_page_token
+from couchers.crypto import (
+    create_sofa_id,
+    decode_sofa,
+    decrypt_page_token,
+    encode_sofa,
+    encrypt_page_token,
+)
+from couchers.proto.internal import internal_pb2
 
 if TYPE_CHECKING:
     from couchers.models import Geom
@@ -274,58 +281,41 @@ def create_lang_cookie(lang: str) -> list[str]:
     ]
 
 
+def _parse_cookie(headers: Mapping[str, str | bytes], cookie_name: str) -> str | None:
+    """
+    Helper to parse a cookie value from headers by name, returning None if not found.
+    """
+    if "cookie" not in headers:
+        return None
+
+    cookie_str = typing.cast(str, headers["cookie"])
+    cookie = http.cookies.SimpleCookie(cookie_str).get(cookie_name)
+
+    if not cookie:
+        return None
+
+    return cookie.value
+
+
 def parse_session_cookie(headers: Mapping[str, str | bytes]) -> str | None:
     """
     Returns our session cookie value (aka token) or None
     """
-    if "cookie" not in headers:
-        return None
-
-    cookie_str = typing.cast(str, headers["cookie"])
-
-    # parse the cookie
-    cookie = http.cookies.SimpleCookie(cookie_str).get("couchers-sesh")
-
-    if not cookie:
-        return None
-
-    return cookie.value
+    return _parse_cookie(headers, "couchers-sesh")
 
 
 def parse_user_id_cookie(headers: Mapping[str, str | bytes]) -> str | None:
     """
-    Returns our session cookie value (aka token) or None
+    Returns our user id cookie value or None
     """
-    if "cookie" not in headers:
-        return None
-
-    cookie_str = typing.cast(str, headers["cookie"])
-
-    # parse the cookie
-    cookie = http.cookies.SimpleCookie(cookie_str).get("couchers-user-id")
-
-    if not cookie:
-        return None
-
-    return cookie.value
+    return _parse_cookie(headers, "couchers-user-id")
 
 
 def parse_ui_lang_cookie(headers: Mapping[str, str | bytes]) -> str | None:
     """
     Returns language cookie or None
     """
-    if "cookie" not in headers:
-        return None
-
-    cookie_str = typing.cast(str, headers["cookie"])
-
-    # else parse the cookie & return its value
-    cookie = http.cookies.SimpleCookie(cookie_str).get("NEXT_LOCALE")
-
-    if not cookie:
-        return None
-
-    return cookie.value
+    return _parse_cookie(headers, "NEXT_LOCALE")
 
 
 def parse_api_key(headers: Mapping[str, str | bytes]) -> str | None:
@@ -343,6 +333,29 @@ def parse_api_key(headers: Mapping[str, str | bytes]) -> str | None:
         return None
 
     return authorization[7:]
+
+
+def parse_sofa_cookie(headers: Mapping[str, str | bytes]) -> str | None:
+    cookie_value = _parse_cookie(headers, "sofa")
+    if not cookie_value:
+        return None
+
+    try:
+        decode_sofa(cookie_value)
+        return cookie_value
+    except Exception:
+        return None
+
+
+def generate_sofa_cookie() -> tuple[str, str]:
+    sofa_value = encode_sofa(
+        create_sofa_id(),
+        internal_pb2.SofaPayload(
+            version=1,
+            created=Timestamp_from_datetime(now()),
+        ),
+    )
+    return sofa_value, _create_tasty_cookie("sofa", sofa_value, now() + timedelta(days=10000), httponly=True)
 
 
 def remove_duplicates_retain_order[T](list_: Sequence[T]) -> list[T]:

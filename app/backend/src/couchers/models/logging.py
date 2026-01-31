@@ -59,3 +59,5 @@ class APICall(Base, kw_only=True):
     # details of the browser, if available
     ip_address: Mapped[str | None] = mapped_column(String, default=None)
     user_agent: Mapped[str | None] = mapped_column(String, default=None)
+
+    sofa: Mapped[str | None] = mapped_column(String, default=None)
