@@ -1,3 +1,4 @@
+import dataclasses
 import logging
 
 from google.protobuf import empty_pb2
@@ -35,7 +36,9 @@ logger = logging.getLogger(__name__)
 
 
 def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
-    loc_context = LocContext.from_user(user) if config["ENABLE_NOTIFICATION_TRANSLATIONS"] else LocContext.EN_UTC
+    loc_context = LocContext.from_user(user)
+    if not config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
+        loc_context = dataclasses.replace(loc_context, locale="en")
 
     rendered = render_email_notification(notification, loc_context)
 
