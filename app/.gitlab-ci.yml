@@ -57,6 +57,24 @@ default:
     docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 .common_functions: &common_functions |
+    # Download protos from S3 if protos job didn't run (protos unchanged on feature branch).
+    # The tarball is uploaded by preview:protos on develop.
+    download_protos_if_needed() {
+      if [ ! -f "app/proto/gen/descriptors.pb" ]; then
+        echo "Protos not found, downloading from $RELEASE_BRANCH..."
+        if curl -fsSL "https://${RELEASE_BRANCH}--protos.${PREVIEW_DOMAIN}/all-protos.tar.gz" -o /tmp/all-protos.tar.gz; then
+          tar xzf /tmp/all-protos.tar.gz
+          echo "Downloaded protos from $RELEASE_BRANCH"
+        else
+          echo "ERROR: Failed to download protos from $RELEASE_BRANCH. The all-protos.tar.gz may not exist yet."
+          echo "This can happen if this is the first run after the CI changes, or if protos changed but the protos job didn't run."
+          exit 1
+        fi
+      else
+        echo "Using protos from CI artifacts"
+      fi
+    }
+
     # Build a Docker image using cache from latest "develop" build.
     # If this is a pipeline on "develop", push Docker build cache to the registry.
     # Usage:
@@ -107,15 +125,31 @@ protos:
     - cd app && ./generate_protos.sh
   artifacts:
     paths:
-      - app/
+      # Only include generated proto files, not the entire app/
+      - app/proto/gen/
+      - app/backend/src/couchers/proto/
+      - app/media/src/media/proto/
+      - app/web/proto/
+      - app/client/src/couchers/proto/
+      - app/proxy/descriptors.pb
+  rules:
+    # Always regenerate on develop so latest is available
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+    # On other branches, only if proto files or CI config changed
+    - changes:
+        - app/proto/**/*
+        - app/.gitlab-ci.yml
 
 build:proxy:
-  needs: ["protos"]
+  needs:
+    - job: protos
+      optional: true
   stage: build
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - *common_functions
+    - download_protos_if_needed
     - build "$PROXY_TAG" "$PROXY_RELEASE_TAG" "proxy" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
@@ -156,12 +190,15 @@ build:prometheus:
         - app/.gitlab-ci.yml
 
 build:backend:
-  needs: ["protos"]
+  needs:
+    - job: protos
+      optional: true
   stage: build
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - *common_functions
+    - download_protos_if_needed
     - build "$BACKEND_TAG" "$BACKEND_RELEASE_TAG" "backend" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
@@ -174,12 +211,15 @@ build:backend:
         - app/.gitlab-ci.yml
 
 build:media:
-  needs: ["protos"]
+  needs:
+    - job: protos
+      optional: true
   stage: build
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - *common_functions
+    - download_protos_if_needed
     - build "$MEDIA_TAG" "$MEDIA_RELEASE_TAG" "media" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
@@ -192,12 +232,15 @@ build:media:
         - app/.gitlab-ci.yml
 
 build:web-dev:
-  needs: ["protos"]
+  needs:
+    - job: protos
+      optional: true
   stage: build
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - *common_functions
+    - download_protos_if_needed
     - build "$WEB_DEV_TAG" "$WEB_DEV_RELEASE_TAG" "web" "$SLUG" --build-arg environment=next -f app/web/Dockerfile
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
@@ -212,12 +255,15 @@ build:web-dev:
       - saas-linux-large-amd64
 
 build:web:
-  needs: ["protos"]
+  needs:
+    - job: protos
+      optional: true
   stage: build
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - - *common_functions
+    - download_protos_if_needed
     # Add "--load" so that the image is saved locally for "docker create"
     - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
@@ -240,12 +286,15 @@ build:web:
       - artifacts/
 
 build:web-next:
-  needs: ["protos"]
+  needs:
+    - job: protos
+      optional: true
   stage: build
   variables:
     GIT_DEPTH: 0  # needed for "git rev-list --count" in default.before_script
   script:
     - *common_functions
+    - download_protos_if_needed
     # Add "--load" so that the image is saved locally for "docker create"
     - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
@@ -532,7 +581,9 @@ test:web-linting:
         - app/web/**/*
 
 test:mobile:
-  needs: ["protos"]
+  needs:
+    - job: protos
+      optional: true
   stage: test
   image: node:22
   inherit:
@@ -557,7 +608,9 @@ test:mobile:
         - app/mobile/**/*
 
 test:mobile-linting:
-  needs: ["protos"]
+  needs:
+    - job: protos
+      optional: true
   stage: test
   image: node:22
   inherit:
@@ -573,7 +626,9 @@ test:mobile-linting:
         - app/mobile/**/*
 
 test:mobile-typecheck:
-  needs: ["protos"]
+  needs:
+    - job: protos
+      optional: true
   stage: test
   image: node:22
   inherit:
@@ -796,13 +851,27 @@ preview:web-next:
       - app/web/**/*
 
 preview:protos:
-  needs: ["protos"]
+  needs:
+    - job: protos
+      optional: true
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
     # no docker login
     default: false
   script:
+    # Download protos from develop if protos job didn't run
+    - |
+      if [ ! -f "app/proto/gen/python.tar.gz" ]; then
+        echo "Protos not found, downloading from $RELEASE_BRANCH..."
+        if curl -fsSL "https://${RELEASE_BRANCH}--protos.${PREVIEW_DOMAIN}/all-protos.tar.gz" -o /tmp/all-protos.tar.gz; then
+          tar xzf /tmp/all-protos.tar.gz
+          echo "Downloaded protos from $RELEASE_BRANCH"
+        else
+          echo "Failed to download protos - this is expected on first run. Skipping preview:protos."
+          exit 0
+        fi
+      fi
     - python_sum=$(sha256sum app/proto/gen/python.tar.gz | head -c 64)
     - ts_sum=$(sha256sum app/proto/gen/ts.tar.gz | head -c 64)
     - pb_sum=$(sha256sum app/proto/gen/descriptors.pb | head -c 64)
@@ -812,6 +881,11 @@ preview:protos:
     - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key protos/$CI_COMMIT_REF_SLUG/ts.tar.gz --website-redirect-location https://protos--by-sha.$PREVIEW_DOMAIN/$ts_sum/ts.tar.gz
     - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key protos/$CI_COMMIT_REF_SLUG/python.tar.gz --website-redirect-location https://protos--by-sha.$PREVIEW_DOMAIN/$python_sum/python.tar.gz
     - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key protos/$CI_COMMIT_REF_SLUG/descriptors.pb --website-redirect-location https://protos--by-sha.$PREVIEW_DOMAIN/$pb_sum/descriptors.pb
+    # Create and upload full proto artifacts tarball for build jobs on feature branches
+    - tar czf all-protos.tar.gz app/proto/gen/ app/backend/src/couchers/proto/ app/media/src/media/proto/ app/web/proto/ app/client/src/couchers/proto/ app/proxy/descriptors.pb
+    - all_sum=$(sha256sum all-protos.tar.gz | head -c 64)
+    - aws s3 cp all-protos.tar.gz s3://$AWS_PREVIEW_BUCKET/by-sha/protos/$all_sum/all-protos.tar.gz
+    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key protos/$CI_COMMIT_REF_SLUG/all-protos.tar.gz --website-redirect-location https://protos--by-sha.$PREVIEW_DOMAIN/$all_sum/all-protos.tar.gz
     - >
       echo '<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:monospace}</style></head><body>'
       '<h1>Couchers generated protos @ <a href="https://github.com/Couchers-org/couchers/commit/'$CI_COMMIT_SHA'">'$CI_COMMIT_SHORT_SHA'</a>.</h1>'
@@ -848,6 +922,7 @@ wait:before-release:
   needs:
     - job: protos
       artifacts: false
+      optional: true
     - job: build:proxy
       artifacts: false
     - job: build:nginx
