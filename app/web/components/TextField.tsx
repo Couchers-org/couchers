@@ -4,8 +4,8 @@ import {
   TextFieldProps,
 } from "@mui/material";
 import { BaseTextFieldProps } from "@mui/material/TextField";
-import { useIsNativeEmbed } from "platform/nativeLink";
 import React, { forwardRef } from "react";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 const StyledMuiTextField = styled(MuiTextField)<TextFieldProps>(
   ({ theme, multiline }) => ({

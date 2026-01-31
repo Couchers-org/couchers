@@ -4,8 +4,8 @@ import { Trans, useTranslation } from "i18n";
 import { NOTIFICATIONS } from "i18n/namespaces";
 import { usePersistedState } from "platform/usePersistedState";
 import React, { useEffect, useState } from "react";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
-import { useIsNativeEmbed } from "../../platform/nativeLink";
 import { checkPushEnabled, turnPushNotificationsOn } from "./utils/helpers";
 
 const TIME_BETWEEN_NAGS_MS = 180 * 86400 * 1_000; // 180 days

@@ -88,6 +88,15 @@ export default {
         color: "#E47701",
       },
     ],
+    [
+      "expo-image-picker",
+      {
+        photosPermission:
+          "Allow Couchers to access your photos to upload to your profile.",
+        cameraPermission:
+          "Allow Couchers to access your camera to take profile photos.",
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,
