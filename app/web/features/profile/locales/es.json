@@ -289,7 +289,7 @@
   "response_time_text_almost_all": "Normalmente entre {{p33}} y {{p66}}",
   "unsaved_changes_warning": "No has guardado tus cambios. ¿De verdad deseas salir de esta página?",
   "profile_tag_input": {
-    "header_text": "Presiona 'Enter' para añadir\n<0>Envíanos un correo electrónico</0> para añadir una entrada",
+    "header_text": "Presiona 'Enter' para añadir\n<support_link>Envíanos un correo electrónico</support_link> para añadir una entrada",
     "remove_button_a11y_text": "Eliminar {{tag}}"
   },
   "view_in_admin_console": "Ver usuario en consola de administración",
