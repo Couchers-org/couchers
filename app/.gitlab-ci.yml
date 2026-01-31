@@ -238,6 +238,8 @@ build:web:
   artifacts:
     paths:
       - artifacts/
+  tags:
+    - saas-linux-large-amd64
 
 build:web-next:
   needs: ["protos"]
@@ -266,6 +268,8 @@ build:web-next:
   artifacts:
     paths:
       - artifacts/
+  tags:
+    - saas-linux-large-amd64
 
 build:nginx-next:
   needs: []
