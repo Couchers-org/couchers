@@ -8,8 +8,7 @@
       "problem_helper": "Stručný popis problému a jak ho reprodukovat",
       "expect_label": "Co se stalo? Co se mělo stát?",
       "expect_helper": "Stručný popis toho, co jste očekávali, že se stane místo toho",
-      "warning_message": "Vezmi prosím na vědomí, že tyto informace, stejně jako diagnostické údaje, včetně toho na které stránce se nacházíš, jaký používáš prohlížeč a tvé uživatelské jméno, budou uloženy do veřejného seznamu chyb.",
-      "success_message": "Děkujeme ti za nahlášení této chyby a za to, že pomáháš zlepšovat Couchers. Tvé hlásení bylo odesláno vývojářům! ID chyby je "
+      "warning_message": "Vezmi prosím na vědomí, že tyto informace, stejně jako diagnostické údaje, včetně toho na které stránce se nacházíš, jaký používáš prohlížeč a tvé uživatelské jméno, budou uloženy do veřejného seznamu chyb."
     },
     "flag": {
       "reason_required": "Důvod je vyžadován.",

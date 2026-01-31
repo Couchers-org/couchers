@@ -153,7 +153,6 @@
       "problem_helper": "Korte beschrijving van het probleem en hoe dit te reproduceren is",
       "expect_label": "Wat gebeurde er? Wat had er moeten gebeuren?",
       "expect_helper": "Korte beschrijving van wat je dacht dat er eigenlijk zou gebeuren",
-      "success_message": "Bedankt voor het doorgeven van deze bug. Samen maken we Couchers beter! De melding is doorgestuurd naar onze developers. Het bug-nummer is ",
       "warning_message": "Houd er rekening mee dat deze informatie, samen met diagnostische gegevens zoals op welke pagina je je bevindt, welke webbrowser je gebruikt en wat je gebruikersnaam is, wordt opgeslagen in een openbare lijst met bugs."
     },
     "content": {

@@ -106,8 +106,7 @@
       "problem_label": "¿Qué hiciste para activar el error?",
       "problem_helper": "Breve descripción del problema y cómo reproducirlo",
       "expect_label": "¿Qué pasó? ¿Qué debería haber pasado?",
-      "expect_helper": "Breve descripción de lo que esperaba que sucediera en su lugar",
-      "success_message": "¡Gracias por informar de ese error y mejorar Couchers, se ha enviado un informe a los desarrolladores! El ID del error es "
+      "expect_helper": "Breve descripción de lo que esperaba que sucediera en su lugar"
     },
     "title": "Informar de un problema",
     "content": {
