@@ -7,13 +7,13 @@ Before you can deploy, you need to set up AWS credentials and SSH access. These 
 
 ### AWS credentials
 
-1. Install the AWS CLI if you don't have it: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+1. Install the AWS CLI if you don't have it: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html (or use homebrew `brew install awscli`)
 2. Get AWS IAM credentials from Aapeli
 3. Configure the AWS CLI with a profile named `couchers`:
 
 ```sh
 aws configure --profile couchers
-# Enter your Access Key ID, Secret Access Key, and set region to us-east-1
+# Enter your Access Key ID, Secret Access Key, and set region to us-east-1 under Users > Security Credentials > Create Access Key
 ```
 
 ### SSH access
