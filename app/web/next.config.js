@@ -31,6 +31,16 @@ const nextConfig = {
   redirects: async () => redirects,
   headers: async () => [
     {
+      // Apple App Site Association and Android Asset Links need correct Content-Type
+      source: "/.well-known/:path*",
+      headers: [
+        {
+          key: "Content-Type",
+          value: "application/json",
+        },
+      ],
+    },
+    {
       source: "/:path*",
       headers: [
         {

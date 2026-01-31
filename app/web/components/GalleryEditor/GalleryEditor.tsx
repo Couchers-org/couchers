@@ -92,21 +92,21 @@ const EmptyState = styled(Box)(({ theme }) => ({
   alignItems: "center",
   justifyContent: "center",
   padding: theme.spacing(6),
-  backgroundColor: theme.palette.grey[50],
+  backgroundColor: "var(--mui-palette-grey-50)",
   borderRadius: theme.shape.borderRadius * 2,
-  border: `2px dashed ${theme.palette.grey[300]}`,
+  border: `2px dashed var(--mui-palette-grey-300)`,
   textAlign: "center",
   cursor: "pointer",
   transition: "all 0.2s ease",
   "&:hover": {
-    backgroundColor: theme.palette.grey[100],
-    borderColor: theme.palette.primary.main,
+    backgroundColor: "var(--mui-palette-grey-100)",
+    borderColor: "var(--mui-palette-primary-main)",
   },
 }));
 
 const EmptyStateIcon = styled(AddPhotoAlternate)(({ theme }) => ({
   fontSize: 64,
-  color: theme.palette.grey[400],
+  color: "var(--mui-palette-grey-400)",
   marginBottom: theme.spacing(2),
 }));
 
@@ -118,7 +118,7 @@ const LoadingContainer = styled(Box)(({ theme }) => ({
 }));
 
 const PhotoCountBadge = styled(Typography)(({ theme }) => ({
-  color: theme.palette.text.secondary,
+  color: "var(--mui-palette-text-secondary)",
   fontSize: "0.875rem",
 }));
 
@@ -194,12 +194,12 @@ export default function GalleryEditor({
   const handleUploadClick = async () => {
     // Use native image picker in mobile app (WebView file input crashes)
     if (isNative) {
-      setIsUploading(true);
       setUploadError(null);
       setShowUploadSuccess(false);
       try {
         const result = await pickImage();
         if (result.success) {
+          setIsUploading(true);
           // Convert base64 to File and upload using existing service
           const file = base64ToFile(
             result.imageBase64,
@@ -523,7 +523,10 @@ export default function GalleryEditor({
                   marginTop: 1,
                 }}
               >
-                <InfoOutlined fontSize="small" sx={{ color: "primary.main" }} />
+                <InfoOutlined
+                  fontSize="small"
+                  sx={{ color: "var(--mui-palette-primary-main)" }}
+                />
                 <Typography
                   variant="body2"
                   color="var(--mui-palette-text-secondary)"
@@ -577,14 +580,20 @@ export default function GalleryEditor({
             <Typography variant="h3" gutterBottom>
               {t("profile:gallery.empty_title")}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="var(--mui-palette-text-secondary)"
+            >
               {t("profile:gallery.empty_description")}
             </Typography>
           </EmptyState>
         ) : (
-          <EmptyState sx={{ cursor: "default", "&:hover": {} }}>
+          <EmptyState sx={{ cursor: "default" }}>
             <EmptyStateIcon />
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="var(--mui-palette-text-secondary)"
+            >
               {t("profile:gallery.no_photos")}
             </Typography>
           </EmptyState>

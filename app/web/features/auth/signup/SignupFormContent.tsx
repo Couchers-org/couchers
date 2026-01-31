@@ -5,7 +5,7 @@ import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { GetSignupPageInfoRes } from "proto/public_pb";
 import { useEffect, useState } from "react";
-import { baseRoute, tosRoute } from "routes";
+import { baseRoute, landingRoute, tosRoute } from "routes";
 
 import { useAuthContext } from "../AuthProvider";
 import AccountForm from "./AccountForm";
@@ -68,7 +68,10 @@ export default function SignupFormContent({
           >
             Travel, host, and connect with{" "}
             {{ user_count: signupInfo?.userCount || "56k" }} members.{" "}
-            <StyledLink href={baseRoute}>Learn more about us</StyledLink>.
+            <StyledLink href={landingRoute} target="_blank">
+              Learn more about us
+            </StyledLink>
+            .
           </Trans>
         </Typography>
         <BasicForm

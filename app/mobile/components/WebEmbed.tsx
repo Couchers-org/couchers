@@ -144,6 +144,9 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       return;
     }
 
+    // Reset retry count on successful page load
+    retryCountRef.current = 0;
+
     const normalizedUrl = url.split("#")[0];
 
     // Prevent navigation to external sites
