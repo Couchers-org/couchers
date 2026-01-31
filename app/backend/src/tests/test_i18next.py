@@ -16,6 +16,12 @@ def test_substitution():
     assert i18next.localize("greeting", "en", {"name": "world"}) == "hello world!"
 
 
+def test_placeholder_with_spacing():
+    i18next = I18Next()
+    i18next.add_language("en", PluralRules.en).add_string("greeting", "hello {{ name }}!")
+    assert i18next.localize("greeting", "en", {"name": "world"}) == "hello world!"
+
+
 def test_localized():
     i18next = I18Next()
     en = i18next.add_language("en", PluralRules.en)
