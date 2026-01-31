@@ -100,7 +100,7 @@ CALL_CANCELLED_ERROR_MESSAGE = "Call cancelled."
 UNAUTHORIZED_ERROR_MESSAGE = "Unauthorized"
 PERMISSION_DENIED_ERROR_MESSAGE = "Permission denied"
 
-GHOST_USERNAME = "ghost"
+GHOST_USERNAME = "deactivated-account"
 
 # Donation drive start date - set to None to disable donation drive banner
 # When set, users who haven't donated since this date will see a donation banner
