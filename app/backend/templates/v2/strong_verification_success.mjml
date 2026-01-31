@@ -1,7 +1,7 @@
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-    <mj-text>{{ message|v2sf }}</mj-text>
+    <mj-text>Hi {{ user.name }},</mj-text>
+    <mj-text>{{ message }}</mj-text>
     <mj-text>Thanks for verifying—you're helping make Couchers.org safer for everyone.</mj-text>
     <mj-text>Verification is free for you, but it does come at a cost to us. As a nonprofit run by volunteers, we rely on donations to cover expenses like keeping our servers running, verification, and tools for volunteers and community builders.</mj-text>
     <mj-text>If you're able, please consider donating to help keep Couchers.org running and growing.</mj-text>

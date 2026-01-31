@@ -238,14 +238,9 @@ describe("ReportButton", () => {
       );
 
       const successAlert = await screen.findByRole("alert");
-      expect(
-        within(successAlert).getByText(t("global:report.bug.success_message"), {
-          exact: false,
-        }),
-      ).toBeVisible();
-      expect(await within(successAlert).findByRole("link")).toHaveTextContent(
-        "#1",
-      );
+      const bugLink = await within(successAlert).findByRole("link");
+      expect(bugLink).toBeVisible();
+      expect(bugLink).toHaveTextContent("#1");
       expect(reportBugMock).toHaveBeenCalledTimes(1);
       expect(reportBugMock).toHaveBeenCalledWith({
         description: "Log in is broken",

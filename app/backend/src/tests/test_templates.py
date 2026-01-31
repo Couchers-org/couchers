@@ -1,8 +1,10 @@
 # Tests jinja template rendering
 
+from datetime import date
 from typing import Any
-from unittest.mock import patch
 from zoneinfo import ZoneInfo
+
+from markupsafe import Markup
 
 from couchers.i18n.i18next import I18Next
 from couchers.i18n.plurals import PluralRules
@@ -14,85 +16,133 @@ from couchers.templates.v2 import (
 
 def _render_template(
     template_str: str,
-    translation_dict: dict[str, dict[str, str]],
-    template_args: dict[str, Any] | None = None,
-    plain: bool = False,
+    *,
+    args: dict[str, Any] | None = None,
+    translation_dict: dict[str, dict[str, str]] | None = None,
+    output_html: bool = True,
     lang: str = "en",
 ) -> str:
     mock_i18next = I18Next()
-    for lang_code, strings in translation_dict.items():
-        language = mock_i18next.add_language(lang_code, PluralRules.en)
-        language.load_json_dict(strings)
+    if translation_dict:
+        for lang_code, strings in translation_dict.items():
+            language = mock_i18next.add_language(lang_code, PluralRules.en)
+            language.load_json_dict(strings)
 
-    with patch("couchers.i18n.localize.get_main_i18next", new=lambda: mock_i18next):
-        return render_template(
-            template_str, template_args or {}, Context(timezone=ZoneInfo("Etc/UTC"), locale=lang, plaintext=plain)
-        )
+    context = Context(output_html=output_html, i18next=mock_i18next, locale=lang, timezone=ZoneInfo("Etc/UTC"))
+
+    return render_template(template_str, args or {}, context)
+
+
+def test_multiline() -> None:
+    rendered = _render_template("{{ text|multiline }}", args={"text": "a\nb"}, output_html=False)
+    assert rendered == "a\nb"
+
+    rendered = _render_template("{{ text|multiline }}", args={"text": "a\nb"}, output_html=True)
+    assert rendered == "a<br>b"
+
+
+def test_quotelines() -> None:
+    rendered = _render_template("{{ text|quotelines }}", args={"text": "a\nb"}, output_html=False)
+    assert rendered == "> a\n> b"
+
+
+def test_html_escaping() -> None:
+    rendered = _render_template("Hello {{ name }}!", args={"name": "<script />"}, output_html=True)
+    assert rendered == "Hello &lt;script /&gt;!"
+
+
+def test_safe_html() -> None:
+    rendered = _render_template("Hello {{ name|html }}!", args={"name": "<script />"}, output_html=True)
+    assert rendered == "Hello <script />!"
+
+
+def test_date_formatting() -> None:
+    the_date = date(1970, 1, 1)
+    rendered = _render_template("Date: {{ date }}", args={"date": the_date}, lang="en")
+    assert rendered == "Date: Thursday 1 January 1970"
 
 
 def _greeting_dict(value: str) -> dict[str, dict[str, str]]:
     return {"en": {"greeting": value}}
 
 
-def test_v2translate_no_substitutions() -> None:
-    translated = _render_template(
-        template_str='{{ "greeting"|v2translate }}', translation_dict=_greeting_dict("Hello!")
-    )
-    assert translated == "Hello!"
+def test_translate_no_substitutions() -> None:
+    rendered = _render_template('{{ "greeting"|translate }}', translation_dict=_greeting_dict("Hello!"))
+    assert rendered == "Hello!"
 
 
-def test_v2translate_multiple_languages() -> None:
-    translated = _render_template(
-        template_str='{{ "greeting"|v2translate }}',
-        lang="fr",
+def test_translate_multiple_languages() -> None:
+    rendered = _render_template(
+        '{{ "greeting"|translate }}',
         translation_dict={"en": {"greeting": "Hello!"}, "fr": {"greeting": "Bonjour!"}},
+        lang="fr",
     )
-    assert translated == "Bonjour!"
+    assert rendered == "Bonjour!"
 
 
-def test_v2translate_with_substitutions() -> None:
-    translated = _render_template(
-        template_str='{{ "greeting"|v2translate(name=user_name) }}',
-        template_args={"user_name": "Jack"},
+def test_translate_with_substitutions() -> None:
+    rendered = _render_template(
+        '{{ "greeting"|translate(name=user_name) }}',
+        args={"user_name": "Jack"},
         translation_dict=_greeting_dict("Hello, {{name}}!"),
     )
-    assert translated == "Hello, Jack!"
+    assert rendered == "Hello, Jack!"
 
 
-def test_v2translate_escaping() -> None:
-    translated = _render_template(
-        template_str='{{ "greeting"|v2translate(name=name) }}',
-        template_args={"name": "<script />"},
+def test_translate_substitution_escaping() -> None:
+    rendered = _render_template(
+        '{{ "greeting"|translate(name=name) }}',
+        args={"name": "<script />"},
         translation_dict=_greeting_dict("Hello, {{name}}!"),
+        output_html=True,
     )
-    assert translated == "Hello, &lt;script /&gt;!"
+    assert rendered == "Hello, &lt;script /&gt;!"
 
 
-def test_v2translate_translation_tags() -> None:
-    translated = _render_template(
-        template_str='{{ "greeting"|v2translate }}', translation_dict=_greeting_dict("<b>Hello!</b>")
+def test_translate_substitution_safe_html() -> None:
+    rendered = _render_template(
+        '{{ "greeting"|translate(name=name) }}',
+        args={"name": Markup("<script />")},
+        translation_dict=_greeting_dict("Hello, {{name}}!"),
+        output_html=True,
     )
-    assert translated == "<b>Hello!</b>"
+    assert rendered == "Hello, <script />!"
 
 
-def test_v2translate_newlines_br() -> None:
-    translated = _render_template(
-        template_str='{{ "greeting"|v2translate }}', translation_dict=_greeting_dict("Hello!\nWelcome!")
+def test_translate_translation_tags() -> None:
+    rendered = _render_template(
+        '{{ "greeting"|translate }}', translation_dict=_greeting_dict("<b>Hello!</b>"), output_html=True
     )
-    assert translated == "Hello!<br>Welcome!"
+    assert rendered == "<b>Hello!</b>"
 
 
-def test_v2translate_plain_strip_tags() -> None:
-    translated = _render_template(
-        template_str='{{ "greeting"|v2translate }}', plain=True, translation_dict=_greeting_dict("<b>Hello!</b>")
+def test_translate_newlines_br() -> None:
+    rendered = _render_template(
+        '{{ "greeting"|translate }}', translation_dict=_greeting_dict("Hello!\nWelcome!"), output_html=True
     )
-    assert translated == "Hello!"
+    assert rendered == "Hello!<br>Welcome!"
 
 
-def test_v2translate_plain_strip_links() -> None:
-    translated = _render_template(
-        template_str='{{ "greeting"|v2translate }}',
-        plain=True,
-        translation_dict=_greeting_dict('<a href="#foo">Hello!</a>'),
+def test_translate_plain_strip_tags() -> None:
+    rendered = _render_template(
+        '{{ "greeting"|translate }}', translation_dict=_greeting_dict("<b>Hello!</b>"), output_html=False
     )
-    assert translated == "<Hello!>"
+    assert rendered == "Hello!"
+
+
+def test_translate_plain_strip_links() -> None:
+    rendered = _render_template(
+        '{{ "greeting"|translate }}',
+        translation_dict=_greeting_dict('<a href="https://example.com">Hello!</a>'),
+        output_html=False,
+    )
+    assert rendered == "<https://example.com>"
+
+
+def test_translate_plain_strip_mailto() -> None:
+    rendered = _render_template(
+        '{{ "greeting"|translate }}',
+        translation_dict=_greeting_dict('<a href="mailto:me@example.com">Hello!</a>'),
+        output_html=False,
+    )
+    assert rendered == "<me@example.com>"
