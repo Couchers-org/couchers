@@ -1,3 +1,4 @@
+import html
 import re
 from datetime import timedelta
 from urllib.parse import parse_qs, urlparse
@@ -1414,7 +1415,7 @@ def test_quick_decline(db, push_collector: PushCollector, moderator):
         if "payload" not in link:
             continue
         print(link)
-        url_parts = urlparse(link)
+        url_parts = urlparse(html.unescape(link))
         params = parse_qs(url_parts.query)
         print(params["payload"][0])
         payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))

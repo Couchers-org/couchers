@@ -1,7 +1,7 @@
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-    <mj-text><b>{{ from_user.name|v2esc }} just wrote a reference for you</b> from when you {% if surfed %}surfed with{% else %}hosted{% endif %} them.</mj-text>
+    <mj-text>Hi {{ user.name }},</mj-text>
+    <mj-text><b>{{ from_user.name }} just wrote a reference for you</b> from when you {% if surfed %}surfed with{% else %}hosted{% endif %} them.</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px" text-align="left">
@@ -12,7 +12,7 @@
           <img width="80px" style="border-radius: 80px" src="{{ from_user.avatar_url }}" />
         </td>
         <td>
-          <b>{{ from_user.name|v2esc }}</b>, {{ from_user.age|v2esc }}<br />{{ from_user.city|v2esc }}
+          <b>{{ from_user.name }}</b>, {{ from_user.age }}<br />{{ from_user.city }}
         </td>
       </tr>
     </mj-table>
@@ -26,12 +26,12 @@
 </mj-section>
 <mj-section padding="10px 20px" text-align="left">
   <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
-    <mj-text>{{ text|v2esc|v2multiline }}</mj-text>
+    <mj-text>{{ text|multiline }}</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ profile_references_link|v2url }}">
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ profile_references_link }}">
       <b>View the reference on your profile</b>
     </mj-button>
   </mj-column>
@@ -39,13 +39,13 @@
 <!-- {% else %} -->
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>Please go and write a reference for them too. It's a nice gesture and helps us build a community together! When you've both written a reference, both references will become visible. Otherwise {{ from_user.name|v2esc }}'s reference will become visible 2 weeks after the end of your interaction, after which you cannot write a reference back.</mj-text>
+    <mj-text>Please go and write a reference for them too. It's a nice gesture and helps us build a community together! When you've both written a reference, both references will become visible. Otherwise {{ from_user.name }}'s reference will become visible 2 weeks after the end of your interaction, after which you cannot write a reference back.</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ leave_reference_link|v2url }}">
-      <b>Write a reference for {{ from_user.name|v2esc }}</b>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ leave_reference_link }}">
+      <b>Write a reference for {{ from_user.name }}</b>
     </mj-button>
   </mj-column>
 </mj-section>

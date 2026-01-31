@@ -7,12 +7,12 @@ The following information was updated: {{ updated_text }}. Here is the updated e
 {{ event.title }}
 {{ time_display }}
 
-{% if event.online_information.link %}<a href="{{ event.online_information.link|v2url }}">Online</a>{% endif %}{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}
+{% if event.online_information.link %}<a href="{{ event.online_information.link }}">Online</a>{% endif %}{% if event.offline_information.address %}{{ event.offline_information.address }}{% endif %}
 
 Updated by {{ updating_user.name }}
 
 
-{{ event.content|v2quote }}
+{{ event.content|quotelines }}
 
 
 

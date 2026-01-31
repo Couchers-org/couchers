@@ -1,13 +1,13 @@
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-    <mj-text>You requested that your email be changed to this email address on Couchers.org. Your old email address is <b>{{ user.email|v2esc }}</b>. This is the final step in the process.</mj-text>
+    <mj-text>Hi {{ user.name }},</mj-text>
+    <mj-text>You requested that your email be changed to this email address on Couchers.org. Your old email address is <b>{{ user.email }}</b>. This is the final step in the process.</mj-text>
     <mj-text>To complete this change, please confirm your email by clicking the following link:</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ confirmation_link|v2url }}">
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ confirmation_link }}">
       <b>Confirm new email</b>
     </mj-button>
   </mj-column>
