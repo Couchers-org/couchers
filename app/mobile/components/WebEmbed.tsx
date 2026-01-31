@@ -32,6 +32,7 @@ import {
 import { useAuthContext } from "@/features/auth/AuthContext";
 import errorGraphic from "@/resources/404graphic.png";
 import { theme } from "@/theme";
+import { privacyPolicyRoute, tosRoute } from "../routes";
 
 type WebEmbedProps = {
   path: string;
@@ -153,6 +154,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
     // Skip external URLs - they're handled by onShouldStartLoadWithRequest
     if (!normalizedUrl.startsWith(WEB_BASE_URL)) {
+      console.log("*****SKIPPING EXTERNAL URL*****", normalizedUrl);
       return;
     }
 
@@ -345,6 +347,10 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
   // URLs that should always load inside the WebView (not opened externally)
   const shouldLoadInWebView = (url: string): boolean => {
+    // Exceptions
+    if (url.includes(tosRoute) || url.includes(privacyPolicyRoute))
+      return false;
+
     // Internal app URLs
     if (url.startsWith(WEB_BASE_URL)) return true;
 
