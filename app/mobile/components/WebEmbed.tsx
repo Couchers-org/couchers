@@ -1,4 +1,9 @@
-import * as ImagePicker from "expo-image-picker";
+import {
+  ImagePickerResult,
+  launchCameraAsync,
+  launchImageLibraryAsync,
+  requestCameraPermissionsAsync,
+} from "expo-image-picker";
 import { Href, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -206,10 +211,10 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     // Show action sheet to choose camera or library
     const showPicker = async (source: "camera" | "library") => {
       try {
-        let result: ImagePicker.ImagePickerResult;
+        let result: ImagePickerResult;
 
         if (source === "camera") {
-          const { status } = await ImagePicker.requestCameraPermissionsAsync();
+          const { status } = await requestCameraPermissionsAsync();
           if (status !== "granted") {
             sendImagePickResult({
               success: false,
@@ -217,7 +222,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
             });
             return;
           }
-          result = await ImagePicker.launchCameraAsync({
+          result = await launchCameraAsync({
             mediaTypes: ["images"],
             allowsEditing: true,
             aspect: [1, 1],
@@ -225,7 +230,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
             base64: true, // Get base64 data to send to web app
           });
         } else {
-          result = await ImagePicker.launchImageLibraryAsync({
+          result = await launchImageLibraryAsync({
             mediaTypes: ["images"],
             allowsEditing: true,
             aspect: [1, 1],
