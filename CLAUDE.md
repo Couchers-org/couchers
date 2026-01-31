@@ -1,8 +1,10 @@
 # Claude Code Instructions for Couchers
 
-## Repository Structure
+## Summary
 
-This is a monorepo for Couchers.org, a non-profit hospitality exchange platform.
+This is a monorepo for Couchers.org, a non-profit couch surfing platform. Users sign up and can be hosts (offering their couch/spare room to travelers), surfers (requesting to stay with hosts), community members (attending events, joining discussions, and building local communities), or any combination. Core features include user profiles with hosting preferences, sending and responding to couch requests, messaging between users, community features like events and discussions organized by local communities, and a reference system for building trust. The platform emphasizes safety, community building, and keeping the service free and community-owned.
+
+## Repository Structure
 
 - `/app/backend` - Python backend (gRPC, SQLAlchemy, PostgreSQL/PostGIS)
 - `/app/web` - Next.js web frontend
