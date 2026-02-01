@@ -104,7 +104,7 @@ from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.postal.postcard_service import send_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
-from couchers.proto.internal import jobs_pb2, verification_pb2
+from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.events import (
@@ -891,7 +891,7 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
         if response.status_code != 200:
             raise Exception(f"Iris didn't return 200: {response.text}")
         json_data = response.json()
-        reference_payload = verification_pb2.VerificationReferencePayload.FromString(
+        reference_payload = internal_pb2.VerificationReferencePayload.FromString(
             simple_decrypt("iris_callback", b64decode(json_data["reference"]))
         )
         assert verification_attempt.user_id == reference_payload.user_id

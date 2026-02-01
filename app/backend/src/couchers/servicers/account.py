@@ -61,7 +61,7 @@ from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from couchers.proto.google.api import httpbody_pb2
-from couchers.proto.internal import jobs_pb2, verification_pb2
+from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.servicers.api import lite_user_to_pb
 from couchers.servicers.public import format_volunteer_link
 from couchers.servicers.references import get_pending_references_to_write, reftype2api
@@ -437,7 +437,7 @@ class Account(account_pb2_grpc.AccountServicer):
         reference = b64encode(
             simple_encrypt(
                 "iris_callback",
-                verification_pb2.VerificationReferencePayload(
+                internal_pb2.VerificationReferencePayload(
                     verification_attempt_token=verification_attempt_token,
                     user_id=user.id,
                 ).SerializeToString(),
@@ -837,7 +837,7 @@ class Iris(iris_pb2_grpc.IrisServicer):
         self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
     ) -> httpbody_pb2.HttpBody:
         json_data = json.loads(request.data)
-        reference_payload = verification_pb2.VerificationReferencePayload.FromString(
+        reference_payload = internal_pb2.VerificationReferencePayload.FromString(
             simple_decrypt("iris_callback", b64decode(json_data["session_reference"]))
         )
         # if we make it past the decrypt, we consider this webhook authenticated

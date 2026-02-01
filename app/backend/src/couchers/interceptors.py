@@ -37,9 +37,11 @@ from couchers.proto.annotations_pb2 import AuthLevel
 from couchers.utils import (
     create_lang_cookie,
     create_session_cookies,
+    generate_sofa_cookie,
     now,
     parse_api_key,
     parse_session_cookie,
+    parse_sofa_cookie,
     parse_ui_lang_cookie,
     parse_user_id_cookie,
 )
@@ -200,6 +202,7 @@ def _store_log(
     perf_report: str | None = None,
     ip_address: str | None,
     user_agent: str | None,
+    sofa: str | None,
 ) -> None:
     req_bytes = _sanitized_bytes(request)
     res_bytes = _sanitized_bytes(response)
@@ -223,6 +226,7 @@ def _store_log(
                 perf_report=perf_report,
                 ip_address=ip_address,
                 user_agent=user_agent,
+                sofa=sofa,
             )
         )
     logger.debug(f"{user_id=}, {method=}, {duration=} ms")
@@ -282,6 +286,12 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         if not (prev_function := handler.unary_unary):
             raise RuntimeError(f"No prev_function in '{method}', {handler}")
 
+        if headers.sofa:
+            sofa = headers.sofa
+            new_sofa_cookie = None
+        else:
+            sofa, new_sofa_cookie = generate_sofa_cookie()
+
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
             couchers_context = make_interactive_context(
                 grpc_context=grpc_context,
@@ -306,6 +316,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         response=res,
                         ip_address=headers.ip_address,
                         user_agent=headers.user_agent,
+                        sofa=sofa,
                     )
                     observe_in_servicer_duration_histogram(method, couchers_context._user_id, "", "", duration / 1000)
                 except Exception as e:
@@ -330,6 +341,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                         traceback=traceback,
                         ip_address=headers.ip_address,
                         user_agent=headers.user_agent,
+                        sofa=sofa,
                     )
                     observe_in_servicer_duration_histogram(
                         method, couchers_context._user_id, code or "", type(e).__name__, duration / 1000
@@ -350,6 +362,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     )
                 if auth_info.ui_language_preference and auth_info.ui_language_preference != headers.ui_lang:
                     couchers_context.set_cookies(create_lang_cookie(auth_info.ui_language_preference))
+
+            if new_sofa_cookie:
+                couchers_context.set_cookies([new_sofa_cookie])
 
             if not grpc_context.is_active():
                 grpc_context.abort(grpc.StatusCode.INTERNAL, CALL_CANCELLED_ERROR_MESSAGE)
@@ -373,6 +388,7 @@ class CouchersHeaders:
     user_agent: str | None
     ui_lang: str | None
     user_id: str | None
+    sofa: str | None
 
 
 def parse_headers(headers: Mapping[str, str | bytes]) -> CouchersHeaders:
@@ -394,6 +410,7 @@ def parse_headers(headers: Mapping[str, str | bytes]) -> CouchersHeaders:
 
     ui_lang = parse_ui_lang_cookie(headers)
     user_id = parse_user_id_cookie(headers)
+    sofa = parse_sofa_cookie(headers)
 
     return CouchersHeaders(
         token=token,
@@ -402,6 +419,7 @@ def parse_headers(headers: Mapping[str, str | bytes]) -> CouchersHeaders:
         user_agent=user_agent if isinstance(user_agent, str) else None,
         ui_lang=ui_lang,
         user_id=user_id,
+        sofa=sofa,
     )
 
 
