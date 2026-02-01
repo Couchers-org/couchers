@@ -23,7 +23,7 @@ from couchers.i18n.localize import get_main_i18next
 
 logger = logging.getLogger(__name__)
 
-template_folder = Path(__file__).parent / ".." / ".." / "templates" / "emails"
+template_folder = Path(__file__).parent / ".." / ".." / "templates" / "v2"
 
 _markdown = MarkdownIt("zero", {"typographer": True}).enable(
     ["smartquotes", "heading", "hr", "list", "link", "emphasis"]
