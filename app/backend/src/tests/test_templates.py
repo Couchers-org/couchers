@@ -9,33 +9,11 @@ from markupsafe import Markup
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next
 from couchers.i18n.plurals import PluralRules
-from couchers.templates.v2 import Jinja2Template
-
-
-def _render_template(
-    template_str: str,
-    *,
-    args: dict[str, Any] | None = None,
-    translation_dict: dict[str, dict[str, str]] | None = None,
-    output_html: bool = True,
-    lang: str = "en",
-) -> str:
-    mock_i18next = I18Next()
-    if translation_dict:
-        for lang_code, strings in translation_dict.items():
-            language = mock_i18next.add_language(lang_code, PluralRules.en)
-            language.load_json_dict(strings)
-
-    template = Jinja2Template(source=template_str, html=output_html)
-    loc_context = LocalizationContext(locale=lang, timezone=ZoneInfo("Etc/UTC"))
-    return template.render(args or {}, loc_context, i18next=mock_i18next)
-
-
-_en_utc_loc_context = LocalizationContext(locale="en", timezone=ZoneInfo("Etc/UTC"))
+from couchers.templating import Jinja2Template
 
 
 def _render_en_utc(template: Jinja2Template, args: dict[str, Any]) -> str:
-    return template.render(args, _en_utc_loc_context, i18next=I18Next())
+    return template.render(args, LocalizationContext.en_utc(), i18next=I18Next())
 
 
 def test_multiline() -> None:
@@ -80,18 +58,10 @@ def _greeting_i18next(value: str) -> I18Next:
     return i18next
 
 
-def _i18next_from_dict(value: dict[str, dict[str, str]]) -> I18Next:
-    i18next = I18Next()
-    for lang_code, strings in value.items():
-        language = i18next.add_language(lang_code, PluralRules.en)
-        language.load_json_dict(strings)
-    return i18next
-
-
 def test_translate_no_substitutions() -> None:
     template = Jinja2Template(source='{{ "greeting"|translate }}', html=False)
     i18next = _greeting_i18next("Hello!")
-    rendered = template.render({}, _en_utc_loc_context, i18next)
+    rendered = template.render({}, LocalizationContext.en_utc(), i18next)
     assert rendered == "Hello!"
 
 
@@ -108,54 +78,54 @@ def test_translate_multiple_languages() -> None:
 def test_translate_with_substitutions() -> None:
     template = Jinja2Template(source='{{ "greeting"|translate(name=user_name) }}', html=False)
     i18next = _greeting_i18next("Hello, {{name}}!")
-    rendered = template.render({"user_name": "Jack"}, _en_utc_loc_context, i18next)
+    rendered = template.render({"user_name": "Jack"}, LocalizationContext.en_utc(), i18next)
     assert rendered == "Hello, Jack!"
 
 
 def test_translate_substitution_escaping() -> None:
     template = Jinja2Template(source='{{ "greeting"|translate(name=name) }}', html=True)
     i18next = _greeting_i18next("Hello, {{name}}!")
-    rendered = template.render({"name": "<script />"}, _en_utc_loc_context, i18next)
+    rendered = template.render({"name": "<script />"}, LocalizationContext.en_utc(), i18next)
     assert rendered == "Hello, &lt;script /&gt;!"
 
 
 def test_translate_substitution_safe_html() -> None:
     template = Jinja2Template(source='{{ "greeting"|translate(name=name) }}', html=True)
     i18next = _greeting_i18next("Hello, {{name}}!")
-    rendered = template.render({"name": Markup("<script />")}, _en_utc_loc_context, i18next)
+    rendered = template.render({"name": Markup("<script />")}, LocalizationContext.en_utc(), i18next)
     assert rendered == "Hello, <script />!"
 
 
 def test_translate_translation_tags() -> None:
     template = Jinja2Template(source='{{ "greeting"|translate }}', html=True)
     i18next = _greeting_i18next("<b>Hello!</b>")
-    rendered = template.render({}, _en_utc_loc_context, i18next)
+    rendered = template.render({}, LocalizationContext.en_utc(), i18next)
     assert rendered == "<b>Hello!</b>"
 
 
 def test_translate_newlines_br() -> None:
     template = Jinja2Template(source='{{ "greeting"|translate }}', html=True)
     i18next = _greeting_i18next("Hello!\nWelcome!")
-    rendered = template.render({}, _en_utc_loc_context, i18next)
+    rendered = template.render({}, LocalizationContext.en_utc(), i18next)
     assert rendered == "Hello!<br>Welcome!"
 
 
 def test_translate_plain_strip_tags() -> None:
     template = Jinja2Template(source='{{ "greeting"|translate }}', html=False)
     i18next = _greeting_i18next("<b>Hello!</b>")
-    rendered = template.render({}, _en_utc_loc_context, i18next)
+    rendered = template.render({}, LocalizationContext.en_utc(), i18next)
     assert rendered == "Hello!"
 
 
 def test_translate_plain_strip_links() -> None:
     template = Jinja2Template(source='{{ "greeting"|translate }}', html=False)
     i18next = _greeting_i18next('<a href="https://example.com">Hello!</a>')
-    rendered = template.render({}, _en_utc_loc_context, i18next)
+    rendered = template.render({}, LocalizationContext.en_utc(), i18next)
     assert rendered == "<https://example.com>"
 
 
 def test_translate_plain_strip_mailto() -> None:
     template = Jinja2Template(source='{{ "greeting"|translate }}', html=False)
     i18next = _greeting_i18next('<a href="mailto:me@example.com">Hello!</a>')
-    rendered = template.render({}, _en_utc_loc_context, i18next)
+    rendered = template.render({}, LocalizationContext.en_utc(), i18next)
     assert rendered == "<me@example.com>"

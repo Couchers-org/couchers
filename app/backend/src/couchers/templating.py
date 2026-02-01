@@ -1,5 +1,5 @@
 """
-template mailer/push notification formatter v2
+Provides string templating functionality using jinja2, with custom filters for localization.
 """
 
 import logging
@@ -23,9 +23,9 @@ from couchers.i18n.localize import get_main_i18next
 
 logger = logging.getLogger(__name__)
 
-template_folder = Path(__file__).parent / ".." / ".." / ".." / "templates" / "v2"
+template_folder = Path(__file__).parent / ".." / ".." / "templates" / "emails"
 
-md = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading", "hr", "list", "link", "emphasis"])
+_markdown = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading", "hr", "list", "link", "emphasis"])
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -131,7 +131,7 @@ def _filter_markdown(jinja_context: JinjaContext, value: str) -> Markup:
     """Renders markdown into html."""
     filter_context = _FilterContext.from_jinja(jinja_context)
     if filter_context.output_html:
-        return Markup(md.render(value))
+        return Markup(_markdown.render(value))
     else:
         return Markup(value)
 

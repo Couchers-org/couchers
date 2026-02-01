@@ -29,7 +29,7 @@ from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import moderation_state_column_visible
-from couchers.templates.v2 import Jinja2Template, template_folder
+from couchers.templating import Jinja2Template, template_folder
 from couchers.utils import now
 
 logger = logging.getLogger(__name__)
