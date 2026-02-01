@@ -337,6 +337,7 @@
     "photo_viewer_aria": "Photo viewer",
     "previous_photo": "Previous photo",
     "next_photo": "Next photo",
-    "close_viewer": "Close photo viewer"
+    "close_viewer": "Close photo viewer",
+    "report_photo": "Report Photo"
   }
 }

@@ -1,14 +1,22 @@
 import { ArrowBackIos, ArrowForwardIos, Close } from "@mui/icons-material";
 import { Box, IconButton, Modal, styled, Typography } from "@mui/material";
+import { FlagIcon } from "components/Icons";
+import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import { useCallback, useEffect, useState } from "react";
 
 interface PhotoLightboxProps {
-  photos: Array<{ fullUrl: string; thumbnailUrl: string; caption?: string }>;
+  photos: Array<{
+    fullUrl: string;
+    thumbnailUrl: string;
+    caption?: string;
+    itemId?: number;
+  }>;
   initialIndex: number;
   open: boolean;
   onClose: () => void;
+  galleryOwnerId?: number;
 }
 
 const Backdrop = styled(Box)({
@@ -180,8 +188,34 @@ const ThumbnailImage = styled("img")<{ isActive: boolean }>(
   }),
 );
 
+const ReportButtonContainer = styled("div")(({ theme }) => ({
+  position: "absolute",
+  bottom: theme.spacing(16),
+  left: "50%",
+  transform: "translateX(-50%)",
+  backgroundColor: "rgba(0, 0, 0, 0.7)",
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(1, 2),
+  borderRadius: theme.shape.borderRadius,
+  border: "2px solid rgba(255, 255, 255, 0.9)",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+  transition: "all 0.2s ease",
+  zIndex: 10,
+  cursor: "pointer",
+  "&:hover": {
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+    borderColor: theme.palette.primary.main,
+  },
+  [theme.breakpoints.down("sm")]: {
+    bottom: theme.spacing(14),
+    padding: theme.spacing(0.75, 1.5),
+  },
+}));
+
 export default function PhotoLightbox(props: PhotoLightboxProps) {
-  const { photos, initialIndex, open, onClose } = props;
+  const { photos, initialIndex, open, onClose, galleryOwnerId } = props;
   const { t } = useTranslation([PROFILE]);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
@@ -276,6 +310,28 @@ export default function PhotoLightbox(props: PhotoLightboxProps) {
               ))}
             </ThumbnailStrip>
           </>
+        )}
+
+        {galleryOwnerId && currentPhoto.itemId && (
+          <FlagButton
+            contentRef={`photo/${currentPhoto.itemId}`}
+            authorUser={galleryOwnerId}
+            renderButton={(onClick) => (
+              <ReportButtonContainer
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClick(e);
+                }}
+              >
+                <FlagIcon
+                  sx={{ color: "primary.main", marginRight: 1, fontSize: 20 }}
+                />
+                <Typography sx={{ color: "common.white", fontSize: ".875rem" }}>
+                  {t("gallery.report_photo")}
+                </Typography>
+              </ReportButtonContainer>
+            )}
+          />
         )}
 
         <CloseButton
