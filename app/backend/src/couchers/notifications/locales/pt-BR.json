@@ -1,1 +1,40 @@
-{}
+{
+  "push": {
+    "account_deletion__start": {
+      "title": "Exclusão de conta solicitada",
+      "ios_title": "Exclusão de Conta Solicitada",
+      "body": "Use o link que enviamos por e-mail para você para confirmar."
+    },
+    "account_deletion__complete": {
+      "title": "Conta excluída",
+      "ios_title": "Conta Excluída",
+      "body_one": "Você pode restaurá-la em {{count}} dia usando o link que enviamos para você por e-mail.",
+      "body_many": "Você pode restaurá-la em {{count}} dias usando o link que enviamos para você por e-mail.",
+      "body_other": "Você pode restaurá-la em {{count}} dias usando o link que enviamos para você por e-mail."
+    },
+    "adhoc__push_enabled": {
+      "ios_title": "Notificações por Push Ativadas",
+      "body": "Agora você receberá notificações neste dispositivo.",
+      "title": "Notificações por push ativadas"
+    },
+    "account_deletion__recovered": {
+      "title": "Conta restaurada",
+      "ios_title": "Conta Restaurada",
+      "body": "Bem-vindo de volta!"
+    },
+    "activeness__probe": {
+      "title": "Ainda pode hospedar?",
+      "ios_title": "Ainda Pode Hospedar?",
+      "body": "Faça login para confirmar seu status de hospedagem."
+    },
+    "api_key__create": {
+      "title": "Chave de API criada",
+      "ios_title": "Chave de API Criada",
+      "body": "Os detalhes foram enviados para você por e-mail."
+    },
+    "badge__add": {
+      "title": "Nova insígnia de perfil: {{badge_name}}",
+      "ios_title": "Nova Insígnia de Perfil"
+    }
+  }
+}

@@ -158,14 +158,14 @@ def restore_db_after_migration_test(db):
 @pytest.mark.skipif(not pg_dump_is_available(), reason="Can't run migration tests without pg_dump")
 def test_migrations(db, testconfig: dict[str, Any], restore_db_after_migration_test) -> None:
     """
-    This test will only run successfully if you have `pg_dump` installed and everything set up, which only happens if the
-    test is being run within Gitlab CI where we do all that setup. So we disable it unless explicitly marked to run.
-
-    Compares the database schema built up from migrations, with the
+    Compares the database schema built up from migrations with the
     schema built by models.py. Both scenarios are started from an
-    empty database, and dumped with pg_dump. Any unexplainable
+    empty database and dumped with pg_dump. Any unexplainable
     differences in the output are reported in unified diff format and
     fail the test.
+
+    Note: this takes about 2 minutes in CI, because the real timezone_areas.sql file
+    is used, and it's big. Locally, timezone_areas.sql-fake is used.
     """
     drop_database()
     # rebuild it with alembic migrations

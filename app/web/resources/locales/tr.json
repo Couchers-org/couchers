@@ -49,13 +49,24 @@
       "loading": "Çeviri ilerlemesi yükleniyor...",
       "error_loading": "Çeviri ilerlemesi yüklenemedi",
       "no_data": "Çeviri verisi mevcut değil",
-      "complete": "Tamamlanmış"
+      "complete": "Tamamlanmış",
+      "complete_percent": "%{{percent}} tamamlandı",
+      "info_text": "💡 %50-80 tamamlanmış diller dil seçicisinde gri renkte görünür. %50'nin altında tamamlanmaya sahip diller dil seçicisinden gizlenir. Çevirilere katkıda bulunanları teşvik etmek için, ilerlemesi %20'nin altında olan diller bu sayfada gösterilir.",
+      "view_progress": "Çeviri ilerlemesini görüntüle",
+      "just_started": "Yeni Başladı",
+      "midway": "Yolun ortasında",
+      "almost_there": "Neredeyse Tamamlandı",
+      "in_progress": "İlerleme Halinde",
+      "early_stage": "Erken Aşama"
     },
     "help_translate": "Couchers'ı kendi diline çevirmeye yardım et.",
     "form_title": "Dil",
     "select_language": "Dil seç",
     "success_message": "Değişikliğiniz kaydedildi.",
-    "error_loading_languages": "Dil seçenekleri yüklenemedi. Lütfen daha sonra tekrar dene."
+    "error_loading_languages": "Dil seçenekleri yüklenemedi. Lütfen daha sonra tekrar dene.",
+    "show_all_languages": "Dil seçicisinde var olan tüm dilleri göster",
+    "show_all_languages_description": "Etkinleştirildiğinde, dil seçicisinde tüm diller çeviri tamamlanma yüzdesine bakmaksızın gösterilecektir. Bu yalnızca test ortamında görünür ve hâlâ çevirisi devam eden dillerin test edilmesine yardımcı olur.",
+    "current_preferred_language": "Tercih edilen diliniz şu anda <lang>{{language}}</lang>."
   },
   "donation_banner": {
     "progress_label": "Bağış ilerlemesi",
@@ -77,9 +88,15 @@
       "warning_message": "Lütfen bu bilginin yanı sıra, bulunduğunuz sayfa, kullandığınız tarayıcı ve kullanıcı adınız gibi tanılama bilgilerinin de herkese açık bir hata listesine kaydedileceğini unutmayın.",
       "problem_label": "Hatanın oluşması için neler yaptın?",
       "title_helper": "Hatanın kısa bir açıklaması",
-      "problem_helper": "Sorunun kısa bir açıklaması ve nasıl tekrardan oluşturulabileceği"
+      "problem_helper": "Sorunun kısa bir açıklaması ve nasıl tekrardan oluşturulabileceği",
+      "expect_label": "Ne oldu? Olması gereken neydi?",
+      "expect_helper": "Olmasını beklediğiniz şey hakkında kısa bir açıklama"
     },
-    "label": "Bir sorun bildir"
+    "label": "Bir sorun bildir",
+    "flag": {
+      "reason_required": "Sebep gerekli.",
+      "description_required": "Açıklama gerekli."
+    }
   },
   "meetup_status": {
     "wants_to_meetup": "Buluşmak istiyor",

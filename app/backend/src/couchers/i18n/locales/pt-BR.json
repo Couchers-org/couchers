@@ -1,1 +1,8 @@
-{}
+{
+  "errors": {
+    "account_not_found": "Não foi encontrada uma conta com esse nome de usuário ou e-mail.",
+    "account_suspended": "Sua conta está suspensa.",
+    "admin_blog_blurb_too_long": "O resumo do post é muito longo.",
+    "address_line_1_required": "A linha de endereço 1 é obrigatória."
+  }
+}

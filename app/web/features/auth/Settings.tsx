@@ -17,8 +17,8 @@ import { useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
 import { useEffect, useState } from "react";
 import { sendTestMobilePushNotification } from "service/notifications";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
-import { useIsNativeEmbed } from "../../platform/nativeLink";
 import DeleteAccount from "./deletion/DeleteAccount";
 import ManageDonations from "./donations/ManageDonations";
 import LoginsLink from "./logins/LoginsLink";

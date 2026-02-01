@@ -4,7 +4,7 @@ Hi {{ user.name }}!
 
 This is what they wrote:
 
-{{ text|v2quote }}
+{{ text|quotelines }}
 
 
 You can see it on your profile here:

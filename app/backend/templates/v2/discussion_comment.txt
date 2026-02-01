@@ -2,7 +2,7 @@ Hi {{ user.name }},
 
 {{ author.name }} commented on your discussion {{ discussion.title }} in {{ discussion.owner_title }}:
 
-{{ reply.content|v2quote }}
+{{ reply.content|quotelines }}
 
 
 You can view the discussion here: <{{ view_link }}>

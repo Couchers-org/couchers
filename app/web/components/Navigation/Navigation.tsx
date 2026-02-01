@@ -46,8 +46,8 @@ import {
   volunteerRoute,
 } from "routes";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
-import { useIsNativeEmbed } from "../../platform/nativeLink";
 import DarkModeToggle from "./DarkModeToggle";
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
 import NavButton from "./NavButton";
@@ -340,6 +340,7 @@ export default function Navigation() {
             maxWidth: "10.5rem",
             padding: theme.spacing(1, 4),
           }}
+          onClick={(e) => e.stopPropagation()}
         >
           <LanguagePickerSelect onSelect={handleDrawerClose} />
         </ListItem>

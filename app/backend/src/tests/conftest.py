@@ -28,6 +28,9 @@ from tests.fixtures.db import (  # noqa: E402
 )
 from tests.fixtures.misc import Moderator, PushCollector  # noqa: E402
 
+# Register the "pytest-split" plugin (vendored for pytest 9+ compatibility)
+pytest_plugins = ["tests.pytest_split.plugin"]
+
 
 @pytest.fixture(scope="session")
 def postgres_engine() -> Generator[Engine]:

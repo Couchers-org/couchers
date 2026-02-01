@@ -1,3 +1,4 @@
+from dataclasses import replace
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -31,15 +32,16 @@ def send_simple_pretty_email(
         "footer_email_is_critical": True,  # Results in no unsubscribe footer.
     }
 
+    html_context = Context(output_html=True, timezone=timezone, locale=locale)
+    plaintext_context = replace(html_context, output_html=False)
+
     # Format plaintext template
     plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain_context = Context(timezone=timezone, locale="en", plaintext=True)
-    plain = render_template(plain_tmplt + plain_tmplt_footer, template_args, plain_context)
+    plain = render_template(plain_tmplt + plain_tmplt_footer, template_args, plaintext_context)
 
     # Format html template
     html_tmplt = (template_folder / "generated_html" / f"{template_name}.html").read_text()
-    html_context = Context(timezone=timezone, locale="en", plaintext=False)
     html = render_template(html_tmplt, template_args, html_context)
 
     queue_email(
