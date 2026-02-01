@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from couchers import urls
-from couchers.i18n import LocContext
+from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
 from couchers.models import Notification, NotificationTopicAction
 from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
@@ -35,7 +35,9 @@ class RenderedEmailNotification:
     list_unsubscribe_url: str | None = None
 
 
-def render_email_notification(notification: Notification, loc_context: LocContext) -> RenderedEmailNotification:
+def render_email_notification(
+    notification: Notification, loc_context: LocalizationContext
+) -> RenderedEmailNotification:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic == "host_request":
         view_link = urls.host_request(host_request_id=data.host_request.host_request_id)

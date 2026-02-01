@@ -17,7 +17,7 @@ from jinja2.runtime import Context as JinjaContext
 from markdown_it import MarkdownIt
 from markupsafe import Markup
 
-from couchers.i18n import LocContext
+from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next
 from couchers.i18n.localize import get_main_i18next
 
@@ -38,7 +38,7 @@ class Jinja2Template:
     html: bool
     """If true, the template will be treated as HTML, so placeholders will be escaped by default."""
 
-    def render(self, args: dict[str, Any], loc_context: LocContext, i18next: I18Next | None = None) -> str:
+    def render(self, args: dict[str, Any], loc_context: LocalizationContext, i18next: I18Next | None = None) -> str:
         filter_context = _FilterContext(
             output_html=self.html, i18next=i18next or get_main_i18next(), loc_context=loc_context
         )
@@ -54,7 +54,7 @@ class _FilterContext:
 
     output_html: bool
     i18next: I18Next
-    loc_context: LocContext
+    loc_context: LocalizationContext
 
     @staticmethod
     def from_jinja(jinja_context: JinjaContext) -> _FilterContext:

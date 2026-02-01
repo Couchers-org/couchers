@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, assert_never
 
 from couchers import urls
-from couchers.i18n import LocContext
+from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next, LocalizationError
 from couchers.i18n.locales import load_locales
 from couchers.i18n.localize import format_phone_number
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 # See PushNotificationContent's documentation for notification writing guidelines.
 
 
-def render_push_notification(notification: Notification, loc_context: LocContext) -> PushNotificationContent:
+def render_push_notification(notification: Notification, loc_context: LocalizationContext) -> PushNotificationContent:
     data: Any = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
 
     match notification.topic_action:
@@ -141,14 +141,14 @@ def render_push_notification(notification: Notification, loc_context: LocContext
             assert_never(notification.topic_action)
 
 
-def render_adhoc_push_notification(name: str, loc_context: LocContext) -> PushNotificationContent:
+def render_adhoc_push_notification(name: str, loc_context: LocalizationContext) -> PushNotificationContent:
     """Renders a push notification that doesn't have an assigned topic-action."""
     return _get_content(string_group=f"adhoc__{name}", loc_context=loc_context)
 
 
 def _get_content(
     string_group: NotificationTopicAction | str,
-    loc_context: LocContext,
+    loc_context: LocalizationContext,
     title: str | None = None,
     ios_title: str | None = None,
     ios_subtitle: str | None = None,
@@ -188,7 +188,7 @@ def _get_content(
 def _get_string(
     string_group: NotificationTopicAction | str,
     key: str,
-    loc_context: LocContext,
+    loc_context: LocalizationContext,
     substitutions: dict[str, str | int] | None = None,
 ) -> str:
     if isinstance(string_group, NotificationTopicAction):
@@ -202,36 +202,38 @@ def _avatar_url_or_default(user: api_pb2.User) -> str:
 
 
 def _render_account_deletion__start(
-    data: notification_data_pb2.AccountDeletionStart, loc_context: LocContext
+    data: notification_data_pb2.AccountDeletionStart, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(NotificationTopicAction.account_deletion__start, loc_context)
 
 
 def _render_account_deletion__complete(
-    data: notification_data_pb2.AccountDeletionComplete, loc_context: LocContext
+    data: notification_data_pb2.AccountDeletionComplete, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.account_deletion__complete, loc_context, substitutions={"count": data.undelete_days}
     )
 
 
-def _render_account_deletion__recovered(loc_context: LocContext) -> PushNotificationContent:
+def _render_account_deletion__recovered(loc_context: LocalizationContext) -> PushNotificationContent:
     return _get_content(NotificationTopicAction.account_deletion__recovered, loc_context)
 
 
 def _render_activeness__probe(
-    data: notification_data_pb2.ActivenessProbe, loc_context: LocContext
+    data: notification_data_pb2.ActivenessProbe, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(NotificationTopicAction.activeness__probe, loc_context)
 
 
 def _render_api_key__create(
-    data: notification_data_pb2.ApiKeyCreate, loc_context: LocContext
+    data: notification_data_pb2.ApiKeyCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(NotificationTopicAction.api_key__create, loc_context)
 
 
-def _render_badge__add(data: notification_data_pb2.BadgeAdd, loc_context: LocContext) -> PushNotificationContent:
+def _render_badge__add(
+    data: notification_data_pb2.BadgeAdd, loc_context: LocalizationContext
+) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.badge__add,
         loc_context,
@@ -240,7 +242,9 @@ def _render_badge__add(data: notification_data_pb2.BadgeAdd, loc_context: LocCon
     )
 
 
-def _render_badge__remove(data: notification_data_pb2.BadgeRemove, loc_context: LocContext) -> PushNotificationContent:
+def _render_badge__remove(
+    data: notification_data_pb2.BadgeRemove, loc_context: LocalizationContext
+) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.badge__remove,
         loc_context,
@@ -250,7 +254,7 @@ def _render_badge__remove(data: notification_data_pb2.BadgeRemove, loc_context: 
 
 
 def _render_birthdate__change(
-    data: notification_data_pb2.BirthdateChange, loc_context: LocContext
+    data: notification_data_pb2.BirthdateChange, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.birthdate__change,
@@ -260,7 +264,9 @@ def _render_birthdate__change(
     )
 
 
-def _render_chat__message(data: notification_data_pb2.ChatMessage, loc_context: LocContext) -> PushNotificationContent:
+def _render_chat__message(
+    data: notification_data_pb2.ChatMessage, loc_context: LocalizationContext
+) -> PushNotificationContent:
     # All strings are dynamic, no need to use _get_content
     return PushNotificationContent(
         title=data.author.name,
@@ -272,7 +278,7 @@ def _render_chat__message(data: notification_data_pb2.ChatMessage, loc_context: 
 
 
 def _render_chat__missed_messages(
-    data: notification_data_pb2.ChatMissedMessages, loc_context: LocContext
+    data: notification_data_pb2.ChatMissedMessages, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.chat__missed_messages,
@@ -283,7 +289,7 @@ def _render_chat__missed_messages(
 
 
 def _render_donation__received(
-    data: notification_data_pb2.DonationReceived, loc_context: LocContext
+    data: notification_data_pb2.DonationReceived, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.donation__received,
@@ -295,7 +301,7 @@ def _render_donation__received(
 
 
 def _render_discussion__create(
-    data: notification_data_pb2.DiscussionCreate, loc_context: LocContext
+    data: notification_data_pb2.DiscussionCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.discussion__create,
@@ -311,7 +317,7 @@ def _render_discussion__create(
 
 
 def _render_discussion__comment(
-    data: notification_data_pb2.DiscussionComment, loc_context: LocContext
+    data: notification_data_pb2.DiscussionComment, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.discussion__comment,
@@ -326,7 +332,7 @@ def _render_discussion__comment(
 
 
 def _render_email_address__change(
-    data: notification_data_pb2.EmailAddressChange, loc_context: LocContext
+    data: notification_data_pb2.EmailAddressChange, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.email_address__change,
@@ -336,7 +342,7 @@ def _render_email_address__change(
     )
 
 
-def _render_email_address__verify(loc_context: LocContext) -> PushNotificationContent:
+def _render_email_address__verify(loc_context: LocalizationContext) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.email_address__verify,
         loc_context,
@@ -345,7 +351,7 @@ def _render_email_address__verify(loc_context: LocContext) -> PushNotificationCo
 
 
 def _render_event__create_any(
-    data: notification_data_pb2.EventCreate, loc_context: LocContext
+    data: notification_data_pb2.EventCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.event__create_any,
@@ -360,7 +366,7 @@ def _render_event__create_any(
 
 
 def _render_event__create_approved(
-    data: notification_data_pb2.EventCreate, loc_context: LocContext
+    data: notification_data_pb2.EventCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.event__create_approved,
@@ -374,7 +380,9 @@ def _render_event__create_approved(
     )
 
 
-def _render_event__update(data: notification_data_pb2.EventUpdate, loc_context: LocContext) -> PushNotificationContent:
+def _render_event__update(
+    data: notification_data_pb2.EventUpdate, loc_context: LocalizationContext
+) -> PushNotificationContent:
     # updated_items can include: title, content, start_time, end_time, location,
     # but a list like that is tricky to localize.
     return _get_content(
@@ -389,7 +397,7 @@ def _render_event__update(data: notification_data_pb2.EventUpdate, loc_context: 
 
 
 def _render_event__invite_organizer(
-    data: notification_data_pb2.EventInviteOrganizer, loc_context: LocContext
+    data: notification_data_pb2.EventInviteOrganizer, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.event__invite_organizer,
@@ -403,7 +411,7 @@ def _render_event__invite_organizer(
 
 
 def _render_event__comment(
-    data: notification_data_pb2.EventComment, loc_context: LocContext
+    data: notification_data_pb2.EventComment, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.event__comment,
@@ -419,7 +427,7 @@ def _render_event__comment(
 
 
 def _render_event__reminder(
-    data: notification_data_pb2.EventReminder, loc_context: LocContext
+    data: notification_data_pb2.EventReminder, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.event__reminder,
@@ -432,7 +440,9 @@ def _render_event__reminder(
     )
 
 
-def _render_event__cancel(data: notification_data_pb2.EventCancel, loc_context: LocContext) -> PushNotificationContent:
+def _render_event__cancel(
+    data: notification_data_pb2.EventCancel, loc_context: LocalizationContext
+) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.event__cancel,
         loc_context,
@@ -444,12 +454,14 @@ def _render_event__cancel(data: notification_data_pb2.EventCancel, loc_context: 
     )
 
 
-def _render_event__delete(data: notification_data_pb2.EventDelete, loc_context: LocContext) -> PushNotificationContent:
+def _render_event__delete(
+    data: notification_data_pb2.EventDelete, loc_context: LocalizationContext
+) -> PushNotificationContent:
     return _get_content(NotificationTopicAction.event__delete, loc_context, substitutions={"title": data.event.title})
 
 
 def _render_friend_request__create(
-    data: notification_data_pb2.FriendRequestCreate, loc_context: LocContext
+    data: notification_data_pb2.FriendRequestCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.friend_request__create,
@@ -461,7 +473,7 @@ def _render_friend_request__create(
 
 
 def _render_friend_request__accept(
-    data: notification_data_pb2.FriendRequestAccept, loc_context: LocContext
+    data: notification_data_pb2.FriendRequestAccept, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.friend_request__accept,
@@ -473,7 +485,7 @@ def _render_friend_request__accept(
 
 
 def _render_gender__change(
-    data: notification_data_pb2.GenderChange, loc_context: LocContext
+    data: notification_data_pb2.GenderChange, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.gender__change,
@@ -484,7 +496,7 @@ def _render_gender__change(
 
 
 def _render_general__new_blog_post(
-    data: notification_data_pb2.GeneralNewBlogPost, loc_context: LocContext
+    data: notification_data_pb2.GeneralNewBlogPost, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.general__new_blog_post,
@@ -496,7 +508,7 @@ def _render_general__new_blog_post(
 
 
 def _render_host_request__create(
-    data: notification_data_pb2.HostRequestCreate, loc_context: LocContext
+    data: notification_data_pb2.HostRequestCreate, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     days = (date.fromisoformat(data.host_request.to_date) - date.fromisoformat(data.host_request.from_date)).days + 1
     return _get_content(
@@ -513,7 +525,7 @@ def _render_host_request__create(
 
 
 def _render_host_request__message(
-    data: notification_data_pb2.HostRequestMessage, loc_context: LocContext
+    data: notification_data_pb2.HostRequestMessage, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     # All strings are dynamic, no need to use _get_content
     return PushNotificationContent(
@@ -526,7 +538,7 @@ def _render_host_request__message(
 
 
 def _render_host_request__missed_messages(
-    data: notification_data_pb2.HostRequestMissedMessages, loc_context: LocContext
+    data: notification_data_pb2.HostRequestMissedMessages, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.host_request__missed_messages,
@@ -538,7 +550,7 @@ def _render_host_request__missed_messages(
 
 
 def _render_host_request__reminder(
-    data: notification_data_pb2.HostRequestReminder, loc_context: LocContext
+    data: notification_data_pb2.HostRequestReminder, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.host_request__reminder,
@@ -550,7 +562,7 @@ def _render_host_request__reminder(
 
 
 def _render_host_request__accept(
-    data: notification_data_pb2.HostRequestAccept, loc_context: LocContext
+    data: notification_data_pb2.HostRequestAccept, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.host_request__accept,
@@ -565,7 +577,7 @@ def _render_host_request__accept(
 
 
 def _render_host_request__reject(
-    data: notification_data_pb2.HostRequestReject, loc_context: LocContext
+    data: notification_data_pb2.HostRequestReject, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.host_request__reject,
@@ -580,7 +592,7 @@ def _render_host_request__reject(
 
 
 def _render_host_request__cancel(
-    data: notification_data_pb2.HostRequestCancel, loc_context: LocContext
+    data: notification_data_pb2.HostRequestCancel, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.host_request__cancel,
@@ -595,7 +607,7 @@ def _render_host_request__cancel(
 
 
 def _render_host_request__confirm(
-    data: notification_data_pb2.HostRequestConfirm, loc_context: LocContext
+    data: notification_data_pb2.HostRequestConfirm, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.host_request__confirm,
@@ -609,11 +621,11 @@ def _render_host_request__confirm(
     )
 
 
-def _render_modnote__create(loc_context: LocContext) -> PushNotificationContent:
+def _render_modnote__create(loc_context: LocalizationContext) -> PushNotificationContent:
     return _get_content(NotificationTopicAction.modnote__create, loc_context)
 
 
-def _render_onboarding__reminder(key: str, loc_context: LocContext) -> PushNotificationContent:
+def _render_onboarding__reminder(key: str, loc_context: LocalizationContext) -> PushNotificationContent:
     string_group = NotificationTopicAction.onboarding__reminder.display.replace(":", "__")
     string_group += "."
     string_group += "first" if key == "1" else "subsequent"
@@ -624,12 +636,12 @@ def _render_onboarding__reminder(key: str, loc_context: LocContext) -> PushNotif
     )
 
 
-def _render_password__change(loc_context: LocContext) -> PushNotificationContent:
+def _render_password__change(loc_context: LocalizationContext) -> PushNotificationContent:
     return _get_content(NotificationTopicAction.password__change, loc_context, action_url=urls.account_settings_link())
 
 
 def _render_password_reset__start(
-    data: notification_data_pb2.PasswordResetStart, loc_context: LocContext
+    data: notification_data_pb2.PasswordResetStart, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.password_reset__start,
@@ -638,7 +650,7 @@ def _render_password_reset__start(
     )
 
 
-def _render_password_reset__complete(loc_context: LocContext) -> PushNotificationContent:
+def _render_password_reset__complete(loc_context: LocalizationContext) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.password_reset__complete,
         loc_context,
@@ -647,7 +659,7 @@ def _render_password_reset__complete(loc_context: LocContext) -> PushNotificatio
 
 
 def _render_phone_number__change(
-    data: notification_data_pb2.PhoneNumberChange, loc_context: LocContext
+    data: notification_data_pb2.PhoneNumberChange, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.phone_number__change,
@@ -658,7 +670,7 @@ def _render_phone_number__change(
 
 
 def _render_phone_number__verify(
-    data: notification_data_pb2.PhoneNumberVerify, loc_context: LocContext
+    data: notification_data_pb2.PhoneNumberVerify, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.phone_number__verify,
@@ -669,7 +681,7 @@ def _render_phone_number__verify(
 
 
 def _render_postal_verification__postcard_sent(
-    data: notification_data_pb2.PostalVerificationPostcardSent, loc_context: LocContext
+    data: notification_data_pb2.PostalVerificationPostcardSent, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.postal_verification__postcard_sent,
@@ -679,7 +691,7 @@ def _render_postal_verification__postcard_sent(
     )
 
 
-def _render_postal_verification__success(loc_context: LocContext) -> PushNotificationContent:
+def _render_postal_verification__success(loc_context: LocalizationContext) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.postal_verification__success,
         loc_context,
@@ -688,7 +700,7 @@ def _render_postal_verification__success(loc_context: LocContext) -> PushNotific
 
 
 def _render_postal_verification__failed(
-    data: notification_data_pb2.PostalVerificationFailed, loc_context: LocContext
+    data: notification_data_pb2.PostalVerificationFailed, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     body_key: str
     match data.reason:
@@ -708,7 +720,7 @@ def _render_postal_verification__failed(
 
 
 def _render_reference__receive_friend(
-    data: notification_data_pb2.ReferenceReceiveFriend, loc_context: LocContext
+    data: notification_data_pb2.ReferenceReceiveFriend, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.reference__receive_friend,
@@ -721,7 +733,7 @@ def _render_reference__receive_friend(
 
 
 def _render_reference__receive(
-    data: notification_data_pb2.ReferenceReceiveHostRequest, leave_reference_type: str, loc_context: LocContext
+    data: notification_data_pb2.ReferenceReceiveHostRequest, leave_reference_type: str, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     body: str
     if data.text:
@@ -750,20 +762,20 @@ def _render_reference__receive(
 
 
 def _render_reference__receive_hosted(
-    data: notification_data_pb2.ReferenceReceiveHostRequest, loc_context: LocContext
+    data: notification_data_pb2.ReferenceReceiveHostRequest, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     # Receiving a hosted reminder means I need to leave a surfed reference
     return _render_reference__receive(data, leave_reference_type="surfed", loc_context=loc_context)
 
 
 def _render_reference__receive_surfed(
-    data: notification_data_pb2.ReferenceReceiveHostRequest, loc_context: LocContext
+    data: notification_data_pb2.ReferenceReceiveHostRequest, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _render_reference__receive(data, leave_reference_type="hosted", loc_context=loc_context)
 
 
 def _render_reference__reminder(
-    data: notification_data_pb2.ReferenceReminder, leave_reference_type: str, loc_context: LocContext
+    data: notification_data_pb2.ReferenceReminder, leave_reference_type: str, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     leave_reference_link = urls.leave_reference_link(
         reference_type=leave_reference_type,
@@ -780,19 +792,21 @@ def _render_reference__reminder(
 
 
 def _render_reference__reminder_surfed(
-    data: notification_data_pb2.ReferenceReminder, loc_context: LocContext
+    data: notification_data_pb2.ReferenceReminder, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     # Surfed reminder means I need to leave a surfed reference
     return _render_reference__reminder(data, leave_reference_type="surfed", loc_context=loc_context)
 
 
 def _render_reference__reminder_hosted(
-    data: notification_data_pb2.ReferenceReminder, loc_context: LocContext
+    data: notification_data_pb2.ReferenceReminder, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     return _render_reference__reminder(data, leave_reference_type="hosted", loc_context=loc_context)
 
 
-def _render_thread__reply(data: notification_data_pb2.ThreadReply, loc_context: LocContext) -> PushNotificationContent:
+def _render_thread__reply(
+    data: notification_data_pb2.ThreadReply, loc_context: LocalizationContext
+) -> PushNotificationContent:
     parent_title: str
     view_link: str
     match data.WhichOneof("reply_parent"):
@@ -815,7 +829,7 @@ def _render_thread__reply(data: notification_data_pb2.ThreadReply, loc_context: 
     )
 
 
-def _render_verification__sv_success(loc_context: LocContext) -> PushNotificationContent:
+def _render_verification__sv_success(loc_context: LocalizationContext) -> PushNotificationContent:
     return _get_content(
         NotificationTopicAction.verification__sv_success,
         loc_context,
@@ -824,7 +838,7 @@ def _render_verification__sv_success(loc_context: LocContext) -> PushNotificatio
 
 
 def _render_verification__sv_fail(
-    data: notification_data_pb2.VerificationSVFail, loc_context: LocContext
+    data: notification_data_pb2.VerificationSVFail, loc_context: LocalizationContext
 ) -> PushNotificationContent:
     body_key: str
     match data.reason:

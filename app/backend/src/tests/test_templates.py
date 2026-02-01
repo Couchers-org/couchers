@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 
 from markupsafe import Markup
 
-from couchers.i18n import LocContext
+from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next
 from couchers.i18n.plurals import PluralRules
 from couchers.templates.v2 import Jinja2Template
@@ -27,11 +27,11 @@ def _render_template(
             language.load_json_dict(strings)
 
     template = Jinja2Template(source=template_str, html=output_html)
-    loc_context = LocContext(locale=lang, timezone=ZoneInfo("Etc/UTC"))
+    loc_context = LocalizationContext(locale=lang, timezone=ZoneInfo("Etc/UTC"))
     return template.render(args or {}, loc_context, i18next=mock_i18next)
 
 
-_en_utc_loc_context = LocContext(locale="en", timezone=ZoneInfo("Etc/UTC"))
+_en_utc_loc_context = LocalizationContext(locale="en", timezone=ZoneInfo("Etc/UTC"))
 
 
 def _render_en_utc(template: Jinja2Template, args: dict[str, Any]) -> str:
@@ -100,7 +100,7 @@ def test_translate_multiple_languages() -> None:
     i18next = I18Next()
     i18next.add_language("en", PluralRules.en).add_string("greeting", "Hello!")
     i18next.add_language("fr", PluralRules.en).add_string("greeting", "Bonjour!")
-    fr_loc_context = LocContext(locale="fr", timezone=ZoneInfo("Etc/UTC"))
+    fr_loc_context = LocalizationContext(locale="fr", timezone=ZoneInfo("Etc/UTC"))
     rendered = template.render({}, fr_loc_context, i18next)
     assert rendered == "Bonjour!"
 

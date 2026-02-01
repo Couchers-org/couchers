@@ -11,7 +11,7 @@ from couchers.config import config
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.email import queue_email
-from couchers.i18n import LocContext
+from couchers.i18n import LocalizationContext
 from couchers.models import (
     Notification,
     NotificationDelivery,
@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
-    loc_context = LocContext.from_user(user)
+    loc_context = LocalizationContext.from_user(user)
     if not config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
         loc_context = dataclasses.replace(loc_context, locale="en")
 
@@ -103,7 +103,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
 def _send_push_notification(session: Session, user: User, notification: Notification) -> None:
     logger.debug(f"Formatting push notification for {user}")
 
-    content = render_push_notification(notification, LocContext.from_user(user))
+    content = render_push_notification(notification, LocalizationContext.from_user(user))
     push_to_user(
         session,
         user_id=user.id,

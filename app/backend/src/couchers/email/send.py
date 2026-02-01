@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from couchers.config import config
 from couchers.email import queue_email
-from couchers.i18n import LocContext
+from couchers.i18n import LocalizationContext
 from couchers.templates.v2 import Jinja2Template, template_folder
 from couchers.utils import now
 
@@ -19,7 +19,7 @@ def send_simple_pretty_email(
     """
 
     # Not yet localizable
-    loc_context = LocContext.EN_UTC
+    loc_context = LocalizationContext.en_utc()
 
     template_args = {
         **template_args,

@@ -1,6 +1,6 @@
 """
 Defines low-level localization functions for strings, dates, etc.
-Most code should use the higher-level couchers.i18n.LocContext object.
+Most code should use the higher-level couchers.i18n.LocalizationContext object.
 """
 
 from collections.abc import Mapping
