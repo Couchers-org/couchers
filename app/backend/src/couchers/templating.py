@@ -25,7 +25,9 @@ logger = logging.getLogger(__name__)
 
 template_folder = Path(__file__).parent / ".." / ".." / "templates" / "emails"
 
-_markdown = MarkdownIt("zero", {"typographer": True}).enable(["smartquotes", "heading", "hr", "list", "link", "emphasis"])
+_markdown = MarkdownIt("zero", {"typographer": True}).enable(
+    ["smartquotes", "heading", "hr", "list", "link", "emphasis"]
+)
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
