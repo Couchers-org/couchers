@@ -262,7 +262,6 @@
   },
   "footer": {
     "non_profit_note": "Couchers.org es un proyecto de Couchers, Inc., una organización sin ánimo de lucro exenta de impuestos 501(c)(3) de EE.UU.",
-    "copyright": "© 2025 Couchers, Inc.",
     "version_info": "Versión <2>{{version}}</2>, última actualización <5>{{updated_ago}}</5>."
   },
   "strong_verification": {

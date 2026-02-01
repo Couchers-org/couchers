@@ -274,8 +274,7 @@
   },
   "footer": {
     "version_info": "Версия <2>{{version}}</2>, последнее обновление <5>{{updated_ago}}</5>.",
-    "non_profit_note": "Couchers.org — это проект Couchers, Inc., некоммерческой организации США, освобождённой от налогов в соответствии с разделом 501(c)(3).",
-    "copyright": "© 2025 Couchers, Inc."
+    "non_profit_note": "Couchers.org — это проект Couchers, Inc., некоммерческой организации США, освобождённой от налогов в соответствии с разделом 501(c)(3)."
   },
   "html_meta": {
     "default_title": "Couchers.org",
