@@ -251,7 +251,6 @@
     "helper_text": "Tento uživatel ověřil svou totožnost pomocí biometrického pasu"
   },
   "footer": {
-    "copyright": "© 2025 Couchers, Inc.",
     "version_info": "Verze <2>{{version}}</2>, naposledy aktualizováno <5>{{updated_ago}}</5>.",
     "non_profit_note": "Couchers.org je projekt společnosti Couchers, Inc., americké neziskové organizace s daňovým osvobozením podle paragrafu 501(c)(3)."
   },
