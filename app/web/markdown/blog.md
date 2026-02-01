@@ -6,6 +6,14 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
+## [v1.2 release TODO!](/blog/2026/02/05/couchers-v1.2-release)
+
+2026/02/05 by Nicole.
+
+TODO
+
+[Read more.](/blog/2026/02/05/couchers-v1.2-release)
+
 ## [Introducing the Official Couchers.org Merchandise Shop!](/blog/2026/01/04/merch-shop-release)
 
 2026/01/04 by Iason
