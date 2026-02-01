@@ -58,6 +58,14 @@ def _greeting_i18next(value: str) -> I18Next:
     return i18next
 
 
+def _i18next_from_dict(value: dict[str, dict[str, str]]) -> I18Next:
+    i18next = I18Next()
+    for lang_code, strings in value.items():
+        language = i18next.add_language(lang_code, PluralRules.en)
+        language.load_json_dict(strings)
+    return i18next
+
+
 def test_translate_no_substitutions() -> None:
     template = Jinja2Template(source='{{ "greeting"|translate }}', html=False)
     i18next = _greeting_i18next("Hello!")
