@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from couchers.config import config
 from couchers.email import queue_email
 from couchers.i18n import LocalizationContext
-from couchers.templates.v2 import Jinja2Template, template_folder
+from couchers.templating import Jinja2Template, template_folder
 from couchers.utils import now
 
 
