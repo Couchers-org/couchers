@@ -34,7 +34,161 @@
     },
     "badge__add": {
       "title": "Nova insígnia de perfil: {{badge_name}}",
-      "ios_title": "Nova Insígnia de Perfil"
+      "ios_title": "Nova Insígnia de Perfil",
+      "body": "A insígnia {{badge_name}} foi adicionada ao seu perfil."
+    },
+    "birthdate__change": {
+      "body": "Um administrador alterou sua data de nascimento para {{birthdate}}.",
+      "title": "Data de nascimento alterada",
+      "ios_title": "Data de Nascimento Alterada"
+    },
+    "chat__missed_messages": {
+      "title_one": "{{count}} mensagem perdida",
+      "title_many": "{{count}} mensagens perdidas",
+      "title_other": "{{count}} mensagens perdidas",
+      "ios_title_one": "{{count}} Mensagem Perdida",
+      "ios_title_many": "{{count}} Mensagens Perdidas",
+      "ios_title_other": "{{count}} Mensagens Perdidas",
+      "body": "Você tem novas mensagens não visualizadas."
+    },
+    "donation__received": {
+      "title": "Doação recebida",
+      "ios_title": "Doação Recebida",
+      "body": "Agradecemos muito por sua doação de {{amount_with_currency}}!"
+    },
+    "event__create_approved": {
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} convidou você para o evento em {{date_and_time}}.",
+      "ios_title": "Novo Evento",
+      "title": "Novo evento: {{title}}"
+    },
+    "event__update": {
+      "title": "Evento atualizado: {{title}}",
+      "ios_title": "Evento Atualizado",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} atualizou o evento."
+    },
+    "event__invite_organizer": {
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} Adicionou você como co-organizador do evento.",
+      "title": "Evento atualizado: {{title}}",
+      "ios_title": "Evento Atualizado"
+    },
+    "event__comment": {
+      "ios_title": "{{user}}",
+      "title": "{{user}} • {{title}}",
+      "ios_subtitle": "Comentou em {{title}}"
+    },
+    "event__reminder": {
+      "title": "Próximo evento: {{title}}",
+      "ios_title": "Próximo Evento",
+      "ios_subtitle": "{{title}}",
+      "body": "O evento inicia em {{date_and_time}}."
+    },
+    "event__cancel": {
+      "title": "Evento cancelado: {{title}}",
+      "ios_title": "Evento Cancelado",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} cancelou o evento."
+    },
+    "event__delete": {
+      "title": "Evento excluído: {{title}}",
+      "ios_title": "Evento Excluído",
+      "ios_subtitle": "{{title}}",
+      "body": "Um moderador excluiu o evento."
+    },
+    "friend_request__create": {
+      "title": "Solicitação de amizade de {{from_user}}",
+      "ios_title": "{{from_user}}",
+      "body": "{{from_user}} quer ser seu amigo.",
+      "ios_subtitle": "Solicitação de Amizade"
+    },
+    "friend_request__accept": {
+      "title": "{{friend}} aceitou sua solicitação de amizade",
+      "ios_title": "{{friend}}",
+      "ios_subtitle": "Aceitou Sua Solicitação de Amizade",
+      "body": "Agora você e {{friend}} são amigos."
+    },
+    "gender__change": {
+      "title": "Gênero alterado",
+      "ios_title": "Gênero Alterado",
+      "body": "Um administrador alterou seu gênero para {{gender}}."
+    },
+    "general__new_blog_post": {
+      "title": "Novo post no blog: {{title}}",
+      "ios_title": "Novo Post no Blog",
+      "ios_subtitle": "{{title}}"
+    },
+    "host_request__create": {
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Nova Solicitação de Hospedagem",
+      "title": "Nova solicitação de hospedagem de {{user}}",
+      "body_one": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dia.",
+      "body_many": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dias.",
+      "body_other": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dias."
+    },
+    "host_request__missed_messages": {
+      "title": "Novas mensagens de {{user}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Mensagens Perdidas",
+      "body": "Você tem novas mensagens não visualizadas de {{user}}."
+    },
+    "host_request__reminder": {
+      "title": "Solicitação pendente de {{user}}",
+      "ios_title": "Solicitação de Hospedagem Pendente",
+      "ios_subtitle": "{{user}}",
+      "body": "{{user}} está esperando sua resposta. Aceite ou recuse a solicitação."
+    },
+    "host_request__accept": {
+      "title": "{{user}} aceitou sua solicitação de hospedagem",
+      "ios_title": "{{user}}",
+      "body": "{{user}} aceitou sua solicitação de hospedagem para {{date}}.",
+      "ios_subtitle": "Solicitação de Hospedagem Aceita"
+    },
+    "host_request__reject": {
+      "title": "{{user}} recusou sua solicitação de hospedagem",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Solicitação de Hospedagem Recusada",
+      "body": "{{user}} recusou sua solicitação de hospedagem para {{date}}."
+    },
+    "host_request__cancel": {
+      "title": "{{user}} cancelou a solicitação de hospedagem",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Solicitação de Hospedagem Cancelada",
+      "body": "{{user}} cancelou a solicitação de hospedagem para {{date}}."
+    },
+    "host_request__confirm": {
+      "title": "{{user}} confirmou a solicitação de hospedagem"
+    },
+    "badge__remove": {
+      "title": "Insígnia do perfil removida",
+      "ios_title": "Insígnia do Perfil Removida",
+      "body": "A insígnia {{badge_name}} foi removida do seu perfil."
+    },
+    "discussion__create": {
+      "title": "Nova discussão: {{title}}",
+      "ios_title": "Nova Discussão",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} iniciou a discussão em {{group_or_community}}."
+    },
+    "discussion__comment": {
+      "title": "{{user}} • {{title}}"
+    },
+    "email_address__change": {
+      "title": "Alteração de e-mail solicitada",
+      "ios_title": "Alteração de E-mail Solicitada",
+      "body": "Use o link que enviamos para {{email}} para confirmar seu novo endereço."
+    },
+    "email_address__verify": {
+      "title": "E-mail verificado",
+      "ios_title": "E-mail Verificado",
+      "body": "Seu novo endereço de e-mail foi verificado."
+    },
+    "event__create_any": {
+      "title": "Novo evento: {{title}}",
+      "ios_title": "Novo Evento",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} criou o evento em {{date_and_time}}."
     }
   }
 }
