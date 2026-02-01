@@ -1,13 +1,11 @@
-from dataclasses import replace
 from typing import Any
-from zoneinfo import ZoneInfo
 
 from sqlalchemy.orm import Session
 
 from couchers.config import config
 from couchers.email import queue_email
-from couchers.i18n.localize import localize_timezone
-from couchers.templates.v2 import Context, render_template, template_folder
+from couchers.i18n import LocalizationContext
+from couchers.templates.v2 import Jinja2Template, template_folder
 from couchers.utils import now
 
 
@@ -21,28 +19,27 @@ def send_simple_pretty_email(
     """
 
     # Not yet localizable
-    timezone = ZoneInfo("Etc/UTC")
-    locale = "en"
+    loc_context = LocalizationContext.en_utc()
 
     template_args = {
         **template_args,
         "header_subject": subject,
-        "footer_timezone_name": localize_timezone(timezone, locale),
+        "footer_timezone_name": loc_context.localized_timezone,
         "footer_copyright_year": now().year,
         "footer_email_is_critical": True,  # Results in no unsubscribe footer.
     }
 
-    html_context = Context(output_html=True, timezone=timezone, locale=locale)
-    plaintext_context = replace(html_context, output_html=False)
-
     # Format plaintext template
-    plain_tmplt = (template_folder / f"{template_name}.txt").read_text()
+    plain_tmplt_body = (template_folder / f"{template_name}.txt").read_text()
     plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain = render_template(plain_tmplt + plain_tmplt_footer, template_args, plaintext_context)
+    plain_tmplt = Jinja2Template(source=plain_tmplt_body + plain_tmplt_footer, html=False)
+    plain = plain_tmplt.render(template_args, loc_context)
 
     # Format html template
-    html_tmplt = (template_folder / "generated_html" / f"{template_name}.html").read_text()
-    html = render_template(html_tmplt, template_args, html_context)
+    html_tmplt = Jinja2Template(
+        source=(template_folder / "generated_html" / f"{template_name}.html").read_text(), html=True
+    )
+    html = html_tmplt.render(template_args, loc_context)
 
     queue_email(
         session,
