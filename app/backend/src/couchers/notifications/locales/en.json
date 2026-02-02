@@ -157,7 +157,7 @@
       "title": "New messages from {{user}}",
       "ios_title": "{{user}}",
       "ios_subtitle": "Missed Messages",
-      "body": "ou have new unseen messages from {{user}}."
+      "body": "You have new unseen messages from {{user}}."
     },
     "host_request__reminder": {
       "title": "Pending request by {{user}}",
