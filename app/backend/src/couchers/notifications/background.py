@@ -10,7 +10,8 @@ from couchers import urls
 from couchers.config import config
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
-from couchers.email import queue_email
+from couchers.email.content import EmailContent
+from couchers.email.queuing import queue_email
 from couchers.i18n import LocalizationContext
 from couchers.models import (
     Notification,
@@ -35,12 +36,26 @@ from couchers.utils import now
 logger = logging.getLogger(__name__)
 
 
-def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
+def _get_notification_email_content_and_template_name(
+    user: User, notification: Notification
+) -> tuple[EmailContent, str] | None:
     loc_context = LocalizationContext.from_user(user)
     if not config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
         loc_context = dataclasses.replace(loc_context, locale="en")
 
     rendered = render_email_notification(notification, loc_context)
+
+    if user.do_not_email and not rendered.is_critical:
+        logger.info(f"Not emailing {user} based on template {rendered.template_name} due to emails turned off")
+        return None
+
+    if user.is_banned:
+        logger.info(f"Tried emailing {user} based on template {rendered.template_name} but user is banned")
+        return None
+
+    if user.is_deleted and not rendered.allow_deleted:
+        logger.info(f"Tried emailing {user} based on template {rendered.template_name} but user is deleted")
+        return None
 
     template_args = {
         **rendered.template_args,
@@ -71,33 +86,21 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     )
     html = html_tmplt.render(template_args, loc_context)
 
-    if user.do_not_email and not rendered.is_critical:
-        logger.info(f"Not emailing {user} based on template {rendered.template_name} due to emails turned off")
-        return
-
-    if user.is_banned:
-        logger.info(f"Tried emailing {user} based on template {rendered.template_name} but user is banned")
-        return
-
-    if user.is_deleted and not rendered.allow_deleted:
-        logger.info(f"Tried emailing {user} based on template {rendered.template_name} but user is deleted")
-        return
-
-    list_unsubscribe_header = None
-    if rendered.list_unsubscribe_url:
-        list_unsubscribe_header = f"<{rendered.list_unsubscribe_url}>"
-
-    queue_email(
-        session,
-        sender_name=config["NOTIFICATION_EMAIL_SENDER"],
-        sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
-        recipient=user.email,
+    return EmailContent(
         subject=config["NOTIFICATION_PREFIX"] + rendered.subject,
-        plain=plain,
-        html=html,
-        source_data=config["VERSION"] + f"/{rendered.template_name}",
-        list_unsubscribe_header=list_unsubscribe_header,
-    )
+        body_plaintext=plain,
+        body_html=html,
+        list_unsubscribe_url=rendered.list_unsubscribe_url,
+    ), rendered.template_name
+
+
+def _queue_notification_email(session: Session, user: User, notification: Notification) -> None:
+    content_and_template_name = _get_notification_email_content_and_template_name(user, notification)
+    if content_and_template_name is None:
+        return
+
+    content, template_name = content_and_template_name
+    queue_email(session, recipient=user.email, content=content, source_data=config["VERSION"] + f"/{template_name}")
 
 
 def _send_push_notification(session: Session, user: User, notification: Notification) -> None:
@@ -167,7 +170,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                         delivery_type=NotificationDeliveryType.email,
                     )
                 )
-                _send_email_notification(session, user, notification)
+                _queue_notification_email(session, user, notification)
             elif delivery_type == NotificationDeliveryType.digest:
                 # for digest notifications, add to digest queue
                 session.add(

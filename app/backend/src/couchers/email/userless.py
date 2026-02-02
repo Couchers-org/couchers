@@ -3,24 +3,16 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from couchers.config import config
-from couchers.email import queue_email
+from couchers.email.content import EmailContent
+from couchers.email.queuing import queue_email
 from couchers.i18n import LocalizationContext
 from couchers.templating import Jinja2Template, template_folder
 from couchers.utils import now
 
 
-def send_simple_pretty_email(
-    session: Session, recipient: str, subject: str, template_name: str, template_args: dict[str, Any]
-) -> None:
-    """
-    This is a simplified version of couchers.notifications.background._send_email_notification
-
-    It's for the few security emails where we don't have a user to email but send directly to an email address.
-    """
-
-    # Not yet localizable
-    loc_context = LocalizationContext.en_utc()
-
+def get_userless_email_content(
+    subject: str, template_name: str, template_args: dict[str, Any], loc_context: LocalizationContext
+) -> EmailContent:
     template_args = {
         **template_args,
         "header_subject": subject,
@@ -41,13 +33,24 @@ def send_simple_pretty_email(
     )
     html = html_tmplt.render(template_args, loc_context)
 
+    return EmailContent(subject=config["NOTIFICATION_PREFIX"] + subject, body_plaintext=plain, body_html=html)
+
+
+def queue_userless_email(
+    session: Session, recipient: str, subject: str, template_name: str, template_args: dict[str, Any]
+) -> None:
+    """
+    This is a simplified version of couchers.notifications.background._queue_notification_email
+
+    It's for the few security emails where we don't have a user to email but send directly to an email address.
+    """
+
+    # Not yet localizable
+    email_content = get_userless_email_content(subject, template_name, template_args, LocalizationContext.en_utc())
+
     queue_email(
         session,
-        sender_name=config["NOTIFICATION_EMAIL_SENDER"],
-        sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient=recipient,
-        subject=config["NOTIFICATION_PREFIX"] + subject,
-        plain=plain,
-        html=html,
+        content=email_content,
         source_data=config["VERSION"] + f"/{template_name}",
     )
