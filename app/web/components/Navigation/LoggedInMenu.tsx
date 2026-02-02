@@ -22,7 +22,7 @@ import React, {
 import { theme } from "theme";
 
 import { AccessibleDialogProps } from "../Dialog";
-import { MenuIcon } from "../Icons";
+import { CloseIcon, MenuIcon } from "../Icons";
 
 type LoggedInMenuLinkItem = {
   type: "link";
@@ -47,10 +47,29 @@ const StyledMenu = styled(Menu)(({ theme }) => ({
   "& .MuiPaper-root": {
     boxShadow: theme.shadows[1],
     minWidth: "12rem",
+
+    [theme.breakpoints.down("md")]: {
+      width: "100vw",
+      height: "100vh",
+      maxWidth: "100vw",
+      maxHeight: "100vh",
+      borderRadius: 0,
+      margin: 0,
+      padding: 0,
+      top: 0,
+      left: 0,
+      position: "fixed",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+    },
   },
 
-  "& .MuiPopover-root": {
-    transform: "translateY(1rem)",
+  "& .MuiPopover-paper": {
+    [theme.breakpoints.down("md")]: {
+      transform: "none !important",
+      inset: "0 !important",
+    },
   },
 }));
 
@@ -305,27 +324,74 @@ export default function LoggedInMenu({
       <StyledMenu
         id="navigation-menu"
         open={menuOpen}
-        anchorEl={menuRef.current}
+        anchorEl={isMobile ? undefined : menuRef.current}
         onClose={() => setMenuOpen(false)}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
+        anchorOrigin={
+          isMobile ? undefined : { vertical: "bottom", horizontal: "right" }
+        }
+        transformOrigin={
+          isMobile ? undefined : { vertical: "top", horizontal: "right" }
+        }
       >
-        {items.map((item) => (
-          <MenuItemView
-            key={item.name}
-            {...item}
-            closeMenu={() => {
-              setMenuOpen(false);
+        {isMobile && (
+          <Box
+            sx={{
+              position: "fixed",
+              top: `calc(env(safe-area-inset-top, 0px) + ${theme.spacing(1)})`,
+              right: theme.spacing(1.5),
+              zIndex: 1301, // above menu paper
             }}
-            onOpenDialog={
-              item.type === "dialog"
-                ? () => setOpenDialogName(item.name)
-                : undefined
-            }
-          />
-        ))}
+          >
+            <IconButton
+              aria-label="close menu"
+              onClick={() => setMenuOpen(false)}
+              sx={{
+                backgroundColor: "var(--mui-palette-grey-200)",
+                border: "1px solid var(--mui-palette-grey-300)",
+                "&:hover": {
+                  backgroundColor: "var(--mui-palette-grey-300)",
+                },
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        )}
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: { xs: 1.5, md: 3 },
+            textAlign: "center",
+          }}
+        >
+          {items.map((item) => (
+            <MenuItemView
+              key={item.name}
+              {...item}
+              closeMenu={() => setMenuOpen(false)}
+              onOpenDialog={
+                item.type === "dialog"
+                  ? () => setOpenDialogName(item.name)
+                  : undefined
+              }
+            />
+          ))}
+          {isMobile && (
+            <Box
+              sx={{
+                paddingBottom: `calc(env(safe-area-inset-bottom, 0px) + ${theme.spacing(2)})`,
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <LanguagePickerSelect />
+            </Box>
+          )}
+        </Box>
       </StyledMenu>
       {dialogItems.map((item) => {
         const DialogComponent = item.dialogComponent;
