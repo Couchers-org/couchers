@@ -475,7 +475,7 @@ test:web:
     # no docker login
     default: false
   script:
-    - cd /app && tsc && cross-env NEXT_PUBLIC_API_BASE_URL=http://localhost:8888 CI=true TZ=UTC jest --coverageReporters="json" --coverageReporters="lcov" --reporters="default" --reporters="jest-junit" --coverage --shard=$CI_NODE_INDEX/$CI_NODE_TOTAL
+    - cd /app && yarn test-ci
   after_script:
     - cp /app/junit.xml $CI_PROJECT_DIR/junit-$CI_NODE_INDEX.xml
     - mkdir -p $CI_PROJECT_DIR/coverage-$CI_NODE_INDEX
@@ -494,6 +494,7 @@ test:web:
       changes:
         - app/proto/**/*
         - app/web/**/*
+        - app/.gitlab-ci.yml  # TODO remove, this is only for testing
   tags:
     - saas-linux-large-amd64
 
@@ -762,6 +763,7 @@ preview:wcov:
       changes:
         - app/proto/**/*
         - app/web/**/*
+        - app/.gitlab-ci.yml  # TODO remove, this is only for testing
 
 preview:web:
   needs: ["build:web"]
