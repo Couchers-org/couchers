@@ -49,14 +49,14 @@ def queue_email(
     session: Session,
     recipient: str,
     content: EmailContent,
-    sender_name: str = config["NOTIFICATION_EMAIL_SENDER"],
-    sender_email: str = config["NOTIFICATION_EMAIL_ADDRESS"],
+    sender_name: str | None = None,
+    sender_email: str | None = None,
     source_data: str | None = None,
 ) -> None:
     _queue_email(
         session=session,
-        sender_name=sender_name,
-        sender_email=sender_email,
+        sender_name=sender_name or config["NOTIFICATION_EMAIL_SENDER"],
+        sender_email=sender_email or config["NOTIFICATION_EMAIL_ADDRESS"],
         recipient=recipient,
         content=content,
         source_data=source_data,
