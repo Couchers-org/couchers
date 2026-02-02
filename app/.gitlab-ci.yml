@@ -469,25 +469,23 @@ test:media:
 test:web:
   needs: ["build:web-dev"]
   stage: test
+  parallel: 3
   image: $WEB_DEV_TAG
   inherit:
     # no docker login
     default: false
   script:
-    - cd /app && yarn test-ci
+    - cd /app && tsc && cross-env NEXT_PUBLIC_API_BASE_URL=http://localhost:8888 CI=true TZ=UTC jest --coverageReporters="json" --coverageReporters="lcov" --reporters="default" --reporters="jest-junit" --coverage --shard=$CI_NODE_INDEX/$CI_NODE_TOTAL
   after_script:
-    - cp /app/junit.xml $CI_PROJECT_DIR/
-    - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
-    - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
-  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+    - cp /app/junit.xml $CI_PROJECT_DIR/junit-$CI_NODE_INDEX.xml
+    - mkdir -p $CI_PROJECT_DIR/coverage-$CI_NODE_INDEX
+    - cp /app/coverage/coverage-final.json $CI_PROJECT_DIR/coverage-$CI_NODE_INDEX/
+    - cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/coverage-$CI_NODE_INDEX/
   artifacts:
     reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: cobertura-coverage.xml
-      junit: junit.xml
+      junit: junit-$CI_NODE_INDEX.xml
     paths:
-      - artifacts/lcov-report
+      - coverage-$CI_NODE_INDEX
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -618,11 +616,7 @@ test:proxy:
 
 
 preview:backend-coverage:
-  needs:
-    - job: test:backend
-      artifacts: true
-    - job: test:backend-migrations
-      artifacts: true
+  needs: ["test:backend", "test:backend-migrations"]
   stage: preview
   image: python:3.14-slim
   inherit:
@@ -682,11 +676,7 @@ preview:backend-coverage:
         - app/backend/**/*
 
 preview:backend:
-  needs:
-    - job: test:backend-migrations
-      artifacts: true
-    - job: preview:backend-coverage
-      artifacts: true
+  needs: ["preview:backend-coverage"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
@@ -739,11 +729,31 @@ preview:wcov:
     # no docker login
     default: false
   script:
+    # Install node and nyc for coverage merging
+    - apt-get update && apt-get install -y nodejs npm
+    - npm install -g nyc
+    # Merge coverage-final.json files from all parallel workers
+    - mkdir -p .nyc_output
+    - |
+      for dir in coverage-*/; do
+        if [ -f "${dir}coverage-final.json" ]; then
+          cp "${dir}coverage-final.json" ".nyc_output/coverage-$(basename $dir).json"
+        fi
+      done
+    # Generate combined reports
+    - nyc report --reporter=cobertura --reporter=lcov --report-dir=coverage
+    # Upload to S3
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp coverage/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
-    - aws s3 cp artifacts/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp coverage/lcov-report s3://$AWS_PREVIEW_BUCKET/wcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--wcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--wcov.$PREVIEW_DOMAIN/"
+  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
