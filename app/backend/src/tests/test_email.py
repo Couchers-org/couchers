@@ -188,7 +188,7 @@ def test_email_patching_fails(db):
     def mock_queue_email(session, **kwargs):
         raise Exception(patched_msg)
 
-    with patch("couchers.email._queue_email", mock_queue_email):
+    with patch("couchers.email.queuing._queue_email", mock_queue_email):
         with pytest.raises(Exception) as e:
             with api_session(from_token) as api:
                 api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=to_user.id))
