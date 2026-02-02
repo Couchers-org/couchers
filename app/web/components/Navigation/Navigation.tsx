@@ -28,7 +28,6 @@ import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,
   communitiesRoute,
-  dashboardRoute,
   donationsRoute,
   eventsRoute,
   helpCenterURL,
@@ -160,11 +159,6 @@ const loggedInMenuDropDown = (
     name: t("nav.profile"),
     route: routeToProfile(),
     hasBottomDivider: true,
-  },
-  {
-    type: "link",
-    name: t("nav.dashboard"),
-    route: dashboardRoute,
   },
   {
     type: "link",

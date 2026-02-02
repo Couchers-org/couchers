@@ -8,10 +8,11 @@ import CircularProgress from "components/CircularProgress";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import Sentry from "platform/sentry";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { service } from "service";
 import { ImageInputValues } from "service/api";
+import { base64ToFile, useNativeImagePicker } from "utils/nativeLink";
 
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./constants";
 
@@ -96,6 +97,7 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const { className, control, id, initialPreviewSrc, name } = props;
 
   const { t } = useTranslation([PROFILE]);
+  const { isNative, pickImage } = useNativeImagePicker();
 
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
   const [readerError, setReaderError] = useState("");
@@ -157,6 +159,30 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
     if (inputRef.current) inputRef.current.value = "";
   };
 
+  // Native app WebView file input is unreliable on iOS - use native image picker instead
+  const handleNativeImagePick = useCallback(async () => {
+    setReaderError("");
+    try {
+      const result = await pickImage();
+      if (result.success) {
+        const dataUrl = `data:${result.mimeType};base64,${result.imageBase64}`;
+        setImageUrl(dataUrl);
+        const extension = result.mimeType.split("/")[1] || "jpg";
+        const file = base64ToFile(
+          result.imageBase64,
+          result.mimeType,
+          `image.${extension}`,
+        );
+        mutation.mutate(file);
+      }
+    } catch (e) {
+      Sentry.captureException(e, {
+        tags: { component: "ImageInput", native: true },
+      });
+      setReaderError(t("profile:couldnt_read_file"));
+    }
+  }, [pickImage, mutation, t]);
+
   return (
     <StyledWrapper>
       {mutation.isError && (
@@ -173,7 +199,18 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
           onClick={handleClick}
           ref={inputRef}
         />
-        <StyledLabel htmlFor={id} ref={field.ref}>
+        <StyledLabel
+          htmlFor={id}
+          ref={field.ref}
+          onClick={
+            isNative
+              ? (e) => {
+                  e.preventDefault();
+                  handleNativeImagePick();
+                }
+              : undefined
+          }
+        >
           {props.type === "avatar" ? (
             <Tooltip title={t("profile:click_replace_image")} placement="top">
               <MuiIconButton
@@ -181,7 +218,11 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
                 sx={{ position: "relative" }}
                 onClick={(e) => {
                   e.preventDefault(); // prevent triggering label click again
-                  inputRef.current?.click();
+                  if (isNative) {
+                    handleNativeImagePick();
+                  } else {
+                    inputRef.current?.click();
+                  }
                 }}
               >
                 <Avatar
