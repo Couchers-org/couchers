@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 from sqlalchemy.orm import Session
 
+from couchers.email.content import EmailContent
 from couchers.jobs.worker import process_job
 from couchers.models import User
 from couchers.notifications.push import PushNotificationContent
@@ -34,20 +35,19 @@ class EmailData:
     plain: str
     html: str
     source_data: str
-    list_unsubscribe_header: str
 
 
 def email_fields(mock: Mock, call_ix: int = 0) -> EmailData:
     _, kw = mock.call_args_list[call_ix]
+    content: EmailContent = kw["content"]
     return EmailData(
-        sender_name=kw.get("sender_name"),
-        sender_email=kw.get("sender_email"),
-        recipient=kw.get("recipient"),
-        subject=kw.get("subject"),
-        plain=kw.get("plain"),
-        html=kw.get("html"),
-        source_data=kw.get("source_data"),
-        list_unsubscribe_header=kw.get("list_unsubscribe_header"),
+        sender_name=kw["sender_name"],
+        sender_email=kw["sender_email"],
+        recipient=kw["recipient"],
+        subject=content.subject,
+        plain=content.body_plaintext,
+        html=content.body_html or "", # Avoid None so tests can use the in operator
+        source_data=kw["source_data"],
     )
 
 
