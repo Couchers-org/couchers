@@ -2229,18 +2229,23 @@
   dependencies:
     tslib "^2.8.0"
 
-"@tanstack/query-async-storage-persister@^5.90.11":
-  version "5.90.14"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.90.14.tgz#0f7a86b162fb8677d3bbd267055658fa39a24831"
-  integrity sha512-oU+u40luly1PlrOrezeVxdF7AoF6dYw7BaU16Eg0+xLBwCRbW4cutxtxWG306Pgsnks5jIRDI4DjAPZKFnPSXQ==
+"@tanstack/query-async-storage-persister@^5.90.22":
+  version "5.90.22"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.90.22.tgz#24f840293fb4a6a61cf7727fb8ccc54481e11dc6"
+  integrity sha512-I8Dbi79aoM2S2VqfuxTG13TkqmiDSiZ95Bi1YRXvwGVMsOnaJ99Ou1dIw53kHY3y10Vgwv3YYThw4TN/FM/N3A==
   dependencies:
-    "@tanstack/query-core" "5.90.12"
-    "@tanstack/query-persist-client-core" "5.91.11"
+    "@tanstack/query-core" "5.90.20"
+    "@tanstack/query-persist-client-core" "5.91.19"
 
 "@tanstack/query-core@5.90.12":
   version "5.90.12"
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.90.12.tgz#e1f5f47e72ef7d0fc794325936921c700352515e"
   integrity sha512-T1/8t5DhV/SisWjDnaiU2drl6ySvsHj1bHBCWNXd+/T+Hh1cf6JodyEYMd5sgwm+b/mETT4EV3H+zCVczCU5hg==
+
+"@tanstack/query-core@5.90.20":
+  version "5.90.20"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.90.20.tgz#e12128e39210715d4ce4fb299c33498ac297771e"
+  integrity sha512-OMD2HLpNouXEfZJWcKeVKUgQ5n+n3A2JFmBaScpNDUqSrQSjiveC7dKMe53uJUg1nDG16ttFPz2xfilz6i2uVg==
 
 "@tanstack/query-devtools@5.91.1":
   version "5.91.1"
@@ -2253,6 +2258,13 @@
   integrity sha512-NNpRGxQY/nVOdzfs5QbevPjGsUVoEiFwqxxaopLyu6todwtDOCfIOfhXSmpMVXBiCxUn7kqaUB1iwaBKqoAVRQ==
   dependencies:
     "@tanstack/query-core" "5.90.12"
+
+"@tanstack/query-persist-client-core@5.91.19":
+  version "5.91.19"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-persist-client-core/-/query-persist-client-core-5.91.19.tgz#8ded6775e80b4dbd60cd008e5e7a0f71674a04b2"
+  integrity sha512-whrASqbVq8261Ue+/ZzpHsrLDYVfRaENs4HTdLuYKxawkGWzdMfV7BmOdWl8ZF0mEBEbrQR8V6oE3R635JF2Fw==
+  dependencies:
+    "@tanstack/query-core" "5.90.20"
 
 "@tanstack/react-query-devtools@^5.90.11":
   version "5.91.1"
