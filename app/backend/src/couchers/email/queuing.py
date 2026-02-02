@@ -3,7 +3,6 @@ from sqlalchemy.orm.session import Session
 from couchers.config import config
 from couchers.email.content import EmailContent
 from couchers.jobs.enqueue import queue_job
-from couchers.jobs.handlers import send_email
 from couchers.metrics import emails_counter
 from couchers.proto.internal import jobs_pb2
 
@@ -32,6 +31,10 @@ def _queue_email(
         list_unsubscribe_header=list_unsubscribe_header,
         source_data=source_data,
     )
+
+    # Import here to avoid circular dependency
+    from couchers.jobs.handlers import send_email
+
     queue_job(
         session,
         job=send_email,
