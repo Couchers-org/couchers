@@ -95,7 +95,19 @@
     "label": "Bir sorun bildir",
     "flag": {
       "reason_required": "Sebep gerekli.",
-      "description_required": "Açıklama gerekli."
+      "description_required": "Açıklama gerekli.",
+      "success": "Raporunuz ile Couchers'ı herkes için daha iyi bir platform yaptığın için teşekkürler!",
+      "reason": {
+        "scam": "Dolandırıcılık, sahte veya yanıltıcı bilgi",
+        "other": "Diğer (Lütfen aşağıda belirtiniz)",
+        "dating": "Flört/randevu uygulaması tarzı davranış",
+        "external": "Platform dışı olay",
+        "harassment": "Taciz, zorbalık, nefret söylemi veya yasa dışı içerik",
+        "guidelines_breach": "Kural veya politika ihlali (ödeme isteme, çıplaklık, paylaşılan yataklar, vb.)",
+        "safety": "Güvenlik endişesi (kendi veya başkalarının güvenliğine karşı)",
+        "spam": "Kanepe sörfü ile ilgisi olmayan spam veya promosyon",
+        "sexualized": "Cinsel içerikli içerik veya davranış"
+      }
     }
   },
   "meetup_status": {
@@ -103,5 +115,9 @@
     "open_to_meetup": "Buluşmaya açık",
     "unspecified_info": "Belirtmemiş",
     "does_not_want_to_meetup": "Buluşamaz"
-  }
+  },
+  "not_found_text_2": "Sadece <1>eve gitmek</1> mi istiyorsun?",
+  "not_found_alt": "Hata 404: Kaynak Bulunamadı",
+  "change_time": "Zamanı değiştir",
+  "not_found_text_1": "İstediğin URL veya kaynağı bulamadık"
 }

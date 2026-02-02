@@ -240,7 +240,7 @@ export default function ProfileTagInput({
                 t={t}
                 i18nKey="profile_tag_input.header_text"
                 components={{
-                  0: (
+                  support_link: (
                     <Link
                       href="mailto:support@couchers.org"
                       target="_blank"

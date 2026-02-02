@@ -13,7 +13,7 @@ from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
 from couchers.db import session_scope
-from couchers.i18n.localize import localize_datetime_for_user
+from couchers.i18n import LocalizationContext
 from couchers.jobs.worker import process_job
 from couchers.models import (
     DeviceType,
@@ -592,7 +592,8 @@ def test_event_reminder_email_sent(db):
     user, token = generate_user()
     title = "Board Game Night"
     start_event_time = timestamp_pb2.Timestamp(seconds=1751690400)
-    expected_time_str = localize_datetime_for_user(start_event_time, user)
+
+    expected_time_str = LocalizationContext.from_user(user).localize_datetime(start_event_time)
 
     with mock_notification_email() as mock:
         with session_scope() as session:

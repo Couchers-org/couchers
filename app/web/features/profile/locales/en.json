@@ -278,7 +278,7 @@
   "image_uploading_warning": "Your profile image is still uploading. Are you sure you want to leave the page?",
   "click_replace_image": "Click to replace image",
   "profile_tag_input": {
-    "header_text": "Press 'Enter' to add\n<0>Email us</0> to add an entry",
+    "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
     "remove_button_a11y_text": "Remove {{tag}}"
   },
   "view_in_admin_console": "View user in admin console",
@@ -337,6 +337,7 @@
     "photo_viewer_aria": "Photo viewer",
     "previous_photo": "Previous photo",
     "next_photo": "Next photo",
-    "close_viewer": "Close photo viewer"
+    "close_viewer": "Close photo viewer",
+    "report_photo": "Report Photo"
   }
 }

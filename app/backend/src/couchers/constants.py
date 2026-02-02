@@ -63,6 +63,7 @@ UNDELETE_DAYS = 7
 # expiry time for preferred language cookie
 PREFERRED_LANGUAGE_COOKIE_EXPIRY = timedelta(days=3650)
 
+
 # activeness probe settings
 # wait about 11 months before sending one out
 ACTIVENESS_PROBE_INACTIVITY_PERIOD = timedelta(days=333)

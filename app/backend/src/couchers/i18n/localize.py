@@ -1,3 +1,8 @@
+"""
+Defines low-level localization functions for strings, dates, etc.
+Most code should use the higher-level couchers.i18n.LocalizationContext object.
+"""
+
 from collections.abc import Mapping
 from datetime import date, datetime, time
 from functools import lru_cache
@@ -9,7 +14,6 @@ from google.protobuf.timestamp_pb2 import Timestamp
 
 from couchers.i18n.i18next import I18Next
 from couchers.i18n.locales import load_locales
-from couchers.models.users import User
 from couchers.utils import to_aware_datetime
 
 
@@ -77,11 +81,6 @@ def localize_datetime(value: datetime | Timestamp, timezone: ZoneInfo | None, lo
 
     # TODO(#7590): Account for locale
     return f"{localized_date} at {localized_time}"
-
-
-def localize_datetime_for_user(value: datetime | Timestamp, user: User) -> str:
-    timezone = ZoneInfo(user.timezone or "Etc/UTC")
-    return localize_datetime(value, timezone, user.ui_language_preference or "en")
 
 
 def localize_timezone(timezone: ZoneInfo, locale: str) -> str:
