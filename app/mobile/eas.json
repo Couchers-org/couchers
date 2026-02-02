@@ -39,8 +39,7 @@
       "android": {
         "track": "internal",
         "releaseStatus": "completed",
-        "changesNotSentForReview": true,
-        "releaseNotesFile": "./RELEASE_NOTES.txt"
+        "changesNotSentForReview": true
       }
     },
     "production": {
@@ -49,8 +48,7 @@
       },
       "android": {
         "track": "internal",
-        "releaseStatus": "completed",
-        "releaseNotesFile": "./RELEASE_NOTES.txt"
+        "releaseStatus": "completed"
       }
     }
   }
