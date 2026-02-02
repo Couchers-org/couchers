@@ -46,7 +46,7 @@ def email_fields(mock: Mock, call_ix: int = 0) -> EmailData:
         recipient=kw["recipient"],
         subject=content.subject,
         plain=content.body_plaintext,
-        html=content.body_html or "", # Avoid None so tests can use the in operator
+        html=content.body_html or "",  # Avoid None so tests can use the in operator
         source_data=kw["source_data"],
     )
 

@@ -252,7 +252,7 @@ def test_excessive_requests_are_reported(db):
                 )
             )
             assert mock_email.call_count == 1
-            email = mock_email.mock_calls[0].kwargs["plain"]
+            email = email_fields(mock_email).plain
             assert email.startswith(
                 f"User {user.username} has sent {rate_limit_definition.warning_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
             )
@@ -288,7 +288,7 @@ def test_excessive_requests_are_reported(db):
             )
 
             assert mock_email.call_count == 1
-            email = mock_email.mock_calls[0].kwargs["plain"]
+            email = email_fields(mock_email).plain
             assert email.startswith(
                 f"User {user.username} has sent {rate_limit_definition.hard_limit} host requests in the past {RATE_LIMIT_HOURS} hours."
             )

@@ -1017,7 +1017,7 @@ def test_excessive_friend_requests_are_reported(db):
             _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
 
             assert mock_email.call_count == 1
-            email = mock_email.mock_calls[0].kwargs["plain"]
+            email = email_fields(mock_email).plain
             assert email.startswith(
                 f"User {user.username} has sent {rate_limit_definition.warning_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
             )
@@ -1039,7 +1039,7 @@ def test_excessive_friend_requests_are_reported(db):
             )
 
             assert mock_email.call_count == 1
-            email = mock_email.mock_calls[0].kwargs["plain"]
+            email = email_fields(mock_email).plain
             assert email.startswith(
                 f"User {user.username} has sent {rate_limit_definition.hard_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
             )
