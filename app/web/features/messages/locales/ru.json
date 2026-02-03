@@ -118,7 +118,8 @@
     "group_title": "Создать групповой чат",
     "group_title_field_label": "Заголовок",
     "no_friends_found_message": "Не удалось найти друзей",
-    "friends_input_label": "Друзья"
+    "friends_input_label": "Друзья",
+    "title_label": "Заголовок"
   },
   "leave_chat_dialog": {
     "message": "Вы уверены, что хотите покинуть этот чат?",
@@ -152,5 +153,8 @@
   "members_dialog": {
     "title": "Участники чата"
   },
-  "unknown_user": "Неизвестный пользователь"
+  "unknown_user": "Неизвестный пользователь",
+  "mark_all_read_button_text_chats": "Отметить все чаты как прочитанные",
+  "mark_all_read_button_text_hosting": "Отметить все запросы хостов как прочитанные",
+  "mark_all_read_button_text_surfing": "Отметить все запросы гостей как прочитанные"
 }
