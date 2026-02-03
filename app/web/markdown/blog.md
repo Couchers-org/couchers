@@ -10,7 +10,7 @@ If you'd like to contribute to the blog, please [sign up](/volunteer) and let us
 
 2026/02/05 by Nicole.
 
-TODO
+We've been busy! More about our donation drive results, dark mode, merch shop and change to sign up to be a beta tester for the Couchers.org mobile app.
 
 [Read more.](/blog/2026/02/05/couchers-v1.2-release)
 
