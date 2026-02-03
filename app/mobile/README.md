@@ -114,23 +114,9 @@ eas build --platform android
 
 ## Submitting Builds for Testing
 
-### Release Notes ("What's New")
-
-Before submitting a build, update the release notes that users see when they update the app.
-
-Edit `RELEASE_NOTES.txt` in the mobile app root - replace its entire contents with your release notes:
-
-```
-- Fixed chat scrolling on mobile browsers
-- Improved push notification handling
-- Bug fixes and performance improvements
-```
-
-**Important:** The file contents are used as-is (no comments or special formatting). Keep it short and user-friendly. This file is used for both iOS and Android submissions.
-
 ### iOS (TestFlight)
 
-To build and submit your iOS app to TestFlight with release notes:
+To build and submit your iOS app to TestFlight:
 
 ```bash
 # Staging
@@ -140,10 +126,16 @@ npm run release:ios:staging
 npm run release:ios:production
 ```
 
-These commands build the app and submit to TestFlight with release notes from `RELEASE_NOTES.txt`.
+Once submitted, the build will be available in TestFlight after automated review (usually within a few hours).
 
-Once submitted, the build will be available in TestFlight after automated review (usually within a few hours). You can then add testers in App Store Connect:
-- Go to App Store Connect → TestFlight → Internal Testing
+**Adding Release Notes:** iOS requires release notes ("What to Test") to be added manually in App Store Connect:
+1. Go to [App Store Connect](https://appstoreconnect.apple.com) → TestFlight → Builds
+2. Select your newly submitted build
+3. Add "What to Test" notes describing the changes
+4. Submit for testing
+
+You can then add testers:
+- Go to TestFlight → Internal Testing
 - Add tester email addresses (no Apple Developer account needed for testers)
 - Testers receive an email, download the TestFlight app, and install your app
 
@@ -151,7 +143,7 @@ Once submitted, the build will be available in TestFlight after automated review
 
 ### Android (Google Play Internal Testing)
 
-To build and submit your Android app to Google Play Internal Testing with release notes:
+To build and submit your Android app to Google Play Internal Testing:
 
 ```bash
 # Staging
@@ -161,10 +153,13 @@ npm run release:android:staging
 npm run release:android:production
 ```
 
-These commands build the app and submit to the Internal Testing track with release notes from `RELEASE_NOTES.txt`.
+**Adding Release Notes:** Edit the release notes in Google Play Console after submission:
+1. Go to [Google Play Console](https://play.google.com/console) → Your App → Testing → Internal testing
+2. Select the new release
+3. Edit "Release notes" to describe what changed
+4. Save changes
 
-Once submitted, the build will be immediately available for internal testing (no review required). You can then add testers in Google Play Console:
-- Go to Google Play Console → Your App → Testing → Internal testing
+Once submitted, the build will be immediately available for internal testing (no review required). You can then add testers in the same section:
 - Add tester email addresses (up to 100 testers)
 - Testers receive a link to install from the Play Store
 

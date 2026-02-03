@@ -14,7 +14,7 @@
     "format": "expo lint --fix && prettier --write .",
     "test": "jest",
     "release:ios:staging": "eas build -p ios --profile staging && eas submit -p ios --profile staging",
-    "release:ios:production": "eas build -p ios --profile production && eas submit -p ios --profile production --changelog \"$(cat RELEASE_NOTES.txt)\"",
+    "release:ios:production": "eas build -p ios --profile production && eas submit -p ios --profile production",
     "release:android:staging": "eas build -p android --profile staging --auto-submit",
     "release:android:production": "eas build -p android --profile production --auto-submit"
   },
