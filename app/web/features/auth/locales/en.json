@@ -106,7 +106,10 @@
     "name": {
       "field_label": "Name",
       "empty_error": "Please enter your name",
-      "required_error": "This field can't be empty."
+      "required_error": "This field can't be empty",
+      "invalid_characters_error": "Name can only contain letters, numbers, spaces, hyphens, and apostrophes",
+      "min_length_error": "Name must be at least 2 characters",
+      "max_length_error": "Name must be no more than 100 characters"
     },
     "email": {
       "field_label": "Email",
