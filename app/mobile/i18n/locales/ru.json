@@ -2,7 +2,8 @@
   "errors": {
     "failed_to_load": "Не удалось загрузить",
     "check_connection": "Проверьте подключение к интернету и попробуйте снова.",
-    "try_again": "Попробуйте еще раз"
+    "try_again": "Попробуйте еще раз",
+    "camera_permission_denied": "Разрешите доступ к камере для съёмки фото."
   },
   "not_found": {
     "title": "Ой!",
@@ -13,6 +14,14 @@
     "home": "Главная",
     "messages": "Сообщения",
     "communities": "Сообщества",
-    "search": "Поиск"
+    "search": "Поиск",
+    "events": "Мероприятия"
+  },
+  "common": {
+    "cancel": "Отменить",
+    "add_photo": "Добавить Фото",
+    "choose_photo_source": "Выберите, откуда добавить фото",
+    "take_photo": "Сделать фото",
+    "choose_from_library": "Выбрать из Галереи"
   }
 }

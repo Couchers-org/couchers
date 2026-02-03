@@ -27,7 +27,8 @@
     "additional_information_section": "Další informace",
     "travel_section": "Navštívené země",
     "lived_section": "Žil(a) v",
-    "languages_conversational": "Dorozumím se v"
+    "languages_conversational": "Dorozumím se v",
+    "photos_section": "Fotky"
   },
   "edit": "Upravit profil",
   "leave_reference": {
@@ -61,7 +62,11 @@
     "household_members": "Členové domácnosti",
     "about_home": "O mém domově",
     "general": "Obecně",
-    "has_housemates": "Má spolubydlící"
+    "has_housemates": "Má spolubydlící",
+    "general_subtitle": "Další podrobnosti o tvém domově a okolí",
+    "hosting_preferences_subtitle": "Dej hostům vědět, s čím jsi v pohodě",
+    "about_home_subtitle": "Řekni hostům o svém domově a o tom, co mohou očekávat",
+    "household_details_subtitle": "Sdílej více informací o své domácnosti"
   },
   "helper_text": {
     "missing_profile_photo": "Přidej prosím fotografii, aby jsi dokončil(a) svůj profil."
@@ -90,6 +95,14 @@
     "previous_photo": "Předchozí fotka",
     "photo_viewer_aria": "Prohlížeč fotek",
     "get_verified": "Získej ověření",
-    "next_photo": "Další fotka"
-  }
+    "next_photo": "Další fotka",
+    "report_photo": "Nahlásit fotku"
+  },
+  "edit_profile_headings": {
+    "languages_spoken": "Jazyky, kterými mluvím plynně",
+    "regions_visited": "Navštívené destinace",
+    "regions_lived": "Místa, kde jste žili",
+    "gender": "Pohlaví"
+  },
+  "edit_profile_helper_text": "Hledáš inspiraci, kde začít? <2>Podívej se na náš průvodce, jak vytvořit skvělý profil</2>."
 }
