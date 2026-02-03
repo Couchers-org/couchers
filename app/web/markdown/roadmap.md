@@ -8,7 +8,7 @@ hide_title: true
 <table style="width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 3; border-radius: 5px; text-align: left; font-family: Ubuntu, sans-serif; font-size: 14px;">
   <thead>
     <tr style="background-color: #E47701; color: white; text-align: center;">
-      <th colspan="6" style="padding: 10px; border-top-left-radius: 10px; border-top-right-radius: 10px;"><h1 style="font-size: 32px;margin:0">2025 Roadmap</h1></th>
+      <th colspan="6" style="padding: 10px; border-top-left-radius: 10px; border-top-right-radius: 10px;"><h1 style="font-size: 32px;margin:0">2026 Roadmap</h1></th>
     </tr>
     <tr style="background-color: #FDE9D4; text-align: center;">
       <th style="border: 0; padding: 8px; border-radius: 5px;"></th>
