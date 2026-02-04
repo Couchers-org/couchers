@@ -366,7 +366,9 @@ def test_send_donation_email(db, monkeypatch):
     with session_scope() as session:
         email = session.execute(select(Email)).scalar_one()
         assert email.subject == "[TEST] Thank you for your donation to Couchers.org!"
-        assert email.plain.startswith("""Dear Testy von Test,
+        assert (
+            email.plain
+            == """Dear Testy von Test,
 
 Thank you so much for your donation of $20 to Couchers.org.
 
@@ -390,8 +392,9 @@ Couchers.org Founders
 
 ---
 
-Edit your notification settings at
-""")
+This is a security email, you cannot unsubscribe from it.
+"""
+        )
 
         assert "Thank you so much for your donation of $20 to Couchers.org." in email.html
         assert email.sender_name == "Couchers.org"

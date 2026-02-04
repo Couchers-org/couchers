@@ -156,7 +156,7 @@ class NotificationTopicAction(enum.Enum):
     birthdate__change = ("birthdate:change", dt_sec, False, nd.BirthdateChange)
     api_key__create = ("api_key:create", dt_sec, False, nd.ApiKeyCreate)
 
-    donation__received = ("donation:received", dt_sec, True, nd.DonationReceived)
+    donation__received = ("donation:received", dt_sec, False, nd.DonationReceived)
 
     onboarding__reminder = ("onboarding:reminder", dt_sec, True, empty_pb2.Empty)
 
