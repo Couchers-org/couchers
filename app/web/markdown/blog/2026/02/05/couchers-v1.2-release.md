@@ -143,7 +143,7 @@ In preparation for the mobile app, we released dark mode! You can find this in t
 
 Our biggest news - we're getting close to releasing a Couchers.org mobile app for iOS and Android! We're looking for some beta testers to try the app out and help us find any bugs we missed before releasing to the generap public.
 
-Interested? [Sign up here and we'll email you to sign up once we're ready! Make sure to tick the checkbox "Mobile App Beta Testers".](https://newsletter.couchers.org/subscription/form)
+Interested? [Sign up here and we'll email you to sign up once we're ready!](https://couchershq.org/mobile-app-beta.html)
 
 ## Volunteer at Couchers.org
 
