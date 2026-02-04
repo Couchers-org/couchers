@@ -12,7 +12,7 @@ The code in this repository is licensed under the [MIT license](license.md).
 
 ## 👩‍💻 Looking to contribute as a software developer?
 
-**Please read our [Developer Contributor Guide](docs/contributing.md) first** — it explains our workflow, expectations, and how to get started. [You can see and apply to our current volunteer positions here.](./app/web/markdown/volunteer.md)
+**Please read our [Developer Contributor Guide](docs/contributing.md) first** — it explains our workflow, expectations, and how to get started. [You can see and apply to our current volunteer positions here.](https://couchers.org/volunteer)
 
 ---
 
