@@ -39,8 +39,8 @@
   },
   "edit": "Edit Profile",
   "helper_text": {
-    "characters_remaining_one": "<bold>Please write at least {{count}} character to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
-    "characters_remaining_other": "<bold>Please write at least {{count}} characters to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
+    "characters_remaining_one": "<bold>Please write {{count}} more character to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
+    "characters_remaining_other": "<bold>Please write {{count}} more characters to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
     "missing_profile_photo": "Please add a photo to complete your profile."
   },
   "section_tabs_a11y_label": "tabs for user's details",
