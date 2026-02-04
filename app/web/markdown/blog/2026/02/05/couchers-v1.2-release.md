@@ -16,7 +16,7 @@ We've been silently working behind the scenes and have some big updates! First w
 
 ## Donation Drive
 
-We held our first ever donation drive which was overall a success! We earned about $2300 in donations during the drive, bringing us to a total of $XXXX, which will cover our server, etc expenses for next year. A sincere thank you to all who donated! It's our community and your support that allows us to stay focused on the actual features you want and keeps Couchers.org going! We received more donations from more people than we ever have before. Our biggest takeaway is that maybe it's not so bad to ask for support sometimes, or well, at least once a year ;).
+We held our first ever donation drive which was overall a success! We earned about US$2082 in donations during the drive, bringing us to a total of US$4287 for 2025, which will cover our server, etc expenses for next year. A sincere thank you to all who donated! It's our community and your support that allows us to stay focused on the actual features you want and keeps Couchers.org going! We received more donations from more people than we ever have before. Our biggest takeaway is that maybe it's not so bad to ask for support sometimes, or well, at least once a year ;).
 
 ## Couchers.org Merchandise Shop
 
