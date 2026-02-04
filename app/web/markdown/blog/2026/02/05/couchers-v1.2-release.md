@@ -10,7 +10,7 @@ We’ve been working hard behind the scenes and have some exciting updates to sh
 
 ## Donation Drive
 
-We held our first ever donation drive starting mid-November and wrapping up at the start of the year. Overall it was a success, with us earning about US$2082 in donations during the drive, bringing us to a total of US$4287 for 2025, which will cover most of our expenses for the next year. A sincere thank you to all who donated! It's our community and your support that allows us to keep the servers running and our volunteers staying focused on the actual development and operational parts of keeping Couchers going! We received more donations from more people than we ever have before. Our biggest takeaway is that maybe it's not so bad to ask for support sometimes, or well, at least once a year ;).
+We held our first ever donation drive starting mid-November and wrapping up at the start of the year. Overall it was a success, with us earning about US$2082 in donations during the drive, bringing us to a total of US$4287 for 2025, which will cover most of our expenses for the next year. A sincere thank you to all who donated! It's our community and your support that allows us to keep the servers running and our volunteers staying focused on the actual development and operational parts of keeping Couchers going! We received more donations from more people than we ever have before. Our biggest takeaway is that maybe it's not so bad to ask for support sometimes, or well, at least once a year ;-).
 
 ## Couchers.org Merchandise Shop
 
@@ -26,7 +26,7 @@ A massive shoutout to [Chris](https://couchers.org/user/chrisk) who led this ent
 
 Our biggest news — we're getting close to releasing a Couchers.org mobile app for iOS and Android! We're looking for some Beta testers to try the app out and help us find any bugs we missed before releasing to the general public.
 
-Interested? [Sign up here and we'll email you to sign up once we're ready!](https://couchershq.org/mobile-app-beta.html)
+Interested? [Sign up here and we'll email you once we're ready!](https://couchershq.org/mobile-app-beta.html)
 
 ## New Features
 
@@ -41,11 +41,11 @@ At long last, you can upload multiple photos to your profile! This has been requ
 * Report flags on profile photo gallery by [Jesse](https://couchers.org/user/jesse) [[#7766](https://github.com/Couchers-org/couchers/pull/7766)]
 
 <p align="center">
-<img src="/img/blog/20260205_edit_profile_galleries.png" alt="Screenshot of edit profile galleries" />
+<img src="../../../../public/img/blog/20260205_edit_profile_galleries.png" alt="Screenshot of edit profile galleries" />
 </p>
 
 <p align="center">
-<img src="/img/blog/20260205_view_profile_galleries.png" alt="Screenshot of view profile galleries" />
+<img src="../../../../public/img/blog/20260205_view_profile_galleries.png" alt="Screenshot of view profile galleries" />
 </p>
 
 ### Duplicate Events
@@ -55,7 +55,7 @@ Event organizers have been requesting this for awhile. You can now duplicate an 
 * Add ability to duplicate events by [Nicole](https://couchers.org/user/unsettleddown) with assistance from [Alexey](https://couchers.org/user/ptz) and [Aapeli](https://couchers.org/user/aapeli) [[#7576](https://github.com/Couchers-org/couchers/pull/7576)]
 
 <p align="center">
-<img src="/img/blog/20260205_duplicate_event.png" alt="Screenshot of duplicate event" />
+<img src="../../../../public/img/blog/20260205_duplicate_event.png" alt="Screenshot of duplicate event" />
 </p>
 
 ### Communities Search
@@ -64,7 +64,7 @@ Event organizers have been requesting this for awhile. You can now duplicate an 
 * Implement community search by [Aapeli](https://couchers.org/user/aapeli) with assistance from [Nicole](https://couchers.org/user/unsettleddown) and [Alexey](https://couchers.org/user/ptz) [[#7077](https://github.com/Couchers-org/couchers/pull/7077)]
 
 <p align="center">
-<img src="/img/blog/20260205_communities_search.png" alt="Screenshot of communities search" />
+<img src="../../../../public/img/blog/20260205_communities_search.png" alt="Screenshot of communities search" />
 </p>
 
 ### Dark Mode
@@ -76,7 +76,7 @@ In preparation for the mobile app, we released dark mode! You can find this in t
 * Improved dark mode settings with better placement in account settings, clearer instructions, and fixed mobile navigation icon visibility in dark mode by [Nicole](https://couchers.org/user/unsettleddown) [[#7601](https://github.com/Couchers-org/couchers/pull/7601)]
 
 <p align="center">
-<img src="/img/blog/20260205_dark_mode.png" alt="Screenshot of dark mode" />
+<img src="../../../../public/img/blog/20260205_dark_mode.png" alt="Screenshot of dark mode" />
 </p>
 
 ### Notifications
@@ -85,7 +85,7 @@ In preparation for the mobile app, we released dark mode! You can find this in t
 * Rewrite push notifications following guidelines by [Tristan](https://couchers.org/user/tristanlabelle) with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#7587](https://github.com/Couchers-org/couchers/pull/7587)]
 * Fixed email previews and titles that were missing from notification emails, making them more informative in your inbox by [Tristan](https://couchers.org/user/tristanlabelle) with assistance from [Alexey](https://couchers.org/user/ptz) and Christian [[#7629](https://github.com/Couchers-org/couchers/pull/7629)]
 
-## UI Improvements
+### UI Improvements
 
 * Added community events to dashboard so users can discover upcoming events from their joined communities in addition to events they're attending by [Nicole](https://couchers.org/user/unsettleddown) with assistance from [Aapeli](https://couchers.org/user/aapeli) and [Jesse](https://couchers.org/user/jesse) [[#7578](https://github.com/Couchers-org/couchers/pull/7578)]
 * Modernized and improved readability of the dashboard hero search design by [Nicole](https://couchers.org/user/unsettleddown) with assistance from [Aapeli](https://couchers.org/user/aapeli) [[#7673](https://github.com/Couchers-org/couchers/pull/7673)]
@@ -101,7 +101,7 @@ In preparation for the mobile app, we released dark mode! You can find this in t
 * Fixed bug where 'Confirm I didn't surf/host' button required a comment even though it was marked as optional by [Nicole](https://couchers.org/user/unsettleddown) [[#7708](https://github.com/Couchers-org/couchers/pull/7708)]
 * Fixed a bug where deleted and banned users were incorrectly showing up in badge user lists by [Aapeli](https://couchers.org/user/aapeli) with assistance from [Tristan](https://couchers.org/user/tristanlabelle) [[#7516](https://github.com/Couchers-org/couchers/pull/7516)]
 
-## Prep Work for New Features
+### Prep Work for New Features
 
 * Backend: Added ability to archive and unarchive group chats to help organize conversations by [Nicole](https://couchers.org/user/unsettleddown) with assistance from [Alexey](https://couchers.org/user/ptz) and [Aapeli](https://couchers.org/user/aapeli) [[#7681](https://github.com/Couchers-org/couchers/pull/7681)]
 * Postal verification (start) by [Aapeli](https://couchers.org/user/aapeli) with assistance from [Alexey](https://couchers.org/user/ptz) [[#7286](https://github.com/Couchers-org/couchers/pull/7286)]
@@ -150,6 +150,20 @@ Want to help us grow and thrive? Here's some ways you can join the volunteer tea
 * [Mobile Developer](https://couchers.org/volunteer/mobile-developer) - With the mobile app entering Beta soon, there will be lots of bug fixes and improvements. We could use some help from someone familiar with best practices for Expo and React Native as we're flying by the seat of our pants here.
 * [Blog Writer](https://couchers.org/volunteer/blog-writer) - Have you hosted, surfed or run an event with Couchers and would be up for writing a blog post about the experience? We'd love to hear about it! Even a single post is a big help!
 
-That's it for now. As always, thanks for sticking around for the journey!
+
+That's it for now! We want to take a joyful moment to thank every one of you who made Couchers so special last year. Whether you joined as a new member, organized events, supported others, contributed your time, participated in discussions, or helped build the platform, your presence truly made a difference. Couchers thrives because of people like you, and we’re sincerely grateful for your energy, care, and enthusiasm.
+
+In 2025, together, we achieved so much! Some highlights include:
+* Continued **growth of the Couchers community** around the world (1.4x in one year alone!)
+* **Surpassing 50,000 users and going viral with [our official v1 launch](https://couchers.org/blog/2025/10/28/couchers-fall-release)** (and even releasing a v1.1!)
+* Gaining over 100 new Instagram followers! [Follow our account @couchersorg](https://couchers.org/blog/2025/10/28/couchers-fall-release) and stay up-to-date with all Couchers news
+* The opening of the Couchers [merch shop](https://shop.couchershq.org)
+* **Improved accessibility** by translating Couchers to German, Russian and Spanish (above 80% completion) and ongoing translation effort in other languages.
+* **Improvements to volunteer tools**, including a new volunteer page and management options in profile settings
+* Ongoing support from [community donations](https://couchers.org/donate) that help keep Couchers running
+
+Every achievement last year was made possible by the enthusiasm and generosity of our incredible volunteers and Couchers members. Our community has become more active and supportive, and the progress we’ve made is something we can all be proud of.
+
+We’ve built up so much momentum and excitement this year, and the future is brighter than ever. Thank you for being part of Couchers.
 
 *Written by [Nicole](https://couchers.org/user/unsettleddown). Published on 2025/02/05*
