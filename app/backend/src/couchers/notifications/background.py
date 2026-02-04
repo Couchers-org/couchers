@@ -167,6 +167,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                         delivery_type=NotificationDeliveryType.email,
                     )
                 )
+                session.flush()
                 _send_email_notification(session, user, notification)
             elif delivery_type == NotificationDeliveryType.digest:
                 # for digest notifications, add to digest queue
@@ -186,6 +187,7 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                         delivery_type=NotificationDeliveryType.push,
                     )
                 )
+                session.flush()
                 _send_push_notification(session, user, notification)
 
 
