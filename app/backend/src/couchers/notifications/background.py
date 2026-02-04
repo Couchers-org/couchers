@@ -24,9 +24,10 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
-from couchers.notifications.render_email import render_email_notification, can_notify_deleted_user
+from couchers.notifications.render_email import render_email_notification
 from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
+from couchers.notifications.utils import ACCOUNT_DELETION_TOPIC
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import moderation_state_column_visible
 from couchers.templating import Jinja2Template, template_folder
@@ -44,7 +45,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         logger.info(f"Tried emailing {user} based on notification {notification.topic_action} but user is banned")
         return
 
-    if user.is_deleted and not can_notify_deleted_user(notification.topic_action):
+    if user.is_deleted and notification.topic != ACCOUNT_DELETION_TOPIC:
         logger.info(f"Tried emailing {user} based on notification {notification.topic_action} but user is deleted")
         return
 

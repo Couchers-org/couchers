@@ -31,17 +31,6 @@ class RenderedEmailNotification:
     list_unsubscribe_url: str | None = None
 
 
-_DELETED_USER_ALLOWED_NOTIFICATIONS = {
-    NotificationTopicAction.account_deletion__start,
-    NotificationTopicAction.account_deletion__complete,
-    NotificationTopicAction.account_deletion__recovered,
-}
-
-
-def can_notify_deleted_user(topic_action: NotificationTopicAction) -> bool:
-    return topic_action in _DELETED_USER_ALLOWED_NOTIFICATIONS
-
-
 def render_email_notification(
     notification: Notification, loc_context: LocalizationContext
 ) -> RenderedEmailNotification:
@@ -295,6 +284,7 @@ def render_email_notification(
                 "amount": data.amount,
                 "receipt_url": data.receipt_url,
             },
+            topic_action_unsubscribe_text="donations received",
         )
     elif notification.topic_action == NotificationTopicAction.friend_request__create:
         other = data.other_user

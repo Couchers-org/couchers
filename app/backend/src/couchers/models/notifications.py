@@ -54,7 +54,6 @@ class NotificationTopicAction(enum.Enum):
       e.g. all notifications about an event, where the key is the event id.
     """
 
-
     def __init__(
         self, topic_action: str, defaults: list[NotificationDeliveryType], user_editable: bool, data_type: type
     ) -> None:
