@@ -41,11 +41,11 @@ At long last, you can upload multiple photos to your profile! This has been requ
 * Report flags on profile photo gallery by [Jesse](https://couchers.org/user/jesse) [[#7766](https://github.com/Couchers-org/couchers/pull/7766)]
 
 <p align="center">
-<img src="../../../../public/img/blog/20260205_edit_profile_galleries.png" alt="Screenshot of edit profile galleries" />
+<img src="/img/blog/20260205_edit_profile_galleries.png" alt="Screenshot of edit profile galleries" />
 </p>
 
 <p align="center">
-<img src="../../../../public/img/blog/20260205_view_profile_galleries.png" alt="Screenshot of view profile galleries" />
+<img src="/img/blog/20260205_view_profile_galleries.png" alt="Screenshot of view profile galleries" />
 </p>
 
 ### Duplicate Events
@@ -55,7 +55,7 @@ Event organizers have been requesting this for awhile. You can now duplicate an 
 * Add ability to duplicate events by [Nicole](https://couchers.org/user/unsettleddown) with assistance from [Alexey](https://couchers.org/user/ptz) and [Aapeli](https://couchers.org/user/aapeli) [[#7576](https://github.com/Couchers-org/couchers/pull/7576)]
 
 <p align="center">
-<img src="../../../../public/img/blog/20260205_duplicate_event.png" alt="Screenshot of duplicate event" />
+<img src="/img/blog/20260205_duplicate_event.png" alt="Screenshot of duplicate event" />
 </p>
 
 ### Communities Search
@@ -64,7 +64,7 @@ Event organizers have been requesting this for awhile. You can now duplicate an 
 * Implement community search by [Aapeli](https://couchers.org/user/aapeli) with assistance from [Nicole](https://couchers.org/user/unsettleddown) and [Alexey](https://couchers.org/user/ptz) [[#7077](https://github.com/Couchers-org/couchers/pull/7077)]
 
 <p align="center">
-<img src="../../../../public/img/blog/20260205_communities_search.png" alt="Screenshot of communities search" />
+<img src="/img/blog/20260205_communities_search.png" alt="Screenshot of communities search" />
 </p>
 
 ### Dark Mode
@@ -76,7 +76,7 @@ In preparation for the mobile app, we released dark mode! You can find this in t
 * Improved dark mode settings with better placement in account settings, clearer instructions, and fixed mobile navigation icon visibility in dark mode by [Nicole](https://couchers.org/user/unsettleddown) [[#7601](https://github.com/Couchers-org/couchers/pull/7601)]
 
 <p align="center">
-<img src="../../../../public/img/blog/20260205_dark_mode.png" alt="Screenshot of dark mode" />
+<img src="/img/blog/20260205_dark_mode.png" alt="Screenshot of dark mode" />
 </p>
 
 ### Notifications
