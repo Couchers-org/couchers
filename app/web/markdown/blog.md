@@ -6,11 +6,11 @@ title: Blog
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 
-## [v1.2 release TODO!](/blog/2026/02/05/couchers-v1.2-release)
+## [Couchers v1.2 Release: Feature releases and mobile app!](/blog/2026/02/05/couchers-v1.2-release)
 
 2026/02/05 by Nicole.
 
-We've been busy! More about our donation drive results, dark mode, merch shop and change to sign up to be a beta tester for the Couchers.org mobile app.
+We've been busy! More about our donation drive results, dark mode, merch shop and change to sign up to be a Beta tester for the Couchers.org mobile app.
 
 [Read more.](/blog/2026/02/05/couchers-v1.2-release)
 
