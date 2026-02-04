@@ -258,7 +258,7 @@ def _create_chat(
     # Create moderation state for UMS (starts as SHADOWED)
     moderation_state = create_moderation(
         session=session,
-        object_type=ModerationObjectType.GROUP_CHAT,
+        object_type=ModerationObjectType.group_chat,
         object_id=conversation.id,
         creator_user_id=creator_id,
     )
