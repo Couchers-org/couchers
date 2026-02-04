@@ -46,12 +46,20 @@ dt_empty: list[NotificationDeliveryType] = []
 
 
 class NotificationTopicAction(enum.Enum):
+    """
+    Identifies a type of notification by the topic it relates to and the action triggered.
+    The grouping by topic allows users to unsubscribe from notifications in two ways:
+    - All notifications of a certain type (topic+action), e.g. all friend requests.
+    - All notifications about a certain instance of a topic,
+      e.g. all notifications about an event, where the key is the event id.
+    """
+
+
     def __init__(
         self, topic_action: str, defaults: list[NotificationDeliveryType], user_editable: bool, data_type: type
     ) -> None:
         self.topic, self.action = topic_action.split(":")
         self.defaults = defaults
-        # for now user editable == not a security notification
         self.user_editable = user_editable
 
         self.data_type = data_type
@@ -62,6 +70,11 @@ class NotificationTopicAction(enum.Enum):
     @property
     def display(self) -> str:
         return f"{self.topic}:{self.action}"
+
+    @property
+    def is_security(self) -> bool:
+        """Whether this is a security-related notification that cannot be unsubscribed from."""
+        return not self.user_editable
 
     def __str__(self) -> str:
         return self.display
