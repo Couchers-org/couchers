@@ -139,16 +139,16 @@ def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     is_list_operation: bool = False,
 ) -> Select[T]:
     aliased_mod_state = aliased(ModerationState)
-    conditions = [aliased_mod_state.visibility == ModerationVisibility.VISIBLE]
+    conditions = [aliased_mod_state.visibility == ModerationVisibility.visible]
 
     # UNLISTED content is visible in single-item operations but not in lists
     if not is_list_operation:
-        conditions.append(aliased_mod_state.visibility == ModerationVisibility.UNLISTED)
+        conditions.append(aliased_mod_state.visibility == ModerationVisibility.unlisted)
 
     # Authors can always see their own SHADOWED content
     conditions.append(
         and_(
-            aliased_mod_state.visibility == ModerationVisibility.SHADOWED,
+            aliased_mod_state.visibility == ModerationVisibility.shadowed,
             getattr(table, table.__moderation_author_column__) == user_id_column,
         )
     )
@@ -163,17 +163,17 @@ def where_moderated_content_visible[T: tuple[Any, ...]](
     is_list_operation: bool = False,
 ) -> Select[T]:
     aliased_mod_state = aliased(ModerationState)
-    conditions = [aliased_mod_state.visibility == ModerationVisibility.VISIBLE]
+    conditions = [aliased_mod_state.visibility == ModerationVisibility.visible]
 
     # UNLISTED content is visible in single-item operations but not in lists
     if not is_list_operation:
-        conditions.append(aliased_mod_state.visibility == ModerationVisibility.UNLISTED)
+        conditions.append(aliased_mod_state.visibility == ModerationVisibility.unlisted)
 
     # Authors can always see their own SHADOWED content
     if context.is_logged_in():
         conditions.append(
             and_(
-                aliased_mod_state.visibility == ModerationVisibility.SHADOWED,
+                aliased_mod_state.visibility == ModerationVisibility.shadowed,
                 getattr(table, table.__moderation_author_column__) == context.user_id,
             )
         )

@@ -263,7 +263,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         # Create moderation state for UMS (starts as SHADOWED)
         moderation_state = create_moderation(
             session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
+            object_type=ModerationObjectType.host_request,
             object_id=conversation.id,
             creator_user_id=context.user_id,
         )

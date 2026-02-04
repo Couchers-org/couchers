@@ -75,7 +75,7 @@ def create_host_request(
 
     moderation_state = create_moderation(
         session,
-        ModerationObjectType.HOST_REQUEST,
+        ModerationObjectType.host_request,
         conversation.id,
         surfer_user_id,
     )
@@ -135,7 +135,7 @@ def create_host_request_by_date(
 
     moderation_state = create_moderation(
         session,
-        ModerationObjectType.HOST_REQUEST,
+        ModerationObjectType.host_request,
         conversation.id,
         surfer_user_id,
     )

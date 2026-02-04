@@ -176,9 +176,9 @@ def add_dummy_users() -> None:
 
             # Create moderation state for UMS (set as VISIBLE since this is dummy data)
             moderation_state = ModerationState(
-                object_type=ModerationObjectType.GROUP_CHAT,
+                object_type=ModerationObjectType.group_chat,
                 object_id=conversation.id,
-                visibility=ModerationVisibility.VISIBLE,
+                visibility=ModerationVisibility.visible,
             )
             session.add(moderation_state)
             session.flush()
@@ -186,9 +186,9 @@ def add_dummy_users() -> None:
             session.add(
                 ModerationLog(
                     moderation_state_id=moderation_state.id,
-                    action=ModerationAction.CREATE,
+                    action=ModerationAction.create,
                     moderator_user_id=creator_id,
-                    new_visibility=ModerationVisibility.VISIBLE,
+                    new_visibility=ModerationVisibility.visible,
                     reason="Dummy data: group chat created.",
                 )
             )
