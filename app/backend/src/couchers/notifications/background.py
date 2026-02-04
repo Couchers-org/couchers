@@ -65,7 +65,9 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         "footer_copyright_year": now().year,
     }
 
-    if notification.topic_action.user_editable:
+    if notification.topic_action.is_critical:
+        template_args["footer_email_is_critical"] = True
+    else:
         template_args["footer_email_is_critical"] = False
         template_args["footer_manage_notifications_link"] = urls.notification_settings_link()
         template_args["footer_notification_topic_action"] = rendered.topic_action_unsubscribe_text
@@ -73,8 +75,6 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         template_args["footer_notification_topic_key"] = rendered.topic_key_unsubscribe_text
         template_args["footer_notification_topic_key_link"] = generate_unsub_topic_key(notification)
         template_args["footer_do_not_email_link"] = generate_do_not_email(user)
-    else:
-        template_args["footer_email_is_critical"] = True
 
     # Format plaintext template
     plain_tmplt_body = (template_folder / f"{rendered.template_name}.txt").read_text()

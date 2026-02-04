@@ -59,7 +59,6 @@ class NotificationTopicAction(enum.Enum):
     ) -> None:
         self.topic, self.action = topic_action.split(":")
         self.defaults = defaults
-        # for now user editable == not a security notification
         self.user_editable = user_editable
 
         self.data_type = data_type
@@ -70,6 +69,11 @@ class NotificationTopicAction(enum.Enum):
     @property
     def display(self) -> str:
         return f"{self.topic}:{self.action}"
+
+    @property
+    def is_critical(self) -> bool:
+        """Whether the notification is critical cannot be disabled."""
+        return not self.user_editable
 
     def __str__(self) -> str:
         return self.display
