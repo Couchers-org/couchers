@@ -156,7 +156,7 @@ That's it for now! We want to take a joyful moment to thank every one of you who
 In 2025, together, we achieved so much! Some highlights include:
 * Continued **growth of the Couchers community** around the world (1.4x in one year alone!)
 * **Surpassing 50,000 users and going viral with [our official v1 launch](https://couchers.org/blog/2025/10/28/couchers-fall-release)** (and even releasing a v1.1!)
-* Gaining over 100 new Instagram followers! [Follow our account @couchersorg](https://couchers.org/blog/2025/10/28/couchers-fall-release) and stay up-to-date with all Couchers news
+* Gaining over 100 new Instagram followers! [Follow our account @couchersorg](https://www.instagram.com/couchersorg) and stay up-to-date with all Couchers news
 * The opening of the Couchers [merch shop](https://shop.couchershq.org)
 * **Improved accessibility** by translating Couchers to German, Russian and Spanish (above 80% completion) and ongoing translation effort in other languages.
 * **Improvements to volunteer tools**, including a new volunteer page and management options in profile settings
