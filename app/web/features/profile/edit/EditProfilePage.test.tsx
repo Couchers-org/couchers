@@ -200,7 +200,7 @@ describe("Edit profile", () => {
 
     expect(
       await screen.findByText(
-        /Please write at least 50 characters to unlock messaging and requests/i,
+        /Please write at least 50 more characters to unlock messaging and requests/i,
       ),
     ).toBeInTheDocument();
 
@@ -210,7 +210,7 @@ describe("Edit profile", () => {
     await waitFor(() => {
       expect(
         screen.queryByText(
-          /Please write at least 50 characters to unlock messaging and requests/i,
+          /Please write at least 50 more characters to unlock messaging and requests/i,
         ),
       ).not.toBeInTheDocument();
     });
