@@ -56,7 +56,7 @@
   "editor.insertSpaces": true,
   "files.trimTrailingWhitespace": true,
   "eslint.useFlatConfig": false,
-  "python-env.workspaceSearchPaths": [ "app/backend/.venv/bin" ],
+  "python-env.workspaceSearchPaths": [ "app/backend/.venv" ],
   "python.testing.cwd": "app/backend/src/tests",
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true
