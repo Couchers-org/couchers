@@ -36,7 +36,6 @@
     "merch_shop": "Merch-Shop"
   },
   "footer": {
-    "copyright": "© 2025 Couchers, Inc.",
     "non_profit_note": "Couchers.org ist ein Projekt von Couchers, Inc., einer in den USA als 501(c)(3) anerkannten gemeinnützigen, steuerbefreiten Organisation.",
     "version_info": "Version <2>{{version}}</2>, zuletzt aktualisiert <5>{{updated_ago}}</5>."
   },

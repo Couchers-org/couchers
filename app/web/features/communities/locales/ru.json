@@ -107,7 +107,8 @@
   "time_required": "Пожалуйста, введите время.",
   "end_date_error": "Дата окончания мероприятия должна быть позже даты начала.",
   "attendees_count_one": "{{count}} участник",
-  "attendees_count_other": "{{count}} участников",
+  "attendees_count_few": "",
+  "attendees_count_many": "",
   "page_content_required": "Пожалуйста, заполните содержимое страницы",
   "previous_page": "Вернуться на предыдущую страницу",
   "members_empty_state": "В данный момент нет участников.",
@@ -146,5 +147,8 @@
   "search_communities_placeholder": "Поиск по названию города или страны...",
   "search_communities_helper": "Выберите сообщество, чтобы перейти на его страницу",
   "search_communities": "Найдите и посетите сообщество",
-  "no_results_found_with_link": "Сообщества не найдены. <0>Запросить это сообщество!</0>"
+  "no_results_found_with_link": "Сообщества не найдены. <0>Запросить это сообщество!</0>",
+  "event_title_label": "Заголовок",
+  "discussion_creation_date": "Создано {{dateOnly}}",
+  "duplicate_event": "Дублировать мероприятие"
 }
