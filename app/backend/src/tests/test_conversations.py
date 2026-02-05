@@ -2026,7 +2026,7 @@ def test_incomplete_profile(db):
 
 
 def test_mark_conversation_viewing(db, moderator):
-    """Test that MarkConversationViewing updates last_viewing_at on subscription"""
+    """Test that MarkGroupChatViewing updates last_viewing_at on subscription"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -2049,7 +2049,7 @@ def test_mark_conversation_viewing(db, moderator):
 
     # Mark conversation as being viewed
     with conversations_session(token2) as c:
-        c.MarkConversationViewing(conversations_pb2.MarkConversationViewingReq(group_chat_id=group_chat_id))
+        c.MarkGroupChatViewing(conversations_pb2.MarkGroupChatViewingReq(group_chat_id=group_chat_id))
 
     # Now last_viewing_at should be set
     with session_scope() as session:
@@ -2063,7 +2063,7 @@ def test_mark_conversation_viewing(db, moderator):
 
 
 def test_mark_conversation_viewing_not_found(db, moderator):
-    """Test that MarkConversationViewing returns NOT_FOUND for non-existent or non-member chat"""
+    """Test that MarkGroupChatViewing returns NOT_FOUND for non-existent or non-member chat"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -2080,13 +2080,13 @@ def test_mark_conversation_viewing_not_found(db, moderator):
 
     with conversations_session(token3) as c:
         with pytest.raises(grpc.RpcError) as e:
-            c.MarkConversationViewing(conversations_pb2.MarkConversationViewingReq(group_chat_id=group_chat_id))
+            c.MarkGroupChatViewing(conversations_pb2.MarkGroupChatViewingReq(group_chat_id=group_chat_id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # Non-existent chat
     with conversations_session(token1) as c:
         with pytest.raises(grpc.RpcError) as e:
-            c.MarkConversationViewing(conversations_pb2.MarkConversationViewingReq(group_chat_id=999999))
+            c.MarkGroupChatViewing(conversations_pb2.MarkGroupChatViewingReq(group_chat_id=999999))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
@@ -2121,7 +2121,7 @@ def test_notification_suppressed_when_viewing(db, moderator):
 
     # User2 marks they are viewing the conversation
     with conversations_session(token2) as c:
-        c.MarkConversationViewing(conversations_pb2.MarkConversationViewingReq(group_chat_id=group_chat_id))
+        c.MarkGroupChatViewing(conversations_pb2.MarkGroupChatViewingReq(group_chat_id=group_chat_id))
 
     # User1 sends a message
     with conversations_session(token1) as c:
@@ -2318,3 +2318,130 @@ def test_notification_suppressed_when_presence_just_active(db, moderator):
             .all()
         )
         assert len(notif_count) == 0
+
+
+def test_stop_group_chat_viewing(db, moderator):
+    """Test that StopGroupChatViewing clears last_viewing_at on subscription"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    with conversations_session(token1) as c:
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+        group_chat_id = res.group_chat_id
+
+    moderator.approve_group_chat(group_chat_id)
+
+    # Mark conversation as being viewed
+    with conversations_session(token2) as c:
+        c.MarkGroupChatViewing(conversations_pb2.MarkGroupChatViewingReq(group_chat_id=group_chat_id))
+
+    # Verify last_viewing_at is set
+    with session_scope() as session:
+        sub = session.execute(
+            select(GroupChatSubscription)
+            .where(GroupChatSubscription.group_chat_id == group_chat_id)
+            .where(GroupChatSubscription.user_id == user2.id)
+        ).scalar_one()
+        assert sub.last_viewing_at is not None
+
+    # Stop viewing the conversation
+    with conversations_session(token2) as c:
+        c.StopGroupChatViewing(conversations_pb2.StopGroupChatViewingReq(group_chat_id=group_chat_id))
+
+    # Now last_viewing_at should be None
+    with session_scope() as session:
+        sub = session.execute(
+            select(GroupChatSubscription)
+            .where(GroupChatSubscription.group_chat_id == group_chat_id)
+            .where(GroupChatSubscription.user_id == user2.id)
+        ).scalar_one()
+        assert sub.last_viewing_at is None
+
+
+def test_stop_group_chat_viewing_not_found(db, moderator):
+    """Test that StopGroupChatViewing returns NOT_FOUND for non-existent or non-member chat"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    with conversations_session(token1) as c:
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+        group_chat_id = res.group_chat_id
+
+    moderator.approve_group_chat(group_chat_id)
+
+    # Create a third user who is not a member
+    user3, token3 = generate_user()
+
+    with conversations_session(token3) as c:
+        with pytest.raises(grpc.RpcError) as e:
+            c.StopGroupChatViewing(conversations_pb2.StopGroupChatViewingReq(group_chat_id=group_chat_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+    # Non-existent chat
+    with conversations_session(token1) as c:
+        with pytest.raises(grpc.RpcError) as e:
+            c.StopGroupChatViewing(conversations_pb2.StopGroupChatViewingReq(group_chat_id=999999))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_stop_viewing_enables_notifications(db, moderator):
+    """Test that notifications are sent after user stops viewing the conversation"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    # Enable push notifications for user2
+    topic_action = NotificationTopicAction.chat__message
+    with notifications_session(token2) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="push",
+                        enabled=True,
+                    )
+                ],
+            )
+        )
+
+    with conversations_session(token1) as c:
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+        group_chat_id = res.group_chat_id
+
+    moderator.approve_group_chat(group_chat_id)
+
+    # User2 marks they are viewing the conversation
+    with conversations_session(token2) as c:
+        c.MarkGroupChatViewing(conversations_pb2.MarkGroupChatViewingReq(group_chat_id=group_chat_id))
+
+    # User2 stops viewing the conversation
+    with conversations_session(token2) as c:
+        c.StopGroupChatViewing(conversations_pb2.StopGroupChatViewingReq(group_chat_id=group_chat_id))
+
+    # User1 sends a message
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Hello"))
+
+    # Process background jobs
+    while process_job():
+        pass
+
+    # User2 SHOULD have received a notification (they stopped viewing)
+    with session_scope() as session:
+        notif_count = (
+            session.execute(
+                select(Notification)
+                .where(Notification.user_id == user2.id)
+                .where(Notification.topic_action == topic_action)
+            )
+            .scalars()
+            .all()
+        )
+        assert len(notif_count) == 1

@@ -14,10 +14,12 @@ import {
   LeaveGroupChatReq,
   ListGroupChatsReq,
   MakeGroupChatAdminReq,
+  MarkGroupChatViewingReq,
   MarkLastSeenGroupChatReq,
   MuteGroupChatReq,
   RemoveGroupChatAdminReq,
   SendMessageReq,
+  StopGroupChatViewingReq,
 } from "proto/conversations_pb";
 
 import client from "./client";
@@ -133,6 +135,28 @@ export function markLastSeenGroupChat(
   req.setGroupChatId(groupChatId);
   req.setLastSeenMessageId(lastSeenMessageId);
   return client.conversations.markLastSeenGroupChat(req);
+}
+
+/**
+ * Mark that the user is currently viewing a group chat.
+ * Call periodically (every 10s) while the conversation is visible.
+ * Used to suppress notifications when user is actively viewing the chat.
+ */
+export function markGroupChatViewing(groupChatId: number) {
+  const req = new MarkGroupChatViewingReq();
+  req.setGroupChatId(groupChatId);
+  return client.conversations.markGroupChatViewing(req);
+}
+
+/**
+ * Mark that the user has stopped viewing a group chat.
+ * Call when user navigates away from the conversation.
+ * This immediately enables notifications again.
+ */
+export function stopGroupChatViewing(groupChatId: number) {
+  const req = new StopGroupChatViewingReq();
+  req.setGroupChatId(groupChatId);
+  return client.conversations.stopGroupChatViewing(req);
 }
 
 export async function getDirectMessage(userId: number) {

@@ -38,6 +38,8 @@ from couchers.constants import (
     EVENT_REMINDER_TIMEDELTA,
     HOST_REQUEST_MAX_REMINDERS,
     HOST_REQUEST_REMINDER_INTERVAL,
+    MESSAGE_NOTIFICATION_DELAY,
+    PUSH_NOTIFICATION_RECENCY_WINDOW,
 )
 from couchers.context import make_background_user_context
 from couchers.crypto import (
@@ -204,7 +206,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 .where(or_(Message.time <= GroupChatSubscription.left, GroupChatSubscription.left == None))
                 .where(Message.id > User.last_notified_message_id)
                 .where(Message.id > GroupChatSubscription.last_seen_message_id)
-                .where(Message.time < now() - timedelta(minutes=5))
+                .where(Message.time < now() - MESSAGE_NOTIFICATION_DELAY)
                 .where(Message.message_type == MessageType.text)  # TODO: only text messages for now
             )
             .scalars()
@@ -213,7 +215,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
 
         for user in users:
             context = make_background_user_context(user_id=user.id)
-            # now actually grab all the group chats, not just less than 5 min old
+            # now actually grab all the group chats, not just older than MESSAGE_NOTIFICATION_DELAY
             subquery = (
                 where_users_column_visible(
                     where_moderated_content_visible(
@@ -270,7 +272,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 .where(Notification.topic_action == NotificationTopicAction.chat__message)
                 .where(Notification.key.in_(conversation_ids))
                 .where(NotificationDelivery.delivery_type == NotificationDeliveryType.push)
-                .where(NotificationDelivery.delivered > now() - timedelta(minutes=10))
+                .where(NotificationDelivery.delivered > now() - PUSH_NOTIFICATION_RECENCY_WINDOW)
             ).scalar_one()
 
             if recent_push_count > 0:
@@ -323,7 +325,7 @@ def _has_recent_push_delivery(
         .where(Notification.topic_action == topic_action)
         .where(Notification.key == str(conversation_id))
         .where(NotificationDelivery.delivery_type == NotificationDeliveryType.push)
-        .where(NotificationDelivery.delivered > now() - timedelta(minutes=10))
+        .where(NotificationDelivery.delivered > now() - PUSH_NOTIFICATION_RECENCY_WINDOW)
     ).scalar_one()
     return recent_push_count > 0
 
@@ -350,7 +352,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                             .where(HostRequest.surfer_user_id == User.id)
                             .where(Message.id > HostRequest.surfer_last_seen_message_id)
                             .where(Message.id > User.last_notified_request_message_id)
-                            .where(Message.time < now() - timedelta(minutes=5))
+                            .where(Message.time < now() - MESSAGE_NOTIFICATION_DELAY)
                             .where(Message.message_type == MessageType.text)
                         ),
                         # Users with unseen messages as host
@@ -361,7 +363,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                             .where(HostRequest.host_user_id == User.id)
                             .where(Message.id > HostRequest.host_last_seen_message_id)
                             .where(Message.id > User.last_notified_request_message_id)
-                            .where(Message.time < now() - timedelta(minutes=5))
+                            .where(Message.time < now() - MESSAGE_NOTIFICATION_DELAY)
                             .where(Message.message_type == MessageType.text)
                         ),
                     )
@@ -390,7 +392,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 .join(Message, Message.conversation_id == HostRequest.conversation_id)
                 .where(Message.id > HostRequest.surfer_last_seen_message_id)
                 .where(Message.id > User.last_notified_request_message_id)
-                .where(Message.time < now() - timedelta(minutes=5))
+                .where(Message.time < now() - MESSAGE_NOTIFICATION_DELAY)
                 .where(Message.message_type == MessageType.text)
                 .group_by(User, HostRequest)  # type: ignore[arg-type]
             ).all()
@@ -411,7 +413,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 .join(Message, Message.conversation_id == HostRequest.conversation_id)
                 .where(Message.id > HostRequest.host_last_seen_message_id)
                 .where(Message.id > User.last_notified_request_message_id)
-                .where(Message.time < now() - timedelta(minutes=5))
+                .where(Message.time < now() - MESSAGE_NOTIFICATION_DELAY)
                 .where(Message.message_type == MessageType.text)
                 .group_by(User, HostRequest)  # type: ignore[arg-type]
             ).all()
