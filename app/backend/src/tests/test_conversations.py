@@ -2196,3 +2196,125 @@ def test_notification_sent_when_not_viewing(db, moderator):
             .all()
         )
         assert len(notif_count) == 1
+
+
+def test_notification_sent_when_presence_expired(db, moderator):
+    """Test that notifications ARE sent when user's presence has expired (>30 seconds ago)"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    # Enable push notifications for user2
+    topic_action = NotificationTopicAction.chat__message
+    with notifications_session(token2) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="push",
+                        enabled=True,
+                    )
+                ],
+            )
+        )
+
+    with conversations_session(token1) as c:
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+        group_chat_id = res.group_chat_id
+
+    moderator.approve_group_chat(group_chat_id)
+
+    # Manually set last_viewing_at to 31 seconds ago (just past the 30s threshold)
+    with session_scope() as session:
+        sub = session.execute(
+            select(GroupChatSubscription)
+            .where(GroupChatSubscription.group_chat_id == group_chat_id)
+            .where(GroupChatSubscription.user_id == user2.id)
+        ).scalar_one()
+        sub.last_viewing_at = now() - timedelta(seconds=31)
+        session.commit()
+
+    # User1 sends a message
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Hello"))
+
+    # Process background jobs
+    while process_job():
+        pass
+
+    # User2 SHOULD have received a notification (presence expired)
+    with session_scope() as session:
+        notif_count = (
+            session.execute(
+                select(Notification)
+                .where(Notification.user_id == user2.id)
+                .where(Notification.topic_action == topic_action)
+            )
+            .scalars()
+            .all()
+        )
+        assert len(notif_count) == 1
+
+
+def test_notification_suppressed_when_presence_just_active(db, moderator):
+    """Test that notifications are suppressed when user's presence is just within threshold (29s ago)"""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    # Enable push notifications for user2
+    topic_action = NotificationTopicAction.chat__message
+    with notifications_session(token2) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="push",
+                        enabled=True,
+                    )
+                ],
+            )
+        )
+
+    with conversations_session(token1) as c:
+        res = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id]))
+        group_chat_id = res.group_chat_id
+
+    moderator.approve_group_chat(group_chat_id)
+
+    # Manually set last_viewing_at to 29 seconds ago (just within the 30s threshold)
+    with session_scope() as session:
+        sub = session.execute(
+            select(GroupChatSubscription)
+            .where(GroupChatSubscription.group_chat_id == group_chat_id)
+            .where(GroupChatSubscription.user_id == user2.id)
+        ).scalar_one()
+        sub.last_viewing_at = now() - timedelta(seconds=29)
+        session.commit()
+
+    # User1 sends a message
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Hello"))
+
+    # Process background jobs
+    while process_job():
+        pass
+
+    # User2 should NOT have received a notification (presence still active)
+    with session_scope() as session:
+        notif_count = (
+            session.execute(
+                select(Notification)
+                .where(Notification.user_id == user2.id)
+                .where(Notification.topic_action == topic_action)
+            )
+            .scalars()
+            .all()
+        )
+        assert len(notif_count) == 0
