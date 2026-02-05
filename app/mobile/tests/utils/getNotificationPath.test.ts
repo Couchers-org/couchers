@@ -1,6 +1,19 @@
+import { Linking } from "react-native";
+
 import { getNotificationPath } from "@/utils/getNotificationPath";
 
+// Mock Linking.openURL
+jest.mock("react-native", () => ({
+  Linking: {
+    openURL: jest.fn(() => Promise.resolve()),
+  },
+}));
+
 describe("getNotificationPath", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("extracts path from full URL", () => {
     expect(
       getNotificationPath("https://couchers.org/messages/requests/123"),
@@ -44,11 +57,27 @@ describe("getNotificationPath", () => {
     expect(getNotificationPath("https://couchers.org/")).toBe("/");
   });
 
-  it("handles different domains", () => {
+  it("handles different Couchers domains", () => {
     expect(
       getNotificationPath(
         "https://next.couchershq.org/leave-reference/surfed/91/320",
       ),
     ).toBe("/leave-reference/surfed/91/320");
+
+    expect(getNotificationPath("https://www.couchers.org/messages")).toBe(
+      "/messages",
+    );
+  });
+
+  it("opens external URLs in browser and returns null", () => {
+    const stripeUrl = "https://pay.stripe.com/receipts/payment/abc123";
+    expect(getNotificationPath(stripeUrl)).toBeNull();
+    expect(Linking.openURL).toHaveBeenCalledWith(stripeUrl);
+  });
+
+  it("opens Stripe checkout URLs in browser and returns null", () => {
+    const checkoutUrl = "https://checkout.stripe.com/c/pay/test123";
+    expect(getNotificationPath(checkoutUrl)).toBeNull();
+    expect(Linking.openURL).toHaveBeenCalledWith(checkoutUrl);
   });
 });
