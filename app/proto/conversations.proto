@@ -39,6 +39,14 @@ service Conversations {
     // Marks the last message that has been seen in this group chat
   }
 
+  rpc MarkConversationViewing(MarkConversationViewingReq) returns (google.protobuf.Empty) {
+    // Mark that the user is currently viewing a conversation
+    // Call periodically (every 10s) while conversation is visible
+    // Used to suppress notifications when user is actively viewing the chat
+    //
+    // Raises: NOT_FOUND if the conversation does not exist or user is not a member
+  }
+
   rpc MuteGroupChat(MuteGroupChatReq) returns (google.protobuf.Empty) {
     // Mutes or unmutes a group chat
     // when muted, you don't get notifications from that group chat
@@ -219,6 +227,10 @@ message GetGroupChatMessagesRes {
 message MarkLastSeenGroupChatReq {
   uint64 group_chat_id = 1;
   uint64 last_seen_message_id = 2;
+}
+
+message MarkConversationViewingReq {
+  uint64 group_chat_id = 1;
 }
 
 message MuteGroupChatReq {

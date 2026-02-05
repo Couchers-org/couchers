@@ -178,6 +178,8 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             return
 
         context = make_background_user_context(user_id=message.author_id)
+        # Skip users who are currently viewing the conversation (last_viewing_at within 30 seconds)
+        presence_cutoff = now() - timedelta(seconds=30)
         user_ids_to_notify = (
             session.execute(
                 where_users_column_visible(
@@ -186,7 +188,13 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
                     .where(GroupChatSubscription.user_id != message.author_id)
                     .where(GroupChatSubscription.joined <= message.time)
                     .where(or_(GroupChatSubscription.left == None, GroupChatSubscription.left >= message.time))
-                    .where(not_(GroupChatSubscription.is_muted)),
+                    .where(not_(GroupChatSubscription.is_muted))
+                    .where(
+                        or_(
+                            GroupChatSubscription.last_viewing_at == None,
+                            GroupChatSubscription.last_viewing_at < presence_cutoff,
+                        )
+                    ),
                     context=context,
                     column=GroupChatSubscription.user_id,
                 )
@@ -593,6 +601,18 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
 
         subscription.last_seen_message_id = request.last_seen_message_id
+
+        return empty_pb2.Empty()
+
+    def MarkConversationViewing(
+        self, request: conversations_pb2.MarkConversationViewingReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        subscription = _get_visible_message_subscription(session, context, request.group_chat_id)
+
+        if not subscription:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
+
+        subscription.last_viewing_at = func.now()
 
         return empty_pb2.Empty()
 

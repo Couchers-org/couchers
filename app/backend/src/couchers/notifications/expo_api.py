@@ -16,8 +16,18 @@ def send_expo_push_notification(
     body: str,
     data: dict[str, Any] | None = None,
     collapse_key: str | None = None,
+    thread_id: str | None = None,
 ) -> dict[str, Any]:
-    """Send a push notification via the Expo Push API"""
+    """Send a push notification via the Expo Push API
+
+    Args:
+        token: Expo push token
+        title: Notification title
+        body: Notification body
+        data: Custom data payload
+        collapse_key: Android collapse key - replaces previous notifications with same key
+        thread_id: iOS thread identifier - groups notifications visually in notification center
+    """
     message: dict[str, Any] = {
         "to": token,
         "sound": "default",
@@ -30,6 +40,9 @@ def send_expo_push_notification(
 
     if collapse_key:
         message["collapseKey"] = collapse_key
+
+    if thread_id:
+        message["threadId"] = thread_id
 
     try:
         response = requests.post(
@@ -58,6 +71,7 @@ def send_expo_push_notification(
                 "body_preview": body[:120],
                 "data": data,
                 "collapse_key": collapse_key,
+                "thread_id": thread_id,
             },
         )
         sentry_sdk.capture_exception(exc)

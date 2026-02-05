@@ -1349,3 +1349,155 @@ def test_DebugRedeliverPushNotification_push_notifications_disabled(db, push_col
         assert "Push notifications are currently disabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
+
+
+def test_expo_push_includes_collapse_key_and_thread_id():
+    """Test that Expo push notifications include both collapseKey and threadId for notification grouping."""
+    from unittest.mock import Mock, patch
+
+    from couchers.notifications.expo_api import send_expo_push_notification
+
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"data": [{"status": "ok", "id": "ticket-123"}]}
+
+    with patch("couchers.notifications.expo_api.requests.post", return_value=mock_response) as mock_post:
+        send_expo_push_notification(
+            token="ExponentPushToken[test]",
+            title="Test Title",
+            body="Test body",
+            data={"url": "/test"},
+            collapse_key="chat:message_123",
+            thread_id="chat:message_123",
+        )
+
+        mock_post.assert_called_once()
+        call_args = mock_post.call_args
+        message = call_args[1]["json"]
+
+        # Verify both grouping keys are included
+        assert message["collapseKey"] == "chat:message_123"
+        assert message["threadId"] == "chat:message_123"
+        assert message["title"] == "Test Title"
+        assert message["body"] == "Test body"
+
+
+def test_expo_push_omits_grouping_keys_when_none():
+    """Test that Expo push notifications omit grouping keys when not provided."""
+    from unittest.mock import Mock, patch
+
+    from couchers.notifications.expo_api import send_expo_push_notification
+
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"data": [{"status": "ok", "id": "ticket-123"}]}
+
+    with patch("couchers.notifications.expo_api.requests.post", return_value=mock_response) as mock_post:
+        send_expo_push_notification(
+            token="ExponentPushToken[test]",
+            title="Test Title",
+            body="Test body",
+        )
+
+        mock_post.assert_called_once()
+        call_args = mock_post.call_args
+        message = call_args[1]["json"]
+
+        # Verify grouping keys are not included when not provided
+        assert "collapseKey" not in message
+        assert "threadId" not in message
+
+
+def test_web_push_includes_thread_id():
+    """Test that web push notifications include thread_id for browser notification grouping."""
+    from unittest.mock import Mock, patch
+
+    from couchers.models import PushNotificationPlatform, PushNotificationSubscription
+    from couchers.notifications.send_raw_push_notification import _send_web_push
+    from couchers.proto.internal import jobs_pb2
+
+    # Create a mock subscription
+    sub = Mock(spec=PushNotificationSubscription)
+    sub.endpoint = "https://push.example.com/test"
+    sub.auth_key = "test_auth_key"
+    sub.p256dh_key = "test_p256dh_key"
+    sub.platform = PushNotificationPlatform.web_push
+
+    payload = jobs_pb2.SendRawPushNotificationPayloadV2(
+        push_notification_subscription_id=1,
+        title="Test Title",
+        body="Test body",
+        icon="https://example.com/icon.png",
+        url="/messages/123",
+        user_id=1,
+        topic_action="chat:message",
+        key="123",
+        ttl=0,
+    )
+
+    mock_response = Mock()
+    mock_response.status_code = 201
+    mock_response.text = "OK"
+
+    # Patch at the module where it's imported, not where it's defined
+    with patch(
+        "couchers.notifications.send_raw_push_notification.send_web_push", return_value=mock_response
+    ) as mock_send:
+        _send_web_push(sub, payload)
+
+        mock_send.assert_called_once()
+        call_args = mock_send.call_args
+        data_bytes = call_args[0][0]
+        data = json.loads(data_bytes.decode("utf8"))
+
+        # Verify thread_id is included for browser notification grouping
+        assert data["thread_id"] == "chat:message_123"
+        assert data["title"] == "Test Title"
+        assert data["body"] == "Test body"
+        assert data["topic_action"] == "chat:message"
+        assert data["key"] == "123"
+
+
+def test_web_push_omits_thread_id_when_no_key():
+    """Test that web push notifications omit thread_id when key is empty."""
+    from unittest.mock import Mock, patch
+
+    from couchers.models import PushNotificationPlatform, PushNotificationSubscription
+    from couchers.notifications.send_raw_push_notification import _send_web_push
+    from couchers.proto.internal import jobs_pb2
+
+    sub = Mock(spec=PushNotificationSubscription)
+    sub.endpoint = "https://push.example.com/test"
+    sub.auth_key = "test_auth_key"
+    sub.p256dh_key = "test_p256dh_key"
+    sub.platform = PushNotificationPlatform.web_push
+
+    payload = jobs_pb2.SendRawPushNotificationPayloadV2(
+        push_notification_subscription_id=1,
+        title="Test Title",
+        body="Test body",
+        icon="https://example.com/icon.png",
+        url="/test",
+        user_id=1,
+        topic_action="badge:add",
+        key="",  # Empty key
+        ttl=0,
+    )
+
+    mock_response = Mock()
+    mock_response.status_code = 201
+    mock_response.text = "OK"
+
+    # Patch at the module where it's imported, not where it's defined
+    with patch(
+        "couchers.notifications.send_raw_push_notification.send_web_push", return_value=mock_response
+    ) as mock_send:
+        _send_web_push(sub, payload)
+
+        mock_send.assert_called_once()
+        call_args = mock_send.call_args
+        data_bytes = call_args[0][0]
+        data = json.loads(data_bytes.decode("utf8"))
+
+        # Verify thread_id is None when key is empty
+        assert data["thread_id"] is None

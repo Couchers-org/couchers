@@ -71,6 +71,11 @@ def _send_web_push(
     sub: PushNotificationSubscription, payload: jobs_pb2.SendRawPushNotificationPayloadV2
 ) -> PushDeliveryResult:
     """Send via Web Push API. Raises appropriate exceptions on failure."""
+    # Generate thread_id for browser notification grouping (uses 'tag' in service worker)
+    thread_id = None
+    if payload.topic_action and payload.key:
+        thread_id = f"{payload.topic_action}_{payload.key}"
+
     data = json.dumps(
         {
             "title": payload.title,
@@ -80,6 +85,7 @@ def _send_web_push(
             "user_id": payload.user_id,
             "topic_action": payload.topic_action,
             "key": payload.key,
+            "thread_id": thread_id,
         }
     ).encode("utf8")
 
@@ -119,8 +125,11 @@ def _send_expo(
 ) -> PushDeliveryResult:
     """Send via Expo Push API. Raises appropriate exceptions on failure."""
     collapse_key = None
+    thread_id = None
     if payload.topic_action and payload.key:
         collapse_key = f"{payload.topic_action}_{payload.key}"
+        # Use same format for iOS thread grouping
+        thread_id = f"{payload.topic_action}_{payload.key}"
 
     result = send_expo_push_notification(
         token=not_none(sub.token),
@@ -132,6 +141,7 @@ def _send_expo(
             "key": payload.key,
         },
         collapse_key=collapse_key,
+        thread_id=thread_id,
     )
 
     # Parse the Expo response

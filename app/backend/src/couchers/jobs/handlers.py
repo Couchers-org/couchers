@@ -12,7 +12,7 @@ from typing import Any
 import requests
 from google.protobuf import empty_pb2
 from sqlalchemy import ColumnElement, Float, Function, Integer, select
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import (
     and_,
     case,
@@ -85,6 +85,9 @@ from couchers.models import (
     ModerationQueueItem,
     ModerationState,
     ModerationTrigger,
+    Notification,
+    NotificationDelivery,
+    NotificationDeliveryType,
     PassportSex,
     PasswordResetToken,
     PhotoGallery,
@@ -256,6 +259,27 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
 
             user.last_notified_message_id = max(message.id for _, message, _ in unseen_messages)
 
+            # Check if user received push notifications for these conversations recently
+            # If so, skip the missed_messages email to avoid duplicate notifications
+            conversation_ids = [str(message.conversation_id) for _, message, _ in unseen_messages]
+            recent_push_count = session.execute(
+                select(func.count(NotificationDelivery.id))
+                .join(Notification, NotificationDelivery.notification_id == Notification.id)
+                .where(Notification.user_id == user.id)
+                .where(Notification.topic_action == NotificationTopicAction.chat__message)
+                .where(Notification.key.in_(conversation_ids))
+                .where(NotificationDelivery.delivery_type == NotificationDeliveryType.push)
+                .where(NotificationDelivery.delivered > now() - timedelta(minutes=10))
+            ).scalar_one()
+
+            if recent_push_count > 0:
+                logger.info(
+                    f"Skipping missed_messages email for user {user.id}: "
+                    f"{recent_push_count} recent push deliveries for conversations {conversation_ids}"
+                )
+                session.commit()
+                continue
+
             def format_title(message: Message, group_chat: GroupChat, count_unseen: int) -> str:
                 if group_chat.is_dm:
                     return f"You missed {count_unseen} message(s) from {message.author.name}"
@@ -284,6 +308,22 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                 ),
             )
             session.commit()
+
+
+def _has_recent_push_delivery(
+    session: Session, user_id: int, topic_action: NotificationTopicAction, conversation_id: int
+) -> bool:
+    """Check if user received a push notification for this conversation recently."""
+    recent_push_count = session.execute(
+        select(func.count(NotificationDelivery.id))
+        .join(Notification, NotificationDelivery.notification_id == Notification.id)
+        .where(Notification.user_id == user_id)
+        .where(Notification.topic_action == topic_action)
+        .where(Notification.key == str(conversation_id))
+        .where(NotificationDelivery.delivery_type == NotificationDeliveryType.push)
+        .where(NotificationDelivery.delivered > now() - timedelta(minutes=10))
+    ).scalar_one()
+    return recent_push_count > 0
 
 
 def send_request_notifications(payload: empty_pb2.Empty) -> None:
@@ -378,6 +418,16 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                 user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
                 session.flush()
 
+                # Skip email if user received push notification for this request recently
+                if _has_recent_push_delivery(
+                    session, user.id, NotificationTopicAction.host_request__message, host_request.conversation_id
+                ):
+                    logger.info(
+                        f"Skipping host_request missed_messages email for user {user.id}: "
+                        f"recent push delivery for request {host_request.conversation_id}"
+                    )
+                    continue
+
                 notify(
                     session,
                     user_id=user.id,
@@ -393,6 +443,16 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
             for user, host_request, max_message_id in hosting_reqs:
                 user.last_notified_request_message_id = max(user.last_notified_request_message_id, max_message_id)
                 session.flush()
+
+                # Skip email if user received push notification for this request recently
+                if _has_recent_push_delivery(
+                    session, user.id, NotificationTopicAction.host_request__message, host_request.conversation_id
+                ):
+                    logger.info(
+                        f"Skipping host_request missed_messages email for user {user.id}: "
+                        f"recent push delivery for request {host_request.conversation_id}"
+                    )
+                    continue
 
                 notify(
                     session,
