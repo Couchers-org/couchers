@@ -27,6 +27,7 @@ from couchers.notifications.quick_links import (
 from couchers.notifications.render_email import render_email_notification
 from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
+from couchers.notifications.utils import ACCOUNT_DELETION_TOPIC
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import moderation_state_column_visible
 from couchers.templating import Jinja2Template, template_folder
@@ -36,6 +37,18 @@ logger = logging.getLogger(__name__)
 
 
 def _send_email_notification(session: Session, user: User, notification: Notification) -> None:
+    if user.do_not_email and not notification.topic_action.is_critical:
+        logger.info(f"Not emailing {user} based on notification {notification.topic_action} due to emails turned off")
+        return
+
+    if user.is_banned:
+        logger.info(f"Tried emailing {user} based on notification {notification.topic_action} but user is banned")
+        return
+
+    if user.is_deleted and notification.topic != ACCOUNT_DELETION_TOPIC:
+        logger.info(f"Tried emailing {user} based on notification {notification.topic_action} but user is deleted")
+        return
+
     loc_context = LocalizationContext.from_user(user)
     if not config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
         loc_context = dataclasses.replace(loc_context, locale="en")
@@ -50,14 +63,18 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         "time": notification.created,
         "footer_timezone_name": loc_context.localized_timezone,
         "footer_copyright_year": now().year,
-        "footer_email_is_critical": rendered.is_critical,
-        "footer_manage_notifications_link": urls.notification_settings_link(),
-        "footer_notification_topic_action": rendered.topic_action_unsubscribe_text,
-        "footer_notification_topic_action_link": generate_unsub_topic_action(notification),
-        "footer_notification_topic_key": rendered.topic_key_unsubscribe_text,
-        "footer_notification_topic_key_link": generate_unsub_topic_key(notification),
-        "footer_do_not_email_link": generate_do_not_email(user),
     }
+
+    if notification.topic_action.is_critical:
+        template_args["footer_email_is_critical"] = True
+    else:
+        template_args["footer_email_is_critical"] = False
+        template_args["footer_manage_notifications_link"] = urls.notification_settings_link()
+        template_args["footer_notification_topic_action"] = rendered.topic_action_unsubscribe_text
+        template_args["footer_notification_topic_action_link"] = generate_unsub_topic_action(notification)
+        template_args["footer_notification_topic_key"] = rendered.topic_key_unsubscribe_text
+        template_args["footer_notification_topic_key_link"] = generate_unsub_topic_key(notification)
+        template_args["footer_do_not_email_link"] = generate_do_not_email(user)
 
     # Format plaintext template
     plain_tmplt_body = (template_folder / f"{rendered.template_name}.txt").read_text()
@@ -70,18 +87,6 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         source=(template_folder / "generated_html" / f"{rendered.template_name}.html").read_text(), html=True
     )
     html = html_tmplt.render(template_args, loc_context)
-
-    if user.do_not_email and not rendered.is_critical:
-        logger.info(f"Not emailing {user} based on template {rendered.template_name} due to emails turned off")
-        return
-
-    if user.is_banned:
-        logger.info(f"Tried emailing {user} based on template {rendered.template_name} but user is banned")
-        return
-
-    if user.is_deleted and not rendered.allow_deleted:
-        logger.info(f"Tried emailing {user} based on template {rendered.template_name} but user is deleted")
-        return
 
     list_unsubscribe_header = None
     if rendered.list_unsubscribe_url:
