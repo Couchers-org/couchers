@@ -14,7 +14,7 @@ from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
-from couchers.metrics import sent_messages_counter
+from couchers.metrics import notification_suppressed_presence_counter, sent_messages_counter
 from couchers.models import (
     Conversation,
     GroupChat,
@@ -180,6 +180,26 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
         context = make_background_user_context(user_id=message.author_id)
         # Skip users who are currently viewing the conversation (last_viewing_at within 30 seconds)
         presence_cutoff = now() - timedelta(seconds=30)
+
+        # Count users suppressed due to presence (for metrics)
+        presence_suppressed_count = session.execute(
+            where_users_column_visible(
+                select(func.count(GroupChatSubscription.user_id))
+                .where(GroupChatSubscription.group_chat_id == message.conversation_id)
+                .where(GroupChatSubscription.user_id != message.author_id)
+                .where(GroupChatSubscription.joined <= message.time)
+                .where(or_(GroupChatSubscription.left == None, GroupChatSubscription.left >= message.time))
+                .where(not_(GroupChatSubscription.is_muted))
+                .where(GroupChatSubscription.last_viewing_at >= presence_cutoff),
+                context=context,
+                column=GroupChatSubscription.user_id,
+            )
+        ).scalar_one()
+
+        if presence_suppressed_count > 0:
+            notification_suppressed_presence_counter.inc(presence_suppressed_count)
+            logger.debug(f"Suppressed {presence_suppressed_count} notifications due to user presence")
+
         user_ids_to_notify = (
             session.execute(
                 where_users_column_visible(

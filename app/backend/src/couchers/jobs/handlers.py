@@ -58,6 +58,7 @@ from couchers.materialized_views import (
 )
 from couchers.metrics import (
     moderation_auto_approved_counter,
+    notification_email_suppressed_counter,
     push_notification_counter,
     strong_verification_completions_counter,
 )
@@ -277,6 +278,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                     f"Skipping missed_messages email for user {user.id}: "
                     f"{recent_push_count} recent push deliveries for conversations {conversation_ids}"
                 )
+                notification_email_suppressed_counter.labels(reason="push_delivered").inc()
                 session.commit()
                 continue
 
@@ -426,6 +428,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                         f"Skipping host_request missed_messages email for user {user.id}: "
                         f"recent push delivery for request {host_request.conversation_id}"
                     )
+                    notification_email_suppressed_counter.labels(reason="push_delivered").inc()
                     continue
 
                 notify(
@@ -452,6 +455,7 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
                         f"Skipping host_request missed_messages email for user {user.id}: "
                         f"recent push delivery for request {host_request.conversation_id}"
                     )
+                    notification_email_suppressed_counter.labels(reason="push_delivered").inc()
                     continue
 
                 notify(
