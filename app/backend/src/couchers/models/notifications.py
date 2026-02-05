@@ -46,19 +46,12 @@ dt_empty: list[NotificationDeliveryType] = []
 
 
 class NotificationTopicAction(enum.Enum):
-    """
-    Identifies a type of notification by the topic it relates to and the action triggered.
-    The grouping by topic allows users to unsubscribe from notifications in two ways:
-    - All notifications of a certain type (topic+action), e.g. all friend requests.
-    - All notifications about a certain instance of a topic,
-      e.g. all notifications about an event, where the key is the event id.
-    """
-
     def __init__(
         self, topic_action: str, defaults: list[NotificationDeliveryType], user_editable: bool, data_type: type
     ) -> None:
         self.topic, self.action = topic_action.split(":")
         self.defaults = defaults
+        # for now user editable == not a security notification
         self.user_editable = user_editable
 
         self.data_type = data_type
@@ -69,11 +62,6 @@ class NotificationTopicAction(enum.Enum):
     @property
     def display(self) -> str:
         return f"{self.topic}:{self.action}"
-
-    @property
-    def is_critical(self) -> bool:
-        """Whether the notification is critical cannot be disabled."""
-        return not self.user_editable
 
     def __str__(self) -> str:
         return self.display
@@ -156,7 +144,7 @@ class NotificationTopicAction(enum.Enum):
     birthdate__change = ("birthdate:change", dt_sec, False, nd.BirthdateChange)
     api_key__create = ("api_key:create", dt_sec, False, nd.ApiKeyCreate)
 
-    donation__received = ("donation:received", dt_sec, False, nd.DonationReceived)
+    donation__received = ("donation:received", dt_sec, True, nd.DonationReceived)
 
     onboarding__reminder = ("onboarding:reminder", dt_sec, True, empty_pb2.Empty)
 

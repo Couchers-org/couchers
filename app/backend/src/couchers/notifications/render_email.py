@@ -15,6 +15,10 @@ logger = logging.getLogger(__name__)
 
 @dataclass(kw_only=True)
 class RenderedEmailNotification:
+    # whether the notification is critical and cannot be turned off
+    is_critical: bool = False
+    # whether this email can be sent to someone who is deleted
+    allow_deleted: bool = False
     # email subject
     subject: str
     # shows up when listing emails in many clients
@@ -137,6 +141,7 @@ def render_email_notification(
         title = "Your password was changed"
         message = "Your login password for Couchers.org was changed."
         return RenderedEmailNotification(
+            is_critical=True,
             subject=title,
             preview=message,
             template_name="security",
@@ -148,6 +153,7 @@ def render_email_notification(
     elif notification.topic_action == NotificationTopicAction.password_reset__start:
         message = "Someone initiated a password change on your account."
         return RenderedEmailNotification(
+            is_critical=True,
             subject="Reset your Couchers.org password",
             preview=message,
             template_name="password_reset",
@@ -159,6 +165,7 @@ def render_email_notification(
         title = "Your password was successfully reset"
         message = "Your password on Couchers.org was changed. If that was you, then no further action is needed."
         return RenderedEmailNotification(
+            is_critical=True,
             subject=title,
             preview=title,
             template_name="security",
@@ -171,6 +178,7 @@ def render_email_notification(
         title = "An email change was initiated on your account"
         message = f"An email change to the email <b>{data.new_email}</b> was initiated on your account."
         return RenderedEmailNotification(
+            is_critical=True,
             subject=title,
             preview=title,
             template_name="security",
@@ -183,6 +191,7 @@ def render_email_notification(
         title = "Email change completed"
         message = "Your new email address has been verified."
         return RenderedEmailNotification(
+            is_critical=True,
             subject=title,
             preview=message,
             template_name="security",
@@ -195,6 +204,7 @@ def render_email_notification(
         title = "Phone verification started"
         message = f"You started phone number verification with the number <b>{format_phone_number(data.phone)}</b>."
         return RenderedEmailNotification(
+            is_critical=True,
             subject=title,
             preview=message,
             template_name="security",
@@ -208,6 +218,7 @@ def render_email_notification(
         message = f"Your phone was successfully verified as <b>{format_phone_number(data.phone)}</b> on Couchers.org."
         message_plain = f"Your phone was successfully verified as {format_phone_number(data.phone)} on Couchers.org."
         return RenderedEmailNotification(
+            is_critical=True,
             subject=title,
             preview=message_plain,
             template_name="security",
@@ -221,6 +232,7 @@ def render_email_notification(
         message = f"Your gender on Couchers.org was changed to <b>{data.gender}</b> by an admin."
         message_plain = f"Your gender on Couchers.org was changed to {data.gender} by an admin."
         return RenderedEmailNotification(
+            is_critical=True,
             subject=title,
             preview=message_plain,
             template_name="security",
@@ -235,6 +247,7 @@ def render_email_notification(
         message = f"Your date of birth on Couchers.org was changed to <b>{birthdate}</b> by an admin."
         message_plain = f"Your date of birth on Couchers.org was changed to {birthdate} by an admin."
         return RenderedEmailNotification(
+            is_critical=True,
             subject=title,
             preview=message_plain,
             template_name="security",
@@ -245,6 +258,7 @@ def render_email_notification(
         )
     elif notification.topic_action == NotificationTopicAction.api_key__create:
         return RenderedEmailNotification(
+            is_critical=True,
             subject="Your API key for Couchers.org",
             preview="We have issued you an API key as per your request.",
             template_name="api_key",
@@ -277,6 +291,7 @@ def render_email_notification(
             },
         )
         return RenderedEmailNotification(
+            is_critical=True,
             subject=title,
             preview=message,
             template_name="donation_received",
@@ -284,7 +299,6 @@ def render_email_notification(
                 "amount": data.amount,
                 "receipt_url": data.receipt_url,
             },
-            topic_action_unsubscribe_text="donations received",
         )
     elif notification.topic_action == NotificationTopicAction.friend_request__create:
         other = data.other_user
@@ -314,6 +328,8 @@ def render_email_notification(
         )
     elif notification.topic_action == NotificationTopicAction.account_deletion__start:
         return RenderedEmailNotification(
+            is_critical=True,
+            allow_deleted=True,
             subject="Confirm your Couchers.org account deletion",
             preview="Please confirm that you want to delete your Couchers.org account.",
             template_name="account_deletion_start",
@@ -324,6 +340,8 @@ def render_email_notification(
     elif notification.topic_action == NotificationTopicAction.account_deletion__complete:
         title = "Your Couchers.org account has been deleted"
         return RenderedEmailNotification(
+            is_critical=True,
+            allow_deleted=True,
             subject=title,
             preview="We have deleted your Couchers.org account, to undo, follow the link in this email.",
             template_name="account_deletion_complete",
@@ -336,6 +354,8 @@ def render_email_notification(
         title = "Your Couchers.org account has been recovered!"
         subtitle = "We have recovered your Couchers.org account as per your request! Welcome back!"
         return RenderedEmailNotification(
+            is_critical=True,
+            allow_deleted=True,
             subject=title,
             preview=subtitle,
             template_name="account_deletion_recovered",
@@ -634,6 +654,7 @@ def render_email_notification(
         title = "You have received a mod note"
         message = "You have received an important note from the moderators. You must read and acknowledge it before continuing to use the platform."
         return RenderedEmailNotification(
+            is_critical=True,
             subject=title,
             preview=message,
             template_name="mod_note",
@@ -643,6 +664,7 @@ def render_email_notification(
         title = "Strong Verification succeeded"
         message = "You have been verified with Strong Verification! You will now see a tick next to your name on the platform."
         return RenderedEmailNotification(
+            is_critical=True,
             subject=title,
             preview=message,
             template_name="strong_verification_success",
@@ -661,6 +683,7 @@ def render_email_notification(
         else:
             raise Exception("Shouldn't get here")
         return RenderedEmailNotification(
+            is_critical=True,
             subject=title,
             preview=title,
             template_name="security",
@@ -674,6 +697,7 @@ def render_email_notification(
             title = "Your verification postcard is on its way"
             message = f"We've sent a postcard with your verification code to {data.city}, {data.country}. It should arrive within 1-3 weeks depending on your location. Once it arrives, enter the code on the platform to complete verification."
             return RenderedEmailNotification(
+                is_critical=True,
                 subject=title,
                 preview=message,
                 template_name="security",
@@ -686,6 +710,7 @@ def render_email_notification(
             title = "Postal Verification succeeded"
             message = "You have been verified with Postal Verification! Your address has been confirmed."
             return RenderedEmailNotification(
+                is_critical=True,
                 subject=title,
                 preview=message,
                 template_name="security",
@@ -705,6 +730,7 @@ def render_email_notification(
                     "Your postal verification attempt has failed. You can start a new verification attempt."
                 )
             return RenderedEmailNotification(
+                is_critical=True,
                 subject=title,
                 preview=title,
                 template_name="security",
