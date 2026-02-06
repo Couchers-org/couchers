@@ -90,7 +90,7 @@
         "dating": "Flirting ou comportements des applications de rencontres ou similaire",
         "external": "Incident en dehors de la plateforme",
         "harassment": "Harcèlement, intimidation, discours de haine ou de discrimination ou contenu illégal",
-        "guidelines_breach": "Violation des règles ou de la politique (demande d'argent, nudisme, partage de lit, etc).",
+        "guidelines_breach": "Violation des règles ou de la politique (demande d'argent, nudisme, partage de lit, etc)",
         "safety": "Préoccupations concernant la sécurité (pour vous-même ou les autres)",
         "scam": "Scam, information fausse ou trompeuse",
         "spam": "Spam ou contenu promotionnel non lié au couch surfing",
@@ -142,9 +142,9 @@
   },
   "location_autocomplete": {
     "more_specific": "Veuillez choisir un emplacement plus spécifique",
-    "search_location_hint": "Tapper Entrée ou cliquer sur l'icône de recherches pour choisir un emplacement.",
-    "search_location_button": "Rechercher un emplacement.",
-    "select_location_hint": "Tapper Entrée ou cliquer sur l'icône de recherches, puis sélectionner un emplacement dans la liste."
+    "search_location_hint": "Taper Entrée ou cliquer sur l'icône de recherches pour choisir un emplacement",
+    "search_location_button": "Rechercher un emplacement",
+    "select_location_hint": "Taper Entrée ou cliquer sur l'icône de recherches, puis sélectionner un emplacement dans la liste"
   },
   "strong_verification": {
     "helper_text": "L'identité de ce membre a été vérifiée avec son passeport biométrique"
@@ -164,7 +164,7 @@
     "fatal_message": "Cela n'aurait pas dû arriver. Veuillez nous contacter et nous décrire ce que vous étiez en train de faire, afin d'éviter que l'erreur se reproduise.",
     "fallback": {
       "title": "Oups ...ceci est une erreur inconnue",
-      "subtitle": "Veuillez utiliser le bouton \"Signaler un problème\" et nous indiquer ce que vous étiez en train de faire, afin d'éviter cette erreur à l'avenir."
+      "subtitle": "Veuillez utiliser le bouton « Signaler un problème » et nous indiquer ce que vous étiez en train de faire, afin d'éviter cette erreur à l'avenir."
     },
     "unknown": "Erreur inconnue"
   }
