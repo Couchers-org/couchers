@@ -99,6 +99,7 @@
       "problem_helper": "Brief description of the problem and how to reproduce it",
       "expect_label": "What happened? What should have happened?",
       "expect_helper": "Brief description of what you expected to happen instead",
+      "no_response_note": "You will not get a response. If you need support, please contact support@couchers.org.",
       "success_message2": "Thank you for reporting that bug and making Couchers better, a report was sent to the developers! The bug ID is <id/>."
     },
     "content": {

@@ -177,6 +177,9 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
                 minRows={4}
                 maxRows={6}
               />
+              <DialogContentText sx={{ mt: 2 }}>
+                {t("report:report.bug.no_response_note")}
+              </DialogContentText>
             </DialogContent>
             <DialogActions>
               <Button
