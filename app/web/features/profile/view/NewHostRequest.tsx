@@ -92,6 +92,7 @@ export default function NewHostRequest({
     onSuccess: () => {
       setIsRequesting(false);
       setIsRequestSuccess(true);
+      reset();
     },
   });
 
@@ -99,7 +100,6 @@ export default function NewHostRequest({
 
   const onSubmit = handleSubmit((data) => {
     mutate(data);
-    reset();
   });
 
   const watchFromDate = watch("fromDate", undefined);
