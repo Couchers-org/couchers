@@ -111,6 +111,7 @@ export default function HostRequestListItem({
                   isHost={isHost}
                   requestStatus={hostRequest.status}
                   isPast={isPast}
+                  surferName={isHost ? otherUser?.name : undefined}
                 />
               )}
             </StyledHostStatusContainer>
