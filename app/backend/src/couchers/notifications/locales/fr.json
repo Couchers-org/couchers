@@ -104,7 +104,9 @@
     },
     "event__reminder": {
       "title": "Événement à venir : {{title}}",
-      "ios_title": "Événement à venir"
+      "ios_title": "Événement à venir",
+      "ios_subtitle": "{{title}}",
+      "body": "L'événement commence le {{date_and_time}}."
     }
   }
 }

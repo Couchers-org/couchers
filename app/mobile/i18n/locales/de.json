@@ -2,7 +2,8 @@
   "errors": {
     "failed_to_load": "Laden fehlgeschlagen",
     "check_connection": "Überprüfe deine Internetverbindung und versuche es erneut.",
-    "try_again": "Erneut versuchen"
+    "try_again": "Erneut versuchen",
+    "camera_permission_denied": "Die Kameraerlaubnis ist erforderlich, um Fotos zu machen."
   },
   "not_found": {
     "title": "Upps!",
@@ -15,5 +16,11 @@
     "communities": "Communitys",
     "search": "Suche",
     "events": "Events"
+  },
+  "common": {
+    "cancel": "Abbrechen",
+    "add_photo": "Foto hinzufügen",
+    "take_photo": "Foto aufnehmen",
+    "choose_from_library": "Aus der Bibliothek wählen"
   }
 }

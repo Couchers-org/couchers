@@ -67,7 +67,7 @@
   },
   "host_request_view": {
     "request_duration_one": "{{count}} nuit",
-    "request_duration_many": "",
+    "request_duration_many": "{{count}} nuits",
     "request_duration_other": "{{count}} nuits",
     "error_message": "Identification de demande d’hôte invalide",
     "back_button_a11y_label": "Retourner",
@@ -153,5 +153,8 @@
   "members_dialog": {
     "title": "Membres de la discussion"
   },
-  "unknown_user": "Utilisateur.trice inconnu.e"
+  "unknown_user": "Utilisateur.trice inconnu.e",
+  "mark_all_read_button_text_chats": "Marquez toutes les discussions comme lues",
+  "mark_all_read_button_text_hosting": "Marquer toutes les demandes d'hébergement comme lues",
+  "mark_all_read_button_text_surfing": "Marquer toutes les demandes de surf comme lues"
 }
