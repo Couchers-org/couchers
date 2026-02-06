@@ -75,8 +75,8 @@
       "in_progress": "En cours",
       "just_started": "Elle vient de commencer",
       "complete_percent": "{{percent}}% complète",
-      "info_text": "Les langues avec 50-80% d'achèvement apparaissent en gris dans la sélection des langues. Les langues avec moins de 50% d'achèvement sont cachées de la sélection des langues. Pour encourager les contributeurs, les langues avec moins de 20% sont montrées sur ce site.",
-      "view_progress": "Voir l'avancement de la traduction.",
+      "info_text": "💡 Les langues avec 50-80% d'achèvement apparaissent en gris dans la sélection des langues. Les langues avec moins de 50% d'achèvement sont cachées de la sélection des langues. Pour encourager les contributeurs, les langues avec moins de 20% sont montrées sur cette page.",
+      "view_progress": "Voir l'avancement de la traduction",
       "early_stage": "Étape préliminaire"
     },
     "show_all_languages_description": "Lorsqu'il est activé, le sélecteur de langue affichera toutes les langues, quel que soit le pourcentage d'avancement de la traduction. Cela s'affiche uniquement afin d'aider à tester les langues encore en cours de traduction.",
