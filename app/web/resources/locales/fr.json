@@ -93,7 +93,7 @@
         "guidelines_breach": "Violation des règles ou de la politique (demande d'argent, nudisme, partage de lit, etc).",
         "safety": "Préoccupations concernant la sécurité (pour vous-même ou les autres)",
         "scam": "Scam, information fausse ou trompeuse",
-        "spam": "Spam ou contenu promotionnel non lié au couch surfing."
+        "spam": "Spam ou contenu promotionnel non lié au couch surfing"
       },
       "block_user": "Bloquer {{username}}",
       "block_user_explainer": "Les discussions et demandes de ce membre seront bloquées et votre profil, vos événements et vos commentaires ne seront pas visibles par ce membre. Ce membre ne sera pas informé que vous l'avez bloqué.",
