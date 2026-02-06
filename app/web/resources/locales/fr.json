@@ -163,7 +163,7 @@
   "error": {
     "fatal_message": "Cela n'aurait pas dû arriver. Veuillez nous contacter et nous décrire ce que vous étiez en train de faire, afin d'éviter que l'erreur se reproduise.",
     "fallback": {
-      "title": "Oups ...ceci est une erreur inconnue."
+      "title": "Oups ...ceci est une erreur inconnue"
     },
     "unknown": "Erreur inconnue"
   }
