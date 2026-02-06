@@ -94,7 +94,7 @@
         "safety": "Préoccupations concernant la sécurité (pour vous-même ou les autres)",
         "scam": "Scam, information fausse ou trompeuse",
         "spam": "Spam ou contenu promotionnel non lié au couch surfing",
-        "sexualized": "Contenu ou comportement à caractère sexuel."
+        "sexualized": "Contenu ou comportement à caractère sexuel"
       },
       "block_user": "Bloquer {{username}}",
       "block_user_explainer": "Les discussions et demandes de ce membre seront bloquées et votre profil, vos événements et vos commentaires ne seront pas visibles par ce membre. Ce membre ne sera pas informé que vous l'avez bloqué.",
