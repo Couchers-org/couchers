@@ -94,7 +94,8 @@
         "safety": "Préoccupations concernant la sécurité (pour vous-même ou les autres)",
         "scam": "Scam, information fausse ou trompeuse",
         "spam": "Spam ou contenu promotionnel non lié au couch surfing",
-        "sexualized": "Contenu ou comportement à caractère sexuel"
+        "sexualized": "Contenu ou comportement à caractère sexuel",
+        "other": "Autre (merci de préciser ci-dessous)"
       },
       "block_user": "Bloquer {{username}}",
       "block_user_explainer": "Les discussions et demandes de ce membre seront bloquées et votre profil, vos événements et vos commentaires ne seront pas visibles par ce membre. Ce membre ne sera pas informé que vous l'avez bloqué.",
@@ -150,5 +151,6 @@
   },
   "footer": {
     "version_info": "Version <2>{{version}}</2>, dernière mise à jour <5>{{updated_ago}}</5>."
-  }
+  },
+  "not_found_text_1": "l'URL ou la ressource que vous cherchez, n'a pu être trouvé."
 }
