@@ -71,7 +71,7 @@
     },
     "submit_button_label": "Appliquer",
     "search_filters": "Filtres de recherche",
-    "by_location_filter_label": "Par localisation",
+    "by_location_filter_label": "Par emplacement",
     "clear_filters": "Effacer les filtres"
   },
   "choose_search_criteria": "Saisissez un lieu ou appliquez un filtre pour rechercher.",
