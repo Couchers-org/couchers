@@ -74,7 +74,7 @@
       "almost_there": "Presque là",
       "in_progress": "En cours",
       "just_started": "Elle vient de commencer",
-      "complete_percent": "{{percent}}% terminé",
+      "complete_percent": "{{percent}}% complet",
       "info_text": "💡 Les langues ayant un taux de complétion de 50 à 80 % apparaissent en grisé dans le sélecteur de langue. Les langues ayant moins de 50 % de complétion sont cachées du sélecteur de langue. Pour encourager les contributeurs.trices, les langues en dessous de 20 % sont affichées sur ce site.",
       "view_progress": "Afficher la progression de la traduction",
       "early_stage": "Étape préliminaire"
