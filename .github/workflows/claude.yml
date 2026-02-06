@@ -41,5 +41,5 @@ jobs:
 
           # Allow standard development tools for formatting, type checking, testing, and proto generation
           claude_args: |
-            --model claude-opus-4-5-20251101
+            --model claude-opus-4-6
             --allowedTools "Bash(uv run ruff:*),Bash(uv run mypy:*),Bash(uv run pytest:*),Bash(uv run alembic:*),Bash(make format:*),Bash(make fmt:*),Bash(make mypy:*),Bash(make protos:*),Bash(make test:*),Bash(yarn format:*),Bash(yarn lint:*),Bash(yarn typecheck),Bash(yarn tsc),Bash(yarn build),Bash(yarn jest:*),Bash(docker:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh pr:*),Bash(gh issue:*),Bash(nvm use:*),Bash(source ~/.nvm/nvm.sh:*),Bash(ls:*),Bash(pwd),Bash(cd:*)"
