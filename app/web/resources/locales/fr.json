@@ -152,5 +152,6 @@
   "footer": {
     "version_info": "Version <2>{{version}}</2>, dernière mise à jour <5>{{updated_ago}}</5>."
   },
-  "not_found_text_1": "l'URL ou la ressource que vous cherchez, n'a pu être trouvé"
+  "not_found_text_1": "l'URL ou la ressource que vous cherchez, n'a pu être trouvé",
+  "not_found_text_2": "Voulez-vous simplement <1>aller au tableau de bord ?</1>"
 }
