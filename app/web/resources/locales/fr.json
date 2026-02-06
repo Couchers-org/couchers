@@ -158,5 +158,6 @@
   "change_time": "Changer l'heure",
   "html_meta": {
     "default_description": "Partagez votre monde, découvrez le leur. Des expériences locales et authentiques, construites sur la confiance et de vrais liens - pas de transactions."
-  }
+  },
+  "invited_you": "¡{{name}} vous a invité à rejoindre Couchers !"
 }
