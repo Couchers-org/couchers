@@ -159,5 +159,12 @@
   "html_meta": {
     "default_description": "Partagez votre monde, découvrez le leur. Des expériences locales et authentiques, construites sur la confiance et de vrais liens - pas de transactions."
   },
-  "invited_you": "{{name}} vous a invité à rejoindre Couchers !"
+  "invited_you": "{{name}} vous a invité à rejoindre Couchers !",
+  "error": {
+    "fatal_message": "Cela n'aurait pas dû arriver. Veuillez nous contacter et nous décrire ce que vous étiez en train de faire, afin d'éviter que l'erreur se reproduise.",
+    "fallback": {
+      "title": "Oups ...ceci est une erreur inconnue."
+    },
+    "unknown": "Erreur inconnue"
+  }
 }
