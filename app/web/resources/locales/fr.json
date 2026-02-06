@@ -126,5 +126,8 @@
     "error": {
       "fetch_invite_info": "Impossible d'obtenir les détails du code d'invitation"
     }
+  },
+  "what_is_cs": {
+    "get_started": "Commencer"
   }
 }
