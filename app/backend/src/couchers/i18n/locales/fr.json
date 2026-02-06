@@ -39,6 +39,9 @@
     "country_required": "Un pays est requis.",
     "dev_apis_disabled": "Les APIs de développement ne sont pas activés sur ce serveur.",
     "event_edit_permission_denied": "Vous n'avez pas l'autorisation d'éditer cet événement.",
-    "event_not_an_organizer": "Ce membre n'est pas un organisateur."
+    "event_not_an_organizer": "Ce membre n'est pas un organisateur.",
+    "event_not_found": "Impossible de trouver l'événement.",
+    "event_transfer_permission_denied": "Vous n'êtes pas autorisé à transférer cet événement.",
+    "events_not_enabled": "Les événements ne sont pas activés dans ce groupe ou cette communauté."
   }
 }
