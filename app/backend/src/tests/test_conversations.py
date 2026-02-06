@@ -2026,7 +2026,6 @@ def test_incomplete_profile(db):
 
 
 def test_mark_conversation_viewing(db, moderator):
-    """Test that MarkGroupChatViewing updates last_viewing_at on subscription"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -2063,7 +2062,6 @@ def test_mark_conversation_viewing(db, moderator):
 
 
 def test_mark_conversation_viewing_not_found(db, moderator):
-    """Test that MarkGroupChatViewing returns NOT_FOUND for non-existent or non-member chat"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -2091,7 +2089,6 @@ def test_mark_conversation_viewing_not_found(db, moderator):
 
 
 def test_notification_suppressed_when_viewing(db, moderator):
-    """Test that notifications are suppressed when user is actively viewing the conversation"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -2146,7 +2143,6 @@ def test_notification_suppressed_when_viewing(db, moderator):
 
 
 def test_notification_sent_when_not_viewing(db, moderator):
-    """Test that notifications are sent when user is NOT viewing the conversation"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -2199,7 +2195,6 @@ def test_notification_sent_when_not_viewing(db, moderator):
 
 
 def test_notification_sent_when_presence_expired(db, moderator):
-    """Test that notifications ARE sent when user's presence has expired (>30 seconds ago)"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -2260,7 +2255,6 @@ def test_notification_sent_when_presence_expired(db, moderator):
 
 
 def test_notification_suppressed_when_presence_just_active(db, moderator):
-    """Test that notifications are suppressed when user's presence is just within threshold (29s ago)"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -2321,7 +2315,6 @@ def test_notification_suppressed_when_presence_just_active(db, moderator):
 
 
 def test_stop_group_chat_viewing(db, moderator):
-    """Test that StopGroupChatViewing clears last_viewing_at on subscription"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -2361,7 +2354,6 @@ def test_stop_group_chat_viewing(db, moderator):
 
 
 def test_stop_group_chat_viewing_not_found(db, moderator):
-    """Test that StopGroupChatViewing returns NOT_FOUND for non-existent or non-member chat"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -2389,7 +2381,6 @@ def test_stop_group_chat_viewing_not_found(db, moderator):
 
 
 def test_stop_viewing_enables_notifications(db, moderator):
-    """Test that notifications are sent after user stops viewing the conversation"""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 

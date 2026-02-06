@@ -40,17 +40,13 @@ service Conversations {
   }
 
   rpc MarkGroupChatViewing(MarkGroupChatViewingReq) returns (google.protobuf.Empty) {
-    // Mark that the user is currently viewing a group chat
-    // Call periodically (every 10s) while conversation is visible
-    // Used to suppress notifications when user is actively viewing the chat
+    // Marks that the user is currently viewing a group chat
     //
     // Raises: NOT_FOUND if the group chat does not exist or user is not a member
   }
 
   rpc StopGroupChatViewing(StopGroupChatViewingReq) returns (google.protobuf.Empty) {
-    // Mark that the user has stopped viewing a group chat
-    // Call when user navigates away from the conversation
-    // This immediately enables notifications again
+    // Marks that the user has stopped viewing a group chat
     //
     // Raises: NOT_FOUND if the group chat does not exist or user is not a member
   }

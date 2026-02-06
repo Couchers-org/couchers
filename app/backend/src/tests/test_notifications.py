@@ -1352,7 +1352,6 @@ def test_DebugRedeliverPushNotification_push_notifications_disabled(db, push_col
 
 
 def test_expo_push_includes_collapse_key_and_thread_id():
-    """Test that Expo push notifications include both collapseKey and threadId for notification grouping."""
     from unittest.mock import Mock, patch
 
     from couchers.notifications.expo_api import send_expo_push_notification
@@ -1383,7 +1382,6 @@ def test_expo_push_includes_collapse_key_and_thread_id():
 
 
 def test_expo_push_omits_grouping_keys_when_none():
-    """Test that Expo push notifications omit grouping keys when not provided."""
     from unittest.mock import Mock, patch
 
     from couchers.notifications.expo_api import send_expo_push_notification
@@ -1409,7 +1407,6 @@ def test_expo_push_omits_grouping_keys_when_none():
 
 
 def test_web_push_includes_thread_id():
-    """Test that web push notifications include thread_id for browser notification grouping."""
     from unittest.mock import Mock, patch
 
     from couchers.models import PushNotificationPlatform, PushNotificationSubscription
@@ -1459,7 +1456,6 @@ def test_web_push_includes_thread_id():
 
 
 def test_web_push_omits_thread_id_when_no_key():
-    """Test that web push notifications omit thread_id when key is empty."""
     from unittest.mock import Mock, patch
 
     from couchers.models import PushNotificationPlatform, PushNotificationSubscription

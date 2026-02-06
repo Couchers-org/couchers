@@ -5,14 +5,6 @@ import { markGroupChatViewing, stopGroupChatViewing } from "service/conversation
 // How often to send presence heartbeats (in ms)
 const PRESENCE_HEARTBEAT_INTERVAL = 10000; // 10 seconds
 
-/**
- * Hook to manage presence heartbeats for a group chat.
- * Sends periodic "viewing" signals to suppress notifications while the user
- * is actively viewing a conversation.
- *
- * @param groupChatId - The ID of the group chat being viewed
- * @param enabled - Whether heartbeats should be active (e.g., only when chat is visible)
- */
 export default function usePresenceHeartbeat(
   groupChatId: number | undefined,
   enabled: boolean = true,
@@ -25,7 +17,6 @@ export default function usePresenceHeartbeat(
     try {
       await markGroupChatViewing(groupChatId);
     } catch (error) {
-      // Silently ignore heartbeat failures - they're not critical
       console.debug("Presence heartbeat failed:", error);
     }
   }, [groupChatId]);
@@ -36,7 +27,6 @@ export default function usePresenceHeartbeat(
     try {
       await stopGroupChatViewing(groupChatId);
     } catch (error) {
-      // Silently ignore stop failures
       console.debug("Stop presence failed:", error);
     }
   }, [groupChatId]);
@@ -78,14 +68,14 @@ export default function usePresenceHeartbeat(
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        // Page is hidden, stop presence
+        // Page hidden, stop presence
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
           intervalRef.current = null;
         }
         stopPresence();
       } else {
-        // Page is visible again, restart heartbeats
+        // Page visible again, restart heartbeats
         isActiveRef.current = true;
         sendHeartbeat();
         intervalRef.current = setInterval(sendHeartbeat, PRESENCE_HEARTBEAT_INTERVAL);
@@ -102,8 +92,7 @@ export default function usePresenceHeartbeat(
   useEffect(() => {
     return () => {
       if (groupChatId && isActiveRef.current) {
-        // Fire and forget - we're unmounting so can't await
-        stopGroupChatViewing(groupChatId).catch(() => {});
+      stopGroupChatViewing(groupChatId).catch(() => {});
       }
     };
   }, [groupChatId]);

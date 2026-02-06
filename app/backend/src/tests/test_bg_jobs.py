@@ -1621,10 +1621,6 @@ def test_send_message_notifications_empty_unseen_simple(monkeypatch):
 
 
 def test_send_message_notifications_skip_email_when_push_delivered(db, moderator):
-    """
-    Test that missed_messages email is skipped when push notification
-    was already delivered for the conversation.
-    """
     from couchers.models import Notification, NotificationDelivery, NotificationDeliveryType, NotificationTopicAction
 
     user1, token1 = generate_user()
@@ -1679,10 +1675,6 @@ def test_send_message_notifications_skip_email_when_push_delivered(db, moderator
 
 
 def test_send_message_notifications_send_email_when_no_push_delivered(db, moderator):
-    """
-    Test that missed_messages email IS sent when NO push notification
-    was delivered for the conversation.
-    """
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -1719,10 +1711,6 @@ def test_send_message_notifications_send_email_when_no_push_delivered(db, modera
 
 
 def test_send_message_notifications_send_email_when_push_delivery_old(db, moderator):
-    """
-    Test that missed_messages email IS sent when push notification delivery
-    is older than 10 minutes (stale).
-    """
     from couchers.models import Notification, NotificationDelivery, NotificationDeliveryType, NotificationTopicAction
 
     user1, token1 = generate_user()

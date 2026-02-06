@@ -137,22 +137,14 @@ export function markLastSeenGroupChat(
   return client.conversations.markLastSeenGroupChat(req);
 }
 
-/**
- * Mark that the user is currently viewing a group chat.
- * Call periodically (every 10s) while the conversation is visible.
- * Used to suppress notifications when user is actively viewing the chat.
- */
+// Mark that the user is currently viewing a group chat
 export function markGroupChatViewing(groupChatId: number) {
   const req = new MarkGroupChatViewingReq();
   req.setGroupChatId(groupChatId);
   return client.conversations.markGroupChatViewing(req);
 }
 
-/**
- * Mark that the user has stopped viewing a group chat.
- * Call when user navigates away from the conversation.
- * This immediately enables notifications again.
- */
+// Mark that the user has stopped viewing a group chat
 export function stopGroupChatViewing(groupChatId: number) {
   const req = new StopGroupChatViewingReq();
   req.setGroupChatId(groupChatId);
