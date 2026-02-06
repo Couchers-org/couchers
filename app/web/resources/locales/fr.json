@@ -99,12 +99,13 @@
     "bug": {
       "expect_label": "Que s'est-il passé ? Qu'aurait-il dû se passer ?",
       "button_label": "Signaler un problème technique",
-      "warning_message": "Veuillez noter que cette information, ainsi que les données du diagnostic incluant sur quelle page vous vous trouvez, quel navigateur vous utilisez et le nom d'utilisateur seront conservés dans une liste publique de bogues.",
+      "warning_message": "Veuillez noter que cette information, ainsi que les données du diagnostic incluant sur quelle page vous vous trouvez, quel navigateur vous utilisez et le nom d'utilisateur.trice seront conservés dans une liste publique de bogues.",
       "title_label": "Titre de signalement",
-      "title_helper": "Brève description du bug",
+      "title_helper": "Brève description du bogue",
       "problem_helper": "Brève description du problème et de la façon de le reproduire",
-      "problem_label": "Qu'avez-vous fait pour déclencher le bug ?",
-      "expect_helper": "Brève description de ce qui était censé se produire à la place"
+      "problem_label": "Qu'avez-vous fait pour déclencher le bogue ?",
+      "expect_helper": "Brève description de ce qui était censé se produire à la place",
+      "success_message2": "Merci d'avoir signalé ce bogue et d'avoir rendu Couchers meilleur. Un rapport a été envoyé aux développeurs. Le numéro du bogue est <id/>."
     },
     "label": "Signaler un problème",
     "title": "Signaler un problème",
@@ -120,5 +121,10 @@
     "unspecified_info": "Non spécifié",
     "wants_to_meetup": "Veut rencontrer",
     "does_not_want_to_meetup": "Pas disponible pour des rencontres"
+  },
+  "invites": {
+    "error": {
+      "fetch_invite_info": "Impossible d'obtenir les détails du code d'invitation"
+    }
   }
 }
