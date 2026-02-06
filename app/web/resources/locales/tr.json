@@ -119,5 +119,51 @@
   "not_found_text_2": "Sadece <1>eve gitmek</1> mi istiyorsun?",
   "not_found_alt": "Hata 404: Kaynak Bulunamadı",
   "change_time": "Zamanı değiştir",
-  "not_found_text_1": "İstediğin URL veya kaynağı bulamadık"
+  "not_found_text_1": "İstediğin URL veya kaynağı bulamadık",
+  "components": {
+    "edit_location_map": {
+      "location_warn": "Aşağıdaki daireyi tıklayıp sürükleyerek insanların evinizin yaklaşık konumunu görmesini sağlayın. Evinizin dairenin tam ortasında olmadığından emin olun, böylece insanlar kesin konumu bilemesin.",
+      "invalid_coordinate": "Koordinatlar eksik, lütfen yukarıdaki haritadan bir konum seçin",
+      "location_accuracy": "Konum isabetliliği",
+      "location_publicly_visible": "Bu herkese açık bir şekilde görünecek",
+      "map_is_blank": "Koordinatlar eksik, yukarıdan bir konum arayarak başlayın",
+      "radius_text": "{{radius}} metre",
+      "no_location_results_text": "Sonuç yok. Sadece şehri aramayı deneyin.",
+      "no_map_support": "Cihazınız haritayı desteklemiyor. Lütfen WebGL2'nin açık olduğuna emin olun veya başka bir cihaz/tarayıcı kullanın. Bu sorun için özür dileriz!",
+      "press_enter_to_search": "Aramak için enter tuşuna bas"
+    }
+  },
+  "nav": {
+    "merch_shop": "Ürün Mağazası",
+    "account_settings": "Hesap ayarları",
+    "help": "Yardım",
+    "log_out": "Çıkış yap",
+    "map_search": "Ara",
+    "mission": "Misyon ve Değerler",
+    "messages": "Mesajlar",
+    "newsletter": "Haber Bülteni",
+    "notifications": "Bildirimler",
+    "our_plan": "Planımız",
+    "our_team": "Takımımız",
+    "profile": "Profil",
+    "show_all_events": "Tüm etkinlikleri göster",
+    "the_team": "Takım",
+    "switch_to_light_mode": "Açık temaya geç",
+    "switch_to_dark_mode": "Karanlık temaya geç",
+    "about": "Hakkında",
+    "blog": "Blog",
+    "community": "Topluluk",
+    "communities": "Topluluklar",
+    "donate": "Bağış yap",
+    "events": "Etkinlikler",
+    "faq": "SSS",
+    "feature_preview": "Özellik Önizlemesi",
+    "forum": "Forum",
+    "github": "GitHub",
+    "help_center": "Yardım Merkezi",
+    "roadmap_updates": "Yol Haritası ve Güncellemeler",
+    "contact_us": "Bize Ulaşın",
+    "built_with": "Açık Kaynak",
+    "invite_members": "Üye Davet Et"
+  }
 }
