@@ -85,9 +85,9 @@
   },
   "report": {
     "flag": {
-      "success": "Nous vous remercions pour votre rapport et pour contribuer à rendre Couchers une meilleure plateforme pour tous et pour toutes !",
+      "success": "Nous vous remercions pour votre signalement et pour rendre Couchers une meilleure plateforme pour tous et pour toutes !",
       "reason": {
-        "dating": "Flirting / comportements des applications de rencontres ou similaire",
+        "dating": "Flirting ou comportements des applications de rencontres ou similaire",
         "external": "Incident hors plateforme",
         "harassment": "Harcèlement, intimidation, discours haineux/discriminatoire ou contenu illégal",
         "guidelines_breach": "Violation des règles ou de la politique (demande d'argent, nudisme, partage de lit, etc)."
@@ -114,7 +114,7 @@
     "content": {
       "button_label": "Signaler des contenus ou comportements inappropriés",
       "dialog_message": "Nous travaillons actuellement à la mise en place d'outils de signalement et de modération efficaces. En attendant, veuillez nous envoyer un mail à l'adresse ci-dessous. Veuillez inclure des détails tels que le nom d'utilisateur.trice concerné.e, le contenu inapproprié et où vous l'avez vu.",
-      "success_message": "Merci pour votre signalement et d'avoir fait de Couchers une meilleure plateforme pour tous et pour toutes !"
+      "success_message": "Nous vous remercions pour votre signalement et pour rendre Couchers une meilleure plateforme pour tous et pour toutes !"
     }
   },
   "expand": "Gonfler",
@@ -133,7 +133,7 @@
     "get_started": "Commencer",
     "title": "Qu'est-ce que le couch surfing ?",
     "description_2": "C'est comme avoir un ami dans une autre ville et aller lui rendre visite, mais vous le rencontrerez pour la première fois lorsque vous serez là-bas !",
-    "get_involved_title": "Que puis-je faire sur Couchers.org ?"
+    "get_involved_title": "Que puis-je faire sur Couchers.org ?"
   },
   "location_autocomplete": {
     "more_specific": "Veuillez choisir un emplacement plus spécifique",
