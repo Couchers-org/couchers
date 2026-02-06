@@ -152,5 +152,8 @@
   },
   "surfer_declined_request_help_text": "<0>Lies unseren Leitfaden</0>, wie man eine Anfrage schreibt, die angenommen wird.",
   "past_request_help_text": "Diese Anfrage liegt in der Vergangenheit, du kannst weiterhin Nachrichten versenden, aber keine sonstige Änderungen vornehmen.",
-  "unknown_user": "Unbekannte Person"
+  "unknown_user": "Unbekannte Person",
+  "mark_all_read_button_text_chats": "Alle Chats als gelesen markieren",
+  "mark_all_read_button_text_hosting": "Alle Host-Anfragen als gelesen markieren",
+  "mark_all_read_button_text_surfing": "Alle Surf-Anfragen als gelesen markieren"
 }
