@@ -20,6 +20,7 @@ import EditLocationMap, {
   ApproximateLocation,
 } from "components/EditLocationMap";
 import Select from "components/Select";
+import StyledLink from "components/StyledLink";
 import TOSLink from "components/TOSLink";
 import dayjs, { Dayjs } from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -451,7 +452,15 @@ export default function AccountForm() {
               )}
             />
           }
-          label={t("auth:account_form.opt_in_newsletter")}
+          label={
+            <Trans i18nKey="auth:account_form.opt_in_newsletter">
+              Subscribe to our occasional newsletter about community updates.{" "}
+              <StyledLink href="https://newsletter.couchers.org/archive">
+                View past newsletters
+              </StyledLink>
+              .
+            </Trans>
+          }
         />
         <StyledButton
           onClick={submit}
