@@ -12,6 +12,7 @@ from sqlalchemy.sql import and_, func, or_, update
 from couchers.constants import GLOBAL_COMMUNITY_MAX_NODE_ID
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import can_moderate_node, get_parent_node_at_location, session_scope
+from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
@@ -503,6 +504,19 @@ class Events(events_pb2_grpc.EventsServicer):
 
         session.commit()
 
+        log_event(
+            context,
+            session,
+            "event.created",
+            {
+                "event_id": event.id,
+                "occurrence_id": occurrence.id,
+                "parent_community_id": parent_node.id,
+                "parent_community_name": parent_node.official_cluster.name,
+                "online": online,
+            },
+        )
+
         if has_completed_profile(session, user):
             queue_job(
                 session,
@@ -770,6 +784,8 @@ class Events(events_pb2_grpc.EventsServicer):
 
         occurrence.is_cancelled = True
 
+        log_event(context, session, "event.cancelled", {"event_id": event.id, "occurrence_id": occurrence.id})
+
         queue_job(
             session,
             job=generate_event_cancel_notifications,
@@ -1014,6 +1030,13 @@ class Events(events_pb2_grpc.EventsServicer):
 
         session.flush()
 
+        log_event(
+            context,
+            session,
+            "event.subscription_set",
+            {"event_id": event.id, "occurrence_id": occurrence.id, "subscribed": request.subscribe},
+        )
+
         return event_to_pb(session, occurrence, context)
 
     def SetEventAttendance(
@@ -1055,6 +1078,13 @@ class Events(events_pb2_grpc.EventsServicer):
                 session.add(attendance)
 
         session.flush()
+
+        log_event(
+            context,
+            session,
+            "event.attendance_set",
+            {"occurrence_id": occurrence.id, "attendance_state": request.attendance_state},
+        )
 
         return event_to_pb(session, occurrence, context)
 

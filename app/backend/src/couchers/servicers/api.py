@@ -15,6 +15,7 @@ from couchers.config import config
 from couchers.constants import GHOST_USERNAME
 from couchers.context import CouchersContext
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
+from couchers.event_log import log_event
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
@@ -621,6 +622,7 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_friends")
 
         session.delete(rel)
+        log_event(context, session, "friendship.removed", {"other_user_id": request.user_id})
 
         return empty_pb2.Empty()
 
@@ -769,6 +771,7 @@ class API(api_pb2_grpc.APIServicer):
             ),
             moderation_state_id=moderation_state.id,
         )
+        log_event(context, session, "friendship.request_sent", {"to_user_id": to_user.id})
 
         return empty_pb2.Empty()
 
@@ -853,6 +856,13 @@ class API(api_pb2_grpc.APIServicer):
                 ),
             )
 
+        log_event(
+            context,
+            session,
+            "friendship.request_responded",
+            {"from_user_id": friend_request.from_user_id, "accepted": request.accept},
+        )
+
         return empty_pb2.Empty()
 
     def CancelFriendRequest(
@@ -875,6 +885,7 @@ class API(api_pb2_grpc.APIServicer):
         friend_request.time_responded = func.now()
 
         # note no notifications
+        log_event(context, session, "friendship.request_cancelled", {"to_user_id": friend_request.to_user_id})
 
         session.commit()
 

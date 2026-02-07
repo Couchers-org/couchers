@@ -67,6 +67,7 @@ class CouchersContext:
         is_api_key: bool | None,
         token: str | None,
         ui_language_preference: str | None,
+        sofa: str | None = None,
     ):
         """Don't ever construct directly, always use the `make_*_context_` functions!"""
         self._grpc_context = grpc_context
@@ -74,6 +75,7 @@ class CouchersContext:
         self._is_api_key = is_api_key
         self.__token = token
         self.__ui_language_preference = ui_language_preference
+        self._sofa = sofa
         self.__is_interactive = is_interactive
         self.__logged_in = self._user_id is not None
         self.__cookies: list[str] = []
@@ -194,6 +196,7 @@ def make_interactive_context(
     is_api_key: bool,
     token: str | None,
     ui_language_preference: str | None,
+    sofa: str | None = None,
 ) -> CouchersContext:
     return CouchersContext(
         is_interactive=True,
@@ -202,6 +205,7 @@ def make_interactive_context(
         is_api_key=is_api_key,
         token=token,
         ui_language_preference=ui_language_preference,
+        sofa=sofa,
     )
 
 
