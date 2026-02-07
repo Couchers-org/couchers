@@ -13,7 +13,7 @@ def log_event(
     /,
     properties: dict[str, Any],
     *,
-    override_user_id: int | None = None,
+    __set_user_id: int | None = None,
 ) -> None:
     """
     Record an analytics event.
@@ -21,8 +21,9 @@ def log_event(
     Usage:
         log_event(context, session, "host_request.sent", {"host_id": host.id, "nights": 3})
 
-    Use override_user_id when the acting user differs from context (e.g. signup, token-based actions):
-        log_event(context, session, "account.signup_completed", {"gender": user.gender}, override_user_id=user.id)
+    Use __set_user_id only for unauthenticated actions (signup, token-based actions) where
+    context has no user_id:
+        log_event(context, session, "account.signup_completed", {"gender": user.gender}, __set_user_id=user.id)
 
     Event type naming convention: "noun.verbed" with dot-separated hierarchy, e.g.
         account.login
@@ -31,10 +32,17 @@ def log_event(
         message.sent
         reference.written
     """
+    if __set_user_id is not None:
+        assert context._user_id is None, "Cannot use __set_user_id when context already has a user_id"
+        user_id = __set_user_id
+    else:
+        assert context._user_id is not None, "Context must have a user_id, or __set_user_id must be provided"
+        user_id = context._user_id
+
     session.add(
         EventLog(
             event_type=event_type,
-            user_id=override_user_id if override_user_id is not None else context._user_id,
+            user_id=user_id,
             sofa=context._sofa,
             properties=properties,
         )

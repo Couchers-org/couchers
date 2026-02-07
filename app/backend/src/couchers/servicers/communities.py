@@ -465,7 +465,12 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             )
         )
 
-        log_event(context, session, "community.joined", {"community_id": node.id})
+        log_event(
+            context,
+            session,
+            "community.joined",
+            {"community_id": node.id, "community_name": node.official_cluster.name},
+        )
 
         return empty_pb2.Empty()
 
@@ -490,7 +495,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .where(ClusterSubscription.user_id == context.user_id)
         )
 
-        log_event(context, session, "community.left", {"community_id": node.id})
+        log_event(
+            context, session, "community.left", {"community_id": node.id, "community_name": node.official_cluster.name}
+        )
 
         return empty_pb2.Empty()
 

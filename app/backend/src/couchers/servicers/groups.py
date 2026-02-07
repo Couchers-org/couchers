@@ -303,7 +303,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             )
         )
 
-        log_event(context, session, "group.joined", {"group_id": cluster.id})
+        log_event(context, session, "group.joined", {"group_id": cluster.id, "group_name": cluster.name})
 
         return empty_pb2.Empty()
 
@@ -326,7 +326,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             .where(ClusterSubscription.user_id == context.user_id)
         )
 
-        log_event(context, session, "group.left", {"group_id": cluster.id})
+        log_event(context, session, "group.left", {"group_id": cluster.id, "group_name": cluster.name})
 
         return empty_pb2.Empty()
 

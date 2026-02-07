@@ -315,6 +315,9 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 "surfer_gender": user.gender,
                 "host_gender": host.gender,
                 "city": host.city,
+                "from_date": str(from_date),
+                "to_date": str(to_date),
+                "nights": (to_date - from_date).days,
             },
         )
 
@@ -529,7 +532,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 context,
                 session,
                 "host_request.accepted",
-                {"host_request_id": host_request.conversation_id, "surfer_id": host_request.surfer_user_id},
+                {
+                    "host_request_id": host_request.conversation_id,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
+                    "from_date": str(host_request.from_date),
+                    "to_date": str(host_request.to_date),
+                    "host_city": host_request.hosting_city,
+                },
             )
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_REJECTED:
@@ -561,7 +573,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 context,
                 session,
                 "host_request.rejected",
-                {"host_request_id": host_request.conversation_id, "surfer_id": host_request.surfer_user_id},
+                {
+                    "host_request_id": host_request.conversation_id,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
+                    "from_date": str(host_request.from_date),
+                    "to_date": str(host_request.to_date),
+                    "host_city": host_request.hosting_city,
+                },
             )
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED:
@@ -592,7 +613,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 context,
                 session,
                 "host_request.confirmed",
-                {"host_request_id": host_request.conversation_id, "host_id": host_request.host_user_id},
+                {
+                    "host_request_id": host_request.conversation_id,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
+                    "from_date": str(host_request.from_date),
+                    "to_date": str(host_request.to_date),
+                    "host_city": host_request.hosting_city,
+                },
             )
 
         if request.status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED:
@@ -623,7 +653,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 context,
                 session,
                 "host_request.cancelled",
-                {"host_request_id": host_request.conversation_id, "host_id": host_request.host_user_id},
+                {
+                    "host_request_id": host_request.conversation_id,
+                    "surfer_id": host_request.surfer_user_id,
+                    "host_id": host_request.host_user_id,
+                    "surfer_gender": host_request.surfer.gender,
+                    "host_gender": host_request.host.gender,
+                    "from_date": str(host_request.from_date),
+                    "to_date": str(host_request.to_date),
+                    "host_city": host_request.hosting_city,
+                },
             )
 
         session.add(control_message)
@@ -762,7 +801,13 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             context,
             session,
             "host_request.message_sent",
-            {"host_request_id": host_request.conversation_id},
+            {
+                "host_request_id": host_request.conversation_id,
+                "surfer_id": host_request.surfer_user_id,
+                "host_id": host_request.host_user_id,
+                "role": "host" if context.user_id == host_request.host_user_id else "surfer",
+                "host_city": host_request.hosting_city,
+            },
         )
 
         return empty_pb2.Empty()
@@ -919,11 +964,19 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 decline_reason=request.decline_reason,
             )
         )
+        quality = hostrequestquality2sql.get(request.host_request_quality)
         log_event(
             context,
             session,
             "host_request.feedback_submitted",
-            {"host_request_id": host_request.conversation_id, "surfer_id": host_request.surfer_user_id},
+            {
+                "host_request_id": host_request.conversation_id,
+                "surfer_id": host_request.surfer_user_id,
+                "host_id": host_request.host_user_id,
+                "request_quality": quality.name if quality else None,
+                "has_decline_reason": bool(request.decline_reason),
+                "host_city": host_request.hosting_city,
+            },
         )
 
         return empty_pb2.Empty()

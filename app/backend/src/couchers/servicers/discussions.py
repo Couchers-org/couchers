@@ -113,7 +113,17 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         session.add(discussion)
         session.flush()
 
-        log_event(context, session, "discussion.created", {"discussion_id": discussion.id})
+        log_event(
+            context,
+            session,
+            "discussion.created",
+            {
+                "discussion_id": discussion.id,
+                "cluster_id": cluster.id,
+                "cluster_name": cluster.name,
+                "is_official_cluster": cluster.is_official_cluster,
+            },
+        )
 
         queue_job(
             session,
