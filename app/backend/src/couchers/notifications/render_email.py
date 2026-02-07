@@ -6,7 +6,11 @@ from couchers import urls
 from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
 from couchers.models import Notification, NotificationTopicAction
-from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action, generate_unsub_topic_key
+from couchers.notifications.quick_links import (
+    generate_quick_decline_link,
+    generate_unsub_topic_action,
+    generate_unsub_topic_key,
+)
 from couchers.notifications.utils import can_unsubscribe_topic_key
 from couchers.proto import api_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
@@ -264,7 +268,7 @@ def render_email_notification(
                 "actioned": actioned,
                 "unsub_type": "badge additions" if notification.action == "add" else "badge removals",
             },
-            topic_action_unsubscribe_text="badge additions" if notification.action == "add" else "badge removals"
+            topic_action_unsubscribe_text="badge additions" if notification.action == "add" else "badge removals",
         )
     elif notification.topic_action == NotificationTopicAction.donation__received:
         title = loc_context.localize_string("notifications.donation_received.title")

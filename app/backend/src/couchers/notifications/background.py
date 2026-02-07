@@ -24,7 +24,7 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
-from couchers.notifications.render_email import render_email_notification, get_list_unsubscribe_header
+from couchers.notifications.render_email import get_list_unsubscribe_header, render_email_notification
 from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
 from couchers.notifications.utils import ACCOUNT_DELETION_TOPIC
