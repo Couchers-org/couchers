@@ -24,7 +24,7 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
-from couchers.notifications.render_email import render_email_notification
+from couchers.notifications.render_email import render_email_notification, get_list_unsubscribe_header
 from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
 from couchers.notifications.utils import ACCOUNT_DELETION_TOPIC
@@ -70,11 +70,15 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     else:
         template_args["footer_email_is_critical"] = False
         template_args["footer_manage_notifications_link"] = urls.notification_settings_link()
-        template_args["footer_notification_topic_action"] = rendered.topic_action_unsubscribe_text
-        template_args["footer_notification_topic_action_link"] = generate_unsub_topic_action(notification)
-        template_args["footer_notification_topic_key"] = rendered.topic_key_unsubscribe_text
-        template_args["footer_notification_topic_key_link"] = generate_unsub_topic_key(notification)
         template_args["footer_do_not_email_link"] = generate_do_not_email(user)
+
+        if rendered.topic_action_unsubscribe_text:
+            template_args["footer_notification_topic_action"] = rendered.topic_action_unsubscribe_text
+            template_args["footer_notification_topic_action_link"] = generate_unsub_topic_action(notification)
+
+        if rendered.topic_key_unsubscribe_text:
+            template_args["footer_notification_topic_key"] = rendered.topic_key_unsubscribe_text
+            template_args["footer_notification_topic_key_link"] = generate_unsub_topic_key(notification)
 
     # Format plaintext template
     plain_tmplt_body = (template_folder / f"{rendered.template_name}.txt").read_text()
@@ -88,10 +92,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     )
     html = html_tmplt.render(template_args, loc_context)
 
-    list_unsubscribe_header = None
-    if rendered.list_unsubscribe_url:
-        list_unsubscribe_header = f"<{rendered.list_unsubscribe_url}>"
-
+    list_unsubscribe_header = get_list_unsubscribe_header(notification)
     queue_email(
         session,
         sender_name=config["NOTIFICATION_EMAIL_SENDER"],

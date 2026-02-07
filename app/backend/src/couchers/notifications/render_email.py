@@ -6,7 +6,8 @@ from couchers import urls
 from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
 from couchers.models import Notification, NotificationTopicAction
-from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
+from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action, generate_unsub_topic_key
+from couchers.notifications.utils import can_unsubscribe_topic_key
 from couchers.proto import api_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
 
@@ -27,8 +28,6 @@ class RenderedEmailNotification:
     topic_action_unsubscribe_text: str | None = None
     # the link label on the topic_key unsubscribe link
     topic_key_unsubscribe_text: str | None = None
-    # url to unsubscribe with one click
-    list_unsubscribe_url: str | None = None
 
 
 def render_email_notification(
@@ -265,8 +264,7 @@ def render_email_notification(
                 "actioned": actioned,
                 "unsub_type": "badge additions" if notification.action == "add" else "badge removals",
             },
-            topic_action_unsubscribe_text="badge additions" if notification.action == "add" else "badge removals",
-            list_unsubscribe_url=generate_unsub_topic_action(notification),
+            topic_action_unsubscribe_text="badge additions" if notification.action == "add" else "badge removals"
         )
     elif notification.topic_action == NotificationTopicAction.donation__received:
         title = loc_context.localize_string("notifications.donation_received.title")
@@ -739,6 +737,21 @@ def render_email_notification(
         )
 
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
+
+
+def get_list_unsubscribe_header(notification: Notification) -> str | None:
+    if notification.topic_action.is_critical:
+        return None
+
+    # We can only have one List-Unsubscribe header.
+    # Prefer topic-key unsubscription as it is more specific than topic-action (e.g. current chat, not all chats).
+    list_unsubscribe_url: str
+    if can_unsubscribe_topic_key(notification.topic):
+        list_unsubscribe_url = generate_unsub_topic_key(notification)
+    else:
+        list_unsubscribe_url = generate_unsub_topic_action(notification)
+
+    return f"<{list_unsubscribe_url}>"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
