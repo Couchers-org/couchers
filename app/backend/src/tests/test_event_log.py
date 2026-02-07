@@ -76,8 +76,8 @@ def test_log_event_authenticated_context(db):
         assert events[0].created is not None
 
 
-def test_log_event_with_set_user_id(db):
-    """log_event uses __set_user_id when context has no user."""
+def test_log_event_with_override_user_id(db):
+    """log_event uses _override_user_id to set user_id."""
     user, token = generate_user()
 
     with session_scope() as session:
@@ -89,7 +89,7 @@ def test_log_event_with_set_user_id(db):
             ui_language_preference=None,
             sofa="sofa-456",
         )
-        log_event(context, session, "account.signup_completed", {"gender": "Woman"}, __set_user_id=user.id)
+        log_event(context, session, "account.signup_completed", {"gender": "Woman"}, _override_user_id=user.id)
 
     with session_scope() as session:
         events = _get_events(session, "account.signup_completed")
@@ -97,22 +97,6 @@ def test_log_event_with_set_user_id(db):
         assert events[0].user_id == user.id
         assert events[0].properties == {"gender": "Woman"}
         assert events[0].sofa == "sofa-456"
-
-
-def test_log_event_set_user_id_with_authenticated_context_fails(db):
-    """__set_user_id must not be used when context already has a user_id."""
-    user, token = generate_user()
-
-    with session_scope() as session:
-        context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
-            user_id=user.id,
-            is_api_key=False,
-            token=token,
-            ui_language_preference=None,
-        )
-        with pytest.raises(AssertionError, match="Cannot use __set_user_id when context already has a user_id"):
-            log_event(context, session, "test.bad", {}, __set_user_id=999)
 
 
 def test_log_event_anonymous(db):
@@ -622,7 +606,7 @@ def test_create_group_chat_event(db):
 # ===== Integration tests: friendship events =====
 
 
-def test_friendship_request_events(db):
+def test_friendship_request_events(db, moderator):
     """Friend request lifecycle creates appropriate events."""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
@@ -637,12 +621,14 @@ def test_friendship_request_events(db):
         assert events[0].user_id == user1.id
         assert events[0].properties["to_user_id"] == user2.id
 
-    # Accept friend request
+    # Approve and accept friend request
     from couchers.models import FriendRelationship
 
     with session_scope() as session:
         fr = session.execute(select(FriendRelationship)).scalar_one()
         fr_id = fr.id
+
+    moderator.approve_friend_request(fr_id)
 
     with api_session(token2) as api:
         api.RespondFriendRequest(api_pb2.RespondFriendRequestReq(friend_request_id=fr_id, accept=True))
@@ -666,7 +652,7 @@ def test_friendship_request_events(db):
         assert events[0].properties["other_user_id"] == user2.id
 
 
-def test_friendship_cancel_event(db):
+def test_friendship_cancel_event(db, moderator):
     """Cancelling a friend request creates event."""
     user1, token1 = generate_user()
     user2, token2 = generate_user()

@@ -85,7 +85,7 @@ class EventLog(Base, kw_only=True):
     # backend/frontend version
     version: Mapped[str] = mapped_column(String, default=config["VERSION"])
 
-    # sofa cookie value (request correlation token), nullable for background/system events
+    # sofa, null for background/system events
     sofa: Mapped[str | None] = mapped_column(String, default=None)
 
     # hierarchical event type, e.g. "host_request.sent", "account.login"
@@ -100,5 +100,6 @@ class EventLog(Base, kw_only=True):
     __table_args__ = (
         Index("ix_logging_event_log_created", "created"),
         Index("ix_logging_event_log_event_type_created", "event_type", "created"),
+        Index("ix_logging_event_log_user_id_created", "user_id", "created"),
         {"schema": "logging"},
     )
