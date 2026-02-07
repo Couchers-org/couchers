@@ -7,11 +7,11 @@ from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
 from couchers.models import Notification, NotificationTopicAction
 from couchers.notifications.quick_links import (
+    can_unsubscribe_topic_key,
     generate_quick_decline_link,
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
-from couchers.notifications.utils import can_unsubscribe_topic_key
 from couchers.proto import api_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
 
