@@ -486,7 +486,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if token:
             delete_session(session, token)
 
-        log_event(context, session, "account.logout", {})
+        if context.is_logged_in():
+            log_event(context, session, "account.logout", {})
 
         # set the cookie to an empty string and expire immediately, should remove it from the browser
         context.set_cookies(create_session_cookies("", "", now()))
