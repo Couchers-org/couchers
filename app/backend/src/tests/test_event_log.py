@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 import pytest
-from google.protobuf import wrappers_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import select
 
 from couchers.context import make_interactive_context
@@ -9,8 +9,17 @@ from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.models.logging import EventLog
-from couchers.proto import api_pb2, auth_pb2, conversations_pb2, events_pb2, references_pb2, reporting_pb2, requests_pb2
-from couchers.utils import create_coordinate, now, today
+from couchers.proto import (
+    api_pb2,
+    auth_pb2,
+    conversations_pb2,
+    events_pb2,
+    references_pb2,
+    reporting_pb2,
+    requests_pb2,
+    search_pb2,
+)
+from couchers.utils import Timestamp_from_datetime, create_coordinate, now, today
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.sessions import (
     MockGrpcContext,
@@ -23,6 +32,7 @@ from tests.fixtures.sessions import (
     requests_session,
     search_session,
 )
+from tests.test_communities import create_community
 
 
 @pytest.fixture(autouse=True)
@@ -105,8 +115,8 @@ def test_log_event_set_user_id_with_authenticated_context_fails(db):
             log_event(context, session, "test.bad", {}, __set_user_id=999)
 
 
-def test_log_event_no_user_id_fails(db):
-    """log_event fails when there's no user_id and no __set_user_id."""
+def test_log_event_anonymous(db):
+    """log_event stores event with user_id=None when context has no user."""
     with session_scope() as session:
         context = make_interactive_context(
             grpc_context=MockGrpcContext(),
@@ -115,8 +125,13 @@ def test_log_event_no_user_id_fails(db):
             token=None,
             ui_language_preference=None,
         )
-        with pytest.raises(AssertionError, match="Context must have a user_id"):
-            log_event(context, session, "test.bad", {})
+        log_event(context, session, "account.signup_initiated", {"has_invite_code": False})
+
+    with session_scope() as session:
+        events = _get_events(session, "account.signup_initiated")
+        assert len(events) == 1
+        assert events[0].user_id is None
+        assert events[0].properties == {"has_invite_code": False}
 
 
 def test_log_event_complex_properties(db):
@@ -303,11 +318,12 @@ def test_logout_creates_event(db):
     user, token = generate_user()
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        auth_api.Deauthenticate(auth_pb2.DeauthReq())
+        auth_api.Deauthenticate(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}"),))
 
     with session_scope() as session:
         events = _get_events(session, "account.logout")
         assert len(events) == 1
+        assert events[0].user_id == user.id
         assert events[0].properties == {}
 
 
@@ -562,7 +578,7 @@ def test_send_message_creates_event(db):
     with conversations_session(token1) as api:
         res = api.SendDirectMessage(
             conversations_pb2.SendDirectMessageReq(
-                recipient_id=user2.id,
+                recipient_user_id=user2.id,
                 text="Hello friend!",
             )
         )
@@ -712,7 +728,7 @@ def test_search_creates_event(db):
     user, token = generate_user()
 
     with search_session(token) as api:
-        api.UserSearch(api_pb2.UserSearchReq())
+        api.UserSearch(search_pb2.UserSearchReq())
 
     with session_scope() as session:
         events = _get_events(session, "search.performed")
@@ -762,6 +778,12 @@ def test_event_created_event(db):
     """Creating an event logs event.created with community info and online status."""
     user, token = generate_user()
 
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user], [], None)
+
+    start_time = now() + timedelta(days=1)
+    end_time = start_time + timedelta(hours=2)
+
     with events_session(token) as api:
         res = api.CreateEvent(
             events_pb2.CreateEventReq(
@@ -769,11 +791,12 @@ def test_event_created_event(db):
                 content="Let's hang out",
                 offline_information=events_pb2.OfflineEventInformation(
                     address="123 Main St",
-                    lat=40.7128,
-                    lng=-74.0060,
+                    lat=0.1,
+                    lng=0.2,
                 ),
-                start_time=now() + timedelta(days=1),
-                end_time=now() + timedelta(days=1, hours=2),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
             )
         )
 
@@ -796,11 +819,12 @@ def test_password_change_event(db):
     """Changing password creates account.password_changed event."""
     user, token = generate_user(hashed_password=hash_password("oldpassword"))
 
+    from couchers.proto import account_pb2
     from tests.fixtures.sessions import account_session
 
     with account_session(token) as api:
-        api.ChangePassword(
-            api_pb2.ChangePasswordReq(
+        api.ChangePasswordV2(
+            account_pb2.ChangePasswordV2Req(
                 old_password="oldpassword",
                 new_password="a new very secure password",
             )
