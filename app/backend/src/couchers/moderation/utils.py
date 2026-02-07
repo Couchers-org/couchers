@@ -25,7 +25,7 @@ def create_moderation(
     moderation_state = ModerationState(
         object_type=object_type,
         object_id=object_id,
-        visibility=ModerationVisibility.SHADOWED,
+        visibility=ModerationVisibility.shadowed,
     )
     session.add(moderation_state)
     session.flush()
@@ -33,9 +33,9 @@ def create_moderation(
     session.add(
         ModerationLog(
             moderation_state_id=moderation_state.id,
-            action=ModerationAction.CREATE,
+            action=ModerationAction.create,
             moderator_user_id=creator_user_id,
-            new_visibility=ModerationVisibility.SHADOWED,
+            new_visibility=ModerationVisibility.shadowed,
             reason="Object created.",
         )
     )
@@ -43,13 +43,13 @@ def create_moderation(
     session.add(
         ModerationQueueItem(
             moderation_state_id=moderation_state.id,
-            trigger=ModerationTrigger.INITIAL_REVIEW,
+            trigger=ModerationTrigger.initial_review,
             reason="Object created.",
         )
     )
     session.flush()
 
-    observe_moderation_action(ModerationAction.CREATE, object_type)
-    observe_moderation_queue_item_created(ModerationTrigger.INITIAL_REVIEW, object_type)
+    observe_moderation_action(ModerationAction.create, object_type)
+    observe_moderation_queue_item_created(ModerationTrigger.initial_review, object_type)
 
     return moderation_state
