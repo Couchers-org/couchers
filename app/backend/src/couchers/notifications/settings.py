@@ -83,7 +83,7 @@ def set_preference(
     delivery_type: NotificationDeliveryType,
     deliver: bool,
 ) -> None:
-    if not topic_action.user_editable:
+    if topic_action.is_critical:
         raise PreferenceNotUserEditableError()
     current_pref = session.execute(
         select(NotificationPreference)
@@ -364,7 +364,7 @@ def get_user_setting_groups(user_id: int) -> list[notifications_pb2.Notification
                         notifications_pb2.NotificationItem(
                             action=action,
                             description=description,
-                            user_editable=topic_action.user_editable,
+                            user_editable=not topic_action.is_critical,
                             push=NotificationDeliveryType.push in delivery_types,
                             email=NotificationDeliveryType.email in delivery_types,
                             digest=NotificationDeliveryType.digest in delivery_types,
