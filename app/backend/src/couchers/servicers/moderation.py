@@ -1,4 +1,5 @@
 import logging
+from typing import TYPE_CHECKING
 
 import grpc
 from sqlalchemy import and_, exists, not_, or_, select
@@ -14,6 +15,7 @@ from couchers.metrics import (
     observe_moderation_visibility_transition,
 )
 from couchers.models import (
+    FriendRelationship,
     GroupChat,
     HostRequest,
     Message,
@@ -31,6 +33,9 @@ from couchers.models import (
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import Timestamp_from_datetime, now
+
+if TYPE_CHECKING:
+    from couchers.sql import _ModeratedContent
 
 logger = logging.getLogger(__name__)
 
@@ -91,12 +96,21 @@ moderationobjecttype2api = {
     None: moderation_pb2.MODERATION_OBJECT_TYPE_UNSPECIFIED,
     ModerationObjectType.host_request: moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
     ModerationObjectType.group_chat: moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
+    ModerationObjectType.friend_request: moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST,
 }
 
 moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_UNSPECIFIED: None,
     moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST: ModerationObjectType.host_request,
     moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT: ModerationObjectType.group_chat,
+    moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST: ModerationObjectType.friend_request,
+}
+
+# Mapping from ModerationObjectType to the SQLAlchemy model class
+moderationobjecttype2model: dict[ModerationObjectType, _ModeratedContent] = {
+    ModerationObjectType.host_request: HostRequest,
+    ModerationObjectType.group_chat: GroupChat,
+    ModerationObjectType.friend_request: FriendRelationship,
 }
 
 
@@ -105,26 +119,39 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
     object_type = state.object_type
     object_id = state.object_id
 
-    # Get the author user ID
+    # Get the author user ID and content based on object type
     if object_type == ModerationObjectType.host_request:
         author_user_id = session.execute(
             select(HostRequest.surfer_user_id).where(HostRequest.conversation_id == object_id)
         ).scalar_one()
+        # Get the first text message for this conversation
+        content = session.execute(
+            select(Message.text)
+            .where(Message.conversation_id == object_id)
+            .where(Message.message_type == MessageType.text)
+            .order_by(Message.id.asc())
+            .limit(1)
+        ).scalar_one_or_none()
     elif object_type == ModerationObjectType.group_chat:
         author_user_id = session.execute(
             select(GroupChat.creator_id).where(GroupChat.conversation_id == object_id)
         ).scalar_one()
+        # Get the first text message for this conversation
+        content = session.execute(
+            select(Message.text)
+            .where(Message.conversation_id == object_id)
+            .where(Message.message_type == MessageType.text)
+            .order_by(Message.id.asc())
+            .limit(1)
+        ).scalar_one_or_none()
+    elif object_type == ModerationObjectType.friend_request:
+        author_user_id = session.execute(
+            select(FriendRelationship.from_user_id).where(FriendRelationship.id == object_id)
+        ).scalar_one()
+        # Friend requests have no text content
+        content = None
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
-
-    # Get the first text message for this conversation
-    content = session.execute(
-        select(Message.text)
-        .where(Message.conversation_id == object_id)
-        .where(Message.message_type == MessageType.text)
-        .order_by(Message.id.asc())
-        .limit(1)
-    ).scalar_one_or_none()
 
     state_pb = moderation_pb2.ModerationStateInfo(
         moderation_state_id=state.id,
@@ -186,19 +213,18 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             author_user_id = request.item_author_user_id
 
             # Use EXISTS for efficient author filtering
-            hr_exists = exists().where(
-                and_(
-                    HostRequest.moderation_state_id == ModerationQueueItem.moderation_state_id,
-                    HostRequest.surfer_user_id == author_user_id,
+            author_exists_clauses = []
+            for model in moderationobjecttype2model.values():
+                author_col = getattr(model, model.__moderation_author_column__)
+                author_exists_clauses.append(
+                    exists().where(
+                        and_(
+                            model.moderation_state_id == ModerationQueueItem.moderation_state_id,
+                            author_col == author_user_id,
+                        )
+                    )
                 )
-            )
-            gc_exists = exists().where(
-                and_(
-                    GroupChat.moderation_state_id == ModerationQueueItem.moderation_state_id,
-                    GroupChat.creator_id == author_user_id,
-                )
-            )
-            statement = statement.where(or_(hr_exists, gc_exists))
+            statement = statement.where(or_(*author_exists_clauses))
 
         # Order by time created
         if request.newest_first:

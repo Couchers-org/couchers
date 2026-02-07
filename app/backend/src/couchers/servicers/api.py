@@ -29,6 +29,7 @@ from couchers.models import (
     LanguageFluency,
     MeetupStatus,
     Message,
+    ModerationObjectType,
     Notification,
     NotificationDeliveryType,
     ParkingDetails,
@@ -43,6 +44,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.uploads import get_avatar_upload
+from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.proto import api_pb2, api_pb2_grpc, media_pb2, notification_data_pb2, requests_pb2
@@ -229,6 +231,9 @@ class API(api_pb2_grpc.APIServicer):
         )
         pending_friend_request_query = pending_friend_request_query.where(
             FriendRelationship.status == FriendStatus.pending
+        )
+        pending_friend_request_query = where_moderated_content_visible(
+            pending_friend_request_query, context, FriendRelationship, is_list_operation=True
         )
         pending_friend_request_count = session.execute(pending_friend_request_query).scalar_one()
 
@@ -585,6 +590,7 @@ class API(api_pb2_grpc.APIServicer):
                 FriendRelationship.to_user_id == context.user_id,
             )
         ).where(FriendRelationship.status == FriendStatus.accepted)
+        rels_query = where_moderated_content_visible(rels_query, context, FriendRelationship, is_list_operation=True)
         rels = session.execute(rels_query).scalars().all()
         return api_pb2.ListFriendsRes(
             user_ids=[rel.from_user.id if rel.from_user.id != context.user_id else rel.to_user.id for rel in rels],
@@ -608,6 +614,7 @@ class API(api_pb2_grpc.APIServicer):
                 ),
             )
         ).where(FriendRelationship.status == FriendStatus.accepted)
+        rel_query = where_moderated_content_visible(rel_query, context, FriendRelationship)
         rel = session.execute(rel_query).scalar_one_or_none()
 
         if not rel:
@@ -630,32 +637,40 @@ class API(api_pb2_grpc.APIServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        q1 = (
+        q1 = where_moderated_content_visible(
             select(FriendRelationship.from_user_id.label("user_id"))
             .where(FriendRelationship.to_user_id == context.user_id)
             .where(FriendRelationship.from_user_id != request.user_id)
-            .where(FriendRelationship.status == FriendStatus.accepted)
+            .where(FriendRelationship.status == FriendStatus.accepted),
+            context,
+            FriendRelationship,
         )
 
-        q2 = (
+        q2 = where_moderated_content_visible(
             select(FriendRelationship.to_user_id.label("user_id"))
             .where(FriendRelationship.from_user_id == context.user_id)
             .where(FriendRelationship.to_user_id != request.user_id)
-            .where(FriendRelationship.status == FriendStatus.accepted)
+            .where(FriendRelationship.status == FriendStatus.accepted),
+            context,
+            FriendRelationship,
         )
 
-        q3 = (
+        q3 = where_moderated_content_visible(
             select(FriendRelationship.from_user_id.label("user_id"))
             .where(FriendRelationship.to_user_id == request.user_id)
             .where(FriendRelationship.from_user_id != context.user_id)
-            .where(FriendRelationship.status == FriendStatus.accepted)
+            .where(FriendRelationship.status == FriendStatus.accepted),
+            context,
+            FriendRelationship,
         )
 
-        q4 = (
+        q4 = where_moderated_content_visible(
             select(FriendRelationship.to_user_id.label("user_id"))
             .where(FriendRelationship.from_user_id == request.user_id)
             .where(FriendRelationship.to_user_id != context.user_id)
-            .where(FriendRelationship.status == FriendStatus.accepted)
+            .where(FriendRelationship.status == FriendStatus.accepted),
+            context,
+            FriendRelationship,
         )
 
         mutual = select(intersect(union(q1, q2), union(q3, q4)).subquery())
@@ -723,11 +738,26 @@ class API(api_pb2_grpc.APIServicer):
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
 
-        friend_relationship = FriendRelationship(
-            from_user_id=user.id, to_user_id=to_user.id, status=FriendStatus.pending
+        # Use callback pattern to handle circular dependency between FriendRelationship and ModerationState
+        friend_relationship = None
+
+        def create_friend_relationship(moderation_state_id: int) -> int:
+            nonlocal friend_relationship
+            friend_relationship = FriendRelationship(
+                from_user_id=user.id,
+                to_user_id=to_user.id,
+                status=FriendStatus.pending,
+                moderation_state_id=moderation_state_id,
+            )
+            session.add(friend_relationship)
+            session.flush()
+            return friend_relationship.id
+
+        moderation_state = create_moderation(
+            session, ModerationObjectType.friend_request, create_friend_relationship, context.user_id
         )
-        session.add(friend_relationship)
-        session.flush()
+
+        assert friend_relationship is not None  # set by create_friend_relationship callback
 
         notify(
             session,
@@ -737,6 +767,7 @@ class API(api_pb2_grpc.APIServicer):
             data=notification_data_pb2.FriendRequestCreate(
                 other_user=user_model_to_pb(friend_relationship.from_user, session, context),
             ),
+            moderation_state_id=moderation_state.id,
         )
 
         return empty_pb2.Empty()
@@ -750,6 +781,9 @@ class API(api_pb2_grpc.APIServicer):
         sent_requests_query = sent_requests_query.where(FriendRelationship.from_user_id == context.user_id).where(
             FriendRelationship.status == FriendStatus.pending
         )
+        sent_requests_query = where_moderated_content_visible(
+            sent_requests_query, context, FriendRelationship, is_list_operation=True
+        )
         sent_requests = session.execute(sent_requests_query).scalars().all()
 
         received_requests_query = select(FriendRelationship)
@@ -758,6 +792,9 @@ class API(api_pb2_grpc.APIServicer):
         )
         received_requests_query = received_requests_query.where(FriendRelationship.to_user_id == context.user_id).where(
             FriendRelationship.status == FriendStatus.pending
+        )
+        received_requests_query = where_moderated_content_visible(
+            received_requests_query, context, FriendRelationship, is_list_operation=True
         )
         received_requests = session.execute(received_requests_query).scalars().all()
 
@@ -794,6 +831,7 @@ class API(api_pb2_grpc.APIServicer):
             .where(FriendRelationship.status == FriendStatus.pending)
             .where(FriendRelationship.id == request.friend_request_id)
         )
+        friend_request_query = where_moderated_content_visible(friend_request_query, context, FriendRelationship)
         friend_request = session.execute(friend_request_query).scalar_one_or_none()
 
         if not friend_request:
@@ -827,6 +865,7 @@ class API(api_pb2_grpc.APIServicer):
             .where(FriendRelationship.status == FriendStatus.pending)
             .where(FriendRelationship.id == request.friend_request_id)
         )
+        friend_request_query = where_moderated_content_visible(friend_request_query, context, FriendRelationship)
         friend_request = session.execute(friend_request_query).scalar_one_or_none()
 
         if not friend_request:
@@ -978,24 +1017,28 @@ def user_model_to_pb(
         friends_status = api_pb2.User.FriendshipStatus.NA
     else:
         friend_relationship = session.execute(
-            select(FriendRelationship)
-            .where(
-                or_(
-                    and_(
-                        FriendRelationship.from_user_id == context.user_id,
-                        FriendRelationship.to_user_id == db_user.id,
-                    ),
-                    and_(
-                        FriendRelationship.from_user_id == db_user.id,
-                        FriendRelationship.to_user_id == context.user_id,
-                    ),
+            where_moderated_content_visible(
+                select(FriendRelationship)
+                .where(
+                    or_(
+                        and_(
+                            FriendRelationship.from_user_id == context.user_id,
+                            FriendRelationship.to_user_id == db_user.id,
+                        ),
+                        and_(
+                            FriendRelationship.from_user_id == db_user.id,
+                            FriendRelationship.to_user_id == context.user_id,
+                        ),
+                    )
                 )
-            )
-            .where(
-                or_(
-                    FriendRelationship.status == FriendStatus.accepted,
-                    FriendRelationship.status == FriendStatus.pending,
-                )
+                .where(
+                    or_(
+                        FriendRelationship.status == FriendStatus.accepted,
+                        FriendRelationship.status == FriendStatus.pending,
+                    )
+                ),
+                context,
+                FriendRelationship,
             )
         ).scalar_one_or_none()
 
