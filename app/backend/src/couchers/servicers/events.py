@@ -212,7 +212,11 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
     )
 
 
-def _get_event_and_occurrence_query(occurrence_id: int, include_deleted: bool) -> Select[tuple[Event, EventOccurrence]]:
+def _get_event_and_occurrence_query(
+    occurrence_id: int,
+    include_deleted: bool,
+    context: CouchersContext | None = None,
+) -> Select[tuple[Event, EventOccurrence]]:
     query = (
         select(Event, EventOccurrence)
         .where(EventOccurrence.id == occurrence_id)
@@ -222,20 +226,26 @@ def _get_event_and_occurrence_query(occurrence_id: int, include_deleted: bool) -
     if not include_deleted:
         query = query.where(~EventOccurrence.is_deleted)
 
+    if context is not None:
+        query = where_moderated_content_visible(query, context, Event, is_list_operation=False)
+
     return query
 
 
 def _get_event_and_occurrence_one(
     session: Session, occurrence_id: int, include_deleted: bool = False
 ) -> tuple[Event, EventOccurrence]:
+    """For background jobs only - no visibility filtering."""
     result = session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one()
     return result._tuple()
 
 
 def _get_event_and_occurrence_one_or_none(
-    session: Session, occurrence_id: int, include_deleted: bool = False
+    session: Session, occurrence_id: int, context: CouchersContext, include_deleted: bool = False
 ) -> tuple[Event, EventOccurrence] | None:
-    result = session.execute(_get_event_and_occurrence_query(occurrence_id, include_deleted)).one_or_none()
+    result = session.execute(
+        _get_event_and_occurrence_query(occurrence_id, include_deleted, context=context)
+    ).one_or_none()
     return result._tuple() if result else None
 
 
@@ -296,8 +306,6 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             logger.error(f"Inviting user {payload.inviting_user_id} is gone while trying to send event notification?")
             return
 
-        moderation_state_id = payload.moderation_state_id or None
-
         for user in users:
             if is_not_visible(session, user.id, creator.id):
                 continue
@@ -318,7 +326,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
                     nearby=True if node_id is None else None,
                     in_community=community_to_pb(session, event.parent_node, context) if node_id is not None else None,
                 ),
-                moderation_state_id=moderation_state_id,
+                moderation_state_id=event.moderation_state_id,
             )
 
 
@@ -345,6 +353,7 @@ def generate_event_update_notifications(payload: jobs_pb2.GenerateEventUpdateNot
                     updating_user=user_model_to_pb(updating_user, session, context),
                     updated_items=payload.updated_items,
                 ),
+                moderation_state_id=event.moderation_state_id,
             )
 
 
@@ -370,6 +379,7 @@ def generate_event_cancel_notifications(payload: jobs_pb2.GenerateEventCancelNot
                     event=event_to_pb(session, occurrence, context),
                     cancelling_user=user_model_to_pb(cancelling_user, session, context),
                 ),
+                moderation_state_id=event.moderation_state_id,
             )
 
 
@@ -392,6 +402,7 @@ def generate_event_delete_notifications(payload: jobs_pb2.GenerateEventDeleteNot
                 data=notification_data_pb2.EventDelete(
                     event=event_to_pb(session, occurrence, context),
                 ),
+                moderation_state_id=event.moderation_state_id,
             )
 
 
@@ -542,7 +553,6 @@ class Events(events_pb2_grpc.EventsServicer):
                     inviting_user_id=user.id,
                     occurrence_id=occurrence.id,
                     approved=False,
-                    moderation_state_id=moderation_state.id,
                 ),
             )
 
@@ -577,7 +587,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
         _check_occurrence_time_validity(start_time, end_time, context)
 
-        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
@@ -643,7 +653,7 @@ class Events(events_pb2_grpc.EventsServicer):
         self, request: events_pb2.UpdateEventReq, context: CouchersContext, session: Session
     ) -> events_pb2.Event:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
@@ -793,7 +803,7 @@ class Events(events_pb2_grpc.EventsServicer):
     def CancelEvent(
         self, request: events_pb2.CancelEventReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
@@ -824,7 +834,7 @@ class Events(events_pb2_grpc.EventsServicer):
         self, request: events_pb2.RequestCommunityInviteReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
@@ -907,7 +917,15 @@ class Events(events_pb2_grpc.EventsServicer):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_user_id = int(request.page_token) if request.page_token else 0
         occurrence = session.execute(
-            select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
+            where_moderated_content_visible(
+                select(EventOccurrence)
+                .join(Event, Event.id == EventOccurrence.event_id)
+                .where(EventOccurrence.id == request.event_id)
+                .where(~EventOccurrence.is_deleted),
+                context,
+                Event,
+                is_list_operation=False,
+            )
         ).scalar_one_or_none()
         if not occurrence:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
@@ -936,7 +954,7 @@ class Events(events_pb2_grpc.EventsServicer):
     ) -> events_pb2.ListEventSubscribersRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_user_id = int(request.page_token) if request.page_token else 0
-        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
         event, occurrence = res
@@ -965,7 +983,7 @@ class Events(events_pb2_grpc.EventsServicer):
     ) -> events_pb2.ListEventOrganizersRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_user_id = int(request.page_token) if request.page_token else 0
-        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
         event, occurrence = res
@@ -992,7 +1010,7 @@ class Events(events_pb2_grpc.EventsServicer):
     def TransferEvent(
         self, request: events_pb2.TransferEventReq, context: CouchersContext, session: Session
     ) -> events_pb2.Event:
-        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
@@ -1030,7 +1048,7 @@ class Events(events_pb2_grpc.EventsServicer):
     def SetEventSubscription(
         self, request: events_pb2.SetEventSubscriptionReq, context: CouchersContext, session: Session
     ) -> events_pb2.Event:
-        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
@@ -1071,7 +1089,15 @@ class Events(events_pb2_grpc.EventsServicer):
         self, request: events_pb2.SetEventAttendanceReq, context: CouchersContext, session: Session
     ) -> events_pb2.Event:
         occurrence = session.execute(
-            select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
+            where_moderated_content_visible(
+                select(EventOccurrence)
+                .join(Event, Event.id == EventOccurrence.event_id)
+                .where(EventOccurrence.id == request.event_id)
+                .where(~EventOccurrence.is_deleted),
+                context,
+                Event,
+                is_list_operation=False,
+            )
         ).scalar_one_or_none()
 
         if not occurrence:
@@ -1237,7 +1263,7 @@ class Events(events_pb2_grpc.EventsServicer):
         self, request: events_pb2.InviteEventOrganizerReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
@@ -1283,7 +1309,7 @@ class Events(events_pb2_grpc.EventsServicer):
     def RemoveEventOrganizer(
         self, request: events_pb2.RemoveEventOrganizerReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id)
+        res = _get_event_and_occurrence_one_or_none(session, occurrence_id=request.event_id, context=context)
         if not res:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 

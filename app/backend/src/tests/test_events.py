@@ -2,13 +2,22 @@ from datetime import timedelta
 
 import grpc
 import pytest
-from google.protobuf import wrappers_pb2
+from google.protobuf import empty_pb2, wrappers_pb2
 from psycopg2.extras import DateTimeTZRange
 from sqlalchemy import select
 from sqlalchemy.sql.expression import update
 
 from couchers.db import session_scope
-from couchers.models import BackgroundJob, EventOccurrence, Upload
+from couchers.jobs.handlers import send_event_reminders
+from couchers.models import (
+    BackgroundJob,
+    BackgroundJobState,
+    Event,
+    EventOccurrence,
+    Notification,
+    NotificationDelivery,
+    Upload,
+)
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
@@ -1244,7 +1253,7 @@ def test_GetEvent(db, moderator: Moderator):
         assert not res.can_moderate
 
 
-def test_CancelEvent(db):
+def test_CancelEvent(db, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
     # community moderator
@@ -1278,6 +1287,8 @@ def test_CancelEvent(db):
         )
 
         event_id = res.event_id
+
+    moderator.approve_event_by_occurrence(event_id)
 
     with events_session(token4) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
@@ -2367,7 +2378,7 @@ def test_list_past_events_regression(db):
         assert len(res.events) == 1
 
 
-def test_community_invite_requests(db):
+def test_community_invite_requests(db, moderator: Moderator):
     user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -2399,6 +2410,9 @@ def test_community_invite_requests(db):
 
         event_id = res.event_id
 
+    moderator.approve_event_by_occurrence(event_id)
+
+    with events_session(token1) as api:
         with mock_notification_email() as mock:
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
         assert mock.call_count == 1
@@ -2748,3 +2762,239 @@ def test_shadowed_event_hidden_from_list_for_non_creator(db, moderator: Moderato
         list_res = api.ListAllEvents(events_pb2.ListAllEventsReq())
         event_ids = [e.event_id for e in list_res.events]
         assert event_id in event_ids
+
+
+def test_event_create_notification_deferred_until_approval(db, push_collector: PushCollector, moderator: Moderator):
+    """Event create notifications are deferred while SHADOWED, then unblocked after approval."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    # Need parent+child so child community's node_id > GLOBAL_COMMUNITY_MAX_NODE_ID (1)
+    with session_scope() as session:
+        parent = create_community(session, 0, 10, "Parent", [user1], [], None)
+        create_community(session, 0, 2, "Child", [user2], [], parent)
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Deferred Event",
+                content="Content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+
+    # Process all jobs — notification should be deferred (event is SHADOWED)
+    process_jobs()
+
+    with session_scope() as session:
+        notif = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalar_one()
+        # Notification was created with moderation_state_id for deferral
+        assert notif.moderation_state_id is not None
+        # No delivery exists (deferred because event is SHADOWED)
+        delivery_count = session.execute(
+            select(NotificationDelivery).where(NotificationDelivery.notification_id == notif.id)
+        ).scalar_one_or_none()
+        assert delivery_count is None
+
+    # Approve the event — handle_notification is re-queued for deferred notifications
+    moderator.approve_event_by_occurrence(event_id)
+
+    # Verify handle_notification job was queued
+    with session_scope() as session:
+        pending_jobs = (
+            session.execute(select(BackgroundJob).where(BackgroundJob.state == BackgroundJobState.pending))
+            .scalars()
+            .all()
+        )
+        assert any("handle_notification" in j.job_type for j in pending_jobs)
+
+
+def test_event_update_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
+    """Event update notifications should carry the event's moderation_state_id for deferral."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Update Test",
+                content="Content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+
+    moderator.approve_event_by_occurrence(event_id)
+    process_jobs()
+    # Clear any create notifications
+    while push_collector.count_for_user(user2.id):
+        push_collector.pop_for_user(user2.id)
+
+    # User2 subscribes to the event
+    with events_session(token2) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+
+    # User1 updates the event with should_notify=True
+    with events_session(token1) as api:
+        api.UpdateEvent(
+            events_pb2.UpdateEventReq(
+                event_id=event_id,
+                title=wrappers_pb2.StringValue(value="Updated Title"),
+                should_notify=True,
+            )
+        )
+
+    process_jobs()
+
+    # Verify that the update notification for user2 has moderation_state_id set
+    with session_scope() as session:
+        event = session.execute(
+            select(Event)
+            .join(EventOccurrence, EventOccurrence.event_id == Event.id)
+            .where(EventOccurrence.id == event_id)
+        ).scalar_one()
+
+        notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        # Find the update notification (most recent one)
+        update_notifs = [n for n in notifications if n.topic_action.action == "update"]
+        assert len(update_notifs) == 1
+        assert update_notifs[0].moderation_state_id == event.moderation_state_id
+
+
+def test_event_cancel_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
+    """Event cancel notifications should carry the event's moderation_state_id for deferral."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Cancel Test",
+                content="Content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+
+    moderator.approve_event_by_occurrence(event_id)
+    process_jobs()
+    while push_collector.count_for_user(user2.id):
+        push_collector.pop_for_user(user2.id)
+
+    # User2 subscribes
+    with events_session(token2) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+
+    # User1 cancels the event
+    with events_session(token1) as api:
+        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
+
+    process_jobs()
+
+    # Verify that the cancel notification for user2 has moderation_state_id set
+    with session_scope() as session:
+        event = session.execute(
+            select(Event)
+            .join(EventOccurrence, EventOccurrence.event_id == Event.id)
+            .where(EventOccurrence.id == event_id)
+        ).scalar_one()
+
+        notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        cancel_notifs = [n for n in notifications if n.topic_action.action == "cancel"]
+        assert len(cancel_notifs) == 1
+        assert cancel_notifs[0].moderation_state_id == event.moderation_state_id
+
+
+def test_event_reminder_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
+    """Event reminder notifications should carry the event's moderation_state_id for deferral."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    # Create event starting 23 hours from now (within 24h reminder window)
+    start_time = now() + timedelta(hours=23)
+    end_time = start_time + timedelta(hours=1)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Reminder Test",
+                content="Content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+
+    moderator.approve_event_by_occurrence(event_id)
+    process_jobs()
+    while push_collector.count_for_user(user2.id):
+        push_collector.pop_for_user(user2.id)
+
+    # User2 marks attendance
+    with events_session(token2) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+    # Run the event reminder handler
+    send_event_reminders(empty_pb2.Empty())
+    process_jobs()
+
+    # Verify that the reminder notification for user2 has moderation_state_id set
+    with session_scope() as session:
+        event = session.execute(
+            select(Event)
+            .join(EventOccurrence, EventOccurrence.event_id == Event.id)
+            .where(EventOccurrence.id == event_id)
+        ).scalar_one()
+
+        notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        reminder_notifs = [n for n in notifications if n.topic_action.action == "reminder"]
+        assert len(reminder_notifs) == 1
+        assert reminder_notifs[0].moderation_state_id == event.moderation_state_id

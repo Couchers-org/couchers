@@ -421,7 +421,7 @@ This is a security email, you cannot unsubscribe from it.
         assert email.source_data == "testing_version/donation_received"
 
 
-def test_email_deleted_users_regression(db):
+def test_email_deleted_users_regression(db, moderator: Moderator):
     """
     We introduced a bug in notify v2 where we would email deleted/banned users.
     """
@@ -467,6 +467,9 @@ def test_email_deleted_users_regression(db):
         event_id = res.event_id
         assert not res.is_deleted
 
+    moderator.approve_event_by_occurrence(event_id)
+
+    with events_session(creating_token) as api:
         with mock_notification_email() as mock:
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
         assert mock.call_count == 1

@@ -1,7 +1,7 @@
 """Implement UMS for events
 
 Revision ID: a3b1c2d3e4f5
-Revises: 8191f466c673
+Revises: d3189338b8c1
 Create Date: 2026-02-07 10:00:00.000000
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "a3b1c2d3e4f5"
-down_revision = "8191f466c673"
+down_revision = "d3189338b8c1"
 branch_labels = None
 depends_on = None
 
