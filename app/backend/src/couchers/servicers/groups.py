@@ -9,6 +9,7 @@ from sqlalchemy.sql import delete, func
 
 from couchers.context import CouchersContext
 from couchers.db import can_moderate_node, get_node_parents_recursively
+from couchers.event_log import log_event
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -302,6 +303,8 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             )
         )
 
+        log_event(context, session, "group.joined", {"group_id": cluster.id})
+
         return empty_pb2.Empty()
 
     def LeaveGroup(
@@ -322,6 +325,8 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             .where(ClusterSubscription.cluster_id == request.group_id)
             .where(ClusterSubscription.user_id == context.user_id)
         )
+
+        log_event(context, session, "group.left", {"group_id": cluster.id})
 
         return empty_pb2.Empty()
 

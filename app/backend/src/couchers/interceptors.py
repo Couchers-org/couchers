@@ -299,6 +299,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                 is_api_key=auth_info.is_api_key if auth_info else False,
                 token=auth_info.token if auth_info else None,
                 ui_language_preference=(auth_info.ui_language_preference if auth_info else None) or headers.ui_lang,
+                sofa=sofa,
             )
 
             with session_scope() as session:

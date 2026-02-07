@@ -12,6 +12,7 @@ from sqlalchemy.sql import func, not_, or_
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
+from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
@@ -752,6 +753,17 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         session.flush()
 
+        log_event(
+            context,
+            session,
+            "group_chat.created",
+            {
+                "group_chat_id": group_chat.conversation_id,
+                "is_dm": group_chat.is_dm,
+                "recipient_count": len(request.recipient_user_ids),
+            },
+        )
+
         return conversations_pb2.GroupChat(
             group_chat_id=group_chat.conversation_id,
             title=group_chat.title,
@@ -795,6 +807,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         sent_messages_counter.labels(
             user_gender, "direct message" if subscription.group_chat.is_dm else "group chat"
         ).inc()
+        log_event(
+            context,
+            session,
+            "message.sent",
+            {"group_chat_id": request.group_chat_id, "is_dm": subscription.group_chat.is_dm},
+        )
 
         return empty_pb2.Empty()
 
@@ -856,6 +874,12 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         user_gender = session.execute(select(User.gender).where(User.id == user_id)).scalar_one()
         sent_messages_counter.labels(user_gender, "direct message").inc()
+        log_event(
+            context,
+            session,
+            "message.sent",
+            {"group_chat_id": chat.conversation_id, "is_dm": True, "recipient_id": recipient_id},
+        )
 
         session.flush()
 

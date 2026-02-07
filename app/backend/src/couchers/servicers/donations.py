@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from couchers import urls
 from couchers.config import config
 from couchers.context import CouchersContext
+from couchers.event_log import log_event
 from couchers.helpers.badges import user_add_badge
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
 from couchers.models.notifications import NotificationTopicAction
@@ -90,6 +91,8 @@ class Donations(donations_pb2_grpc.DonationsServicer):
                 source=request.source if request.source else None,
             )
         )
+
+        log_event(context, session, "donation.initiated", {"amount": request.amount, "recurring": request.recurring})
 
         return donations_pb2.InitiateDonationRes(
             stripe_checkout_session_id=checkout_session.id, stripe_checkout_url=checkout_session.url

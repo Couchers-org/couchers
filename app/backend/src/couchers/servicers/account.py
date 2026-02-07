@@ -26,6 +26,7 @@ from couchers.crypto import (
     verify_password,
     verify_token,
 )
+from couchers.event_log import log_event
 from couchers.experimentation import check_gate
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.geoip import geoip_approximate_location
@@ -216,6 +217,7 @@ class Account(account_pb2_grpc.AccountServicer):
             topic_action=NotificationTopicAction.password__change,
             key="",
         )
+        log_event(context, session, "account.password_changed", {})
 
         return empty_pb2.Empty()
 
@@ -264,6 +266,8 @@ class Account(account_pb2_grpc.AccountServicer):
             ),
         )
 
+        log_event(context, session, "account.email_change_initiated", {})
+
         # session autocommit
         return empty_pb2.Empty()
 
@@ -301,6 +305,7 @@ class Account(account_pb2_grpc.AccountServicer):
         maybe_send_contributor_form_email(session, form)
 
         user.filled_contributor_form = True
+        log_event(context, session, "contributor.form_submitted", {})
 
         return empty_pb2.Empty()
 
@@ -431,6 +436,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "strong_verification_already_verified")
 
         strong_verification_initiations_counter.labels(user.gender).inc()
+        log_event(context, session, "verification.strong_initiated", {"gender": user.gender})
 
         verification_attempt_token = urlsafe_secure_token()
         # this is the iris reference data, they will return this on every callback, it also doubles as webhook auth given lack of it otherwise
@@ -540,6 +546,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         strong_verification_data_deletions_counter.labels(user.gender).inc()
+        log_event(context, session, "verification.strong_data_deleted", {"gender": user.gender})
 
         return empty_pb2.Empty()
 
@@ -577,6 +584,7 @@ class Account(account_pb2_grpc.AccountServicer):
         session.add(token)
 
         account_deletion_initiations_counter.labels(user.gender).inc()
+        log_event(context, session, "account.deletion_initiated", {"gender": user.gender})
 
         return empty_pb2.Empty()
 

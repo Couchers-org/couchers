@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
+from couchers.event_log import log_event
 from couchers.models import ContentReport, User
 from couchers.proto import reporting_pb2, reporting_pb2_grpc
 from couchers.sql import username_or_id
@@ -32,5 +33,12 @@ class Reporting(reporting_pb2_grpc.ReportingServicer):
         session.flush()
 
         send_content_report_email(session, content_report)
+
+        log_event(
+            context,
+            session,
+            "content.reported",
+            {"author_user_id": author_user.id, "reason": request.reason},
+        )
 
         return empty_pb2.Empty()
