@@ -1314,7 +1314,11 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         # === Moderation System Consistency Checks ===
 
         # Check all ModerationStates have a known object_type
-        known_object_types = [ModerationObjectType.host_request, ModerationObjectType.group_chat]
+        known_object_types = [
+            ModerationObjectType.host_request,
+            ModerationObjectType.group_chat,
+            ModerationObjectType.friend_request,
+        ]
         unknown_type_states = session.execute(
             select(ModerationState.id, ModerationState.object_type).where(
                 ModerationState.object_type.not_in(known_object_types)
