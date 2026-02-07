@@ -4,6 +4,7 @@ import grpc
 import pytest
 from google.protobuf import wrappers_pb2
 from psycopg2.extras import DateTimeTZRange
+from sqlalchemy import select
 from sqlalchemy.sql.expression import update
 
 from couchers.db import session_scope
@@ -12,7 +13,7 @@ from couchers.proto import editor_pb2, events_pb2, threads_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, now, to_aware_datetime
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
+from tests.fixtures.misc import Moderator, PushCollector, email_fields, mock_notification_email, process_jobs
 from tests.fixtures.sessions import events_session, real_editor_session, threads_session
 from tests.test_communities import create_community, create_group
 
@@ -22,7 +23,7 @@ def _(testconfig):
     pass
 
 
-def test_CreateEvent(db, push_collector: PushCollector):
+def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
     # test cases:
     # can create event
     # cannot create event with missing details
@@ -95,6 +96,9 @@ def test_CreateEvent(db, push_collector: PushCollector):
         assert not res.can_moderate
 
         event_id = res.event_id
+
+    # Approve the event so other users can see it
+    moderator.approve_event_by_occurrence(event_id)
 
     with events_session(token2) as api:
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
@@ -211,6 +215,9 @@ def test_CreateEvent(db, push_collector: PushCollector):
         assert not res.can_moderate
 
         event_id = res.event_id
+
+    # Approve the online event so other users can see it
+    moderator.approve_event_by_occurrence(event_id)
 
     with events_session(token2) as api:
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
@@ -682,7 +689,7 @@ def test_cannot_overlap_occurrences_update(db):
         assert e.value.details() == "An event cannot have overlapping occurrences."
 
 
-def test_UpdateEvent_single(db):
+def test_UpdateEvent_single(db, moderator: Moderator):
     # test cases:
     # owner can update
     # community owner can update
@@ -723,6 +730,8 @@ def test_UpdateEvent_single(db):
         )
 
         event_id = res.event_id
+
+    moderator.approve_event_by_occurrence(event_id)
 
     with events_session(token4) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
@@ -978,7 +987,7 @@ def test_UpdateEvent_single(db):
         assert res.offline_information.lng == 0.2
 
 
-def test_UpdateEvent_all(db):
+def test_UpdateEvent_all(db, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
     # community moderator
@@ -1016,6 +1025,8 @@ def test_UpdateEvent_all(db):
 
         event_id = res.event_id
         event_ids.append(event_id)
+
+    moderator.approve_event_by_occurrence(event_id)
 
     with events_session(token4) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
@@ -1077,7 +1088,7 @@ def test_UpdateEvent_all(db):
             assert time_before_update <= to_aware_datetime(res.last_edited) <= time_after_update
 
 
-def test_GetEvent(db):
+def test_GetEvent(db, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
     # community moderator
@@ -1113,6 +1124,8 @@ def test_GetEvent(db):
         )
 
         event_id = res.event_id
+
+    moderator.approve_event_by_occurrence(event_id)
 
     with events_session(token4) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
@@ -1354,7 +1367,7 @@ def test_CancelEvent(db):
                 assert len(res.events) == 0
 
 
-def test_ListEventAttendees(db):
+def test_ListEventAttendees(db, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
     # others
@@ -1382,6 +1395,8 @@ def test_ListEventAttendees(db):
                 timezone="UTC",
             )
         ).event_id
+
+    moderator.approve_event_by_occurrence(event_id)
 
     for token in [token2, token3, token4, token5]:
         with events_session(token) as api:
@@ -1407,7 +1422,7 @@ def test_ListEventAttendees(db):
         assert not res.next_page_token
 
 
-def test_ListEventSubscribers(db):
+def test_ListEventSubscribers(db, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
     # others
@@ -1435,6 +1450,8 @@ def test_ListEventSubscribers(db):
                 timezone="UTC",
             )
         ).event_id
+
+    moderator.approve_event_by_occurrence(event_id)
 
     for token in [token2, token3, token4, token5]:
         with events_session(token) as api:
@@ -1458,7 +1475,7 @@ def test_ListEventSubscribers(db):
         assert not res.next_page_token
 
 
-def test_ListEventOrganizers(db):
+def test_ListEventOrganizers(db, moderator: Moderator):
     # event creator
     user1, token1 = generate_user()
     # others
@@ -1486,6 +1503,8 @@ def test_ListEventOrganizers(db):
                 timezone="UTC",
             )
         ).event_id
+
+    moderator.approve_event_by_occurrence(event_id)
 
     with events_session(token1) as api:
         for user_id in [user2.id, user3.id, user4.id, user5.id]:
@@ -1593,7 +1612,7 @@ def test_TransferEvent(db):
         assert e.value.details() == "You're not allowed to transfer that event."
 
 
-def test_SetEventSubscription(db):
+def test_SetEventSubscription(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -1615,6 +1634,8 @@ def test_SetEventSubscription(db):
                 timezone="UTC",
             )
         ).event_id
+
+    moderator.approve_event_by_occurrence(event_id)
 
     with events_session(token2) as api:
         assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).subscriber
@@ -1624,7 +1645,7 @@ def test_SetEventSubscription(db):
         assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).subscriber
 
 
-def test_SetEventAttendance(db):
+def test_SetEventAttendance(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -1646,6 +1667,8 @@ def test_SetEventAttendance(db):
                 timezone="UTC",
             )
         ).event_id
+
+    moderator.approve_event_by_occurrence(event_id)
 
     with events_session(token2) as api:
         assert (
@@ -1675,7 +1698,7 @@ def test_SetEventAttendance(db):
         )
 
 
-def test_InviteEventOrganizer(db):
+def test_InviteEventOrganizer(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -1697,6 +1720,8 @@ def test_InviteEventOrganizer(db):
                 timezone="UTC",
             )
         ).event_id
+
+    moderator.approve_event_by_occurrence(event_id)
 
     with events_session(token2) as api:
         assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
@@ -1775,7 +1800,7 @@ def test_ListEventOccurrences(db):
         assert not res.next_page_token
 
 
-def test_ListMyEvents(db):
+def test_ListMyEvents(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -1823,20 +1848,32 @@ def test_ListMyEvents(db):
     with events_session(token1) as api:
         e2 = api.CreateEvent(new_event(2, c_id, True)).event_id
 
+    moderator.approve_event_by_occurrence(e2)
+
     with events_session(token2) as api:
         e1 = api.CreateEvent(new_event(1, c_id, False)).event_id
+
+    moderator.approve_event_by_occurrence(e1)
 
     with events_session(token1) as api:
         e3 = api.CreateEvent(new_event(3, c_id, False)).event_id
 
+    moderator.approve_event_by_occurrence(e3)
+
     with events_session(token2) as api:
         e5 = api.CreateEvent(new_event(5, c_id, True)).event_id
+
+    moderator.approve_event_by_occurrence(e5)
 
     with events_session(token3) as api:
         e4 = api.CreateEvent(new_event(4, c_id, True)).event_id
 
+    moderator.approve_event_by_occurrence(e4)
+
     with events_session(token4) as api:
         e6 = api.CreateEvent(new_event(6, c2_id, True)).event_id
+
+    moderator.approve_event_by_occurrence(e6)
 
     with events_session(token1) as api:
         api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=e3, user_id=user3.id))
@@ -1957,7 +1994,7 @@ def test_ListMyEvents(db):
         assert [event.event_id for event in res.events] == [e1, e2, e3, e4, e5, e6]
 
 
-def test_RemoveEventOrganizer(db):
+def test_RemoveEventOrganizer(db, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -1979,6 +2016,8 @@ def test_RemoveEventOrganizer(db):
                 timezone="UTC",
             )
         ).event_id
+
+    moderator.approve_event_by_occurrence(event_id)
 
     with events_session(token2) as api:
         assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
@@ -2108,7 +2147,7 @@ def test_ListEventAttendees_regression(db):
         assert res.attendee_user_ids[0] == user1.id
 
 
-def test_event_threads(db, push_collector: PushCollector):
+def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -2136,6 +2175,8 @@ def test_event_threads(db, push_collector: PushCollector):
                 timezone="UTC",
             )
         )
+
+    moderator.approve_event_by_occurrence(event.event_id)
 
     with threads_session(token2) as api:
         reply_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=event.thread.thread_id, content="hi")).thread_id
@@ -2537,3 +2578,173 @@ def test_event_photo_key(db):
         get_res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
         assert get_res.photo_key == "test_event_photo_key_123"
         assert "test_event_photo_key_123" in get_res.photo_url
+
+
+def test_event_created_with_shadowed_visibility(db):
+    """Events start in SHADOWED state when created."""
+    from couchers.models import Event, ModerationState, ModerationVisibility
+
+    user, token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user], [], None)
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Test UMS Event",
+                content="UMS content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+
+    with session_scope() as session:
+        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
+        event = session.execute(select(Event).where(Event.id == occurrence.event_id)).scalar_one()
+        mod_state = session.execute(
+            select(ModerationState).where(ModerationState.id == event.moderation_state_id)
+        ).scalar_one()
+        assert mod_state.visibility == ModerationVisibility.shadowed
+
+
+def test_shadowed_event_visible_to_creator_only(db):
+    """SHADOWED events are visible to the creator but not to other users."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user1], [], None)
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Shadowed Event",
+                content="Content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+
+    # Creator can see it
+    with events_session(token1) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert res.title == "Shadowed Event"
+
+    # Other user cannot
+    with events_session(token2) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_event_visible_after_approval(db, moderator: Moderator):
+    """Events become visible to all users after moderation approval."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user1], [], None)
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Approved Event",
+                content="Content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+
+    # Other user cannot see it yet
+    with events_session(token2) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+    # Approve the event
+    moderator.approve_event_by_occurrence(event_id)
+
+    # Now other user can see it
+    with events_session(token2) as api:
+        res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
+        assert res.title == "Approved Event"
+
+
+def test_shadowed_event_hidden_from_list_for_non_creator(db, moderator: Moderator):
+    """SHADOWED events appear in lists for the creator but not for other users."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user1], [], None)
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="List Test Event",
+                content="Content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+
+    # Creator can see their own SHADOWED event in lists
+    with events_session(token1) as api:
+        list_res = api.ListAllEvents(events_pb2.ListAllEventsReq())
+        event_ids = [e.event_id for e in list_res.events]
+        assert event_id in event_ids
+
+    # Other user cannot see the SHADOWED event in lists
+    with events_session(token2) as api:
+        list_res = api.ListAllEvents(events_pb2.ListAllEventsReq())
+        event_ids = [e.event_id for e in list_res.events]
+        assert event_id not in event_ids
+
+    # After approval, other user can see it
+    moderator.approve_event_by_occurrence(event_id)
+
+    with events_session(token2) as api:
+        list_res = api.ListAllEvents(events_pb2.ListAllEventsReq())
+        event_ids = [e.event_id for e in list_res.events]
+        assert event_id in event_ids

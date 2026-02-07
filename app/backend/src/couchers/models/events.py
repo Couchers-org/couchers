@@ -28,6 +28,7 @@ from couchers.utils import get_coordinates
 
 if TYPE_CHECKING:
     from couchers.models import Cluster, Node, Thread, Upload, User
+    from couchers.models.moderation import ModerationState
 
 
 class ClusterEventAssociation(Base, kw_only=True):
@@ -59,11 +60,13 @@ class Event(Base, kw_only=True):
     """
 
     __tablename__ = "events"
+    __moderation_author_column__ = "creator_user_id"
 
     id: Mapped[int] = mapped_column(
         BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value(), init=False
     )
     parent_node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
     title: Mapped[str] = mapped_column(String)
 
@@ -98,6 +101,7 @@ class Event(Base, kw_only=True):
         foreign_keys="Event.owner_cluster_id",
     )
     occurrences: DynamicMapped[EventOccurrence] = relationship(init=False, lazy="dynamic")
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set

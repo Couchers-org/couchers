@@ -25,19 +25,21 @@ from couchers.models import (
     EventOccurrenceAttendee,
     EventOrganizer,
     EventSubscription,
+    ModerationObjectType,
     Node,
     Thread,
     Upload,
     User,
 )
 from couchers.models.notifications import NotificationTopicAction
+from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import events_pb2, events_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
-from couchers.sql import users_visible, where_users_column_visible
+from couchers.sql import users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.tasks import send_event_community_invite_request_email
 from couchers.utils import (
     Timestamp_from_datetime,
@@ -294,6 +296,8 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
             logger.error(f"Inviting user {payload.inviting_user_id} is gone while trying to send event notification?")
             return
 
+        moderation_state_id = payload.moderation_state_id or None
+
         for user in users:
             if is_not_visible(session, user.id, creator.id):
                 continue
@@ -314,6 +318,7 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
                     nearby=True if node_id is None else None,
                     in_community=community_to_pb(session, event.parent_node, context) if node_id is not None else None,
                 ),
+                moderation_state_id=moderation_state_id,
             )
 
 
@@ -456,15 +461,27 @@ class Events(events_pb2_grpc.EventsServicer):
         session.add(thread)
         session.flush()
 
-        event = Event(
-            title=request.title,
-            parent_node_id=parent_node.id,
-            owner_user_id=context.user_id,
-            thread_id=thread.id,
+        def create_event(moderation_state_id: int) -> int:
+            ev = Event(
+                title=request.title,
+                parent_node_id=parent_node.id,
+                owner_user_id=context.user_id,
+                thread_id=thread.id,
+                creator_user_id=context.user_id,
+                moderation_state_id=moderation_state_id,
+            )
+            session.add(ev)
+            session.flush()
+            return ev.id
+
+        moderation_state = create_moderation(
+            session=session,
+            object_type=ModerationObjectType.event,
+            object_id=create_event,
             creator_user_id=context.user_id,
         )
-        session.add(event)
-        session.flush()
+
+        event = session.execute(select(Event).where(Event.moderation_state_id == moderation_state.id)).scalar_one()
 
         occurrence = EventOccurrence(
             event_id=event.id,
@@ -525,6 +542,7 @@ class Events(events_pb2_grpc.EventsServicer):
                     inviting_user_id=user.id,
                     occurrence_id=occurrence.id,
                     approved=False,
+                    moderation_state_id=moderation_state.id,
                 ),
             )
 
@@ -758,9 +776,14 @@ class Events(events_pb2_grpc.EventsServicer):
         return event_to_pb(session, occurrence, context)
 
     def GetEvent(self, request: events_pb2.GetEventReq, context: CouchersContext, session: Session) -> events_pb2.Event:
-        occurrence = session.execute(
-            select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
-        ).scalar_one_or_none()
+        query = (
+            select(EventOccurrence)
+            .join(Event, Event.id == EventOccurrence.event_id)
+            .where(EventOccurrence.id == request.event_id)
+            .where(~EventOccurrence.is_deleted)
+        )
+        query = where_moderated_content_visible(query, context, Event, is_list_operation=False)
+        occurrence = session.execute(query).scalar_one_or_none()
 
         if not occurrence:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
@@ -847,9 +870,14 @@ class Events(events_pb2_grpc.EventsServicer):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
         page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
-        occurrence = session.execute(
-            select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
-        ).scalar_one_or_none()
+        initial_query = (
+            select(EventOccurrence)
+            .join(Event, Event.id == EventOccurrence.event_id)
+            .where(EventOccurrence.id == request.event_id)
+            .where(~EventOccurrence.is_deleted)
+        )
+        initial_query = where_moderated_content_visible(initial_query, context, Event, is_list_operation=False)
+        occurrence = session.execute(initial_query).scalar_one_or_none()
         if not occurrence:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
@@ -1103,6 +1131,7 @@ class Events(events_pb2_grpc.EventsServicer):
         query = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
         )
+        query = where_moderated_content_visible(query, context, Event, is_list_operation=True)
 
         include_all = not (request.subscribed or request.attending or request.organizing or request.my_communities)
         include_subscribed = request.subscribed or include_all
@@ -1184,6 +1213,7 @@ class Events(events_pb2_grpc.EventsServicer):
         query = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
         )
+        query = where_moderated_content_visible(query, context, Event, is_list_operation=True)
 
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)

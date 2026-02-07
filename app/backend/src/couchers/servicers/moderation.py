@@ -15,6 +15,7 @@ from couchers.metrics import (
     observe_moderation_visibility_transition,
 )
 from couchers.models import (
+    Event,
     FriendRelationship,
     GroupChat,
     HostRequest,
@@ -97,6 +98,7 @@ moderationobjecttype2api = {
     ModerationObjectType.host_request: moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
     ModerationObjectType.group_chat: moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
     ModerationObjectType.friend_request: moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST,
+    ModerationObjectType.event: moderation_pb2.MODERATION_OBJECT_TYPE_EVENT,
 }
 
 moderationobjecttype2sql = {
@@ -104,6 +106,7 @@ moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST: ModerationObjectType.host_request,
     moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT: ModerationObjectType.group_chat,
     moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST: ModerationObjectType.friend_request,
+    moderation_pb2.MODERATION_OBJECT_TYPE_EVENT: ModerationObjectType.event,
 }
 
 # Mapping from ModerationObjectType to the SQLAlchemy model class
@@ -111,6 +114,7 @@ moderationobjecttype2model: dict[ModerationObjectType, _ModeratedContent] = {
     ModerationObjectType.host_request: HostRequest,
     ModerationObjectType.group_chat: GroupChat,
     ModerationObjectType.friend_request: FriendRelationship,
+    ModerationObjectType.event: Event,
 }
 
 
@@ -150,6 +154,9 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
         ).scalar_one()
         # Friend requests have no text content
         content = None
+    elif object_type == ModerationObjectType.event:
+        author_user_id = session.execute(select(Event.creator_user_id).where(Event.id == object_id)).scalar_one()
+        content = session.execute(select(Event.title).where(Event.id == object_id)).scalar_one_or_none()
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
 

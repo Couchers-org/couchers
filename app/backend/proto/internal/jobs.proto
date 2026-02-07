@@ -59,6 +59,8 @@ message GenerateEventCreateNotificationsPayload {
   int64 occurrence_id = 2;
   // whether this was approved by an admin or just any user created an event
   bool approved = 3;
+  // moderation state ID for deferred notifications
+  int64 moderation_state_id = 4;
 }
 
 message GenerateEventUpdateNotificationsPayload {

@@ -4,10 +4,12 @@ from dataclasses import dataclass
 from typing import Any
 from unittest.mock import Mock, patch
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from couchers.db import session_scope
 from couchers.jobs.worker import process_job
-from couchers.models import User
+from couchers.models import EventOccurrence, User
 from couchers.notifications.push import PushNotificationContent
 from couchers.proto import moderation_pb2
 from tests.fixtures.sessions import real_moderation_session
@@ -170,3 +172,41 @@ class Moderator:
                     reason=reason,
                 )
             )
+
+    def approve_event(self, event_id: int, reason: str = "Test approval") -> None:
+        """
+        Approve an event using the moderation API.
+
+        Args:
+            event_id: The ID of the event (Event.id)
+            reason: Optional reason for approval
+        """
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_EVENT,
+                    object_id=event_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=reason,
+                )
+            )
+
+    def approve_event_by_occurrence(self, occurrence_id: int, reason: str = "Test approval") -> None:
+        """
+        Approve an event by looking up its Event.id from an occurrence ID.
+
+        Args:
+            occurrence_id: The ID of an EventOccurrence (what the proto calls event_id)
+            reason: Optional reason for approval
+        """
+        with session_scope() as session:
+            event_id = session.execute(
+                select(EventOccurrence.event_id).where(EventOccurrence.id == occurrence_id)
+            ).scalar_one()
+        self.approve_event(event_id, reason)
