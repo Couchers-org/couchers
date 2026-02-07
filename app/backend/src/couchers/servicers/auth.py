@@ -402,7 +402,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     "has_invite_code": flow.invite_code_id is not None,
                     "filled_contributor_form": user.filled_contributor_form,
                 },
-                __set_user_id=user.id if context.is_logged_out() else None,
+                _override_user_id=user.id,
             )
 
             create_session(context, session, user, False)
@@ -447,7 +447,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     session,
                     "account.login",
                     {"gender": user.gender, "remember_device": request.remember_device},
-                    __set_user_id=user.id if context.is_logged_out() else None,
+                    _override_user_id=user.id,
                 )
                 return _auth_res(user)
             else:
@@ -486,8 +486,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if token:
             delete_session(session, token)
 
-        if context.is_logged_in():
-            log_event(context, session, "account.logout", {})
+        log_event(context, session, "account.logout", {})
 
         # set the cookie to an empty string and expire immediately, should remove it from the browser
         context.set_cookies(create_session_cookies("", "", now()))
@@ -531,7 +530,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session,
                 "account.password_reset_initiated",
                 {},
-                __set_user_id=user.id if context.is_logged_out() else None,
+                _override_user_id=user.id,
             )
         else:  # user not found
             logger.debug("Didn't find user")
@@ -572,7 +571,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session,
                 "account.password_reset_completed",
                 {},
-                __set_user_id=user.id if context.is_logged_out() else None,
+                _override_user_id=user.id,
             )
             return _auth_res(user)
         else:
@@ -604,9 +603,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             key="",
         )
 
-        log_event(
-            context, session, "account.email_confirmed", {}, __set_user_id=user.id if context.is_logged_out() else None
-        )
+        log_event(context, session, "account.email_confirmed", {}, _override_user_id=user.id)
 
         return empty_pb2.Empty()
 
@@ -653,7 +650,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session,
             "account.deletion_completed",
             {"gender": user.gender},
-            __set_user_id=user.id if context.is_logged_out() else None,
+            _override_user_id=user.id,
         )
 
         return empty_pb2.Empty()
@@ -688,7 +685,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             session,
             "account.recovered",
             {"gender": user.gender},
-            __set_user_id=user.id if context.is_logged_out() else None,
+            _override_user_id=user.id,
         )
 
         return empty_pb2.Empty()
