@@ -305,7 +305,7 @@ class Account(account_pb2_grpc.AccountServicer):
         maybe_send_contributor_form_email(session, form)
 
         user.filled_contributor_form = True
-        log_event(context, session, "contributor.form_submitted", {})
+        log_event(context, session, "contributor.form_submitted", {"is_filled": form.is_filled})
 
         return empty_pb2.Empty()
 
@@ -584,7 +584,7 @@ class Account(account_pb2_grpc.AccountServicer):
         session.add(token)
 
         account_deletion_initiations_counter.labels(user.gender).inc()
-        log_event(context, session, "account.deletion_initiated", {"gender": user.gender})
+        log_event(context, session, "account.deletion_initiated", {"gender": user.gender, "has_reason": bool(reason)})
 
         return empty_pb2.Empty()
 

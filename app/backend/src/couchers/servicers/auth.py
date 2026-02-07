@@ -248,7 +248,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.add(flow)
                 session.flush()
                 signup_initiations_counter.inc()
-                log_event(context, session, "account.signup_initiated", {})
+                log_event(context, session, "account.signup_initiated", {"has_invite_code": invite_id is not None})
             else:
                 # not fresh signup
                 flow = session.execute(
@@ -399,8 +399,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     "signup_duration_s": signup_duration_s,
                     "hosting_status": str(flow.hosting_status),
                     "city": flow.city,
+                    "has_invite_code": flow.invite_code_id is not None,
+                    "filled_contributor_form": user.filled_contributor_form,
                 },
-                override_user_id=user.id,
+                __set_user_id=user.id if context.is_logged_out() else None,
             )
 
             create_session(context, session, user, False)
@@ -440,7 +442,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 logger.debug("Right password")
                 # correct password
                 create_session(context, session, user, request.remember_device)
-                log_event(context, session, "account.login", {"gender": user.gender}, override_user_id=user.id)
+                log_event(
+                    context,
+                    session,
+                    "account.login",
+                    {"gender": user.gender, "remember_device": request.remember_device},
+                    __set_user_id=user.id if context.is_logged_out() else None,
+                )
                 return _auth_res(user)
             else:
                 logger.debug("Wrong password")
@@ -517,7 +525,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
             )
 
             password_reset_initiations_counter.inc()
-            log_event(context, session, "account.password_reset_initiated", {}, override_user_id=user.id)
+            log_event(
+                context,
+                session,
+                "account.password_reset_initiated",
+                {},
+                __set_user_id=user.id if context.is_logged_out() else None,
+            )
         else:  # user not found
             logger.debug("Didn't find user")
 
@@ -552,7 +566,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             create_session(context, session, user, False)
             password_reset_completions_counter.inc()
-            log_event(context, session, "account.password_reset_completed", {}, override_user_id=user.id)
+            log_event(
+                context,
+                session,
+                "account.password_reset_completed",
+                {},
+                __set_user_id=user.id if context.is_logged_out() else None,
+            )
             return _auth_res(user)
         else:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
@@ -583,7 +603,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
             key="",
         )
 
-        log_event(context, session, "account.email_confirmed", {}, override_user_id=user.id)
+        log_event(
+            context, session, "account.email_confirmed", {}, __set_user_id=user.id if context.is_logged_out() else None
+        )
 
         return empty_pb2.Empty()
 
@@ -625,7 +647,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
         )
 
         account_deletion_completions_counter.labels(user.gender).inc()
-        log_event(context, session, "account.deletion_completed", {"gender": user.gender}, override_user_id=user.id)
+        log_event(
+            context,
+            session,
+            "account.deletion_completed",
+            {"gender": user.gender},
+            __set_user_id=user.id if context.is_logged_out() else None,
+        )
 
         return empty_pb2.Empty()
 
@@ -654,7 +682,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
         )
 
         account_recoveries_counter.labels(user.gender).inc()
-        log_event(context, session, "account.recovered", {"gender": user.gender}, override_user_id=user.id)
+        log_event(
+            context,
+            session,
+            "account.recovered",
+            {"gender": user.gender},
+            __set_user_id=user.id if context.is_logged_out() else None,
+        )
 
         return empty_pb2.Empty()
 

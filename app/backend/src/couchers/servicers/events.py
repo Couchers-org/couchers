@@ -508,7 +508,13 @@ class Events(events_pb2_grpc.EventsServicer):
             context,
             session,
             "event.created",
-            {"event_id": event.id, "parent_community_id": parent_node.id},
+            {
+                "event_id": event.id,
+                "occurrence_id": occurrence.id,
+                "parent_community_id": parent_node.id,
+                "parent_community_name": parent_node.official_cluster.name,
+                "online": online,
+            },
         )
 
         if has_completed_profile(session, user):
@@ -778,7 +784,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
         occurrence.is_cancelled = True
 
-        log_event(context, session, "event.cancelled", {"event_id": event.id})
+        log_event(context, session, "event.cancelled", {"event_id": event.id, "occurrence_id": occurrence.id})
 
         queue_job(
             session,
@@ -1028,7 +1034,7 @@ class Events(events_pb2_grpc.EventsServicer):
             context,
             session,
             "event.subscription_set",
-            {"event_id": event.id, "subscribed": request.subscribe},
+            {"event_id": event.id, "occurrence_id": occurrence.id, "subscribed": request.subscribe},
         )
 
         return event_to_pb(session, occurrence, context)
@@ -1077,7 +1083,7 @@ class Events(events_pb2_grpc.EventsServicer):
             context,
             session,
             "event.attendance_set",
-            {"event_id": occurrence.id, "attendance_state": request.attendance_state},
+            {"occurrence_id": occurrence.id, "attendance_state": request.attendance_state},
         )
 
         return event_to_pb(session, occurrence, context)

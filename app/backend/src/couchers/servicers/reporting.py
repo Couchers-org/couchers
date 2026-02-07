@@ -38,7 +38,12 @@ class Reporting(reporting_pb2_grpc.ReportingServicer):
             context,
             session,
             "content.reported",
-            {"author_user_id": author_user.id, "reason": request.reason},
+            {
+                "author_user_id": author_user.id,
+                "reason": request.reason,
+                "content_ref": request.content_ref,
+                "page": request.page,
+            },
         )
 
         return empty_pb2.Empty()

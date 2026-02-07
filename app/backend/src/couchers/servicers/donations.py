@@ -92,7 +92,12 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             )
         )
 
-        log_event(context, session, "donation.initiated", {"amount": request.amount, "recurring": request.recurring})
+        log_event(
+            context,
+            session,
+            "donation.initiated",
+            {"amount": request.amount, "recurring": request.recurring, "source": request.source or None},
+        )
 
         return donations_pb2.InitiateDonationRes(
             stripe_checkout_session_id=checkout_session.id, stripe_checkout_url=checkout_session.url
