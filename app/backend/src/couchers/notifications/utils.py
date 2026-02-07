@@ -5,4 +5,3 @@ enum_from_topic_action: dict[tuple[str, str], NotificationTopicAction] = {
 }
 
 ACCOUNT_DELETION_TOPIC = NotificationTopicAction.account_deletion__start.topic
-

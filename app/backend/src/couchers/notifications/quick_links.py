@@ -98,7 +98,6 @@ def can_unsubscribe_topic_key(topic: str | NotificationTopicAction) -> bool:
     return topic == NotificationTopicAction.chat__message.topic
 
 
-
 def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContext, session: Session) -> str:
     """
     Returns a response string or uses context.abort upon error
