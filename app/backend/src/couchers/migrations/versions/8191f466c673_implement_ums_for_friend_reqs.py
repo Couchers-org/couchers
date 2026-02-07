@@ -18,7 +18,16 @@ depends_on = None
 
 def upgrade():
     # Add friend_request to the ModerationObjectType enum
-    op.execute("ALTER TYPE moderationobjecttype ADD VALUE IF NOT EXISTS 'friend_request'")
+    # Must use rename/recreate pattern instead of ADD VALUE, because ADD VALUE
+    # cannot be used in the same transaction as DML that references the new value
+    op.execute("ALTER TYPE moderationobjecttype RENAME TO moderationobjecttype_old")
+    op.execute("CREATE TYPE moderationobjecttype AS ENUM ('host_request', 'group_chat', 'friend_request')")
+    op.execute("""
+        ALTER TABLE moderation_states
+        ALTER COLUMN object_type TYPE moderationobjecttype
+        USING object_type::text::moderationobjecttype
+    """)
+    op.execute("DROP TYPE moderationobjecttype_old")
 
     # Add moderation_state_id column as nullable first
     op.add_column("friend_relationships", sa.Column("moderation_state_id", sa.BigInteger(), nullable=True))
@@ -99,4 +108,12 @@ def downgrade():
     """)
     op.execute("DELETE FROM moderation_states WHERE object_type = 'friend_request'")
 
-    # Note: We cannot remove enum values in PostgreSQL easily, so we leave friend_request in the enum
+    # Remove friend_request from the enum
+    op.execute("ALTER TYPE moderationobjecttype RENAME TO moderationobjecttype_old")
+    op.execute("CREATE TYPE moderationobjecttype AS ENUM ('host_request', 'group_chat')")
+    op.execute("""
+        ALTER TABLE moderation_states
+        ALTER COLUMN object_type TYPE moderationobjecttype
+        USING object_type::text::moderationobjecttype
+    """)
+    op.execute("DROP TYPE moderationobjecttype_old")
