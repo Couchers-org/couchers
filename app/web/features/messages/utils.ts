@@ -1,6 +1,6 @@
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { TFunction } from "i18next";
-import { GroupChat, HostRequestStatus, Message } from "proto/conversations_pb";
+import { GroupChat, Message } from "proto/conversations_pb";
 import { firstName } from "utils/names";
 
 import { requestStatusChangedMessageToTransKey } from "./constants";
@@ -53,7 +53,7 @@ export function controlMessage({
       target_user,
     });
   } else if (message.hostRequestStatusChanged) {
-    let transKey =
+    const transKey =
       requestStatusChangedMessageToTransKey[
         message.hostRequestStatusChanged.status
       ];
