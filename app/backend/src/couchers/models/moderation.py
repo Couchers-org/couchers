@@ -20,48 +20,49 @@ if TYPE_CHECKING:
 
 class ModerationVisibility(enum.Enum):
     # Only visible to moderators
-    HIDDEN = enum.auto()
+    hidden = enum.auto()
     # Visible only to content author
-    SHADOWED = enum.auto()
+    shadowed = enum.auto()
     # Visible to everyone, does not appear in listings
-    UNLISTED = enum.auto()
+    unlisted = enum.auto()
     # Visible to everyone, appears in listings
-    VISIBLE = enum.auto()
+    visible = enum.auto()
 
 
 class ModerationTrigger(enum.Enum):
     """What triggered adding an item to the moderation queue"""
 
     # New content requiring triage
-    INITIAL_REVIEW = enum.auto()
+    initial_review = enum.auto()
     # User reported/flagged content
-    USER_FLAG = enum.auto()
+    user_flag = enum.auto()
     # Automod flagged content
-    MACHINE_FLAG = enum.auto()
+    machine_flag = enum.auto()
     # Moderator requested additional review
-    MODERATOR_REVIEW = enum.auto()
+    moderator_review = enum.auto()
 
 
 class ModerationAction(enum.Enum):
     """Types of moderation actions that can be taken"""
 
     # Initial creation of moderation state
-    CREATE = enum.auto()
+    create = enum.auto()
     # Approve content (make visible and listed)
-    APPROVE = enum.auto()
+    approve = enum.auto()
     # Hide content from everyone
-    HIDE = enum.auto()
+    hide = enum.auto()
     # Flag for review
-    FLAG = enum.auto()
+    flag = enum.auto()
     # Remove flag
-    UNFLAG = enum.auto()
+    unflag = enum.auto()
 
 
 class ModerationObjectType(enum.Enum):
     """Types of objects that can be moderated"""
 
-    HOST_REQUEST = enum.auto()
-    GROUP_CHAT = enum.auto()
+    host_request = enum.auto()
+    group_chat = enum.auto()
+    friend_request = enum.auto()
 
 
 class ModerationState(Base, kw_only=True):

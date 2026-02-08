@@ -13,6 +13,7 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
+from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.strong_verification import has_strong_verification
 from couchers.materialized_views import LiteUser, UserResponseRate
@@ -645,6 +646,27 @@ class Search(search_pb2_grpc.SearchServicer):
         self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
     ) -> search_pb2.UserSearchRes:
         user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
+
+        log_event(
+            context,
+            session,
+            "search.performed",
+            {
+                "search_in": request.WhichOneof("search_in"),
+                "has_query": request.HasField("query"),
+                "has_filters": (
+                    len(request.hosting_status_filter) > 0
+                    or len(request.meetup_status_filter) > 0
+                    or len(request.smoking_location_filter) > 0
+                    or len(request.sleeping_arrangement_filter) > 0
+                    or len(request.parking_details_filter) > 0
+                    or len(request.language_ability_filter) > 0
+                    or request.only_with_references
+                    or request.only_with_strong_verification
+                ),
+                "total_items": total_items,
+            },
+        )
 
         user_ids_to_users: dict[int, User] = dict(
             session.execute(  # type: ignore[arg-type]

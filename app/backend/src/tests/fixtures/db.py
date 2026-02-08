@@ -20,7 +20,10 @@ from couchers.models import (
     HostingStatus,
     LanguageAbility,
     LanguageFluency,
+    ModerationObjectType,
+    ModerationState,
     ModerationUserList,
+    ModerationVisibility,
     PassportSex,
     PhotoGallery,
     PhotoGalleryItem,
@@ -314,12 +317,26 @@ def get_user_id_and_token(session: Session, username: str) -> tuple[int, str]:
 
 def make_friends(user1: User, user2: User) -> None:
     with session_scope() as session:
+        # Create moderation state with VISIBLE status (approved friendship for tests)
+        moderation_state = ModerationState(
+            object_type=ModerationObjectType.friend_request,
+            object_id=0,  # Placeholder, will be updated
+            visibility=ModerationVisibility.visible,
+        )
+        session.add(moderation_state)
+        session.flush()
+
         friend_relationship = FriendRelationship(
             from_user_id=user1.id,
             to_user_id=user2.id,
             status=FriendStatus.accepted,
+            moderation_state_id=moderation_state.id,
         )
         session.add(friend_relationship)
+        session.flush()
+
+        # Update the moderation state with the actual object id
+        moderation_state.object_id = friend_relationship.id
 
 
 def make_user_block(user1: User, user2: User) -> None:

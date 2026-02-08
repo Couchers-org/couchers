@@ -75,14 +75,14 @@ def test_create_moderation(db):
         # Create a moderation state
         moderation_state = create_moderation(
             session=session,
-            object_type=ModerationObjectType.HOST_REQUEST,
+            object_type=ModerationObjectType.host_request,
             object_id=123,
             creator_user_id=user.id,
         )
 
-        assert moderation_state.object_type == ModerationObjectType.HOST_REQUEST
+        assert moderation_state.object_type == ModerationObjectType.host_request
         assert moderation_state.object_id == 123
-        assert moderation_state.visibility == ModerationVisibility.SHADOWED
+        assert moderation_state.visibility == ModerationVisibility.shadowed
 
         # Check that log entry was created
         log_entries = (
@@ -92,7 +92,7 @@ def test_create_moderation(db):
         )
 
         assert len(log_entries) == 1
-        assert log_entries[0].action == ModerationAction.CREATE
+        assert log_entries[0].action == ModerationAction.create
         assert log_entries[0].reason == "Object created."
         assert log_entries[0].moderator_user_id == user.id
 
@@ -183,7 +183,7 @@ def test_moderate_content(db):
     # Check that state was updated in database
     with session_scope() as session:
         updated_state = session.get_one(ModerationState, state_id)
-        assert updated_state.visibility == ModerationVisibility.VISIBLE
+        assert updated_state.visibility == ModerationVisibility.visible
 
         # Check that log entry was created
         log_entries = (
@@ -197,7 +197,7 @@ def test_moderate_content(db):
         )
 
         assert len(log_entries) == 2  # CREATE + APPROVE
-        assert log_entries[0].action == ModerationAction.APPROVE
+        assert log_entries[0].action == ModerationAction.approve
         assert log_entries[0].moderator_user_id == super_user.id
         assert log_entries[0].reason == "Content looks good"
 
@@ -302,13 +302,13 @@ def test_approve_content_via_api(db):
     # Check that state was updated to VISIBLE
     with session_scope() as session:
         updated_state = session.get_one(ModerationState, state_id)
-        assert updated_state.visibility == ModerationVisibility.VISIBLE
+        assert updated_state.visibility == ModerationVisibility.visible
 
         # Check log entry
         log_entry = session.execute(
             select(ModerationLog)
             .where(ModerationLog.moderation_state_id == state_id)
-            .where(ModerationLog.action == ModerationAction.APPROVE)
+            .where(ModerationLog.action == ModerationAction.approve)
         ).scalar_one()
 
         assert log_entry.moderator_user_id == moderator.id
@@ -349,9 +349,9 @@ def test_create_host_request_creates_moderation_state(db):
             select(ModerationState).where(ModerationState.id == host_request.moderation_state_id)
         ).scalar_one()
 
-        assert moderation_state.object_type == ModerationObjectType.HOST_REQUEST
+        assert moderation_state.object_type == ModerationObjectType.host_request
         assert moderation_state.object_id == host_request_id
-        assert moderation_state.visibility == ModerationVisibility.SHADOWED
+        assert moderation_state.visibility == ModerationVisibility.shadowed
 
         # Check that it was added to moderation queue
         queue_items = (
@@ -365,7 +365,7 @@ def test_create_host_request_creates_moderation_state(db):
         )
 
         assert len(queue_items) == 1
-        assert queue_items[0].trigger == ModerationTrigger.INITIAL_REVIEW
+        assert queue_items[0].trigger == ModerationTrigger.initial_review
         # item_author_user_id is no longer stored in the model, it's dynamically retrieved
 
 
@@ -788,16 +788,16 @@ def test_moderation_log_tracking(db):
         # CREATE + APPROVE + HIDE + HIDE (shadowing back counts as HIDE action)
         assert len(log_entries) >= 3
 
-        assert log_entries[0].action == ModerationAction.CREATE
+        assert log_entries[0].action == ModerationAction.create
         assert log_entries[0].moderator_user_id == user.id
         assert log_entries[0].reason == "Object created."
 
-        assert log_entries[1].action == ModerationAction.APPROVE
+        assert log_entries[1].action == ModerationAction.approve
         assert log_entries[1].moderator_user_id == moderator1.id
         assert log_entries[1].reason == "Looks good initially"
 
         # The last action should be hiding
-        assert log_entries[-1].action == ModerationAction.HIDE
+        assert log_entries[-1].action == ModerationAction.hide
         assert log_entries[-1].moderator_user_id == moderator1.id
         assert log_entries[-1].reason == "Actually it's spam"
 
@@ -1462,7 +1462,7 @@ def test_ModerateContent_approve(db):
     # Verify state was updated in database
     with session_scope() as session:
         state = session.get_one(ModerationState, state_id)
-        assert state.visibility == ModerationVisibility.VISIBLE
+        assert state.visibility == ModerationVisibility.visible
 
 
 def test_ModerateContent_not_found(db):
@@ -1507,7 +1507,7 @@ def test_ModerateContent_hide(db):
     # Verify state was updated in database
     with session_scope() as session:
         state = session.get_one(ModerationState, state_id)
-        assert state.visibility == ModerationVisibility.HIDDEN
+        assert state.visibility == ModerationVisibility.hidden
 
 
 def test_ModerateContent_shadow(db):
@@ -1534,7 +1534,7 @@ def test_ModerateContent_shadow(db):
     # Verify state was updated in database
     with session_scope() as session:
         state = session.get_one(ModerationState, state_id)
-        assert state.visibility == ModerationVisibility.SHADOWED
+        assert state.visibility == ModerationVisibility.shadowed
 
 
 def test_FlagContentForReview(db):
@@ -1589,7 +1589,7 @@ def test_FlagContentForReview(db):
             .first()
         )
         assert queue_item
-        assert queue_item.trigger == ModerationTrigger.MODERATOR_REVIEW
+        assert queue_item.trigger == ModerationTrigger.moderator_review
         assert queue_item.resolved_by_log_id is None
 
 
@@ -1612,10 +1612,10 @@ def test_group_chat_created_with_moderation_state(db):
     with session_scope() as session:
         group_chat = session.execute(select(GroupChat).where(GroupChat.conversation_id == group_chat_id)).scalar_one()
 
-        assert group_chat.moderation_state.object_type == ModerationObjectType.GROUP_CHAT
+        assert group_chat.moderation_state.object_type == ModerationObjectType.group_chat
         assert group_chat.moderation_state.object_id == group_chat_id
         # Group chats start as SHADOWED
-        assert group_chat.moderation_state.visibility == ModerationVisibility.SHADOWED
+        assert group_chat.moderation_state.visibility == ModerationVisibility.shadowed
 
         # A moderation queue item should have been created
         queue_item = (
@@ -1628,7 +1628,7 @@ def test_group_chat_created_with_moderation_state(db):
             .first()
         )
         assert queue_item is not None
-        assert queue_item.trigger == ModerationTrigger.INITIAL_REVIEW
+        assert queue_item.trigger == ModerationTrigger.initial_review
 
 
 def test_group_chat_GetModerationState(db):
@@ -2326,7 +2326,7 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
     # Verify initial state
     with session_scope() as session:
         gc = session.execute(select(GroupChat).where(GroupChat.conversation_id == gc_id)).scalar_one()
-        assert gc.moderation_state.visibility == ModerationVisibility.SHADOWED
+        assert gc.moderation_state.visibility == ModerationVisibility.shadowed
 
     # No notifications should have been sent yet (chat is SHADOWED)
     assert push_collector.count_for_user(user2.id) == 0
@@ -2357,7 +2357,7 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
     # Verify moderation state after approval
     with session_scope() as session:
         gc = session.execute(select(GroupChat).where(GroupChat.conversation_id == gc_id)).scalar_one()
-        assert gc.moderation_state.visibility == ModerationVisibility.VISIBLE
+        assert gc.moderation_state.visibility == ModerationVisibility.visible
 
     # User2 should have received 1 notification for the first message sent before approval
     push = push_collector.pop_for_user(user2.id, last=True)

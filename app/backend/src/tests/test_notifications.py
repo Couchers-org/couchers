@@ -222,13 +222,18 @@ def test_unsubscribe(db):
     assert mock.call_count == 0
 
 
-def test_unsubscribe_do_not_email(db):
+def test_unsubscribe_do_not_email(db, moderator):
     user, token = generate_user()
 
     _, token2 = generate_user(complete_profile=True)
+    with api_session(token2) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id = res.sent[0].friend_request_id
+
+    # Moderator approves the friend request, which triggers the notification email
     with mock_notification_email() as mock:
-        with api_session(token2) as api:
-            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+        moderator.approve_friend_request(fr_id)
 
     assert mock.call_count == 1
     assert email_fields(mock).recipient == user.email
@@ -258,9 +263,14 @@ def test_unsubscribe_do_not_email(db):
         raise Exception("Didn't find link")
 
     _, token3 = generate_user(complete_profile=True)
+    with api_session(token3) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id3 = res.sent[0].friend_request_id
+
+    # Approving this friend request should NOT send an email since user has do_not_email set
     with mock_notification_email() as mock:
-        with api_session(token3) as api:
-            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+        moderator.approve_friend_request(fr_id3)
 
     assert mock.call_count == 0
 
@@ -330,6 +340,11 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
 
     with api_session(token2) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id = res.sent[0].friend_request_id
+
+    # Moderator approves the friend request so the notification is sent
+    moderator.approve_friend_request(fr_id)
 
     with notifications_session(token1) as notifications:
         res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
@@ -374,7 +389,7 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
     assert bodys == [n.body for n in all_notifs]
 
 
-def test_notifications_seen(db, push_collector: PushCollector):
+def test_notifications_seen(db, push_collector: PushCollector, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -382,9 +397,17 @@ def test_notifications_seen(db, push_collector: PushCollector):
 
     with api_session(token2) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id2 = res.sent[0].friend_request_id
 
     with api_session(token3) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id3 = res.sent[0].friend_request_id
+
+    # Moderator approves the friend requests so notifications are sent
+    moderator.approve_friend_request(fr_id2)
+    moderator.approve_friend_request(fr_id3)
 
     with notifications_session(token1) as notifications, api_session(token1) as api:
         res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
@@ -398,6 +421,11 @@ def test_notifications_seen(db, push_collector: PushCollector):
 
     with api_session(token4) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id4 = res.sent[0].friend_request_id
+
+    # Moderator approves the friend request so notification is sent
+    moderator.approve_friend_request(fr_id4)
 
     with notifications_session(token1) as notifications, api_session(token1) as api:
         # mark everything before just the last one as seen (pretend we didn't load the last one yet in the api)

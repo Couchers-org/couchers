@@ -5,7 +5,16 @@ from sqlalchemy.orm import InstrumentedAttribute, aliased
 from sqlalchemy.sql import Select, exists, union
 
 from couchers.context import CouchersContext
-from couchers.models import GroupChat, HostRequest, ModerationState, ModerationVisibility, SignupFlow, User, UserBlock
+from couchers.models import (
+    FriendRelationship,
+    GroupChat,
+    HostRequest,
+    ModerationState,
+    ModerationVisibility,
+    SignupFlow,
+    User,
+    UserBlock,
+)
 from couchers.utils import is_valid_email, is_valid_user_id, is_valid_username
 
 if TYPE_CHECKING:
@@ -13,7 +22,7 @@ if TYPE_CHECKING:
 
     type _UserLike = type[User | LiteUser | SignupFlow]
     type _User = type[User | LiteUser]
-    type _ModeratedContent = type[HostRequest | GroupChat]
+    type _ModeratedContent = type[HostRequest | GroupChat | FriendRelationship]
 
 
 def username_or_email(value: str, table: _UserLike = User) -> ColumnElement[bool]:
@@ -139,16 +148,16 @@ def where_moderated_content_visible_to_user_column[T: tuple[Any, ...]](
     is_list_operation: bool = False,
 ) -> Select[T]:
     aliased_mod_state = aliased(ModerationState)
-    conditions = [aliased_mod_state.visibility == ModerationVisibility.VISIBLE]
+    conditions = [aliased_mod_state.visibility == ModerationVisibility.visible]
 
     # UNLISTED content is visible in single-item operations but not in lists
     if not is_list_operation:
-        conditions.append(aliased_mod_state.visibility == ModerationVisibility.UNLISTED)
+        conditions.append(aliased_mod_state.visibility == ModerationVisibility.unlisted)
 
     # Authors can always see their own SHADOWED content
     conditions.append(
         and_(
-            aliased_mod_state.visibility == ModerationVisibility.SHADOWED,
+            aliased_mod_state.visibility == ModerationVisibility.shadowed,
             getattr(table, table.__moderation_author_column__) == user_id_column,
         )
     )
@@ -163,17 +172,17 @@ def where_moderated_content_visible[T: tuple[Any, ...]](
     is_list_operation: bool = False,
 ) -> Select[T]:
     aliased_mod_state = aliased(ModerationState)
-    conditions = [aliased_mod_state.visibility == ModerationVisibility.VISIBLE]
+    conditions = [aliased_mod_state.visibility == ModerationVisibility.visible]
 
     # UNLISTED content is visible in single-item operations but not in lists
     if not is_list_operation:
-        conditions.append(aliased_mod_state.visibility == ModerationVisibility.UNLISTED)
+        conditions.append(aliased_mod_state.visibility == ModerationVisibility.unlisted)
 
     # Authors can always see their own SHADOWED content
     if context.is_logged_in():
         conditions.append(
             and_(
-                aliased_mod_state.visibility == ModerationVisibility.SHADOWED,
+                aliased_mod_state.visibility == ModerationVisibility.shadowed,
                 getattr(table, table.__moderation_author_column__) == context.user_id,
             )
         )
@@ -207,7 +216,14 @@ def moderation_state_column_visible(
             select(GroupChat).where(GroupChat.moderation_state_id == column), context, GroupChat
         )
     )
-    return or_(column.is_(None), hr_visible, gc_visible)
+    fr_visible = exists(
+        where_moderated_content_visible(
+            select(FriendRelationship).where(FriendRelationship.moderation_state_id == column),
+            context,
+            FriendRelationship,
+        )
+    )
+    return or_(column.is_(None), hr_visible, gc_visible, fr_visible)
 
 
 def _relevant_user_blocks(user_id: int) -> Select[tuple[int]]:

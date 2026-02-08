@@ -34,6 +34,7 @@ from couchers.utils import now
 
 if TYPE_CHECKING:
     from couchers.models import HostRequest, User
+    from couchers.models.moderation import ModerationState
 
 
 class UserBadge(Base, kw_only=True):
@@ -72,11 +73,15 @@ class FriendRelationship(Base, kw_only=True):
     """
 
     __tablename__ = "friend_relationships"
+    __moderation_author_column__ = "from_user_id"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     from_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     to_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+
+    # Unified Moderation System
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
     status: Mapped[FriendStatus] = mapped_column(Enum(FriendStatus), default=FriendStatus.pending)
 
@@ -88,6 +93,7 @@ class FriendRelationship(Base, kw_only=True):
         init=False, backref="friends_from", foreign_keys="FriendRelationship.from_user_id"
     )
     to_user: Mapped[User] = relationship(init=False, backref="friends_to", foreign_keys="FriendRelationship.to_user_id")
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # Ping looks up pending friend reqs, this speeds that up
