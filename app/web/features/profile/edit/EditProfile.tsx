@@ -783,59 +783,11 @@ export default function EditProfileForm() {
               </SectionSubtitle>
 
               <FieldGroup>
-                <Typography variant="h3" gutterBottom>
-                  {t("profile:edit_profile_headings.pronouns")}
-                </Typography>
-                <Controller
-                  control={control}
+                <StyledProfileTextInput
+                  id="pronouns"
+                  {...register("pronouns")}
+                  label={t("profile:edit_profile_headings.pronouns")}
                   defaultValue={user.pronouns}
-                  name="pronouns"
-                  render={({ field }) => {
-                    const other =
-                      field.value === t("profile:pronouns.woman") ||
-                      field.value === t("profile:pronouns.man")
-                        ? ""
-                        : field.value;
-                    return (
-                      <RadioGroupContainer>
-                        <StyledRadioGroup
-                          {...field}
-                          row
-                          aria-label={t(
-                            "profile:edit_profile_headings.pronouns",
-                          )}
-                          name="pronouns"
-                          value={field.value}
-                          onChange={(_, value) => field.onChange(value)}
-                        >
-                          <FormControlLabel
-                            value={t("profile:pronouns.woman")}
-                            control={<Radio />}
-                            label={t("profile:pronouns.woman")}
-                          />
-                          <FormControlLabel
-                            value={t("profile:pronouns.man")}
-                            control={<Radio />}
-                            label={t("profile:pronouns.man")}
-                          />
-                          <FormControlLabel
-                            value={other}
-                            control={<Radio />}
-                            label={
-                              <TextField
-                                id="pronouns-other"
-                                variant="standard"
-                                onChange={(event) =>
-                                  field.onChange(event.target.value)
-                                }
-                                value={other}
-                              />
-                            }
-                          />
-                        </StyledRadioGroup>
-                      </RadioGroupContainer>
-                    );
-                  }}
                 />
               </FieldGroup>
 
