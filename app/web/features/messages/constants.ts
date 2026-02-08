@@ -13,4 +13,17 @@ export const requestStatusToTransKey = {
     "host_request_status.rejected",
 } as const;
 
+export const requestStatusChangedMessageToTransKey = {
+  [HostRequestStatus.HOST_REQUEST_STATUS_ACCEPTED]:
+    "control_message.host_request_status_changed.accepted",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CANCELLED]:
+    "control_message.host_request_status_changed.cancelled",
+  [HostRequestStatus.HOST_REQUEST_STATUS_CONFIRMED]:
+    "control_message.host_request_status_changed.confirmed",
+  [HostRequestStatus.HOST_REQUEST_STATUS_REJECTED]:
+    "control_message.host_request_status_changed.rejected",
+  // There's no flow in which a request status transitions back to pending.
+  [HostRequestStatus.HOST_REQUEST_STATUS_PENDING]: null,
+} as const;
+
 export const MARK_LAST_SEEN_TIMEOUT = 500;

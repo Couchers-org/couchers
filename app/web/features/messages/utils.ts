@@ -1,9 +1,9 @@
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { TFunction } from "i18next";
-import { GroupChat, Message } from "proto/conversations_pb";
+import { GroupChat, HostRequestStatus, Message } from "proto/conversations_pb";
 import { firstName } from "utils/names";
 
-import { requestStatusToTransKey } from "./constants";
+import { requestStatusChangedMessageToTransKey } from "./constants";
 
 export function isControlMessage(message: Message.AsObject) {
   return !message.text;
@@ -53,12 +53,14 @@ export function controlMessage({
       target_user,
     });
   } else if (message.hostRequestStatusChanged) {
-    return t("control_message.host_request_status_changed_text", {
-      user,
-      status: t(
-        requestStatusToTransKey[message.hostRequestStatusChanged.status],
-      ),
-    });
+    let transKey =
+      requestStatusChangedMessageToTransKey[
+        message.hostRequestStatusChanged.status
+      ];
+    if (transKey == null) {
+      throw Error(t("control_message.unknown_message_text"));
+    }
+    return t(transKey, { user: userCap });
   } else {
     throw Error(t("control_message.unknown_message_text"));
   }
