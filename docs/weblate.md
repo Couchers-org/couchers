@@ -29,3 +29,16 @@ git apply < translations.diff
 ```
 
 In between, you'll want to inspect `translations.diff` and remove anything that doesn't touch translation files.
+
+## Resolving merge conflicts
+
+Once in a while, Weblate will get in a bad state and be unable to merge its `develop` branch with GitHub's. When this happens, you can manually push a PR to perform the merge, resolving any conflicts (sometimes there aren't any):
+
+```sh
+git checkout origin/develop
+git merge weblate/develop
+git checkout -b my-merge-weblate-branch
+git push my-merge-weblate-branch
+```
+
+After merging that PR, Weblate will try to rebase its branch on the new GitHub `develop` branch. If it doesn't automatically recover, navigate to https://translate.couchershq.org/projects/couchers/web-app-auth and use the "Update with merge" button. This should succeed since the two branches should be identical after your merge.
