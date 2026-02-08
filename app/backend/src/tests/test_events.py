@@ -2998,3 +2998,207 @@ def test_event_reminder_notification_has_moderation_state(db, push_collector: Pu
         reminder_notifs = [n for n in notifications if n.topic_action.action == "reminder"]
         assert len(reminder_notifs) == 1
         assert reminder_notifs[0].moderation_state_id == event.moderation_state_id
+
+
+def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderator):
+    """ListEventOccurrences should only return occurrences for the requested event, not other events."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user1, user2], [], None).id
+
+    start = now()
+
+    # User1 creates event A with 3 occurrences
+    event_a_ids = []
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Event A",
+                content="Content A.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=1)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=1.5)),
+                timezone="UTC",
+            )
+        )
+        event_a_ids.append(res.event_id)
+        for i in range(2):
+            res = api.ScheduleEvent(
+                events_pb2.ScheduleEventReq(
+                    event_id=event_a_ids[-1],
+                    content=f"A occurrence {i}",
+                    online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
+                    start_time=Timestamp_from_datetime(start + timedelta(hours=2 + i)),
+                    end_time=Timestamp_from_datetime(start + timedelta(hours=2.5 + i)),
+                    timezone="UTC",
+                )
+            )
+            event_a_ids.append(res.event_id)
+
+    # User2 creates event B with 2 occurrences
+    event_b_ids = []
+    with events_session(token2) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Event B",
+                content="Content B.",
+                parent_community_id=c_id,
+                online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=10)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=10.5)),
+                timezone="UTC",
+            )
+        )
+        event_b_ids.append(res.event_id)
+        res = api.ScheduleEvent(
+            events_pb2.ScheduleEventReq(
+                event_id=event_b_ids[-1],
+                content="B occurrence 1",
+                online_information=events_pb2.OnlineEventInformation(link="https://couchers.org/meet/"),
+                start_time=Timestamp_from_datetime(start + timedelta(hours=11)),
+                end_time=Timestamp_from_datetime(start + timedelta(hours=11.5)),
+                timezone="UTC",
+            )
+        )
+        event_b_ids.append(res.event_id)
+
+    moderator.approve_event_by_occurrence(event_a_ids[0])
+    moderator.approve_event_by_occurrence(event_b_ids[0])
+
+    # List occurrences for event A — should only get event A's 3 occurrences
+    with events_session(token1) as api:
+        res = api.ListEventOccurrences(events_pb2.ListEventOccurrencesReq(event_id=event_a_ids[-1]))
+        returned_ids = [e.event_id for e in res.events]
+        assert sorted(returned_ids) == sorted(event_a_ids)
+
+    # List occurrences for event B — should only get event B's 2 occurrences
+    with events_session(token2) as api:
+        res = api.ListEventOccurrences(events_pb2.ListEventOccurrencesReq(event_id=event_b_ids[-1]))
+        returned_ids = [e.event_id for e in res.events]
+        assert sorted(returned_ids) == sorted(event_b_ids)
+
+
+def test_event_comment_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
+    """Event comment notifications should carry the event's moderation_state_id for deferral."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Comment Test",
+                content="Content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+        thread_id = res.thread.thread_id
+
+    moderator.approve_event_by_occurrence(event_id)
+    process_jobs()
+    while push_collector.count_for_user(user1.id):
+        push_collector.pop_for_user(user1.id)
+
+    # User1 subscribes (creator is auto-subscribed, but let's be explicit)
+    with events_session(token1) as api:
+        api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
+
+    # User2 posts a top-level comment on the event thread
+    with threads_session(token2) as api:
+        api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="Hello event!"))
+
+    process_jobs()
+
+    # The comment notification for user1 should have moderation_state_id set
+    with session_scope() as session:
+        event = session.execute(
+            select(Event)
+            .join(EventOccurrence, EventOccurrence.event_id == Event.id)
+            .where(EventOccurrence.id == event_id)
+        ).scalar_one()
+
+        notifications = session.execute(select(Notification).where(Notification.user_id == user1.id)).scalars().all()
+        comment_notifs = [n for n in notifications if n.topic_action.action == "comment"]
+        assert len(comment_notifs) == 1
+        assert comment_notifs[0].moderation_state_id == event.moderation_state_id
+
+
+def test_event_thread_reply_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
+    """Event thread reply notifications should carry the event's moderation_state_id for deferral."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    with session_scope() as session:
+        c_id = create_community(session, 0, 2, "Community", [user2, user3], [], None).id
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Reply Test",
+                content="Content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+        thread_id = res.thread.thread_id
+
+    moderator.approve_event_by_occurrence(event_id)
+    process_jobs()
+    while push_collector.count_for_user(user1.id):
+        push_collector.pop_for_user(user1.id)
+
+    # User2 posts a top-level comment
+    with threads_session(token2) as api:
+        comment_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=thread_id, content="Top-level comment")
+        ).thread_id
+
+    process_jobs()
+    while push_collector.count_for_user(user1.id):
+        push_collector.pop_for_user(user1.id)
+
+    # User3 replies to user2's comment (depth=2 reply)
+    with threads_session(token3) as api:
+        api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="Nested reply"))
+
+    process_jobs()
+
+    # The nested reply notification for user2 should have moderation_state_id set
+    with session_scope() as session:
+        event = session.execute(
+            select(Event)
+            .join(EventOccurrence, EventOccurrence.event_id == Event.id)
+            .where(EventOccurrence.id == event_id)
+        ).scalar_one()
+
+        notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        reply_notifs = [n for n in notifications if n.topic_action.action == "reply"]
+        assert len(reply_notifs) == 1
+        assert reply_notifs[0].moderation_state_id == event.moderation_state_id

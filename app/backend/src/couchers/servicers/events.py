@@ -891,7 +891,11 @@ class Events(events_pb2_grpc.EventsServicer):
         if not occurrence:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "event_not_found")
 
-        query = select(EventOccurrence).where(EventOccurrence.event_id == Event.id).where(~EventOccurrence.is_deleted)
+        query = (
+            select(EventOccurrence)
+            .where(EventOccurrence.event_id == occurrence.event_id)
+            .where(~EventOccurrence.is_deleted)
+        )
 
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)
