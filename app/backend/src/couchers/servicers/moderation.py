@@ -16,6 +16,7 @@ from couchers.metrics import (
 )
 from couchers.models import (
     Event,
+    EventOccurrence,
     FriendRelationship,
     GroupChat,
     HostRequest,
@@ -156,7 +157,14 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
         content = None
     elif object_type == ModerationObjectType.event:
         author_user_id = session.execute(select(Event.creator_user_id).where(Event.id == object_id)).scalar_one()
-        content = session.execute(select(Event.title).where(Event.id == object_id)).scalar_one_or_none()
+        title = session.execute(select(Event.title).where(Event.id == object_id)).scalar_one()
+        description = session.execute(
+            select(EventOccurrence.content)
+            .where(EventOccurrence.event_id == object_id)
+            .order_by(EventOccurrence.id.asc())
+            .limit(1)
+        ).scalar_one_or_none()
+        content = f"{title}\n\n{description}" if description else title
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
 
