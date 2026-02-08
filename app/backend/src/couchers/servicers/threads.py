@@ -102,7 +102,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                             event=event_to_pb(session, occurrence, context),
                             author=user_model_to_pb(author_user, session, context),
                         ),
-                        moderation_state_id=event.moderation_state_id,
+                        moderation_state_id=occurrence.moderation_state_id,
                     )
             elif discussion:
                 # community discussion thread
@@ -185,7 +185,7 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
                             event=event_to_pb(session, occurrence, context),
                             author=user_model_to_pb(author_user, session, context),
                         ),
-                        moderation_state_id=event.moderation_state_id,
+                        moderation_state_id=occurrence.moderation_state_id,
                     )
             elif discussion:
                 # community discussion thread

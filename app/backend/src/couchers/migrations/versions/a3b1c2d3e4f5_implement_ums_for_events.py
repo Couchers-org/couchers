@@ -20,10 +20,10 @@ def upgrade():
     # Add event to the ModerationObjectType enum
     op.execute("ALTER TYPE moderationobjecttype ADD VALUE IF NOT EXISTS 'event'")
 
-    # Add moderation_state_id column as nullable first
-    op.add_column("events", sa.Column("moderation_state_id", sa.BigInteger(), nullable=True))
+    # Add moderation_state_id column to event_occurrences as nullable first
+    op.add_column("event_occurrences", sa.Column("moderation_state_id", sa.BigInteger(), nullable=True))
 
-    # Create moderation states for all existing events with explicit IDs
+    # Create moderation states for all existing event occurrences with explicit IDs
     op.execute("""
         INSERT INTO moderation_states (id, object_type, object_id, visibility)
         SELECT
@@ -31,48 +31,48 @@ def upgrade():
             'event',
             id,
             'visible'
-        FROM events
+        FROM event_occurrences
     """)
 
-    # Create log entries for existing events
-    # The moderator_user_id is the creator_user who created the event
+    # Create log entries for existing event occurrences
+    # The moderator_user_id is the creator_user who created the occurrence
     op.execute("""
         INSERT INTO moderation_log (id, moderation_state_id, action, moderator_user_id, new_visibility, reason)
         SELECT
             (SELECT GREATEST(
                 COALESCE((SELECT MAX(id) FROM moderation_states WHERE id < 2000000), 0),
                 COALESCE((SELECT MAX(id) FROM moderation_log WHERE id < 2000000), 0)
-            )) + ROW_NUMBER() OVER (ORDER BY e.id),
+            )) + ROW_NUMBER() OVER (ORDER BY eo.id),
             ms.id,
             'create',
-            e.creator_user_id,
+            eo.creator_user_id,
             'visible',
-            'Migration: existing event'
+            'Migration: existing event occurrence'
         FROM moderation_states ms
-        JOIN events e ON ms.object_id = e.id AND ms.object_type = 'event'
+        JOIN event_occurrences eo ON ms.object_id = eo.id AND ms.object_type = 'event'
     """)
 
-    # Update events to link to their moderation states
+    # Update event_occurrences to link to their moderation states
     op.execute("""
-        UPDATE events
+        UPDATE event_occurrences
         SET moderation_state_id = moderation_states.id
         FROM moderation_states
         WHERE moderation_states.object_type = 'event'
-        AND moderation_states.object_id = events.id
+        AND moderation_states.object_id = event_occurrences.id
     """)
 
     # Now make the column non-nullable
-    op.alter_column("events", "moderation_state_id", nullable=False)
+    op.alter_column("event_occurrences", "moderation_state_id", nullable=False)
 
     op.create_index(
-        op.f("ix_events_moderation_state_id"),
-        "events",
+        op.f("ix_event_occurrences_moderation_state_id"),
+        "event_occurrences",
         ["moderation_state_id"],
         unique=False,
     )
     op.create_foreign_key(
-        op.f("fk_events_moderation_state_id_moderation_states"),
-        "events",
+        op.f("fk_event_occurrences_moderation_state_id_moderation_states"),
+        "event_occurrences",
         "moderation_states",
         ["moderation_state_id"],
         ["id"],
@@ -80,14 +80,14 @@ def upgrade():
 
 
 def downgrade():
-    # Drop events foreign key and column
+    # Drop event_occurrences foreign key and column
     op.drop_constraint(
-        op.f("fk_events_moderation_state_id_moderation_states"),
-        "events",
+        op.f("fk_event_occurrences_moderation_state_id_moderation_states"),
+        "event_occurrences",
         type_="foreignkey",
     )
-    op.drop_index(op.f("ix_events_moderation_state_id"), table_name="events")
-    op.drop_column("events", "moderation_state_id")
+    op.drop_index(op.f("ix_event_occurrences_moderation_state_id"), table_name="event_occurrences")
+    op.drop_column("event_occurrences", "moderation_state_id")
 
     # Clean up moderation data for events
     op.execute("""

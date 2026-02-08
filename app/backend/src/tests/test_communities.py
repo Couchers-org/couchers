@@ -13,7 +13,7 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
-    Event,
+    EventOccurrence,
     Node,
     Page,
     PageType,
@@ -303,9 +303,9 @@ def testing_communities(db_class, testconfig):
     mod_user, mod_token = generate_user(is_superuser=True)
     mod = Moderator(mod_user, mod_token)
     with session_scope() as session:
-        event_ids = session.execute(select(Event.id)).scalars().all()
-    for eid in event_ids:
-        mod.approve_event(eid)
+        occurrence_ids = session.execute(select(EventOccurrence.id)).scalars().all()
+    for oid in occurrence_ids:
+        mod.approve_event(oid)
 
     enforce_community_memberships()
 

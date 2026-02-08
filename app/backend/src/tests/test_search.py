@@ -7,7 +7,7 @@ from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
-from couchers.models import Event, EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
+from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, LanguageFluency, MeetupStatus
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
 from tests.fixtures.db import generate_user
@@ -707,9 +707,9 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(
 
     # Approve all events so they're visible to other users
     with session_scope() as session:
-        event_ids = session.execute(select(Event.id)).scalars().all()
-    for eid in event_ids:
-        moderator.approve_event(eid)
+        occurrence_ids = session.execute(select(EventOccurrence.id)).scalars().all()
+    for oid in occurrence_ids:
+        moderator.approve_event(oid)
 
     with events_session(token) as api:
         create_event(api, title="Organized event")

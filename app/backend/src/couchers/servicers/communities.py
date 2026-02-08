@@ -407,7 +407,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         query = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(or_(*membership_clauses))
         )
-        query = where_moderated_content_visible(query, context, Event, is_list_operation=True)
+        query = where_moderated_content_visible(query, context, EventOccurrence, is_list_operation=True)
 
         if request.past:
             cutoff = page_token + timedelta(seconds=1)

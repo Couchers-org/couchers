@@ -327,7 +327,7 @@ def _search_events(
             .join(Event, Event.id == EventOccurrence.event_id)
             .where(EventOccurrence.end_time >= func.now()),
             context,
-            Event,
+            EventOccurrence,
             is_list_operation=True,
         ),
     )
@@ -776,7 +776,7 @@ class Search(search_pb2_grpc.SearchServicer):
         statement = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
         )
-        statement = where_moderated_content_visible(statement, context, Event, is_list_operation=True)
+        statement = where_moderated_content_visible(statement, context, EventOccurrence, is_list_operation=True)
 
         if request.HasField("query"):
             if request.query_title_only:

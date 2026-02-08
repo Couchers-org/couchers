@@ -60,13 +60,11 @@ class Event(Base, kw_only=True):
     """
 
     __tablename__ = "events"
-    __moderation_author_column__ = "creator_user_id"
 
     id: Mapped[int] = mapped_column(
         BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value(), init=False
     )
     parent_node_id: Mapped[int] = mapped_column(ForeignKey("nodes.id"), index=True)
-    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
     title: Mapped[str] = mapped_column(String)
 
@@ -101,7 +99,6 @@ class Event(Base, kw_only=True):
         foreign_keys="Event.owner_cluster_id",
     )
     occurrences: DynamicMapped[EventOccurrence] = relationship(init=False, lazy="dynamic")
-    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # Only one of owner_user and owner_cluster should be set
@@ -114,11 +111,13 @@ class Event(Base, kw_only=True):
 
 class EventOccurrence(Base, kw_only=True):
     __tablename__ = "event_occurrences"
+    __moderation_author_column__ = "creator_user_id"
 
     id: Mapped[int] = mapped_column(
         BigInteger, communities_seq, primary_key=True, server_default=communities_seq.next_value(), init=False
     )
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"), index=True)
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
     # the user that created this particular occurrence of a repeating event (same as event.creator_user_id if single event)
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
@@ -161,6 +160,7 @@ class EventOccurrence(Base, kw_only=True):
     community_invite_requests: DynamicMapped[EventCommunityInviteRequest] = relationship(
         init=False, back_populates="occurrence", lazy="dynamic"
     )
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # Geom and address go together

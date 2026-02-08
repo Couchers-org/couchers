@@ -12,7 +12,6 @@ from couchers.jobs.handlers import send_event_reminders
 from couchers.models import (
     BackgroundJob,
     BackgroundJobState,
-    Event,
     EventOccurrence,
     Notification,
     NotificationDelivery,
@@ -1067,6 +1066,10 @@ def test_UpdateEvent_all(db, moderator: Moderator):
             )
 
             event_ids.append(res.event_id)
+
+    # Approve all scheduled occurrences
+    for eid in event_ids[1:]:
+        moderator.approve_event_by_occurrence(eid)
 
     updated_event_id = event_ids[3]
 
@@ -2596,7 +2599,7 @@ def test_event_photo_key(db):
 
 def test_event_created_with_shadowed_visibility(db):
     """Events start in SHADOWED state when created."""
-    from couchers.models import Event, ModerationState, ModerationVisibility
+    from couchers.models import ModerationState, ModerationVisibility
 
     user, token = generate_user()
 
@@ -2625,9 +2628,8 @@ def test_event_created_with_shadowed_visibility(db):
 
     with session_scope() as session:
         occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
-        event = session.execute(select(Event).where(Event.id == occurrence.event_id)).scalar_one()
         mod_state = session.execute(
-            select(ModerationState).where(ModerationState.id == event.moderation_state_id)
+            select(ModerationState).where(ModerationState.id == occurrence.moderation_state_id)
         ).scalar_one()
         assert mod_state.visibility == ModerationVisibility.shadowed
 
@@ -2872,17 +2874,13 @@ def test_event_update_notification_has_moderation_state(db, push_collector: Push
 
     # Verify that the update notification for user2 has moderation_state_id set
     with session_scope() as session:
-        event = session.execute(
-            select(Event)
-            .join(EventOccurrence, EventOccurrence.event_id == Event.id)
-            .where(EventOccurrence.id == event_id)
-        ).scalar_one()
+        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
 
         notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
         # Find the update notification (most recent one)
         update_notifs = [n for n in notifications if n.topic_action.action == "update"]
         assert len(update_notifs) == 1
-        assert update_notifs[0].moderation_state_id == event.moderation_state_id
+        assert update_notifs[0].moderation_state_id == occurrence.moderation_state_id
 
 
 def test_event_cancel_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
@@ -2930,16 +2928,12 @@ def test_event_cancel_notification_has_moderation_state(db, push_collector: Push
 
     # Verify that the cancel notification for user2 has moderation_state_id set
     with session_scope() as session:
-        event = session.execute(
-            select(Event)
-            .join(EventOccurrence, EventOccurrence.event_id == Event.id)
-            .where(EventOccurrence.id == event_id)
-        ).scalar_one()
+        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
 
         notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
         cancel_notifs = [n for n in notifications if n.topic_action.action == "cancel"]
         assert len(cancel_notifs) == 1
-        assert cancel_notifs[0].moderation_state_id == event.moderation_state_id
+        assert cancel_notifs[0].moderation_state_id == occurrence.moderation_state_id
 
 
 def test_event_reminder_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
@@ -2988,16 +2982,12 @@ def test_event_reminder_notification_has_moderation_state(db, push_collector: Pu
 
     # Verify that the reminder notification for user2 has moderation_state_id set
     with session_scope() as session:
-        event = session.execute(
-            select(Event)
-            .join(EventOccurrence, EventOccurrence.event_id == Event.id)
-            .where(EventOccurrence.id == event_id)
-        ).scalar_one()
+        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
 
         notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
         reminder_notifs = [n for n in notifications if n.topic_action.action == "reminder"]
         assert len(reminder_notifs) == 1
-        assert reminder_notifs[0].moderation_state_id == event.moderation_state_id
+        assert reminder_notifs[0].moderation_state_id == occurrence.moderation_state_id
 
 
 def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderator):
@@ -3127,16 +3117,12 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
 
     # The comment notification for user1 should have moderation_state_id set
     with session_scope() as session:
-        event = session.execute(
-            select(Event)
-            .join(EventOccurrence, EventOccurrence.event_id == Event.id)
-            .where(EventOccurrence.id == event_id)
-        ).scalar_one()
+        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
 
         notifications = session.execute(select(Notification).where(Notification.user_id == user1.id)).scalars().all()
         comment_notifs = [n for n in notifications if n.topic_action.action == "comment"]
         assert len(comment_notifs) == 1
-        assert comment_notifs[0].moderation_state_id == event.moderation_state_id
+        assert comment_notifs[0].moderation_state_id == occurrence.moderation_state_id
 
 
 def test_event_thread_reply_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
@@ -3192,13 +3178,9 @@ def test_event_thread_reply_notification_has_moderation_state(db, push_collector
 
     # The nested reply notification for user2 should have moderation_state_id set
     with session_scope() as session:
-        event = session.execute(
-            select(Event)
-            .join(EventOccurrence, EventOccurrence.event_id == Event.id)
-            .where(EventOccurrence.id == event_id)
-        ).scalar_one()
+        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
 
         notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
         reply_notifs = [n for n in notifications if n.topic_action.action == "reply"]
         assert len(reply_notifs) == 1
-        assert reply_notifs[0].moderation_state_id == event.moderation_state_id
+        assert reply_notifs[0].moderation_state_id == occurrence.moderation_state_id

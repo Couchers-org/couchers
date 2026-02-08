@@ -245,7 +245,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             .join(Event, Event.id == EventOccurrence.event_id)
             .where(Event.owner_cluster == cluster)
         )
-        query = where_moderated_content_visible(query, context, Event, is_list_operation=True)
+        query = where_moderated_content_visible(query, context, EventOccurrence, is_list_operation=True)
 
         if not request.past:
             cutoff = page_token - timedelta(seconds=1)

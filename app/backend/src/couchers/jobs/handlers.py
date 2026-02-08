@@ -1149,7 +1149,7 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
                         event=event_to_pb(session, occurrence, context),
                         user=user_model_to_pb(user, session, context),
                     ),
-                    moderation_state_id=occurrence.event.moderation_state_id,
+                    moderation_state_id=occurrence.moderation_state_id,
                 )
 
                 attendee.reminder_sent = True

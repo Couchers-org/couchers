@@ -13,7 +13,6 @@ from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.handlers import auto_approve_moderation_queue
 from couchers.models import (
-    Event,
     EventOccurrence,
     GroupChat,
     HostRequest,
@@ -2416,8 +2415,7 @@ def test_event_moderation_state_content(db):
 
     with session_scope() as session:
         occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
-        event = session.execute(select(Event).where(Event.id == occurrence.event_id)).scalar_one()
-        state_id = event.moderation_state_id
+        state_id = occurrence.moderation_state_id
 
     with real_moderation_session(super_token) as api:
         res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq())

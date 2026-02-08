@@ -6,7 +6,7 @@ from sqlalchemy.sql import Select, exists, union
 
 from couchers.context import CouchersContext
 from couchers.models import (
-    Event,
+    EventOccurrence,
     FriendRelationship,
     GroupChat,
     HostRequest,
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     type _UserLike = type[User | LiteUser | SignupFlow]
     type _User = type[User | LiteUser]
-    type _ModeratedContent = type[HostRequest | GroupChat | FriendRelationship | Event]
+    type _ModeratedContent = type[HostRequest | GroupChat | FriendRelationship | EventOccurrence]
 
 
 def username_or_email(value: str, table: _UserLike = User) -> ColumnElement[bool]:
@@ -224,14 +224,14 @@ def moderation_state_column_visible(
             FriendRelationship,
         )
     )
-    ev_visible = exists(
+    eo_visible = exists(
         where_moderated_content_visible(
-            select(Event).where(Event.moderation_state_id == column),
+            select(EventOccurrence).where(EventOccurrence.moderation_state_id == column),
             context,
-            Event,
+            EventOccurrence,
         )
     )
-    return or_(column.is_(None), hr_visible, gc_visible, fr_visible, ev_visible)
+    return or_(column.is_(None), hr_visible, gc_visible, fr_visible, eo_visible)
 
 
 def _relevant_user_blocks(user_id: int) -> Select[tuple[int]]:

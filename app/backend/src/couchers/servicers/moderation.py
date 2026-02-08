@@ -115,7 +115,7 @@ moderationobjecttype2model: dict[ModerationObjectType, _ModeratedContent] = {
     ModerationObjectType.host_request: HostRequest,
     ModerationObjectType.group_chat: GroupChat,
     ModerationObjectType.friend_request: FriendRelationship,
-    ModerationObjectType.event: Event,
+    ModerationObjectType.event: EventOccurrence,
 }
 
 
@@ -156,14 +156,14 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
         # Friend requests have no text content
         content = None
     elif object_type == ModerationObjectType.event:
-        author_user_id = session.execute(select(Event.creator_user_id).where(Event.id == object_id)).scalar_one()
-        title = session.execute(select(Event.title).where(Event.id == object_id)).scalar_one()
-        description = session.execute(
-            select(EventOccurrence.content)
-            .where(EventOccurrence.event_id == object_id)
-            .order_by(EventOccurrence.id.asc())
-            .limit(1)
-        ).scalar_one_or_none()
+        result = session.execute(
+            select(EventOccurrence.creator_user_id, Event.title, EventOccurrence.content)
+            .join(Event, Event.id == EventOccurrence.event_id)
+            .where(EventOccurrence.id == object_id)
+        ).one()
+        author_user_id = result[0]
+        title = result[1]
+        description = result[2]
         content = f"{title}\n\n{description}" if description else title
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
