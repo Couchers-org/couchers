@@ -120,7 +120,6 @@
     "user_left_chat_text": "{{user}} left the chat",
     "admin_assignment_text": "{{user}} made {{target_user}} an admin",
     "admin_removal_text": "{{user}} removed {{target_user}} as admin",
-    "host_request_status_changed_text": "{{user}} changed the request to {{status}}",
     "host_request_status_changed": {
       "accepted": "{{user}} has accepted the request",
       "cancelled": "{{user}} has cancelled the request",
