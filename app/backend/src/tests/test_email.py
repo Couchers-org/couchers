@@ -467,7 +467,7 @@ def test_email_deleted_users_regression(db, moderator: Moderator):
         event_id = res.event_id
         assert not res.is_deleted
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(creating_token) as api:
         with mock_notification_email() as mock:

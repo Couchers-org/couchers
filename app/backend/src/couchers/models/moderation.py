@@ -63,7 +63,7 @@ class ModerationObjectType(enum.Enum):
     host_request = enum.auto()
     group_chat = enum.auto()
     friend_request = enum.auto()
-    event = enum.auto()
+    event_occurrence = enum.auto()
 
 
 class ModerationState(Base, kw_only=True):

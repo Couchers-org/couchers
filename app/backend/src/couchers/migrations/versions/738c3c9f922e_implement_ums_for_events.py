@@ -1,6 +1,6 @@
 """Implement UMS for events
 
-Revision ID: a3b1c2d3e4f5
+Revision ID: 738c3c9f922e
 Revises: d3189338b8c1
 Create Date: 2026-02-07 10:00:00.000000
 
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "a3b1c2d3e4f5"
+revision = "738c3c9f922e"
 down_revision = "d3189338b8c1"
 branch_labels = None
 depends_on = None
@@ -18,7 +18,7 @@ depends_on = None
 
 def upgrade():
     # Add event to the ModerationObjectType enum
-    op.execute("ALTER TYPE moderationobjecttype ADD VALUE IF NOT EXISTS 'event'")
+    op.execute("ALTER TYPE moderationobjecttype ADD VALUE IF NOT EXISTS 'event_occurrence'")
 
     # Add moderation_state_id column to event_occurrences as nullable first
     op.add_column("event_occurrences", sa.Column("moderation_state_id", sa.BigInteger(), nullable=True))
@@ -28,7 +28,7 @@ def upgrade():
         INSERT INTO moderation_states (id, object_type, object_id, visibility)
         SELECT
             (SELECT COALESCE(MAX(id), 0) FROM moderation_states WHERE id < 2000000) + ROW_NUMBER() OVER (ORDER BY id),
-            'event',
+            'event_occurrence',
             id,
             'visible'
         FROM event_occurrences
@@ -49,7 +49,7 @@ def upgrade():
             'visible',
             'Migration: existing event occurrence'
         FROM moderation_states ms
-        JOIN event_occurrences eo ON ms.object_id = eo.id AND ms.object_type = 'event'
+        JOIN event_occurrences eo ON ms.object_id = eo.id AND ms.object_type = 'event_occurrence'
     """)
 
     # Update event_occurrences to link to their moderation states
@@ -57,7 +57,7 @@ def upgrade():
         UPDATE event_occurrences
         SET moderation_state_id = moderation_states.id
         FROM moderation_states
-        WHERE moderation_states.object_type = 'event'
+        WHERE moderation_states.object_type = 'event_occurrence'
         AND moderation_states.object_id = event_occurrences.id
     """)
 
@@ -93,9 +93,9 @@ def downgrade():
     op.execute("""
         DELETE FROM moderation_log
         WHERE moderation_state_id IN (
-            SELECT id FROM moderation_states WHERE object_type = 'event'
+            SELECT id FROM moderation_states WHERE object_type = 'event_occurrence'
         )
     """)
-    op.execute("DELETE FROM moderation_states WHERE object_type = 'event'")
+    op.execute("DELETE FROM moderation_states WHERE object_type = 'event_occurrence'")
 
-    # Note: We cannot remove enum values in PostgreSQL easily, so we leave event in the enum
+    # Note: We cannot remove enum values in PostgreSQL easily, so we leave event_occurrence in the enum

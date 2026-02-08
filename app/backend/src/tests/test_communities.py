@@ -305,7 +305,7 @@ def testing_communities(db_class, testconfig):
     with session_scope() as session:
         occurrence_ids = session.execute(select(EventOccurrence.id)).scalars().all()
     for oid in occurrence_ids:
-        mod.approve_event(oid)
+        mod.approve_event_occurrence(oid)
 
     enforce_community_memberships()
 

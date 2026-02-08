@@ -106,7 +106,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         event_id = res.event_id
 
     # Approve the event so other users can see it
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token2) as api:
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
@@ -225,7 +225,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         event_id = res.event_id
 
     # Approve the online event so other users can see it
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token2) as api:
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event_id))
@@ -739,7 +739,7 @@ def test_UpdateEvent_single(db, moderator: Moderator):
 
         event_id = res.event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token4) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
@@ -1034,7 +1034,7 @@ def test_UpdateEvent_all(db, moderator: Moderator):
         event_id = res.event_id
         event_ids.append(event_id)
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token4) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
@@ -1069,7 +1069,7 @@ def test_UpdateEvent_all(db, moderator: Moderator):
 
     # Approve all scheduled occurrences
     for eid in event_ids[1:]:
-        moderator.approve_event_by_occurrence(eid)
+        moderator.approve_event_occurrence(eid)
 
     updated_event_id = event_ids[3]
 
@@ -1137,7 +1137,7 @@ def test_GetEvent(db, moderator: Moderator):
 
         event_id = res.event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token4) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
@@ -1291,7 +1291,7 @@ def test_CancelEvent(db, moderator: Moderator):
 
         event_id = res.event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token4) as api:
         api.SetEventSubscription(events_pb2.SetEventSubscriptionReq(event_id=event_id, subscribe=True))
@@ -1410,7 +1410,7 @@ def test_ListEventAttendees(db, moderator: Moderator):
             )
         ).event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     for token in [token2, token3, token4, token5]:
         with events_session(token) as api:
@@ -1465,7 +1465,7 @@ def test_ListEventSubscribers(db, moderator: Moderator):
             )
         ).event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     for token in [token2, token3, token4, token5]:
         with events_session(token) as api:
@@ -1518,7 +1518,7 @@ def test_ListEventOrganizers(db, moderator: Moderator):
             )
         ).event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token1) as api:
         for user_id in [user2.id, user3.id, user4.id, user5.id]:
@@ -1649,7 +1649,7 @@ def test_SetEventSubscription(db, moderator: Moderator):
             )
         ).event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token2) as api:
         assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).subscriber
@@ -1682,7 +1682,7 @@ def test_SetEventAttendance(db, moderator: Moderator):
             )
         ).event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token2) as api:
         assert (
@@ -1735,7 +1735,7 @@ def test_InviteEventOrganizer(db, moderator: Moderator):
             )
         ).event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token2) as api:
         assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
@@ -1862,32 +1862,32 @@ def test_ListMyEvents(db, moderator: Moderator):
     with events_session(token1) as api:
         e2 = api.CreateEvent(new_event(2, c_id, True)).event_id
 
-    moderator.approve_event_by_occurrence(e2)
+    moderator.approve_event_occurrence(e2)
 
     with events_session(token2) as api:
         e1 = api.CreateEvent(new_event(1, c_id, False)).event_id
 
-    moderator.approve_event_by_occurrence(e1)
+    moderator.approve_event_occurrence(e1)
 
     with events_session(token1) as api:
         e3 = api.CreateEvent(new_event(3, c_id, False)).event_id
 
-    moderator.approve_event_by_occurrence(e3)
+    moderator.approve_event_occurrence(e3)
 
     with events_session(token2) as api:
         e5 = api.CreateEvent(new_event(5, c_id, True)).event_id
 
-    moderator.approve_event_by_occurrence(e5)
+    moderator.approve_event_occurrence(e5)
 
     with events_session(token3) as api:
         e4 = api.CreateEvent(new_event(4, c_id, True)).event_id
 
-    moderator.approve_event_by_occurrence(e4)
+    moderator.approve_event_occurrence(e4)
 
     with events_session(token4) as api:
         e6 = api.CreateEvent(new_event(6, c2_id, True)).event_id
 
-    moderator.approve_event_by_occurrence(e6)
+    moderator.approve_event_occurrence(e6)
 
     with events_session(token1) as api:
         api.InviteEventOrganizer(events_pb2.InviteEventOrganizerReq(event_id=e3, user_id=user3.id))
@@ -2031,7 +2031,7 @@ def test_RemoveEventOrganizer(db, moderator: Moderator):
             )
         ).event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token2) as api:
         assert not api.GetEvent(events_pb2.GetEventReq(event_id=event_id)).organizer
@@ -2190,7 +2190,7 @@ def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
             )
         )
 
-    moderator.approve_event_by_occurrence(event.event_id)
+    moderator.approve_event_occurrence(event.event_id)
 
     with threads_session(token2) as api:
         reply_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=event.thread.thread_id, content="hi")).thread_id
@@ -2413,7 +2413,7 @@ def test_community_invite_requests(db, moderator: Moderator):
 
         event_id = res.event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token1) as api:
         with mock_notification_email() as mock:
@@ -2709,7 +2709,7 @@ def test_event_visible_after_approval(db, moderator: Moderator):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
     # Approve the event
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     # Now other user can see it
     with events_session(token2) as api:
@@ -2758,7 +2758,7 @@ def test_shadowed_event_hidden_from_list_for_non_creator(db, moderator: Moderato
         assert event_id not in event_ids
 
     # After approval, other user can see it
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     with events_session(token2) as api:
         list_res = api.ListAllEvents(events_pb2.ListAllEventsReq())
@@ -2810,7 +2810,7 @@ def test_event_create_notification_deferred_until_approval(db, push_collector: P
         assert delivery_count is None
 
     # Approve the event — handle_notification is re-queued for deferred notifications
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
 
     # Verify handle_notification job was queued
     with session_scope() as session:
@@ -2850,7 +2850,7 @@ def test_event_update_notification_has_moderation_state(db, push_collector: Push
         )
         event_id = res.event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
     process_jobs()
     # Clear any create notifications
     while push_collector.count_for_user(user2.id):
@@ -2911,7 +2911,7 @@ def test_event_cancel_notification_has_moderation_state(db, push_collector: Push
         )
         event_id = res.event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
     process_jobs()
     while push_collector.count_for_user(user2.id):
         push_collector.pop_for_user(user2.id)
@@ -2965,7 +2965,7 @@ def test_event_reminder_notification_has_moderation_state(db, push_collector: Pu
         )
         event_id = res.event_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
     process_jobs()
     while push_collector.count_for_user(user2.id):
         push_collector.pop_for_user(user2.id)
@@ -3055,8 +3055,8 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
         )
         event_b_ids.append(res.event_id)
 
-    moderator.approve_event_by_occurrence(event_a_ids[0])
-    moderator.approve_event_by_occurrence(event_b_ids[0])
+    moderator.approve_event_occurrence(event_a_ids[0])
+    moderator.approve_event_occurrence(event_b_ids[0])
 
     # List occurrences for event A — should only get event A's 3 occurrences
     with events_session(token1) as api:
@@ -3100,7 +3100,7 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
         event_id = res.event_id
         thread_id = res.thread.thread_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
     process_jobs()
     while push_collector.count_for_user(user1.id):
         push_collector.pop_for_user(user1.id)
@@ -3155,7 +3155,7 @@ def test_event_thread_reply_notification_has_moderation_state(db, push_collector
         event_id = res.event_id
         thread_id = res.thread.thread_id
 
-    moderator.approve_event_by_occurrence(event_id)
+    moderator.approve_event_occurrence(event_id)
     process_jobs()
     while push_collector.count_for_user(user1.id):
         push_collector.pop_for_user(user1.id)

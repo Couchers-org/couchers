@@ -482,8 +482,11 @@ class Events(events_pb2_grpc.EventsServicer):
         session.add(event)
         session.flush()
 
+        occurrence: EventOccurrence | None = None
+
         def create_occurrence(moderation_state_id: int) -> int:
-            occ = EventOccurrence(
+            nonlocal occurrence
+            occurrence = EventOccurrence(
                 event_id=event.id,
                 content=request.content,
                 geom=geom,
@@ -495,20 +498,18 @@ class Events(events_pb2_grpc.EventsServicer):
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
             )
-            session.add(occ)
+            session.add(occurrence)
             session.flush()
-            return occ.id
+            return occurrence.id
 
-        moderation_state = create_moderation(
+        create_moderation(
             session=session,
-            object_type=ModerationObjectType.event,
+            object_type=ModerationObjectType.event_occurrence,
             object_id=create_occurrence,
             creator_user_id=context.user_id,
         )
 
-        occurrence = session.execute(
-            select(EventOccurrence).where(EventOccurrence.moderation_state_id == moderation_state.id)
-        ).scalar_one()
+        assert occurrence is not None
 
         session.add(
             EventOrganizer(
@@ -623,8 +624,11 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "event_cant_overlap")
 
+        new_occurrence: EventOccurrence | None = None
+
         def create_occurrence(moderation_state_id: int) -> int:
-            occ = EventOccurrence(
+            nonlocal new_occurrence
+            new_occurrence = EventOccurrence(
                 event_id=event.id,
                 content=request.content,
                 geom=geom,
@@ -636,25 +640,23 @@ class Events(events_pb2_grpc.EventsServicer):
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
             )
-            session.add(occ)
+            session.add(new_occurrence)
             session.flush()
-            return occ.id
+            return new_occurrence.id
 
-        moderation_state = create_moderation(
+        create_moderation(
             session=session,
-            object_type=ModerationObjectType.event,
+            object_type=ModerationObjectType.event_occurrence,
             object_id=create_occurrence,
             creator_user_id=context.user_id,
         )
 
-        occurrence = session.execute(
-            select(EventOccurrence).where(EventOccurrence.moderation_state_id == moderation_state.id)
-        ).scalar_one()
+        assert new_occurrence is not None
 
         session.add(
             EventOccurrenceAttendee(
                 user_id=context.user_id,
-                occurrence_id=occurrence.id,
+                occurrence_id=new_occurrence.id,
                 attendee_status=AttendeeStatus.going,
             )
         )
@@ -663,7 +665,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
         # TODO: notify
 
-        return event_to_pb(session, occurrence, context)
+        return event_to_pb(session, new_occurrence, context)
 
     def UpdateEvent(
         self, request: events_pb2.UpdateEventReq, context: CouchersContext, session: Session
@@ -802,12 +804,7 @@ class Events(events_pb2_grpc.EventsServicer):
         return event_to_pb(session, occurrence, context)
 
     def GetEvent(self, request: events_pb2.GetEventReq, context: CouchersContext, session: Session) -> events_pb2.Event:
-        query = (
-            select(EventOccurrence)
-            .join(Event, Event.id == EventOccurrence.event_id)
-            .where(EventOccurrence.id == request.event_id)
-            .where(~EventOccurrence.is_deleted)
-        )
+        query = select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
         query = where_moderated_content_visible(query, context, EventOccurrence, is_list_operation=False)
         occurrence = session.execute(query).scalar_one_or_none()
 
@@ -897,10 +894,7 @@ class Events(events_pb2_grpc.EventsServicer):
         # the page token is a unix timestamp of where we left off
         page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
         initial_query = (
-            select(EventOccurrence)
-            .join(Event, Event.id == EventOccurrence.event_id)
-            .where(EventOccurrence.id == request.event_id)
-            .where(~EventOccurrence.is_deleted)
+            select(EventOccurrence).where(EventOccurrence.id == request.event_id).where(~EventOccurrence.is_deleted)
         )
         initial_query = where_moderated_content_visible(
             initial_query, context, EventOccurrence, is_list_operation=False
@@ -942,7 +936,6 @@ class Events(events_pb2_grpc.EventsServicer):
         occurrence = session.execute(
             where_moderated_content_visible(
                 select(EventOccurrence)
-                .join(Event, Event.id == EventOccurrence.event_id)
                 .where(EventOccurrence.id == request.event_id)
                 .where(~EventOccurrence.is_deleted),
                 context,
@@ -1114,7 +1107,6 @@ class Events(events_pb2_grpc.EventsServicer):
         occurrence = session.execute(
             where_moderated_content_visible(
                 select(EventOccurrence)
-                .join(Event, Event.id == EventOccurrence.event_id)
                 .where(EventOccurrence.id == request.event_id)
                 .where(~EventOccurrence.is_deleted),
                 context,
@@ -1259,9 +1251,7 @@ class Events(events_pb2_grpc.EventsServicer):
         # the page token is a unix timestamp of where we left off
         page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
-        query = (
-            select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
-        )
+        query = select(EventOccurrence).where(~EventOccurrence.is_deleted)
         query = where_moderated_content_visible(query, context, EventOccurrence, is_list_operation=True)
 
         if not request.include_cancelled:

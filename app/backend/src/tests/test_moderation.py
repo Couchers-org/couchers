@@ -2422,7 +2422,7 @@ def test_event_moderation_state_content(db):
         event_items = [
             item
             for item in res.queue_items
-            if item.moderation_state.object_type == moderation_pb2.MODERATION_OBJECT_TYPE_EVENT
+            if item.moderation_state.object_type == moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE
         ]
         assert len(event_items) == 1
         assert event_items[0].moderation_state.content == "My Event Title\n\nMy event description."

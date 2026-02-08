@@ -709,7 +709,7 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(
     with session_scope() as session:
         occurrence_ids = session.execute(select(EventOccurrence.id)).scalars().all()
     for oid in occurrence_ids:
-        moderator.approve_event(oid)
+        moderator.approve_event_occurrence(oid)
 
     with events_session(token) as api:
         create_event(api, title="Organized event")

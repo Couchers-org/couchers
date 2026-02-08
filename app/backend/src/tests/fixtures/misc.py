@@ -171,7 +171,7 @@ class Moderator:
                 )
             )
 
-    def approve_event(self, occurrence_id: int, reason: str = "Test approval") -> None:
+    def approve_event_occurrence(self, occurrence_id: int, reason: str = "Test approval") -> None:
         """
         Approve an event occurrence using the moderation API.
 
@@ -182,7 +182,7 @@ class Moderator:
         with real_moderation_session(self.token) as api:
             state_res = api.GetModerationState(
                 moderation_pb2.GetModerationStateReq(
-                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_EVENT,
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE,
                     object_id=occurrence_id,
                 )
             )
@@ -194,13 +194,3 @@ class Moderator:
                     reason=reason,
                 )
             )
-
-    def approve_event_by_occurrence(self, occurrence_id: int, reason: str = "Test approval") -> None:
-        """
-        Alias for approve_event. Kept for backwards compatibility with tests.
-
-        Args:
-            occurrence_id: The ID of an EventOccurrence (what the proto calls event_id)
-            reason: Optional reason for approval
-        """
-        self.approve_event(occurrence_id, reason)
