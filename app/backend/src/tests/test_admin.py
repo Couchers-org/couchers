@@ -477,8 +477,7 @@ def test_DeleteEvent(db):
         with real_admin_session(super_token) as api:
             api.DeleteEvent(
                 admin_pb2.DeleteEventReq(
-                    event_id=event_id,
-                )
+                    event_id=event_id,)
             )
             occurrence = session.get_one(EventOccurrence, ident=event_id)
             assert occurrence.is_deleted
