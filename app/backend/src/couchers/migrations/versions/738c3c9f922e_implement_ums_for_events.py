@@ -18,7 +18,17 @@ depends_on = None
 
 def upgrade():
     # Add event to the ModerationObjectType enum
-    op.execute("ALTER TYPE moderationobjecttype ADD VALUE IF NOT EXISTS 'event_occurrence'")
+    # Add event_occurrence to the ModerationObjectType enum
+    # Must use rename/recreate pattern instead of ADD VALUE, because ADD VALUE
+    # cannot be used in the same transaction as DML that references the new value
+    op.execute("ALTER TYPE moderationobjecttype RENAME TO moderationobjecttype_old")
+    op.execute("CREATE TYPE moderationobjecttype AS ENUM ('host_request', 'group_chat', 'friend_request', 'event_occurrence')")
+    op.execute("""
+        ALTER TABLE moderation_states
+        ALTER COLUMN object_type TYPE moderationobjecttype
+        USING object_type::text::moderationobjecttype
+    """)
+    op.execute("DROP TYPE moderationobjecttype_old")
 
     # Add moderation_state_id column to event_occurrences as nullable first
     op.add_column("event_occurrences", sa.Column("moderation_state_id", sa.BigInteger(), nullable=True))
