@@ -22,7 +22,9 @@ def upgrade():
     # Must use rename/recreate pattern instead of ADD VALUE, because ADD VALUE
     # cannot be used in the same transaction as DML that references the new value
     op.execute("ALTER TYPE moderationobjecttype RENAME TO moderationobjecttype_old")
-    op.execute("CREATE TYPE moderationobjecttype AS ENUM ('host_request', 'group_chat', 'friend_request', 'event_occurrence')")
+    op.execute(
+        "CREATE TYPE moderationobjecttype AS ENUM ('host_request', 'group_chat', 'friend_request', 'event_occurrence')"
+    )
     op.execute("""
         ALTER TABLE moderation_states
         ALTER COLUMN object_type TYPE moderationobjecttype
