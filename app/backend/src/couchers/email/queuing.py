@@ -130,7 +130,7 @@ def queue_system_email(session: Session, recipient: str, template_name: str, tem
     rendered_frontmatter = Jinja2Template(source=frontmatter_source, html=False).render(template_args, loc_context)
     frontmatter = yaml.load(rendered_frontmatter, Loader=yaml.FullLoader)
 
-    plain = Jinja2Template(source=text_source, html=False).render(template_args, loc_context)
+    plain = Jinja2Template(source=text_source.strip(), html=False).render(template_args, loc_context)
 
     queue_email(
         session,
