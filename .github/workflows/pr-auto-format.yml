@@ -4,6 +4,10 @@ on:
   pull_request:
     types: [opened, synchronize]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   pull-requests: write
@@ -38,10 +42,27 @@ jobs:
     if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure git for GitHub App
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.AUTO_FORMAT_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
@@ -53,9 +74,9 @@ jobs:
         run: make format
 
       - name: Commit backend formatting changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "style: auto-format backend code"
+          commit_message: "Format backend"
           file_pattern: "app/backend/**/*.py"
 
   format-frontend:
@@ -63,10 +84,27 @@ jobs:
     if: needs.detect-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure git for GitHub App
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.AUTO_FORMAT_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -82,9 +120,9 @@ jobs:
         run: yarn format
 
       - name: Commit frontend formatting changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "style: auto-format frontend code"
+          commit_message: "Format frontend"
           file_pattern: "app/web/**"
 
   generate-migration:
@@ -105,10 +143,27 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure git for GitHub App
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.AUTO_FORMAT_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           # Full history needed for alembic to resolve the migration chain
           fetch-depth: 0
 
@@ -116,6 +171,10 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           version: "0.9.6"
+
+      - name: Generate protobuf files
+        working-directory: app/backend
+        run: make protos
 
       - name: Create PostGIS extensions
         env:
@@ -125,19 +184,21 @@ jobs:
           psql -h localhost -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
           psql -h localhost -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS btree_gist;"
 
+      - name: Load backend.dev.env
+        run: grep -v '^#' app/backend.dev.env | grep '=' >> "$GITHUB_ENV"
+
+      - name: Override database connection string
+        run: echo "DATABASE_CONNECTION_STRING=postgresql://postgres:testpassword@localhost:5432/postgres" >> "$GITHUB_ENV"
+
       - name: Run all existing migrations
         working-directory: app/backend
-        env:
-          DATABASE_CONNECTION_STRING: "postgresql://postgres:testpassword@localhost:5432/postgres"
         run: uv run alembic upgrade head
 
       - name: Generate migration if needed
         working-directory: app/backend
-        env:
-          DATABASE_CONNECTION_STRING: "postgresql://postgres:testpassword@localhost:5432/postgres"
         run: |
           # Generate migration with autogenerate
-          uv run alembic revision --autogenerate -m "auto-generated migration"
+          uv run alembic revision --autogenerate -m "${{ github.event.pull_request.title }}"
 
           # Check if migration file was created (ignoring empty migrations)
           NEW_MIGRATION=$(find src/couchers/migrations/versions -name "*.py" -newer .git/index -type f 2>/dev/null | head -1)
@@ -146,6 +207,9 @@ jobs:
             # Check if the migration has actual changes (not just empty upgrade/downgrade)
             if grep -q "op\." "$NEW_MIGRATION"; then
               echo "Migration with changes generated: $NEW_MIGRATION"
+              # Remove Alembic auto-generated comment lines
+              sed -i '/# ### commands auto generated by Alembic/d' "$NEW_MIGRATION"
+              sed -i '/# ### end Alembic commands ###/d' "$NEW_MIGRATION"
             else
               echo "Empty migration generated, removing it"
               rm "$NEW_MIGRATION"
@@ -154,10 +218,14 @@ jobs:
             echo "No new migration needed"
           fi
 
+      - name: Format backend
+        working-directory: app/backend
+        run: make format
+
       - name: Commit migration if created
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "chore: auto-generate database migration"
+          commit_message: "Generate migrations"
           file_pattern: "app/backend/src/couchers/migrations/versions/*.py"
 
   regenerate-html-templates:
@@ -165,17 +233,34 @@ jobs:
     if: needs.detect-changes.outputs.templates == 'true'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure git for GitHub App
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.AUTO_FORMAT_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Regenerate HTML from MJML templates
         working-directory: app/backend/templates/v2
         run: bash _build.sh
 
       - name: Commit HTML template changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "chore: regenerate HTML email templates"
+          commit_message: "Regenerate HTML templates"
           file_pattern: "app/backend/templates/v2/generated_html/*.html"
