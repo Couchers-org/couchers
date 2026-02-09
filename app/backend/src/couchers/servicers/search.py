@@ -53,7 +53,7 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import to_bool, users_visible, where_users_column_visible
+from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
@@ -322,9 +322,14 @@ def _search_events(
 
     occurrences = execute_search_statement(
         session,
-        select(EventOccurrence, rank, snippet)
-        .join(Event, Event.id == EventOccurrence.event_id)
-        .where(EventOccurrence.end_time >= func.now()),
+        where_moderated_content_visible(
+            select(EventOccurrence, rank, snippet)
+            .join(Event, Event.id == EventOccurrence.event_id)
+            .where(EventOccurrence.end_time >= func.now()),
+            context,
+            EventOccurrence,
+            is_list_operation=True,
+        ),
     )
 
     return [
@@ -771,6 +776,7 @@ class Search(search_pb2_grpc.SearchServicer):
         statement = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
         )
+        statement = where_moderated_content_visible(statement, context, EventOccurrence, is_list_operation=True)
 
         if request.HasField("query"):
             if request.query_title_only:

@@ -170,3 +170,27 @@ class Moderator:
                     reason=reason,
                 )
             )
+
+    def approve_event_occurrence(self, occurrence_id: int, reason: str = "Test approval") -> None:
+        """
+        Approve an event occurrence using the moderation API.
+
+        Args:
+            occurrence_id: The ID of the EventOccurrence (what the proto calls event_id)
+            reason: Optional reason for approval
+        """
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE,
+                    object_id=occurrence_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=reason,
+                )
+            )

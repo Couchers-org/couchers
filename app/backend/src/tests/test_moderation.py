@@ -13,6 +13,7 @@ from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.handlers import auto_approve_moderation_queue
 from couchers.models import (
+    EventOccurrence,
     GroupChat,
     HostRequest,
     ModerationAction,
@@ -24,16 +25,18 @@ from couchers.models import (
     ModerationVisibility,
 )
 from couchers.moderation.utils import create_moderation
-from couchers.proto import conversations_pb2, moderation_pb2, notifications_pb2, requests_pb2
+from couchers.proto import conversations_pb2, events_pb2, moderation_pb2, notifications_pb2, requests_pb2
 from couchers.utils import Timestamp_from_datetime, now, today
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.misc import PushCollector, mock_notification_email, process_jobs
 from tests.fixtures.sessions import (
     conversations_session,
+    events_session,
     notifications_session,
     real_moderation_session,
     requests_session,
 )
+from tests.test_communities import create_community
 from tests.test_requests import valid_request_text
 
 
@@ -2379,3 +2382,47 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
 
     # User2 should have received another notification
     assert push_collector.count_for_user(user2.id) == 1
+
+
+def test_event_moderation_state_content(db):
+    """Test that event moderation state content includes both title and description"""
+    super_user, super_token = generate_user(is_superuser=True)
+    user, token = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user], [], None)
+
+    start_time = now() + timedelta(hours=2)
+    end_time = start_time + timedelta(hours=3)
+
+    with events_session(token) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="My Event Title",
+                content="My event description.",
+                photo_key=None,
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+
+    with session_scope() as session:
+        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
+        state_id = occurrence.moderation_state_id
+
+    with real_moderation_session(super_token) as api:
+        res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq())
+        event_items = [
+            item
+            for item in res.queue_items
+            if item.moderation_state.object_type == moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE
+        ]
+        assert len(event_items) == 1
+        assert event_items[0].moderation_state.content == "My Event Title\n\nMy event description."

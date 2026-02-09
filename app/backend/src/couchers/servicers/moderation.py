@@ -15,6 +15,8 @@ from couchers.metrics import (
     observe_moderation_visibility_transition,
 )
 from couchers.models import (
+    Event,
+    EventOccurrence,
     FriendRelationship,
     GroupChat,
     HostRequest,
@@ -97,6 +99,7 @@ moderationobjecttype2api = {
     ModerationObjectType.host_request: moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
     ModerationObjectType.group_chat: moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
     ModerationObjectType.friend_request: moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST,
+    ModerationObjectType.event_occurrence: moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE,
 }
 
 moderationobjecttype2sql = {
@@ -104,6 +107,7 @@ moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST: ModerationObjectType.host_request,
     moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT: ModerationObjectType.group_chat,
     moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST: ModerationObjectType.friend_request,
+    moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE: ModerationObjectType.event_occurrence,
 }
 
 # Mapping from ModerationObjectType to the SQLAlchemy model class
@@ -111,6 +115,7 @@ moderationobjecttype2model: dict[ModerationObjectType, _ModeratedContent] = {
     ModerationObjectType.host_request: HostRequest,
     ModerationObjectType.group_chat: GroupChat,
     ModerationObjectType.friend_request: FriendRelationship,
+    ModerationObjectType.event_occurrence: EventOccurrence,
 }
 
 
@@ -150,6 +155,13 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
         ).scalar_one()
         # Friend requests have no text content
         content = None
+    elif object_type == ModerationObjectType.event_occurrence:
+        author_user_id, title, description = session.execute(
+            select(EventOccurrence.creator_user_id, Event.title, EventOccurrence.content)
+            .join(Event, Event.id == EventOccurrence.event_id)
+            .where(EventOccurrence.id == object_id)
+        ).one()
+        content = f"{title}\n\n{description}"
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
 

@@ -31,7 +31,7 @@ from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import to_bool, users_visible
+from couchers.sql import to_bool, users_visible, where_moderated_content_visible
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 
 logger = logging.getLogger(__name__)
@@ -407,6 +407,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         query = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(or_(*membership_clauses))
         )
+        query = where_moderated_content_visible(query, context, EventOccurrence, is_list_operation=True)
 
         if request.past:
             cutoff = page_token + timedelta(seconds=1)
