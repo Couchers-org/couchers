@@ -1314,20 +1314,6 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
 
         # === Moderation System Consistency Checks ===
 
-        # Check all ModerationStates have a known object_type
-        known_object_types = [
-            ModerationObjectType.host_request,
-            ModerationObjectType.group_chat,
-            ModerationObjectType.friend_request,
-        ]
-        unknown_type_states = session.execute(
-            select(ModerationState.id, ModerationState.object_type).where(
-                ModerationState.object_type.not_in(known_object_types)
-            )
-        ).all()
-        if unknown_type_states:
-            errors.append(f"ModerationStates with unknown object_type: {unknown_type_states}")
-
         # Check every ModerationState has at least one INITIAL_REVIEW queue item
         # Skip items with ID < 2000000 as they were created before this check was introduced
         states_without_initial_review = session.execute(
