@@ -2,11 +2,8 @@ import { Cancel, CheckCircle, Help, InfoOutlined } from "@mui/icons-material";
 import {
   Box,
   DialogContent,
-  FormControlLabel,
   List,
   ListItem,
-  Radio,
-  RadioGroup,
   styled,
   Tooltip,
   Typography,
@@ -20,7 +17,6 @@ import EditLocationMap from "components/EditLocationMap";
 import GalleryEditor from "components/GalleryEditor/GalleryEditor";
 import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
-import TextField from "components/TextField";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useRegions } from "features/profile/hooks/useRegions";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
@@ -100,14 +96,6 @@ const SectionSubtitle = styled(Typography)(({ theme }) => ({
 
 const FieldGroup = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(3),
-}));
-
-const RadioGroupContainer = styled(Box)(({ theme }) => ({
-  marginTop: theme.spacing(1),
-  "& .MuiFormControlLabel-root": {
-    marginRight: theme.spacing(3),
-    marginBottom: theme.spacing(1),
-  },
 }));
 
 const HelpTextContainer = styled(Box)(({ theme }) => ({
@@ -247,15 +235,6 @@ const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
 const StyledProfileTextInput = styledField(ProfileTextInput);
 
 const StyledProfileMarkdownInput = styledField(ProfileMarkdownInput);
-
-const StyledRadioGroup = styled(RadioGroup)(() => ({
-  display: "flex",
-  flexDirection: "column",
-  [theme.breakpoints.up("sm")]: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-  },
-}));
 
 export default function EditProfileForm() {
   const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
