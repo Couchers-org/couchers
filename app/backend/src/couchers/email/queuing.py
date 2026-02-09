@@ -4,7 +4,6 @@ import yaml
 from sqlalchemy.orm.session import Session
 
 from couchers.config import config
-from couchers.email.queuing import queue_email
 from couchers.i18n import LocalizationContext
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import emails_counter
