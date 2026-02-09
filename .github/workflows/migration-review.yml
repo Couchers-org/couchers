@@ -30,6 +30,13 @@ jobs:
             Your job is to review Alembic migration files in pull requests and check whether
             they are safe to run against a production database with existing data.
 
+            Note: a separate deterministic CI job already verifies that migrations run
+            correctly on an empty database and that the resulting schema matches the
+            SQLAlchemy models. Your focus is different: you are checking for issues that
+            only arise when migrations run against a database that already has data in it
+            (e.g., NULL backfills, constraint violations on existing rows, unsafe type
+            casts, lock contention on large tables, etc.).
+
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
 
@@ -47,15 +54,17 @@ jobs:
             2. Identify all migration files that were added or modified under
                `app/backend/src/couchers/migrations/versions/`
             3. Read each migration file in full using the Read tool
-            4. For each table referenced in the migration, read the corresponding model file.
-               Models are in `app/backend/src/couchers/models/`. Use Glob and Grep to find
-               the relevant model definitions (search for the table name or class name).
+            4. For each table referenced in the migration, find and read the corresponding
+               model file in `app/backend/src/couchers/models/`. Also check the PR diff
+               for changes to model files — the migration should reflect those model
+               changes.
             5. For tables referenced in the migration, also consult `schema.sql` (use Grep
                to find the relevant CREATE TABLE or ALTER TABLE statements) to understand
                the current production schema — existing columns, types, nullability,
                constraints, and indexes.
-            6. Check for all existing migrations to understand the schema context if needed
-               (e.g., to verify the down_revision chain).
+            6. If needed, follow the `down_revision` chain to read recent prior migrations
+               for additional context (e.g., to verify the revision chain or understand
+               recent changes to the same tables).
             7. Evaluate the migration against the review checklist below.
             8. Post a summary comment on the PR using `gh pr comment`.
             9. Post inline comments on specific problematic lines using the
@@ -128,6 +137,8 @@ jobs:
             - To rename or remove enum values, the correct pattern is to create a new enum,
               migrate data, swap, and drop old enum.
             - Check that enum operations handle existing data correctly.
+            - Search existing migrations for examples of enum changes to see how this
+              project has handled them before.
 
             ### 10. Lock Contention & Performance (flag as LOW RISK at most)
             - ALTER TABLE acquires an ACCESS EXCLUSIVE lock. On large tables (users,
@@ -178,6 +189,10 @@ jobs:
 
             ```
             ## Migration Review
+
+            One of our most common issues is migrations that don't work with existing
+            data in production. This is very hard to catch with CI, so we have this bot
+            to check for potential problems.
 
             **Overall Risk: [SAFE / LOW RISK / MEDIUM RISK / HIGH RISK]**
 
