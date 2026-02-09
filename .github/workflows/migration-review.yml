@@ -20,8 +20,8 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Download current schema
-        run: curl -fsSL https://develop--schema.preview.couchershq.org/schema.sql -o schema.sql
+      # - name: Download current schema
+      #   run: curl -fsSL https://develop--schema.preview.couchershq.org/schema.sql -o schema.sql
 
       - name: Run Claude Code
         id: claude
