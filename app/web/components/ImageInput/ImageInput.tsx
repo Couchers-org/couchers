@@ -4,7 +4,6 @@ import Avatar from "@mui/material/Avatar";
 import MuiIconButton from "@mui/material/IconButton";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import Sentry from "platform/sentry";
@@ -83,10 +82,6 @@ const StyledLabel = styled("label")(({ theme }) => ({
   display: "flex",
   justifyContent: "center",
   width: "100%",
-}));
-
-const StyledCircularProgress = styled(CircularProgress)(({ theme }) => ({
-  position: "absolute",
 }));
 
 const StyledInput = styled("input")(({ theme }) => ({
@@ -252,7 +247,6 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
               grow={props.grow}
             />
           )}
-          {mutation.isPending && <StyledCircularProgress />}
         </StyledLabel>
       </FlexWrapper>
     </StyledWrapper>

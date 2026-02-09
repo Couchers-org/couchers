@@ -1,1 +1,2 @@
 - Fixed comment form input erasing when toggling dark mode
+- Fixed double spinner when uploading profile photo
