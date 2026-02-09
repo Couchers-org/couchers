@@ -115,7 +115,6 @@
     "user_left_chat_text": "{{user}} 离开了聊天",
     "admin_assignment_text": "{{user}} 将 {{target_user}} 设为了管理员",
     "admin_removal_text": "{{user}} 移除了 {{target_user}} 的管理员身份",
-    "host_request_status_changed_text": "{{user}} 将请求修改为 {{status}}",
     "unknown_message_text": "未知控制消息"
   },
   "host_request_status": {
