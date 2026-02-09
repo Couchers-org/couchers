@@ -1,7 +1,7 @@
 name: Migration Review Bot
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize]
     paths:
       - "app/backend/src/couchers/migrations/versions/**"
