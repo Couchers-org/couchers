@@ -351,6 +351,7 @@ def test_slack_notification_on_one_time_donation(db, monkeypatch):
 
     # Fire the charge.succeeded webhook and check Slack message
     with patch("couchers.servicers.donations.send_slack_message") as mock_slack:
+        # Captured Stripe test-mode event: charge.succeeded for one-time $100 donation
         fire_stripe_event("evt_3P5El3IfR5z29g5k0TLWlfHq")
         mock_slack.assert_called_once()
         call_args = mock_slack.call_args[0][1]
@@ -381,6 +382,7 @@ def test_slack_notification_on_recurring_donation(db, monkeypatch):
 
     # Fire the charge.succeeded webhook and check Slack message
     with patch("couchers.servicers.donations.send_slack_message") as mock_slack:
+        # Captured Stripe test-mode event: charge.succeeded for recurring $25 donation
         fire_stripe_event("evt_3P5EmzIfR5z29g5k0bA1H9Vg")
         mock_slack.assert_called_once()
         call_args = mock_slack.call_args[0][1]
