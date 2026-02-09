@@ -1,0 +1,255 @@
+name: Auto-format
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      models: ${{ steps.filter.outputs.models }}
+      migrations: ${{ steps.filter.outputs.migrations }}
+      templates: ${{ steps.filter.outputs.templates }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'app/backend/**'
+            frontend:
+              - 'app/web/**'
+            models:
+              - 'app/backend/src/couchers/models/**'
+            migrations:
+              - 'app/backend/src/couchers/migrations/versions/**'
+            templates:
+              - 'app/backend/templates/v2/**'
+              - '!app/backend/templates/v2/generated_html/**'
+
+  format-backend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure git for GitHub App
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.9.6"
+
+      - name: Format backend
+        working-directory: app/backend
+        run: make format
+
+      - name: Commit and push backend formatting changes
+        run: |
+          git add app/backend/**/*.py
+          git diff --staged --quiet || (git commit -m "Format backend" && git push)
+
+  format-frontend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure git for GitHub App
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        working-directory: app/web
+        run: yarn install --frozen-lockfile
+
+      - name: Format frontend
+        working-directory: app/web
+        run: yarn format
+
+      - name: Commit and push frontend formatting changes
+        run: |
+          git add app/web/
+          git diff --staged --quiet || (git commit -m "Format frontend" && git push)
+
+  generate-migration:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.models == 'true' && needs.detect-changes.outputs.migrations == 'false'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure git for GitHub App
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Generate protobuf files
+        working-directory: app/backend
+        run: make protos
+
+      - name: Create PostGIS extensions
+        env:
+          PGPASSWORD: testpassword
+        run: |
+          psql -h localhost -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+          psql -h localhost -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          psql -h localhost -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS btree_gist;"
+
+      - name: Load backend.dev.env
+        run: grep -v '^#' app/backend.dev.env | grep '=' >> "$GITHUB_ENV"
+
+      - name: Override database connection string
+        run: echo "DATABASE_CONNECTION_STRING=postgresql://postgres:testpassword@localhost:5432/postgres" >> "$GITHUB_ENV"
+
+      - name: Run all existing migrations
+        working-directory: app/backend
+        run: uv run alembic upgrade head
+
+      - name: Check if migration is needed
+        id: check-migration
+        working-directory: app/backend
+        run: |
+          if uv run alembic check; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate migration
+        if: steps.check-migration.outputs.needed == 'true'
+        working-directory: app/backend
+        run: |
+          uv run alembic revision --autogenerate -m "${{ github.event.pull_request.title }}"
+          # Remove Alembic auto-generated comment lines
+          sed -i '/###.*Alembic/d' src/couchers/migrations/versions/*.py
+
+      - name: Format backend
+        working-directory: app/backend
+        run: make format
+
+      - name: Commit and push migration if created
+        run: |
+          git add app/backend/src/couchers/migrations/versions/*.py
+          git diff --staged --quiet || (git commit -m "Generate migrations" && git push)
+
+  regenerate-html-templates:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.templates == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure git for GitHub App
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Regenerate HTML from MJML templates
+        working-directory: app/backend/templates/v2
+        run: bash _build.sh
+
+      - name: Commit and push HTML template changes
+        run: |
+          git add app/backend/templates/v2/generated_html/*.html
+          git diff --staged --quiet || (git commit -m "Regenerate HTML templates" && git push)
