@@ -106,7 +106,7 @@ class User(Base, kw_only=True):
     username: Mapped[str] = mapped_column(String, unique=True)
     email: Mapped[str] = mapped_column(String, unique=True)
     # stored in libsodium hash format, can be null for email login
-    hashed_password: Mapped[bytes] = mapped_column(Binary)
+    hashed_password: Mapped[bytes | None] = mapped_column(Binary)
     # phone number in E.164 format with leading +, for example "+46701740605"
     phone: Mapped[str | None] = mapped_column(String, default=None, server_default=expression.null())
     # language preference -- defaults to empty string
