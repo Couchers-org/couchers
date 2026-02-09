@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 import yaml
@@ -118,8 +119,11 @@ def queue_userless_email(
     )
 
 
+_system_email_templates_dir = Path(__file__).parent / ".." / ".." / ".." / "templates" / "system"
+
+
 def queue_system_email(session: Session, recipient: str, template_name: str, template_args: dict[str, Any]) -> None:
-    source = (template_folder / "system" / f"{template_name}.md").read_text(encoding="utf8")
+    source = (_system_email_templates_dir / f"{template_name}.md").read_text(encoding="utf8")
     _, frontmatter_source, text_source = source.split("---", 2)
 
     loc_context = LocalizationContext.en_utc()
