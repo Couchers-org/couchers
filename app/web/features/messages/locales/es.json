@@ -130,7 +130,13 @@
     "admin_assignment_text": "{{user}} puso a {{target_user}} como administrador",
     "unknown_message_text": "Mensaje de control desconocido",
     "created_chat_text": "{{user}} creó la conversación",
-    "admin_removal_text": "{{user}} quitó a {{target_user}} como administrador"
+    "admin_removal_text": "{{user}} quitó a {{target_user}} como administrador",
+    "host_request_status_changed": {
+      "accepted": "{{user}} ha aceptado la solicitud",
+      "cancelled": "{{user}} ha cancelado la solicitud",
+      "confirmed": "{{user}} ha confirmado la solicitud",
+      "rejected": "{{user}} ha rechazado la solicitud"
+    }
   },
   "host_pending_request_help_text": "<0>Cosas a considerar</0> antes de responder.",
   "surfer_declined_request_help_text": "<0>Lee nuestra guía</0> sobre cómo escribir una solicitud que será aceptada.",
