@@ -20,7 +20,7 @@ def process_jobs() -> None:
 
 @contextmanager
 def mock_notification_email() -> Generator[Mock]:
-    with patch("couchers.email._queue_email") as mock:
+    with patch("couchers.email.queuing._queue_email") as mock:
         yield mock
         process_jobs()
 

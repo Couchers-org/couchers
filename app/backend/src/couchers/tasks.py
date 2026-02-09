@@ -5,12 +5,12 @@ from sqlalchemy import RowMapping, insert, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from couchers import email, urls
+from couchers import urls
 from couchers.config import config
 from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
-from couchers.email.send import send_simple_pretty_email
+from couchers.email.queuing import queue_system_email, queue_userless_email
 from couchers.models import (
     AccountDeletionReason,
     Cluster,
@@ -54,7 +54,7 @@ def send_signup_email(session: Session, flow: SignupFlow) -> None:
 
     flow.email_sent = True
 
-    send_simple_pretty_email(
+    queue_userless_email(
         session,
         flow.email,
         "Finish signing up for Couchers.org",
@@ -78,7 +78,7 @@ def send_email_changed_confirmation_to_new_email(session: Session, user: User) -
         raise ValueError(f"No new email for {user.id}")
 
     confirmation_link = urls.change_email_link(confirmation_token=user.new_email_token)
-    send_simple_pretty_email(
+    queue_userless_email(
         session,
         user.new_email,
         "Confirm your new email for Couchers.org",
@@ -89,7 +89,7 @@ def send_email_changed_confirmation_to_new_email(session: Session, user: User) -
 
 def send_content_report_email(session: Session, content_report: ContentReport) -> None:
     logger.info("Sending content report email")
-    email.enqueue_system_email(
+    queue_system_email(
         session,
         config["REPORTS_EMAIL_RECIPIENT"],
         "content_report",
@@ -100,7 +100,7 @@ def send_content_report_email(session: Session, content_report: ContentReport) -
 def maybe_send_reference_report_email(session: Session, reference: Reference) -> None:
     if reference.should_report:
         logger.info("Sending reference report email")
-        email.enqueue_system_email(
+        queue_system_email(
             session,
             config["REPORTS_EMAIL_RECIPIENT"],
             "reference_report",
@@ -119,7 +119,7 @@ def send_rate_limit_violation_report_email(
         f"Sending rate limit moderation email for user '{rate_limit_violation.user_id}' ({rate_limit_violation.action})"
     )
     user = session.get_one(User, rate_limit_violation.user_id)
-    email.enqueue_system_email(
+    queue_system_email(
         session,
         config["REPORTS_EMAIL_RECIPIENT"],
         "rate_limit_violation_report",
@@ -138,7 +138,7 @@ def send_duplicate_strong_verification_email(
     session: Session, old_attempt: StrongVerificationAttempt, new_attempt: StrongVerificationAttempt
 ) -> None:
     logger.info("Sending duplicate SV email")
-    email.enqueue_system_email(
+    queue_system_email(
         session,
         config["REPORTS_EMAIL_RECIPIENT"],
         "duplicate_strong_verification_report",
@@ -153,7 +153,7 @@ def send_duplicate_strong_verification_email(
 
 def maybe_send_contributor_form_email(session: Session, form: ContributorForm) -> None:
     if form.should_notify:
-        email.enqueue_system_email(
+        queue_system_email(
             session,
             config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"],
             "contributor_form",
@@ -162,7 +162,7 @@ def maybe_send_contributor_form_email(session: Session, form: ContributorForm) -
 
 
 def send_event_community_invite_request_email(session: Session, request: EventCommunityInviteRequest) -> None:
-    email.enqueue_system_email(
+    queue_system_email(
         session,
         config["MODS_EMAIL_RECIPIENT"],
         "event_community_invite_request",
@@ -176,7 +176,7 @@ def send_event_community_invite_request_email(session: Session, request: EventCo
 
 def send_account_deletion_report_email(session: Session, reason: AccountDeletionReason) -> None:
     logger.info("Sending account deletion report email")
-    email.enqueue_system_email(
+    queue_system_email(
         session,
         config["REPORTS_EMAIL_RECIPIENT"],
         "account_deletion_report",
