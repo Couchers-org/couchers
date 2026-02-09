@@ -20,13 +20,14 @@ jobs:
         with:
           fetch-depth: 1
 
-      # - name: Download current schema
-      #   run: curl -fsSL https://develop--schema.preview.couchershq.org/schema.sql -o schema.sql
+      - name: Download current schema
+        run: curl -fsSL https://develop--schema.preview.couchershq.org/schema.sql -o schema.sql
 
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: true
           additional_permissions: |
@@ -55,6 +56,9 @@ jobs:
             what its current type/nullability is, and what constraints are in place.
 
             ## Steps
+
+            IMPORTANT: This is a shallow clone (fetch-depth=1), so `git diff` and `git log`
+            will NOT work. Always use `gh pr diff` to get the diff.
 
             1. Run `gh pr diff ${{ github.event.pull_request.number }}` to get the PR diff
             2. Identify all migration files that were added or modified under
@@ -178,8 +182,8 @@ jobs:
             - **Modified existing migration**: If an existing migration file (not newly added)
               is modified, flag this as AUTOMATIC HIGH RISK. Migrations that have already been
               applied to production cannot be changed - a new migration must be created instead.
-              Use the git diff to distinguish added vs modified files (look for the `new file`
-              marker in the diff).
+              Use the `gh pr diff` output to distinguish added vs modified files (look for the
+              `new file` marker in the diff).
 
             - **Missing downgrade**: If `downgrade()` is empty or just has `pass`, note this.
               If it raises an Exception with an explanation, that is acceptable for irreversible
@@ -208,10 +212,14 @@ jobs:
 
             ### Findings
 
-            [For each finding, include:]
-            - **[Category]** [SAFE/LOW/MEDIUM/HIGH]: Description of the issue
+            [Only list actual problems or risks relevant to THIS migration. Do not
+            list checklist items that passed or are not applicable. Keep it brief.]
+
+            - **[Category]** [LOW/MEDIUM/HIGH]: Description of the issue
               - What could go wrong with existing data
               - Suggested fix (if applicable)
+
+            [If there are no findings, just write "No issues found."]
 
             ### Summary
             [1-2 sentence summary of the overall assessment]
@@ -220,8 +228,10 @@ jobs:
             If there are specific lines with issues, also post inline comments on those lines
             with actionable suggestions.
 
-            If the migration looks safe and handles all edge cases correctly, say so clearly -
-            don't invent problems that don't exist. Be helpful, not alarmist.
+            IMPORTANT: Keep the review concise. Only mention findings that are actual
+            problems or risks for THIS specific migration. Do not enumerate checklist
+            items that passed or are not applicable — omit them entirely. If the
+            migration is safe, say so briefly and don't pad the review with non-issues.
           claude_args: |
             --model opus
             --allowedTools "Read,Glob,Grep,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),mcp__github_inline_comment__create_inline_comment"
