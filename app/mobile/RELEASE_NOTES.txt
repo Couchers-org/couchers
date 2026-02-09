@@ -2,3 +2,4 @@
 - Fixed double spinner when uploading profile photo
 - Add LanguagePickerSelect to Login and Signup
 - Improve camera permissions flow after denied
+- Clicking own blank avatar takes user to upload photo

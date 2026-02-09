@@ -179,7 +179,9 @@ export default function MarkdownInput({
     return () => {
       // Save current content before destroying the editor
       if (fieldRef.current) {
-        currentContent.current = (fieldRef.current as ToastUIEditor).getMarkdown();
+        currentContent.current = (
+          fieldRef.current as ToastUIEditor
+        ).getMarkdown();
       }
       if (resetInputRef) {
         resetInputRef.current = null;

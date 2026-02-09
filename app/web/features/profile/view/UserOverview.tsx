@@ -1,4 +1,4 @@
-import { Card, CardActions, styled, Typography } from "@mui/material";
+import { Card, CardActions, styled, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import Divider from "components/Divider";
@@ -12,9 +12,10 @@ import {
 } from "features/profile/constants";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
+import Link from "next/link";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React from "react";
-import { routeToUser } from "routes";
+import { routeToEditProfile, routeToUser } from "routes";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";
@@ -33,6 +34,21 @@ const StyledCard = styled(Card)(({ theme }) => ({
 const StyledAvatarContainer = styled("div")({
   maxWidth: "75%",
   margin: "0 auto",
+});
+
+const ClickableAvatarContainer = styled(Link)({
+  maxWidth: "75%",
+  margin: "0 auto",
+  display: "block",
+  cursor: "pointer",
+  transition: "transform 0.2s ease-in-out, opacity 0.2s ease-in-out",
+  "&:hover": {
+    transform: "scale(1.05)",
+    opacity: 0.8,
+  },
+  "&:active": {
+    transform: "scale(0.98)",
+  },
 });
 
 const StyledWrapper = styled("div")(({ theme }) => ({
@@ -73,6 +89,7 @@ const StyledInfo = styled("div")(({ theme }) => ({
 type UserOverviewProps = {
   showHostAndMeetAvailability: boolean;
   actions?: React.ReactNode;
+  isOwnProfile?: boolean;
 };
 
 // @todo: move this into /components and decouple it from features/profile because it's used
@@ -80,14 +97,26 @@ type UserOverviewProps = {
 export default function UserOverview({
   showHostAndMeetAvailability,
   actions,
+  isOwnProfile = false,
 }: UserOverviewProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
+
+  const shouldMakeAvatarClickable = isOwnProfile && !user.avatarUrl;
+
   return (
     <StyledCard>
-      <StyledAvatarContainer>
-        <Avatar user={user} highRes grow />
-      </StyledAvatarContainer>
+      {shouldMakeAvatarClickable ? (
+        <Tooltip title={t("profile:click_to_add_photo")} arrow placement="top">
+          <ClickableAvatarContainer href={`${routeToEditProfile()}#gallery`}>
+            <Avatar user={user} highRes grow isProfileLink={false} />
+          </ClickableAvatarContainer>
+        </Tooltip>
+      ) : (
+        <StyledAvatarContainer>
+          <Avatar user={user} highRes grow />
+        </StyledAvatarContainer>
+      )}
 
       <StyledWrapper>
         <StyledIntro variant="h1">
