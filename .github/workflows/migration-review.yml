@@ -25,6 +25,8 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: true
+          additional_permissions: |
+            pull-requests: write
           prompt: |
             You are a database migration safety reviewer for the Couchers.org project.
             Your job is to review Alembic migration files in pull requests and check whether
