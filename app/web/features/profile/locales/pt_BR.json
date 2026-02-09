@@ -4,8 +4,50 @@
     "back_to_dashboard": "Voltar ao painel principal",
     "message_label": "Enviar mensagem",
     "accept_friend_label": "Aceitar",
-    "decline_friend_label": "Recusar"
+    "decline_friend_label": "Recusar",
+    "request": "Solicitar"
   },
   "active": "Ativo",
-  "cancel": "Cancelar"
+  "cancel": "Cancelar",
+  "heading": {
+    "about_me": "Sobre mim",
+    "age_gender": "Idade/Gênero",
+    "community_standing": "Reputação da comunidade",
+    "edit": "Editar",
+    "edit_profile": "Editar perfil",
+    "education": "Educação",
+    "home": "Minha casa",
+    "hometown": "Cresci em",
+    "hosting_status": "Status de hospedagem",
+    "joined": "Coucher desde",
+    "languages_conversational": "Consigo conversar em",
+    "languages_fluent": "Idiomas com fluência",
+    "last_active": "Última vez ativo",
+    "local_time": "Horário local",
+    "occupation": "Ocupação",
+    "references": "Referências",
+    "overview_section": "Resumo",
+    "who_section": "Quem sou eu",
+    "hobbies_section": "O que faço no meu tempo livre",
+    "additional_information_section": "Informações adicionais",
+    "travel_section": "Viajei para",
+    "lived_section": "Morei em",
+    "map_section": "Mapa de viagens",
+    "photos_section": "Fotos",
+    "age_verification_verified": "Este usuário verificou sua data de nascimento",
+    "age_verification_mismatch": "A data de nascimento fornecida pelo usuário não corresponde à data de nascimento verificada",
+    "gender_verification_verified": "Este usuário verificou seu gênero",
+    "gender_verification_mismatch": "O gênero fornecido pelo usuário não corresponde ao gênero verificado"
+  },
+  "edit": "Editar perfil",
+  "helper_text": {
+    "characters_remaining_one": "<bold>Escreva pelo menos {{count}} caractere para desbloquear o envio de mensagens e solicitações.</bold> Perfis verdadeiros criam uma comunidade de confiança. Quanto mais você compartilhar, mais fácil é se conectar!",
+    "characters_remaining_many": "<bold>Escreva pelo menos {{count}} caracteres para desbloquear o envio de mensagens e solicitações.</bold> Perfis verdadeiros criam uma comunidade de confiança. Quanto mais você compartilhar, mais fácil é se conectar!",
+    "characters_remaining_other": "<bold>Escreva pelo menos {{count}} caracteres para desbloquear o envio de mensagens e solicitações.</bold> Perfis verdadeiros criam uma comunidade de confiança. Quanto mais você compartilhar, mais fácil é se conectar!",
+    "missing_profile_photo": "Adicione uma foto para concluir seu perfil."
+  },
+  "section_tabs_a11y_label": "abas para detalhes do usuário",
+  "incomplete_dialog": {
+    "title": "Perfil incompleto"
+  }
 }
