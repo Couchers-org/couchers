@@ -57,7 +57,6 @@
   },
   "control_message": {
     "admin_removal_text": "{{user}} удалил {{target_user}} из администраторов",
-    "host_request_status_changed_text": "{{user}} изменил запрос на {{status}}",
     "user_left_chat_text": "{{user}} вышел из чата",
     "admin_assignment_text": "{{user}} назначил(а) {{target_user}} администратором",
     "unknown_message_text": "Неизвестное управляющее сообщение",

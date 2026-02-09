@@ -92,7 +92,6 @@
     "created_chat_text": "{{user}} hat den Chat erstellt",
     "edited_chat_text": "{{user}} hat den Chat bearbeitet",
     "admin_removal_text": "{{user}} hat {{target_user}} als Administrator entfernt",
-    "host_request_status_changed_text": "{{user}} hat die Anfrage in {{status}} geändert",
     "unknown_message_text": "Unbekannte Kontrollmeldung"
   },
   "host_request_status": {

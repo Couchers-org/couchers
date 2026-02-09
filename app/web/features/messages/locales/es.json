@@ -128,7 +128,6 @@
     "invite_user_text": "{{user}} invitó a {{target_user}}",
     "user_left_chat_text": "{{user}} abandonó la conversación",
     "admin_assignment_text": "{{user}} puso a {{target_user}} como administrador",
-    "host_request_status_changed_text": "{{user}} cambió la solicitud a {{status}}",
     "unknown_message_text": "Mensaje de control desconocido",
     "created_chat_text": "{{user}} creó la conversación",
     "admin_removal_text": "{{user}} quitó a {{target_user}} como administrador"

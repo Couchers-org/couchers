@@ -79,7 +79,6 @@
     "user_left_chat_text": "{{user}} abandonou a conversa",
     "admin_assignment_text": "{{user}} tornou {{target_user}} um administrador",
     "admin_removal_text": "{{user}} removeu {{target_user}} como administrador",
-    "host_request_status_changed_text": "{{user}} alterou a solicitação para {{status}}",
     "unknown_message_text": "Mensagem de controle desconhecida"
   },
   "surfer_declined_request_help_text": "<0>Leia nosso guia</0> sobre como escrever uma solicitação que vai ser aceita.",

@@ -52,7 +52,6 @@
     "admin_assignment_text": "{{user}} ha fet {{target_user}} administrador",
     "admin_removal_text": "{{user}} ha eliminat {{target_user}} com a administrador",
     "unknown_message_text": "Missatge de control desconegut",
-    "host_request_status_changed_text": "{{user}} ha canviat la sol·licitud a {{status}}",
     "invite_user_text": "{{user}} ha convidat {{target_user}}"
   },
   "host_request_status": {
@@ -84,6 +83,7 @@
     "back_button_a11y_label": "Enrere",
     "title_for_host": "Sol·licitud de {{user}} - {{status}}",
     "request_duration_one": "{{count}} nit",
+    "request_duration_many": "",
     "request_duration_other": "{{count}} nits",
     "title_for_surfer": "Sol·licitud a {{user}} - {{status}}"
   },
