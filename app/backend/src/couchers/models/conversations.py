@@ -90,6 +90,9 @@ class GroupChatSubscription(Base, kw_only=True):
         DateTime(timezone=True), server_default=DATETIME_MINUS_INFINITY.isoformat(), init=False
     )
 
+    # when the user last actively viewed this conversation (for presence-based notification suppression)
+    last_viewing_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+
     user: Mapped[User] = relationship(init=False, backref="group_chat_subscriptions")
     group_chat: Mapped[GroupChat] = relationship(init=False, back_populates="subscriptions")
 

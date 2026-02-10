@@ -116,3 +116,6 @@ GALLERY_MAX_PHOTOS_NOT_VERIFIED = 1
 GALLERY_MAX_PHOTOS_VERIFIED = 4
 
 COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
+
+# How long presence is considered active for suppressing notifications
+PRESENCE_ACTIVE_DURATION = timedelta(seconds=30)
