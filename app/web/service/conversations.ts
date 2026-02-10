@@ -14,10 +14,12 @@ import {
   LeaveGroupChatReq,
   ListGroupChatsReq,
   MakeGroupChatAdminReq,
+  MarkGroupChatViewingReq,
   MarkLastSeenGroupChatReq,
   MuteGroupChatReq,
   RemoveGroupChatAdminReq,
   SendMessageReq,
+  StopGroupChatViewingReq,
 } from "proto/conversations_pb";
 
 import client from "./client";
@@ -133,6 +135,20 @@ export function markLastSeenGroupChat(
   req.setGroupChatId(groupChatId);
   req.setLastSeenMessageId(lastSeenMessageId);
   return client.conversations.markLastSeenGroupChat(req);
+}
+
+// Mark that the user is currently viewing a group chat
+export function markGroupChatViewing(groupChatId: number) {
+  const req = new MarkGroupChatViewingReq();
+  req.setGroupChatId(groupChatId);
+  return client.conversations.markGroupChatViewing(req);
+}
+
+// Mark that the user has stopped viewing a group chat
+export function stopGroupChatViewing(groupChatId: number) {
+  const req = new StopGroupChatViewingReq();
+  req.setGroupChatId(groupChatId);
+  return client.conversations.stopGroupChatViewing(req);
 }
 
 export async function getDirectMessage(userId: number) {

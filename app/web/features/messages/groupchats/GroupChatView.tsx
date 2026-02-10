@@ -12,6 +12,7 @@ import GroupChatSendField from "features/messages/groupchats/GroupChatSendField"
 import useMarkLastSeen, {
   MarkLastSeenVariables,
 } from "features/messages/useMarkLastSeen";
+import usePresenceHeartbeat from "features/messages/usePresenceHeartbeat";
 import { groupChatTitleText } from "features/messages/utils";
 import {
   groupChatKey,
@@ -140,6 +141,9 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
     markLastSeenGroupChat,
     groupChat?.lastSeenMessageId,
   );
+
+  // Track presence to suppress notifications while viewing this chat
+  usePresenceHeartbeat(chatId, !!chatId);
 
   const title = groupChat
     ? groupChatTitleText(groupChat, groupChatMembersQuery, currentUserId, t)
