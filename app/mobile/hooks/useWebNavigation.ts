@@ -1,5 +1,5 @@
 import { Href, useRouter } from "expo-router";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { WebViewNavigation } from "react-native-webview";
 
@@ -25,7 +25,7 @@ export function useWebNavigation({
   const router = useRouter();
   const { i18n } = useTranslation();
   const currentWebPathRef = useRef<string>(currentPath);
-  const canGoBackRef = useRef(false);
+  const [canGoBack, setCanGoBack] = useState(false);
 
   // Extract locale from web path (e.g., "/de/dashboard" -> "de")
   const extractLocaleFromPath = useCallback(
@@ -65,7 +65,7 @@ export function useWebNavigation({
       const { url, loading, canGoBack: webViewCanGoBack } = navState;
 
       // Track whether WebView can go back
-      canGoBackRef.current = webViewCanGoBack;
+      setCanGoBack(webViewCanGoBack);
 
       if (!url || loading) {
         return;
@@ -125,11 +125,12 @@ export function useWebNavigation({
       getRouteNameForPath,
       router,
       i18n,
+      setCanGoBack,
     ],
   );
 
   return {
     handleNavigationStateChange,
-    canGoBack: canGoBackRef.current,
+    canGoBack,
   };
 }

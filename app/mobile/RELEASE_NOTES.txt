@@ -3,3 +3,5 @@
 - Add LanguagePickerSelect to Login and Signup
 - Improve camera permissions flow after denied
 - Clicking own blank avatar takes user to upload photo
+- Adjust bottom nav to fix longer text
+- Code style improvements
