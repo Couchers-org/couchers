@@ -116,3 +116,9 @@ GALLERY_MAX_PHOTOS_NOT_VERIFIED = 1
 GALLERY_MAX_PHOTOS_VERIFIED = 4
 
 COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
+
+# Notification timing constants
+# How long to wait before sending email about unseen messages
+MESSAGE_NOTIFICATION_DELAY = timedelta(minutes=5)
+# How long to consider a push notification "recent" for email suppression
+PUSH_NOTIFICATION_RECENCY_WINDOW = timedelta(minutes=10)

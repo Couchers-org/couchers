@@ -1618,3 +1618,187 @@ def test_send_message_notifications_empty_unseen_simple(monkeypatch):
     monkeypatch.setattr(handlers, "session_scope", fake_session_scope)
 
     handlers.send_message_notifications(Empty())
+
+
+def test_send_message_notifications_skip_email_when_push_delivered(db, moderator):
+    from couchers.models import (
+        Notification,
+        NotificationDelivery,
+        NotificationDeliveryType,
+        NotificationTopicAction,
+        PushNotificationPlatform,
+        PushNotificationSubscription,
+    )
+
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    # User2 has an active push subscription (required for email suppression)
+    with session_scope() as session:
+        session.add(
+            PushNotificationSubscription(
+                user_id=user2.id,
+                platform=PushNotificationPlatform.web_push,
+                endpoint="https://push.example.com/test",
+                auth_key=b"test_auth",
+                p256dh_key=b"test_p256dh",
+                full_subscription_info='{"endpoint":"https://push.example.com/test"}',
+            )
+        )
+
+    # Create a group chat and send messages
+    with conversations_session(token1) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
+        ).group_chat_id
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
+
+    # Simulate that push notification was delivered for this conversation
+    with session_scope() as session:
+        notification = Notification(
+            user_id=user2.id,
+            topic_action=NotificationTopicAction.chat__message,
+            key=str(group_chat_id),
+            data=b"",
+        )
+        session.add(notification)
+        session.flush()
+
+        delivery = NotificationDelivery(
+            notification_id=notification.id,
+            delivery_type=NotificationDeliveryType.push,
+            delivered=now(),  # Delivered just now
+        )
+        session.add(delivery)
+
+    # Clear any existing jobs
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Run notification job with time in the future (to trigger 5 min delay check)
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        send_message_notifications(empty_pb2.Empty())
+        process_jobs()
+
+    # No email should be sent because push was delivered recently
+    with session_scope() as session:
+        email_job_count = session.execute(
+            select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+        ).scalar_one()
+        assert email_job_count == 0, "No email should be sent when push was delivered recently"
+
+
+def test_send_message_notifications_send_email_when_no_push_delivered(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    # Create a group chat and send messages
+    with conversations_session(token1) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
+        ).group_chat_id
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
+
+    # Don't simulate any push delivery - user2 has no push subscription
+
+    # Clear any existing jobs
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Run notification job with time in the future
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        send_message_notifications(empty_pb2.Empty())
+        process_jobs()
+
+    # Email SHOULD be sent because no push was delivered
+    with session_scope() as session:
+        email_job_count = session.execute(
+            select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+        ).scalar_one()
+        assert email_job_count == 1, "Email should be sent when no push was delivered"
+
+
+def test_send_message_notifications_send_email_when_push_delivery_old(db, moderator):
+    from couchers.models import (
+        Notification,
+        NotificationDelivery,
+        NotificationDeliveryType,
+        NotificationTopicAction,
+        PushNotificationPlatform,
+        PushNotificationSubscription,
+    )
+
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    make_friends(user1, user2)
+
+    # User2 has an active push subscription
+    with session_scope() as session:
+        session.add(
+            PushNotificationSubscription(
+                user_id=user2.id,
+                platform=PushNotificationPlatform.web_push,
+                endpoint="https://push.example.com/test",
+                auth_key=b"test_auth",
+                p256dh_key=b"test_p256dh",
+                full_subscription_info='{"endpoint":"https://push.example.com/test"}',
+            )
+        )
+
+    # Create a group chat and send messages
+    with conversations_session(token1) as c:
+        group_chat_id = c.CreateGroupChat(
+            conversations_pb2.CreateGroupChatReq(recipient_user_ids=[user2.id])
+        ).group_chat_id
+    moderator.approve_group_chat(group_chat_id)
+
+    with conversations_session(token1) as c:
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 1"))
+        c.SendMessage(conversations_pb2.SendMessageReq(group_chat_id=group_chat_id, text="Test message 2"))
+
+    # Simulate that push notification was delivered but > 10 minutes ago
+    with session_scope() as session:
+        notification = Notification(
+            user_id=user2.id,
+            topic_action=NotificationTopicAction.chat__message,
+            key=str(group_chat_id),
+            data=b"",
+        )
+        session.add(notification)
+        session.flush()
+
+        delivery = NotificationDelivery(
+            notification_id=notification.id,
+            delivery_type=NotificationDeliveryType.push,
+            delivered=now() - timedelta(minutes=15),  # Delivered 15 min ago (stale)
+        )
+        session.add(delivery)
+
+    # Clear any existing jobs
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+    # Run notification job with time in the future
+    with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+        send_message_notifications(empty_pb2.Empty())
+        process_jobs()
+
+    # Email SHOULD be sent because push delivery is too old (>10 min)
+    with session_scope() as session:
+        email_job_count = session.execute(
+            select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+        ).scalar_one()
+        assert email_job_count == 1, "Email should be sent when push delivery is older than 10 minutes"
