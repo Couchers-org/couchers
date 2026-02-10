@@ -16,3 +16,6 @@ src/proto
 # coverage reports
 .coverage
 htmlcov/
+
+# Agent skills (installed via skills.sh)
+.agents/

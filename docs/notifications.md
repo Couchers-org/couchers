@@ -192,3 +192,43 @@ message MarkNotificationReadReq {
   int64 notification_id = 1;
 }
 ```
+
+---
+
+## Notification Grouping & Presence Tracking (2026)
+
+The notification system has been enhanced with the following features to reduce notification spam:
+
+### Platform-Level Grouping
+
+- **iOS**: Uses `threadId` to visually group notifications by conversation
+- **Android**: Uses `collapseKey` to collapse/stack notifications from the same conversation
+- **Web**: Uses the `tag` option in service workers to replace same-conversation notifications
+
+### Duplicate Prevention
+
+When a user receives a push notification for a message, the "missed messages" email is suppressed for that conversation for 10 minutes. This prevents the common complaint of getting both push and email for the same message.
+
+### Presence-Based Suppression
+
+When a user is actively viewing a conversation, notifications are suppressed:
+
+- Frontend sends a heartbeat every 10 seconds via `MarkGroupChatViewing` RPC
+- Heartbeat updates `last_viewing_at` column on `GroupChatSubscription`
+- Notifications are suppressed if `last_viewing_at` is within 30 seconds
+- `StopGroupChatViewing` RPC immediately clears presence when leaving chat
+- Page visibility changes pause/resume heartbeats automatically
+
+### Configuration Constants
+
+Time windows are defined in `couchers/constants.py`:
+- `PRESENCE_ACTIVE_DURATION`: 30 seconds - how long presence is considered active
+- `MESSAGE_NOTIFICATION_DELAY`: 5 minutes - delay before email for unseen messages
+- `PUSH_NOTIFICATION_RECENCY_WINDOW`: 10 minutes - window to consider push "recent"
+
+### Metrics
+
+Prometheus metrics for monitoring:
+- `couchers_notification_email_suppressed_total{reason}` - emails suppressed (reason: "push_delivered")
+- `couchers_notification_suppressed_presence_total` - notifications suppressed due to active viewing
+
