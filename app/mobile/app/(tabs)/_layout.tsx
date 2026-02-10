@@ -39,6 +39,15 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: {
           backgroundColor,
+          paddingHorizontal: 0,
+        },
+        tabBarItemStyle: {
+          paddingHorizontal: 0,
+          marginHorizontal: -4,
+        },
+        tabBarLabelStyle: {
+          fontSize: 10,
+          paddingBottom: 2,
         },
       }}
     >
