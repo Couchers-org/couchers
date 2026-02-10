@@ -310,6 +310,11 @@ emails_counter: Counter = Counter(
     "Number of emails sent",
 )
 
+notification_suppressed_presence_counter: Counter = Counter(
+    "couchers_notification_suppressed_presence_total",
+    "Number of notifications suppressed because user is viewing conversation",
+)
+
 
 recaptchas_assessed_counter: Counter = Counter(
     "couchers_recaptchas_assessed_total",

@@ -9,13 +9,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, not_, or_
 
-from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
+from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY, PRESENCE_ACTIVE_DURATION
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
-from couchers.metrics import sent_messages_counter
+from couchers.metrics import notification_suppressed_presence_counter, sent_messages_counter
 from couchers.models import (
     Conversation,
     GroupChat,
@@ -179,6 +179,28 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
             return
 
         context = make_background_user_context(user_id=message.author_id)
+        # Skip users who are currently viewing the conversation
+        presence_cutoff = now() - PRESENCE_ACTIVE_DURATION
+
+        # Count users suppressed due to presence (for metrics)
+        presence_suppressed_count = session.execute(
+            where_users_column_visible(
+                select(func.count(GroupChatSubscription.user_id))
+                .where(GroupChatSubscription.group_chat_id == message.conversation_id)
+                .where(GroupChatSubscription.user_id != message.author_id)
+                .where(GroupChatSubscription.joined <= message.time)
+                .where(or_(GroupChatSubscription.left == None, GroupChatSubscription.left >= message.time))
+                .where(not_(GroupChatSubscription.is_muted))
+                .where(GroupChatSubscription.last_viewing_at >= presence_cutoff),
+                context=context,
+                column=GroupChatSubscription.user_id,
+            )
+        ).scalar_one()
+
+        if presence_suppressed_count > 0:
+            notification_suppressed_presence_counter.inc(presence_suppressed_count)
+            logger.debug(f"Suppressed {presence_suppressed_count} notifications due to user presence")
+
         user_ids_to_notify = (
             session.execute(
                 where_users_column_visible(
@@ -187,7 +209,13 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
                     .where(GroupChatSubscription.user_id != message.author_id)
                     .where(GroupChatSubscription.joined <= message.time)
                     .where(or_(GroupChatSubscription.left == None, GroupChatSubscription.left >= message.time))
-                    .where(not_(GroupChatSubscription.is_muted)),
+                    .where(not_(GroupChatSubscription.is_muted))
+                    .where(
+                        or_(
+                            GroupChatSubscription.last_viewing_at == None,
+                            GroupChatSubscription.last_viewing_at < presence_cutoff,
+                        )
+                    ),
                     context=context,
                     column=GroupChatSubscription.user_id,
                 )
@@ -594,6 +622,30 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unsee_messages")
 
         subscription.last_seen_message_id = request.last_seen_message_id
+
+        return empty_pb2.Empty()
+
+    def MarkGroupChatViewing(
+        self, request: conversations_pb2.MarkGroupChatViewingReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        subscription = _get_visible_message_subscription(session, context, request.group_chat_id)
+
+        if not subscription:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
+
+        subscription.last_viewing_at = func.now()
+
+        return empty_pb2.Empty()
+
+    def StopGroupChatViewing(
+        self, request: conversations_pb2.StopGroupChatViewingReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        subscription = _get_visible_message_subscription(session, context, request.group_chat_id)
+
+        if not subscription:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "chat_not_found")
+
+        subscription.last_viewing_at = None
 
         return empty_pb2.Empty()
 
