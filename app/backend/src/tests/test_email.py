@@ -12,8 +12,6 @@ from couchers.db import session_scope
 from couchers.models import (
     ContentReport,
     Email,
-    FriendRelationship,
-    FriendStatus,
     Reference,
     ReferenceType,
     SignupFlow,
@@ -30,8 +28,8 @@ from couchers.tasks import (
     send_signup_email,
 )
 from couchers.utils import Timestamp_from_datetime, now
-from tests.fixtures.db import generate_user
-from tests.fixtures.misc import email_fields, mock_notification_email, process_jobs
+from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
+from tests.fixtures.misc import Moderator, email_fields, mock_notification_email, process_jobs
 from tests.fixtures.sessions import api_session, events_session, notifications_session, real_editor_session
 from tests.test_communities import create_community
 
@@ -104,16 +102,12 @@ def test_report_email(db):
 
 
 def test_reference_report_email_not_sent(db):
+    from_user, api_token_author = generate_user()
+    to_user, api_token_reported = generate_user()
+
+    make_friends(from_user, to_user)
+
     with session_scope() as session:
-        from_user, api_token_author = generate_user()
-        to_user, api_token_reported = generate_user()
-
-        friend_relationship = FriendRelationship(
-            from_user_id=from_user.id, to_user_id=to_user.id, status=FriendStatus.accepted
-        )
-        session.add(friend_relationship)
-        session.flush()
-
         reference = Reference(
             from_user_id=from_user.id,
             to_user_id=to_user.id,
@@ -132,16 +126,12 @@ def test_reference_report_email_not_sent(db):
 
 
 def test_reference_report_email(db):
+    from_user, api_token_author = generate_user()
+    to_user, api_token_reported = generate_user()
+
+    make_friends(from_user, to_user)
+
     with session_scope() as session:
-        from_user, api_token_author = generate_user()
-        to_user, api_token_reported = generate_user()
-
-        friend_relationship = FriendRelationship(
-            from_user_id=from_user.id, to_user_id=to_user.id, status=FriendStatus.accepted
-        )
-        session.add(friend_relationship)
-        session.flush()
-
         reference = Reference(
             from_user_id=from_user.id,
             to_user_id=to_user.id,
@@ -162,12 +152,12 @@ def test_reference_report_email(db):
         assert e.recipient == "reports@couchers.org.invalid"
         assert "report" in e.subject.lower()
         assert "reference" in e.subject.lower()
-        assert reference.from_user.username in e.plain
-        assert str(reference.from_user.id) in e.plain
-        assert reference.from_user.email in e.plain
-        assert reference.to_user.username in e.plain
-        assert str(reference.to_user.id) in e.plain
-        assert reference.to_user.email in e.plain
+        assert from_user.username in e.plain
+        assert str(from_user.id) in e.plain
+        assert from_user.email in e.plain
+        assert to_user.username in e.plain
+        assert str(to_user.id) in e.plain
+        assert to_user.email in e.plain
         assert reference.text in e.plain
         assert "friend" in e.plain.lower()
         assert reference.private_text
@@ -182,16 +172,24 @@ def test_email_patching_fails(db):
     """
     to_user, to_token = generate_user()
     from_user, from_token = generate_user()
+    # Need a moderator to approve the friend request since UMS defers notification
+    mod_user, mod_token = generate_user(is_superuser=True)
+    moderator = Moderator(mod_user, mod_token)
 
     patched_msg = random_hex(64)
 
     def mock_queue_email(session, **kwargs):
         raise Exception(patched_msg)
 
-    with patch("couchers.email._queue_email", mock_queue_email):
+    with api_session(from_token) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=to_user.id))
+
+    friend_relationship = get_friend_relationship(from_user, to_user)
+    assert friend_relationship is not None
+    moderator.approve_friend_request(friend_relationship.id)
+
+    with patch("couchers.email.queuing._queue_email", mock_queue_email):
         with pytest.raises(Exception) as e:
-            with api_session(from_token) as api:
-                api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=to_user.id))
             process_jobs()
 
     assert str(e.value) == patched_msg
@@ -264,25 +262,43 @@ def test_do_not_email_security(db):
 
 def test_do_not_email_non_security(db):
     user, token1 = generate_user(complete_profile=True)
-    _, token2 = generate_user(complete_profile=True)
+    from_user, token2 = generate_user(complete_profile=True)
+    # Need a moderator to approve the friend request since UMS defers notification
+    mod_user, mod_token = generate_user(is_superuser=True)
+    moderator = Moderator(mod_user, mod_token)
 
     with notifications_session(token1) as notifications:
         notifications.SetNotificationSettings(notifications_pb2.SetNotificationSettingsReq(enable_do_not_email=True))
 
+    with api_session(token2) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+
+    friend_relationship = get_friend_relationship(from_user, user)
+    assert friend_relationship is not None
+    moderator.approve_friend_request(friend_relationship.id)
+
     with mock_notification_email() as mock:
-        with api_session(token2) as api:
-            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+        process_jobs()
 
     assert mock.call_count == 0
 
 
 def test_do_not_email_non_security_unsublink(db):
     user, _ = generate_user(complete_profile=True)
-    _, token2 = generate_user(complete_profile=True)
+    from_user, token2 = generate_user(complete_profile=True)
+    # Need a moderator to approve the friend request since UMS defers notification
+    mod_user, mod_token = generate_user(is_superuser=True)
+    moderator = Moderator(mod_user, mod_token)
+
+    with api_session(token2) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+
+    friend_relationship = get_friend_relationship(from_user, user)
+    assert friend_relationship is not None
+    moderator.approve_friend_request(friend_relationship.id)
 
     with mock_notification_email() as mock:
-        with api_session(token2) as api:
-            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+        process_jobs()
 
     assert mock.call_count == 1
     e = email_fields(mock)
@@ -405,7 +421,7 @@ This is a security email, you cannot unsubscribe from it.
         assert email.source_data == "testing_version/donation_received"
 
 
-def test_email_deleted_users_regression(db):
+def test_email_deleted_users_regression(db, moderator: Moderator):
     """
     We introduced a bug in notify v2 where we would email deleted/banned users.
     """
@@ -451,6 +467,9 @@ def test_email_deleted_users_regression(db):
         event_id = res.event_id
         assert not res.is_deleted
 
+    moderator.approve_event_occurrence(event_id)
+
+    with events_session(creating_token) as api:
         with mock_notification_email() as mock:
             api.RequestCommunityInvite(events_pb2.RequestCommunityInviteReq(event_id=event_id))
         assert mock.call_count == 1

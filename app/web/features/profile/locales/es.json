@@ -33,11 +33,13 @@
     "community_standing": "Prestigio comunitario",
     "languages_conversational": "Idiomas con los que me defiendo",
     "gender_verification_verified": "Este usuario ha verificado su género",
-    "gender_verification_mismatch": "El género indicado por el usuario no se corresponde con el género verificado"
+    "gender_verification_mismatch": "El género indicado por el usuario no se corresponde con el género verificado",
+    "photos_section": "Fotos"
   },
   "last_active_false": "Desconocido",
   "reference_amounts": {
-    "no_references": "Sin referencias"
+    "no_references": "Sin referencias",
+    "hundred_or_more_references": "+100 referencias"
   },
   "edit_profile_headings": {
     "name": "Nombre",
@@ -310,5 +312,31 @@
   "couldnt_read_file": "No se pudo leer el archivo",
   "select_an_image": "Selecciona una imagen",
   "names_profile_photo": "Foto de perfil de {{name}}",
-  "what_options_mean": "Qué significan estas opciones"
+  "what_options_mean": "Qué significan estas opciones",
+  "gallery": {
+    "photo_item_a11y": "Foto",
+    "primary": "Principal",
+    "add_photo": "Añadir foto",
+    "uploading": "Subiendo...",
+    "remove_photo": "Eliminar foto",
+    "select_photo": "Seleccionar una foto",
+    "photo_count": "{{current}} de {{total}}",
+    "empty_title": "Añade tu primera foto",
+    "empty_description": "Haz clic aquí o en el botón de arriba para subir una foto",
+    "no_photos": "Aún no hay fotos",
+    "add_photo_error": "No se pudo añadir la foto. Por favor inténtalo de nuevo.",
+    "remove_photo_error": "No se pudo eliminar la foto. Por favor inténtalo de nuevo.",
+    "move_photo_error": "No se pudieron reordenar las fotos. Por favor inténtalo de nuevo.",
+    "reorder_success": "¡Fotos reordenadas satisfactoriamente!",
+    "upload_success": "¡Foto subida satisfactoriamente!",
+    "profile_photos_title": "Fotos de Perfil",
+    "profile_photos_description": "Añade fotos tuyas para ayudar a otros a conocerte. Arrastra y suelta para reordenar.",
+    "verification_required_for_more_photos": "Has alcanzado tu límite de fotos. Completa la verificación robusta para añadir más fotos.",
+    "get_verified": "Obten la verificación",
+    "photo_viewer_aria": "Visor de fotos",
+    "previous_photo": "Foto anterior",
+    "next_photo": "Foto siguiente",
+    "close_viewer": "Cerrar el visor de fotos",
+    "report_photo": "Denunciar foto"
+  }
 }

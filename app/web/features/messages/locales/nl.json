@@ -117,8 +117,7 @@
     "admin_assignment_text": "{{user}} heeft {{target_user}} admin gemaakt",
     "admin_removal_text": "{{user}} heeft {{target_user}} verwijderd als admin",
     "unknown_message_text": "Onbekend besturingsbericht",
-    "invite_user_text": "{{user}} heeft {{target_user}} uitgenodigd",
-    "host_request_status_changed_text": "{{user}} heeft het verzoek aangepast naar {{status}}"
+    "invite_user_text": "{{user}} heeft {{target_user}} uitgenodigd"
   },
   "host_request_status": {
     "accepted": "Geaccepteerd",

@@ -13,6 +13,7 @@ import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
+import { useExperiment } from "experimentation";
 import {
   DONATIONS_BOX_CURRENCY,
   DONATIONS_BOX_VALUES,
@@ -217,6 +218,12 @@ interface DonationFormData {
 export default function DonationsBox() {
   const { t } = useTranslation(DONATIONS);
 
+  const donationAmounts = useExperiment<number[]>(
+    "donation_amounts",
+    "default_amounts",
+    DONATIONS_BOX_VALUES,
+  );
+
   const [isPredefinedAmount, setIsPredefinedAmount] = useState(true);
 
   const router = useRouter();
@@ -349,11 +356,11 @@ export default function DonationsBox() {
       <Controller
         name="amount"
         control={control}
-        defaultValue={DONATIONS_BOX_VALUES[2]}
+        defaultValue={donationAmounts[2]}
         render={({ field }) => (
           <AmountGrid>
             {[
-              ...DONATIONS_BOX_VALUES.map((value) => {
+              ...donationAmounts.map((value) => {
                 return (
                   <StyledAmountButton
                     key={value}
@@ -380,7 +387,7 @@ export default function DonationsBox() {
                     field.onChange(
                       typeof e.target.valueAsNumber === "number"
                         ? e.target.valueAsNumber
-                        : DONATIONS_BOX_VALUES[0],
+                        : donationAmounts[0],
                     );
                     setIsPredefinedAmount(false);
                   }}
