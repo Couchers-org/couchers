@@ -25,8 +25,10 @@
           <img width="80px" style="border-radius: 80px" src="{{ avatar_url }}" />
         </td>
         <td>
-          <b>{{ name }}</b>, {{ age }}<br />
-          {{ city }}
+          <b>{{ name }}</b>, {{ age }}<br />{{ city }}
+          {% if comment %}
+            {{ comment }}
+          {% endif %}
         </td>
       </tr>
     </mj-table>
