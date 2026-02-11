@@ -3,6 +3,14 @@ import userEvent from "@testing-library/user-event";
 import { MARK_LAST_SEEN_TIMEOUT } from "features/messages/constants";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
 import { groupChatKey } from "features/queryKeys";
+
+jest.mock("features/messages/usePresenceHeartbeat", () => ({
+  __esModule: true,
+  default: jest.fn().mockReturnValue({
+    sendHeartbeat: jest.fn(),
+    stopPresence: jest.fn(),
+  }),
+}));
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import {

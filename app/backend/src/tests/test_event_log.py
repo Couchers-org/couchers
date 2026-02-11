@@ -1,5 +1,7 @@
 from datetime import timedelta
+from typing import cast
 
+import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import select
@@ -57,7 +59,7 @@ def test_log_event_authenticated_context(db):
 
     with session_scope() as session:
         context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
+            grpc_context=cast(grpc.ServicerContext, MockGrpcContext()),
             user_id=user.id,
             is_api_key=False,
             token=token,
@@ -82,7 +84,7 @@ def test_log_event_with_override_user_id(db):
 
     with session_scope() as session:
         context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
+            grpc_context=cast(grpc.ServicerContext, MockGrpcContext()),
             user_id=None,
             is_api_key=False,
             token=None,
@@ -103,7 +105,7 @@ def test_log_event_anonymous(db):
     """log_event stores event with user_id=None when context has no user."""
     with session_scope() as session:
         context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
+            grpc_context=cast(grpc.ServicerContext, MockGrpcContext()),
             user_id=None,
             is_api_key=False,
             token=None,
@@ -134,7 +136,7 @@ def test_log_event_complex_properties(db):
 
     with session_scope() as session:
         context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
+            grpc_context=cast(grpc.ServicerContext, MockGrpcContext()),
             user_id=user.id,
             is_api_key=False,
             token=token,
@@ -154,7 +156,7 @@ def test_log_event_empty_properties(db):
 
     with session_scope() as session:
         context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
+            grpc_context=cast(grpc.ServicerContext, MockGrpcContext()),
             user_id=user.id,
             is_api_key=False,
             token=token,
@@ -174,7 +176,7 @@ def test_log_event_multiple_events(db):
 
     with session_scope() as session:
         context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
+            grpc_context=cast(grpc.ServicerContext, MockGrpcContext()),
             user_id=user.id,
             is_api_key=False,
             token=token,

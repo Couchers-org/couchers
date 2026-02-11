@@ -146,6 +146,7 @@ def test_GetAccountInfo_regression(db):
             )
         )
         session.flush()
+        assert user.profile_gallery_id is not None
         session.add(
             PhotoGalleryItem(
                 gallery_id=user.profile_gallery_id,
