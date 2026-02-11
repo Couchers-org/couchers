@@ -1379,7 +1379,7 @@ def test_DebugRedeliverPushNotification_push_notifications_disabled(db, push_col
     assert push_collector.count_for_user(user.id) == 0
 
 
-def test_expo_push_includes_collapse_key_and_thread_id():
+def test_expo_push_includes_collapse_key():
     from unittest.mock import Mock, patch
 
     from couchers.notifications.expo_api import send_expo_push_notification
@@ -1393,23 +1393,24 @@ def test_expo_push_includes_collapse_key_and_thread_id():
             token="ExponentPushToken[test]",
             title="Test Title",
             body="Test body",
-            data={"url": "/test"},
+            data={"url": "/test", "thread_id": "chat:message_123"},
             collapse_key="chat:message_123",
-            thread_id="chat:message_123",
         )
 
         mock_post.assert_called_once()
         call_args = mock_post.call_args
         message = call_args[1]["json"]
 
-        # Verify both grouping keys are included
+        # Verify collapse key is set as a top-level Expo API field
         assert message["collapseKey"] == "chat:message_123"
-        assert message["threadId"] == "chat:message_123"
+        # thread_id should be in the data payload, not as a top-level field
+        assert "threadId" not in message
+        assert message["data"]["thread_id"] == "chat:message_123"
         assert message["title"] == "Test Title"
         assert message["body"] == "Test body"
 
 
-def test_expo_push_omits_grouping_keys_when_none():
+def test_expo_push_omits_collapse_key_when_none():
     from unittest.mock import Mock, patch
 
     from couchers.notifications.expo_api import send_expo_push_notification
@@ -1429,7 +1430,7 @@ def test_expo_push_omits_grouping_keys_when_none():
         call_args = mock_post.call_args
         message = call_args[1]["json"]
 
-        # Verify grouping keys are not included when not provided
+        # Verify collapse key is not included when not provided
         assert "collapseKey" not in message
         assert "threadId" not in message
 

@@ -128,7 +128,6 @@ def _send_expo(
     thread_id = None
     if payload.topic_action and payload.key:
         collapse_key = f"{payload.topic_action}_{payload.key}"
-        # Use same format for iOS thread grouping
         thread_id = f"{payload.topic_action}_{payload.key}"
 
     result = send_expo_push_notification(
@@ -139,9 +138,11 @@ def _send_expo(
             "url": payload.url,
             "topic_action": payload.topic_action,
             "key": payload.key,
+            # thread_id in data payload for client-side notification grouping
+            # (mobile app can use this to set iOS threadIdentifier / Android group)
+            "thread_id": thread_id,
         },
         collapse_key=collapse_key,
-        thread_id=thread_id,
     )
 
     # Parse the Expo response
