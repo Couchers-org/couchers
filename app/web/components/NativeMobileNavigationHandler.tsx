@@ -34,7 +34,7 @@ export default function NativeMobileNavigationHandler() {
           // First argument is pathname (without locale), third argument is options with locale
           router.push(pathname, pathname, { locale, scroll: false });
         }
-      } catch (error) {
+      } catch {
         // Silently ignore parsing errors from other messages
       }
     };
