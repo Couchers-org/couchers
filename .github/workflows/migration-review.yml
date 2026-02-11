@@ -15,6 +15,12 @@ jobs:
       id-token: write
       actions: read
     steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -27,8 +33,9 @@ jobs:
         id: claude
         uses: anthropics/claude-code-action@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: "couchersbot[bot]"
           track_progress: true
           additional_permissions: |
             pull-requests: write

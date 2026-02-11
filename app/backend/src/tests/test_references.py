@@ -519,7 +519,7 @@ def test_WriteFriendReference_with_private_text(db, push_collector: PushCollecto
     make_friends(user1, user2)
 
     with references_session(token1) as api:
-        with patch("couchers.email.queue_email") as mock1:
+        with patch("couchers.email.queuing.queue_email") as mock1:
             with mock_notification_email() as mock2:
                 api.WriteFriendReference(
                     references_pb2.WriteFriendReferenceReq(
@@ -845,7 +845,7 @@ def test_WriteHostRequestReference_private_text(db, push_collector: PushCollecto
         hr = create_host_request(session, user1.id, user2.id, timedelta(days=10))
 
     with references_session(token1) as api:
-        with patch("couchers.email.queue_email") as mock1:
+        with patch("couchers.email.queuing.queue_email") as mock1:
             with mock_notification_email() as mock2:
                 api.WriteHostRequestReference(
                     references_pb2.WriteHostRequestReferenceReq(

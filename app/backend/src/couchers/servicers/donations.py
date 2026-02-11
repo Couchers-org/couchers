@@ -2,6 +2,7 @@ import json
 import logging
 
 import grpc
+import sentry_sdk
 import stripe
 from google.protobuf import empty_pb2
 from sqlalchemy import select
@@ -17,6 +18,7 @@ from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
+from couchers.slack import send_slack_message
 from couchers.utils import not_none
 
 logger = logging.getLogger(__name__)
@@ -182,6 +184,18 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                         receipt_url=receipt_url,
                     ),
                 )
+
+                # Recurring donations go through Stripe invoices, one-time don't
+                is_recurring = data_object.get("invoice") is not None
+                donation_type = "recurring" if is_recurring else "one-time"
+                user_link = urls.user_link(username=user.username)
+                try:
+                    send_slack_message(
+                        config["SLACK_DONATIONS_CHANNEL"],
+                        f"Donation received: ${amount} ({donation_type}) from <{user_link}|{user.name}>",
+                    )
+                except Exception as e:
+                    sentry_sdk.capture_exception(e)
         else:
             logger.info(f"Unhandled event from Stripe: {event_type}")
 

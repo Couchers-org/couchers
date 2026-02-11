@@ -165,5 +165,25 @@
     "contact_us": "Bize Ulaşın",
     "built_with": "Açık Kaynak",
     "invite_members": "Üye Davet Et"
+  },
+  "what_is_cs": {
+    "timeline": {
+      "early_2000s_year": "2000'lerin başı",
+      "2010s_year": "2010'lar",
+      "2020_year": "2020",
+      "today_year": "Bugün"
+    },
+    "actions": {
+      "host": "Şehrini ziyaret eden bir gezgine ev sahipliği yap",
+      "surf": "Yolculuk yaparken yerli birisiyle sörf yap",
+      "attend_events": "Etkinliklere yerliler ve gezginlerle beraber git",
+      "find_people": "Şehrinizde kafadar insanları bulun ve buluşun",
+      "join_discussions": "Yerel topluluğundaki tartışmalara katıl veya yeni tartışmalar oluştur"
+    },
+    "why_people_title": "İnsanlar neden koltuk sörfünü seviyor",
+    "why_people_points": {
+      "travelers": "<bold>Yolcular için</bold>: Turistik yolların ötesine geçen daha derin, daha insancıl deneyimler",
+      "hosts": "<bold>Ev sahipleri için</bold>: dünya genelinden insanlarla tanış ve onlarla şehrini paylaş"
+    }
   }
 }

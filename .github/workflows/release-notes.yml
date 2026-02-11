@@ -1,4 +1,4 @@
-name: PR Release Notes Tagger
+name: Release Notes Tagger
 
 on:
   pull_request:
