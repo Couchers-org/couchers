@@ -89,15 +89,24 @@ export function useWebNavigation({
 
       // Skip external URLs
       if (!normalizedUrl.startsWith(webBaseUrl)) {
-        if (__DEV__) {
-          console.log("*****SKIPPING EXTERNAL URL*****", normalizedUrl);
-        }
         return;
       }
 
       // Track the current web path
       const webPath: string = normalizedUrl.replace(webBaseUrl, "") || "/";
       const webPathWithoutQuery = webPath.split("?")[0];
+
+      // Check if this navigation is from a sync operation (to prevent fighting with focus effect)
+      const isSyncNavigation =
+        syncTargetPathRef.current !== null &&
+        webPathWithoutQuery.startsWith(syncTargetPathRef.current);
+
+      // If we're in the middle of a sync operation, don't update currentWebPathRef
+      // or change i18n language - wait for the target URL to load
+      if (syncTargetPathRef.current !== null && !isSyncNavigation) {
+        return;
+      }
+
       currentWebPathRef.current = webPath;
 
       // Extract locale from URL and sync with mobile app's i18n
@@ -113,25 +122,6 @@ export function useWebNavigation({
       // Sync native route when WebView navigates to a different page
       const targetRoute = getRouteNameForPath(webPathWithoutQuery);
       const currentRoute = getRouteNameForPath(currentPath);
-
-      // Check if this navigation is from a sync operation (to prevent fighting with focus effect)
-      const isSyncNavigation =
-        syncTargetPathRef.current !== null &&
-        webPathWithoutQuery.startsWith(syncTargetPathRef.current);
-
-      if (__DEV__) {
-        console.log("[useWebNavigation] Navigation check:", {
-          webPath,
-          webPathWithoutQuery,
-          currentPath,
-          targetRoute,
-          currentRoute,
-          syncTargetPath: syncTargetPathRef.current,
-          isSyncNavigation,
-          willNavigate:
-            targetRoute !== currentRoute && !!targetRoute && !isSyncNavigation,
-        });
-      }
 
       // Skip navigation if this is from syncing the WebView (prevents fighting with focus effect)
       if (isSyncNavigation) {

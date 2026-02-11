@@ -4,4 +4,6 @@
 - Improve camera permissions flow after denied
 - Clicking own blank avatar takes user to upload photo
 - Adjust bottom nav to fix longer text
+- Mobile app navigation fixes
+- Make report bug button smaller
 - Code style improvements

@@ -35,7 +35,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const colorScheme = useColorScheme();
   const webviewRef = useRef<WebView>(null);
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
   const [hasError, setHasError] = useState(false);
@@ -97,14 +97,13 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     [],
   );
 
-  // Helper to extract locale from path
-  const extractLocale = useCallback((p: string) => {
-    const match = p.match(/^\/([a-z]{2}(-[A-Z][a-z]+)?)\//);
-    return match ? match[1] : null;
-  }, []);
-
   // Sync WebView when path prop changes (route navigation)
   useEffect(() => {
+    // If there's already a sync in progress, skip this one to avoid conflicts
+    if (syncTargetPathRef.current !== null) {
+      return;
+    }
+
     // Read the current WebView path from the ref (always up-to-date)
     const currentWebPath = currentWebPathRef.current;
 
@@ -114,76 +113,60 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
     if (currentRoute === targetRoute) {
       // Same route, just different locale or already synced
-      if (__DEV__) {
-        console.log("[WebEmbed] useEffect: Already at target route, skipping", {
-          currentWebPath,
-          path,
-        });
-      }
       return;
     }
 
-    // Routes differ - sync WebView, preserving its current locale
-    const currentLocale = extractLocale(currentWebPath);
+    // Routes differ - sync WebView, using mobile i18n language as source of truth
+    // This ensures language selection persists across tab switches
+    const currentLocale = i18n.language !== "en" ? i18n.language : null;
     const targetPath = currentLocale
       ? `/${currentLocale}${targetRoute}`
       : targetRoute;
 
-    if (__DEV__) {
-      console.log("[WebEmbed] useEffect: Syncing WebView to new route", {
-        from: currentWebPath,
-        to: targetPath,
-      });
-    }
-
     syncTargetPathRef.current = targetPath;
-    webviewRef.current?.injectJavaScript(
-      `window.location.href = "${WEB_BASE_URL}${targetPath}"; true;`,
-    );
-  }, [path, WEB_BASE_URL, stripLocale, extractLocale, currentWebPathRef]);
+    // Use postMessage to trigger client-side Next.js navigation
+    // This avoids middleware redirects based on stale cookies
+    webviewRef.current?.injectJavaScript(`
+      window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
+      true;
+    `);
+  }, [path, WEB_BASE_URL, stripLocale, i18n.language, currentWebPathRef]);
 
   // Sync WebView when screen comes back into focus (tab switch)
   useFocusEffect(
     useCallback(() => {
+      // If there's already a sync in progress, skip this one to avoid conflicts
+      if (syncTargetPathRef.current !== null) {
+        return;
+      }
+
       // Read the current WebView path from the ref (always up-to-date)
       const currentWebPath = currentWebPathRef.current;
 
-      // Only sync if the routes differ (ignoring locale)
+      // Strip locales from both paths for comparison
       const currentRoute = stripLocale(currentWebPath);
       const targetRoute = stripLocale(path);
 
       if (currentRoute === targetRoute) {
         // Same route, just different locale or already synced
-        if (__DEV__) {
-          console.log(
-            "[WebEmbed] useFocusEffect: Already at target route, skipping",
-            {
-              currentWebPath,
-              path,
-            },
-          );
-        }
         return;
       }
 
-      // Routes differ - sync WebView, preserving its current locale
-      const currentLocale = extractLocale(currentWebPath);
+      // Routes differ - sync WebView, using mobile i18n language as source of truth
+      // This ensures language selection persists across tab switches
+      const currentLocale = i18n.language !== "en" ? i18n.language : null;
       const targetPath = currentLocale
         ? `/${currentLocale}${targetRoute}`
         : targetRoute;
 
-      if (__DEV__) {
-        console.log("[WebEmbed] useFocusEffect: Syncing WebView to new route", {
-          from: currentWebPath,
-          to: targetPath,
-        });
-      }
-
       syncTargetPathRef.current = targetPath;
-      webviewRef.current?.injectJavaScript(
-        `window.location.href = "${WEB_BASE_URL}${targetPath}"; true;`,
-      );
-    }, [path, WEB_BASE_URL, stripLocale, extractLocale, currentWebPathRef]),
+      // Use postMessage to trigger client-side Next.js navigation
+      // This avoids middleware redirects based on stale cookies
+      webviewRef.current?.injectJavaScript(`
+        window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
+        true;
+      `);
+    }, [path, WEB_BASE_URL, stripLocale, i18n.language, currentWebPathRef]),
   );
 
   // Send result back to web app
