@@ -6,8 +6,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import WebEmbed from "@/components/WebEmbed";
 import { useAuthContext } from "@/features/auth/AuthContext";
-import { useImagePicker } from "@/hooks/useImagePicker";
-import { useWebNavigation } from "@/hooks/useWebNavigation";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
@@ -24,14 +22,6 @@ jest.mock("react-native-safe-area-context", () => ({
 
 jest.mock("@/features/auth/AuthContext", () => ({
   useAuthContext: jest.fn(),
-}));
-
-jest.mock("@/hooks/useWebNavigation", () => ({
-  useWebNavigation: jest.fn(),
-}));
-
-jest.mock("@/hooks/useImagePicker", () => ({
-  useImagePicker: jest.fn(),
 }));
 
 // WebView mock - captures props and ref methods for test assertions
@@ -99,14 +89,8 @@ describe("WebEmbed", () => {
 
   const user = userEvent.setup();
 
-  // Default mock implementations for custom hooks
-  const mockHandleNavigationStateChange = jest.fn();
-  const mockPickImage = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mockHandleNavigationStateChange.mockClear();
-    mockPickImage.mockClear();
 
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (useSafeAreaInsets as jest.Mock).mockReturnValue({
@@ -121,17 +105,6 @@ describe("WebEmbed", () => {
       if (typeof cleanup === "function") {
         focusEffectCleanups.push(cleanup);
       }
-    });
-
-    // Default mock for useWebNavigation
-    (useWebNavigation as jest.Mock).mockReturnValue({
-      handleNavigationStateChange: mockHandleNavigationStateChange,
-      canGoBack: false,
-    });
-
-    // Default mock for useImagePicker
-    (useImagePicker as jest.Mock).mockReturnValue({
-      pickImage: mockPickImage,
     });
   });
 
@@ -165,22 +138,6 @@ describe("WebEmbed", () => {
   });
 
   describe("navigation state changes", () => {
-    it("passes navigation state changes to the hook", () => {
-      render(<WebEmbed path="/dashboard" />);
-
-      const navState = {
-        url: `${mockWebBaseUrl}/messages`,
-        loading: false,
-        canGoBack: false,
-      };
-
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.(navState);
-      });
-
-      expect(mockHandleNavigationStateChange).toHaveBeenCalledWith(navState);
-    });
-
     it("navigates to messages tab when WebView navigates to /messages", () => {
       render(<WebEmbed path="/dashboard" />);
 
@@ -191,9 +148,111 @@ describe("WebEmbed", () => {
         });
       });
 
-      expect(mockHandleNavigationStateChange).toHaveBeenCalled();
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/messages");
     });
 
+    it("navigates to search tab when WebView navigates to /search", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/search`,
+          loading: false,
+        });
+      });
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
+    });
+
+    it("navigates to communities tab when WebView navigates to /communities", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/communities`,
+          loading: false,
+        });
+      });
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/communities");
+    });
+
+    it("triggers native navigation for non-tab routes (catch-all)", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/user/123`,
+          loading: false,
+        });
+      });
+
+      // Non-tab routes navigate to catch-all with full path (fixes bottom nav stuck issue)
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/user/123");
+    });
+
+    it("does not navigate when URL is still loading", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages`,
+          loading: true,
+        });
+      });
+
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+
+    it("does not navigate when staying on the same tab", () => {
+      render(<WebEmbed path="/messages" />);
+
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages/123`,
+          loading: false,
+        });
+      });
+
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+
+    it("strips hash fragments from URL when navigating to main tabs", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/search#10/40.7127/-74.006`,
+          loading: false,
+        });
+      });
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
+    });
+
+    it("does not trigger navigation for query parameter changes on same route", () => {
+      // Start on a user page (catch-all route)
+      render(<WebEmbed path="/user/username" />);
+
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/user/username?tab=about`,
+          loading: false,
+        });
+      });
+
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/user/username?tab=home`,
+          loading: false,
+        });
+      });
+
+      // Query param change (tab switch) should not trigger native navigation
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
 
     it("blocks external URLs via onShouldStartLoadWithRequest", () => {
       const openURLSpy = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
@@ -388,51 +447,92 @@ describe("WebEmbed", () => {
 
   describe("focus effect", () => {
     it("navigates WebView back to expected path when drifted", () => {
-      // Store the latest path drift callback
-      let latestPathDriftCallback: (() => void) | undefined;
-      let callCount = 0;
-
+      let focusCallback: (() => void) | undefined;
       (useFocusEffect as jest.Mock).mockImplementation(
-        (callback: () => void) => {
-          callCount++;
-          // First useFocusEffect is for back button, second is for path drift
-          if (callCount % 2 === 0) {
-            // Path drift callback - store it but don't call it yet
-            latestPathDriftCallback = callback;
-          } else {
-            // Back button callback - execute normally
-            const cleanup = callback();
-            if (typeof cleanup === "function") {
-              focusEffectCleanups.push(cleanup);
-            }
-          }
-        },
+        (callback: () => void) => (focusCallback = callback),
       );
 
-      const { rerender } = render(<WebEmbed path="/dashboard" />);
+      render(<WebEmbed path="/dashboard" />);
 
-      // Manually call the path drift callback as if focus was gained
-      // This simulates the component gaining focus
-      latestPathDriftCallback?.();
-
-      // Should not inject JavaScript because path matches currentWebPathRef
-      expect(mockWebViewRef.injectJavaScript).not.toHaveBeenCalled();
-
-      // Now rerender with a different path (simulates navigating to different tab)
-      rerender(<WebEmbed path="/search" />);
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages/123`,
+          loading: false,
+        });
+      });
 
       mockWebViewRef.injectJavaScript.mockClear();
 
-      // Call the path drift callback again (the updated one from rerender)
-      latestPathDriftCallback?.();
+      expect(focusCallback).toBeDefined();
+      focusCallback!();
 
-      // Should inject JavaScript to navigate to the new path
       expect(mockWebViewRef.injectJavaScript).toHaveBeenCalledWith(
-        `window.location.href = "${mockWebBaseUrl}/search"; true;`,
+        `window.location.href = "${mockWebBaseUrl}/dashboard"; true;`,
       );
     });
   });
 
+  describe("tab mapping", () => {
+    const testCases = [
+      { webPath: "/dashboard", expectedTab: "dashboard", expectedPath: null },
+      {
+        webPath: "/dashboard/settings",
+        expectedTab: "dashboard",
+        expectedPath: null,
+      },
+      {
+        webPath: "/messages",
+        expectedTab: "messages",
+        expectedPath: "/messages",
+      },
+      {
+        webPath: "/messages/123",
+        expectedTab: "messages",
+        expectedPath: "/messages",
+      },
+      { webPath: "/search", expectedTab: "search", expectedPath: "/search" },
+      {
+        webPath: "/search?query=test",
+        expectedTab: "search",
+        expectedPath: "/search?query=test",
+      },
+      {
+        webPath: "/communities",
+        expectedTab: "communities",
+        expectedPath: "/communities",
+      },
+      {
+        webPath: "/communities/456",
+        expectedTab: "communities",
+        expectedPath: "/communities",
+      },
+      { webPath: "/events", expectedTab: "events", expectedPath: "/events" },
+      // Non-tab routes now navigate to catch-all with full path (fixes bottom nav stuck issue)
+      { webPath: "/user/789", expectedTab: null, expectedPath: "/user/789" },
+    ];
+
+    testCases.forEach(({ webPath, expectedTab, expectedPath }) => {
+      it(`maps ${webPath} to tab: ${expectedTab}`, () => {
+        render(<WebEmbed path="/dashboard" />);
+        mockRouter.navigate.mockClear();
+
+        act(() => {
+          capturedWebViewProps.onNavigationStateChange?.({
+            url: `${mockWebBaseUrl}${webPath}`,
+            loading: false,
+          });
+        });
+
+        if (expectedTab === "dashboard") {
+          // Same tab - no navigation
+          expect(mockRouter.navigate).not.toHaveBeenCalled();
+        } else if (expectedPath) {
+          // Different route - navigate (main tabs or catch-all)
+          expect(mockRouter.navigate).toHaveBeenCalledWith(expectedPath);
+        }
+      });
+    });
+  });
 
   describe("Android back button handling", () => {
     let backHandlerSpy: jest.SpyInstance;
@@ -473,13 +573,16 @@ describe("WebEmbed", () => {
     });
 
     it("calls WebView goBack when canGoBack is true and back button is pressed", () => {
-      // Mock the hook to return canGoBack: true
-      (useWebNavigation as jest.Mock).mockReturnValue({
-        handleNavigationStateChange: mockHandleNavigationStateChange,
-        canGoBack: true,
-      });
-
       render(<WebEmbed path="/messages" />);
+
+      // Simulate WebView navigation that sets canGoBack to true
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages/123`,
+          loading: false,
+          canGoBack: true,
+        });
+      });
 
       // Simulate pressing hardware back button
       expect(capturedBackHandler).toBeDefined();
@@ -490,13 +593,16 @@ describe("WebEmbed", () => {
     });
 
     it("does not call WebView goBack when canGoBack is false", () => {
-      // Mock the hook to return canGoBack: false (this is also the default)
-      (useWebNavigation as jest.Mock).mockReturnValue({
-        handleNavigationStateChange: mockHandleNavigationStateChange,
-        canGoBack: false,
-      });
-
       render(<WebEmbed path="/messages" />);
+
+      // Simulate WebView navigation that sets canGoBack to false
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages`,
+          loading: false,
+          canGoBack: false,
+        });
+      });
 
       // Simulate pressing hardware back button
       expect(capturedBackHandler).toBeDefined();
@@ -530,26 +636,29 @@ describe("WebEmbed", () => {
     });
 
     it("updates BackHandler when canGoBack state changes", () => {
-      // Start with canGoBack: false
-      (useWebNavigation as jest.Mock).mockReturnValue({
-        handleNavigationStateChange: mockHandleNavigationStateChange,
-        canGoBack: false,
-      });
+      render(<WebEmbed path="/messages" />);
 
-      const { rerender } = render(<WebEmbed path="/messages" />);
+      // First, canGoBack is false
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages`,
+          loading: false,
+          canGoBack: false,
+        });
+      });
 
       let result = capturedBackHandler!();
       expect(result).toBe(false);
       expect(mockWebViewRef.goBack).not.toHaveBeenCalled();
 
-      // Update the hook to return canGoBack: true
-      (useWebNavigation as jest.Mock).mockReturnValue({
-        handleNavigationStateChange: mockHandleNavigationStateChange,
-        canGoBack: true,
+      // Then, user navigates to a message detail, canGoBack becomes true
+      act(() => {
+        capturedWebViewProps.onNavigationStateChange?.({
+          url: `${mockWebBaseUrl}/messages/456`,
+          loading: false,
+          canGoBack: true,
+        });
       });
-
-      // Rerender to pick up the new hook value
-      rerender(<WebEmbed path="/messages" />);
 
       result = capturedBackHandler!();
       expect(result).toBe(true);

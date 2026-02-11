@@ -1,17 +1,21 @@
 import { Href, useRouter } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { WebViewNavigation } from "react-native-webview";
+
+import { globalWebPathRef } from "@/state/webViewState";
 
 interface UseWebNavigationOptions {
   webBaseUrl: string;
   currentPath: string;
+  syncTargetPathRef: React.RefObject<string | null>;
   onRetryCountReset?: () => void;
 }
 
 interface UseWebNavigationReturn {
   handleNavigationStateChange: (navState: WebViewNavigation) => void;
-  canGoBack: boolean;
+  canGoBackRef: React.RefObject<boolean>;
+  currentWebPathRef: React.RefObject<string>;
 }
 
 /**
@@ -20,12 +24,14 @@ interface UseWebNavigationReturn {
 export function useWebNavigation({
   webBaseUrl,
   currentPath,
+  syncTargetPathRef,
   onRetryCountReset,
 }: UseWebNavigationOptions): UseWebNavigationReturn {
   const router = useRouter();
   const { i18n } = useTranslation();
-  const currentWebPathRef = useRef<string>(currentPath);
-  const [canGoBack, setCanGoBack] = useState(false);
+  // Use global ref so it's shared across all WebEmbed instances
+  const currentWebPathRef = globalWebPathRef;
+  const canGoBackRef = useRef(false);
 
   // Extract locale from web path (e.g., "/de/dashboard" -> "de")
   const extractLocaleFromPath = useCallback(
@@ -36,36 +42,41 @@ export function useWebNavigation({
     [],
   );
 
-  // Map web paths to native route names
-  const getRouteNameForPath = useCallback((webPath: string): string | null => {
-    // Strip locale prefix if present
-    const pathWithoutLocale = webPath.replace(
-      /^\/[a-z]{2}(-[A-Z][a-z]+)?\//,
-      "/",
-    );
-
-    // Main tab routes
-    if (pathWithoutLocale.startsWith("/dashboard")) return "dashboard";
-    if (pathWithoutLocale.startsWith("/messages")) return "messages";
-    if (pathWithoutLocale.startsWith("/search")) return "search";
-    if (pathWithoutLocale.startsWith("/communities")) return "communities";
-    if (pathWithoutLocale.startsWith("/events")) return "events";
-
-    // Special routes
-    if (pathWithoutLocale.startsWith("/md/")) return "md/[...slug]";
-
-    // Catch-all for other routes
-    if (pathWithoutLocale.startsWith("/")) return "[...slug]";
-
-    return null;
+  // Strip locale prefix from path (e.g., "/de/donate" -> "/donate")
+  const stripLocalePrefix = useCallback((webPath: string): string => {
+    return webPath.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/");
   }, []);
+
+  // Map web paths to native route names
+  const getRouteNameForPath = useCallback(
+    (webPath: string): string | null => {
+      // Strip locale prefix if present
+      const pathWithoutLocale = stripLocalePrefix(webPath);
+
+      // Main tab routes
+      if (pathWithoutLocale.startsWith("/dashboard")) return "dashboard";
+      if (pathWithoutLocale.startsWith("/messages")) return "messages";
+      if (pathWithoutLocale.startsWith("/search")) return "search";
+      if (pathWithoutLocale.startsWith("/communities")) return "communities";
+      if (pathWithoutLocale.startsWith("/events")) return "events";
+
+      // Special routes
+      if (pathWithoutLocale.startsWith("/md/")) return "md/[...slug]";
+
+      // Catch-all for other routes
+      if (pathWithoutLocale.startsWith("/")) return "[...slug]";
+
+      return null;
+    },
+    [stripLocalePrefix],
+  );
 
   const handleNavigationStateChange = useCallback(
     (navState: WebViewNavigation) => {
       const { url, loading, canGoBack: webViewCanGoBack } = navState;
 
       // Track whether WebView can go back
-      setCanGoBack(webViewCanGoBack);
+      canGoBackRef.current = webViewCanGoBack;
 
       if (!url || loading) {
         return;
@@ -103,6 +114,32 @@ export function useWebNavigation({
       const targetRoute = getRouteNameForPath(webPathWithoutQuery);
       const currentRoute = getRouteNameForPath(currentPath);
 
+      // Check if this navigation is from a sync operation (to prevent fighting with focus effect)
+      const isSyncNavigation =
+        syncTargetPathRef.current !== null &&
+        webPathWithoutQuery.startsWith(syncTargetPathRef.current);
+
+      if (__DEV__) {
+        console.log("[useWebNavigation] Navigation check:", {
+          webPath,
+          webPathWithoutQuery,
+          currentPath,
+          targetRoute,
+          currentRoute,
+          syncTargetPath: syncTargetPathRef.current,
+          isSyncNavigation,
+          willNavigate:
+            targetRoute !== currentRoute && !!targetRoute && !isSyncNavigation,
+        });
+      }
+
+      // Skip navigation if this is from syncing the WebView (prevents fighting with focus effect)
+      if (isSyncNavigation) {
+        // Clear the sync target now that we've seen the navigation
+        syncTargetPathRef.current = null;
+        return;
+      }
+
       // Navigate native router when the route changes
       if (targetRoute !== currentRoute && targetRoute) {
         if (targetRoute === "[...slug]" || targetRoute === "md/[...slug]") {
@@ -115,6 +152,14 @@ export function useWebNavigation({
             : "";
           router.navigate(`/${targetRoute}${queryString}` as Href);
         }
+      } else if (
+        targetRoute === "[...slug]" &&
+        currentRoute === "[...slug]" &&
+        stripLocalePrefix(webPathWithoutQuery) !==
+          stripLocalePrefix(currentPath)
+      ) {
+        // Both are catch-all routes but different paths (ignoring locale) - keep them in sync
+        router.navigate(webPathWithoutQuery as Href);
       }
     },
     [
@@ -123,14 +168,15 @@ export function useWebNavigation({
       onRetryCountReset,
       extractLocaleFromPath,
       getRouteNameForPath,
+      stripLocalePrefix,
       router,
       i18n,
-      setCanGoBack,
     ],
   );
 
   return {
     handleNavigationStateChange,
-    canGoBack,
+    canGoBackRef,
+    currentWebPathRef,
   };
 }

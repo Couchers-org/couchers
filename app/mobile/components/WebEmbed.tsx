@@ -1,5 +1,5 @@
 import { Href, useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
@@ -42,18 +42,20 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const retryCountRef = useRef(0);
   const MAX_RETRIES = 2; // Auto-retry up to 2 times for timeout errors
 
+  // Track the target path we're syncing to (to ignore navigation during sync)
+  const syncTargetPathRef = useRef<string | null>(null);
+
   // Custom hooks for image picking and navigation
   const { pickImage } = useImagePicker();
-  const { handleNavigationStateChange, canGoBack } = useWebNavigation({
-    webBaseUrl: WEB_BASE_URL,
-    currentPath: path,
-    onRetryCountReset: () => {
-      retryCountRef.current = 0;
-    },
-  });
-
-  // Track the current WebView URL to detect when it drifts from the expected path
-  const currentWebPathRef = useRef<string>(path);
+  const { handleNavigationStateChange, canGoBackRef, currentWebPathRef } =
+    useWebNavigation({
+      webBaseUrl: WEB_BASE_URL,
+      currentPath: path,
+      syncTargetPathRef,
+      onRetryCountReset: () => {
+        retryCountRef.current = 0;
+      },
+    });
 
   // Handle Android hardware back button - go back in WebView if possible
   useFocusEffect(
@@ -63,7 +65,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       }
 
       const onBackPress = () => {
-        if (canGoBack && webviewRef.current) {
+        if (canGoBackRef.current && webviewRef.current) {
           webviewRef.current.goBack();
           return true; // Prevent default back behavior
         }
@@ -76,7 +78,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       );
 
       return () => subscription.remove();
-    }, [canGoBack]),
+    }, [canGoBackRef]),
   );
 
   const backgroundColor =
@@ -89,18 +91,99 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     webviewRef.current?.reload();
   };
 
-  // When this screen gains focus, ensure WebView shows the correct path
+  // Helper to strip locale prefix from path
+  const stripLocale = useCallback(
+    (p: string) => p.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/"),
+    [],
+  );
+
+  // Helper to extract locale from path
+  const extractLocale = useCallback((p: string) => {
+    const match = p.match(/^\/([a-z]{2}(-[A-Z][a-z]+)?)\//);
+    return match ? match[1] : null;
+  }, []);
+
+  // Sync WebView when path prop changes (route navigation)
+  useEffect(() => {
+    // Read the current WebView path from the ref (always up-to-date)
+    const currentWebPath = currentWebPathRef.current;
+
+    // Strip locales from both paths for comparison
+    const currentRoute = stripLocale(currentWebPath);
+    const targetRoute = stripLocale(path);
+
+    if (currentRoute === targetRoute) {
+      // Same route, just different locale or already synced
+      if (__DEV__) {
+        console.log("[WebEmbed] useEffect: Already at target route, skipping", {
+          currentWebPath,
+          path,
+        });
+      }
+      return;
+    }
+
+    // Routes differ - sync WebView, preserving its current locale
+    const currentLocale = extractLocale(currentWebPath);
+    const targetPath = currentLocale
+      ? `/${currentLocale}${targetRoute}`
+      : targetRoute;
+
+    if (__DEV__) {
+      console.log("[WebEmbed] useEffect: Syncing WebView to new route", {
+        from: currentWebPath,
+        to: targetPath,
+      });
+    }
+
+    syncTargetPathRef.current = targetPath;
+    webviewRef.current?.injectJavaScript(
+      `window.location.href = "${WEB_BASE_URL}${targetPath}"; true;`,
+    );
+  }, [path, WEB_BASE_URL, stripLocale, extractLocale, currentWebPathRef]);
+
+  // Sync WebView when screen comes back into focus (tab switch)
   useFocusEffect(
     useCallback(() => {
-      // Compare full path including query params to handle search filters
-      if (currentWebPathRef.current !== path) {
-        const targetUrl = WEB_BASE_URL + path;
-        webviewRef.current?.injectJavaScript(
-          `window.location.href = "${targetUrl}"; true;`,
-        );
-        currentWebPathRef.current = path;
+      // Read the current WebView path from the ref (always up-to-date)
+      const currentWebPath = currentWebPathRef.current;
+
+      // Only sync if the routes differ (ignoring locale)
+      const currentRoute = stripLocale(currentWebPath);
+      const targetRoute = stripLocale(path);
+
+      if (currentRoute === targetRoute) {
+        // Same route, just different locale or already synced
+        if (__DEV__) {
+          console.log(
+            "[WebEmbed] useFocusEffect: Already at target route, skipping",
+            {
+              currentWebPath,
+              path,
+            },
+          );
+        }
+        return;
       }
-    }, [path, WEB_BASE_URL]),
+
+      // Routes differ - sync WebView, preserving its current locale
+      const currentLocale = extractLocale(currentWebPath);
+      const targetPath = currentLocale
+        ? `/${currentLocale}${targetRoute}`
+        : targetRoute;
+
+      if (__DEV__) {
+        console.log("[WebEmbed] useFocusEffect: Syncing WebView to new route", {
+          from: currentWebPath,
+          to: targetPath,
+        });
+      }
+
+      syncTargetPathRef.current = targetPath;
+      webviewRef.current?.injectJavaScript(
+        `window.location.href = "${WEB_BASE_URL}${targetPath}"; true;`,
+      );
+    }, [path, WEB_BASE_URL, stripLocale, extractLocale, currentWebPathRef]),
   );
 
   // Send result back to web app
