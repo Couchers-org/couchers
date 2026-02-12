@@ -39,7 +39,10 @@
   "last_active_false": "Desconocido",
   "reference_amounts": {
     "no_references": "Sin referencias",
-    "hundred_or_more_references": "+100 referencias"
+    "hundred_or_more_references": "+100 referencias",
+    "count_references_one": "{{count}} referencia",
+    "count_references_many": "{{count}} de referencias",
+    "count_references_other": "{{count}} referencias"
   },
   "edit_profile_headings": {
     "name": "Nombre",
