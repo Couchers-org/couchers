@@ -1,10 +1,9 @@
-- Universal linking: Couchers.org links now open directly in the app
-- Native photo picker for profile photos
-- Dark mode improvements and sync fixes
-- Fixed push notifications for external links
-- Fixed text field labels on mobile
-- Fixed notification icon on Android
-- Fixed language switching in bottom navigation
-- Fixed snackbar blocking the screen
-- Performance improvements for app startup
-- Various UI polish and bug fixes
+- Fixed comment form input erasing when toggling dark mode
+- Fixed double spinner when uploading profile photo
+- Add LanguagePickerSelect to Login and Signup
+- Improve camera permissions flow after denied
+- Clicking own blank avatar takes user to upload photo
+- Adjust bottom nav to fix longer text
+- Mobile app navigation fixes
+- Make report bug button smaller
+- Code style improvements

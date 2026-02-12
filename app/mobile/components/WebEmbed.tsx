@@ -1,16 +1,8 @@
-import {
-  ImagePickerResult,
-  launchCameraAsync,
-  launchImageLibraryAsync,
-  requestCameraPermissionsAsync,
-} from "expo-image-picker";
 import { Href, useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ActionSheetIOS,
   ActivityIndicator,
-  Alert,
   Appearance,
   BackHandler,
   Image,
@@ -23,17 +15,14 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  WebView,
-  WebViewMessageEvent,
-  WebViewNavigation,
-} from "react-native-webview";
+import { WebView, WebViewMessageEvent } from "react-native-webview";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useImagePicker } from "@/hooks/useImagePicker";
+import { useWebNavigation } from "@/hooks/useWebNavigation";
 import errorGraphic from "@/resources/404graphic.png";
 import { theme } from "@/theme";
-
-import { privacyPolicyRoute, tosRoute } from "../routes";
+import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
 type WebEmbedProps = {
   path: string;
@@ -52,10 +41,21 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const [hasError, setHasError] = useState(false);
   const retryCountRef = useRef(0);
   const MAX_RETRIES = 2; // Auto-retry up to 2 times for timeout errors
-  const [canGoBack, setCanGoBack] = useState(false);
 
-  // Track the current WebView URL to detect when it drifts from the expected path
-  const currentWebPathRef = useRef<string>(path);
+  // Track the target path we're syncing to (to ignore navigation during sync)
+  const syncTargetPathRef = useRef<string | null>(null);
+
+  // Custom hooks for image picking and navigation
+  const { pickImage } = useImagePicker();
+  const { handleNavigationStateChange, canGoBackRef, currentWebPathRef } =
+    useWebNavigation({
+      webBaseUrl: WEB_BASE_URL,
+      currentPath: path,
+      syncTargetPathRef,
+      onRetryCountReset: () => {
+        retryCountRef.current = 0;
+      },
+    });
 
   // Handle Android hardware back button - go back in WebView if possible
   useFocusEffect(
@@ -65,7 +65,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       }
 
       const onBackPress = () => {
-        if (canGoBack && webviewRef.current) {
+        if (canGoBackRef.current && webviewRef.current) {
           webviewRef.current.goBack();
           return true; // Prevent default back behavior
         }
@@ -78,7 +78,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       );
 
       return () => subscription.remove();
-    }, [canGoBack]),
+    }, [canGoBackRef]),
   );
 
   const backgroundColor =
@@ -91,110 +91,83 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     webviewRef.current?.reload();
   };
 
-  // When this screen gains focus, ensure WebView shows the correct path
-  useFocusEffect(
-    useCallback(() => {
-      // Compare full path including query params to handle search filters
-      if (currentWebPathRef.current !== path) {
-        const targetUrl = WEB_BASE_URL + path;
-        webviewRef.current?.injectJavaScript(
-          `window.location.href = "${targetUrl}"; true;`,
-        );
-        currentWebPathRef.current = path;
-      }
-    }, [path, WEB_BASE_URL]),
+  // Helper to strip locale prefix from path
+  const stripLocale = useCallback(
+    (p: string) => p.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/"),
+    [],
   );
 
-  // Extract locale from web path (e.g., "/de/dashboard" -> "de", "/zh-Hans/search" -> "zh-Hans")
-  const extractLocaleFromPath = (webPath: string): string | null => {
-    const match = webPath.match(/^\/([a-z]{2}(-[A-Z][a-z]+)?)\//);
-    return match ? match[1] : null;
-  };
-
-  // Map web paths to native route names
-  const getRouteNameForPath = (webPath: string): string | null => {
-    // Strip locale prefix if present (e.g., "/de/dashboard" -> "/dashboard")
-    const pathWithoutLocale = webPath.replace(
-      /^\/[a-z]{2}(-[A-Z][a-z]+)?\//,
-      "/",
-    );
-
-    // Main tab routes (visible in tab bar)
-    if (pathWithoutLocale.startsWith("/dashboard")) return "dashboard";
-    if (pathWithoutLocale.startsWith("/messages")) return "messages";
-    if (pathWithoutLocale.startsWith("/search")) return "search";
-    if (pathWithoutLocale.startsWith("/communities")) return "communities";
-    if (pathWithoutLocale.startsWith("/events")) return "events";
-
-    // Special routes
-    if (pathWithoutLocale.startsWith("/md/")) return "md/[...slug]";
-
-    // Catch-all for other routes
-    if (pathWithoutLocale.startsWith("/")) {
-      // Return the slug route for any other path
-      return "[...slug]";
-    }
-
-    return null;
-  };
-
-  const handleNavigationStateChange = (navState: WebViewNavigation) => {
-    const { url, loading, canGoBack: webViewCanGoBack } = navState;
-
-    // Track whether WebView can go back (for Android back button handling)
-    setCanGoBack(webViewCanGoBack);
-
-    if (!url || loading) {
+  // Sync WebView when path prop changes (route navigation)
+  useEffect(() => {
+    // If there's already a sync in progress, skip this one to avoid conflicts
+    if (syncTargetPathRef.current !== null) {
       return;
     }
 
-    // Reset retry count on successful page load
-    retryCountRef.current = 0;
+    // Read the current WebView path from the ref (always up-to-date)
+    const currentWebPath = currentWebPathRef.current;
 
-    const normalizedUrl = url.split("#")[0];
+    // Strip locales from both paths for comparison
+    const currentRoute = stripLocale(currentWebPath);
+    const targetRoute = stripLocale(path);
 
-    // Skip external URLs - they're handled by onShouldStartLoadWithRequest
-    if (!normalizedUrl.startsWith(WEB_BASE_URL)) {
-      console.log("*****SKIPPING EXTERNAL URL*****", normalizedUrl);
+    if (currentRoute === targetRoute) {
+      // Same route, just different locale or already synced
       return;
     }
 
-    // Track the current web path (strip query params for tab comparison)
-    const webPath: string = normalizedUrl.replace(WEB_BASE_URL, "") || "/";
-    const webPathWithoutQuery = webPath.split("?")[0];
-    currentWebPathRef.current = webPath;
+    // Routes differ - sync WebView, using mobile i18n language as source of truth
+    // This ensures language selection persists across tab switches
+    const currentLocale = i18n.language !== "en" ? i18n.language : null;
+    const targetPath = currentLocale
+      ? `/${currentLocale}${targetRoute}`
+      : targetRoute;
 
-    // Extract locale from URL and sync with mobile app's i18n
-    // If no locale in URL, default to English (Next.js default locale)
-    const webLocale = extractLocaleFromPath(webPathWithoutQuery) || "en";
-    if (webLocale !== i18n.language) {
-      i18n.changeLanguage(webLocale).catch((err) => {
-        if (__DEV__) {
-          console.error("Failed to change mobile app language:", err);
-        }
-      });
-    }
+    syncTargetPathRef.current = targetPath;
+    // Use postMessage to trigger client-side Next.js navigation
+    // This avoids middleware redirects based on stale cookies
+    webviewRef.current?.injectJavaScript(`
+      window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
+      true;
+    `);
+  }, [path, WEB_BASE_URL, stripLocale, i18n.language, currentWebPathRef]);
 
-    // Sync native route when WebView navigates to a different page
-    const targetRoute = getRouteNameForPath(webPathWithoutQuery);
-    const currentRoute = getRouteNameForPath(path);
-
-    // Navigate native router when the route changes
-    if (targetRoute !== currentRoute && targetRoute) {
-      if (targetRoute === "[...slug]" || targetRoute === "md/[...slug]") {
-        // For catch-all routes (detail pages, markdown, etc.), navigate with full path
-        // This ensures the native router updates even for non-tab routes
-        router.navigate(webPathWithoutQuery as Href);
-      } else {
-        // For main tab routes, preserve query parameters
-        // Extract query string from the full web path
-        const queryString = webPath.includes("?")
-          ? webPath.substring(webPath.indexOf("?"))
-          : "";
-        router.navigate(`/${targetRoute}${queryString}` as Href);
+  // Sync WebView when screen comes back into focus (tab switch)
+  useFocusEffect(
+    useCallback(() => {
+      // If there's already a sync in progress, skip this one to avoid conflicts
+      if (syncTargetPathRef.current !== null) {
+        return;
       }
-    }
-  };
+
+      // Read the current WebView path from the ref (always up-to-date)
+      const currentWebPath = currentWebPathRef.current;
+
+      // Strip locales from both paths for comparison
+      const currentRoute = stripLocale(currentWebPath);
+      const targetRoute = stripLocale(path);
+
+      if (currentRoute === targetRoute) {
+        // Same route, just different locale or already synced
+        return;
+      }
+
+      // Routes differ - sync WebView, using mobile i18n language as source of truth
+      // This ensures language selection persists across tab switches
+      const currentLocale = i18n.language !== "en" ? i18n.language : null;
+      const targetPath = currentLocale
+        ? `/${currentLocale}${targetRoute}`
+        : targetRoute;
+
+      syncTargetPathRef.current = targetPath;
+      // Use postMessage to trigger client-side Next.js navigation
+      // This avoids middleware redirects based on stale cookies
+      webviewRef.current?.injectJavaScript(`
+        window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
+        true;
+      `);
+    }, [path, stripLocale, i18n.language, currentWebPathRef]),
+  );
 
   // Send result back to web app
   const sendImagePickResult = (result: {
@@ -208,108 +181,6 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       window.postMessage(${JSON.stringify({ type: "IMAGE_PICK_RESULT", result })}, "*");
       true;
     `);
-  };
-
-  // Handle image picking from camera or library
-  const handleImagePick = async () => {
-    // Show action sheet to choose camera or library
-    const showPicker = async (source: "camera" | "library") => {
-      try {
-        let result: ImagePickerResult;
-
-        if (source === "camera") {
-          const { status } = await requestCameraPermissionsAsync();
-          if (status !== "granted") {
-            sendImagePickResult({
-              success: false,
-              error: t("errors.camera_permission_denied"),
-            });
-            return;
-          }
-          result = await launchCameraAsync({
-            mediaTypes: ["images"],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-            base64: true, // Get base64 data to send to web app
-          });
-        } else {
-          result = await launchImageLibraryAsync({
-            mediaTypes: ["images"],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-            base64: true, // Get base64 data to send to web app
-          });
-        }
-
-        if (result.canceled) {
-          sendImagePickResult({ success: false, canceled: true });
-          return;
-        }
-
-        const asset = result.assets[0];
-
-        if (!asset.base64) {
-          throw new Error("Failed to get image data");
-        }
-
-        // Send base64 image back to web app for upload
-        const mimeType = asset.mimeType || "image/jpeg";
-        sendImagePickResult({
-          success: true,
-          imageBase64: asset.base64,
-          mimeType,
-        });
-      } catch (error) {
-        if (__DEV__) {
-          console.error("Image pick error:", error);
-        }
-        sendImagePickResult({
-          success: false,
-          error:
-            error instanceof Error ? error.message : "Failed to pick image",
-        });
-      }
-    };
-
-    // Show platform-specific action sheet
-    if (Platform.OS === "ios") {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: [
-            t("common.cancel"),
-            t("common.take_photo"),
-            t("common.choose_from_library"),
-          ],
-          cancelButtonIndex: 0,
-        },
-        (buttonIndex) => {
-          if (buttonIndex === 1) {
-            showPicker("camera");
-          } else if (buttonIndex === 2) {
-            showPicker("library");
-          } else {
-            sendImagePickResult({ success: false, canceled: true });
-          }
-        },
-      );
-    } else {
-      // Android: use Alert
-      Alert.alert(t("common.add_photo"), t("common.choose_photo_source"), [
-        {
-          text: t("common.cancel"),
-          style: "cancel",
-          onPress: () =>
-            sendImagePickResult({ success: false, canceled: true }),
-        },
-        { text: t("common.take_photo"), onPress: () => showPicker("camera") },
-        {
-          text: t("common.choose_from_library"),
-          onPress: () => showPicker("library"),
-        },
-      ]);
-    }
   };
 
   const handleMessage = (event: WebViewMessageEvent) => {
@@ -335,7 +206,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         }
       } else if (payload?.type === "REQUEST_IMAGE_PICK") {
         // Web app requests native image picker (WebView file input crashes on mobile)
-        handleImagePick();
+        pickImage(sendImagePickResult);
       }
     } catch (error) {
       // Silently ignore non-JSON messages (expected from browser/WebView internals)
@@ -346,34 +217,11 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     }
   };
 
-  // URLs that should always load inside the WebView (not opened externally)
-  const shouldLoadInWebView = (url: string): boolean => {
-    // Exceptions
-    if (url.includes(tosRoute) || url.includes(privacyPolicyRoute))
-      return false;
-
-    // Internal app URLs
-    if (url.startsWith(WEB_BASE_URL)) return true;
-
-    // Special browser URLs (about:blank, data:, blob:, javascript:)
-    if (!url.startsWith("http://") && !url.startsWith("https://")) return true;
-
-    // reCAPTCHA (needed for form protection)
-    if (
-      url.includes("google.com/recaptcha") ||
-      url.includes("gstatic.com/recaptcha")
-    ) {
-      return true;
-    }
-
-    return false;
-  };
-
   // Intercept URL requests before they load
   const handleShouldStartLoad = (event: { url: string }): boolean => {
     const { url } = event;
 
-    if (shouldLoadInWebView(url)) {
+    if (shouldLoadInWebView(url, WEB_BASE_URL)) {
       return true;
     }
 

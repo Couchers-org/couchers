@@ -13,6 +13,7 @@ import { EnvironmentBanner } from "components/EnvironmentBanner";
 import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";
 import NativeColorSchemeSync from "components/NativeColorSchemeSync";
+import NativeMobileNavigationHandler from "components/NativeMobileNavigationHandler";
 import AuthProvider from "features/auth/AuthProvider";
 import { ReactQueryClientProvider } from "features/reactQueryClient";
 import StatsigProvider from "features/statsig/StatsigProvider";
@@ -82,6 +83,7 @@ function MyApp(props: AppWithLayoutProps) {
                   <StatsigProvider>
                     <CssBaseline />
                     <NativeColorSchemeSync />
+                    <NativeMobileNavigationHandler />
                     <EnvironmentBanner />
                     <HtmlMeta />
                     {getLayout(<Component {...pageProps} />)}

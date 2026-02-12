@@ -15,7 +15,6 @@ export default function NotificationBadge({
       badgeContent={count}
       color="primary"
       sx={{
-        right: "-0.8rem",
         "& .MuiBadge-badge": {
           fontSize: { xs: "0.65rem" },
           minWidth: { xs: 16 },

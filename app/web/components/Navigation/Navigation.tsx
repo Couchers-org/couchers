@@ -256,13 +256,13 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   },
 }));
 
-const StyledNav = styled("div")(({ theme }) => ({
+const StyledNav = styled("div")(() => ({
   alignItems: "center",
   display: "flex",
   flex: 0,
 }));
 
-const StyledMenuContainer = styled("div")(({ theme }) => ({
+const StyledMenuContainer = styled("div")(() => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
@@ -339,7 +339,7 @@ export default function Navigation() {
   return (
     <StyledAppBar position="sticky" color="inherit">
       <StyledToolbar>
-        <StyledNav sx={{ marginLeft: 1 }}>
+        <StyledNav sx={{ marginLeft: 2 }}>
           {isMobile && !isNativeEmbed && (
             <>
               <IconButton
@@ -428,10 +428,10 @@ export default function Navigation() {
         </StyledNav>
         <StyledMenuContainer>
           {isNativeEmbed && (
-            <>
-              <ReportButton sx={{ marginLeft: theme.spacing(1) }} />
+            <Box sx={{ display: "flex", gap: 0.5, marginRight: 0.5 }}>
+              <ReportButton />
               <DarkModeToggle />
-            </>
+            </Box>
           )}
           {authState.authenticated && isMounted ? (
             <>

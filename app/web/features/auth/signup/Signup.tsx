@@ -13,6 +13,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
+import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
@@ -189,6 +190,15 @@ export default function Signup() {
             </Trans>
           </Typography>
         </StyledFormWrapper>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: theme.spacing(2),
+          }}
+        >
+          <LanguagePickerSelect />
+        </Box>
       </Container>
     </>
   );

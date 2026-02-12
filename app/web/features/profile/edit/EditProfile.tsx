@@ -8,6 +8,7 @@ import {
   Radio,
   RadioGroup,
   styled,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import Alert from "components/Alert";
@@ -29,8 +30,9 @@ import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
+import { useRouter } from "next/router";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { howToMakeGreatProfileUrl } from "routes";
 import { UpdateUserProfileData } from "service/index";
@@ -136,6 +138,18 @@ const AvatarImageWrapper = styled(Box)(({ theme }) => ({
   },
 }));
 
+const ClickableAvatarWrapper = styled(Box)(() => ({
+  cursor: "pointer",
+  transition: "transform 0.2s ease-in-out, opacity 0.2s ease-in-out",
+  "&:hover": {
+    transform: "scale(1.05)",
+    opacity: 0.8,
+  },
+  "&:active": {
+    transform: "scale(0.98)",
+  },
+}));
+
 const AvatarTextWrapper = styled(Box)(({ theme }) => ({
   flex: "1 1 67%",
   maxWidth: "67%",
@@ -211,6 +225,7 @@ const StyledRadioGroup = styled(RadioGroup)(() => ({
 
 export default function EditProfileForm() {
   const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
+  const router = useRouter();
   const {
     updateUserProfile,
     reset: resetUpdate,
@@ -226,6 +241,7 @@ export default function EditProfileForm() {
   const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
     useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const galleryEditorRef = useRef<HTMLDivElement>(null);
 
   const {
     control,
@@ -306,6 +322,37 @@ export default function EditProfileForm() {
     }
   }, [user, reset, languages, regions]);
 
+  // Scroll to gallery editor if hash is #gallery (from ProfilePage avatar click)
+  useEffect(() => {
+    if (router.asPath.includes("#gallery") && galleryEditorRef.current) {
+      // Longer delay for mobile WebViews to ensure page is fully rendered
+      const timer = setTimeout(() => {
+        if (galleryEditorRef.current) {
+          // Try scrollIntoView first
+          galleryEditorRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+
+          // Fallback: Also try window.scrollTo as backup for WebViews
+          setTimeout(() => {
+            if (galleryEditorRef.current) {
+              const rect = galleryEditorRef.current.getBoundingClientRect();
+              const scrollTop =
+                window.pageYOffset || document.documentElement.scrollTop;
+              const targetPosition = rect.top + scrollTop - 100;
+              window.scrollTo({
+                top: targetPosition,
+                behavior: "smooth",
+              });
+            }
+          }, 50);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [router.asPath]);
+
   const aboutMeField = watch("aboutMe") ?? "";
 
   useUnsavedChangesWarning({
@@ -373,6 +420,13 @@ export default function EditProfileForm() {
     }
   };
 
+  const handleAvatarClick = () => {
+    galleryEditorRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
+
   return (
     <>
       {updateError && (
@@ -409,37 +463,59 @@ export default function EditProfileForm() {
                 {t("profile:edit_profile_headings.basic_information_subtitle")}
               </SectionSubtitle>
 
-              {user.avatarUrl && (
-                <AvatarContainer>
-                  <AvatarImageWrapper>
+              <AvatarContainer>
+                <AvatarImageWrapper>
+                  {user.avatarUrl ? (
                     <Avatar
                       user={user}
                       isProfileLink={false}
                       style={{ width: 120, height: 120 }}
                     />
-                  </AvatarImageWrapper>
-                  <AvatarTextWrapper>
-                    <Typography>
-                      <InfoOutlined
-                        sx={{
-                          color: "primary.main",
-                          fontSize: 18,
-                          verticalAlign: "text-bottom",
-                          mr: 1,
-                          display: "inline",
-                        }}
-                      />
+                  ) : (
+                    <Tooltip
+                      title={t("profile:click_to_add_photo")}
+                      arrow
+                      placement="top"
+                    >
+                      <ClickableAvatarWrapper onClick={handleAvatarClick}>
+                        <Avatar
+                          user={user}
+                          isProfileLink={false}
+                          style={{ width: 120, height: 120 }}
+                        />
+                      </ClickableAvatarWrapper>
+                    </Tooltip>
+                  )}
+                </AvatarImageWrapper>
+                <AvatarTextWrapper>
+                  <Typography>
+                    <InfoOutlined
+                      sx={{
+                        color: "primary.main",
+                        fontSize: 18,
+                        verticalAlign: "text-bottom",
+                        mr: 1,
+                        display: "inline",
+                      }}
+                    />
+                    {user.avatarUrl ? (
                       <Trans
                         t={t}
                         i18nKey="profile:avatar_photo_info"
                         components={{ bold: <strong /> }}
                       />
-                    </Typography>
-                  </AvatarTextWrapper>
-                </AvatarContainer>
-              )}
+                    ) : (
+                      <Trans
+                        t={t}
+                        i18nKey="profile:avatar_placeholder_info"
+                        components={{ bold: <strong /> }}
+                      />
+                    )}
+                  </Typography>
+                </AvatarTextWrapper>
+              </AvatarContainer>
 
-              <FieldGroup>
+              <FieldGroup ref={galleryEditorRef}>
                 <GalleryEditor
                   galleryId={user.profileGalleryId}
                   userId={user.userId}
