@@ -159,7 +159,7 @@ def test_ChangeUserBirthdate(db, push_collector: PushCollector):
 
     push = push_collector.pop_for_user(normal_user.id, last=True)
     assert push.content.title == "Birthdate changed"
-    assert push.content.body == "An admin changed your date of birth to Friday 25 May 1990."
+    assert push.content.body == "An admin changed your date of birth to May 25, 1990."
 
 
 def test_BanUser(db):

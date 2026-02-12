@@ -9,9 +9,8 @@ from functools import lru_cache
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from babel import Locale
-from babel.dates import format_date, format_datetime, format_time, get_timezone_name
 import phonenumbers
+from babel.dates import format_date, format_datetime, format_time, get_timezone_name
 from google.protobuf.timestamp_pb2 import Timestamp
 
 from couchers.i18n.i18next import I18Next
@@ -108,7 +107,7 @@ def _localize_with_fallbacks(
     exception: Exception | None
     for candidate_locale in [locale] + get_locale_fallbacks(locale):
         try:
-            return localize(candidate_locale.replace("-", "_")) # Babel expects "en_US", not "en-US".
+            return localize(candidate_locale.replace("-", "_"))  # Babel expects "en_US", not "en-US".
         except Exception as e:
             exception = e
             pass

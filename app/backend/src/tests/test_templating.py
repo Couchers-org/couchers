@@ -47,7 +47,7 @@ def test_date_formatting() -> None:
     the_date = date(1970, 1, 1)
     template = Jinja2Template(source="Date: {{ date }}", html=False)
     rendered = _render_en_utc(template, {"date": the_date})
-    assert rendered == "Date: Thursday 1 January 1970"
+    assert rendered == "Date: Jan 1, 1970"
 
 
 def _greeting_i18next(value: str) -> I18Next:
