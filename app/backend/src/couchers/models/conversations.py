@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, String, func
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import DynamicMapped, Mapped, mapped_column, relationship
+from sqlalchemy.sql import expression
 
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
 from couchers.models.base import Base
@@ -81,6 +82,8 @@ class GroupChatSubscription(Base, kw_only=True):
     role: Mapped[GroupChatRole] = mapped_column(Enum(GroupChatRole))
 
     last_seen_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
+
+    is_archived: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
     # when this chat is muted until, DATETIME_INFINITY for "forever"
     muted_until: Mapped[datetime] = mapped_column(

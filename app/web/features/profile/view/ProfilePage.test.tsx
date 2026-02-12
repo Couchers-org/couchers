@@ -4,9 +4,16 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
 import { service } from "service";
+import defaultUser from "test/fixtures/defaultUser.json";
+import galleryFixtures from "test/fixtures/gallery.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { getLanguages, getRegions, getUser } from "test/serviceMockDefaults";
+import {
+  getAccountInfo,
+  getLanguages,
+  getRegions,
+  getUser,
+} from "test/serviceMockDefaults";
 import { addDefaultUser, MockedService } from "test/utils";
 
 import ProfilePage from "./ProfilePage";
@@ -14,6 +21,8 @@ import ProfilePage from "./ProfilePage";
 const { t } = i18n;
 
 jest.mock("features/userQueries/useCurrentUser");
+
+jest.mock("react-simple-maps");
 
 const getUserMock = service.user.getUser as MockedService<
   typeof service.user.getUser
@@ -34,6 +43,13 @@ const useCurrentUserMock = useCurrentUser as jest.MockedFunction<
   typeof useCurrentUser
 >;
 
+const getGalleryMock = service.gallery.getGallery as jest.MockedFunction<
+  typeof service.gallery.getGallery
+>;
+
+const getAccountInfoMock = service.account
+  .getAccountInfo as jest.MockedFunction<typeof service.account.getAccountInfo>;
+
 function renderProfilePage() {
   mockRouter.setCurrentUrl("/profile");
   render(<ProfilePage tab="about" />, { wrapper });
@@ -48,7 +64,9 @@ describe("Profile page", () => {
     getUserMock.mockImplementation(getUser);
     getLanguagesMock.mockImplementation(getLanguages);
     getRegionsMock.mockImplementation(getRegions);
+    getAccountInfoMock.mockImplementation(getAccountInfo);
     reportContentMock.mockResolvedValue(new Empty());
+    getGalleryMock.mockResolvedValue(galleryFixtures.galleries[0]);
     addDefaultUser();
   });
 

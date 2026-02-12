@@ -1,9 +1,11 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, String, UniqueConstraint, func
+from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, String, UniqueConstraint, exists, func, literal, select
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+from sqlalchemy.sql.elements import ColumnElement
+from sqlalchemy.sql.selectable import Subquery
 
 from couchers import urls
 from couchers.models.base import Base
@@ -113,3 +115,53 @@ class PhotoGalleryItem(Base, kw_only=True):
         # Ensure each upload is only in a gallery once
         UniqueConstraint("gallery_id", "upload_key", name="uix_gallery_upload"),
     )
+
+
+def get_avatar_photo_subquery(name: str = "avatar_photo") -> Subquery:
+    """
+    Returns a subquery that selects the first photo (by position) from each photo gallery.
+
+    The subquery has columns: gallery_id, upload_key
+
+    Usage:
+        avatar_photo = get_avatar_photo_subquery()
+        query = select(User).outerjoin(avatar_photo, avatar_photo.c.gallery_id == User.profile_gallery_id)
+    """
+    return (
+        select(
+            PhotoGalleryItem.gallery_id,
+            PhotoGalleryItem.upload_key,
+        )
+        .distinct(PhotoGalleryItem.gallery_id)
+        .order_by(PhotoGalleryItem.gallery_id, PhotoGalleryItem.position)
+        .subquery(name=name)
+    )
+
+
+def get_avatar_upload(session: Session, user: User) -> Upload | None:
+    """
+    Returns the Upload for the user's avatar (first photo in their profile gallery), or None.
+    """
+    return session.execute(
+        select(Upload)
+        .join(PhotoGalleryItem, PhotoGalleryItem.upload_key == Upload.key)
+        .where(PhotoGalleryItem.gallery_id == user.profile_gallery_id)
+        .order_by(PhotoGalleryItem.position)
+        .limit(1)
+    ).scalar_one_or_none()
+
+
+def has_avatar_photo_expression(user: type[User] | User) -> ColumnElement[bool]:
+    """
+    Returns an EXISTS expression that checks if a user has at least one photo in their profile gallery.
+
+    Can be used with a User instance or the User class (for SQL expressions).
+
+    Usage:
+        # In a query filter
+        statement.where(has_avatar_photo_expression(User))
+
+        # With a concrete value
+        session.execute(select(has_avatar_photo_expression(user))).scalar()
+    """
+    return exists(select(literal(1)).where(PhotoGalleryItem.gallery_id == user.profile_gallery_id))

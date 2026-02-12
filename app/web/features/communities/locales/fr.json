@@ -1,5 +1,6 @@
 {
   "attendees_count_one": "{{count}} participant.e",
+  "attendees_count_many": "{{count}} participant.e.s",
   "attendees_count_other": "{{count}} participant.e.s",
   "by_creator": "écrit par {{name}}",
   "cancel_event": "Annuler l'événement",
@@ -72,5 +73,7 @@
   "end_date_error": "La date de fin de l'événement doit être après la date de début.",
   "date_required": "Veuillez entrer une date.",
   "end_time_error": "L'heure de fin de l'événement doit être après l'heure de début.",
-  "time_required": "Veuillez entrer une heure."
+  "time_required": "Veuillez entrer une heure.",
+  "find_host": "Trouver un.e hôte",
+  "community_info_page_title": "Information générale"
 }

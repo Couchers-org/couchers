@@ -1,13 +1,13 @@
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>Hi {{ flow.name|v2esc }},</mj-text>
+    <mj-text>Hi {{ flow.name }},</mj-text>
     <mj-text>Please finish signing up for Couchers.org.</mj-text>
     <mj-text>Please click on this link to continue:</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ signup_link|v2url }}">
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ signup_link }}">
       <b>Finish signing up</b>
     </mj-button>
   </mj-column>

@@ -3,14 +3,15 @@ from dataclasses import dataclass
 from typing import Any
 
 from couchers import urls
-from couchers.i18n.localize import (
-    format_phone_number,
-    localize_date_from_iso,
-    localize_datetime_for_user,
-    localize_string,
+from couchers.i18n import LocalizationContext
+from couchers.i18n.localize import format_phone_number
+from couchers.models import Notification, NotificationTopicAction
+from couchers.notifications.quick_links import (
+    can_unsubscribe_topic_key,
+    generate_quick_decline_link,
+    generate_unsub_topic_action,
+    generate_unsub_topic_key,
 )
-from couchers.models import Notification, NotificationTopicAction, User
-from couchers.notifications.quick_links import generate_quick_decline_link, generate_unsub_topic_action
 from couchers.proto import api_pb2, notification_data_pb2
 from couchers.utils import now, to_aware_datetime
 
@@ -19,10 +20,6 @@ logger = logging.getLogger(__name__)
 
 @dataclass(kw_only=True)
 class RenderedEmailNotification:
-    # whether the notification is critical and cannot be turned off
-    is_critical: bool = False
-    # whether this email can be sent to someone who is deleted
-    allow_deleted: bool = False
     # email subject
     subject: str
     # shows up when listing emails in many clients
@@ -35,14 +32,11 @@ class RenderedEmailNotification:
     topic_action_unsubscribe_text: str | None = None
     # the link label on the topic_key unsubscribe link
     topic_key_unsubscribe_text: str | None = None
-    # url to unsubscribe with one click
-    list_unsubscribe_url: str | None = None
 
 
-def render_email_notification(user: User, notification: Notification) -> RenderedEmailNotification:
-    def get_localized_string(key: str, *, substitutions: dict[str, str | int] | None = None) -> str:
-        return localize_string(user.ui_language_preference, key, substitutions=substitutions)
-
+def render_email_notification(
+    notification: Notification, loc_context: LocalizationContext
+) -> RenderedEmailNotification:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic == "host_request":
         view_link = urls.host_request(host_request_id=data.host_request.host_request_id)
@@ -146,7 +140,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         title = "Your password was changed"
         message = "Your login password for Couchers.org was changed."
         return RenderedEmailNotification(
-            is_critical=True,
             subject=title,
             preview=message,
             template_name="security",
@@ -158,7 +151,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
     elif notification.topic_action == NotificationTopicAction.password_reset__start:
         message = "Someone initiated a password change on your account."
         return RenderedEmailNotification(
-            is_critical=True,
             subject="Reset your Couchers.org password",
             preview=message,
             template_name="password_reset",
@@ -170,7 +162,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         title = "Your password was successfully reset"
         message = "Your password on Couchers.org was changed. If that was you, then no further action is needed."
         return RenderedEmailNotification(
-            is_critical=True,
             subject=title,
             preview=title,
             template_name="security",
@@ -183,7 +174,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         title = "An email change was initiated on your account"
         message = f"An email change to the email <b>{data.new_email}</b> was initiated on your account."
         return RenderedEmailNotification(
-            is_critical=True,
             subject=title,
             preview=title,
             template_name="security",
@@ -196,7 +186,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         title = "Email change completed"
         message = "Your new email address has been verified."
         return RenderedEmailNotification(
-            is_critical=True,
             subject=title,
             preview=message,
             template_name="security",
@@ -209,7 +198,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         title = "Phone verification started"
         message = f"You started phone number verification with the number <b>{format_phone_number(data.phone)}</b>."
         return RenderedEmailNotification(
-            is_critical=True,
             subject=title,
             preview=message,
             template_name="security",
@@ -223,7 +211,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         message = f"Your phone was successfully verified as <b>{format_phone_number(data.phone)}</b> on Couchers.org."
         message_plain = f"Your phone was successfully verified as {format_phone_number(data.phone)} on Couchers.org."
         return RenderedEmailNotification(
-            is_critical=True,
             subject=title,
             preview=message_plain,
             template_name="security",
@@ -237,7 +224,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         message = f"Your gender on Couchers.org was changed to <b>{data.gender}</b> by an admin."
         message_plain = f"Your gender on Couchers.org was changed to {data.gender} by an admin."
         return RenderedEmailNotification(
-            is_critical=True,
             subject=title,
             preview=message_plain,
             template_name="security",
@@ -248,11 +234,10 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         )
     elif notification.topic_action == NotificationTopicAction.birthdate__change:
         title = "Your date of birth was changed"
-        birthdate = localize_date_from_iso(data.birthdate, user.ui_language_preference or "en")
+        birthdate = loc_context.localize_date_from_iso(data.birthdate)
         message = f"Your date of birth on Couchers.org was changed to <b>{birthdate}</b> by an admin."
         message_plain = f"Your date of birth on Couchers.org was changed to {birthdate} by an admin."
         return RenderedEmailNotification(
-            is_critical=True,
             subject=title,
             preview=message_plain,
             template_name="security",
@@ -263,7 +248,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         )
     elif notification.topic_action == NotificationTopicAction.api_key__create:
         return RenderedEmailNotification(
-            is_critical=True,
             subject="Your API key for Couchers.org",
             preview="We have issued you an API key as per your request.",
             template_name="api_key",
@@ -285,18 +269,16 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "unsub_type": "badge additions" if notification.action == "add" else "badge removals",
             },
             topic_action_unsubscribe_text="badge additions" if notification.action == "add" else "badge removals",
-            list_unsubscribe_url=generate_unsub_topic_action(notification),
         )
     elif notification.topic_action == NotificationTopicAction.donation__received:
-        title = get_localized_string("notifications.donation_received.title")
-        message = get_localized_string(
+        title = loc_context.localize_string("notifications.donation_received.title")
+        message = loc_context.localize_string(
             "notifications.donation_received.thanks_amount",
             substitutions={
                 "amount": data.amount,
             },
         )
         return RenderedEmailNotification(
-            is_critical=True,
             subject=title,
             preview=message,
             template_name="donation_received",
@@ -304,6 +286,7 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                 "amount": data.amount,
                 "receipt_url": data.receipt_url,
             },
+            topic_action_unsubscribe_text="donations received",
         )
     elif notification.topic_action == NotificationTopicAction.friend_request__create:
         other = data.other_user
@@ -333,8 +316,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         )
     elif notification.topic_action == NotificationTopicAction.account_deletion__start:
         return RenderedEmailNotification(
-            is_critical=True,
-            allow_deleted=True,
             subject="Confirm your Couchers.org account deletion",
             preview="Please confirm that you want to delete your Couchers.org account.",
             template_name="account_deletion_start",
@@ -345,8 +326,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
     elif notification.topic_action == NotificationTopicAction.account_deletion__complete:
         title = "Your Couchers.org account has been deleted"
         return RenderedEmailNotification(
-            is_critical=True,
-            allow_deleted=True,
             subject=title,
             preview="We have deleted your Couchers.org account, to undo, follow the link in this email.",
             template_name="account_deletion_complete",
@@ -359,8 +338,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         title = "Your Couchers.org account has been recovered!"
         subtitle = "We have recovered your Couchers.org account as per your request! Welcome back!"
         return RenderedEmailNotification(
-            is_critical=True,
-            allow_deleted=True,
             subject=title,
             preview=subtitle,
             template_name="account_deletion_recovered",
@@ -402,8 +379,8 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         )
     elif notification.topic == "event":
         event = data.event
-        start_time = localize_datetime_for_user(event.start_time, user)
-        end_time = localize_datetime_for_user(event.end_time, user)
+        start_time = loc_context.localize_datetime(event.start_time)
+        end_time = loc_context.localize_datetime(event.end_time)
         time_display = f"{start_time} - {end_time}"
         event_link = urls.event_link(occurrence_id=event.event_id, slug=event.slug)
         if notification.action in ["create_approved", "create_any"]:
@@ -659,7 +636,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         title = "You have received a mod note"
         message = "You have received an important note from the moderators. You must read and acknowledge it before continuing to use the platform."
         return RenderedEmailNotification(
-            is_critical=True,
             subject=title,
             preview=message,
             template_name="mod_note",
@@ -669,7 +645,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         title = "Strong Verification succeeded"
         message = "You have been verified with Strong Verification! You will now see a tick next to your name on the platform."
         return RenderedEmailNotification(
-            is_critical=True,
             subject=title,
             preview=message,
             template_name="strong_verification_success",
@@ -688,7 +663,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         else:
             raise Exception("Shouldn't get here")
         return RenderedEmailNotification(
-            is_critical=True,
             subject=title,
             preview=title,
             template_name="security",
@@ -702,7 +676,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             title = "Your verification postcard is on its way"
             message = f"We've sent a postcard with your verification code to {data.city}, {data.country}. It should arrive within 1-3 weeks depending on your location. Once it arrives, enter the code on the platform to complete verification."
             return RenderedEmailNotification(
-                is_critical=True,
                 subject=title,
                 preview=message,
                 template_name="security",
@@ -715,7 +688,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
             title = "Postal Verification succeeded"
             message = "You have been verified with Postal Verification! Your address has been confirmed."
             return RenderedEmailNotification(
-                is_critical=True,
                 subject=title,
                 preview=message,
                 template_name="security",
@@ -735,7 +707,6 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
                     "Your postal verification attempt has failed. You can start a new verification attempt."
                 )
             return RenderedEmailNotification(
-                is_critical=True,
                 subject=title,
                 preview=title,
                 template_name="security",
@@ -770,6 +741,21 @@ def render_email_notification(user: User, notification: Notification) -> Rendere
         )
 
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
+
+
+def get_list_unsubscribe_header(notification: Notification) -> str | None:
+    if notification.topic_action.is_critical:
+        return None
+
+    # We can only have one List-Unsubscribe header.
+    # Prefer topic-key unsubscription as it is more specific than topic-action (e.g. current chat, not all chats).
+    list_unsubscribe_url: str
+    if can_unsubscribe_topic_key(notification.topic):
+        list_unsubscribe_url = generate_unsub_topic_key(notification)
+    else:
+        list_unsubscribe_url = generate_unsub_topic_action(notification)
+
+    return f"<{list_unsubscribe_url}>"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

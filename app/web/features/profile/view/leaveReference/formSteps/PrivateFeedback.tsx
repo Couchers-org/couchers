@@ -5,7 +5,6 @@ import {
   Radio,
   RadioGroup,
   styled,
-  TextField,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -15,6 +14,7 @@ import Divider from "components/Divider";
 import RatingsSlider from "components/RatingsSlider/RatingsSlider";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
+import TextField from "components/TextField";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import ReferenceStepHeader from "features/profile/view/leaveReference/formSteps/ReferenceStepHeader";
 import {

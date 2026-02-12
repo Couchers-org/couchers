@@ -1,5 +1,6 @@
 import {
   AppBar,
+  Badge,
   Box,
   Drawer,
   IconButton,
@@ -28,7 +29,6 @@ import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,
   communitiesRoute,
-  dashboardRoute,
   donationsRoute,
   eventsRoute,
   helpCenterURL,
@@ -46,11 +46,13 @@ import {
   volunteerRoute,
 } from "routes";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
-import { useIsNativeEmbed } from "../../platform/nativeLink";
+import BetaFlag from "../BetaFlag";
 import DarkModeToggle from "./DarkModeToggle";
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
 import NavButton from "./NavButton";
+import ReportButton from "./ReportButton";
 import ReportDialog from "./ReportDialog";
 
 interface MenuItemProps {
@@ -160,11 +162,6 @@ const loggedInMenuDropDown = (
     name: t("nav.profile"),
     route: routeToProfile(),
     hasBottomDivider: true,
-  },
-  {
-    type: "link",
-    name: t("nav.dashboard"),
-    route: dashboardRoute,
   },
   {
     type: "link",
@@ -333,16 +330,6 @@ export default function Navigation() {
             </ListItem>
           ),
         )}
-        <ListItem
-          sx={{
-            display: "flex",
-            flex: "1",
-            maxWidth: "10.5rem",
-            padding: theme.spacing(1, 4),
-          }}
-        >
-          <LanguagePickerSelect onSelect={handleDrawerClose} />
-        </ListItem>
       </List>
     </div>
   );
@@ -352,14 +339,13 @@ export default function Navigation() {
   return (
     <StyledAppBar position="sticky" color="inherit">
       <StyledToolbar>
-        <StyledNav>
-          {isMobile && (
+        <StyledNav sx={{ marginLeft: 1 }}>
+          {isMobile && !isNativeEmbed && (
             <>
               <IconButton
                 aria-label="open drawer"
                 onClick={handleDrawerOpen}
                 edge="start"
-                sx={{ marginLeft: theme.spacing(1) }}
               >
                 <MenuIcon
                   sx={{
@@ -392,7 +378,29 @@ export default function Navigation() {
               </StyledDrawer>
             </>
           )}
-          <CouchersLogo isLoggedIn={authState.authenticated} />
+          <Badge
+            overlap="circular"
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            badgeContent={isNativeEmbed && <BetaFlag />}
+            sx={{
+              "& .MuiBadge-badge": {
+                padding: 0,
+                background: "transparent",
+                minWidth: "unset",
+                height: "auto",
+                top: 6,
+                right: -8,
+              },
+            }}
+          >
+            <Box sx={{ display: "inline-flex", alignItems: "center" }}>
+              <CouchersLogo isLoggedIn={authState.authenticated} />
+            </Box>
+          </Badge>
+
           {!isMobile && (
             <StyledFlexbox>
               {(authState.authenticated && isMounted
@@ -419,9 +427,14 @@ export default function Navigation() {
           )}
         </StyledNav>
         <StyledMenuContainer>
+          {isNativeEmbed && (
+            <>
+              <ReportButton sx={{ marginLeft: theme.spacing(1) }} />
+              <DarkModeToggle />
+            </>
+          )}
           {authState.authenticated && isMounted ? (
             <>
-              <DarkModeToggle />
               <LoggedInMenu
                 menuOpen={menuOpen}
                 notificationCount={pingData?.unseenNotificationCount}
@@ -439,7 +452,6 @@ export default function Navigation() {
               }}
             >
               {!isMobile && <LanguagePickerSelect />}
-              <DarkModeToggle />
               {!isLoginPage && (
                 <Button
                   variant="outlined"

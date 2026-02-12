@@ -81,7 +81,7 @@ const Datepicker = ({
                 <span data-testid={`${name}-helper-text`}>{helperText}</span>
               ),
               variant,
-              InputLabelProps: { shrink: true },
+              slotProps: { inputLabel: { shrink: true } },
               InputProps: {
                 ...(inputProps || {}),
                 className,

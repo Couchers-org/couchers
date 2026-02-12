@@ -225,7 +225,7 @@
     "host_request_quick_decline": "Vielen Dank, dass du auf die Host-Anfrage geantwortet hast!"
   },
   "ghost_users": {
-    "display_name": "Geist",
+    "display_name": "Deaktiviertes Konto",
     "about_me": "Dieser Nutzer ist nicht mehr auf der Plattform. Möglicherweise hat er sein Konto gelöscht, wurde blockiert oder gesperrt. Wir empfehlen, bei weiteren Interaktionen mit diesem Nutzer außerhalb der Plattform vorsichtig zu sein. Bei Bedarf kannst du dich jederzeit an den Support wenden."
   },
   "badges": {

@@ -1,3 +1,4 @@
+import html
 import json
 import re
 from urllib.parse import parse_qs, urlparse
@@ -12,7 +13,7 @@ from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
 from couchers.db import session_scope
-from couchers.i18n.localize import localize_datetime_for_user
+from couchers.i18n import LocalizationContext
 from couchers.jobs.worker import process_job
 from couchers.models import (
     DeviceType,
@@ -176,7 +177,7 @@ def test_unsubscribe(db):
         if "payload" not in link:
             continue
         print(link)
-        url_parts = urlparse(link)
+        url_parts = urlparse(html.unescape(link))
         params = parse_qs(url_parts.query)
         print(params["payload"][0])
         payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))
@@ -221,13 +222,18 @@ def test_unsubscribe(db):
     assert mock.call_count == 0
 
 
-def test_unsubscribe_do_not_email(db):
+def test_unsubscribe_do_not_email(db, moderator):
     user, token = generate_user()
 
     _, token2 = generate_user(complete_profile=True)
+    with api_session(token2) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id = res.sent[0].friend_request_id
+
+    # Moderator approves the friend request, which triggers the notification email
     with mock_notification_email() as mock:
-        with api_session(token2) as api:
-            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+        moderator.approve_friend_request(fr_id)
 
     assert mock.call_count == 1
     assert email_fields(mock).recipient == user.email
@@ -237,7 +243,7 @@ def test_unsubscribe_do_not_email(db):
         if "payload" not in link:
             continue
         print(link)
-        url_parts = urlparse(link)
+        url_parts = urlparse(html.unescape(link))
         params = parse_qs(url_parts.query)
         print(params["payload"][0])
         payload = unsubscribe_pb2.UnsubscribePayload.FromString(b64decode(params["payload"][0]))
@@ -257,9 +263,14 @@ def test_unsubscribe_do_not_email(db):
         raise Exception("Didn't find link")
 
     _, token3 = generate_user(complete_profile=True)
+    with api_session(token3) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id3 = res.sent[0].friend_request_id
+
+    # Approving this friend request should NOT send an email since user has do_not_email set
     with mock_notification_email() as mock:
-        with api_session(token3) as api:
-            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user.id))
+        moderator.approve_friend_request(fr_id3)
 
     assert mock.call_count == 0
 
@@ -329,6 +340,11 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
 
     with api_session(token2) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id = res.sent[0].friend_request_id
+
+    # Moderator approves the friend request so the notification is sent
+    moderator.approve_friend_request(fr_id)
 
     with notifications_session(token1) as notifications:
         res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
@@ -373,7 +389,7 @@ def test_list_notifications(db, push_collector: PushCollector, moderator):
     assert bodys == [n.body for n in all_notifs]
 
 
-def test_notifications_seen(db, push_collector: PushCollector):
+def test_notifications_seen(db, push_collector: PushCollector, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -381,9 +397,17 @@ def test_notifications_seen(db, push_collector: PushCollector):
 
     with api_session(token2) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id2 = res.sent[0].friend_request_id
 
     with api_session(token3) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id3 = res.sent[0].friend_request_id
+
+    # Moderator approves the friend requests so notifications are sent
+    moderator.approve_friend_request(fr_id2)
+    moderator.approve_friend_request(fr_id3)
 
     with notifications_session(token1) as notifications, api_session(token1) as api:
         res = notifications.ListNotifications(notifications_pb2.ListNotificationsReq())
@@ -397,6 +421,11 @@ def test_notifications_seen(db, push_collector: PushCollector):
 
     with api_session(token4) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id4 = res.sent[0].friend_request_id
+
+    # Moderator approves the friend request so notification is sent
+    moderator.approve_friend_request(fr_id4)
 
     with notifications_session(token1) as notifications, api_session(token1) as api:
         # mark everything before just the last one as seen (pretend we didn't load the last one yet in the api)
@@ -591,7 +620,8 @@ def test_event_reminder_email_sent(db):
     user, token = generate_user()
     title = "Board Game Night"
     start_event_time = timestamp_pb2.Timestamp(seconds=1751690400)
-    expected_time_str = localize_datetime_for_user(start_event_time, user)
+
+    expected_time_str = LocalizationContext.from_user(user).localize_datetime(start_event_time)
 
     with mock_notification_email() as mock:
         with session_scope() as session:

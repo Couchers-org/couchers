@@ -3,7 +3,6 @@ import { Box, styled, Tooltip, Typography, useMediaQuery } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import IconButton from "components/IconButton";
-import { MenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import NotificationBadge from "components/NotificationBadge";
 import NotificationsFeed from "features/notifications/NotificationsFeed/NotificationsFeed";
@@ -12,6 +11,7 @@ import useCurrentUser from "features/userQueries/useCurrentUser";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { PingRes } from "proto/api_pb";
 import React, {
   Dispatch,
@@ -22,6 +22,7 @@ import React, {
 import { theme } from "theme";
 
 import { AccessibleDialogProps } from "../Dialog";
+import { CloseIcon, MenuIcon } from "../Icons";
 
 type LoggedInMenuLinkItem = {
   type: "link";
@@ -46,10 +47,29 @@ const StyledMenu = styled(Menu)(({ theme }) => ({
   "& .MuiPaper-root": {
     boxShadow: theme.shadows[1],
     minWidth: "12rem",
+
+    [theme.breakpoints.down("md")]: {
+      width: "100vw",
+      height: "100vh",
+      maxWidth: "100vw",
+      maxHeight: "100vh",
+      borderRadius: 0,
+      margin: 0,
+      padding: 0,
+      top: 0,
+      left: 0,
+      position: "fixed",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+    },
   },
 
-  "& .MuiPopover-root": {
-    transform: "translateY(1rem)",
+  "& .MuiPopover-paper": {
+    [theme.breakpoints.down("md")]: {
+      transform: "none !important",
+      inset: "0 !important",
+    },
   },
 }));
 
@@ -118,6 +138,8 @@ function LinkMenuItemView({
   name,
   notificationCount,
 }: LoggedInMenuLinkItem & { closeMenu: () => unknown }) {
+  const router = useRouter();
+
   const linkContent = (
     <span style={{ display: "flex", alignItems: "center" }}>
       <Typography noWrap sx={{ color: "var(--mui-palette-text-primary)" }}>
@@ -145,31 +167,24 @@ function LinkMenuItemView({
     </span>
   );
 
+  // Internal links: prevent default and navigate in JS so the menu close doesn't
+  // consume the tap on mobile (otherwise first tap closes menu, second navigates).
+  const handleClick = externalLink
+    ? closeMenu
+    : (e: React.MouseEvent) => {
+        e.preventDefault();
+        closeMenu();
+        router.push(route);
+      };
+
   return (
-    <>
-      {externalLink ? (
-        <StyledMenuItemLink
-          href={route}
-          target="_blank"
-          rel="noreferrer"
-          onClick={closeMenu}
-        >
-          {linkContent}
-        </StyledMenuItemLink>
-      ) : (
-        <Link
-          href={route}
-          onClick={closeMenu}
-          style={{
-            width: "100%",
-            color: "var(--mui-palette-text-primary)",
-            textDecoration: "none",
-          }}
-        >
-          {linkContent}
-        </Link>
-      )}
-    </>
+    <StyledMenuItemLink
+      href={route}
+      {...(externalLink && { target: "_blank", rel: "noreferrer" })}
+      onClick={handleClick}
+    >
+      {linkContent}
+    </StyledMenuItemLink>
   );
 }
 
@@ -309,27 +324,74 @@ export default function LoggedInMenu({
       <StyledMenu
         id="navigation-menu"
         open={menuOpen}
-        anchorEl={menuRef.current}
+        anchorEl={isMobile ? undefined : menuRef.current}
         onClose={() => setMenuOpen(false)}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
+        anchorOrigin={
+          isMobile ? undefined : { vertical: "bottom", horizontal: "right" }
+        }
+        transformOrigin={
+          isMobile ? undefined : { vertical: "top", horizontal: "right" }
+        }
       >
-        {items.map((item) => (
-          <MenuItemView
-            key={item.name}
-            {...item}
-            closeMenu={() => {
-              setMenuOpen(false);
+        {isMobile && (
+          <Box
+            sx={{
+              position: "fixed",
+              top: `calc(env(safe-area-inset-top, 0px) + ${theme.spacing(1)})`,
+              right: theme.spacing(1.5),
+              zIndex: 1301, // above menu paper
             }}
-            onOpenDialog={
-              item.type === "dialog"
-                ? () => setOpenDialogName(item.name)
-                : undefined
-            }
-          />
-        ))}
+          >
+            <IconButton
+              aria-label="close menu"
+              onClick={() => setMenuOpen(false)}
+              sx={{
+                backgroundColor: "var(--mui-palette-grey-200)",
+                border: "1px solid var(--mui-palette-grey-300)",
+                "&:hover": {
+                  backgroundColor: "var(--mui-palette-grey-300)",
+                },
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        )}
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: { xs: 1.5, md: 3 },
+            textAlign: "center",
+          }}
+        >
+          {items.map((item) => (
+            <MenuItemView
+              key={item.name}
+              {...item}
+              closeMenu={() => setMenuOpen(false)}
+              onOpenDialog={
+                item.type === "dialog"
+                  ? () => setOpenDialogName(item.name)
+                  : undefined
+              }
+            />
+          ))}
+          {isMobile && (
+            <Box
+              sx={{
+                paddingBottom: `calc(env(safe-area-inset-bottom, 0px) + ${theme.spacing(2)})`,
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <LanguagePickerSelect />
+            </Box>
+          )}
+        </Box>
       </StyledMenu>
       {dialogItems.map((item) => {
         const DialogComponent = item.dialogComponent;

@@ -63,6 +63,8 @@ service Admin {
 
   rpc DeleteReference(DeleteReferenceReq) returns (google.protobuf.Empty) {}
 
+  rpc GetUserReferences(GetUserReferencesReq) returns (GetUserReferencesRes) {}
+
   rpc EditDiscussion(EditDiscussionReq) returns (google.protobuf.Empty) {}
 
   rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
@@ -319,6 +321,32 @@ message EditReferenceTextReq {
 
 message DeleteReferenceReq {
   int64 reference_id = 1;
+}
+
+message GetUserReferencesReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message AdminReference {
+  int64 reference_id = 1;
+  int64 from_user_id = 2;
+  int64 to_user_id = 3;
+  string reference_type = 4;
+  string text = 5;
+  string private_text = 6;
+  google.protobuf.Timestamp time = 7;
+  int64 host_request_id = 8;
+  double rating = 9;
+  bool was_appropriate = 10;
+  bool is_deleted = 11;
+}
+
+message GetUserReferencesRes {
+  // References written by the user
+  repeated AdminReference references_from = 1;
+  // References written about the user
+  repeated AdminReference references_to = 2;
 }
 
 message EditDiscussionReq {

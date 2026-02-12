@@ -37,10 +37,6 @@ jest.mock("@/features/notifications/useRegisterPushNotifications", () => ({
   useRegisterPushNotifications: jest.fn(),
 }));
 
-jest.mock("@/hooks/useColorScheme", () => ({
-  useColorScheme: () => "light",
-}));
-
 jest.mock("@expo-google-fonts/ubuntu", () => ({
   useFonts: () => [true],
   Ubuntu_300Light: {},

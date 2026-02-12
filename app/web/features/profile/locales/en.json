@@ -31,6 +31,7 @@
     "travel_section": "Travelled to",
     "lived_section": "Lived in",
     "map_section": "Travel map",
+    "photos_section": "Photos",
     "age_verification_verified": "This user has verified their date of birth",
     "age_verification_mismatch": "User provided date of birth does not match verified date of birth",
     "gender_verification_verified": "This user has verified their gender",
@@ -277,7 +278,7 @@
   "image_uploading_warning": "Your profile image is still uploading. Are you sure you want to leave the page?",
   "click_replace_image": "Click to replace image",
   "profile_tag_input": {
-    "header_text": "Press 'Enter' to add\n<0>Email us</0> to add an entry",
+    "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
     "remove_button_a11y_text": "Remove {{tag}}"
   },
   "view_in_admin_console": "View user in admin console",
@@ -312,5 +313,31 @@
   "hosting_preferences_success_message": "Hosting preferences saved!",
   "couldnt_read_file": "Couldn't read file",
   "select_an_image": "Select an image",
-  "names_profile_photo": "{{name}}'s profile photo"
+  "names_profile_photo": "{{name}}'s profile photo",
+  "gallery": {
+    "photo_item_a11y": "Photo",
+    "primary": "Primary",
+    "add_photo": "Add photo",
+    "uploading": "Uploading...",
+    "remove_photo": "Remove photo",
+    "select_photo": "Select a photo",
+    "photo_count": "{{current}} of {{total}}",
+    "empty_title": "Add your first photo",
+    "empty_description": "Click here or the button above to upload a photo",
+    "no_photos": "No photos yet",
+    "add_photo_error": "Failed to add photo. Please try again.",
+    "remove_photo_error": "Failed to remove photo. Please try again.",
+    "move_photo_error": "Failed to reorder photos. Please try again.",
+    "reorder_success": "Photos reordered successfully!",
+    "upload_success": "Photo uploaded successfully!",
+    "profile_photos_title": "Profile Photos",
+    "profile_photos_description": "Add photos of yourself to help others get to know you. Drag and drop to reorder.",
+    "verification_required_for_more_photos": "You've reached your photo limit. Complete strong verification to add more photos.",
+    "get_verified": "Get verified",
+    "photo_viewer_aria": "Photo viewer",
+    "previous_photo": "Previous photo",
+    "next_photo": "Next photo",
+    "close_viewer": "Close photo viewer",
+    "report_photo": "Report Photo"
+  }
 }

@@ -9,9 +9,9 @@ These check-ins help surfers find active hosts more easily and keep response tim
 
 Since you logged in last, we've had some really exciting new updates.
 
-In our Fall Release (v1.1), we launched many new features including same-gender-only search filters, event co-organizers, an invite friends feature, and much more. You can read about all the updates here:
+In our latest release (v1.2), we launched dark mode, profile photo galleries (you can now upload multiple photos!), a communities search feature, and the ability to duplicate events. We also opened our official merch shop where you can get Couchers.org hats, hoodies, stickers, and more! Plus, we're getting close to releasing a mobile app for iOS and Android — you can sign up to be a Beta tester! Read about all the updates here:
 
-https://couchers.org/blog/2025/10/28/couchers-fall-release
+https://couchers.org/blog/2026/02/05/couchers-v1.2-release
 
 
 Best,

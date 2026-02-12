@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backend",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "${workspaceFolder}/app/backend/.venv/bin/python3",
+      "program": "${workspaceFolder}/app/backend/src/run_locally.py",
+      "cwd": "${workspaceFolder}/app/backend",
+      "preLaunchTask": "uv sync backend",
+      "console": "integratedTerminal",
+      "subProcess": true
+    }
+  ]
+}

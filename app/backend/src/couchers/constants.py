@@ -63,6 +63,7 @@ UNDELETE_DAYS = 7
 # expiry time for preferred language cookie
 PREFERRED_LANGUAGE_COOKIE_EXPIRY = timedelta(days=3650)
 
+
 # activeness probe settings
 # wait about 11 months before sending one out
 ACTIVENESS_PROBE_INACTIVITY_PERIOD = timedelta(days=333)
@@ -113,3 +114,5 @@ DONATION_OFFSET_USD = 2000
 # Photo gallery limits
 GALLERY_MAX_PHOTOS_NOT_VERIFIED = 1
 GALLERY_MAX_PHOTOS_VERIFIED = 4
+
+COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150

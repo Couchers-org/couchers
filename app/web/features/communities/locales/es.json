@@ -147,5 +147,8 @@
   "total_members": "miembros totales",
   "search_communities": "Buscar y visitar una comunidad",
   "search_communities_placeholder": "Buscar por cuidad o país...",
-  "search_communities_helper": "Seleccionar una comunidad para ir a su página"
+  "search_communities_helper": "Seleccionar una comunidad para ir a su página",
+  "discussion_creation_date": "Creado el {{dateOnly}}",
+  "duplicate_event": "Evento duplicado",
+  "event_title_label": "Título"
 }

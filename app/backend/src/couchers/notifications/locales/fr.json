@@ -1,1 +1,112 @@
-{}
+{
+  "push": {
+    "account_deletion__start": {
+      "title": "Demande de suppression de compte",
+      "ios_title": "Demande de suppression de compte",
+      "body": "Utilisez le lien que nous vous avons envoyé par mail pour confirmer."
+    },
+    "account_deletion__complete": {
+      "ios_title": "Compte supprimé",
+      "body_one": "Vous pouvez le restaurer durant {{count}} jour en utilisant le lien que nous vous avons envoyé par mail.",
+      "body_many": "Vous pouvez le restaurer durant {{count}} de jours en utilisant le lien que nous vous avons envoyé par mail.",
+      "body_other": "Vous pouvez le restaurer durant {{count}} jours en utilisant le lien que nous vous avons envoyé par mail.",
+      "title": "Compte supprimé"
+    },
+    "account_deletion__recovered": {
+      "title": "Compte restauré",
+      "ios_title": "Compte restauré"
+    },
+    "activeness__probe": {
+      "title": "Toujours disposé.e à héberger ?",
+      "ios_title": "Toujours disposé.e à héberger ?"
+    },
+    "api_key__create": {
+      "title": "Clé d'API créée",
+      "ios_title": "Clé d'API créée",
+      "body": "Les détails vous ont été envoyés par mail."
+    },
+    "badge__add": {
+      "title": "Nouveau badge : {{badge_name}}",
+      "ios_title": "Nouveau badge de profil",
+      "body": "Le badge {{badge_name}} a été ajouté à votre profil."
+    },
+    "discussion__create": {
+      "title": "Nouvelle discussion : {{title}}",
+      "ios_title": "Nouvelle discussion",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} a commencé la discussion dans {{group_or_community}}."
+    },
+    "discussion__comment": {
+      "title": "{{user}} • {{title}}"
+    },
+    "email_address__change": {
+      "title": "Demande de changement de mail",
+      "ios_title": "Demande de changement de mail",
+      "body": "Utilisez le lien que nous avons envoyé à {{email}} pour confirmer votre nouvelle adresse."
+    },
+    "email_address__verify": {
+      "title": "Adresse de mail vérifiée",
+      "ios_title": "Adresse de mail vérifiée",
+      "body": "Votre nouvelle adresse mail a été vérifiée."
+    },
+    "birthdate__change": {
+      "body": "L'administrateur.trice a changé votre date de naissance au {{birthdate}}.",
+      "title": "Date de naissance modifiée",
+      "ios_title": "Date de naissance modifiée"
+    },
+    "badge__remove": {
+      "title": "Badge de profil supprimé",
+      "ios_title": "Badge de profil supprimé",
+      "body": "Le badge {{badge_name}} a été supprimé de votre profil."
+    },
+    "chat__missed_messages": {
+      "title_one": "{{count}} discussion manqué",
+      "title_many": "{{count}} de discussions manqués",
+      "title_other": "{{count}} discussions manqués",
+      "ios_title_one": "{{count}} discussion manqué",
+      "ios_title_many": "{{count}} de discionssions manqués",
+      "ios_title_other": "{{count}} discussions manqués",
+      "body": "Vous avez de nouvelles discussions non lues."
+    },
+    "donation__received": {
+      "title": "Don reçu",
+      "ios_title": "Don reçu",
+      "body": "Nous vous remercions énormément pour votre don de {{amount_with_currency}} !"
+    },
+    "event__create_any": {
+      "title": "Nouvel événement : {{title}}",
+      "ios_title": "Nouvel événement",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} a créé l'événement le {{date_and_time}}."
+    },
+    "event__create_approved": {
+      "title": "Nouvel événement : {{title}}",
+      "ios_title": "Nouvel événement",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} vous a invité à l'événement le {{date_and_time}}."
+    },
+    "event__update": {
+      "title": "Événement mis à jour : {{title}}",
+      "ios_title": "Événement mis à jour",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} a mis à jour l'événement."
+    },
+    "event__invite_organizer": {
+      "title": "Événement mis à jour : {{title}}",
+      "ios_title": "Événement mis à jour",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} vous a ajouté comme coorganisateur.trice de l'événement."
+    },
+    "event__comment": {
+      "title": "{{user}} • {{title}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "A commenté sur {{title}}"
+    },
+    "event__reminder": {
+      "title": "Événement à venir : {{title}}",
+      "ios_title": "Événement à venir",
+      "ios_subtitle": "{{title}}",
+      "body": "L'événement commence le {{date_and_time}}."
+    }
+  }
+}

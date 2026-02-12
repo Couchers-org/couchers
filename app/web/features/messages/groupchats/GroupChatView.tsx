@@ -24,7 +24,6 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import { GetGroupChatMessagesRes } from "proto/conversations_pb";
-import { useEffect } from "react";
 import { service } from "service";
 
 import ChatContent from "./ChatContent";
@@ -36,7 +35,7 @@ const StyledHeader = styled("div")(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.divider}`,
   alignItems: "center",
   display: "flex",
-  flexGrow: 0,
+  flexShrink: 0,
   "& > * + *": {
     marginInlineStart: theme.spacing(2),
   },
@@ -48,23 +47,21 @@ const StyledHeader = styled("div")(({ theme }) => ({
 }));
 
 const StyledPageWrapper = styled("div")(({ theme }) => ({
-  alignItems: "stretch",
   display: "flex",
   flexDirection: "column",
-  overflow: "hidden",
-  height: `calc(var(--vh, 1vh) * 100 - ${theme.shape.navPaddingXs})`,
+  overflow: "hidden", // Prevent page scroll - only messages should scroll
+  // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
+  height: `calc(100dvh - ${theme.shape.navPaddingXs})`,
 
   [theme.breakpoints.up("sm")]: {
-    height: `calc(var(--vh, 1vh) * 100 - ${theme.shape.navPaddingSmUp})`,
+    height: `calc(100dvh - ${theme.shape.navPaddingSmUp})`,
   },
 }));
 
+// Footer is fixed at bottom - never scrolls away
 const StyledFooter = styled("div")(({ theme }) => ({
   background: "var(--mui-palette-background-default)",
-  position: "sticky",
-  bottom: 0,
-  marginTop: "auto",
-  flexGrow: 0,
+  flexShrink: 0,
   paddingBottom: theme.spacing(2),
   paddingLeft: theme.spacing(2),
   paddingRight: theme.spacing(2),
@@ -84,21 +81,6 @@ export default function GroupChatView({ chatId }: { chatId: number }) {
   const { t } = useTranslation([GLOBAL, MESSAGES]);
 
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const scrollIntoView = () => {
-      if (/Firefox/i.test(navigator.userAgent)) {
-        document?.activeElement?.scrollIntoView({ behavior: "smooth" });
-      }
-    };
-
-    scrollIntoView();
-    window.addEventListener("resize", scrollIntoView);
-
-    return () => {
-      window.removeEventListener("resize", scrollIntoView);
-    };
-  }, []);
 
   const { data: groupChat, error: groupChatError } = useQuery({
     queryKey: groupChatKey(chatId),

@@ -36,7 +36,6 @@
     "merch_shop": "Merch-Shop"
   },
   "footer": {
-    "copyright": "© 2025 Couchers, Inc.",
     "non_profit_note": "Couchers.org ist ein Projekt von Couchers, Inc., einer in den USA als 501(c)(3) anerkannten gemeinnützigen, steuerbefreiten Organisation.",
     "version_info": "Version <2>{{version}}</2>, zuletzt aktualisiert <5>{{updated_ago}}</5>."
   },
@@ -136,8 +135,7 @@
       "expect_label": "Was ist passiert? Was hätte passieren sollen?",
       "expect_helper": "Kurze Beschreibung, was du stattdessen erwartest hast",
       "button_label": "Ein technisches Problem melden",
-      "warning_message": "Bitte beachte, dass diese Informationen sowie diagnostische Daten, einschließlich der Seite, auf der du dich befindest, des von dir verwendeten Browsers und deines Benutzernamens, in einer öffentlichen Fehlerliste gespeichert werden.",
-      "success_message": "Vielen Dank, dass du diesen Fehler gemeldet und Couchers verbessert hast! Ein Bericht wurde an die Entwickler gesendet. Die Fehler-ID ist "
+      "warning_message": "Bitte beachte, dass diese Informationen sowie diagnostische Daten, einschließlich der Seite, auf der du dich befindest, des von dir verwendeten Browsers und deines Benutzernamens, in einer öffentlichen Fehlerliste gespeichert werden."
     },
     "content": {
       "button_label": "Unangemessene Inhalte oder Verhaltensweisen melden",

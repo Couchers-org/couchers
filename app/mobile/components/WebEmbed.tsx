@@ -1,8 +1,17 @@
+import {
+  ImagePickerResult,
+  launchCameraAsync,
+  launchImageLibraryAsync,
+  requestCameraPermissionsAsync,
+} from "expo-image-picker";
 import { Href, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  ActionSheetIOS,
   ActivityIndicator,
+  Alert,
+  Appearance,
   BackHandler,
   Image,
   Linking,
@@ -24,6 +33,8 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import errorGraphic from "@/resources/404graphic.png";
 import { theme } from "@/theme";
 
+import { privacyPolicyRoute, tosRoute } from "../routes";
+
 type WebEmbedProps = {
   path: string;
 };
@@ -39,6 +50,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
   const [hasError, setHasError] = useState(false);
+  const retryCountRef = useRef(0);
+  const MAX_RETRIES = 2; // Auto-retry up to 2 times for timeout errors
   const [canGoBack, setCanGoBack] = useState(false);
 
   // Track the current WebView URL to detect when it drifts from the expected path
@@ -135,11 +148,14 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       return;
     }
 
+    // Reset retry count on successful page load
+    retryCountRef.current = 0;
+
     const normalizedUrl = url.split("#")[0];
 
-    // Prevent navigation to external sites
+    // Skip external URLs - they're handled by onShouldStartLoadWithRequest
     if (!normalizedUrl.startsWith(WEB_BASE_URL)) {
-      webviewRef.current?.stopLoading();
+      console.log("*****SKIPPING EXTERNAL URL*****", normalizedUrl);
       return;
     }
 
@@ -149,8 +165,9 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     currentWebPathRef.current = webPath;
 
     // Extract locale from URL and sync with mobile app's i18n
-    const webLocale = extractLocaleFromPath(webPathWithoutQuery);
-    if (webLocale && webLocale !== i18n.language) {
+    // If no locale in URL, default to English (Next.js default locale)
+    const webLocale = extractLocaleFromPath(webPathWithoutQuery) || "en";
+    if (webLocale !== i18n.language) {
       i18n.changeLanguage(webLocale).catch((err) => {
         if (__DEV__) {
           console.error("Failed to change mobile app language:", err);
@@ -163,14 +180,10 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     const currentRoute = getRouteNameForPath(path);
 
     // Navigate native router when the route changes
-    // Only sync for main tab routes - catch-all routes don't need native navigation
-    if (
-      targetRoute !== currentRoute &&
-      targetRoute &&
-      targetRoute !== "[...slug]"
-    ) {
-      if (targetRoute === "md/[...slug]") {
-        // For markdown routes, pass the full path including /md/
+    if (targetRoute !== currentRoute && targetRoute) {
+      if (targetRoute === "[...slug]" || targetRoute === "md/[...slug]") {
+        // For catch-all routes (detail pages, markdown, etc.), navigate with full path
+        // This ensures the native router updates even for non-tab routes
         router.navigate(webPathWithoutQuery as Href);
       } else {
         // For main tab routes, preserve query parameters
@@ -180,6 +193,122 @@ export default function WebEmbed({ path }: WebEmbedProps) {
           : "";
         router.navigate(`/${targetRoute}${queryString}` as Href);
       }
+    }
+  };
+
+  // Send result back to web app
+  const sendImagePickResult = (result: {
+    success: boolean;
+    imageBase64?: string;
+    mimeType?: string;
+    canceled?: boolean;
+    error?: string;
+  }) => {
+    webviewRef.current?.injectJavaScript(`
+      window.postMessage(${JSON.stringify({ type: "IMAGE_PICK_RESULT", result })}, "*");
+      true;
+    `);
+  };
+
+  // Handle image picking from camera or library
+  const handleImagePick = async () => {
+    // Show action sheet to choose camera or library
+    const showPicker = async (source: "camera" | "library") => {
+      try {
+        let result: ImagePickerResult;
+
+        if (source === "camera") {
+          const { status } = await requestCameraPermissionsAsync();
+          if (status !== "granted") {
+            sendImagePickResult({
+              success: false,
+              error: t("errors.camera_permission_denied"),
+            });
+            return;
+          }
+          result = await launchCameraAsync({
+            mediaTypes: ["images"],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+            base64: true, // Get base64 data to send to web app
+          });
+        } else {
+          result = await launchImageLibraryAsync({
+            mediaTypes: ["images"],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+            base64: true, // Get base64 data to send to web app
+          });
+        }
+
+        if (result.canceled) {
+          sendImagePickResult({ success: false, canceled: true });
+          return;
+        }
+
+        const asset = result.assets[0];
+
+        if (!asset.base64) {
+          throw new Error("Failed to get image data");
+        }
+
+        // Send base64 image back to web app for upload
+        const mimeType = asset.mimeType || "image/jpeg";
+        sendImagePickResult({
+          success: true,
+          imageBase64: asset.base64,
+          mimeType,
+        });
+      } catch (error) {
+        if (__DEV__) {
+          console.error("Image pick error:", error);
+        }
+        sendImagePickResult({
+          success: false,
+          error:
+            error instanceof Error ? error.message : "Failed to pick image",
+        });
+      }
+    };
+
+    // Show platform-specific action sheet
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: [
+            t("common.cancel"),
+            t("common.take_photo"),
+            t("common.choose_from_library"),
+          ],
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            showPicker("camera");
+          } else if (buttonIndex === 2) {
+            showPicker("library");
+          } else {
+            sendImagePickResult({ success: false, canceled: true });
+          }
+        },
+      );
+    } else {
+      // Android: use Alert
+      Alert.alert(t("common.add_photo"), t("common.choose_photo_source"), [
+        {
+          text: t("common.cancel"),
+          style: "cancel",
+          onPress: () =>
+            sendImagePickResult({ success: false, canceled: true }),
+        },
+        { text: t("common.take_photo"), onPress: () => showPicker("camera") },
+        {
+          text: t("common.choose_from_library"),
+          onPress: () => showPicker("library"),
+        },
+      ]);
     }
   };
 
@@ -196,6 +325,17 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         // Web app says user logged out - clear mobile state and navigate to login
         markLoggedOut();
         router.replace("/login" as Href);
+      } else if (payload?.type === "COLOR_SCHEME_CHANGE") {
+        // Web app toggled dark mode - sync native UI using React Native's built-in API
+        // mode can be "light", "dark", or null (follow system)
+        // Web app toggled dark mode - sync native UI
+        const mode = payload.mode;
+        if (mode === "light" || mode === "dark" || mode === null) {
+          Appearance.setColorScheme(mode);
+        }
+      } else if (payload?.type === "REQUEST_IMAGE_PICK") {
+        // Web app requests native image picker (WebView file input crashes on mobile)
+        handleImagePick();
       }
     } catch (error) {
       // Silently ignore non-JSON messages (expected from browser/WebView internals)
@@ -204,6 +344,46 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         console.debug("WebEmbed: Ignoring non-JSON message", error);
       }
     }
+  };
+
+  // URLs that should always load inside the WebView (not opened externally)
+  const shouldLoadInWebView = (url: string): boolean => {
+    // Exceptions
+    if (url.includes(tosRoute) || url.includes(privacyPolicyRoute))
+      return false;
+
+    // Internal app URLs
+    if (url.startsWith(WEB_BASE_URL)) return true;
+
+    // Special browser URLs (about:blank, data:, blob:, javascript:)
+    if (!url.startsWith("http://") && !url.startsWith("https://")) return true;
+
+    // reCAPTCHA (needed for form protection)
+    if (
+      url.includes("google.com/recaptcha") ||
+      url.includes("gstatic.com/recaptcha")
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  // Intercept URL requests before they load
+  const handleShouldStartLoad = (event: { url: string }): boolean => {
+    const { url } = event;
+
+    if (shouldLoadInWebView(url)) {
+      return true;
+    }
+
+    // External HTTP/HTTPS URLs (Stripe, etc.): open in device's browser
+    Linking.openURL(url).catch((err) => {
+      if (__DEV__) {
+        console.error("Failed to open external URL:", err);
+      }
+    });
+    return false;
   };
 
   const handleOpenWindow = (syntheticEvent: {
@@ -273,13 +453,28 @@ export default function WebEmbed({ path }: WebEmbedProps) {
           </View>
         )}
         onNavigationStateChange={handleNavigationStateChange}
+        onShouldStartLoadWithRequest={handleShouldStartLoad}
         injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
         onOpenWindow={handleOpenWindow}
         onMessage={handleMessage}
         onError={(syntheticEvent) => {
+          const { nativeEvent } = syntheticEvent;
+          const isTimeout = nativeEvent.code === -1001;
+
+          // Auto-retry on timeout (server might be cold/slow)
+          if (isTimeout && retryCountRef.current < MAX_RETRIES) {
+            retryCountRef.current += 1;
+            if (__DEV__) {
+              console.log(
+                `Timeout, retrying (${retryCountRef.current}/${MAX_RETRIES})...`,
+              );
+            }
+            webviewRef.current?.reload();
+            return;
+          }
+
           setHasError(true);
           if (__DEV__) {
-            const { nativeEvent } = syntheticEvent;
             console.error("WebView error:", nativeEvent);
             console.error("URL:", WEB_BASE_URL + path);
           }
@@ -304,7 +499,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
               errorDesc,
             );
           }
-          return <View />; // We handle this with hasError state
+          return <View />;
         }}
       />
     </View>

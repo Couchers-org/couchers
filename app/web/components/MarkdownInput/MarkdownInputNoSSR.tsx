@@ -45,6 +45,20 @@ const StyledWrapper = styled("div", {
       maxWidth: "400px",
     },
   },
+  // Fix link popup positioning on mobile
+  "& .toastui-editor-defaultUI": {
+    position: "relative",
+  },
+  "& .toastui-editor-popup": {
+    [theme.breakpoints.down("md")]: {
+      left: "0 !important",
+      right: "0 !important",
+      marginLeft: "auto",
+      marginRight: "auto",
+      maxWidth: "calc(100vw - 48px)",
+      width: "auto !important",
+    },
+  },
   ...(isErrorState && {
     "& .toastui-editor-defaultUI": {
       border: "2px solid red",

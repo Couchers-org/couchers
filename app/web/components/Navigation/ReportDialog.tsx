@@ -17,6 +17,7 @@ import { useTranslation } from "i18n";
 import { ReportBugRes } from "proto/bugs_pb";
 import { ComponentPropsWithRef, forwardRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Trans } from "react-i18next";
 import { helpCenterReportContentURL } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -99,13 +100,17 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
     <>
       {bug && (
         <Snackbar severity="success">
-          <>
-            {t("report.bug.success_message")}
-            <StyledLink variant="body2" href={bug.bugUrl}>
-              {bug.bugId}
-            </StyledLink>
-            .
-          </>
+          <Trans
+            i18nKey="report.bug.success_message2"
+            t={t}
+            components={{
+              id: (
+                <StyledLink variant="body2" href={bug.bugUrl}>
+                  {bug.bugId}
+                </StyledLink>
+              ),
+            }}
+          ></Trans>
         </Snackbar>
       )}
       <Dialog aria-labelledby="bug-reporter" open={open} onClose={handleClose}>
@@ -174,14 +179,14 @@ export default function ReportDialog({ open, onClose }: DialogProps) {
               />
             </DialogContent>
             <DialogActions>
-              <Button type="submit" loading={isPending} onClick={onSubmit}>
-                {t("submit")}
-              </Button>
               <Button
                 onClick={() => handleClose({}, "button")}
                 variant="outlined"
               >
                 {t("cancel")}
+              </Button>
+              <Button type="submit" loading={isPending} onClick={onSubmit}>
+                {t("submit")}
               </Button>
             </DialogActions>
           </form>

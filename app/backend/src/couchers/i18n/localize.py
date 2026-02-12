@@ -1,4 +1,8 @@
-import json
+"""
+Defines low-level localization functions for strings, dates, etc.
+Most code should use the higher-level couchers.i18n.LocalizationContext object.
+"""
+
 from collections.abc import Mapping
 from datetime import date, datetime, time
 from functools import lru_cache
@@ -8,52 +12,15 @@ from zoneinfo import ZoneInfo
 import phonenumbers
 from google.protobuf.timestamp_pb2 import Timestamp
 
-from couchers.i18n.constants import LANGUAGE_FALLBACKS
 from couchers.i18n.i18next import I18Next
-from couchers.i18n.plurals import PluralRules
-from couchers.models.users import User
+from couchers.i18n.locales import load_locales
 from couchers.utils import to_aware_datetime
 
 
 @lru_cache(maxsize=1)
 def get_main_i18next() -> I18Next:
     """Gets the I18Next instance for the main locales files."""
-    return load_i18next(Path(__file__).parent / "locales")
-
-
-def load_i18next(locales_dir: Path) -> I18Next:
-    """Load all translation files from a locales directory and apply fallbacks."""
-
-    i18next = I18Next()
-
-    # Load all locale JSON files from the locales directory
-    for locale_file in locales_dir.glob("*.json"):
-        lang_code = locale_file.stem  # e.g., "en" from "en.json"
-
-        with open(locale_file, "r", encoding="utf-8") as f:
-            translations = json.load(f)
-
-        plural_rule = PluralRules.for_language(lang_code) or PluralRules.en
-        language = i18next.add_language(lang_code, plural_rule)
-        language.load_json_dict(translations)
-
-    # English is our default for undefined languages
-    en = i18next.languages_by_code.get("en")
-    if en is None:
-        raise RuntimeError("English translations must be loaded")
-    i18next.default_language = en
-
-    # Apply fallbacks
-    for language in i18next.languages_by_code.values():
-        if language == en:
-            continue  # English has no fallback
-
-        fallback_language = en
-        if fallback_code := LANGUAGE_FALLBACKS.get(language.code):
-            fallback_language = i18next.languages_by_code[fallback_code]
-        language.fallback = fallback_language
-
-    return i18next
+    return load_locales(Path(__file__).parent / "locales")
 
 
 def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, str | int] | None = None) -> str:
@@ -116,9 +83,9 @@ def localize_datetime(value: datetime | Timestamp, timezone: ZoneInfo | None, lo
     return f"{localized_date} at {localized_time}"
 
 
-def localize_datetime_for_user(value: datetime | Timestamp, user: User) -> str:
-    timezone = ZoneInfo(user.timezone or "Etc/UTC")
-    return localize_datetime(value, timezone, user.ui_language_preference or "en")
+def localize_timezone(timezone: ZoneInfo, locale: str) -> str:
+    # TODO(#7590): Account for locale
+    return datetime.now(tz=timezone).strftime("%Z/UTC%z")
 
 
 def format_phone_number(value: str) -> str:

@@ -49,13 +49,24 @@
       "loading": "Çeviri ilerlemesi yükleniyor...",
       "error_loading": "Çeviri ilerlemesi yüklenemedi",
       "no_data": "Çeviri verisi mevcut değil",
-      "complete": "Tamamlanmış"
+      "complete": "Tamamlanmış",
+      "complete_percent": "%{{percent}} tamamlandı",
+      "info_text": "💡 %50-80 tamamlanmış diller dil seçicisinde gri renkte görünür. %50'nin altında tamamlanmaya sahip diller dil seçicisinden gizlenir. Çevirilere katkıda bulunanları teşvik etmek için, ilerlemesi %20'nin altında olan diller bu sayfada gösterilir.",
+      "view_progress": "Çeviri ilerlemesini görüntüle",
+      "just_started": "Yeni Başladı",
+      "midway": "Yolun ortasında",
+      "almost_there": "Neredeyse Tamamlandı",
+      "in_progress": "İlerleme Halinde",
+      "early_stage": "Erken Aşama"
     },
     "help_translate": "Couchers'ı kendi diline çevirmeye yardım et.",
     "form_title": "Dil",
     "select_language": "Dil seç",
     "success_message": "Değişikliğiniz kaydedildi.",
-    "error_loading_languages": "Dil seçenekleri yüklenemedi. Lütfen daha sonra tekrar dene."
+    "error_loading_languages": "Dil seçenekleri yüklenemedi. Lütfen daha sonra tekrar dene.",
+    "show_all_languages": "Dil seçicisinde var olan tüm dilleri göster",
+    "show_all_languages_description": "Etkinleştirildiğinde, dil seçicisinde tüm diller çeviri tamamlanma yüzdesine bakmaksızın gösterilecektir. Bu yalnızca test ortamında görünür ve hâlâ çevirisi devam eden dillerin test edilmesine yardımcı olur.",
+    "current_preferred_language": "Tercih edilen diliniz şu anda <lang>{{language}}</lang>."
   },
   "donation_banner": {
     "progress_label": "Bağış ilerlemesi",
@@ -77,14 +88,102 @@
       "warning_message": "Lütfen bu bilginin yanı sıra, bulunduğunuz sayfa, kullandığınız tarayıcı ve kullanıcı adınız gibi tanılama bilgilerinin de herkese açık bir hata listesine kaydedileceğini unutmayın.",
       "problem_label": "Hatanın oluşması için neler yaptın?",
       "title_helper": "Hatanın kısa bir açıklaması",
-      "problem_helper": "Sorunun kısa bir açıklaması ve nasıl tekrardan oluşturulabileceği"
+      "problem_helper": "Sorunun kısa bir açıklaması ve nasıl tekrardan oluşturulabileceği",
+      "expect_label": "Ne oldu? Olması gereken neydi?",
+      "expect_helper": "Olmasını beklediğiniz şey hakkında kısa bir açıklama"
     },
-    "label": "Bir sorun bildir"
+    "label": "Bir sorun bildir",
+    "flag": {
+      "reason_required": "Sebep gerekli.",
+      "description_required": "Açıklama gerekli.",
+      "success": "Raporunuz ile Couchers'ı herkes için daha iyi bir platform yaptığın için teşekkürler!",
+      "reason": {
+        "scam": "Dolandırıcılık, sahte veya yanıltıcı bilgi",
+        "other": "Diğer (Lütfen aşağıda belirtiniz)",
+        "dating": "Flört/randevu uygulaması tarzı davranış",
+        "external": "Platform dışı olay",
+        "harassment": "Taciz, zorbalık, nefret söylemi veya yasa dışı içerik",
+        "guidelines_breach": "Kural veya politika ihlali (ödeme isteme, çıplaklık, paylaşılan yataklar, vb.)",
+        "safety": "Güvenlik endişesi (kendi veya başkalarının güvenliğine karşı)",
+        "spam": "Kanepe sörfü ile ilgisi olmayan spam veya promosyon",
+        "sexualized": "Cinsel içerikli içerik veya davranış"
+      }
+    }
   },
   "meetup_status": {
     "wants_to_meetup": "Buluşmak istiyor",
     "open_to_meetup": "Buluşmaya açık",
     "unspecified_info": "Belirtmemiş",
     "does_not_want_to_meetup": "Buluşamaz"
+  },
+  "not_found_text_2": "Sadece <1>eve gitmek</1> mi istiyorsun?",
+  "not_found_alt": "Hata 404: Kaynak Bulunamadı",
+  "change_time": "Zamanı değiştir",
+  "not_found_text_1": "İstediğin URL veya kaynağı bulamadık",
+  "components": {
+    "edit_location_map": {
+      "location_warn": "Aşağıdaki daireyi tıklayıp sürükleyerek insanların evinizin yaklaşık konumunu görmesini sağlayın. Evinizin dairenin tam ortasında olmadığından emin olun, böylece insanlar kesin konumu bilemesin.",
+      "invalid_coordinate": "Koordinatlar eksik, lütfen yukarıdaki haritadan bir konum seçin",
+      "location_accuracy": "Konum isabetliliği",
+      "location_publicly_visible": "Bu herkese açık bir şekilde görünecek",
+      "map_is_blank": "Koordinatlar eksik, yukarıdan bir konum arayarak başlayın",
+      "radius_text": "{{radius}} metre",
+      "no_location_results_text": "Sonuç yok. Sadece şehri aramayı deneyin.",
+      "no_map_support": "Cihazınız haritayı desteklemiyor. Lütfen WebGL2'nin açık olduğuna emin olun veya başka bir cihaz/tarayıcı kullanın. Bu sorun için özür dileriz!",
+      "press_enter_to_search": "Aramak için enter tuşuna bas"
+    }
+  },
+  "nav": {
+    "merch_shop": "Ürün Mağazası",
+    "account_settings": "Hesap ayarları",
+    "help": "Yardım",
+    "log_out": "Çıkış yap",
+    "map_search": "Ara",
+    "mission": "Misyon ve Değerler",
+    "messages": "Mesajlar",
+    "newsletter": "Haber Bülteni",
+    "notifications": "Bildirimler",
+    "our_plan": "Planımız",
+    "our_team": "Takımımız",
+    "profile": "Profil",
+    "show_all_events": "Tüm etkinlikleri göster",
+    "the_team": "Takım",
+    "switch_to_light_mode": "Açık temaya geç",
+    "switch_to_dark_mode": "Karanlık temaya geç",
+    "about": "Hakkında",
+    "blog": "Blog",
+    "community": "Topluluk",
+    "communities": "Topluluklar",
+    "donate": "Bağış yap",
+    "events": "Etkinlikler",
+    "faq": "SSS",
+    "feature_preview": "Özellik Önizlemesi",
+    "forum": "Forum",
+    "github": "GitHub",
+    "help_center": "Yardım Merkezi",
+    "roadmap_updates": "Yol Haritası ve Güncellemeler",
+    "contact_us": "Bize Ulaşın",
+    "built_with": "Açık Kaynak",
+    "invite_members": "Üye Davet Et"
+  },
+  "what_is_cs": {
+    "timeline": {
+      "early_2000s_year": "2000'lerin başı",
+      "2010s_year": "2010'lar",
+      "2020_year": "2020",
+      "today_year": "Bugün"
+    },
+    "actions": {
+      "host": "Şehrini ziyaret eden bir gezgine ev sahipliği yap",
+      "surf": "Yolculuk yaparken yerli birisiyle sörf yap",
+      "attend_events": "Etkinliklere yerliler ve gezginlerle beraber git",
+      "find_people": "Şehrinizde kafadar insanları bulun ve buluşun",
+      "join_discussions": "Yerel topluluğundaki tartışmalara katıl veya yeni tartışmalar oluştur"
+    },
+    "why_people_title": "İnsanlar neden koltuk sörfünü seviyor",
+    "why_people_points": {
+      "travelers": "<bold>Yolcular için</bold>: Turistik yolların ötesine geçen daha derin, daha insancıl deneyimler",
+      "hosts": "<bold>Ev sahipleri için</bold>: dünya genelinden insanlarla tanış ve onlarla şehrini paylaş"
+    }
   }
 }

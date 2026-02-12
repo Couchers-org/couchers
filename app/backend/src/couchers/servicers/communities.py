@@ -12,6 +12,7 @@ from couchers.constants import COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD
 from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node, get_node_parents_recursively, is_user_in_node_geography
+from couchers.event_log import log_event
 from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
 from couchers.models import (
     Cluster,
@@ -30,7 +31,7 @@ from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import to_bool, users_visible
+from couchers.sql import to_bool, users_visible, where_moderated_content_visible
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 
 logger = logging.getLogger(__name__)
@@ -406,6 +407,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         query = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(or_(*membership_clauses))
         )
+        query = where_moderated_content_visible(query, context, EventOccurrence, is_list_operation=True)
 
         if request.past:
             cutoff = page_token + timedelta(seconds=1)
@@ -464,6 +466,13 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             )
         )
 
+        log_event(
+            context,
+            session,
+            "community.joined",
+            {"community_id": node.id, "community_name": node.official_cluster.name},
+        )
+
         return empty_pb2.Empty()
 
     def LeaveCommunity(
@@ -485,6 +494,10 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             delete(ClusterSubscription)
             .where(ClusterSubscription.cluster_id == node.official_cluster.id)
             .where(ClusterSubscription.user_id == context.user_id)
+        )
+
+        log_event(
+            context, session, "community.left", {"community_id": node.id, "community_name": node.official_cluster.name}
         )
 
         return empty_pb2.Empty()

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import can_moderate_node, session_scope
+from couchers.event_log import log_event
 from couchers.jobs.enqueue import queue_job
 from couchers.models import Cluster, Discussion, Thread, User
 from couchers.models.notifications import NotificationTopicAction
@@ -111,6 +112,18 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         )
         session.add(discussion)
         session.flush()
+
+        log_event(
+            context,
+            session,
+            "discussion.created",
+            {
+                "discussion_id": discussion.id,
+                "cluster_id": cluster.id,
+                "cluster_name": cluster.name,
+                "is_official_cluster": cluster.is_official_cluster,
+            },
+        )
 
         queue_job(
             session,

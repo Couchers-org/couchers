@@ -53,5 +53,6 @@
   "badgesList": ["volunteer", "strong_verification"],
   "hasStrongVerification": true,
   "birthdateVerificationStatus": 2,
-  "genderVerificationStatus": 2
+  "genderVerificationStatus": 2,
+  "profileGalleryId": 1
 }

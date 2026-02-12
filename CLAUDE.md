@@ -1,8 +1,10 @@
 # Claude Code Instructions for Couchers
 
-## Repository Structure
+## Summary
 
-This is a monorepo for Couchers.org, a non-profit hospitality exchange platform.
+This is a monorepo for Couchers.org, a non-profit couch surfing platform. Users sign up and can be hosts (offering their couch/spare room to travelers), surfers (requesting to stay with hosts), community members (attending events, joining discussions, and building local communities), or any combination. Core features include user profiles with hosting preferences, sending and responding to couch requests, messaging between users, community features like events and discussions organized by local communities, and a reference system for building trust. The platform emphasizes safety, community building, and keeping the service free and community-owned.
+
+## Repository Structure
 
 - `/app/backend` - Python backend (gRPC, SQLAlchemy, PostgreSQL/PostGIS)
 - `/app/web` - Next.js web frontend
@@ -48,6 +50,8 @@ make mypy
 - Imports always occur at the top of the file. The two exceptions are when this is required during type checking or in tests that really require inline imports
 - Do not use `session.get(...)`. Use `session.execute(select(...))` instead
 - For URLs, use `from couchers import urls` and then `urls.whatever()`
+- Always import `from couchers.sql import couchers_select as select` instead of something else
+- Avoid inline imports whenever possible
 - To filter out invisible users (deleted/banned/blocked), use the helper functions from `couchers.sql`: `where(users_visible(context))` when User is already joined, `where(users_column_visible(context, column))` when you have a user_id column, or `where(users_visible_to_each_other(user1, user2))` for mutual visibility. Never use `User.is_visible` directly in queries
 
 ### Web (TypeScript/React)
@@ -62,6 +66,10 @@ make mypy
 - Located in `/app/proto`
 - Run `make protos` from backend after changes
 - Internal job payloads in `/app/backend/proto/internal/jobs.proto`
+
+### Localization
+- Do not hard-code English text strings, store them in the appropriate locale files (`features/*/locales/en.json`)
+- When adding strings to an `en.json` file, refer to `/docs/localization.md` for string key and text guidance
 
 ## Testing
 

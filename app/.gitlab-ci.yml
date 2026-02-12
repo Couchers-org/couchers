@@ -238,6 +238,8 @@ build:web:
   artifacts:
     paths:
       - artifacts/
+  tags:
+    - saas-linux-large-amd64
 
 build:web-next:
   needs: ["protos"]
@@ -266,6 +268,8 @@ build:web-next:
   artifacts:
     paths:
       - artifacts/
+  tags:
+    - saas-linux-large-amd64
 
 build:nginx-next:
   needs: []
@@ -286,6 +290,59 @@ build:nginx-next:
         - app/.gitlab-ci.yml
 
 test:backend:
+  needs: ["build:backend"]
+  stage: test
+  parallel: 3
+  image: $BACKEND_TAG
+  inherit:
+    # no docker login
+    default: false
+  services:
+    - name: postgis/postgis:17-3.5
+      alias: postgres
+      command: [
+        "postgres",
+        "-c", "bgwriter_lru_maxpages=0",
+        "-c", "jit=off",
+        "-c", "fsync=off",
+        "-c", "full_page_writes=off",
+        "-c", "synchronous_commit=off",
+        "-c", "wal_level=minimal",
+        "-c", "wal_keep_size=100MB",
+        "-c", "max_wal_senders=0",
+      ]
+  variables:
+    POSTGRES_PASSWORD: c765064a49d18a95
+    DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/testdb"
+    COVERAGE_FILE: /app/.coverage.$CI_NODE_INDEX
+  script:
+    - cd /app && pytest --junitxml=junit.xml --cov=src --cov-report= --splits $CI_NODE_TOTAL --group $CI_NODE_INDEX --durations-path src/tests/.test_durations --store-durations src
+    # Move the stored durations to a node-specific file
+    - mv src/tests/.test_durations /app/.test_durations.$CI_NODE_INDEX
+  after_script:
+    - cp /app/junit.xml $CI_PROJECT_DIR/junit-$CI_NODE_INDEX.xml
+    - cp /app/.coverage.$CI_NODE_INDEX $CI_PROJECT_DIR/
+    - cp /app/.test_durations.$CI_NODE_INDEX $CI_PROJECT_DIR/
+  artifacts:
+    reports:
+      junit: junit-$CI_NODE_INDEX.xml
+    paths:
+      - .coverage.$CI_NODE_INDEX
+      - .test_durations.$CI_NODE_INDEX
+  rules:
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+        - app/**/*
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/backend/**/*
+  tags:
+      - saas-linux-medium-amd64
+
+# This is a separate job because the migration test takes 2 minutes and this interferes
+# with how pytest-split splits the tests between nodes.
+test:backend-migrations:
   needs: ["build:backend"]
   stage: test
   image: $BACKEND_TAG
@@ -309,8 +366,8 @@ test:backend:
   variables:
     POSTGRES_PASSWORD: c765064a49d18a95
     DATABASE_CONNECTION_STRING: "postgresql://postgres:c765064a49d18a95@postgres/testdb"
-    RUN_MIGRATION_TEST: true
     TEST_SCHEMA_OUTPUT_DIR: /app/schema_dumps
+    COVERAGE_FILE: /app/.coverage.migrations
   before_script:
     # install the latest postgres from their repos to get pg_dump compatible with later postgres
     - apt-get update -qy && apt-get install -qyy wget gpg
@@ -320,36 +377,18 @@ test:backend:
     - apt-get -qy update
     - apt-get -qyy install postgresql-client
   script:
-    - cd /app && pytest --junitxml=junit.xml --cov=src src
+    - cd /app && pytest --junitxml=junit.xml --cov=src --cov-report= src/tests/test_db.py::test_migrations
   after_script:
-    - cd /app && coverage xml && coverage html
-    - cp /app/junit.xml $CI_PROJECT_DIR/
-    - cp /app/coverage.xml $CI_PROJECT_DIR/
-    - mkdir -p $CI_PROJECT_DIR/artifacts/htmlcov && cp -a /app/htmlcov $CI_PROJECT_DIR/artifacts/
-    # Copy schema dumps if they exist (from migration test)
+    - cp /app/junit.xml $CI_PROJECT_DIR/junit-migrations.xml
+    - cp /app/.coverage.migrations $CI_PROJECT_DIR/
+    # Copy schema dumps
     - mkdir -p $CI_PROJECT_DIR/artifacts/schema_dumps
-    - cp /app/schema_dumps/*.sql $CI_PROJECT_DIR/artifacts/schema_dumps/
-    # Create cleaned schema.sql with git hash header
-    - |
-      {
-        echo "-- Couchers.org database schema"
-        echo "-- Generated from migrations at commit $CI_COMMIT_SHA on branch $CI_COMMIT_REF_NAME at $CI_COMMIT_TIMESTAMP"
-        echo ""
-        grep -v '^\\\restrict' /app/schema_dumps/schema_from_migrations.sql \
-          | grep -v '^\\\unrestrict' \
-          | grep -v '^--' \
-          | grep -v 'ALTER .* OWNER TO postgres;' \
-          | cat -s
-      } > $CI_PROJECT_DIR/artifacts/schema_dumps/schema.sql
-  coverage: '/^TOTAL.+?(\d+\%)$/'
+    - cp /app/schema_dumps/*.sql $CI_PROJECT_DIR/artifacts/schema_dumps/ 2>/dev/null || true
   artifacts:
     reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
-      junit: junit.xml
+      junit: junit-migrations.xml
     paths:
-      - artifacts/htmlcov
+      - .coverage.migrations
       - artifacts/schema_dumps
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
@@ -360,7 +399,7 @@ test:backend:
         - app/proto/**/*
         - app/backend/**/*
   tags:
-      - saas-linux-medium-amd64
+    - saas-linux-medium-amd64
 
 test:backend-format:
   needs: ["build:backend"]
@@ -578,18 +617,101 @@ test:proxy:
         - app/proxy/**/*
 
 
+preview:backend-coverage:
+  needs:
+    - job: test:backend
+      artifacts: true
+    - job: test:backend-migrations
+      artifacts: true
+  stage: preview
+  image: python:3.14-slim
+  inherit:
+    # no docker login
+    default: false
+  script:
+    # Install coverage
+    - pip install coverage
+    # Create coverage config to remap paths from Docker container to CI checkout
+    - |
+      cat > .coveragerc << EOF
+      [paths]
+      source =
+          app/backend/src
+          /app/src
+      EOF
+    # Combine coverage from all parallel workers (with path remapping)
+    - coverage combine --rcfile=.coveragerc .coverage.*
+    - coverage report --rcfile=.coveragerc
+    - coverage xml --rcfile=.coveragerc
+    - coverage html --rcfile=.coveragerc
+    # Merge test durations from all parallel workers into a single test_durations.json.
+    # This file can then be put into src/tests/.test_durations to update the way the
+    # tests are split between the nodes by pytest-split. This only has to be done when
+    # slow tests are added - unknown tests are assumed to have average run time.
+    # Note that this has to be done on a CI machine, as test run time can be very different
+    # from your local machine.
+    - |
+      python3 << 'EOF'
+      import json
+      import glob
+      merged = {}
+      for f in glob.glob('.test_durations.*'):
+          with open(f) as fp:
+              data = json.load(fp)
+              merged.update(data)
+      with open('test_durations.json', 'w') as fp:
+          json.dump(merged, fp, sort_keys=True, indent=4)
+      print(f"Merged {len(merged)} test durations from {len(glob.glob('.test_durations.*'))} files")
+      EOF
+  coverage: '/^TOTAL.+?(\d+\%)$/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+    paths:
+      - htmlcov
+      - test_durations.json
+  rules:
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+      changes:
+        - app/**/*
+    - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/backend/**/*
+
 preview:backend:
-  needs: ["test:backend"]
+  needs:
+    - job: test:backend-migrations
+      artifacts: true
+    - job: preview:backend-coverage
+      artifacts: true
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
     # no docker login
     default: false
   script:
+    # Create cleaned schema.sql with git hash header (only if schema file exists)
+    - |
+      if [ -f "artifacts/schema_dumps/schema_from_migrations.sql" ]; then
+        {
+          echo "-- Couchers.org database schema"
+          echo "-- Generated from migrations at commit $CI_COMMIT_SHA on branch $CI_COMMIT_REF_NAME at $CI_COMMIT_TIMESTAMP"
+          echo ""
+          grep -v '^\\\restrict' artifacts/schema_dumps/schema_from_migrations.sql \
+            | grep -v '^\\\unrestrict' \
+            | grep -v '^--' \
+            | grep -v 'ALTER .* OWNER TO postgres;' \
+            | cat -s
+        } > artifacts/schema_dumps/schema.sql
+      fi
+    # Upload coverage report to S3
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
-    - aws s3 cp artifacts/htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp htmlcov s3://$AWS_PREVIEW_BUCKET/bcov/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--bcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--bcov.$PREVIEW_DOMAIN/"
     # Upload schema dumps
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_SHORT_SHA/ --recursive
@@ -597,6 +719,9 @@ preview:backend:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/schema_dumps s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, schema dumps available at https://$CI_COMMIT_SHORT_SHA--schema.$PREVIEW_DOMAIN/schema.sql and https://$CI_COMMIT_REF_SLUG--schema.$PREVIEW_DOMAIN/schema.sql"
+  artifacts:
+    paths:
+      - artifacts/schema_dumps
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
       changes:
@@ -749,6 +874,12 @@ wait:before-release:
     - job: build:nginx-next
       artifacts: false
     - job: test:backend
+      artifacts: false
+      optional: true
+    - job: test:backend-migrations
+      artifacts: false
+      optional: true
+    - job: preview:backend
       artifacts: false
       optional: true
     - job: test:backend-format

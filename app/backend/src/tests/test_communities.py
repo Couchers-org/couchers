@@ -13,6 +13,7 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    EventOccurrence,
     Node,
     Page,
     PageType,
@@ -25,6 +26,7 @@ from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, 
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import Timestamp_from_datetime, create_coordinate, create_polygon_lat_lng, now, to_multi
 from tests.fixtures.db import generate_user, get_user_id_and_token
+from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import (
     auth_api_session,
     communities_session,
@@ -296,6 +298,14 @@ def testing_communities(db_class, testconfig):
     create_event(token2, None, h_id, "Event title 10", "Event content 10", timedelta(hours=10))
     create_event(token2, None, h_id, "Event title 11", "Event content 11", timedelta(hours=11))
     create_event(token2, None, h_id, "Event title 12", "Event content 12", timedelta(hours=12))
+
+    # Approve all events for visibility (UMS starts events as SHADOWED)
+    mod_user, mod_token = generate_user(is_superuser=True)
+    mod = Moderator(mod_user, mod_token)
+    with session_scope() as session:
+        occurrence_ids = session.execute(select(EventOccurrence.id)).scalars().all()
+    for oid in occurrence_ids:
+        mod.approve_event_occurrence(oid)
 
     enforce_community_memberships()
 

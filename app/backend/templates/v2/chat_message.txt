@@ -1,11 +1,11 @@
 Hi {{ user.name }},
 
-{{ message }} at {{ time|v2time }}.
+{{ message }} at {{ time|time }}.
 
 
 The message is below:
 
-{{ text|v2quote }}
+{{ text|quotelines }}
 
 
 

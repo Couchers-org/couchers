@@ -6,9 +6,11 @@ from tempfile import TemporaryDirectory
 from types import TracebackType
 
 # these two lines need to be at the top of the file before we span child processes
-# this temp dir will be destroyed when prometheus_multiproc_dir is destroyed, aka at the end of the program
-prometheus_multiproc_dir = TemporaryDirectory()
-environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_multiproc_dir.name
+# this temp dir will be destroyed when prometheus_multiproc_dir is destroyed, aka at the end of the program.
+# Also note that this should only be done in the main process.
+if __name__ == "__main__":
+    prometheus_multiproc_dir = TemporaryDirectory()
+    environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_multiproc_dir.name
 # ruff: noqa: E402
 
 import sentry_sdk
@@ -46,30 +48,30 @@ def log_unhandled_exception(
     logger.critical("Unhandled exception", exc_info=(exc_type, exc_value, exc_traceback))
 
 
-sys.excepthook = log_unhandled_exception
+def common_init() -> None:
+    sys.excepthook = log_unhandled_exception
 
-if config["SENTRY_ENABLED"]:
-    # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
-    sentry_sdk.init(
-        config["SENTRY_URL"],
-        traces_sample_rate=0.0,
-        environment=config["COOKIE_DOMAIN"],
-        release=config["VERSION"],
-        # The global excepthook picks up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
-        disabled_integrations=[
-            excepthook.ExcepthookIntegration(),
-        ],
-    )
+    if config["SENTRY_ENABLED"]:
+        # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
+        sentry_sdk.init(
+            config["SENTRY_URL"],
+            traces_sample_rate=0.0,
+            environment=config["COOKIE_DOMAIN"],
+            release=config["VERSION"],
+            # The global excepthook picks up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
+            disabled_integrations=[
+                excepthook.ExcepthookIntegration(),
+            ],
+        )
 
-logger.info("Checking DB connection")
-with session_scope() as session:
-    res = session.execute(text("SELECT 42;"))
-    if list(res) != [(42,)]:
-        raise Exception("Failed to connect to DB")
+    logger.info("Checking DB connection")
+    with session_scope() as session:
+        res = session.execute(text("SELECT 42;"))
+        if list(res) != [(42,)]:
+            raise Exception("Failed to connect to DB")
 
 
-# In other processes __name__ is __mp_main__
-if __name__ == "__main__":
+def main() -> None:
     # used to export metrics
     create_prometheus_server(8000)
 
@@ -85,7 +87,7 @@ if __name__ == "__main__":
     logger.info("Starting")
 
     if config["ROLE"] in ["scheduler", "all"]:
-        scheduler = start_jobs_scheduler()
+        start_jobs_scheduler()
 
     if config["ROLE"] in ["worker", "all"]:
         for _ in range(config["BACKGROUND_WORKER_COUNT"]):
@@ -109,3 +111,10 @@ if __name__ == "__main__":
     logger.info("App waiting for signal...")
 
     signal.pause()
+
+
+if __name__ == "__main__":
+    common_init()
+    main()
+elif __name__ == "__mp_main__":  # processes created via multiprocessing
+    common_init()

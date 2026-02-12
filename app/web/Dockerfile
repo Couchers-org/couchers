@@ -8,7 +8,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY package.json yarn.lock ./
 # https://github.com/yarnpkg/yarn/issues/8242
-RUN yarn config set network-timeout 300000 && yarn install --frozen-lockfile
+RUN yarn config set network-timeout 300000 && yarn install --frozen-lockfile && yarn cache clean
 
 COPY . .
 
@@ -30,4 +30,4 @@ ENV NEXT_PUBLIC_COMMIT_SHA=$commit_sha
 ARG commit_timestamp
 ENV NEXT_PUBLIC_COMMIT_TIMESTAMP=$commit_timestamp
 
-RUN yarn build
+RUN yarn build && rm -rf .next/cache node_modules/.cache

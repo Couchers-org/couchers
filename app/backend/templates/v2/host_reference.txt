@@ -5,7 +5,7 @@ Hi {{ user.name }}!
 {% if both_written %}
 This is what they wrote:
 
-{{ text|v2quote }}
+{{ text|quotelines }}
 
 Thanks for using Couchers to organize this interaction! We hope you had an enjoyable, fulfilling time.
 

@@ -2,6 +2,164 @@
   "host_request_view": {
     "request_duration_one": "{{count}} noite",
     "request_duration_many": "{{count}} de noites",
-    "request_duration_other": "{{count}} noites"
+    "request_duration_other": "{{count}} noites",
+    "error_message": "ID de solicitação de hospedagem inválido",
+    "title_for_surfer": "Solicitação para {{user}} - {{status}}",
+    "back_button_a11y_label": "Voltar",
+    "title_for_host": "Solicitação de {{user}} - {{status}}"
+  },
+  "admins_dialog": {
+    "step_down_confirmation_dialog": {
+      "message": "Tem certeza de que deseja deixar de ser administrador desta conversa em grupo? Não é possível se tornar um administrador de novo, a menos que outro administrador adicione você.",
+      "title": "Deixar de ser administrador?"
+    },
+    "remove_admin": {
+      "title": "Remover administrador",
+      "action_a11y_label": "Remover como administrador"
+    },
+    "add_admin": {
+      "title": "Adicionar administrador",
+      "action_a11y_label": "Adicionar como administrador"
+    }
+  },
+  "host_request_item": {
+    "host_status": {
+      "cancelled": "Você cancelou esta solicitação",
+      "rejected": "Você recusou esta solicitação",
+      "accepted": "Você aceitou esta solicitação",
+      "confirmed": "Você confirmou esta solicitação"
+    },
+    "surfer_status": {
+      "cancelled": "Sua solicitação foi cancelada",
+      "confirmed": "Sua solicitação foi confirmada",
+      "rejected": "Sua solicitação foi recusada",
+      "accepted": "Sua solicitação foi aceita"
+    },
+    "expired": "Esta solicitação expirou",
+    "pending": "Esta solicitação ainda está pendente"
+  },
+  "past_request_help_text": "Esta solicitação é antiga. Você ainda pode enviar mensagens, mas não pode modificá-la.",
+  "chat_view": {
+    "muted_icon": {
+      "a11y_label": "Silenciado"
+    },
+    "actions_menu": {
+      "items": {
+        "chat_settings": "Configurações da conversa",
+        "invite_members": "Convidar para conversa",
+        "show_all_members": "Membros da conversa",
+        "manage_admins": "Gerenciar administradores da conversa",
+        "leave_chat": "Abandonar a conversa"
+      },
+      "a11y_label": "Mostrar mais ações de conversa"
+    },
+    "cannot_message_text": "Você pode enviar mensagens nesta conversa",
+    "invalid_id_error": "ID de conversa inválido.",
+    "no_messages_state_text": "Nenhuma mensagem",
+    "back_button": {
+      "a11y_label": "Voltar"
+    },
+    "mute": {
+      "button_label": "Silenciar a conversa",
+      "unmute_button_label": "Desilenciar a conversa",
+      "dialog_title": "Por quanto tempo você quer silenciar?",
+      "1_hour_label": "1 hora",
+      "8_hours_label": "8 horas",
+      "1_day_label": "1 dia",
+      "1_week_label": "1 semana",
+      "1_month_label": "1 mês",
+      "forever_label": "Até que eu desilencie"
+    }
+  },
+  "mark_all_read_button_text_hosting": "Marcar todas as solicitações como lidas",
+  "control_message": {
+    "invite_user_text": "{{user}} convidou {{target_user}}",
+    "created_chat_text": "{{user}} criou a conversa",
+    "edited_chat_text": "{{user}} editou a conversa",
+    "user_left_chat_text": "{{user}} abandonou a conversa",
+    "admin_assignment_text": "{{user}} tornou {{target_user}} um administrador",
+    "admin_removal_text": "{{user}} removeu {{target_user}} como administrador",
+    "unknown_message_text": "Mensagem de controle desconhecida",
+    "host_request_status_changed": {
+      "accepted": "{{user}} aceitou a solicitação",
+      "cancelled": "{{user}} cancelou a solicitação",
+      "confirmed": "{{user}} confirmou a solicitação",
+      "rejected": "{{user}} rejeitou a solicitação"
+    }
+  },
+  "surfer_declined_request_help_text": "<0>Leia nosso guia</0> sobre como escrever uma solicitação que vai ser aceita.",
+  "create_chat": {
+    "title_label": "Título",
+    "dm_title": "Criar uma nova conversa",
+    "group_title": "Criar conversa em grupo",
+    "group_title_field_label": "Título",
+    "no_friends_found_message": "Não foi possível encontrar nenhum amigo",
+    "user_load_error_message": "(Erro de carregamento de usuário)",
+    "friends_input_label": "Amigos"
+  },
+  "group_chat_settings_dialog": {
+    "title": "Configurações de conversa em grupo",
+    "chat_title": {
+      "field_label": "Título da conversa"
+    },
+    "only_admins_invite": {
+      "field_label": "Apenas administradores podem convidar outras pessoas para a conversa"
+    }
+  },
+  "group_chats_tab": {
+    "no_chats_message": "Nenhuma conversa em grupo ainda",
+    "load_more_button_label": "Carregar mais"
+  },
+  "requests_tab": {
+    "no_requests_message": "Nenhuma solicitação ainda",
+    "load_more_button_label": "Carregar mais"
+  },
+  "invite_dialog": {
+    "title": "Convidar para conversa",
+    "selected": {
+      "field_label": "Amigos",
+      "no_options_text": "Ninguém para convidar",
+      "option_load_error_text": "(Erro de carregamento de usuário)"
+    },
+    "invite_button_label": "Convidar"
+  },
+  "leave_chat_dialog": {
+    "title": "Abandonar a conversa?",
+    "message": "Tem certeza de que deseja abandonar esta conversa?"
+  },
+  "members_dialog": {
+    "title": "Membros da Conversa"
+  },
+  "host_request_status": {
+    "cancelled": "Cancelada",
+    "confirmed": "Confirmada",
+    "accepted": "Aceita",
+    "past": "Antiga",
+    "pending": "Pendente",
+    "rejected": "Recusada"
+  },
+  "unknown_user": "Usuário desconhecido",
+  "mark_all_read_button_text": "Marcar tudo como lido",
+  "request_closed_message": "Esta solicitação de hospedagem está encerrada. Para continuar a conversar, envie uma mensagem normal para a outra pessoa.",
+  "close_request_dialog_host": "Certifique-se de que a conversa terminou antes de recusar a solicitação.",
+  "close_request_dialog_surfer": "Certifique-se de que a conversa terminou antes de cancelar a solicitação.",
+  "write_reference_button_text": "Escrever uma Referência",
+  "close_request_dialog_title": "Terminaram as mensagens?",
+  "close_request_button_text": "Recusar",
+  "messages_page": {
+    "title": "Mensagens",
+    "tabs": {
+      "aria_label": "Abas para diferentes tipos de mensagens",
+      "chats": "Conversas",
+      "hosting": "Hospedando",
+      "surfing": "Como hóspede"
+    }
+  },
+  "mark_all_read_button_text_chats": "Marcar todas as conversas como lidas",
+  "mark_all_read_button_text_surfing": "Marcar todas as solicitações de hospedagem como lidas",
+  "confirm_request_button_text": "Confirmar",
+  "host_pending_request_help_text": "<0>Coisas a se considerar</0> antes de responder.",
+  "chat_input": {
+    "label": "Mensagem"
   }
 }

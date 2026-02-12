@@ -21,9 +21,11 @@ class I18Next:
     default_language: Language | None = None
     """The language used to look up strings in unsupported languages."""
 
-    def add_language(self, code: str, plural_rule: PluralRule) -> Language:
+    def add_language(self, code: str, plural_rule: PluralRule, *, json_dict: dict[str, Any] | None = None) -> Language:
         language = Language(code, plural_rule)
         self.languages_by_code[code] = language
+        if json_dict:
+            language.load_json_dict(json_dict)
         return language
 
     def find_string(
@@ -31,16 +33,13 @@ class I18Next:
     ) -> String | None:
         """Find the string that will be localized, applying fallbacks and variant selection."""
         language = self.languages_by_code.get(language_code, self.default_language)
-        while True:
-            if language is None:
-                raise LocalizationError(language_code, key)
+        candidate_languages = [language] + language.fallbacks if language else []
+        for candidate_language in candidate_languages:
+            if string := candidate_language.find_string(key, substitutions):
+                if string.template.can_render(substitutions):
+                    return string
 
-            string = language.find_string(key, substitutions)
-            if string is None or not string.template.can_render(substitutions):
-                language = language.fallback
-                continue
-
-            return string
+        raise LocalizationError(language_code, key)
 
     def localize(
         self, string_key: str, language_code: str, substitutions: Mapping[str, str | int] | None = None
@@ -60,7 +59,7 @@ class Language:
     plural_rule: PluralRule
     """The rule for plurals in this language."""
     strings_by_key: dict[str, String] = field(default_factory=dict)
-    fallback: Language | None = None
+    fallbacks: list[Language] = field(default_factory=list)
 
     def load_json_dict(self, json_dict: Mapping[str, Any]) -> None:
         def add_strings(json_dict: Mapping[str, Any], key_prefix: str | None) -> None:
@@ -139,7 +138,7 @@ class StringTemplate:
     def parse(value: str) -> StringTemplate:
         last_index = 0
         segments: list[StringSegment] = []
-        for match in re.finditer(r"\{\{([^\}]+)\}\}", value):
+        for match in re.finditer(r"\{\{\s*([^\}]+?)\s*\}\}", value):
             if match.start() > last_index:
                 segments.append(StringSegment(text=value[last_index : match.start()], is_variable=False))
             segments.append(StringSegment(text=match.group(1), is_variable=True))

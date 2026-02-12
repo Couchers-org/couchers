@@ -1,19 +1,27 @@
 {
-    "tabs": {
-        "events": "Eventos",
-        "communities": "Comunidades",
-        "home": "Início",
-        "messages": "Mensagens",
-        "search": "Busca"
-    },
-    "errors": {
-        "failed_to_load": "Falha ao carregar",
-        "check_connection": "Verifique sua conexão de internet e tente novamente.",
-        "try_again": "Tente novamente"
-    },
-    "not_found": {
-        "title": "Opa!",
-        "message": "Essa tela não existe.",
-        "go_home": "Volte para a tela inicial!"
-    }
+  "tabs": {
+    "events": "Eventos",
+    "communities": "Comunidades",
+    "home": "Início",
+    "messages": "Mensagens",
+    "search": "Busca"
+  },
+  "errors": {
+    "failed_to_load": "Falha ao carregar",
+    "check_connection": "Verifique sua conexão de internet e tente novamente.",
+    "try_again": "Tente novamente",
+    "camera_permission_denied": "É necessária permissão de câmera para tirar fotos."
+  },
+  "not_found": {
+    "title": "Opa!",
+    "message": "Essa tela não existe.",
+    "go_home": "Volte para a tela inicial!"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "add_photo": "Adicionar Foto",
+    "choose_photo_source": "Escolha de onde selecionar sua foto",
+    "take_photo": "Tirar Foto",
+    "choose_from_library": "Escolher da Biblioteca"
+  }
 }
