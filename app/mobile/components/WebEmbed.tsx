@@ -166,7 +166,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
         true;
       `);
-    }, [path, WEB_BASE_URL, stripLocale, i18n.language, currentWebPathRef]),
+    }, [path, stripLocale, i18n.language, currentWebPathRef]),
   );
 
   // Send result back to web app
