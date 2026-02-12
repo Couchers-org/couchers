@@ -123,5 +123,9 @@
     "man": "hij / hem",
     "woman": "zij / haar"
   },
-  "edit_profile_name_required": "Naam verplicht"
+  "edit_profile_name_required": "Naam verplicht",
+  "reference_amounts": {
+    "count_references_one": "{{count}} referentie",
+    "count_references_other": "{{count}} referenties"
+  }
 }

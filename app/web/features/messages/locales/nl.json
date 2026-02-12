@@ -117,7 +117,13 @@
     "admin_assignment_text": "{{user}} heeft {{target_user}} admin gemaakt",
     "admin_removal_text": "{{user}} heeft {{target_user}} verwijderd als admin",
     "unknown_message_text": "Onbekend besturingsbericht",
-    "invite_user_text": "{{user}} heeft {{target_user}} uitgenodigd"
+    "invite_user_text": "{{user}} heeft {{target_user}} uitgenodigd",
+    "host_request_status_changed": {
+      "accepted": "{{user}} heeft het verzoek geaccepteerd",
+      "cancelled": "{{user}} heeft het verzoek geannuleerd",
+      "confirmed": "{{user}} heeft het verzoek bevestigd",
+      "rejected": "{{user}} heeft het verzoek afgewezen"
+    }
   },
   "host_request_status": {
     "accepted": "Geaccepteerd",
