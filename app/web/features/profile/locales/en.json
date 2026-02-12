@@ -278,7 +278,7 @@
   "image_uploading_warning": "Your profile image is still uploading. Are you sure you want to leave the page?",
   "click_replace_image": "Click to replace image",
   "profile_tag_input": {
-    "header_text": "Press 'Enter' to add\n<0>Email us</0> to add an entry",
+    "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
     "remove_button_a11y_text": "Remove {{tag}}"
   },
   "view_in_admin_console": "View user in admin console",
@@ -309,6 +309,8 @@
     "does_not_want_to_meetup_description": "I prefer not to meet up with others"
   },
   "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response.",
+  "avatar_placeholder_info": "<bold>Click the placeholder avatar to jump to the photo upload section.</bold> A photo of yourself is required to interact with the community. A clear, friendly photo showing your face builds trust and helps others feel comfortable.",
+  "click_to_add_photo": "Click to add a photo",
   "profile_changes_saved_message": "Profile changes saved!",
   "hosting_preferences_success_message": "Hosting preferences saved!",
   "couldnt_read_file": "Couldn't read file",
@@ -337,6 +339,7 @@
     "photo_viewer_aria": "Photo viewer",
     "previous_photo": "Previous photo",
     "next_photo": "Next photo",
-    "close_viewer": "Close photo viewer"
+    "close_viewer": "Close photo viewer",
+    "report_photo": "Report Photo"
   }
 }

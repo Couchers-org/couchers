@@ -4,7 +4,7 @@ You recently requested an API key for Couchers.org. We've issued you with the fo
 
 {{ api_key }}
 
-The key expires {{ expiry|v2timestamp }}.
+The key expires {{ expiry|datetime }}.
 
 This API key is unique to your account; do not share it with anyone, it gives complete access to your account, and you are reponsible for any actions taken using this API key.</mj-text>
 

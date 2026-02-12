@@ -285,7 +285,7 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
       </StyledMiddleOuterContainer>
       <StyledLowerOuterContainer>
         <StyledLowerContainer>
-          <Typography variant="body1">{t("footer.copyright")}</Typography>
+          <Typography variant="body1">© 2026 Couchers, Inc.</Typography>
           <Typography variant="body1">
             <Trans
               t={t}

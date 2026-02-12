@@ -3,6 +3,7 @@ from typing import Any
 
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
+from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
@@ -10,6 +11,7 @@ from couchers.models import EventOccurrence, HostingStatus, LanguageAbility, Lan
 from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
 from couchers.utils import Timestamp_from_datetime, create_coordinate, millis_from_dt, now
 from tests.fixtures.db import generate_user
+from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import communities_session, events_session, search_session
 from tests.test_communities import create_community, testing_communities  # noqa
 from tests.test_references import create_friend_reference
@@ -678,7 +680,9 @@ def test_event_search_online_status(sample_community, create_event):
         assert {event.title for event in res.events} == {"Offline event"}
 
 
-def test_event_search_filter_subscription_attendance_organizing_my_communities(sample_community, create_event):
+def test_event_search_filter_subscription_attendance_organizing_my_communities(
+    sample_community, create_event, moderator: Moderator
+):
     """Test that EventSearch respects subscribed, attending, organizing and my_communities filters and by default
     returns all events.
     """
@@ -700,6 +704,12 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(s
             title="Other community event",
             offline_information=events_pb2.OfflineEventInformation(lat=58, lng=1, address="Somewhere"),
         )
+
+    # Approve all events so they're visible to other users
+    with session_scope() as session:
+        occurrence_ids = session.execute(select(EventOccurrence.id)).scalars().all()
+    for oid in occurrence_ids:
+        moderator.approve_event_occurrence(oid)
 
     with events_session(token) as api:
         create_event(api, title="Organized event")

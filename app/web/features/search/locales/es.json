@@ -78,7 +78,10 @@
     "show_user_button_label": "Mostrar {{name}} en el mapa",
     "missing_about_description": "{{name}} no ha dicho nada sobre sí todavía",
     "few_results_suggestion": "Por defecto, se ocultan los perfiles vacíos o que \"no pueden alojar\".",
-    "include_empty_profiles_button": "Mostrar todos los perfiles"
+    "include_empty_profiles_button": "Mostrar todos los perfiles",
+    "people_range_message_one": "{{currentRange}} de {{count}} persona",
+    "people_range_message_many": "{{currentRange}} de {{count}} de personas",
+    "people_range_message_other": "{{currentRange}} de {{count}} personas"
   },
   "search_this_area": "Buscar en esta zona",
   "any": "En cualquier momento",

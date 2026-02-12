@@ -25,7 +25,26 @@
     "dashboard": "Dashboard",
     "donate": "Doneren",
     "github": "GitHub",
-    "help_center": "Helpdesk"
+    "help_center": "Helpdesk",
+    "messages": "Berichten",
+    "invite_members": "Leden uitnodigen",
+    "merch_shop": "Merch shop",
+    "contact_us": "Contact",
+    "mission": "Missie en waarden",
+    "badges": "Badges",
+    "built_with": "Open source",
+    "landing_page": "Homepage",
+    "switch_to_light_mode": "Switch naar lichte stand",
+    "switch_to_dark_mode": "Switch naar donkere stand",
+    "newsletter": "Nieuwsbrief",
+    "notifications": "Notificaties",
+    "our_plan": "Ons plan",
+    "our_team": "Ons team",
+    "profile": "Profiel",
+    "show_all_events": "Alle events weergeven",
+    "the_team": "Het team",
+    "volunteer": "Helpen",
+    "legal_more": "Juridisch & meer"
   },
   "components": {
     "edit_location_map": {
@@ -39,7 +58,8 @@
       "no_location_results_text": "Geen resultaten. Probeer alleen op de stad te zoeken.",
       "location_warn": "Klik en sleep de cirkel hieronder om mensen de globale locatie van je huis te laten zien. Zorg ervoor dat je huis niet in het midden van de cirkel staat, zodat mensen de exacte locatie niet weten.",
       "map_is_blank": "Coördinaten ontbreken, begin met het zoeken naar een locatie op bovenstaande kaart",
-      "invalid_coordinate": "Coördinaten ontbreken, selecteer een locatie op bovenstaande kaart"
+      "invalid_coordinate": "Coördinaten ontbreken, selecteer een locatie op bovenstaande kaart",
+      "no_map_support": "Je apparaat ondersteunt onze kaart niet. Zorg ervoor dat WebGL2 is ingeschakeld, of probeer een ander apparaat of een andere browser. Sorry voor het ongemak!"
     },
     "datepicker": {
       "change_date": "Datum aanpassen"
@@ -81,7 +101,8 @@
       "description": "Bekijk hoe ver we zijn met het vertalen van onze website. Help ons om Couchers toegankelijker te maken voor meer mensen over de wereld!",
       "info_text": "💡 Talen die voor 50-80% klaar zijn, zijn grijs in de taalkiezer hierboven. Als een taal voor minder dan 50% klaar is, kan je hem nog niet kiezen. Omdat we heel erg blij zijn met al onze vrijwilligers en hen willen aanmoedigen, laten we hieronder ook de talen zien die voor minder dan 20% zijn vertaald."
     },
-    "current_preferred_language": "De taal van jouw voorkeur is op dit moment <lang>{{language}}</lang>."
+    "current_preferred_language": "De taal van jouw voorkeur is op dit moment <lang>{{language}}</lang>.",
+    "show_all_languages": "Alle talen laten zien in de taalkiezer"
   },
   "create": "maken",
   "terms_of_service": "Servicevoorwaarden",
@@ -132,7 +153,6 @@
       "problem_helper": "Korte beschrijving van het probleem en hoe dit te reproduceren is",
       "expect_label": "Wat gebeurde er? Wat had er moeten gebeuren?",
       "expect_helper": "Korte beschrijving van wat je dacht dat er eigenlijk zou gebeuren",
-      "success_message": "Bedankt voor het doorgeven van deze bug. Samen maken we Couchers beter! De melding is doorgestuurd naar onze developers. Het bug-nummer is ",
       "warning_message": "Houd er rekening mee dat deze informatie, samen met diagnostische gegevens zoals op welke pagina je je bevindt, welke webbrowser je gebruikt en wat je gebruikersnaam is, wordt opgeslagen in een openbare lijst met bugs."
     },
     "content": {
@@ -189,5 +209,17 @@
     },
     "fatal_message": "Dit had niet mogen gebeuren. Neem alsjeblieft contact met ons op en vertel wat je aan het doen was, zodat we deze fout in de toekomst kunnen voorkomen."
   },
-  "not_found_text_1": "We konden de door jou opgevraagde URL of bron niet vinden"
+  "not_found_text_1": "We konden de door jou opgevraagde URL of bron niet vinden",
+  "invites": {
+    "share_link": "Link kopiëren",
+    "uses_suffix": "voltooide aanmeldingen",
+    "banner": {
+      "invited_you": "{{name}} heeft je uitgenodigd om lid te worden van Couchers!",
+      "inviter_fallback": "{{username}} heeft je uitgenodigd om lid te worden van Couchers!"
+    },
+    "disable": "Uitzetten",
+    "instructions": "Maak een uitnodigingslink om met vrienden en de community te delen. Schakel de uitnodigingen uit die je niet meer gebruikt.",
+    "title": "Leden uitnodigen",
+    "create": "Uitnodiging maken"
+  }
 }

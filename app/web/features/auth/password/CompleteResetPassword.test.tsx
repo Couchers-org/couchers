@@ -26,13 +26,39 @@ jest.mock("@sentry/nextjs", () => ({
 }));
 
 const mockUseRouter = useRouter as jest.Mock;
+const mockPush = jest.fn();
+
+// Mock localStorage to ensure tests start with clean state
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value.toString();
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+  };
+})();
+
+Object.defineProperty(window, "localStorage", {
+  value: localStorageMock,
+});
 
 describe("CompletePasswordReset page", () => {
   beforeEach(() => {
+    // Clear localStorage to ensure unauthenticated state
+    localStorageMock.clear();
+
     CompletePasswordResetMock.mockResolvedValue(new AuthRes());
 
     mockUseRouter.mockReturnValue({
       query: { token: "aaa123" },
+      push: mockPush,
     });
   });
 
@@ -58,6 +84,7 @@ describe("CompletePasswordReset page", () => {
   it("shows a warning when empty token", () => {
     mockUseRouter.mockReturnValue({
       query: { token: "" },
+      push: mockPush,
     });
 
     render(<CompletePasswordReset />, { wrapper });
@@ -112,6 +139,7 @@ describe("CompletePasswordReset page", () => {
   it("submits the reset password request successfully", async () => {
     mockUseRouter.mockReturnValue({
       query: { token: "aaa123" },
+      push: mockPush,
     });
 
     render(<CompletePasswordReset />, { wrapper });
@@ -145,6 +173,7 @@ describe("CompletePasswordReset page", () => {
 
     mockUseRouter.mockReturnValue({
       query: { token: "aaa123" },
+      push: mockPush,
     });
 
     render(<CompletePasswordReset />, { wrapper });

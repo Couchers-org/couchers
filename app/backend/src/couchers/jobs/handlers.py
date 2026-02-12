@@ -104,7 +104,7 @@ from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.postal.postcard_service import send_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
-from couchers.proto.internal import jobs_pb2, verification_pb2
+from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.events import (
@@ -891,7 +891,7 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
         if response.status_code != 200:
             raise Exception(f"Iris didn't return 200: {response.text}")
         json_data = response.json()
-        reference_payload = verification_pb2.VerificationReferencePayload.FromString(
+        reference_payload = internal_pb2.VerificationReferencePayload.FromString(
             simple_decrypt("iris_callback", b64decode(json_data["reference"]))
         )
         assert verification_attempt.user_id == reference_payload.user_id
@@ -1149,6 +1149,7 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
                         event=event_to_pb(session, occurrence, context),
                         user=user_model_to_pb(user, session, context),
                     ),
+                    moderation_state_id=occurrence.moderation_state_id,
                 )
 
                 attendee.reminder_sent = True
@@ -1313,16 +1314,6 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
 
         # === Moderation System Consistency Checks ===
 
-        # Check all ModerationStates have a known object_type
-        known_object_types = [ModerationObjectType.HOST_REQUEST, ModerationObjectType.GROUP_CHAT]
-        unknown_type_states = session.execute(
-            select(ModerationState.id, ModerationState.object_type).where(
-                ModerationState.object_type.not_in(known_object_types)
-            )
-        ).all()
-        if unknown_type_states:
-            errors.append(f"ModerationStates with unknown object_type: {unknown_type_states}")
-
         # Check every ModerationState has at least one INITIAL_REVIEW queue item
         # Skip items with ID < 2000000 as they were created before this check was introduced
         states_without_initial_review = session.execute(
@@ -1331,7 +1322,7 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
                 ~exists(
                     select(1)
                     .where(ModerationQueueItem.moderation_state_id == ModerationState.id)
-                    .where(ModerationQueueItem.trigger == ModerationTrigger.INITIAL_REVIEW)
+                    .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
                 ),
             )
         ).all()
@@ -1346,7 +1337,7 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
                 ~exists(
                     select(1)
                     .where(ModerationLog.moderation_state_id == ModerationState.id)
-                    .where(ModerationLog.action == ModerationAction.CREATE)
+                    .where(ModerationLog.action == ModerationAction.create)
                 ),
             )
         ).all()
@@ -1366,7 +1357,7 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         # Check every HOST_REQUEST ModerationState has exactly one HostRequest pointing to it
         hr_states = (
             session.execute(
-                select(ModerationState.id).where(ModerationState.object_type == ModerationObjectType.HOST_REQUEST)
+                select(ModerationState.id).where(ModerationState.object_type == ModerationObjectType.host_request)
             )
             .scalars()
             .all()
@@ -1381,7 +1372,7 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         # Check every GROUP_CHAT ModerationState has exactly one GroupChat pointing to it
         gc_states = (
             session.execute(
-                select(ModerationState.id).where(ModerationState.object_type == ModerationObjectType.GROUP_CHAT)
+                select(ModerationState.id).where(ModerationState.object_type == ModerationObjectType.group_chat)
             )
             .scalars()
             .all()
@@ -1397,7 +1388,7 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         hr_object_id_mismatches = session.execute(
             select(ModerationState.id, ModerationState.object_id, HostRequest.conversation_id)
             .join(HostRequest, HostRequest.moderation_state_id == ModerationState.id)
-            .where(ModerationState.object_type == ModerationObjectType.HOST_REQUEST)
+            .where(ModerationState.object_type == ModerationObjectType.host_request)
             .where(ModerationState.object_id != HostRequest.conversation_id)
         ).all()
         if hr_object_id_mismatches:
@@ -1406,7 +1397,7 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
         gc_object_id_mismatches = session.execute(
             select(ModerationState.id, ModerationState.object_id, GroupChat.conversation_id)
             .join(GroupChat, GroupChat.moderation_state_id == ModerationState.id)
-            .where(ModerationState.object_type == ModerationObjectType.GROUP_CHAT)
+            .where(ModerationState.object_type == ModerationObjectType.group_chat)
             .where(ModerationState.object_id != GroupChat.conversation_id)
         ).all()
         if gc_object_id_mismatches:
@@ -1422,7 +1413,7 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
             )
             .join(ModerationState, HostRequest.moderation_state_id == ModerationState.id)
             .where(
-                (ModerationState.object_type != ModerationObjectType.HOST_REQUEST)
+                (ModerationState.object_type != ModerationObjectType.host_request)
                 | (ModerationState.object_id != HostRequest.conversation_id)
             )
         ).all()
@@ -1439,7 +1430,7 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
             )
             .join(ModerationState, GroupChat.moderation_state_id == ModerationState.id)
             .where(
-                (ModerationState.object_type != ModerationObjectType.GROUP_CHAT)
+                (ModerationState.object_type != ModerationObjectType.group_chat)
                 | (ModerationState.object_id != GroupChat.conversation_id)
             )
         ).all()
@@ -1457,7 +1448,7 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
                     ModerationQueueItem.moderation_state_id,
                     ModerationQueueItem.time_created,
                 )
-                .where(ModerationQueueItem.trigger == ModerationTrigger.INITIAL_REVIEW)
+                .where(ModerationQueueItem.trigger == ModerationTrigger.initial_review)
                 .where(ModerationQueueItem.resolved_by_log_id.is_(None))
                 .where(ModerationQueueItem.time_created < now() - timedelta(seconds=deadline_seconds) - grace_period)
             ).all()

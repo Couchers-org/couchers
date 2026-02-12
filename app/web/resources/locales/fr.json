@@ -74,9 +74,9 @@
       "almost_there": "Presque là",
       "in_progress": "En cours",
       "just_started": "Elle vient de commencer",
-      "complete_percent": "{{percent}}% terminé",
-      "info_text": "💡 Les langues ayant un taux de complétion de 50 à 80 % apparaissent en grisé dans le sélecteur de langue. Les langues ayant moins de 50 % de complétion sont cachées du sélecteur de langue. Pour encourager les contributeurs.trices, les langues en dessous de 20 % sont affichées sur ce site.",
-      "view_progress": "Afficher la progression de la traduction",
+      "complete_percent": "{{percent}}% complète",
+      "info_text": "💡 Les langues avec 50-80% d'achèvement apparaissent en gris dans la sélection des langues. Les langues avec moins de 50% d'achèvement sont cachées de la sélection des langues. Pour encourager les contributeurs, les langues avec moins de 20% sont montrées sur cette page.",
+      "view_progress": "Voir l'avancement de la traduction",
       "early_stage": "Étape préliminaire"
     },
     "show_all_languages_description": "Lorsqu'il est activé, le sélecteur de langue affichera toutes les langues, quel que soit le pourcentage d'avancement de la traduction. Cela s'affiche uniquement afin d'aider à tester les langues encore en cours de traduction.",
@@ -85,41 +85,87 @@
   },
   "report": {
     "flag": {
-      "success": "Nous vous remercions pour votre rapport et pour contribuer à rendre Couchers une meilleure plateforme pour tous et pour toutes !",
+      "success": "Nous vous remercions pour votre signalement et pour rendre Couchers une meilleure plateforme pour tous et pour toutes !",
       "reason": {
-        "dating": "Comportement flirtant ou draguant ou similaire",
-        "external": "Incident hors plateforme",
-        "harassment": "Harcèlement, intimidation, discours haineux/discriminatoire ou contenu illégal",
-        "guidelines_breach": "Violation des règles ou de la politique (demande d'argent, nudisme, partage de lit, etc)."
+        "dating": "Flirting ou comportements des applications de rencontres ou similaire",
+        "external": "Incident en dehors de la plateforme",
+        "harassment": "Harcèlement, intimidation, discours de haine ou de discrimination ou contenu illégal",
+        "guidelines_breach": "Violation des règles ou de la politique (demande d'argent, nudisme, partage de lit, etc)",
+        "safety": "Préoccupations concernant la sécurité (pour vous-même ou les autres)",
+        "scam": "Scam, information fausse ou trompeuse",
+        "spam": "Spam ou contenu promotionnel non lié au couch surfing",
+        "sexualized": "Contenu ou comportement à caractère sexuel",
+        "other": "Autre (merci de préciser ci-dessous)"
       },
       "block_user": "Bloquer {{username}}",
       "block_user_explainer": "Les discussions et demandes de ce membre seront bloquées et votre profil, vos événements et vos commentaires ne seront pas visibles par ce membre. Ce membre ne sera pas informé que vous l'avez bloqué.",
-      "button_aria_label": "Signaler un contenu ou un membre"
+      "button_aria_label": "Signaler un contenu ou un membre",
+      "description_label": "Décrivez le problème",
+      "description_helper": "Veuillez nous dire pourquoi vous signalez cela."
     },
     "bug": {
       "expect_label": "Que s'est-il passé ? Qu'aurait-il dû se passer ?",
       "button_label": "Signaler un problème technique",
-      "warning_message": "Veuillez noter que ces informations, ainsi que les informations de diagnostic telles que la page sur laquelle vous vous trouvez, le navigateur que vous utilisez et votre nom d'utilisateur.trice, seront enregistrées dans une liste publique de bugs.",
+      "warning_message": "Veuillez noter que cette information, ainsi que les données du diagnostic incluant sur quelle page vous vous trouvez, quel navigateur vous utilisez et le nom d'utilisateur.trice seront conservés dans une liste publique de bogues.",
       "title_label": "Titre de signalement",
-      "title_helper": "Brève description du bug",
+      "title_helper": "Brève description du bogue",
       "problem_helper": "Brève description du problème et de la façon de le reproduire",
-      "problem_label": "Qu'avez-vous fait pour déclencher le bug ?",
+      "problem_label": "Qu'avez-vous fait pour déclencher le bogue ?",
       "expect_helper": "Brève description de ce qui était censé se produire à la place",
-      "success_message": "Merci d'avoir signalé ce problème et rendu Couchers meilleur. Un rapport a été envoyé aux développeurs. Le numéro de l'erreur est "
+      "success_message2": "Merci d'avoir signalé ce bogue et d'avoir rendu Couchers meilleur. Un rapport a été envoyé aux développeurs. Le numéro du bogue est <id/>."
     },
     "label": "Signaler un problème",
     "title": "Signaler un problème",
     "content": {
       "button_label": "Signaler des contenus ou comportements inappropriés",
       "dialog_message": "Nous travaillons actuellement à la mise en place d'outils de signalement et de modération efficaces. En attendant, veuillez nous envoyer un mail à l'adresse ci-dessous. Veuillez inclure des détails tels que le nom d'utilisateur.trice concerné.e, le contenu inapproprié et où vous l'avez vu.",
-      "success_message": "Merci pour votre signalement et d'avoir fait de Couchers une meilleure plateforme pour tous et pour toutes !"
+      "success_message": "Nous vous remercions pour votre signalement et pour rendre Couchers une meilleure plateforme pour tous et pour toutes !"
     }
   },
   "expand": "Gonfler",
   "meetup_status": {
     "open_to_meetup": "Ouvert.e à une rencontre",
-    "unspecified_info": "Non précisé",
+    "unspecified_info": "Non spécifié",
     "wants_to_meetup": "Veut rencontrer",
     "does_not_want_to_meetup": "Pas disponible pour des rencontres"
+  },
+  "invites": {
+    "error": {
+      "fetch_invite_info": "Impossible d'obtenir les détails du code d'invitation"
+    }
+  },
+  "what_is_cs": {
+    "get_started": "Commencer",
+    "title": "Qu'est-ce que le couch surfing ?",
+    "description_2": "C'est comme avoir un ami dans une autre ville et aller lui rendre visite, mais vous le rencontrerez pour la première fois lorsque vous serez là-bas !",
+    "get_involved_title": "Que puis-je faire sur Couchers.org ?"
+  },
+  "location_autocomplete": {
+    "more_specific": "Veuillez choisir un emplacement plus spécifique",
+    "search_location_hint": "Taper Entrée ou cliquer sur l'icône de recherches pour choisir un emplacement",
+    "search_location_button": "Rechercher un emplacement",
+    "select_location_hint": "Taper Entrée ou cliquer sur l'icône de recherches, puis sélectionner un emplacement dans la liste"
+  },
+  "strong_verification": {
+    "helper_text": "L'identité de ce membre a été vérifiée avec son passeport biométrique"
+  },
+  "footer": {
+    "version_info": "Version <2>{{version}}</2>, dernière mise à jour <5>{{updated_ago}}</5>."
+  },
+  "not_found_text_1": "l'URL ou la ressource que vous cherchez, n'a pu être trouvé",
+  "not_found_text_2": "Voulez-vous simplement <1>aller au tableau de bord ?</1>",
+  "not_found_alt": "Erreur 404 ; ressource non trouvée",
+  "change_time": "Changer l'heure",
+  "html_meta": {
+    "default_description": "Partagez votre monde, découvrez le leur. Des expériences locales et authentiques, construites sur la confiance et de vrais liens - pas de transactions."
+  },
+  "invited_you": "{{name}} vous a invité à rejoindre Couchers !",
+  "error": {
+    "fatal_message": "Cela n'aurait pas dû arriver. Veuillez nous contacter et nous décrire ce que vous étiez en train de faire, afin d'éviter que l'erreur se reproduise.",
+    "fallback": {
+      "title": "Oups ...ceci est une erreur inconnue",
+      "subtitle": "Veuillez utiliser le bouton « Signaler un problème » et nous indiquer ce que vous étiez en train de faire, afin d'éviter cette erreur à l'avenir."
+    },
+    "unknown": "Erreur inconnue"
   }
 }

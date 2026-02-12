@@ -6,8 +6,8 @@ import { NOTIFICATIONS } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import { useEffect, useState } from "react";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
-import { useIsNativeEmbed } from "../../platform/nativeLink";
 import PushNotificationDenied from "./PushNotificationDenied";
 import {
   checkPushEnabled,

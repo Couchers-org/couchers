@@ -1,12 +1,12 @@
 Hi {{ user.name }},
 
-{{ message }} at {{ time|v2time }}.
+{{ message }} at {{ time|time }}.
 
 Request details:
 
 {{ other.name }}, {{ other.age }}
 {{ other.city }}.
-Dates: {{ host_request.from_date|v2date }} to {{ host_request.to_date|v2date }}.
+Dates: {{ host_request.from_date|date }} to {{ host_request.to_date|date }}.
 
 
 

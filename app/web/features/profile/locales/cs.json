@@ -27,7 +27,8 @@
     "additional_information_section": "Další informace",
     "travel_section": "Navštívené země",
     "lived_section": "Žil(a) v",
-    "languages_conversational": "Dorozumím se v"
+    "languages_conversational": "Dorozumím se v",
+    "photos_section": "Fotky"
   },
   "edit": "Upravit profil",
   "leave_reference": {
@@ -61,10 +62,18 @@
     "household_members": "Členové domácnosti",
     "about_home": "O mém domově",
     "general": "Obecně",
-    "has_housemates": "Má spolubydlící"
+    "has_housemates": "Má spolubydlící",
+    "general_subtitle": "Další podrobnosti o tvém domově a okolí",
+    "hosting_preferences_subtitle": "Dej hostům vědět, s čím jsi v pohodě",
+    "about_home_subtitle": "Řekni hostům o svém domově a o tom, co mohou očekávat",
+    "household_details_subtitle": "Sdílej více informací o své domácnosti",
+    "hosting_preferences": "Preference hostování"
   },
   "helper_text": {
-    "missing_profile_photo": "Přidej prosím fotografii, aby jsi dokončil(a) svůj profil."
+    "missing_profile_photo": "Přidej prosím fotografii, aby jsi dokončil(a) svůj profil.",
+    "characters_remaining_one": "<bold>Napiš prosím alespoň {{count}} znak pro odemknutí zpráv a žádostí.</bold> Autentické profily vytvářejí komunitu založenou na důvěře. Čím víc o sobě sdílíš, tím snazší je navazovat kontakty.",
+    "characters_remaining_few": "<bold>Napiš prosím alespoň {{count}} znaky pro odemknutí zpráv a žádostí.</bold> Autentické profily vytvářejí komunitu založenou na důvěře. Čím víc o sobě sdílíš, tím snazší je navazovat kontakty.",
+    "characters_remaining_other": "<bold>Napiš prosím alespoň {{count}} znaků pro odemknutí zpráv a žádostí.</bold> Autentické profily vytvářejí komunitu založenou na důvěře. Čím víc o sobě sdílíš, tím snazší je navazovat kontakty."
   },
   "incomplete_dialog": {
     "title": "Profil není kompletní",
@@ -90,6 +99,73 @@
     "previous_photo": "Předchozí fotka",
     "photo_viewer_aria": "Prohlížeč fotek",
     "get_verified": "Získej ověření",
-    "next_photo": "Další fotka"
-  }
+    "next_photo": "Další fotka",
+    "report_photo": "Nahlásit fotku"
+  },
+  "edit_profile_headings": {
+    "languages_spoken": "Jazyky, kterými mluvím plynně",
+    "regions_visited": "Navštívené destinace",
+    "regions_lived": "Místa, kde jste žili",
+    "gender": "Pohlaví",
+    "hosting_status": "Status hostitele",
+    "name": "Jméno",
+    "pronouns": "Oslovení",
+    "hometown": "Vyrostli jste v",
+    "occupation": "Povolání",
+    "education": "Vzdělání",
+    "basic_information": "Základní informace",
+    "basic_information_subtitle": "Začni tím, že uvedeš svou fotografii, jméno a polohu",
+    "preferences": "Předvolby",
+    "preferences_subtitle": "Dej ostatním vědět o svých preferencích pro ubytování a setkávání",
+    "personal_information": "Osobní údaje",
+    "personal_information_subtitle": "Sdílej něco o sobě a svém zázemí",
+    "about_me_subtitle": "Řekni ostatním něco o sobě. Právě tady začíná důvěra. Pomoz ostatním získat představu o tom, kdo doopravdy jsi. Podívej se na <1>tipy, jak vytvořit skvělý profil</1>.",
+    "travel_experience": "Cestovní zkušenosti",
+    "travel_experience_subtitle": "Sdílej své cestovatelské zážitky a spojení",
+    "location_subtitle": "Přibližná poloha tvého domova"
+  },
+  "edit_profile_helper_text": "Hledáš inspiraci, kde začít? <2>Podívej se na náš průvodce, jak vytvořit skvělý profil</2>.",
+  "edit_profile_name_required": "Jméno je povinné",
+  "edit_home_questions": {
+    "accept_drinking": "V pohodě s tím, že lidé pijí alkohol",
+    "accept_pets": "Hosté s domácími mazlíčky",
+    "accept_smoking": "V pohodě s kouřením",
+    "accept_kids": "Hosté s dětmi",
+    "accept_camping": "Možnost stanování"
+  },
+  "unspecified_info": "-",
+  "smoking_location": {
+    "no": "Ne",
+    "outside": "Venku",
+    "window": "Okno",
+    "yes": "Ano"
+  },
+  "what_options_mean": "Co tyto možnosti znamenají",
+  "sleeping_arrangement": {
+    "private_short": "Soukromý prostor",
+    "common_short": "Společenská místnost",
+    "shared_room_short": "Sdílený pokoj",
+    "private": "např. vlastní pokoj nebo podobné",
+    "common": "např. pohovka v obývacím pokoji",
+    "shared_room": "např. sdílený pokoj s vlastním lůžkem"
+  },
+  "parking_details": {
+    "free_onsite": "Parkování zdarma v areálu",
+    "free_offsite": "Bezplatné parkování mimo areál",
+    "paid_onsite": "Placené parkování na místě",
+    "paid_offsite": "Placené parkování mimo areál"
+  },
+  "gender": {
+    "man": "Muž",
+    "woman": "Žena"
+  },
+  "pronouns": {
+    "man": "on / jeho",
+    "woman": "ona / jí"
+  },
+  "edit_profile_tab_bar_a11y_label": "záložky pro úpravu různých částí tvého profilu",
+  "info_unanswered": "Zeptej se mě",
+  "my_connections": "Moje kontakty",
+  "connection_pending": "Čeká na vyřízení",
+  "more_profile_actions": "..."
 }

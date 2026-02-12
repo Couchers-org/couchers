@@ -4,6 +4,7 @@
   "introduction_subtitle2": "Free forever. Community-led. Non-profit.",
   "signup_header": "Join the Couchers.org community",
   "signup_description": "Travel, host, and connect with {{ user_count }} members. <2>Learn more about us</2>.",
+  "signup_description_no_link": "Travel, host, and connect with {{ user_count }} members.",
   "create_an_account": "Create an account",
   "signup_continue": "Finish signing up",
   "what_couchsurfing_title": "Couchers.org: a different way to travel",

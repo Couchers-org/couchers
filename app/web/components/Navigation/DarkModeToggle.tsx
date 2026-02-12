@@ -37,6 +37,8 @@ export default function DarkModeToggle() {
         onClick={handleToggle}
         aria-label={tooltipText}
         sx={{
+          padding: 0.5,
+          margin: 0,
           color: "var(--mui-palette-text-primary)",
           "&:hover": {
             backgroundColor: "transparent",

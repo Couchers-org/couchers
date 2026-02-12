@@ -5,6 +5,7 @@ from couchers.i18n.i18next import I18Next
 from couchers.i18n.plurals import PluralRules
 
 # The default locale if a language or string is unavailable.
+# Note: "en" is a valid locale even if it doesn't include a region.
 DEFAULT_LOCALE = "en"
 
 # Locale fallbacks (for those that don't fallback to English).

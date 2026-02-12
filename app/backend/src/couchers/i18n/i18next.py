@@ -21,9 +21,11 @@ class I18Next:
     default_language: Language | None = None
     """The language used to look up strings in unsupported languages."""
 
-    def add_language(self, code: str, plural_rule: PluralRule) -> Language:
+    def add_language(self, code: str, plural_rule: PluralRule, *, json_dict: dict[str, Any] | None = None) -> Language:
         language = Language(code, plural_rule)
         self.languages_by_code[code] = language
+        if json_dict:
+            language.load_json_dict(json_dict)
         return language
 
     def find_string(
@@ -136,7 +138,7 @@ class StringTemplate:
     def parse(value: str) -> StringTemplate:
         last_index = 0
         segments: list[StringSegment] = []
-        for match in re.finditer(r"\{\{([^\}]+)\}\}", value):
+        for match in re.finditer(r"\{\{\s*([^\}]+?)\s*\}\}", value):
             if match.start() > last_index:
                 segments.append(StringSegment(text=value[last_index : match.start()], is_variable=False))
             segments.append(StringSegment(text=match.group(1), is_variable=True))

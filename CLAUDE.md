@@ -1,8 +1,10 @@
 # Claude Code Instructions for Couchers
 
-## Repository Structure
+## Summary
 
-This is a monorepo for Couchers.org, a non-profit hospitality exchange platform.
+This is a monorepo for Couchers.org, a non-profit couch surfing platform. Users sign up and can be hosts (offering their couch/spare room to travelers), surfers (requesting to stay with hosts), community members (attending events, joining discussions, and building local communities), or any combination. Core features include user profiles with hosting preferences, sending and responding to couch requests, messaging between users, community features like events and discussions organized by local communities, and a reference system for building trust. The platform emphasizes safety, community building, and keeping the service free and community-owned.
+
+## Repository Structure
 
 - `/app/backend` - Python backend (gRPC, SQLAlchemy, PostgreSQL/PostGIS)
 - `/app/web` - Next.js web frontend
@@ -82,6 +84,15 @@ make mypy
 - Use fixture data from `test/fixtures/` when available
 - Query by label (`getByLabelText`) for accessibility
 - Use `findByText` for async elements
+- Tests should assert correct behavior (TDD-style), not mirror bugs. Fix the code if needed, and follow existing test patterns in the repo.
+
+### Mobile Tests (React Native)
+- Follow Testing Library principles: test behavior, not implementation details
+- Component tests: Mock custom hooks and verify they're called with correct arguments
+- Hook tests: Test actual hook logic without mocks (unit tests)
+- Don't test that lifecycle hooks (useEffect, useFocusEffect) were called - test the resulting behavior
+- Avoid circular testing: don't manually set state/refs then verify the component reads them
+- Integration tests are acceptable when real user interactions can't be simulated (e.g., hardware back button)
 
 ## Database
 

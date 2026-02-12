@@ -87,7 +87,6 @@
     "admin_assignment_text": "{{user}} fez de {{target_user}} administrador(a)",
     "user_left_chat_text": "{{user}} abandonou a conversa",
     "admin_removal_text": "{{user}} removeu {{target_user}} de administrador(a)",
-    "host_request_status_changed_text": "{{user}} mudou o pedido para {{status}}",
     "created_chat_text": "{{user}} iniciou a conversa",
     "edited_chat_text": "{{user}} editou a conversa",
     "invite_user_text": "{{user}} convidou {{target_user}}",
@@ -127,6 +126,7 @@
     "title_for_host": "Pedido de {{user}} - {{status}}",
     "title_for_surfer": "Pedido a {{user}} - {{status}}",
     "request_duration_one": "{{count}} noite",
+    "request_duration_many": "",
     "request_duration_other": "{{count}} noites",
     "error_message": "ID de pedido de hospedagem inválido"
   },

@@ -1,7 +1,7 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { Href, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { BackHandler, useColorScheme } from "react-native";
+import { Appearance, BackHandler, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
@@ -57,6 +57,13 @@ export default function LoginScreen() {
         // Clear mobile auth state and reset the WebView to drop history
         await markLoggedOut();
         setWebViewKey((k: number): number => k + 1);
+      } else if (data.type === "COLOR_SCHEME_CHANGE") {
+        // Web app toggled dark mode - sync native UI
+        // mode can be "light", "dark", or null (follow system)
+        const mode = data.mode;
+        if (mode === "light" || mode === "dark" || mode === null) {
+          Appearance.setColorScheme(mode);
+        }
       }
     } catch (error) {
       // Silently ignore non-JSON messages (expected from browser/WebView internals)

@@ -14,6 +14,7 @@ from couchers.config import config
 from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.context import CouchersContext
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
+from couchers.event_log import log_event
 from couchers.metrics import (
     account_deletion_completions_counter,
     account_recoveries_counter,
@@ -247,6 +248,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 session.add(flow)
                 session.flush()
                 signup_initiations_counter.inc()
+                log_event(context, session, "account.signup_initiated", {"has_invite_code": invite_id is not None})
             else:
                 # not fresh signup
                 flow = session.execute(
@@ -388,6 +390,20 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             signup_completions_counter.labels(flow.gender).inc()
             signup_time_histogram.labels(flow.gender).observe(signup_duration_s)
+            log_event(
+                context,
+                session,
+                "account.signup_completed",
+                {
+                    "gender": flow.gender,
+                    "signup_duration_s": signup_duration_s,
+                    "hosting_status": str(flow.hosting_status),
+                    "city": flow.city,
+                    "has_invite_code": flow.invite_code_id is not None,
+                    "filled_contributor_form": user.filled_contributor_form,
+                },
+                _override_user_id=user.id,
+            )
 
             create_session(context, session, user, False)
             return auth_pb2.SignupFlowRes(
@@ -426,6 +442,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 logger.debug("Right password")
                 # correct password
                 create_session(context, session, user, request.remember_device)
+                log_event(
+                    context,
+                    session,
+                    "account.login",
+                    {"gender": user.gender, "remember_device": request.remember_device},
+                    _override_user_id=user.id,
+                )
                 return _auth_res(user)
             else:
                 logger.debug("Wrong password")
@@ -462,6 +485,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
         # if we had a token, try to remove the session
         if token:
             delete_session(session, token)
+
+        log_event(context, session, "account.logout", {})
 
         # set the cookie to an empty string and expire immediately, should remove it from the browser
         context.set_cookies(create_session_cookies("", "", now()))
@@ -500,6 +525,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
             )
 
             password_reset_initiations_counter.inc()
+            log_event(
+                context,
+                session,
+                "account.password_reset_initiated",
+                {},
+                _override_user_id=user.id,
+            )
         else:  # user not found
             logger.debug("Didn't find user")
 
@@ -534,6 +566,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             create_session(context, session, user, False)
             password_reset_completions_counter.inc()
+            log_event(
+                context,
+                session,
+                "account.password_reset_completed",
+                {},
+                _override_user_id=user.id,
+            )
             return _auth_res(user)
         else:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
@@ -563,6 +602,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
             topic_action=NotificationTopicAction.email_address__verify,
             key="",
         )
+
+        log_event(context, session, "account.email_confirmed", {}, _override_user_id=user.id)
 
         return empty_pb2.Empty()
 
@@ -604,6 +645,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
         )
 
         account_deletion_completions_counter.labels(user.gender).inc()
+        log_event(
+            context,
+            session,
+            "account.deletion_completed",
+            {"gender": user.gender},
+            _override_user_id=user.id,
+        )
 
         return empty_pb2.Empty()
 
@@ -632,6 +680,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
         )
 
         account_recoveries_counter.labels(user.gender).inc()
+        log_event(
+            context,
+            session,
+            "account.recovered",
+            {"gender": user.gender},
+            _override_user_id=user.id,
+        )
 
         return empty_pb2.Empty()
 

@@ -26,6 +26,7 @@ from couchers.crypto import (
     verify_password,
     verify_token,
 )
+from couchers.event_log import log_event
 from couchers.experimentation import check_gate
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.geoip import geoip_approximate_location
@@ -61,7 +62,7 @@ from couchers.phone import sms
 from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from couchers.proto.google.api import httpbody_pb2
-from couchers.proto.internal import jobs_pb2, verification_pb2
+from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.servicers.api import lite_user_to_pb
 from couchers.servicers.public import format_volunteer_link
 from couchers.servicers.references import get_pending_references_to_write, reftype2api
@@ -216,6 +217,7 @@ class Account(account_pb2_grpc.AccountServicer):
             topic_action=NotificationTopicAction.password__change,
             key="",
         )
+        log_event(context, session, "account.password_changed", {})
 
         return empty_pb2.Empty()
 
@@ -264,6 +266,8 @@ class Account(account_pb2_grpc.AccountServicer):
             ),
         )
 
+        log_event(context, session, "account.email_change_initiated", {})
+
         # session autocommit
         return empty_pb2.Empty()
 
@@ -301,6 +305,7 @@ class Account(account_pb2_grpc.AccountServicer):
         maybe_send_contributor_form_email(session, form)
 
         user.filled_contributor_form = True
+        log_event(context, session, "contributor.form_submitted", {"is_filled": form.is_filled})
 
         return empty_pb2.Empty()
 
@@ -431,13 +436,14 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "strong_verification_already_verified")
 
         strong_verification_initiations_counter.labels(user.gender).inc()
+        log_event(context, session, "verification.strong_initiated", {"gender": user.gender})
 
         verification_attempt_token = urlsafe_secure_token()
         # this is the iris reference data, they will return this on every callback, it also doubles as webhook auth given lack of it otherwise
         reference = b64encode(
             simple_encrypt(
                 "iris_callback",
-                verification_pb2.VerificationReferencePayload(
+                internal_pb2.VerificationReferencePayload(
                     verification_attempt_token=verification_attempt_token,
                     user_id=user.id,
                 ).SerializeToString(),
@@ -540,6 +546,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         strong_verification_data_deletions_counter.labels(user.gender).inc()
+        log_event(context, session, "verification.strong_data_deleted", {"gender": user.gender})
 
         return empty_pb2.Empty()
 
@@ -577,6 +584,7 @@ class Account(account_pb2_grpc.AccountServicer):
         session.add(token)
 
         account_deletion_initiations_counter.labels(user.gender).inc()
+        log_event(context, session, "account.deletion_initiated", {"gender": user.gender, "has_reason": bool(reason)})
 
         return empty_pb2.Empty()
 
@@ -838,7 +846,7 @@ class Iris(iris_pb2_grpc.IrisServicer):
         self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
     ) -> httpbody_pb2.HttpBody:
         json_data = json.loads(request.data)
-        reference_payload = verification_pb2.VerificationReferencePayload.FromString(
+        reference_payload = internal_pb2.VerificationReferencePayload.FromString(
             simple_decrypt("iris_callback", b64decode(json_data["session_reference"]))
         )
         # if we make it past the decrypt, we consider this webhook authenticated
