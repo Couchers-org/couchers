@@ -158,7 +158,7 @@ function LinkMenuItemView({
             fontSize: "0.75rem",
             fontWeight: 600,
             height: theme.spacing(2),
-            width: theme.spacing(2),
+            width: theme.spacing(),
           }}
         >
           {notificationCount > 99 ? "99+" : notificationCount}
@@ -233,7 +233,11 @@ function MenuItemView(
 }
 
 const NotificationMenuItemWrapper = styled("div")(({ theme }) => ({
-  marginRight: theme.spacing(4),
+  marginRight: theme.spacing(2),
+
+  [theme.breakpoints.down("md")]: {
+    marginRight: theme.spacing(1),
+  },
 }));
 
 export default function LoggedInMenu({
@@ -275,7 +279,11 @@ export default function LoggedInMenu({
 
   return (
     <>
-      {!isMobile && <LanguagePickerSelect />}
+      {!isMobile && (
+        <Box sx={{ marginRight: theme.spacing(1) }}>
+          <LanguagePickerSelect />
+        </Box>
+      )}
       <Tooltip title={t("global:nav.notifications")}>
         <NotificationMenuItemWrapper>
           <NotificationBadge count={notificationCount}>

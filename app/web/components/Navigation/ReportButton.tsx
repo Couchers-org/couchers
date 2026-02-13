@@ -20,6 +20,10 @@ const StyledReportButton = styled(Button)(({ theme }) => ({
   "&:hover": {
     backgroundColor: darken(theme.palette.error.main, 0.1),
   },
+  [theme.breakpoints.down("md")]: {
+    padding: `6px ${theme.spacing(1)}`,
+    minWidth: "auto",
+  },
   "& .MuiButton-startIcon": {
     [theme.breakpoints.down("md")]: {
       margin: 0,

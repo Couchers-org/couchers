@@ -128,12 +128,14 @@ interface OverviewProps {
 export default function Overview({ setIsRequesting, tab }: OverviewProps) {
   const currentUserId = useAuthContext().authState.userId;
   const user = useProfileUser();
+  const isOwnProfile = user.userId === currentUserId;
 
   return (
     <UserOverview
       showHostAndMeetAvailability
+      isOwnProfile={isOwnProfile}
       actions={
-        user.userId === currentUserId ? (
+        isOwnProfile ? (
           <LoggedInUserActions tab={tab} />
         ) : (
           <DefaultActions setIsRequesting={setIsRequesting} />

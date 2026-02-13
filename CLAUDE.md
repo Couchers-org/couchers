@@ -84,6 +84,15 @@ make mypy
 - Use fixture data from `test/fixtures/` when available
 - Query by label (`getByLabelText`) for accessibility
 - Use `findByText` for async elements
+- Tests should assert correct behavior (TDD-style), not mirror bugs. Fix the code if needed, and follow existing test patterns in the repo.
+
+### Mobile Tests (React Native)
+- Follow Testing Library principles: test behavior, not implementation details
+- Component tests: Mock custom hooks and verify they're called with correct arguments
+- Hook tests: Test actual hook logic without mocks (unit tests)
+- Don't test that lifecycle hooks (useEffect, useFocusEffect) were called - test the resulting behavior
+- Avoid circular testing: don't manually set state/refs then verify the component reads them
+- Integration tests are acceptable when real user interactions can't be simulated (e.g., hardware back button)
 
 ## Database
 

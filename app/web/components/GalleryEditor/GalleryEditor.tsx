@@ -499,19 +499,12 @@ export default function GalleryEditor({
               <UploadButton
                 variant="contained"
                 color="primary"
-                startIcon={
-                  isUploading ? (
-                    <CircularProgress size={16} />
-                  ) : (
-                    <AddPhotoAlternate />
-                  )
-                }
+                startIcon={<AddPhotoAlternate />}
                 onClick={handleUploadClick}
                 disabled={!canAddMore || isUploading}
+                loading={isUploading}
               >
-                {isUploading
-                  ? t("profile:gallery.uploading")
-                  : t("profile:gallery.add_photo")}
+                {t("profile:gallery.add_photo")}
               </UploadButton>
             </Box>
           )}
