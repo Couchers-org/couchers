@@ -9,6 +9,7 @@ from couchers.models.base import Base
 
 if TYPE_CHECKING:
     from couchers.models import Node, User
+    from couchers.models.host_requests import HostRequest
 
 
 class PublicTripStatus(enum.Enum):
@@ -66,6 +67,7 @@ class PublicTrip(Base, kw_only=True):
     # Relationships
     user: Mapped[User] = relationship(init=False, back_populates="public_trips")
     node: Mapped[Node] = relationship(init=False, back_populates="public_trips")
+    host_requests: Mapped[list[HostRequest]] = relationship(init=False, back_populates="public_trip")
 
     __table_args__ = (
         # Ensure from_date is not after to_date

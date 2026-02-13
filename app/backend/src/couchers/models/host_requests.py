@@ -96,7 +96,7 @@ class HostRequest(Base, kw_only=True):
     )
     conversation: Mapped[Conversation] = relationship(init=False)
     moderation_state: Mapped[ModerationState] = relationship(init=False)
-    public_trip: Mapped[PublicTrip | None] = relationship(init=False, backref="host_requests")
+    public_trip: Mapped[PublicTrip | None] = relationship(init=False, back_populates="host_requests")
 
     __table_args__ = (
         # allows fast lookup as to whether they didn't meet up
