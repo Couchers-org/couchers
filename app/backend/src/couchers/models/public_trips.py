@@ -64,20 +64,18 @@ class PublicTrip(Base, kw_only=True):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # Relationships
-    user: Mapped[User] = relationship(init=False, backref="public_trips")
-    node: Mapped[Node] = relationship(init=False, backref="public_trips")
+    user: Mapped[User] = relationship(init=False, back_populates="public_trips")
+    node: Mapped[Node] = relationship(init=False, back_populates="public_trips")
 
     __table_args__ = (
         # Ensure from_date is not after to_date
         CheckConstraint("from_date <= to_date", name="valid_date_range"),
         # Index for querying active trips in a community
+        # Using partial index since we mostly query for active trips
         Index(
-            "ix_public_trips_node_status_from_date",
+            "ix_public_trips_node_from_date_active",
             node_id,
-            status,
             from_date,
+            postgresql_where=status == PublicTripStatus.active,
         ),
     )
-
-    def __repr__(self) -> str:
-        return f"PublicTrip(id={self.id}, user_id={self.user_id}, node_id={self.node_id})"

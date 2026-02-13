@@ -1,7 +1,7 @@
 """Add public trips
 
 Revision ID: 981fb62b20ce
-Revises: f8b4ef6e3819
+Revises: a1b2c3d4e5f6
 Create Date: 2026-01-22 12:00:00.000000
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "981fb62b20ce"
-down_revision = "f8b4ef6e3819"
+down_revision = "a1b2c3d4e5f6"
 branch_labels = None
 depends_on = None
 
@@ -53,10 +53,11 @@ def upgrade() -> None:
     op.create_index(op.f("ix_public_trips_node_id"), "public_trips", ["node_id"], unique=False)
     op.create_index(op.f("ix_public_trips_user_id"), "public_trips", ["user_id"], unique=False)
     op.create_index(
-        "ix_public_trips_node_status_from_date",
+        "ix_public_trips_node_from_date_active",
         "public_trips",
-        ["node_id", "status", "from_date"],
+        ["node_id", "from_date"],
         unique=False,
+        postgresql_where=sa.text("status = 'active'"),
     )
 
     # Add public_trip_id to host_requests
@@ -78,7 +79,7 @@ def downgrade() -> None:
     op.drop_column("host_requests", "public_trip_id")
 
     # Drop public_trips table
-    op.drop_index("ix_public_trips_node_status_from_date", table_name="public_trips")
+    op.drop_index("ix_public_trips_node_from_date_active", table_name="public_trips")
     op.drop_index(op.f("ix_public_trips_user_id"), table_name="public_trips")
     op.drop_index(op.f("ix_public_trips_node_id"), table_name="public_trips")
     op.drop_table("public_trips")
