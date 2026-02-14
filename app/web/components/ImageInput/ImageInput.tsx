@@ -1,5 +1,4 @@
 import { styled } from "@mui/material";
-import MuiIconButton from "@mui/material/IconButton";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import { useTranslation } from "i18n";
