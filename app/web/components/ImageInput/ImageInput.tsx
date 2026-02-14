@@ -59,17 +59,6 @@ const StyledImage = styled("img", {
   ...(grow && { maxWidth: "100%", height: "auto" }),
 }));
 
-const EditIconButton = styled(MuiIconButton)(({ theme }) => ({
-  position: "absolute",
-  bottom: theme.spacing(1),
-  right: theme.spacing(1),
-  backgroundColor: theme.palette.primary.main,
-  boxShadow: theme.shadows[1],
-  "&:hover": {
-    backgroundColor: theme.palette.grey[200],
-  },
-}));
-
 const StyledLabel = styled("label")(({ theme }) => ({
   alignItems: "center",
   display: "flex",
