@@ -30,13 +30,9 @@ const MOCK_KEY = "key123";
 const MOCK_INITIAL_SRC = "https://example.com/initialPreview.jpg";
 const MOCK_THUMB = "thumb.jpg";
 const MOCK_FULL_IMAGE = "full.jpg";
-const NAME = "Test User";
 const ALT_TEXT = "Alt text";
 
-describe.each`
-  type
-  ${"rect"}
-`("ImageInput component ($type)", ({ type }) => {
+describe("ImageInput component", () => {
   beforeEach(() => {
     uploadFileMock.mockResolvedValue({
       file: MOCK_FILE,
@@ -102,15 +98,13 @@ describe.each`
       full_url: MOCK_FULL_IMAGE,
     });
 
-    let expectedImage: string = MOCK_FULL_IMAGE;
-
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(submitForm).toHaveBeenCalledWith({ imageInput: MOCK_KEY });
     });
     expect(screen.getByAltText(ALT_TEXT).getAttribute("src")).toMatch(
-      new RegExp(expectedImage),
+      new RegExp(MOCK_FULL_IMAGE),
     );
   });
 
