@@ -141,6 +141,17 @@
     "postal_verification_already_in_progress": "Zaten devam eden bir posta doğrulama işleminiz var.",
     "postal_verification_attempt_not_found": "Posta doğrulama işlemi bulunamadı.",
     "postal_verification_code_expired": "Doğrulama kodunun süresi doldu.",
-    "postal_verification_disabled": "Posta doğrulaması şu anda devre dışı."
+    "postal_verification_disabled": "Posta doğrulaması şu anda devre dışı.",
+    "cant_write_reference_indicated_didnt_meetup": "Bu ev sahibiyle buluşmadığınızı belirttiğiniz için bir referans yazamazsın.",
+    "event_cant_overlap": "Bir etkinlik başka etkinliklerle çakışamaz.",
+    "event_cant_update_all_times": "Başlangıç veya bitiş zamanlamalarını değiştiriyorsanız tüm etkinlikleri güncelleyemezsiniz.",
+    "event_cant_update_old_event": "Bir günden eski bir etkinliği değiştiremez, ona abone olamaz veya katılamazsınız.",
+    "event_community_invite_already_decided": "Etkinlik davetiyesi zaten onaylandı/reddedildi.",
+    "event_community_invite_not_found": "Bu etkinliğe ait topluluk davetiyesi bulunamadı.",
+    "event_ends_before_starts": "Etkinliğin bitişi başladıktan sonra olmalıdır.",
+    "event_in_past": "Etkinlik gelecek bir zamanda olmalı.",
+    "event_not_an_organizer": "Kullanıcı organizatör değil.",
+    "event_not_found": "Etkinlik bulunamadı.",
+    "event_too_far_in_future": "Etkinlik gelecek yıl başlamalı."
   }
 }
