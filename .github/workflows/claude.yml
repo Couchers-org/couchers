@@ -28,15 +28,18 @@ jobs:
       postgres:
         image: postgis/postgis:17-3.5
         env:
-          POSTGRES_PASSWORD: testpassword
-          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: "06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1"
+          PGPORT: "6544"
+          PGDATA: /pgdata
         ports:
-          - 5432:5432
+          - 6544:6544
         options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --tmpfs /pgdata
+          --health-cmd "psql -U postgres -c 'SELECT PostGIS_Version();' || exit 1"
+          --health-interval 1s
+          --health-timeout 10s
+          --health-start-period 5s
+          --health-retries 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -71,12 +74,9 @@ jobs:
         working-directory: app/web
         run: yarn install --frozen-lockfile
 
-      # Environment variables for backend tests
+      # Environment variables for backend (conftest.py defaults handle DATABASE_CONNECTION_STRING)
       - name: Load backend environment
         run: grep -v '^#' app/backend.dev.env | grep '=' >> "$GITHUB_ENV"
-
-      - name: Override database connection string
-        run: echo "DATABASE_CONNECTION_STRING=postgresql://postgres:testpassword@localhost:5432/testdb" >> "$GITHUB_ENV"
 
       - name: Run Claude Code
         id: claude
