@@ -275,8 +275,6 @@
   "response_time_text_most": "Usually in {{p33}} to {{p66}}",
   "response_time_text_almost_all": "Usually in {{p33}} to {{p66}}",
   "unsaved_changes_warning": "You haven't saved your changes. Are you sure you want to leave the page?",
-  "image_uploading_warning": "Your profile image is still uploading. Are you sure you want to leave the page?",
-  "click_replace_image": "Click to replace image",
   "profile_tag_input": {
     "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
     "remove_button_a11y_text": "Remove {{tag}}"
@@ -315,7 +313,6 @@
   "hosting_preferences_success_message": "Hosting preferences saved!",
   "couldnt_read_file": "Couldn't read file",
   "select_an_image": "Select an image",
-  "names_profile_photo": "{{name}}'s profile photo",
   "gallery": {
     "photo_item_a11y": "Photo",
     "primary": "Primary",
