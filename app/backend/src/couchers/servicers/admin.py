@@ -391,6 +391,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         user.is_deleted = False
+        user.undelete_token = None
+        user.undelete_until = None
         return _user_to_details(session, user)
 
     def CreateApiKey(
