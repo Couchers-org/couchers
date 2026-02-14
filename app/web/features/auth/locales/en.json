@@ -125,10 +125,6 @@
       "required_error": "All checkboxes are required"
     }
   },
-  "feedback_form": {
-    "header": "Have your say",
-    "skip_step_text": "Not interested? <2>Skip this step</2>"
-  },
   "jail": {
     "title": "More information required",
     "description": "Please check the following in order to continue.",
