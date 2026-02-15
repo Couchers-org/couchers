@@ -8,7 +8,13 @@ import {
 } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import HeaderButton from "components/HeaderButton";
-import { BackIcon } from "components/Icons";
+import {
+  ArchiveOutlined,
+  BackIcon,
+  OverflowMenuIcon,
+  UnarchiveOutlined,
+} from "components/Icons";
+import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
 import dayjs from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -29,6 +35,7 @@ import {
   RespondHostRequestReq,
 } from "proto/requests_pb";
 import { messagesRoute } from "routes";
+import { useRef, useState } from "react";
 import { service } from "service";
 import { theme } from "theme";
 import { firstName } from "utils/names";
@@ -211,7 +218,23 @@ export default function HostRequestView({
     hostRequest?.lastSeenMessageId,
   );
 
+  const archiveMutation = useMutation<void, RpcError>({
+    mutationFn: async () => {
+      await service.requests.setHostRequestArchiveStatus(
+        hostRequestId,
+        !hostRequest?.isArchived
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [hostRequestsListKey()] });
+      queryClient.invalidateQueries({ queryKey: hostRequestKey(hostRequestId) });
+      router.push(messagesRoute);
+    },
+  });
+
   const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuAnchor = useRef<HTMLButtonElement>(null);
 
   const handleBack = () => router.push(messagesRoute);
 
@@ -238,6 +261,46 @@ export default function HostRequestView({
         <StyledPageTitle>
           {!title || hostRequestError ? <Skeleton width="100" /> : title}
         </StyledPageTitle>
+
+        <HeaderButton
+          onClick={() => setIsMenuOpen(true)}
+          aria-label="Show more actions"
+          aria-haspopup="true"
+          aria-controls="request-menu"
+          ref={menuAnchor}
+          {...(isMobile ? { size: "small" } : {})}
+        >
+          <OverflowMenuIcon sx={{ fontSize: isMobile ? "small" : "medium" }} />
+        </HeaderButton>
+        <Menu
+          id="request-menu"
+          anchorEl={menuAnchor.current}
+          keepMounted
+          open={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+        >
+          {hostRequest && (
+            <MenuItem
+              onClick={() => {
+                archiveMutation.mutate();
+                setIsMenuOpen(false);
+              }}
+              disabled={archiveMutation.isPending}
+            >
+              {hostRequest.isArchived ? (
+                <>
+                  <UnarchiveOutlined fontSize="small" sx={{ mr: 1 }} />
+                  {t("archive.unarchive_button")}
+                </>
+              ) : (
+                <>
+                  <ArchiveOutlined fontSize="small" sx={{ mr: 1 }} />
+                  {t("archive.archive_button")}
+                </>
+              )}
+            </MenuItem>
+          )}
+        </Menu>
       </StyledHeader>
       <HostRequestUserSummarySection
         hostRequest={hostRequest}

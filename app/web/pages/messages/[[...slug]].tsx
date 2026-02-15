@@ -1,4 +1,5 @@
 import { appGetLayout } from "components/AppRoute";
+import ArchivedTab from "features/messages/archived/ArchivedTab";
 import GroupChatsTab from "features/messages/groupchats/GroupChatsTab";
 import GroupChatView from "features/messages/groupchats/GroupChatView";
 import MessagesHeader from "features/messages/MessagesHeader";
@@ -50,6 +51,7 @@ export default function LeaveReferencePage() {
     }
   } else if (slugs[0] === "hosting") content = <RequestsTab type="hosting" />;
   else if (slugs[0] === "surfing") content = <RequestsTab type="surfing" />;
+  else if (slugs[0] === "archived") content = <ArchivedTab />;
 
   return (
     <>

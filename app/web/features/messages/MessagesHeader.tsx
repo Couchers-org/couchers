@@ -60,6 +60,12 @@ export function HostRequestsSentNotification() {
   );
 }
 
+export function ArchivedNotification() {
+  const { t } = useTranslation(MESSAGES);
+
+  return <>{t("messages_page.tabs.archived")}</>;
+}
+
 const labels: Record<MessageType, ReactNode> = {
   chats: (
     <StyledLabelWrapper>
@@ -76,6 +82,11 @@ const labels: Record<MessageType, ReactNode> = {
       <HostRequestsSentNotification />
     </StyledLabelWrapper>
   ),
+  archived: (
+    <StyledLabelWrapper>
+      <ArchivedNotification />
+    </StyledLabelWrapper>
+  ),
 };
 
 export default function MessagesHeader({
@@ -90,7 +101,7 @@ export default function MessagesHeader({
     <StyledRoot>
       <HtmlMeta title={t("messages_page.title")} />
       <PageTitle>{t("messages_page.title")}</PageTitle>
-      {tab && <MarkAllReadButton type={tab} />}
+      {tab && tab !== "archived" && <MarkAllReadButton type={tab} />}
       <StyledTabBarContainer>
         <TabContext value={tab ?? ""}>
           <TabBar
