@@ -7,11 +7,32 @@ function getReactNativeWebView(): typeof window.ReactNativeWebView {
 }
 
 function isNativeEmbed(): boolean {
-  return !!getReactNativeWebView();
+  const webview = getReactNativeWebView();
+  if (!webview) return false;
+
+  // Android-reliable detection: Check injectedObjectJson() which is more reliable than
+  // just checking for ReactNativeWebView existence due to timing issues on Android
+  try {
+    if (webview.injectedObjectJson) {
+      const injectedData = JSON.parse(webview.injectedObjectJson());
+      if (injectedData?.isNativeEmbed) return true;
+    }
+  } catch {
+    // Parsing failed or method not available - fall through to default behavior
+  }
+
+  // iOS and fallback: If ReactNativeWebView exists, assume we're in native embed
+  return true;
 }
 
 export function useIsNativeEmbed(): boolean {
-  const [isNative] = useState(() => isNativeEmbed());
+  // Use lazy initializer to check synchronously on first client-side render
+  // This avoids SSR issues while detecting immediately
+  const [isNative] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return isNativeEmbed();
+  });
+
   return isNative;
 }
 

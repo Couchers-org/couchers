@@ -1,9 +1,2 @@
-- Fixed comment form input erasing when toggling dark mode
-- Fixed double spinner when uploading profile photo
-- Add LanguagePickerSelect to Login and Signup
-- Improve camera permissions flow after denied
-- Clicking own blank avatar takes user to upload photo
-- Adjust bottom nav to fix longer text
-- Mobile app navigation fixes
-- Make report bug button smaller
-- Code style improvements
+- Fix dark mode flash on Android when using bottom navigation
+- Fix issue preventing proper top navigation on Android
