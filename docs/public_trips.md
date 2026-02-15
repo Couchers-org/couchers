@@ -46,21 +46,7 @@ Location: `app/proto/public_trips.proto`
 
 ## Edge Cases
 
-### 1. User Verification Requirements
-
-**To post a public trip**: User must have strong verification (passport verified). This prevents spam and ensures travelers have established trust.
-
-**To respond (offer to host)**: Any user with `hosting_status != cant_host`. No verification requirement beyond being able to host.
-
-```python
-# In CreatePublicTrip
-from couchers.helpers.strong_verification import has_strong_verification
-
-if not has_strong_verification(session, user):
-    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "strong_verification_required")
-```
-
-### 2. Community Level Restriction
+### 1. Community Level Restriction
 
 **Problem**: Users shouldn't post trips in Global Community (node_id=1) or country-level communities - too broad.
 
@@ -81,7 +67,7 @@ This allows: cities, neighborhoods, regions within countries. Blocks: Global, co
 
 QUESTION: I'm still a bit hand wavey with the clusters - would this work?
 
-### 3. Duplicate Active Trips (probably overkill?)
+### 2. Duplicate Active Trips (probably overkill?)
 
 **Problem**: Same user spamming multiple overlapping trips in same community.
 
@@ -100,7 +86,7 @@ if existing:
     context.abort_with_error_code(grpc.StatusCode.ALREADY_EXISTS, "overlapping_trip_exists")
 ```
 
-### 4. Visibility Filtering (in GET APIs)
+### 3. Visibility Filtering (in GET APIs)
 
 - Filter out trips from invisible users (deleted/banned/blocked) using `users_column_visible()`
 - Filter out trips where `to_date < today` (past trips) in `ListPublicTrips`
