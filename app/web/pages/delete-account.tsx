@@ -3,7 +3,11 @@ import ConfirmDeleteAccount from "features/auth/deletion/ConfirmDeleteAccount";
 import { AUTH, GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
 
-export const getStaticProps = translationStaticProps([GLOBAL, AUTH, NOTIFICATIONS]);
+export const getStaticProps = translationStaticProps([
+  GLOBAL,
+  AUTH,
+  NOTIFICATIONS,
+]);
 
 export default function ConfirmDeleteAccountPage() {
   return <ConfirmDeleteAccount />;
