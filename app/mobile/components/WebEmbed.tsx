@@ -285,7 +285,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       <View style={{ height: insets.top, backgroundColor }} />
       <WebView
         ref={webviewRef}
-        style={styles.webview}
+        style={[styles.webview, { backgroundColor }]}
         source={{ uri: WEB_BASE_URL + path }}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled
@@ -293,16 +293,16 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         cacheMode="LOAD_CACHE_ELSE_NETWORK"
         startInLoadingState
         renderLoading={() => (
-          <View style={styles.loadingContainer}>
+          <View style={[styles.loadingContainer, { backgroundColor }]}>
             <ActivityIndicator
               size="large"
               color={theme.palette.primary.main}
             />
           </View>
         )}
+        injectedJavaScriptObject={{ isNativeEmbed: true }}
         onNavigationStateChange={handleNavigationStateChange}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
-        injectedJavaScriptObject={{ isCouchersNativeEmbed: true }}
         onOpenWindow={handleOpenWindow}
         onMessage={handleMessage}
         onError={(syntheticEvent) => {
