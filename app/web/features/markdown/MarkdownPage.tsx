@@ -9,6 +9,7 @@ import {
 import HtmlMeta from "components/HtmlMeta";
 import { Trans, useTranslation } from "i18n";
 import markdown from "markdown-it";
+import Head from "next/head";
 import { theme } from "theme";
 
 const mkd = new markdown();
@@ -238,6 +239,16 @@ export default function MarkdownPage({
         description={frontmatter.description}
         shareImage={frontmatter.share_image}
       />
+      {slug.length === 1 && slug[0] === "blog" && (
+        <Head>
+          <link
+            rel="alternate"
+            type="application/rss+xml"
+            title="Couchers.org Blog"
+            href="/blog/rss.xml"
+          />
+        </Head>
+      )}
       <Container
         disableGutters
         maxWidth="md"

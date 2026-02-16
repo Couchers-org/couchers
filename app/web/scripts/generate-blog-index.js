@@ -5,6 +5,11 @@ const path = require("path");
 
 const BLOG_DIR = path.join(__dirname, "..", "markdown", "blog");
 const OUTPUT_FILE = path.join(__dirname, "..", "markdown", "blog.md");
+const RSS_FILE = path.join(__dirname, "..", "public", "blog", "rss.xml");
+
+function getSiteUrl() {
+  return process.env.NEXT_PUBLIC_BASE_URL || "https://couchers.org";
+}
 
 function parseFrontmatter(content) {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
@@ -72,7 +77,7 @@ function generateBlogIndex() {
 title: Blog
 ---
 
-**Welcome to the Couchers.org blog**
+**Welcome to the Couchers.org blog** &mdash; <a href="/blog/rss.xml"><img src="/img/blog/rss_icon.svg" alt="RSS" style="width: 14px; vertical-align: middle;" /></a> [RSS feed](/blog/rss.xml)
 
 If you'd like to contribute to the blog, please [sign up](/volunteer) and let us know!
 `;
@@ -99,6 +104,47 @@ ${post.description}
 
   fs.writeFileSync(OUTPUT_FILE, output);
   console.log(`Generated blog index with ${posts.length} posts.`);
+
+  // Generate RSS feed
+  const rssItems = posts
+    .map((post) => {
+      const dateStr = post.date.replace(/\//g, "-");
+      const pubDate = new Date(dateStr).toUTCString();
+      return `    <item>
+      <title>${escapeXml(post.title)}</title>
+      <link>${getSiteUrl()}${post.url}</link>
+      <guid>${getSiteUrl()}${post.url}</guid>
+      <pubDate>${pubDate}</pubDate>
+      <description>${escapeXml(post.description)}</description>${post.author ? `\n      <author>${escapeXml(post.author)}</author>` : ""}
+    </item>`;
+    })
+    .join("\n");
+
+  const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Couchers.org Blog</title>
+    <link>${getSiteUrl()}/blog</link>
+    <description>News and updates from Couchers.org, the non-profit couch surfing platform.</description>
+    <language>en</language>
+    <atom:link href="${getSiteUrl()}/blog/rss.xml" rel="self" type="application/rss+xml"/>
+${rssItems}
+  </channel>
+</rss>
+`;
+
+  fs.mkdirSync(path.dirname(RSS_FILE), { recursive: true });
+  fs.writeFileSync(RSS_FILE, rss);
+  console.log(`Generated RSS feed with ${posts.length} posts.`);
+}
+
+function escapeXml(str) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 module.exports = generateBlogIndex;

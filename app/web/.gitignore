@@ -38,8 +38,9 @@ yarn-error.log*
 
 proto/**
 
-# Generated blog index
+# Generated blog index and RSS feed
 markdown/blog.md
+public/blog/rss.xml
 
 junit.xml
 
