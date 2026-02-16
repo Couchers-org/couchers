@@ -125,6 +125,7 @@
             "error_generic": "Error during subscription to push notifications",
             "error_unsupported": "Push notifications or Service Workers are not supported in this browser.",
             "error_not_granted": "You did not give permission to send push notifications.",
+            "brave_push_messaging_note": "It looks like you're using the Brave browser. Brave blocks Google push messaging services by default. To enable push notifications, go to brave://settings/privacy and enable \"Use Google services for push messaging\", then try again.",
             "permission_denied": {
                 "platform_settings_description": "Still having issues after enabling notifications in your browser? You may need to adjust your platform settings.",
                 "instructions": {

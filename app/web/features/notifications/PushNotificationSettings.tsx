@@ -29,6 +29,11 @@ export default function PushNotificationSettings() {
   const { t } = useTranslation([NOTIFICATIONS]);
   const isNotificationSupported = typeof Notification !== "undefined";
   const isNativeEmbed = useIsNativeEmbed();
+  const isBrave =
+    typeof navigator !== "undefined" &&
+    "brave" in navigator &&
+    typeof (navigator as Navigator & { brave?: { isBrave?: () => Promise<boolean> } }).brave
+      ?.isBrave === "function";
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPushEnabled, setIsPushEnabled] = useState<boolean>(false);
@@ -100,6 +105,13 @@ export default function PushNotificationSettings() {
           {errorMessage
             ? t(errorMessage)
             : t("notification_settings.push_notifications.error_generic")}
+        </StyledAlert>
+      )}
+      {isBrave && !isPushEnabled && (
+        <StyledAlert severity="info">
+          {t(
+            "notification_settings.push_notifications.brave_push_messaging_note",
+          )}
         </StyledAlert>
       )}
       {shouldPromptAllow && (

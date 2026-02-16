@@ -20,6 +20,11 @@ const Wrapper = styled("div")({
 export function PushNotificationBanner() {
   const { t } = useTranslation(NOTIFICATIONS);
   const isNativeEmbed = useIsNativeEmbed();
+  const isBrave =
+    typeof navigator !== "undefined" &&
+    "brave" in navigator &&
+    typeof (navigator as Navigator & { brave?: { isBrave?: () => Promise<boolean> } }).brave
+      ?.isBrave === "function";
   // the epoch value of the last time this banner was dismissed
   const [lastDismissedEpoch, setLastDismissedEpoch] = usePersistedState<
     number | null
@@ -80,9 +85,18 @@ export function PushNotificationBanner() {
 
   if (errorMessage) {
     return (
-      <Alert severity="error" onClose={dismiss}>
-        {errorMessage}
-      </Alert>
+      <>
+        <Alert severity="error" onClose={dismiss}>
+          {errorMessage}
+        </Alert>
+        {isBrave && (
+          <Alert severity="info" onClose={dismiss} sx={{ marginTop: 1 }}>
+            {t(
+              "notification_settings.push_notifications.brave_push_messaging_note",
+            )}
+          </Alert>
+        )}
+      </>
     );
   }
 
