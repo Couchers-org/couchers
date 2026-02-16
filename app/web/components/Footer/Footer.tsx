@@ -101,8 +101,8 @@ const StyledMiddleContainer = styled("div")(({ theme }) => ({
 const StyledLowerOuterContainer = styled("div")(({ theme }) => ({
   paddingBlockStart: theme.spacing(2),
   paddingBlockEnd: theme.spacing(2),
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
+  backgroundColor: "var(--mui-palette-primary-main)",
+  color: "var(--mui-palette-primary-contrastText)",
 }));
 
 const StyledLowerContainer = styled("div")(({ theme }) => ({
