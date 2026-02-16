@@ -113,4 +113,10 @@ uv run --project .claude/tools ci-job-log <job-id> --full
 
 - PostgreSQL with PostGIS extension
 - Migrations in `/app/backend/src/couchers/migrations/versions/`
+- Migrations use ordinal numbering (`0001_`, `0002_`, ...) and must be linear (no branches). New migrations automatically get the next ordinal number as their revision ID
+- When creating migrations manually, never use random/hex revision IDs - the ordinal system handles this automatically via `env.py`
 - Models in `/app/backend/src/couchers/models/`
+
+## Pull Requests
+
+- Use the PR template in `.github/pull_request_template.md` when creating PRs

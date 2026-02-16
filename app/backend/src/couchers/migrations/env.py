@@ -1,4 +1,6 @@
+import re
 from logging.config import fileConfig
+from pathlib import Path
 from typing import Any
 
 from alembic import context
@@ -36,6 +38,24 @@ target_metadata: MetaData = models.Base.metadata
 
 
 exclude_tables = config.get_section("alembic:exclude", {}).get("tables", "").split(",")
+
+VERSIONS_DIR = Path(__file__).parent / "versions"
+
+
+def _next_ordinal() -> str:
+    """Compute the next ordinal migration number (e.g. "0134") by scanning existing filenames."""
+    max_ordinal = 0
+    for path in VERSIONS_DIR.glob("*.py"):
+        match = re.match(r"^(\d+)_", path.name)
+        if match:
+            max_ordinal = max(max_ordinal, int(match.group(1)))
+    return f"{max_ordinal + 1:04d}"
+
+
+def process_revision_directives(context, revision, directives):
+    """Set the revision ID to the next ordinal number instead of a random hex string."""
+    if directives:
+        directives[0].rev_id = _next_ordinal()
 
 
 def include_name(name: str | None, type_: str, parent_names: Any) -> bool:
@@ -83,6 +103,7 @@ def run_migrations_offline() -> None:
         include_name=include_name,
         include_object=include_object,
         compare_type=True,
+        process_revision_directives=process_revision_directives,
     )
 
     with context.begin_transaction():
@@ -109,6 +130,7 @@ def run_migrations_online() -> None:
             include_schemas=True,
             include_name=include_name,
             include_object=include_object,
+            process_revision_directives=process_revision_directives,
         )
 
         with context.begin_transaction():
