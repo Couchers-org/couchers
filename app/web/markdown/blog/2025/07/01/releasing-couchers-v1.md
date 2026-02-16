@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "A new chapter: Couchers is officially out of Beta!"
 slug: releasing-couchers-v1
 description: "We are out of Beta and in v1: we're releasing a new strategy around safe & active community instead of bashing our competitors, a fancy redesigned landing page, and a bunch of new features to make core couch surfing functionality better!"

@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: Przyjmowanie uchodźców i szukanie schronienia z Couchers.org
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-pl
 date: 2022/03/13

@@ -22,6 +22,7 @@ interface MarkdownPageFrontmatter {
   date?: string;
   author?: string;
   author_username?: string;
+  is_blog_post?: boolean;
   has_custom_cta?: boolean;
   share_image?: string;
 }
@@ -231,7 +232,7 @@ export default function MarkdownPage({
         <StyledMarkdown
           dangerouslySetInnerHTML={{ __html: content }}
         ></StyledMarkdown>
-        {slug[0] === "blog" && slug.length > 2 && frontmatter.date && (
+        {frontmatter.is_blog_post && frontmatter.date && (
           <Typography
             variant="body1"
             sx={{ fontStyle: "italic", marginTop: theme.spacing(2) }}
@@ -270,9 +271,7 @@ export default function MarkdownPage({
             )}
           </Typography>
         )}
-        {slug[0] === "blog" &&
-          slug.length > 2 &&
-          !frontmatter.has_custom_cta && (
+        {frontmatter.is_blog_post && !frontmatter.has_custom_cta && (
             <Typography
               variant="body1"
               sx={{ fontWeight: "bold", marginTop: theme.spacing(3) }}

@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Making couch surfing friends virtually from the other side of the world"
 description: "How one writer joined and developed a virtual community of avid couch surfers during the pandemic."
 date: 2021/05/01

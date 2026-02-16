@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "First Open Town Hall"
 description: "We kicked off our first Open Town Hall event, read the questions and answers here."
 date: 2021/06/27

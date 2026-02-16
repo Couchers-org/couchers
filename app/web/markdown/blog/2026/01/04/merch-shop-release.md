@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Introducing the Official Couchers.org Merchandise Shop!"
 slug: merch-shop-release
 description: "We’re excited to share a milestone the community has been waiting for: The official Couchers Merchandise Shop is now live!"

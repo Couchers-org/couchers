@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Couchers.org becomes the world's first couch surfing platform to obtain 501(c)(3) non-profit status in the US"
 description: "Read about our successful transformation into a 501(c)(3) non-profit organization and how this will allow us to grow further."
 date: 2022/01/20

@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Updates from the development team: June 6th, 2021"
 description: "Read the latest updates from the Couchers.org development team."
 date: 2021/06/06

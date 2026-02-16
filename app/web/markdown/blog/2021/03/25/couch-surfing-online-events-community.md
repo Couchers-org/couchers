@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: Couchsurfing™ has Banned Online Events
 description: "Couchsurfing™ support has released an update, changing the policy to ban virtual events across the platform."
 date: 2021/03/25

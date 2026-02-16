@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: 50,000+ Couchers Milestone Reached
 slug: 50k-couchers-milestone-reached
 description: "Couchers.org welcomes 50,000th member. Preparing for v1 launch, introducing exciting new features."

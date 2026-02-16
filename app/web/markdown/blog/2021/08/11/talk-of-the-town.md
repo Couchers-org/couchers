@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Talk of the Town: August 11th, 2021"
 subtitle: "Map Search, template messages, and “kind encouragements” to fill in your profile!"
 description: "Our biweekly digest for the Couchers.org forum. Did you know we have vibrant public discussions about couch surfing and the future of Couchers.org? Everyone is welcome to participate!"

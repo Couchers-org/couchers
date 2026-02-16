@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Couch Surfing 101: 5 steps to creating a good host request (2022)"
 slug: creating-a-good-request
 description: A guide for new couch surfers on how to send the best request to get hosted!

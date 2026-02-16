@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Couchers, Inc. Announces new Board members"
 slug: new-board-members
 description: The outgoing Board of Couchers, Inc. has approved three new Directors to the Board of Directors of the 501(c)(3) non-profit backing the Couchers.org project. Learn more about the Board of Directors and some minor tweaks to our governance.

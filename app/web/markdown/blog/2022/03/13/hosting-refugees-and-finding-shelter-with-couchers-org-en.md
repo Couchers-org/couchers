@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: Hosting refugees and finding shelter with Couchers.org
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-en
 description: Host refugees or find shelter with Couchers.org

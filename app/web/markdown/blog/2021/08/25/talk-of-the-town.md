@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Talk of the Town: August 25th, 2021"
 subtitle: "It's about culture!"
 description: "Our biweekly digest for the Couchers.org forum. Did you know we have vibrant public discussions about couch surfing and the future of Couchers.org? Everyone is welcome to participate!"

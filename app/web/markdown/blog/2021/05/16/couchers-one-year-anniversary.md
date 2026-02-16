@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Celebrating our one-year anniversary"
 description: "A brief recap of the platform’s milestones so far, and what we hope to achieve over the next 12 months."
 date: 2021/05/16

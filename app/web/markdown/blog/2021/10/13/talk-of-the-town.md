@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Talk of the Town: October 13th, 2021"
 subtitle: "Better traveler-host communication and Secret Santa!"
 description: "Our biweekly digest for the Couchers.org forum. Did you know we have vibrant public discussions about couch surfing and the future of Couchers.org? Everyone is welcome to participate!"

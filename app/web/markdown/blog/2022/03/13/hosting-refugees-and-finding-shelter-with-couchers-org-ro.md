@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: Găzduiește refugiați / găsește o gazdă pe Couchers.org
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-ro
 date: 2022/03/13

@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Summer of 2024 Updates"
 slug: summer-2024-updates
 description: "Catch up on news with Couchers: read about what's been going on and what's coming up this in the rest of 2024!"

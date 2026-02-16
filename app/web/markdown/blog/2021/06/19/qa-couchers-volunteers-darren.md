@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Q&A with the Contributors: Darren"
 description: "Meet Darren, senior frontend engineer"
 date: 2021/06/19

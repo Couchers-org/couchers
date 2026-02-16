@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Q&A with the Contributors: Mindy"
 description: "Get to know Mindy: graphic designer and writer"
 date: 2021/06/04

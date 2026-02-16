@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Couch surfing in a post-COVID world"
 slug: traveling-in-a-post-covid-world
 description: How are people navigating the world of couch surfing now that people are starting to travel again after being locked in for the pandemic?

@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: Menekültek elszállásolása és menedék keresése a Couchers.orggal
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-hu
 date: 2022/03/13

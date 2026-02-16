@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Couchers v1.2 Release: Feature releases and mobile app!"
 slug: couchers-v1.2-release
 description: "We've been busy! More about our donation drive results, dark mode, merch shop and mobile app Beta."

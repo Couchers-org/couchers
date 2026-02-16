@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Where we are and where we are going"
 slug: where-we-are-and-where-we-are-going
 description: Read some discussion on the state of the Couchers.org project and our plans for the future from Couchers.org co-founder Aapeli.

@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: Couchers, Inc. financials for 2024
 slug: couchers-inc-financials-2024
 description: Summary of the financials of Couchers, Inc. for 2024.

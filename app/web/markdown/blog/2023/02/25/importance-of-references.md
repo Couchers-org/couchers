@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "The importance of references (and how to write one)"
 slug: importance-of-references
 description: References are a powerful way to make communities safer - especially communities comprised of strangers traveling around the world. These tips will help you write better references, making Couchers a safer experience for everyone.

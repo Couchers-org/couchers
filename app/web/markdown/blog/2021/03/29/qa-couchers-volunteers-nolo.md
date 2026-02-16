@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Q&A with the Contributors: Nolo"
 description: "Get to know our forum admin: Nolo!"
 date: 2021/03/29

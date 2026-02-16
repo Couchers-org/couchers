@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: Five things to do in any city
 slug: five-things-to-do-in-any-city
 description: "If you're new to traveling, whether solo or with friends, going to a new city can be exciting but it's hard to know where to start. Here are tips for some things you can do in any city."

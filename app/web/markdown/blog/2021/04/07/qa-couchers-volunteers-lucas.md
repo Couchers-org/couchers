@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Q&A with the Contributors: Lucas"
 description: "Meet our frontend development team lead: Lucas!"
 date: 2021/04/07

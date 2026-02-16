@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Couchers.org Fall Release: What's New in v1.1?"
 slug: couchers-fall-release
 description: "We've released a number of new features, and fixed many bugs. We discuss more of what's next. We also moved to roughly a quarterly release schedule, which helps us keep on track better with smaller releases."

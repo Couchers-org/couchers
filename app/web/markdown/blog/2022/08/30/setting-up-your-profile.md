@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Couch Surfing 101: Setting up your profile (2022)"
 slug: setting-up-your-profile
 description: A guide for new couch surfers on how to set up your profile so you can host people or get hosted!

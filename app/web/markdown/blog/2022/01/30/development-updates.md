@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Updates from the development team: January 30th, 2022"
 description: "Read the latest updates from the Couchers.org development team."
 date: 2022/01/30
