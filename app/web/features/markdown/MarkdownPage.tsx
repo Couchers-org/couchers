@@ -142,7 +142,6 @@ const StyledMarkdown = styled("div")(({ theme }) => ({
   "& .blog-entry-date": {
     marginTop: theme.spacing(0.5),
     fontStyle: "italic",
-    color: theme.palette.text.secondary,
   },
 }));
 

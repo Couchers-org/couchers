@@ -89,7 +89,9 @@ If you'd like to contribute to the blog, please [sign up](/volunteer) and let us
 
 <p class="blog-entry-date">${byline}</p>
 
-${post.description} [Read more.](${post.url})
+${post.description}
+
+[Read more.](${post.url})
 
 </div>
 `;
