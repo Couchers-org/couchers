@@ -3,6 +3,7 @@ title: "Q&A with the Contributors: Darren"
 description: "Meet Darren, senior frontend engineer"
 date: 2021/06/19
 author: Emily
+author_username: emily
 share_image: https://couchers.org/img/blog/20210619_darren.jpg
 ---
 
@@ -36,7 +37,5 @@ Our code is so new and it really feels like the cutting edge. Our development is
 
 ### How are you ensuring the same won’t happen to Couchers.org? Will it be hard to keep up to date?
 **Darren**: I’ve learned from my job the importance of updating the frameworks used in an app in smaller chunks regularly rather than waiting to update something that’s already three or four versions behind. Otherwise, you face the situation where the older version of the framework becomes unmaintained,it becomes an emergency to fix the codebase, and the project will be full of security vulnerabilities. I've set up a bot to check for updates weekly to make sure that scenario will never happen at Couchers.org.
-
-*Written by Emily. Published on 2021/06/19.*
 
 **Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

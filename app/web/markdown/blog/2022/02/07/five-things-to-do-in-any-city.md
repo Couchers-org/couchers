@@ -29,10 +29,6 @@ If you admire nature and love walking a lot, going to the park might be a great 
 
 Last but not least is finding local entertainment. Find out what the best live music venues, dancehalls, or bars around town are and go mingle! At nighttime, many cities turn into a charismatic playground with the glamorous noise of human chatter, street performers, music pouring from every corner, and an energetic atmosphere. You can become a witness of the best talents the city has on offer and indulge in fizzy drinks and exquisite dining. Afterwards, you can listen to live music or go to a bar to play games and make new friends. After a busy day of wandering the city, it can be a good way to relax and enjoy a whole other side of life.
 
-
-
-_Written by Anna. Published on 2022/02/07_
-
 _Anna is a graduate MA student from Russia, living in China since 2016. She has been an active member of Couchsurfing, hosting people at her house in Russia and China as well as being hosted by locals in South East Asia, making friends along the way. She is keenly interested in international community and is eager to give her best to make this world a better place for all of humanity and beyond._
 
 **Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

@@ -4,6 +4,7 @@ slug: 50k-couchers-milestone-reached
 description: "Couchers.org welcomes 50,000th member. Preparing for v1 launch, introducing exciting new features."
 date: 2025/04/12
 author: Colleen, Jesse
+author_username: colleen, jesse
 share_image: https://couchers.org/img/blog/20250412_couchers_volunteers
 ---
 
@@ -71,7 +72,5 @@ Couchers, Inc. is also excited to welcome [Nicole](https://couchers.org/user/uns
 Thanks from all of us at Couchers.org! We’re excited for what’s next in 2025!
 
 <a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="/img/blog/instagram_logo.svg" alt="IG" style="width:26px !important;" /></a> <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="/img/blog/bluesky_logo.svg" alt="bsky" style="width:26px !important;" /></a>
-
-_Written by [Colleen](/user/colleen) and [Jesse](/user/jesse). Published on 2025/04/12_
 
 **Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

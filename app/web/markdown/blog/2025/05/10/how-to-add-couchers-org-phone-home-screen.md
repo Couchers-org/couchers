@@ -4,6 +4,7 @@ slug: how-to-add-couchers-org-phone-home-screen
 description: "Did you know you can turn any website into a quick-access icon on your phone's home screen—just like an app? No downloads required! Whether you want faster access to Couchers.org or another favorite site, this simple trick keeps everything just one tap away."
 date: 2025/05/10
 author: Chris
+author_username: chrisk
 share_image: /img/blog/20210825_talkingtown.png
 ---
 
@@ -45,4 +46,3 @@ Stay connected, stay inspired, and keep surfing the world—wherever you go! �
 
 <a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="/img/blog/instagram_logo.svg" alt="IG" style="width:26px !important;" /></a> <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="/img/blog/bluesky_logo.svg" alt="bsky" style="width:26px !important;" /></a>
 
-*Written by [Chris](https://couchers.org/user/chrisk). Published on 2025/05/10*

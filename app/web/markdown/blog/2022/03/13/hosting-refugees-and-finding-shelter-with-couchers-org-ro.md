@@ -3,6 +3,7 @@ title: Găzduiește refugiați / găsește o gazdă pe Couchers.org
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-ro
 date: 2022/03/13
 author: Itsi
+author_username: itsi
 share_image: /img/blog/20220313_ukraine_en.jpg
 ---
 
@@ -40,4 +41,3 @@ Pentru orice fel de problemă, te rugăm să contactezi [support@couchers.org](m
 
 Vă urăm toate cele bune și sperăm să fiți în siguranță. Vă rugăm să țineți minte că există oameni care vor să vă ajute.
 
-*Published on 2022/03/13.*

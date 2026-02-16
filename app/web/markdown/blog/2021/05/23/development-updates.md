@@ -3,6 +3,7 @@ title: "Updates from the development team: May 23rd, 2021"
 description: "Read the latest updates from the Couchers.org development team."
 date: 2021/05/23
 author: Aapeli
+author_username: aapeli
 share_image: https://couchers.org/img/share.jpg
 ---
 
@@ -44,8 +45,5 @@ Here's a summary of a few of the bigger features or bugs we worked on over the p
 In the past two weeks, 10 developers collaborated on building Couchers.org through over 7 thousand lines of code changed that touched over 141 files. A warm welcome to our new contributor who joined our development team and contributed to the codebase.
 
 None of this would be possible without our 100+ volunteers working in all areas of the project. The development teams would like to thank the rest of the core contributors for making our work possible.
-
-
-*Written by Aapeli. Published on 2021/05/23.*
 
 **Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

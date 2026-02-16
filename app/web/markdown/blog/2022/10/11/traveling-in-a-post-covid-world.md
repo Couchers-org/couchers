@@ -4,6 +4,7 @@ slug: traveling-in-a-post-covid-world
 description: How are people navigating the world of couch surfing now that people are starting to travel again after being locked in for the pandemic?
 date: 2022/10/11
 author: Bob
+author_username: bobl
 share_image: https://couchers.org/img/share.jpg
 ---
 
@@ -24,8 +25,5 @@ The couch surfing movement was built on trust and human decency, and will contin
 An informal poll of some Couchers.org members in different places around the world revealed that most are looking forward to traveling and hosting in the near future. Some are already getting back out there, and many have already begun hosting couch surfers or are open to requests from others.
 
 One thing is for sure: if we are lucky enough to experience couch surfing connections, we are going to have some epic stories to share with our fellow couch surfers and hosts about what we did during the “dark” times.
-
-
-_Written by Bob. Published on 2022/10/11_
 
 **Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

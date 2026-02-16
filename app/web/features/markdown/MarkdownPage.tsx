@@ -21,6 +21,7 @@ interface MarkdownPageFrontmatter {
   description?: string;
   date?: string;
   author?: string;
+  author_username?: string;
   share_image?: string;
 }
 
@@ -229,6 +230,45 @@ export default function MarkdownPage({
         <StyledMarkdown
           dangerouslySetInnerHTML={{ __html: content }}
         ></StyledMarkdown>
+        {slug[0] === "blog" && slug.length > 2 && frontmatter.date && (
+          <Typography
+            variant="body1"
+            sx={{ fontStyle: "italic", marginTop: theme.spacing(2) }}
+          >
+            {frontmatter.author ? (
+              <>
+                {"Written by "}
+                {(() => {
+                  const authors = frontmatter.author
+                    .split(",")
+                    .map((a) => a.trim());
+                  const usernames = frontmatter.author_username
+                    ? frontmatter.author_username
+                        .split(",")
+                        .map((u) => u.trim())
+                    : [];
+                  return authors.map((name, i) => (
+                    <span key={name}>
+                      {i > 0 && i === authors.length - 1
+                        ? " and "
+                        : i > 0
+                          ? ", "
+                          : ""}
+                      {usernames[i] ? (
+                        <Link href={`/user/${usernames[i]}`}>{name}</Link>
+                      ) : (
+                        name
+                      )}
+                    </span>
+                  ));
+                })()}
+                {`. Published on ${frontmatter.date}.`}
+              </>
+            ) : (
+              `Published on ${frontmatter.date}.`
+            )}
+          </Typography>
+        )}
         {bustitle && (
           <StyledBusTitle component="h2">
             <div dangerouslySetInnerHTML={{ __html: bustitle }}></div>

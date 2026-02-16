@@ -3,6 +3,7 @@ title: Прийом біженців і пошук притулку за доп�
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-uk
 date: 2022/03/13
 author: Itsi
+author_username: itsi
 share_image: /img/blog/20220313_ukraine_uk.jpg
 ---
 
@@ -42,4 +43,3 @@ Couchers.org – це некомерційна організація, учас
 
 Бажаємо вам всього найкращого та сподіваємося, що у вас все буде добре. Будь ласка, знайте, що є люди, які хочуть вам допомогти.
 
-*Published on 2022/03/13.*

@@ -3,6 +3,7 @@ title: "Q&A with the Contributors: Miuriel"
 description: "We're chatting with Miuriel, our graphic design team lead."
 date: 2021/04/05
 author: Emily
+author_username: emily
 share_image: https://couchers.org/img/blog/20210405_miuriel.jpg
 ---
 
@@ -39,7 +40,5 @@ That’s the fun thing about being in the team: if I were by myself, my idea wou
 ### What is your hope or vision for the platform?
 
 **Miuriel**: I hope it will be vibrant and alive, and people really use it for what we’re making it for. My vision is that we can achieve building something for the community that we know is out there. I would love to see it evolving and getting to a point where we have so many new challenges to work out. If the vibe we have now continues into the app and is present in the community that uses it, it will be a beautiful, positive thing.
-
-*Written by Emily. Published on 2021/04/05.*
 
 **Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

@@ -3,6 +3,7 @@ title: Couchsurfing™ has Banned Online Events
 description: "Couchsurfing™ support has released an update, changing the policy to ban virtual events across the platform."
 date: 2021/03/25
 author: Emily
+author_username: emily
 ---
 
 Before the pandemic, many couch surfers had probably never dreamt of using Couchsurfing&#8482; for online events. After all, the main attraction has always been meeting people in person.
@@ -34,7 +35,5 @@ But if there’s some reason why this had to be done, it could have been discuss
 On top of this, those who contribute the most—volunteers, organizers, community leaders, and hosts—should never feel ignored, tossed aside, or disrespected. It’s our indisputable goal to listen to what our growing community is asking for, develop a product that will be adaptable and collaborative, and communicate changes with every single member of our platform.
 
 Although [Couchers.org](/) is new, the idea behind it—and the extremely talented people supporting the project—share an early belief: the community that has emerged from Couchsurfing&#8482; can build a better platform than the one we have now. If you are a part of the couch surfing community, and you care about its future, you belong here and we can’t wait to have you with us.
-
-*Written by Emily. Published on 2021/03/25.*
 
 **Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

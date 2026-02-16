@@ -4,6 +4,7 @@ slug: new-board-members
 description: The outgoing Board of Couchers, Inc. has approved three new Directors to the Board of Directors of the 501(c)(3) non-profit backing the Couchers.org project. Learn more about the Board of Directors and some minor tweaks to our governance.
 date: 2024/04/30
 author: Aapeli
+author_username: aapeli
 share_image: https://couchers.org/img/share.jpg
 ---
 
@@ -98,7 +99,5 @@ The role of Board of Directors of the non-profit is to supervise and guide the r
 The outgoing Board voted to accept new bylaws. The new bylaws ratify a decision of the Board from April 2022 that allows the founders of the project (Aapeli and Itsi) to remain on the Board until they choose to resign. This allows the founders to protect the original ideas and maintain the long-term vision laid out by them. The new bylaws also include a proviso that if the Board has five or fewer members, or if quorum is established with five or fewer members, Itsi yields his vote to Aapeli.
 
 The full bylaws are available [here](/foundation/bylaws.pdf), and you can find more information about Couchers, Inc. [here](/foundation).
-
-_Written by [Aapeli](/user/aapeli). Published on 2024/04/30_
 
 **Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

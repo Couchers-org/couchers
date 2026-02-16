@@ -3,6 +3,7 @@ title: "Q&A with the Contributors: Mindy"
 description: "Get to know Mindy: graphic designer and writer"
 date: 2021/06/04
 author: Emily
+author_username: emily
 share_image: https://couchers.org/img/blog/20210604_mindy.jpg
 ---
 
@@ -45,7 +46,5 @@ What’s so amazing about Couchers.org is this group of people who are saying, �
 
 ### What is your vision for the Couchers.org platform?
 **Mindy**: I want to make it easy and achievable for people to travel to another country—especially when they’re traveling solo—and to understand there’s a network of future friends there to welcome you, wanting to share their culture and learn about yours. People are fundamentally the same everywhere: we want friendship and community. Connecting those people is the dream. And I’ve also found there’s an evolution to traveling: when you first arrive in a place, maybe you’re more concerned with sightseeing or taking pictures—surface-level tourist things—but inevitably you want to go deeper, to meet people, to really understand the place you’re in. And what you come to remember most about the places you travel, are the people you meet. You become a part of this worldwide cultural exchange—and when you return home and host your own travelers, that circle is complete.
-
-*Written by Emily. Published on 2021/06/04.*
 
 **Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

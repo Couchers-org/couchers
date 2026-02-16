@@ -3,6 +3,7 @@ title: "First Open Town Hall"
 description: "We kicked off our first Open Town Hall event, read the questions and answers here."
 date: 2021/06/27
 author: Aapeli
+author_username: aapeli
 share_image: https://couchers.org/img/share.jpg
 ---
 
@@ -83,7 +84,5 @@ Link: <https://couchers.org/town-hall>
 Present: Aapeli, Gus, Itsi, Jesse, Lost Boy, Lucas, Marta, Natalia, Nolo, Polina, Poovan.
 
 If you have questions or feedback please join us on the [discussion forum](https://community.couchers.org/) or join the next [Open Town Hall](https://community.couchers.org/t/open-town-hall/1291) on the 25th of July, 14:00 UTC!
-
-*Written by Aapeli. Published on 2021/06/27.*
 
 **Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

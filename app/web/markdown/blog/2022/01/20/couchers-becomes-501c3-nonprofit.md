@@ -61,4 +61,3 @@ To help the community grow, let your friends and local couch surfing community k
 
 Couchers.org is a community project that is being built by community members based upon feedback and ideas provided by couch surfers around the world. We would love to hear from you! Join the [community forum](https://community.couchers.org) to discuss topics and share ideas with other community members and volunteers.
 
-*Published on 2022/01/20.*
