@@ -44,5 +44,3 @@ Whether you're responding to messages, browsing hosts, joining discussions or ev
 Don't worry, we're also **building an official app for Android and iOS**—and we need talented developers to help with this effort! If you or someone you know has experience developing mobile apps, and would like to help build something amazing together, check out our **[Volunteer Page](https://couchers.org/volunteer)**
 
 Stay connected, stay inspired, and keep surfing the world—wherever you go! 💙
-
-<a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="/img/blog/instagram_logo.svg" alt="IG" style="width:26px !important;" /></a> <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="/img/blog/bluesky_logo.svg" alt="bsky" style="width:26px !important;" /></a>
