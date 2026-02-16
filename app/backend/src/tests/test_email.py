@@ -433,16 +433,17 @@ def test_email_deleted_users_regression(db, moderator: Moderator):
     delete_user, _ = generate_user()
 
     with session_scope() as session:
-        create_community(session, 10, 2, "Global Community", [super_user], [], None)
-        create_community(
+        w = create_community(session, 0, 2, "Global Community", [super_user], [], None)
+        r = create_community(session, 0, 2, "Region", [super_user], [], w)
+        c_id = create_community(
             session,
             0,
             2,
             "Non-global Community",
             [super_user],
             [creating_user, normal_user, ban_user, delete_user],
-            None,
-        )
+            r,
+        ).id
 
     enforce_community_memberships()
 
@@ -454,6 +455,7 @@ def test_email_deleted_users_regression(db, moderator: Moderator):
                 title="Dummy Title",
                 content="Dummy content.",
                 photo_key=None,
+                parent_community_id=c_id,
                 offline_information=events_pb2.OfflineEventInformation(
                     address="Near Null Island",
                     lat=0.1,
