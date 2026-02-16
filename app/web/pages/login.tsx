@@ -1,9 +1,14 @@
 import { appGetLayout } from "components/AppRoute";
 import Login from "features/auth/login/Login";
-import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
+import { AUTH, GLOBAL, LANDING, NOTIFICATIONS } from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
 
-export const getStaticProps = translationStaticProps([GLOBAL, AUTH, LANDING]);
+export const getStaticProps = translationStaticProps([
+  GLOBAL,
+  AUTH,
+  LANDING,
+  NOTIFICATIONS,
+]);
 
 export default function LoginPage() {
   return <Login />;
