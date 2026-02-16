@@ -83,13 +83,15 @@ If you'd like to contribute to the blog, please [sign up](/volunteer) and let us
       : `${post.date}.`;
 
     output += `
+<div class="blog-entry">
+
 ## [${post.title}](${post.url})
 
-${byline}
+<p class="blog-entry-date">${byline}</p>
 
-${post.description}
+${post.description} [Read more.](${post.url})
 
-[Read more.](${post.url})
+</div>
 `;
   }
 

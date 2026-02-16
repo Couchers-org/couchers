@@ -131,6 +131,19 @@ const StyledMarkdown = styled("div")(({ theme }) => ({
   '[data-mui-color-scheme="dark"] & .partial-check': {
     filter: "grayscale(1) brightness(10)",
   },
+
+  // Blog index entry styling
+  "& .blog-entry": {
+    marginTop: theme.spacing(4),
+  },
+  "& .blog-entry h2": {
+    marginBottom: 0,
+  },
+  "& .blog-entry-date": {
+    marginTop: theme.spacing(0.5),
+    fontStyle: "italic",
+    color: theme.palette.text.secondary,
+  },
 }));
 
 const StyledTitle = styled(Typography)(({ theme }) => ({

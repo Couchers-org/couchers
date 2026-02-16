@@ -356,7 +356,7 @@
     "tap_press_to_flip": "Tap / press to flip"
   },
   "blog": {
-    "byline_with_author": "Written by <0/>. Published on {{date}}.",
+    "byline_with_author": "Written by <1/>. Published on {{date}}.",
     "byline_without_author": "Published on {{date}}.",
     "cta_message": "Want to help write our blog or volunteer? <1>Sign up</1> and let us know. Volunteers and <3>donations</3> are what make Couchers.org possible!"
   },
