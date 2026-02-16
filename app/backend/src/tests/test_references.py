@@ -4,7 +4,7 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from couchers.db import session_scope
@@ -407,7 +407,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # ban user2
     with session_scope() as session:
-        session.execute(update(User).where(User.username == user2.username).values(is_banned=True))
+        session.execute(update(User).where(User.username == user2.username).values(banned_at=func.now()))
 
     # reference to and from banned user is hidden
     with references_session(token1) as api:
@@ -418,7 +418,7 @@ def test_ListReference_banned_deleted_users(db):
 
     # delete user3
     with session_scope() as session:
-        session.execute(update(User).where(User.username == user3.username).values(is_deleted=True))
+        session.execute(update(User).where(User.username == user3.username).values(deleted_at=func.now()))
 
     # doesn't change; references to and from deleted users remain
     with references_session(token1) as api:

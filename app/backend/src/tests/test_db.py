@@ -249,7 +249,7 @@ def test_database_consistency_check(db, testconfig: dict[str, Any]) -> None:
 
     # Now break consistency by removing a user's profile gallery
     with session_scope() as session:
-        user = session.execute(select(User).where(User.is_deleted == False).limit(1)).scalar_one()
+        user = session.execute(select(User).where(User.deleted_at.is_(None)).limit(1)).scalar_one()
         user.profile_gallery_id = None
 
     # This should now raise an exception

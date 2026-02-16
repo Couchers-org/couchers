@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any, cast
 
-from sqlalchemy import Connection, Engine, create_engine, or_, select, text, update
+from sqlalchemy import Connection, Engine, create_engine, func, or_, select, text, update
 from sqlalchemy.orm import Session
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
@@ -247,7 +247,7 @@ def generate_user(
 
         # deleted user aborts session creation, hence this follows and necessitates a second commit
         if delete_user:
-            user.is_deleted = True
+            user.deleted_at = now()
 
         user.recommendation_score = 1e10 - user.id
 
@@ -350,7 +350,7 @@ def make_user_block(user1: User, user2: User) -> None:
 
 def make_user_invisible(user_id: int) -> None:
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user_id).values(is_banned=True))
+        session.execute(update(User).where(User.id == user_id).values(banned_at=func.now()))
 
 
 # This doubles as get_FriendRequest, since a friend request is just a pending friend relationship
