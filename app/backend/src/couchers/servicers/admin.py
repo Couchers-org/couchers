@@ -1,7 +1,6 @@
 import logging
 from datetime import timedelta
 
-from app.backend.src.proto import notifications_pb2
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
@@ -9,6 +8,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
 
+from app.backend.src.proto import notifications_pb2
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.crypto import urlsafe_secure_token
@@ -49,8 +49,8 @@ from couchers.resources import get_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
 from couchers.servicers.events import generate_event_delete_notifications
-from couchers.servicers.threads import unpack_thread_id
 from couchers.servicers.notifications import Notification
+from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import to_bool, username_or_email_or_id
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
 
