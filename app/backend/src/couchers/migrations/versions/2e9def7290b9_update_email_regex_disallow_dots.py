@@ -16,7 +16,7 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.drop_constraint("valid_email", "users")
+    op.drop_constraint("ck_users_valid_email", "users")
     op.create_check_constraint(
         "valid_email",
         "users",
