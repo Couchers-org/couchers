@@ -272,17 +272,17 @@ export default function MarkdownPage({
           </Typography>
         )}
         {frontmatter.is_blog_post && !frontmatter.has_custom_cta && (
-            <Typography
-              variant="body1"
-              sx={{ fontWeight: "bold", marginTop: theme.spacing(3) }}
-            >
-              {"Want to help write our blog or volunteer? "}
-              <Link href="/volunteer">Sign up</Link>
-              {" and let us know. Volunteers and "}
-              <Link href="/donate">donations</Link>
-              {" are what make Couchers.org possible!"}
-            </Typography>
-          )}
+          <Typography
+            variant="body1"
+            sx={{ fontWeight: "bold", marginTop: theme.spacing(3) }}
+          >
+            {"Want to help write our blog or volunteer? "}
+            <Link href="/volunteer">Sign up</Link>
+            {" and let us know. Volunteers and "}
+            <Link href="/donate">donations</Link>
+            {" are what make Couchers.org possible!"}
+          </Typography>
+        )}
         {bustitle && (
           <StyledBusTitle component="h2">
             <div dangerouslySetInnerHTML={{ __html: bustitle }}></div>
