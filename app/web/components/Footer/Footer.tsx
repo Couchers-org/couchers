@@ -102,23 +102,30 @@ const StyledMiddleContainer = styled("div")(({ theme }) => ({
 const StyledLowerOuterContainer = styled("div")(({ theme }) => ({
   paddingBlockStart: theme.spacing(2),
   paddingBlockEnd: theme.spacing(2),
+  backgroundColor: "var(--mui-palette-primary-main)",
+  color: "var(--mui-palette-primary-contrastText)",
 }));
 
 const StyledLowerContainer = styled("div")(({ theme }) => ({
   display: "flex",
-  flexWrap: "wrap",
+  flexDirection: "column",
+  alignItems: "center",
   margin: "0 auto",
-  justifyContent: "center",
   maxWidth: theme.breakpoints.values.md,
   paddingInlineStart: theme.spacing(4),
   paddingInlineEnd: theme.spacing(4),
 
-  "& > * + *": {
-    marginInlineStart: theme.spacing(2),
-  },
-  "& > * + *::before": {
-    content: "'|'",
-    marginInlineEnd: theme.spacing(2),
+  [theme.breakpoints.up("sm")]: {
+    flexDirection: "row",
+    justifyContent: "center",
+
+    "& > * + *": {
+      marginInlineStart: theme.spacing(2),
+    },
+    "& > * + *::before": {
+      content: "'|'",
+      marginInlineEnd: theme.spacing(2),
+    },
   },
 }));
 
@@ -150,6 +157,7 @@ const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
 
 const VersionLink = styled(Link)(({ theme }) => ({
   fontWeight: 700,
+  color: "inherit",
 }));
 
 export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
