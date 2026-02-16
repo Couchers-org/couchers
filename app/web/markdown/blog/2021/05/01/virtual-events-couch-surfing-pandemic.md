@@ -44,4 +44,3 @@ For the past 15 years, making friends on Couchsurfing&#8482; has mainly been an 
 Imagine in the future, if instead of waiting to get a feel for the local community you’re planning to visit, you could join that community’s regular virtual event and chat with people—some of whom could even be your future hosts—before you even decide your next destination. Imagine joining a couple weeks in a row to ask questions about what to see and do when you get there. How amazing would it be to get inside info on how to make the most of your experience, or better yet, make friends before you even arrive?
 
 I never thought I’d make such an incredible set of friends all over the world last year, but I did. And the only drawback about being in New Zealand the whole time ended up being the fact that I had to wake up two hours early on Mondays for a while!
-

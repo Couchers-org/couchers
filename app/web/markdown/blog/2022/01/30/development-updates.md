@@ -39,4 +39,3 @@ None of this would be possible without our 120+ volunteers working in all areas 
 ## Join the development team
 
 You can join our development team on GitHub at [Couchers-org/couchers](https://github.com/couchers-org/couchers); or if you don't have time right now, give us a star to show your support! We work in the open and need as much help as we can get to build the next generation couch surfing platform!
-

@@ -41,4 +41,3 @@ Nu putem garanta pentru cât timp te vor găzdui oamenii. Unii vor putea pentru 
 Pentru orice fel de problemă, te rugăm să contactezi [support@couchers.org](mailto:support@couchers.org)
 
 Vă urăm toate cele bune și sperăm să fiți în siguranță. Vă rugăm să țineți minte că există oameni care vor să vă ajute.
-

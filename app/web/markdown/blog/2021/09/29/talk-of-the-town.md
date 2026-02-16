@@ -82,4 +82,3 @@ There has also been a continuation of the discussions on[ forum improvements](ht
 **Did we miss an important contribution you made to the forum between September 15th and 19th? Feel free to privately message [marlies](https://community.couchers.org/u/marlies) on the forum.**
 
 _Marlies is a Global Health masters student from Australia, currently living, studying and working in Denmark. She has surfed all over Europe, Latin America and Asia and is currently hosting in the reconverted church where she lives in Copenhagen._
-

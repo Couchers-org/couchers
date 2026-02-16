@@ -41,4 +41,3 @@ Arra sajnos nem tudunk garanciát vállalni, hogy mennyi időre juthatsz így sz
 Ha elakadnál, kérjük írj nekünk erre a címre: [support@couchers.org](mailto:support@couchers.org)
 
 Minden jót kívánunk; reméljük, hogy biztonságban vagy és leszel. Tudd, hogy sokan vannak, akik segíteni szeretnének neked.
-

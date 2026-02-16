@@ -167,4 +167,3 @@ In 2025, together, we achieved so much! Some highlights include:
 Every achievement last year was made possible by the enthusiasm and generosity of our incredible volunteers and Couchers members. Our community has become more active and supportive, and the progress we’ve made is something we can all be proud of.
 
 We’ve built up so much momentum and excitement this year, and the future is brighter than ever. Thank you for being part of Couchers.
-

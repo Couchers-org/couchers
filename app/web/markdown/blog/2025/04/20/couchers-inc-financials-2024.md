@@ -50,4 +50,3 @@ We are currently working on Couchers.org branded merchandise (hoodies, t-shirts,
 **The Board has set a fundraising goal of $5000 for 2025.** In addition to fully covering the current basic expenses, we hope that this gives us some financial resilience going forward, as well as giving us flexibility in deploying cash for initiatives like supporting local communities and volunteering.
 
 We hope this quick analysis helps you understand our financial situation, and in particular, that it may encourage you to donate to support the running costs of Couchers. This analysis was based on exports from our bank account and from Stripe which processes our donations, so some minor discrepancies may exist between rigorous accounting.
-

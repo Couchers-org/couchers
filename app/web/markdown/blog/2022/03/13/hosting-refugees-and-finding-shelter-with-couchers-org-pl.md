@@ -41,4 +41,3 @@ Nie możemy zagwarantować, jak długi pobyt będzie możliwy. Niektórzy będą
 W razie jakichkolwiek problemów prosimy o kontakt na adres [support@couchers.org](mailto:support@couchers.org)
 
 Życzymy Wam wszystkiego najlepszego i mamy nadzieję, że jesteście bezpieczni. Pamiętajcie, że są ludzie, którzy chcą Wam pomóc.
-

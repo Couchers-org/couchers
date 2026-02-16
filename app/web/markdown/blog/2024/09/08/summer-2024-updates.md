@@ -93,4 +93,3 @@ In particular, we are currently looking for the volunteers with the following sk
 * Mobile app software engineers: we are building the mobile app in React Native (expo), and are looking for some folks to help with that undertaking
 * Backend software engineers: with Python experience (also SQL Alchemy, Postgres/PostGIS, protobuf/grpc)
 * Frontend software engineers: with React experience (also TypeScript, Material UI, React Query, etc)
-

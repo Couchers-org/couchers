@@ -85,4 +85,3 @@ Link: <https://couchers.org/town-hall>
 Present: Aapeli, Gus, Itsi, Jesse, Lost Boy, Lucas, Marta, Natalia, Nolo, Polina, Poovan.
 
 If you have questions or feedback please join us on the [discussion forum](https://community.couchers.org/) or join the next [Open Town Hall](https://community.couchers.org/t/open-town-hall/1291) on the 25th of July, 14:00 UTC!
-

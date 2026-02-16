@@ -116,4 +116,3 @@ _______________________________________________
 **Did we miss an important contribution you made to the forum between August 11th and 25th? Feel free to privately message [nspark](https://community.couchers.org/u/n.spark) on the forum.**
 
 _Natalia is a chemistry PhD student from Greece, living in the USA since 2012 and hoping to move to Europe soon. She has hosted many surfers in Madison, WI with her partner, and helped organize Couch Crashes in the area, where couch surfing enthusiasts from all over the world gather in each other's company to explore a city together._
-

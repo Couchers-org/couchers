@@ -67,4 +67,3 @@ Thank you for supporting Couchers - whether by hosting, volunteering, donating, 
 
 Together, we’re building a better hospitality platform for the world.
 Happy Merch Drop!
-

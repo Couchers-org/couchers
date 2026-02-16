@@ -199,4 +199,3 @@ Want to help us make Couchers thrive? We especially need:
 * **Community Builders**: Help us get a Couchers community thriving in your city!
 
 [Interested? Apply here!](/volunteer/form)
-

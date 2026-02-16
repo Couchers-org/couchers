@@ -44,4 +44,3 @@ We cannot guarantee how long people will house you for. Some may be able to for 
 If you have any issues please contact [support@couchers.org](mailto:support@couchers.org).
 
 We wish you the best and hope for your safety. Please know there are people out there who want to help you.
-

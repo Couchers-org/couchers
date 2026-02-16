@@ -26,4 +26,3 @@ The couch surfing movement was built on trust and human decency, and will contin
 An informal poll of some Couchers.org members in different places around the world revealed that most are looking forward to traveling and hosting in the near future. Some are already getting back out there, and many have already begun hosting couch surfers or are open to requests from others.
 
 One thing is for sure: if we are lucky enough to experience couch surfing connections, we are going to have some epic stories to share with our fellow couch surfers and hosts about what we did during the “dark” times.
-

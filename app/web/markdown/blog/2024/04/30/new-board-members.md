@@ -100,4 +100,3 @@ The role of Board of Directors of the non-profit is to supervise and guide the r
 The outgoing Board voted to accept new bylaws. The new bylaws ratify a decision of the Board from April 2022 that allows the founders of the project (Aapeli and Itsi) to remain on the Board until they choose to resign. This allows the founders to protect the original ideas and maintain the long-term vision laid out by them. The new bylaws also include a proviso that if the Board has five or fewer members, or if quorum is established with five or fewer members, Itsi yields his vote to Aapeli.
 
 The full bylaws are available [here](/foundation/bylaws.pdf), and you can find more information about Couchers, Inc. [here](/foundation).
-

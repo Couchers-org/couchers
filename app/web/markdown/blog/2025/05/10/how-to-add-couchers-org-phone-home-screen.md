@@ -46,4 +46,3 @@ Don't worry, we're also **building an official app for Android and iOS**—and w
 Stay connected, stay inspired, and keep surfing the world—wherever you go! 💙
 
 <a href="https://www.instagram.com/couchersorg/#" target="_blank"><img src="/img/blog/instagram_logo.svg" alt="IG" style="width:26px !important;" /></a> <a href="https://bsky.app/profile/couchers.bsky.social/" target="_blank"><img src="/img/blog/bluesky_logo.svg" alt="bsky" style="width:26px !important;" /></a>
-

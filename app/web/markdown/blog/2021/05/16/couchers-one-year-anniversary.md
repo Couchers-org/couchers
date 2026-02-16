@@ -43,4 +43,3 @@ This next year is all about growth. In this next stage, we will focus on recruit
 Finally, a heartfelt thank you for the contributions of our entire volunteer team, who are at the heart of Couchers.org. Their tireless efforts are turning this vision into a reality. We know we’re attempting something radical here: taking back a corporatized construct and returning couch surfing to the hands of its users. We believe in the life-changing nature of travel and couch surfing and hospitality exchange, and believe it should be accessible to all. We’re excited and passionate about the future of this movement we’ve started.
 
 If you’re also excited about where this is headed and passionate about this mission—[join us](https://couchers.org/signup).
-

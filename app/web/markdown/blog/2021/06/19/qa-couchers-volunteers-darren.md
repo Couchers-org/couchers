@@ -38,4 +38,3 @@ Our code is so new and it really feels like the cutting edge. Our development is
 
 ### How are you ensuring the same won’t happen to Couchers.org? Will it be hard to keep up to date?
 **Darren**: I’ve learned from my job the importance of updating the frameworks used in an app in smaller chunks regularly rather than waiting to update something that’s already three or four versions behind. Otherwise, you face the situation where the older version of the framework becomes unmaintained,it becomes an emergency to fix the codebase, and the project will be full of security vulnerabilities. I've set up a bot to check for updates weekly to make sure that scenario will never happen at Couchers.org.
-

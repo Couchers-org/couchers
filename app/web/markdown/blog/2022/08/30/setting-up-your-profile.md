@@ -50,4 +50,3 @@ Hopefully you’ll find these suggestions helpful as you begin the amazing journ
 ## Any more questions?
 
 Head on over to the [Couchers.org forum](https://community.couchers.org) and ask! The couch surfing community is one of the most friendly and open there is, and people will be more than happy to answer any questions you may have!
-

@@ -40,4 +40,3 @@ Staying with hospitable strangers and hosting travelers can form lasting relatio
 ## Any more questions?
 
 Head on over to the [Couchers.org forum](https://community.couchers.org) and ask! The couch surfing community is one of the most friendly and open there is, and people will be more than happy to answer any questions you may have!
-

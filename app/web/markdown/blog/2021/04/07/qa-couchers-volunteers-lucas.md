@@ -48,4 +48,3 @@ We’re listening to the community, we have almost 100 people working on it, and
 **Lucas**: I just want to see it up and running and get back to couch surfing. There are so many good memories from couch surfing that we’ve all had and being able to experience that again will be very nice, I think.
 
 Aside from the paywall and the consequences of that, many people had lots of complaints with Couchsurfing&#8482;... but I didn’t actually! I thought the app and service was great. I wasn’t there in the really good old days of 2008-2012, but I started in 2014-2015, so it hadn’t descended into a pit of doom just yet. I still had so much fun and met so many great people.
-

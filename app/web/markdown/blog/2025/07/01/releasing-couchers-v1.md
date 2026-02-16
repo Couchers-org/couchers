@@ -168,4 +168,3 @@ Follow us on the socials, and like+share religiously 🙏
 ### Donate
 
 We have set a fundraising goal of raising $5000 this year. Help us reach this goal and keep the servers running by [donating to our non-profit](https://couchers.org/donate). You'll also get a fun badge!
-

@@ -156,4 +156,3 @@ Read about how/if one’s Couchers.org profile can[ link to other social media](
 **Did we miss an important recent contribution you made to the forum between July 1st and 14th? Feel free to privately message [n.spark](https://community.couchers.org/u/n.spark) on the forum.**
 
 _Natalia is a chemistry PhD student from Greece, living in the USA since 2012 and hoping to move to Europe soon. She has hosted many surfers in Madison, WI with her partner, and helped organize Couch Crashes in the area, where couch surfing enthusiasts from all over the world gather in each other's company to explore a city together._
-

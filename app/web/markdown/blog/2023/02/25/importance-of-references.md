@@ -63,4 +63,3 @@ Here are some ideas on what to include in your reference:
 * Their home was clean/they were polite to guests
 * Anything else that you liked about them
 * Would you recommend them as a host/guest?
-
