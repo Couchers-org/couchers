@@ -1822,12 +1822,15 @@ def test_ListMyEvents(db, moderator: Moderator):
     user5, token5 = generate_user()
 
     with session_scope() as session:
-        # Create global community first (node_id=1), then a child community (node_id=2)
-        # This allows testing my_communities_exclude_global
+        # Create global (world) -> region -> subregion hierarchy
+        # my_communities_exclude_global filters out world and region level communities
         global_community = create_community(session, 0, 100, "Global", [user3], [], None)
         c_id = global_community.id
-        child_community = create_community(session, 0, 50, "Child Community", [user3, user4], [], global_community)
-        c2_id = child_community.id
+        region_community = create_community(session, 0, 50, "Region Community", [user3, user4], [], global_community)
+        subregion_community = create_community(
+            session, 0, 25, "Subregion Community", [user3, user4], [], region_community
+        )
+        c2_id = subregion_community.id
 
     start = now()
 
@@ -2390,7 +2393,8 @@ def test_community_invite_requests(db, moderator: Moderator):
 
     with session_scope() as session:
         w = create_community(session, 0, 2, "World Community", [user5], [], None)
-        c_id = create_community(session, 0, 2, "Community", [user1, user3, user4], [], w).id
+        r = create_community(session, 0, 2, "Region", [user5], [], w)
+        c_id = create_community(session, 0, 2, "Community", [user1, user3, user4], [], r).id
 
     enforce_community_memberships()
 
@@ -2771,10 +2775,11 @@ def test_event_create_notification_deferred_until_approval(db, push_collector: P
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    # Need parent+child so child community's node_id > GLOBAL_COMMUNITY_MAX_NODE_ID (1)
+    # Need world -> region -> subregion so the subregion community gets notifications
     with session_scope() as session:
-        parent = create_community(session, 0, 10, "Parent", [user1], [], None)
-        create_community(session, 0, 2, "Child", [user2], [], parent)
+        world = create_community(session, 0, 10, "World", [user1], [], None)
+        region = create_community(session, 0, 5, "Region", [user1], [], world)
+        create_community(session, 0, 2, "Child", [user2], [], region)
 
     start_time = now() + timedelta(hours=2)
     end_time = start_time + timedelta(hours=3)

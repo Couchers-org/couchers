@@ -84,11 +84,6 @@ EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)
 
 COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
 
-# Maximum node ID considered a "global" community (excluded from some notifications and event filters)
-# Node IDs <= this value are treated as too large for email notifications, etc.
-# Currently this is just the Global Community (node_id=1)
-GLOBAL_COMMUNITY_MAX_NODE_ID = 1
-
 UNKNOWN_ERROR_MESSAGE = "An unknown backend error occurred. Please consider filing a bug!"
 
 # NOTE: these codes are on purpose not translatable
