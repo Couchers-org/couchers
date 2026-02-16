@@ -182,7 +182,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             statement = (
                 statement.join(to_users, Reference.to_user_id == to_users.id)
                 .where(
-                    ~to_users.is_banned
+                    to_users.banned_at.is_(None)
                 )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
                 .where(Reference.from_user_id == request.from_user_id)
             )
@@ -191,7 +191,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             statement = (
                 statement.join(from_users, Reference.from_user_id == from_users.id)
                 .where(
-                    ~from_users.is_banned
+                    from_users.banned_at.is_(None)
                 )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
                 .where(Reference.to_user_id == request.to_user_id)
             )
