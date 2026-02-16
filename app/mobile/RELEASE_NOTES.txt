@@ -1,2 +1,3 @@
-- Fix dark mode flash on Android when using bottom navigation
-- Fix issue preventing proper top navigation on Android
+- Fix native app detection on Samsung devices
+- Add bottom navigation bar for mobile browser view
+- Hide donation CTAs in native app (menu, banner, footer)

@@ -41,6 +41,7 @@ import {
   tosRoute,
   volunteerRoute,
 } from "routes";
+import { useIsNativeEmbed } from "utils/nativeLink";
 import { timeAgoI18n } from "utils/timeAgo";
 
 const StyledFooter = styled("footer")<{ bottomMargin?: string }>(
@@ -161,6 +162,7 @@ const VersionLink = styled(Link)(({ theme }) => ({
 
 export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
   const { t } = useTranslation(GLOBAL);
+  const isNativeEmbed = useIsNativeEmbed();
 
   const version_text = process.env.NEXT_PUBLIC_DISPLAY_VERSION || "dev";
   const version_link = roadmapRoute;
@@ -214,13 +216,15 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <ReportButton isMenuLink />
           </div>
           <StyledButtonContainer>
-            <StyledButton
-              component={Link}
-              href={donationsRoute}
-              variant="contained"
-            >
-              {t("nav.donate")}
-            </StyledButton>
+            {!isNativeEmbed && (
+              <StyledButton
+                component={Link}
+                href={donationsRoute}
+                variant="contained"
+              >
+                {t("nav.donate")}
+              </StyledButton>
+            )}
             <StyledButton
               component={Link}
               href={volunteerRoute}

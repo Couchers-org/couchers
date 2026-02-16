@@ -35,6 +35,7 @@ export { default as ExtremelySatisfiedIcon } from "@mui/icons-material/Sentiment
 export { default as FlagIcon } from "@mui/icons-material/Flag";
 export { default as GlobeIcon } from "@mui/icons-material/Language";
 export { default as HelpIcon } from "@mui/icons-material/Help";
+export { default as HomeIcon } from "@mui/icons-material/HomeOutlined";
 export { default as InfoIcon } from "@mui/icons-material/InfoOutlined";
 export { default as LinkedInIcon } from "@mui/icons-material/LinkedIn";
 export { default as LocationIcon } from "@mui/icons-material/LocationOnOutlined";
