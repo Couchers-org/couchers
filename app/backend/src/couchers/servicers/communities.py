@@ -22,6 +22,7 @@ from couchers.models import (
     Event,
     EventOccurrence,
     Node,
+    NodeType,
     Page,
     PageType,
     User,
@@ -37,6 +38,14 @@ from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_
 logger = logging.getLogger(__name__)
 
 MAX_PAGINATION_LENGTH = 25
+
+nodetype2api = {
+    NodeType.world: communities_pb2.NODE_TYPE_WORLD,
+    NodeType.region: communities_pb2.NODE_TYPE_REGION,
+    NodeType.subregion: communities_pb2.NODE_TYPE_SUBREGION,
+    NodeType.locality: communities_pb2.NODE_TYPE_LOCALITY,
+    NodeType.sublocality: communities_pb2.NODE_TYPE_SUBLOCALITY,
+}
 
 
 def _parents_to_pb(session: Session, node_id: int) -> list[groups_pb2.Parent]:
@@ -113,6 +122,7 @@ def communities_to_pb(
             can_moderate=can_moderate,
             discussions_enabled=official_cluster.discussions_enabled,
             events_enabled=official_cluster.events_enabled,
+            node_type=nodetype2api[node.node_type],
         )
         for node, official_cluster, can_moderate in zip(nodes, official_clusters, can_moderates)
     ]
@@ -563,6 +573,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                     member_count=member_count or 1,
                     parents=_parents_to_pb(session, node.id),
                     created=Timestamp_from_datetime(node.created),
+                    node_type=nodetype2api[node.node_type],
                 )
                 for node, cluster, member_count, user_subscription in results
             ],

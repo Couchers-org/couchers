@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.db import is_user_in_node_geography, session_scope
+from couchers.helpers.clusters import CHILD_NODE_TYPE
 from couchers.materialized_views import refresh_materialized_views
 from couchers.models import (
     Cluster,
@@ -66,9 +67,11 @@ def create_community(
     extra_members: list[User],
     parent: Node | None,
 ) -> Node:
+    node_type = CHILD_NODE_TYPE[parent.node_type if parent else None]
     node = Node(
         geom=to_multi(create_1d_polygon(interval_lb, interval_ub)),
         parent_node_id=parent.id if parent else None,
+        node_type=node_type,
     )
     session.add(node)
     session.flush()
