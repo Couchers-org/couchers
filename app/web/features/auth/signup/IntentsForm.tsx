@@ -1,4 +1,10 @@
-import { Box, Checkbox, FormControlLabel, styled, Typography } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  FormControlLabel,
+  styled,
+  Typography,
+} from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import { useAuthContext } from "features/auth/AuthProvider";

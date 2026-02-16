@@ -124,10 +124,7 @@ export async function signupFlowEmailToken(emailToken: string) {
   return res.toObject();
 }
 
-export async function signupFlowIntents(
-  flowToken: string,
-  intents: string[],
-) {
+export async function signupFlowIntents(flowToken: string, intents: string[]) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
   const signupIntents = new SignupIntents();
