@@ -334,6 +334,7 @@ export default function TranslationProgress() {
                         color={
                           percent < HIDDEN_CUTOFF ? "text.secondary" : "primary"
                         }
+                        sx={{ minWidth: 80, textAlign: "right" }}
                       >
                         {percent.toFixed(1)}%
                       </Typography>
