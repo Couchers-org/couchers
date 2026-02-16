@@ -179,6 +179,7 @@ def upgrade():
     op.execute("CREATE UNIQUE INDEX uq_lite_users_username ON lite_users(username)")
     op.execute("CREATE INDEX ix_lite_users_id_visible ON lite_users USING hash (id) WHERE is_visible")
     op.execute("CREATE INDEX ix_lite_users_username_visible ON lite_users USING hash (username) WHERE is_visible")
+    op.execute("CREATE INDEX idx_lite_users_geom ON lite_users USING gist (geom)")
 
 
 def downgrade():
@@ -350,3 +351,4 @@ def downgrade():
     op.execute("CREATE UNIQUE INDEX uq_lite_users_username ON lite_users(username)")
     op.execute("CREATE INDEX ix_lite_users_id_visible ON lite_users USING hash (id) WHERE is_visible")
     op.execute("CREATE INDEX ix_lite_users_username_visible ON lite_users USING hash (username) WHERE is_visible")
+    op.execute("CREATE INDEX idx_lite_users_geom ON lite_users USING gist (geom)")
