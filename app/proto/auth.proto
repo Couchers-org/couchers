@@ -171,20 +171,12 @@ message SignupAccount {
   bool opt_out_of_newsletter = 11;
 }
 
-// What the user is looking to do on Couchers
-enum SignupIntent {
-  SIGNUP_INTENT_UNSPECIFIED = 0;
-  SIGNUP_INTENT_HOST = 1;      // Wants to host travelers
-  SIGNUP_INTENT_SURF = 2;      // Wants to find places to stay
-  SIGNUP_INTENT_COMMUNITY_EVENTS = 3;  // Wants to attend community events
-}
-
 // Information about how the user heard about Couchers and what they want to do
 message SignupIntents {
   // How they heard about Couchers (free text, e.g., "friend", "social_media", "former_cs_member", "other")
   string heard_about_couchers = 1;
-  // What they're looking to do - can select multiple
-  repeated SignupIntent intents = 2;
+  // What they're looking to do - can select multiple (e.g., "surfing", "hosting", "events", "community_organizing", "something_else")
+  repeated string intents = 2;
 }
 
 message UsernameValidReq {

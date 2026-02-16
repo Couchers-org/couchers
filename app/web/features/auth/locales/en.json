@@ -125,6 +125,19 @@
       "required_error": "All checkboxes are required"
     }
   },
+  "intents_form": {
+    "header": "What brings you to Couchers?",
+    "surfing": "Surfing",
+    "surfing_description": "I'm planning a trip and looking for a host to stay with",
+    "hosting": "Hosting",
+    "hosting_description": "I'd like to host and welcome surfers in my city",
+    "events": "Events",
+    "events_description": "I'd like to join events and meet the community",
+    "community_organizing": "Community organizing",
+    "community_organizing_description": "I'd like to organize community events and activities on the platform",
+    "something_else": "Something else",
+    "something_else_description": "I'm just looking around or haven't made up my mind yet"
+  },
   "jail": {
     "title": "More information required",
     "description": "Please check the following in order to continue.",

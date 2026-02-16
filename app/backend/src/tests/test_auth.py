@@ -1270,11 +1270,7 @@ def test_signup_with_intents(db):
                 ),
                 intents=auth_pb2.SignupIntents(
                     heard_about_couchers="friend",
-                    intents=[
-                        auth_pb2.SIGNUP_INTENT_HOST,
-                        auth_pb2.SIGNUP_INTENT_SURF,
-                        auth_pb2.SIGNUP_INTENT_COMMUNITY_EVENTS,
-                    ],
+                    intents=["hosting", "surfing", "events"],
                 ),
                 accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
             )
@@ -1289,7 +1285,7 @@ def test_signup_with_intents(db):
     with session_scope() as session:
         flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
         assert flow.heard_about_couchers == "friend"
-        assert set(flow.signup_intents) == {"host", "surf", "community_events"}
+        assert set(flow.signup_intents) == {"hosting", "surfing", "events"}
         email_token = flow.email_token
 
     # Complete signup by verifying email
@@ -1303,7 +1299,7 @@ def test_signup_with_intents(db):
     with session_scope() as session:
         user = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert user.heard_about_couchers == "friend"
-        assert set(user.signup_intents) == {"host", "surf", "community_events"}
+        assert set(user.signup_intents) == {"hosting", "surfing", "events"}
 
 
 def test_signup_intents_incremental(db):
@@ -1330,7 +1326,7 @@ def test_signup_intents_incremental(db):
                 flow_token=flow_token,
                 intents=auth_pb2.SignupIntents(
                     heard_about_couchers="social_media",
-                    intents=[auth_pb2.SIGNUP_INTENT_SURF],
+                    intents=["surfing"],
                 ),
             )
         )
@@ -1343,7 +1339,7 @@ def test_signup_intents_incremental(db):
     with session_scope() as session:
         flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
         assert flow.heard_about_couchers == "social_media"
-        assert flow.signup_intents == ["surf"]
+        assert flow.signup_intents == ["surfing"]
 
 
 def test_signup_intents_cannot_be_refilled(db):
@@ -1356,7 +1352,7 @@ def test_signup_intents_cannot_be_refilled(db):
                 basic=auth_pb2.SignupBasic(name="testing", email="email3@couchers.org.invalid"),
                 intents=auth_pb2.SignupIntents(
                     heard_about_couchers="friend",
-                    intents=[auth_pb2.SIGNUP_INTENT_HOST],
+                    intents=["hosting"],
                 ),
             )
         )
@@ -1371,7 +1367,7 @@ def test_signup_intents_cannot_be_refilled(db):
                     flow_token=flow_token,
                     intents=auth_pb2.SignupIntents(
                         heard_about_couchers="different_source",
-                        intents=[auth_pb2.SIGNUP_INTENT_SURF],
+                        intents=["surfing"],
                     ),
                 )
             )
@@ -1434,11 +1430,7 @@ def test_signup_intents_all_options(db):
                 basic=auth_pb2.SignupBasic(name="testing", email="email5@couchers.org.invalid"),
                 intents=auth_pb2.SignupIntents(
                     heard_about_couchers="other",
-                    intents=[
-                        auth_pb2.SIGNUP_INTENT_HOST,
-                        auth_pb2.SIGNUP_INTENT_SURF,
-                        auth_pb2.SIGNUP_INTENT_COMMUNITY_EVENTS,
-                    ],
+                    intents=["hosting", "surfing", "events"],
                 ),
             )
         )
@@ -1448,7 +1440,7 @@ def test_signup_intents_all_options(db):
     with session_scope() as session:
         flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
         assert flow.heard_about_couchers == "other"
-        assert set(flow.signup_intents) == {"host", "surf", "community_events"}
+        assert set(flow.signup_intents) == {"hosting", "surfing", "events"}
 
 
 def test_signup_intents_empty_intents_list(db):
