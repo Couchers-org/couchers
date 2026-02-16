@@ -40,7 +40,7 @@ You can donate to Couchers via the [donation page](/donate) when logged in.
 
 ## Account balance
 
-We started the year with **$574.67** in the bank account and ended it with **$4810.04**, with donations covering over 200% of our operating expenses.
+We started the year with **$574.67** in the bank account and ended it with **$4810.04**, with donations covering all of our operating expenses: a major step towards financial sustainability.
 
 ## Outlook for 2026
 
