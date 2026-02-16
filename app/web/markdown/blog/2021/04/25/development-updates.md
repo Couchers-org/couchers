@@ -46,4 +46,3 @@ In the past month, 22 developers collaborated on building Couchers.org through o
 
 None of this would be possible without our 100+ volunteers working in all areas of the project. The development teams would like to thank the rest of the core contributors for making our work possible.
 
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

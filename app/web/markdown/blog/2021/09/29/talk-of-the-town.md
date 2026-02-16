@@ -82,4 +82,3 @@ There has also been a continuation of the discussions on[ forum improvements](ht
 
 _Marlies is a Global Health masters student from Australia, currently living, studying and working in Denmark. She has surfed all over Europe, Latin America and Asia and is currently hosting in the reconverted church where she lives in Copenhagen._
 
-**Want to submit to our blog? [Sign up](/volunteer/) and let us know.**

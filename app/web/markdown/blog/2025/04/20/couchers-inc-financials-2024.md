@@ -50,4 +50,3 @@ We are currently working on Couchers.org branded merchandise (hoodies, t-shirts,
 
 We hope this quick analysis helps you understand our financial situation, and in particular, that it may encourage you to donate to support the running costs of Couchers. This analysis was based on exports from our bank account and from Stripe which processes our donations, so some minor discrepancies may exist between rigorous accounting.
 
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

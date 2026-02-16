@@ -63,4 +63,3 @@ Here are some ideas on what to include in your reference:
 * Anything else that you liked about them
 * Would you recommend them as a host/guest?
 
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

@@ -5,6 +5,7 @@ description: "We've been busy! More about our donation drive results, dark mode,
 date: 2026/02/05
 author: Nicole
 author_username: unsettleddown
+has_custom_cta: true
 ---
 
 We’ve been working hard behind the scenes and have some exciting updates to share! In this post, we’ll reveal the results of our end-of-year donation drive, highlight the major features completed over the last three months, and provide an update on our mobile app progress (spoiler: we're looking for Beta testers).

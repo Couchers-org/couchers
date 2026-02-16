@@ -104,4 +104,3 @@ So to summarize: in this new phase of the project, we have made changes to our g
 
 I hope that this blog post has been an interesting read! One reason for writing this post was to help you understand why there has been a lull in development, and to explain what we are doing to remedy this situation and stop it from happening in the future. So I hope this post has given you a better understanding on where the project is, and where we are heading into.
 
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

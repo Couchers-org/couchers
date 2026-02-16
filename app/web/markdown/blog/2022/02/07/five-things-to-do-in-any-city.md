@@ -31,4 +31,3 @@ Last but not least is finding local entertainment. Find out what the best live m
 
 _Anna is a graduate MA student from Russia, living in China since 2016. She has been an active member of Couchsurfing, hosting people at her house in Russia and China as well as being hosted by locals in South East Asia, making friends along the way. She is keenly interested in international community and is eager to give her best to make this world a better place for all of humanity and beyond._
 
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

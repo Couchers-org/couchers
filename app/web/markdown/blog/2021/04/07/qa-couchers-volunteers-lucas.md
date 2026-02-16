@@ -48,4 +48,3 @@ We’re listening to the community, we have almost 100 people working on it, and
 
 Aside from the paywall and the consequences of that, many people had lots of complaints with Couchsurfing&#8482;... but I didn’t actually! I thought the app and service was great. I wasn’t there in the really good old days of 2008-2012, but I started in 2014-2015, so it hadn’t descended into a pit of doom just yet. I still had so much fun and met so many great people.
 
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

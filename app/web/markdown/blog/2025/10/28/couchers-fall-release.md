@@ -5,6 +5,7 @@ description: "We've released a number of new features, and fixed many bugs. We d
 date: 2025/10/28
 author: Nicole
 author_username: unsettleddown
+has_custom_cta: true
 ---
 
 *Quick summary: we've released a number of new features, and fixed many bugs. We discuss more of what's next. We also moved to roughly a quarterly release schedule, which helps us keep on track better with smaller releases.*

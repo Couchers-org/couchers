@@ -36,4 +36,3 @@ On top of this, those who contribute the most—volunteers, organizers, communit
 
 Although [Couchers.org](/) is new, the idea behind it—and the extremely talented people supporting the project—share an early belief: the community that has emerged from Couchsurfing&#8482; can build a better platform than the one we have now. If you are a part of the couch surfing community, and you care about its future, you belong here and we can’t wait to have you with us.
 
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

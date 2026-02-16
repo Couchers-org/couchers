@@ -41,4 +41,3 @@ That’s the fun thing about being in the team: if I were by myself, my idea wou
 
 **Miuriel**: I hope it will be vibrant and alive, and people really use it for what we’re making it for. My vision is that we can achieve building something for the community that we know is out there. I would love to see it evolving and getting to a point where we have so many new challenges to work out. If the vibe we have now continues into the app and is present in the community that uses it, it will be a beautiful, positive thing.
 
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

@@ -100,4 +100,3 @@ The outgoing Board voted to accept new bylaws. The new bylaws ratify a decision 
 
 The full bylaws are available [here](/foundation/bylaws.pdf), and you can find more information about Couchers, Inc. [here](/foundation).
 
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

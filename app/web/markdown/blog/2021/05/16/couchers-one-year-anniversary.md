@@ -43,4 +43,3 @@ Finally, a heartfelt thank you for the contributions of our entire volunteer tea
 
 If you’re also excited about where this is headed and passionate about this mission—[join us](https://couchers.org/signup).
 
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

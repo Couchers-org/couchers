@@ -26,4 +26,3 @@ An informal poll of some Couchers.org members in different places around the wor
 
 One thing is for sure: if we are lucky enough to experience couch surfing connections, we are going to have some epic stories to share with our fellow couch surfers and hosts about what we did during the “dark” times.
 
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

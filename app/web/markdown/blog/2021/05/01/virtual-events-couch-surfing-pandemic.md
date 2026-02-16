@@ -44,4 +44,3 @@ Imagine in the future, if instead of waiting to get a feel for the local communi
 
 I never thought I’d make such an incredible set of friends all over the world last year, but I did. And the only drawback about being in New Zealand the whole time ended up being the fact that I had to wake up two hours early on Mondays for a while!
 
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

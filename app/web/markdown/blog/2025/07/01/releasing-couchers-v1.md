@@ -5,6 +5,7 @@ description: "We are out of Beta and in v1: we're releasing a new strategy aroun
 date: 2025/07/01
 author: Aapeli
 author_username: aapeli
+has_custom_cta: true
 ---
 
 *Quick summary: we are out of Beta and into version 1, we're releasing a new strategy around safe & active community instead of bashing our competitors, a fancy redesigned landing page, and a bunch of new features to make core couch surfing functionality better! Share the platform with your friends and let's grow the community together!*
