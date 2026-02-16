@@ -1,5 +1,6 @@
 ---
 title: "Five advantages of couch surfing and how to get the most out of it"
+description: "Some great reasons you should start couch surfing! And some advice to have the best time doing it."
 date: 2022/01/26
 author: Anna
 share_image: https://couchers.org/img/share.jpg
