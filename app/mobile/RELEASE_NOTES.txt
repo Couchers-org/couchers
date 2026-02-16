@@ -1,4 +1,3 @@
-- Fix dark mode white flash when navigating between tabs on Android
 - Fix native app detection on Samsung devices
 - Add bottom navigation bar for mobile browser view
 - Hide donation CTAs in native app (menu, banner, footer)
