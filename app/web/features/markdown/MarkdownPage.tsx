@@ -7,6 +7,7 @@ import {
   TypographyProps,
 } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
+import { Trans, useTranslation } from "i18n";
 import markdown from "markdown-it";
 import { theme } from "theme";
 
@@ -137,6 +138,33 @@ const StyledTitle = styled(Typography)(({ theme }) => ({
   lineHeight: "1.125",
 }));
 
+function AuthorList({
+  author,
+  authorUsername,
+}: {
+  author: string;
+  authorUsername?: string;
+}) {
+  const authors = author.split(",").map((a) => a.trim());
+  const usernames = authorUsername
+    ? authorUsername.split(",").map((u) => u.trim())
+    : [];
+  return (
+    <>
+      {authors.map((name, i) => (
+        <span key={name}>
+          {i > 0 && i === authors.length - 1 ? " and " : i > 0 ? ", " : ""}
+          {usernames[i] ? (
+            <Link href={`/user/${usernames[i]}`}>{name}</Link>
+          ) : (
+            name
+          )}
+        </span>
+      ))}
+    </>
+  );
+}
+
 function createBreadcrumbs({
   slug,
   frontmatter,
@@ -181,6 +209,7 @@ export default function MarkdownPage({
   frontmatter,
   content,
 }: MarkdownPageProps) {
+  const { t } = useTranslation();
   const subtitle = !!frontmatter.subtitle
     ? mkd.renderInline(frontmatter.subtitle)
     : null;
@@ -238,36 +267,19 @@ export default function MarkdownPage({
             sx={{ fontStyle: "italic", marginTop: theme.spacing(2) }}
           >
             {frontmatter.author ? (
-              <>
+              <Trans
+                i18nKey="blog.byline_with_author"
+                values={{ date: frontmatter.date }}
+              >
                 {"Written by "}
-                {(() => {
-                  const authors = frontmatter.author
-                    .split(",")
-                    .map((a) => a.trim());
-                  const usernames = frontmatter.author_username
-                    ? frontmatter.author_username
-                        .split(",")
-                        .map((u) => u.trim())
-                    : [];
-                  return authors.map((name, i) => (
-                    <span key={name}>
-                      {i > 0 && i === authors.length - 1
-                        ? " and "
-                        : i > 0
-                          ? ", "
-                          : ""}
-                      {usernames[i] ? (
-                        <Link href={`/user/${usernames[i]}`}>{name}</Link>
-                      ) : (
-                        name
-                      )}
-                    </span>
-                  ));
-                })()}
-                {`. Published on ${frontmatter.date}.`}
-              </>
+                <AuthorList
+                  author={frontmatter.author}
+                  authorUsername={frontmatter.author_username}
+                />
+                {". Published on {{date}}."}
+              </Trans>
             ) : (
-              `Published on ${frontmatter.date}.`
+              t("blog.byline_without_author", { date: frontmatter.date })
             )}
           </Typography>
         )}
@@ -276,11 +288,13 @@ export default function MarkdownPage({
             variant="body1"
             sx={{ fontWeight: "bold", marginTop: theme.spacing(3) }}
           >
-            {"Want to help write our blog or volunteer? "}
-            <Link href="/volunteer">Sign up</Link>
-            {" and let us know. Volunteers and "}
-            <Link href="/donate">donations</Link>
-            {" are what make Couchers.org possible!"}
+            <Trans i18nKey="blog.cta_message">
+              {"Want to help write our blog or volunteer? "}
+              <Link href="/volunteer">Sign up</Link>
+              {" and let us know. Volunteers and "}
+              <Link href="/donate">donations</Link>
+              {" are what make Couchers.org possible!"}
+            </Trans>
           </Typography>
         )}
         {bustitle && (
