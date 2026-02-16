@@ -52,7 +52,7 @@ def _next_ordinal() -> str:
     return f"{max_ordinal + 1:04d}"
 
 
-def process_revision_directives(context, revision, directives):
+def process_revision_directives(context: Any, revision: Any, directives: Any) -> None:
     """Set the revision ID to the next ordinal number instead of a random hex string."""
     if directives:
         directives[0].rev_id = _next_ordinal()
