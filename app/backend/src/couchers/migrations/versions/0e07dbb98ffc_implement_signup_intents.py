@@ -17,7 +17,9 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column("signup_flows", sa.Column("filled_intents", sa.Boolean(), server_default=sa.text("false"), nullable=False))
+    op.add_column(
+        "signup_flows", sa.Column("filled_intents", sa.Boolean(), server_default=sa.text("false"), nullable=False)
+    )
     op.add_column("signup_flows", sa.Column("heard_about_couchers", sa.String(), nullable=True))
     op.add_column(
         "signup_flows", sa.Column("signup_intents", sa.ARRAY(sa.String()), server_default="{}", nullable=False)
