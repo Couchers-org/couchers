@@ -35,13 +35,16 @@ def upgrade():
             JOIN node_depth nd ON n.parent_node_id = nd.id
         )
         UPDATE nodes
+        UPDATE nodes
         SET node_type = CASE nd.depth
             WHEN 0 THEN 'world'
             WHEN 1 THEN 'region'
             WHEN 2 THEN 'subregion'
             WHEN 3 THEN 'locality'
-            WHEN 4 THEN 'sublocality'
+            ELSE 'sublocality'
         END::nodetype
+        FROM node_depth nd
+        WHERE nodes.id = nd.id
         FROM node_depth nd
         WHERE nodes.id = nd.id
         """
