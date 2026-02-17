@@ -7,7 +7,7 @@ import { StatusCode } from "grpc-web";
 import mockRouter from "next-router-mock";
 import { HostingStatus } from "proto/api_pb";
 import { SignupFlowRes } from "proto/auth_pb";
-import { signupRoute } from "routes";
+import { dashboardRoute, signupRoute } from "routes";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
@@ -38,6 +38,8 @@ const signupFlowCommunityGuidelinesMock = service.auth
   .signupFlowCommunityGuidelines as MockedService<
   typeof service.auth.signupFlowCommunityGuidelines
 >;
+const signupFlowIntentsMock = service.auth
+  .signupFlowIntents as MockedService<typeof service.auth.signupFlowIntents>;
 const signupFlowEmailTokenMock = service.auth
   .signupFlowEmailToken as MockedService<
   typeof service.auth.signupFlowEmailToken
@@ -261,6 +263,44 @@ describe("Signup", () => {
       expect(
         await screen.findByText(t("auth:intents_form.header")),
       ).toBeVisible();
+    });
+
+    it("intents -> success", async () => {
+      window.localStorage.setItem(
+        "auth.flowState",
+        JSON.stringify({
+          flowToken: "token",
+          needBasic: false,
+          needAccount: false,
+          needAcceptCommunityGuidelines: false,
+          needIntents: true,
+          needFeedback: false,
+          needVerifyEmail: false,
+        }),
+      );
+      signupFlowIntentsMock.mockResolvedValue({
+        flowToken: "token",
+        authRes: { userId: 1, jailed: false },
+        needBasic: false,
+        needAccount: false,
+        needAcceptCommunityGuidelines: false,
+        needIntents: false,
+        needFeedback: false,
+        needVerifyEmail: false,
+      });
+      render(<View />, { wrapper });
+
+      const user = userEvent.setup();
+
+      await user.click(
+        await screen.findByText(t("auth:intents_form.surfing")),
+      );
+
+      await user.click(
+        screen.getByRole("button", { name: t("global:continue") }),
+      );
+
+      await waitFor(() => expect(mockRouter.pathname).toBe(dashboardRoute));
     });
   });
 

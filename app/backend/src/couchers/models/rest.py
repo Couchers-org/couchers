@@ -234,7 +234,12 @@ class SignupFlow(Base, kw_only=True):
 
     @hybrid_property
     def is_completed(self) -> Any:
-        return self.email_verified & self.account_is_filled & (self.accepted_community_guidelines == GUIDELINES_VERSION)
+        return (
+            self.email_verified
+            & self.account_is_filled
+            & (self.accepted_community_guidelines == GUIDELINES_VERSION)
+            & self.filled_intents
+        )
 
 
 class AccountDeletionToken(Base, kw_only=True):
