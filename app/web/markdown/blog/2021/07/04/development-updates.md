@@ -1,8 +1,10 @@
 ---
+is_blog_post: true
 title: "Updates from the development team: July 4th, 2021"
 description: "Read the latest updates from the Couchers.org development team."
 date: 2021/07/04
 author: Aapeli
+author_username: aapeli
 share_image: https://couchers.org/img/share.jpg
 ---
 
@@ -45,7 +47,3 @@ None of this would be possible without our 100+ volunteers working in all areas 
 ## Join the development team
 
 If you're a developer, please join our team on GitHub at [Couchers-org/couchers](https://github.com/couchers-org/couchers) or just give us a star if you appreciate our work! All our code is open source and we need all the help we can get in building the new Couchsurfing™ alternative.
-
-*Written by Aapeli. Published on 2021/07/04.*
-
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

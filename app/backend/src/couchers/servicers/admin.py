@@ -61,8 +61,8 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         email=user.email,
         gender=user.gender,
         birthdate=date_to_api(user.birthdate),
-        banned=user.is_banned,
-        deleted=user.is_deleted,
+        banned=user.banned_at is not None,
+        deleted=user.deleted_at is not None,
         do_not_email=user.do_not_email,
         badges=[badge.badge_id for badge in user.badges],
         **get_strong_verification_fields(session, user),
@@ -167,9 +167,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 and_(LanguageAbility.user_id == User.id, LanguageAbility.language_code.in_(request.language_codes)),
             )
         if request.HasField("is_deleted"):
-            statement = statement.where(User.is_deleted == request.is_deleted.value)
+            statement = statement.where((User.deleted_at != None) == request.is_deleted.value)
         if request.HasField("is_banned"):
-            statement = statement.where(User.is_banned == request.is_banned.value)
+            statement = statement.where((User.banned_at != None) == request.is_banned.value)
         if request.HasField("has_avatar"):
             statement = statement.where(has_avatar_photo_expression(User) == request.has_avatar.value)
         users = (
@@ -289,7 +289,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         append_admin_note(session, context, user, request.admin_note)
-        user.is_banned = True
+        user.banned_at = now()
         return _user_to_details(session, user)
 
     def UnbanUser(
@@ -299,7 +299,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         append_admin_note(session, context, user, request.admin_note)
-        user.is_banned = False
+        user.banned_at = None
         return _user_to_details(session, user)
 
     def AddAdminNote(
@@ -381,7 +381,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
-        user.is_deleted = True
+        user.deleted_at = now()
         return _user_to_details(session, user)
 
     def RecoverDeletedUser(
@@ -390,7 +390,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
-        user.is_deleted = False
+        user.deleted_at = None
         user.undelete_token = None
         user.undelete_until = None
         return _user_to_details(session, user)

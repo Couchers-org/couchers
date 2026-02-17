@@ -1,7 +1,7 @@
 export default {
   name: "Couchers",
   slug: "mobile",
-  version: "1.1.10",
+  version: "1.1.11",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   scheme: "couchers",

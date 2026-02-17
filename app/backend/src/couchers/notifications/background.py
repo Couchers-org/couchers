@@ -41,11 +41,11 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         logger.info(f"Not emailing {user} based on notification {notification.topic_action} due to emails turned off")
         return
 
-    if user.is_banned:
+    if user.banned_at is not None:
         logger.info(f"Tried emailing {user} based on notification {notification.topic_action} but user is banned")
         return
 
-    if user.is_deleted and not can_notify_deleted_user(notification.topic_action):
+    if user.deleted_at is not None and not can_notify_deleted_user(notification.topic_action):
         logger.info(f"Tried emailing {user} based on notification {notification.topic_action} but user is deleted")
         return
 
