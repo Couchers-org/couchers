@@ -1180,20 +1180,20 @@
     csstype "^3.2.3"
     prop-types "^15.8.1"
 
-"@mui/types@^7.4.10", "@mui/types@^7.4.7":
-  version "7.4.10"
-  resolved "https://registry.yarnpkg.com/@mui/types/-/types-7.4.10.tgz#c80ed5850a1da7802a01c1d0153d8603ce41be10"
-  integrity sha512-0+4mSjknSu218GW3isRqoxKRTOrTLd/vHi/7UC4+wZcUrOAqD9kRk7UQRL1mcrzqRoe7s3UT6rsRpbLkW5mHpQ==
+"@mui/types@^7.4.10", "@mui/types@^7.4.11", "@mui/types@^7.4.7":
+  version "7.4.11"
+  resolved "https://registry.yarnpkg.com/@mui/types/-/types-7.4.11.tgz#d9c8e028a354a52fe86cb8ffbc306faf4c090608"
+  integrity sha512-fZ2xO9D08IKOxO2oUBi1nnVKH6oJUD+64cnv4YAaFoC0E5+i1+S5AHbNqqvZlYYsbPEQ6qEVwuBqY3jl5W4G+Q==
   dependencies:
-    "@babel/runtime" "^7.28.4"
+    "@babel/runtime" "^7.28.6"
 
-"@mui/utils@^7.3.3", "@mui/utils@^7.3.5", "@mui/utils@^7.3.7":
-  version "7.3.7"
-  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-7.3.7.tgz#71443559a7fbd993b5b90fcb843fa26a60046f99"
-  integrity sha512-+YjnjMRnyeTkWnspzoxRdiSOgkrcpTikhNPoxOZW0APXx+urHtUoXJ9lbtCZRCA5a4dg5gSbd19alL1DvRs5fg==
+"@mui/utils@^7.3.3", "@mui/utils@^7.3.5", "@mui/utils@^7.3.7", "@mui/utils@^7.3.8":
+  version "7.3.8"
+  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-7.3.8.tgz#0d6dff4c623682b603f27d6ff37839b3d16832de"
+  integrity sha512-kZRcE2620CBGr+XI8YMmwPj6WIPwSF7uMJjvSfqd8zXVvlz0MCJbzRRUGNf8NgflCLthdji2DdS643TeyJ3+nA==
   dependencies:
-    "@babel/runtime" "^7.28.4"
-    "@mui/types" "^7.4.10"
+    "@babel/runtime" "^7.28.6"
+    "@mui/types" "^7.4.11"
     "@types/prop-types" "^15.7.15"
     clsx "^2.1.1"
     prop-types "^15.8.1"
