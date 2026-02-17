@@ -352,7 +352,7 @@ def test_RecoverDeletedUser_after_user_initiated_deletion(db, push_collector: Pu
     # Verify the user is deleted and has undelete fields set
     with session_scope() as session:
         user = session.execute(select(User).where(User.id == user_id)).scalar_one()
-        assert user.is_deleted
+        assert user.deleted_at is not None
         assert user.undelete_token is not None
         assert user.undelete_until is not None
 
@@ -365,7 +365,7 @@ def test_RecoverDeletedUser_after_user_initiated_deletion(db, push_collector: Pu
     # Verify undelete fields are cleared
     with session_scope() as session:
         user = session.execute(select(User).where(User.id == user_id)).scalar_one()
-        assert not user.is_deleted
+        assert user.deleted_at is None
         assert user.undelete_token is None
         assert user.undelete_until is None
 

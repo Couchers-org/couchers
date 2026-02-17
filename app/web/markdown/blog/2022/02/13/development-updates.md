@@ -1,8 +1,10 @@
 ---
+is_blog_post: true
 title: "Updates from the development team: February 13th, 2022"
 description: "Read the latest updates from the Couchers.org development team."
 date: 2022/02/13
 author: Aapeli
+author_username: aapeli
 share_image: https://couchers.org/img/share.jpg
 ---
 
@@ -45,7 +47,3 @@ None of this would be possible without our 120+ volunteers working in all areas 
 ## Join the development team
 
 You can join our development team on GitHub at [Couchers-org/couchers](https://github.com/couchers-org/couchers); or if you don't have time right now, give us a star to show your support! We work in the open and need as much help as we can get to build the next generation couch surfing platform!
-
-*Written by Aapeli. Published on 2022/02/13.*
-
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

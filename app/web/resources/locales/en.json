@@ -191,6 +191,7 @@
     "help_center": "Help Center",
     "roadmap_updates": "Roadmap & Updates",
     "help": "Help",
+    "home": "Home",
     "log_out": "Log out",
     "map_search": "Search",
     "mission": "Mission and Values",
@@ -353,6 +354,11 @@
       }
     },
     "tap_press_to_flip": "Tap / press to flip"
+  },
+  "blog": {
+    "byline_with_author": "Written by <1/>. Published on {{date}}.",
+    "byline_without_author": "Published on {{date}}.",
+    "cta_message": "Want to help write our blog or volunteer? <1>Sign up</1> and let us know. Volunteers and <3>donations</3> are what make Couchers.org possible!"
   },
   "error_loading_languages": "Failed to load language options",
   "language_names": {

@@ -2,7 +2,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 
 import couchers.email
 import couchers.jobs.handlers
@@ -481,8 +481,8 @@ def test_email_deleted_users_regression(db, moderator: Moderator):
         assert res.requests[0].approx_users_to_notify == 5
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == ban_user.id).values(is_banned=True))
-        session.execute(update(User).where(User.id == delete_user.id).values(is_deleted=True))
+        session.execute(update(User).where(User.id == ban_user.id).values(banned_at=func.now()))
+        session.execute(update(User).where(User.id == delete_user.id).values(deleted_at=func.now()))
 
     with real_editor_session(super_token) as editor:
         res = editor.ListEventCommunityInviteRequests(editor_pb2.ListEventCommunityInviteRequestsReq())

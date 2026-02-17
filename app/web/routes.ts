@@ -215,7 +215,7 @@ export const communityGuidelinesURL =
   "https://help.couchers.org/hc/couchersorg-help-center/articles/1715121703-couchers-org-community-guidelines";
 // Note: Url must end with financials year digits
 export const latestFinancialsURL =
-  "/blog/2025/04/20/couchers-inc-financials-2024";
+  "/blog/2026/02/16/couchers-inc-financials-2025";
 
 export const communityCreationFormURL = (username?: string) =>
   `https://forms.monday.com/forms/d7b6f1bd47a092e23b63f6ef9db1594b?r=use1&username=${username || ""}`;
