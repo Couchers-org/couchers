@@ -38,8 +38,9 @@ const signupFlowCommunityGuidelinesMock = service.auth
   .signupFlowCommunityGuidelines as MockedService<
   typeof service.auth.signupFlowCommunityGuidelines
 >;
-const signupFlowIntentsMock = service.auth
-  .signupFlowIntents as MockedService<typeof service.auth.signupFlowIntents>;
+const signupFlowIntentsMock = service.auth.signupFlowIntents as MockedService<
+  typeof service.auth.signupFlowIntents
+>;
 const signupFlowEmailTokenMock = service.auth
   .signupFlowEmailToken as MockedService<
   typeof service.auth.signupFlowEmailToken
@@ -292,9 +293,7 @@ describe("Signup", () => {
 
       const user = userEvent.setup();
 
-      await user.click(
-        await screen.findByText(t("auth:intents_form.surfing")),
-      );
+      await user.click(await screen.findByText(t("auth:intents_form.surfing")));
 
       await user.click(
         screen.getByRole("button", { name: t("global:continue") }),
