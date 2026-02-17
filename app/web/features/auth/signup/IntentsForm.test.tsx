@@ -49,9 +49,7 @@ describe("IntentsForm", () => {
 
     const user = userEvent.setup();
 
-    await user.click(
-      await screen.findByText(t("auth:intents_form.surfing")),
-    );
+    await user.click(await screen.findByText(t("auth:intents_form.surfing")));
     await user.click(screen.getByText(t("auth:intents_form.hosting")));
 
     await user.click(
