@@ -50,8 +50,9 @@ class HostRequest(Base, kw_only=True):
     hosting_location: Mapped[Geom] = mapped_column(Geometry("POINT", srid=4326))
     hosting_radius: Mapped[float] = mapped_column(Float)
 
-    # TODO: proper timezone handling
-    timezone = "Etc/UTC"
+    # use the last timezone on earth (UTC-12) so that dates are interpreted generously:
+    # if a stay ends on the 2nd, you can write a reference until the end of the 16th anywhere on earth
+    timezone = "Etc/GMT+12"
 
     # dates in the timezone above
     from_date: Mapped[date] = mapped_column(Date)
