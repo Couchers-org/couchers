@@ -292,6 +292,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         cacheEnabled
         cacheMode="LOAD_CACHE_ELSE_NETWORK"
         startInLoadingState
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
         renderLoading={() => (
           <View style={[styles.loadingContainer, { backgroundColor }]}>
             <ActivityIndicator

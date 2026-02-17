@@ -47,12 +47,13 @@ const StyledMenu = styled(Menu)(({ theme }) => ({
   "& .MuiPaper-root": {
     boxShadow: theme.shadows[1],
     minWidth: "12rem",
+    maxHeight: "calc(100vh - 156px)", // Leave space for header, margins, and menu padding
 
     [theme.breakpoints.down("md")]: {
       width: "100vw",
-      height: "100vh",
+      height: "calc(100vh - 56px - env(safe-area-inset-bottom, 0px))", // Leave space for bottom nav
       maxWidth: "100vw",
-      maxHeight: "100vh",
+      maxHeight: "calc(100vh - 56px - env(safe-area-inset-bottom, 0px))",
       borderRadius: 0,
       margin: 0,
       padding: 0,
@@ -62,6 +63,7 @@ const StyledMenu = styled(Menu)(({ theme }) => ({
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
+      zIndex: 1300,
     },
   },
 
@@ -80,7 +82,7 @@ const StyledMenuButton = styled(Button)(({ theme }) => ({
   border: `1px solid var(--mui-palette-grey-300)`,
   borderRadius: 999,
   backgroundColor: "var(--mui-palette-grey-200)",
-  padding: theme.spacing(1),
+  // padding: theme.spacing(1),
   transition: `${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   "&:hover": {
     opacity: 0.8,
@@ -158,7 +160,6 @@ function LinkMenuItemView({
             fontSize: "0.75rem",
             fontWeight: 600,
             height: theme.spacing(2),
-            width: theme.spacing(),
           }}
         >
           {notificationCount > 99 ? "99+" : notificationCount}
@@ -340,6 +341,15 @@ export default function LoggedInMenu({
         transformOrigin={
           isMobile ? undefined : { vertical: "top", horizontal: "right" }
         }
+        slotProps={{
+          paper: {
+            style: isMobile
+              ? undefined
+              : {
+                  maxHeight: "calc(100vh - 156px)",
+                },
+          },
+        }}
       >
         {isMobile && (
           <Box

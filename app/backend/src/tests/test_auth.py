@@ -20,6 +20,7 @@ from couchers.models import (
     UserSession,
 )
 from couchers.proto import account_pb2, api_pb2, auth_pb2
+from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
 from tests.fixtures.sessions import (
@@ -368,7 +369,7 @@ def test_banned_user(db):
     _quick_signup()
 
     with session_scope() as session:
-        session.execute(select(User)).scalar_one().is_banned = True
+        session.execute(select(User)).scalar_one().banned_at = now()
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
@@ -381,7 +382,7 @@ def test_deleted_user(db):
     user_id = _quick_signup()
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user_id).values(is_deleted=True))
+        session.execute(update(User).where(User.id == user_id).values(deleted_at=func.now()))
 
     with auth_api_session() as (auth_api, metadata_interceptor):
         with pytest.raises(grpc.RpcError) as e:
@@ -674,7 +675,7 @@ def test_signup_banned_user_email(db):
     user, _ = generate_user()
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user.id).values(is_banned=True))
+        session.execute(update(User).where(User.id == user.id).values(banned_at=func.now()))
 
     with auth_api_session() as (auth_api, _):
         with pytest.raises(grpc.RpcError) as e:
@@ -687,7 +688,7 @@ def test_signup_deleted_user_email(db):
     user, _ = generate_user()
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user.id).values(is_deleted=True))
+        session.execute(update(User).where(User.id == user.id).values(deleted_at=func.now()))
 
     with auth_api_session() as (auth_api, _):
         with pytest.raises(grpc.RpcError) as e:

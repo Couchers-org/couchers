@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 function getReactNativeWebView(): typeof window.ReactNativeWebView {
   if (typeof window !== "undefined" && window.ReactNativeWebView) {
@@ -26,14 +26,14 @@ function isNativeEmbed(): boolean {
 }
 
 export function useIsNativeEmbed(): boolean {
-  // Use lazy initializer to check synchronously on first client-side render
-  // This avoids SSR issues while detecting immediately
-  const [isNative] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return isNativeEmbed();
-  });
-
-  return isNative;
+  return useSyncExternalStore(
+    // Subscribe function - no-op since value doesn't change after initial load
+    () => () => {},
+    // Client snapshot - check if we're in native embed
+    () => isNativeEmbed(),
+    // Server snapshot - always false during SSR
+    () => false,
+  );
 }
 
 type MessageType = "sendState" | "clearState" | "REQUEST_IMAGE_PICK";

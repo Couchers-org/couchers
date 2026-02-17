@@ -1,9 +1,11 @@
 ---
+is_blog_post: true
 title: "Talk of the Town: July 14th, 2021"
 subtitle: "Hosting and User preferences, and Gender Inclusivity"
 description: "Our biweekly digest for the Couchers.org forum. Did you know we have vibrant public discussions about couch surfing and the future of Couchers.org? Everyone is welcome to participate!"
 date: 2021/07/17
 author: Natalia
+author_username: natalia
 share_image: https://couchers.org/img/blog/20210825_talkingtown.png
 ---
 
@@ -12,7 +14,6 @@ Do you know we have vibrant discussions about couch surfing and Couchers.org on 
 If you haven’t joined yet, it only takes a minute to set up an account and add your input to the community. You can play an important role in shaping [Couchers.org](https://couchers.org/) into the best platform it can be.
 
 Welcome to the first-ever issue of the biweekly forum digest, which will be summarizing the main points brought up, discussed, and debated in recent forum threads! We’re calling it “**Talk of the Town**”.
-
 
 ## Forum Digest: 1st July - 14th July 2021
 
@@ -28,7 +29,6 @@ In this issue:
 * How do we encourage users to **[fill in their profiles](https://community.couchers.org/t/encourage-people-to-fill-in-their-profiles/1137)** on the app?
 
 If you want to contribute to any of the below discussions, hop on to one of the topics linked below or [start](https://community.couchers.org/) a new discussion on our community forum.
-
 
 ### ['Preferred Gender' option for hosting](https://community.couchers.org/t/preferred-gender-option-for-hosting/1312)
 
@@ -55,20 +55,15 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 [Read the full discussion...](https://community.couchers.org/t/preferred-gender-option-for-hosting/1312)
 
-
 ### **[What is the purpose of the gender field?](https://community.couchers.org/t/whats-the-purpose-of-the-gender-field/1338)**
 
 **What is being discussed:**
-
-
 
 * Should the gender field primarily serve the purpose of self-assignment/expression, or should it cater to safety features?
 * If it is to cater to safety features, how can that best be done? How should users be able to filter for genders when searching?
 * If gender is not to relate to safety features, what other strategies can be used for safety?
 
 **Ideas:**
-
-
 
 * If we allow everyone to filter by any gender, the consensus is that certain users would abuse this feature for the purposes of dating. But *not* being able to filter by gender at all is also impractical (e.g. trying to find women hosts in a city with 90% male users).
 * On the other hand, other safety features (e.g. message filtering, blocking, character limits, etc.) can to an extent prevent possible abuses of the "filter by gender" feature.
@@ -79,18 +74,13 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 [Read the full discussion...](https://community.couchers.org/t/whats-the-purpose-of-the-gender-field/1338)
 
-
 ### **[Shared beds](https://community.couchers.org/t/shared-beds/550)**
 
 **What is being discussed:**
 
-
-
 * Do the benefits of providing a "shared sleeping surface" accommodation option outweigh the risks?
 
 **Ideas:**
-
-
 
 * Points in favor of "shared sleeping surface" option:
     * Enables a wider audience of people to host others, even if they have limited space
@@ -108,20 +98,15 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 [Read the full discussion...](https://community.couchers.org/t/shared-beds/550)
 
-
 ### **[You should be able to message anyone](https://community.couchers.org/t/you-should-be-able-to-message-anyone/1334)**
 
 **What is being discussed:**
-
-
 
 * It is very limiting to only be able to message "friends" and people you are asking to surf with
 * It also leads to people sending friend requests to people they don't know just to message them
 * For context, the development team has already taken these comments into account and decided to move in the direction of allowing anyone to message anyone
 
 **Ideas** (also discussed in **[Filter out low-quality messages](https://community.couchers.org/t/filter-out-low-quality-messages/205)**):
-
-
 
 * Introduce a character minimum for the first message in a conversation (100 characters?)
 * Adopt an "Instagram/Facebook model" where recipient has to "accept" the first message to receive further notifications about it
@@ -131,18 +116,13 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 [Read the full discussion...](https://community.couchers.org/t/you-should-be-able-to-message-anyone/1334)
 
-
 ### **[Hosting and Home Preferences](https://community.couchers.org/t/hosting-and-home-preferences/1055)**
 
 **What is being discussed:**
 
-
-
 * How to optimize selection and display of home/hosting preferences on one’s profile to effectively convey the most important information
 
 **Ideas:**
-
-
 
 * Maximum number of guests should not default to 1 as it is very confusing
 * There should be a fourth option for the “Accepts X”-type questions (Yes, No, Maybe/It depends, Not Specified), where “Maybe” is distinct from “Not specified”
@@ -161,18 +141,13 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 [Read the full discussion...](https://community.couchers.org/t/hosting-and-home-preferences/1055)
 
-
 ### **[Encouraging people to fill in their profiles](https://community.couchers.org/t/encourage-people-to-fill-in-their-profiles/1137)**
 
 **What is being discussed:**
 
-
-
 * How can we encourage more users to fill out their profiles?
 
 **Ideas:**
-
-
 
 * Introduce fun incentives such as profile progress bar, short encouraging messages, etc.
 * Hide users from the map if their profile is empty and notify them of this
@@ -181,15 +156,10 @@ If you want to contribute to any of the below discussions, hop on to one of the 
 
 [Read the full discussion...](https://community.couchers.org/t/encourage-people-to-fill-in-their-profiles/1137)
 
-
 ### **Other discussions**
 
 See what people have been saying about [how to elicit and write good-quality references](https://community.couchers.org/t/how-do-you-write-a-quality-reference/1333), if it is meaningful to [import or link to one's references from Couchsurfing™](https://community.couchers.org/t/can-we-bring-references-from-couchsurfing/1296), and [what cool features we could add for people hosting or surfing as groups/couples](https://community.couchers.org/t/profiles-for-couples-and-friend-groups/431)!
 
 **Did we miss an important recent contribution you made to the forum between July 1st and 14th? Feel free to privately message [n.spark](https://community.couchers.org/u/n.spark) on the forum.**
 
-_Written by Natalia. Published on 2021/07/19._
-
 _Natalia is a chemistry PhD student from Greece, living in the USA since 2012 and hoping to move to Europe soon. She has hosted many surfers in Madison, WI with her partner, and helped organize Couch Crashes in the area, where couch surfing enthusiasts from all over the world gather in each other's company to explore a city together._
-
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

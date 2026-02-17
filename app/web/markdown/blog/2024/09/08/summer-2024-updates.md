@@ -1,9 +1,11 @@
 ---
+is_blog_post: true
 title: "Summer of 2024 Updates"
 slug: summer-2024-updates
 description: "Catch up on news with Couchers: read about what's been going on and what's coming up this in the rest of 2024!"
 date: 2024/09/08
 author: Aapeli
+author_username: aapeli
 share_image: https://couchers.org/img/blog/20241001_active_couchers_zoom.png
 ---
 
@@ -27,7 +29,6 @@ Our first and current official milestone starting in this July has been a focus 
 
 At the conclusion of each milestone we will send out an update to those signed up to receive the newsletter, where we will inform you about the progress made towards that milestone during the quarter and highlight the upcoming quarterly milestone and what we will be working on during it.
 
-
 ## Latest feature updates
 
 This summer, we've launched a bunch of exciting feature updates:
@@ -47,13 +48,11 @@ There are also a few less visible or less exciting updates:
 * **New support infrastructure**: we switched out our support platform from a very old and flaky open source platform to a much more modern open source platform called Chatwoot! We also switched from using a commercial mailing list provider to a self-hosted, open source platform that will save us a bunch of money.
 * **You now "decline" requests** instead of "rejecting" them, because this sounds friendlier and Couchers is a friendly place :).
 
-
 ## Celebrating our community of 44k Couchers!
 
 Couchers is continuing to grow quickly with over 44,500 registered Couchers! Getting many more couch surfers to join our community and getting them onto the platform is one of our most important goals at the moment.
 
 You can help us with this goal by spreading the word online and at events, as well as continuing to use the platform, provide feedback, and help us grow!
-
 
 ## Our long-term strategic goal: the safest couch surfing platform
 
@@ -63,13 +62,11 @@ We believe a core value of couch surfing, and what enables the whole activity, i
 
 We have always believed that in building this community, it's important that we set clear expectations for the community, such as via our Community Guidelines. By taking an opinionated stance on these issues and keeping up a system of careful moderation, we believe we can create the safest, healthiest, and most trustworthy couch surfing community.
 
-
 ## Changes to our Board of Directors
 
 Couchers.org is operated by Couchers, Inc., a 501(c)(3) non-profit organization run entirely by volunteers. As part of future-proofing the project, we have invited some new people onto our Board of Directors. The current Board Members are the Founders Aapeli ([@aapeli](https://couchers.org/user/aapeli)) and Itsi ([@itsi](https://couchers.org/user/itsi)), as well as at-large Board Members Emily ([@emily](https://couchers.org/user/emily)), Yannic ([@spreeni](https://couchers.org/user/spreeni)), Natalia ([@natalia](https://couchers.org/user/natalia)), Paul ([@paul](https://couchers.org/user/paul)), and Jesse ([@jesse](https://couchers.org/user/jesse)). These folks have all been involved with the project for a long time and the outgoing board is firm in their belief as good custodians of the project with the right values, spirit, and vision for our community.
 
 You can read more about these wonderful community members and other minor governance changes on the [blog post announcing the changes](https://couchers.org/blog/2024/04/30/new-board-members).
-
 
 ## Past volunteers: get a badge on your profile!
 
@@ -79,7 +76,6 @@ If you have volunteered for Couchers.org and would like to be recognized for it 
 
 [Past Volunteer form](https://forms.gle/UYdBHn8S1tCNiVgNA)
 
-
 ## Support Couchers: volunteer or donate!
 
 The Couchers.org platform and community is built by a team of volunteers in their spare time, organized around a non-profit. All our work is open source and community lead. You too can support the project.
@@ -87,7 +83,6 @@ The Couchers.org platform and community is built by a team of volunteers in thei
 We are currently raising money for development tools to build mobile apps for Android and iOS. This endeavour costs money, so we are looking for some extra financial support from the community. We are also hoping to produce some merchandise (Couchers t-shirts & hoodies, stickers, and of course decorative couch pillow covers, etc), which has some upfront costs.
 
 [Donate to Couchers](https://couchers.org/donate)
-
 
 ### Volunteer
 
@@ -98,7 +93,3 @@ In particular, we are currently looking for the volunteers with the following sk
 * Mobile app software engineers: we are building the mobile app in React Native (expo), and are looking for some folks to help with that undertaking
 * Backend software engineers: with Python experience (also SQL Alchemy, Postgres/PostGIS, protobuf/grpc)
 * Frontend software engineers: with React experience (also TypeScript, Material UI, React Query, etc)
-
-_Written by [Aapeli](/user/aapeli). Published on 2024/09/08_
-
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**
