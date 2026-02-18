@@ -1,8 +1,10 @@
 ---
+is_blog_post: true
 title: Przyjmowanie uchodźców i szukanie schronienia z Couchers.org
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-pl
 date: 2022/03/13
 author: Itsi
+author_username: itsi
 share_image: /img/blog/20220313_ukraine_pl.jpg
 ---
 
@@ -39,5 +41,3 @@ Nie możemy zagwarantować, jak długi pobyt będzie możliwy. Niektórzy będą
 W razie jakichkolwiek problemów prosimy o kontakt na adres [support@couchers.org](mailto:support@couchers.org)
 
 Życzymy Wam wszystkiego najlepszego i mamy nadzieję, że jesteście bezpieczni. Pamiętajcie, że są ludzie, którzy chcą Wam pomóc.
-
-*Published on 2022/03/13.*

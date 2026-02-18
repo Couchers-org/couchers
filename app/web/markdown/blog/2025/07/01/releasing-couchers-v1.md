@@ -1,9 +1,12 @@
 ---
+is_blog_post: true
 title: "A new chapter: Couchers is officially out of Beta!"
 slug: releasing-couchers-v1
 description: "We are out of Beta and in v1: we're releasing a new strategy around safe & active community instead of bashing our competitors, a fancy redesigned landing page, and a bunch of new features to make core couch surfing functionality better!"
 date: 2025/07/01
 author: Aapeli
+author_username: aapeli
+has_custom_cta: true
 ---
 
 *Quick summary: we are out of Beta and into version 1, we're releasing a new strategy around safe & active community instead of bashing our competitors, a fancy redesigned landing page, and a bunch of new features to make core couch surfing functionality better! Share the platform with your friends and let's grow the community together!*
@@ -165,5 +168,3 @@ Follow us on the socials, and like+share religiously 🙏
 ### Donate
 
 We have set a fundraising goal of raising $5000 this year. Help us reach this goal and keep the servers running by [donating to our non-profit](https://couchers.org/donate). You'll also get a fun badge!
-
-*Written by [Aapeli](https://couchers.org/user/aapeli). Published on 2025/07/01*

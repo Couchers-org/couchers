@@ -95,11 +95,11 @@ def create_session(
     token, expiry = create_session(...)
     ```
     """
-    if user.is_banned:
+    if user.banned_at is not None:
         context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "account_suspended")
 
     # just double-check
-    assert not user.is_deleted
+    assert user.deleted_at is None
 
     token = cookiesafe_secure_token()
 
@@ -434,7 +434,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.debug(f"Logging in with {request.user=}, password=*******")
         user = session.execute(
-            select(User).where(username_or_email(request.user)).where(~User.is_deleted)
+            select(User).where(username_or_email(request.user)).where(User.deleted_at.is_(None))
         ).scalar_one_or_none()
         if user:
             logger.debug("Found user")
@@ -505,7 +505,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Note that as long as emails are send synchronously, this is far from constant time regardless of output.
         """
         user = session.execute(
-            select(User).where(username_or_email(request.user)).where(~User.is_deleted)
+            select(User).where(username_or_email(request.user)).where(User.deleted_at.is_(None))
         ).scalar_one_or_none()
         if user:
             password_reset_token = PasswordResetToken(
@@ -627,7 +627,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         session.execute(delete(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id))
 
-        user.is_deleted = True
+        user.deleted_at = now()
         user.undelete_until = now() + timedelta(days=UNDELETE_DAYS)
         user.undelete_token = urlsafe_secure_token()
 
@@ -668,7 +668,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
-        user.is_deleted = False
+        user.deleted_at = None
         user.undelete_token = None
         user.undelete_until = None
 

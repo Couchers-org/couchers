@@ -1,9 +1,11 @@
 ---
+is_blog_post: true
 title: "Where we are and where we are going"
 slug: where-we-are-and-where-we-are-going
 description: Read some discussion on the state of the Couchers.org project and our plans for the future from Couchers.org co-founder Aapeli.
 date: 2024/06/12
 author: Aapeli
+author_username: aapeli
 share_image: https://couchers.org/img/blog/20240612_baby-alpha-screenshot.jpg
 ---
 
@@ -38,7 +40,6 @@ And it worked! Crowds of people found us and believed in our idea and vision. Th
 ![A screenshot of the "Baby Alpha"](/img/blog/20240612_baby-alpha-screenshot.jpg)
 
 The rest of the first phase was a combination of growing the group of volunteers, and building out the first barebones prototype for what would eventually become the platform. This first phase culminated in teh release of what we affectionately called the "Baby Alpha" in August of 2020 on our [forum](https://community.couchers.org/t/couchers-org-platform-alpha/254).
-
 
 ## Phase 2: The build: developing a platform
 
@@ -103,7 +104,3 @@ So to summarize: in this new phase of the project, we have made changes to our g
 ## Wrapping up
 
 I hope that this blog post has been an interesting read! One reason for writing this post was to help you understand why there has been a lull in development, and to explain what we are doing to remedy this situation and stop it from happening in the future. So I hope this post has given you a better understanding on where the project is, and where we are heading into.
-
-_Written by [Aapeli](/user/aapeli), reviewed by Itsi and Jesse. Published on 2024/06/12_
-
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

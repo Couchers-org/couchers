@@ -7,7 +7,9 @@ import {
   TypographyProps,
 } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
+import { Trans, useTranslation } from "i18n";
 import markdown from "markdown-it";
+import Head from "next/head";
 import { theme } from "theme";
 
 const mkd = new markdown();
@@ -21,6 +23,9 @@ interface MarkdownPageFrontmatter {
   description?: string;
   date?: string;
   author?: string;
+  author_username?: string;
+  is_blog_post?: boolean;
+  has_custom_cta?: boolean;
   share_image?: string;
 }
 
@@ -127,12 +132,51 @@ const StyledMarkdown = styled("div")(({ theme }) => ({
   '[data-mui-color-scheme="dark"] & .partial-check': {
     filter: "grayscale(1) brightness(10)",
   },
+
+  // Blog index entry styling
+  "& .blog-entry": {
+    marginTop: theme.spacing(4),
+  },
+  "& .blog-entry h2": {
+    marginBottom: 0,
+  },
+  "& .blog-entry-date": {
+    marginTop: theme.spacing(0.5),
+    fontStyle: "italic",
+  },
 }));
 
 const StyledTitle = styled(Typography)(({ theme }) => ({
   fontSize: "2.5rem",
   lineHeight: "1.125",
 }));
+
+function AuthorList({
+  author,
+  authorUsername,
+}: {
+  author: string;
+  authorUsername?: string;
+}) {
+  const authors = author.split(",").map((a) => a.trim());
+  const usernames = authorUsername
+    ? authorUsername.split(",").map((u) => u.trim())
+    : [];
+  return (
+    <>
+      {authors.map((name, i) => (
+        <span key={name}>
+          {i > 0 && i === authors.length - 1 ? " and " : i > 0 ? ", " : ""}
+          {usernames[i] ? (
+            <Link href={`/user/${usernames[i]}`}>{name}</Link>
+          ) : (
+            name
+          )}
+        </span>
+      ))}
+    </>
+  );
+}
 
 function createBreadcrumbs({
   slug,
@@ -178,6 +222,7 @@ export default function MarkdownPage({
   frontmatter,
   content,
 }: MarkdownPageProps) {
+  const { t } = useTranslation();
   const subtitle = !!frontmatter.subtitle
     ? mkd.renderInline(frontmatter.subtitle)
     : null;
@@ -194,6 +239,16 @@ export default function MarkdownPage({
         description={frontmatter.description}
         shareImage={frontmatter.share_image}
       />
+      {slug.length === 1 && slug[0] === "blog" && (
+        <Head>
+          <link
+            rel="alternate"
+            type="application/rss+xml"
+            title="Couchers.org Blog"
+            href="/blog/rss.xml"
+          />
+        </Head>
+      )}
       <Container
         disableGutters
         maxWidth="md"
@@ -229,6 +284,71 @@ export default function MarkdownPage({
         <StyledMarkdown
           dangerouslySetInnerHTML={{ __html: content }}
         ></StyledMarkdown>
+        {frontmatter.is_blog_post && frontmatter.date && (
+          <Typography
+            variant="body1"
+            sx={{ fontStyle: "italic", marginTop: theme.spacing(2) }}
+          >
+            {frontmatter.author ? (
+              <Trans
+                i18nKey="blog.byline_with_author"
+                values={{ date: frontmatter.date }}
+              >
+                {"Written by "}
+                <AuthorList
+                  author={frontmatter.author}
+                  authorUsername={frontmatter.author_username}
+                />
+                {". Published on {{date}}."}
+              </Trans>
+            ) : (
+              t("blog.byline_without_author", { date: frontmatter.date })
+            )}
+          </Typography>
+        )}
+        {frontmatter.is_blog_post && !frontmatter.has_custom_cta && (
+          <Typography
+            variant="body1"
+            sx={{ fontWeight: "bold", marginTop: theme.spacing(3) }}
+          >
+            <Trans i18nKey="blog.cta_message">
+              {"Want to help write our blog or volunteer? "}
+              <Link href="/volunteer">Sign up</Link>
+              {" and let us know. Volunteers and "}
+              <Link href="/donate">donations</Link>
+              {" are what make Couchers.org possible!"}
+            </Trans>
+          </Typography>
+        )}
+        {frontmatter.is_blog_post && (
+          <Typography
+            variant="body1"
+            sx={{ marginTop: theme.spacing(3), display: "flex", gap: 1 }}
+          >
+            <Link
+              href="https://www.instagram.com/couchersorg/"
+              target="_blank"
+              rel="noopener"
+            >
+              <img
+                src="/img/blog/instagram_logo.svg"
+                alt="Instagram"
+                style={{ width: 26 }}
+              />
+            </Link>
+            <Link
+              href="https://bsky.app/profile/couchers.bsky.social"
+              target="_blank"
+              rel="noopener"
+            >
+              <img
+                src="/img/blog/bluesky_logo.svg"
+                alt="Bluesky"
+                style={{ width: 26 }}
+              />
+            </Link>
+          </Typography>
+        )}
         {bustitle && (
           <StyledBusTitle component="h2">
             <div dangerouslySetInnerHTML={{ __html: bustitle }}></div>

@@ -7,6 +7,7 @@ from couchers.db import session_scope
 from couchers.models import User, UserBlock
 from couchers.proto import blocking_pb2
 from couchers.servicers.blocking import is_not_visible
+from couchers.utils import now
 from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.sessions import blocking_session
 
@@ -213,14 +214,14 @@ def test_is_not_visible(db):
 
         # Test 5: User1 is deleted - should not be visible
         deleted_user1_db = session.get_one(User, deleted_user1.id)
-        deleted_user1_db.is_deleted = True
+        deleted_user1_db.deleted_at = now()
         session.commit()
         assert is_not_visible(session, deleted_user1.id, visible_for_deleted.id)
         assert is_not_visible(session, visible_for_deleted.id, deleted_user1.id)
 
         # Test 6: User2 is deleted - should not be visible
         deleted_user2_db = session.get_one(User, deleted_user2.id)
-        deleted_user2_db.is_deleted = True
+        deleted_user2_db.deleted_at = now()
         session.commit()
         assert is_not_visible(session, normal_user1.id, deleted_user2.id)
         assert is_not_visible(session, deleted_user2.id, normal_user1.id)
@@ -228,22 +229,22 @@ def test_is_not_visible(db):
         # Test 7: Both users deleted - should not be visible
         both_deleted1_db = session.get_one(User, both_deleted1.id)
         both_deleted2_db = session.get_one(User, both_deleted2.id)
-        both_deleted1_db.is_deleted = True
-        both_deleted2_db.is_deleted = True
+        both_deleted1_db.deleted_at = now()
+        both_deleted2_db.deleted_at = now()
         session.commit()
         assert is_not_visible(session, both_deleted1.id, both_deleted2.id)
         assert is_not_visible(session, both_deleted2.id, both_deleted1.id)
 
         # Test 8: User1 is banned - should not be visible
         banned_user1_db = session.get_one(User, banned_user1.id)
-        banned_user1_db.is_banned = True
+        banned_user1_db.banned_at = now()
         session.commit()
         assert is_not_visible(session, banned_user1.id, visible_for_banned.id)
         assert is_not_visible(session, visible_for_banned.id, banned_user1.id)
 
         # Test 9: User2 is banned - should not be visible
         banned_user2_db = session.get_one(User, banned_user2.id)
-        banned_user2_db.is_banned = True
+        banned_user2_db.banned_at = now()
         session.commit()
         assert is_not_visible(session, normal_user2.id, banned_user2.id)
         assert is_not_visible(session, banned_user2.id, normal_user2.id)
@@ -251,8 +252,8 @@ def test_is_not_visible(db):
         # Test 10: Both users banned - should not be visible
         both_banned1_db = session.get_one(User, both_banned1.id)
         both_banned2_db = session.get_one(User, both_banned2.id)
-        both_banned1_db.is_banned = True
-        both_banned2_db.is_banned = True
+        both_banned1_db.banned_at = now()
+        both_banned2_db.banned_at = now()
         session.commit()
         assert is_not_visible(session, both_banned1.id, both_banned2.id)
         assert is_not_visible(session, both_banned2.id, both_banned1.id)
@@ -260,8 +261,8 @@ def test_is_not_visible(db):
         # Test 11: Mixed - one deleted, one banned - should not be visible
         mixed_deleted_db = session.get_one(User, mixed_deleted.id)
         mixed_banned_db = session.get_one(User, mixed_banned.id)
-        mixed_deleted_db.is_deleted = True
-        mixed_banned_db.is_banned = True
+        mixed_deleted_db.deleted_at = now()
+        mixed_banned_db.banned_at = now()
         session.commit()
         assert is_not_visible(session, mixed_deleted.id, mixed_banned.id)
         assert is_not_visible(session, mixed_banned.id, mixed_deleted.id)

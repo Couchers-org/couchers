@@ -1,9 +1,11 @@
 ---
+is_blog_post: true
 title: Hosting refugees and finding shelter with Couchers.org
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-en
 description: Host refugees or find shelter with Couchers.org
 date: 2022/03/13
 author: Itsi
+author_username: itsi
 share_image: /img/blog/20220313_ukraine_en.jpg
 ---
 
@@ -42,5 +44,3 @@ We cannot guarantee how long people will house you for. Some may be able to for 
 If you have any issues please contact [support@couchers.org](mailto:support@couchers.org).
 
 We wish you the best and hope for your safety. Please know there are people out there who want to help you.
-
-*Published on 2022/03/13.*

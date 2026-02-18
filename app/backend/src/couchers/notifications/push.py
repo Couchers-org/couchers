@@ -127,6 +127,8 @@ def push_to_subscription(
             push_notification_subscription_id=push_notification_subscription_id,
             ttl=ttl,
             title=title,
+            ios_title=content.ios_title,
+            ios_subtitle=content.ios_subtitle,
             body=body,
             icon=icon_url,
             url=action_url,

@@ -662,7 +662,7 @@ def test_DeleteAccount_start(db):
         ).scalar_one()
 
         assert deletion_token.is_valid
-        assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
+        assert session.execute(select(User).where(User.id == user.id)).scalar_one().deleted_at is None
 
 
 def test_DeleteAccount_message_storage(db):
@@ -707,7 +707,7 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
 
         user_ = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert token_o.user == user_
-        assert not user_.is_deleted
+        assert user_.deleted_at is None
         assert not user_.undelete_token
         assert not user_.undelete_until
 
@@ -744,7 +744,7 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
 
         user_ = session.execute(select(User).where(User.id == user_id)).scalar_one()
-        assert user_.is_deleted
+        assert user_.deleted_at is not None
         assert user_.undelete_token
         assert user_.undelete_until
         assert user_.undelete_until > now()
@@ -791,7 +791,7 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
 
         user = session.execute(select(User).where(User.id == user_id)).scalar_one()
-        assert not user.is_deleted
+        assert user.deleted_at is None
         assert not user.undelete_token
         assert not user.undelete_until
 

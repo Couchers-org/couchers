@@ -41,11 +41,17 @@ def test_is_valid_email() -> None:
     assert is_valid_email("a@b.cc")
     assert is_valid_email("te.st+email.valid@a.org.au.xx.yy")
     assert is_valid_email("invalid@yahoo.co.uk")
+    assert is_valid_email("user+tag@example.com")
+    assert is_valid_email("first.last@example.com")
     assert not is_valid_email("invalid@.yahoo.co.uk")
     assert not is_valid_email("test email@couchers.org")
     assert not is_valid_email(".testemail@couchers.org")
     assert not is_valid_email("testemail@couchersorg")
     assert not is_valid_email("b@xxb....blabla")
+    # dot immediately before @ (the original bug)
+    assert not is_valid_email("user.@example.com")
+    # consecutive dots in local part
+    assert not is_valid_email("user..name@example.com")
 
 
 def test_is_valid_username() -> None:
@@ -249,7 +255,7 @@ def test_database_consistency_check(db, testconfig: dict[str, Any]) -> None:
 
     # Now break consistency by removing a user's profile gallery
     with session_scope() as session:
-        user = session.execute(select(User).where(User.is_deleted == False).limit(1)).scalar_one()
+        user = session.execute(select(User).where(User.deleted_at.is_(None)).limit(1)).scalar_one()
         user.profile_gallery_id = None
 
     # This should now raise an exception
