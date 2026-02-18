@@ -236,8 +236,7 @@
     "stay_type_a11y_text": "type de séjour",
     "success": "Votre demande d'hébergement a été envoyée !",
     "guest_count": "Nombre d'invités",
-    "arrival_date_empty": "Veuillez spécifier une date d'arrivée prévue",
-    "request_char_length_too_short": "Veuillez entrer {{charactersRemaining}} caratères supplémentaires pour envoyer une demande d'hébergement."
+    "arrival_date_empty": "Veuillez spécifier une date d'arrivée prévue"
   },
   "reference_badge_label": {
     "friend": "Ami(e)",

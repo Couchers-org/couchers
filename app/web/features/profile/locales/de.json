@@ -223,8 +223,7 @@
     "overnight_stay": "Übernachtung",
     "request_description": "Teile deine Pläne für den Besuch mit und gib an, warum du bei diesem bestimmten Host übernachten willst",
     "request_description_empty": "Bitte schreib eine Anfragenachricht",
-    "stay_type_a11y_text": "Aufenthaltstyp",
-    "request_char_length_too_short": "Bitte schreibe mindestens {{charactersRemaining}} weitere Zeichen, um eine Host-Anfrage zu senden."
+    "stay_type_a11y_text": "Aufenthaltstyp"
   },
   "response_rate_text_some": "Manchmal",
   "reference_filter_label": {

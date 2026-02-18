@@ -181,7 +181,6 @@
     "meetup_only": "Только для встреч",
     "overnight_stay": "Остановка на ночь",
     "request_description_empty": "Пожалуйста, напишите сообщение",
-    "request_char_length_too_short": "Пожалуйста, напишите как минимум еще {{charactersRemaining}} символов, чтобы отправить запрос хосту.",
     "stay_type_a11y_text": "тип пребывания",
     "success": "Запрос отправлен!",
     "guest_count": "Количество гостей"
