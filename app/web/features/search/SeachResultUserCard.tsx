@@ -14,7 +14,7 @@ import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
-import { hourMillis, timeAgoI18n } from "utils/timeAgo";
+import { hourMillis, timeAgo } from "utils/timeAgo";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
 import { aboutText, truncateWithEllipsis } from "./utils/constants";
@@ -237,7 +237,7 @@ const SearchResultUserCard = ({
             <Typography variant="body2">
               {user.lastActive
                 ? `${t("profile:active")}: ` +
-                  timeAgoI18n({
+                  timeAgo({
                     input: timestamp2Date(user.lastActive),
                     t,
                     fuzzy: {

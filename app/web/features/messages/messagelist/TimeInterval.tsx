@@ -2,7 +2,7 @@ import { styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import React from "react";
-import { timeAgoI18n } from "utils/timeAgo";
+import { timeAgo } from "utils/timeAgo";
 
 const Root = styled("div")(({ theme }) => ({
   paddingInlineEnd: theme.spacing(1),
@@ -18,12 +18,15 @@ interface TimeIntervalProps {
 }
 
 export default function TimeInterval({ date, className }: TimeIntervalProps) {
-  const { t } = useTranslation(GLOBAL);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(GLOBAL);
 
   return (
     <Root className={className}>
       <StyledTypography variant="caption">
-        {timeAgoI18n({ input: date, t })}
+        {timeAgo({ since: date, t, locale })}
       </StyledTypography>
     </Root>
   );

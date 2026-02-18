@@ -20,7 +20,7 @@ import { useEffect, useRef, useState } from "react";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
-import { timeAgoI18n } from "utils/timeAgo";
+import { timeAgo } from "utils/timeAgo";
 
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";
@@ -97,7 +97,10 @@ interface CommentProps {
 }
 
 export default function Comment({ topLevel = false, comment }: CommentProps) {
-  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([GLOBAL, COMMUNITIES]);
   const { data: user, isLoading: isUserLoading } = useLiteUser(
     comment.authorUserId,
   );
@@ -126,7 +129,7 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
   }, [showCommentForm]);
 
   const replyDate = timestamp2Date(comment.createdTime!);
-  const postedTime = timeAgoI18n({ input: replyDate, t: t });
+  const postedTime = timeAgo({ since: replyDate, t, locale });
 
   return (
     <>

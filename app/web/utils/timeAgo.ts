@@ -8,11 +8,6 @@ export const weekMillis = 7 * dayMillis;
 export const monthMillis = 30 * dayMillis;
 export const yearMillis = 365 * dayMillis + 6 * hourMillis; // 365.25;
 
-interface FuzzySpecT {
-  millis: number;
-  translationKey: Parameters<TFunction<"global", undefined>>[0];
-}
-
 export enum TimeUnit {
   Seconds,
   Minutes,
@@ -73,43 +68,50 @@ export class FriendlyTimeSpan {
     return this.between(date, new Date());
   }
 
-  toLocalizedAgoText(t: TFunction<"global", undefined>): string {
+  toLocalizedAgoText(locale: string): string {
+    const relativeTime = new Intl.RelativeTimeFormat(locale, {
+      style: "long", // 1 minute ago vs 1 min. ago
+      numeric: "auto", // yesterday vs 1 day ago
+    });
     switch (this.unit) {
       case TimeUnit.Seconds:
-        return t("relative_time.less_than_a_minute_ago");
+        return relativeTime.format(this.value, "second");
       case TimeUnit.Minutes:
-        return t("relative_time.n_minutes_ago", { count: this.value });
+        return relativeTime.format(this.value, "minute");
       case TimeUnit.Hours:
-        return t("relative_time.n_hours_ago", { count: this.value });
+        return relativeTime.format(this.value, "hour");
       case TimeUnit.Days:
-        return t("relative_time.n_days_ago", { count: this.value });
+        return relativeTime.format(this.value, "day");
       case TimeUnit.Weeks:
-        return t("relative_time.n_weeks_ago", { count: this.value });
+        return relativeTime.format(this.value, "week");
       case TimeUnit.Months:
-        return t("relative_time.n_months_ago", { count: this.value });
+        return relativeTime.format(this.value, "month");
       case TimeUnit.Years:
-        return t("relative_time.n_years_ago", { count: this.value });
+        return relativeTime.format(this.value, "year");
     }
   }
 }
 
-export function timeAgoI18n({
-  input,
+export function timeAgo({
+  since,
   t,
-  fuzzy = undefined,
+  locale,
+  minimumUnit = TimeUnit.Seconds,
 }: {
-  input: Date | string;
+  since: Date;
   t: TFunction<"global", undefined>;
-  fuzzy?: FuzzySpecT;
-}) {
-  if (input === undefined) return "";
-  const date = new Date(input);
-  const diffMillis = Date.now() - date.getTime();
+  locale: string;
+  minimumUnit?: TimeUnit;
+}): string {
+  const diffMillis = Date.now() - since.getTime();
 
-  if (fuzzy && diffMillis < fuzzy.millis) {
-    // if fuzzyMillis and fuzzyText are both set, then for times less than fuzzyMillis, we return fuzzyText
-    return t(fuzzy.translationKey) as string;
+  const timeSpan = FriendlyTimeSpan.fromMillis(diffMillis);
+  if (minimumUnit && timeSpan.unit < minimumUnit) {
+    if (minimumUnit == TimeUnit.Minutes)
+      return t("global:less_than_a_minute_ago");
+    if (minimumUnit == TimeUnit.Hours)
+      return t("global:less_than_one_hour_ago");
   }
 
-  return FriendlyTimeSpan.fromMillis(diffMillis).toLocalizedAgoText(t);
+  return timeSpan.toLocalizedAgoText(locale);
 }
