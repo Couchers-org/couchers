@@ -159,10 +159,11 @@
     "event_edit_permission_denied": "Bu etkinliği düzenleme yetkiniz yok.",
     "event_too_long": "Etkinlikler 7 günden uzun süremez.",
     "missing_moderation_user_list_id": "Eksik moderasyon kullanıcı listesi kimliği.",
-    "missing_page_content": "Eksik sayfa yazısı.",
+    "missing_page_content": "Eksik sayfa metni.",
     "missing_event_address_or_location": "Eksik etkinlik konumu veya adresi.",
     "missing_event_content": "Eksik etkinlik içeriği.",
     "missing_event_title": "Eksik etkinlik başlığı.",
-    "missing_page_address": "Eksik sayfa adresi."
+    "missing_page_address": "Eksik sayfa adresi.",
+    "missing_page_location": "Eksik sayfa coğrafi konumu."
   }
 }
