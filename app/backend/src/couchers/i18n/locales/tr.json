@@ -157,6 +157,8 @@
     "event_community_invite_already_approved": "Bu etkinlik için bir topluluk daveti zaten gönderildi.",
     "event_community_invite_already_requested": "Bu etkinlik için zaten bir topluluk daveti talebinde bulundunuz.",
     "event_edit_permission_denied": "Bu etkinliği düzenleme yetkiniz yok.",
-    "event_too_long": "Etkinlikler 7 günden uzun süremez."
+    "event_too_long": "Etkinlikler 7 günden uzun süremez.",
+    "missing_moderation_user_list_id": "Eksik moderasyon kullanıcı listesi kimliği.",
+    "missing_page_content": "Eksik sayfa metni."
   }
 }
