@@ -164,6 +164,8 @@
     "missing_event_content": "Eksik etkinlik içeriği.",
     "missing_event_title": "Eksik etkinlik başlığı.",
     "missing_page_address": "Eksik sayfa adresi.",
-    "missing_page_location": "Eksik sayfa coğrafi konumu."
+    "missing_page_location": "Eksik coğrafi konum bilgisi.",
+    "missing_page_parent": "Sayfanın bağlı olduğu üst sayfa bulunamadı.",
+    "moderator_note_need_to_acknowledge": "Moderasyon notunu okuyup kabul etmeniz gereklidir."
   }
 }
