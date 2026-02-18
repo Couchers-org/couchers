@@ -119,6 +119,12 @@ class Translation:
             raise LocalizationError(locale=self.locale, string_key=string_key)
         return string.render(substitutions)
 
+    def localize_with_markup(self, string_key: str, substitutions: SubstitutionDict | None = None) -> Markup:
+        string = self.find_string(string_key, substitutions)
+        if string is None:
+            raise LocalizationError(locale=self.locale, string_key=string_key)
+        return string.render_with_markup(substitutions)
+
 
 @dataclass(frozen=True, slots=True)
 class String:
