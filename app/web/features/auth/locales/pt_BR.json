@@ -310,7 +310,7 @@
   },
   "sign_up_resend_verification_email_help": "Não recebeu o e-mail? Clique <2>aqui para reenviar o link de verificação</2>.",
   "sign_up_resend_verification_done": "Pronto! Enviamos outro e-mail.",
-  "sign_up_need_verification_title": "Quase lá, falta só mais uma coisa!",
+  "sign_up_need_verification_title": "Só mais uma coisa: confirme seu e-mail.",
   "quick_links": {
     "title": "Ação rápida por e-mail",
     "button_text": "Confirmar ação",
