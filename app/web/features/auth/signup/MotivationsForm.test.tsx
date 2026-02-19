@@ -86,10 +86,7 @@ describe("MotivationsForm", () => {
     );
 
     await waitFor(() => {
-      expect(signupFlowMotivationsMock).toHaveBeenCalledWith(
-        "dummy-token",
-        [],
-      );
+      expect(signupFlowMotivationsMock).toHaveBeenCalledWith("dummy-token", []);
     });
   });
 
@@ -116,9 +113,7 @@ describe("MotivationsForm", () => {
     expect(
       await screen.findByText(t("auth:motivations_form.surfing")),
     ).toBeVisible();
-    expect(
-      screen.getByText(t("auth:motivations_form.hosting")),
-    ).toBeVisible();
+    expect(screen.getByText(t("auth:motivations_form.hosting"))).toBeVisible();
     expect(screen.getByText(t("auth:motivations_form.events"))).toBeVisible();
     expect(
       screen.getByText(t("auth:motivations_form.community_organizing")),

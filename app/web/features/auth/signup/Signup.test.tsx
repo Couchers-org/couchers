@@ -294,7 +294,9 @@ describe("Signup", () => {
 
       const user = userEvent.setup();
 
-      await user.click(await screen.findByText(t("auth:motivations_form.surfing")));
+      await user.click(
+        await screen.findByText(t("auth:motivations_form.surfing")),
+      );
 
       await user.click(
         screen.getByRole("button", { name: t("global:continue") }),
