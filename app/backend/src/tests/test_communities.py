@@ -1211,7 +1211,7 @@ def test_enforce_community_memberships_for_user(testing_communities):
                 ),
                 feedback=auth_pb2.ContributorForm(),
                 accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
-                intents=auth_pb2.SignupIntents(intents=["surfing"]),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
             )
         )
     with session_scope() as session:

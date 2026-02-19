@@ -193,7 +193,7 @@
     "signup_flow_email_started_signup": "Please check your email for a link to continue signing up.",
     "signup_flow_email_taken": "That email address is already associated with an account. Please log in instead!",
     "signup_flow_feedback_filled": "Feedback information already filled in.",
-    "signup_flow_intents_filled": "You've already told us about your intentions.",
+    "signup_flow_motivations_filled": "You've already told us about your motivations.",
     "strong_verification_already_verified": "You already have strong verification.",
     "strong_verification_attempt_not_found": "Strong verification attempt not found.",
     "strong_verification_disabled": "Strong verification is currently disabled.",

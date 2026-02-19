@@ -263,7 +263,7 @@ def test_signup_flow_creates_events(db):
         res = auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
                 flow_token=flow_token,
-                intents=auth_pb2.SignupIntents(intents=["surfing"]),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
             )
         )
 

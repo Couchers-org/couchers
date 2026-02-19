@@ -1,4 +1,4 @@
-"""Implement signup intents
+"""Implement signup motivations
 
 Revision ID: 0e07dbb98ffc
 Revises: 2e9def7290b9
@@ -18,19 +18,19 @@ depends_on = None
 
 def upgrade() -> None:
     op.add_column(
-        "signup_flows", sa.Column("filled_intents", sa.Boolean(), server_default=sa.text("false"), nullable=False)
+        "signup_flows", sa.Column("filled_motivations", sa.Boolean(), server_default=sa.text("false"), nullable=False)
     )
     op.add_column("signup_flows", sa.Column("heard_about_couchers", sa.String(), nullable=True))
     op.add_column(
-        "signup_flows", sa.Column("signup_intents", sa.ARRAY(sa.String()), server_default="{}", nullable=False)
+        "signup_flows", sa.Column("signup_motivations", sa.ARRAY(sa.String()), server_default="{}", nullable=False)
     )
     op.add_column("users", sa.Column("heard_about_couchers", sa.String(), nullable=True))
-    op.add_column("users", sa.Column("signup_intents", sa.ARRAY(sa.String()), server_default="{}", nullable=False))
+    op.add_column("users", sa.Column("signup_motivations", sa.ARRAY(sa.String()), server_default="{}", nullable=False))
 
 
 def downgrade() -> None:
-    op.drop_column("users", "signup_intents")
+    op.drop_column("users", "signup_motivations")
     op.drop_column("users", "heard_about_couchers")
-    op.drop_column("signup_flows", "signup_intents")
+    op.drop_column("signup_flows", "signup_motivations")
     op.drop_column("signup_flows", "heard_about_couchers")
-    op.drop_column("signup_flows", "filled_intents")
+    op.drop_column("signup_flows", "filled_motivations")

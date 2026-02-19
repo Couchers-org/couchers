@@ -313,13 +313,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.expertise = form.expertise
                 session.flush()
 
-            if request.HasField("intents"):
-                if flow.filled_intents:
-                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_intents_filled")
+            if request.HasField("motivations"):
+                if flow.filled_motivations:
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_motivations_filled")
 
-                flow.filled_intents = True
-                flow.heard_about_couchers = request.intents.heard_about_couchers or None
-                flow.signup_intents = list(request.intents.intents)
+                flow.filled_motivations = True
+                flow.heard_about_couchers = request.motivations.heard_about_couchers or None
+                flow.signup_motivations = list(request.motivations.motivations)
                 session.flush()
 
             if request.HasField("accept_community_guidelines"):
@@ -351,7 +351,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 last_onboarding_email_sent=func.now(),
                 invite_code_id=flow.invite_code_id,
                 heard_about_couchers=flow.heard_about_couchers,
-                signup_intents=flow.signup_intents,
+                signup_motivations=flow.signup_motivations,
             )
 
             user.accepted_community_guidelines = flow.accepted_community_guidelines
@@ -427,7 +427,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 need_feedback=False,
                 need_verify_email=not flow.email_verified,
                 need_accept_community_guidelines=flow.accepted_community_guidelines < GUIDELINES_VERSION,
-                need_intents=not flow.filled_intents,
+                need_motivations=not flow.filled_motivations,
             )
 
     def UsernameValid(
