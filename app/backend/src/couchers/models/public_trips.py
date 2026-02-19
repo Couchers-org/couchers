@@ -2,7 +2,7 @@ import enum
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, CheckConstraint, Date, DateTime, Enum, ForeignKey, Index, String, func, text
+from sqlalchemy import BigInteger, CheckConstraint, Date, DateTime, Enum, ForeignKey, Index, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base
@@ -13,20 +13,8 @@ if TYPE_CHECKING:
 
 
 class PublicTripStatus(enum.Enum):
-    active = enum.auto()
-    found_host = enum.auto()
-    cancelled = enum.auto()
-
-
-class PublicTripOutcome(enum.Enum):
-    # Found a host through this public trip feature
-    found_host_via_public_trip = enum.auto()
-    # Found a host through another means (e.g., direct search)
-    found_host_other = enum.auto()
-    # User cancelled the trip
-    trip_cancelled = enum.auto()
-    # Trip expired with no responses
-    no_responses = enum.auto()
+    searching_for_host = enum.auto()
+    closed = enum.auto()
 
 
 class PublicTrip(Base, kw_only=True):
@@ -52,14 +40,9 @@ class PublicTrip(Base, kw_only=True):
     description: Mapped[str] = mapped_column(String)
 
     # Current status
-    status: Mapped[PublicTripStatus] = mapped_column(Enum(PublicTripStatus), default=PublicTripStatus.active)
-
-    # Outcome (set when trip ends)
-    outcome: Mapped[PublicTripOutcome | None] = mapped_column(Enum(PublicTripOutcome), default=None)
-
-    # Metrics
-    profile_click_count: Mapped[int] = mapped_column(BigInteger, default=0, server_default=text("0"))
-    first_response_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    status: Mapped[PublicTripStatus] = mapped_column(
+        Enum(PublicTripStatus), default=PublicTripStatus.searching_for_host
+    )
 
     # Timestamps
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
@@ -78,6 +61,6 @@ class PublicTrip(Base, kw_only=True):
             "ix_public_trips_node_from_date_active",
             node_id,
             from_date,
-            postgresql_where=status == PublicTripStatus.active,
+            postgresql_where=status == PublicTripStatus.searching_for_host,
         ),
     )

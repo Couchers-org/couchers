@@ -13,8 +13,8 @@ The model already exists in [`public_trips.py`](../backend/src/couchers/models/p
 ```python
 class PublicTrip(Base, kw_only=True):
     # ... user_id, node_id, from_date, to_date, description
-    status: PublicTripStatus  # active, found_host, cancelled
-    outcome: PublicTripOutcome | None  # tracking how trip resolved
+    status: PublicTripStatus  # searching_for_host, closed
+    # Analytics via host_requests relationship
 ```
 
 The `HostRequest` model already has `public_trip_id` FK added in migration.
@@ -35,8 +35,7 @@ Location: `app/proto/public_trips.proto`
 - `GetPublicTrip(GetPublicTripReq) -> PublicTrip` - Get trip details
 - `ListPublicTrips(ListPublicTripsReq) -> ListPublicTripsRes` - List trips in a community (for hosts browsing)
 - `ListMyPublicTrips(ListMyPublicTripsReq) -> ListMyPublicTripsRes` - Surfer's dashboard
-- `UpdatePublicTripStatus(UpdatePublicTripStatusReq) -> Empty` - Cancel or mark found_host
-- `RecordProfileClick(RecordProfileClickReq) -> Empty` - Track engagement metrics
+- `UpdatePublicTripStatus(UpdatePublicTripStatusReq) -> Empty` - Close the trip
 
 **Modified RPC in `Requests` service:**
 
@@ -48,24 +47,20 @@ Location: `app/proto/public_trips.proto`
 
 ### 1. Community Level Restriction
 
-**Problem**: Users shouldn't post trips in Global Community (node_id=1) or country-level communities - too broad.
+**Problem**: Users shouldn't post trips in world/country/region-level communities - too broad.
 
-**Solution**: Use the existing `is_leaf` pattern from events:
+**Solution**: Use the `NodeType` hierarchy to restrict to locality-level communities and below:
 
 ```python
 # In CreatePublicTrip
-cluster = node.official_cluster
-if cluster.parent_node_id <= GLOBAL_COMMUNITY_MAX_NODE_ID:
-    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "community_too_broad")
+node = session.execute(select(Node).where(Node.id == request.node_id)).scalar_one()
 
-# Additionally check it's reasonably local (has no child nodes = is_leaf, OR is city-sized)
-if not cluster.is_leaf and cluster.parent_node.parent_node_id <= GLOBAL_COMMUNITY_MAX_NODE_ID:
+# Only allow locality (city-level) and sublocality (neighborhood-level)
+if node.node_type.value < NodeType.locality.value:
     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "community_too_broad")
 ```
 
-This allows: cities, neighborhoods, regions within countries. Blocks: Global, countries.
-
-QUESTION: I'm still a bit hand wavey with the clusters - would this work?
+This allows: `locality` (cities) and `sublocality` (neighborhoods). Blocks: `world`, `macroregion`, `region`, and `subregion`.
 
 ### 2. Duplicate Active Trips (probably overkill?)
 
@@ -78,7 +73,7 @@ existing = session.execute(
     select(PublicTrip)
     .where(PublicTrip.user_id == context.user_id)
     .where(PublicTrip.node_id == request.node_id)
-    .where(PublicTrip.status == PublicTripStatus.active)
+    .where(PublicTrip.status == PublicTripStatus.searching_for_host)
     .where(PublicTrip.to_date >= request.from_date)
     .where(PublicTrip.from_date <= request.to_date)
 ).scalar_one_or_none()
@@ -187,7 +182,7 @@ New page at `/my-public-trips` showing:
 
 - Active public trips
 - Offers received (host requests linked to each trip)
-- Ability to cancel trip or mark "found host"
+- Ability to close the trip (stops receiving new offers)
 - Linked for the surfer at top of "Public Trips" tab and on "Account Settings" page
 
 ### Accept Flow
@@ -195,7 +190,7 @@ New page at `/my-public-trips` showing:
 When surfer accepts an offer:
 
 1. Call existing `RespondHostRequest` with `status=accepted`
-2. Optionally call `UpdatePublicTripStatus` to mark trip as `found_host`
+2. Optionally call `UpdatePublicTripStatus` to mark trip as `closed` (stops further offers)
 
 ---
 
@@ -209,16 +204,23 @@ When surfer accepts an offer:
 
 ---
 
-## Status and Outcome Flow
+## Status Flow
 
-Note: Trips past `to_date` remain `active` in DB but are filtered out of community listings (`ListPublicTrips`). The surfer's dashboard (`ListMyPublicTrips`) shows all their trips including past ones so they can update status retroactively.
+**Status values:**
+- `searching_for_host` - Trip is active and can receive offers
+- `closed` - Trip is done (user closed it for any reason)
 
-Outcomes:
+**Filtering:**
+- `ListPublicTrips` (hosts browsing): Filter to `status == searching_for_host` AND `to_date >= today`
+- `ListMyPublicTrips` (surfer's dashboard): Show all trips including closed ones
 
-- `found_host_via_public_trip` - Accepted offer from public trip
-- `found_host_other` - User marked manually (found host elsewhere)
-- `trip_cancelled` - User cancelled
-- `no_responses` - User manually marks (optional, for analytics)
+**Analytics:**
+Use the `host_requests` relationship to determine outcomes:
+- Has accepted host request with `public_trip_id` → found host via public trip
+- Has no host requests → no responses
+- Everything else → closed without details
+
+This approach avoids requiring users to manually update outcomes and derives analytics from actual system data
 
 ---
 
