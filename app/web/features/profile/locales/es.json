@@ -205,7 +205,6 @@
     "meetup_only": "Sólo quedada",
     "overnight_stay": "Pernocta",
     "request_description_empty": "Por favor, escribe un mensaje de solicitud",
-    "request_char_length_too_short": "Por favor, escribe al menos {{charactersRemaining}} caracteres más para enviar una solicitud de alojamiento.",
     "stay_type_a11y_text": "tipo que estancia",
     "success": "¡Solicitud enviada!"
   },
