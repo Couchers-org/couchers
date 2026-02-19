@@ -150,11 +150,22 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         if event_type == "charge.succeeded":
             if metadata.get("site_url") == config["MERCH_SHOP_URL"]:
                 # merch shop. look up this email and give them the swagster badge
-                user = session.execute(
-                    select(User).where(User.email == metadata["customer_email"])
-                ).scalar_one_or_none()
+                customer_email = metadata["customer_email"]
+                amount = int(data_object["amount"]) // 100
+                user = session.execute(select(User).where(User.email == customer_email)).scalar_one_or_none()
                 if user:
                     user_add_badge(session, user.id, "swagster")
+                    user_link = urls.user_link(username=user.username)
+                    customer_info = f"<{user_link}|{user.name}>"
+                else:
+                    customer_info = customer_email
+                try:
+                    send_slack_message(
+                        config["SLACK_MERCH_CHANNEL"],
+                        f"Merch purchase: ${amount} from {customer_info}",
+                    )
+                except Exception as e:
+                    sentry_sdk.capture_exception(e)
             else:
                 customer_id = data_object["customer"]
                 user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()

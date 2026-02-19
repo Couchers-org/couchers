@@ -329,6 +329,48 @@ def test_merch_invoice_flow_nonexistent_user(db, monkeypatch):
         assert len(badge_count) == 0
 
 
+def test_slack_notification_on_merch_purchase(db, monkeypatch):
+    """Test that a Slack notification is sent when a merch purchase is made by a known user."""
+    user, _ = generate_user(email="test@couchers.org.invalid", last_donated=None)
+
+    new_config = config.copy()
+    new_config["STRIPE_API_KEY"] = "dummy_api_key"
+    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
+    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+
+    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+
+    with patch("couchers.servicers.donations.send_slack_message") as mock_slack:
+        fire_stripe_event("evt_merch_charge_succeeded")
+        mock_slack.assert_called_once()
+        call_args = mock_slack.call_args[0]
+        assert call_args[0] == config.get("SLACK_MERCH_CHANNEL", "merch")
+        assert "$50" in call_args[1]
+        assert "Merch purchase" in call_args[1]
+        assert user.name in call_args[1]
+
+
+def test_slack_notification_on_merch_purchase_unknown_user(db, monkeypatch):
+    """Test that a Slack notification is sent with email when merch purchase is by an unknown user."""
+    generate_user(last_donated=None)
+
+    new_config = config.copy()
+    new_config["STRIPE_API_KEY"] = "dummy_api_key"
+    new_config["STRIPE_WEBHOOK_SECRET"] = "dummy_webhook_secret"
+    new_config["MERCH_SHOP_URL"] = "https://shop.couchershq.org"
+
+    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+
+    with patch("couchers.servicers.donations.send_slack_message") as mock_slack:
+        fire_stripe_event("evt_merch_charge_succeeded")
+        mock_slack.assert_called_once()
+        call_args = mock_slack.call_args[0]
+        assert call_args[0] == config.get("SLACK_MERCH_CHANNEL", "merch")
+        assert "$50" in call_args[1]
+        assert "Merch purchase" in call_args[1]
+        assert "test@couchers.org.invalid" in call_args[1]
+
+
 def test_slack_notification_on_one_time_donation(db, monkeypatch):
     """Test that a Slack notification is sent when a one-time donation is received."""
     user, token = generate_user()
