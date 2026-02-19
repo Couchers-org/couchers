@@ -1,5 +1,5 @@
-from markupsafe import Markup
 import pytest
+from markupsafe import Markup
 
 from couchers.i18n.i18next import I18Next, LocalizationError
 from couchers.i18n.plurals import PluralRules
@@ -158,7 +158,7 @@ def test_missing_substitution_fallback():
 
 def test_escaping():
     i18next = I18Next()
-    i18next.add_translation("en", PluralRules.en, json_dict= { "greeting": "hello {{name}}" })
+    i18next.add_translation("en", PluralRules.en, json_dict={"greeting": "hello {{name}}"})
 
     # localize returns an str, which is considered untrusted for markup,
     # so it can contain tags because the renderer is resposible for escaping them.
@@ -168,5 +168,9 @@ def test_escaping():
 
     # localize_with_markup returns a Markup object, which is considered trusted for markup,
     # so it can only interpolate tags if they are also trusted, and otherwise will escape them.
-    assert i18next.localize_with_markup("greeting", "en", substitutions={"name": "<script/>"}) == "hello &lt;script/&gt;"
-    assert i18next.localize_with_markup("greeting", "en", substitutions={"name": Markup("<script/>")}) == "hello <script/>"
+    assert (
+        i18next.localize_with_markup("greeting", "en", substitutions={"name": "<script/>"}) == "hello &lt;script/&gt;"
+    )
+    assert (
+        i18next.localize_with_markup("greeting", "en", substitutions={"name": Markup("<script/>")}) == "hello <script/>"
+    )

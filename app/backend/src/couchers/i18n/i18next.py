@@ -6,8 +6,9 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from html import escape, unescape
-from markupsafe import Markup
 from typing import Any
+
+from markupsafe import Markup
 
 from couchers.i18n.plurals import PluralRule
 
@@ -30,16 +31,16 @@ class I18Next:
     default_translation: Translation | None = None
     """The translation used to look up strings in unsupported locales."""
 
-    def add_translation(self, locale: str, plural_rule: PluralRule, *, json_dict: dict[str, Any] | None = None) -> Translation:
+    def add_translation(
+        self, locale: str, plural_rule: PluralRule, *, json_dict: dict[str, Any] | None = None
+    ) -> Translation:
         translation = Translation(locale, plural_rule)
         self.translations_by_locale[locale] = translation
         if json_dict:
             translation.load_json_dict(json_dict)
         return translation
 
-    def find_string(
-        self, key: str, locale: str, substitutions: SubstitutionDict | None = None
-    ) -> String | None:
+    def find_string(self, key: str, locale: str, substitutions: SubstitutionDict | None = None) -> String | None:
         """Find the string that will be localized, applying fallbacks and variant selection."""
         translation = self.translations_by_locale.get(locale, self.default_translation)
         candidate_translations = [translation] + translation.fallbacks if translation else []
@@ -50,9 +51,7 @@ class I18Next:
 
         raise LocalizationError(locale, key)
 
-    def localize(
-        self, string_key: str, locale: str, substitutions: SubstitutionDict | None = None
-    ) -> str:
+    def localize(self, string_key: str, locale: str, substitutions: SubstitutionDict | None = None) -> str:
         """Finds a translated string in the best matching locale and performs substitutions."""
         if string := self.find_string(string_key, locale, substitutions):
             return string.render(substitutions)
