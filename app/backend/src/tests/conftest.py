@@ -242,6 +242,7 @@ def testconfig():
     config["SLACK_ENABLED"] = False
     config["SLACK_BOT_TOKEN"] = ""
     config["SLACK_DONATIONS_CHANNEL"] = ""
+    config["SLACK_MERCH_CHANNEL"] = ""
 
     config["ENABLE_NOTIFICATION_TRANSLATIONS"] = False
 
