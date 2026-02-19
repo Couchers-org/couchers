@@ -63,5 +63,8 @@
     "group_title_field_label": "Başlık",
     "dm_title": "Yeni bir sohbet oluştur",
     "group_title": "Grup sohbeti oluştur"
-  }
+  },
+  "mark_all_read_button_text_chats": "Tüm sohbetleri okundu olarak işaretle",
+  "mark_all_read_button_text_hosting": "Tüm ev sahipliği isteklerini okunmuş olarak işaretle",
+  "mark_all_read_button_text_surfing": "Tüm sörf isteklerini okunmuş olarak işaretle"
 }

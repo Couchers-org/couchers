@@ -1,8 +1,10 @@
 ---
+is_blog_post: true
 title: "Q&A with the Contributors: Nolo"
 description: "Get to know our forum admin: Nolo!"
 date: 2021/03/29
 author: Emily
+author_username: emily
 share_image: https://couchers.org/img/blog/20210329_nolo.jpg
 ---
 
@@ -37,7 +39,3 @@ Nolo: Certainly the forum. I got pretty hooked and I love using it. I’m even u
 ### What are you most excited about for the future of the project?
 
 **Nolo**: I’m most excited to travel again. I want to organize a trip on my motorbike through Turkey and Iran. I did one through France and Spain a few years back and it was great to stay with people while doing it. I’m excited to see how Couchers.org will work travelling overland with my motorbike, since we’re building these nice map features.
-
-*Written by Emily. Published on 2021/03/29.*
-
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

@@ -230,10 +230,6 @@
     "donation_message2": "Si vous le pouvez, veuillez envisager de faire un don pour aider Couchers.org à continuer de fonctionner et de se développer.",
     "donate_button": "Faire un don pour soutenir Couchers.org"
   },
-  "feedback_form": {
-    "skip_step_text": "Pas intéressé.e ? <2>Sautez cette étape</2>",
-    "header": "Donnez votres avis"
-  },
   "sign_up_need_verification_title": "On y est presque là, mais encore une dernière chose !",
   "sign_up_resend_verification_email_help": "N'avez-vous pas reçu le mail ? Cliquez <2>ici pour renvoyer le lien de vérification</2>.",
   "sign_up_resend_verification_done": "C'est fait ! Nous vous avons envoyé un autre mail.",

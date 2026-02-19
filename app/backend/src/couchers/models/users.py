@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
+    ARRAY,
     BigInteger,
     Boolean,
     CheckConstraint,
@@ -19,7 +20,6 @@ from sqlalchemy import (
     UniqueConstraint,
     and_,
     func,
-    not_,
     or_,
     text,
 )
@@ -181,14 +181,14 @@ class User(Base, kw_only=True):
     # "Additional information" under "About Me" tab
     additional_information: Mapped[str | None] = mapped_column(String, default=None)  # CommonMark without images
 
-    is_banned: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
-    is_deleted: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
+    banned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
     is_editor: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
     # the undelete token allows a user to recover their account for a couple of days after deletion in case it was
     # accidental or they changed their mind
-    # constraints make sure these are non-null only if is_deleted and that these are null in unison
+    # constraints make sure these are non-null only if deleted_at is set and that these are null in unison
     undelete_token: Mapped[str | None] = mapped_column(String, default=None)
     # validity of the undelete token
     undelete_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
@@ -327,6 +327,10 @@ class User(Base, kw_only=True):
     invite_code_id: Mapped[str | None] = mapped_column(ForeignKey("invite_codes.id"), default=None)
     invite_code: Mapped[InviteCode | None] = relationship(init=False, foreign_keys=[invite_code_id])
 
+    # Signup motivations - how they heard about us and what they want to do
+    heard_about_couchers: Mapped[str | None] = mapped_column(String, default=None)
+    signup_motivations: Mapped[list[str] | None] = mapped_column(ARRAY(String), default=None)
+
     moderation_user_lists: Mapped[list[ModerationUserList]] = relationship(
         init=False, secondary="moderation_user_list_members", back_populates="users"
     )
@@ -360,28 +364,27 @@ class User(Base, kw_only=True):
         Index(
             "ix_users_active",
             id,
-            postgresql_where=and_(not_(is_banned), not_(is_deleted)),
+            postgresql_where=and_(banned_at.is_(None), deleted_at.is_(None)),
         ),
-        # create index on users(geom, id, username) where not is_banned and not is_deleted and geom is not null;
         Index(
             "ix_users_geom_active",
             geom,
             id,
             username,
             postgresql_using="gist",
-            postgresql_where=and_(not_(is_banned), not_(is_deleted)),
+            postgresql_where=and_(banned_at.is_(None), deleted_at.is_(None)),
         ),
         Index(
             "ix_users_by_id",
             id,
             postgresql_using="hash",
-            postgresql_where=and_(not_(is_banned), not_(is_deleted)),
+            postgresql_where=and_(banned_at.is_(None), deleted_at.is_(None)),
         ),
         Index(
             "ix_users_by_username",
             username,
             postgresql_using="hash",
-            postgresql_where=and_(not_(is_banned), not_(is_deleted)),
+            postgresql_where=and_(banned_at.is_(None), deleted_at.is_(None)),
         ),
         # There are two possible states for new_email_token, new_email_token_created, and new_email_token_expiry
         CheckConstraint(
@@ -402,7 +405,7 @@ class User(Base, kw_only=True):
         ),
         # Undelete token + time are coupled: either both null or neither; and if they're not null then the account is deleted
         CheckConstraint(
-            "((undelete_token IS NULL) = (undelete_until IS NULL)) AND ((undelete_token IS NULL) OR is_deleted)",
+            "((undelete_token IS NULL) = (undelete_until IS NULL)) AND ((undelete_token IS NULL) OR deleted_at IS NOT NULL)",
             name="undelete_nullity",
         ),
         # If the user disabled all emails, then they can't host or meet up
@@ -484,12 +487,12 @@ class User(Base, kw_only=True):
 
     @hybrid_property
     def is_visible(self) -> bool:
-        return not self.is_banned and not self.is_deleted
+        return self.banned_at is None and self.deleted_at is None
 
     @is_visible.inplace.expression
     @classmethod
     def _is_visible_expression(cls) -> ColumnElement[bool]:
-        return ~(cls.is_banned | cls.is_deleted)
+        return and_(cls.banned_at.is_(None), cls.deleted_at.is_(None))
 
     @property
     def coordinates(self) -> tuple[float, float]:

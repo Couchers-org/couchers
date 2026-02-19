@@ -1,4 +1,5 @@
 ---
+is_blog_post: true
 title: "Couchers.org becomes the world's first couch surfing platform to obtain 501(c)(3) non-profit status in the US"
 description: "Read about our successful transformation into a 501(c)(3) non-profit organization and how this will allow us to grow further."
 date: 2022/01/20
@@ -60,5 +61,3 @@ To help the community grow, let your friends and local couch surfing community k
 ### Join the Conversation
 
 Couchers.org is a community project that is being built by community members based upon feedback and ideas provided by couch surfers around the world. We would love to hear from you! Join the [community forum](https://community.couchers.org) to discuss topics and share ideas with other community members and volunteers.
-
-*Published on 2022/01/20.*

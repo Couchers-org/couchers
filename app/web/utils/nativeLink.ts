@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 function getReactNativeWebView(): typeof window.ReactNativeWebView {
   if (typeof window !== "undefined" && window.ReactNativeWebView) {
@@ -7,12 +7,33 @@ function getReactNativeWebView(): typeof window.ReactNativeWebView {
 }
 
 function isNativeEmbed(): boolean {
-  return !!getReactNativeWebView();
+  const webview = getReactNativeWebView();
+  if (!webview) return false;
+
+  // Android-reliable detection: Check injectedObjectJson() which is more reliable than
+  // just checking for ReactNativeWebView existence due to timing issues on Android
+  try {
+    if (webview.injectedObjectJson) {
+      const injectedData = JSON.parse(webview.injectedObjectJson());
+      if (injectedData?.isNativeEmbed) return true;
+    }
+  } catch {
+    // Parsing failed or method not available - fall through to default behavior
+  }
+
+  // iOS and fallback: If ReactNativeWebView exists, assume we're in native embed
+  return true;
 }
 
 export function useIsNativeEmbed(): boolean {
-  const [isNative] = useState(() => isNativeEmbed());
-  return isNative;
+  return useSyncExternalStore(
+    // Subscribe function - no-op since value doesn't change after initial load
+    () => () => {},
+    // Client snapshot - check if we're in native embed
+    () => isNativeEmbed(),
+    // Server snapshot - always false during SSR
+    () => false,
+  );
 }
 
 type MessageType = "sendState" | "clearState" | "REQUEST_IMAGE_PICK";

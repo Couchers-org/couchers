@@ -12,6 +12,7 @@ variables:
   DO_CHECKS: "true"
   # whether to build web since it's very slow
   BUILD_WEB: "true"
+  BUILD_MOBILE: "true"
   PREVIEW_DOMAIN: preview.couchershq.org
   GIT_DEPTH: 1  # Speed up the checkout.
   DOCKER_HOST: tcp://docker:2376
@@ -119,8 +120,6 @@ build:proxy:
     - build "$PROXY_TAG" "$PROXY_RELEASE_TAG" "proxy" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
         - app/proto/**/*
@@ -137,9 +136,6 @@ build:nginx:
     - build "$NGINX_TAG" "$NGINX_RELEASE_TAG" "nginx" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
-        - app/.gitlab-ci.yml
 
 build:prometheus:
   needs: []
@@ -151,9 +147,6 @@ build:prometheus:
     - build "$PROMETHEUS_TAG" "$PROMETHEUS_RELEASE_TAG" "prometheus" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
-        - app/.gitlab-ci.yml
 
 build:backend:
   needs: ["protos"]
@@ -165,8 +158,6 @@ build:backend:
     - build "$BACKEND_TAG" "$BACKEND_RELEASE_TAG" "backend" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
         - app/proto/**/*
@@ -183,8 +174,6 @@ build:media:
     - build "$MEDIA_TAG" "$MEDIA_RELEASE_TAG" "media" "$SLUG"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
         - app/proto/**/*
@@ -201,8 +190,6 @@ build:web-dev:
     - build "$WEB_DEV_TAG" "$WEB_DEV_RELEASE_TAG" "web" "$SLUG" --build-arg environment=next -f app/web/Dockerfile
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-      - app/**/*
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") &&($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -228,8 +215,6 @@ build:web:
     - cd static && tar czf ../artifacts/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz .
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -258,8 +243,6 @@ build:web-next:
     - cd static && tar czf ../artifacts/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz .
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -281,8 +264,6 @@ build:nginx-next:
     - build "$NGINX_NEXT_TAG" "$NGINX_RELEASE_TAG" "nginx" "$SLUG-next" --build-arg environment=preview
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
     - if: $CI_COMMIT_BRANCH != $RELEASE_BRANCH
       changes:
         - app/proto/**/*
@@ -331,8 +312,6 @@ test:backend:
       - .test_durations.$CI_NODE_INDEX
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -392,8 +371,6 @@ test:backend-migrations:
       - artifacts/schema_dumps
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -415,8 +392,6 @@ test:backend-format:
     - ruff format --diff .
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -434,8 +409,6 @@ test:backend-mypy:
     - mypy src/couchers
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -459,8 +432,6 @@ test:media:
       junit: junit.xml
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -490,8 +461,6 @@ test:web:
       - artifacts/lcov-report
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -511,8 +480,6 @@ test:web-prettier:
     - yarn prettier --check *
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/web/**/*
@@ -529,8 +496,6 @@ test:web-linting:
     - yarn lint --max-warnings=0
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/web/**/*
@@ -555,7 +520,8 @@ test:mobile:
         coverage_format: cobertura
         path: cobertura-coverage.xml
   rules:
-    - if: $DO_CHECKS == "true"
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
         - app/mobile/**/*
@@ -572,7 +538,8 @@ test:mobile-linting:
     - npm run build:protos
     - npm run lint
   rules:
-    - if: $DO_CHECKS == "true"
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/mobile/**/*
 
@@ -588,7 +555,8 @@ test:mobile-typecheck:
     - npm run build:protos
     - npx tsc --noEmit
   rules:
-    - if: $DO_CHECKS == "true"
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/mobile/**/*
 
@@ -609,8 +577,6 @@ test:proxy:
     - docker rm -f envoy-config-test || true
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -674,8 +640,6 @@ preview:backend-coverage:
       - test_durations.json
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -724,8 +688,6 @@ preview:backend:
       - artifacts/schema_dumps
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -746,8 +708,6 @@ preview:wcov:
     - echo "Done, coverage report available at https://$CI_COMMIT_SHORT_SHA--wcov.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--wcov.$PREVIEW_DOMAIN/"
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
         - app/proto/**/*
@@ -770,8 +730,6 @@ preview:web:
     - echo "Done, web-static available at https://$CI_COMMIT_SHORT_SHA--web-static.$PREVIEW_DOMAIN/static.tar.gz and https://$CI_COMMIT_REF_SLUG--web-static.$PREVIEW_DOMAIN/static.tar.gz"
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-      - app/**/*
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/web/**/*
@@ -793,8 +751,6 @@ preview:web-next:
     - echo "Done, web-static available at https://$CI_COMMIT_SHORT_SHA--web-next-static.$PREVIEW_DOMAIN/static.tar.gz and https://$CI_COMMIT_REF_SLUG--web-next-static.$PREVIEW_DOMAIN/static.tar.gz"
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-      - app/**/*
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
       changes:
       - app/web/**/*
@@ -847,8 +803,6 @@ wait:before-release:
     - echo "Done waiting."
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
   needs:
     - job: protos
       artifacts: false
@@ -919,8 +873,6 @@ release:proxy:
     - docker push $PROXY_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
 
 release:nginx:
   needs: ["wait:before-release"]
@@ -931,8 +883,6 @@ release:nginx:
     - docker push $NGINX_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
 
 release:prometheus:
   needs: ["wait:before-release"]
@@ -943,8 +893,6 @@ release:prometheus:
     - docker push $PROMETHEUS_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
 
 release:backend:
   needs: ["wait:before-release"]
@@ -955,8 +903,6 @@ release:backend:
     - docker push $BACKEND_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
 
 release:media:
   needs: ["wait:before-release"]
@@ -967,8 +913,6 @@ release:media:
     - docker push $MEDIA_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
 
 release:web-dev:
   needs: ["wait:before-release"]
@@ -979,8 +923,6 @@ release:web-dev:
     - docker push $WEB_DEV_RELEASE_TAG
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
 
 release:web:
   needs: ["wait:before-release"]
@@ -991,8 +933,6 @@ release:web:
     - docker push $WEB_RELEASE_TAG
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
 
 release:web-next:
   needs: ["wait:before-release"]
@@ -1004,8 +944,6 @@ release:web-next:
     # some command to get our preview server to redeploy?
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
-      changes:
-        - app/**/*
 
 release:nginx-next:
   needs: ["wait:before-release"]
@@ -1016,8 +954,6 @@ release:nginx-next:
     - docker push $NGINX_NEXT_RELEASE_TAG
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*
 
 deploy:staging:
   needs: ["release:web-next", "release:backend"]
@@ -1051,5 +987,3 @@ deploy:staging:
     - ${CI_PROJECT_DIR}/app/deployment/check_deployment.sh develop-${rev} https://next.couchershq.org
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-      changes:
-        - app/**/*

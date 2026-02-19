@@ -125,9 +125,18 @@
       "required_error": "All checkboxes are required"
     }
   },
-  "feedback_form": {
-    "header": "Have your say",
-    "skip_step_text": "Not interested? <2>Skip this step</2>"
+  "motivations_form": {
+    "header": "What brings you to Couchers?",
+    "surfing": "Surfing",
+    "surfing_description": "I'm planning a trip and looking for a host",
+    "hosting": "Hosting",
+    "hosting_description": "I'd like to host and welcome travelers in my city",
+    "events": "Events",
+    "events_description": "I'd like to join events and meet the community",
+    "community_organizing": "Community organizing",
+    "community_organizing_description": "I want to organize events and activities on the platform",
+    "something_else": "Something else",
+    "something_else_description": "I'm just exploring or haven't decided yet"
   },
   "jail": {
     "title": "More information required",
@@ -160,7 +169,7 @@
   },
   "logged_out_message": "You were logged out.",
   "sign_up_completed_title": "Thank you for signing up!",
-  "sign_up_need_verification_title": "Almost there, one last thing!",
+  "sign_up_need_verification_title": "One last thing: confirm your email.",
   "sign_up_resend_verification_email_help": "Didn't receive the email? Click <2>here to resend the verification link</2>.",
   "sign_up_resend_verification_done": "Done! We've sent you another email.",
   "sign_up_completed_prompt": "We have sent an email with a verification link to your email address. Please click the link to activate your account.",
