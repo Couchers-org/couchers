@@ -165,7 +165,7 @@ class StringTemplate:
             if segment.is_variable:
                 if substitutions is not None and segment.text in substitutions:
                     value = substitutions[segment.text]
-                    if with_markup and not isinstance(value, Markup):
+                    if with_markup and not isinstance(value, Markup) and not isinstance(value, int):
                         # Auto-escape since we're producing markup
                         substrings.append(escape(value))
                     elif isinstance(value, Markup) and not with_markup:
