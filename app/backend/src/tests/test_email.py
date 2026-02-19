@@ -434,7 +434,8 @@ def test_email_deleted_users_regression(db, moderator: Moderator):
 
     with session_scope() as session:
         w = create_community(session, 0, 2, "Global Community", [super_user], [], None)
-        r = create_community(session, 0, 2, "Region", [super_user], [], w)
+        mr = create_community(session, 0, 2, "Macroregion", [super_user], [], w)
+        r = create_community(session, 0, 2, "Region", [super_user], [], mr)
         c_id = create_community(
             session,
             0,

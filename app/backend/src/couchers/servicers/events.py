@@ -265,8 +265,8 @@ def get_users_to_notify_for_new_event(session: Session, occurrence: EventOccurre
     Returns the users to notify, as well as the community id that is being notified (None if based on geo search)
     """
     cluster = occurrence.event.parent_node.official_cluster
-    if occurrence.event.parent_node.node_type in (NodeType.world, NodeType.region):
-        logger.info("Global and region communities are too big for email notifications.")
+    if occurrence.event.parent_node.node_type.value <= NodeType.region.value:
+        logger.info("Global, macroregion, and region communities are too big for email notifications.")
         return [], occurrence.event.parent_node_id
     elif occurrence.creator_user in cluster.admins or cluster.is_leaf:
         return list(cluster.members.where(User.is_visible)), occurrence.event.parent_node_id
@@ -1221,9 +1221,7 @@ class Events(events_pb2_grpc.EventsServicer):
         query = query.where(or_(*where_))
 
         if request.my_communities_exclude_global:
-            query = query.join(Node, Node.id == Event.parent_node_id).where(
-                Node.node_type.not_in([NodeType.world, NodeType.region])
-            )
+            query = query.join(Node, Node.id == Event.parent_node_id).where(Node.node_type > NodeType.region)
 
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)

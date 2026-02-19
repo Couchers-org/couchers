@@ -34,11 +34,13 @@ if TYPE_CHECKING:
 
 
 class NodeType(enum.Enum):
-    world = enum.auto()
-    region = enum.auto()
-    subregion = enum.auto()
-    locality = enum.auto()
-    sublocality = enum.auto()
+    # Ordinal: lower values are broader geographic areas
+    world = 1
+    macroregion = 2
+    region = 3
+    subregion = 4
+    locality = 5
+    sublocality = 6
 
 
 class Node(Base, kw_only=True):
