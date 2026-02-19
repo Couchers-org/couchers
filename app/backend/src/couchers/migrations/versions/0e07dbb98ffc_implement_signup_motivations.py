@@ -25,7 +25,7 @@ def upgrade() -> None:
         "signup_flows", sa.Column("signup_motivations", sa.ARRAY(sa.String()), server_default="{}", nullable=False)
     )
     op.add_column("users", sa.Column("heard_about_couchers", sa.String(), nullable=True))
-    op.add_column("users", sa.Column("signup_motivations", sa.ARRAY(sa.String()), server_default="{}", nullable=False))
+    op.add_column("users", sa.Column("signup_motivations", sa.ARRAY(sa.String()), nullable=True))
 
 
 def downgrade() -> None:

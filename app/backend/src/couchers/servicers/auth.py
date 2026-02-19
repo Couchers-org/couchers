@@ -351,7 +351,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 last_onboarding_email_sent=func.now(),
                 invite_code_id=flow.invite_code_id,
                 heard_about_couchers=flow.heard_about_couchers,
-                signup_motivations=flow.signup_motivations,
+                signup_motivations=flow.signup_motivations if flow.filled_motivations else None,
             )
 
             user.accepted_community_guidelines = flow.accepted_community_guidelines

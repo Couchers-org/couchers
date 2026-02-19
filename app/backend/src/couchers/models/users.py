@@ -327,8 +327,8 @@ class User(Base, kw_only=True):
     invite_code: Mapped[InviteCode | None] = relationship(init=False, foreign_keys=[invite_code_id])
 
     # Signup motivations - how they heard about us and what they want to do
-    heard_about_couchers: Mapped[str | None] = mapped_column(String, nullable=True, default=None)
-    signup_motivations: Mapped[list[str]] = mapped_column(ARRAY(String), server_default="{}", default_factory=list)
+    heard_about_couchers: Mapped[str | None] = mapped_column(String, default=None)
+    signup_motivations: Mapped[list[str] | None] = mapped_column(ARRAY(String), default=None)
 
     moderation_user_lists: Mapped[list[ModerationUserList]] = relationship(
         init=False, secondary="moderation_user_list_members", back_populates="users"
