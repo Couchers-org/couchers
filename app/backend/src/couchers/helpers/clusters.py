@@ -18,7 +18,8 @@ from couchers.models import (
 
 CHILD_NODE_TYPE = {
     None: NodeType.world,
-    NodeType.world: NodeType.region,
+    NodeType.world: NodeType.macroregion,
+    NodeType.macroregion: NodeType.region,
     NodeType.region: NodeType.subregion,
     NodeType.subregion: NodeType.locality,
     NodeType.locality: NodeType.sublocality,

@@ -1822,11 +1822,16 @@ def test_ListMyEvents(db, moderator: Moderator):
     user5, token5 = generate_user()
 
     with session_scope() as session:
-        # Create global (world) -> region -> subregion hierarchy
-        # my_communities_exclude_global filters out world and region level communities
+        # Create global (world) -> macroregion -> region -> subregion hierarchy
+        # my_communities_exclude_global filters out world, macroregion, and region level communities
         global_community = create_community(session, 0, 100, "Global", [user3], [], None)
         c_id = global_community.id
-        region_community = create_community(session, 0, 50, "Region Community", [user3, user4], [], global_community)
+        macroregion_community = create_community(
+            session, 0, 75, "Macroregion Community", [user3, user4], [], global_community
+        )
+        region_community = create_community(
+            session, 0, 50, "Region Community", [user3, user4], [], macroregion_community
+        )
         subregion_community = create_community(
             session, 0, 25, "Subregion Community", [user3, user4], [], region_community
         )
@@ -2393,7 +2398,8 @@ def test_community_invite_requests(db, moderator: Moderator):
 
     with session_scope() as session:
         w = create_community(session, 0, 2, "World Community", [user5], [], None)
-        r = create_community(session, 0, 2, "Region", [user5], [], w)
+        mr = create_community(session, 0, 2, "Macroregion", [user5], [], w)
+        r = create_community(session, 0, 2, "Region", [user5], [], mr)
         c_id = create_community(session, 0, 2, "Community", [user1, user3, user4], [], r).id
 
     enforce_community_memberships()
@@ -2775,10 +2781,11 @@ def test_event_create_notification_deferred_until_approval(db, push_collector: P
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    # Need world -> region -> subregion so the subregion community gets notifications
+    # Need world -> macroregion -> region -> subregion so the subregion community gets notifications
     with session_scope() as session:
         world = create_community(session, 0, 10, "World", [user1], [], None)
-        region = create_community(session, 0, 5, "Region", [user1], [], world)
+        macroregion = create_community(session, 0, 7, "Macroregion", [user1], [], world)
+        region = create_community(session, 0, 5, "Region", [user1], [], macroregion)
         create_community(session, 0, 2, "Child", [user2], [], region)
 
     start_time = now() + timedelta(hours=2)

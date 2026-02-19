@@ -41,6 +41,7 @@ MAX_PAGINATION_LENGTH = 25
 
 nodetype2api = {
     NodeType.world: communities_pb2.NODE_TYPE_WORLD,
+    NodeType.macroregion: communities_pb2.NODE_TYPE_MACROREGION,
     NodeType.region: communities_pb2.NODE_TYPE_REGION,
     NodeType.subregion: communities_pb2.NODE_TYPE_SUBREGION,
     NodeType.locality: communities_pb2.NODE_TYPE_LOCALITY,
