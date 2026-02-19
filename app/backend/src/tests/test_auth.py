@@ -1405,7 +1405,7 @@ def test_signup_motivations_cannot_be_refilled(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "You've already told us about your motivations."
+        assert e.value.details() == "You've already told us about why you are signing up."
 
 
 def test_signup_motivations_required(db):
