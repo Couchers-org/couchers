@@ -75,19 +75,19 @@ export class FriendlyTimeSpan {
     });
     switch (this.unit) {
       case TimeUnit.Seconds:
-        return relativeTime.format(this.value, "second");
+        return relativeTime.format(-this.value, "second");
       case TimeUnit.Minutes:
-        return relativeTime.format(this.value, "minute");
+        return relativeTime.format(-this.value, "minute");
       case TimeUnit.Hours:
-        return relativeTime.format(this.value, "hour");
+        return relativeTime.format(-this.value, "hour");
       case TimeUnit.Days:
-        return relativeTime.format(this.value, "day");
+        return relativeTime.format(-this.value, "day");
       case TimeUnit.Weeks:
-        return relativeTime.format(this.value, "week");
+        return relativeTime.format(-this.value, "week");
       case TimeUnit.Months:
-        return relativeTime.format(this.value, "month");
+        return relativeTime.format(-this.value, "month");
       case TimeUnit.Years:
-        return relativeTime.format(this.value, "year");
+        return relativeTime.format(-this.value, "year");
     }
   }
 }

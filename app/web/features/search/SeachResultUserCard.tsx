@@ -14,7 +14,7 @@ import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
-import { hourMillis, timeAgo } from "utils/timeAgo";
+import { timeAgo, TimeUnit } from "utils/timeAgo";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
 import { aboutText, truncateWithEllipsis } from "./utils/constants";
@@ -157,7 +157,10 @@ const SearchResultUserCard = ({
 }: SearchResultUserCardProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isNativeEmbed = useIsNativeEmbed();
-  const { t } = useTranslation([GLOBAL, PROFILE]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([GLOBAL, PROFILE]);
 
   const handleUserCardClick = () => {
     onUserCardClick(user.userId);
@@ -238,12 +241,10 @@ const SearchResultUserCard = ({
               {user.lastActive
                 ? `${t("profile:active")}: ` +
                   timeAgo({
-                    input: timestamp2Date(user.lastActive),
+                    since: timestamp2Date(user.lastActive),
                     t,
-                    fuzzy: {
-                      millis: hourMillis,
-                      translationKey: "relative_time.less_than_one_hour_ago",
-                    },
+                    locale,
+                    minimumUnit: TimeUnit.Hours,
                   })
                 : t("last_active_false")}
             </Typography>
