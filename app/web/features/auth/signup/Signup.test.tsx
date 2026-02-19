@@ -38,8 +38,9 @@ const signupFlowCommunityGuidelinesMock = service.auth
   .signupFlowCommunityGuidelines as MockedService<
   typeof service.auth.signupFlowCommunityGuidelines
 >;
-const signupFlowIntentsMock = service.auth.signupFlowIntents as MockedService<
-  typeof service.auth.signupFlowIntents
+const signupFlowMotivationsMock = service.auth
+  .signupFlowMotivations as MockedService<
+  typeof service.auth.signupFlowMotivations
 >;
 const signupFlowEmailTokenMock = service.auth
   .signupFlowEmailToken as MockedService<
@@ -115,7 +116,7 @@ describe("Signup", () => {
           needBasic: true,
           needAccount: true,
           needAcceptCommunityGuidelines: true,
-          needIntents: true,
+          needMotivations: true,
           needFeedback: false,
           needVerifyEmail: false,
         }),
@@ -125,7 +126,7 @@ describe("Signup", () => {
         needBasic: false,
         needAccount: true,
         needAcceptCommunityGuidelines: true,
-        needIntents: true,
+        needMotivations: true,
         needFeedback: false,
         needVerifyEmail: false,
       });
@@ -157,7 +158,7 @@ describe("Signup", () => {
           needBasic: false,
           needAccount: true,
           needAcceptCommunityGuidelines: true,
-          needIntents: true,
+          needMotivations: true,
           needFeedback: false,
           needVerifyEmail: false,
         }),
@@ -167,7 +168,7 @@ describe("Signup", () => {
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: true,
-        needIntents: true,
+        needMotivations: true,
         needFeedback: false,
         needVerifyEmail: false,
       });
@@ -223,7 +224,7 @@ describe("Signup", () => {
       expect(await screen.findByText("Guideline 1")).toBeVisible();
     });
 
-    it("guidelines -> intents form works", async () => {
+    it("guidelines -> motivations form works", async () => {
       window.localStorage.setItem(
         "auth.flowState",
         JSON.stringify({
@@ -231,7 +232,7 @@ describe("Signup", () => {
           needBasic: false,
           needAccount: false,
           needAcceptCommunityGuidelines: true,
-          needIntents: true,
+          needMotivations: true,
           needFeedback: false,
           needVerifyEmail: false,
         }),
@@ -241,7 +242,7 @@ describe("Signup", () => {
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: false,
-        needIntents: true,
+        needMotivations: true,
         needFeedback: false,
         needVerifyEmail: false,
       });
@@ -262,11 +263,11 @@ describe("Signup", () => {
       await user.click(button);
 
       expect(
-        await screen.findByText(t("auth:intents_form.header")),
+        await screen.findByText(t("auth:motivations_form.header")),
       ).toBeVisible();
     });
 
-    it("intents -> success", async () => {
+    it("motivations -> success", async () => {
       window.localStorage.setItem(
         "auth.flowState",
         JSON.stringify({
@@ -274,18 +275,18 @@ describe("Signup", () => {
           needBasic: false,
           needAccount: false,
           needAcceptCommunityGuidelines: false,
-          needIntents: true,
+          needMotivations: true,
           needFeedback: false,
           needVerifyEmail: false,
         }),
       );
-      signupFlowIntentsMock.mockResolvedValue({
+      signupFlowMotivationsMock.mockResolvedValue({
         flowToken: "token",
         authRes: { userId: 1, jailed: false },
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: false,
-        needIntents: false,
+        needMotivations: false,
         needFeedback: false,
         needVerifyEmail: false,
       });
@@ -293,7 +294,7 @@ describe("Signup", () => {
 
       const user = userEvent.setup();
 
-      await user.click(await screen.findByText(t("auth:intents_form.surfing")));
+      await user.click(await screen.findByText(t("auth:motivations_form.surfing")));
 
       await user.click(
         screen.getByRole("button", { name: t("global:continue") }),
@@ -311,7 +312,7 @@ describe("Signup", () => {
         needBasic: true,
         needAccount: true,
         needAcceptCommunityGuidelines: true,
-        needIntents: true,
+        needMotivations: true,
         needFeedback: false,
         needVerifyEmail: false,
       }),
@@ -330,7 +331,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
-      needIntents: true,
+      needMotivations: true,
       needFeedback: false,
       needVerifyEmail: false,
     });
@@ -383,7 +384,7 @@ describe("Signup", () => {
       needBasic: true,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
-      needIntents: true,
+      needMotivations: true,
       needFeedback: false,
       needVerifyEmail: true,
       flowToken: "token",
@@ -401,7 +402,7 @@ describe("Signup", () => {
       needAccount: true,
       needFeedback: false,
       needAcceptCommunityGuidelines: true,
-      needIntents: true,
+      needMotivations: true,
       needVerifyEmail: true,
       flowToken: "token",
     };
@@ -417,7 +418,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
-      needIntents: true,
+      needMotivations: true,
       needFeedback: false,
       needVerifyEmail: true,
       flowToken: "token",
@@ -434,7 +435,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: false,
-      needIntents: false,
+      needMotivations: false,
       needFeedback: false,
       needVerifyEmail: false,
       flowToken: "token",
@@ -451,7 +452,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: true,
-      needIntents: true,
+      needMotivations: true,
       needFeedback: false,
       needVerifyEmail: true,
       flowToken: "token",
@@ -466,7 +467,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: true,
-      needIntents: true,
+      needMotivations: true,
       needFeedback: false,
       needVerifyEmail: false,
       flowToken: "token",
@@ -476,12 +477,12 @@ describe("Signup", () => {
     expect(await screen.findByText("Guideline 1")).toBeVisible();
   });
 
-  it("displays the intents form when only intents is pending", async () => {
+  it("displays the motivations form when only motivations is pending", async () => {
     const state: SignupFlowRes.AsObject = {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
-      needIntents: true,
+      needMotivations: true,
       needFeedback: false,
       needVerifyEmail: false,
       flowToken: "token",
@@ -489,7 +490,7 @@ describe("Signup", () => {
     window.localStorage.setItem("auth.flowState", JSON.stringify(state));
     render(<View />, { wrapper });
     expect(
-      await screen.findByText(t("auth:intents_form.header")),
+      await screen.findByText(t("auth:motivations_form.header")),
     ).toBeVisible();
   });
 
@@ -498,7 +499,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
-      needIntents: false,
+      needMotivations: false,
       needFeedback: false,
       needVerifyEmail: true,
       flowToken: "token",
@@ -513,7 +514,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
-      needIntents: false,
+      needMotivations: false,
       needFeedback: false,
       needVerifyEmail: false,
       flowToken: "token",
@@ -531,7 +532,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
-      needIntents: false,
+      needMotivations: false,
       needFeedback: false,
       needVerifyEmail: false,
       flowToken: "token",
@@ -546,7 +547,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
-      needIntents: true,
+      needMotivations: true,
       needFeedback: false,
       needVerifyEmail: false,
       flowToken: "token",
@@ -555,7 +556,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
-      needIntents: true,
+      needMotivations: true,
       needFeedback: false,
       needVerifyEmail: true,
       flowToken: "token",
@@ -583,7 +584,7 @@ describe("Signup", () => {
       needBasic: false,
       needAccount: true,
       needAcceptCommunityGuidelines: true,
-      needIntents: true,
+      needMotivations: true,
       needFeedback: false,
       needVerifyEmail: true,
       flowToken: "token",

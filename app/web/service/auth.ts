@@ -9,7 +9,7 @@ import {
   SignupAccount,
   SignupBasic,
   SignupFlowReq,
-  SignupIntents,
+  SignupMotivations,
   UnsubscribeReq,
   UsernameValidReq,
 } from "proto/auth_pb";
@@ -124,12 +124,15 @@ export async function signupFlowEmailToken(emailToken: string) {
   return res.toObject();
 }
 
-export async function signupFlowIntents(flowToken: string, intents: string[]) {
+export async function signupFlowMotivations(
+  flowToken: string,
+  motivations: string[],
+) {
   const req = new SignupFlowReq();
   req.setFlowToken(flowToken);
-  const signupIntents = new SignupIntents();
-  signupIntents.setIntentsList(intents);
-  req.setIntents(signupIntents);
+  const signupMotivations = new SignupMotivations();
+  signupMotivations.setMotivationsList(motivations);
+  req.setMotivations(signupMotivations);
   const res = await client.auth.signupFlow(req);
   return res.toObject();
 }

@@ -28,7 +28,7 @@ describe("community guidelines signup form", () => {
         needAccount: true,
         needFeedback: false,
         needVerifyEmail: false,
-        needIntents: false,
+        needMotivations: false,
         needAcceptCommunityGuidelines: true,
       }),
     );
@@ -53,7 +53,7 @@ describe("community guidelines signup form", () => {
       needBasic: false,
       needAccount: false,
       needAcceptCommunityGuidelines: false,
-      needIntents: false,
+      needMotivations: false,
       needFeedback: false,
       needVerifyEmail: true,
     });

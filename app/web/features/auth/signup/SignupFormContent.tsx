@@ -12,7 +12,7 @@ import { useAuthContext } from "../AuthProvider";
 import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
 import CommunityGuidelinesForm from "./CommunityGuidelinesForm";
-import IntentsForm from "./IntentsForm";
+import MotivationsForm from "./MotivationsForm";
 import ResendVerificationEmailForm from "./ResendVerificationEmailForm";
 
 export default function SignupFormContent({
@@ -117,13 +117,13 @@ export default function SignupFormContent({
         <CommunityGuidelinesForm />
       </>
     );
-  } else if (state.needIntents) {
+  } else if (state.needMotivations) {
     return (
       <>
         <Typography variant="h2" gutterBottom>
-          {t("auth:intents_form.header")}
+          {t("auth:motivations_form.header")}
         </Typography>
-        <IntentsForm />
+        <MotivationsForm />
       </>
     );
   } else if (state.needVerifyEmail) {

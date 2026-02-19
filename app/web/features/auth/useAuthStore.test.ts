@@ -271,7 +271,7 @@ describe("updateSignupState action", () => {
         needAccount: true,
         needFeedback: false,
         needVerifyEmail: true,
-        needIntents: true,
+        needMotivations: true,
         needAcceptCommunityGuidelines: true,
       }),
     );
@@ -301,7 +301,7 @@ describe("updateSignupState action", () => {
         needAccount: false,
         needFeedback: false,
         needVerifyEmail: false,
-        needIntents: false,
+        needMotivations: false,
         needAcceptCommunityGuidelines: false,
       }),
     );

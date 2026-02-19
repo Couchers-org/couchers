@@ -125,7 +125,7 @@
       "required_error": "All checkboxes are required"
     }
   },
-  "intents_form": {
+  "motivations_form": {
     "header": "What brings you to Couchers?",
     "surfing": "Surfing",
     "surfing_description": "I'm planning a trip and looking for a host",

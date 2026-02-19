@@ -241,7 +241,7 @@ def test_signup_flow_creates_events(db):
         )
 
     with auth_api_session() as (auth_api, metadata_interceptor):
-        res = auth_api.SignupFlow(
+        auth_api.SignupFlow(
             auth_pb2.SignupFlowReq(
                 flow_token=flow_token,
                 account=auth_pb2.SignupAccount(
@@ -256,6 +256,14 @@ def test_signup_flow_creates_events(db):
                     radius=500,
                     accept_tos=True,
                 ),
+            )
+        )
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                intents=auth_pb2.SignupIntents(intents=["surfing"]),
             )
         )
 

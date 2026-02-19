@@ -15,7 +15,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { Controller, useForm } from "react-hook-form";
 import { service } from "service";
 
-const INTENT_OPTIONS = [
+const MOTIVATION_OPTIONS = [
   "surfing",
   "hosting",
   "events",
@@ -23,9 +23,9 @@ const INTENT_OPTIONS = [
   "something_else",
 ] as const;
 
-type IntentKey = (typeof INTENT_OPTIONS)[number];
+type MotivationKey = (typeof MOTIVATION_OPTIONS)[number];
 
-type IntentsFormInputs = Record<IntentKey, boolean>;
+type MotivationsFormInputs = Record<MotivationKey, boolean>;
 
 const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
   alignItems: "flex-start",
@@ -35,11 +35,11 @@ const StyledFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
   },
 }));
 
-export default function IntentsForm() {
+export default function MotivationsForm() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authActions, authState } = useAuthContext();
 
-  const { control, handleSubmit } = useForm<IntentsFormInputs>({
+  const { control, handleSubmit } = useForm<MotivationsFormInputs>({
     defaultValues: {
       surfing: false,
       hosting: false,
@@ -49,12 +49,12 @@ export default function IntentsForm() {
     },
   });
 
-  const mutation = useMutation<void, RpcError, IntentsFormInputs>({
+  const mutation = useMutation<void, RpcError, MotivationsFormInputs>({
     mutationFn: async (data) => {
-      const selectedIntents = INTENT_OPTIONS.filter((key) => data[key]);
-      const state = await service.auth.signupFlowIntents(
+      const selectedMotivations = MOTIVATION_OPTIONS.filter((key) => data[key]);
+      const state = await service.auth.signupFlowMotivations(
         authState.flowState!.flowToken,
-        selectedIntents,
+        selectedMotivations,
       );
       authActions.updateSignupState(state);
     },
@@ -76,7 +76,7 @@ export default function IntentsForm() {
         <Alert severity="error">{mutation.error.message || ""}</Alert>
       )}
       <StyledForm onSubmit={submit}>
-        {INTENT_OPTIONS.map((key) => (
+        {MOTIVATION_OPTIONS.map((key) => (
           <Controller
             key={key}
             name={key}
@@ -93,10 +93,10 @@ export default function IntentsForm() {
                 label={
                   <Box>
                     <Typography variant="body1" fontWeight="bold">
-                      {t(`auth:intents_form.${key}`)}
+                      {t(`auth:motivations_form.${key}`)}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {t(`auth:intents_form.${key}_description`)}
+                      {t(`auth:motivations_form.${key}_description`)}
                     </Typography>
                   </Box>
                 }
