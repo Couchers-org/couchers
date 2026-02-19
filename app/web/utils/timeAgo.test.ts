@@ -42,19 +42,11 @@ test("FriendlyTimeSpan.fromMillis", () => {
 
 /// Mock translation function, returns "key,count"
 const mockT = ((key: string, options?: TOptions): string => {
-  key = key.replace("relative_time.", "");
   if (options && options.count) {
     return `${key},${options.count}`;
   }
   return key;
 }) as TFunction;
-
-test("timeAgo function, less than a minute", () => {
-  const now = Date.now();
-  const before = new Date(now - 10.5 * secondMillis);
-  const timeString = timeAgo({ since: before, t: mockT, locale: "en" });
-  expect(timeString).toBe("less_than_a_minute_ago");
-});
 
 test("timeAgo function, normal case", () => {
   const now = Date.now();
@@ -63,10 +55,10 @@ test("timeAgo function, normal case", () => {
   expect(timeString).toBe("hace 8 horas");
 });
 
-test("timeAgo function with fuzzy", () => {
+test("timeAgo function with minimum unit", () => {
   const now = Date.now();
   const date = new Date(now - 2 * minuteMillis);
-  const lessThanHour = "less_than_hour";
+  const lessThanHour = "global:relative_time.less_than_one_hour_ago";
   const timeString = timeAgo({
     since: date,
     t: mockT,

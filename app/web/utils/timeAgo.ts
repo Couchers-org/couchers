@@ -108,9 +108,9 @@ export function timeAgo({
   const timeSpan = FriendlyTimeSpan.fromMillis(diffMillis);
   if (minimumUnit && timeSpan.unit < minimumUnit) {
     if (minimumUnit == TimeUnit.Minutes)
-      return t("global:less_than_a_minute_ago");
+      return t("global:relative_time.less_than_a_minute_ago");
     if (minimumUnit == TimeUnit.Hours)
-      return t("global:less_than_one_hour_ago");
+      return t("global:relative_time.less_than_one_hour_ago");
   }
 
   return timeSpan.toLocalizedAgoText(locale);
