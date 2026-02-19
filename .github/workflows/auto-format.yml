@@ -78,7 +78,7 @@ jobs:
 
       - name: Commit and push backend formatting changes
         run: |
-          git add app/backend/**/*.py
+          git add "app/backend/**/*.py"
           git diff --staged --quiet || (git commit -m "Format backend" && git push)
 
   format-frontend:
@@ -215,7 +215,7 @@ jobs:
 
       - name: Commit and push migration if created
         run: |
-          git add app/backend/src/couchers/migrations/versions/*.py
+          git add "app/backend/src/couchers/migrations/versions/*.py"
           git diff --staged --quiet || (git commit -m "Generate migrations" && git push)
 
   regenerate-html-templates:
@@ -251,5 +251,5 @@ jobs:
 
       - name: Commit and push HTML template changes
         run: |
-          git add app/backend/templates/v2/generated_html/*.html
+          git add "app/backend/templates/v2/generated_html/*.html"
           git diff --staged --quiet || (git commit -m "Regenerate HTML templates" && git push)
