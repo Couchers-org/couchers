@@ -40,7 +40,6 @@ export default function ReminderCarousel() {
       {error && <Alert severity="error">{error?.message}</Alert>}
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        {/* Left Arrow */}
         <IconButton
           aria-label="left arrow"
           onClick={handlePrev}
@@ -61,12 +60,22 @@ export default function ReminderCarousel() {
           <ChevronLeftIcon />
         </IconButton>
 
-        {/* Reminder Cards Container */}
         <Box sx={{ flex: 1, overflow: "hidden" }}>
-          <ReminderItem />
+          <Box
+            sx={{
+              display: "flex",
+              transform: `translateX(-${currentIndex * 100}%)`,
+              transition: "transform 0.3s ease",
+            }}
+          >
+            {reminders.map((reminder, i) => (
+              <Box key={i} sx={{ minWidth: "100%", flexShrink: 0 }}>
+                <ReminderItem data={reminder} />
+              </Box>
+            ))}
+          </Box>
         </Box>
 
-        {/* Right Arrow */}
         <IconButton
           aria-label="right arrow"
           onClick={handleNext}
@@ -87,12 +96,6 @@ export default function ReminderCarousel() {
           <ChevronRightIcon />
         </IconButton>
       </Box>
-      {/* <ReminderItem reminder={reminder} /> */}
-      {/* {data &&
-        Object.values(data)
-          .filter(Boolean)
-          .map((reminder, index) => (
-          ))} */}
     </>
   );
 }
