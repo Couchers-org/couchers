@@ -122,10 +122,6 @@
       "required_error": "所有必填项都需要填好"
     }
   },
-  "feedback_form": {
-    "header": "听听您怎么说",
-    "skip_step_text": "不感兴趣吗？<2>跳过这一步</2>"
-  },
   "jail": {
     "title": "需要更多信息",
     "description": "请检查以下问题后继续。",

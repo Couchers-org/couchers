@@ -94,6 +94,21 @@ make mypy
 - Avoid circular testing: don't manually set state/refs then verify the component reads them
 - Integration tests are acceptable when real user interactions can't be simulated (e.g., hardware back button)
 
+## CI/CD
+
+CI runs on GitLab (triggered by GitHub pushes). Use these tools to check pipeline status and debug failures:
+
+```bash
+# Check CI status for a PR, branch, or commit
+uv run --project .claude/tools ci-status --pr <number>
+uv run --project .claude/tools ci-status --branch <name>
+uv run --project .claude/tools ci-status --sha <hash>
+
+# Fetch a job's log output (job ID from ci-status output)
+uv run --project .claude/tools ci-job-log <job-id>
+uv run --project .claude/tools ci-job-log <job-id> --full
+```
+
 ## Database
 
 - PostgreSQL with PostGIS extension

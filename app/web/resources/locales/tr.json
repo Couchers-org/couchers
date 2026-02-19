@@ -130,7 +130,13 @@
       "radius_text": "{{radius}} metre",
       "no_location_results_text": "Sonuç yok. Sadece şehri aramayı deneyin.",
       "no_map_support": "Cihazınız haritayı desteklemiyor. Lütfen WebGL2'nin açık olduğuna emin olun veya başka bir cihaz/tarayıcı kullanın. Bu sorun için özür dileriz!",
-      "press_enter_to_search": "Aramak için enter tuşuna bas"
+      "press_enter_to_search": "Aramak için enter tuşuna bas",
+      "display_location_label": "Gösterilen konum",
+      "search_location_label": "Konum ara",
+      "display_location_not_empty": "Lütfen gösterilen konum alanını doldurun"
+    },
+    "datepicker": {
+      "change_date": "Tarihi değiştir"
     }
   },
   "nav": {
@@ -164,7 +170,9 @@
     "roadmap_updates": "Yol Haritası ve Güncellemeler",
     "contact_us": "Bize Ulaşın",
     "built_with": "Açık Kaynak",
-    "invite_members": "Üye Davet Et"
+    "invite_members": "Üye Davet Et",
+    "badges": "Rozetler",
+    "dashboard": "Kontrol Paneli"
   },
   "what_is_cs": {
     "timeline": {
@@ -185,5 +193,27 @@
       "travelers": "<bold>Yolcular için</bold>: Turistik yolların ötesine geçen daha derin, daha insancıl deneyimler",
       "hosts": "<bold>Ev sahipleri için</bold>: dünya genelinden insanlarla tanış ve onlarla şehrini paylaş"
     }
+  },
+  "beta": "Beta",
+  "relative_time": {
+    "less_than_a_minute_ago": "< 1 dakika önce",
+    "n_minutes_ago_one": "{{count}} dakika önce",
+    "n_minutes_ago_other": "{{count}} dakika önce",
+    "less_than_one_hour_ago": "Bir saatten kısa süre önce",
+    "n_hours_ago_one": "{{count}} saat önce",
+    "n_hours_ago_other": "{{count}} saat önce",
+    "n_days_ago_one": "{{count}} gün önce",
+    "n_days_ago_other": "{{count}} gün önce",
+    "n_weeks_ago_one": "{{count}} hafta önce",
+    "n_weeks_ago_other": "{{count}} hafta önce",
+    "n_months_ago_one": "{{count}} ay önce",
+    "n_months_ago_other": "{{count}} ay önce",
+    "n_years_ago_one": "{{count}} yıl önce",
+    "n_years_ago_other": "{{count}} yıl önce"
+  },
+  "location_autocomplete": {
+    "more_specific": "Lütfen daha belirli bir yer seçin",
+    "search_location_hint": "Bir konum seçmek için Enter tuşuna basın veya arama simgesine tıklayın",
+    "search_location_button": "Konum ara"
   }
 }

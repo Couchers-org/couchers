@@ -221,9 +221,6 @@
   "sign_up_completed_prompt": "Na tvou e-mailovou adresu jsme zaslali e-mail s ověřovacím odkazem. Pro aktivaci tvého účtu prosím klikni na odkaz.",
   "sign_up_confirmed_prompt": "Hotovo! Pokud nebudeš přesměrován/a, zkus se přihlásit.",
   "unhandled_sign_up_state": "Chyba: unhandled signup flow state.",
-  "feedback_form": {
-    "skip_step_text": "Nemáš zájem? <2>Přeskoč tento krok</2>"
-  },
   "sign_up_need_verification_title": "Už jsme skoro hotovi, ještě poslední věc!",
   "feature_preview": {
     "title": "Náhled funkcionality"
