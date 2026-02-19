@@ -11,6 +11,15 @@ import "events.proto";
 import "groups.proto";
 import "pages.proto";
 
+enum NodeType {
+  NODE_TYPE_UNSPECIFIED = 0;
+  NODE_TYPE_WORLD = 1;
+  NODE_TYPE_REGION = 2;
+  NODE_TYPE_SUBREGION = 3;
+  NODE_TYPE_LOCALITY = 4;
+  NODE_TYPE_SUBLOCALITY = 5;
+}
+
 service Communities {
   option (auth_level) = AUTH_LEVEL_SECURE;
 
@@ -118,6 +127,7 @@ message Community {
   bool can_moderate = 13;
   bool discussions_enabled = 14;
   bool events_enabled = 15;
+  NodeType node_type = 16;
 }
 
 message GetCommunityReq {
@@ -295,6 +305,7 @@ message CommunitySummary {
   // list of parents, ordered according to inclusion, for hierarchical ordering
   repeated org.couchers.api.groups.Parent parents = 6;
   google.protobuf.Timestamp created = 7;
+  NodeType node_type = 8;
 }
 
 message ListAllCommunitiesReq {

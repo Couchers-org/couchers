@@ -4,14 +4,32 @@ from geoalchemy2.shape import from_shape
 from shapely.geometry.base import BaseGeometry
 from sqlalchemy.orm import Session
 
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread
+from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    Node,
+    NodeType,
+    Page,
+    PageType,
+    PageVersion,
+    Thread,
+)
+
+CHILD_NODE_TYPE = {
+    None: NodeType.world,
+    NodeType.world: NodeType.region,
+    NodeType.region: NodeType.subregion,
+    NodeType.subregion: NodeType.locality,
+    NodeType.locality: NodeType.sublocality,
+}
 
 DEFAULT_PAGE_CONTENT = "There is nothing here yet..."
 DEFAULT_PAGE_TITLE_TEMPLATE = "Main page for the {name} {type}"
 
 
-def create_node(session: Session, geom: BaseGeometry, parent_node_id: int | None) -> Node:
-    node = Node(geom=from_shape(geom), parent_node_id=parent_node_id)
+def create_node(session: Session, geom: BaseGeometry, parent_node_id: int | None, node_type: NodeType) -> Node:
+    node = Node(geom=from_shape(geom), parent_node_id=parent_node_id, node_type=node_type)
     session.add(node)
     session.flush()
     return node

@@ -39,5 +39,6 @@
   "adminCount": 2,
   "nearbyUserCount": 3,
   "eventsEnabled": true,
-  "discussionsEnabled": true
+  "discussionsEnabled": true,
+  "nodeType": 4
 }
