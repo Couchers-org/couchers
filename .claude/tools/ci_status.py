@@ -1,10 +1,3 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.11"
-# dependencies = [
-#     "httpx",
-# ]
-# ///
 """Look up GitLab CI pipeline status for a given PR, branch, or commit."""
 
 import argparse
@@ -95,7 +88,13 @@ def main():
             branch = args.branch
             sha = get_branch_sha(client, branch)
         elif args.sha:
-            sha = args.sha
+            # Resolve short SHAs to full 40-char via GitLab API (works in shallow clones)
+            if len(args.sha) < 40:
+                resp = client.get(f"{GITLAB_API}/repository/commits/{args.sha}")
+                resp.raise_for_status()
+                sha = resp.json()["id"]
+            else:
+                sha = args.sha
 
         pipeline = find_pipeline(client, sha)
         pipeline_id = pipeline["id"]

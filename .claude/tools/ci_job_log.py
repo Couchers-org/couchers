@@ -1,10 +1,3 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.11"
-# dependencies = [
-#     "httpx",
-# ]
-# ///
 """Fetch and display the log output of a GitLab CI job."""
 
 import argparse
