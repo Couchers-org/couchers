@@ -1,7 +1,7 @@
 """Add node_type to nodes
 
 Revision ID: dc28e9bd2b31
-Revises: 2e9def7290b9
+Revises: 0e07dbb98ffc
 Create Date: 2026-02-15 14:00:00.000000
 
 """
@@ -11,7 +11,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "dc28e9bd2b31"
-down_revision = "2e9def7290b9"
+down_revision = "0e07dbb98ffc"
 branch_labels = None
 depends_on = None
 
