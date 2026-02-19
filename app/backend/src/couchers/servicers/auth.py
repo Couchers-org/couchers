@@ -313,6 +313,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.expertise = form.expertise
                 session.flush()
 
+            if request.HasField("motivations"):
+                if flow.filled_motivations:
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_motivations_filled")
+
+                flow.filled_motivations = True
+                flow.heard_about_couchers = request.motivations.heard_about_couchers or None
+                flow.signup_motivations = list(request.motivations.motivations)
+                session.flush()
+
             if request.HasField("accept_community_guidelines"):
                 if not request.accept_community_guidelines.value:
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "must_accept_community_guidelines")
@@ -341,6 +350,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 accepted_tos=not_none(flow.accepted_tos),
                 last_onboarding_email_sent=func.now(),
                 invite_code_id=flow.invite_code_id,
+                heard_about_couchers=flow.heard_about_couchers,
+                signup_motivations=flow.signup_motivations if flow.filled_motivations else None,
             )
 
             user.accepted_community_guidelines = flow.accepted_community_guidelines
@@ -416,6 +427,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 need_feedback=False,
                 need_verify_email=not flow.email_verified,
                 need_accept_community_guidelines=flow.accepted_community_guidelines < GUIDELINES_VERSION,
+                need_motivations=not flow.filled_motivations,
             )
 
     def UsernameValid(

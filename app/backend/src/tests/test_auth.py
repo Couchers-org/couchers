@@ -68,6 +68,7 @@ def test_signup_incremental(db):
     assert not res.need_feedback
     assert res.need_verify_email
     assert res.need_accept_community_guidelines
+    assert res.need_motivations
 
     # read out the signup token directly from the database for now
     with session_scope() as session:
@@ -86,6 +87,7 @@ def test_signup_incremental(db):
     assert not res.need_feedback
     assert res.need_verify_email
     assert res.need_accept_community_guidelines
+    assert res.need_motivations
 
     # Add feedback
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -110,6 +112,7 @@ def test_signup_incremental(db):
     assert not res.need_feedback
     assert res.need_verify_email
     assert res.need_accept_community_guidelines
+    assert res.need_motivations
 
     # Agree to community guidelines
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -127,6 +130,25 @@ def test_signup_incremental(db):
     assert not res.need_feedback
     assert res.need_verify_email
     assert not res.need_accept_community_guidelines
+    assert res.need_motivations
+
+    # Submit motivations
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+            )
+        )
+
+    assert res.flow_token == flow_token
+    assert not res.HasField("auth_res")
+    assert not res.need_basic
+    assert res.need_account
+    assert not res.need_feedback
+    assert res.need_verify_email
+    assert not res.need_accept_community_guidelines
+    assert not res.need_motivations
 
     # Verify email
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -144,6 +166,7 @@ def test_signup_incremental(db):
     assert not res.need_feedback
     assert not res.need_verify_email
     assert not res.need_accept_community_guidelines
+    assert not res.need_motivations
 
     # Finally finish off account info
     with auth_api_session() as (auth_api, metadata_interceptor):
@@ -174,6 +197,7 @@ def test_signup_incremental(db):
     assert not res.need_feedback
     assert not res.need_verify_email
     assert not res.need_accept_community_guidelines
+    assert not res.need_motivations
 
     user_id = res.auth_res.user_id
 
@@ -221,6 +245,7 @@ def _quick_signup() -> int:
                 ),
                 feedback=auth_pb2.ContributorForm(),
                 accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
             )
         )
 
@@ -231,6 +256,7 @@ def _quick_signup() -> int:
     assert not res.need_basic
     assert not res.need_account
     assert not res.need_feedback
+    assert not res.need_motivations
     assert res.need_verify_email
 
     # read out the signup token directly from the database for now
@@ -250,6 +276,7 @@ def _quick_signup() -> int:
     assert not res.need_basic
     assert not res.need_account
     assert not res.need_feedback
+    assert not res.need_motivations
     assert not res.need_verify_email
 
     # make sure we got the right token in a cookie
@@ -734,6 +761,7 @@ def test_signup_resend_email(db):
                     ),
                     feedback=auth_pb2.ContributorForm(),
                     accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                    motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
                 )
             )
         assert mock.call_count == 1
@@ -1002,6 +1030,7 @@ def test_opt_out_of_newsletter(db, opt_out):
                 ),
                 feedback=auth_pb2.ContributorForm(),
                 accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
             )
         )
 
@@ -1073,6 +1102,7 @@ def test_signup_no_feedback_regression(db):
                     accept_tos=True,
                 ),
                 accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
             )
         )
 
@@ -1083,6 +1113,7 @@ def test_signup_no_feedback_regression(db):
     assert not res.need_basic
     assert not res.need_account
     assert not res.need_feedback
+    assert not res.need_motivations
     assert res.need_verify_email
 
     # read out the signup token directly from the database for now
@@ -1102,6 +1133,7 @@ def test_signup_no_feedback_regression(db):
     assert not res.need_basic
     assert not res.need_account
     assert not res.need_feedback
+    assert not res.need_motivations
     assert not res.need_verify_email
 
     # make sure we got the right token in a cookie
@@ -1237,6 +1269,7 @@ def test_SignupFlow_invite_code(db):
                 ),
                 feedback=auth_pb2.ContributorForm(),
                 accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
             )
         )
 
@@ -1246,3 +1279,233 @@ def test_SignupFlow_invite_code(db):
             select(User.invite_code_id).where(User.username == "invited_user")
         ).scalar_one()
         assert invite_code_id == invite_code
+
+
+def test_signup_with_motivations(db):
+    """
+    Test signup flow with the new motivations step (heard_about_couchers and signup_motivations)
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="intentuser",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                motivations=auth_pb2.SignupMotivations(
+                    heard_about_couchers="friend",
+                    motivations=["hosting", "surfing", "events"],
+                ),
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert flow_token
+    assert not res.HasField("auth_res")
+    assert res.need_verify_email
+
+    # Verify the motivations are stored in the SignupFlow
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.heard_about_couchers == "friend"
+        assert set(flow.signup_motivations) == {"hosting", "surfing", "events"}
+        email_token = flow.email_token
+
+    # Complete signup by verifying email
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    assert res.HasField("auth_res")
+    user_id = res.auth_res.user_id
+
+    # Verify the motivations are transferred to the User object
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user.heard_about_couchers == "friend"
+        assert set(user.signup_motivations) == {"hosting", "surfing", "events"}
+
+
+def test_signup_motivations_incremental(db):
+    """
+    Test that motivations can be submitted incrementally as a separate step
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        # First, basic signup
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email2@couchers.org.invalid"),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert flow_token
+    assert res.need_account
+    assert res.need_motivations  # New field
+
+    # Submit motivations separately
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                motivations=auth_pb2.SignupMotivations(
+                    heard_about_couchers="social_media",
+                    motivations=["surfing"],
+                ),
+            )
+        )
+
+    assert res.flow_token == flow_token
+    assert not res.need_motivations  # Should be filled now
+    assert res.need_account  # Still need account
+
+    # Verify motivations are stored
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.heard_about_couchers == "social_media"
+        assert flow.signup_motivations == ["surfing"]
+
+
+def test_signup_motivations_cannot_be_refilled(db):
+    """
+    Test that motivations cannot be submitted twice
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email3@couchers.org.invalid"),
+                motivations=auth_pb2.SignupMotivations(
+                    heard_about_couchers="friend",
+                    motivations=["hosting"],
+                ),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    # Try to submit motivations again - should fail
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(
+                auth_pb2.SignupFlowReq(
+                    flow_token=flow_token,
+                    motivations=auth_pb2.SignupMotivations(
+                        heard_about_couchers="different_source",
+                        motivations=["surfing"],
+                    ),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You've already told us about why you are signing up."
+
+
+def test_signup_motivations_required(db):
+    """
+    Test that signup cannot complete without providing motivations
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email4@couchers.org.invalid"),
+                account=auth_pb2.SignupAccount(
+                    username="nointents",
+                    password="a very insecure password",
+                    birthdate="1970-01-01",
+                    gender="Bot",
+                    hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                    city="New York City",
+                    lat=40.7331,
+                    lng=-73.9778,
+                    radius=500,
+                    accept_tos=True,
+                ),
+                # No motivations provided
+                accept_community_guidelines=wrappers_pb2.BoolValue(value=True),
+            )
+        )
+
+    flow_token = res.flow_token
+    assert not res.HasField("auth_res")
+    assert res.need_motivations  # Intents still required
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        email_token = flow.email_token
+
+    # Verify email - signup still not complete without motivations
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    assert not res.HasField("auth_res")
+    assert res.need_motivations
+
+    # Now submit motivations
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                flow_token=flow_token,
+                motivations=auth_pb2.SignupMotivations(motivations=["surfing"]),
+            )
+        )
+
+    assert res.HasField("auth_res")
+    user_id = res.auth_res.user_id
+
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user.signup_motivations == ["surfing"]
+
+
+def test_signup_motivations_all_options(db):
+    """
+    Test all the different motivation options
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email5@couchers.org.invalid"),
+                motivations=auth_pb2.SignupMotivations(
+                    heard_about_couchers="other",
+                    motivations=["hosting", "surfing", "events"],
+                ),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.heard_about_couchers == "other"
+        assert set(flow.signup_motivations) == {"hosting", "surfing", "events"}
+
+
+def test_signup_motivations_empty_motivations_list(db):
+    """
+    Test that providing heard_about but empty motivations list is valid
+    """
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(
+            auth_pb2.SignupFlowReq(
+                basic=auth_pb2.SignupBasic(name="testing", email="email6@couchers.org.invalid"),
+                motivations=auth_pb2.SignupMotivations(
+                    heard_about_couchers="former_cs_member",
+                    motivations=[],  # No specific motivations selected
+                ),
+            )
+        )
+
+    flow_token = res.flow_token
+
+    with session_scope() as session:
+        flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
+        assert flow.heard_about_couchers == "former_cs_member"
+        assert flow.signup_motivations == []
