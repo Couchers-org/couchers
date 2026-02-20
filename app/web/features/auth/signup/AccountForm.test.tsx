@@ -53,6 +53,7 @@ describe("AccountForm", () => {
       needAccount: false,
       needFeedback: false,
       needAcceptCommunityGuidelines: true,
+      needMotivations: false,
       needVerifyEmail: false,
     });
     validateUsernameMock.mockResolvedValue(true);
@@ -68,6 +69,7 @@ describe("AccountForm", () => {
           needAccount: true,
           needFeedback: false,
           needVerifyEmail: false,
+          needMotivations: false,
           needAcceptCommunityGuidelines: true,
         }),
       );
@@ -437,6 +439,7 @@ describe("AccountForm", () => {
           needAccount: true,
           needFeedback: false,
           needVerifyEmail: false,
+          needMotivations: false,
           needAcceptCommunityGuidelines: true,
         }),
       );

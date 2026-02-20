@@ -202,10 +202,6 @@
     },
     "caveat": "Wenn du diese Einstellung aktivierst, wird dein Konto so eingestellt, dass es keine Hostanfragen akzeptiert. Du erhälst jedoch weiterhin Sicherheits-E-Mails (z. B. zum Zurücksetzen deines Passworts). Den Newsletter kannst du separat über den Link in der Fußzeile des Newsletters abbestellen."
   },
-  "feedback_form": {
-    "header": "Deine Meinung zählt",
-    "skip_step_text": "Kein Interesse? <2>Diesen Schritt Überspringen</2>"
-  },
   "unhandled_sign_up_state": "Fehler: unhandled signup flow state.",
   "change_phone": {
     "no_phone_description": "Du hast keine Telefonnummer zu deinem Konto hinzugefügt. Um eine hinzuzufügen, geb sie unten ein. Wir werden die Nummer mit einer SMS verifizieren.",

@@ -13,7 +13,7 @@ from sqlalchemy.sql import exists, update
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.db import session_scope
-from couchers.helpers.clusters import create_cluster, create_node
+from couchers.helpers.clusters import CHILD_NODE_TYPE, create_cluster, create_node
 from couchers.jobs.enqueue import queue_job
 from couchers.materialized_views import LiteUser
 from couchers.models import EventCommunityInviteRequest, Node, User, Volunteer
@@ -86,7 +86,15 @@ class Editor(editor_pb2_grpc.EditorServicer):
         geom = load_community_geom(request.geojson, context)
 
         parent_node_id = request.parent_node_id if request.parent_node_id != 0 else None
-        node = create_node(session, geom, parent_node_id)
+        if parent_node_id is not None:
+            parent_node = session.execute(select(Node).where(Node.id == parent_node_id)).scalar_one_or_none()
+            if not parent_node:
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "parent_node_not_found")
+            parent_type = parent_node.node_type
+        else:
+            parent_type = None
+        node_type = CHILD_NODE_TYPE[parent_type]
+        node = create_node(session, geom, parent_node_id, node_type)
         create_cluster(session, node.id, request.name, request.description, context.user_id, request.admin_ids, True)
 
         return community_to_pb(session, node, context)

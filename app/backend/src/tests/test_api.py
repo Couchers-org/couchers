@@ -3,7 +3,7 @@ from datetime import timedelta
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
@@ -21,7 +21,7 @@ from couchers.models import (
 from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict
-from couchers.utils import create_coordinate, to_aware_datetime
+from couchers.utils import create_coordinate, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
 from tests.fixtures.sessions import (
@@ -178,13 +178,13 @@ def test_get_user(db):
         assert res.name == user2.name
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_user_model_to_pb_ghost_user(db, flag):
     user1, token1 = generate_user()
     user2, _ = generate_user()
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user2.id).values(**{flag: True}))
+        session.execute(update(User).where(User.id == user2.id).values(**{flag: func.now()}))
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
@@ -311,13 +311,13 @@ def test_user_model_to_pb_ghost_user_blocked(db):
     assert not lite_user_pb.has_strong_verification
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_admin_viewing_ghost_users_sees_full_profile(db, flag):
     admin, token_admin = generate_user(is_superuser=True)
     user, _ = generate_user()
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user.id).values(**{flag: True}))
+        session.execute(update(User).where(User.id == user.id).values(**{flag: func.now()}))
 
     with admin_session(token_admin) as api:
         user_pb = api.GetUser(admin_pb2.GetUserReq(user=user.username))
@@ -1555,7 +1555,7 @@ def test_badges(db):
         assert res2.user_ids == [2]
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_ListBadgeUsers_excludes_ghost_users(db, flag):
     """Test that ListBadgeUsers does not return deleted/banned users."""
     from couchers.helpers.badges import user_add_badge
@@ -1580,7 +1580,7 @@ def test_ListBadgeUsers_excludes_ghost_users(db, flag):
     # Make user2 invisible (deleted or banned)
     with session_scope() as session:
         db_user2 = session.execute(select(User).where(User.id == user2.id)).scalar_one()
-        setattr(db_user2, flag, True)
+        setattr(db_user2, flag, now())
 
     # Now user2 should not appear in the badge list
     with api_session(token1) as api:
@@ -1588,7 +1588,7 @@ def test_ListBadgeUsers_excludes_ghost_users(db, flag):
         assert set(res.user_ids) == {user1.id, user3.id}
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_GetLiteUser_ghost_user_by_username(db, flag):
     """Test that GetLiteUser returns a ghost profile for deleted/banned users when querying by username."""
     user1, token1 = generate_user()
@@ -1597,7 +1597,7 @@ def test_GetLiteUser_ghost_user_by_username(db, flag):
     # Make user2 invisible
     with session_scope() as session:
         db_user2 = session.merge(user2)
-        setattr(db_user2, flag, True)
+        setattr(db_user2, flag, now())
         session.commit()
 
     # Refresh the materialized view
@@ -1620,7 +1620,7 @@ def test_GetLiteUser_ghost_user_by_username(db, flag):
         assert not lite_user.has_strong_verification
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_GetLiteUser_ghost_user_by_id(db, flag):
     """Test that GetLiteUser returns a ghost profile for deleted/banned users when querying by ID."""
     user1, token1 = generate_user()
@@ -1629,7 +1629,7 @@ def test_GetLiteUser_ghost_user_by_id(db, flag):
     # Make user2 invisible
     with session_scope() as session:
         db_user2 = session.merge(user2)
-        setattr(db_user2, flag, True)
+        setattr(db_user2, flag, now())
         session.commit()
 
     # Refresh the materialized view
@@ -1710,7 +1710,7 @@ def test_GetLiteUser_blocking_user(db):
         assert lite_user.name == "Deactivated Account"
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_GetLiteUsers_ghost_users(db, flag):
     """Test that GetLiteUsers returns ghost profiles for deleted/banned users."""
     user1, token1 = generate_user()
@@ -1721,9 +1721,9 @@ def test_GetLiteUsers_ghost_users(db, flag):
     # Make user2 and user4 invisible
     with session_scope() as session:
         db_user2 = session.merge(user2)
-        setattr(db_user2, flag, True)
+        setattr(db_user2, flag, now())
         db_user4 = session.merge(user4)
-        setattr(db_user4, flag, True)
+        setattr(db_user4, flag, now())
         session.commit()
 
     # Refresh the materialized view
@@ -1833,7 +1833,7 @@ def test_GetLiteUsers_blocked_users(db):
         assert res.responses[3].user.username == user5.username
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_GetUser_ghost_user_by_id(db, flag):
     """Test that GetUser returns a ghost profile for deleted/banned users when querying by ID."""
     user1, token1 = generate_user()
@@ -1842,7 +1842,7 @@ def test_GetUser_ghost_user_by_id(db, flag):
     # Make user2 invisible
     with session_scope() as session:
         db_user2 = session.merge(user2)
-        setattr(db_user2, flag, True)
+        setattr(db_user2, flag, now())
         session.commit()
 
     with api_session(token1) as api:

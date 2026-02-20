@@ -9,6 +9,7 @@ import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { ListReferencesRes } from "proto/references_pb";
+import { useEffect, useRef } from "react";
 import { theme } from "theme";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
@@ -49,6 +50,22 @@ export default function ReferencesView({
   referenceUsers,
 }: ReferencesViewProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
+  const scrollPositionRef = useRef<number | null>(null);
+
+  // Restore scroll position after loading more references
+  useEffect(() => {
+    if (!isFetchingNextPage && scrollPositionRef.current !== null) {
+      // Restore the scroll position
+      window.scrollTo(0, scrollPositionRef.current);
+      scrollPositionRef.current = null;
+    }
+  }, [isFetchingNextPage]);
+
+  const handleFetchMore = () => {
+    // Store current scroll position before fetching
+    scrollPositionRef.current = window.scrollY;
+    fetchNextPage();
+  };
 
   return (
     <>
@@ -66,10 +83,7 @@ export default function ReferencesView({
           />
           {hasNextPage && (
             <SeeMoreReferencesButtonContainer>
-              <Button
-                loading={isFetchingNextPage}
-                onClick={() => fetchNextPage()}
-              >
+              <Button loading={isFetchingNextPage} onClick={handleFetchMore}>
                 {t("profile:see_more_references")}
               </Button>
             </SeeMoreReferencesButtonContainer>

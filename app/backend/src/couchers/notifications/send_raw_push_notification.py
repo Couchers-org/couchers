@@ -14,6 +14,7 @@ from couchers.models import (
     PushNotificationPlatform,
     PushNotificationSubscription,
 )
+from couchers.models.notifications import DeviceType
 from couchers.notifications.expo_api import send_expo_push_notification
 from couchers.notifications.web_push_api import send_web_push
 from couchers.proto.internal import jobs_pb2
@@ -122,9 +123,19 @@ def _send_expo(
     if payload.topic_action and payload.key:
         collapse_key = f"{payload.topic_action}_{payload.key}"
 
+    title: str
+    ios_subtitle: str | None = None
+    if sub.device_type == DeviceType.ios and payload.ios_title:
+        # Prefer the iOS-specific title/subtitle pair if available.
+        title = payload.ios_title
+        ios_subtitle = payload.ios_subtitle
+    else:
+        title = payload.title
+
     result = send_expo_push_notification(
         token=not_none(sub.token),
-        title=payload.title,
+        title=title,
+        ios_subtitle=ios_subtitle,
         body=payload.body,
         data={
             "url": payload.url,

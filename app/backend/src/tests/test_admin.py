@@ -16,11 +16,12 @@ from couchers.models import (
     User,
     UserSession,
 )
-from couchers.proto import admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
+from couchers.proto import account_pb2, admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
 from couchers.utils import Timestamp_from_datetime, now, parse_date
 from tests.fixtures.db import add_users_to_new_moderation_list, generate_user, make_friends
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
 from tests.fixtures.sessions import (
+    account_session,
     auth_api_session,
     events_session,
     real_admin_session,
@@ -324,6 +325,49 @@ def test_DeleteUser(db):
     assert parse_date(res.birthdate) == normal_user.birthdate
     assert not res.banned
     assert not res.deleted
+
+
+def test_RecoverDeletedUser_after_user_initiated_deletion(db, push_collector: PushCollector):
+    """
+    When a user deletes their account through the normal flow (ConfirmDeleteAccount),
+    undelete_token and undelete_until are set. The admin RecoverDeletedUser must clear
+    these fields to satisfy the undelete_nullity database constraint.
+    """
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+    user_id = normal_user.id
+
+    # User initiates account deletion
+    with account_session(normal_token) as account:
+        account.DeleteAccount(account_pb2.DeleteAccountReq(confirm=True))
+
+    # Get the deletion confirmation token
+    with session_scope() as session:
+        deletion_token = session.execute(select(AccountDeletionToken)).scalar_one().token
+
+    # User confirms account deletion (this sets undelete_token and undelete_until)
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.ConfirmDeleteAccount(auth_pb2.ConfirmDeleteAccountReq(token=deletion_token))
+
+    # Verify the user is deleted and has undelete fields set
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user.deleted_at is not None
+        assert user.undelete_token is not None
+        assert user.undelete_until is not None
+
+    # Admin recovers the user
+    with real_admin_session(super_token) as api:
+        res = api.RecoverDeletedUser(admin_pb2.RecoverDeletedUserReq(user=normal_user.username))
+    assert res.user_id == user_id
+    assert not res.deleted
+
+    # Verify undelete fields are cleared
+    with session_scope() as session:
+        user = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user.deleted_at is None
+        assert user.undelete_token is None
+        assert user.undelete_until is None
 
 
 def test_CreateApiKey(db, push_collector: PushCollector):

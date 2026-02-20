@@ -1,9 +1,12 @@
 ---
+is_blog_post: true
 title: "Couchers v1.2 Release: Feature releases and mobile app!"
 slug: couchers-v1.2-release
 description: "We've been busy! More about our donation drive results, dark mode, merch shop and mobile app Beta."
 date: 2026/02/05
 author: Nicole
+author_username: unsettleddown
+has_custom_cta: true
 ---
 
 We’ve been working hard behind the scenes and have some exciting updates to share! In this post, we’ll reveal the results of our end-of-year donation drive, highlight the major features completed over the last three months, and provide an update on our mobile app progress (spoiler: we're looking for Beta testers).
@@ -150,7 +153,6 @@ Want to help us grow and thrive? Here's some ways you can join the volunteer tea
 * [Mobile Developer](https://couchers.org/volunteer/mobile-developer) - With the mobile app entering Beta soon, there will be lots of bug fixes and improvements. We could use some help from someone familiar with best practices for Expo and React Native as we're flying by the seat of our pants here.
 * [Blog Writer](https://couchers.org/volunteer/blog-writer) - Have you hosted, surfed or run an event with Couchers and would be up for writing a blog post about the experience? We'd love to hear about it! Even a single post is a big help!
 
-
 That's it for now! We want to take a joyful moment to thank every one of you who made Couchers so special last year. Whether you joined as a new member, organized events, supported others, contributed your time, participated in discussions, or helped build the platform, your presence truly made a difference. Couchers thrives because of people like you, and we’re sincerely grateful for your energy, care, and enthusiasm.
 
 In 2025, together, we achieved so much! Some highlights include:
@@ -165,5 +167,3 @@ In 2025, together, we achieved so much! Some highlights include:
 Every achievement last year was made possible by the enthusiasm and generosity of our incredible volunteers and Couchers members. Our community has become more active and supportive, and the progress we’ve made is something we can all be proud of.
 
 We’ve built up so much momentum and excitement this year, and the future is brighter than ever. Thank you for being part of Couchers.
-
-*Written by [Nicole](https://couchers.org/user/unsettleddown). Published on 2025/02/05*

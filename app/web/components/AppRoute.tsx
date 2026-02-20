@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { ReactNode, useEffect, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 import Navigation from "./Navigation";
 
@@ -53,16 +54,22 @@ const globalStylesNoOverflow = (
 );
 
 const PageWrapper = styled(Box, {
-  shouldForwardProp: (prop) => prop !== "isNoOverflow",
-})<{ isNoOverflow?: boolean }>(({ isNoOverflow }) => ({
-  display: "flex",
-  flexDirection: "column",
-  flex: 1,
-  ...(isNoOverflow && {
-    overflow: "hidden",
-    minHeight: 0,
+  shouldForwardProp: (prop) =>
+    prop !== "isNoOverflow" && prop !== "hasBottomNav",
+})<{ isNoOverflow?: boolean; hasBottomNav?: boolean }>(
+  ({ isNoOverflow, hasBottomNav }) => ({
+    display: "flex",
+    flexDirection: "column",
+    flex: 1,
+    ...(isNoOverflow && {
+      overflow: "hidden",
+      minHeight: 0,
+    }),
+    ...(hasBottomNav && {
+      paddingBottom: "calc(56px + env(safe-area-inset-bottom, 0px))",
+    }),
   }),
-}));
+);
 
 const ContentWrapper = styled(
   Container,
@@ -97,6 +104,7 @@ function AppRoute({
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;
   const isJailed = authState.jailed;
+  const isNativeEmbed = useIsNativeEmbed();
 
   //there must be the same loading state on auth'd pages on server and client
   //for hydration matching, so we will display a loader until mounted.
@@ -124,7 +132,10 @@ function AppRoute({
           {/* Temporary container injected for marketing to test dynamic "announcements".
            * Find a better spot to componentise this code once plan is more finalised with this */}
           <div id="announcements"></div>
-          <PageWrapper isNoOverflow={variant === "no-overflow"}>
+          <PageWrapper
+            isNoOverflow={variant === "no-overflow"}
+            hasBottomNav={isMobile && !isNativeEmbed && isAuthenticated}
+          >
             <ContentWrapper
               disableGutters
               variant={variant}

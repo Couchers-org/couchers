@@ -24,9 +24,9 @@ def test_is_visible_property(db):
     user5, token5 = generate_user(delete_user=True)
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user2.id).values(is_banned=True))
-        session.execute(update(User).where(User.id == user3.id).values(is_deleted=True))
-        session.execute(update(User).where(User.id == user4.id).values(is_banned=True))
+        session.execute(update(User).where(User.id == user2.id).values(banned_at=func.now()))
+        session.execute(update(User).where(User.id == user3.id).values(deleted_at=func.now()))
+        session.execute(update(User).where(User.id == user4.id).values(banned_at=func.now()))
 
         visible_users = session.execute(select(User.id).where(User.is_visible)).scalars().all()
 

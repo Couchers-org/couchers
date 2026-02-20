@@ -125,6 +125,7 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("SLACK_ENABLED", bool),
     ("SLACK_BOT_TOKEN", str),
     ("SLACK_DONATIONS_CHANNEL", str),
+    ("SLACK_MERCH_CHANNEL", str),
 ]
 
 

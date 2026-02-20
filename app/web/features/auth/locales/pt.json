@@ -31,10 +31,6 @@
     "title": "Pré-visualização de funcionalidade"
   },
   "logged_out_message": "A tua sessão foi encerrada.",
-  "feedback_form": {
-    "header": "Dá a tua opinião",
-    "skip_step_text": "Sem interesse? <2>Avança este passo</2>"
-  },
   "sign_up_completed_title": "Obrigado por te registares!",
   "sign_up_confirmed_prompt": "Tudo pronto! Se não fores redirecionado, tenta fazer login.",
   "account_form": {
