@@ -170,11 +170,17 @@ const StickySaveBar = styled(Box)(({ theme }) => ({
   borderTop: `1px solid var(--mui-palette-grey-200)`,
   boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
   padding: theme.spacing(1.5, 3),
-  zIndex: 1000,
+  zIndex: 1100,
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
   gap: theme.spacing(2),
+
+  [theme.breakpoints.down("md")]: {
+    bottom: 55,
+    padding: theme.spacing(1),
+    paddingBottom: `calc(${theme.spacing(1)} + env(safe-area-inset-bottom, 0px))`,
+  },
 }));
 
 const SaveButton = styled(Button)(({ theme }) => ({
@@ -189,11 +195,20 @@ const SaveButton = styled(Button)(({ theme }) => ({
     boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
     transform: "translateY(-1px)",
   },
+
+  [theme.breakpoints.down("md")]: {
+    minWidth: 150,
+    fontSize: "0.9rem",
+    padding: theme.spacing(1, 2),
+  },
 }));
 
 const BottomSpacer = styled(Box)(({ theme }) => ({
   height: 80,
   marginBottom: theme.spacing(2),
+  [theme.breakpoints.down("md")]: {
+    height: 140,
+  },
 }));
 
 const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
