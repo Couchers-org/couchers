@@ -170,7 +170,7 @@ const StickySaveBar = styled(Box)(({ theme }) => ({
   borderTop: `1px solid var(--mui-palette-grey-200)`,
   boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
   padding: theme.spacing(1.5, 3),
-  zIndex: 1100,
+  zIndex: 1200,
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
