@@ -60,6 +60,7 @@ make mypy
 - Import aliases: use `components/` not `../../../components/`
 - No `any` types
 - Use StyledLink or next/link for routing
+- Type definitions should always go at the top of the file below the imports.
 - **IMPORTANT**: When using Material-UI components (Button, Chip, MenuItem, etc.) with the `href` prop for internal navigation, ALWAYS use `component={Link}` instead of `component="a"` to preserve locale prefixes. Import Link from `next/link`
 
 ### Proto Files

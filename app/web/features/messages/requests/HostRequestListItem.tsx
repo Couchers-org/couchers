@@ -110,11 +110,12 @@ export default function HostRequestListItem({
   const queryClient = useQueryClient();
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
-    null
+    null,
   );
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
+    event.preventDefault();
     setMenuAnchorEl(event.currentTarget);
   };
 
@@ -129,8 +130,14 @@ export default function HostRequestListItem({
         !isArchived
       );
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [hostRequestsListKey()] });
+    onMutate: async () => {
+      handleMenuClose();
+      // Cancel outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: hostRequestsListKey() });
+    },
+    onSettled: () => {
+      // Refetch after mutation completes (success or error)
+      queryClient.invalidateQueries({ queryKey: hostRequestsListKey() });
     },
   });
 
@@ -140,7 +147,9 @@ export default function HostRequestListItem({
       label: isArchived
         ? t("archive.unarchive_button")
         : t("archive.archive_button"),
-      onClick: () => archiveMutation.mutate(),
+      onClick: () => {
+        archiveMutation.mutate();
+      },
     },
   ];
 
@@ -154,6 +163,7 @@ export default function HostRequestListItem({
           <Avatar user={otherUser} isProfileLink={false} />
         </ListItemAvatar>
         <ListItemText
+          sx={{ paddingRight: 5 }}
           disableTypography
           primary={
             <Typography variant="h2">
@@ -179,7 +189,10 @@ export default function HostRequestListItem({
                   hostRequest.toDate,
                 ).format("LL")}`}
               </Typography>
-              <TextBody noWrap sx={{ fontWeight: isUnread ? "bold" : "normal" }}>
+              <TextBody
+                noWrap
+                sx={{ fontWeight: isUnread ? "bold" : "normal" }}
+              >
                 {isOtherUserLoading ? (
                   <Skeleton width={100} />
                 ) : (

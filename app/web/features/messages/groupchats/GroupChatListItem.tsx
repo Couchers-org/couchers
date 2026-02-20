@@ -123,6 +123,7 @@ export default function GroupChatListItem({
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
+    event.preventDefault();
     setMenuAnchorEl(event.currentTarget);
   };
 
@@ -137,8 +138,14 @@ export default function GroupChatListItem({
         !isArchived
       );
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [groupChatsListKey()] });
+    onMutate: async () => {
+      handleMenuClose();
+      // Cancel outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: groupChatsListKey() });
+    },
+    onSettled: () => {
+      // Refetch after mutation completes (success or error)
+      queryClient.invalidateQueries({ queryKey: groupChatsListKey() });
     },
   });
 
@@ -166,6 +173,7 @@ export default function GroupChatListItem({
           )}
         </ListItemAvatar>
         <ListItemText
+          sx={{ paddingRight: 5 }}
           slotProps={{
             primary: { component: "span" },
             secondary: { component: "span" },

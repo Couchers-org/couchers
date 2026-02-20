@@ -28,13 +28,17 @@ const MarkAsReadIconStyled = styled(DoneAllIcon)(({ theme }) => ({
 export default function MarkAllReadButton({
   type,
 }: {
-  type: "chats" | "hosting" | "surfing";
+  type: "chats" | "hosting" | "surfing" | "all";
 }) {
   const { t } = useTranslation(MESSAGES);
   const queryClient = useQueryClient();
   const markAll = useMutation({
     mutationFn: async () => {
-      if (type === "chats") {
+      const shouldMarkChats = type === "chats" || type === "all";
+      const shouldMarkRequests =
+        type === "hosting" || type === "surfing" || type === "all";
+
+      if (shouldMarkChats) {
         const data = await getAllPages({
           serviceFunction: service.conversations.listGroupChats,
           listKey: "groupChatsList",
@@ -52,13 +56,17 @@ export default function MarkAllReadButton({
               : Promise.resolve(),
           ),
         );
-      } else {
+      }
+
+      if (shouldMarkRequests) {
+        const requestType: "all" | "hosting" | "surfing" =
+          type === "hosting" || type === "surfing" ? type : "all";
         const data = await getAllPages({
           serviceFunction: service.requests.listHostRequests,
           listKey: "hostRequestsList",
           params: (previousData) => ({
             lastRequestId: previousData?.lastRequestId,
-            type,
+            type: requestType,
           }),
           hasMore: (previousData) => !previousData.noMore,
         });
@@ -104,7 +112,9 @@ export default function MarkAllReadButton({
       >
         <MarkAsReadIconStyled />
         <Typography component="span">
-          {t(`mark_all_read_button_text_${type}`)}
+          {type === "all"
+            ? t("mark_all_read_button_text")
+            : t(`mark_all_read_button_text_${type}`)}
         </Typography>
       </MarkAsReadButtonStyled>
     </>

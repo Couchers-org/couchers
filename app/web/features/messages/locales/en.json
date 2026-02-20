@@ -108,6 +108,13 @@
     "no_requests_message": "No requests yet",
     "load_more_button_label": "Load more"
   },
+  "all_messages_tab": {
+    "no_messages": "No messages yet",
+    "load_more": "Load more",
+    "filter": {
+      "all": "All"
+    }
+  },
   "invite_dialog": {
     "title": "Invite to chat",
     "selected": {
