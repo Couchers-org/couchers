@@ -1,2 +1,98 @@
 {
+  "form": {
+    "accommodation_filters": {
+      "guests_field_label": "",
+      "sleeping_arrangement_label": "",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "label": "",
+          "description": ""
+        },
+        "private": {
+          "label": "",
+          "description": ""
+        },
+        "common": {
+          "label": "",
+          "description": ""
+        }
+      },
+      "title": ""
+    },
+    "host_filters": {
+      "complete_profiles_label": "",
+      "age": {
+        "field_label": "",
+        "min_age": "",
+        "max_age": ""
+      },
+      "last_active_field_label": "",
+      "hosting_status_field_label": "",
+      "meetup_status_field_label": ""
+    },
+    "empty_profile_filters": {
+      "title": ""
+    },
+    "general_filters": {
+      "accepts_last_minute_requests": "",
+      "has_strong_verification": "",
+      "has_references": "",
+      "same_gender_only": "",
+      "same_gender_only_helper_text": "",
+      "get_strong_verification": ""
+    },
+    "rules": {
+      "title": "",
+      "alcohol_allowed": "",
+      "kids_allowed": "",
+      "pets_allowed": "",
+      "smokes_at_home": ""
+    },
+    "keywords": {
+      "field_label": "",
+      "clear_field_action_a11y_label": "",
+      "search_this_keyword_a11y_label": ""
+    },
+    "by_location_filter_label": "",
+    "by_keyword_filter_label": "",
+    "submit_button_label": "",
+    "search_filters": "",
+    "clear_filters": "",
+    "location_field_label": "",
+    "missing_location_validation_error": ""
+  },
+  "any": "",
+  "search_result": {
+    "no_user_result_message": "",
+    "missing_about_description": "",
+    "people_range_message_one": "",
+    "people_range_message_two": "",
+    "people_range_message_other": "",
+    "few_results_suggestion": "",
+    "show_user_button_label": "",
+    "include_empty_profiles_button": ""
+  },
+  "keyword": "",
+  "search_this_area": "",
+  "location": "",
+  "choose_search_criteria": "",
+  "error_loading_users": "",
+  "filter_dialog": {
+    "search_here_button": "",
+    "desktop_title": "",
+    "mobile_title": ""
+  },
+  "last_active_options": {
+    "last_week": "",
+    "last_month": "",
+    "last_3_months": "",
+    "last_6_months": "",
+    "last_year": ""
+  },
+  "views": {
+    "choose_map_view": "",
+    "list": "",
+    "map_and_list": ""
+  },
+  "zoom_in_to_select_user": ""
 }

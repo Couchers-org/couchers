@@ -1,1 +1,164 @@
-{}
+{
+  "create_chat": {
+    "title_label": "",
+    "dm_title": "",
+    "group_title": "",
+    "group_title_field_label": "",
+    "no_friends_found_message": "",
+    "user_load_error_message": "",
+    "friends_input_label": ""
+  },
+  "group_chat_settings_dialog": {
+    "title": "",
+    "chat_title": {
+      "field_label": ""
+    },
+    "only_admins_invite": {
+      "field_label": ""
+    }
+  },
+  "group_chats_tab": {
+    "no_chats_message": "",
+    "load_more_button_label": ""
+  },
+  "control_message": {
+    "unknown_message_text": "",
+    "host_request_status_changed": {
+      "cancelled": "",
+      "confirmed": "",
+      "rejected": "",
+      "accepted": ""
+    },
+    "created_chat_text": "",
+    "edited_chat_text": "",
+    "invite_user_text": "",
+    "admin_assignment_text": "",
+    "admin_removal_text": "",
+    "user_left_chat_text": ""
+  },
+  "unknown_user": "",
+  "host_request_view": {
+    "request_duration_one": "",
+    "request_duration_many": "",
+    "request_duration_other": "",
+    "title_for_surfer": "",
+    "error_message": "",
+    "back_button_a11y_label": "",
+    "title_for_host": ""
+  },
+  "chat_view": {
+    "mute": {
+      "dialog_title": "",
+      "1_day_label": "",
+      "1_hour_label": "",
+      "8_hours_label": "",
+      "forever_label": "",
+      "button_label": "",
+      "unmute_button_label": "",
+      "1_week_label": "",
+      "1_month_label": ""
+    },
+    "cannot_message_text": "",
+    "back_button": {
+      "a11y_label": ""
+    },
+    "muted_icon": {
+      "a11y_label": ""
+    },
+    "actions_menu": {
+      "a11y_label": "",
+      "items": {
+        "invite_members": "",
+        "show_all_members": "",
+        "manage_admins": "",
+        "chat_settings": "",
+        "leave_chat": ""
+      }
+    },
+    "invalid_id_error": "",
+    "no_messages_state_text": ""
+  },
+  "mark_all_read_button_text_chats": "",
+  "messages_page": {
+    "tabs": {
+      "chats": "",
+      "aria_label": "",
+      "hosting": "",
+      "surfing": ""
+    },
+    "title": ""
+  },
+  "invite_dialog": {
+    "selected": {
+      "no_options_text": "",
+      "field_label": "",
+      "option_load_error_text": ""
+    },
+    "title": "",
+    "invite_button_label": ""
+  },
+  "chat_input": {
+    "label": ""
+  },
+  "host_request_status": {
+    "cancelled": "",
+    "confirmed": "",
+    "past": "",
+    "pending": "",
+    "rejected": "",
+    "accepted": ""
+  },
+  "requests_tab": {
+    "no_requests_message": "",
+    "load_more_button_label": ""
+  },
+  "members_dialog": {
+    "title": ""
+  },
+  "surfer_declined_request_help_text": "",
+  "past_request_help_text": "",
+  "mark_all_read_button_text": "",
+  "request_closed_message": "",
+  "write_reference_button_text": "",
+  "close_request_dialog_host": "",
+  "host_request_item": {
+    "expired": "",
+    "pending": "",
+    "surfer_status": {
+      "accepted": "",
+      "cancelled": "",
+      "confirmed": "",
+      "rejected": ""
+    },
+    "host_status": {
+      "accepted": "",
+      "cancelled": "",
+      "confirmed": "",
+      "rejected": ""
+    }
+  },
+  "mark_all_read_button_text_hosting": "",
+  "mark_all_read_button_text_surfing": "",
+  "close_request_dialog_surfer": "",
+  "close_request_button_text": "",
+  "confirm_request_button_text": "",
+  "host_pending_request_help_text": "",
+  "admins_dialog": {
+    "step_down_confirmation_dialog": {
+      "title": "",
+      "message": ""
+    },
+    "remove_admin": {
+      "title": "",
+      "action_a11y_label": ""
+    },
+    "add_admin": {
+      "title": "",
+      "action_a11y_label": ""
+    }
+  },
+  "leave_chat_dialog": {
+    "title": "",
+    "message": ""
+  }
+}
