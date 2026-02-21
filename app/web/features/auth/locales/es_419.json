@@ -15,7 +15,8 @@
       "still_hosting": "",
       "not_hosting": "",
       "title": "",
-      "description": ""
+      "description": "",
+      "note": ""
     },
     "location_section": {
       "title": "",
@@ -221,7 +222,8 @@
       "forgot_password": ""
     },
     "title": "",
-    "header": ""
+    "header": "",
+    "no_account_prompt": ""
   },
   "sign_up_need_verification_title": "",
   "account_settings_page": {
@@ -328,7 +330,8 @@
     "user_logged_error": "",
     "reset_password_success": "",
     "reset_password_error": "",
-    "title": ""
+    "title": "",
+    "token_error": ""
   },
   "sign_up_completed_prompt": "",
   "sign_up_confirmed_prompt": "",

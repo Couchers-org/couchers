@@ -166,14 +166,16 @@
       "midway": "",
       "early_stage": "",
       "complete_percent": "",
-      "view_progress": ""
+      "view_progress": "",
+      "help_translate": ""
     },
     "form_title": "",
     "select_language": "",
     "success_message": "",
     "error_loading_languages": "",
     "show_all_languages": "",
-    "show_all_languages_description": ""
+    "show_all_languages_description": "",
+    "help_translate": ""
   },
   "report": {
     "bug": {
@@ -252,7 +254,8 @@
     "developer": "",
     "lead_frontend_developer": "",
     "backend_developer": "",
-    "ui_ux_designer": ""
+    "ui_ux_designer": "",
+    "tap_press_to_flip": ""
   },
   "contribute_title": "",
   "hosting_status": {
@@ -320,7 +323,8 @@
   "mod": "",
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "community_standing_description": "",
   "learn_more": "",
@@ -382,5 +386,6 @@
     "non_profit_note": "",
     "version_info": ""
   },
-  "send": ""
+  "send": "",
+  "update": ""
 }
