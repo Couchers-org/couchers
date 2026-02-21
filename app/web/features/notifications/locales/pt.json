@@ -1,5 +1,152 @@
 {
   "notification_settings": {
-    "title": "Definições de notificação"
-  }
+    "title": "Definições de notificação",
+    "push_notifications": {
+      "error_unsupported": "",
+      "error_not_granted": "",
+      "permission_denied": {
+        "platform_settings_description": "",
+        "instructions": {
+          "chrome": "",
+          "firefox": "",
+          "safari": "",
+          "generic": "",
+          "windows": "",
+          "linux": {
+            "gnome": "",
+            "kde": ""
+          },
+          "mobile": {
+            "browser": "",
+            "os": ""
+          },
+          "macos": ""
+        }
+      },
+      "title": "",
+      "description": "",
+      "allow_push": "",
+      "enabled_message": "",
+      "disabled_message": "",
+      "error_generic": ""
+    },
+    "edit_preferences": {
+      "expand_all": "",
+      "collapse_all": "",
+      "item_descriptions": {
+        "host_request": {
+          "reminder": "",
+          "create": "",
+          "accept": "",
+          "confirm": "",
+          "reject": "",
+          "cancel": "",
+          "message": ""
+        },
+        "phone_number": {
+          "change": "",
+          "verify": ""
+        },
+        "chat": {
+          "message": "",
+          "missed_messages": ""
+        },
+        "account_deletion": {
+          "complete": "",
+          "recovered": "",
+          "start": ""
+        },
+        "general": {
+          "new_blog_post": ""
+        },
+        "reference": {
+          "receive_hosted": "",
+          "receive_surfed": "",
+          "receive_friend": "",
+          "reminder_hosted": "",
+          "reminder_surfed": ""
+        },
+        "friend_request": {
+          "create": "",
+          "accept": ""
+        },
+        "event": {
+          "create_approved": "",
+          "create_any": "",
+          "update": "",
+          "cancel": "",
+          "delete": "",
+          "invite_organizer": "",
+          "comment": "",
+          "reminder": ""
+        },
+        "onboarding": {
+          "reminder": ""
+        },
+        "badge": {
+          "add": "",
+          "remove": ""
+        },
+        "donation": {
+          "received": ""
+        },
+        "password": {
+          "change": ""
+        },
+        "password_reset": {
+          "start": "",
+          "complete": ""
+        },
+        "email_address": {
+          "change": "",
+          "verify": ""
+        },
+        "birthdate": {
+          "change": ""
+        },
+        "gender": {
+          "change": ""
+        },
+        "discussion": {
+          "create": "",
+          "comment": ""
+        },
+        "thread": {
+          "reply": ""
+        },
+        "api_key": {
+          "create": ""
+        }
+      },
+      "title": "",
+      "description": "",
+      "error_loading": "",
+      "list_items": {
+        "account_security": "",
+        "account_settings": "",
+        "other_notifications": "",
+        "chat": "",
+        "event": "",
+        "friend_request": "",
+        "host_request": "",
+        "reference": "",
+        "discussion": "",
+        "reply": ""
+      },
+      "list_heading": ""
+    },
+    "edit_in_console": "",
+    "go_to_button": ""
+  },
+  "all": "",
+  "mark_all_read": "",
+  "no_new_notifications": "",
+  "push_notification_banner": {
+    "message": "",
+    "confirm": ""
+  },
+  "error_updating_notifications": "",
+  "unread": "",
+  "error_loading": "",
+  "mark_unread": ""
 }

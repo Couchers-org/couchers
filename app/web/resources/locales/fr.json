@@ -41,7 +41,26 @@
   "confirm": "Confirmer",
   "copy": "Copier",
   "relative_time": {
-    "less_than_one_hour_ago": "Il y a moins d'une heure"
+    "less_than_one_hour_ago": "Il y a moins d'une heure",
+    "n_minutes_ago_one": "",
+    "n_minutes_ago_many": "",
+    "n_minutes_ago_other": "",
+    "n_hours_ago_one": "",
+    "n_hours_ago_many": "",
+    "n_hours_ago_other": "",
+    "n_years_ago_one": "",
+    "n_years_ago_many": "",
+    "n_years_ago_other": "",
+    "n_weeks_ago_one": "",
+    "n_weeks_ago_many": "",
+    "n_weeks_ago_other": "",
+    "n_months_ago_one": "",
+    "n_months_ago_many": "",
+    "n_months_ago_other": "",
+    "less_than_a_minute_ago": "",
+    "n_days_ago_one": "",
+    "n_days_ago_many": "",
+    "n_days_ago_other": ""
   },
   "copied": "Copier au bloc-note",
   "read_more": "Voir plus",
@@ -101,7 +120,16 @@
       "block_user_explainer": "Les discussions et demandes de ce membre seront bloquées et votre profil, vos événements et vos commentaires ne seront pas visibles par ce membre. Ce membre ne sera pas informé que vous l'avez bloqué.",
       "button_aria_label": "Signaler un contenu ou un membre",
       "description_label": "Décrivez le problème",
-      "description_helper": "Veuillez nous dire pourquoi vous signalez cela."
+      "description_helper": "Veuillez nous dire pourquoi vous signalez cela.",
+      "profile_button_aria_label": "",
+      "explainer": "",
+      "title": "",
+      "profile_title": "",
+      "reason_helper": "",
+      "reason_required": "",
+      "description_required": "",
+      "reason_label": "",
+      "profile_reason_required": ""
     },
     "bug": {
       "expect_label": "Que s'est-il passé ? Qu'aurait-il dû se passer ?",
@@ -132,13 +160,77 @@
   "invites": {
     "error": {
       "fetch_invite_info": "Impossible d'obtenir les détails du code d'invitation"
-    }
+    },
+    "title": "",
+    "instructions": "",
+    "uses_suffix": "",
+    "banner": {
+      "invited_you": "",
+      "inviter_fallback": ""
+    },
+    "create": "",
+    "disable": "",
+    "share_link": ""
   },
   "what_is_cs": {
     "get_started": "Commencer",
     "title": "Qu'est-ce que le couch surfing ?",
     "description_2": "C'est comme avoir un ami dans une autre ville et aller lui rendre visite, mais vous le rencontrerez pour la première fois lorsque vous serez là-bas !",
-    "get_involved_title": "Que puis-je faire sur Couchers.org ?"
+    "get_involved_title": "Que puis-je faire sur Couchers.org ?",
+    "compare_title": "",
+    "table": {
+      "header_hostel": "",
+      "header_hotel": "",
+      "people_first": "",
+      "professionally_managed": "",
+      "non_transactional": "",
+      "no_investor_pressure": "",
+      "dollar": "",
+      "cost_to_stay": "",
+      "free_to_stay": "",
+      "stay_with_locals": "",
+      "meetups_communities": "",
+      "cultural_exchange": "",
+      "social_expectation": "",
+      "dollars_range": "",
+      "header_couchers": ""
+    },
+    "actions": {
+      "surf": "",
+      "attend_events": "",
+      "host": "",
+      "find_people": "",
+      "join_discussions": ""
+    },
+    "description_1": "",
+    "timeline_title": "",
+    "timeline": {
+      "early_2000s_year": "",
+      "early_2000s_text": "",
+      "2010s_year": "",
+      "2010s_text": "",
+      "2020_year": "",
+      "2020_text": "",
+      "today_year": "",
+      "today_text": ""
+    },
+    "why_people_points": {
+      "hosts": "",
+      "travelers": "",
+      "everyone": ""
+    },
+    "why_people_title": "",
+    "bottom_cta_title": "",
+    "bottom_cta_subtitle": "",
+    "is_it_safe": {
+      "title": "",
+      "description_1": "",
+      "description_2": "",
+      "description_3": ""
+    },
+    "tip_text": "",
+    "tip_label": "",
+    "join_couchers": ""
   },
   "location_autocomplete": {
     "more_specific": "Veuillez choisir un emplacement plus spécifique",
@@ -150,22 +242,155 @@
     "helper_text": "L'identité de ce membre a été vérifiée avec son passeport biométrique"
   },
   "footer": {
-    "version_info": "Version <2>{{version}}</2>, dernière mise à jour <5>{{updated_ago}}</5>."
+    "version_info": "Version <2>{{version}}</2>, dernière mise à jour <5>{{updated_ago}}</5>.",
+    "non_profit_note": ""
   },
   "not_found_text_1": "l'URL ou la ressource que vous cherchez, n'a pu être trouvé",
   "not_found_text_2": "Voulez-vous simplement <1>aller au tableau de bord ?</1>",
   "not_found_alt": "Erreur 404 ; ressource non trouvée",
   "change_time": "Changer l'heure",
   "html_meta": {
-    "default_description": "Partagez votre monde, découvrez le leur. Des expériences locales et authentiques, construites sur la confiance et de vrais liens - pas de transactions."
+    "default_description": "Partagez votre monde, découvrez le leur. Des expériences locales et authentiques, construites sur la confiance et de vrais liens - pas de transactions.",
+    "title_suffix": "",
+    "default_title": ""
   },
   "invited_you": "{{name}} vous a invité à rejoindre Couchers !",
   "error": {
     "fatal_message": "Cela n'aurait pas dû arriver. Veuillez nous contacter et nous décrire ce que vous étiez en train de faire, afin d'éviter que l'erreur se reproduise.",
     "fallback": {
       "title": "Oups ...ceci est une erreur inconnue",
-      "subtitle": "Veuillez utiliser le bouton « Signaler un problème » et nous indiquer ce que vous étiez en train de faire, afin d'éviter cette erreur à l'avenir."
+      "subtitle": "Veuillez utiliser le bouton « Signaler un problème » et nous indiquer ce que vous étiez en train de faire, afin d'éviter cette erreur à l'avenir.",
+      "refresh_page_button_label": "",
+      "home_page_link_label": ""
     },
     "unknown": "Erreur inconnue"
-  }
+  },
+  "components": {
+    "edit_location_map": {
+      "location_accuracy": "",
+      "display_location_not_empty": "",
+      "location_publicly_visible": "",
+      "map_is_blank": "",
+      "radius_text": "",
+      "no_location_results_text": "",
+      "no_map_support": "",
+      "press_enter_to_search": "",
+      "location_warn": "",
+      "display_location_label": "",
+      "search_location_label": "",
+      "invalid_coordinate": ""
+    },
+    "datepicker": {
+      "change_date": ""
+    }
+  },
+  "team": {
+    "volunteer_settings": {
+      "show_on_team_page": {
+        "title": "",
+        "disabled_message": "",
+        "enabled_message": ""
+      }
+    },
+    "secretary": "",
+    "lead_frontend_developer": "",
+    "have_skills_contribute": "",
+    "join_the_team": "",
+    "board_member": "",
+    "co_founder_president": "",
+    "co_founder": "",
+    "current_members": "",
+    "past_members": "",
+    "description": "",
+    "treasurer": "",
+    "community_coordinator": "",
+    "developer": "",
+    "frontend_developer": "",
+    "backend_developer": "",
+    "lead_backend_developer": "",
+    "full_stack_backend_developer": "",
+    "fill_form_description": "",
+    "ui_ux_designer": "",
+    "join_our_team": "",
+    "title": "",
+    "translations_lead": ""
+  },
+  "nav": {
+    "merch_shop": "",
+    "home": "",
+    "badges": "",
+    "show_all_events": "",
+    "messages": "",
+    "about": "",
+    "map_search": "",
+    "switch_to_light_mode": "",
+    "switch_to_dark_mode": "",
+    "notifications": "",
+    "our_plan": "",
+    "newsletter": "",
+    "blog": "",
+    "community": "",
+    "communities": "",
+    "dashboard": "",
+    "donate": "",
+    "events": "",
+    "faq": "",
+    "feature_preview": "",
+    "forum": "",
+    "github": "",
+    "help_center": "",
+    "roadmap_updates": "",
+    "help": "",
+    "log_out": "",
+    "mission": "",
+    "our_team": "",
+    "account_settings": "",
+    "profile": "",
+    "the_team": "",
+    "volunteer": "",
+    "legal_more": "",
+    "contact_us": "",
+    "built_with": "",
+    "landing_page": "",
+    "invite_members": ""
+  },
+  "language_names": {
+    "zh-Hans": "",
+    "es-419": "",
+    "it": "",
+    "hu": "",
+    "es": "",
+    "zh-Hant": "",
+    "pt": "",
+    "en": "",
+    "en-CORP": "",
+    "fr": "",
+    "fr-CA": "",
+    "hi": "",
+    "ja": "",
+    "he": "",
+    "nb-NO": "",
+    "ru": "",
+    "sv": "",
+    "tr": "",
+    "uk": "",
+    "nl": "",
+    "pl": "",
+    "pt-BR": "",
+    "ca": "",
+    "cs": "",
+    "de": ""
+  },
+  "yes": "",
+  "contribute_title": "",
+  "blog": {
+    "byline_without_author": "",
+    "byline_with_author": "",
+    "cta_message": ""
+  },
+  "ok": "",
+  "beta": "",
+  "reply": "",
+  "no": "",
+  "error_loading_languages": ""
 }
