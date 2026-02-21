@@ -158,5 +158,6 @@
   "mark_all_read_button_text_chats": "",
   "mark_all_read_button_text_hosting": "",
   "mark_all_read_button_text_surfing": "",
-  "unknown_user": ""
+  "unknown_user": "",
+  "close_request_dialog_title": ""
 }
