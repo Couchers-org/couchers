@@ -18,11 +18,21 @@ export default function MessagesHeader({
 }) {
   const { t } = useTranslation(MESSAGES);
 
+  // Map tab to MarkAllReadButton type (excluding archived)
+  const getMarkAllReadType = (
+    tab: MessageType | undefined,
+  ): "chats" | "hosting" | "surfing" | "all" | null => {
+    if (!tab || tab === "archived") return null;
+    return tab as "chats" | "hosting" | "surfing" | "all";
+  };
+
+  const markAllReadType = getMarkAllReadType(tab);
+
   return (
     <StyledRoot>
       <HtmlMeta title={t("messages_page.title")} />
       <PageTitle>{t("messages_page.title")}</PageTitle>
-      {tab === "all" && <MarkAllReadButton type="all" />}
+      {markAllReadType && <MarkAllReadButton type={markAllReadType} />}
     </StyledRoot>
   );
 }

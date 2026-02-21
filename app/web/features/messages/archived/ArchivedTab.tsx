@@ -60,7 +60,7 @@ export default function ArchivedTab() {
       service.conversations.listGroupChats(
         lastMessageId as number | undefined,
         10,
-        true
+        true,
       ),
     getNextPageParam: (lastPage) =>
       lastPage.noMore ? undefined : lastPage.lastMessageId,
@@ -143,7 +143,7 @@ export default function ArchivedTab() {
           {/* Archived Host Requests Section */}
           {requestsData &&
             requestsData.pages.some(
-              (page) => page.hostRequestsList.length > 0
+              (page) => page.hostRequestsList.length > 0,
             ) && (
               <StyledSection>
                 <Typography variant="h3" gutterBottom>

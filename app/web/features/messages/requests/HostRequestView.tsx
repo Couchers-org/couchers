@@ -1,5 +1,5 @@
-import { Skeleton, styled, useMediaQuery } from "@mui/material";
 import { ArchiveOutlined, UnarchiveOutlined } from "@mui/icons-material";
+import { Skeleton, styled, useMediaQuery } from "@mui/material";
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -30,8 +30,8 @@ import {
   GetHostRequestMessagesRes,
   RespondHostRequestReq,
 } from "proto/requests_pb";
-import { messagesRoute } from "routes";
 import { useRef, useState } from "react";
+import { messagesRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import { firstName } from "utils/names";
@@ -218,12 +218,14 @@ export default function HostRequestView({
     mutationFn: async () => {
       await service.requests.setHostRequestArchiveStatus(
         hostRequestId,
-        !hostRequest?.isArchived
+        !hostRequest?.isArchived,
       );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [hostRequestsListKey()] });
-      queryClient.invalidateQueries({ queryKey: hostRequestKey(hostRequestId) });
+      queryClient.invalidateQueries({
+        queryKey: hostRequestKey(hostRequestId),
+      });
       router.push(messagesRoute);
     },
   });

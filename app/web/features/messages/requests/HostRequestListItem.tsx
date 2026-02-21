@@ -1,6 +1,7 @@
 import { ArchiveOutlined, UnarchiveOutlined } from "@mui/icons-material";
 import {
   capitalize,
+  Chip,
   ListItem,
   ListItemAvatar,
   ListItemText,
@@ -56,6 +57,36 @@ const StyledMenuContainer = styled("div")(() => ({
   right: theme.spacing(1),
   zIndex: 1,
 }));
+
+const StyledDateAndBadgeContainer = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(1),
+  flexWrap: "nowrap",
+  overflow: "hidden",
+}));
+
+const RequestTypeChip = styled(Chip)<{ ishost: "true" | "false" }>(
+  ({ theme, ishost }) => ({
+    height: 20,
+    fontSize: "0.75rem",
+    fontWeight: 500,
+    flexShrink: 0,
+    backgroundColor:
+      ishost === "true" ? "rgba(0, 163, 152, 0.1)" : "rgba(255, 138, 0, 0.1)",
+    color: ishost === "true" ? "var(--mui-palette-primary-main)" : "#FF8A00",
+    "& .MuiChip-label": {
+      padding: theme.spacing(0, 1),
+    },
+    [theme.breakpoints.down("sm")]: {
+      height: 18,
+      fontSize: "0.65rem",
+      "& .MuiChip-label": {
+        padding: theme.spacing(0, 0.5),
+      },
+    },
+  }),
+);
 
 interface HostRequestListItemProps {
   hostRequest: HostRequest.AsObject;
@@ -119,7 +150,10 @@ export default function HostRequestListItem({
     setMenuAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuClose = (event?: React.MouseEvent | React.KeyboardEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
     setMenuAnchorEl(null);
   };
 
@@ -127,7 +161,7 @@ export default function HostRequestListItem({
     mutationFn: async () => {
       await service.requests.setHostRequestArchiveStatus(
         hostRequest.hostRequestId,
-        !isArchived
+        !isArchived,
       );
     },
     onMutate: async () => {
@@ -184,11 +218,22 @@ export default function HostRequestListItem({
                   />
                 )}
               </StyledHostStatusContainer>
-              <Typography component="div" display="inline" variant="h3">
-                {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
-                  hostRequest.toDate,
-                ).format("LL")}`}
-              </Typography>
+              <StyledDateAndBadgeContainer>
+                <Typography component="div" display="inline" variant="h3">
+                  {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
+                    hostRequest.toDate,
+                  ).format("LL")}`}
+                </Typography>
+                <RequestTypeChip
+                  label={
+                    isHost
+                      ? t("messages_page.tabs.hosting")
+                      : t("messages_page.tabs.surfing")
+                  }
+                  ishost={isHost ? "true" : "false"}
+                  size="small"
+                />
+              </StyledDateAndBadgeContainer>
               <TextBody
                 noWrap
                 sx={{ fontWeight: isUnread ? "bold" : "normal" }}

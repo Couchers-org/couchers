@@ -39,10 +39,8 @@ const StyledToggleContainer = styled("div")(() => ({
 
 export default function RequestsTab({
   type,
-  onlyActive,
 }: {
   type: "all" | "hosting" | "surfing";
-  onlyActive?: boolean;
 }) {
   const { t } = useTranslation(MESSAGES);
   const [showArchived, setShowArchived] = useState(false);

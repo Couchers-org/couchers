@@ -118,7 +118,7 @@ export default function GroupChatListItem({
   const queryClient = useQueryClient();
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
-    null
+    null,
   );
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -127,7 +127,10 @@ export default function GroupChatListItem({
     setMenuAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuClose = (event?: React.MouseEvent | React.KeyboardEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
     setMenuAnchorEl(null);
   };
 
@@ -135,7 +138,7 @@ export default function GroupChatListItem({
     mutationFn: async () => {
       await service.conversations.setGroupChatArchiveStatus(
         groupChat.groupChatId,
-        !isArchived
+        !isArchived,
       );
     },
     onMutate: async () => {

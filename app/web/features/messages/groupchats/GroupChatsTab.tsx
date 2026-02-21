@@ -70,7 +70,7 @@ export default function GroupChatsTab() {
       service.conversations.listGroupChats(
         lastMessageId as number | undefined,
         10,
-        showArchived
+        showArchived,
       ),
     getNextPageParam: (lastPage) =>
       lastPage.noMore ? undefined : lastPage.lastMessageId,
