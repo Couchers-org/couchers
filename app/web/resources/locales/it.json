@@ -158,7 +158,8 @@
     "current_members": "",
     "past_members": "",
     "developer": "",
-    "frontend_developer": ""
+    "frontend_developer": "",
+    "tap_press_to_flip": ""
   },
   "language_names": {
     "hu": "",
@@ -253,7 +254,8 @@
       "early_stage": "",
       "complete_percent": "",
       "view_progress": "",
-      "just_started": ""
+      "just_started": "",
+      "help_translate": ""
     },
     "show_all_languages": "",
     "form_title": "",
@@ -261,7 +263,8 @@
     "success_message": "",
     "error_loading_languages": "",
     "show_all_languages_description": "",
-    "current_preferred_language": ""
+    "current_preferred_language": "",
+    "help_translate": ""
   },
   "no": "",
   "invited_you": "",
@@ -368,7 +371,8 @@
   "yes": "",
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "strong_verification": {
     "helper_text": ""
@@ -388,5 +392,6 @@
   "cancel": "",
   "submit": "",
   "community_standing": "",
-  "community_standing_description": ""
+  "community_standing_description": "",
+  "update": ""
 }

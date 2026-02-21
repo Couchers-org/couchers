@@ -70,7 +70,8 @@
   },
   "donation_banner": {
     "progress_label": "Bağış ilerlemesi",
-    "button": "Şimdi bağış yap"
+    "button": "Şimdi bağış yap",
+    "message": ""
   },
   "copy": "Kopyala",
   "hosting_status": {
@@ -308,7 +309,8 @@
     "ui_ux_designer": "",
     "current_members": "",
     "translations_lead": "",
-    "join_the_team": ""
+    "join_the_team": "",
+    "tap_press_to_flip": ""
   },
   "invites": {
     "title": "",
