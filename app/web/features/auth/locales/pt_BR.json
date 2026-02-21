@@ -368,5 +368,18 @@
     "description": "Se sua função ou datas estiverem incorretas, avise-nos.",
     "not_a_volunteer_message": "De acordo com nossos registros, você não é ou foi um voluntário. Se essa informação estiver incorreta, avise-nos preenchendo <1>este formulário<1>.",
     "update_success": "Suas informações de voluntário foram atualizadas."
+  },
+  "motivations_form": {
+    "header": "O que o traz ao Couchers?",
+    "hosting_description": "Quero hospedar e receber viajantes na minha cidade",
+    "community_organizing": "Organizar uma comunidade",
+    "community_organizing_description": "Quero organizar eventos e atividades na plataforma",
+    "something_else_description": "Estou só explorando ou ainda não decidi",
+    "surfing": "Ficar hospedado na casa das pessoas",
+    "surfing_description": "Estou planejando uma viagem e procurando um anfitrião",
+    "hosting": "Hospedar",
+    "something_else": "Outra coisa",
+    "events_description": "Quero participar de eventos e conhecer a comunidade",
+    "events": "Eventos"
   }
 }

@@ -216,7 +216,8 @@
     "username_not_available": "Infelizmente, este nome de usuário não está disponível.",
     "volunteer_not_found": "Voluntário não encontrado.",
     "wrong_signature": "Assinatura incorreta.",
-    "wrong_sms_code": "O código está incorreto."
+    "wrong_sms_code": "O código está incorreto.",
+    "signup_flow_motivations_filled": "Você já contou porque está se registrando."
   },
   "quick_links": {
     "do_not_email": "Você não receberá nenhum e-mail não relacionado a segurança, e seu status de hospedagem foi desabilitado. Você ainda pode receber a newsletter e precisa cancelar sua inscrição nela separadamente.",
@@ -246,6 +247,32 @@
     "phone_verified_name": "Telefone verificado",
     "phone_verified_description": "Este usuário teve seu número de telefone verificado",
     "strong_verification_name": "Verificação forte",
-    "strong_verification_description": "Este usuário teve seu gênero e data de nascimento verificados com um passaporte biométrico"
+    "strong_verification_description": "Este usuário teve seu gênero e data de nascimento verificados com um passaporte biométrico",
+    "swagster_name": "Swagster",
+    "swagster_description": "Este usuário comprou um produto do Couchers.org!"
+  },
+  "community_guidelines": {
+    "be_kind_title": "Seja gentil com os outros",
+    "no_money_title": "Deixe o dinheiro de fora",
+    "be_safe_guideline": "Leia os perfis, referências e recursos. Denuncie qualquer conteúdo ou comportamento inapropriado.",
+    "no_dating_guideline": "O Couchers.org NÃO é um aplicativo de namoro ou relacionamento amoroso. Assédio ou usar a plataforma com o propósito de namoro ou relacionamento amoroso resultará em banimento.",
+    "be_safe_title": "Seja cauteloso e prudente",
+    "be_kind_guideline": "O Couchers.org é uma comunidade inclusiva onde pessoas de todas as culturas e experiências se reúnem. Trate todos com respeito mútuo e dignidade.",
+    "no_dating_title": "Isto não é um aplicativo de namoro",
+    "no_money_guideline": "Mantenha as coisas não comerciais. Não pague para ser hospedado ou hospedar. O Couchers.org tem a ver com aprendizado, experiências e conhecer pessoas."
+  },
+  "notifications": {
+    "donation_received": {
+      "questions_contact": "Se tiver alguma dúvida sobre sua doação, envie um e-mail para nós: <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
+      "purpose": "Sua contribuição será destinada a construção e manutenção da plataforma e da comunidade do Couchers.org, e é vital para nosso objetivo de fomentar uma geração completamente gratuita e sem fins lucrativos de couch surfing.",
+      "thanks_amount": "Muito obrigado por sua doação de ${{amount}} ao Couchers.org.",
+      "invoice_receipt_info": "Você pode baixar uma nota fiscal e um recibo para sua doação aqui:",
+      "download_invoice": "Baixar nota fiscal",
+      "generosity_helps": "Sua generosidade ajudará a disponibilizar a plataforma para todos.",
+      "title": "Obrigado por sua doação para o Couchers.org!"
+    },
+    "founders_signature": "Aapeli e Itsi,\nFundadores do Couchers.org",
+    "dear_name": "Caro {{name}},",
+    "thank_you": "Obrigado!"
   }
 }
