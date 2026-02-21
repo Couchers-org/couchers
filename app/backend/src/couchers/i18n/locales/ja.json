@@ -216,7 +216,8 @@
     "postal_verification_disabled": "",
     "invalid_invite_code": "",
     "cant_make_self_admin": "",
-    "event_too_long": ""
+    "event_too_long": "",
+    "after_item_not_found": ""
   },
   "badges": {
     "past_board_member_name": "",
