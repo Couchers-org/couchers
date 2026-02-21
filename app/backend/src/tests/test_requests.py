@@ -958,11 +958,20 @@ def test_archive_host_request(db, moderator):
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_sent=True))
         assert len(res.host_requests) == 1
         assert res.host_requests[0].status == conversations_pb2.HOST_REQUEST_STATUS_CANCELLED
+
+        # Verify is_archived is False before archiving
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert not res.is_archived
+
         api.SetHostRequestArchiveStatus(
             requests_pb2.SetHostRequestArchiveStatusReq(host_request_id=host_request_id, is_archived=True)
         )
         res = api.ListHostRequests(requests_pb2.ListHostRequestsReq(only_archived=True))
         assert len(res.host_requests) == 1
+
+        # Verify is_archived is True after archiving
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert res.is_archived
 
 
 def test_mark_last_seen(db, moderator):
