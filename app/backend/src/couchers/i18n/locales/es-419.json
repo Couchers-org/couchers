@@ -216,7 +216,8 @@
     "event_cant_cancel_old_event": "",
     "event_cant_overlap": "",
     "missing_discussion_title": "",
-    "missing_discussion_content": ""
+    "missing_discussion_content": "",
+    "after_item_not_found": ""
   },
   "community_guidelines": {
     "be_kind_title": "",
