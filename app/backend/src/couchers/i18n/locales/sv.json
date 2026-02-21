@@ -216,7 +216,8 @@
     "signup_flow_basic_filled": "",
     "signup_flow_basic_needed": "",
     "volunteer_not_found": "",
-    "must_confirm_logout_other_sessions": ""
+    "must_confirm_logout_other_sessions": "",
+    "after_item_not_found": ""
   },
   "community_guidelines": {
     "be_kind_title": "",

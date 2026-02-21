@@ -216,7 +216,8 @@
     "need_to_specify_at_least_one_user": "",
     "no_multipolygon": "",
     "can_only_refer_friends": "",
-    "signup_flow_basic_filled": ""
+    "signup_flow_basic_filled": "",
+    "after_item_not_found": ""
   },
   "community_guidelines": {
     "be_kind_title": "",
