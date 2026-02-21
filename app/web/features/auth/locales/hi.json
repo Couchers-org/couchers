@@ -172,6 +172,9 @@
         "inactive_text": ""
       },
       "resubmit_button_text": ""
+    },
+    "terms_of_service_section": {
+      "description": ""
     }
   },
   "sign_up_completed_prompt": "हमने आपके ईमेल पर एक सत्यापन लिंक के साथ एक ईमेल भेजा है। कृपया अपने खाते को सक्रिय करने के लिए लिंक पर क्लिक करें।",
@@ -282,7 +285,8 @@
     "change_button_text": "",
     "title": "",
     "need_to_donate": "",
-    "no_phone_description": ""
+    "no_phone_description": "",
+    "remove_phone_description": ""
   },
   "do_not_email": {
     "status": {
@@ -362,7 +366,8 @@
       "button_text": "",
       "account_deleted": "",
       "error_message": ""
-    }
+    },
+    "missing_token": ""
   },
   "sign_up_resend_verification_email_help": "",
   "sign_up_resend_verification_done": "",
@@ -374,5 +379,6 @@
       "title": "",
       "explanation": ""
     }
-  }
+  },
+  "unhandled_sign_up_state": ""
 }
