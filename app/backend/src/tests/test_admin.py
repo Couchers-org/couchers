@@ -1,5 +1,4 @@
 from datetime import date, datetime, timedelta
-from re import match
 
 import grpc
 import pytest
@@ -167,8 +166,6 @@ def test_BanUser(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, _ = generate_user()
     admin_note = "A good reason"
-    utc_regex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00"
-    prefix_regex = rf"\n\[{utc_regex}\] \(id: {super_user.id}, username: {super_user.username}\)"
 
     with real_admin_session(super_token) as api:
         res = api.BanUser(admin_pb2.BanUserReq(user=normal_user.username, admin_note=admin_note))
@@ -179,15 +176,21 @@ def test_BanUser(db):
     assert parse_date(res.birthdate) == normal_user.birthdate
     assert res.banned
     assert not res.deleted
-    assert match(rf"^{prefix_regex} {admin_note}\n$", res.admin_note)
+    assert admin_note in res.admin_note
+    assert super_user.username in res.admin_note
+    assert "[ban]" in res.admin_note
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "ban"
+    assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+    assert res.admin_actions[0].note == admin_note
+    assert res.admin_actions[0].admin_user_id == super_user.id
+    assert res.admin_actions[0].admin_username == super_user.username
 
 
 def test_UnbanUser(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, _ = generate_user()
     admin_note = "A good reason"
-    utc_regex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00"
-    prefix_regex = rf"\n\[{utc_regex}\] \(id: {super_user.id}, username: {super_user.username}\)"
 
     with real_admin_session(super_token) as api:
         res = api.UnbanUser(admin_pb2.UnbanUserReq(user=normal_user.username, admin_note=admin_note))
@@ -198,7 +201,12 @@ def test_UnbanUser(db):
     assert parse_date(res.birthdate) == normal_user.birthdate
     assert not res.banned
     assert not res.deleted
-    assert match(rf"^{prefix_regex} {admin_note}\n$", res.admin_note)
+    assert admin_note in res.admin_note
+    assert super_user.username in res.admin_note
+    assert "[unban]" in res.admin_note
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "unban"
+    assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
 
 
 def test_AddAdminNote(db):
@@ -206,8 +214,6 @@ def test_AddAdminNote(db):
     normal_user, _ = generate_user()
     admin_note1 = "User reported strange behavior"
     admin_note2 = "Insert private information here"
-    utc_regex = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00"
-    prefix_regex = rf"\n\[{utc_regex}\] \(id: {super_user.id}, username: {super_user.username}\)"
 
     with real_admin_session(super_token) as api:
         res = api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=admin_note1))
@@ -218,11 +224,20 @@ def test_AddAdminNote(db):
     assert parse_date(res.birthdate) == normal_user.birthdate
     assert not res.banned
     assert not res.deleted
-    assert match(rf"^{prefix_regex} {admin_note1}\n$", res.admin_note)
+    assert admin_note1 in res.admin_note
+    assert "[note]" in res.admin_note
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "note"
+    assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_NORMAL
+    assert res.admin_actions[0].note == admin_note1
 
     with real_admin_session(super_token) as api:
         res = api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=admin_note2))
-    assert match(rf"^{prefix_regex} {admin_note1}\n{prefix_regex} {admin_note2}\n$", res.admin_note)
+    assert admin_note1 in res.admin_note
+    assert admin_note2 in res.admin_note
+    assert len(res.admin_actions) == 2
+    assert res.admin_actions[0].note == admin_note1
+    assert res.admin_actions[1].note == admin_note2
 
 
 def test_AddAdminNote_blank(db):
@@ -884,6 +899,243 @@ def test_SetLastDonated(db):
             api.SetLastDonated(admin_pb2.SetLastDonatedReq(user="nonexistent"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
         assert e.value.details() == "Couldn't find that user."
+
+
+def test_admin_actions_level(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        # Default level is NORMAL
+        res = api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note="normal note"))
+        assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_NORMAL
+
+        # Explicitly set to DEBUG
+        res = api.AddAdminNote(
+            admin_pb2.AddAdminNoteReq(
+                user=normal_user.username,
+                admin_note="debug note",
+                level=admin_pb2.ADMIN_ACTION_LEVEL_DEBUG,
+            )
+        )
+        assert len(res.admin_actions) == 2
+        assert res.admin_actions[1].level == admin_pb2.ADMIN_ACTION_LEVEL_DEBUG
+
+        # Explicitly set to HIGH
+        res = api.AddAdminNote(
+            admin_pb2.AddAdminNoteReq(
+                user=normal_user.username,
+                admin_note="high note",
+                level=admin_pb2.ADMIN_ACTION_LEVEL_HIGH,
+            )
+        )
+        assert len(res.admin_actions) == 3
+        assert res.admin_actions[2].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+
+
+def test_admin_actions_on_mutations(db, push_collector: PushCollector):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        # ChangeUserGender
+        res = api.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=normal_user.username, gender="Machine"))
+        assert any(a.action_type == "change_gender" for a in res.admin_actions)
+
+        # ChangeUserBirthdate
+        res = api.ChangeUserBirthdate(
+            admin_pb2.ChangeUserBirthdateReq(user=normal_user.username, birthdate="1990-01-01")
+        )
+        assert any(a.action_type == "change_birthdate" for a in res.admin_actions)
+
+        # DeleteUser
+        res = api.DeleteUser(admin_pb2.DeleteUserReq(user=normal_user.username))
+        assert any(a.action_type == "delete_user" for a in res.admin_actions)
+        assert any(
+            a.action_type == "delete_user" and a.level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH for a in res.admin_actions
+        )
+
+        # RecoverDeletedUser
+        res = api.RecoverDeletedUser(admin_pb2.RecoverDeletedUserReq(user=normal_user.username))
+        assert any(a.action_type == "recover_user" for a in res.admin_actions)
+
+        # MarkUserNeedsLocationUpdate
+        res = api.MarkUserNeedsLocationUpdate(admin_pb2.MarkUserNeedsLocationUpdateReq(user=normal_user.username))
+        assert any(a.action_type == "mark_needs_location_update" for a in res.admin_actions)
+
+        # SetLastDonated
+        res = api.SetLastDonated(
+            admin_pb2.SetLastDonatedReq(
+                user=normal_user.username,
+                last_donated=Timestamp_from_datetime(now()),
+            )
+        )
+        assert any(a.action_type == "set_last_donated" for a in res.admin_actions)
+
+
+def test_create_admin_tag(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as api:
+        res = api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="test-tag"))
+        assert res.tag == "test-tag"
+        assert res.admin_tag_id > 0
+
+
+def test_create_admin_tag_duplicate(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as api:
+        api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="test-tag"))
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="test-tag"))
+        assert e.value.code() == grpc.StatusCode.ALREADY_EXISTS
+        assert e.value.details() == "That tag already exists."
+
+
+def test_create_admin_tag_empty(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag=""))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "The tag cannot be empty."
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="   "))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "The tag cannot be empty."
+
+
+def test_list_admin_tags(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as api:
+        # Empty initially
+        res = api.ListAdminTags(admin_pb2.ListAdminTagsReq())
+        assert len(res.tags) == 0
+
+        # Add some tags
+        api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="bravo"))
+        api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="alpha"))
+
+        res = api.ListAdminTags(admin_pb2.ListAdminTagsReq())
+        assert len(res.tags) == 2
+        # Ordered alphabetically
+        assert res.tags[0].tag == "alpha"
+        assert res.tags[1].tag == "bravo"
+
+
+def test_add_admin_tag_to_user(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="vip"))
+
+        res = api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=normal_user.username, tag="vip"))
+        assert "vip" in res.admin_tags
+        assert any(a.action_type == "add_tag" and a.tag == "vip" for a in res.admin_actions)
+
+
+def test_add_admin_tag_to_user_duplicate(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="vip"))
+        api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=normal_user.username, tag="vip"))
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=normal_user.username, tag="vip"))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "The user already has that tag."
+
+
+def test_add_admin_tag_to_user_tag_not_found(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=normal_user.username, tag="nonexistent"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+        assert e.value.details() == "Tag not found."
+
+
+def test_remove_admin_tag_from_user(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="vip"))
+        api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=normal_user.username, tag="vip"))
+
+        res = api.RemoveAdminTagFromUser(admin_pb2.RemoveAdminTagFromUserReq(user=normal_user.username, tag="vip"))
+        assert "vip" not in res.admin_tags
+        assert any(a.action_type == "remove_tag" and a.tag == "vip" for a in res.admin_actions)
+
+
+def test_remove_admin_tag_from_user_not_assigned(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="vip"))
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.RemoveAdminTagFromUser(admin_pb2.RemoveAdminTagFromUserReq(user=normal_user.username, tag="vip"))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "The user does not have that tag."
+
+
+def test_search_users_by_admin_tag(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="vip"))
+        api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="flagged"))
+
+        api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=user1.username, tag="vip"))
+        api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=user2.username, tag="vip"))
+        api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=user2.username, tag="flagged"))
+
+        # Search for users with "vip" tag
+        res = api.SearchUsers(admin_pb2.SearchUsersReq(admin_tags=["vip"]))
+        user_ids = {u.user_id for u in res.users}
+        assert user1.id in user_ids
+        assert user2.id in user_ids
+        assert user3.id not in user_ids
+
+        # Search for users with both "vip" AND "flagged" tags (AND logic)
+        res = api.SearchUsers(admin_pb2.SearchUsersReq(admin_tags=["vip", "flagged"]))
+        user_ids = {u.user_id for u in res.users}
+        assert user2.id in user_ids
+        assert user1.id not in user_ids
+
+        # Search for non-existent tag returns no results
+        res = api.SearchUsers(admin_pb2.SearchUsersReq(admin_tags=["nonexistent"]))
+        assert len(res.users) == 0
+
+
+def test_search_users_by_admin_note(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="suspicious activity"))
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user2.username, admin_note="normal user"))
+
+        # Search by note content (ilike)
+        res = api.SearchUsers(admin_pb2.SearchUsersReq(admin_note="%suspicious%"))
+        user_ids = {u.user_id for u in res.users}
+        assert user1.id in user_ids
+        assert user2.id not in user_ids
 
 
 # community invite feature tested in test_events.py
