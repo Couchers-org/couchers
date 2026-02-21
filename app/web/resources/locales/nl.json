@@ -318,5 +318,8 @@
     "is_it_safe": {
       "title": "Hoe veilig is couchsurfen?"
     }
+  },
+  "team": {
+    "tap_press_to_flip": ""
   }
 }

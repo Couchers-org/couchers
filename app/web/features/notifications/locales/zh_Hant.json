@@ -34,7 +34,8 @@
           "reject": "",
           "cancel": "",
           "message": "",
-          "reminder": ""
+          "reminder": "",
+          "missed_messages": ""
         },
         "event": {
           "comment": "",
