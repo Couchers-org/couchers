@@ -19,8 +19,7 @@ class EventCollector {
   private readonly frontendVersion: string;
 
   constructor() {
-    this.frontendVersion =
-      process.env.NEXT_PUBLIC_VERSION ?? "unknown";
+    this.frontendVersion = process.env.NEXT_PUBLIC_VERSION ?? "unknown";
 
     if (typeof window !== "undefined") {
       document.addEventListener("visibilitychange", this.onVisibilityChange);
@@ -56,10 +55,7 @@ class EventCollector {
       this.timerId = null;
     }
     if (typeof window !== "undefined") {
-      document.removeEventListener(
-        "visibilitychange",
-        this.onVisibilityChange,
-      );
+      document.removeEventListener("visibilitychange", this.onVisibilityChange);
       window.removeEventListener("beforeunload", this.onBeforeUnload);
     }
     this.flush();

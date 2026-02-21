@@ -61,8 +61,7 @@ export default function AnalyticsProvider({
     const handleRouteChange = (url: string) => {
       const path = url.split("?")[0];
       const now = Date.now();
-      const timeOnPreviousPage =
-        (now - previousTimestampRef.current) / 1000;
+      const timeOnPreviousPage = (now - previousTimestampRef.current) / 1000;
 
       logEvent("page.viewed", {
         path,
