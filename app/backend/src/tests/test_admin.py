@@ -990,7 +990,7 @@ def test_create_admin_tag_duplicate(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="test-tag"))
         assert e.value.code() == grpc.StatusCode.ALREADY_EXISTS
-        assert e.value.details() == "That tag already exists."
+        assert e.value.details() == "That admin tag already exists."
 
 
 def test_create_admin_tag_empty(db):
@@ -1000,12 +1000,12 @@ def test_create_admin_tag_empty(db):
         with pytest.raises(grpc.RpcError) as e:
             api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag=""))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The tag cannot be empty."
+        assert e.value.details() == "The admin tag cannot be empty."
 
         with pytest.raises(grpc.RpcError) as e:
             api.CreateAdminTag(admin_pb2.CreateAdminTagReq(tag="   "))
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "The tag cannot be empty."
+        assert e.value.details() == "The admin tag cannot be empty."
 
 
 def test_list_admin_tags(db):
@@ -1050,7 +1050,7 @@ def test_add_admin_tag_to_user_duplicate(db):
         with pytest.raises(grpc.RpcError) as e:
             api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=normal_user.username, tag="vip"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "The user already has that tag."
+        assert e.value.details() == "The user already has that admin tag."
 
 
 def test_add_admin_tag_to_user_tag_not_found(db):
@@ -1061,7 +1061,7 @@ def test_add_admin_tag_to_user_tag_not_found(db):
         with pytest.raises(grpc.RpcError) as e:
             api.AddAdminTagToUser(admin_pb2.AddAdminTagToUserReq(user=normal_user.username, tag="nonexistent"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
-        assert e.value.details() == "Tag not found."
+        assert e.value.details() == "Admin tag not found."
 
 
 def test_remove_admin_tag_from_user(db):
@@ -1087,7 +1087,7 @@ def test_remove_admin_tag_from_user_not_assigned(db):
         with pytest.raises(grpc.RpcError) as e:
             api.RemoveAdminTagFromUser(admin_pb2.RemoveAdminTagFromUserReq(user=normal_user.username, tag="vip"))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
-        assert e.value.details() == "The user does not have that tag."
+        assert e.value.details() == "The user does not have that admin tag."
 
 
 def test_search_users_by_admin_tag(db):

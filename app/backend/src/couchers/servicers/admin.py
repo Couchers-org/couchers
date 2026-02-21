@@ -923,10 +923,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
         self, request: admin_pb2.CreateAdminTagReq, context: CouchersContext, session: Session
     ) -> admin_pb2.AdminTagInfo:
         if not request.tag.strip():
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "tag_cant_be_empty")
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_tag_cant_be_empty")
         existing = session.execute(select(AdminTag).where(AdminTag.tag == request.tag.strip())).scalar_one_or_none()
         if existing:
-            context.abort_with_error_code(grpc.StatusCode.ALREADY_EXISTS, "tag_already_exists")
+            context.abort_with_error_code(grpc.StatusCode.ALREADY_EXISTS, "admin_tag_already_exists")
         admin_tag = AdminTag(tag=request.tag.strip())
         session.add(admin_tag)
         session.flush()
@@ -948,12 +948,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         admin_tag = session.execute(select(AdminTag).where(AdminTag.tag == request.tag)).scalar_one_or_none()
         if not admin_tag:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "tag_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin_tag_not_found")
         existing = session.execute(
             select(UserAdminTag).where(UserAdminTag.user_id == user.id, UserAdminTag.admin_tag_id == admin_tag.id)
         ).scalar_one_or_none()
         if existing:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_has_tag")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_already_has_admin_tag")
         session.add(UserAdminTag(user_id=user.id, admin_tag_id=admin_tag.id))
         session.flush()
         log_admin_action(session, context, user, "add_tag", tag=request.tag)
@@ -967,12 +967,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         admin_tag = session.execute(select(AdminTag).where(AdminTag.tag == request.tag)).scalar_one_or_none()
         if not admin_tag:
-            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "tag_not_found")
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "admin_tag_not_found")
         user_admin_tag = session.execute(
             select(UserAdminTag).where(UserAdminTag.user_id == user.id, UserAdminTag.admin_tag_id == admin_tag.id)
         ).scalar_one_or_none()
         if not user_admin_tag:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_does_not_have_tag")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "user_does_not_have_admin_tag")
         session.delete(user_admin_tag)
         session.flush()
         log_admin_action(session, context, user, "remove_tag", tag=request.tag)
