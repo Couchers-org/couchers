@@ -216,7 +216,8 @@
     "signup_flow_email_taken": "",
     "user_already_has_badge": "",
     "user_already_volunteer": "",
-    "user_does_not_have_badge": ""
+    "user_does_not_have_badge": "",
+    "after_item_not_found": ""
   },
   "community_guidelines": {
     "be_kind_title": "",

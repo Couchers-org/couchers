@@ -159,5 +159,6 @@
   "close_request_dialog_host": "",
   "confirm_request_button_text": "",
   "host_pending_request_help_text": "",
-  "unknown_user": ""
+  "unknown_user": "",
+  "close_request_dialog_title": ""
 }

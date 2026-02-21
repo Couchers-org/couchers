@@ -226,7 +226,8 @@
     "signup_flow_feedback_filled": "",
     "signup_flow_account_filled": "",
     "signup_flow_basic_filled": "",
-    "signup_flow_basic_needed": ""
+    "signup_flow_basic_needed": "",
+    "after_item_not_found": ""
   },
   "notifications": {
     "donation_received": {
