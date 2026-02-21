@@ -362,6 +362,9 @@
       "description": "",
       "note_title": "",
       "acknowledge": ""
+    },
+    "terms_of_service_section": {
+      "description": ""
     }
   },
   "logged_out_message": "",

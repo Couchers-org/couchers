@@ -1,1 +1,14 @@
-{}
+{
+  "jail": {
+    "terms_of_service_section": {
+      "description": ""
+    }
+  },
+  "change_phone": {
+    "remove_phone_description": ""
+  },
+  "unhandled_sign_up_state": "",
+  "delete_account": {
+    "missing_token": ""
+  }
+}
