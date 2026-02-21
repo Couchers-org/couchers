@@ -75,7 +75,8 @@
   "basic_form": {
     "name": {
       "field_label": "आपका नाम",
-      "empty_error": "कृपया अपना नाम दर्ज करें"
+      "empty_error": "कृपया अपना नाम दर्ज करें",
+      "required_error": ""
     },
     "email": {
       "field_label": "ईमेल",

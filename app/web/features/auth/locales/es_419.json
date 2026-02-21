@@ -331,7 +331,8 @@
     "reset_password_success": "",
     "reset_password_error": "",
     "title": "",
-    "token_error": ""
+    "token_error": "",
+    "password_mismatch_error": ""
   },
   "sign_up_completed_prompt": "",
   "sign_up_confirmed_prompt": "",
@@ -357,7 +358,8 @@
   "basic_form": {
     "name": {
       "field_label": "",
-      "empty_error": ""
+      "empty_error": "",
+      "required_error": ""
     },
     "email": {
       "field_label": "",
