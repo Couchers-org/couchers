@@ -272,7 +272,8 @@
     "secretary": "",
     "treasurer": "",
     "community_coordinator": "",
-    "developer": ""
+    "developer": "",
+    "tap_press_to_flip": ""
   },
   "components": {
     "edit_location_map": {
