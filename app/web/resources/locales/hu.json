@@ -1,2 +1,13 @@
 {
+  "team": {
+    "tap_press_to_flip": ""
+  },
+  "language_preference": {
+    "translation_progress": {
+      "help_translate": ""
+    }
+  },
+  "donation_banner": {
+    "message": ""
+  }
 }
