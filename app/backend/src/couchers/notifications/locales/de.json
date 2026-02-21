@@ -6,9 +6,9 @@
       "title": ""
     },
     "api_key__create": {
-      "title": "",
+      "title": "API-Schlüssel erstellt",
       "body": "",
-      "ios_title": ""
+      "ios_title": "API-Schlüssel erstellt"
     },
     "badge__add": {
       "title": "",
@@ -38,7 +38,9 @@
       "body_not_a_passport": ""
     },
     "adhoc__push_enabled": {
-      "body": ""
+      "body": "Du wirst von nun an Benachrichtigungen auf diesem Gerät erhalten.",
+      "title": "",
+      "ios_title": ""
     },
     "friend_request__create": {
       "ios_subtitle": "",
@@ -85,7 +87,11 @@
       "body_generic": ""
     },
     "chat__missed_messages": {
-      "body": ""
+      "body": "",
+      "ios_title_one": "{{count}} Verpasste Nachricht",
+      "ios_title_other": "{{count}} Verpasste Nachrichten",
+      "title_one": "{{count}} verpasste Nachricht",
+      "title_other": "{{count}} verpasste Nachrichten"
     },
     "donation__received": {
       "title": "",
@@ -187,7 +193,9 @@
     "host_request__create": {
       "ios_subtitle": "",
       "title": "",
-      "ios_title": ""
+      "ios_title": "",
+      "body_one": "{{user}} möchte ab {{start_date}} für {{count}} Tag bleiben.",
+      "body_other": "{{user}} möchte ab {{start_date}} für {{count}} Tage bleiben."
     },
     "host_request__reminder": {
       "title": "",
@@ -250,7 +258,30 @@
     "reference__reminder": {
       "title": "",
       "ios_title": "",
-      "ios_subtitle": ""
+      "ios_subtitle": "",
+      "body_one": "Du hast noch {{count}} Tag Zeit, um eine Referenz für {{user}} zu schreiben.",
+      "body_other": "Du hast noch {{count}} Tage Zeit, um eine Referenz für {{user}} zu schreiben."
+    },
+    "account_deletion__start": {
+      "title": "Kontolöschung angefordert",
+      "ios_title": "Kontolöschung angefordert",
+      "body": "Verwende den Link, den wir dir per E-Mail gesendet haben, zur Bestätigung."
+    },
+    "account_deletion__complete": {
+      "title": "Konto gelöscht",
+      "ios_title": "Konto gelöscht",
+      "body_one": "Du kannst ihn innerhalb von {{count}} Tag über den Link wiederherstellen, den wir dir per E-Mail gesendet haben.",
+      "body_other": "Du kannst ihn innerhalb von {{count}} Tagen über den Link wiederherstellen, den wir dir per E-Mail gesendet haben."
+    },
+    "account_deletion__recovered": {
+      "title": "Konto wiederhergestellt",
+      "ios_title": "Konto wiederhergestellt",
+      "body": "Willkommen zurück!"
+    },
+    "activeness__probe": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
     }
   }
 }

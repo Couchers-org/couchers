@@ -41,7 +41,8 @@
           "confirm": "",
           "reject": "",
           "cancel": "",
-          "message": ""
+          "message": "",
+          "missed_messages": ""
         },
         "phone_number": {
           "change": "",

@@ -21,7 +21,8 @@
     "user_logged_error": "",
     "reset_password_success": "",
     "reset_password_error": "",
-    "subtitle": ""
+    "subtitle": "",
+    "token_error": ""
   },
   "reset_password_form": {
     "enter_email": "Inserisci il tuo nome utente/e-mail",
@@ -147,7 +148,8 @@
       "title": "",
       "description": "",
       "still_hosting": "",
-      "not_hosting": ""
+      "not_hosting": "",
+      "note": ""
     },
     "mod_note_section": {
       "description": "",

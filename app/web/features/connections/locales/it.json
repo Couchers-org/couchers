@@ -29,5 +29,6 @@
     "confirm": ""
   },
   "friend_requests_sent": "",
-  "unblock_user": ""
+  "unblock_user": "",
+  "my_connections": ""
 }

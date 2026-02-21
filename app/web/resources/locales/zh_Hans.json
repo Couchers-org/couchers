@@ -41,7 +41,8 @@
       "just_started": "",
       "complete_percent": "",
       "info_text": "",
-      "view_progress": ""
+      "view_progress": "",
+      "help_translate": ""
     },
     "form_title": "",
     "select_language": "",
@@ -49,11 +50,13 @@
     "error_loading_languages": "",
     "current_preferred_language": "",
     "show_all_languages": "",
-    "show_all_languages_description": ""
+    "show_all_languages_description": "",
+    "help_translate": ""
   },
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "verification_score": "",
   "send": "",
@@ -305,7 +308,8 @@
     "lead_backend_developer": "",
     "current_members": "",
     "fill_form_description": "",
-    "past_members": ""
+    "past_members": "",
+    "tap_press_to_flip": ""
   },
   "error": {
     "fallback": {

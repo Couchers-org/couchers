@@ -170,7 +170,8 @@
     "title": "",
     "join_the_team": "",
     "past_members": "",
-    "board_member": ""
+    "board_member": "",
+    "tap_press_to_flip": ""
   },
   "send": "",
   "cancel": "",
@@ -193,14 +194,16 @@
       "almost_there": "",
       "midway": "",
       "in_progress": "",
-      "early_stage": ""
+      "early_stage": "",
+      "help_translate": ""
     },
     "form_title": "",
     "select_language": "",
     "show_all_languages_description": "",
     "success_message": "",
     "current_preferred_language": "",
-    "show_all_languages": ""
+    "show_all_languages": "",
+    "help_translate": ""
   },
   "back": "",
   "footer": {
@@ -362,7 +365,8 @@
   "uses": "",
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "community_standing": "",
   "create": "",
@@ -382,5 +386,6 @@
   "read_more": "",
   "next": "",
   "previous": "",
-  "mod": ""
+  "mod": "",
+  "update": ""
 }

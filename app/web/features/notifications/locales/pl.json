@@ -24,7 +24,8 @@
           "cancel": "",
           "message": "",
           "accept": "",
-          "confirm": ""
+          "confirm": "",
+          "missed_messages": ""
         },
         "password_reset": {
           "complete": "",

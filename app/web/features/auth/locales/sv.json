@@ -61,7 +61,8 @@
       "title": "",
       "still_hosting": "",
       "not_hosting": "",
-      "description": ""
+      "description": "",
+      "note": ""
     },
     "terms_of_service_section": {
       "description": ""
@@ -167,7 +168,8 @@
     "password_mismatch_error": "",
     "user_logged_error": "",
     "reset_password_success": "",
-    "reset_password_error": ""
+    "reset_password_error": "",
+    "token_error": ""
   },
   "login_page": {
     "form": {
@@ -180,7 +182,8 @@
       "hide_password": ""
     },
     "title": "",
-    "header": ""
+    "header": "",
+    "no_account_prompt": ""
   },
   "active_logins": {
     "login_header": "",
