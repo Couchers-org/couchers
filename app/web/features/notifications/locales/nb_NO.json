@@ -1,5 +1,12 @@
 {
   "notification_settings": {
-    "title": "Instillinger for varsler"
+    "title": "Instillinger for varsler",
+    "edit_preferences": {
+      "item_descriptions": {
+        "host_request": {
+          "missed_messages": ""
+        }
+      }
+    }
   }
 }

@@ -1,58 +1,58 @@
 {
-    "unread": "Okunmamışlar",
-    "error_loading": "Bildirimleri yüklemede bir hata oluştu",
-    "error_updating_notifications": "Bildirimleri güncellemede bir hata oluştu",
-    "mark_unread": "Okunmadı işaretle",
-    "mark_all_read": "Hepsini okundu işaretle",
-    "no_new_notifications": "Yeni bildirim yok",
-    "notification_settings": {
-        "title": "Bildirim ayarları",
-        "edit_in_console": "Bildirim ayarlarını <2>bu sayfada</2> değiştirebilirsin. Yakında buraya taşınacak.",
-        "go_to_button": "Bildirim ayarlarını yönet",
-        "edit_preferences": {
-            "title": "Bildirim Ayarları",
-            "description": "Aşağıda yaptığın herhangi bir değişiklik otomatik olarak kaydoluyor. Lütfen unutmayın ki hesabınız hakkında önemli bildirimler ve tercih ettiğiniz bildirim ayarları dışındaki içerikler hakkında bildirim almaya devam edebilirsiniz.",
-            "list_heading": "Alabileceğin bildirimler",
-            "list_items": {
-                "account_settings": "Hesap ayarları",
-                "chat": "Mesajlar",
-                "friend_request": "Arkadaş istekleri",
-                "host_request": "Ev sahibi istekleri",
-                "reference": "Referanslar",
-                "discussion": "Tartışmalar",
-                "reply": "Yanıtlar",
-                "event": "Etkinlikler",
-                "account_security": "Hesap güvenliği",
-                "other_notifications": "Diğer Bildirimler"
-            },
-            "item_descriptions": {
-                "host_request": {
-                    "reminder": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz",
-                    "create": "Birisi sana bir ev sahipliği isteği yollayınca",
-                    "accept": "Birisi ev sahipliği isteğini kabul edince",
-                    "confirm": "Birisi ev sahipliği isteğini onayladığında",
-                    "reject": "Birisi ev sahipliği isteğini reddettiğinde",
-                    "missed_messages": "Bir ev sahipliği isteğinde mesaj kaçırdığında",
-                    "message": "Birisi ev sahipliği isteğinde mesaj yolladığında"
-                },
-                "reference": {
-                    "receive_hosted": "Sana ev sahipliği yapmış biri tarafından referans aldığında",
-                    "receive_surfed": "Ev sahipliği yaptığın birinden referans aldığında",
-                    "receive_friend": "Bir arkadaştan referans aldığında"
-                },
-                "chat": {
-                    "message": "Birisi sana bir mesaj gönderdiğinde",
-                    "missed_messages": "Bir sohbette mesaj kaçırdığında"
-                },
-                "friend_request": {
-                    "create": "Biri sana bir arkadaşlık isteği gönderdiğinde",
-                    "accept": "Birisi senin arkadaşlık isteğini kabul ettiğinde"
-                }
-            },
-            "expand_all": "Tümünü genişlet",
-            "collapse_all": "Tümünü daralt",
-            "error_loading": "Bildirim ayarlarını yüklemede hata oluştu"
+  "unread": "Okunmamışlar",
+  "error_loading": "Bildirimleri yüklemede bir hata oluştu",
+  "error_updating_notifications": "Bildirimleri güncellemede bir hata oluştu",
+  "mark_unread": "Okunmadı işaretle",
+  "mark_all_read": "Hepsini okundu işaretle",
+  "no_new_notifications": "Yeni bildirim yok",
+  "notification_settings": {
+    "title": "Bildirim ayarları",
+    "edit_in_console": "Bildirim ayarlarını <2>bu sayfada</2> değiştirebilirsin. Yakında buraya taşınacak.",
+    "go_to_button": "Bildirim ayarlarını yönet",
+    "edit_preferences": {
+      "title": "Bildirim Ayarları",
+      "description": "Aşağıda yaptığın herhangi bir değişiklik otomatik olarak kaydoluyor. Lütfen unutmayın ki hesabınız hakkında önemli bildirimler ve tercih ettiğiniz bildirim ayarları dışındaki içerikler hakkında bildirim almaya devam edebilirsiniz.",
+      "list_heading": "Alabileceğin bildirimler",
+      "list_items": {
+        "account_settings": "Hesap ayarları",
+        "chat": "Mesajlar",
+        "friend_request": "Arkadaş istekleri",
+        "host_request": "Ev sahibi istekleri",
+        "reference": "Referanslar",
+        "discussion": "Tartışmalar",
+        "reply": "Yanıtlar",
+        "event": "Etkinlikler",
+        "account_security": "Hesap güvenliği",
+        "other_notifications": "Diğer Bildirimler"
+      },
+      "item_descriptions": {
+        "host_request": {
+          "reminder": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz",
+          "create": "Birisi sana bir ev sahipliği isteği yollayınca",
+          "accept": "Birisi ev sahipliği isteğini kabul edince",
+          "confirm": "Birisi ev sahipliği isteğini onayladığında",
+          "reject": "Birisi ev sahipliği isteğini reddettiğinde",
+          "missed_messages": "Bir ev sahipliği isteğinde mesaj kaçırdığında",
+          "message": "Birisi ev sahipliği isteğinde mesaj yolladığında"
+        },
+        "reference": {
+          "receive_hosted": "Sana ev sahipliği yapmış biri tarafından referans aldığında",
+          "receive_surfed": "Ev sahipliği yaptığın birinden referans aldığında",
+          "receive_friend": "Bir arkadaştan referans aldığında"
+        },
+        "chat": {
+          "message": "Birisi sana bir mesaj gönderdiğinde",
+          "missed_messages": "Bir sohbette mesaj kaçırdığında"
+        },
+        "friend_request": {
+          "create": "Biri sana bir arkadaşlık isteği gönderdiğinde",
+          "accept": "Birisi senin arkadaşlık isteğini kabul ettiğinde"
         }
-    },
-    "all": "Hepsi"
+      },
+      "expand_all": "Tümünü genişlet",
+      "collapse_all": "Tümünü daralt",
+      "error_loading": "Bildirim ayarlarını yüklemede hata oluştu"
+    }
+  },
+  "all": "Hepsi"
 }
