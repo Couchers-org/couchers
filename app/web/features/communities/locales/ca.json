@@ -1,5 +1,6 @@
 {
   "attendees_count_one": "{{count}} participant",
+  "attendees_count_many": "",
   "attendees_count_other": "{{count}} participants",
   "make_co_organizer": {
     "title": "Fes coorganitzador",
