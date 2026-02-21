@@ -1,13 +1,391 @@
 {
   "team": {
-    "tap_press_to_flip": ""
+    "tap_press_to_flip": "",
+    "past_members": "",
+    "community_coordinator": "",
+    "title": "",
+    "current_members": "",
+    "lead_frontend_developer": "",
+    "description": "",
+    "join_the_team": "",
+    "join_our_team": "",
+    "have_skills_contribute": "",
+    "fill_form_description": "",
+    "co_founder": "",
+    "developer": "",
+    "frontend_developer": "",
+    "backend_developer": "",
+    "lead_backend_developer": "",
+    "volunteer_settings": {
+      "show_on_team_page": {
+        "enabled_message": "",
+        "title": "",
+        "disabled_message": ""
+      }
+    },
+    "full_stack_backend_developer": "",
+    "ui_ux_designer": "",
+    "translations_lead": "",
+    "board_member": "",
+    "co_founder_president": "",
+    "treasurer": "",
+    "secretary": ""
   },
   "language_preference": {
     "translation_progress": {
-      "help_translate": ""
-    }
+      "help_translate": "",
+      "early_stage": "",
+      "just_started": "",
+      "complete_percent": "",
+      "info_text": "",
+      "view_progress": "",
+      "title": "",
+      "description": "",
+      "loading": "",
+      "error_loading": "",
+      "no_data": "",
+      "complete": "",
+      "almost_there": "",
+      "midway": "",
+      "in_progress": ""
+    },
+    "form_title": "",
+    "help_translate": "",
+    "select_language": "",
+    "success_message": "",
+    "error_loading_languages": "",
+    "show_all_languages_description": "",
+    "current_preferred_language": "",
+    "show_all_languages": ""
   },
   "donation_banner": {
-    "message": ""
-  }
+    "message": "",
+    "button": "",
+    "progress_label": ""
+  },
+  "relative_time": {
+    "n_minutes_ago_one": "",
+    "n_minutes_ago_other": "",
+    "n_hours_ago_one": "",
+    "n_hours_ago_other": "",
+    "n_days_ago_one": "",
+    "n_days_ago_other": "",
+    "n_months_ago_one": "",
+    "n_months_ago_other": "",
+    "n_years_ago_one": "",
+    "n_years_ago_other": "",
+    "less_than_one_hour_ago": "",
+    "less_than_a_minute_ago": "",
+    "n_weeks_ago_one": "",
+    "n_weeks_ago_other": ""
+  },
+  "created": "",
+  "copy": "",
+  "language_names": {
+    "es-419": "",
+    "es": "",
+    "sv": "",
+    "cs": "",
+    "de": "",
+    "nl": "",
+    "ja": "",
+    "fr": "",
+    "ru": "",
+    "pt": "",
+    "en": "",
+    "ca": "",
+    "en-CORP": "",
+    "hi": "",
+    "it": "",
+    "nb-NO": "",
+    "tr": "",
+    "uk": "",
+    "zh-Hans": "",
+    "zh-Hant": "",
+    "hu": "",
+    "fr-CA": "",
+    "he": "",
+    "pl": "",
+    "pt-BR": ""
+  },
+  "report": {
+    "flag": {
+      "block_user": "",
+      "success": "",
+      "reason_helper": "",
+      "profile_reason_required": "",
+      "description_helper": "",
+      "reason": {
+        "dating": "",
+        "other": "",
+        "external": "",
+        "harassment": "",
+        "guidelines_breach": "",
+        "safety": "",
+        "scam": "",
+        "spam": "",
+        "sexualized": ""
+      },
+      "button_aria_label": "",
+      "description_label": "",
+      "block_user_explainer": "",
+      "profile_button_aria_label": "",
+      "explainer": "",
+      "title": "",
+      "profile_title": "",
+      "reason_label": "",
+      "reason_required": "",
+      "description_required": ""
+    },
+    "bug": {
+      "success_message2": "",
+      "title_label": "",
+      "button_label": "",
+      "warning_message": "",
+      "title_helper": "",
+      "problem_label": "",
+      "problem_helper": "",
+      "expect_label": "",
+      "expect_helper": ""
+    },
+    "label": "",
+    "title": "",
+    "content": {
+      "dialog_message": "",
+      "success_message": "",
+      "button_label": ""
+    }
+  },
+  "terms_of_service": "",
+  "required": "",
+  "what_is_cs": {
+    "table": {
+      "people_first": "",
+      "no_investor_pressure": "",
+      "social_expectation": "",
+      "cost_to_stay": "",
+      "free_to_stay": "",
+      "non_transactional": "",
+      "header_hostel": "",
+      "header_hotel": "",
+      "dollar": "",
+      "header_couchers": "",
+      "stay_with_locals": "",
+      "professionally_managed": "",
+      "meetups_communities": "",
+      "cultural_exchange": "",
+      "dollars_range": ""
+    },
+    "why_people_points": {
+      "hosts": "",
+      "everyone": "",
+      "travelers": ""
+    },
+    "tip_label": "",
+    "bottom_cta_title": "",
+    "tip_text": "",
+    "bottom_cta_subtitle": "",
+    "title": "",
+    "description_1": "",
+    "description_2": "",
+    "timeline": {
+      "2010s_text": "",
+      "2020_year": "",
+      "2020_text": "",
+      "today_year": "",
+      "today_text": "",
+      "early_2000s_text": "",
+      "2010s_year": "",
+      "early_2000s_year": ""
+    },
+    "actions": {
+      "host": "",
+      "surf": "",
+      "attend_events": "",
+      "find_people": "",
+      "join_discussions": ""
+    },
+    "compare_title": "",
+    "is_it_safe": {
+      "title": "",
+      "description_1": "",
+      "description_2": "",
+      "description_3": ""
+    },
+    "get_involved_title": "",
+    "get_started": "",
+    "timeline_title": "",
+    "why_people_title": "",
+    "join_couchers": ""
+  },
+  "update": "",
+  "create": "",
+  "nav": {
+    "show_all_events": "",
+    "the_team": "",
+    "volunteer": "",
+    "legal_more": "",
+    "communities": "",
+    "profile": "",
+    "account_settings": "",
+    "badges": "",
+    "about": "",
+    "contact_us": "",
+    "switch_to_light_mode": "",
+    "switch_to_dark_mode": "",
+    "blog": "",
+    "community": "",
+    "dashboard": "",
+    "donate": "",
+    "events": "",
+    "faq": "",
+    "feature_preview": "",
+    "forum": "",
+    "github": "",
+    "help_center": "",
+    "roadmap_updates": "",
+    "help": "",
+    "messages": "",
+    "newsletter": "",
+    "notifications": "",
+    "our_plan": "",
+    "our_team": "",
+    "built_with": "",
+    "landing_page": "",
+    "invite_members": "",
+    "merch_shop": "",
+    "log_out": "",
+    "map_search": "",
+    "mission": "",
+    "home": ""
+  },
+  "back": "",
+  "save_changes": "",
+  "components": {
+    "edit_location_map": {
+      "location_publicly_visible": "",
+      "location_warn": "",
+      "radius_text": "",
+      "map_is_blank": "",
+      "no_location_results_text": "",
+      "no_map_support": "",
+      "press_enter_to_search": "",
+      "display_location_label": "",
+      "search_location_label": "",
+      "display_location_not_empty": "",
+      "invalid_coordinate": "",
+      "location_accuracy": ""
+    },
+    "datepicker": {
+      "change_date": ""
+    }
+  },
+  "reply": "",
+  "meetup_status": {
+    "open_to_meetup": "",
+    "wants_to_meetup": "",
+    "does_not_want_to_meetup": "",
+    "unspecified_info": ""
+  },
+  "accept": "",
+  "continue": "",
+  "disable": "",
+  "location_autocomplete": {
+    "more_specific": "",
+    "search_location_hint": "",
+    "search_location_button": "",
+    "select_location_hint": ""
+  },
+  "next": "",
+  "previous": "",
+  "mod": "",
+  "cookie_message": "",
+  "html_meta": {
+    "default_title": "",
+    "default_description": "",
+    "title_suffix": ""
+  },
+  "invited_you": "",
+  "error": {
+    "fatal_message": "",
+    "unknown": "",
+    "fallback": {
+      "title": "",
+      "subtitle": "",
+      "refresh_page_button_label": "",
+      "home_page_link_label": ""
+    }
+  },
+  "strong_verification": {
+    "helper_text": ""
+  },
+  "footer": {
+    "non_profit_note": "",
+    "version_info": ""
+  },
+  "error_loading_languages": "",
+  "contribute_title": "",
+  "disabled": "",
+  "uses": "",
+  "no_invite_codes": "",
+  "error_loading_invite_codes": "",
+  "thanks": "",
+  "community_standing_description": "",
+  "verification_score_description": "",
+  "edit": "",
+  "save": "",
+  "send": "",
+  "cancel": "",
+  "submit": "",
+  "confirm": "",
+  "copied": "",
+  "load_more": "",
+  "read_more": "",
+  "hosting_status": {
+    "can_host": "",
+    "maybe": "",
+    "unspecified_info": "",
+    "any": "",
+    "cant_host": ""
+  },
+  "invites": {
+    "title": "",
+    "create": "",
+    "error": {
+      "fetch_invite_info": ""
+    },
+    "banner": {
+      "invited_you": "",
+      "inviter_fallback": ""
+    },
+    "disable": "",
+    "share_link": "",
+    "instructions": "",
+    "uses_suffix": ""
+  },
+  "blog": {
+    "byline_with_author": "",
+    "byline_without_author": "",
+    "cta_message": ""
+  },
+  "not_found_text_1": "",
+  "not_found_text_2": "",
+  "not_found_alt": "",
+  "change_time": "",
+  "beta": "",
+  "close": "",
+  "create_account": "",
+  "expand": "",
+  "retract": "",
+  "couchers": "",
+  "learn_more": "",
+  "legal_name": "",
+  "login": "",
+  "sign_up": "",
+  "join_us": "",
+  "yes": "",
+  "no": "",
+  "ok": "",
+  "community_standing": "",
+  "verification_score": ""
 }
