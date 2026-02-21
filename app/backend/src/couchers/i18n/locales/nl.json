@@ -226,7 +226,8 @@
     "invalid_name": "",
     "no_recipients": "",
     "page_not_found": "",
-    "user_not_admin": ""
+    "user_not_admin": "",
+    "after_item_not_found": ""
   },
   "ghost_users": {
     "about_me": "",
