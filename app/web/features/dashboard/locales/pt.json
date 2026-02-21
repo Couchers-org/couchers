@@ -17,6 +17,7 @@
   "your_communities_helper_text": "Foste adicionado a todas as comunidades com base na tua localização. Fica à vontade para <1>explorar comunidades</1> noutros locais também.",
   "community_builder_form_text": "Começa a tua própria comunidade local",
   "member_count_one": "{{count}} membro",
+  "member_count_many": "",
   "member_count_other": "{{count}} membros",
   "search_input_placeholder": "Procura um local",
   "show_map": "Mostrar Mapa",
