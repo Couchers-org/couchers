@@ -21,7 +21,8 @@
     "reset_password_success": "",
     "subtitle": "",
     "user_logged_error": "",
-    "reset_password_error": ""
+    "reset_password_error": "",
+    "token_error": ""
   },
   "reset_password_form": {
     "enter_email": "輸入您的使用者名稱或電子郵件地址",
@@ -185,7 +186,8 @@
       "title": "",
       "description": "",
       "still_hosting": "",
-      "not_hosting": ""
+      "not_hosting": "",
+      "note": ""
     }
   },
   "logged_out_message": "您已登出。",
