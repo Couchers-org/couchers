@@ -10,7 +10,8 @@
       "password_field_label": "",
       "show_password": "",
       "hide_password": ""
-    }
+    },
+    "no_account_prompt": ""
   },
   "volunteer_management": {
     "form": {
@@ -309,7 +310,8 @@
     "confirm_password": "",
     "password_changed_success": "",
     "old_password": "",
-    "password_mismatch_error": ""
+    "password_mismatch_error": "",
+    "token_error": ""
   },
   "reset_password_form": {
     "enter_email": "",
@@ -352,7 +354,8 @@
       "description": "",
       "still_hosting": "",
       "not_hosting": "",
-      "title": ""
+      "title": "",
+      "note": ""
     },
     "mod_note_section": {
       "title": "",
