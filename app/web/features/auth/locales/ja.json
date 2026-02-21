@@ -305,7 +305,8 @@
       "button_text": "",
       "account_deleted": "",
       "error_message": ""
-    }
+    },
+    "missing_token": ""
   },
   "change_phone": {
     "phone_label": "",
@@ -322,7 +323,8 @@
     "no_phone_description": "",
     "add_success": "",
     "phone_not_verified_description": "",
-    "wrong_code": ""
+    "wrong_code": "",
+    "remove_phone_description": ""
   },
   "jail": {
     "mod_note_section": {
@@ -348,7 +350,10 @@
       "resubmit_button_text": ""
     },
     "title": "",
-    "description": ""
+    "description": "",
+    "terms_of_service_section": {
+      "description": ""
+    }
   },
   "logged_out_message": "",
   "jail_set_password_form": {
