@@ -47,12 +47,17 @@
       "no_password_login_prompt": "Emailini giriş yapmak için bir email için kontrol et!:)",
       "remember_me": "Beni hatırla",
       "password_field_label": "Şifre",
-      "forgot_password": "Şifrenizi mi unuttunuz?"
+      "forgot_password": "Şifrenizi mi unuttunuz?",
+      "show_password": "",
+      "hide_password": ""
     },
-    "title": "Giriş yap"
+    "title": "Giriş yap",
+    "header": ""
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Zaten hesabın var mı? <2>Giriş yap</2>"
+    "existing_user_prompt": "Zaten hesabın var mı? <2>Giriş yap</2>",
+    "header": "",
+    "sign_up_agreement_explainer": ""
   },
   "reset_password_form": {
     "enter_email": "Kullanıcı adınızı/e-posta adresinizi girin",
@@ -62,7 +67,319 @@
     "username": {
       "required_error": "Kullanıcı adınızı girin",
       "username_taken_error": "Bu kullanıcı adı alınmış.",
-      "validation_error": "Kullanıcı adları sadece harfler, numaralar ve ''_'' içerebilir ve bir harfle başlamalıdır."
+      "validation_error": "Kullanıcı adları sadece harfler, numaralar ve ''_'' içerebilir ve bir harfle başlamalıdır.",
+      "field_label": "",
+      "helper_text": ""
+    },
+    "hosting_status": {
+      "maybe": "",
+      "any": "",
+      "field_label": "",
+      "can_host": "",
+      "cant_host": ""
+    },
+    "tos_prompt": "",
+    "password": {
+      "required_error": "",
+      "field_label": "",
+      "validation_error": ""
+    },
+    "birthday": {
+      "not_real_date_error": "",
+      "required_error": "",
+      "validation_error": "",
+      "too_young_error": "",
+      "field_label": ""
+    },
+    "gender": {
+      "field_label": "",
+      "required_error": "",
+      "man": "",
+      "non_binary": "",
+      "woman": ""
+    },
+    "opt_in_newsletter": "",
+    "tos_accept_label": "",
+    "header": ""
+  },
+  "jail": {
+    "activeness_probe": {
+      "description": "",
+      "still_hosting": "",
+      "title": "",
+      "note": "",
+      "not_hosting": ""
+    },
+    "location_section": {
+      "title": "",
+      "explanation": "",
+      "submit_button": {
+        "active_text": "",
+        "inactive_text": ""
+      },
+      "resubmit_button_text": ""
+    },
+    "mod_note_section": {
+      "acknowledge": "",
+      "title": "",
+      "description": "",
+      "note_title": ""
+    },
+    "description": "",
+    "terms_of_service_section": {
+      "description": ""
+    },
+    "title": ""
+  },
+  "strong_verification": {
+    "delete_information_text2": "",
+    "donation_message2": "",
+    "complete_title": "",
+    "instructions": {
+      "step3": "",
+      "step7": "",
+      "step8": "",
+      "download_google_play": "",
+      "chip_location": {
+        "description": "",
+        "us_germany_mexico": "",
+        "finland_germany_new": "",
+        "australia": "",
+        "heading": ""
+      },
+      "title": "",
+      "step1_apple_note": "",
+      "step2": "",
+      "step4": "",
+      "step5": "",
+      "step6": "",
+      "download_app_store": "",
+      "warning": "",
+      "step1": ""
+    },
+    "delete_my_data_button": "",
+    "information_text3": "",
+    "delete_success": "",
+    "donate_button": "",
+    "complete_message1": "",
+    "complete_message2": "",
+    "delete_information": "",
+    "donation_title": "",
+    "donation_message1": "",
+    "status": {
+      "enabled_message": "",
+      "disabled_message": ""
+    },
+    "delete_button": "",
+    "information_text1": "",
+    "subtitle": "",
+    "learn_more": "",
+    "title": "",
+    "delete_data_title": "",
+    "start_button": "",
+    "begin_button": "",
+    "information_text2": ""
+  },
+  "quick_links": {
+    "title": "",
+    "missing_payload_or_sig": "",
+    "button_text": "",
+    "error_message": ""
+  },
+  "account_settings_page": {
+    "timezone_section": {
+      "description": "",
+      "explanation": "",
+      "title": ""
+    },
+    "appearance_section": {
+      "modes": {
+        "dark": "",
+        "system": "",
+        "light": ""
+      },
+      "click_to_change": "",
+      "current_mode": "",
+      "title": "",
+      "change_mode": ""
+    },
+    "birth_date_section": {
+      "title": "",
+      "explanation": ""
+    },
+    "username_section": {
+      "explanation": "",
+      "description": "",
+      "title": ""
+    },
+    "title": "",
+    "gender_section": {
+      "title": "",
+      "explanation": ""
+    }
+  },
+  "delete_account": {
+    "request": {
+      "confirm_username_label": "",
+      "reason_explanation": "",
+      "reason_label": "",
+      "success_message": "",
+      "title": "",
+      "username_mismatch": "",
+      "description": "",
+      "confirm_username_explanation": ""
+    },
+    "confirm": {
+      "title": "",
+      "button_text": "",
+      "account_deleted": "",
+      "error_message": ""
+    },
+    "recover": {
+      "title": "",
+      "error_message": "",
+      "button_text": "",
+      "success": ""
+    },
+    "missing_token": ""
+  },
+  "volunteer_management": {
+    "form": {
+      "link_url_label": "",
+      "link_url_placeholder": "",
+      "link_url_helper": "",
+      "link_type_email": "",
+      "link_type_linkedin": "",
+      "link_type_website": "",
+      "link_text_label": "",
+      "link_text_email_placeholder": "",
+      "link_text_linkedin_helper": "",
+      "link_text_email_helper": "",
+      "link_text_website_helper": "",
+      "link_url_required": "",
+      "link_url_invalid": "",
+      "title": "",
+      "override_name_label": "",
+      "display_name_label": "",
+      "override_location_label": "",
+      "display_location_label": "",
+      "show_on_team_page_label": "",
+      "link_type_label": "",
+      "link_text_required": "",
+      "link_text_email_invalid": "",
+      "link_text_linkedin_invalid": "",
+      "save_button": "",
+      "link_type_couchers": "",
+      "link_text_linkedin_placeholder": "",
+      "link_text_website_placeholder": ""
+    },
+    "title": "",
+    "description": "",
+    "card_preview_label": "",
+    "not_a_volunteer_message": "",
+    "shown_on_team_page_current": "",
+    "shown_on_team_page_past": "",
+    "not_shown_on_team_page": "",
+    "update_success": "",
+    "past_volunteer": "",
+    "current_volunteer": ""
+  },
+  "basic_form": {
+    "name": {
+      "empty_error": "",
+      "required_error": "",
+      "field_label": ""
+    },
+    "email": {
+      "field_label": "",
+      "empty_error": "",
+      "required_error": ""
+    }
+  },
+  "location": {
+    "field_label": "",
+    "validation_error": ""
+  },
+  "change_phone": {
+    "remove_phone_description": "",
+    "need_to_donate": "",
+    "no_phone_description": "",
+    "add_button_text": "",
+    "code_label": "",
+    "wrong_code": "",
+    "verify_button_text": "",
+    "verify_success": "",
+    "remove_success": "",
+    "change_to_different_description": "",
+    "change_button_text": "",
+    "remove_button_text": "",
+    "title": "",
+    "phone_label": "",
+    "add_success": "",
+    "phone_not_verified_description": ""
+  },
+  "feature_preview": {
+    "title": "",
+    "disclaimer": "",
+    "no_previews": {
+      "title": "",
+      "explanation": ""
+    },
+    "explanation": ""
+  },
+  "profile_visibility": {
+    "choose": "",
+    "visiblility_options": {
+      "most": "",
+      "full_profile": "",
+      "nothing": "",
+      "map_only": "",
+      "limited": ""
+    },
+    "title": ""
+  },
+  "about_us": "",
+  "logged_out_message": "",
+  "motivations_form": {
+    "community_organizing_description": "",
+    "something_else": "",
+    "something_else_description": "",
+    "header": "",
+    "surfing": "",
+    "surfing_description": "",
+    "hosting": "",
+    "hosting_description": "",
+    "events": "",
+    "events_description": "",
+    "community_organizing": ""
+  },
+  "sign_up_completed_title": "",
+  "sign_up_need_verification_title": "",
+  "sign_up_resend_verification_email_help": "",
+  "sign_up_resend_verification_done": "",
+  "sign_up_completed_prompt": "",
+  "active_logins": {
+    "heading": "",
+    "description": "",
+    "login_header": "",
+    "location": "",
+    "expiry": "",
+    "log_out_of_session": "",
+    "log_out_of_all_session": "",
+    "settings_page_link": "",
+    "last_activity": "",
+    "current_session": "",
+    "settings_page_text": ""
+  },
+  "sign_up_confirmed_prompt": "",
+  "unhandled_sign_up_state": "",
+  "login_prompt": "",
+  "reset_password": "",
+  "community_guidelines_form": {
+    "header": "",
+    "guideline": {
+      "checkbox_label": "",
+      "required_error": ""
     }
   }
 }
