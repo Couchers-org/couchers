@@ -378,7 +378,8 @@
     "no_previews": {
       "title": "",
       "explanation": ""
-    }
+    },
+    "disclaimer": ""
   },
   "unhandled_sign_up_state": ""
 }
