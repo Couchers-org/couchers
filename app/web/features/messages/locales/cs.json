@@ -160,5 +160,6 @@
     "title": "",
     "message": ""
   },
-  "unknown_user": ""
+  "unknown_user": "",
+  "close_request_dialog_title": ""
 }
