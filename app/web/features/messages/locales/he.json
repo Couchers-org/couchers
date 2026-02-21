@@ -160,5 +160,6 @@
   },
   "chat_input": {
     "label": ""
-  }
+  },
+  "close_request_dialog_title": ""
 }
