@@ -106,8 +106,8 @@ def test_fallback_locale():
 # since this is how Weblate/i18next interpret it.
 def test_fallback_on_empty_string():
     i18next = I18Next()
-    en = i18next.add_language("en", PluralRules.en, json_dict={ "greeting": "hello" })
-    fr = i18next.add_language("fr", PluralRules.fr, json_dict={ "greeting": "" })
+    en = i18next.add_language("en", PluralRules.en, json_dict={"greeting": "hello"})
+    fr = i18next.add_language("fr", PluralRules.fr, json_dict={"greeting": ""})
     fr.fallbacks.append(en)
     assert i18next.localize("greeting", "fr") == "hello"
 
