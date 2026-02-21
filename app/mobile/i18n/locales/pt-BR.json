@@ -10,7 +10,10 @@
     "failed_to_load": "Falha ao carregar",
     "check_connection": "Verifique sua conexão de internet e tente novamente.",
     "try_again": "Tente novamente",
-    "camera_permission_denied": "É necessária permissão de câmera para tirar fotos."
+    "camera_permission_denied": "É necessária permissão de câmera para tirar fotos.",
+    "camera_permission_required": "Permissão de câmera é necessária",
+    "camera_permission_explanation": "Este aplicativo precisa de acesso à câmera para tirar fotos. Conceda permissão quando solicitado.",
+    "camera_permission_denied_permanently": "O acesso à câmera foi negado. Para tirar fotos, você precisará habilitar a permissão de câmera nas configurações do seu dispositivo."
   },
   "not_found": {
     "title": "Opa!",
@@ -22,6 +25,7 @@
     "add_photo": "Adicionar Foto",
     "choose_photo_source": "Escolha de onde selecionar sua foto",
     "take_photo": "Tirar Foto",
-    "choose_from_library": "Escolher da Biblioteca"
+    "choose_from_library": "Escolher da Biblioteca",
+    "open_settings": "Abrir configurações"
   }
 }

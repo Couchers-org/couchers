@@ -1,1 +1,22 @@
-{}
+{
+  "push": {
+    "account_deletion__start": {
+      "title": "Žádost o smazání účtu byla odeslána",
+      "ios_title": "Žádost o smazání účtu byla odeslána",
+      "body": "Použij odkaz, který jsme ti poslali e-mailem k potvrzení."
+    },
+    "account_deletion__recovered": {
+      "ios_title": "Účet obnoven",
+      "body": "Vítej zpět!",
+      "title": "Účet obnoven"
+    },
+    "account_deletion__complete": {
+      "title": "Účet smazán",
+      "ios_title": "Účet smazán"
+    },
+    "activeness__probe": {
+      "title": "Stále máš zájem o hostování?",
+      "ios_title": "Stále máš zájem o hostování?"
+    }
+  }
+}

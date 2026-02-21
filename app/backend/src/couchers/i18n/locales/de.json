@@ -163,12 +163,12 @@
     "probe_not_found": "Du hast derzeit keine Aktivitätsüberprüfung.",
     "probe_response_invalid": "Du kannst auf eine Aktivitätsabfrage nicht so antworten.",
     "push_notifications_disabled": "Push-Benachrichtigungen sind derzeit deaktiviert.",
-    "signup_flow_account_filled": "Der Kontoteil ist bereits ausgefüllt.",
-    "signup_flow_basic_filled": "Der grundlegende Teil ist bereits ausgefüllt.",
-    "signup_flow_basic_needed": "Der grundlegende Teil ist für die Anmeldung erforderlich.",
+    "signup_flow_account_filled": "Kontaktinformationen bereits ausgefüllt.",
+    "signup_flow_basic_filled": "Kontodetails bereits ausgefüllt.",
+    "signup_flow_basic_needed": "Kontodaten sind für die Registrierung erforderlich.",
     "signup_flow_email_started_signup": "Bitte schaue in deinen E-Mails für einen Link, um mit der Anmeldung fortzufahren.",
     "signup_flow_email_taken": "Diese E-Mail-Adresse ist bereits mit einem Konto verknüpft. Bitte logge dich stattdessen ein!",
-    "signup_flow_feedback_filled": "Feedback-Teil bereits ausgefüllt.",
+    "signup_flow_feedback_filled": "Feedback-Informationen sind bereits ausgefüllt.",
     "strong_verification_already_verified": "Du hast bereits eine starke Verifizierung.",
     "strong_verification_attempt_not_found": "Starker Verifizierungsversuch nicht gefunden.",
     "strong_verification_disabled": "Starke Verifizierung ist derzeit deaktiviert.",
@@ -216,7 +216,8 @@
     "upload_not_found_or_not_owned": "Upload nicht gefunden oder du besitzt es nicht.",
     "moderator_note_not_found": "Moderatorennotiz nicht gefunden.",
     "dev_apis_disabled": "Entwicklungs-APIs sind auf diesem Server nicht aktiviert.",
-    "moderator_note_need_to_acknowledge": "Du musst die Moderatorennotiz lesen und bestätigen."
+    "moderator_note_need_to_acknowledge": "Du musst die Moderatorennotiz lesen und bestätigen.",
+    "signup_flow_motivations_filled": "Du hast uns bereits erzählt, warum du dich anmeldest."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",

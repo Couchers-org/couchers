@@ -1,1 +1,41 @@
-{}
+{
+  "push": {
+    "api_key__create": {
+      "title": "API-Schlüssel erstellt",
+      "ios_title": "API-Schlüssel erstellt"
+    },
+    "adhoc__push_enabled": {
+      "body": "Du wirst von nun an Benachrichtigungen auf diesem Gerät erhalten."
+    },
+    "chat__missed_messages": {
+      "ios_title_one": "{{count}} Verpasste Nachricht",
+      "ios_title_other": "{{count}} Verpasste Nachrichten",
+      "title_one": "{{count}} verpasste Nachricht",
+      "title_other": "{{count}} verpasste Nachrichten"
+    },
+    "host_request__create": {
+      "body_one": "{{user}} möchte ab {{start_date}} für {{count}} Tag bleiben.",
+      "body_other": "{{user}} möchte ab {{start_date}} für {{count}} Tage bleiben."
+    },
+    "reference__reminder": {
+      "body_one": "Du hast noch {{count}} Tag Zeit, um eine Referenz für {{user}} zu schreiben.",
+      "body_other": "Du hast noch {{count}} Tage Zeit, um eine Referenz für {{user}} zu schreiben."
+    },
+    "account_deletion__start": {
+      "title": "Kontolöschung angefordert",
+      "ios_title": "Kontolöschung angefordert",
+      "body": "Verwende den Link, den wir dir per E-Mail gesendet haben, zur Bestätigung."
+    },
+    "account_deletion__complete": {
+      "title": "Konto gelöscht",
+      "ios_title": "Konto gelöscht",
+      "body_one": "Du kannst ihn innerhalb von {{count}} Tag über den Link wiederherstellen, den wir dir per E-Mail gesendet haben.",
+      "body_other": "Du kannst ihn innerhalb von {{count}} Tagen über den Link wiederherstellen, den wir dir per E-Mail gesendet haben."
+    },
+    "account_deletion__recovered": {
+      "title": "Konto wiederhergestellt",
+      "ios_title": "Konto wiederhergestellt",
+      "body": "Willkommen zurück!"
+    }
+  }
+}
