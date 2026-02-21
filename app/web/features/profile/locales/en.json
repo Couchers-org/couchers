@@ -319,7 +319,7 @@
   "names_profile_photo": "{{name}}'s profile photo",
   "gallery": {
     "photo_item_a11y": "Photo",
-    "primary": "Primary",
+    "profile_photo": "Profile Photo",
     "add_photo": "Add photo",
     "uploading": "Uploading...",
     "remove_photo": "Remove photo",

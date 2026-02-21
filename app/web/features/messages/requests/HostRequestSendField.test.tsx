@@ -26,6 +26,7 @@ const mockHostRequest: HostRequest.AsObject = {
   hostingLng: -118.2437,
   hostingRadius: 100,
   needHostRequestFeedback: false,
+  isArchived: false,
 };
 
 const mockSendMutation: UseMutationResult<
