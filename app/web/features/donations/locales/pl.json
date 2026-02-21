@@ -5,30 +5,7 @@
     "validation_message": "To pole musi być uzupełnione",
     "action_button_label": "Przejdź dalej",
     "alert": {
-      "warning_message": "Płatność została anulowana.",
-      "success_message": ""
-    },
-    "recurrence_aria_label": "",
-    "title": "",
-    "amount_validation_error": "",
-    "helper_text": ""
-  },
-  "donations_title": "",
-  "settings_fragment": {
-    "button_text": "",
-    "title": "",
-    "description": ""
-  },
-  "donate": "",
-  "donations_banner": {
-    "body": "",
-    "title": ""
-  },
-  "donations_text": "",
-  "donations_text2": "",
-  "donations_info": "",
-  "benefactor_contact": "",
-  "donations_use_explainer": "",
-  "donations_title2": "",
-  "donations_recurrence_explainer": ""
+      "warning_message": "Płatność została anulowana."
+    }
+  }
 }

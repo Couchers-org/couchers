@@ -368,18 +368,5 @@
     "not_shown_on_team_page": "Скрыто со страницы команды.",
     "title": "Управление волонтёрами",
     "card_preview_label": "Отображение на странице команды"
-  },
-  "motivations_form": {
-    "hosting": "",
-    "surfing": "",
-    "surfing_description": "",
-    "hosting_description": "",
-    "events_description": "",
-    "community_organizing": "",
-    "community_organizing_description": "",
-    "something_else": "",
-    "something_else_description": "",
-    "header": "",
-    "events": ""
   }
 }

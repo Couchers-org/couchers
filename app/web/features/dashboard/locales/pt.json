@@ -30,34 +30,5 @@
   "upcoming_events": "Próximos eventos",
   "profile_summary_edit": "Editar",
   "profile_summary_view": "Ver o meu perfil",
-  "profile_mobile_summary_view": "Ir para perfil",
-  "events_empty_state": "",
-  "community_builder": "",
-  "all_communities_section": "",
-  "complete_profile_dialog": {
-    "title": "",
-    "actions": {
-      "send_request": "",
-      "send_message": "",
-      "create_event": ""
-    },
-    "description_1": "",
-    "description_2": "",
-    "edit_profile_button": "",
-    "cancel_button": ""
-  },
-  "browse_all_communities": "",
-  "community_missing": "",
-  "attendees_count_one": "",
-  "attendees_count_many": "",
-  "attendees_count_other": "",
-  "communities_intro": "",
-  "find_your_community_intro": "",
-  "communities_welcome_title": "",
-  "find_your_community": "",
-  "find_your_community_intro_simplified": "",
-  "browse_communities_text": "",
-  "show_all_communities": "",
-  "hide_all_communities": "",
-  "all_communities_intro": ""
+  "profile_mobile_summary_view": "Ir para perfil"
 }

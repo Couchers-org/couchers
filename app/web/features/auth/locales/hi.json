@@ -12,12 +12,7 @@
     "title": "पासवर्ड बदलें",
     "confirm_password": "पासवर्ड की पुष्टि कीजिये",
     "password_mismatch_error": "यह आपके द्वारा ऊपर लिखे गए नए पासवर्ड से मेल नहीं खाता।",
-    "password_changed_success": "आपका नया पासवर्ड सेट कर दिया गया है और आपके ईमेल पर एक सूचना भेज दी गई है।",
-    "subtitle": "",
-    "user_logged_error": "",
-    "reset_password_success": "",
-    "reset_password_error": "",
-    "token_error": ""
+    "password_changed_success": "आपका नया पासवर्ड सेट कर दिया गया है और आपके ईमेल पर एक सूचना भेज दी गई है।"
   },
   "change_email_confirmation": {
     "success_message": "आपका ईमेल सफलतापूर्वक बदल दिया गया है!",
@@ -33,15 +28,13 @@
       "man": "पुरुष",
       "non_binary": "नॉन-बाइनरी",
       "required_error": "कृपया अपनी लिंग पहचान चुनें",
-      "woman": "स्री",
-      "field_label": ""
+      "woman": "स्री"
     },
     "username": {
       "field_label": "उपयोगकर्ता नाम",
       "required_error": "अपना उपयोगकर्ता नाम दर्ज करें",
       "validation_error": "उपयोगकर्ता नाम में केवल अंक या _ हो सकते हैं, जो एक अक्षर से शुरू होता है।",
-      "username_taken_error": "यह उपयोगकर्ता नाम ले लिया गया है।",
-      "helper_text": ""
+      "username_taken_error": "यह उपयोगकर्ता नाम ले लिया गया है।"
     },
     "header": "आपके खाते का विवरण",
     "password": {
@@ -52,20 +45,15 @@
     "birthday": {
       "field_label": "जन्मदिन",
       "required_error": "अपना जन्मदिन दर्ज करें",
-      "validation_error": "अतीत में एक वैध तिथि होनी चाहिए.",
-      "too_young_error": "",
-      "not_real_date_error": ""
+      "validation_error": "अतीत में एक वैध तिथि होनी चाहिए."
     },
     "hosting_status": {
       "field_label": "मेजबानी स्थिति",
       "can_host": "मेजबानी कर सकते हैं",
       "cant_host": "मेजबानी नहीं कर सकते हैं",
-      "maybe": "शायद मेजबानी कर सकते हैं",
-      "any": ""
+      "maybe": "शायद मेजबानी कर सकते हैं"
     },
-    "tos_accept_label": "मुझे सर्विस की शर्तें स्वीकार हैं।",
-    "tos_prompt": "",
-    "opt_in_newsletter": ""
+    "tos_accept_label": "मुझे सर्विस की शर्तें स्वीकार हैं।"
   },
   "reset_password": "पासवर्ड रीसेट करें",
   "login_page": {
@@ -76,22 +64,18 @@
       "forgot_password": "पासवर्ड भूल गए?",
       "remember_me": "मुझे याद रखना",
       "username_field_label": "ईमेल/उपयोगकर्ता नाम",
-      "password_field_label": "पासवर्ड",
-      "show_password": "",
-      "hide_password": ""
+      "password_field_label": "पासवर्ड"
     },
     "no_account_prompt": "अभी तक कोई खाता नहीं है? <2>साइन अप करें</2>"
   },
   "basic_sign_up_form": {
     "header": "आएँ शुरू करें!",
-    "existing_user_prompt": "क्या आपके पास पहले से एक खाता मौजूद है? <2>लॉग इन करें</2>",
-    "sign_up_agreement_explainer": ""
+    "existing_user_prompt": "क्या आपके पास पहले से एक खाता मौजूद है? <2>लॉग इन करें</2>"
   },
   "basic_form": {
     "name": {
       "field_label": "आपका नाम",
-      "empty_error": "कृपया अपना नाम दर्ज करें",
-      "required_error": ""
+      "empty_error": "कृपया अपना नाम दर्ज करें"
     },
     "email": {
       "field_label": "ईमेल",
@@ -102,11 +86,7 @@
   "login_prompt": "लॉग इन करने के लिए यहां क्लिक करें",
   "about_us": "हमारे बारे में",
   "community_guidelines_form": {
-    "header": "समुदाय दिशानिर्देश",
-    "guideline": {
-      "checkbox_label": "",
-      "required_error": ""
-    }
+    "header": "समुदाय दिशानिर्देश"
   },
   "location": {
     "field_label": "आपकी स्थान",
@@ -118,8 +98,7 @@
   },
   "account_settings_page": {
     "birth_date_section": {
-      "title": "जन्मतिथि बदलें",
-      "explanation": ""
+      "title": "जन्मतिथि बदलें"
     },
     "username_section": {
       "explanation": "जब आप अपना खाता बनाते हैं तो आपका उपयोगकर्ता नाम सेट हो जाता है।",
@@ -127,259 +106,12 @@
       "description": "आपका उपयोगकर्ता नाम <1>{{username}}</1> है।"
     },
     "gender_section": {
-      "title": "लिंग बदलें",
-      "explanation": ""
+      "title": "लिंग बदलें"
     },
-    "title": "खाता सेटिंग",
-    "timezone_section": {
-      "title": "",
-      "description": "",
-      "explanation": ""
-    },
-    "appearance_section": {
-      "click_to_change": "",
-      "change_mode": "",
-      "title": "",
-      "current_mode": "",
-      "modes": {
-        "light": "",
-        "dark": "",
-        "system": ""
-      }
-    }
+    "title": "खाता सेटिंग"
   },
   "jail": {
-    "title": "अधिक जानकारी की आवश्यकता है",
-    "description": "",
-    "activeness_probe": {
-      "description": "",
-      "not_hosting": "",
-      "title": "",
-      "still_hosting": "",
-      "note": ""
-    },
-    "mod_note_section": {
-      "note_title": "",
-      "title": "",
-      "description": "",
-      "acknowledge": ""
-    },
-    "location_section": {
-      "title": "",
-      "explanation": "",
-      "submit_button": {
-        "active_text": "",
-        "inactive_text": ""
-      },
-      "resubmit_button_text": ""
-    },
-    "terms_of_service_section": {
-      "description": ""
-    }
+    "title": "अधिक जानकारी की आवश्यकता है"
   },
-  "sign_up_completed_prompt": "हमने आपके ईमेल पर एक सत्यापन लिंक के साथ एक ईमेल भेजा है। कृपया अपने खाते को सक्रिय करने के लिए लिंक पर क्लिक करें।",
-  "sign_up_need_verification_title": "",
-  "strong_verification": {
-    "delete_data_title": "",
-    "status": {
-      "disabled_message": "",
-      "enabled_message": ""
-    },
-    "start_button": "",
-    "donation_message2": "",
-    "donate_button": "",
-    "instructions": {
-      "step7": "",
-      "title": "",
-      "chip_location": {
-        "description": "",
-        "finland_germany_new": "",
-        "australia": "",
-        "heading": "",
-        "us_germany_mexico": ""
-      },
-      "step1": "",
-      "step8": "",
-      "warning": "",
-      "step1_apple_note": "",
-      "step2": "",
-      "step3": "",
-      "step4": "",
-      "step5": "",
-      "step6": "",
-      "download_app_store": "",
-      "download_google_play": ""
-    },
-    "learn_more": "",
-    "title": "",
-    "subtitle": "",
-    "begin_button": "",
-    "delete_information": "",
-    "information_text1": "",
-    "information_text3": "",
-    "complete_title": "",
-    "delete_my_data_button": "",
-    "information_text2": "",
-    "complete_message1": "",
-    "complete_message2": "",
-    "delete_information_text2": "",
-    "delete_button": "",
-    "delete_success": "",
-    "donation_title": "",
-    "donation_message1": ""
-  },
-  "volunteer_management": {
-    "form": {
-      "save_button": "",
-      "link_text_required": "",
-      "link_url_label": "",
-      "link_type_email": "",
-      "link_type_linkedin": "",
-      "link_type_website": "",
-      "link_text_label": "",
-      "link_text_linkedin_placeholder": "",
-      "link_text_email_placeholder": "",
-      "show_on_team_page_label": "",
-      "link_text_email_invalid": "",
-      "link_url_placeholder": "",
-      "link_url_invalid": "",
-      "title": "",
-      "link_type_label": "",
-      "link_text_linkedin_helper": "",
-      "override_name_label": "",
-      "display_name_label": "",
-      "override_location_label": "",
-      "link_type_couchers": "",
-      "link_text_website_placeholder": "",
-      "link_text_email_helper": "",
-      "link_text_website_helper": "",
-      "link_text_linkedin_invalid": "",
-      "link_url_helper": "",
-      "link_url_required": "",
-      "display_location_label": ""
-    },
-    "shown_on_team_page_current": "",
-    "title": "",
-    "card_preview_label": "",
-    "shown_on_team_page_past": "",
-    "not_a_volunteer_message": "",
-    "past_volunteer": "",
-    "current_volunteer": "",
-    "description": "",
-    "not_shown_on_team_page": "",
-    "update_success": ""
-  },
-  "sign_up_confirmed_prompt": "",
-  "change_phone": {
-    "change_to_different_description": "",
-    "remove_success": "",
-    "phone_label": "",
-    "add_button_text": "",
-    "add_success": "",
-    "phone_not_verified_description": "",
-    "code_label": "",
-    "wrong_code": "",
-    "verify_button_text": "",
-    "verify_success": "",
-    "remove_button_text": "",
-    "change_button_text": "",
-    "title": "",
-    "need_to_donate": "",
-    "no_phone_description": "",
-    "remove_phone_description": ""
-  },
-  "do_not_email": {
-    "status": {
-      "no_emails_disabled_message": "",
-      "no_emails_enabled_message": ""
-    },
-    "title": "",
-    "action_button": {
-      "no_emails_enable_text": "",
-      "no_emails_disable_text": ""
-    },
-    "caveat": ""
-  },
-  "active_logins": {
-    "settings_page_text": "",
-    "settings_page_link": "",
-    "login_header": "",
-    "last_activity": "",
-    "expiry": "",
-    "description": "",
-    "location": "",
-    "log_out_of_all_session": "",
-    "current_session": "",
-    "log_out_of_session": "",
-    "heading": ""
-  },
-  "motivations_form": {
-    "events_description": "",
-    "community_organizing": "",
-    "community_organizing_description": "",
-    "something_else": "",
-    "hosting_description": "",
-    "something_else_description": "",
-    "header": "",
-    "surfing": "",
-    "surfing_description": "",
-    "hosting": "",
-    "events": ""
-  },
-  "sign_up_completed_title": "",
-  "quick_links": {
-    "title": "",
-    "button_text": "",
-    "error_message": "",
-    "missing_payload_or_sig": ""
-  },
-  "profile_visibility": {
-    "visiblility_options": {
-      "nothing": "",
-      "full_profile": "",
-      "map_only": "",
-      "limited": "",
-      "most": ""
-    },
-    "title": "",
-    "choose": ""
-  },
-  "delete_account": {
-    "request": {
-      "reason_label": "",
-      "title": "",
-      "success_message": "",
-      "description": "",
-      "confirm_username_explanation": "",
-      "confirm_username_label": "",
-      "username_mismatch": "",
-      "reason_explanation": ""
-    },
-    "recover": {
-      "error_message": "",
-      "button_text": "",
-      "success": "",
-      "title": ""
-    },
-    "confirm": {
-      "title": "",
-      "button_text": "",
-      "account_deleted": "",
-      "error_message": ""
-    },
-    "missing_token": ""
-  },
-  "sign_up_resend_verification_email_help": "",
-  "sign_up_resend_verification_done": "",
-  "logged_out_message": "",
-  "feature_preview": {
-    "title": "",
-    "explanation": "",
-    "no_previews": {
-      "title": "",
-      "explanation": ""
-    },
-    "disclaimer": ""
-  },
-  "unhandled_sign_up_state": ""
+  "sign_up_completed_prompt": "हमने आपके ईमेल पर एक सत्यापन लिंक के साथ एक ईमेल भेजा है। कृपया अपने खाते को सक्रिय करने के लिए लिंक पर क्लिक करें।"
 }

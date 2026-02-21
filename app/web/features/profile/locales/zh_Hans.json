@@ -33,8 +33,7 @@
     "age_verification_verified": "此用户已验证其出生日期",
     "age_verification_mismatch": "用户提供的出生日期与验证的出生日期不符",
     "gender_verification_verified": "此用户已验证其性别",
-    "gender_verification_mismatch": "用户提供的性别与验证的性别不符",
-    "photos_section": ""
+    "gender_verification_mismatch": "用户提供的性别与验证的性别不符"
   },
   "section_tabs_a11y_label": "用户详情的标签",
   "home_info_headings": {
@@ -61,16 +60,7 @@
     "space": "睡眠隐私",
     "transportation": "交通、停车、无障碍设施",
     "wheelchair": "轮椅可达",
-    "other_info": "其他信息",
-    "home_facilities": "",
-    "household_details": "",
-    "household_members": "",
-    "parking_heading": "",
-    "household_habits": "",
-    "hosting_preferences_subtitle": "",
-    "about_home_subtitle": "",
-    "household_details_subtitle": "",
-    "general_subtitle": ""
+    "other_info": "其他信息"
   },
   "edit_profile_helper_text": "需要灵感从哪里开始？<2>查看我们的指南，创建一个精彩的个人资料</2>。",
   "edit_profile_headings": {
@@ -84,17 +74,7 @@
     "pronouns": "代词",
     "hometown": "成长地",
     "occupation": "职业",
-    "education": "教育",
-    "preferences_subtitle": "",
-    "basic_information": "",
-    "basic_information_subtitle": "",
-    "preferences": "",
-    "location_subtitle": "",
-    "personal_information_subtitle": "",
-    "about_me_subtitle": "",
-    "travel_experience": "",
-    "travel_experience_subtitle": "",
-    "personal_information": ""
+    "education": "教育"
   },
   "edit_home_questions": {
     "accept_drinking": "接受饮酒",
@@ -113,10 +93,7 @@
   "sleeping_arrangement": {
     "private": "私人空间",
     "common": "公共区域",
-    "shared_room": "共享房间",
-    "private_short": "",
-    "common_short": "",
-    "shared_room_short": ""
+    "shared_room": "共享房间"
   },
   "parking_details": {
     "free_onsite": "免费现场停车",
@@ -164,48 +141,7 @@
     "text_explanation": "为你的Coucher的留言簿留下便条——说声感谢，或者让其他人知道你是否喜欢和他们在一起。",
     "thank_you_message": "感谢你抽出时间帮助我们维护社区价值观。请在提交之前仔细查看你的评语。",
     "was_appropriate_required": "为了帮助我们保持社区安全，这个问题是必需的。",
-    "next_step_label": "下一步",
-    "cant_write_reference_didnt_stay": "",
-    "didnt_meetup_submit_success": "",
-    "text_explanation_hosted_surfed": "",
-    "thank_you_header": "",
-    "thank_you_references_available": "",
-    "private_text_placeholder": "",
-    "yes_safe": "",
-    "no_not_safe": "",
-    "what_happened": "",
-    "friend_reference_requires_friendship": "",
-    "already_wrote_reference_for_stay": "",
-    "already_wrote_friend_reference": "",
-    "did_stay_confirmation": {
-      "message_surfed": "",
-      "title_hosted": "",
-      "title_surfed": "",
-      "message_hosted": "",
-      "confirm_surfed": "",
-      "confirm_hosted": ""
-    },
-    "reference_form_heading_did_stay_hosted": "",
-    "reason_didnt_meetup": "",
-    "rating_amazing": "",
-    "did_stay_explanation": "",
-    "add_a_reference": "",
-    "by_writing_thoughtful": "",
-    "reference_form_heading_did_stay_surfed": "",
-    "ratings_slider_label": "",
-    "go_to_dashboard": "",
-    "private_text_explanation_1": "",
-    "rating_negative": "",
-    "rating_neutral": "",
-    "private_text_explanation_2": "",
-    "private_text_explanation_3": "",
-    "private_text_summary": "",
-    "cant_write_reference_expired": "",
-    "text_label": "",
-    "thank_you_support": "",
-    "thank_you_donation_prompt": "",
-    "rating_required": "",
-    "rating_positive": ""
+    "next_step_label": "下一步"
   },
   "request_form": {
     "send_request": "向{{name}}发送请求",
@@ -221,8 +157,7 @@
     "request_description_empty": "请写一条请求消息",
     "stay_type_a11y_text": "住宿类型",
     "success": "请求已发送！",
-    "guest_count": "客人数",
-    "request_chars_remaining_other": ""
+    "guest_count": "客人数"
   },
   "reference_filter_label": {
     "friend": "来自朋友",
@@ -263,81 +198,11 @@
   "view_in_admin_console": "在管理员控制台查看用户",
   "incomplete_dialog": {
     "title": "资料未完成",
-    "description": "在您完成以下操作之前，您将无法发送请求、消息或创建活动：",
-    "about_me_message": "",
-    "missing_photo_message": "",
-    "save_anyway": "",
-    "continue_editing": ""
+    "description": "在您完成以下操作之前，您将无法发送请求、消息或创建活动："
   },
   "edit": "编辑个人资料",
   "active": "活跃",
   "helper_text": {
-    "missing_profile_photo": "请添加一张照片以完善您的个人资料。",
-    "characters_remaining_other": ""
-  },
-  "profile_changes_saved_message": "",
-  "badges": {
-    "title": "",
-    "subtitle": "",
-    "click_on_left": "",
-    "no_people": "",
-    "not_found": ""
-  },
-  "incomplete_profile_haiku": "",
-  "search_indicator": "",
-  "gallery": {
-    "no_photos": "",
-    "remove_photo_error": "",
-    "report_photo": "",
-    "verification_required_for_more_photos": "",
-    "get_verified": "",
-    "photo_viewer_aria": "",
-    "previous_photo": "",
-    "next_photo": "",
-    "close_viewer": "",
-    "add_photo_error": "",
-    "profile_photos_description": "",
-    "profile_photo": "",
-    "photo_item_a11y": "",
-    "add_photo": "",
-    "uploading": "",
-    "remove_photo": "",
-    "select_photo": "",
-    "photo_count": "",
-    "empty_title": "",
-    "empty_description": "",
-    "move_photo_error": "",
-    "reorder_success": "",
-    "upload_success": "",
-    "profile_photos_title": ""
-  },
-  "click_replace_image": "",
-  "meetup_status": {
-    "open_to_meetup_description": "",
-    "wants_to_meetup_description": "",
-    "does_not_want_to_meetup_description": ""
-  },
-  "avatar_photo_info": "",
-  "hosting_preferences_success_message": "",
-  "edit_profile_name_required": "",
-  "open_profile_new_tab": "",
-  "reference_amounts": {
-    "no_references": "",
-    "count_references_other": "",
-    "hundred_or_more_references": ""
-  },
-  "hosting_status": {
-    "can_host_description": "",
-    "maybe_host_description": "",
-    "cannot_host_description": ""
-  },
-  "what_options_mean": "",
-  "have_pending_reference_text": "",
-  "write_friend_reference": "",
-  "avatar_placeholder_info": "",
-  "click_to_add_photo": "",
-  "couldnt_read_file": "",
-  "select_an_image": "",
-  "names_profile_photo": "",
-  "image_uploading_warning": ""
+    "missing_profile_photo": "请添加一张照片以完善您的个人资料。"
+  }
 }

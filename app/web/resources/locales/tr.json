@@ -70,8 +70,7 @@
   },
   "donation_banner": {
     "progress_label": "Bağış ilerlemesi",
-    "button": "Şimdi bağış yap",
-    "message": ""
+    "button": "Şimdi bağış yap"
   },
   "copy": "Kopyala",
   "hosting_status": {
@@ -91,8 +90,7 @@
       "title_helper": "Hatanın kısa bir açıklaması",
       "problem_helper": "Sorunun kısa bir açıklaması ve nasıl tekrardan oluşturulabileceği",
       "expect_label": "Ne oldu? Olması gereken neydi?",
-      "expect_helper": "Olmasını beklediğiniz şey hakkında kısa bir açıklama",
-      "success_message2": ""
+      "expect_helper": "Olmasını beklediğiniz şey hakkında kısa bir açıklama"
     },
     "label": "Bir sorun bildir",
     "flag": {
@@ -109,24 +107,7 @@
         "safety": "Güvenlik endişesi (kendi veya başkalarının güvenliğine karşı)",
         "spam": "Kanepe sörfü ile ilgisi olmayan spam veya promosyon",
         "sexualized": "Cinsel içerikli içerik veya davranış"
-      },
-      "description_helper": "",
-      "block_user_explainer": "",
-      "button_aria_label": "",
-      "profile_button_aria_label": "",
-      "explainer": "",
-      "title": "",
-      "profile_title": "",
-      "reason_label": "",
-      "reason_helper": "",
-      "block_user": "",
-      "profile_reason_required": "",
-      "description_label": ""
-    },
-    "content": {
-      "success_message": "",
-      "button_label": "",
-      "dialog_message": ""
+      }
     }
   },
   "meetup_status": {
@@ -191,22 +172,14 @@
     "built_with": "Açık Kaynak",
     "invite_members": "Üye Davet Et",
     "badges": "Rozetler",
-    "dashboard": "Kontrol Paneli",
-    "volunteer": "",
-    "legal_more": "",
-    "home": "",
-    "landing_page": ""
+    "dashboard": "Kontrol Paneli"
   },
   "what_is_cs": {
     "timeline": {
       "early_2000s_year": "2000'lerin başı",
       "2010s_year": "2010'lar",
       "2020_year": "2020",
-      "today_year": "Bugün",
-      "today_text": "",
-      "early_2000s_text": "",
-      "2010s_text": "",
-      "2020_text": ""
+      "today_year": "Bugün"
     },
     "actions": {
       "host": "Şehrini ziyaret eden bir gezgine ev sahipliği yap",
@@ -218,44 +191,8 @@
     "why_people_title": "İnsanlar neden koltuk sörfünü seviyor",
     "why_people_points": {
       "travelers": "<bold>Yolcular için</bold>: Turistik yolların ötesine geçen daha derin, daha insancıl deneyimler",
-      "hosts": "<bold>Ev sahipleri için</bold>: dünya genelinden insanlarla tanış ve onlarla şehrini paylaş",
-      "everyone": ""
-    },
-    "table": {
-      "header_hostel": "",
-      "header_hotel": "",
-      "people_first": "",
-      "dollar": "",
-      "dollars_range": "",
-      "professionally_managed": "",
-      "header_couchers": "",
-      "stay_with_locals": "",
-      "cost_to_stay": "",
-      "free_to_stay": "",
-      "meetups_communities": "",
-      "cultural_exchange": "",
-      "non_transactional": "",
-      "no_investor_pressure": "",
-      "social_expectation": ""
-    },
-    "bottom_cta_title": "",
-    "join_couchers": "",
-    "is_it_safe": {
-      "description_1": "",
-      "title": "",
-      "description_2": "",
-      "description_3": ""
-    },
-    "bottom_cta_subtitle": "",
-    "description_1": "",
-    "title": "",
-    "get_started": "",
-    "timeline_title": "",
-    "tip_text": "",
-    "compare_title": "",
-    "get_involved_title": "",
-    "description_2": "",
-    "tip_label": ""
+      "hosts": "<bold>Ev sahipleri için</bold>: dünya genelinden insanlarla tanış ve onlarla şehrini paylaş"
+    }
   },
   "beta": "Beta",
   "relative_time": {
@@ -277,115 +214,6 @@
   "location_autocomplete": {
     "more_specific": "Lütfen daha belirli bir yer seçin",
     "search_location_hint": "Bir konum seçmek için Enter tuşuna basın veya arama simgesine tıklayın",
-    "search_location_button": "Konum ara",
-    "select_location_hint": ""
-  },
-  "team": {
-    "past_members": "",
-    "board_member": "",
-    "secretary": "",
-    "treasurer": "",
-    "community_coordinator": "",
-    "fill_form_description": "",
-    "volunteer_settings": {
-      "show_on_team_page": {
-        "title": "",
-        "enabled_message": "",
-        "disabled_message": ""
-      }
-    },
-    "title": "",
-    "join_our_team": "",
-    "have_skills_contribute": "",
-    "co_founder_president": "",
-    "co_founder": "",
-    "description": "",
-    "developer": "",
-    "frontend_developer": "",
-    "lead_frontend_developer": "",
-    "backend_developer": "",
-    "lead_backend_developer": "",
-    "full_stack_backend_developer": "",
-    "ui_ux_designer": "",
-    "current_members": "",
-    "translations_lead": "",
-    "join_the_team": "",
-    "tap_press_to_flip": ""
-  },
-  "invites": {
-    "title": "",
-    "disable": "",
-    "share_link": "",
-    "uses_suffix": "",
-    "create": "",
-    "instructions": "",
-    "banner": {
-      "invited_you": "",
-      "inviter_fallback": ""
-    },
-    "error": {
-      "fetch_invite_info": ""
-    }
-  },
-  "language_names": {
-    "zh-Hans": "",
-    "es-419": "",
-    "fr": "",
-    "fr-CA": "",
-    "ja": "",
-    "nb-NO": "",
-    "nl": "",
-    "pt": "",
-    "cs": "",
-    "de": "",
-    "en-CORP": "",
-    "he": "",
-    "pl": "",
-    "zh-Hant": "",
-    "hu": "",
-    "en": "",
-    "it": "",
-    "uk": "",
-    "ca": "",
-    "sv": "",
-    "tr": "",
-    "es": "",
-    "hi": "",
-    "pt-BR": "",
-    "ru": ""
-  },
-  "blog": {
-    "cta_message": "",
-    "byline_with_author": "",
-    "byline_without_author": ""
-  },
-  "error": {
-    "fatal_message": "",
-    "fallback": {
-      "refresh_page_button_label": "",
-      "home_page_link_label": "",
-      "title": "",
-      "subtitle": ""
-    },
-    "unknown": ""
-  },
-  "contribute_title": "",
-  "reply": "",
-  "yes": "",
-  "no": "",
-  "ok": "",
-  "footer": {
-    "non_profit_note": "",
-    "version_info": ""
-  },
-  "error_loading_languages": "",
-  "html_meta": {
-    "title_suffix": "",
-    "default_title": "",
-    "default_description": ""
-  },
-  "invited_you": "",
-  "strong_verification": {
-    "helper_text": ""
+    "search_location_button": "Konum ara"
   }
 }

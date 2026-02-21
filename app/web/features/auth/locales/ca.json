@@ -166,17 +166,6 @@
       "title": "Nom d'usuari",
       "description": "El teu nom d'usuari és <1>{{username}}</1>.",
       "explanation": "El teu nom d'usuari es defineix quan crees el teu compte."
-    },
-    "appearance_section": {
-      "title": "",
-      "current_mode": "",
-      "click_to_change": "",
-      "change_mode": "",
-      "modes": {
-        "light": "",
-        "dark": "",
-        "system": ""
-      }
     }
   },
   "strong_verification": {
@@ -368,18 +357,5 @@
     "past_volunteer": "Voluntari de {{startDate}} a {{endDate}}.",
     "not_a_volunteer_message": "Segons els nostres registres, no ets un voluntari actual ni passat. Si això és incorrecte, fes-nos-ho saber omplint <1>aquest formulari</1>.",
     "update_success": "La teva informació de voluntari s'ha actualitzat."
-  },
-  "motivations_form": {
-    "community_organizing": "",
-    "header": "",
-    "surfing": "",
-    "surfing_description": "",
-    "hosting": "",
-    "events_description": "",
-    "hosting_description": "",
-    "events": "",
-    "community_organizing_description": "",
-    "something_else": "",
-    "something_else_description": ""
   }
 }

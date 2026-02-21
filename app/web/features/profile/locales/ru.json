@@ -183,10 +183,7 @@
     "request_description_empty": "Пожалуйста, напишите сообщение",
     "stay_type_a11y_text": "тип пребывания",
     "success": "Запрос отправлен!",
-    "guest_count": "Количество гостей",
-    "request_chars_remaining_one": "",
-    "request_chars_remaining_few": "",
-    "request_chars_remaining_many": ""
+    "guest_count": "Количество гостей"
   },
   "open_profile_new_tab": "Открыть профиль в новой вкладке",
   "see_more_references": "Показать ещё отзывы",
@@ -341,9 +338,6 @@
     "close_viewer": "Закрыть просмотрщик фотографий",
     "remove_photo_error": "Не удалось удалить фотографию. Пожалуйста, попробуйте снова.",
     "uploading": "Загрузка...",
-    "report_photo": "Пожаловаться на фото",
-    "profile_photo": ""
-  },
-  "click_to_add_photo": "",
-  "avatar_placeholder_info": ""
+    "report_photo": "Пожаловаться на фото"
+  }
 }

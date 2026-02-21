@@ -8,8 +8,7 @@
       "problem_helper": "Stručný popis problému a jak ho reprodukovat",
       "expect_label": "Co se stalo? Co se mělo stát?",
       "expect_helper": "Stručný popis toho, co jste očekávali, že se stane místo toho",
-      "warning_message": "Vezmi prosím na vědomí, že tyto informace, stejně jako diagnostické údaje, včetně toho na které stránce se nacházíš, jaký používáš prohlížeč a tvé uživatelské jméno, budou uloženy do veřejného seznamu chyb.",
-      "success_message2": ""
+      "warning_message": "Vezmi prosím na vědomí, že tyto informace, stejně jako diagnostické údaje, včetně toho na které stránce se nacházíš, jaký používáš prohlížeč a tvé uživatelské jméno, budou uloženy do veřejného seznamu chyb."
     },
     "flag": {
       "reason_required": "Důvod je vyžadován.",
@@ -77,8 +76,7 @@
   "meetup_status": {
     "wants_to_meetup": "Chci se setkat",
     "open_to_meetup": "Otevřený k setkání",
-    "does_not_want_to_meetup": "Nemohu/nechci se setkat",
-    "unspecified_info": ""
+    "does_not_want_to_meetup": "Nemohu/nechci se setkat"
   },
   "learn_more": "Zjistit více",
   "terms_of_service": "Podmínky služby",
@@ -106,8 +104,7 @@
     "can_host": "Mohu ubytovat",
     "maybe": "Občas mohu ubytovat",
     "cant_host": "Nemohu ubytovat",
-    "any": "Jakýkoli",
-    "unspecified_info": ""
+    "any": "Jakýkoli"
   },
   "close": "Zavřít",
   "create_account": "Vytvořit účet",
@@ -164,8 +161,7 @@
     "about": "O aplikaci",
     "merch_shop": "Obchod s merchem",
     "switch_to_light_mode": "Přepnout na světlý režim",
-    "switch_to_dark_mode": "Přepnout do tmavého režimu",
-    "home": ""
+    "switch_to_dark_mode": "Přepnout do tmavého režimu"
   },
   "html_meta": {
     "default_description": "Sdílej svůj svět a objevuj ten jejich. Autentické místní zážitky postavené na důvěře a skutečném spojení — ne na transakcích.",
@@ -388,10 +384,5 @@
   "uses": "Použití",
   "retract": "Stáhnout",
   "not_found_text_2": "Chceš prostě <1>jít domů?</1>",
-  "contribute_title": "Zaregistruj se a zapoj se",
-  "blog": {
-    "byline_with_author": "",
-    "byline_without_author": "",
-    "cta_message": ""
-  }
+  "contribute_title": "Zaregistruj se a zapoj se"
 }

@@ -44,8 +44,7 @@
     "show_all_events": "Alle events weergeven",
     "the_team": "Het team",
     "volunteer": "Helpen",
-    "legal_more": "Juridisch & meer",
-    "home": ""
+    "legal_more": "Juridisch & meer"
   },
   "components": {
     "edit_location_map": {
@@ -317,75 +316,7 @@
     "bottom_cta_subtitle": "Word gratis lid van Couchers.org en maak deel uit van een wereldwijde community gebouwd op gastvrijheid en verbinding.",
     "join_couchers": "Word lid van Couchers.org",
     "is_it_safe": {
-      "title": "Hoe veilig is couchsurfen?",
-      "description_1": "",
-      "description_2": "",
-      "description_3": ""
+      "title": "Hoe veilig is couchsurfen?"
     }
-  },
-  "team": {
-    "tap_press_to_flip": "",
-    "lead_backend_developer": "",
-    "join_the_team": "",
-    "have_skills_contribute": "",
-    "title": "",
-    "description": "",
-    "fill_form_description": "",
-    "current_members": "",
-    "past_members": "",
-    "board_member": "",
-    "co_founder_president": "",
-    "co_founder": "",
-    "secretary": "",
-    "treasurer": "",
-    "community_coordinator": "",
-    "developer": "",
-    "frontend_developer": "",
-    "lead_frontend_developer": "",
-    "backend_developer": "",
-    "full_stack_backend_developer": "",
-    "ui_ux_designer": "",
-    "translations_lead": "",
-    "volunteer_settings": {
-      "show_on_team_page": {
-        "title": "",
-        "enabled_message": "",
-        "disabled_message": ""
-      }
-    },
-    "join_our_team": ""
-  },
-  "language_names": {
-    "hu": "",
-    "ca": "",
-    "nl": "",
-    "zh-Hant": "",
-    "he": "",
-    "cs": "",
-    "de": "",
-    "en": "",
-    "en-CORP": "",
-    "es": "",
-    "es-419": "",
-    "it": "",
-    "ja": "",
-    "nb-NO": "",
-    "pl": "",
-    "pt": "",
-    "pt-BR": "",
-    "ru": "",
-    "sv": "",
-    "tr": "",
-    "uk": "",
-    "zh-Hans": "",
-    "hi": "",
-    "fr": "",
-    "fr-CA": ""
-  },
-  "error_loading_languages": "",
-  "blog": {
-    "byline_with_author": "",
-    "byline_without_author": "",
-    "cta_message": ""
   }
 }
