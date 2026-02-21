@@ -14,5 +14,21 @@
     "title": "Remover amigo(a)",
     "message": "Tem a certeza de que pretende remover {{name}}? Esta ação não pode ser anulada.",
     "confirm": "Remover"
-  }
+  },
+  "block_user_confirmation_dialog": {
+    "title": "",
+    "message": "",
+    "confirm": ""
+  },
+  "accept": "",
+  "decline": "",
+  "unblock_user_confirmation_dialog": {
+    "confirm": "",
+    "title": "",
+    "message": ""
+  },
+  "blocked_list_title": "",
+  "block_user": "",
+  "no_blocked_users": "",
+  "unblock_user": ""
 }
