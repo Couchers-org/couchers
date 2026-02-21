@@ -1,7 +1,7 @@
 """Add admin_actions and tags tables
 
-Revision ID: 0137
-Revises: e9190b051324
+Revision ID: 0138
+Revises: 8eab3434914d
 Create Date: 2026-02-21 12:00:00.000000
 
 """
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0137"
-down_revision = "e9190b051324"
+revision = "0138"
+down_revision = "8eab3434914d"
 branch_labels = None
 depends_on = None
 
