@@ -101,7 +101,8 @@
       "description": "",
       "just_started": "",
       "midway": "",
-      "info_text": ""
+      "info_text": "",
+      "help_translate": ""
     },
     "form_title": "",
     "show_all_languages_description": "",
@@ -109,7 +110,8 @@
     "select_language": "",
     "success_message": "",
     "error_loading_languages": "",
-    "show_all_languages": ""
+    "show_all_languages": "",
+    "help_translate": ""
   },
   "accept": "",
   "continue": "",
@@ -150,7 +152,8 @@
   },
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "not_found_text_1": "",
   "invites": {
@@ -258,7 +261,8 @@
     "co_founder": "",
     "secretary": "",
     "treasurer": "",
-    "community_coordinator": ""
+    "community_coordinator": "",
+    "tap_press_to_flip": ""
   },
   "location_autocomplete": {
     "more_specific": "",

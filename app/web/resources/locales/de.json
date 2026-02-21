@@ -33,7 +33,10 @@
     "landing_page": "Homepage",
     "newsletter": "Newsletter",
     "invite_members": "Mitglieder einladen",
-    "merch_shop": "Merch-Shop"
+    "merch_shop": "Merch-Shop",
+    "home": "Startseite",
+    "switch_to_dark_mode": "Zum Dark-Mode wechseln",
+    "switch_to_light_mode": "Zum hellen Modus wechseln"
   },
   "footer": {
     "non_profit_note": "Couchers.org ist ein Projekt von Couchers, Inc., einer in den USA als 501(c)(3) anerkannten gemeinnützigen, steuerbefreiten Organisation.",
@@ -117,7 +120,8 @@
       "just_started": "Gerade angefangen"
     },
     "error_loading_languages": "Das Laden der Sprachoptionen ist fehlgeschlagen. Bitte versuche es später erneut.",
-    "current_preferred_language": "Deine bevorzugte Sprache ist derzeit <lang>{{language}}</lang>."
+    "current_preferred_language": "Deine bevorzugte Sprache ist derzeit <lang>{{language}}</lang>.",
+    "show_all_languages_description": "Wenn aktiviert, zeigt die Sprachauswahl alle Sprachen unabhängig vom Übersetzungsfortschritt an. Dies wird nur in der Staging-Umgebung angezeigt, um Sprachen zu testen, die sich noch in Bearbeitung befinden."
   },
   "meetup_status": {
     "wants_to_meetup": "Möchte sich treffen",
@@ -135,7 +139,8 @@
       "expect_label": "Was ist passiert? Was hätte passieren sollen?",
       "expect_helper": "Kurze Beschreibung, was du stattdessen erwartest hast",
       "button_label": "Ein technisches Problem melden",
-      "warning_message": "Bitte beachte, dass diese Informationen sowie diagnostische Daten, einschließlich der Seite, auf der du dich befindest, des von dir verwendeten Browsers und deines Benutzernamens, in einer öffentlichen Fehlerliste gespeichert werden."
+      "warning_message": "Bitte beachte, dass diese Informationen sowie diagnostische Daten, einschließlich der Seite, auf der du dich befindest, des von dir verwendeten Browsers und deines Benutzernamens, in einer öffentlichen Fehlerliste gespeichert werden.",
+      "success_message2": "Vielen Dank, dass du diesen Fehler gemeldet und Couchers verbessert hast. Ein Bericht wurde an die Entwickler gesendet! Die Fehler-ID ist <id/>."
     },
     "content": {
       "button_label": "Unangemessene Inhalte oder Verhaltensweisen melden",
@@ -376,5 +381,10 @@
     "message": "Couchers.org basiert auf Güte — genau wie Couchsurfing selbst. Hilf uns in dieser Weihnachtszeit, dass es so bleibt. Wir sammeln {{goal}}, um die Betriebskosten von Couchers.org zu decken.",
     "button": "Jetzt spenden",
     "progress_label": "Spendenfortschritt"
+  },
+  "blog": {
+    "cta_message": "Möchtest du bei unserem Blog mitschreiben oder dich ehrenamtlich engagieren? <1>Melde dich an</1> und lass es uns wissen. Freiwillige und <3>Spenden</3> machen Couchers.org erst möglich!",
+    "byline_with_author": "Geschrieben von <1/>. Veröffentlicht am {{date}}.",
+    "byline_without_author": "Veröffentlicht am {{date}}."
   }
 }
