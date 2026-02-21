@@ -203,7 +203,7 @@ export default function GalleryItem({
             variant="caption"
             sx={{ color: "common.white", fontWeight: 600 }}
           >
-            {t("profile:gallery.primary")}
+            {t("profile:gallery.profile_photo")}
           </Typography>
         </PrimaryBadge>
       )}

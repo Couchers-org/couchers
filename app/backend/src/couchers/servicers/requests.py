@@ -149,6 +149,11 @@ def host_request_to_pb(
         hosting_lng=lng,
         hosting_radius=host_request.hosting_radius,
         need_host_request_feedback=need_feedback,
+        is_archived=(
+            host_request.is_host_archived
+            if context.user_id == host_request.host_user_id
+            else host_request.is_surfer_archived
+        ),
     )
 
 
