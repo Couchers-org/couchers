@@ -19,6 +19,18 @@ function getUtmParams(): Record<string, string> {
   return utm;
 }
 
+function getFilteredSearch(queryString: string): string | null {
+  const params = new URLSearchParams(queryString);
+  const filtered = new URLSearchParams();
+  params.forEach((value, key) => {
+    if (!key.startsWith("utm_")) {
+      filtered.set(key, value);
+    }
+  });
+  const result = filtered.toString();
+  return result || null;
+}
+
 export default function AnalyticsProvider({
   children,
 }: {
@@ -48,6 +60,7 @@ export default function AnalyticsProvider({
 
     logEvent("page.viewed", {
       path: window.location.pathname,
+      search: getFilteredSearch(window.location.search),
       previous_path: null,
       time_on_previous_page: null,
     });
@@ -59,12 +72,13 @@ export default function AnalyticsProvider({
   // Route change tracking
   useEffect(() => {
     const handleRouteChange = (url: string) => {
-      const path = url.split("?")[0];
+      const [path, queryString] = url.split("?");
       const now = Date.now();
       const timeOnPreviousPage = (now - previousTimestampRef.current) / 1000;
 
       logEvent("page.viewed", {
         path,
+        search: getFilteredSearch(queryString ?? ""),
         previous_path: previousPathRef.current,
         time_on_previous_page: timeOnPreviousPage,
       });

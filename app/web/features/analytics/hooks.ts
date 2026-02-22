@@ -21,23 +21,35 @@ export function useLogEvent() {
 /**
  * Returns [start, stop] callbacks for timing an event.
  * On `stop()`, logs the event with value = duration in seconds.
+ *
+ * `properties` is stored in a ref so callers don't need to memoize it.
+ * `stop` accepts optional `extraProperties` for dynamic data at measurement time.
  */
 export function useDurationEvent(
   eventType: string,
   properties: Record<string, unknown> = {},
 ) {
   const startTimeRef = useRef<number | null>(null);
+  const propsRef = useRef(properties);
+  propsRef.current = properties;
 
   const start = useCallback(() => {
     startTimeRef.current = performance.now();
   }, []);
 
-  const stop = useCallback(() => {
-    if (startTimeRef.current === null) return;
-    const durationS = (performance.now() - startTimeRef.current) / 1000;
-    startTimeRef.current = null;
-    logEvent(eventType, properties, durationS);
-  }, [eventType, properties]);
+  const stop = useCallback(
+    (extraProperties?: Record<string, unknown>) => {
+      if (startTimeRef.current === null) return;
+      const durationS = (performance.now() - startTimeRef.current) / 1000;
+      startTimeRef.current = null;
+      logEvent(
+        eventType,
+        { ...propsRef.current, ...extraProperties },
+        durationS,
+      );
+    },
+    [eventType],
+  );
 
   return [start, stop] as const;
 }
@@ -45,6 +57,9 @@ export function useDurationEvent(
 /**
  * Returns a callback ref. When the element enters the viewport,
  * fires the event once via IntersectionObserver.
+ *
+ * `properties` and `threshold` are stored in refs so callers don't
+ * need to memoize them — the observer is only recreated when `eventType` changes.
  */
 export function useImpressionRef(
   eventType: string,
@@ -53,6 +68,10 @@ export function useImpressionRef(
 ) {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const hasFiredRef = useRef(false);
+  const propsRef = useRef(properties);
+  propsRef.current = properties;
+  const thresholdRef = useRef(options?.threshold ?? 0.5);
+  thresholdRef.current = options?.threshold ?? 0.5;
 
   // Cleanup on unmount
   useEffect(() => {
@@ -73,18 +92,18 @@ export function useImpressionRef(
           for (const entry of entries) {
             if (entry.isIntersecting && !hasFiredRef.current) {
               hasFiredRef.current = true;
-              logEvent(eventType, properties);
+              logEvent(eventType, propsRef.current);
               observerRef.current?.disconnect();
               break;
             }
           }
         },
-        { threshold: options?.threshold ?? 0.5 },
+        { threshold: thresholdRef.current },
       );
 
       observerRef.current.observe(node);
     },
-    [eventType, properties, options?.threshold],
+    [eventType],
   );
 
   return callbackRef;
