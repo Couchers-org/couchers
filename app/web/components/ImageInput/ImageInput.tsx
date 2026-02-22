@@ -1,7 +1,4 @@
-import { Edit } from "@mui/icons-material";
-import { styled, Tooltip } from "@mui/material";
-import Avatar from "@mui/material/Avatar";
-import MuiIconButton from "@mui/material/IconButton";
+import { styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import { useTranslation } from "i18n";
@@ -25,11 +22,6 @@ interface ImageInputProps {
   name: string;
   onSuccess?(data: ImageInputValues): Promise<void>;
   onUploading?: (isUploading: boolean) => void; //new prop
-}
-
-interface AvatarInputProps extends ImageInputProps {
-  type: "avatar";
-  userName: string;
 }
 
 interface RectImgInputProps extends ImageInputProps {
@@ -67,17 +59,6 @@ const StyledImage = styled("img", {
   ...(grow && { maxWidth: "100%", height: "auto" }),
 }));
 
-const EditIconButton = styled(MuiIconButton)(({ theme }) => ({
-  position: "absolute",
-  bottom: theme.spacing(1),
-  right: theme.spacing(1),
-  backgroundColor: theme.palette.primary.main,
-  boxShadow: theme.shadows[1],
-  "&:hover": {
-    backgroundColor: theme.palette.grey[200],
-  },
-}));
-
 const StyledLabel = styled("label")(({ theme }) => ({
   alignItems: "center",
   display: "flex",
@@ -89,7 +70,7 @@ const StyledInput = styled("input")(({ theme }) => ({
   display: "none",
 }));
 
-function ImageInput(props: AvatarInputProps | RectImgInputProps) {
+function ImageInput(props: RectImgInputProps) {
   const { className, control, id, initialPreviewSrc, name } = props;
 
   const { t } = useTranslation([PROFILE]);
@@ -106,7 +87,7 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
     },
     onSuccess: async (data: ImageInputValues) => {
       field.onChange(data.key);
-      setImageUrl(props.type === "avatar" ? data.thumbnail_url : data.full_url);
+      setImageUrl(data.full_url);
       await props.onSuccess?.(data);
       props.onUploading?.(false); //notify form upload has finished
     },
@@ -225,47 +206,15 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
               : undefined
           }
         >
-          {props.type === "avatar" ? (
-            <Tooltip title={t("profile:click_replace_image")} placement="top">
-              <MuiIconButton
-                component="span"
-                sx={{ position: "relative" }}
-                onClick={(e) => {
-                  e.preventDefault(); // prevent triggering label click again
-                  if (isNative) {
-                    handleNativeImagePick();
-                  } else {
-                    inputRef.current?.click();
-                  }
-                }}
-              >
-                <Avatar
-                  className={className}
-                  src={imageUrl}
-                  alt={t("profile:names_profile_photo", {
-                    name: props.userName ?? "",
-                  })}
-                  sx={{ "& img": { objectFit: "cover" } }}
-                >
-                  {props.userName?.split(/\s+/).map((name) => name[0])}
-                </Avatar>
-
-                <EditIconButton size="small">
-                  <Edit fontSize="small" sx={{ color: "common.white" }} />
-                </EditIconButton>
-              </MuiIconButton>
-            </Tooltip>
-          ) : (
-            <StyledImage
-              className={className}
-              src={imageUrl ?? "/img/imagePlaceholder.svg"}
-              style={{ objectFit: !imageUrl ? "contain" : undefined }}
-              alt={props.alt}
-              width={props.width ?? DEFAULT_WIDTH}
-              height={props.height ?? DEFAULT_HEIGHT}
-              grow={props.grow}
-            />
-          )}
+          <StyledImage
+            className={className}
+            src={imageUrl ?? "/img/imagePlaceholder.svg"}
+            style={{ objectFit: !imageUrl ? "contain" : undefined }}
+            alt={props.alt}
+            width={props.width ?? DEFAULT_WIDTH}
+            height={props.height ?? DEFAULT_HEIGHT}
+            grow={props.grow}
+          />
         </StyledLabel>
       </FlexWrapper>
     </StyledWrapper>
