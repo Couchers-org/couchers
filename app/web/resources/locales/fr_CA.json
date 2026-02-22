@@ -1,1 +1,15 @@
-{}
+{
+  "team": {
+    "tap_press_to_flip": ""
+  },
+  "donation_banner": {
+    "message": ""
+  },
+  "language_preference": {
+    "translation_progress": {
+      "help_translate": ""
+    },
+    "help_translate": ""
+  },
+  "update": ""
+}

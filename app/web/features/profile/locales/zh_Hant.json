@@ -307,7 +307,9 @@
   "open_profile_new_tab": "",
   "incomplete_profile_haiku": "",
   "meetup_status": {
-    "open_to_meetup_description": ""
+    "open_to_meetup_description": "",
+    "wants_to_meetup_description": "",
+    "does_not_want_to_meetup_description": ""
   },
   "decline_friend_label": "",
   "no_references": "",

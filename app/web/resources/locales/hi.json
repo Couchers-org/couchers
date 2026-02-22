@@ -229,7 +229,8 @@
   "back": "",
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "community_standing": "",
   "cancel": "",
@@ -249,7 +250,8 @@
       "midway": "",
       "just_started": "",
       "title": "",
-      "description": ""
+      "description": "",
+      "help_translate": ""
     },
     "show_all_languages": "",
     "show_all_languages_description": "",
@@ -257,7 +259,8 @@
     "form_title": "",
     "select_language": "",
     "success_message": "",
-    "error_loading_languages": ""
+    "error_loading_languages": "",
+    "help_translate": ""
   },
   "strong_verification": {
     "helper_text": ""
@@ -308,7 +311,8 @@
     "developer": "",
     "lead_frontend_developer": "",
     "backend_developer": "",
-    "ui_ux_designer": ""
+    "ui_ux_designer": "",
+    "tap_press_to_flip": ""
   },
   "community_standing_description": "",
   "invites": {
@@ -382,5 +386,6 @@
   "terms_of_service": "",
   "no_invite_codes": "",
   "save_changes": "",
-  "send": ""
+  "send": "",
+  "update": ""
 }

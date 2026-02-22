@@ -29,5 +29,6 @@
   "add_friend": "",
   "friend_requests_sent": "",
   "blocked_list_title": "",
-  "block_user": ""
+  "block_user": "",
+  "my_connections": ""
 }
