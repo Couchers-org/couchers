@@ -113,9 +113,7 @@ export default function EditProfilePage({
               <Button
                 type="submit"
                 form={
-                  tab === "about"
-                    ? "edit-profile-form"
-                    : "edit-hosting-form"
+                  tab === "about" ? "edit-profile-form" : "edit-hosting-form"
                 }
                 variant="contained"
                 color="primary"
