@@ -2,7 +2,8 @@
   "push": {
     "api_key__create": {
       "title": "API-Schlüssel erstellt",
-      "ios_title": "API-Schlüssel erstellt"
+      "ios_title": "API-Schlüssel erstellt",
+      "body": ""
     },
     "adhoc__push_enabled": {
       "body": "Du wirst von nun an Benachrichtigungen auf diesem Gerät erhalten.",
@@ -13,15 +14,22 @@
       "ios_title_one": "{{count}} Verpasste Nachricht",
       "ios_title_other": "{{count}} Verpasste Nachrichten",
       "title_one": "{{count}} verpasste Nachricht",
-      "title_other": "{{count}} verpasste Nachrichten"
+      "title_other": "{{count}} verpasste Nachrichten",
+      "body": ""
     },
     "host_request__create": {
       "body_one": "{{user}} möchte ab {{start_date}} für {{count}} Tag bleiben.",
-      "body_other": "{{user}} möchte ab {{start_date}} für {{count}} Tage bleiben."
+      "body_other": "{{user}} möchte ab {{start_date}} für {{count}} Tage bleiben.",
+      "ios_subtitle": "",
+      "ios_title": "",
+      "title": ""
     },
     "reference__reminder": {
       "body_one": "Du hast noch {{count}} Tag Zeit, um eine Referenz für {{user}} zu schreiben.",
-      "body_other": "Du hast noch {{count}} Tage Zeit, um eine Referenz für {{user}} zu schreiben."
+      "body_other": "Du hast noch {{count}} Tage Zeit, um eine Referenz für {{user}} zu schreiben.",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
     },
     "account_deletion__start": {
       "title": "Kontolöschung angefordert",
@@ -42,6 +50,237 @@
     "activeness__probe": {
       "title": "",
       "ios_title": "",
+      "body": ""
+    },
+    "phone_number__verify": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "badge__add": {
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "friend_request__create": {
+      "ios_subtitle": "",
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "password__change": {
+      "body": "",
+      "ios_title": "",
+      "title": ""
+    },
+    "email_address__verify": {
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "reference__receive_friend": {
+      "ios_title": "",
+      "ios_subtitle": "",
+      "title": ""
+    },
+    "verification__sv_success": {
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "host_request__missed_messages": {
+      "body": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "postal_verification__success": {
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "postal_verification__failed": {
+      "title": "",
+      "ios_title": "",
+      "body_code_expired": "",
+      "body_too_many_attempts": "",
+      "body_generic": ""
+    },
+    "donation__received": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "gender__change": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "onboarding__reminder": {
+      "subsequent": {
+        "body": "",
+        "title": "",
+        "ios_title": ""
+      },
+      "first": {
+        "ios_title": "",
+        "title": "",
+        "body": ""
+      }
+    },
+    "event__cancel": {
+      "ios_subtitle": "",
+      "title": "",
+      "body": "",
+      "ios_title": ""
+    },
+    "host_request__accept": {
+      "ios_subtitle": "",
+      "body": "",
+      "ios_title": "",
+      "title": ""
+    },
+    "host_request__reject": {
+      "title": "",
+      "ios_subtitle": "",
+      "body": "",
+      "ios_title": ""
+    },
+    "host_request__cancel": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "postal_verification__postcard_sent": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "thread__reply": {
+      "ios_title": "",
+      "ios_subtitle": "",
+      "title": ""
+    },
+    "verification__sv_fail": {
+      "body_not_a_passport": "",
+      "title": "",
+      "body_wrong_birthdate_gender": "",
+      "body_duplicate": "",
+      "ios_title": ""
+    },
+    "password_reset__complete": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "event__create_approved": {
+      "body": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "event__reminder": {
+      "ios_subtitle": "",
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "birthdate__change": {
+      "body": "",
+      "ios_title": "",
+      "title": ""
+    },
+    "discussion__create": {
+      "title": "",
+      "body": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "email_address__change": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "modnote__create": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "phone_number__change": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "friend_request__accept": {
+      "title": "",
+      "ios_subtitle": "",
+      "body": "",
+      "ios_title": ""
+    },
+    "password_reset__start": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "reference__receive": {
+      "title": "",
+      "ios_subtitle": "",
+      "body_must_write_yours": "",
+      "ios_title": ""
+    },
+    "event__create_any": {
+      "body": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "event__delete": {
+      "title": "",
+      "ios_subtitle": "",
+      "body": "",
+      "ios_title": ""
+    },
+    "host_request__confirm": {
+      "body": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "badge__remove": {
+      "title": "",
+      "body": "",
+      "ios_title": ""
+    },
+    "discussion__comment": {
+      "title": ""
+    },
+    "event__invite_organizer": {
+      "ios_subtitle": "",
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "event__comment": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "general__new_blog_post": {
+      "title": "",
+      "ios_subtitle": "",
+      "ios_title": ""
+    },
+    "host_request__reminder": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "event__update": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
       "body": ""
     }
   }

@@ -1,4 +1,34 @@
 {
   "accept": "Přijmout",
-  "my_connections": "Moje kontakty"
+  "my_connections": "Moje kontakty",
+  "blocked_list_title": "",
+  "block_user_confirmation_dialog": {
+    "message": "",
+    "title": "",
+    "confirm": ""
+  },
+  "add_friend": "",
+  "decline": "",
+  "block_user": "",
+  "no_blocked_users": "",
+  "no_friends": "",
+  "no_friend_requests": "",
+  "friends": "",
+  "friend_list_title": "",
+  "friend_requests": "",
+  "friend_requests_sent": "",
+  "no_friend_requests_sent": "",
+  "pending": "",
+  "remove_friend": "",
+  "remove_friend_confirmation_dialog": {
+    "title": "",
+    "message": "",
+    "confirm": ""
+  },
+  "unblock_user": "",
+  "unblock_user_confirmation_dialog": {
+    "title": "",
+    "message": "",
+    "confirm": ""
+  }
 }

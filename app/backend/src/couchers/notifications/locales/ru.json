@@ -35,7 +35,8 @@
     },
     "email_address__change": {
       "title": "Запрос на изменение электронной почты",
-      "ios_title": "Запрос на изменение электронной почты"
+      "ios_title": "Запрос на изменение электронной почты",
+      "body": ""
     },
     "account_deletion__recovered": {
       "body": "С возвращением!",
@@ -81,7 +82,211 @@
     },
     "friend_request__accept": {
       "ios_title": "{{friend}}",
-      "body": "Теперь вы друзья с {{friend}}."
+      "body": "Теперь вы друзья с {{friend}}.",
+      "title": "",
+      "ios_subtitle": ""
+    },
+    "reference__reminder": {
+      "body_one": "",
+      "body_few": "",
+      "body_many": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "title": ""
+    },
+    "email_address__verify": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "event__comment": {
+      "ios_title": "",
+      "title": "",
+      "ios_subtitle": ""
+    },
+    "host_request__reject": {
+      "ios_title": "",
+      "title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "host_request__confirm": {
+      "body": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "password__change": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "password_reset__start": {
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "host_request__reminder": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "reference__receive_friend": {
+      "ios_subtitle": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "event__invite_organizer": {
+      "body": "",
+      "ios_title": "",
+      "title": "",
+      "ios_subtitle": ""
+    },
+    "verification__sv_fail": {
+      "title": "",
+      "body_not_a_passport": "",
+      "body_duplicate": "",
+      "ios_title": "",
+      "body_wrong_birthdate_gender": ""
+    },
+    "modnote__create": {
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "onboarding__reminder": {
+      "first": {
+        "title": "",
+        "ios_title": "",
+        "body": ""
+      },
+      "subsequent": {
+        "title": "",
+        "ios_title": "",
+        "body": ""
+      }
+    },
+    "friend_request__create": {
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": "",
+      "title": ""
+    },
+    "host_request__create": {
+      "body_one": "",
+      "body_few": "",
+      "body_many": "",
+      "ios_subtitle": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "event__reminder": {
+      "body": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "title": ""
+    },
+    "reference__receive": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body_must_write_yours": ""
+    },
+    "event__cancel": {
+      "title": "",
+      "ios_subtitle": "",
+      "body": "",
+      "ios_title": ""
+    },
+    "host_request__missed_messages": {
+      "body": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "postal_verification__success": {
+      "body": "",
+      "ios_title": "",
+      "title": ""
+    },
+    "event__create_any": {
+      "ios_title": "",
+      "ios_subtitle": "",
+      "title": "",
+      "body": ""
+    },
+    "event__update": {
+      "ios_subtitle": "",
+      "title": "",
+      "body": "",
+      "ios_title": ""
+    },
+    "event__delete": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "host_request__accept": {
+      "ios_subtitle": "",
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "host_request__cancel": {
+      "body": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "phone_number__change": {
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "phone_number__verify": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "postal_verification__failed": {
+      "body_code_expired": "",
+      "body_too_many_attempts": "",
+      "ios_title": "",
+      "body_generic": "",
+      "title": ""
+    },
+    "thread__reply": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "verification__sv_success": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "event__create_approved": {
+      "ios_subtitle": "",
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "general__new_blog_post": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "password_reset__complete": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "postal_verification__postcard_sent": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
     }
   }
 }
