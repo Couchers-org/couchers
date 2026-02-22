@@ -123,7 +123,8 @@
     "lead_backend_developer": "",
     "description": "",
     "co_founder": "",
-    "developer": ""
+    "developer": "",
+    "tap_press_to_flip": ""
   },
   "what_is_cs": {
     "table": {
@@ -274,7 +275,8 @@
   "thanks": "",
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "community_standing_description": "",
   "save": "",
@@ -311,7 +313,8 @@
       "title": "",
       "description": "",
       "early_stage": "",
-      "just_started": ""
+      "just_started": "",
+      "help_translate": ""
     },
     "show_all_languages_description": "",
     "current_preferred_language": "",
