@@ -161,7 +161,8 @@
     "no_phone_description": "",
     "phone_label": "",
     "add_success": "",
-    "remove_success": ""
+    "remove_success": "",
+    "remove_phone_description": ""
   },
   "location": {
     "field_label": "",
@@ -202,7 +203,8 @@
       "error_message": "",
       "button_text": "",
       "account_deleted": ""
-    }
+    },
+    "missing_token": ""
   },
   "account_settings_page": {
     "timezone_section": {
@@ -277,7 +279,10 @@
       },
       "resubmit_button_text": ""
     },
-    "title": ""
+    "title": "",
+    "terms_of_service_section": {
+      "description": ""
+    }
   },
   "sign_up_completed_prompt": "",
   "sign_up_confirmed_prompt": "",
@@ -370,5 +375,6 @@
   },
   "login_prompt": "",
   "about_us": "",
-  "sign_up_need_verification_title": ""
+  "sign_up_need_verification_title": "",
+  "unhandled_sign_up_state": ""
 }
