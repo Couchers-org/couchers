@@ -45,11 +45,8 @@ from couchers.utils import get_coordinates, last_active_coarsen, now
 
 if TYPE_CHECKING:
     from couchers.models import UserBadge
-<<<<<<< na/backend/public-trips-table
-    from couchers.models.public_trips import PublicTrip
-=======
     from couchers.models.admin import UserAdminTag
->>>>>>> develop
+    from couchers.models.public_trips import PublicTrip
     from couchers.models.rest import InviteCode, ModerationUserList
     from couchers.models.uploads import PhotoGallery
 
