@@ -20,6 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          # Support git rev-list below
           fetch-depth: 0
 
       - name: Compute version
