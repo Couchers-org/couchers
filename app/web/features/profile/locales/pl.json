@@ -311,7 +311,9 @@
     "count_references_many": ""
   },
   "meetup_status": {
-    "open_to_meetup_description": ""
+    "open_to_meetup_description": "",
+    "does_not_want_to_meetup_description": "",
+    "wants_to_meetup_description": ""
   },
   "hosting_preferences_success_message": "",
   "couldnt_read_file": "",
