@@ -68,4 +68,5 @@ ignore-vcs = true
 include = ["src/couchers"]
 
 [tool.hatch.build.targets.wheel]
+ignore-vcs = true
 packages = ["src/couchers"]
