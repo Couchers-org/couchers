@@ -468,7 +468,7 @@ export default function EditProfileForm() {
             </Typography>
           </HelpTextContainer>
 
-          <form onSubmit={handleSubmitButtonClick}>
+          <form id="edit-profile-form" onSubmit={handleSubmitButtonClick}>
             {/* Basic Information Section */}
             <ProfileSection>
               <SectionTitle>
