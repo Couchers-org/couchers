@@ -1,8 +1,8 @@
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-    <mj-text><b>You have {{ days_left|v2esc }} days left to write a reference for {{ other_user.name|v2esc }}</b> from when you {% if surfed %}surfed with{% else %}hosted{% endif %} them.</mj-text>
-    <mj-text>If you didn't end up meeting {{ other_user.name|v2esc }}, please use the reference flow to let us know (and we'll stop reminding you to write a reference).</mj-text>
+    <mj-text>Hi {{ user.name }},</mj-text>
+    <mj-text><b>You have {{ days_left }} days left to write a reference for {{ other_user.name }}</b> from when you {% if surfed %}surfed with{% else %}hosted{% endif %} them.</mj-text>
+    <mj-text>If you didn't end up meeting {{ other_user.name }}, please use the reference flow to let us know (and we'll stop reminding you to write a reference).</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px" text-align="left">
@@ -13,7 +13,7 @@
           <img width="80px" style="border-radius: 80px" src="{{ other_user.avatar_url }}" />
         </td>
         <td>
-          <b>{{ other_user.name|v2esc }}</b>, {{ other_user.age|v2esc }}<br />{{ other_user.city|v2esc }}
+          <b>{{ other_user.name }}</b>, {{ other_user.age }}<br />{{ other_user.city }}
         </td>
       </tr>
     </mj-table>
@@ -21,8 +21,8 @@
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ leave_reference_link|v2url }}">
-      <b>Write a reference for {{ other_user.name|v2esc }}</b>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ leave_reference_link }}">
+      <b>Write a reference for {{ other_user.name }}</b>
     </mj-button>
   </mj-column>
 </mj-section>

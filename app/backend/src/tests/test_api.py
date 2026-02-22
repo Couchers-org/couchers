@@ -3,16 +3,25 @@ from datetime import timedelta
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
-from couchers.models import FriendRelationship, FriendStatus, LanguageFluency, RateLimitAction, User
+from couchers.models import (
+    FriendRelationship,
+    FriendStatus,
+    LanguageFluency,
+    ModerationObjectType,
+    ModerationState,
+    ModerationVisibility,
+    RateLimitAction,
+    User,
+)
 from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict
-from couchers.utils import create_coordinate, to_aware_datetime
+from couchers.utils import create_coordinate, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
 from tests.fixtures.sessions import (
@@ -169,13 +178,13 @@ def test_get_user(db):
         assert res.name == user2.name
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_user_model_to_pb_ghost_user(db, flag):
     user1, token1 = generate_user()
     user2, _ = generate_user()
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user2.id).values(**{flag: True}))
+        session.execute(update(User).where(User.id == user2.id).values(**{flag: func.now()}))
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
 
@@ -185,7 +194,7 @@ def test_user_model_to_pb_ghost_user(db, flag):
     assert user_pb.user_id == user2.id
     assert user_pb.is_ghost
     assert user_pb.username == "ghost"
-    assert user_pb.name == "Ghost"
+    assert user_pb.name == "Deactivated Account"
     assert (
         user_pb.about_me
         == "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
@@ -225,7 +234,7 @@ def test_user_model_to_pb_ghost_user(db, flag):
     assert lite_user_pb.user_id == user2.id
     assert lite_user_pb.is_ghost
     assert lite_user_pb.username == "ghost"
-    assert lite_user_pb.name == "Ghost"
+    assert lite_user_pb.name == "Deactivated Account"
     assert lite_user_pb.city == ""
     assert lite_user_pb.age == 0
     assert lite_user_pb.avatar_url == ""
@@ -251,7 +260,7 @@ def test_user_model_to_pb_ghost_user_blocked(db):
     assert user_pb.user_id == user2.id
     assert user_pb.is_ghost
     assert user_pb.username == "ghost"
-    assert user_pb.name == "Ghost"
+    assert user_pb.name == "Deactivated Account"
     assert (
         user_pb.about_me
         == "This user is no longer on the platform. They may have deleted their account, been blocked, or been banned. We recommend exercising caution with any further interaction with this user off the platform. You can always reach out to support if you need any help."
@@ -291,7 +300,7 @@ def test_user_model_to_pb_ghost_user_blocked(db):
     assert lite_user_pb.user_id == user2.id
     assert lite_user_pb.is_ghost
     assert lite_user_pb.username == "ghost"
-    assert lite_user_pb.name == "Ghost"
+    assert lite_user_pb.name == "Deactivated Account"
     assert lite_user_pb.city == ""
     assert lite_user_pb.age == 0
     assert lite_user_pb.avatar_url == ""
@@ -302,13 +311,13 @@ def test_user_model_to_pb_ghost_user_blocked(db):
     assert not lite_user_pb.has_strong_verification
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_admin_viewing_ghost_users_sees_full_profile(db, flag):
     admin, token_admin = generate_user(is_superuser=True)
     user, _ = generate_user()
 
     with session_scope() as session:
-        session.execute(update(User).where(User.id == user.id).values(**{flag: True}))
+        session.execute(update(User).where(User.id == user.id).values(**{flag: func.now()}))
 
     with admin_session(token_admin) as api:
         user_pb = api.GetUser(admin_pb2.GetUserReq(user=user.username))
@@ -317,7 +326,7 @@ def test_admin_viewing_ghost_users_sees_full_profile(db, flag):
     assert user_pb.username == user.username
     assert user_pb.name == user.name
     assert user_pb.city == user.city
-    assert user_pb.name != "Ghost"
+    assert user_pb.name != "Deactivated Account"
     assert user_pb.username != "ghost"
     assert user_pb.hosting_status in (
         api_pb2.HOSTING_STATUS_UNKNOWN,
@@ -482,7 +491,7 @@ def test_GetLiteUsers(db):
         assert res.responses[8].user.user_id == user4.id
         assert res.responses[8].user.is_ghost
         assert res.responses[8].user.username == "ghost"
-        assert res.responses[8].user.name == "Ghost"
+        assert res.responses[8].user.name == "Deactivated Account"
 
     with api_session(token1) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -758,7 +767,7 @@ def test_language_abilities(db):
         assert len(res.language_abilities) == 0
 
 
-def test_pending_friend_request_count(db):
+def test_pending_friend_request_count(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -771,9 +780,25 @@ def test_pending_friend_request_count(db):
         res = api.Ping(api_pb2.PingReq())
         assert res.pending_friend_request_count == 0
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        # Sender can still see their own sent requests (even while SHADOWED)
         res = api.Ping(api_pb2.PingReq())
         assert res.pending_friend_request_count == 0
 
+    # Get friend request ID from sender's view (author can see SHADOWED)
+    with api_session(token1) as api:
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 1
+        fr_id = res.sent[0].friend_request_id
+
+    # Recipient cannot see SHADOWED friend requests before mod approval
+    with api_session(token2) as api:
+        res = api.Ping(api_pb2.PingReq())
+        assert res.pending_friend_request_count == 0
+
+    # Moderator approves the friend request
+    moderator.approve_friend_request(fr_id)
+
+    # Now recipient can see the approved friend request
     with api_session(token2) as api:
         res = api.Ping(api_pb2.PingReq())
         assert res.pending_friend_request_count == 1
@@ -796,15 +821,46 @@ def test_pending_friend_request_count(db):
         assert res.pending_friend_request_count == 0
 
 
-def test_friend_request_flow(db, push_collector: PushCollector):
+def test_friend_request_flow(db, push_collector: PushCollector, moderator):
     user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user(complete_profile=True)
     user3, token3 = generate_user()
 
     # send a friend request from user1 to user2
+    with api_session(token1) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+
+    with session_scope() as session:
+        friend_request = session.execute(
+            select(FriendRelationship).where(
+                FriendRelationship.from_user_id == user1.id, FriendRelationship.to_user_id == user2.id
+            )
+        ).scalar_one()
+        friend_request_id = friend_request.id
+
+    # Notification is deferred while content is SHADOWED
+    # No push notification sent yet
+    assert push_collector.count_for_user(user2.id) == 0
+
+    with api_session(token1) as api:
+        # Sender can see their own sent requests (even while SHADOWED)
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 1
+        assert len(res.received) == 0
+
+        assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
+        assert res.sent[0].user_id == user2.id
+        assert res.sent[0].friend_request_id == friend_request_id
+
+    # Recipient cannot see SHADOWED friend requests
+    with api_session(token2) as api:
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 0
+        assert len(res.received) == 0
+
+    # Moderator approves the friend request - this triggers the notification
     with mock_notification_email() as mock:
-        with api_session(token1) as api:
-            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        moderator.approve_friend_request(friend_request_id)
 
     push = push_collector.pop_for_user(user2.id, last=True)
     assert push.content.title == f"Friend request from {user1.name}"
@@ -823,23 +879,7 @@ def test_friend_request_flow(db, push_collector: PushCollector):
     assert "http://localhost:3000/connections/friends/" in e.plain
     assert "http://localhost:3000/connections/friends/" in e.html
 
-    with session_scope() as session:
-        friend_request_id = session.execute(
-            select(FriendRelationship.id).where(
-                FriendRelationship.from_user_id == user1.id and FriendRelationship.to_user_id == user2.id
-            )
-        ).scalar_one_or_none()
-
-    with api_session(token1) as api:
-        # check it went through
-        res = api.ListFriendRequests(empty_pb2.Empty())
-        assert len(res.sent) == 1
-        assert len(res.received) == 0
-
-        assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
-        assert res.sent[0].user_id == user2.id
-        assert res.sent[0].friend_request_id == friend_request_id
-
+    # Now recipient can see the approved friend request
     with api_session(token2) as api:
         # check it's there
         res = api.ListFriendRequests(empty_pb2.Empty())
@@ -865,7 +905,8 @@ def test_friend_request_flow(db, push_collector: PushCollector):
         assert len(res.user_ids) == 1
         assert res.user_ids[0] == user1.id
 
-    assert push_collector.count_for_user(user2.id) == 0
+    # user2 got one push (from the friend request creation)
+    # user1 should now have one push (from the friend request acceptance)
     push = push_collector.pop_for_user(user1.id, last=True)
     assert push.content.title == f"{user2.name} accepted your friend request"
     assert push.content.body == f"You are now friends with {user2.name}."
@@ -908,7 +949,7 @@ def test_friend_request_flow(db, push_collector: PushCollector):
         assert len(res.user_ids) == 0
 
 
-def test_RemoveFriend_regression(db, push_collector: PushCollector):
+def test_RemoveFriend_regression(db, push_collector: PushCollector, moderator):
     user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user(complete_profile=True)
     user3, token3 = generate_user()
@@ -916,6 +957,7 @@ def test_RemoveFriend_regression(db, push_collector: PushCollector):
     user5, token5 = generate_user()
     user6, token6 = generate_user()
 
+    # Send friend requests
     with api_session(token4) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
@@ -927,6 +969,14 @@ def test_RemoveFriend_regression(db, push_collector: PushCollector):
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user3.id))
 
+    # Approve all friend requests via moderation
+    with session_scope() as session:
+        friend_requests = session.execute(select(FriendRelationship)).scalars().all()
+        for fr in friend_requests:
+            moderator.approve_friend_request(fr.id)
+
+    # Now recipients can respond
+    with api_session(token1) as api:
         api.RespondFriendRequest(
             api_pb2.RespondFriendRequestReq(
                 friend_request_id=api.ListFriendRequests(empty_pb2.Empty()).received[0].friend_request_id, accept=True
@@ -941,12 +991,12 @@ def test_RemoveFriend_regression(db, push_collector: PushCollector):
 
     with api_session(token1) as api:
         res = api.ListFriends(empty_pb2.Empty())
-        assert sorted(res.user_ids) == [2, 4]
+        assert sorted(res.user_ids) == sorted([user2.id, user4.id])
 
         api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user2.id))
 
         res = api.ListFriends(empty_pb2.Empty())
-        assert sorted(res.user_ids) == [4]
+        assert sorted(res.user_ids) == [user4.id]
 
         api.RemoveFriend(api_pb2.RemoveFriendReq(user_id=user4.id))
 
@@ -1017,7 +1067,7 @@ def test_excessive_friend_requests_are_reported(db):
             _ = api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=friend_user.id))
 
             assert mock_email.call_count == 1
-            email = mock_email.mock_calls[0].kwargs["plain"]
+            email = email_fields(mock_email).plain
             assert email.startswith(
                 f"User {user.username} has sent {rate_limit_definition.warning_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
             )
@@ -1039,14 +1089,14 @@ def test_excessive_friend_requests_are_reported(db):
             )
 
             assert mock_email.call_count == 1
-            email = mock_email.mock_calls[0].kwargs["plain"]
+            email = email_fields(mock_email).plain
             assert email.startswith(
                 f"User {user.username} has sent {rate_limit_definition.hard_limit} friend requests in the past {RATE_LIMIT_HOURS} hours."
             )
             assert "The user has been blocked from sending further friend requests for now." in email
 
 
-def test_ListFriends(db):
+def test_ListFriends(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -1055,9 +1105,20 @@ def test_ListFriends(db):
     with api_session(token1) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user3.id))
+        # sender can see their sent requests (they are the author)
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        assert len(res.sent) == 2
+        user1_to_user2_id = [req for req in res.sent if req.user_id == user2.id][0].friend_request_id
+        user1_to_user3_id = [req for req in res.sent if req.user_id == user3.id][0].friend_request_id
 
     with api_session(token3) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        user3_to_user2_id = res.sent[0].friend_request_id
+
+    # Moderator approves the friend requests so recipients can see them
+    moderator.approve_friend_request(user1_to_user2_id)
+    moderator.approve_friend_request(user3_to_user2_id)
 
     with api_session(token2) as api:
         res = api.ListFriendRequests(empty_pb2.Empty())
@@ -1084,6 +1145,9 @@ def test_ListFriends(db):
         assert len(res.user_ids) == 2
         assert user1.id in res.user_ids
         assert user3.id in res.user_ids
+
+    # Moderator approves user1's friend request to user3 so user3 can see it
+    moderator.approve_friend_request(user1_to_user3_id)
 
     with api_session(token3) as api:
         res = api.ListFriends(empty_pb2.Empty())
@@ -1218,13 +1282,27 @@ def test_CancelFriendRequest(db):
         assert res.sent[0].user_id == user2.id
 
 
-def test_accept_friend_request(db):
+def test_accept_friend_request(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
     with session_scope() as session:
-        friend_request = FriendRelationship(from_user_id=user1.id, to_user_id=user2.id, status=FriendStatus.pending)
+        moderation_state = ModerationState(
+            object_type=ModerationObjectType.friend_request,
+            object_id=0,
+            visibility=ModerationVisibility.visible,
+        )
+        session.add(moderation_state)
+        session.flush()
+        friend_request = FriendRelationship(
+            from_user_id=user1.id,
+            to_user_id=user2.id,
+            status=FriendStatus.pending,
+            moderation_state_id=moderation_state.id,
+        )
         session.add(friend_request)
+        session.flush()
+        moderation_state.object_id = friend_request.id
         session.commit()
         friend_request_id = friend_request.id
 
@@ -1258,7 +1336,7 @@ def test_accept_friend_request(db):
         assert res.user_ids[0] == user2.id
 
 
-def test_reject_friend_request(db):
+def test_reject_friend_request(db, moderator):
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -1268,6 +1346,10 @@ def test_reject_friend_request(db):
         res = api.ListFriendRequests(empty_pb2.Empty())
         assert res.sent[0].state == api_pb2.FriendRequest.FriendRequestStatus.PENDING
         assert res.sent[0].user_id == user2.id
+        fr_id = res.sent[0].friend_request_id
+
+    # Moderator approves the friend request so recipient can see it
+    moderator.approve_friend_request(fr_id)
 
     with api_session(token2) as api:
         res = api.ListFriendRequests(empty_pb2.Empty())
@@ -1473,7 +1555,7 @@ def test_badges(db):
         assert res2.user_ids == [2]
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_ListBadgeUsers_excludes_ghost_users(db, flag):
     """Test that ListBadgeUsers does not return deleted/banned users."""
     from couchers.helpers.badges import user_add_badge
@@ -1498,7 +1580,7 @@ def test_ListBadgeUsers_excludes_ghost_users(db, flag):
     # Make user2 invisible (deleted or banned)
     with session_scope() as session:
         db_user2 = session.execute(select(User).where(User.id == user2.id)).scalar_one()
-        setattr(db_user2, flag, True)
+        setattr(db_user2, flag, now())
 
     # Now user2 should not appear in the badge list
     with api_session(token1) as api:
@@ -1506,7 +1588,7 @@ def test_ListBadgeUsers_excludes_ghost_users(db, flag):
         assert set(res.user_ids) == {user1.id, user3.id}
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_GetLiteUser_ghost_user_by_username(db, flag):
     """Test that GetLiteUser returns a ghost profile for deleted/banned users when querying by username."""
     user1, token1 = generate_user()
@@ -1515,7 +1597,7 @@ def test_GetLiteUser_ghost_user_by_username(db, flag):
     # Make user2 invisible
     with session_scope() as session:
         db_user2 = session.merge(user2)
-        setattr(db_user2, flag, True)
+        setattr(db_user2, flag, now())
         session.commit()
 
     # Refresh the materialized view
@@ -1527,7 +1609,7 @@ def test_GetLiteUser_ghost_user_by_username(db, flag):
 
         assert lite_user.user_id == user2.id
         assert lite_user.username == "ghost"
-        assert lite_user.name == "Ghost"
+        assert lite_user.name == "Deactivated Account"
         assert lite_user.lat == 0
         assert lite_user.lng == 0
         assert lite_user.radius == 0
@@ -1538,7 +1620,7 @@ def test_GetLiteUser_ghost_user_by_username(db, flag):
         assert not lite_user.has_strong_verification
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_GetLiteUser_ghost_user_by_id(db, flag):
     """Test that GetLiteUser returns a ghost profile for deleted/banned users when querying by ID."""
     user1, token1 = generate_user()
@@ -1547,7 +1629,7 @@ def test_GetLiteUser_ghost_user_by_id(db, flag):
     # Make user2 invisible
     with session_scope() as session:
         db_user2 = session.merge(user2)
-        setattr(db_user2, flag, True)
+        setattr(db_user2, flag, now())
         session.commit()
 
     # Refresh the materialized view
@@ -1559,7 +1641,7 @@ def test_GetLiteUser_ghost_user_by_id(db, flag):
 
         assert lite_user.user_id == user2.id
         assert lite_user.username == "ghost"
-        assert lite_user.name == "Ghost"
+        assert lite_user.name == "Deactivated Account"
         assert lite_user.lat == 0
         assert lite_user.lng == 0
         assert lite_user.radius == 0
@@ -1588,7 +1670,7 @@ def test_GetLiteUser_blocked_user(db):
         assert lite_user.user_id == user2.id
         assert lite_user.is_ghost
         assert lite_user.username == "ghost"
-        assert lite_user.name == "Ghost"
+        assert lite_user.name == "Deactivated Account"
 
         # Query by ID
         lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
@@ -1596,7 +1678,7 @@ def test_GetLiteUser_blocked_user(db):
         assert lite_user.user_id == user2.id
         assert lite_user.is_ghost
         assert lite_user.username == "ghost"
-        assert lite_user.name == "Ghost"
+        assert lite_user.name == "Deactivated Account"
 
 
 def test_GetLiteUser_blocking_user(db):
@@ -1617,7 +1699,7 @@ def test_GetLiteUser_blocking_user(db):
         assert lite_user.user_id == user2.id
         assert lite_user.is_ghost
         assert lite_user.username == "ghost"
-        assert lite_user.name == "Ghost"
+        assert lite_user.name == "Deactivated Account"
 
         # Query by ID
         lite_user = api.GetLiteUser(api_pb2.GetLiteUserReq(user=str(user2.id)))
@@ -1625,10 +1707,10 @@ def test_GetLiteUser_blocking_user(db):
         assert lite_user.user_id == user2.id
         assert lite_user.is_ghost
         assert lite_user.username == "ghost"
-        assert lite_user.name == "Ghost"
+        assert lite_user.name == "Deactivated Account"
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_GetLiteUsers_ghost_users(db, flag):
     """Test that GetLiteUsers returns ghost profiles for deleted/banned users."""
     user1, token1 = generate_user()
@@ -1639,9 +1721,9 @@ def test_GetLiteUsers_ghost_users(db, flag):
     # Make user2 and user4 invisible
     with session_scope() as session:
         db_user2 = session.merge(user2)
-        setattr(db_user2, flag, True)
+        setattr(db_user2, flag, now())
         db_user4 = session.merge(user4)
-        setattr(db_user4, flag, True)
+        setattr(db_user4, flag, now())
         session.commit()
 
     # Refresh the materialized view
@@ -1674,7 +1756,7 @@ def test_GetLiteUsers_ghost_users(db, flag):
         assert res.responses[1].user.user_id == user2.id
         assert res.responses[1].user.is_ghost
         assert res.responses[1].user.username == "ghost"
-        assert res.responses[1].user.name == "Ghost"
+        assert res.responses[1].user.name == "Deactivated Account"
 
         # user3 - visible, normal profile
         assert res.responses[2].query == str(user3.id)
@@ -1689,7 +1771,7 @@ def test_GetLiteUsers_ghost_users(db, flag):
         assert res.responses[3].user.user_id == user4.id
         assert res.responses[3].user.is_ghost
         assert res.responses[3].user.username == "ghost"
-        assert res.responses[3].user.name == "Ghost"
+        assert res.responses[3].user.name == "Deactivated Account"
 
 
 def test_GetLiteUsers_blocked_users(db):
@@ -1728,7 +1810,7 @@ def test_GetLiteUsers_blocked_users(db):
         assert res.responses[0].user.user_id == user2.id
         assert res.responses[0].user.is_ghost
         assert res.responses[0].user.username == "ghost"
-        assert res.responses[0].user.name == "Ghost"
+        assert res.responses[0].user.name == "Deactivated Account"
 
         # user3 - visible
         assert res.responses[1].query == str(user3.id)
@@ -1742,7 +1824,7 @@ def test_GetLiteUsers_blocked_users(db):
         assert res.responses[2].user.user_id == user4.id
         assert res.responses[2].user.is_ghost
         assert res.responses[2].user.username == "ghost"
-        assert res.responses[2].user.name == "Ghost"
+        assert res.responses[2].user.name == "Deactivated Account"
 
         # user5 - visible
         assert res.responses[3].query == str(user5.id)
@@ -1751,7 +1833,7 @@ def test_GetLiteUsers_blocked_users(db):
         assert res.responses[3].user.username == user5.username
 
 
-@pytest.mark.parametrize("flag", ["is_deleted", "is_banned"])
+@pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_GetUser_ghost_user_by_id(db, flag):
     """Test that GetUser returns a ghost profile for deleted/banned users when querying by ID."""
     user1, token1 = generate_user()
@@ -1760,7 +1842,7 @@ def test_GetUser_ghost_user_by_id(db, flag):
     # Make user2 invisible
     with session_scope() as session:
         db_user2 = session.merge(user2)
-        setattr(db_user2, flag, True)
+        setattr(db_user2, flag, now())
         session.commit()
 
     with api_session(token1) as api:
@@ -1769,7 +1851,7 @@ def test_GetUser_ghost_user_by_id(db, flag):
 
         assert user_pb.user_id == user2.id
         assert user_pb.username == "ghost"
-        assert user_pb.name == "Ghost"
+        assert user_pb.name == "Deactivated Account"
         assert user_pb.city == ""
         assert user_pb.hosting_status == 0
         assert user_pb.meetup_status == 0
@@ -1789,14 +1871,14 @@ def test_GetUser_blocked_user(db):
 
         assert user_pb.user_id == user2.id
         assert user_pb.username == "ghost"
-        assert user_pb.name == "Ghost"
+        assert user_pb.name == "Deactivated Account"
 
         # Query by ID
         user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
 
         assert user_pb.user_id == user2.id
         assert user_pb.username == "ghost"
-        assert user_pb.name == "Ghost"
+        assert user_pb.name == "Deactivated Account"
 
 
 def test_GetUser_blocking_user(db):
@@ -1813,11 +1895,11 @@ def test_GetUser_blocking_user(db):
 
         assert user_pb.user_id == user2.id
         assert user_pb.username == "ghost"
-        assert user_pb.name == "Ghost"
+        assert user_pb.name == "Deactivated Account"
 
         # Query by ID
         user_pb = api.GetUser(api_pb2.GetUserReq(user=str(user2.id)))
 
         assert user_pb.user_id == user2.id
         assert user_pb.username == "ghost"
-        assert user_pb.name == "Ghost"
+        assert user_pb.name == "Deactivated Account"

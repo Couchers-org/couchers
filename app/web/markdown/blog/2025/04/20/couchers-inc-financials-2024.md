@@ -1,9 +1,11 @@
 ---
+is_blog_post: true
 title: Couchers, Inc. financials for 2024
 slug: couchers-inc-financials-2024
-description: Summary of the financials of Couchers, Inc. for 2024
+description: Summary of the financials of Couchers, Inc. for 2024.
 date: 2025/04/20
 author: Aapeli
+author_username: aapeli
 ---
 
 This is a very short summary of the 2024 financials of Couchers, Inc.: the 501(c)3 non-profit that supports Couchers.org.
@@ -48,7 +50,3 @@ We are currently working on Couchers.org branded merchandise (hoodies, t-shirts,
 **The Board has set a fundraising goal of $5000 for 2025.** In addition to fully covering the current basic expenses, we hope that this gives us some financial resilience going forward, as well as giving us flexibility in deploying cash for initiatives like supporting local communities and volunteering.
 
 We hope this quick analysis helps you understand our financial situation, and in particular, that it may encourage you to donate to support the running costs of Couchers. This analysis was based on exports from our bank account and from Stripe which processes our donations, so some minor discrepancies may exist between rigorous accounting.
-
-_Written by [Aapeli](/user/aapeli), reviewed by [the Board](/foundation). Published on 2025/04/20_
-
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

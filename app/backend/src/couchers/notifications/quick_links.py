@@ -22,6 +22,7 @@ from couchers.models import (
     MeetupStatus,
     Notification,
     NotificationDeliveryType,
+    NotificationTopicAction,
     User,
 )
 from couchers.notifications import settings
@@ -84,6 +85,17 @@ def generate_quick_decline_link(host_request: requests_pb2.HostRequest) -> str:
             ),
         )
     )
+
+
+def can_unsubscribe_topic_key(topic: str | NotificationTopicAction) -> bool:
+    """
+    Determines whether a user can unsubscribe from all notification actions
+    concerning a given topic.
+    """
+    if isinstance(topic, NotificationTopicAction):
+        topic = topic.topic
+    # We currently only support unsubscribing from chat topics
+    return topic == NotificationTopicAction.chat__message.topic
 
 
 def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContext, session: Session) -> str:

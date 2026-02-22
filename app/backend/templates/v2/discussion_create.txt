@@ -2,7 +2,7 @@ Hi {{ user.name }},
 
 {{ author.name }} created a new discussion called {{ discussion.title }} in {{ discussion.owner_title }}:
 
-{{ discussion.content|v2quote }}
+{{ discussion.content|quotelines }}
 
 
 You can view the discussion here: <{{ view_link }}>

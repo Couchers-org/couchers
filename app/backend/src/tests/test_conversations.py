@@ -20,7 +20,7 @@ from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, no
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
-from tests.fixtures.misc import mock_notification_email
+from tests.fixtures.misc import email_fields, mock_notification_email
 from tests.fixtures.sessions import api_session, conversations_session, notifications_session
 
 
@@ -757,7 +757,7 @@ def test_excessive_chat_initiations_are_reported(db):
             _ = c.CreateGroupChat(conversations_pb2.CreateGroupChatReq(recipient_user_ids=[recipient_user.id]))
 
             assert mock_email.call_count == 1
-            email = mock_email.mock_calls[0].kwargs["plain"]
+            email = email_fields(mock_email).plain
             assert email.startswith(
                 f"User {user.username} has sent {rate_limit_definition.warning_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
             )
@@ -779,7 +779,7 @@ def test_excessive_chat_initiations_are_reported(db):
             )
 
             assert mock_email.call_count == 1
-            email = mock_email.mock_calls[0].kwargs["plain"]
+            email = email_fields(mock_email).plain
             assert email.startswith(
                 f"User {user.username} has sent {rate_limit_definition.hard_limit} chat initiations in the past {RATE_LIMIT_HOURS} hours."
             )

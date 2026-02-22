@@ -1,1 +1,28 @@
-{}
+{
+  "push": {
+    "account_deletion__start": {
+      "title": "Eliminación de cuenta solicitada",
+      "ios_title": "Eliminación de cuenta solicitada",
+      "body": "Utiliza el enlace que te hemos enviado para confirmar."
+    },
+    "account_deletion__complete": {
+      "title": "Cuenta eliminada",
+      "ios_title": "Cuenta Eliminada"
+    },
+    "adhoc__push_enabled": {
+      "ios_title": "Notificaciones push habilitadas",
+      "body": "Ahora recibirás notificaciones en este dispositivo.",
+      "title": "Notificaciones push habilitadas"
+    },
+    "account_deletion__recovered": {
+      "title": "Cuenta restaurada",
+      "ios_title": "Cuenta restaurada",
+      "body": "¡Bienvenido de nuevo!"
+    },
+    "activeness__probe": {
+      "title": "¿Sigues dispuesto a hospedar?",
+      "ios_title": "¿Sigues dispuesto a hospedar?",
+      "body": "Inicia sesión para confirmar tu estado como anfitrión."
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import {
   AppBar,
+  Badge,
   Box,
   Drawer,
   IconButton,
@@ -23,12 +24,11 @@ import { GLOBAL } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,
   communitiesRoute,
-  dashboardRoute,
   donationsRoute,
   eventsRoute,
   helpCenterURL,
@@ -46,11 +46,14 @@ import {
   volunteerRoute,
 } from "routes";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
-import { useIsNativeEmbed } from "../../platform/nativeLink";
+import BetaFlag from "../BetaFlag";
+import BottomNavigation from "./BottomNavigation";
 import DarkModeToggle from "./DarkModeToggle";
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
 import NavButton from "./NavButton";
+import ReportButton from "./ReportButton";
 import ReportDialog from "./ReportDialog";
 
 interface MenuItemProps {
@@ -154,17 +157,13 @@ const loggedOutDrawerMenu = (
 // shown on desktop and big screens in the top right corner when logged in
 const loggedInMenuDropDown = (
   t: TFunction<"global", undefined>,
+  isNativeEmbed: boolean,
 ): Array<LoggedInMenuItem> => [
   {
     type: "link",
     name: t("nav.profile"),
     route: routeToProfile(),
     hasBottomDivider: true,
-  },
-  {
-    type: "link",
-    name: t("nav.dashboard"),
-    route: dashboardRoute,
   },
   {
     type: "link",
@@ -183,11 +182,15 @@ const loggedInMenuDropDown = (
     route: helpCenterURL,
     externalLink: true,
   },
-  {
-    type: "link",
-    name: t("nav.donate"),
-    route: donationsRoute,
-  },
+  ...(isNativeEmbed
+    ? []
+    : [
+        {
+          type: "link" as const,
+          name: t("nav.donate"),
+          route: donationsRoute,
+        },
+      ]),
   {
     type: "link",
     name: t("nav.volunteer"),
@@ -259,13 +262,13 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   },
 }));
 
-const StyledNav = styled("div")(({ theme }) => ({
+const StyledNav = styled("div")(() => ({
   alignItems: "center",
   display: "flex",
   flex: 0,
 }));
 
-const StyledMenuContainer = styled("div")(({ theme }) => ({
+const StyledMenuContainer = styled("div")(() => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
@@ -276,7 +279,6 @@ export default function Navigation() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isLoginPage = router.pathname === loginRoute;
 
-  const [isMounted, setIsMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -284,8 +286,6 @@ export default function Navigation() {
   const { authState } = useAuthContext();
 
   const isNativeEmbed = useIsNativeEmbed();
-
-  useEffect(() => setIsMounted(true), []);
 
   const { t } = useTranslation(GLOBAL);
 
@@ -300,66 +300,53 @@ export default function Navigation() {
   const drawerItems = (
     <div>
       <List>
-        {(authState.authenticated && isMounted
-          ? loggedInDrawerMenu
-          : loggedOutDrawerMenu)(t, pingData).map(
-          ({ name, route, notificationCount, externalLink }) => (
-            <ListItem
-              component="button"
-              key={name}
-              sx={{
-                background: "transparent",
-                border: "none",
+        {(authState.authenticated ? loggedInDrawerMenu : loggedOutDrawerMenu)(
+          t,
+          pingData,
+        ).map(({ name, route, notificationCount, externalLink }) => (
+          <ListItem
+            component="button"
+            key={name}
+            sx={{
+              background: "transparent",
+              border: "none",
 
-                "&:hover": {
-                  backgroundColor: (theme) => theme.palette.grey[200],
-                },
-              }}
-            >
-              {externalLink ? (
-                <ExternalNavButton
-                  route={route}
-                  label={name}
-                  labelVariant="h2"
-                />
-              ) : (
-                <NavButton
-                  route={route}
-                  label={name}
-                  labelVariant="h2"
-                  notificationCount={notificationCount}
-                />
-              )}
-            </ListItem>
-          ),
-        )}
-        <ListItem
-          sx={{
-            display: "flex",
-            flex: "1",
-            maxWidth: "10.5rem",
-            padding: theme.spacing(1, 4),
-          }}
-        >
-          <LanguagePickerSelect onSelect={handleDrawerClose} />
-        </ListItem>
+              "&:hover": {
+                backgroundColor: (theme) => theme.palette.grey[200],
+              },
+            }}
+          >
+            {externalLink ? (
+              <ExternalNavButton route={route} label={name} labelVariant="h2" />
+            ) : (
+              <NavButton
+                route={route}
+                label={name}
+                labelVariant="h2"
+                notificationCount={notificationCount}
+              />
+            )}
+          </ListItem>
+        ))}
       </List>
     </div>
   );
 
-  const loggedInMenuItems = useMemo(() => loggedInMenuDropDown(t), [t]);
+  const loggedInMenuItems = useMemo(
+    () => loggedInMenuDropDown(t, isNativeEmbed),
+    [t, isNativeEmbed],
+  );
 
   return (
     <StyledAppBar position="sticky" color="inherit">
       <StyledToolbar>
-        <StyledNav>
-          {isMobile && (
+        <StyledNav sx={{ marginLeft: 2 }}>
+          {isMobile && !authState.authenticated && (
             <>
               <IconButton
                 aria-label="open drawer"
                 onClick={handleDrawerOpen}
                 edge="start"
-                sx={{ marginLeft: theme.spacing(1) }}
               >
                 <MenuIcon
                   sx={{
@@ -392,36 +379,61 @@ export default function Navigation() {
               </StyledDrawer>
             </>
           )}
-          <CouchersLogo isLoggedIn={authState.authenticated} />
+          <Badge
+            overlap="circular"
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+            badgeContent={isNativeEmbed && <BetaFlag />}
+            sx={{
+              "& .MuiBadge-badge": {
+                padding: 0,
+                background: "transparent",
+                minWidth: "unset",
+                height: "auto",
+                top: 6,
+                right: -8,
+              },
+            }}
+          >
+            <Box sx={{ display: "inline-flex", alignItems: "center" }}>
+              <CouchersLogo isLoggedIn={authState.authenticated} />
+            </Box>
+          </Badge>
+
           {!isMobile && (
             <StyledFlexbox>
-              {(authState.authenticated && isMounted
-                ? loggedInNavMenu
-                : loggedOutNavMenu)(t, pingData).map(
-                ({ name, route, notificationCount, externalLink }) =>
-                  externalLink ? (
-                    <ExternalNavButton
-                      route={route}
-                      label={name}
-                      labelVariant="h3"
-                      key={`${name}-nav-button`}
-                    />
-                  ) : (
-                    <NavButton
-                      route={route}
-                      label={name}
-                      key={`${name}-nav-button`}
-                      notificationCount={notificationCount}
-                    />
-                  ),
+              {(authState.authenticated ? loggedInNavMenu : loggedOutNavMenu)(
+                t,
+                pingData,
+              ).map(({ name, route, notificationCount, externalLink }) =>
+                externalLink ? (
+                  <ExternalNavButton
+                    route={route}
+                    label={name}
+                    labelVariant="h3"
+                    key={`${name}-nav-button`}
+                  />
+                ) : (
+                  <NavButton
+                    route={route}
+                    label={name}
+                    key={`${name}-nav-button`}
+                    notificationCount={notificationCount}
+                  />
+                ),
               )}
             </StyledFlexbox>
           )}
         </StyledNav>
         <StyledMenuContainer>
-          {authState.authenticated && isMounted ? (
+          <Box sx={{ display: "flex", gap: 0.5, marginRight: 0.5 }}>
+            {isNativeEmbed && <ReportButton />}
+            <DarkModeToggle />
+          </Box>
+          {authState.authenticated ? (
             <>
-              <DarkModeToggle />
               <LoggedInMenu
                 menuOpen={menuOpen}
                 notificationCount={pingData?.unseenNotificationCount}
@@ -439,7 +451,6 @@ export default function Navigation() {
               }}
             >
               {!isMobile && <LanguagePickerSelect />}
-              <DarkModeToggle />
               {!isLoginPage && (
                 <Button
                   variant="outlined"
@@ -470,8 +481,12 @@ export default function Navigation() {
         </StyledMenuContainer>
       </StyledToolbar>
       <GlobalMessage />
-      {authState.authenticated && <DonationBanner />}
+      {!isNativeEmbed && authState.authenticated && <DonationBanner />}
       {!isNativeEmbed && authState.authenticated && <PushNotificationBanner />}
+      {/* Bottom navigation for mobile browsers only (not native app) when logged in */}
+      {isMobile && !isNativeEmbed && authState.authenticated && (
+        <BottomNavigation />
+      )}
     </StyledAppBar>
   );
 }

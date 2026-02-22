@@ -103,6 +103,29 @@ export default function EditProfilePage({
       <Root>
         <DetailsCard>
           <TabContext value={tab}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                mb: 1,
+              }}
+            >
+              <Button
+                type="submit"
+                form={
+                  tab === "about" ? "edit-profile-form" : "edit-hosting-form"
+                }
+                variant="contained"
+                color="primary"
+                sx={{
+                  borderRadius: 22,
+                  fontWeight: 600,
+                  px: 4,
+                }}
+              >
+                {t("global:save_changes")}
+              </Button>
+            </Box>
             <TabBar
               setValue={(newTab) => router.push(routeToEditProfile(newTab))}
               labels={{

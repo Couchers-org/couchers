@@ -103,8 +103,8 @@ export default function MarkdownInput({
 
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
-  const initialDefaultValue = useRef(defaultValue);
   const fieldRef = useRef<ToastUIEditor | null>(null); // Separate ref for the editor
+  const currentContent = useRef(defaultValue ?? ""); // Store current content to preserve across theme changes
 
   const rootEl = useRef<HTMLDivElement>(null);
 
@@ -145,13 +145,14 @@ export default function MarkdownInput({
       el: rootEl.current!,
       events: {
         blur: () => fieldOnBlur.current(),
-        change: () =>
-          fieldOnChange.current(
-            (fieldRef.current as ToastUIEditor).getMarkdown(),
-          ),
+        change: () => {
+          const markdown = (fieldRef.current as ToastUIEditor).getMarkdown();
+          currentContent.current = markdown; // Save current content
+          fieldOnChange.current(markdown);
+        },
       },
       initialEditType: "wysiwyg",
-      initialValue: initialDefaultValue.current ?? "",
+      initialValue: currentContent.current, // Use preserved content instead of initial default
       placeholder,
       usageStatistics: false,
       toolbarItems,
@@ -176,6 +177,12 @@ export default function MarkdownInput({
     }
 
     return () => {
+      // Save current content before destroying the editor
+      if (fieldRef.current) {
+        currentContent.current = (
+          fieldRef.current as ToastUIEditor
+        ).getMarkdown();
+      }
       if (resetInputRef) {
         resetInputRef.current = null;
       }

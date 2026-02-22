@@ -128,10 +128,15 @@
     "invite_user_text": "{{user}} invitó a {{target_user}}",
     "user_left_chat_text": "{{user}} abandonó la conversación",
     "admin_assignment_text": "{{user}} puso a {{target_user}} como administrador",
-    "host_request_status_changed_text": "{{user}} cambió la solicitud a {{status}}",
     "unknown_message_text": "Mensaje de control desconocido",
     "created_chat_text": "{{user}} creó la conversación",
-    "admin_removal_text": "{{user}} quitó a {{target_user}} como administrador"
+    "admin_removal_text": "{{user}} quitó a {{target_user}} como administrador",
+    "host_request_status_changed": {
+      "accepted": "{{user}} ha aceptado la solicitud",
+      "cancelled": "{{user}} ha cancelado la solicitud",
+      "confirmed": "{{user}} ha confirmado la solicitud",
+      "rejected": "{{user}} ha rechazado la solicitud"
+    }
   },
   "host_pending_request_help_text": "<0>Cosas a considerar</0> antes de responder.",
   "surfer_declined_request_help_text": "<0>Lee nuestra guía</0> sobre cómo escribir una solicitud que será aceptada.",
@@ -153,5 +158,8 @@
   },
   "close_request_dialog_host": "Por favor, asegúrate de que has terminado la conversación antes de declinar su solicitud.",
   "past_request_help_text": "Esta solicitud está pasada, todavía puedes enviar mensajes pero no puedes modificarla.",
-  "request_closed_message": "Esta solicitud de alojamiento está cerrada. Para continuar hablando, envía a la otra persona un mensaje normal."
+  "request_closed_message": "Esta solicitud de alojamiento está cerrada. Para continuar hablando, envía a la otra persona un mensaje normal.",
+  "mark_all_read_button_text_chats": "Marcar todas las conversaciones como leídas",
+  "mark_all_read_button_text_hosting": "Marcar todas las solicitudes de alojamiento como leídas",
+  "mark_all_read_button_text_surfing": "Marcar todas las solicitudes de hospedaje como leídas"
 }

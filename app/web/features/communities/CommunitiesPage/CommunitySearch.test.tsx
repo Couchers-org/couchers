@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Sentry from "platform/sentry";
-import { CommunitySummary } from "proto/communities_pb";
+import { CommunitySummary, NodeType } from "proto/communities_pb";
 import { routeToCommunity } from "routes";
 import * as communitiesService from "service/communities";
 import wrapper from "test/hookWrapper";
@@ -52,6 +52,7 @@ const mockCommunities: CommunitySummary.AsObject[] = [
     member: false,
     memberCount: 10,
     created: { seconds: 1577800000, nanos: 0 },
+    nodeType: NodeType.NODE_TYPE_LOCALITY,
   },
   {
     communityId: 3,
@@ -70,6 +71,7 @@ const mockCommunities: CommunitySummary.AsObject[] = [
     member: false,
     memberCount: 8,
     created: { seconds: 1577900000, nanos: 0 },
+    nodeType: NodeType.NODE_TYPE_LOCALITY,
   },
   {
     communityId: 4,
@@ -88,6 +90,7 @@ const mockCommunities: CommunitySummary.AsObject[] = [
     member: false,
     memberCount: 15,
     created: { seconds: 1578000000, nanos: 0 },
+    nodeType: NodeType.NODE_TYPE_LOCALITY,
   },
 ];
 

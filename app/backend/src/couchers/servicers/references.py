@@ -15,6 +15,7 @@ from sqlalchemy.sql import and_, func, literal, or_, union_all
 
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import are_friends
+from couchers.event_log import log_event
 from couchers.materialized_views import LiteUser
 from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.models.notifications import NotificationTopicAction
@@ -183,7 +184,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             statement = (
                 statement.join(to_users, Reference.to_user_id == to_users.id)
                 .where(
-                    ~to_users.is_banned
+                    to_users.banned_at.is_(None)
                 )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
                 .where(Reference.from_user_id == request.from_user_id)
             )
@@ -192,7 +193,7 @@ class References(references_pb2_grpc.ReferencesServicer):
             statement = (
                 statement.join(from_users, Reference.from_user_id == from_users.id)
                 .where(
-                    ~from_users.is_banned
+                    from_users.banned_at.is_(None)
                 )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
                 .where(Reference.to_user_id == request.to_user_id)
             )
@@ -295,6 +296,17 @@ class References(references_pb2_grpc.ReferencesServicer):
         # possibly send out an alert to the mod team if the reference was bad
         maybe_send_reference_report_email(session, reference)
 
+        log_event(
+            context,
+            session,
+            "reference.friend_written",
+            {
+                "to_user_id": request.to_user_id,
+                "rating": request.rating,
+                "was_appropriate": request.was_appropriate,
+            },
+        )
+
         return reference_to_pb(reference, context)
 
     def WriteHostRequestReference(
@@ -359,6 +371,19 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         # possibly send out an alert to the mod team if the reference was bad
         maybe_send_reference_report_email(session, reference)
+
+        log_event(
+            context,
+            session,
+            "reference.host_request_written",
+            {
+                "to_user_id": to_user_id,
+                "host_request_id": host_request.conversation_id,
+                "reference_type": reference_type.name,
+                "rating": request.rating,
+                "was_appropriate": request.was_appropriate,
+            },
+        )
 
         return reference_to_pb(reference, context)
 

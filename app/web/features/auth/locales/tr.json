@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "Emailini değiştir",
-    "current_email_message": "Email adresiniz şuanda <1>{{email}}</1>.",
+    "current_email_message": "Email adresiniz şu anda <1>{{email}}</1>.",
     "success_message": "Email değişiklik isteğiniz alındı. Değişimi tamamlamak için yeni mailinizi kontrol edin.",
     "current_password": "Şimdiki şifre",
     "new_email": "Yeni email"

@@ -8,7 +8,7 @@ TOS_VERSION = 2
 # community guidelines version
 GUIDELINES_VERSION = 1
 
-EMAIL_REGEX = r"^[0-9a-z][0-9a-z\-\_\+\.]*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
+EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0-9a-z\-]+\.[a-z]{2,}$"
 
 BANNED_USERNAME_PHRASES = [
     "admin",
@@ -63,6 +63,7 @@ UNDELETE_DAYS = 7
 # expiry time for preferred language cookie
 PREFERRED_LANGUAGE_COOKIE_EXPIRY = timedelta(days=3650)
 
+
 # activeness probe settings
 # wait about 11 months before sending one out
 ACTIVENESS_PROBE_INACTIVITY_PERIOD = timedelta(days=333)
@@ -82,11 +83,6 @@ ANTIBOT_FREQ = timedelta(hours=48)
 EVENT_REMINDER_TIMEDELTA = timedelta(hours=24)
 
 COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD = 0.35
-
-# Maximum node ID considered a "global" community (excluded from some notifications and event filters)
-# Node IDs <= this value are treated as too large for email notifications, etc.
-# Currently this is just the Global Community (node_id=1)
-GLOBAL_COMMUNITY_MAX_NODE_ID = 1
 
 UNKNOWN_ERROR_MESSAGE = "An unknown backend error occurred. Please consider filing a bug!"
 
@@ -113,3 +109,5 @@ DONATION_OFFSET_USD = 2000
 # Photo gallery limits
 GALLERY_MAX_PHOTOS_NOT_VERIFIED = 1
 GALLERY_MAX_PHOTOS_VERIFIED = 4
+
+COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150

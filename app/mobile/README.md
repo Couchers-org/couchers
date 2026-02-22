@@ -63,7 +63,7 @@ Or use `npx eas-cli` without installing globally.
 
 **When do you need a new build?** Only when you:
 - Add/remove native dependencies (`npm install` of native modules)
-- Change `app.json` configuration
+- Change `app.config.js` configuration
 - Update Expo SDK version
 
 ```bash
@@ -116,26 +116,26 @@ eas build --platform android
 
 ### iOS (TestFlight)
 
-To submit your iOS app to TestFlight for QA testing:
+To build and submit your iOS app to TestFlight:
 
 ```bash
-# Verify project setup (optional but recommended)
-npx expo-doctor
+# Staging
+npm run release:ios:staging
 
-# Build and submit to TestFlight
-npx testflight # for production environment version
-   # OR #
-eas build --platform ios --profile staging --auto-submit # for staging environment version (good if people need to make dummy data)
-
+# Production
+npm run release:ios:production
 ```
 
-The build commands will:
-1. Build your iOS app using EAS
-2. Handle Apple credentials and code signing automatically
-3. Submit the build to TestFlight
+Once submitted, the build will be available in TestFlight after automated review (usually within a few hours).
 
-Once submitted, the build will be available in TestFlight after automated review (usually within a few hours). You can then add testers in App Store Connect:
-- Go to App Store Connect → TestFlight → Internal Testing
+**Adding Release Notes:** iOS requires release notes ("What to Test") to be added manually in App Store Connect:
+1. Go to [App Store Connect](https://appstoreconnect.apple.com) → TestFlight → Builds
+2. Select your newly submitted build
+3. Add "What to Test" notes describing the changes
+4. Submit for testing
+
+You can then add testers:
+- Go to TestFlight → Internal Testing
 - Add tester email addresses (no Apple Developer account needed for testers)
 - Testers receive an email, download the TestFlight app, and install your app
 
@@ -143,25 +143,23 @@ Once submitted, the build will be available in TestFlight after automated review
 
 ### Android (Google Play Internal Testing)
 
-To submit your Android app to Google Play Internal Testing for QA testing:
+To build and submit your Android app to Google Play Internal Testing:
 
 ```bash
-# Verify project setup (optional but recommended)
-npx expo-doctor
+# Staging
+npm run release:android:staging
 
-# Build and submit to Google Play Internal Testing
-eas build --platform android --auto-submit # for production environment version
-   # OR #
-eas build --platform android --profile staging --auto-submit # for staging environment version (good if people need to make dummy data)
+# Production
+npm run release:android:production
 ```
 
-The `--auto-submit` flag will:
-1. Build your Android app using EAS
-2. Handle Google Play credentials automatically
-3. Submit the build to Internal Testing track
+**Adding Release Notes:** Edit the release notes in Google Play Console after submission:
+1. Go to [Google Play Console](https://play.google.com/console) → Your App → Testing → Internal testing
+2. Select the new release
+3. Edit "Release notes" to describe what changed
+4. Save changes
 
-Once submitted, the build will be immediately available for internal testing (no review required). You can then add testers in Google Play Console:
-- Go to Google Play Console → Your App → Testing → Internal testing
+Once submitted, the build will be immediately available for internal testing (no review required). You can then add testers in the same section:
 - Add tester email addresses (up to 100 testers)
 - Testers receive a link to install from the Play Store
 

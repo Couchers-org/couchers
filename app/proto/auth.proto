@@ -114,6 +114,7 @@ message SignupFlowReq {
   SignupBasic basic = 2;
   SignupAccount account = 3;
   ContributorForm feedback = 4;
+  SignupMotivations motivations = 8;
 
   // email token is reused for both verifying a signup's email, but also for continuing a signup
   string email_token = 5 [ (is_token) = true ];
@@ -132,6 +133,7 @@ message SignupFlowRes {
   bool need_basic = 4;
   bool need_account = 5;
   bool need_feedback = 6;
+  bool need_motivations = 9;
   // user needs to verify their email
   bool need_verify_email = 7;
   bool need_accept_community_guidelines = 8;
@@ -164,6 +166,14 @@ message SignupAccount {
   bool accept_tos = 10;
 
   bool opt_out_of_newsletter = 11;
+}
+
+// Information about how the user heard about Couchers and what they want to do
+message SignupMotivations {
+  // How they heard about Couchers (free text, e.g., "friend", "social_media", "former_cs_member", "other")
+  string heard_about_couchers = 1;
+  // What they're looking to do - can select multiple (e.g., "surfing", "hosting", "events", "community_organizing", "something_else")
+  repeated string motivations = 2;
 }
 
 message UsernameValidReq {

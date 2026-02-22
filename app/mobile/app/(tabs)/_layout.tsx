@@ -1,18 +1,35 @@
 import { Tabs } from "expo-router";
+import { useEffect, useReducer } from "react";
 import { useTranslation } from "react-i18next";
+import { useColorScheme } from "react-native";
 
 import { TabBarIcon } from "@/components/TabBarIcon";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { theme } from "@/theme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  // Expo Router caches Tabs.Screen options and doesn't re-read them on re-render.
+  // We must manually listen for language changes and force a re-render to update tab labels.
+  const [, forceUpdate] = useReducer((x: number) => x + 1, 0);
+  useEffect(() => {
+    i18n.on("languageChanged", forceUpdate);
+    return () => {
+      i18n.off("languageChanged", forceUpdate);
+    };
+  }, [i18n]);
 
   const activeTintColor =
     colorScheme === "dark"
       ? theme.palette.common.white
       : theme.palette.primary.main;
+
+  // Use the same background color as the top bar in WebEmbed
+  const backgroundColor =
+    colorScheme === "dark"
+      ? theme.palette.common.black
+      : theme.palette.common.white;
 
   return (
     <Tabs
@@ -20,6 +37,18 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: activeTintColor,
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor,
+          paddingHorizontal: 0,
+        },
+        tabBarItemStyle: {
+          paddingHorizontal: 0,
+          marginHorizontal: -4,
+        },
+        tabBarLabelStyle: {
+          fontSize: 10,
+          paddingBottom: 2,
+        },
       }}
     >
       <Tabs.Screen

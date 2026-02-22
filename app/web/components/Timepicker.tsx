@@ -76,7 +76,7 @@ const Timepicker = ({
                 className,
                 "aria-label": t("global:change_time"),
               },
-              InputLabelProps: { shrink: true },
+              slotProps: { inputLabel: { shrink: true } },
               sx: {
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: "var(--mui-palette-primary-main)",

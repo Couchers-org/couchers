@@ -42,7 +42,7 @@ const StyledHeader = styled("div")(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.divider}`,
   alignItems: "center",
   display: "flex",
-  flexGrow: 0,
+  flexShrink: 0,
   "& > * + *": {
     marginInlineStart: theme.spacing(2),
   },
@@ -67,23 +67,20 @@ const StyledPageTitle = styled(PageTitle)({
 });
 
 const StyledPageWrapper = styled("div")(({ theme }) => ({
-  alignItems: "stretch",
   display: "flex",
   flexDirection: "column",
-  overflow: "hidden",
-  height: `calc(var(--vh, 1vh) * 100 - ${theme.shape.navPaddingXs})`,
+  // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
+  height: `calc(100dvh - ${theme.shape.navPaddingXs})`,
 
   [theme.breakpoints.up("sm")]: {
-    height: `calc(var(--vh, 1vh) * 100 - ${theme.shape.navPaddingSmUp})`,
+    height: `calc(100dvh - ${theme.shape.navPaddingSmUp})`,
   },
 }));
 
+// Footer is fixed at bottom - never scrolls away
 const StyledFooter = styled("div")(({ theme }) => ({
   background: "var(--mui-palette-background-default)",
-  position: "sticky",
-  bottom: 0,
-  marginTop: "auto",
-  flexGrow: 0,
+  flexShrink: 0,
   paddingBottom: theme.spacing(2),
   paddingLeft: theme.spacing(2),
   paddingRight: theme.spacing(2),
@@ -132,8 +129,8 @@ export default function HostRequestView({
       lastPage.noMore ? undefined : lastPage.lastMessageId,
   });
 
-  const { data: surfer } = useLiteUser(hostRequest?.surferUserId);
-  const { data: host } = useLiteUser(hostRequest?.hostUserId);
+  const { data: surfer } = useLiteUser(hostRequest?.initiatorUserId);
+  const { data: host } = useLiteUser(hostRequest?.recipientUserId);
   const currentUserId = useAuthContext().authState.userId;
   const isHost = host?.userId === currentUserId;
   const otherUser = isHost ? surfer : host;

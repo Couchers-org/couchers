@@ -79,7 +79,7 @@ export default function NewHostRequest({
     reset,
     formState: { errors },
   } = useForm<CreateHostRequestWrapper>({
-    defaultValues: { hostUserId: user.userId },
+    defaultValues: { recipientUserId: user.userId },
   });
 
   const textField = watch("text") ?? "";
@@ -173,10 +173,9 @@ export default function NewHostRequest({
               required: t("profile:request_form.request_description_empty"),
               minLength: {
                 value: MIN_LENGTH,
-                message: t(
-                  "profile:request_form.request_char_length_too_short",
-                  { charactersRemaining: MIN_LENGTH - textField.length },
-                ),
+                message: t("profile:request_form.request_chars_remaining", {
+                  count: MIN_LENGTH - textField.length,
+                }),
               },
             })}
             label={t("profile:request_form.request")}
@@ -189,8 +188,8 @@ export default function NewHostRequest({
               errors.text?.message
                 ? errors.text.message
                 : MIN_LENGTH - textField.length > 0
-                  ? t("profile:request_form.request_char_length_too_short", {
-                      charactersRemaining: MIN_LENGTH - textField.length,
+                  ? t("profile:request_form.request_chars_remaining", {
+                      count: MIN_LENGTH - textField.length,
                     })
                   : ""
             }

@@ -2,7 +2,11 @@
   "errors": {
     "failed_to_load": "Failed to load",
     "check_connection": "Check your internet connection and try again.",
-    "try_again": "Try Again"
+    "try_again": "Try Again",
+    "camera_permission_denied": "Camera permission is required to take photos.",
+    "camera_permission_required": "Camera Permission Required",
+    "camera_permission_explanation": "This app needs camera access to take photos. Please grant permission when prompted.",
+    "camera_permission_denied_permanently": "Camera access was denied. To take photos, you'll need to enable camera permission in your device Settings."
   },
   "not_found": {
     "title": "Oops!",
@@ -15,5 +19,13 @@
     "communities": "Communities",
     "search": "Search",
     "events": "Events"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "add_photo": "Add Photo",
+    "choose_photo_source": "Choose where to get your photo from",
+    "take_photo": "Take Photo",
+    "choose_from_library": "Choose from Library",
+    "open_settings": "Open Settings"
   }
 }

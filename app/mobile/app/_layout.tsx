@@ -22,11 +22,11 @@ import { Href, router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { useColorScheme } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider, useAuthContext } from "@/features/auth/AuthContext";
 import { useRegisterPushNotifications } from "@/features/notifications/useRegisterPushNotifications";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { getNotificationPath } from "@/utils/getNotificationPath";
 
 // Module-level Set to track handled notification IDs (persists across component remounts)

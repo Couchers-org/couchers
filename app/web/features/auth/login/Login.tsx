@@ -1,14 +1,16 @@
-import { alpha, styled, Typography } from "@mui/material";
+import { alpha, Box, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
 import AntibotNote from "features/antibot/AntibotNote";
+import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, signupRoute } from "routes";
+import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
@@ -91,6 +93,15 @@ export default function Login() {
             <AntibotNote />
           </Typography>
         </StyledFormWrapper>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: theme.spacing(2),
+          }}
+        >
+          <LanguagePickerSelect />
+        </Box>
       </StyledContent>
     </>
   );

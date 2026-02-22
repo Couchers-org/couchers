@@ -1,9 +1,11 @@
 ---
+is_blog_post: true
 title: "The importance of references (and how to write one)"
 slug: importance-of-references
 description: References are a powerful way to make communities safer - especially communities comprised of strangers traveling around the world. These tips will help you write better references, making Couchers a safer experience for everyone.
 date: 2023/02/25
 author: Bob
+author_username: bobl
 share_image: https://couchers.org/img/share.jpg
 ---
 
@@ -61,7 +63,3 @@ Here are some ideas on what to include in your reference:
 * Their home was clean/they were polite to guests
 * Anything else that you liked about them
 * Would you recommend them as a host/guest?
-
-_Written by Bob. Published on 2023/02/25_
-
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

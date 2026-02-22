@@ -1,8 +1,10 @@
 ---
+is_blog_post: true
 title: Menekültek elszállásolása és menedék keresése a Couchers.orggal
 slug: hosting-refugees-and-finding-shelter-with-couchers-org-hu
 date: 2022/03/13
 author: Itsi
+author_username: itsi
 share_image: /img/blog/20220313_ukraine_hu.jpg
 ---
 
@@ -39,5 +41,3 @@ Arra sajnos nem tudunk garanciát vállalni, hogy mennyi időre juthatsz így sz
 Ha elakadnál, kérjük írj nekünk erre a címre: [support@couchers.org](mailto:support@couchers.org)
 
 Minden jót kívánunk; reméljük, hogy biztonságban vagy és leszel. Tudd, hogy sokan vannak, akik segíteni szeretnének neked.
-
-*Published on 2022/03/13.*

@@ -1,6 +1,5 @@
 import ToastUIEditor from "@toast-ui/editor";
 import dynamic from "next/dynamic";
-import { MutableRefObject } from "react";
 import { Control } from "react-hook-form";
 
 const MarkdownInput = dynamic(
@@ -17,7 +16,7 @@ export interface MarkdownInputProps {
   control: Control<any>;
   defaultValue?: string;
   id: string;
-  resetInputRef?: MutableRefObject<ToastUIEditor["reset"] | null>;
+  resetInputRef?: { current: ToastUIEditor["reset"] | null };
   labelId: string;
   name: string;
   imageUpload?: boolean;

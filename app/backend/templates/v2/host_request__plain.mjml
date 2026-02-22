@@ -1,7 +1,7 @@
 <mj-section padding="0px">
   <mj-column>
-    <mj-text>Hi {{ user.name|v2esc }},</mj-text>
-    <mj-text><b>{{ message|v2esc }}</b> at {{ time|v2time }}.</mj-text>
+    <mj-text>Hi {{ user.name }},</mj-text>
+    <mj-text><b>{{ message }}</b> at {{ time|time }}.</mj-text>
   </mj-column>
 </mj-section>
 <mj-section padding="0px" text-align="left">
@@ -12,8 +12,8 @@
           <img width="80px" style="border-radius: 80px" src="{{ other.avatar_url }}" />
         </td>
         <td>
-          <b>{{ other.name|v2esc }}</b>, {{ other.age|v2esc }}<br />{{ other.city|v2esc }}
-          <br />From <b>{{ host_request.from_date|v2date }}</b> to <b>{{ host_request.to_date|v2date }}</b>.
+          <b>{{ other.name }}</b>, {{ other.age }}<br />{{ other.city }}
+          <br />From <b>{{ host_request.from_date|date }}</b> to <b>{{ host_request.to_date|date }}</b>.
         </td>
       </tr>
     </mj-table>
@@ -21,7 +21,7 @@
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
-    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ view_link|v2url }}">
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ view_link }}">
       <b>View host request</b>
     </mj-button>
   </mj-column>

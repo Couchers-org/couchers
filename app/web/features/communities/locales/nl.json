@@ -6,7 +6,9 @@
   "attendees_count_other": "{{count}} deelnemers",
   "cancel_event": "Event annuleren",
   "invite_community_dialog": {
-    "title": "Vraag een community uitnodiging aan voor dit event"
+    "title": "Vraag een community uitnodiging aan voor dit event",
+    "toast_success": "Dankjewel, je verzoek is ingediend",
+    "link": "Meer informatie over deze feature"
   },
   "show_cancelled_events": "Toon geannuleerde events",
   "cancel_event_success_message": "Het event is nu geannuleerd.",

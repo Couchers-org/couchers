@@ -48,6 +48,10 @@ message SendRawPushNotificationPayloadV2 {
   int64 user_id = 7;
   string topic_action = 8;
   string key = 9;
+  // iOS has two fields for the title and different guidelines.
+  // If missing fallback to normal title + no subtitle
+  string ios_title = 10;
+  string ios_subtitle = 11;
 }
 
 message GenerateMessageNotificationsPayload {

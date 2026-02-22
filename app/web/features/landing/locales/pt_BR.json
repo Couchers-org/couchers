@@ -39,5 +39,6 @@
   "num_users": "{{numUsers}} membros",
   "num_countries": "{{numCountries}}+ países",
   "last_signup": "Último login {{timeAgo}}",
-  "non_transactional_why": "Isso é fundamentalmente incompatível com interações genuínas. É saudável apenas dar ou apenas receber e deveríamos aprender a ficar mais confortáveis com isso."
+  "non_transactional_why": "Isso é fundamentalmente incompatível com interações genuínas. É saudável apenas dar ou apenas receber e deveríamos aprender a ficar mais confortáveis com isso.",
+  "signup_description_no_link": "Viaje, hospede e conecte-se com {{ user_count }} membros."
 }

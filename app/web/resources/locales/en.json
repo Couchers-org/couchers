@@ -99,7 +99,7 @@
       "problem_helper": "Brief description of the problem and how to reproduce it",
       "expect_label": "What happened? What should have happened?",
       "expect_helper": "Brief description of what you expected to happen instead",
-      "success_message": "Thank you for reporting that bug and making Couchers better, a report was sent to the developers! The bug ID is "
+      "success_message2": "Thank you for reporting that bug and making Couchers better, a report was sent to the developers! The bug ID is <id/>."
     },
     "content": {
       "button_label": "Report inappropriate content or behaviour",
@@ -191,6 +191,7 @@
     "help_center": "Help Center",
     "roadmap_updates": "Roadmap & Updates",
     "help": "Help",
+    "home": "Home",
     "log_out": "Log out",
     "map_search": "Search",
     "mission": "Mission and Values",
@@ -260,7 +261,6 @@
   },
   "footer": {
     "non_profit_note": "Couchers.org is a project of Couchers, Inc. a U.S. 501(c)(3) non-profit, tax-exempt organization.",
-    "copyright": "© 2025 Couchers, Inc.",
     "version_info": "Version <2>{{version}}</2>, last updated <5>{{updated_ago}}</5>."
   },
   "what_is_cs": {
@@ -354,6 +354,11 @@
       }
     },
     "tap_press_to_flip": "Tap / press to flip"
+  },
+  "blog": {
+    "byline_with_author": "Written by <1/>. Published on {{date}}.",
+    "byline_without_author": "Published on {{date}}.",
+    "cta_message": "Want to help write our blog or volunteer? <1>Sign up</1> and let us know. Volunteers and <3>donations</3> are what make Couchers.org possible!"
   },
   "error_loading_languages": "Failed to load language options",
   "language_names": {

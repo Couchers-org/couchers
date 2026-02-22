@@ -13,12 +13,12 @@ def test_translations_loaded():
     i18next = get_main_i18next()
 
     # Should have at least English errors loaded
-    en_lang = i18next.languages_by_code.get("en")
-    assert en_lang is not None
-    assert en_lang.strings_by_key.get("errors.account_not_found") is not None
+    en_translation = i18next.translations_by_locale.get("en")
+    assert en_translation is not None
+    assert en_translation.strings_by_key.get("errors.account_not_found") is not None
 
     # Other languages should also exist
-    assert len(i18next.languages_by_code) > 1
+    assert len(i18next.translations_by_locale) > 1
 
 
 def test_fallback_chain():
@@ -26,12 +26,12 @@ def test_fallback_chain():
     i18next = get_main_i18next()
 
     # Example: fr-CA should fallback to fr, which should fallback to en
-    fr_CA = i18next.languages_by_code["fr-CA"]
-    fr = i18next.languages_by_code["fr"]
-    en = i18next.languages_by_code["en"]
+    fr_CA = i18next.translations_by_locale["fr-CA"]
+    fr = i18next.translations_by_locale["fr"]
+    en = i18next.translations_by_locale["en"]
 
-    assert fr_CA.fallback == fr
-    assert fr.fallback == en
-    assert en.fallback is None
+    assert fr_CA.fallbacks == [fr, en]
+    assert fr.fallbacks == [en]
+    assert en.fallbacks == []
 
-    assert i18next.default_language == en
+    assert i18next.default_translation == en

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "org.couchers.android",
+      "sha256_cert_fingerprints": [
+        "C3:A9:5A:E9:63:38:3B:19:75:24:86:A8:20:86:89:C6:6E:BD:65:4B:A8:C7:D2:80:B2:03:8D:CE:47:64:FD:6E"
+      ]
+    }
+  }
+]

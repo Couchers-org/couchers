@@ -5,12 +5,12 @@ An event you are subscribed to has been cancelled:
 {{ event.title }}
 {{ time_display }}
 
-{% if event.online_information.link %}<a href="{{ event.online_information.link|v2url }}">Online</a>{% endif %}{% if event.offline_information.address|v2esc %}{{ event.offline_information.address }}{% endif %}
+{% if event.online_information.link %}<a href="{{ event.online_information.link }}">Online</a>{% endif %}{% if event.offline_information.address %}{{ event.offline_information.address }}{% endif %}
 
 Cancelled by {{ cancelling_user.name }}
 
 
-{{ event.content|v2quote }}
+{{ event.content|quotelines }}
 
 
 You can still view the event here: <{{ view_link }}>

@@ -8,7 +8,7 @@ import pytest
 from sqlalchemy import Connection, Engine
 from sqlalchemy.sql import text
 
-# Set up environment variables before any imports
+# Set up environment variables before any couchers imports (they trigger config loading)
 prometheus_multiproc_dir = TemporaryDirectory()
 os.environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_multiproc_dir.name
 
@@ -18,8 +18,8 @@ if "DATABASE_CONNECTION_STRING" not in os.environ:  # pragma: no cover
         "postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/testdb"
     )
 
-
 from couchers.config import config  # noqa: E402
+from couchers.models import Base  # noqa: E402
 from tests.fixtures.db import (  # noqa: E402
     autocommit_engine,
     create_schema_from_models,
@@ -27,6 +27,9 @@ from tests.fixtures.db import (  # noqa: E402
     populate_testing_resources,
 )
 from tests.fixtures.misc import Moderator, PushCollector  # noqa: E402
+
+# Register the "pytest-split" plugin (vendored for pytest 9+ compatibility)
+pytest_plugins = ["tests.pytest_split.plugin"]
 
 
 @pytest.fixture(scope="session")
@@ -54,63 +57,95 @@ def postgres_conn(postgres_engine: Engine) -> Generator[Connection]:
 
 
 @pytest.fixture(scope="session")
-def template_db(postgres_conn: Connection) -> str:
+def testdb_engine() -> Generator[Engine]:
     """
-    Creates a template database with all the extensions, tables,
-    and static data (languages, regions.) This is done only once: then
-    we copy this template for every test. It's much faster than creating
-    a database without a template or deleting data from all tables between
-    tests. The tables are created from SQLA metadata, not by running the
-    migrations - again, for speed.
+    SQLAlchemy engine connected to "testdb" database.
+    """
+    dsn = config["DATABASE_CONNECTION_STRING"]
+    with autocommit_engine(dsn) as engine:
+        yield engine
+
+
+@pytest.fixture(scope="session")
+def testdb_conn(testdb_engine: Engine) -> Generator[Connection]:
+    """
+    Connection to testdb for truncating tables between tests.
+    """
+    with testdb_engine.connect() as conn:
+        yield conn
+
+
+# Static tables that should not be truncated between tests
+STATIC_TABLES = frozenset({"languages", "timezone_areas", "regions"})
+
+
+@pytest.fixture(scope="session")
+def setup_testdb(postgres_conn: Connection, testdb_engine: Engine) -> None:
+    """
+    Creates the test database with all the extensions, tables,
+    and static data (languages, regions, timezones). This is done only once
+    per session. Between tests, we truncate all non-static tables.
     """
     # running in non-UTC catches some timezone errors
     os.environ["TZ"] = "America/New_York"
 
-    name = "couchers_template"
+    postgres_conn.execute(text("DROP DATABASE IF EXISTS testdb WITH (FORCE)"))
+    postgres_conn.execute(text("CREATE DATABASE testdb"))
 
-    postgres_conn.execute(text(f"DROP DATABASE IF EXISTS {name}"))
-    postgres_conn.execute(text(f"CREATE DATABASE {name}"))
-
-    template_dsn = re.sub(
-        r"/testdb$",
-        f"/{name}",
-        config["DATABASE_CONNECTION_STRING"],
-    )
-
-    with autocommit_engine(template_dsn) as engine:
-        with engine.connect() as conn:
-            conn.execute(
-                text(
-                    "CREATE SCHEMA logging;"
-                    "CREATE EXTENSION IF NOT EXISTS postgis;"
-                    "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
-                    "CREATE EXTENSION IF NOT EXISTS btree_gist;"
-                )
+    with testdb_engine.connect() as conn:
+        conn.execute(
+            text(
+                "CREATE SCHEMA logging;"
+                "CREATE EXTENSION IF NOT EXISTS postgis;"
+                "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+                "CREATE EXTENSION IF NOT EXISTS btree_gist;"
             )
+        )
 
-            create_schema_from_models(engine)
-            populate_testing_resources(conn)
+        create_schema_from_models(testdb_engine)
+        populate_testing_resources(conn)
 
-    return name
+
+def _truncate_non_static_tables(conn: Connection) -> None:
+    """
+    Truncates all non-static tables.
+    Static tables (languages, timezone_areas, regions) are preserved.
+    """
+    tables_to_truncate = []
+    for name in Base.metadata.tables.keys():
+        # Skip static tables
+        if name in STATIC_TABLES:
+            continue
+        # Handle schema-qualified names (e.g., "logging.api_calls" -> logging."api_calls")
+        if "." in name:
+            schema, table = name.split(".", 1)
+            tables_to_truncate.append(f'{schema}."{table}"')
+        else:
+            tables_to_truncate.append(f'"{name}"')
+    if tables_to_truncate:
+        conn.execute(text(f"TRUNCATE {', '.join(tables_to_truncate)} RESTART IDENTITY CASCADE"))
+
+    # Reset standalone sequences, not owned by any table column
+    # (RESTART IDENTITY only resets sequences owned by truncated columns)
+    conn.execute(text("ALTER SEQUENCE communities_seq RESTART WITH 1"))
+    conn.execute(text("ALTER SEQUENCE moderation_seq RESTART WITH 2000000"))
 
 
 @pytest.fixture
-def db(template_db: str, postgres_conn: Connection) -> None:
+def db(setup_testdb: None, testdb_conn: Connection) -> None:
     """
-    Creates a fresh database for a test by copying a template. The template has
-    the migrations applied and is populated with static data (regions, languages, etc.)
+    Truncates all non-static tables before each test.
+    Static tables (languages, timezone_areas, regions) are preserved.
     """
-    postgres_conn.execute(text("DROP DATABASE IF EXISTS testdb WITH (FORCE)"))
-    postgres_conn.execute(text(f"CREATE DATABASE testdb WITH TEMPLATE {template_db}"))
+    _truncate_non_static_tables(testdb_conn)
 
 
 @pytest.fixture(scope="class")
-def db_class(template_db: str, postgres_conn: Connection) -> None:
+def db_class(setup_testdb: None, testdb_conn: Connection) -> None:
     """
     The same as above, but with a different scope. Used in test_communities.py.
     """
-    postgres_conn.execute(text("DROP DATABASE IF EXISTS testdb WITH (FORCE)"))
-    postgres_conn.execute(text(f"CREATE DATABASE testdb WITH TEMPLATE {template_db}"))
+    _truncate_non_static_tables(testdb_conn)
 
 
 @pytest.fixture(scope="class")
@@ -202,6 +237,12 @@ def testconfig():
 
     # Dev APIs disabled by default in tests
     config["ENABLE_DEV_APIS"] = False
+
+    # Slack notifications disabled by default in tests
+    config["SLACK_ENABLED"] = False
+    config["SLACK_BOT_TOKEN"] = ""
+    config["SLACK_DONATIONS_CHANNEL"] = ""
+    config["SLACK_MERCH_CHANNEL"] = ""
 
     config["ENABLE_NOTIFICATION_TRANSLATIONS"] = False
 

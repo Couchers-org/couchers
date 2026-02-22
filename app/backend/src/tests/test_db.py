@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.sql import func
 
 from couchers.config import config
-from couchers.db import apply_migrations, get_parent_node_at_location, session_scope
+from couchers.db import _get_base_engine, apply_migrations, get_parent_node_at_location, session_scope
 from couchers.jobs.handlers import DatabaseInconsistencyError, check_database_consistency
 from couchers.models import User
 from couchers.utils import (
@@ -21,7 +21,13 @@ from couchers.utils import (
     is_valid_username,
     parse_date,
 )
-from tests.fixtures.db import create_schema_from_models, drop_database, generate_user, run_migration_test
+from tests.fixtures.db import (
+    create_schema_from_models,
+    drop_database,
+    generate_user,
+    pg_dump_is_available,
+    populate_testing_resources,
+)
 from tests.test_communities import create_1d_point, get_community_id, testing_communities  # noqa
 
 
@@ -35,11 +41,17 @@ def test_is_valid_email() -> None:
     assert is_valid_email("a@b.cc")
     assert is_valid_email("te.st+email.valid@a.org.au.xx.yy")
     assert is_valid_email("invalid@yahoo.co.uk")
+    assert is_valid_email("user+tag@example.com")
+    assert is_valid_email("first.last@example.com")
     assert not is_valid_email("invalid@.yahoo.co.uk")
     assert not is_valid_email("test email@couchers.org")
     assert not is_valid_email(".testemail@couchers.org")
     assert not is_valid_email("testemail@couchersorg")
     assert not is_valid_email("b@xxb....blabla")
+    # dot immediately before @ (the original bug)
+    assert not is_valid_email("user.@example.com")
+    # consecutive dots in local part
+    assert not is_valid_email("user..name@example.com")
 
 
 def test_is_valid_username() -> None:
@@ -132,17 +144,34 @@ def strip_leading_whitespace(lines: list[str]) -> list[str]:
     return [s.lstrip() for s in lines]
 
 
-@pytest.mark.skipif(not run_migration_test(), reason="Migration test disabled")
-def test_migrations(db, testconfig: dict[str, Any]) -> None:
-    """
-    This test will only run successfully if you have `pg_dump` installed and everything set up, which only happens if the
-    test is being run within Gitlab CI where we do all that setup. So we disable it unless explicitly marked to run.
+@pytest.fixture
+def restore_db_after_migration_test(db):
+    try:
+        yield
+    finally:
+        # Dispose the engine's connection pool since we dropped/recreated PostGIS extension,
+        # which invalidates cached operator OIDs in existing connections
+        engine = _get_base_engine()
+        engine.dispose()
 
-    Compares the database schema built up from migrations, with the
+        # Restore test resources since we destroyed the database
+        # This is needed because setup_testdb is session-scoped and won't run again
+        with engine.connect() as conn:
+            populate_testing_resources(conn)
+            conn.commit()
+
+
+@pytest.mark.skipif(not pg_dump_is_available(), reason="Can't run migration tests without pg_dump")
+def test_migrations(db, testconfig: dict[str, Any], restore_db_after_migration_test) -> None:
+    """
+    Compares the database schema built up from migrations with the
     schema built by models.py. Both scenarios are started from an
-    empty database, and dumped with pg_dump. Any unexplainable
+    empty database and dumped with pg_dump. Any unexplainable
     differences in the output are reported in unified diff format and
     fail the test.
+
+    Note: this takes about 2 minutes in CI, because the real timezone_areas.sql file
+    is used, and it's big. Locally, timezone_areas.sql-fake is used.
     """
     drop_database()
     # rebuild it with alembic migrations
@@ -226,7 +255,7 @@ def test_database_consistency_check(db, testconfig: dict[str, Any]) -> None:
 
     # Now break consistency by removing a user's profile gallery
     with session_scope() as session:
-        user = session.execute(select(User).where(User.is_deleted == False).limit(1)).scalar_one()
+        user = session.execute(select(User).where(User.deleted_at.is_(None)).limit(1)).scalar_one()
         user.profile_gallery_id = None
 
     # This should now raise an exception

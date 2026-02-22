@@ -16,6 +16,7 @@ from couchers.models import (
     AccountDeletionToken,
     BackgroundJob,
     InviteCode,
+    PhotoGalleryItem,
     Upload,
     User,
 )
@@ -131,7 +132,9 @@ def test_donation_banner_donated_exactly_at_drive_start(db):
 def test_GetAccountInfo_regression(db):
     # there was a bug in evaluating `has_completed_profile` on the backend (in python)
     # when about_me is None but the user has a key, it was failing because len(about_me) doesn't work on None
-    uploader_user, _ = generate_user()
+    user, token = generate_user(about_me=None, complete_profile=False)
+
+    # add an avatar photo to the user's profile gallery
     with session_scope() as session:
         key = random_hex(32)
         filename = random_hex(32) + ".jpg"
@@ -139,11 +142,17 @@ def test_GetAccountInfo_regression(db):
             Upload(
                 key=key,
                 filename=filename,
-                creator_user_id=uploader_user.id,
+                creator_user_id=user.id,
             )
         )
-
-    user, token = generate_user(about_me=None, avatar_key=key)
+        session.flush()
+        session.add(
+            PhotoGalleryItem(
+                gallery_id=user.profile_gallery_id,
+                upload_key=key,
+                position=0,
+            )
+        )
 
     with account_session(token) as account:
         res = account.GetAccountInfo(empty_pb2.Empty())
@@ -653,7 +662,7 @@ def test_DeleteAccount_start(db):
         ).scalar_one()
 
         assert deletion_token.is_valid
-        assert not session.execute(select(User).where(User.id == user.id)).scalar_one().is_deleted
+        assert session.execute(select(User).where(User.id == user.id)).scalar_one().deleted_at is None
 
 
 def test_DeleteAccount_message_storage(db):
@@ -698,7 +707,7 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
 
         user_ = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert token_o.user == user_
-        assert not user_.is_deleted
+        assert user_.deleted_at is None
         assert not user_.undelete_token
         assert not user_.undelete_until
 
@@ -735,7 +744,7 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
 
         user_ = session.execute(select(User).where(User.id == user_id)).scalar_one()
-        assert user_.is_deleted
+        assert user_.deleted_at is not None
         assert user_.undelete_token
         assert user_.undelete_until
         assert user_.undelete_until > now()
@@ -782,7 +791,7 @@ def test_full_delete_account_with_recovery(db, push_collector: PushCollector):
         assert not session.execute(select(AccountDeletionToken)).scalar_one_or_none()
 
         user = session.execute(select(User).where(User.id == user_id)).scalar_one()
-        assert not user.is_deleted
+        assert user.deleted_at is None
         assert not user.undelete_token
         assert not user.undelete_until
 
@@ -957,11 +966,9 @@ def test_CreateInviteCode(db):
 
 def test_DisableInviteCode(db):
     user, token = generate_user()
-    code = "TEST1234"
-    with session_scope() as session:
-        session.add(InviteCode(id=code, creator_user_id=user.id))
 
     with account_session(token) as account:
+        code = account.CreateInviteCode(account_pb2.CreateInviteCodeReq()).code
         account.DisableInviteCode(account_pb2.DisableInviteCodeReq(code=code))
 
     with session_scope() as session:
@@ -973,9 +980,11 @@ def test_ListInviteCodes(db):
     user, token = generate_user()
     another_user, _ = generate_user()
 
-    code = "LIST1234"
+    with account_session(token) as account:
+        code = account.CreateInviteCode(account_pb2.CreateInviteCodeReq()).code
+
+    # simulate another_user having signed up with this invite code
     with session_scope() as session:
-        session.add(InviteCode(id=code, creator_user_id=user.id))
         session.execute(update(User).where(User.id == another_user.id).values(invite_code_id=code))
 
     with account_session(token) as account:

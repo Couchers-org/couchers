@@ -20,5 +20,115 @@
     "n_hours_ago_many": "{{count}} de horas atrás",
     "n_hours_ago_other": "{{count}} horas atrás"
   },
-  "load_more": "Carregar mais"
+  "load_more": "Carregar mais",
+  "close": "Fechar",
+  "create_account": "Criar Conta",
+  "expand": "Expandir",
+  "back": "Voltar",
+  "update": "Atualizar",
+  "sign_up": "Registre-se",
+  "join_us": "Junte-se a nós",
+  "login": "Login",
+  "create": "Criar",
+  "retract": "Recolher",
+  "couchers": "Couchers.org",
+  "legal_name": "Couchers, Inc.",
+  "terms_of_service": "Termos de Serviço",
+  "required": "Obrigatório",
+  "continue": "Continuar",
+  "thanks": "Obrigado!",
+  "created": "Criado",
+  "disable": "Desativar",
+  "next": "Próximo",
+  "learn_more": "Saiba mais",
+  "disabled": "Desativado",
+  "donation_banner": {
+    "progress_label": "Andamento da doação",
+    "message": "O Couchers.org funciona à gentileza — assim como o próprio conceito de couch surfing. Ajude-nos nesse momento para continuarmos dessa forma. Estamos levantando {{goal}} para cobrir os custos de manutenção do Couchers.org.",
+    "button": "Doe agora"
+  },
+  "save": "Salvar",
+  "save_changes": "Salvar alterações",
+  "mod": "Moderação",
+  "cookie_message": "Usamos cookies para garantir a melhor experiência em nosso website. Ao continuar a usar este site, assumiremos que você está de acordo com isso. Você pode ler mai sobre nossos <1>Termos de Serviço</1>.",
+  "hosting_status": {
+    "any": "Qualquer um",
+    "can_host": "Pode hospedar",
+    "cant_host": "Não pode hospedar",
+    "unspecified_info": "Não informou",
+    "maybe": "Talvez possa hospedar"
+  },
+  "language_preference": {
+    "current_preferred_language": "Seu idioma preferido atualmente é <lang>{{language}}</lang>.",
+    "form_title": "Idioma",
+    "translation_progress": {
+      "just_started": "Acabou de começar",
+      "no_data": "Nenhum dado disponível sobre a tradução",
+      "complete": "Concluído",
+      "title": "Tradução em andamento",
+      "description": "Veja o avanço das nossas traduções em diferentes idiomas. Ajude-nos a tornar o Couchers acessível para mais pessoas em todo o mundo!",
+      "help_translate": "Ajude a traduzir o Couchres para o seu idioma",
+      "loading": "Carregando andamento da tradução...",
+      "error_loading": "Não foi possível carregar o andamento da tradução",
+      "almost_there": "Quase lá",
+      "midway": "No meio do caminho",
+      "in_progress": "Em andamento",
+      "early_stage": "No início",
+      "complete_percent": "{{percent}}% concluído",
+      "info_text": "💡 Idiomas com 50 a 80% concluídos aparecem desabilitados no seletor de idiomas. Idiomas com menos de 50% concluídos ficam ocultos no seletor de idiomas. Para encorajar os colaboradores, idioma com menos de 20% traduzidos são mostrados neste site.",
+      "view_progress": "Ver o andamento da tradução"
+    },
+    "help_translate": "Ajude a traduzir o Couchers para o seu idioma.",
+    "select_language": "Selecionar idioma",
+    "success_message": "Sua alteração foi salva.",
+    "error_loading_languages": "Não foi possível carregar opções de idioma. Tente novamente mais tarde.",
+    "show_all_languages": "Mostrar todos os idiomas no seletor de idiomas",
+    "show_all_languages_description": "Quando habilitado, o seletor de idiomas mostrará todos os idiomas, independentemente da porcentagem de conclusão. Isso mostra idiomas em preparação apenas para ajudar a testar idiomas que ainda estão em andamento."
+  },
+  "uses": "Usos",
+  "no_invite_codes": "Nenhum código de convite ainda",
+  "error_loading_invite_codes": "Não foi possível obter detalhes do código de convite",
+  "community_standing_description": "Calculada a partir de vários fatores, como referências e engajamento na comunidade.",
+  "community_standing": "Reputação na comunidade",
+  "verification_score": "Pontuação de verificação",
+  "verification_score_description": "Calculada a partir de recomendações de outros usuários",
+  "edit": "Editar",
+  "send": "Enviar",
+  "cancel": "Cancelar",
+  "submit": "Enviar",
+  "confirm": "Confirmar",
+  "copy": "Copiar",
+  "copied": "Copiado para a área de transferência",
+  "read_more": "Ler mais",
+  "previous": "Anterior",
+  "meetup_status": {
+    "unspecified_info": "Não informou",
+    "does_not_want_to_meetup": "Não pode encontrar",
+    "wants_to_meetup": "Quer se encontrar",
+    "open_to_meetup": "Aberto para encontros"
+  },
+  "report": {
+    "bug": {
+      "title_label": "Reportar título",
+      "title_helper": "Breve descrição do erro",
+      "problem_label": "O que você fez para que o erro aparecesse?",
+      "expect_helper": "Breve descrição do que você esperava que acontecesse",
+      "warning_message": "Observe que esta informação, bem como informações de diagnóstico, incluindo em que página você está, qual navegador está usando e seu nome de usuário, será salva em uma lista pública de erros.",
+      "success_message2": "Agradecemos por relatar esse erro e melhorar o Couchers. Um relatório foi enviado para os desenvolvedores. O ID do erro é <id/>.",
+      "button_label": "Reportar um problema técnico",
+      "problem_helper": "Breve descrição do problema e como reproduzí-lo",
+      "expect_label": "O que aconteceu? O que deveria ter acontecido?"
+    },
+    "label": "Reportar um problema",
+    "content": {
+      "button_label": "Reportar conteúdo ou comportamento inapropriado",
+      "success_message": "Agradecemos por reportar e tornar o Couchers uma plataforma melhor para todos!",
+      "dialog_message": "Estamos trabalhando em ferramentas robustas de denúncia e moderação. Enquanto isso, envie um e-mail para o endereço abaixo. Inclua detalhes, como o usuário em questão, o que foi inapropriado e onde você viu isso."
+    },
+    "title": "Reportar um problema",
+    "flag": {
+      "block_user": "Bloquear {{username}}",
+      "block_user_explainer": "Mensagens e solicitações dessa pessoa serão bloqueadas, e seu perfil, eventos e comentários não serão visíveis para ela. Ela não será informada sobre o bloqueio."
+    }
+  }
 }

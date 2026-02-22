@@ -21,6 +21,11 @@
       "ios_title": "Still Open to Hosting?",
       "body": "Log in to confirm your hosting status."
     },
+    "adhoc__push_enabled": {
+      "title": "Push notifications enabled",
+      "ios_title": "Push Notifications Enabled",
+      "body": "You'll now receive notifications on this device."
+    },
     "api_key__create": {
       "title": "API key created",
       "ios_title": "API Key Created",
@@ -152,7 +157,7 @@
       "title": "New messages from {{user}}",
       "ios_title": "{{user}}",
       "ios_subtitle": "Missed Messages",
-      "body": "ou have new unseen messages from {{user}}."
+      "body": "You have new unseen messages from {{user}}."
     },
     "host_request__reminder": {
       "title": "Pending request by {{user}}",

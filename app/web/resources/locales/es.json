@@ -22,7 +22,9 @@
       "view_progress": "Ver progreso de traducción"
     },
     "error_loading_languages": "No se pudieron cargar las opciones de idioma. Por favor inténtalo de nuevo más tarde.",
-    "current_preferred_language": "Su idioma preferido actualmente es <lang>{{language}}</lang>."
+    "current_preferred_language": "Su idioma preferido actualmente es <lang>{{language}}</lang>.",
+    "show_all_languages": "Mostrar todos los idiomas en el selector de idiomas",
+    "show_all_languages_description": "Cuando está habilitado, el selector de idiomas mostrará todos los idiomas independientemente del porcentaje de traducción completado. Esto se muestra solo en staging para ayudar a probar idiomas que aún están en progreso."
   },
   "retract": "Retractarse",
   "close": "Cerrar",
@@ -107,7 +109,7 @@
       "problem_helper": "Breve descripción del problema y cómo reproducirlo",
       "expect_label": "¿Qué pasó? ¿Qué debería haber pasado?",
       "expect_helper": "Breve descripción de lo que esperaba que sucediera en su lugar",
-      "success_message": "¡Gracias por informar de ese error y mejorar Couchers, se ha enviado un informe a los desarrolladores! El ID del error es "
+      "success_message2": "¡Gracias por informar de ese error y mejorar Couchers, se ha enviado un informe a los desarrolladores! El ID del error es <id/>."
     },
     "title": "Informar de un problema",
     "content": {
@@ -170,7 +172,9 @@
     "built_with": "Código abierto",
     "landing_page": "Página de inicio",
     "invite_members": "Invitar a miembros",
-    "merch_shop": "Tienda de merchandising"
+    "merch_shop": "Tienda de merchandising",
+    "switch_to_light_mode": "Cambiar a modo claro",
+    "switch_to_dark_mode": "Cambiar a modo oscuro"
   },
   "ok": "De acuerdo",
   "relative_time": {
@@ -263,7 +267,6 @@
   },
   "footer": {
     "non_profit_note": "Couchers.org es un proyecto de Couchers, Inc., una organización sin ánimo de lucro exenta de impuestos 501(c)(3) de EE.UU.",
-    "copyright": "© 2025 Couchers, Inc.",
     "version_info": "Versión <2>{{version}}</2>, última actualización <5>{{updated_ago}}</5>."
   },
   "strong_verification": {

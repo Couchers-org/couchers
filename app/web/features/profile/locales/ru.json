@@ -33,7 +33,8 @@
     "age_verification_verified": "Этот пользователь подтвердил свою дату рождения",
     "additional_information_section": "Дополнительная информация",
     "travel_section": "Путешествовал в",
-    "who_section": "Кто я"
+    "who_section": "Кто я",
+    "photos_section": "Фотографии"
   },
   "home_info_headings": {
     "about_home": "О моём доме",
@@ -180,7 +181,6 @@
     "meetup_only": "Только для встреч",
     "overnight_stay": "Остановка на ночь",
     "request_description_empty": "Пожалуйста, напишите сообщение",
-    "request_char_length_too_short": "Пожалуйста, напишите как минимум еще {{charactersRemaining}} символов, чтобы отправить запрос хосту.",
     "stay_type_a11y_text": "тип пребывания",
     "success": "Запрос отправлен!",
     "guest_count": "Количество гостей"
@@ -213,7 +213,10 @@
     "paid_offsite": "Платная парковка вне территории"
   },
   "helper_text": {
-    "missing_profile_photo": "Добавьте фото, чтобы завершить оформление профиля."
+    "missing_profile_photo": "Добавьте фото, чтобы завершить оформление профиля.",
+    "characters_remaining_one": "",
+    "characters_remaining_few": "",
+    "characters_remaining_many": "<bold>Пожалуйста, напишите не менее {{count}} символов, чтобы разблокировать отправку сообщений и запросов.</bold> Подлинные профили помогают создавать доверие в сообществе. Чем больше вы рассказываете о себе, тем проще установить контакт!"
   },
   "edit_profile_tab_bar_a11y_label": "Вкладки для редактирования различных частей вашего профиля",
   "report_details": "Детали",
@@ -238,7 +241,11 @@
   "unsaved_changes_warning": "Вы не сохранили изменения. Вы уверены, что хотите покинуть страницу?",
   "image_uploading_warning": "Ваше изображение профиля все еще загружается. Вы уверены, что хотите покинуть страницу?",
   "reference_amounts": {
-    "no_references": "Нет отзывов"
+    "no_references": "Нет отзывов",
+    "hundred_or_more_references": "100+ отзывов",
+    "count_references_one": "{{count}} отзыв",
+    "count_references_few": "{{count}} отзыва",
+    "count_references_many": "{{count}} отзывов"
   },
   "incomplete_profile_haiku": "Безликий аватар,\nТайна скрыта за молчанием —\nКто ты, незнакомец?",
   "reference_filter_label": {
@@ -307,5 +314,30 @@
   "names_profile_photo": "Фото профиля {{name}}",
   "write_friend_reference": "Написать Отзыв Другу",
   "have_pending_reference_text": "У вас есть ожидающий отзыв, который нужно написать для этого пользователя",
-  "edit": "Редактировать Профиль"
+  "edit": "Редактировать Профиль",
+  "gallery": {
+    "photo_item_a11y": "Фотография",
+    "add_photo": "Добавить фото",
+    "remove_photo": "Удалить фотографию",
+    "select_photo": "Выберите фотографию",
+    "photo_count": "{{current}} из {{total}}",
+    "empty_title": "Добавьте ваше первое фото",
+    "empty_description": "Нажмите здесь или на кнопку выше, чтобы загрузить фотографию",
+    "no_photos": "Пока нет фотографий",
+    "add_photo_error": "Не удалось добавить фото. Пожалуйста, попробуйте снова.",
+    "move_photo_error": "Не удалось упорядочить фотографии. Пожалуйста, попробуйте снова.",
+    "reorder_success": "Фотографии успешно переупорядочены!",
+    "upload_success": "Фотография успешно загружена!",
+    "profile_photos_title": "Фотографии профиля",
+    "profile_photos_description": "Добавьте свои фотографии, чтобы другим было проще познакомиться с вами. Перетащите их, чтобы изменить порядок.",
+    "verification_required_for_more_photos": "Вы достигли лимита фотографий. Пройдите Надёжную Верификацию чтобы добавить больше фотографий.",
+    "get_verified": "Пройти верификацию",
+    "photo_viewer_aria": "Просмотрщик фотографий",
+    "previous_photo": "Предыдущее фото",
+    "next_photo": "Следующее фото",
+    "close_viewer": "Закрыть просмотрщик фотографий",
+    "remove_photo_error": "Не удалось удалить фотографию. Пожалуйста, попробуйте снова.",
+    "uploading": "Загрузка...",
+    "report_photo": "Пожаловаться на фото"
+  }
 }

@@ -1,9 +1,11 @@
 ---
+is_blog_post: true
 title: "Couch Surfing 101: Setting up your profile (2022)"
 slug: setting-up-your-profile
 description: A guide for new couch surfers on how to set up your profile so you can host people or get hosted!
 date: 2022/08/30
 author: Bob
+author_username: bobl
 share_image: https://couchers.org/img/share.jpg
 ---
 
@@ -12,7 +14,6 @@ Most of us are quite familiar with being asked to set up profiles online. How we
 With our social media apps, we may put in a bit more time. We may use our real name. We add a picture, our age (often required), and perhaps a couple of details about where we live, where we went to school, and our relationship status. Some of us choose to keep this information private, which is our right.
 
 When setting up a profile for a couch surfing website such as Couchers.org, however, it is good to remember that this platform is built on trust. Staying with or hosting strangers from another country or culture requires a level of assurance that the person you are engaging with is someone you wouldn’t mind being with in close quarters.
-
 
 ## Required information
 
@@ -25,12 +26,9 @@ Obviously, for Couchers.org to work for everyone, it requires certain details to
 * Date of birth
     * Be honest with your age. This isn’t a dating site.
 
-
 ## First impressions matter
 
 Your profile will usually be the first introduction that a prospective host or couch surfer sees. Here are some important items that you will want to have filled out to give a good impression:
-
-
 
 * Profile picture
     * A picture of your face, not hiding behind sunglasses, is best.
@@ -41,7 +39,6 @@ Your profile will usually be the first introduction that a prospective host or c
 
 After this, if you wish, you can let others know if you are able to host or to meet up when they visit your area. You can tell them where you’re from, as many of us are living in places far from where we grew up. Your job or education can be included.
 
-
 ## Let them know the real you
 
 Don’t let those things define you, however. The next part is where you can really let others know who you are. You can write as little or as much as you want about why you use Couchers.org, what your goals are, and interesting travel stories.
@@ -50,12 +47,6 @@ Tell other members about your hobbies, what types of entertainment you prefer, c
 
 Hopefully you’ll find these suggestions helpful as you begin the amazing journey that being a member of Couchers.org can offer.
 
-
 ## Any more questions?
 
 Head on over to the [Couchers.org forum](https://community.couchers.org) and ask! The couch surfing community is one of the most friendly and open there is, and people will be more than happy to answer any questions you may have!
-
-
-_Written by Bob. Published on 2022/08/30_
-
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

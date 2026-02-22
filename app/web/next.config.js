@@ -2,6 +2,8 @@
 const { i18n } = require("./next-i18next.config"); // eslint-disable-line
 const { redirects } = require("./redirects"); // eslint-disable-line
 
+const generateBlogIndex = require("./scripts/generate-blog-index"); // eslint-disable-line
+
 const nextConfig = {
   assetPrefix: process.env.ASSET_PREFIX,
   reactStrictMode: true,
@@ -21,7 +23,10 @@ const nextConfig = {
   },
   i18n,
   productionBrowserSourceMaps: true,
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      generateBlogIndex();
+    }
     config.module.rules.push({
       test: /\.md$/,
       loader: "frontmatter-markdown-loader",

@@ -42,6 +42,22 @@ jest.mock("next/dynamic", () => ({
   },
 }));
 jest.mock("react-gtm-module");
+jest.mock("features/weblate/useWeblateStats", () => ({
+  __esModule: true,
+  useWeblateStats: () => ({
+    data: [
+      { code: "en", name: "English", translated_percent: 100 },
+      { code: "es", name: "Spanish", translated_percent: 85 },
+      { code: "fr", name: "French", translated_percent: 75 },
+      { code: "de", name: "German", translated_percent: 60 },
+      { code: "it", name: "Italian", translated_percent: 45 },
+      { code: "pt", name: "Portuguese", translated_percent: 30 },
+      { code: "ru", name: "Russian", translated_percent: 15 },
+    ],
+    isLoading: false,
+    error: null,
+  }),
+}));
 
 jest.setTimeout(10000);
 

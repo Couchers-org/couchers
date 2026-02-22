@@ -14,6 +14,7 @@ from couchers.utils import date_in_timezone, now
 if TYPE_CHECKING:
     from couchers.models.conversations import Conversation
     from couchers.models.moderation import ModerationState
+    from couchers.models.public_trips import PublicTrip
     from couchers.models.users import User
 
 
@@ -87,11 +88,15 @@ class HostRequest(Base, kw_only=True):
     initiator: Mapped[User] = relationship(
         init=False, backref="host_requests_initiated", foreign_keys="HostRequest.initiator_user_id"
     )
+    # Optional link to public trip if this request originated from one
+    public_trip_id: Mapped[int | None] = mapped_column(ForeignKey("public_trips.id"), index=True, default=None)
+
     recipient: Mapped[User] = relationship(
         init=False, backref="host_requests_received", foreign_keys="HostRequest.recipient_user_id"
     )
     conversation: Mapped[Conversation] = relationship(init=False)
     moderation_state: Mapped[ModerationState] = relationship(init=False)
+    public_trip: Mapped[PublicTrip | None] = relationship(init=False, back_populates="host_requests")
 
     __table_args__ = (
         # allows fast lookup as to whether they didn't meet up

@@ -1,0 +1,18 @@
+// Internal encrypted payloads for cookies and callbacks
+syntax = "proto3";
+
+package internal;
+
+import "google/protobuf/timestamp.proto";
+
+// Payload for strong verification callback reference
+message VerificationReferencePayload {
+  string verification_attempt_token = 1;
+  int64 user_id = 2;
+}
+
+// sticky operator finagling apparatus
+message SofaPayload {
+  int64 version = 1;
+  google.protobuf.Timestamp created = 2;
+}

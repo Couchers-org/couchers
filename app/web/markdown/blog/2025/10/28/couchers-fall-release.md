@@ -1,13 +1,15 @@
 ---
+is_blog_post: true
 title: "Couchers.org Fall Release: What's New in v1.1?"
 slug: couchers-fall-release
 description: "We've released a number of new features, and fixed many bugs. We discuss more of what's next. We also moved to roughly a quarterly release schedule, which helps us keep on track better with smaller releases."
 date: 2025/10/28
 author: Nicole
+author_username: unsettleddown
+has_custom_cta: true
 ---
 
 *Quick summary: we've released a number of new features, and fixed many bugs. We discuss more of what's next. We also moved to roughly a quarterly release schedule, which helps us keep on track better with smaller releases.*
-
 
 ## Big picture stuff
 
@@ -30,7 +32,6 @@ We've implemented a filter that enables users to view only profiles matching the
 <p align="center">
 <img src="/img/blog/20251028_show_same_gender_only.png" alt="Screenshot of the same gender only toggle" />
 </p>
-
 
 ### Map Search
 
@@ -99,7 +100,6 @@ We redesigned the Edit Profile Page as it was not very user friendly and didn't 
 <p align="center">
 <img src="/img/blog/20251028_editprofile_redesign_2.png" alt="Screenshot showing the top of the profile editing page" />
 </p>
-
 
 ### "What is Couch Surfing" Page
 
@@ -170,11 +170,9 @@ We also introduced some new translation features and structure.
 <img src="/img/blog/20251028_translation_progress_page.png" alt="Screenshot showing the translation progress page" />
 </p>
 
-
 Shoutout to [Chris](https://couchers.org/user/chrisk) for the idea of translation benchmarks and [Nicole](https://couchers.org/user/unsettleddown) for making the translation progress page. [Find it here.](https://couchers.org/translate)
 
 Don't see your language? [Join our team of Couchers translations and contribute some translations!](https://couchers.org/volunteer/translator)
-
 
 ### Proofreading and updating the Couchers website pages
 
@@ -185,7 +183,6 @@ We did some updating of our website pages to make sure they're up to date. This 
 ### Miscellaneous
 
 [Aditi](https://couchers.org/user/adititrips) has organized our operations boards and is working to improve our volunteer onboarding process. Alongside making internal systems run smoother, she continues to rework UX functionality for future feature ideas, develop marketing materials, and dive into growth metrics to align our overall strategy going forward!
-
 
 ## Updates on Volunteering at Couchers
 
@@ -202,5 +199,3 @@ Want to help us make Couchers thrive? We especially need:
 * **Community Builders**: Help us get a Couchers community thriving in your city!
 
 [Interested? Apply here!](/volunteer/form)
-
-*Written by [Nicole](https://couchers.org/user/unsettleddown). Published on 2025/10/28*

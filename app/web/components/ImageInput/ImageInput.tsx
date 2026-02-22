@@ -4,16 +4,17 @@ import Avatar from "@mui/material/Avatar";
 import MuiIconButton from "@mui/material/IconButton";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
-import CircularProgress from "components/CircularProgress";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import Sentry from "platform/sentry";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { service } from "service";
 import { ImageInputValues } from "service/api";
+import { IMAGE_TOO_LARGE } from "service/constants";
+import { base64ToFile, useNativeImagePicker } from "utils/nativeLink";
 
-import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./constants";
+import { DEFAULT_HEIGHT, DEFAULT_WIDTH, MAX_FILE_SIZE } from "./constants";
 
 interface ImageInputProps {
   className?: string;
@@ -84,10 +85,6 @@ const StyledLabel = styled("label")(({ theme }) => ({
   width: "100%",
 }));
 
-const StyledCircularProgress = styled(CircularProgress)(({ theme }) => ({
-  position: "absolute",
-}));
-
 const StyledInput = styled("input")(({ theme }) => ({
   display: "none",
 }));
@@ -96,9 +93,11 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const { className, control, id, initialPreviewSrc, name } = props;
 
   const { t } = useTranslation([PROFILE]);
+  const { isNative, pickImage } = useNativeImagePicker();
 
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
   const [readerError, setReaderError] = useState("");
+  const [fileSizeError, setFileSizeError] = useState("");
 
   const mutation = useMutation<ImageInputValues, Error, File>({
     mutationFn: (file) => service.api.uploadFile(file),
@@ -127,8 +126,16 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
 
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setReaderError("");
+    setFileSizeError("");
     if (!event.target.files?.length) return;
     const file = event.target.files[0];
+
+    // Check file size before uploading
+    if (file.size > MAX_FILE_SIZE) {
+      setFileSizeError(IMAGE_TOO_LARGE);
+      return;
+    }
+
     try {
       const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -157,12 +164,45 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
     if (inputRef.current) inputRef.current.value = "";
   };
 
+  // Native app WebView file input is unreliable on iOS - use native image picker instead
+  const handleNativeImagePick = useCallback(async () => {
+    setReaderError("");
+    setFileSizeError("");
+    try {
+      const result = await pickImage();
+      if (result.success) {
+        const dataUrl = `data:${result.mimeType};base64,${result.imageBase64}`;
+        const extension = result.mimeType.split("/")[1] || "jpg";
+        const file = base64ToFile(
+          result.imageBase64,
+          result.mimeType,
+          `image.${extension}`,
+        );
+
+        // Check file size before uploading
+        if (file.size > MAX_FILE_SIZE) {
+          setFileSizeError(IMAGE_TOO_LARGE);
+          return;
+        }
+
+        setImageUrl(dataUrl);
+        mutation.mutate(file);
+      }
+    } catch (e) {
+      Sentry.captureException(e, {
+        tags: { component: "ImageInput", native: true },
+      });
+      setReaderError(t("profile:couldnt_read_file"));
+    }
+  }, [pickImage, mutation, t]);
+
   return (
     <StyledWrapper>
       {mutation.isError && (
         <Alert severity="error">{mutation.error?.message || ""}</Alert>
       )}
       {readerError && <Alert severity="error">{readerError}</Alert>}
+      {fileSizeError && <Alert severity="error">{fileSizeError}</Alert>}
       <FlexWrapper>
         <StyledInput
           aria-label={t("profile:select_an_image")}
@@ -173,7 +213,18 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
           onClick={handleClick}
           ref={inputRef}
         />
-        <StyledLabel htmlFor={id} ref={field.ref}>
+        <StyledLabel
+          htmlFor={id}
+          ref={field.ref}
+          onClick={
+            isNative
+              ? (e) => {
+                  e.preventDefault();
+                  handleNativeImagePick();
+                }
+              : undefined
+          }
+        >
           {props.type === "avatar" ? (
             <Tooltip title={t("profile:click_replace_image")} placement="top">
               <MuiIconButton
@@ -181,7 +232,11 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
                 sx={{ position: "relative" }}
                 onClick={(e) => {
                   e.preventDefault(); // prevent triggering label click again
-                  inputRef.current?.click();
+                  if (isNative) {
+                    handleNativeImagePick();
+                  } else {
+                    inputRef.current?.click();
+                  }
                 }}
               >
                 <Avatar
@@ -211,7 +266,6 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
               grow={props.grow}
             />
           )}
-          {mutation.isPending && <StyledCircularProgress />}
         </StyledLabel>
       </FlexWrapper>
     </StyledWrapper>

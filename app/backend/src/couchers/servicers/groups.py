@@ -9,6 +9,7 @@ from sqlalchemy.sql import delete, func
 
 from couchers.context import CouchersContext
 from couchers.db import can_moderate_node, get_node_parents_recursively
+from couchers.event_log import log_event
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -24,7 +25,7 @@ from couchers.proto import groups_pb2, groups_pb2_grpc
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import users_visible, where_users_column_visible
+from couchers.sql import users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 
 logger = logging.getLogger(__name__)
@@ -244,6 +245,7 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             .join(Event, Event.id == EventOccurrence.event_id)
             .where(Event.owner_cluster == cluster)
         )
+        query = where_moderated_content_visible(query, context, EventOccurrence, is_list_operation=True)
 
         if not request.past:
             cutoff = page_token - timedelta(seconds=1)
@@ -302,6 +304,8 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             )
         )
 
+        log_event(context, session, "group.joined", {"group_id": cluster.id, "group_name": cluster.name})
+
         return empty_pb2.Empty()
 
     def LeaveGroup(
@@ -322,6 +326,8 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             .where(ClusterSubscription.cluster_id == request.group_id)
             .where(ClusterSubscription.user_id == context.user_id)
         )
+
+        log_event(context, session, "group.left", {"group_id": cluster.id, "group_name": cluster.name})
 
         return empty_pb2.Empty()
 

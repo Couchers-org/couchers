@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useTranslation } from "i18n";
-import { useIsNativeEmbed } from "platform/nativeLink";
 import {
   getVapidPublicKey,
   registerPushNotificationSubscription,
 } from "service/notifications";
 import wrapper from "test/hookWrapper";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 import PushNotificationSettings from "./PushNotificationSettings";
 import {
@@ -28,7 +28,7 @@ jest.mock("service/notifications", () => ({
   registerPushNotificationSubscription: jest.fn(() => Promise.resolve()),
 }));
 
-jest.mock("platform/nativeLink", () => ({
+jest.mock("utils/nativeLink", () => ({
   useIsNativeEmbed: jest.fn(),
 }));
 

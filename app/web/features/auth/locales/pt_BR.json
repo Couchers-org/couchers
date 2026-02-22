@@ -188,10 +188,6 @@
   "unhandled_sign_up_state": "Erro: estado de fluxo de registo não tratado.",
   "login_prompt": "Clique aqui para entrar",
   "logged_out_message": "Sua sessão foi encerrada.",
-  "feedback_form": {
-    "header": "Deixe a sua opinião",
-    "skip_step_text": "Não tem interesse? <2>Pule esta etapa.</2>"
-  },
   "sign_up_completed_title": "Obrigado por se registrar!",
   "sign_up_completed_prompt": "Enviamos um e-mail com um link de verificação para o seu e-mail. Clique no link para ativar sua conta.",
   "sign_up_confirmed_prompt": "Tudo pronto! Se você não for redirecionado, tente fazer login.",
@@ -273,7 +269,7 @@
     "start_button": "Iniciar Autenticação Forte",
     "information_text2": "Ao clicar no botão abaixo, você será redirecionado para o website do Iris ID para concluir o processo de verificação de passaporte.",
     "status": {
-      "disabled_message": "Você< 1>não foi</1> verificado com Autenticação Forte.",
+      "disabled_message": "Você <1>não foi</1> verificado com Autenticação Forte.",
       "enabled_message": "Você <1>foi</1> verificado com Autenticação Forte."
     },
     "complete_title": "Estamos processando sua tentativa de Autenticação Forte",
@@ -314,7 +310,7 @@
   },
   "sign_up_resend_verification_email_help": "Não recebeu o e-mail? Clique <2>aqui para reenviar o link de verificação</2>.",
   "sign_up_resend_verification_done": "Pronto! Enviamos outro e-mail.",
-  "sign_up_need_verification_title": "Quase lá, falta só mais uma coisa!",
+  "sign_up_need_verification_title": "Só mais uma coisa: confirme seu e-mail.",
   "quick_links": {
     "title": "Ação rápida por e-mail",
     "button_text": "Confirmar ação",
@@ -372,5 +368,18 @@
     "description": "Se sua função ou datas estiverem incorretas, avise-nos.",
     "not_a_volunteer_message": "De acordo com nossos registros, você não é ou foi um voluntário. Se essa informação estiver incorreta, avise-nos preenchendo <1>este formulário<1>.",
     "update_success": "Suas informações de voluntário foram atualizadas."
+  },
+  "motivations_form": {
+    "header": "O que o traz ao Couchers?",
+    "hosting_description": "Quero hospedar e receber viajantes na minha cidade",
+    "community_organizing": "Organizar uma comunidade",
+    "community_organizing_description": "Quero organizar eventos e atividades na plataforma",
+    "something_else_description": "Estou só explorando ou ainda não decidi",
+    "surfing": "Ficar hospedado na casa das pessoas",
+    "surfing_description": "Estou planejando uma viagem e procurando um anfitrião",
+    "hosting": "Hospedar",
+    "something_else": "Outra coisa",
+    "events_description": "Quero participar de eventos e conhecer a comunidade",
+    "events": "Eventos"
   }
 }

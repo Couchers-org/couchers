@@ -48,10 +48,10 @@ export default function HostRequestListItem({
 }: HostRequestListItemProps) {
   const { t } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
-  const isHost = authState.userId === hostRequest.hostUserId;
+  const isHost = authState.userId === hostRequest.recipientUserId;
   const { data: currentUser } = useCurrentUser();
   const { data: otherUser, isLoading: isOtherUserLoading } = useLiteUser(
-    isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
+    isHost ? hostRequest.initiatorUserId : hostRequest.recipientUserId,
   );
   const isUnread =
     hostRequest.lastSeenMessageId !== hostRequest.latestMessage?.messageId;

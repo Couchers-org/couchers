@@ -14,6 +14,7 @@ def send_expo_push_notification(
     token: str,
     title: str,
     body: str,
+    ios_subtitle: str | None = None,
     data: dict[str, Any] | None = None,
     collapse_key: str | None = None,
 ) -> dict[str, Any]:
@@ -27,6 +28,8 @@ def send_expo_push_notification(
         "priority": "high",
         "channelId": "default",
     }
+    if ios_subtitle:
+        message["subtitle"] = ios_subtitle
 
     if collapse_key:
         message["collapseKey"] = collapse_key

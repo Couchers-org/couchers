@@ -67,6 +67,7 @@ line-length = 120
 exclude = [
     ".venv",
     "src/couchers/proto",
+    "src/tests/pytest_split",
 ]
 
 [tool.ruff.lint]
@@ -98,7 +99,7 @@ extra-standard-library = ["zoneinfo"]
 
 
 # Pytest
-[tool.pytest]
+[tool.pytest.ini_options]
 strict = true
 filterwarnings = [
     "error",  # Treat all warnings as errors by default
@@ -142,6 +143,11 @@ disallow_incomplete_defs = false
 module = ["tests.fixtures.sessions"]
 # Mock gRPC infrastructure intentionally violates type contracts
 disable_error_code = ["arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["tests.pytest_split.*"]
+# Vendored pytest-split code
+ignore_errors = true
 
 
 # Coverage

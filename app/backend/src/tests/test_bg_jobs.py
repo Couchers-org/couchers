@@ -14,8 +14,8 @@ from couchers.config import config
 from couchers.constants import HOST_REQUEST_MAX_REMINDERS, HOST_REQUEST_REMINDER_INTERVAL
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
-from couchers.email import queue_email
 from couchers.email.dev import print_dev_email
+from couchers.email.queuing import queue_email
 from couchers.jobs import handlers
 from couchers.jobs.definitions import Job
 from couchers.jobs.enqueue import queue_job

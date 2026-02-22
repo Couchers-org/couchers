@@ -1,4 +1,5 @@
 import logging
+from typing import TYPE_CHECKING
 
 import grpc
 from sqlalchemy import and_, exists, not_, or_, select
@@ -14,6 +15,9 @@ from couchers.metrics import (
     observe_moderation_visibility_transition,
 )
 from couchers.models import (
+    Event,
+    EventOccurrence,
+    FriendRelationship,
     GroupChat,
     HostRequest,
     Message,
@@ -32,6 +36,9 @@ from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import Timestamp_from_datetime, now
 
+if TYPE_CHECKING:
+    from couchers.sql import _ModeratedContent
+
 logger = logging.getLogger(__name__)
 
 MAX_PAGINATION_LENGTH = 1_000
@@ -39,64 +46,76 @@ MAX_PAGINATION_LENGTH = 1_000
 # Moderation enum mappings
 moderationvisibility2api = {
     None: moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED,
-    ModerationVisibility.HIDDEN: moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
-    ModerationVisibility.SHADOWED: moderation_pb2.MODERATION_VISIBILITY_SHADOWED,
-    ModerationVisibility.VISIBLE: moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
-    ModerationVisibility.UNLISTED: moderation_pb2.MODERATION_VISIBILITY_UNLISTED,
+    ModerationVisibility.hidden: moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+    ModerationVisibility.shadowed: moderation_pb2.MODERATION_VISIBILITY_SHADOWED,
+    ModerationVisibility.visible: moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+    ModerationVisibility.unlisted: moderation_pb2.MODERATION_VISIBILITY_UNLISTED,
 }
 
 moderationvisibility2sql = {
     moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED: None,
-    moderation_pb2.MODERATION_VISIBILITY_HIDDEN: ModerationVisibility.HIDDEN,
-    moderation_pb2.MODERATION_VISIBILITY_SHADOWED: ModerationVisibility.SHADOWED,
-    moderation_pb2.MODERATION_VISIBILITY_VISIBLE: ModerationVisibility.VISIBLE,
-    moderation_pb2.MODERATION_VISIBILITY_UNLISTED: ModerationVisibility.UNLISTED,
+    moderation_pb2.MODERATION_VISIBILITY_HIDDEN: ModerationVisibility.hidden,
+    moderation_pb2.MODERATION_VISIBILITY_SHADOWED: ModerationVisibility.shadowed,
+    moderation_pb2.MODERATION_VISIBILITY_VISIBLE: ModerationVisibility.visible,
+    moderation_pb2.MODERATION_VISIBILITY_UNLISTED: ModerationVisibility.unlisted,
 }
 
 moderationtrigger2api = {
     None: moderation_pb2.MODERATION_TRIGGER_UNSPECIFIED,
-    ModerationTrigger.INITIAL_REVIEW: moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW,
-    ModerationTrigger.USER_FLAG: moderation_pb2.MODERATION_TRIGGER_USER_FLAG,
-    ModerationTrigger.MACHINE_FLAG: moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
-    ModerationTrigger.MODERATOR_REVIEW: moderation_pb2.MODERATION_TRIGGER_MODERATOR_REVIEW,
+    ModerationTrigger.initial_review: moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW,
+    ModerationTrigger.user_flag: moderation_pb2.MODERATION_TRIGGER_USER_FLAG,
+    ModerationTrigger.machine_flag: moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG,
+    ModerationTrigger.moderator_review: moderation_pb2.MODERATION_TRIGGER_MODERATOR_REVIEW,
 }
 
 moderationtrigger2sql = {
     moderation_pb2.MODERATION_TRIGGER_UNSPECIFIED: None,
-    moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW: ModerationTrigger.INITIAL_REVIEW,
-    moderation_pb2.MODERATION_TRIGGER_USER_FLAG: ModerationTrigger.USER_FLAG,
-    moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG: ModerationTrigger.MACHINE_FLAG,
-    moderation_pb2.MODERATION_TRIGGER_MODERATOR_REVIEW: ModerationTrigger.MODERATOR_REVIEW,
+    moderation_pb2.MODERATION_TRIGGER_INITIAL_REVIEW: ModerationTrigger.initial_review,
+    moderation_pb2.MODERATION_TRIGGER_USER_FLAG: ModerationTrigger.user_flag,
+    moderation_pb2.MODERATION_TRIGGER_MACHINE_FLAG: ModerationTrigger.machine_flag,
+    moderation_pb2.MODERATION_TRIGGER_MODERATOR_REVIEW: ModerationTrigger.moderator_review,
 }
 
 moderationaction2api = {
     None: moderation_pb2.MODERATION_ACTION_UNSPECIFIED,
-    ModerationAction.CREATE: moderation_pb2.MODERATION_ACTION_CREATE,
-    ModerationAction.APPROVE: moderation_pb2.MODERATION_ACTION_APPROVE,
-    ModerationAction.HIDE: moderation_pb2.MODERATION_ACTION_HIDE,
-    ModerationAction.FLAG: moderation_pb2.MODERATION_ACTION_FLAG,
-    ModerationAction.UNFLAG: moderation_pb2.MODERATION_ACTION_UNFLAG,
+    ModerationAction.create: moderation_pb2.MODERATION_ACTION_CREATE,
+    ModerationAction.approve: moderation_pb2.MODERATION_ACTION_APPROVE,
+    ModerationAction.hide: moderation_pb2.MODERATION_ACTION_HIDE,
+    ModerationAction.flag: moderation_pb2.MODERATION_ACTION_FLAG,
+    ModerationAction.unflag: moderation_pb2.MODERATION_ACTION_UNFLAG,
 }
 
 moderationaction2sql = {
     moderation_pb2.MODERATION_ACTION_UNSPECIFIED: None,
-    moderation_pb2.MODERATION_ACTION_CREATE: ModerationAction.CREATE,
-    moderation_pb2.MODERATION_ACTION_APPROVE: ModerationAction.APPROVE,
-    moderation_pb2.MODERATION_ACTION_HIDE: ModerationAction.HIDE,
-    moderation_pb2.MODERATION_ACTION_FLAG: ModerationAction.FLAG,
-    moderation_pb2.MODERATION_ACTION_UNFLAG: ModerationAction.UNFLAG,
+    moderation_pb2.MODERATION_ACTION_CREATE: ModerationAction.create,
+    moderation_pb2.MODERATION_ACTION_APPROVE: ModerationAction.approve,
+    moderation_pb2.MODERATION_ACTION_HIDE: ModerationAction.hide,
+    moderation_pb2.MODERATION_ACTION_FLAG: ModerationAction.flag,
+    moderation_pb2.MODERATION_ACTION_UNFLAG: ModerationAction.unflag,
 }
 
 moderationobjecttype2api = {
     None: moderation_pb2.MODERATION_OBJECT_TYPE_UNSPECIFIED,
-    ModerationObjectType.HOST_REQUEST: moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
-    ModerationObjectType.GROUP_CHAT: moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
+    ModerationObjectType.host_request: moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
+    ModerationObjectType.group_chat: moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
+    ModerationObjectType.friend_request: moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST,
+    ModerationObjectType.event_occurrence: moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE,
 }
 
 moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_UNSPECIFIED: None,
-    moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST: ModerationObjectType.HOST_REQUEST,
-    moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT: ModerationObjectType.GROUP_CHAT,
+    moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST: ModerationObjectType.host_request,
+    moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT: ModerationObjectType.group_chat,
+    moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST: ModerationObjectType.friend_request,
+    moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE: ModerationObjectType.event_occurrence,
+}
+
+# Mapping from ModerationObjectType to the SQLAlchemy model class
+moderationobjecttype2model: dict[ModerationObjectType, _ModeratedContent] = {
+    ModerationObjectType.host_request: HostRequest,
+    ModerationObjectType.group_chat: GroupChat,
+    ModerationObjectType.friend_request: FriendRelationship,
+    ModerationObjectType.event_occurrence: EventOccurrence,
 }
 
 
@@ -105,26 +124,46 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
     object_type = state.object_type
     object_id = state.object_id
 
-    # Get the author user ID
-    if object_type == ModerationObjectType.HOST_REQUEST:
+    # Get the author user ID and content based on object type
+    if object_type == ModerationObjectType.host_request:
         author_user_id = session.execute(
             select(HostRequest.initiator_user_id).where(HostRequest.conversation_id == object_id)
         ).scalar_one()
-    elif object_type == ModerationObjectType.GROUP_CHAT:
+        # Get the first text message for this conversation
+        content = session.execute(
+            select(Message.text)
+            .where(Message.conversation_id == object_id)
+            .where(Message.message_type == MessageType.text)
+            .order_by(Message.id.asc())
+            .limit(1)
+        ).scalar_one_or_none()
+    elif object_type == ModerationObjectType.group_chat:
         author_user_id = session.execute(
             select(GroupChat.creator_id).where(GroupChat.conversation_id == object_id)
         ).scalar_one()
+        # Get the first text message for this conversation
+        content = session.execute(
+            select(Message.text)
+            .where(Message.conversation_id == object_id)
+            .where(Message.message_type == MessageType.text)
+            .order_by(Message.id.asc())
+            .limit(1)
+        ).scalar_one_or_none()
+    elif object_type == ModerationObjectType.friend_request:
+        author_user_id = session.execute(
+            select(FriendRelationship.from_user_id).where(FriendRelationship.id == object_id)
+        ).scalar_one()
+        # Friend requests have no text content
+        content = None
+    elif object_type == ModerationObjectType.event_occurrence:
+        author_user_id, title, description = session.execute(
+            select(EventOccurrence.creator_user_id, Event.title, EventOccurrence.content)
+            .join(Event, Event.id == EventOccurrence.event_id)
+            .where(EventOccurrence.id == object_id)
+        ).one()
+        content = f"{title}\n\n{description}"
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
-
-    # Get the first text message for this conversation
-    content = session.execute(
-        select(Message.text)
-        .where(Message.conversation_id == object_id)
-        .where(Message.message_type == MessageType.text)
-        .order_by(Message.id.asc())
-        .limit(1)
-    ).scalar_one_or_none()
 
     state_pb = moderation_pb2.ModerationStateInfo(
         moderation_state_id=state.id,
@@ -186,19 +225,18 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             author_user_id = request.item_author_user_id
 
             # Use EXISTS for efficient author filtering
-            hr_exists = exists().where(
-                and_(
-                    HostRequest.moderation_state_id == ModerationQueueItem.moderation_state_id,
-                    HostRequest.initiator_user_id == author_user_id,
+            author_exists_clauses = []
+            for model in moderationobjecttype2model.values():
+                author_col = getattr(model, model.__moderation_author_column__)
+                author_exists_clauses.append(
+                    exists().where(
+                        and_(
+                            model.moderation_state_id == ModerationQueueItem.moderation_state_id,
+                            author_col == author_user_id,
+                        )
+                    )
                 )
-            )
-            gc_exists = exists().where(
-                and_(
-                    GroupChat.moderation_state_id == ModerationQueueItem.moderation_state_id,
-                    GroupChat.creator_id == author_user_id,
-                )
-            )
-            statement = statement.where(or_(hr_exists, gc_exists))
+            statement = statement.where(or_(*author_exists_clauses))
 
         # Order by time created
         if request.newest_first:
@@ -366,7 +404,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         observe_moderation_visibility_transition(old_visibility, new_visibility, moderation_state.object_type)
 
         # If visibility becomes VISIBLE or UNLISTED, trigger pending notifications
-        if new_visibility in (ModerationVisibility.VISIBLE, ModerationVisibility.UNLISTED):
+        if new_visibility in (ModerationVisibility.visible, ModerationVisibility.unlisted):
             pending_notifications = (
                 session.execute(
                     select(Notification)
@@ -402,7 +440,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         if not moderation_state:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "moderation_state_not_found")
 
-        trigger = moderationtrigger2sql[request.trigger] or ModerationTrigger.INITIAL_REVIEW
+        trigger = moderationtrigger2sql[request.trigger] or ModerationTrigger.initial_review
         reason = request.reason or "Flagged by admin for review"
 
         # Add to moderation queue
@@ -414,7 +452,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         session.add(queue_item)
         session.flush()
 
-        observe_moderation_action(ModerationAction.FLAG, moderation_state.object_type)
+        observe_moderation_action(ModerationAction.flag, moderation_state.object_type)
         observe_moderation_queue_item_created(trigger, moderation_state.object_type)
 
         queue_item_pb = moderation_pb2.ModerationQueueItemInfo(
@@ -449,7 +487,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         # Log the unflag action
         log_entry = ModerationLog(
             moderation_state_id=moderation_state.id,
-            action=ModerationAction.UNFLAG,
+            action=ModerationAction.unflag,
             moderator_user_id=context.user_id,
             new_visibility=None,
             reason=reason,
@@ -469,16 +507,16 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             queue_item.resolved_by_log_id = log_entry.id
             session.flush()
             observe_moderation_queue_item_resolved(
-                queue_item.trigger, ModerationAction.UNFLAG, moderation_state.object_type
+                queue_item.trigger, ModerationAction.unflag, moderation_state.object_type
             )
             observe_moderation_queue_resolution_time(
                 queue_item.trigger,
-                ModerationAction.UNFLAG,
+                ModerationAction.unflag,
                 moderation_state.object_type,
                 (now() - queue_item.time_created).total_seconds(),
             )
 
-        observe_moderation_action(ModerationAction.UNFLAG, moderation_state.object_type)
+        observe_moderation_action(ModerationAction.unflag, moderation_state.object_type)
 
         return moderation_pb2.UnflagContentRes(
             moderation_state=moderation_state_to_pb(moderation_state, session),

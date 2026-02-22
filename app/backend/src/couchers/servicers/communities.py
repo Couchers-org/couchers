@@ -12,6 +12,7 @@ from couchers.constants import COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD
 from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
 from couchers.db import can_moderate_node, get_node_parents_recursively, is_user_in_node_geography
+from couchers.event_log import log_event
 from couchers.materialized_views import ClusterAdminCount, ClusterSubscriptionCount
 from couchers.models import (
     Cluster,
@@ -21,6 +22,7 @@ from couchers.models import (
     Event,
     EventOccurrence,
     Node,
+    NodeType,
     Page,
     PageType,
     User,
@@ -30,12 +32,21 @@ from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import to_bool, users_visible
+from couchers.sql import to_bool, users_visible, where_moderated_content_visible
 from couchers.utils import Timestamp_from_datetime, dt_from_millis, millis_from_dt, now
 
 logger = logging.getLogger(__name__)
 
 MAX_PAGINATION_LENGTH = 25
+
+nodetype2api = {
+    NodeType.world: communities_pb2.NODE_TYPE_WORLD,
+    NodeType.macroregion: communities_pb2.NODE_TYPE_MACROREGION,
+    NodeType.region: communities_pb2.NODE_TYPE_REGION,
+    NodeType.subregion: communities_pb2.NODE_TYPE_SUBREGION,
+    NodeType.locality: communities_pb2.NODE_TYPE_LOCALITY,
+    NodeType.sublocality: communities_pb2.NODE_TYPE_SUBLOCALITY,
+}
 
 
 def _parents_to_pb(session: Session, node_id: int) -> list[groups_pb2.Parent]:
@@ -112,6 +123,7 @@ def communities_to_pb(
             can_moderate=can_moderate,
             discussions_enabled=official_cluster.discussions_enabled,
             events_enabled=official_cluster.events_enabled,
+            node_type=nodetype2api[node.node_type],
         )
         for node, official_cluster, can_moderate in zip(nodes, official_clusters, can_moderates)
     ]
@@ -406,6 +418,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         query = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(or_(*membership_clauses))
         )
+        query = where_moderated_content_visible(query, context, EventOccurrence, is_list_operation=True)
 
         if request.past:
             cutoff = page_token + timedelta(seconds=1)
@@ -464,6 +477,13 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             )
         )
 
+        log_event(
+            context,
+            session,
+            "community.joined",
+            {"community_id": node.id, "community_name": node.official_cluster.name},
+        )
+
         return empty_pb2.Empty()
 
     def LeaveCommunity(
@@ -485,6 +505,10 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             delete(ClusterSubscription)
             .where(ClusterSubscription.cluster_id == node.official_cluster.id)
             .where(ClusterSubscription.user_id == context.user_id)
+        )
+
+        log_event(
+            context, session, "community.left", {"community_id": node.id, "community_name": node.official_cluster.name}
         )
 
         return empty_pb2.Empty()
@@ -550,6 +574,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                     member_count=member_count or 1,
                     parents=_parents_to_pb(session, node.id),
                     created=Timestamp_from_datetime(node.created),
+                    node_type=nodetype2api[node.node_type],
                 )
                 for node, cluster, member_count, user_subscription in results
             ],

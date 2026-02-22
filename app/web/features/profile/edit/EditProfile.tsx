@@ -8,33 +8,34 @@ import {
   Radio,
   RadioGroup,
   styled,
-  TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
+import Avatar from "components/Avatar";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import { Dialog, DialogActions, DialogTitle } from "components/Dialog";
 import EditLocationMap from "components/EditLocationMap";
-import ImageInput from "components/ImageInput";
+import GalleryEditor from "components/GalleryEditor/GalleryEditor";
 import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
+import TextField from "components/TextField";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useRegions } from "features/profile/hooks/useRegions";
 import useUpdateUserProfile from "features/profile/hooks/useUpdateUserProfile";
 import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
-import { userKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
+import { useRouter } from "next/router";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { howToMakeGreatProfileUrl } from "routes";
-import { service, UpdateUserProfileData } from "service/index";
+import { UpdateUserProfileData } from "service/index";
 import { theme } from "theme";
 import {
   useIsMounted,
@@ -137,6 +138,18 @@ const AvatarImageWrapper = styled(Box)(({ theme }) => ({
   },
 }));
 
+const ClickableAvatarWrapper = styled(Box)(() => ({
+  cursor: "pointer",
+  transition: "transform 0.2s ease-in-out, opacity 0.2s ease-in-out",
+  "&:hover": {
+    transform: "scale(1.05)",
+    opacity: 0.8,
+  },
+  "&:active": {
+    transform: "scale(0.98)",
+  },
+}));
+
 const AvatarTextWrapper = styled(Box)(({ theme }) => ({
   flex: "1 1 67%",
   maxWidth: "67%",
@@ -157,11 +170,17 @@ const StickySaveBar = styled(Box)(({ theme }) => ({
   borderTop: `1px solid var(--mui-palette-grey-200)`,
   boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
   padding: theme.spacing(1.5, 3),
-  zIndex: 1000,
+  zIndex: 1200,
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
   gap: theme.spacing(2),
+
+  [theme.breakpoints.down("md")]: {
+    bottom: 55,
+    padding: theme.spacing(1),
+    paddingBottom: `calc(${theme.spacing(1)} + env(safe-area-inset-bottom, 0px))`,
+  },
 }));
 
 const SaveButton = styled(Button)(({ theme }) => ({
@@ -176,11 +195,20 @@ const SaveButton = styled(Button)(({ theme }) => ({
     boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
     transform: "translateY(-1px)",
   },
+
+  [theme.breakpoints.down("md")]: {
+    minWidth: 150,
+    fontSize: "0.9rem",
+    padding: theme.spacing(1, 2),
+  },
 }));
 
 const BottomSpacer = styled(Box)(({ theme }) => ({
   height: 80,
   marginBottom: theme.spacing(2),
+  [theme.breakpoints.down("md")]: {
+    height: 140,
+  },
 }));
 
 const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
@@ -199,11 +227,6 @@ const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
 };
 const StyledProfileTextInput = styledField(ProfileTextInput);
 
-const StyledAvatarInput = styled(ImageInput)(() => ({
-  width: 120,
-  height: 120,
-}));
-
 const StyledProfileMarkdownInput = styledField(ProfileMarkdownInput);
 
 const StyledRadioGroup = styled(RadioGroup)(() => ({
@@ -217,6 +240,7 @@ const StyledRadioGroup = styled(RadioGroup)(() => ({
 
 export default function EditProfileForm() {
   const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
+  const router = useRouter();
   const {
     updateUserProfile,
     reset: resetUpdate,
@@ -232,10 +256,7 @@ export default function EditProfileForm() {
   const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
     useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
-
-  const [isUploading, setIsUploading] = useState(false);
-
-  const queryClient = useQueryClient();
+  const galleryEditorRef = useRef<HTMLDivElement>(null);
 
   const {
     control,
@@ -316,14 +337,43 @@ export default function EditProfileForm() {
     }
   }, [user, reset, languages, regions]);
 
+  // Scroll to gallery editor if hash is #gallery (from ProfilePage avatar click)
+  useEffect(() => {
+    if (router.asPath.includes("#gallery") && galleryEditorRef.current) {
+      // Longer delay for mobile WebViews to ensure page is fully rendered
+      const timer = setTimeout(() => {
+        if (galleryEditorRef.current) {
+          // Try scrollIntoView first
+          galleryEditorRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+
+          // Fallback: Also try window.scrollTo as backup for WebViews
+          setTimeout(() => {
+            if (galleryEditorRef.current) {
+              const rect = galleryEditorRef.current.getBoundingClientRect();
+              const scrollTop =
+                window.pageYOffset || document.documentElement.scrollTop;
+              const targetPosition = rect.top + scrollTop - 100;
+              window.scrollTo({
+                top: targetPosition,
+                behavior: "smooth",
+              });
+            }
+          }, 50);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [router.asPath]);
+
   const aboutMeField = watch("aboutMe") ?? "";
 
   useUnsavedChangesWarning({
-    isDirty: isDirty || isUploading,
+    isDirty: isDirty,
     isSubmitted: isSubmitted,
-    warningMessage: isUploading
-      ? t("profile:image_uploading_warning")
-      : t("profile:unsaved_changes_warning"),
+    warningMessage: t("profile:unsaved_changes_warning"),
   });
 
   const onSubmit = handleSubmit(
@@ -373,10 +423,6 @@ export default function EditProfileForm() {
         setShowIncompleteProfileDialog(false);
       }
     },
-    // All field validation errors should scroll to their respective field
-    // Except the avatar, so this scrolls to top on avatar validation error
-    (errors) =>
-      errors.avatarKey && window.scroll({ top: 0, behavior: "smooth" }),
   );
 
   const handleSubmitButtonClick = (event: FormEvent<HTMLFormElement>) => {
@@ -389,16 +435,18 @@ export default function EditProfileForm() {
     }
   };
 
+  const handleAvatarClick = () => {
+    galleryEditorRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
+
   return (
     <>
       {updateError && (
         <Alert severity="error">
           {errorMessage || t("global:error.unknown")}
-        </Alert>
-      )}
-      {errors.avatarKey && (
-        <Alert severity="error">
-          {errors.avatarKey?.message || t("global:error.unknown")}
         </Alert>
       )}
       {!user?.avatarUrl && (
@@ -420,7 +468,7 @@ export default function EditProfileForm() {
             </Typography>
           </HelpTextContainer>
 
-          <form onSubmit={handleSubmitButtonClick}>
+          <form id="edit-profile-form" onSubmit={handleSubmitButtonClick}>
             {/* Basic Information Section */}
             <ProfileSection>
               <SectionTitle>
@@ -432,22 +480,27 @@ export default function EditProfileForm() {
 
               <AvatarContainer>
                 <AvatarImageWrapper>
-                  <StyledAvatarInput
-                    control={control}
-                    id="profile-picture"
-                    name="avatarKey"
-                    initialPreviewSrc={user.avatarUrl}
-                    userName={user.name}
-                    type="avatar"
-                    onUploading={setIsUploading}
-                    onSuccess={async (data) => {
-                      await service.user.updateAvatar(data.key);
-                      if (user)
-                        queryClient.invalidateQueries({
-                          queryKey: userKey(user.userId),
-                        });
-                    }}
-                  />
+                  {user.avatarUrl ? (
+                    <Avatar
+                      user={user}
+                      isProfileLink={false}
+                      style={{ width: 120, height: 120 }}
+                    />
+                  ) : (
+                    <Tooltip
+                      title={t("profile:click_to_add_photo")}
+                      arrow
+                      placement="top"
+                    >
+                      <ClickableAvatarWrapper onClick={handleAvatarClick}>
+                        <Avatar
+                          user={user}
+                          isProfileLink={false}
+                          style={{ width: 120, height: 120 }}
+                        />
+                      </ClickableAvatarWrapper>
+                    </Tooltip>
+                  )}
                 </AvatarImageWrapper>
                 <AvatarTextWrapper>
                   <Typography>
@@ -460,13 +513,32 @@ export default function EditProfileForm() {
                         display: "inline",
                       }}
                     />
-                    <Trans
-                      i18nKey="profile:avatar_photo_info"
-                      components={{ bold: <b /> }}
-                    />
+                    {user.avatarUrl ? (
+                      <Trans
+                        t={t}
+                        i18nKey="profile:avatar_photo_info"
+                        components={{ bold: <strong /> }}
+                      />
+                    ) : (
+                      <Trans
+                        t={t}
+                        i18nKey="profile:avatar_placeholder_info"
+                        components={{ bold: <strong /> }}
+                      />
+                    )}
                   </Typography>
                 </AvatarTextWrapper>
               </AvatarContainer>
+
+              <FieldGroup ref={galleryEditorRef}>
+                <GalleryEditor
+                  galleryId={user.profileGalleryId}
+                  userId={user.userId}
+                  title={t("profile:gallery.profile_photos_title")}
+                  description={t("profile:gallery.profile_photos_description")}
+                  hasStrongVerification={user.hasStrongVerification}
+                />
+              </FieldGroup>
 
               <FieldGroup>
                 <StyledProfileTextInput
@@ -741,6 +813,7 @@ export default function EditProfileForm() {
                             control={<Radio />}
                             label={
                               <TextField
+                                id="pronouns-other"
                                 variant="standard"
                                 onChange={(event) =>
                                   field.onChange(event.target.value)
@@ -959,14 +1032,14 @@ export default function EditProfileForm() {
           </form>
 
           {/* Sticky Save Bar */}
-          {user && (isDirty || isUploading) && (
+          {user && isDirty && (
             <StickySaveBar>
               <SaveButton
                 type="submit"
                 variant="contained"
                 color="primary"
-                loading={updateIsLoading || isUploading}
-                disabled={!isDirty || updateIsLoading || isUploading}
+                loading={updateIsLoading}
+                disabled={!isDirty || updateIsLoading}
                 onClick={handleSubmitButtonClick}
               >
                 {t("global:save_changes")}

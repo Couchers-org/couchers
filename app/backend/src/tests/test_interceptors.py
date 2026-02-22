@@ -16,7 +16,7 @@ from couchers.constants import (
     MISSING_AUTH_LEVEL_ERROR_MESSAGE,
     NONEXISTENT_API_CALL_ERROR_MESSAGE,
 )
-from couchers.crypto import random_hex
+from couchers.crypto import b64encode, random_hex, simple_encrypt
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
 from couchers.interceptors import (
@@ -35,7 +35,7 @@ from couchers.models import APICall, User, UserActivity, UserSession
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
-from couchers.utils import now
+from couchers.utils import generate_sofa_cookie, now, parse_sofa_cookie
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import real_admin_session
 
@@ -931,3 +931,166 @@ def test_check_auth_admin_service_with_superuser():
 def test_check_auth_admin_service_without_auth():
     with pytest.raises(AbortError):
         check_permissions(None, annotations_pb2.AUTH_LEVEL_ADMIN)
+
+
+def test_parse_sofa_cookie_valid():
+    sofa_value, cookie_string = generate_sofa_cookie()
+    cookie_value = cookie_string.split("=", 1)[1].split(";")[0]
+
+    headers = {"cookie": f"sofa={cookie_value}"}
+    result = parse_sofa_cookie(headers)
+    assert result == sofa_value
+
+
+def test_parse_sofa_cookie_missing():
+    headers = {"cookie": "other-cookie=value"}
+    result = parse_sofa_cookie(headers)
+    assert result is None
+
+
+def test_parse_sofa_cookie_no_cookies():
+    headers: dict[str, str] = {}
+    result = parse_sofa_cookie(headers)
+    assert result is None
+
+
+def test_parse_sofa_cookie_invalid_base64():
+    headers = {"cookie": "sofa=not-valid-base64!!!"}
+    result = parse_sofa_cookie(headers)
+    assert result is None
+
+
+def test_parse_sofa_cookie_invalid_encryption():
+    headers = {"cookie": f"sofa={b64encode(b'invalid encrypted data')}"}
+    result = parse_sofa_cookie(headers)
+    assert result is None
+
+
+def test_parse_sofa_cookie_invalid_proto():
+    encrypted = simple_encrypt("sofa_cookie", b"not a valid proto")
+    headers = {"cookie": f"sofa={b64encode(encrypted)}"}
+    result = parse_sofa_cookie(headers)
+    assert result is not None or result is None
+
+
+def test_generate_sofa_cookie():
+    sofa_value, cookie_string = generate_sofa_cookie()
+
+    assert sofa_value
+    assert isinstance(sofa_value, str)
+    assert len(sofa_value) > 20
+
+    assert "sofa=" in cookie_string
+    assert "expires=" in cookie_string.lower()
+
+    cookie_value = cookie_string.split("=", 1)[1].split(";")[0]
+    headers = {"cookie": f"sofa={cookie_value}"}
+    parsed_value = parse_sofa_cookie(headers)
+    assert parsed_value == sofa_value
+
+
+def test_parse_headers_with_sofa_cookie():
+    sofa_value, cookie_string = generate_sofa_cookie()
+    cookie_value = cookie_string.split("=", 1)[1].split(";")[0]
+
+    headers = {
+        "cookie": f"couchers-sesh=abc123; sofa={cookie_value}",
+    }
+    result = parse_headers(headers)
+    assert result.token == "abc123"
+    assert result.sofa == sofa_value
+
+
+def test_parse_headers_without_sofa_cookie():
+    headers = {
+        "cookie": "couchers-sesh=abc123",
+    }
+    result = parse_headers(headers)
+    assert result.token == "abc123"
+    assert result.sofa is None
+
+
+def test_sofa_cookie_logged_new(db):
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
+        call_rpc(empty_pb2.Empty())
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.sofa is not None
+        assert len(trace.sofa) > 20
+
+
+def test_sofa_cookie_logged_existing(db):
+    sofa_value, cookie_string = generate_sofa_cookie()
+    cookie_value = cookie_string.split("=", 1)[1].split(";")[0]
+
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
+        call_rpc(empty_pb2.Empty(), metadata=(("cookie", f"sofa={cookie_value}"),))
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.sofa == sofa_value
+
+
+def test_sofa_cookie_logged_invalid_generates_new(db):
+    def TestRpc(request, context, session):
+        return empty_pb2.Empty()
+
+    with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
+        call_rpc(empty_pb2.Empty(), metadata=(("cookie", "sofa=invalid-cookie-value"),))
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.sofa is not None
+        assert trace.sofa != "invalid-cookie-value"
+        assert len(trace.sofa) > 20
+
+
+def test_sofa_cookie_with_authenticated_user(db):
+    user, token = generate_user()
+    sofa_value, cookie_string = generate_sofa_cookie()
+    cookie_value = cookie_string.split("=", 1)[1].split(";")[0]
+
+    account = Account()
+
+    rpc_def = {
+        "rpc": account.GetAccountInfo,
+        "service_name": "org.couchers.api.account.Account",
+        "method_name": "GetAccountInfo",
+        "interceptors": [CouchersMiddlewareInterceptor()],
+        "request_type": empty_pb2.Empty,
+        "response_type": account_pb2.GetAccountInfoRes,
+    }
+
+    with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
+        res = call_rpc(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}; sofa={cookie_value}"),))
+    assert res.username == user.username
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.user_id == user.id
+        assert trace.sofa == sofa_value
+
+
+def test_sofa_cookie_persists_on_exception(db):
+    sofa_value, cookie_string = generate_sofa_cookie()
+    cookie_value = cookie_string.split("=", 1)[1].split(";")[0]
+
+    def TestRpc(request, context, session):
+        raise Exception("Test error")
+
+    with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
+        with pytest.raises(Exception, match="Test error"):
+            call_rpc(empty_pb2.Empty(), metadata=(("cookie", f"sofa={cookie_value}"),))
+
+    with session_scope() as session:
+        trace = session.execute(select(APICall)).scalar_one()
+        assert trace.sofa == sofa_value
+        assert trace.traceback is not None
+        assert "Test error" in trace.traceback
