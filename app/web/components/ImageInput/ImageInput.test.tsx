@@ -110,7 +110,7 @@ describe.each`
   it("uploads and submits key", async () => {
     const user = userEvent.setup({ applyAccept: false });
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(t("global:select_an_image")) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -156,7 +156,7 @@ describe.each`
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(t("global:select_an_image")) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -174,11 +174,11 @@ describe.each`
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(t("global:select_an_image")) as HTMLInputElement,
       new File([new Blob(undefined)], ""),
     );
     expect(
-      await screen.findByText(new RegExp(t("profile:couldnt_read_file"))),
+      await screen.findByText(new RegExp(t("global:couldnt_read_file"))),
     ).toBeVisible();
   });
 
@@ -189,7 +189,7 @@ describe.each`
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(t("global:select_an_image")) as HTMLInputElement,
       new File([new Blob(undefined)], ""),
     );
 
@@ -208,7 +208,7 @@ describe.each`
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(t("global:select_an_image")) as HTMLInputElement,
       largeFile,
     );
 
@@ -245,7 +245,7 @@ describe.each`
     // Start upload
     await user.upload(
       within(form).getByLabelText(
-        t("profile:select_an_image"),
+        t("global:select_an_image"),
       ) as HTMLInputElement,
       MOCK_FILE,
     );
@@ -312,7 +312,7 @@ describe("ImageInput http error tests", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(t("global:select_an_image")) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -332,7 +332,7 @@ describe("ImageInput http error tests", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(t("global:select_an_image")) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -355,7 +355,7 @@ describe("ImageInput http error tests", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(t("global:select_an_image")) as HTMLInputElement,
       MOCK_FILE,
     );
 

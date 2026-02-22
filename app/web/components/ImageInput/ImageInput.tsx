@@ -5,7 +5,7 @@ import MuiIconButton from "@mui/material/IconButton";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import React, { useCallback, useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
@@ -92,7 +92,7 @@ const StyledInput = styled("input")(({ theme }) => ({
 function ImageInput(props: AvatarInputProps | RectImgInputProps) {
   const { className, control, id, initialPreviewSrc, name } = props;
 
-  const { t } = useTranslation([PROFILE]);
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const { isNative, pickImage } = useNativeImagePicker();
 
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
@@ -154,7 +154,7 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
           },
         },
       );
-      setReaderError(t("profile:couldnt_read_file"));
+      setReaderError(t("global:couldnt_read_file"));
     }
   };
 
@@ -192,7 +192,7 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
       Sentry.captureException(e, {
         tags: { component: "ImageInput", native: true },
       });
-      setReaderError(t("profile:couldnt_read_file"));
+      setReaderError(t("global:couldnt_read_file"));
     }
   }, [pickImage, mutation, t]);
 
@@ -205,7 +205,7 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
       {fileSizeError && <Alert severity="error">{fileSizeError}</Alert>}
       <FlexWrapper>
         <StyledInput
-          aria-label={t("profile:select_an_image")}
+          aria-label={t("global:select_an_image")}
           accept="image/jpeg,image/png,image/gif"
           id={id}
           type="file"
@@ -226,7 +226,7 @@ function ImageInput(props: AvatarInputProps | RectImgInputProps) {
           }
         >
           {props.type === "avatar" ? (
-            <Tooltip title={t("profile:click_replace_image")} placement="top">
+            <Tooltip title={t("global:click_replace_image")} placement="top">
               <MuiIconButton
                 component="span"
                 sx={{ position: "relative" }}
