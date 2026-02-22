@@ -7,7 +7,9 @@
     },
     "account_deletion__complete": {
       "title": "Hesap silindi",
-      "ios_title": "Hesap Silindi"
+      "ios_title": "Hesap Silindi",
+      "body_one": "Size yolladığımız link ile {{count}} gün içinde bu işlemi geri alabilirsiniz.",
+      "body_other": "Size yolladığımız link ile {{count}} gün içinde bu işlemi geri alabilirsiniz."
     },
     "account_deletion__recovered": {
       "title": "Hesap eski haline getirildi",

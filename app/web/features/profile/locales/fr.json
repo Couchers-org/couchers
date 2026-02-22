@@ -236,8 +236,7 @@
     "stay_type_a11y_text": "type de séjour",
     "success": "Votre demande d'hébergement a été envoyée !",
     "guest_count": "Nombre d'invités",
-    "arrival_date_empty": "Veuillez spécifier une date d'arrivée prévue",
-    "request_char_length_too_short": "Veuillez entrer {{charactersRemaining}} caratères supplémentaires pour envoyer une demande d'hébergement."
+    "arrival_date_empty": "Veuillez spécifier une date d'arrivée prévue"
   },
   "reference_badge_label": {
     "friend": "Ami(e)",
@@ -317,7 +316,6 @@
   "have_pending_reference_text": "Vous avez une référence en attente à rédiger pour ce membre",
   "avatar_photo_info": "<bold>Une photo de vous est requise pour interagir avec la communauté.</bold> Une photo claire et amicale montrant votre visage inspire confiance, aide les autres à se sentir à l’aise et augmente considérablement vos chances de recevoir une réponse.",
   "gallery": {
-    "primary": "Principale",
     "add_photo": "Ajouter une photo",
     "remove_photo": "Supprimer la photo",
     "photo_count": "{{current}} de {{total}}",

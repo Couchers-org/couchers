@@ -192,6 +192,87 @@
     "strong_verification_already_verified": "Você já tem verificação forte.",
     "strong_verification_attempt_not_found": "Tentativa de verificação forte não encontrada.",
     "strong_verification_disabled": "No momento, a verificação forte está desabilitada.",
-    "thread_not_found": "Linha de discussão não encontrada."
+    "thread_not_found": "Linha de discussão não encontrada.",
+    "signup_flow_account_filled": "Informações de contato já preenchidas.",
+    "signup_flow_basic_filled": "Detalhes da conta já preenchidos.",
+    "signup_flow_basic_needed": "É preciso se registrar para preencher os detalhes da conta.",
+    "signup_flow_feedback_filled": "Informações de feedback já preenchidos.",
+    "too_many_sms_code_attempts": "Muitas tentativas de código de SMS realizadas.",
+    "unknown_error": "Ocorreu um erro de backend desconhecido. Considere criar um ticket de erro.",
+    "unrecognized_phone_number": "Não foi possível reconhecer seu número de celular. Verifique novamente e entre em contato com o suporte se esse erro persistir.",
+    "upload_not_found": "Upload não encontrado.",
+    "upload_not_found_or_not_owned": "Upload não encontrado ou não pertence a você.",
+    "user_already_admin": "Este usuário já é um administrador.",
+    "user_already_blocked": "Usuário-alvo já foi bloqueado.",
+    "user_already_has_badge": "O usuário já tem essa insígnia.",
+    "user_already_volunteer": "Este usuário já é um voluntário.",
+    "user_does_not_have_badge": "O usuário não tem essa insíginia.",
+    "user_not_admin": "Este usuário não é um administrador.",
+    "user_not_blocked": "Usuário-alvo não está bloqueado.",
+    "user_not_found": "Não foi possível localizar esse usuário.",
+    "user_not_in_chat": "Este usuário não está nesta conversa.",
+    "user_not_in_the_moderation_user_list": "Usuário não está na lista de usuários da moderação.",
+    "user_not_member": "Este usuário não está na comunidade.",
+    "username_not_available": "Infelizmente, este nome de usuário não está disponível.",
+    "volunteer_not_found": "Voluntário não encontrado.",
+    "wrong_signature": "Assinatura incorreta.",
+    "wrong_sms_code": "O código está incorreto.",
+    "signup_flow_motivations_filled": "Você já contou porque está se registrando."
+  },
+  "quick_links": {
+    "do_not_email": "Você não receberá nenhum e-mail não relacionado a segurança, e seu status de hospedagem foi desabilitado. Você ainda pode receber a newsletter e precisa cancelar sua inscrição nela separadamente.",
+    "topic_action": "Sua inscrição em notificações por e-mail desse tipo foi cancelada.",
+    "chat_unsub": "Essa conversa em grupo foi silenciada.",
+    "host_request_quick_decline": "Agradecemos por responder à solicitação de hospedagem!"
+  },
+  "ghost_users": {
+    "display_name": "Conta desativada",
+    "about_me": "Este usuário não está mais na plataforma. Ele pode ter excluído sua conta, sido bloqueado ou banido. Recomendamos cautela com qualquer interação futura com este usuário fora da plataforma. Você sempre poderá entrar em contato com o suporte se precisar de ajuda."
+  },
+  "badges": {
+    "founder_name": "Fundador",
+    "founder_description": "Este usuário é um dos dois fundadores do Couchers.org",
+    "board_member_name": "Membro do conselho",
+    "board_member_description": "Este usuário atua no Conselho do Couchers, Inc. sem fins lucrativos",
+    "past_board_member_name": "Membro do conselho anteriormente",
+    "past_board_member_description": "Este usuário fez parte do conselho do Couchers, Inc. sem fins lucrativos",
+    "moderator_name": "Moderador",
+    "moderator_description": "Este usuário é um moderador do Couchers.org",
+    "volunteer_name": "Voluntário ativo",
+    "volunteer_description": "Este usuário é um voluntário ativo do Couchers.org",
+    "past_volunteer_name": "Voluntário anteriormente",
+    "past_volunteer_description": "Este usuário foi um voluntário do Couchers.org",
+    "donor_name": "Doador",
+    "donor_description": "Este usuário contribuiu financeiramente para o projeto",
+    "phone_verified_name": "Telefone verificado",
+    "phone_verified_description": "Este usuário teve seu número de telefone verificado",
+    "strong_verification_name": "Verificação forte",
+    "strong_verification_description": "Este usuário teve seu gênero e data de nascimento verificados com um passaporte biométrico",
+    "swagster_name": "Swagster",
+    "swagster_description": "Este usuário comprou um produto do Couchers.org!"
+  },
+  "community_guidelines": {
+    "be_kind_title": "Seja gentil com os outros",
+    "no_money_title": "Deixe o dinheiro de fora",
+    "be_safe_guideline": "Leia os perfis, referências e recursos. Denuncie qualquer conteúdo ou comportamento inapropriado.",
+    "no_dating_guideline": "O Couchers.org NÃO é um aplicativo de namoro ou relacionamento amoroso. Assédio ou usar a plataforma com o propósito de namoro ou relacionamento amoroso resultará em banimento.",
+    "be_safe_title": "Seja cauteloso e prudente",
+    "be_kind_guideline": "O Couchers.org é uma comunidade inclusiva onde pessoas de todas as culturas e experiências se reúnem. Trate todos com respeito mútuo e dignidade.",
+    "no_dating_title": "Isto não é um aplicativo de namoro",
+    "no_money_guideline": "Mantenha as coisas não comerciais. Não pague para ser hospedado ou hospedar. O Couchers.org tem a ver com aprendizado, experiências e conhecer pessoas."
+  },
+  "notifications": {
+    "donation_received": {
+      "questions_contact": "Se tiver alguma dúvida sobre sua doação, envie um e-mail para nós: <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
+      "purpose": "Sua contribuição será destinada a construção e manutenção da plataforma e da comunidade do Couchers.org, e é vital para nosso objetivo de fomentar uma geração completamente gratuita e sem fins lucrativos de couch surfing.",
+      "thanks_amount": "Muito obrigado por sua doação de ${{amount}} ao Couchers.org.",
+      "invoice_receipt_info": "Você pode baixar uma nota fiscal e um recibo para sua doação aqui:",
+      "download_invoice": "Baixar nota fiscal",
+      "generosity_helps": "Sua generosidade ajudará a disponibilizar a plataforma para todos.",
+      "title": "Obrigado por sua doação para o Couchers.org!"
+    },
+    "founders_signature": "Aapeli e Itsi,\nFundadores do Couchers.org",
+    "dear_name": "Caro {{name}},",
+    "thank_you": "Obrigado!"
   }
 }

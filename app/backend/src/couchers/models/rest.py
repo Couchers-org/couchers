@@ -207,6 +207,11 @@ class SignupFlow(Base, kw_only=True):
     contribute_ways: Mapped[list[str] | None] = mapped_column(ARRAY(String), default=None)
     expertise: Mapped[str | None] = mapped_column(String, default=None)
 
+    ## Motivations (how they heard about us and what they want to do)
+    filled_motivations: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), default=False)
+    heard_about_couchers: Mapped[str | None] = mapped_column(String, default=None)
+    signup_motivations: Mapped[list[str]] = mapped_column(ARRAY(String), server_default="{}", default_factory=list)
+
     invite_code_id: Mapped[str | None] = mapped_column(ForeignKey("invite_codes.id"), default=None)
 
     @hybrid_property
@@ -229,7 +234,12 @@ class SignupFlow(Base, kw_only=True):
 
     @hybrid_property
     def is_completed(self) -> Any:
-        return self.email_verified & self.account_is_filled & (self.accepted_community_guidelines == GUIDELINES_VERSION)
+        return (
+            self.email_verified
+            & self.account_is_filled
+            & (self.accepted_community_guidelines == GUIDELINES_VERSION)
+            & self.filled_motivations
+        )
 
 
 class AccountDeletionToken(Base, kw_only=True):

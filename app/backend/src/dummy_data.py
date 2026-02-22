@@ -12,6 +12,7 @@ from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.context import CouchersContext
 from couchers.crypto import hash_password
 from couchers.db import session_scope
+from couchers.helpers.clusters import CHILD_NODE_TYPE
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -279,9 +280,11 @@ def add_dummy_communities() -> None:
                     .where(Cluster.name == community["parent"])
                 ).scalar_one()
 
+            parent_node_type = parent_node.node_type if parent_name else None
             node = Node(
                 geom=to_multi(geom),
                 parent_node_id=parent_node.id if parent_name else None,
+                node_type=CHILD_NODE_TYPE[parent_node_type],
             )
 
             session.add(node)

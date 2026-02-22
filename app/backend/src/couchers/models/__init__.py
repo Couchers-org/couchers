@@ -1,4 +1,5 @@
 from .activeness_probe import *  # noqa: F401,F403
+from .admin import *  # noqa: F401,F403
 from .auth import *  # noqa: F401,F403
 from .background_jobs import *  # noqa: F401,F403
 from .base import *  # noqa: F401,F403

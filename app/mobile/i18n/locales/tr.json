@@ -2,7 +2,9 @@
   "errors": {
     "failed_to_load": "Yüklenemedi",
     "check_connection": "İnternet bağlantınızı kontrol edip tekrar deneyin.",
-    "try_again": "Tekrar dene"
+    "try_again": "Tekrar dene",
+    "camera_permission_denied": "Fotoğraf çekmek için kamera izni gerekli.",
+    "camera_permission_required": "Kamera İzni Gerekli"
   },
   "not_found": {
     "title": "Hay aksi!",

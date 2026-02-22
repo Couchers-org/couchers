@@ -33,6 +33,16 @@ if TYPE_CHECKING:
     from couchers.models import Discussion, Event, Thread, Upload, User
 
 
+class NodeType(enum.Enum):
+    # Ordinal: lower values are broader geographic areas
+    world = 1
+    macroregion = 2
+    region = 3
+    subregion = 4
+    locality = 5
+    sublocality = 6
+
+
 class Node(Base, kw_only=True):
     """
     Node, i.e., geographical subdivision of the world
@@ -49,6 +59,8 @@ class Node(Base, kw_only=True):
         server_default=communities_seq.next_value(),
         init=False,
     )
+
+    node_type: Mapped[NodeType] = mapped_column(Enum(NodeType))
 
     # name and description come from the official cluster
     parent_node_id: Mapped[int | None] = mapped_column(ForeignKey("nodes.id"), default=None, index=True)

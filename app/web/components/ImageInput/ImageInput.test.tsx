@@ -15,6 +15,7 @@ import i18n from "test/i18n";
 import { server } from "test/restMock";
 import { assertErrorAlert, mockConsoleError, MockedService } from "test/utils";
 
+import { MAX_FILE_SIZE } from "./constants";
 import ImageInput from "./ImageInput";
 
 const { t } = i18n;
@@ -155,6 +156,29 @@ describe("ImageInput component", () => {
     );
 
     expect(await screen.findByText("Whoops")).toBeVisible();
+  });
+
+  it("displays an error for files exceeding max size without uploading", async () => {
+    // Create a file larger than MAX_FILE_SIZE (20MB)
+    const largeFileSize = MAX_FILE_SIZE + 1;
+    const largeFile = new File(
+      [new ArrayBuffer(largeFileSize)],
+      "large-image.jpg",
+      { type: "image/jpeg" },
+    );
+
+    const user = userEvent.setup({ applyAccept: false });
+
+    await user.upload(
+      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      largeFile,
+    );
+
+    // Verify error message is displayed
+    expect(await screen.findByText(IMAGE_TOO_LARGE)).toBeVisible();
+
+    // Verify upload was NOT called (client-side validation prevented it)
+    expect(uploadFileMock).not.toHaveBeenCalled();
   });
 
   it("calls onUploading callback during image upload", async () => {

@@ -43,10 +43,6 @@
     "title": "Inicia sessió",
     "header": "Benvingut de nou!"
   },
-  "feedback_form": {
-    "header": "Digue's la teva",
-    "skip_step_text": "No t’interessa? <2>Salta aquest pas</2>"
-  },
   "jail": {
     "title": "Cal més informació",
     "description": "Si us plau, comprova el següent per continuar.",

@@ -95,11 +95,11 @@ def create_session(
     token, expiry = create_session(...)
     ```
     """
-    if user.is_banned:
+    if user.banned_at is not None:
         context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "account_suspended")
 
     # just double-check
-    assert not user.is_deleted
+    assert user.deleted_at is None
 
     token = cookiesafe_secure_token()
 
@@ -313,6 +313,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.expertise = form.expertise
                 session.flush()
 
+            if request.HasField("motivations"):
+                if flow.filled_motivations:
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_motivations_filled")
+
+                flow.filled_motivations = True
+                flow.heard_about_couchers = request.motivations.heard_about_couchers or None
+                flow.signup_motivations = list(request.motivations.motivations)
+                session.flush()
+
             if request.HasField("accept_community_guidelines"):
                 if not request.accept_community_guidelines.value:
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "must_accept_community_guidelines")
@@ -341,6 +350,8 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 accepted_tos=not_none(flow.accepted_tos),
                 last_onboarding_email_sent=func.now(),
                 invite_code_id=flow.invite_code_id,
+                heard_about_couchers=flow.heard_about_couchers,
+                signup_motivations=flow.signup_motivations if flow.filled_motivations else None,
             )
 
             user.accepted_community_guidelines = flow.accepted_community_guidelines
@@ -416,6 +427,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 need_feedback=False,
                 need_verify_email=not flow.email_verified,
                 need_accept_community_guidelines=flow.accepted_community_guidelines < GUIDELINES_VERSION,
+                need_motivations=not flow.filled_motivations,
             )
 
     def UsernameValid(
@@ -434,7 +446,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         """
         logger.debug(f"Logging in with {request.user=}, password=*******")
         user = session.execute(
-            select(User).where(username_or_email(request.user)).where(~User.is_deleted)
+            select(User).where(username_or_email(request.user)).where(User.deleted_at.is_(None))
         ).scalar_one_or_none()
         if user:
             logger.debug("Found user")
@@ -505,7 +517,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         Note that as long as emails are send synchronously, this is far from constant time regardless of output.
         """
         user = session.execute(
-            select(User).where(username_or_email(request.user)).where(~User.is_deleted)
+            select(User).where(username_or_email(request.user)).where(User.deleted_at.is_(None))
         ).scalar_one_or_none()
         if user:
             password_reset_token = PasswordResetToken(
@@ -627,7 +639,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         session.execute(delete(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id))
 
-        user.is_deleted = True
+        user.deleted_at = now()
         user.undelete_until = now() + timedelta(days=UNDELETE_DAYS)
         user.undelete_token = urlsafe_secure_token()
 
@@ -668,7 +680,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
-        user.is_deleted = False
+        user.deleted_at = None
         user.undelete_token = None
         user.undelete_until = None
 

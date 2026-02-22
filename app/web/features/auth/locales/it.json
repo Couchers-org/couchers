@@ -97,10 +97,6 @@
       "required_error": "Tutte le caselle sono richieste"
     }
   },
-  "feedback_form": {
-    "header": "Dì la tua",
-    "skip_step_text": "Non ti interessa? <2>Salta questo passaggio</2>"
-  },
   "sign_up_completed_title": "Grazie per la tua iscrizione!",
   "sign_up_confirmed_prompt": "Hai fatto tutto! Se non vieni trasferito, prova accedendo.",
   "unhandled_sign_up_state": "Stato del flusso di iscrizione non gestito.",

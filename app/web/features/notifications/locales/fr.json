@@ -1,153 +1,153 @@
 {
-    "unread": "Non lu",
-    "mark_unread": "Marquez comme non lu",
-    "mark_all_read": "Marquez tout comme lu",
-    "no_new_notifications": "Aucune nouvelle notification",
-    "notification_settings": {
-        "title": "Paramètres de notification",
-        "go_to_button": "Gérez les paramètres de notification",
-        "edit_preferences": {
-            "title": "Paramètres de notification",
-            "list_heading": "Notifications que vous pouvez recevoir",
-            "error_loading": "Erreur lors du chargement des paramètres de notification",
-            "list_items": {
-                "account_security": "Sécurité du compte",
-                "account_settings": "Paramètres du compte",
-                "other_notifications": "Autres notifications",
-                "chat": "Messages",
-                "event": "Événements",
-                "friend_request": "Demandes d'amis",
-                "host_request": "Requêtes d'hébergements",
-                "discussion": "Discussions",
-                "reply": "Réponses",
-                "reference": "Références"
-            },
-            "item_descriptions": {
-                "host_request": {
-                    "accept": "Quelqu'un.e accepte votre demande d'hébergement",
-                    "confirm": "Quelqu'un.e confirme sa demande d'hébergement",
-                    "reject": "Quelqu'un.e refuse votre demande d'hébergement",
-                    "cancel": "Quelqu'un.e annule sa demande d'hébergement",
-                    "message": "Quelqu’un.e envoie un message dans une demande d’hébergement",
-                    "create": "Quelqu’un.e vous envoie une demande d’hébergement",
-                    "missed_messages": "Vous manquez des messages dans une demande d'hébergement",
-                    "reminder": "Vous n'avez pas répondu à une demande d'hébergement en attente"
-                },
-                "chat": {
-                    "message": "Quelqu’un.e vous envoie un message",
-                    "missed_messages": "Vous manquez des messages dans une discussion"
-                },
-                "general": {
-                    "new_blog_post": "Un nouvel article de blog est publié"
-                },
-                "reference": {
-                    "receive_hosted": "Vous recevez une référence de la part de quelqu’un.e qui vous a hébergé.e.",
-                    "receive_friend": "Vous avez reçu une référence d’un ami",
-                    "reminder_hosted": "Rappel d'écrire une référence pour quelqu'un.e que vous avez hébergé.e",
-                    "reminder_surfed": "Attention : Rappel d'écrire une référence pour quelqu'un.e avec qui vous avez surfé",
-                    "receive_surfed": "Vous recevez une référence de la part de quelqu’un.e que vous avez hébergé.e"
-                },
-                "friend_request": {
-                    "create": "Quelqu’un.e vous envoie une demande d’ami",
-                    "accept": "Quelqu'un.e accepte votre demande d'ami"
-                },
-                "event": {
-                    "update": "Un événement auquel vous participez a été mis à jour",
-                    "cancel": "Un événement auquel vous participez a été annulé",
-                    "delete": "Un événement auquel vous participez a été supprimé",
-                    "invite_organizer": "Quelqu'un.e vous invite à coorganiser un événement",
-                    "comment": " Un utilisateur commente un événement auquel vous participez",
-                    "reminder": "Rappel : un événement auquel vous participez aura lieu bientôt",
-                    "create_approved": "Un événement approuvé par les modérateurs a été créé dans votre communauté",
-                    "create_any": "Un utilisateur crée un événement dans votre communauté (non vérifié par un administrateur)"
-                },
-                "badge": {
-                    "add": "Un badge a été ajouté à votre compte",
-                    "remove": "Un badge a été retiré de votre compte"
-                },
-                "donation": {
-                    "received": "Votre don a été reçu"
-                },
-                "password": {
-                    "change": "Votre mot de passe a été modifié"
-                },
-                "password_reset": {
-                    "start": "La réinitialisation de votre mot de passe est lancée",
-                    "complete": "La réinitialisation de votre mot de passe est achevée"
-                },
-                "email_address": {
-                    "verify": "Votre nouvelle adresse mail est vérifiée",
-                    "change": "Le changement de votre adresse mail est lancé"
-                },
-                "account_deletion": {
-                    "start": "Vous initiez la suppression de votre compte",
-                    "complete": "Votre compte est supprimé",
-                    "recovered": "Votre compte a été récupéré (restauré)"
-                },
-                "api_key": {
-                    "create": "Une clé API a été créée pour votre compte"
-                },
-                "onboarding": {
-                    "reminder": "Rappel de compléter votre profil après votre inscription récente"
-                },
-                "phone_number": {
-                    "change": "Votre numéro de téléphone a été changé",
-                    "verify": "Votre numéro de téléphone est vérifié"
-                },
-                "birthdate": {
-                    "change": "Votre date de naissance a été modifiée"
-                },
-                "gender": {
-                    "change": "Le genre affiché sur votre profil a été modifié"
-                },
-                "discussion": {
-                    "create": "Quelqu’un autre a crée une discussion dans une communauté dont vous faites partie",
-                    "comment": "Quelqu’un a commenté une discussion que vous suivez"
-                },
-                "thread": {
-                    "reply": "Quelqu’un a répondu à votre commentaire"
-                }
-            },
-            "expand_all": "Gonflez tout",
-            "collapse_all": "Réduisez tout",
-            "description": "Toute modification apportée ci-dessous est enregistrée automatiquement. Veuillez noter que vous pouvez toujours recevoir des notifications importantes concernant votre compte et votre contenu, en dehors de vos paramètres de notification préférés."
+  "unread": "Non lu",
+  "mark_unread": "Marquez comme non lu",
+  "mark_all_read": "Marquez tout comme lu",
+  "no_new_notifications": "Aucune nouvelle notification",
+  "notification_settings": {
+    "title": "Paramètres de notification",
+    "go_to_button": "Gérez les paramètres de notification",
+    "edit_preferences": {
+      "title": "Paramètres de notification",
+      "list_heading": "Notifications que vous pouvez recevoir",
+      "error_loading": "Erreur lors du chargement des paramètres de notification",
+      "list_items": {
+        "account_security": "Sécurité du compte",
+        "account_settings": "Paramètres du compte",
+        "other_notifications": "Autres notifications",
+        "chat": "Messages",
+        "event": "Événements",
+        "friend_request": "Demandes d'amis",
+        "host_request": "Requêtes d'hébergements",
+        "discussion": "Discussions",
+        "reply": "Réponses",
+        "reference": "Références"
+      },
+      "item_descriptions": {
+        "host_request": {
+          "accept": "Quelqu'un.e accepte votre demande d'hébergement",
+          "confirm": "Quelqu'un.e confirme sa demande d'hébergement",
+          "reject": "Quelqu'un.e refuse votre demande d'hébergement",
+          "cancel": "Quelqu'un.e annule sa demande d'hébergement",
+          "message": "Quelqu’un.e envoie un message dans une demande d’hébergement",
+          "create": "Quelqu’un.e vous envoie une demande d’hébergement",
+          "missed_messages": "Vous manquez des messages dans une demande d'hébergement",
+          "reminder": "Vous n'avez pas répondu à une demande d'hébergement en attente"
         },
-        "edit_in_console": "Vous pouvez modifier vos paramètres de notification <2>sur cette page</2>. Nous les déplacerons bientôt ici.",
-        "push_notifications": {
-            "title": "Les notifications poussées",
-            "description": "Vous pouvez activer les notifications poussées pour Couchers.org sur votre appareil. Nous travaillons à étendre cette fonctionnalité.",
-            "error_generic": "Erreur lors de l’abonnement aux notifications poussées",
-            "disabled_message": "Les notifications poussées sont actuellement <1>désactivées</1>.",
-            "enabled_message": "Les notifications poussées sont actuellement <1>activées</1>.",
-            "permission_denied": {
-                "instructions": {
-                    "firefox": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. Dans Firefox, allez dans Préférences > Vie privée et sécurité > Permissions > Notifications, puis modifiez l'autorisation du site-web.",
-                    "generic": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer.",
-                    "macos": "Sur macOS, naviguez aux Réglages Système > Notifications, puis modifiez l’autorisation de l’application.",
-                    "windows": "Dans Windows, naviguez aux Paramètres > Système > Notifications et actions, puis ajustez l'autorisation de l'application ou du site-web.",
-                    "linux": {
-                        "gnome": "Dans GNOME, naviguez aux Paramètres > Notifications pour ajuster l'autorisation de l'application.",
-                        "kde": "Dans KDE, naviguez dans Paramètres système > Notifications pour modifier les autorisations."
-                    },
-                    "mobile": {
-                        "browser": "Dans les paramètres de votre navigateur mobile, ajustez l'autorisation de notifications pour ce site-web.",
-                        "os": "Dans les paramètres de notification de votre portable, ajustez les autorisations pour permettre les notifications."
-                    },
-                    "safari": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. Dans Safari, allez dans Préférences > Sites web > Notifications pour modifier les autorisations.",
-                    "chrome": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. DAns Chrome, cliquez sur l’icône de cadenas dans la barre d’adresse, puis ajustez le paramètre « Notifications »."
-                },
-                "platform_settings_description": "Vous rencontrez toujours des problèmes après avoir activé les notifications dans votre navigateur ? Vous devrez peut-être ajuster les paramètres de votre plateforme."
-            },
-            "allow_push": "Cliquez sur le bouton « Autoriser » dans la fenêtre push-up de votre navigateur pour activer les notifications poussées.",
-            "error_unsupported": "Les notifications pousées ou les « Service Workers » ne sont pas prises en charge dans ce navigateur.",
-            "error_not_granted": "Vous n'avez pas donné l'autorisation d'envoyer des notifications poussées."
+        "chat": {
+          "message": "Quelqu’un.e vous envoie un message",
+          "missed_messages": "Vous manquez des messages dans une discussion"
+        },
+        "general": {
+          "new_blog_post": "Un nouvel article de blog est publié"
+        },
+        "reference": {
+          "receive_hosted": "Vous recevez une référence de la part de quelqu’un.e qui vous a hébergé.e.",
+          "receive_friend": "Vous avez reçu une référence d’un ami",
+          "reminder_hosted": "Rappel d'écrire une référence pour quelqu'un.e que vous avez hébergé.e",
+          "reminder_surfed": "Attention : Rappel d'écrire une référence pour quelqu'un.e avec qui vous avez surfé",
+          "receive_surfed": "Vous recevez une référence de la part de quelqu’un.e que vous avez hébergé.e"
+        },
+        "friend_request": {
+          "create": "Quelqu’un.e vous envoie une demande d’ami",
+          "accept": "Quelqu'un.e accepte votre demande d'ami"
+        },
+        "event": {
+          "update": "Un événement auquel vous participez a été mis à jour",
+          "cancel": "Un événement auquel vous participez a été annulé",
+          "delete": "Un événement auquel vous participez a été supprimé",
+          "invite_organizer": "Quelqu'un.e vous invite à coorganiser un événement",
+          "comment": " Un utilisateur commente un événement auquel vous participez",
+          "reminder": "Rappel : un événement auquel vous participez aura lieu bientôt",
+          "create_approved": "Un événement approuvé par les modérateurs a été créé dans votre communauté",
+          "create_any": "Un utilisateur crée un événement dans votre communauté (non vérifié par un administrateur)"
+        },
+        "badge": {
+          "add": "Un badge a été ajouté à votre compte",
+          "remove": "Un badge a été retiré de votre compte"
+        },
+        "donation": {
+          "received": "Votre don a été reçu"
+        },
+        "password": {
+          "change": "Votre mot de passe a été modifié"
+        },
+        "password_reset": {
+          "start": "La réinitialisation de votre mot de passe est lancée",
+          "complete": "La réinitialisation de votre mot de passe est achevée"
+        },
+        "email_address": {
+          "verify": "Votre nouvelle adresse mail est vérifiée",
+          "change": "Le changement de votre adresse mail est lancé"
+        },
+        "account_deletion": {
+          "start": "Vous initiez la suppression de votre compte",
+          "complete": "Votre compte est supprimé",
+          "recovered": "Votre compte a été récupéré (restauré)"
+        },
+        "api_key": {
+          "create": "Une clé API a été créée pour votre compte"
+        },
+        "onboarding": {
+          "reminder": "Rappel de compléter votre profil après votre inscription récente"
+        },
+        "phone_number": {
+          "change": "Votre numéro de téléphone a été changé",
+          "verify": "Votre numéro de téléphone est vérifié"
+        },
+        "birthdate": {
+          "change": "Votre date de naissance a été modifiée"
+        },
+        "gender": {
+          "change": "Le genre affiché sur votre profil a été modifié"
+        },
+        "discussion": {
+          "create": "Quelqu’un autre a crée une discussion dans une communauté dont vous faites partie",
+          "comment": "Quelqu’un a commenté une discussion que vous suivez"
+        },
+        "thread": {
+          "reply": "Quelqu’un a répondu à votre commentaire"
         }
+      },
+      "expand_all": "Gonflez tout",
+      "collapse_all": "Réduisez tout",
+      "description": "Toute modification apportée ci-dessous est enregistrée automatiquement. Veuillez noter que vous pouvez toujours recevoir des notifications importantes concernant votre compte et votre contenu, en dehors de vos paramètres de notification préférés."
     },
-    "all": "Toutes",
-    "error_loading": "Erreur de chargement des notifications",
-    "error_updating_notifications": "Erreur lors de la mise à jour des notifications",
-    "push_notification_banner": {
-        "message": "Ne manquez pas de demandes d'hébergement, de réponses ou de messages ; pouvons-nous vous envoyer des notifications poussées ?",
-        "confirm": "Oui, s'il vous plaît !"
+    "edit_in_console": "Vous pouvez modifier vos paramètres de notification <2>sur cette page</2>. Nous les déplacerons bientôt ici.",
+    "push_notifications": {
+      "title": "Les notifications poussées",
+      "description": "Vous pouvez activer les notifications poussées pour Couchers.org sur votre appareil. Nous travaillons à étendre cette fonctionnalité.",
+      "error_generic": "Erreur lors de l’abonnement aux notifications poussées",
+      "disabled_message": "Les notifications poussées sont actuellement <1>désactivées</1>.",
+      "enabled_message": "Les notifications poussées sont actuellement <1>activées</1>.",
+      "permission_denied": {
+        "instructions": {
+          "firefox": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. Dans Firefox, allez dans Préférences > Vie privée et sécurité > Permissions > Notifications, puis modifiez l'autorisation du site-web.",
+          "generic": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer.",
+          "macos": "Sur macOS, naviguez aux Réglages Système > Notifications, puis modifiez l’autorisation de l’application.",
+          "windows": "Dans Windows, naviguez aux Paramètres > Système > Notifications et actions, puis ajustez l'autorisation de l'application ou du site-web.",
+          "linux": {
+            "gnome": "Dans GNOME, naviguez aux Paramètres > Notifications pour ajuster l'autorisation de l'application.",
+            "kde": "Dans KDE, naviguez dans Paramètres système > Notifications pour modifier les autorisations."
+          },
+          "mobile": {
+            "browser": "Dans les paramètres de votre navigateur mobile, ajustez l'autorisation de notifications pour ce site-web.",
+            "os": "Dans les paramètres de notification de votre portable, ajustez les autorisations pour permettre les notifications."
+          },
+          "safari": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. Dans Safari, allez dans Préférences > Sites web > Notifications pour modifier les autorisations.",
+          "chrome": "Vous avez bloqué les notifications. Veuillez activer les notifications dans les paramètres de votre navigateur pour continuer. DAns Chrome, cliquez sur l’icône de cadenas dans la barre d’adresse, puis ajustez le paramètre « Notifications »."
+        },
+        "platform_settings_description": "Vous rencontrez toujours des problèmes après avoir activé les notifications dans votre navigateur ? Vous devrez peut-être ajuster les paramètres de votre plateforme."
+      },
+      "allow_push": "Cliquez sur le bouton « Autoriser » dans la fenêtre push-up de votre navigateur pour activer les notifications poussées.",
+      "error_unsupported": "Les notifications pousées ou les « Service Workers » ne sont pas prises en charge dans ce navigateur.",
+      "error_not_granted": "Vous n'avez pas donné l'autorisation d'envoyer des notifications poussées."
     }
+  },
+  "all": "Toutes",
+  "error_loading": "Erreur de chargement des notifications",
+  "error_updating_notifications": "Erreur lors de la mise à jour des notifications",
+  "push_notification_banner": {
+    "message": "Ne manquez pas de demandes d'hébergement, de réponses ou de messages ; pouvons-nous vous envoyer des notifications poussées ?",
+    "confirm": "Oui, s'il vous plaît !"
+  }
 }

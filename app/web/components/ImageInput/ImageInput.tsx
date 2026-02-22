@@ -8,9 +8,10 @@ import React, { useCallback, useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
 import { service } from "service";
 import { ImageInputValues } from "service/api";
+import { IMAGE_TOO_LARGE } from "service/constants";
 import { base64ToFile, useNativeImagePicker } from "utils/nativeLink";
 
-import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "./constants";
+import { DEFAULT_HEIGHT, DEFAULT_WIDTH, MAX_FILE_SIZE } from "./constants";
 
 interface ImageInputProps {
   className?: string;
@@ -77,6 +78,7 @@ function ImageInput(props: RectImgInputProps) {
 
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
   const [readerError, setReaderError] = useState("");
+  const [fileSizeError, setFileSizeError] = useState("");
 
   const mutation = useMutation<ImageInputValues, Error, File>({
     mutationFn: (file) => service.api.uploadFile(file),
@@ -105,8 +107,16 @@ function ImageInput(props: RectImgInputProps) {
 
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setReaderError("");
+    setFileSizeError("");
     if (!event.target.files?.length) return;
     const file = event.target.files[0];
+
+    // Check file size before uploading
+    if (file.size > MAX_FILE_SIZE) {
+      setFileSizeError(IMAGE_TOO_LARGE);
+      return;
+    }
+
     try {
       const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -138,17 +148,25 @@ function ImageInput(props: RectImgInputProps) {
   // Native app WebView file input is unreliable on iOS - use native image picker instead
   const handleNativeImagePick = useCallback(async () => {
     setReaderError("");
+    setFileSizeError("");
     try {
       const result = await pickImage();
       if (result.success) {
         const dataUrl = `data:${result.mimeType};base64,${result.imageBase64}`;
-        setImageUrl(dataUrl);
         const extension = result.mimeType.split("/")[1] || "jpg";
         const file = base64ToFile(
           result.imageBase64,
           result.mimeType,
           `image.${extension}`,
         );
+
+        // Check file size before uploading
+        if (file.size > MAX_FILE_SIZE) {
+          setFileSizeError(IMAGE_TOO_LARGE);
+          return;
+        }
+
+        setImageUrl(dataUrl);
         mutation.mutate(file);
       }
     } catch (e) {
@@ -165,6 +183,7 @@ function ImageInput(props: RectImgInputProps) {
         <Alert severity="error">{mutation.error?.message || ""}</Alert>
       )}
       {readerError && <Alert severity="error">{readerError}</Alert>}
+      {fileSizeError && <Alert severity="error">{fileSizeError}</Alert>}
       <FlexWrapper>
         <StyledInput
           aria-label={t("profile:select_an_image")}

@@ -1,19 +1,31 @@
 {
-    "tabs": {
-        "events": "Události",
-        "home": "Domů",
-        "messages": "Zprávy",
-        "communities": "Komunity",
-        "search": "Hledat"
-    },
-    "errors": {
-        "failed_to_load": "Nepodařilo se načíst",
-        "check_connection": "Zkontroluj své připojení k internetu a zkus to znovu.",
-        "try_again": "Zkus to znovu"
-    },
-    "not_found": {
-        "title": "Jejda!",
-        "go_home": "Přejdi na domovskou obrazovku!",
-        "message": "Tato obrazovka neexistuje."
-    }
+  "tabs": {
+    "events": "Události",
+    "home": "Domů",
+    "messages": "Zprávy",
+    "communities": "Komunity",
+    "search": "Hledat"
+  },
+  "errors": {
+    "failed_to_load": "Nepodařilo se načíst",
+    "check_connection": "Zkontroluj své připojení k internetu a zkus to znovu.",
+    "try_again": "Zkus to znovu",
+    "camera_permission_denied": "Udělení přístupu k fotoaparátu je nutné pro pořizování fotografií.",
+    "camera_permission_required": "Vyžadováno oprávnění k fotoaparátu",
+    "camera_permission_explanation": "Tato aplikace potřebuje přístup k fotoaparátu pro pořizování fotografií. Po zobrazení výzvy prosím uděl oprávnění.",
+    "camera_permission_denied_permanently": "Přístup k fotoaparátu byl zamítnut. Chceš-li pořizovat fotografie, budeš muset udělit oprávnění k fotoaparátu v nastavení tvého zařízení."
+  },
+  "not_found": {
+    "title": "Jejda!",
+    "go_home": "Přejdi na domovskou obrazovku!",
+    "message": "Tato obrazovka neexistuje."
+  },
+  "common": {
+    "cancel": "Zrušit",
+    "add_photo": "Přidat fotografii",
+    "choose_photo_source": "Vyber, odkud chceš získat fotografii",
+    "take_photo": "Vyfotit",
+    "choose_from_library": "Vybrat z galerie",
+    "open_settings": "Otevřít nastavení"
+  }
 }

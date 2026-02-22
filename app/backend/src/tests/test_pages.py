@@ -4,7 +4,18 @@ from google.protobuf import wrappers_pb2
 
 from couchers.crypto import random_hex
 from couchers.db import session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, Page, PageType, PageVersion, Thread, Upload
+from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    Node,
+    NodeType,
+    Page,
+    PageType,
+    PageVersion,
+    Thread,
+    Upload,
+)
 from couchers.proto import pages_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_aware_datetime, to_multi
 from tests.fixtures.db import generate_user
@@ -571,7 +582,9 @@ def test_page_transfer(db):
     user3, token3 = generate_user()
     with session_scope() as session:
         # create a community
-        node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])))
+        node = Node(
+            geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])), node_type=NodeType.world
+        )
         session.add(node)
         session.flush()
         community_cluster = Cluster(
