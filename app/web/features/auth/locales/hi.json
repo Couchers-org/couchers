@@ -16,7 +16,8 @@
     "subtitle": "",
     "user_logged_error": "",
     "reset_password_success": "",
-    "reset_password_error": ""
+    "reset_password_error": "",
+    "token_error": ""
   },
   "change_email_confirmation": {
     "success_message": "आपका ईमेल सफलतापूर्वक बदल दिया गया है!",
@@ -168,7 +169,8 @@
       "not_hosting": "",
       "still_hosting": "",
       "description": "",
-      "title": ""
+      "title": "",
+      "note": ""
     },
     "description": ""
   },
