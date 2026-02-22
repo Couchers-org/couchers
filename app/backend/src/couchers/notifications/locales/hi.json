@@ -1,1 +1,287 @@
-{}
+{
+  "push": {
+    "host_request__missed_messages": {
+      "body": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "title": ""
+    },
+    "birthdate__change": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "reference__reminder": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body_one": "",
+      "body_other": ""
+    },
+    "chat__missed_messages": {
+      "body": "",
+      "title_one": "",
+      "title_other": "",
+      "ios_title_one": "",
+      "ios_title_other": ""
+    },
+    "event__create_any": {
+      "ios_title": "",
+      "title": "",
+      "body": "",
+      "ios_subtitle": ""
+    },
+    "event__create_approved": {
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": "",
+      "title": ""
+    },
+    "event__invite_organizer": {
+      "body": "",
+      "ios_subtitle": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "general__new_blog_post": {
+      "ios_title": "",
+      "title": "",
+      "ios_subtitle": ""
+    },
+    "host_request__confirm": {
+      "ios_subtitle": "",
+      "ios_title": "",
+      "title": "",
+      "body": ""
+    },
+    "password_reset__start": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "event__comment": {
+      "ios_title": "",
+      "title": "",
+      "ios_subtitle": ""
+    },
+    "friend_request__create": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "postal_verification__failed": {
+      "body_generic": "",
+      "ios_title": "",
+      "body_code_expired": "",
+      "body_too_many_attempts": "",
+      "title": ""
+    },
+    "adhoc__push_enabled": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "badge__add": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "email_address__change": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "onboarding__reminder": {
+      "first": {
+        "title": "",
+        "ios_title": "",
+        "body": ""
+      },
+      "subsequent": {
+        "title": "",
+        "ios_title": "",
+        "body": ""
+      }
+    },
+    "gender__change": {
+      "title": "",
+      "body": "",
+      "ios_title": ""
+    },
+    "verification__sv_fail": {
+      "ios_title": "",
+      "body_not_a_passport": "",
+      "body_duplicate": "",
+      "title": "",
+      "body_wrong_birthdate_gender": ""
+    },
+    "event__update": {
+      "body": "",
+      "title": "",
+      "ios_subtitle": "",
+      "ios_title": ""
+    },
+    "event__reminder": {
+      "ios_subtitle": "",
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "event__cancel": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "host_request__reject": {
+      "title": "",
+      "body": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "host_request__cancel": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "reference__receive": {
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body_must_write_yours": "",
+      "title": ""
+    },
+    "thread__reply": {
+      "title": "",
+      "ios_subtitle": "",
+      "ios_title": ""
+    },
+    "account_deletion__start": {
+      "ios_title": "",
+      "title": "",
+      "body": ""
+    },
+    "activeness__probe": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "badge__remove": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "donation__received": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "email_address__verify": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "event__delete": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "friend_request__accept": {
+      "body": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "host_request__create": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body_one": "",
+      "body_other": ""
+    },
+    "host_request__accept": {
+      "title": "",
+      "body": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "modnote__create": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "password__change": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "password_reset__complete": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "phone_number__change": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "phone_number__verify": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "postal_verification__postcard_sent": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "postal_verification__success": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "reference__receive_friend": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "verification__sv_success": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "account_deletion__recovered": {
+      "ios_title": "",
+      "title": "",
+      "body": ""
+    },
+    "api_key__create": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "account_deletion__complete": {
+      "title": "",
+      "ios_title": "",
+      "body_one": "",
+      "body_other": ""
+    },
+    "host_request__reminder": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "discussion__create": {
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": "",
+      "title": ""
+    },
+    "discussion__comment": {
+      "title": ""
+    }
+  }
+}
