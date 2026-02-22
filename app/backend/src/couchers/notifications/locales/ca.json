@@ -1,1 +1,292 @@
-{}
+{
+  "push": {
+    "chat__missed_messages": {
+      "title_one": "",
+      "title_many": "",
+      "title_other": "",
+      "ios_title_one": "",
+      "ios_title_many": "",
+      "ios_title_other": "",
+      "body": ""
+    },
+    "reference__reminder": {
+      "body_one": "",
+      "body_many": "",
+      "body_other": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "verification__sv_fail": {
+      "body_wrong_birthdate_gender": "",
+      "body_duplicate": "",
+      "title": "",
+      "ios_title": "",
+      "body_not_a_passport": ""
+    },
+    "discussion__create": {
+      "ios_subtitle": "",
+      "body": "",
+      "ios_title": "",
+      "title": ""
+    },
+    "event__comment": {
+      "ios_subtitle": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "event__reminder": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "phone_number__verify": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "postal_verification__postcard_sent": {
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "postal_verification__success": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "onboarding__reminder": {
+      "first": {
+        "body": "",
+        "ios_title": "",
+        "title": ""
+      },
+      "subsequent": {
+        "title": "",
+        "body": "",
+        "ios_title": ""
+      }
+    },
+    "event__create_any": {
+      "ios_title": "",
+      "ios_subtitle": "",
+      "title": "",
+      "body": ""
+    },
+    "event__delete": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "friend_request__create": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "host_request__cancel": {
+      "ios_title": "",
+      "title": "",
+      "body": "",
+      "ios_subtitle": ""
+    },
+    "host_request__confirm": {
+      "body": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "modnote__create": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "activeness__probe": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "api_key__create": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "event__invite_organizer": {
+      "title": "",
+      "ios_subtitle": "",
+      "body": "",
+      "ios_title": ""
+    },
+    "event__cancel": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "host_request__create": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body_one": "",
+      "body_many": "",
+      "body_other": ""
+    },
+    "host_request__missed_messages": {
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": "",
+      "title": ""
+    },
+    "host_request__reminder": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "host_request__accept": {
+      "title": "",
+      "body": "",
+      "ios_subtitle": "",
+      "ios_title": ""
+    },
+    "badge__add": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "general__new_blog_post": {
+      "ios_title": "",
+      "title": "",
+      "ios_subtitle": ""
+    },
+    "adhoc__push_enabled": {
+      "ios_title": "",
+      "title": "",
+      "body": ""
+    },
+    "account_deletion__complete": {
+      "body_one": "",
+      "body_many": "",
+      "body_other": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "event__update": {
+      "ios_title": "",
+      "title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "postal_verification__failed": {
+      "title": "",
+      "body_code_expired": "",
+      "body_too_many_attempts": "",
+      "body_generic": "",
+      "ios_title": ""
+    },
+    "account_deletion__recovered": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "badge__remove": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "email_address__change": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "email_address__verify": {
+      "ios_title": "",
+      "body": "",
+      "title": ""
+    },
+    "password__change": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "password_reset__start": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "password_reset__complete": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "phone_number__change": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "host_request__reject": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "account_deletion__start": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "friend_request__accept": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "gender__change": {
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "thread__reply": {
+      "ios_subtitle": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "verification__sv_success": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "discussion__comment": {
+      "title": ""
+    },
+    "donation__received": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "event__create_approved": {
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": "",
+      "title": ""
+    },
+    "reference__receive_friend": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "reference__receive": {
+      "title": "",
+      "ios_subtitle": "",
+      "body_must_write_yours": "",
+      "ios_title": ""
+    },
+    "birthdate__change": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    }
+  }
+}

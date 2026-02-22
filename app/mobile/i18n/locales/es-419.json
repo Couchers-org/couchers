@@ -1,1 +1,31 @@
-{}
+{
+  "tabs": {
+    "communities": "",
+    "home": "",
+    "messages": "",
+    "search": "",
+    "events": ""
+  },
+  "errors": {
+    "check_connection": "",
+    "try_again": "",
+    "camera_permission_explanation": "",
+    "camera_permission_denied_permanently": "",
+    "camera_permission_denied": "",
+    "camera_permission_required": "",
+    "failed_to_load": ""
+  },
+  "not_found": {
+    "title": "",
+    "go_home": "",
+    "message": ""
+  },
+  "common": {
+    "open_settings": "",
+    "cancel": "",
+    "add_photo": "",
+    "choose_photo_source": "",
+    "take_photo": "",
+    "choose_from_library": ""
+  }
+}
