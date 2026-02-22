@@ -14,7 +14,8 @@
           "confirm": "",
           "reject": "",
           "reminder": "",
-          "accept": ""
+          "accept": "",
+          "missed_messages": ""
         },
         "phone_number": {
           "verify": "",

@@ -379,7 +379,8 @@
         "enabled_message": "",
         "disabled_message": ""
       }
-    }
+    },
+    "tap_press_to_flip": ""
   },
   "error_loading_languages": "",
   "blog": {
