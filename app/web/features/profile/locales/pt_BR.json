@@ -324,7 +324,9 @@
   "search_indicator": "",
   "view_in_admin_console": "",
   "meetup_status": {
-    "open_to_meetup_description": ""
+    "open_to_meetup_description": "",
+    "wants_to_meetup_description": "",
+    "does_not_want_to_meetup_description": ""
   },
   "edit_profile_name_required": "",
   "parking_details": {
