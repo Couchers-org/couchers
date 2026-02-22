@@ -335,7 +335,7 @@ export default function HostingPreferenceForm({
         </StyledAlert>
       )}
 
-      <form onSubmit={onSubmit}>
+      <form id="edit-hosting-form" onSubmit={onSubmit}>
         {/* Hosting Preferences Section */}
         <ProfileSection>
           <SectionTitle>
