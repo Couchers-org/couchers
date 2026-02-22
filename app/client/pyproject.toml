@@ -63,5 +63,9 @@ build-backend = "hatchling.build"
 path = "src/couchers/version"
 pattern = "(?P<version>.+)"
 
+[tool.hatch.build.targets.sdist]
+ignore-vcs = true
+include = ["src/couchers"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/couchers"]
