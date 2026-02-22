@@ -274,7 +274,8 @@
     "no_previews": {
       "title": "",
       "explanation": ""
-    }
+    },
+    "disclaimer": ""
   },
   "active_logins": {
     "heading": "",
