@@ -31,13 +31,9 @@ const MOCK_KEY = "key123";
 const MOCK_INITIAL_SRC = "https://example.com/initialPreview.jpg";
 const MOCK_THUMB = "thumb.jpg";
 const MOCK_FULL_IMAGE = "full.jpg";
-const NAME = "Test User";
+const ALT_TEXT = "Alt text";
 
-describe.each`
-  type
-  ${"avatar"}
-  ${"rect"}
-`("ImageInput component ($type)", ({ type }) => {
+describe("ImageInput component", () => {
   beforeEach(() => {
     uploadFileMock.mockResolvedValue({
       file: MOCK_FILE,
@@ -56,29 +52,15 @@ describe.each`
       return (
         <form onSubmit={onSubmit}>
           {errors.imageInput && <p>{errors.imageInput.message}</p>}
-          {type === "avatar" ? (
-            <ImageInput
-              control={control}
-              id="image-input"
-              initialPreviewSrc={MOCK_INITIAL_SRC}
-              name="imageInput"
-              userName={NAME}
-              type="avatar"
-              onSuccess={onSuccessMock}
-            />
-          ) : (
-            <ImageInput
-              control={control}
-              id="image-input"
-              initialPreviewSrc={MOCK_INITIAL_SRC}
-              name="imageInput"
-              alt={t("profile:names_profile_photo", {
-                name: NAME,
-              })}
-              type="rect"
-              onSuccess={onSuccessMock}
-            />
-          )}
+          <ImageInput
+            control={control}
+            id="image-input"
+            initialPreviewSrc={MOCK_INITIAL_SRC}
+            name="imageInput"
+            alt={ALT_TEXT}
+            type="rect"
+            onSuccess={onSuccessMock}
+          />
           <input type="submit" name={t("global:submit")} />
         </form>
       );
@@ -91,20 +73,11 @@ describe.each`
   });
 
   it("displays initial preview", async () => {
-    expect(
-      screen.getByAltText(
-        t("profile:names_profile_photo", {
-          name: NAME,
-        }),
-      ),
-    ).toBeVisible();
-    expect(
-      screen.getByAltText(
-        t("profile:names_profile_photo", {
-          name: NAME,
-        }),
-      ),
-    ).toHaveProperty("src", MOCK_INITIAL_SRC);
+    expect(screen.getByAltText(ALT_TEXT)).toBeVisible();
+    expect(screen.getByAltText(ALT_TEXT)).toHaveProperty(
+      "src",
+      MOCK_INITIAL_SRC,
+    );
   });
 
   it("uploads and submits key", async () => {
@@ -126,25 +99,14 @@ describe.each`
       full_url: MOCK_FULL_IMAGE,
     });
 
-    let expectedImage: string = MOCK_FULL_IMAGE;
-    if (type === "avatar") {
-      expectedImage = MOCK_THUMB;
-    }
-
     await user.click(screen.getByRole("button", { name: t("global:submit") }));
 
     await waitFor(() => {
       expect(submitForm).toHaveBeenCalledWith({ imageInput: MOCK_KEY });
     });
-    expect(
-      screen
-        .getByAltText(
-          t("profile:names_profile_photo", {
-            name: NAME,
-          }),
-        )
-        .getAttribute("src"),
-    ).toMatch(new RegExp(expectedImage));
+    expect(screen.getByAltText(ALT_TEXT).getAttribute("src")).toMatch(
+      new RegExp(MOCK_FULL_IMAGE),
+    );
   });
 
   it("displays an error when the passed onSuccess function rejects", async () => {
@@ -230,8 +192,8 @@ describe.each`
             id="image-input"
             initialPreviewSrc={MOCK_INITIAL_SRC}
             name="imageInput"
-            userName={NAME}
-            type="avatar"
+            alt={ALT_TEXT}
+            type="rect"
             onUploading={onUploadingMock}
           />
         </form>
@@ -276,8 +238,8 @@ describe("ImageInput http error tests", () => {
           id="image-input"
           initialPreviewSrc={MOCK_INITIAL_SRC}
           name="imageInput"
-          userName={NAME}
-          type="avatar"
+          alt={ALT_TEXT}
+          type="rect"
         />
       );
     };
