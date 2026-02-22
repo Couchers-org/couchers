@@ -183,7 +183,8 @@
     "no_phone_description": "",
     "need_to_donate": "",
     "change_to_different_description": "",
-    "phone_not_verified_description": ""
+    "phone_not_verified_description": "",
+    "remove_phone_description": ""
   },
   "jail": {
     "location_section": {
