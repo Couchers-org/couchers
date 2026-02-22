@@ -2,16 +2,20 @@
   "push": {
     "api_key__create": {
       "title": "API-Schlüssel erstellt",
-      "ios_title": "API-Schlüssel erstellt"
+      "ios_title": "API-Schlüssel erstellt",
+      "body": "Details wurden dir per E-Mail zugesandt."
     },
     "adhoc__push_enabled": {
-      "body": "Du wirst von nun an Benachrichtigungen auf diesem Gerät erhalten."
+      "body": "Du wirst von nun an Benachrichtigungen auf diesem Gerät erhalten.",
+      "title": "Push-Benachrichtigungen aktiviert",
+      "ios_title": "Push-Benachrichtigungen aktiviert"
     },
     "chat__missed_messages": {
       "ios_title_one": "{{count}} Verpasste Nachricht",
       "ios_title_other": "{{count}} Verpasste Nachrichten",
       "title_one": "{{count}} verpasste Nachricht",
-      "title_other": "{{count}} verpasste Nachrichten"
+      "title_other": "{{count}} verpasste Nachrichten",
+      "body": "Du hast neue ungelesene Nachrichten."
     },
     "host_request__create": {
       "body_one": "{{user}} möchte ab {{start_date}} für {{count}} Tag bleiben.",
@@ -36,6 +40,83 @@
       "title": "Konto wiederhergestellt",
       "ios_title": "Konto wiederhergestellt",
       "body": "Willkommen zurück!"
+    },
+    "activeness__probe": {
+      "title": "Immernoch gewillt zu hosten?",
+      "ios_title": "Immernoch gewillt zu hosten?",
+      "body": "Melden dich an, um deinen Hosting-Status zu bestätigen."
+    },
+    "badge__add": {
+      "title": "Neues Profilabzeichen: {{badge_name}}",
+      "ios_title": "Neues Profil-Abzeichen",
+      "body": "Das {{badge_name}} Abzeichen wurde deinem Profil hinzugefügt."
+    },
+    "badge__remove": {
+      "title": "Profilabzeichen entfernt",
+      "ios_title": "Profilabzeichen entfernt",
+      "body": "Das {{badge_name}} Abzeichen wurde aus deinem Profil entfernt."
+    },
+    "birthdate__change": {
+      "title": "Geburtsdatum geändert",
+      "ios_title": "Geburtsdatum geändert",
+      "body": "Ein Administrator hat dein Geburtsdatum auf {{birthdate}} geändert."
+    },
+    "donation__received": {
+      "title": "Spende erhalten",
+      "ios_title": "Spende erhalten",
+      "body": "Vielen Dank für deine Spende von {{amount_with_currency}}!"
+    },
+    "discussion__create": {
+      "title": "Neue Diskussion: {{title}}",
+      "ios_title": "Neue Diskussion",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} hat die Diskussion in {{group_or_community}} gestartet."
+    },
+    "discussion__comment": {
+      "title": "{{user}} • {{title}}"
+    },
+    "email_address__change": {
+      "title": "E-Mail-Änderung angefordert",
+      "ios_title": "E-Mail-Änderung angefordert",
+      "body": "Verwende den Link, den wir an {{email}} gesendet haben, um deine neue Adresse zu bestätigen."
+    },
+    "email_address__verify": {
+      "title": "E-Mail bestätigt",
+      "ios_title": "E-Mail bestätigt",
+      "body": "Deine neue E-Mail-Adresse wurde bestätigt."
+    },
+    "event__create_any": {
+      "title": "Neues Event: {{title}}",
+      "ios_title": "Neues Event",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} hat das Ereignis am {{date_and_time}} erstellt."
+    },
+    "event__create_approved": {
+      "title": "Neues Event: {{title}}",
+      "ios_title": "Neues Event",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} hat dich zum Event am {{date_and_time}} eingeladen."
+    },
+    "event__update": {
+      "title": "Event aktualisiert: {{title}}",
+      "ios_title": "Event aktualisiert",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} hat das Event aktualisiert."
+    },
+    "event__invite_organizer": {
+      "title": "Event aktualisiert: {{title}}",
+      "ios_title": "Event aktualisiert",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} hat dich als Mitorganisator des Events hinzugefügt."
+    },
+    "event__comment": {
+      "title": "{{user}} • {{title}}",
+      "ios_title": "{{user}}"
+    },
+    "event__reminder": {
+      "title": "Anstehendes Event: {{title}}",
+      "ios_title": "Anstehendes Event",
+      "ios_subtitle": "{{title}}"
     }
   }
 }
