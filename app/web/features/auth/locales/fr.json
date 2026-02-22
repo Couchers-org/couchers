@@ -100,17 +100,6 @@
       "title": "Nom d’utilisateur",
       "description": "Votre nom d'utilisateur est <1>{{username}}</1>.",
       "explanation": "Votre nom d'utilisateur est défini lors de la création de votre compte."
-    },
-    "appearance_section": {
-      "current_mode": "",
-      "title": "",
-      "click_to_change": "",
-      "change_mode": "",
-      "modes": {
-        "light": "",
-        "dark": "",
-        "system": ""
-      }
     }
   },
   "login_prompt": "Cliquez ici pour vous connecter",
@@ -138,8 +127,7 @@
       "required_error": "Entrez votre nom d’utilisateur",
       "username_taken_error": "Ce nom d’utilisateur est déjà pris.",
       "field_label": "Nom d’utilisateur",
-      "validation_error": "Le nom d’utilisateur ne peut contenir que des chiffres, de lettres ou/et commencer par une lettre.",
-      "helper_text": ""
+      "validation_error": "Le nom d’utilisateur ne peut contenir que des chiffres, de lettres ou/et commencer par une lettre."
     },
     "birthday": {
       "field_label": "Date de naissance",
@@ -216,8 +204,7 @@
         "heading": "Trouver la puce NFC de votre passeport",
         "us_germany_mexico": "<strong>le Brésil, les États-Unis, l'Allemagne (2016), l'Indonésie, le Mexique :</strong> Page en arrière",
         "finland_germany_new": "<strong>la Finlande, l'Allemagne (2017+), la Russie :</strong> Page de photo",
-        "australia": "<strong>l'Australie :</strong> Page du milieu (marquée avec le symbole + \"nom de la puce\")",
-        "description": ""
+        "australia": "<strong>l'Australie :</strong> Page du milieu (marquée avec le symbole + \"nom de la puce\")"
       }
     },
     "status": {
@@ -335,51 +322,6 @@
     "not_a_volunteer_message": "Selon notre base de données, vous n'êtes pas un bénévole actuel ou passé. Si cela est incorrect, veuillez nous en informer en remplissant <1>ce formulaire</1>.",
     "current_volunteer": "Bénévole depuis {{startDate}}.",
     "past_volunteer": "Bénévole de {{startDate}} à {{endDate}}.",
-    "shown_on_team_page_current": "Affiché sur la page de l'équipe comme membre d'équipe actuel.",
-    "form": {
-      "override_location_label": "",
-      "link_type_label": "",
-      "title": "",
-      "display_name_label": "",
-      "link_type_couchers": "",
-      "link_type_email": "",
-      "link_type_linkedin": "",
-      "link_url_label": "",
-      "link_url_required": "",
-      "link_type_website": "",
-      "link_text_label": "",
-      "link_text_website_helper": "",
-      "link_text_required": "",
-      "link_url_placeholder": "",
-      "link_url_helper": "",
-      "link_text_linkedin_invalid": "",
-      "display_location_label": "",
-      "link_text_email_invalid": "",
-      "show_on_team_page_label": "",
-      "link_text_email_placeholder": "",
-      "link_text_website_placeholder": "",
-      "link_text_email_helper": "",
-      "link_url_invalid": "",
-      "save_button": "",
-      "link_text_linkedin_placeholder": "",
-      "link_text_linkedin_helper": "",
-      "override_name_label": ""
-    },
-    "shown_on_team_page_past": "",
-    "not_shown_on_team_page": "",
-    "update_success": ""
-  },
-  "motivations_form": {
-    "header": "",
-    "surfing": "",
-    "surfing_description": "",
-    "hosting_description": "",
-    "community_organizing_description": "",
-    "hosting": "",
-    "something_else": "",
-    "events": "",
-    "events_description": "",
-    "community_organizing": "",
-    "something_else_description": ""
+    "shown_on_team_page_current": "Affiché sur la page de l'équipe comme membre d'équipe actuel."
   }
 }

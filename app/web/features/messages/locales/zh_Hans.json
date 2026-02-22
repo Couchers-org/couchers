@@ -70,8 +70,7 @@
     "group_title_field_label": "标题",
     "no_friends_found_message": "无法找到任何好友",
     "user_load_error_message": "（用户加载错误）",
-    "friends_input_label": "好友",
-    "title_label": ""
+    "friends_input_label": "好友"
   },
   "chat_input": {
     "label": "消息"
@@ -116,13 +115,7 @@
     "user_left_chat_text": "{{user}} 离开了聊天",
     "admin_assignment_text": "{{user}} 将 {{target_user}} 设为了管理员",
     "admin_removal_text": "{{user}} 移除了 {{target_user}} 的管理员身份",
-    "unknown_message_text": "未知控制消息",
-    "host_request_status_changed": {
-      "accepted": "",
-      "cancelled": "",
-      "confirmed": "",
-      "rejected": ""
-    }
+    "unknown_message_text": "未知控制消息"
   },
   "host_request_status": {
     "accepted": "已接受",
@@ -152,12 +145,8 @@
     "error_message": "无效的留宿请求ID",
     "back_button_a11y_label": "返回",
     "title_for_host": "来自{{user}} 的请求 - {{status}}",
-    "title_for_surfer": "向 {{user}} 发出的请求 - {{status}}",
-    "request_duration_other": ""
+    "title_for_surfer": "向 {{user}} 发出的请求 - {{status}}"
   },
   "past_request_help_text": "该请求已过期，你仍可发送消息，但无法进行其他修改。",
-  "unknown_user": "未知用户",
-  "mark_all_read_button_text_chats": "",
-  "mark_all_read_button_text_hosting": "",
-  "mark_all_read_button_text_surfing": ""
+  "unknown_user": "未知用户"
 }

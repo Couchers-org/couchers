@@ -24,11 +24,5 @@
     "recurrence_aria_label": "recorrente"
   },
   "benefactor_contact": "Se quiseres contribuir com mais de USD $1.000, entra em contacto connosco pelo <1>{{email}}</1> para providenciarmos uma forma de transferência com uma taxa mais baixa.",
-  "donate": "Doar",
-  "donations_use_explainer": "",
-  "settings_fragment": {
-    "button_text": "",
-    "description": "",
-    "title": ""
-  }
+  "donate": "Doar"
 }

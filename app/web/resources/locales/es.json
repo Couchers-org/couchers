@@ -174,8 +174,7 @@
     "invite_members": "Invitar a miembros",
     "merch_shop": "Tienda de merchandising",
     "switch_to_light_mode": "Cambiar a modo claro",
-    "switch_to_dark_mode": "Cambiar a modo oscuro",
-    "home": ""
+    "switch_to_dark_mode": "Cambiar a modo oscuro"
   },
   "ok": "De acuerdo",
   "relative_time": {
@@ -388,10 +387,5 @@
     "default_title": "Couchers.org",
     "default_description": "Comparte tu mundo, descubre el de otros. Experiencias locales auténticas, construidas en la confianza y la conexión genuina, no en las transacciones."
   },
-  "invited_you": "¡{{name}} te ha invitado a unirte a Couchers!",
-  "blog": {
-    "byline_with_author": "",
-    "byline_without_author": "",
-    "cta_message": ""
-  }
+  "invited_you": "¡{{name}} te ha invitado a unirte a Couchers!"
 }
