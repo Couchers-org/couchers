@@ -110,7 +110,8 @@
     "join_the_team": "",
     "treasurer": "",
     "community_coordinator": "",
-    "join_our_team": ""
+    "join_our_team": "",
+    "tap_press_to_flip": ""
   },
   "language_names": {
     "hu": "",
@@ -276,7 +277,8 @@
       "early_stage": "",
       "complete_percent": "",
       "view_progress": "",
-      "info_text": ""
+      "info_text": "",
+      "help_translate": ""
     },
     "show_all_languages": "",
     "form_title": "",
@@ -284,7 +286,8 @@
     "success_message": "",
     "error_loading_languages": "",
     "show_all_languages_description": "",
-    "current_preferred_language": ""
+    "current_preferred_language": "",
+    "help_translate": ""
   },
   "blog": {
     "byline_without_author": "",
@@ -361,7 +364,8 @@
   "yes": "",
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "strong_verification": {
     "helper_text": ""
@@ -388,5 +392,6 @@
   "no": "",
   "invited_you": "",
   "community_standing": "",
-  "community_standing_description": ""
+  "community_standing_description": "",
+  "update": ""
 }
