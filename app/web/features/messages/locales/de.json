@@ -92,7 +92,13 @@
     "created_chat_text": "{{user}} hat den Chat erstellt",
     "edited_chat_text": "{{user}} hat den Chat bearbeitet",
     "admin_removal_text": "{{user}} hat {{target_user}} als Administrator entfernt",
-    "unknown_message_text": "Unbekannte Kontrollmeldung"
+    "unknown_message_text": "Unbekannte Kontrollmeldung",
+    "host_request_status_changed": {
+      "accepted": "{{user}} hat die Anfrage akzeptiert",
+      "rejected": "{{user}} hat die Anfrage abgelehnt",
+      "confirmed": "{{user}} hat die Anfrage bestätigt",
+      "cancelled": "{{user}} hat die Anfrage storniert"
+    }
   },
   "host_request_status": {
     "confirmed": "Bestätigt",

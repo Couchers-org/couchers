@@ -1,11 +1,15 @@
+from datetime import UTC
 from unittest.mock import patch
 
 import grpc
 import pytest
-from google.protobuf import empty_pb2
+from google.protobuf import empty_pb2, timestamp_pb2
+from sqlalchemy import select
 
 from couchers.config import config
 from couchers.crypto import random_hex
+from couchers.db import session_scope
+from couchers.models.logging import EventLog, EventSource
 from couchers.proto import bugs_pb2
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import bugs_session
@@ -175,3 +179,189 @@ def test_GetDescriptors():
         # test we got something roughly binary back
         assert res.content_type == "application/octet-stream"
         assert len(res.data) > 2**12
+
+
+def _get_events(session, event_type=None):
+    stmt = select(EventLog).order_by(EventLog.id)
+    if event_type:
+        stmt = stmt.where(EventLog.event_type == event_type)
+    return session.execute(stmt).scalars().all()
+
+
+def test_report_diagnostics_anonymous(db):
+    with bugs_session() as bugs:
+        bugs.ReportDiagnostics(
+            bugs_pb2.ReportDiagnosticsReq(
+                frontend_version="1.2.3",
+                infos=[
+                    bugs_pb2.DiagnosticInfo(
+                        tag="page.viewed",
+                        properties_json='{"path": "/"}',
+                        value=1,
+                    ),
+                    bugs_pb2.DiagnosticInfo(
+                        tag="session.started",
+                        properties_json='{"referrer": "google.com"}',
+                        value=1,
+                    ),
+                ],
+            )
+        )
+
+    with session_scope() as session:
+        events = _get_events(session)
+        assert len(events) == 2
+
+        e0 = events[0]
+        assert e0.event_type == "page.viewed"
+        assert e0.properties == {"path": "/"}
+        assert e0.user_id is None
+        assert e0.source == EventSource.frontend
+        assert e0.value == 1
+        assert e0.version == "1.2.3"
+
+        e1 = events[1]
+        assert e1.event_type == "session.started"
+        assert e1.properties == {"referrer": "google.com"}
+        assert e1.source == EventSource.frontend
+
+
+def test_report_diagnostics_authenticated(db):
+    user, token = generate_user()
+
+    with bugs_session(token) as bugs:
+        bugs.ReportDiagnostics(
+            bugs_pb2.ReportDiagnosticsReq(
+                frontend_version="1.2.3",
+                infos=[
+                    bugs_pb2.DiagnosticInfo(
+                        tag="page.viewed",
+                        properties_json='{"path": "/search"}',
+                        value=1,
+                    ),
+                ],
+            )
+        )
+
+    with session_scope() as session:
+        events = _get_events(session)
+        assert len(events) == 1
+        assert events[0].user_id == user.id
+        assert events[0].source == EventSource.frontend
+
+
+def test_report_diagnostics_with_value(db):
+    with bugs_session() as bugs:
+        bugs.ReportDiagnostics(
+            bugs_pb2.ReportDiagnosticsReq(
+                frontend_version="1.2.3",
+                infos=[
+                    bugs_pb2.DiagnosticInfo(
+                        tag="search.result_hovered",
+                        properties_json='{"user_id": 5}',
+                        value=1500.5,
+                    ),
+                ],
+            )
+        )
+
+    with session_scope() as session:
+        events = _get_events(session)
+        assert len(events) == 1
+        assert events[0].value == pytest.approx(1500.5)
+
+
+def test_report_diagnostics_with_occurred(db):
+    from datetime import datetime
+
+    ts = timestamp_pb2.Timestamp()
+    ts.FromDatetime(datetime(2026, 1, 15, 10, 30, 0, tzinfo=UTC))
+
+    with bugs_session() as bugs:
+        bugs.ReportDiagnostics(
+            bugs_pb2.ReportDiagnosticsReq(
+                frontend_version="1.2.3",
+                infos=[
+                    bugs_pb2.DiagnosticInfo(
+                        tag="page.viewed",
+                        properties_json="{}",
+                        value=1,
+                        occurred=ts,
+                    ),
+                ],
+            )
+        )
+
+    with session_scope() as session:
+        events = _get_events(session)
+        assert len(events) == 1
+        assert events[0].occurred.year == 2026
+        assert events[0].occurred.month == 1
+        assert events[0].occurred.day == 15
+        assert events[0].occurred.hour == 10
+        assert events[0].occurred.minute == 30
+
+
+def test_report_diagnostics_invalid_json(db):
+    with bugs_session() as bugs, pytest.raises(grpc.RpcError) as e:
+        bugs.ReportDiagnostics(
+            bugs_pb2.ReportDiagnosticsReq(
+                frontend_version="1.2.3",
+                infos=[
+                    bugs_pb2.DiagnosticInfo(
+                        tag="page.viewed",
+                        properties_json="not valid json{{{",
+                        value=1,
+                    ),
+                ],
+            )
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_report_diagnostics_empty_batch(db):
+    with bugs_session() as bugs:
+        bugs.ReportDiagnostics(
+            bugs_pb2.ReportDiagnosticsReq(
+                frontend_version="1.2.3",
+                infos=[],
+            )
+        )
+
+    with session_scope() as session:
+        events = _get_events(session)
+        assert len(events) == 0
+
+
+def test_report_diagnostics_too_many(db):
+    infos = [bugs_pb2.DiagnosticInfo(tag=f"event.{i}", properties_json="{}", value=1) for i in range(101)]
+
+    with bugs_session() as bugs, pytest.raises(grpc.RpcError) as e:
+        bugs.ReportDiagnostics(
+            bugs_pb2.ReportDiagnosticsReq(
+                frontend_version="1.2.3",
+                infos=infos,
+            )
+        )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_report_diagnostics_frontend_version(db):
+    with bugs_session() as bugs:
+        bugs.ReportDiagnostics(
+            bugs_pb2.ReportDiagnosticsReq(
+                frontend_version="abc-def-123",
+                infos=[
+                    bugs_pb2.DiagnosticInfo(
+                        tag="page.viewed",
+                        properties_json="{}",
+                        value=1,
+                    ),
+                ],
+            )
+        )
+
+    with session_scope() as session:
+        events = _get_events(session)
+        assert len(events) == 1
+        assert events[0].version == "abc-def-123"

@@ -1,7 +1,8 @@
+import enum
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Float, Index, String, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Enum, Float, Index, String, func
 from sqlalchemy import LargeBinary as Binary
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -9,6 +10,11 @@ from sqlalchemy.sql import expression
 
 from couchers.config import config
 from couchers.models.base import Base
+
+
+class EventSource(enum.Enum):
+    backend = enum.auto()
+    frontend = enum.auto()
 
 
 class APICall(Base, kw_only=True):
@@ -96,6 +102,12 @@ class EventLog(Base, kw_only=True):
 
     # flexible event-specific properties
     properties: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+    # numeric value (duration, count, etc.)
+    value: Mapped[float] = mapped_column(Float, server_default="1.0", default=1.0)
+
+    # where the event originated
+    source: Mapped[EventSource] = mapped_column(Enum(EventSource))
 
     __table_args__ = (
         Index("ix_logging_event_log_created", "created"),
