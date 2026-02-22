@@ -1,1 +1,152 @@
-{}
+{
+  "notification_settings": {
+    "edit_preferences": {
+      "item_descriptions": {
+        "chat": {
+          "missed_messages": "",
+          "message": ""
+        },
+        "phone_number": {
+          "change": "",
+          "verify": ""
+        },
+        "gender": {
+          "change": ""
+        },
+        "reference": {
+          "reminder_surfed": "",
+          "receive_surfed": "",
+          "receive_friend": "",
+          "receive_hosted": "",
+          "reminder_hosted": ""
+        },
+        "event": {
+          "cancel": "",
+          "update": "",
+          "create_approved": "",
+          "create_any": "",
+          "comment": "",
+          "invite_organizer": "",
+          "reminder": "",
+          "delete": ""
+        },
+        "email_address": {
+          "change": "",
+          "verify": ""
+        },
+        "badge": {
+          "add": "",
+          "remove": ""
+        },
+        "general": {
+          "new_blog_post": ""
+        },
+        "account_deletion": {
+          "start": "",
+          "complete": "",
+          "recovered": ""
+        },
+        "api_key": {
+          "create": ""
+        },
+        "birthdate": {
+          "change": ""
+        },
+        "discussion": {
+          "create": "",
+          "comment": ""
+        },
+        "friend_request": {
+          "create": "",
+          "accept": ""
+        },
+        "onboarding": {
+          "reminder": ""
+        },
+        "donation": {
+          "received": ""
+        },
+        "password": {
+          "change": ""
+        },
+        "password_reset": {
+          "start": "",
+          "complete": ""
+        },
+        "host_request": {
+          "accept": "",
+          "confirm": "",
+          "reject": "",
+          "cancel": "",
+          "message": "",
+          "create": "",
+          "reminder": ""
+        },
+        "thread": {
+          "reply": ""
+        }
+      },
+      "list_heading": "",
+      "error_loading": "",
+      "list_items": {
+        "account_security": "",
+        "chat": "",
+        "event": "",
+        "friend_request": "",
+        "host_request": "",
+        "reference": "",
+        "discussion": "",
+        "reply": "",
+        "account_settings": "",
+        "other_notifications": ""
+      },
+      "title": "",
+      "description": "",
+      "expand_all": "",
+      "collapse_all": ""
+    },
+    "push_notifications": {
+      "permission_denied": {
+        "instructions": {
+          "macos": "",
+          "chrome": "",
+          "safari": "",
+          "generic": "",
+          "firefox": "",
+          "windows": "",
+          "linux": {
+            "gnome": "",
+            "kde": ""
+          },
+          "mobile": {
+            "browser": "",
+            "os": ""
+          }
+        },
+        "platform_settings_description": ""
+      },
+      "title": "",
+      "description": "",
+      "enabled_message": "",
+      "disabled_message": "",
+      "error_generic": "",
+      "error_unsupported": "",
+      "allow_push": "",
+      "error_not_granted": ""
+    },
+    "go_to_button": "",
+    "title": "",
+    "edit_in_console": ""
+  },
+  "push_notification_banner": {
+    "confirm": "",
+    "message": ""
+  },
+  "unread": "",
+  "error_loading": "",
+  "mark_unread": "",
+  "mark_all_read": "",
+  "no_new_notifications": "",
+  "error_updating_notifications": "",
+  "all": ""
+}

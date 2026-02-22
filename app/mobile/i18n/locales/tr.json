@@ -4,7 +4,9 @@
     "check_connection": "İnternet bağlantınızı kontrol edip tekrar deneyin.",
     "try_again": "Tekrar dene",
     "camera_permission_denied": "Fotoğraf çekmek için kamera izni gerekli.",
-    "camera_permission_required": "Kamera İzni Gerekli"
+    "camera_permission_required": "Kamera İzni Gerekli",
+    "camera_permission_explanation": "",
+    "camera_permission_denied_permanently": ""
   },
   "not_found": {
     "title": "Hay aksi!",
@@ -17,5 +19,13 @@
     "home": "Ana Sayfa",
     "messages": "Mesajlar",
     "communities": "Topluluklar"
+  },
+  "common": {
+    "cancel": "",
+    "add_photo": "",
+    "choose_photo_source": "",
+    "take_photo": "",
+    "choose_from_library": "",
+    "open_settings": ""
   }
 }

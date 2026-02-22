@@ -39,5 +39,6 @@
   "map_section_title": "Explora la nostra comunitat global",
   "num_users": "{{numUsers}} membres",
   "num_countries": "{{numCountries}}+ països",
-  "last_signup": "Última sessió {{timeAgo}}"
+  "last_signup": "Última sessió {{timeAgo}}",
+  "signup_description_no_link": ""
 }
