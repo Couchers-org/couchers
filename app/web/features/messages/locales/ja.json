@@ -158,5 +158,6 @@
   "group_chats_tab": {
     "load_more_button_label": "",
     "no_chats_message": ""
-  }
+  },
+  "close_request_dialog_title": ""
 }
