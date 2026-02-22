@@ -1,1 +1,162 @@
-{}
+{
+  "create_chat": {
+    "group_title_field_label": "",
+    "dm_title": "",
+    "group_title": "",
+    "user_load_error_message": "",
+    "title_label": "",
+    "no_friends_found_message": "",
+    "friends_input_label": ""
+  },
+  "chat_view": {
+    "actions_menu": {
+      "items": {
+        "leave_chat": "",
+        "invite_members": "",
+        "show_all_members": "",
+        "manage_admins": "",
+        "chat_settings": ""
+      },
+      "a11y_label": ""
+    },
+    "mute": {
+      "dialog_title": "",
+      "1_hour_label": "",
+      "1_month_label": "",
+      "unmute_button_label": "",
+      "forever_label": "",
+      "button_label": "",
+      "8_hours_label": "",
+      "1_day_label": "",
+      "1_week_label": ""
+    },
+    "invalid_id_error": "",
+    "no_messages_state_text": "",
+    "back_button": {
+      "a11y_label": ""
+    },
+    "muted_icon": {
+      "a11y_label": ""
+    },
+    "cannot_message_text": ""
+  },
+  "control_message": {
+    "edited_chat_text": "",
+    "invite_user_text": "",
+    "host_request_status_changed": {
+      "rejected": "",
+      "accepted": "",
+      "cancelled": "",
+      "confirmed": ""
+    },
+    "unknown_message_text": "",
+    "created_chat_text": "",
+    "user_left_chat_text": "",
+    "admin_assignment_text": "",
+    "admin_removal_text": ""
+  },
+  "close_request_dialog_host": "",
+  "admins_dialog": {
+    "remove_admin": {
+      "title": "",
+      "action_a11y_label": ""
+    },
+    "add_admin": {
+      "title": "",
+      "action_a11y_label": ""
+    },
+    "step_down_confirmation_dialog": {
+      "title": "",
+      "message": ""
+    }
+  },
+  "host_pending_request_help_text": "",
+  "surfer_declined_request_help_text": "",
+  "close_request_button_text": "",
+  "invite_dialog": {
+    "selected": {
+      "field_label": "",
+      "no_options_text": "",
+      "option_load_error_text": ""
+    },
+    "title": "",
+    "invite_button_label": ""
+  },
+  "host_request_item": {
+    "surfer_status": {
+      "accepted": "",
+      "cancelled": "",
+      "confirmed": "",
+      "rejected": ""
+    },
+    "expired": "",
+    "pending": "",
+    "host_status": {
+      "accepted": "",
+      "rejected": "",
+      "cancelled": "",
+      "confirmed": ""
+    }
+  },
+  "host_request_view": {
+    "error_message": "",
+    "back_button_a11y_label": "",
+    "title_for_host": "",
+    "title_for_surfer": "",
+    "request_duration_other": ""
+  },
+  "mark_all_read_button_text_chats": "",
+  "mark_all_read_button_text_hosting": "",
+  "mark_all_read_button_text_surfing": "",
+  "messages_page": {
+    "tabs": {
+      "hosting": "",
+      "chats": "",
+      "aria_label": "",
+      "surfing": ""
+    },
+    "title": ""
+  },
+  "group_chat_settings_dialog": {
+    "title": "",
+    "chat_title": {
+      "field_label": ""
+    },
+    "only_admins_invite": {
+      "field_label": ""
+    }
+  },
+  "chat_input": {
+    "label": ""
+  },
+  "write_reference_button_text": "",
+  "confirm_request_button_text": "",
+  "group_chats_tab": {
+    "no_chats_message": "",
+    "load_more_button_label": ""
+  },
+  "host_request_status": {
+    "accepted": "",
+    "cancelled": "",
+    "confirmed": "",
+    "past": "",
+    "pending": "",
+    "rejected": ""
+  },
+  "leave_chat_dialog": {
+    "message": "",
+    "title": ""
+  },
+  "mark_all_read_button_text": "",
+  "request_closed_message": "",
+  "close_request_dialog_surfer": "",
+  "unknown_user": "",
+  "past_request_help_text": "",
+  "requests_tab": {
+    "no_requests_message": "",
+    "load_more_button_label": ""
+  },
+  "members_dialog": {
+    "title": ""
+  }
+}

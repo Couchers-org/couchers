@@ -33,12 +33,15 @@
           "confirm": "Birisi ev sahipliği isteğini onayladığında",
           "reject": "Birisi ev sahipliği isteğini reddettiğinde",
           "missed_messages": "Bir ev sahipliği isteğinde mesaj kaçırdığında",
-          "message": "Birisi ev sahipliği isteğinde mesaj yolladığında"
+          "message": "Birisi ev sahipliği isteğinde mesaj yolladığında",
+          "cancel": ""
         },
         "reference": {
           "receive_hosted": "Sana ev sahipliği yapmış biri tarafından referans aldığında",
           "receive_surfed": "Ev sahipliği yaptığın birinden referans aldığında",
-          "receive_friend": "Bir arkadaştan referans aldığında"
+          "receive_friend": "Bir arkadaştan referans aldığında",
+          "reminder_hosted": "",
+          "reminder_surfed": ""
         },
         "chat": {
           "message": "Birisi sana bir mesaj gönderdiğinde",
@@ -47,12 +50,104 @@
         "friend_request": {
           "create": "Biri sana bir arkadaşlık isteği gönderdiğinde",
           "accept": "Birisi senin arkadaşlık isteğini kabul ettiğinde"
+        },
+        "event": {
+          "update": "",
+          "create_approved": "",
+          "create_any": "",
+          "delete": "",
+          "invite_organizer": "",
+          "comment": "",
+          "reminder": "",
+          "cancel": ""
+        },
+        "badge": {
+          "add": "",
+          "remove": ""
+        },
+        "account_deletion": {
+          "recovered": "",
+          "start": "",
+          "complete": ""
+        },
+        "discussion": {
+          "create": "",
+          "comment": ""
+        },
+        "onboarding": {
+          "reminder": ""
+        },
+        "donation": {
+          "received": ""
+        },
+        "password": {
+          "change": ""
+        },
+        "password_reset": {
+          "start": "",
+          "complete": ""
+        },
+        "email_address": {
+          "change": "",
+          "verify": ""
+        },
+        "api_key": {
+          "create": ""
+        },
+        "phone_number": {
+          "change": "",
+          "verify": ""
+        },
+        "birthdate": {
+          "change": ""
+        },
+        "gender": {
+          "change": ""
+        },
+        "thread": {
+          "reply": ""
+        },
+        "general": {
+          "new_blog_post": ""
         }
       },
       "expand_all": "Tümünü genişlet",
       "collapse_all": "Tümünü daralt",
       "error_loading": "Bildirim ayarlarını yüklemede hata oluştu"
+    },
+    "push_notifications": {
+      "title": "",
+      "disabled_message": "",
+      "allow_push": "",
+      "enabled_message": "",
+      "error_generic": "",
+      "error_unsupported": "",
+      "error_not_granted": "",
+      "permission_denied": {
+        "platform_settings_description": "",
+        "instructions": {
+          "chrome": "",
+          "firefox": "",
+          "safari": "",
+          "generic": "",
+          "macos": "",
+          "windows": "",
+          "linux": {
+            "gnome": "",
+            "kde": ""
+          },
+          "mobile": {
+            "browser": "",
+            "os": ""
+          }
+        }
+      },
+      "description": ""
     }
   },
-  "all": "Hepsi"
+  "all": "Hepsi",
+  "push_notification_banner": {
+    "confirm": "",
+    "message": ""
+  }
 }
