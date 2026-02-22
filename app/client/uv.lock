@@ -130,7 +130,6 @@ wheels = [
 
 [[package]]
 name = "couchers"
-version = "0.0.46"
 source = { editable = "." }
 dependencies = [
     { name = "grpcio" },
