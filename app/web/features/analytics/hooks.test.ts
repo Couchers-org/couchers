@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 
-import { useDurationEvent, useImpressionRef,useLogEvent } from "./hooks";
+import { useDurationEvent, useImpressionRef, useLogEvent } from "./hooks";
 
 // Mock the event-collector module
 const mockLogEvent = jest.fn();
