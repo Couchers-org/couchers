@@ -160,5 +160,6 @@
       "confirmed": "",
       "rejected": ""
     }
-  }
+  },
+  "close_request_dialog_title": ""
 }
