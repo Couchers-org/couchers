@@ -1,9 +1,11 @@
+import json
+from datetime import UTC, datetime
 from typing import cast
 
 import grpc
 import requests
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -12,6 +14,7 @@ from couchers.config import config
 from couchers.context import CouchersContext
 from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
+from couchers.models.logging import EventLog, EventSource
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
 
@@ -84,6 +87,39 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             content_type="application/octet-stream",
             data=get_descriptors_pb(),
         )
+
+    def ReportDiagnostics(
+        self, request: bugs_pb2.ReportDiagnosticsReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        if len(request.infos) > 100:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "too_many_diagnostic_infos")
+
+        events = []
+        for info in request.infos:
+            try:
+                properties = json.loads(info.properties_json)
+            except (json.JSONDecodeError, ValueError):
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_diagnostics_json")
+
+            occurred = info.occurred.ToDatetime(tzinfo=UTC) if info.HasField("occurred") else datetime.now(UTC)
+
+            events.append(
+                {
+                    "event_type": info.tag,
+                    "user_id": context._user_id,
+                    "sofa": context._sofa,
+                    "version": request.frontend_version,
+                    "properties": properties,
+                    "value": info.value,
+                    "source": EventSource.frontend,
+                    "occurred": occurred,
+                }
+            )
+
+        if events:
+            session.execute(insert(EventLog), events)
+
+        return empty_pb2.Empty()
 
     def GeolocationSearchInfo(
         self, request: bugs_pb2.GeolocationSearchInfoReq, context: CouchersContext, session: Session

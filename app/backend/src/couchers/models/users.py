@@ -45,6 +45,7 @@ from couchers.utils import get_coordinates, last_active_coarsen, now
 
 if TYPE_CHECKING:
     from couchers.models import UserBadge
+    from couchers.models.admin import UserAdminTag
     from couchers.models.rest import InviteCode, ModerationUserList
     from couchers.models.uploads import PhotoGallery
 
@@ -342,6 +343,10 @@ class User(Base, kw_only=True):
     )
 
     badges: Mapped[list[UserBadge]] = relationship(init=False, back_populates="user")
+
+    admin_tags: Mapped[list[UserAdminTag]] = relationship(
+        init=False, foreign_keys="UserAdminTag.user_id", overlaps="user"
+    )
 
     pending_activeness_probe: Mapped[ActivenessProbe | None] = relationship(
         init=False,
