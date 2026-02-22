@@ -145,7 +145,8 @@
     },
     "name": {
       "field_label": "",
-      "empty_error": ""
+      "empty_error": "",
+      "required_error": ""
     }
   },
   "strong_verification": {
