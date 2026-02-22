@@ -160,5 +160,6 @@
   "past_request_help_text": "",
   "members_dialog": {
     "title": ""
-  }
+  },
+  "close_request_dialog_title": ""
 }
