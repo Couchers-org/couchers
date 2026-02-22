@@ -1,7 +1,7 @@
 """Add public trips
 
 Revision ID: 981fb62b20ce
-Revises: e9190b051324
+Revises: 0138
 Create Date: 2026-01-22 12:00:00.000000
 
 """
