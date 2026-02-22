@@ -16,7 +16,8 @@
     "subtitle": "",
     "reset_password_error": "",
     "user_logged_error": "",
-    "reset_password_success": ""
+    "reset_password_success": "",
+    "token_error": ""
   },
   "login_page": {
     "header": "Witaj z powrotem!",
@@ -29,7 +30,8 @@
       "username_field_label": "",
       "show_password": ""
     },
-    "title": "Zaloguj się"
+    "title": "Zaloguj się",
+    "no_account_prompt": ""
   },
   "account_form": {
     "password": {
@@ -121,7 +123,8 @@
       "still_hosting": "",
       "title": "",
       "not_hosting": "",
-      "description": ""
+      "description": "",
+      "note": ""
     },
     "description": ""
   },

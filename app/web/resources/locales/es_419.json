@@ -183,7 +183,8 @@
     "past_members": "",
     "board_member": "",
     "co_founder_president": "",
-    "backend_developer": ""
+    "backend_developer": "",
+    "tap_press_to_flip": ""
   },
   "create_account": "",
   "back": "",
@@ -273,11 +274,13 @@
       "just_started": "",
       "complete_percent": "",
       "info_text": "",
-      "view_progress": ""
+      "view_progress": "",
+      "help_translate": ""
     },
     "show_all_languages": "",
     "show_all_languages_description": "",
-    "success_message": ""
+    "success_message": "",
+    "help_translate": ""
   },
   "hosting_status": {
     "unspecified_info": "",
@@ -342,7 +345,8 @@
   "error_loading_languages": "",
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "mod": "",
   "sign_up": "",
@@ -388,5 +392,6 @@
   "footer": {
     "non_profit_note": "",
     "version_info": ""
-  }
+  },
+  "update": ""
 }
