@@ -1,46 +1,105 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import date
-from markupsafe import Markup
-from typing import ClassVar, Self
+from typing import Self
 
-from couchers.email.blocks import (
-    EmailContent,
-    Block,
-    ParagraphBlock,
-    UserBlock,
+from markupsafe import Markup
+
+from couchers.email.rendering import (
     ButtonBlock,
+    EmailBlock,
+    ParaBlock,
     QuoteBlock,
+    UserBlock,
     UserInfo,
+    get_emails_i18next,
 )
 from couchers.i18n import LocalizationContext
-from couchers.templating import Jinja2Template, template_folder
-
-import xml.etree.ElementTree as xmlET
+from couchers.i18n.i18next import SubstitutionDict
 
 
 @dataclass
 class EmailBase(ABC):
-    """Base class for email templating args."""
+    """Base class for email data models, which can be rendered to HTML or plaintext."""
 
     user_name: str
 
+    @abstractmethod
+    def get_subject_line(self, loc_context: LocalizationContext) -> str: ...
+
+    def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
+        return None
+
+    @abstractmethod
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]: ...
+
+    @property
+    @abstractmethod
+    def _localize_key_prefix(self) -> str: ...
+
+    def _text(
+        self, key: str, loc_context: LocalizationContext, substitutions: SubstitutionDict | None = None
+    ) -> str:
+        if "." not in key:
+            key = f"{self._localize_key_prefix}.{key}"
+        return get_emails_i18next().localize(key, loc_context.locale, substitutions)
+
+    def _markup(
+        self, key: str, loc_context: LocalizationContext, substitutions: SubstitutionDict | None = None
+    ) -> Markup:
+        if "." not in key:
+            key = f"{self._localize_key_prefix}.{key}"
+        return get_emails_i18next().localize_with_markup(key, loc_context.locale, substitutions)
+
+    def _greeting_line(self, loc_context: LocalizationContext) -> ParaBlock:
+        line = get_emails_i18next().localize("generic.greeting_line", loc_context.locale, { "name": self.user_name })
+        return ParaBlock(text=line)
+
+    def _para(
+        self, key: str, loc_context: LocalizationContext, substitutions: SubstitutionDict | None = None
+    ) -> ParaBlock:
+        return ParaBlock(text=self._localize_with_markup(key, loc_context, substitutions))
+
     @staticmethod
     @abstractmethod
-    def test_data() -> Self:
-        pass
+    def test_data() -> Self: ...
 
 
 @dataclass
 class HostRequestReceived(EmailBase):
-    TEMPLATE_FILENAME: ClassVar[str] = "host_request_received.xml"
-
     surfer: UserInfo
     from_date: date
     to_date: date
     text: str
     view_url: str
     quick_decline_url: str
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._text("subject", loc_context, {"name": self.surfer.name})
+
+    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
+        return [
+            self._greeting_line(loc_context),
+            self._para("event_description", loc_context, {"name": self.surfer.name}),
+            UserBlock(
+                info=self.surfer,
+                comment=self._markup(
+                    "requested_dates",
+                    loc_context,
+                    {
+                        "from_date": loc_context.localize_date(self.from_date),
+                        "to_date": loc_context.localize_date(self.to_date),
+                    },
+                ),
+            ),
+            QuoteBlock(text=self.text),
+            ButtonBlock(caption=self._text("view_request_link"), url=self.view_url),
+            ButtonBlock(caption=self._text("quick_decline_link"), url=self.quick_decline_url),
+        ]
+
+    @property
+    def _localize_key_prefix(self) -> str:
+        return "host_request_received"
 
     @staticmethod
     def test_data() -> HostRequestReceived:
@@ -53,50 +112,3 @@ class HostRequestReceived(EmailBase):
             view_url="http://example.com/requests",
             quick_decline_url="http://example.com/quick-decline",
         )
-
-
-def email_to_blocks(email, loc_context: LocalizationContext) -> EmailContent:
-    xml_text = (template_folder / email.__class__.TEMPLATE_FILENAME).read_text(encoding="utf8")
-    xml_template = Jinja2Template(source=xml_text, html=True)
-    email_element = xmlET.fromstring(xml_template.render(email.__dict__, loc_context))
-
-    blocks: list[Block] = []
-    for block_element in email_element:
-        match block_element.tag:
-            case "para":
-                blocks.append(
-                    ParagraphBlock(
-                        # Preserve HTML from template, placeholders are already sanitized.
-                        text=Markup(_get_inner_xml(block_element))
-                    )
-                )
-            case "user":
-                attr_name = block_element.attrib.get("attr")
-                user_info: UserInfo = getattr(email, attr_name)
-                blocks.append(UserBlock(info=user_info, comment=_get_inner_xml(block_element).strip()))
-            case "quote":
-                blocks.append(
-                    QuoteBlock(
-                        # Placeholders are already sanitized
-                        text=Markup(_get_inner_xml(block_element))
-                    )
-                )
-            case "button":
-                blocks.append(
-                    ButtonBlock(caption=block_element.attrib["caption"], target_url=block_element.attrib["target-url"])
-                )
-
-    return EmailContent(
-        subject=email_element.attrib["subject"], preview=email_element.attrib.get("preview"), blocks=blocks
-    )
-
-
-def _get_inner_xml(element: xmlET.Element) -> str | None:
-    parts = []
-    if element.text:  # Text before the first subelement
-        parts.append(element.text)
-
-    for child in element:
-        parts.append(xmlET.tostring(child, encoding="unicode"))
-
-    return "".join(parts) if parts else None
