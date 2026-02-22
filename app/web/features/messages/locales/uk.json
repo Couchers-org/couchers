@@ -160,5 +160,6 @@
       "title": "",
       "action_a11y_label": ""
     }
-  }
+  },
+  "close_request_dialog_title": ""
 }
