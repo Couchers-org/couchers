@@ -106,7 +106,7 @@ export default function EditProfilePage({
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "flex-end",
+                justifyContent: "center",
                 mb: 1,
               }}
             >
