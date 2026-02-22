@@ -52,7 +52,13 @@
     "admin_assignment_text": "{{user}} ha fet {{target_user}} administrador",
     "admin_removal_text": "{{user}} ha eliminat {{target_user}} com a administrador",
     "unknown_message_text": "Missatge de control desconegut",
-    "invite_user_text": "{{user}} ha convidat {{target_user}}"
+    "invite_user_text": "{{user}} ha convidat {{target_user}}",
+    "host_request_status_changed": {
+      "confirmed": "",
+      "accepted": "",
+      "cancelled": "",
+      "rejected": ""
+    }
   },
   "host_request_status": {
     "accepted": "Acceptat",
@@ -152,5 +158,8 @@
   },
   "mark_all_read_button_text": "Marca-ho tot com a llegit",
   "request_closed_message": "Aquesta sol·licitud d'allotjament està tancada. Per continuar xatejant, envia un missatge normal a l'altra persona.",
-  "surfer_declined_request_help_text": "<0>Llegeix la nostra guia</0> sobre com escriure una sol·licitud que sigui acceptada."
+  "surfer_declined_request_help_text": "<0>Llegeix la nostra guia</0> sobre com escriure una sol·licitud que sigui acceptada.",
+  "mark_all_read_button_text_chats": "",
+  "mark_all_read_button_text_surfing": "",
+  "mark_all_read_button_text_hosting": ""
 }
