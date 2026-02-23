@@ -14,8 +14,19 @@
       "success_message": "Couchers.orgに寄付してくださり、ありがとうございます！すぐにあなたのアドレスにメールが送信されます。",
       "warning_message": "お支払いがキャンセルされました。"
     },
-    "helper_text": "寄付を完了するため、支払いサービスのStripeにリダイレクトします。"
+    "helper_text": "寄付を完了するため、支払いサービスのStripeにリダイレクトします。",
+    "amount_validation_error": "",
+    "recurrence_aria_label": ""
   },
   "donations_title": "私たちのプラットフォーム拡大のためにはあなたの寄付が必要です",
-  "donations_title2": "あなたの寄付の役立てられ方"
+  "donations_title2": "あなたの寄付の役立てられ方",
+  "settings_fragment": {
+    "title": "",
+    "button_text": "",
+    "description": ""
+  },
+  "donations_text": "",
+  "donations_text2": "",
+  "donations_use_explainer": "",
+  "benefactor_contact": ""
 }

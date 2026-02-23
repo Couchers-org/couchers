@@ -18,7 +18,9 @@
     "n_minutes_ago_other": "{{count}} minutos atrás",
     "n_hours_ago_one": "{{count}} hora atrás",
     "n_hours_ago_many": "{{count}} de horas atrás",
-    "n_hours_ago_other": "{{count}} horas atrás"
+    "n_hours_ago_other": "{{count}} horas atrás",
+    "less_than_a_minute_ago": "",
+    "less_than_one_hour_ago": ""
   },
   "load_more": "Carregar mais",
   "close": "Fechar",
@@ -128,7 +130,267 @@
     "title": "Reportar um problema",
     "flag": {
       "block_user": "Bloquear {{username}}",
-      "block_user_explainer": "Mensagens e solicitações dessa pessoa serão bloqueadas, e seu perfil, eventos e comentários não serão visíveis para ela. Ela não será informada sobre o bloqueio."
+      "block_user_explainer": "Mensagens e solicitações dessa pessoa serão bloqueadas, e seu perfil, eventos e comentários não serão visíveis para ela. Ela não será informada sobre o bloqueio.",
+      "reason_helper": "",
+      "reason": {
+        "sexualized": "",
+        "external": "",
+        "scam": "",
+        "spam": "",
+        "other": "",
+        "dating": "",
+        "harassment": "",
+        "guidelines_breach": "",
+        "safety": ""
+      },
+      "success": "",
+      "button_aria_label": "",
+      "profile_button_aria_label": "",
+      "explainer": "",
+      "profile_title": "",
+      "reason_label": "",
+      "title": "",
+      "reason_required": "",
+      "description_required": "",
+      "profile_reason_required": "",
+      "description_label": "",
+      "description_helper": ""
     }
-  }
+  },
+  "nav": {
+    "profile": "",
+    "badges": "",
+    "blog": "",
+    "log_out": "",
+    "map_search": "",
+    "the_team": "",
+    "legal_more": "",
+    "help": "",
+    "dashboard": "",
+    "volunteer": "",
+    "account_settings": "",
+    "about": "",
+    "mission": "",
+    "messages": "",
+    "newsletter": "",
+    "notifications": "",
+    "our_plan": "",
+    "our_team": "",
+    "show_all_events": "",
+    "community": "",
+    "communities": "",
+    "donate": "",
+    "events": "",
+    "faq": "",
+    "feature_preview": "",
+    "forum": "",
+    "github": "",
+    "help_center": "",
+    "roadmap_updates": "",
+    "contact_us": "",
+    "built_with": "",
+    "merch_shop": "",
+    "landing_page": "",
+    "invite_members": "",
+    "switch_to_light_mode": "",
+    "switch_to_dark_mode": "",
+    "home": ""
+  },
+  "footer": {
+    "version_info": "",
+    "non_profit_note": ""
+  },
+  "language_names": {
+    "nb-NO": "",
+    "he": "",
+    "pl": "",
+    "zh-Hant": "",
+    "it": "",
+    "ja": "",
+    "pt-BR": "",
+    "ru": "",
+    "ca": "",
+    "zh-Hans": "",
+    "cs": "",
+    "de": "",
+    "en": "",
+    "en-CORP": "",
+    "es": "",
+    "es-419": "",
+    "fr": "",
+    "fr-CA": "",
+    "hi": "",
+    "nl": "",
+    "sv": "",
+    "tr": "",
+    "uk": "",
+    "hu": "",
+    "pt": ""
+  },
+  "team": {
+    "volunteer_settings": {
+      "show_on_team_page": {
+        "enabled_message": "",
+        "title": "",
+        "disabled_message": ""
+      }
+    },
+    "title": "",
+    "board_member": "",
+    "description": "",
+    "join_our_team": "",
+    "have_skills_contribute": "",
+    "fill_form_description": "",
+    "current_members": "",
+    "lead_frontend_developer": "",
+    "backend_developer": "",
+    "lead_backend_developer": "",
+    "full_stack_backend_developer": "",
+    "ui_ux_designer": "",
+    "translations_lead": "",
+    "past_members": "",
+    "co_founder_president": "",
+    "co_founder": "",
+    "frontend_developer": "",
+    "join_the_team": "",
+    "secretary": "",
+    "treasurer": "",
+    "community_coordinator": "",
+    "developer": ""
+  },
+  "what_is_cs": {
+    "table": {
+      "dollars_range": "",
+      "meetups_communities": "",
+      "professionally_managed": "",
+      "no_investor_pressure": "",
+      "stay_with_locals": "",
+      "header_hotel": "",
+      "people_first": "",
+      "cost_to_stay": "",
+      "free_to_stay": "",
+      "dollar": "",
+      "social_expectation": "",
+      "header_couchers": "",
+      "cultural_exchange": "",
+      "non_transactional": "",
+      "header_hostel": ""
+    },
+    "timeline": {
+      "early_2000s_text": "",
+      "2020_year": "",
+      "2010s_year": "",
+      "2010s_text": "",
+      "2020_text": "",
+      "today_text": "",
+      "today_year": "",
+      "early_2000s_year": ""
+    },
+    "get_started": "",
+    "bottom_cta_subtitle": "",
+    "join_couchers": "",
+    "why_people_title": "",
+    "actions": {
+      "attend_events": "",
+      "find_people": "",
+      "surf": "",
+      "join_discussions": "",
+      "host": ""
+    },
+    "compare_title": "",
+    "title": "",
+    "is_it_safe": {
+      "description_2": "",
+      "title": "",
+      "description_1": "",
+      "description_3": ""
+    },
+    "tip_label": "",
+    "bottom_cta_title": "",
+    "why_people_points": {
+      "travelers": "",
+      "hosts": "",
+      "everyone": ""
+    },
+    "tip_text": "",
+    "description_1": "",
+    "description_2": "",
+    "get_involved_title": "",
+    "timeline_title": ""
+  },
+  "strong_verification": {
+    "helper_text": ""
+  },
+  "error_loading_languages": "",
+  "components": {
+    "datepicker": {
+      "change_date": ""
+    },
+    "edit_location_map": {
+      "no_map_support": "",
+      "press_enter_to_search": "",
+      "location_warn": "",
+      "map_is_blank": "",
+      "radius_text": "",
+      "location_publicly_visible": "",
+      "display_location_label": "",
+      "invalid_coordinate": "",
+      "location_accuracy": "",
+      "search_location_label": "",
+      "display_location_not_empty": "",
+      "no_location_results_text": ""
+    }
+  },
+  "location_autocomplete": {
+    "search_location_button": "",
+    "select_location_hint": "",
+    "search_location_hint": "",
+    "more_specific": ""
+  },
+  "html_meta": {
+    "default_title": "",
+    "title_suffix": "",
+    "default_description": ""
+  },
+  "no": "",
+  "invites": {
+    "error": {
+      "fetch_invite_info": ""
+    },
+    "title": "",
+    "share_link": "",
+    "banner": {
+      "invited_you": "",
+      "inviter_fallback": ""
+    },
+    "create": "",
+    "disable": "",
+    "instructions": "",
+    "uses_suffix": ""
+  },
+  "reply": "",
+  "beta": "",
+  "blog": {
+    "byline_with_author": "",
+    "cta_message": "",
+    "byline_without_author": ""
+  },
+  "error": {
+    "fatal_message": "",
+    "fallback": {
+      "home_page_link_label": "",
+      "title": "",
+      "subtitle": "",
+      "refresh_page_button_label": ""
+    },
+    "unknown": ""
+  },
+  "yes": "",
+  "not_found_alt": "",
+  "change_time": "",
+  "not_found_text_1": "",
+  "not_found_text_2": "",
+  "contribute_title": "",
+  "ok": "",
+  "invited_you": ""
 }
