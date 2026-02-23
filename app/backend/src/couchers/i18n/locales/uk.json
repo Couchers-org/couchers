@@ -238,7 +238,8 @@
     "content_report_not_found": "",
     "event_cant_overlap": "",
     "dev_apis_disabled": "",
-    "signup_flow_account_filled": ""
+    "signup_flow_account_filled": "",
+    "after_item_not_found": ""
   },
   "notifications": {
     "donation_received": {

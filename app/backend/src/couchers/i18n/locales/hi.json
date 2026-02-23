@@ -216,7 +216,8 @@
     "user_already_volunteer": "",
     "cannot_leave_containing_community": "",
     "cant_add_self": "",
-    "event_community_invite_not_found": ""
+    "event_community_invite_not_found": "",
+    "after_item_not_found": ""
   },
   "ghost_users": {
     "display_name": "",
