@@ -122,7 +122,8 @@
     "no_previews": {
       "title": "現在プレビューできる機能はありません",
       "explanation": "現在プレビューに利用可能な機能はありません。後ほどまたご確認ください！"
-    }
+    },
+    "disclaimer": ""
   },
   "account_settings_page": {
     "birth_date_section": {
