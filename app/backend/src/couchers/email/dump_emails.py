@@ -2,15 +2,16 @@
 Dumps emails subjects and html/plaintext bodies with dummy data.
 """
 
+import inspect
+import re
 import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass
-import inspect
 from pathlib import Path
-import re
 from zoneinfo import ZoneInfo
 
 import couchers.email.emails
+from couchers.email.emails import EmailBase
 from couchers.email.rendering import (
     EmailFooter,
     UnsubscribeInfo,
@@ -18,7 +19,6 @@ from couchers.email.rendering import (
     render_html_body,
     render_plaintext_body,
 )
-from couchers.email.emails import EmailBase
 from couchers.i18n import LocalizationContext
 from couchers.templating import template_folder
 
@@ -33,7 +33,9 @@ class CommandLineArgs:
     def parse(args: list[str]) -> CommandLineArgs:
         parser = ArgumentParser(description=__doc__)
         parser.add_argument("filter", type=str, nargs="?", default="*", help="A filter for email classes to dump.")
-        parser.add_argument("--outdir", type=Path, default=template_folder, help="The directory to write email bodies to.")
+        parser.add_argument(
+            "--outdir", type=Path, default=template_folder, help="The directory to write email bodies to."
+        )
         parser.add_argument("--locale", type=str, default="en", help="The locale to use.")
         parsed_args = parser.parse_args(args)
         return CommandLineArgs(**parsed_args.__dict__)

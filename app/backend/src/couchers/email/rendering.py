@@ -13,7 +13,7 @@ from markupsafe import Markup
 
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next
-from couchers.i18n.localize import load_locales
+from couchers.i18n.locales import load_locales
 from couchers.templating import Jinja2Template, template_folder
 from couchers.utils import now
 
@@ -175,7 +175,7 @@ def _to_plaintext(text: str | Markup) -> str:
     return unescape(text)
 
 
-def _get_footer_template_args(footer: EmailFooter) -> str:
+def _get_footer_template_args(footer: EmailFooter) -> dict[str, Any]:
     args: dict[str, Any] = {}
     args["footer_copyright_year"] = footer.copyright_year
 

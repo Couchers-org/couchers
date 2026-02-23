@@ -45,9 +45,9 @@ class EmailBase(ABC):
         """Gets the blocks that form the body of the email."""
         ...
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def dummy_data() -> Self:
+    def dummy_data(cls) -> Self:
         """Returns an instance filled with dummy data that can be used for testing."""
         ...
 
@@ -90,8 +90,9 @@ class EmailBase(ABC):
     def _quote(self, text: str) -> QuoteBlock:
         return QuoteBlock(text=text)
 
-    def _action(self, url: str, loc_context: LocalizationContext, text_key: str,
-        substitutions: SubstitutionDict | None = None) -> ActionBlock:
+    def _action(
+        self, url: str, loc_context: LocalizationContext, text_key: str, substitutions: SubstitutionDict | None = None
+    ) -> ActionBlock:
         return ActionBlock(text=self._text(loc_context, text_key, substitutions), target_url=url)
 
 
@@ -131,11 +132,17 @@ class HostRequestReceived(EmailBase):
     def _localize_key_prefix(self) -> str:
         return "host_request_received"
 
-    @staticmethod
-    def dummy_data() -> HostRequestReceived:
+    @classmethod
+    def dummy_data(cls) -> HostRequestReceived:
         return HostRequestReceived(
             user_name="Alice",
-            surfer=UserInfo(name="Bob", age=42, city="Tokyo", avatar_url="https://example.com/users/bob/avatar.jpg", profile_url="https://example.com/users/bob"),
+            surfer=UserInfo(
+                name="Bob",
+                age=42,
+                city="Tokyo",
+                avatar_url="https://example.com/users/bob/avatar.jpg",
+                profile_url="https://example.com/users/bob",
+            ),
             from_date=date(2000, 1, 1),
             to_date=date(2000, 1, 2),
             text="Hello world!",
