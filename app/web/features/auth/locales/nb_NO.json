@@ -17,7 +17,11 @@
     "new_password": "Nytt passord",
     "password_mismatch_error": "Passordene samsvarer ikke.",
     "confirm_password": "Bekreft passord",
-    "password_changed_success": "Ditt nye passord er satt, og en merknad ble send til deg per e-post."
+    "password_changed_success": "Ditt nye passord er satt, og en merknad ble send til deg per e-post.",
+    "user_logged_error": "",
+    "reset_password_error": "",
+    "subtitle": "",
+    "reset_password_success": ""
   },
   "reset_password_form": {
     "enter_email": "Skriv inn ditt brukernavn/e-postadresse",
@@ -32,7 +36,9 @@
       "no_password_login_prompt": "Sjekk eposten din om der er en link for å logge inn! :)",
       "remember_me": "Husk meg",
       "forgot_password": "Glemt passord?",
-      "username_field_label": "E-postadresse/Brukernavn"
+      "username_field_label": "E-postadresse/Brukernavn",
+      "show_password": "",
+      "hide_password": ""
     }
   },
   "basic_sign_up_form": {
@@ -46,18 +52,22 @@
       "field_label": "Brukernavn",
       "required_error": "Skriv inn brukernavnet ditt",
       "username_taken_error": "Brukernavnet er allerede i bruk.",
-      "validation_error": "Brukernavnet kan kun ha tall, eller _, og må begynne med en bokstav."
+      "validation_error": "Brukernavnet kan kun ha tall, eller _, og må begynne med en bokstav.",
+      "helper_text": ""
     },
     "birthday": {
       "field_label": "Fødselsdag",
       "required_error": "Skriv inn din fødselsdag",
-      "validation_error": "Må være en gyldig tidligere dato."
+      "validation_error": "Må være en gyldig tidligere dato.",
+      "too_young_error": "",
+      "not_real_date_error": ""
     },
     "hosting_status": {
       "field_label": "Vertsstatus",
       "can_host": "Kan tjene som vertsskap",
       "maybe": "Kan kanskje tjene som vertskap",
-      "cant_host": "Kan ikke tjene som vertsskap"
+      "cant_host": "Kan ikke tjene som vertsskap",
+      "any": ""
     },
     "gender": {
       "man": "Mann",
@@ -72,7 +82,8 @@
       "field_label": "Passord",
       "required_error": "Skriv inn passord",
       "validation_error": "Passord må ha mellom 8 og 256 tegn, og ikke være uttrykk som er veldig vanlige."
-    }
+    },
+    "opt_in_newsletter": ""
   },
   "basic_form": {
     "name": {
@@ -132,7 +143,8 @@
     "no_phone_description": "Du har ikke lagt til et telefonnummer på brukerkontoen din. For å registrere en telefon, skriv inn nummeret i feltet under. Vi vil bekrefte det med en tekstmelding.",
     "add_success": "Telefonnummer er lagt til.",
     "phone_not_verified_description": "Vi har sendt en kode til <2>{{phone}}</2>. For å bekreftet telefonnummeret ditt, vennligst skriv inn denne koden i feltet under:",
-    "remove_phone_description": "Ditt telefonnummer er <2>{{phone}}</2>. Du kan slette nummeret ditt nedenfor."
+    "remove_phone_description": "Ditt telefonnummer er <2>{{phone}}</2>. Du kan slette nummeret ditt nedenfor.",
+    "need_to_donate": ""
   },
   "jail": {
     "title": "Det trengs mer informasjon",
@@ -143,10 +155,23 @@
         "inactive_text": "Takk!"
       },
       "resubmit_button_text": "Send på nytt",
-      "title": "Vennligst legg til geografisk plassering"
+      "title": "Vennligst legg til geografisk plassering",
+      "explanation": ""
     },
     "terms_of_service_section": {
       "description": "Vi har oppdatert vilkårene for tjenesten. For å fortsette, vennligst les og godta oppdateringen <1></1>."
+    },
+    "mod_note_section": {
+      "title": "",
+      "description": "",
+      "note_title": "",
+      "acknowledge": ""
+    },
+    "activeness_probe": {
+      "still_hosting": "",
+      "title": "",
+      "description": "",
+      "not_hosting": ""
     }
   },
   "logged_out_message": "Du ble logget ut.",
@@ -169,6 +194,17 @@
     "gender_section": {
       "title": "Velg annet kjønn",
       "explanation": "En administrator vil med glede endre valgt kjønn. Vennligst kontakt support@couchers.org!"
+    },
+    "appearance_section": {
+      "modes": {
+        "dark": "",
+        "light": "",
+        "system": ""
+      },
+      "click_to_change": "",
+      "title": "",
+      "current_mode": "",
+      "change_mode": ""
     }
   },
   "delete_account": {
@@ -195,5 +231,153 @@
       "success": "Brukerkontoen din har blitt gjenopprettet, du kan nå logge inn igjen. Vi er så glade for å ha deg tilbake igjen!",
       "button_text": "Gjenopprett brukerkontoen din"
     }
+  },
+  "strong_verification": {
+    "donation_title": "",
+    "complete_title": "",
+    "instructions": {
+      "step6": "",
+      "title": "",
+      "download_google_play": "",
+      "chip_location": {
+        "heading": "",
+        "us_germany_mexico": "",
+        "australia": "",
+        "finland_germany_new": "",
+        "description": ""
+      },
+      "step8": "",
+      "download_app_store": "",
+      "warning": "",
+      "step1": "",
+      "step5": "",
+      "step1_apple_note": "",
+      "step2": "",
+      "step3": "",
+      "step4": "",
+      "step7": ""
+    },
+    "donate_button": "",
+    "delete_information": "",
+    "status": {
+      "disabled_message": "",
+      "enabled_message": ""
+    },
+    "delete_data_title": "",
+    "delete_information_text2": "",
+    "start_button": "",
+    "begin_button": "",
+    "learn_more": "",
+    "title": "",
+    "complete_message1": "",
+    "complete_message2": "",
+    "information_text3": "",
+    "subtitle": "",
+    "information_text1": "",
+    "information_text2": "",
+    "delete_button": "",
+    "delete_success": "",
+    "donation_message1": "",
+    "donation_message2": "",
+    "delete_my_data_button": ""
+  },
+  "sign_up_resend_verification_done": "",
+  "active_logins": {
+    "heading": "",
+    "settings_page_text": "",
+    "settings_page_link": "",
+    "last_activity": "",
+    "expiry": "",
+    "current_session": "",
+    "location": "",
+    "login_header": "",
+    "log_out_of_all_session": "",
+    "log_out_of_session": "",
+    "description": ""
+  },
+  "sign_up_need_verification_title": "",
+  "profile_visibility": {
+    "visiblility_options": {
+      "nothing": "",
+      "limited": "",
+      "map_only": "",
+      "most": "",
+      "full_profile": ""
+    },
+    "title": "",
+    "choose": ""
+  },
+  "volunteer_management": {
+    "form": {
+      "display_name_label": "",
+      "link_text_website_helper": "",
+      "link_text_required": "",
+      "link_url_label": "",
+      "link_url_placeholder": "",
+      "override_location_label": "",
+      "link_url_invalid": "",
+      "link_type_linkedin": "",
+      "title": "",
+      "override_name_label": "",
+      "display_location_label": "",
+      "show_on_team_page_label": "",
+      "link_type_label": "",
+      "link_type_email": "",
+      "link_type_website": "",
+      "link_text_linkedin_placeholder": "",
+      "link_text_linkedin_helper": "",
+      "link_text_email_invalid": "",
+      "link_text_linkedin_invalid": "",
+      "link_url_helper": "",
+      "link_url_required": "",
+      "save_button": "",
+      "link_type_couchers": "",
+      "link_text_label": "",
+      "link_text_email_placeholder": "",
+      "link_text_website_placeholder": "",
+      "link_text_email_helper": ""
+    },
+    "card_preview_label": "",
+    "not_shown_on_team_page": "",
+    "current_volunteer": "",
+    "past_volunteer": "",
+    "shown_on_team_page_past": "",
+    "not_a_volunteer_message": "",
+    "shown_on_team_page_current": "",
+    "update_success": "",
+    "title": "",
+    "description": ""
+  },
+  "motivations_form": {
+    "surfing_description": "",
+    "something_else": "",
+    "something_else_description": "",
+    "events": "",
+    "header": "",
+    "surfing": "",
+    "events_description": "",
+    "community_organizing": "",
+    "community_organizing_description": "",
+    "hosting": "",
+    "hosting_description": ""
+  },
+  "quick_links": {
+    "error_message": "",
+    "button_text": "",
+    "missing_payload_or_sig": "",
+    "title": ""
+  },
+  "sign_up_resend_verification_email_help": "",
+  "do_not_email": {
+    "status": {
+      "no_emails_enabled_message": "",
+      "no_emails_disabled_message": ""
+    },
+    "action_button": {
+      "no_emails_enable_text": "",
+      "no_emails_disable_text": ""
+    },
+    "caveat": "",
+    "title": ""
   }
 }

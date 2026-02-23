@@ -42,5 +42,20 @@
   "no_sub_communities": "Alt topluluk yok.",
   "your_communities_helper_text2": "Topluluğunuzu göremiyor musunuz? <1>Hemen başlatın!</1>",
   "your_communities_helper_text": "Konumunuza göre var olan tüm topluluklara eklendiniz. Dilerseniz diğer konumlardaki <1>topluluklara da göz atabilirsiniz</1>.",
-  "find_a_host": "Bir ev sahibi bul"
+  "find_a_host": "Bir ev sahibi bul",
+  "find_your_community_intro_simplified": "",
+  "communities_intro": "",
+  "become_a_host": "",
+  "landing_text": "",
+  "find_your_community_intro": "",
+  "browse_all_communities": "",
+  "browse_communities_text": "",
+  "show_all_communities": "",
+  "search_input_label": "",
+  "search_input_placeholder": "",
+  "show_map": "",
+  "hero_image_alt": "",
+  "hide_all_communities": "",
+  "hero_image_attribution": "",
+  "find_your_community": ""
 }

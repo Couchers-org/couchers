@@ -1,1 +1,34 @@
-{}
+{
+  "settings_fragment": {
+    "title": "",
+    "description": "",
+    "button_text": ""
+  },
+  "donate": "",
+  "donations_box": {
+    "validation_message": "",
+    "action_button_label": "",
+    "helper_text": "",
+    "monthly_button_label": "",
+    "one_time_button_label": "",
+    "amount_validation_error": "",
+    "alert": {
+      "success_message": "",
+      "warning_message": ""
+    },
+    "title": "",
+    "recurrence_aria_label": ""
+  },
+  "benefactor_contact": "",
+  "donations_recurrence_explainer": "",
+  "donations_use_explainer": "",
+  "donations_banner": {
+    "title": "",
+    "body": ""
+  },
+  "donations_title2": "",
+  "donations_title": "",
+  "donations_info": "",
+  "donations_text2": "",
+  "donations_text": ""
+}
