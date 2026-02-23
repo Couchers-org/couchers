@@ -101,7 +101,8 @@
       "complete": "",
       "in_progress": "",
       "early_stage": "",
-      "title": ""
+      "title": "",
+      "help_translate": ""
     },
     "form_title": "",
     "show_all_languages_description": "",
@@ -109,7 +110,8 @@
     "select_language": "",
     "success_message": "",
     "error_loading_languages": "",
-    "show_all_languages": ""
+    "show_all_languages": "",
+    "help_translate": ""
   },
   "accept": "",
   "continue": "",
@@ -330,11 +332,13 @@
     "past_members": "",
     "board_member": "",
     "ui_ux_designer": "",
-    "translations_lead": ""
+    "translations_lead": "",
+    "tap_press_to_flip": ""
   },
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "footer": {
     "non_profit_note": "",
