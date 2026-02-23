@@ -216,7 +216,8 @@
     "unrecognized_phone_number": "",
     "chat_initiation_rate_limit": "",
     "friend_request_rate_limit": "",
-    "missing_discussion_content": ""
+    "missing_discussion_content": "",
+    "after_item_not_found": ""
   },
   "notifications": {
     "donation_received": {
