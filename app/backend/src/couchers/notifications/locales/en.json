@@ -61,7 +61,6 @@
     "discussion__create": {
       "title": "New discussion: {{title}}",
       "ios_title": "New Discussion",
-      "ios_subtitle": "{{title}}",
       "body": "{{user}} started the discussion in {{group_or_community}}."
     },
     "discussion__comment": {
@@ -80,59 +79,49 @@
     "event__create_any": {
       "title": "New event: {{title}}",
       "ios_title": "New Event",
-      "ios_subtitle": "{{title}}",
       "body": "{{user}} created the event on {{date_and_time}}."
     },
     "event__create_approved": {
       "title": "New event: {{title}}",
       "ios_title": "New Event",
-      "ios_subtitle": "{{title}}",
       "body": "{{user}} invited you to the event on {{date_and_time}}."
     },
     "event__update": {
       "title": "Event updated: {{title}}",
       "ios_title": "Event Updated",
-      "ios_subtitle": "{{title}}",
       "body": "{{user}} updated the event."
     },
     "event__invite_organizer": {
       "title": "Event updated: {{title}}",
       "ios_title": "Event Updated",
-      "ios_subtitle": "{{title}}",
       "body": "{{user}} added you as an event co-organizer."
     },
     "event__comment": {
       "title": "{{user}} • {{title}}",
-      "ios_title": "{{user}}",
       "ios_subtitle": "Commented on {{title}}"
     },
     "event__reminder": {
       "title": "Upcoming event: {{title}}",
       "ios_title": "Upcoming Event",
-      "ios_subtitle": "{{title}}",
       "body": "The event starts on {{date_and_time}}."
     },
     "event__cancel": {
       "title": "Event cancelled: {{title}}",
       "ios_title": "Event Cancelled",
-      "ios_subtitle": "{{title}}",
       "body": "{{user}} cancelled the event."
     },
     "event__delete": {
       "title": "Event deleted: {{title}}",
       "ios_title": "Event Deleted",
-      "ios_subtitle": "{{title}}",
       "body": "A moderator deleted the event."
     },
     "friend_request__create": {
       "title": "Friend request from {{from_user}}",
-      "ios_title": "{{from_user}}",
       "ios_subtitle": "Friend Request",
       "body": "{{from_user}} wants to be your friend."
     },
     "friend_request__accept": {
       "title": "{{friend}} accepted your friend request",
-      "ios_title": "{{friend}}",
       "ios_subtitle": "Accepted Your Friend Request",
       "body": "You are now friends with {{friend}}."
     },
@@ -143,49 +132,41 @@
     },
     "general__new_blog_post": {
       "title": "New blog post: {{title}}",
-      "ios_title": "New Blog Post",
-      "ios_subtitle": "{{title}}"
+      "ios_title": "New Blog Post"
     },
     "host_request__create": {
       "title": "New host request from {{user}}",
-      "ios_title": "{{user}}",
       "ios_subtitle": "New Host Request",
       "body_one": "{{user}} wants to stay from {{start_date}} for {{count}} day.",
       "body_other": "{{user}} wants to stay from {{start_date}} for {{count}} days."
     },
     "host_request__missed_messages": {
       "title": "New messages from {{user}}",
-      "ios_title": "{{user}}",
       "ios_subtitle": "Missed Messages",
       "body": "You have new unseen messages from {{user}}."
     },
     "host_request__reminder": {
       "title": "Pending request by {{user}}",
       "ios_title": "Host Request Pending",
-      "ios_subtitle": "{{user}}",
       "body": "{{user}} is waiting for your response, please accept or decline the request."
     },
     "host_request__accept": {
       "title": "{{user}} accepted your host request",
-      "ios_title": "{{user}}",
       "ios_subtitle": "Host Request Accepted",
       "body": "{{user}} accepted your host request for {{date}}."
     },
     "host_request__reject": {
       "title": "{{user}} declined your host request",
-      "ios_title": "{{user}}",
       "ios_subtitle": "Host Request Declined",
       "body": "{{user}} declined your host request for {{date}}."
     },
     "host_request__cancel": {
       "title": "{{user}} cancelled their host request",
-      "ios_title": "{{user}}",
       "ios_subtitle": "Host Request Cancelled",
       "body": "{{user}} cancelled their host request for {{date}}."
     },
     "host_request__confirm": {
       "title": "{{user}} confirmed their host request",
-      "ios_title": "{{user}}",
       "ios_subtitle": "Host Request Confirmed",
       "body": "{{user}} confirmed their host request for {{date}}."
     },
@@ -250,26 +231,21 @@
     },
     "reference__receive_friend": {
       "title": "New friend reference from {{user}}",
-      "ios_title": "{{user}}",
       "ios_subtitle": "New Friend Reference"
     },
     "reference__receive": {
       "title": "New reference from {{user}}",
-      "ios_title": "{{user}}",
       "ios_subtitle": "New Reference",
       "body_must_write_yours": "{{user}} left you a reference, now it's your turn to write theirs!"
     },
     "reference__reminder": {
       "title": "Write your reference for {{user}}",
       "ios_title": "Write Your Reference",
-      "ios_subtitle": "{{user}}",
       "body_one": "You still have {{count}} day to write a reference for {{user}}.",
       "body_other": "You still have {{count}} days to write a reference for {{user}}."
     },
     "thread__reply": {
-      "title": "{{user}} • {{title}}",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "{{title}}"
+      "title": "{{user}} • {{title}}"
     },
     "verification__sv_success": {
       "title": "Strong Verification completed",

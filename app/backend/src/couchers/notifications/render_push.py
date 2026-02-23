@@ -306,6 +306,7 @@ def _render_discussion__create(
     return _get_content(
         NotificationTopicAction.discussion__create,
         loc_context,
+        ios_subtitle=data.discussion.title,
         substitutions={
             "title": data.discussion.title,
             "user": data.author.name,
@@ -356,6 +357,7 @@ def _render_event__create_any(
     return _get_content(
         NotificationTopicAction.event__create_any,
         loc_context,
+        ios_subtitle=data.event.title,
         substitutions={
             "title": data.event.title,
             "user": data.inviting_user.name,
@@ -371,6 +373,7 @@ def _render_event__create_approved(
     return _get_content(
         NotificationTopicAction.event__create_approved,
         loc_context,
+        ios_subtitle=data.event.title,
         substitutions={
             "title": data.event.title,
             "user": data.inviting_user.name,
@@ -388,6 +391,7 @@ def _render_event__update(
     return _get_content(
         NotificationTopicAction.event__update,
         loc_context,
+        ios_subtitle=data.event.title,
         substitutions={
             "title": data.event.title,
             "user": data.updating_user.name,
@@ -402,6 +406,7 @@ def _render_event__invite_organizer(
     return _get_content(
         NotificationTopicAction.event__invite_organizer,
         loc_context,
+        ios_subtitle=data.event.title,
         substitutions={
             "title": data.event.title,
             "user": data.inviting_user.name,
@@ -416,6 +421,7 @@ def _render_event__comment(
     return _get_content(
         NotificationTopicAction.event__comment,
         loc_context,
+        ios_title=data.event.title,
         substitutions={
             "title": data.event.title,
             "user": data.author.name,
@@ -432,6 +438,7 @@ def _render_event__reminder(
     return _get_content(
         NotificationTopicAction.event__reminder,
         loc_context,
+        ios_subtitle=data.event.title,
         substitutions={
             "title": data.event.title,
             "date_and_time": loc_context.localize_datetime(data.event.start_time),
@@ -446,6 +453,7 @@ def _render_event__cancel(
     return _get_content(
         NotificationTopicAction.event__cancel,
         loc_context,
+        ios_subtitle=data.event.title,
         substitutions={
             "title": data.event.title,
             "user": data.cancelling_user.name,
@@ -457,7 +465,12 @@ def _render_event__cancel(
 def _render_event__delete(
     data: notification_data_pb2.EventDelete, loc_context: LocalizationContext
 ) -> PushNotificationContent:
-    return _get_content(NotificationTopicAction.event__delete, loc_context, substitutions={"title": data.event.title})
+    return _get_content(
+        NotificationTopicAction.event__delete,
+        loc_context,
+        ios_subtitle=data.event.title,
+        substitutions={"title": data.event.title},
+    )
 
 
 def _render_friend_request__create(
@@ -466,6 +479,7 @@ def _render_friend_request__create(
     return _get_content(
         NotificationTopicAction.friend_request__create,
         loc_context,
+        ios_title=data.other_user.name,
         substitutions={"from_user": data.other_user.name},
         icon_user=data.other_user,
         action_url=urls.friend_requests_link(),
@@ -478,6 +492,7 @@ def _render_friend_request__accept(
     return _get_content(
         NotificationTopicAction.friend_request__accept,
         loc_context,
+        ios_title=data.other_user.name,
         substitutions={"friend": data.other_user.name},
         icon_user=data.other_user,
         action_url=urls.user_link(username=data.other_user.username),
@@ -501,6 +516,7 @@ def _render_general__new_blog_post(
     return _get_content(
         NotificationTopicAction.general__new_blog_post,
         loc_context,
+        ios_subtitle=data.title,
         body=data.blurb,
         substitutions={"title": data.title},
         action_url=data.url,
@@ -514,6 +530,7 @@ def _render_host_request__create(
     return _get_content(
         NotificationTopicAction.host_request__create,
         loc_context,
+        ios_title=data.surfer.name,
         substitutions={
             "user": data.surfer.name,
             "start_date": loc_context.localize_date_from_iso(data.host_request.from_date),
@@ -543,6 +560,7 @@ def _render_host_request__missed_messages(
     return _get_content(
         NotificationTopicAction.host_request__missed_messages,
         loc_context,
+        ios_title=data.user.name,
         substitutions={"user": data.user.name},
         icon_user=data.user,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -555,6 +573,7 @@ def _render_host_request__reminder(
     return _get_content(
         NotificationTopicAction.host_request__reminder,
         loc_context,
+        ios_title=data.surfer.name,
         substitutions={"user": data.surfer.name},
         icon_user=data.surfer,
         action_url=urls.host_request(host_request_id=data.host_request.host_request_id),
@@ -567,6 +586,7 @@ def _render_host_request__accept(
     return _get_content(
         NotificationTopicAction.host_request__accept,
         loc_context,
+        ios_title=data.surfer.name,
         substitutions={
             "user": data.host.name,
             "date": loc_context.localize_date_from_iso(data.host_request.from_date),
@@ -582,6 +602,7 @@ def _render_host_request__reject(
     return _get_content(
         NotificationTopicAction.host_request__reject,
         loc_context,
+        ios_title=data.host.name,
         substitutions={
             "user": data.host.name,
             "date": loc_context.localize_date_from_iso(data.host_request.from_date),
@@ -597,6 +618,7 @@ def _render_host_request__cancel(
     return _get_content(
         NotificationTopicAction.host_request__cancel,
         loc_context,
+        ios_title=data.surfer.name,
         substitutions={
             "user": data.surfer.name,
             "date": loc_context.localize_date_from_iso(data.host_request.from_date),
@@ -612,6 +634,7 @@ def _render_host_request__confirm(
     return _get_content(
         NotificationTopicAction.host_request__confirm,
         loc_context,
+        ios_title=data.surfer.name,
         substitutions={
             "user": data.surfer.name,
             "date": loc_context.localize_date_from_iso(data.host_request.from_date),
@@ -725,6 +748,7 @@ def _render_reference__receive_friend(
     return _get_content(
         NotificationTopicAction.reference__receive_friend,
         loc_context,
+        ios_title=data.from_user.name,
         body=data.text,
         substitutions={"user": data.from_user.name},
         icon_user=data.from_user,
@@ -754,6 +778,7 @@ def _render_reference__receive(
     return _get_content(
         string_group="reference__receive",
         loc_context=loc_context,
+        ios_title=data.from_user.name,
         body=body,
         substitutions={"user": data.from_user.name},
         icon_user=data.from_user,
@@ -785,6 +810,7 @@ def _render_reference__reminder(
     return _get_content(
         string_group="reference__reminder",
         loc_context=loc_context,
+        ios_subtitle=data.other_user.name,
         substitutions={"count": data.days_left, "user": data.other_user.name},
         icon_user=data.other_user,
         action_url=leave_reference_link,
@@ -823,6 +849,8 @@ def _render_thread__reply(
         NotificationTopicAction.thread__reply,
         loc_context=loc_context,
         body=data.reply.content,
+        ios_title=data.author.name,
+        ios_subtitle=parent_title,
         substitutions={"user": data.author.name, "title": parent_title},
         icon_user=data.author,
         action_url=view_link,
