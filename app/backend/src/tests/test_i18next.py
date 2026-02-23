@@ -167,7 +167,7 @@ def test_missing_substitution_fallback():
 
 def test_escaping():
     i18next = I18Next()
-    i18next.add_translation("en", PluralRules.en, json_dict={"greeting": "hello {{name}}"})
+    i18next.add_translation("en", json_dict={"greeting": "hello {{name}}"})
 
     # localize returns an str, which is considered untrusted for markup,
     # so it can contain tags because the renderer is resposible for escaping them.
