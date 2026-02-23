@@ -5,7 +5,9 @@
       "ios_title": "API-Schlüssel erstellt"
     },
     "adhoc__push_enabled": {
-      "body": "Du wirst von nun an Benachrichtigungen auf diesem Gerät erhalten."
+      "body": "Du wirst von nun an Benachrichtigungen auf diesem Gerät erhalten.",
+      "title": "",
+      "ios_title": ""
     },
     "chat__missed_messages": {
       "ios_title_one": "{{count}} Verpasste Nachricht",
@@ -36,6 +38,11 @@
       "title": "Konto wiederhergestellt",
       "ios_title": "Konto wiederhergestellt",
       "body": "Willkommen zurück!"
+    },
+    "activeness__probe": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
     }
   }
 }

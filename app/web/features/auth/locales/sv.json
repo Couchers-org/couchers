@@ -55,7 +55,8 @@
       "still_hosting": "",
       "not_hosting": "",
       "title": "",
-      "description": ""
+      "description": "",
+      "note": ""
     },
     "mod_note_section": {
       "description": "",
@@ -161,7 +162,8 @@
     "new_password": "",
     "password_mismatch_error": "",
     "reset_password_success": "",
-    "reset_password_error": ""
+    "reset_password_error": "",
+    "token_error": ""
   },
   "login_page": {
     "form": {
@@ -174,7 +176,8 @@
       "hide_password": ""
     },
     "header": "",
-    "title": ""
+    "title": "",
+    "no_account_prompt": ""
   },
   "strong_verification": {
     "begin_button": "",

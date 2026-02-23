@@ -80,7 +80,8 @@
           "cancel": "",
           "message": "",
           "create": "",
-          "reminder": ""
+          "reminder": "",
+          "missed_messages": ""
         },
         "thread": {
           "reply": ""

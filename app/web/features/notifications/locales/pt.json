@@ -70,7 +70,8 @@
           "confirm": "",
           "reject": "",
           "reminder": "",
-          "cancel": ""
+          "cancel": "",
+          "missed_messages": ""
         },
         "chat": {
           "missed_messages": "",

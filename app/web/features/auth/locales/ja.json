@@ -21,7 +21,8 @@
     "reset_password_success": "",
     "reset_password_error": "",
     "subtitle": "",
-    "user_logged_error": ""
+    "user_logged_error": "",
+    "token_error": ""
   },
   "reset_password_form": {
     "enter_email": "ユーザーネームまたはメールアドレスを入力してください",
@@ -286,7 +287,8 @@
       "still_hosting": "",
       "title": "",
       "description": "",
-      "not_hosting": ""
+      "not_hosting": "",
+      "note": ""
     },
     "location_section": {
       "explanation": "",

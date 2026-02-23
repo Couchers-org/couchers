@@ -267,7 +267,8 @@
       "title": "",
       "description": "",
       "still_hosting": "",
-      "not_hosting": ""
+      "not_hosting": "",
+      "note": ""
     }
   },
   "unhandled_sign_up_state": "",
@@ -281,7 +282,8 @@
     "password_changed_success": "",
     "password_mismatch_error": "",
     "user_logged_error": "",
-    "title": ""
+    "title": "",
+    "token_error": ""
   },
   "login_page": {
     "form": {
@@ -294,7 +296,8 @@
       "show_password": ""
     },
     "title": "",
-    "header": ""
+    "header": "",
+    "no_account_prompt": ""
   },
   "reset_password_form": {
     "success_message": "",

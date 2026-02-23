@@ -36,7 +36,8 @@
       "midway": "",
       "in_progress": "",
       "info_text": "",
-      "view_progress": ""
+      "view_progress": "",
+      "help_translate": ""
     },
     "select_language": "",
     "success_message": "",
@@ -44,7 +45,8 @@
     "show_all_languages": "",
     "current_preferred_language": "",
     "form_title": "",
-    "show_all_languages_description": ""
+    "show_all_languages_description": "",
+    "help_translate": ""
   },
   "error": {
     "fallback": {
@@ -275,7 +277,8 @@
   },
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "location_autocomplete": {
     "more_specific": "",
@@ -312,7 +315,8 @@
     "lead_frontend_developer": "",
     "join_our_team": "",
     "backend_developer": "",
-    "current_members": ""
+    "current_members": "",
+    "tap_press_to_flip": ""
   },
   "couchers": "",
   "legal_name": "",
@@ -388,5 +392,6 @@
   "copy": "",
   "copied": "",
   "load_more": "",
-  "read_more": ""
+  "read_more": "",
+  "update": ""
 }

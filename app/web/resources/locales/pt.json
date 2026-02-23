@@ -214,7 +214,8 @@
     "co_founder": "",
     "secretary": "",
     "have_skills_contribute": "",
-    "treasurer": ""
+    "treasurer": "",
+    "tap_press_to_flip": ""
   },
   "invites": {
     "error": {
@@ -343,7 +344,8 @@
       "no_data": "",
       "complete": "",
       "almost_there": "",
-      "complete_percent": ""
+      "complete_percent": "",
+      "help_translate": ""
     },
     "success_message": "",
     "select_language": "",
@@ -351,7 +353,8 @@
     "show_all_languages": "",
     "show_all_languages_description": "",
     "current_preferred_language": "",
-    "form_title": ""
+    "form_title": "",
+    "help_translate": ""
   },
   "error": {
     "fatal_message": "",
@@ -370,7 +373,8 @@
   "no_invite_codes": "",
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "location_autocomplete": {
     "more_specific": "",
