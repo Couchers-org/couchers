@@ -1,24 +1,18 @@
-Hi {{ user.name }},
+Hi Alice,
 
-{{ message }} at {{ time|time }}.
+Bob sent you a host request.
 
-Request details:
+Bob, 42, Tokyo
+Requested from Saturday 1 January 2000 to Sunday 2 January 2000.
 
-{{ other.name }}, {{ other.age }}
-{{ other.city }}.
-Dates: {{ host_request.from_date|date }} to {{ host_request.to_date|date }}.
+> Hello world!
 
-They wrote the following message:
+View host request: https://example.com/requests
+Quick decline (no login needed): https://example.com/quick-decline
 
-{{ text|quotelines }}
+---
 
+Edit your notification settings at <https://example.com/manage-notifications>
+Turn off emails for topic-action: <https://example.com/unsubscribe>
 
-Quick decline (no login needed): <{{ quick_decline_link }}>
-
-You can view the request here: <{{ view_link }}>
-
-
-Please respond to this request, even a quick decline is better than no response!
-
-
-Do not reply to this email. Log in to your account to reply to this request.
+Do not email me (disables hosting): <https://example.com/do-not-email>
