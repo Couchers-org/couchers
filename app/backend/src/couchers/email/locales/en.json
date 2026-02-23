@@ -3,7 +3,7 @@
     "greeting_line": "Hi {{name}},"
   },
   "plaintext_formats": {
-    "button": "{{caption}}: {{url}}",
+    "action": "{{text}}: {{url}}",
     "user": "{{name}}, {{age}}, {{city}}"
   },
   "host_request_received": {

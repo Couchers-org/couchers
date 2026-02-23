@@ -42,7 +42,7 @@ dependencies = [
 ]
 
 [project.scripts]
-dump-email = "couchers.email.script_dump_email:main"
+dump-emails = "couchers.email.dump_emails:main"
 
 [dependency-groups]
 dev = [

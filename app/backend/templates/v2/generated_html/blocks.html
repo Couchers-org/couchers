@@ -156,7 +156,7 @@
                 </table>
               </div>
               <!--[if mso | IE]></td></tr></table></td></tr><![endif]-->
-              <!-- begin-block:paragraph -->
+              <!-- begin-block:para -->
               <!--[if mso | IE]><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:560px;" width="560" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
               <div style="margin:0px auto;max-width:560px;">
                 <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
@@ -182,7 +182,7 @@
                 </table>
               </div>
               <!--[if mso | IE]></td></tr></table></td></tr><![endif]-->
-              <!-- end-block:paragraph --><!-- begin-block:button -->
+              <!-- end-block:para --><!-- begin-block:action -->
               <!--[if mso | IE]><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:560px;" width="560" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
               <div style="margin:0px auto;max-width:560px;">
                 <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
@@ -200,7 +200,7 @@
                                       <tr>
                                         <td align="center" bgcolor="#00a398" role="presentation" style="border:none;border-radius:5px;cursor:auto;mso-padding-alt:10px 25px;background:#00a398;" valign="middle">
                                           <a href="{{ target_url }}" style="display: inline-block; background: #00a398; color: white; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 5px;" target="_blank">
-                                            <b>{{ caption }}</b>
+                                            <b>{{ text }}</b>
                                           </a>
                                         </td>
                                       </tr>
@@ -218,7 +218,7 @@
                 </table>
               </div>
               <!--[if mso | IE]></td></tr></table></td></tr><![endif]-->
-              <!-- end-block:button --><!-- begin-block:user -->
+              <!-- end-block:action --><!-- begin-block:user -->
               <!--[if mso | IE]><tr><td class="" width="600px" ><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:560px;" width="560" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
               <div style="margin:0px auto;max-width:560px;">
                 <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
@@ -237,7 +237,9 @@
                                         <img width="80px" style="border-radius: 80px" src="{{ avatar_url }}">
                                       </td>
                                       <td>
-                                        <b>{{ name }}</b>, {{ age }}<br>{{ city }} {% if comment %} {{ comment }} {% endif %}
+                                        <b>{{ name }}</b>, {{ age }}<br>
+                                        {{ city }}{% if comment %}<br>
+                                        {{ comment }} {% endif %}
                                       </td>
                                     </tr>
                                   </table>
