@@ -38,7 +38,8 @@
           "reject": "",
           "cancel": "",
           "message": "",
-          "reminder": ""
+          "reminder": "",
+          "missed_messages": ""
         },
         "account_deletion": {
           "complete": "",

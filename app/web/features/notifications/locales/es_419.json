@@ -10,7 +10,8 @@
           "create": "",
           "cancel": "",
           "message": "",
-          "reminder": ""
+          "reminder": "",
+          "missed_messages": ""
         },
         "reference": {
           "reminder_hosted": "",
