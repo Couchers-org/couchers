@@ -32,7 +32,7 @@ class CommandLineArgs:
     @staticmethod
     def parse(args: list[str]) -> CommandLineArgs:
         parser = ArgumentParser(description=__doc__)
-        parser.add_argument("filter", type=str, nargs="?", default="*", help="A filter for email classes to dump.")
+        parser.add_argument("--filter", type=str, nargs="?", default="*", help="A filter for email classes to dump.")
         parser.add_argument(
             "--outdir", type=Path, default=template_folder, help="The directory to write email bodies to."
         )
