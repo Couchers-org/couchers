@@ -99,7 +99,8 @@
     "user_logged_error": "",
     "reset_password_success": "",
     "title": "",
-    "token_error": ""
+    "token_error": "",
+    "password_mismatch_error": ""
   },
   "account_form": {
     "hosting_status": {
@@ -368,7 +369,8 @@
   "basic_form": {
     "name": {
       "field_label": "",
-      "empty_error": ""
+      "empty_error": "",
+      "required_error": ""
     },
     "email": {
       "field_label": "",
