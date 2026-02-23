@@ -105,7 +105,7 @@ class Translation:
         if substitutions:
             if count := substitutions.get(PLURALIZABLE_VARIABLE_NAME):
                 if isinstance(count, int):
-                    plural_form = Locale(self.code).plural_form(count)
+                    plural_form = Locale(self.locale).plural_form(count)
                     plural_key = key + "_" + plural_form
                     if string := self.strings_by_key.get(plural_key):
                         return string
