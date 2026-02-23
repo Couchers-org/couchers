@@ -172,7 +172,10 @@
       "title": "",
       "note": ""
     },
-    "description": ""
+    "description": "",
+    "terms_of_service_section": {
+      "description": ""
+    }
   },
   "sign_up_completed_prompt": "हमने आपके ईमेल पर एक सत्यापन लिंक के साथ एक ईमेल भेजा है। कृपया अपने खाते को सक्रिय करने के लिए लिंक पर क्लिक करें।",
   "delete_account": {
@@ -197,7 +200,8 @@
       "error_message": "",
       "success": "",
       "button_text": ""
-    }
+    },
+    "missing_token": ""
   },
   "profile_visibility": {
     "visiblility_options": {
@@ -349,7 +353,8 @@
     "verify_button_text": "",
     "verify_success": "",
     "remove_button_text": "",
-    "change_button_text": ""
+    "change_button_text": "",
+    "remove_phone_description": ""
   },
   "motivations_form": {
     "hosting_description": "",
@@ -374,5 +379,6 @@
     "missing_payload_or_sig": ""
   },
   "sign_up_confirmed_prompt": "",
-  "sign_up_completed_title": ""
+  "sign_up_completed_title": "",
+  "unhandled_sign_up_state": ""
 }
