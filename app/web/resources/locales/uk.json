@@ -168,7 +168,8 @@
     "join_the_team": "",
     "community_coordinator": "",
     "secretary": "",
-    "treasurer": ""
+    "treasurer": "",
+    "tap_press_to_flip": ""
   },
   "nav": {
     "merch_shop": "",
@@ -317,7 +318,8 @@
       "complete": "",
       "no_data": "",
       "midway": "",
-      "view_progress": ""
+      "view_progress": "",
+      "help_translate": ""
     },
     "current_preferred_language": "",
     "show_all_languages": "",
@@ -325,7 +327,8 @@
     "form_title": "",
     "select_language": "",
     "success_message": "",
-    "error_loading_languages": ""
+    "error_loading_languages": "",
+    "help_translate": ""
   },
   "strong_verification": {
     "helper_text": ""
@@ -352,7 +355,8 @@
   "change_time": "",
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "back": "",
   "login": "",
@@ -388,5 +392,6 @@
   "beta": "",
   "save": "",
   "learn_more": "",
-  "edit": ""
+  "edit": "",
+  "update": ""
 }

@@ -14,7 +14,8 @@
       "view_progress": "",
       "early_stage": "",
       "complete_percent": "",
-      "info_text": ""
+      "info_text": "",
+      "help_translate": ""
     },
     "form_title": "",
     "success_message": "",
@@ -22,7 +23,8 @@
     "current_preferred_language": "",
     "select_language": "",
     "show_all_languages": "",
-    "show_all_languages_description": ""
+    "show_all_languages_description": "",
+    "help_translate": ""
   },
   "meetup_status": {
     "does_not_want_to_meetup": "",
@@ -246,7 +248,8 @@
     "title": "",
     "join_our_team": "",
     "developer": "",
-    "join_the_team": ""
+    "join_the_team": "",
+    "tap_press_to_flip": ""
   },
   "error": {
     "fallback": {
@@ -338,7 +341,8 @@
   "create": "",
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "disabled": "",
   "verification_score": "",
@@ -376,5 +380,6 @@
   "back": "",
   "legal_name": "",
   "sign_up": "",
-  "no": ""
+  "no": "",
+  "update": ""
 }

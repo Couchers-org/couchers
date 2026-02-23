@@ -250,7 +250,8 @@
       "title": "",
       "description": "",
       "still_hosting": "",
-      "not_hosting": ""
+      "not_hosting": "",
+      "note": ""
     },
     "title": "",
     "description": "",
@@ -326,7 +327,8 @@
       "password_field_label": "",
       "show_password": "",
       "hide_password": ""
-    }
+    },
+    "no_account_prompt": ""
   },
   "profile_visibility": {
     "visiblility_options": {
@@ -349,7 +351,8 @@
     "confirm_password": "",
     "password_changed_success": "",
     "old_password": "",
-    "password_mismatch_error": ""
+    "password_mismatch_error": "",
+    "token_error": ""
   },
   "change_email_confirmation": {
     "change_in_progress": "",

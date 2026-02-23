@@ -98,7 +98,8 @@
     "subtitle": "",
     "user_logged_error": "",
     "reset_password_success": "",
-    "title": ""
+    "title": "",
+    "token_error": ""
   },
   "account_form": {
     "hosting_status": {
@@ -249,7 +250,8 @@
       "password_field_label": ""
     },
     "title": "",
-    "header": ""
+    "header": "",
+    "no_account_prompt": ""
   },
   "basic_sign_up_form": {
     "header": "",
@@ -268,7 +270,8 @@
       "still_hosting": "",
       "not_hosting": "",
       "title": "",
-      "description": ""
+      "description": "",
+      "note": ""
     },
     "location_section": {
       "title": "",

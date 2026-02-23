@@ -78,7 +78,8 @@
     "past_members": "",
     "co_founder_president": "",
     "co_founder": "",
-    "community_coordinator": ""
+    "community_coordinator": "",
+    "tap_press_to_flip": ""
   },
   "error": {
     "unknown": "",
@@ -107,7 +108,8 @@
       "complete_percent": "",
       "info_text": "",
       "complete": "",
-      "midway": ""
+      "midway": "",
+      "help_translate": ""
     },
     "form_title": "",
     "help_translate": "",
@@ -338,7 +340,8 @@
   "thanks": "",
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "community_standing": "",
   "submit": "",

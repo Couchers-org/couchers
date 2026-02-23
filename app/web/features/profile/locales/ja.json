@@ -316,7 +316,9 @@
   "report_user": "",
   "response_time_text_almost_all": "",
   "meetup_status": {
-    "open_to_meetup_description": ""
+    "open_to_meetup_description": "",
+    "wants_to_meetup_description": "",
+    "does_not_want_to_meetup_description": ""
   },
   "click_to_add_photo": "",
   "response_rate_text_most": "",
