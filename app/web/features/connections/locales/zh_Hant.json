@@ -1,1 +1,33 @@
-{}
+{
+  "friends": "",
+  "no_friend_requests_sent": "",
+  "pending": "",
+  "blocked_list_title": "",
+  "block_user": "",
+  "friend_list_title": "",
+  "friend_requests": "",
+  "friend_requests_sent": "",
+  "no_blocked_users": "",
+  "remove_friend": "",
+  "remove_friend_confirmation_dialog": {
+    "title": "",
+    "message": "",
+    "confirm": ""
+  },
+  "unblock_user_confirmation_dialog": {
+    "message": "",
+    "confirm": "",
+    "title": ""
+  },
+  "no_friends": "",
+  "no_friend_requests": "",
+  "unblock_user": "",
+  "accept": "",
+  "decline": "",
+  "block_user_confirmation_dialog": {
+    "title": "",
+    "message": "",
+    "confirm": ""
+  },
+  "add_friend": ""
+}
