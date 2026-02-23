@@ -120,7 +120,8 @@
       "view_progress": "",
       "loading": "",
       "info_text": "",
-      "just_started": ""
+      "just_started": "",
+      "help_translate": ""
     },
     "select_language": "",
     "show_all_languages_description": "",
@@ -128,7 +129,8 @@
     "success_message": "",
     "error_loading_languages": "",
     "show_all_languages": "",
-    "form_title": ""
+    "form_title": "",
+    "help_translate": ""
   },
   "invites": {
     "uses_suffix": "",
@@ -276,7 +278,8 @@
     "co_founder": "",
     "secretary": "",
     "lead_frontend_developer": "",
-    "join_the_team": ""
+    "join_the_team": "",
+    "tap_press_to_flip": ""
   },
   "not_found_alt": "",
   "meetup_status": {
@@ -340,7 +343,8 @@
   "copy": "",
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "yes": "",
   "next": "",
@@ -376,5 +380,6 @@
   "contribute_title": "",
   "strong_verification": {
     "helper_text": ""
-  }
+  },
+  "update": ""
 }

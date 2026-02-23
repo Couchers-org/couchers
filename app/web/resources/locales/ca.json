@@ -95,7 +95,8 @@
     "title": "",
     "join_our_team": "",
     "treasurer": "",
-    "co_founder": ""
+    "co_founder": "",
+    "tap_press_to_flip": ""
   },
   "no": "",
   "report": {
@@ -150,7 +151,8 @@
   "contribute_title": "",
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "what_is_cs": {
     "table": {
@@ -257,7 +259,8 @@
       "just_started": "",
       "complete_percent": "",
       "info_text": "",
-      "view_progress": ""
+      "view_progress": "",
+      "help_translate": ""
     },
     "current_preferred_language": "",
     "select_language": "",
@@ -265,7 +268,8 @@
     "error_loading_languages": "",
     "show_all_languages": "",
     "show_all_languages_description": "",
-    "form_title": ""
+    "form_title": "",
+    "help_translate": ""
   },
   "legal_name": "",
   "footer": {
@@ -388,5 +392,6 @@
     "helper_text": ""
   },
   "created": "",
-  "thanks": ""
+  "thanks": "",
+  "update": ""
 }

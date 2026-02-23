@@ -27,7 +27,8 @@
           "reject": "",
           "create": "",
           "cancel": "",
-          "message": ""
+          "message": "",
+          "missed_messages": ""
         },
         "badge": {
           "add": "",

@@ -166,7 +166,8 @@
   },
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "no": "",
   "error": {
@@ -215,7 +216,8 @@
     "have_skills_contribute": "",
     "board_member": "",
     "fill_form_description": "",
-    "past_members": ""
+    "past_members": "",
+    "tap_press_to_flip": ""
   },
   "disable": "",
   "report": {
@@ -290,11 +292,13 @@
       "info_text": "",
       "view_progress": "",
       "almost_there": "",
-      "loading": ""
+      "loading": "",
+      "help_translate": ""
     },
     "current_preferred_language": "",
     "show_all_languages": "",
-    "show_all_languages_description": ""
+    "show_all_languages_description": "",
+    "help_translate": ""
   },
   "meetup_status": {
     "open_to_meetup": "",

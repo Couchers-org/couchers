@@ -71,7 +71,8 @@
     "join_the_team": "",
     "secretary": "",
     "co_founder": "",
-    "frontend_developer": ""
+    "frontend_developer": "",
+    "tap_press_to_flip": ""
   },
   "what_is_cs": {
     "table": {
@@ -278,7 +279,8 @@
       "in_progress": "",
       "early_stage": "",
       "view_progress": "",
-      "title": ""
+      "title": "",
+      "help_translate": ""
     },
     "success_message": "",
     "error_loading_languages": "",
@@ -286,7 +288,8 @@
     "show_all_languages_description": "",
     "current_preferred_language": "",
     "form_title": "",
-    "select_language": ""
+    "select_language": "",
+    "help_translate": ""
   },
   "next": "",
   "previous": "",
@@ -370,7 +373,8 @@
   "no": "",
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "community_standing": "",
   "verification_score": "",
@@ -382,5 +386,6 @@
   "disabled": "",
   "reply": "",
   "yes": "",
-  "invited_you": ""
+  "invited_you": "",
+  "update": ""
 }
