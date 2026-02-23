@@ -226,7 +226,8 @@
     "cant_friend_self": "",
     "cant_block_self": "",
     "wrong_signature": "",
-    "wrong_sms_code": ""
+    "wrong_sms_code": "",
+    "after_item_not_found": ""
   },
   "notifications": {
     "donation_received": {

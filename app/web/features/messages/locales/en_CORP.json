@@ -159,5 +159,6 @@
   "unknown_user": "",
   "past_request_help_text": "",
   "close_request_dialog_surfer": "",
-  "surfer_declined_request_help_text": ""
+  "surfer_declined_request_help_text": "",
+  "close_request_dialog_title": ""
 }
