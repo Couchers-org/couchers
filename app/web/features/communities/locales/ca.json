@@ -148,5 +148,7 @@
   "search_communities": "Cerca i visita una comunitat",
   "search_communities_placeholder": "Cerca per nom de ciutat o país...",
   "search_communities_helper": "Selecciona una comunitat per anar a la seva pàgina",
-  "no_results_found_with_link": "No s'han trobat comunitats. <0>Sol·licita aquesta comunitat!</0>"
+  "no_results_found_with_link": "No s'han trobat comunitats. <0>Sol·licita aquesta comunitat!</0>",
+  "duplicate_event": "",
+  "discussion_creation_date": ""
 }

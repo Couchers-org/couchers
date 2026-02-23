@@ -1,1 +1,374 @@
-{}
+{
+  "strong_verification": {
+    "instructions": {
+      "step3": "",
+      "warning": "",
+      "step1": "",
+      "step1_apple_note": "",
+      "step2": "",
+      "chip_location": {
+        "heading": "",
+        "description": "",
+        "us_germany_mexico": "",
+        "finland_germany_new": "",
+        "australia": ""
+      },
+      "download_google_play": "",
+      "step5": "",
+      "step6": "",
+      "step7": "",
+      "step8": "",
+      "title": "",
+      "step4": "",
+      "download_app_store": ""
+    },
+    "title": "",
+    "delete_success": "",
+    "status": {
+      "disabled_message": "",
+      "enabled_message": ""
+    },
+    "delete_information_text2": "",
+    "delete_my_data_button": "",
+    "delete_button": "",
+    "donation_message1": "",
+    "learn_more": "",
+    "information_text3": "",
+    "information_text1": "",
+    "information_text2": "",
+    "complete_message1": "",
+    "complete_message2": "",
+    "delete_information": "",
+    "donate_button": "",
+    "donation_title": "",
+    "subtitle": "",
+    "begin_button": "",
+    "complete_title": "",
+    "start_button": "",
+    "donation_message2": "",
+    "delete_data_title": ""
+  },
+  "volunteer_management": {
+    "past_volunteer": "",
+    "form": {
+      "link_url_label": "",
+      "link_type_email": "",
+      "display_name_label": "",
+      "link_text_required": "",
+      "link_text_email_invalid": "",
+      "link_text_linkedin_invalid": "",
+      "link_url_invalid": "",
+      "save_button": "",
+      "link_text_label": "",
+      "link_text_linkedin_placeholder": "",
+      "link_text_linkedin_helper": "",
+      "link_url_helper": "",
+      "link_text_email_helper": "",
+      "link_text_website_helper": "",
+      "show_on_team_page_label": "",
+      "link_type_label": "",
+      "link_type_couchers": "",
+      "link_url_placeholder": "",
+      "title": "",
+      "override_name_label": "",
+      "display_location_label": "",
+      "link_type_website": "",
+      "link_text_email_placeholder": "",
+      "link_text_website_placeholder": "",
+      "link_url_required": "",
+      "override_location_label": "",
+      "link_type_linkedin": ""
+    },
+    "shown_on_team_page_current": "",
+    "shown_on_team_page_past": "",
+    "not_shown_on_team_page": "",
+    "description": "",
+    "not_a_volunteer_message": "",
+    "card_preview_label": "",
+    "current_volunteer": "",
+    "update_success": "",
+    "title": ""
+  },
+  "change_password_form": {
+    "reset_password_error": "",
+    "confirm_password": "",
+    "password_changed_success": "",
+    "old_password": "",
+    "new_password": "",
+    "subtitle": "",
+    "user_logged_error": "",
+    "reset_password_success": "",
+    "title": ""
+  },
+  "account_form": {
+    "hosting_status": {
+      "cant_host": "",
+      "can_host": "",
+      "maybe": "",
+      "field_label": "",
+      "any": ""
+    },
+    "username": {
+      "field_label": "",
+      "username_taken_error": "",
+      "validation_error": "",
+      "helper_text": "",
+      "required_error": ""
+    },
+    "header": "",
+    "birthday": {
+      "field_label": "",
+      "required_error": "",
+      "too_young_error": "",
+      "validation_error": "",
+      "not_real_date_error": ""
+    },
+    "gender": {
+      "man": "",
+      "non_binary": "",
+      "woman": "",
+      "field_label": "",
+      "required_error": ""
+    },
+    "password": {
+      "field_label": "",
+      "required_error": "",
+      "validation_error": ""
+    },
+    "opt_in_newsletter": "",
+    "tos_prompt": "",
+    "tos_accept_label": ""
+  },
+  "change_email_form": {
+    "title": "",
+    "success_message": "",
+    "current_email_message": "",
+    "current_password": "",
+    "new_email": ""
+  },
+  "change_phone": {
+    "code_label": "",
+    "phone_not_verified_description": "",
+    "wrong_code": "",
+    "verify_success": "",
+    "remove_button_text": "",
+    "add_button_text": "",
+    "change_to_different_description": "",
+    "change_button_text": "",
+    "title": "",
+    "verify_button_text": "",
+    "need_to_donate": "",
+    "no_phone_description": "",
+    "phone_label": "",
+    "add_success": "",
+    "remove_success": ""
+  },
+  "location": {
+    "field_label": "",
+    "validation_error": ""
+  },
+  "active_logins": {
+    "login_header": "",
+    "log_out_of_all_session": "",
+    "settings_page_link": "",
+    "settings_page_text": "",
+    "current_session": "",
+    "expiry": "",
+    "description": "",
+    "location": "",
+    "last_activity": "",
+    "heading": "",
+    "log_out_of_session": ""
+  },
+  "delete_account": {
+    "recover": {
+      "error_message": "",
+      "success": "",
+      "title": "",
+      "button_text": ""
+    },
+    "request": {
+      "success_message": "",
+      "description": "",
+      "confirm_username_explanation": "",
+      "reason_explanation": "",
+      "title": "",
+      "confirm_username_label": "",
+      "username_mismatch": "",
+      "reason_label": ""
+    },
+    "confirm": {
+      "title": "",
+      "error_message": "",
+      "button_text": "",
+      "account_deleted": ""
+    }
+  },
+  "account_settings_page": {
+    "timezone_section": {
+      "title": "",
+      "description": "",
+      "explanation": ""
+    },
+    "appearance_section": {
+      "title": "",
+      "modes": {
+        "light": "",
+        "dark": "",
+        "system": ""
+      },
+      "current_mode": "",
+      "click_to_change": "",
+      "change_mode": ""
+    },
+    "title": "",
+    "gender_section": {
+      "title": "",
+      "explanation": ""
+    },
+    "birth_date_section": {
+      "title": "",
+      "explanation": ""
+    },
+    "username_section": {
+      "title": "",
+      "description": "",
+      "explanation": ""
+    }
+  },
+  "login_page": {
+    "form": {
+      "no_password_login_prompt": "",
+      "remember_me": "",
+      "forgot_password": "",
+      "show_password": "",
+      "hide_password": "",
+      "username_field_label": "",
+      "password_field_label": ""
+    },
+    "title": "",
+    "header": ""
+  },
+  "basic_sign_up_form": {
+    "header": "",
+    "sign_up_agreement_explainer": "",
+    "existing_user_prompt": ""
+  },
+  "jail": {
+    "description": "",
+    "mod_note_section": {
+      "description": "",
+      "title": "",
+      "acknowledge": "",
+      "note_title": ""
+    },
+    "activeness_probe": {
+      "still_hosting": "",
+      "not_hosting": "",
+      "title": "",
+      "description": ""
+    },
+    "location_section": {
+      "title": "",
+      "explanation": "",
+      "submit_button": {
+        "active_text": "",
+        "inactive_text": ""
+      },
+      "resubmit_button_text": ""
+    },
+    "title": ""
+  },
+  "sign_up_completed_prompt": "",
+  "sign_up_confirmed_prompt": "",
+  "feature_preview": {
+    "title": "",
+    "explanation": "",
+    "disclaimer": "",
+    "no_previews": {
+      "title": "",
+      "explanation": ""
+    }
+  },
+  "quick_links": {
+    "error_message": "",
+    "missing_payload_or_sig": "",
+    "button_text": "",
+    "title": ""
+  },
+  "logged_out_message": "",
+  "motivations_form": {
+    "surfing_description": "",
+    "hosting": "",
+    "hosting_description": "",
+    "something_else": "",
+    "something_else_description": "",
+    "events_description": "",
+    "community_organizing": "",
+    "header": "",
+    "community_organizing_description": "",
+    "events": "",
+    "surfing": ""
+  },
+  "change_email_confirmation": {
+    "change_in_progress": "",
+    "success_message": "",
+    "error_message": ""
+  },
+  "jail_set_password_form": {
+    "title": "",
+    "explanation": ""
+  },
+  "reset_password_form": {
+    "enter_email": "",
+    "success_message": ""
+  },
+  "sign_up_resend_verification_email_help": "",
+  "sign_up_resend_verification_done": "",
+  "reset_password": "",
+  "profile_visibility": {
+    "visiblility_options": {
+      "nothing": "",
+      "map_only": "",
+      "limited": "",
+      "most": "",
+      "full_profile": ""
+    },
+    "title": "",
+    "choose": ""
+  },
+  "community_guidelines_form": {
+    "header": "",
+    "guideline": {
+      "checkbox_label": "",
+      "required_error": ""
+    }
+  },
+  "sign_up_completed_title": "",
+  "do_not_email": {
+    "title": "",
+    "status": {
+      "no_emails_enabled_message": "",
+      "no_emails_disabled_message": ""
+    },
+    "action_button": {
+      "no_emails_enable_text": "",
+      "no_emails_disable_text": ""
+    },
+    "caveat": ""
+  },
+  "basic_form": {
+    "name": {
+      "field_label": "",
+      "empty_error": ""
+    },
+    "email": {
+      "field_label": "",
+      "empty_error": "",
+      "required_error": ""
+    }
+  },
+  "login_prompt": "",
+  "about_us": "",
+  "sign_up_need_verification_title": ""
+}
