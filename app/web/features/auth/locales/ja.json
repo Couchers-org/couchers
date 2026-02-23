@@ -239,7 +239,8 @@
       "success": "",
       "button_text": "",
       "title": ""
-    }
+    },
+    "missing_token": ""
   },
   "volunteer_management": {
     "form": {
@@ -306,6 +307,9 @@
       "description": "",
       "note_title": "",
       "acknowledge": ""
+    },
+    "terms_of_service_section": {
+      "description": ""
     }
   },
   "logged_out_message": "",
@@ -370,7 +374,8 @@
     "add_success": "",
     "phone_label": "",
     "title": "",
-    "wrong_code": ""
+    "wrong_code": "",
+    "remove_phone_description": ""
   },
   "jail_set_password_form": {
     "explanation": "",
