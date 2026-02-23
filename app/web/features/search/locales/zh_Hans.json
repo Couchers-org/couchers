@@ -79,8 +79,7 @@
     "show_user_button_label": "在地图上显示{{name}}",
     "missing_about_description": "{{name}} 还没有介绍自己",
     "include_empty_profiles_button": "显示所有用户资料",
-    "few_results_suggestion": "默认情况下，空白和“无法接待”的个人资料会被隐藏。",
-    "people_range_message_other": ""
+    "few_results_suggestion": "默认情况下，空白和“无法接待”的个人资料会被隐藏。"
   },
   "error_loading_users": "加载用户时出错",
   "views": {

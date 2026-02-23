@@ -53,112 +53,18 @@
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {
-      "message": "Bu sohbetin yöneticisi olmaktan vazgeçmek istediğine emin misin? Başka bir yönetici seni tekrardan yönetici olarak eklemediği sürece tekrardan bu sohbetin yöneticisi olamayacaksın.",
-      "title": ""
+      "message": "Bu sohbetin yöneticisi olmaktan vazgeçmek istediğine emin misin? Başka bir yönetici seni tekrardan yönetici olarak eklemediği sürece tekrardan bu sohbetin yöneticisi olamayacaksın."
     },
     "remove_admin": {
-      "title": "Yönetici çıkar",
-      "action_a11y_label": ""
-    },
-    "add_admin": {
-      "title": "",
-      "action_a11y_label": ""
+      "title": "Yönetici çıkar"
     }
   },
   "create_chat": {
     "group_title_field_label": "Başlık",
     "dm_title": "Yeni bir sohbet oluştur",
-    "group_title": "Grup sohbeti oluştur",
-    "no_friends_found_message": "",
-    "user_load_error_message": "",
-    "friends_input_label": "",
-    "title_label": ""
+    "group_title": "Grup sohbeti oluştur"
   },
   "mark_all_read_button_text_chats": "Tüm sohbetleri okundu olarak işaretle",
   "mark_all_read_button_text_hosting": "Tüm ev sahipliği isteklerini okunmuş olarak işaretle",
-  "mark_all_read_button_text_surfing": "Tüm sörf isteklerini okunmuş olarak işaretle",
-  "host_request_view": {
-    "request_duration_one": "",
-    "request_duration_other": "",
-    "error_message": "",
-    "title_for_host": "",
-    "title_for_surfer": "",
-    "back_button_a11y_label": ""
-  },
-  "control_message": {
-    "host_request_status_changed": {
-      "accepted": "",
-      "cancelled": "",
-      "confirmed": "",
-      "rejected": ""
-    },
-    "user_left_chat_text": "",
-    "admin_assignment_text": "",
-    "admin_removal_text": "",
-    "unknown_message_text": "",
-    "created_chat_text": "",
-    "edited_chat_text": "",
-    "invite_user_text": ""
-  },
-  "host_request_item": {
-    "host_status": {
-      "accepted": "",
-      "cancelled": "",
-      "confirmed": "",
-      "rejected": ""
-    },
-    "surfer_status": {
-      "accepted": "",
-      "cancelled": "",
-      "confirmed": "",
-      "rejected": ""
-    },
-    "expired": "",
-    "pending": ""
-  },
-  "host_request_status": {
-    "cancelled": "",
-    "confirmed": "",
-    "past": "",
-    "pending": "",
-    "rejected": "",
-    "accepted": ""
-  },
-  "unknown_user": "",
-  "group_chat_settings_dialog": {
-    "only_admins_invite": {
-      "field_label": ""
-    },
-    "title": "",
-    "chat_title": {
-      "field_label": ""
-    }
-  },
-  "group_chats_tab": {
-    "no_chats_message": "",
-    "load_more_button_label": ""
-  },
-  "requests_tab": {
-    "load_more_button_label": "",
-    "no_requests_message": ""
-  },
-  "invite_dialog": {
-    "title": "",
-    "selected": {
-      "option_load_error_text": "",
-      "no_options_text": "",
-      "field_label": ""
-    },
-    "invite_button_label": ""
-  },
-  "members_dialog": {
-    "title": ""
-  },
-  "chat_input": {
-    "label": ""
-  },
-  "leave_chat_dialog": {
-    "title": "",
-    "message": ""
-  }
+  "mark_all_read_button_text_surfing": "Tüm sörf isteklerini okunmuş olarak işaretle"
 }

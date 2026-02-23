@@ -17,12 +17,7 @@
     "password_changed_success": "La tua nuova password è stata impostata e una notifica è stata inviata al tuo indirizzo e-mail.",
     "old_password": "Vecchia password",
     "new_password": "Nuova password",
-    "password_mismatch_error": "Le password non corrispondono.",
-    "reset_password_success": "",
-    "reset_password_error": "",
-    "user_logged_error": "",
-    "subtitle": "",
-    "token_error": ""
+    "password_mismatch_error": "Le password non corrispondono."
   },
   "reset_password_form": {
     "enter_email": "Inserisci il tuo nome utente/e-mail",
@@ -37,9 +32,7 @@
       "password_field_label": "Password",
       "no_password_login_prompt": "Cerca nella tua casella e-mail un collegamento per accedere! :)",
       "remember_me": "Ricordami",
-      "forgot_password": "Password dimenticata?",
-      "show_password": "",
-      "hide_password": ""
+      "forgot_password": "Password dimenticata?"
     }
   },
   "basic_sign_up_form": {
@@ -65,22 +58,18 @@
       "required_error": "Inserisci il tuo nome utente",
       "validation_error": "Un nome utente può contenere solo numeri o _, e deve iniziare con una lettera.",
       "field_label": "Nome utente",
-      "username_taken_error": "Questo nome utente è già preso.",
-      "helper_text": ""
+      "username_taken_error": "Questo nome utente è già preso."
     },
     "birthday": {
       "field_label": "Data di nascita",
       "required_error": "Inserisci la tua data di nascita",
-      "validation_error": "Deve trattarsi di una data valida nel passato.",
-      "not_real_date_error": "",
-      "too_young_error": ""
+      "validation_error": "Deve trattarsi di una data valida nel passato."
     },
     "hosting_status": {
       "field_label": "Stato ospitalità",
       "maybe": "Potrebbe ospitare",
       "cant_host": "Non può ospitare",
-      "can_host": "Può ospitare",
-      "any": ""
+      "can_host": "Può ospitare"
     },
     "gender": {
       "required_error": "Per favore, seleziona la tua identità di genere",
@@ -95,8 +84,7 @@
       "field_label": "Password",
       "required_error": "Inserisci una password",
       "validation_error": "La password deve contenere da 8 a 256 caratteri e non essere troppo comune."
-    },
-    "opt_in_newsletter": ""
+    }
   },
   "location": {
     "field_label": "La tua posizione",
@@ -141,21 +129,7 @@
         "inactive_text": "Grazie!",
         "active_text": "Salvare"
       },
-      "resubmit_button_text": "Inviare di nuovo",
-      "explanation": ""
-    },
-    "activeness_probe": {
-      "title": "",
-      "description": "",
-      "still_hosting": "",
-      "not_hosting": "",
-      "note": ""
-    },
-    "mod_note_section": {
-      "description": "",
-      "note_title": "",
-      "acknowledge": "",
-      "title": ""
+      "resubmit_button_text": "Inviare di nuovo"
     }
   },
   "logged_out_message": "Sei stato disconnesso.",
@@ -178,18 +152,7 @@
       "description": "Il tuo nome utente è <1>{{username}}</1>.",
       "explanation": "Il tuo nome utente viene definito quando crei il conto."
     },
-    "title": "Impostazioni conto",
-    "appearance_section": {
-      "title": "",
-      "modes": {
-        "system": "",
-        "light": "",
-        "dark": ""
-      },
-      "current_mode": "",
-      "click_to_change": "",
-      "change_mode": ""
-    }
+    "title": "Impostazioni conto"
   },
   "change_phone": {
     "phone_label": "Il tuo numero di telefono",
@@ -206,8 +169,7 @@
     "remove_button_text": "Elimina l'attuale numero di telefono",
     "change_to_different_description": "Per cambiare il tuo numero di telefono, inserisci quello nuovo qui sotto.",
     "change_button_text": "Modifica numero di telefono",
-    "code_label": "Codice di verifica",
-    "need_to_donate": ""
+    "code_label": "Codice di verifica"
   },
   "delete_account": {
     "request": {
@@ -233,153 +195,5 @@
       "success": "Il tuo conto è stato recuperato, ora puoi accedere di nuovo. Siamo felici che tu sia di ritorno!"
     },
     "missing_token": "Errore: token mancante"
-  },
-  "strong_verification": {
-    "instructions": {
-      "step3": "",
-      "step1_apple_note": "",
-      "step2": "",
-      "chip_location": {
-        "us_germany_mexico": "",
-        "finland_germany_new": "",
-        "australia": "",
-        "description": "",
-        "heading": ""
-      },
-      "step6": "",
-      "step7": "",
-      "download_app_store": "",
-      "download_google_play": "",
-      "title": "",
-      "step1": "",
-      "step4": "",
-      "step5": "",
-      "warning": "",
-      "step8": ""
-    },
-    "donation_title": "",
-    "donation_message2": "",
-    "delete_button": "",
-    "delete_success": "",
-    "learn_more": "",
-    "status": {
-      "disabled_message": "",
-      "enabled_message": ""
-    },
-    "subtitle": "",
-    "start_button": "",
-    "begin_button": "",
-    "information_text1": "",
-    "information_text3": "",
-    "complete_title": "",
-    "complete_message1": "",
-    "donate_button": "",
-    "delete_data_title": "",
-    "complete_message2": "",
-    "title": "",
-    "information_text2": "",
-    "delete_information": "",
-    "delete_information_text2": "",
-    "delete_my_data_button": "",
-    "donation_message1": ""
-  },
-  "quick_links": {
-    "button_text": "",
-    "error_message": "",
-    "title": "",
-    "missing_payload_or_sig": ""
-  },
-  "active_logins": {
-    "heading": "",
-    "last_activity": "",
-    "expiry": "",
-    "log_out_of_session": "",
-    "log_out_of_all_session": "",
-    "description": "",
-    "login_header": "",
-    "location": "",
-    "current_session": "",
-    "settings_page_text": "",
-    "settings_page_link": ""
-  },
-  "volunteer_management": {
-    "shown_on_team_page_current": "",
-    "current_volunteer": "",
-    "form": {
-      "override_name_label": "",
-      "display_name_label": "",
-      "override_location_label": "",
-      "display_location_label": "",
-      "show_on_team_page_label": "",
-      "link_type_couchers": "",
-      "link_text_linkedin_helper": "",
-      "link_text_required": "",
-      "link_text_email_invalid": "",
-      "link_text_linkedin_invalid": "",
-      "title": "",
-      "link_type_email": "",
-      "link_text_email_helper": "",
-      "link_text_website_helper": "",
-      "link_url_label": "",
-      "link_type_website": "",
-      "link_text_label": "",
-      "link_text_linkedin_placeholder": "",
-      "link_url_placeholder": "",
-      "link_url_required": "",
-      "link_url_invalid": "",
-      "save_button": "",
-      "link_url_helper": "",
-      "link_type_label": "",
-      "link_text_email_placeholder": "",
-      "link_text_website_placeholder": "",
-      "link_type_linkedin": ""
-    },
-    "not_a_volunteer_message": "",
-    "update_success": "",
-    "shown_on_team_page_past": "",
-    "not_shown_on_team_page": "",
-    "title": "",
-    "description": "",
-    "card_preview_label": "",
-    "past_volunteer": ""
-  },
-  "motivations_form": {
-    "events_description": "",
-    "community_organizing": "",
-    "events": "",
-    "header": "",
-    "surfing": "",
-    "surfing_description": "",
-    "hosting": "",
-    "hosting_description": "",
-    "community_organizing_description": "",
-    "something_else_description": "",
-    "something_else": ""
-  },
-  "do_not_email": {
-    "title": "",
-    "caveat": "",
-    "status": {
-      "no_emails_disabled_message": "",
-      "no_emails_enabled_message": ""
-    },
-    "action_button": {
-      "no_emails_enable_text": "",
-      "no_emails_disable_text": ""
-    }
-  },
-  "profile_visibility": {
-    "title": "",
-    "visiblility_options": {
-      "limited": "",
-      "most": "",
-      "nothing": "",
-      "map_only": "",
-      "full_profile": ""
-    },
-    "choose": ""
-  },
-  "sign_up_need_verification_title": "",
-  "sign_up_resend_verification_email_help": "",
-  "sign_up_resend_verification_done": ""
+  }
 }

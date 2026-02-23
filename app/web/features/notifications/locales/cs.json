@@ -17,8 +17,7 @@
         "friend_request": "Žádosti o přátelství",
         "reference": "Reference",
         "discussion": "Diskuze",
-        "reply": "Odpovědi",
-        "host_request": ""
+        "reply": "Odpovědi"
       },
       "item_descriptions": {
         "host_request": {
@@ -28,8 +27,7 @@
           "accept": "Někdo přijme tvou žádost o ubytování",
           "message": "Někdo ti pošle zprávu v žádosti o ubytování",
           "create": "Někdo ti zašle žádost o ubytování",
-          "missed_messages": "Utekla ti zpráva v žádosti o ubytování",
-          "reminder": ""
+          "missed_messages": "Utekla ti zpráva v žádosti o ubytování"
         },
         "chat": {
           "missed_messages": "Utekly ti zprávy v chatu",
@@ -37,106 +35,10 @@
         },
         "general": {
           "new_blog_post": "Byl zveřejněn nový blogový příspěvek"
-        },
-        "reference": {
-          "receive_hosted": "",
-          "receive_surfed": "",
-          "receive_friend": "",
-          "reminder_hosted": "",
-          "reminder_surfed": ""
-        },
-        "event": {
-          "cancel": "",
-          "delete": "",
-          "create_any": "",
-          "create_approved": "",
-          "update": "",
-          "invite_organizer": "",
-          "comment": "",
-          "reminder": ""
-        },
-        "phone_number": {
-          "verify": "",
-          "change": ""
-        },
-        "badge": {
-          "add": "",
-          "remove": ""
-        },
-        "friend_request": {
-          "create": "",
-          "accept": ""
-        },
-        "donation": {
-          "received": ""
-        },
-        "password": {
-          "change": ""
-        },
-        "password_reset": {
-          "start": "",
-          "complete": ""
-        },
-        "onboarding": {
-          "reminder": ""
-        },
-        "email_address": {
-          "change": "",
-          "verify": ""
-        },
-        "account_deletion": {
-          "start": "",
-          "complete": "",
-          "recovered": ""
-        },
-        "api_key": {
-          "create": ""
-        },
-        "birthdate": {
-          "change": ""
-        },
-        "gender": {
-          "change": ""
-        },
-        "discussion": {
-          "create": "",
-          "comment": ""
-        },
-        "thread": {
-          "reply": ""
         }
       },
       "collapse_all": "Sbalit vše",
       "expand_all": "Rozbalit vše"
-    },
-    "push_notifications": {
-      "description": "",
-      "title": "",
-      "allow_push": "",
-      "enabled_message": "",
-      "disabled_message": "",
-      "error_generic": "",
-      "error_unsupported": "",
-      "permission_denied": {
-        "platform_settings_description": "",
-        "instructions": {
-          "chrome": "",
-          "firefox": "",
-          "safari": "",
-          "generic": "",
-          "macos": "",
-          "windows": "",
-          "linux": {
-            "gnome": "",
-            "kde": ""
-          },
-          "mobile": {
-            "browser": "",
-            "os": ""
-          }
-        }
-      },
-      "error_not_granted": ""
     }
   },
   "all": "Vše",
@@ -145,9 +47,5 @@
   "mark_all_read": "Označit vše jako přečtené",
   "no_new_notifications": "Žádná nová oznámení",
   "error_updating_notifications": "Chyba při aktualizaci oznámení",
-  "unread": "Nepřečteno",
-  "push_notification_banner": {
-    "confirm": "",
-    "message": ""
-  }
+  "unread": "Nepřečteno"
 }

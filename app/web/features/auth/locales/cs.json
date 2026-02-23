@@ -21,8 +21,7 @@
     "reset_password_success": "Tvé heslo bylo úspěšně změněno!",
     "subtitle": "Použij tento formulář k obnovení svého přihlašovacího hesla.",
     "reset_password_error": "Chyba při resetování hesla: {{message}}",
-    "token_error": "Došlo k chybě při zpracování tokenu pro resetování hesla, zkus prosím znovu otevřít odkaz z e-mailu.",
-    "user_logged_error": ""
+    "token_error": "Došlo k chybě při zpracování tokenu pro resetování hesla, zkus prosím znovu otevřít odkaz z e-mailu."
   },
   "reset_password_form": {
     "enter_email": "Zadej své uživatelské jméno/e-mail",
@@ -142,23 +141,16 @@
       "title": "Smazat účet",
       "confirm_username_label": "Potvrzení uživatelského jména",
       "username_mismatch": "Uživatelské jméno se neshoduje.",
-      "reason_label": "Důvod k odstranění účtu",
-      "success_message": "",
-      "confirm_username_explanation": "",
-      "description": "",
-      "reason_explanation": ""
+      "reason_label": "Důvod k odstranění účtu"
     },
     "confirm": {
       "title": "Potvrdit smazání účtu",
       "account_deleted": "Účet smazán. Děkujeme za používání Couchers.org!",
-      "button_text": "Potvrdit smazání účtu",
-      "error_message": ""
+      "button_text": "Potvrdit smazání účtu"
     },
     "recover": {
       "button_text": "Obnovit účet",
-      "success": "Tvůj účet byl obnoven, můžeš se znovu přihlášit. Jsme rádi, že jsi zpět!",
-      "title": "",
-      "error_message": ""
+      "success": "Tvůj účet byl obnoven, můžeš se znovu přihlášit. Jsme rádi, že jsi zpět!"
     },
     "missing_token": "Chyba: missing token"
   },
@@ -178,13 +170,7 @@
     "title": "Telefonní číslo",
     "add_success": "Telefonní číslo bylo přidáno.",
     "wrong_code": "Neplatný kód.",
-    "change_button_text": "Změnit telefonní číslo",
-    "add_button_text": "",
-    "no_phone_description": "",
-    "need_to_donate": "",
-    "change_to_different_description": "",
-    "phone_not_verified_description": "",
-    "remove_phone_description": ""
+    "change_button_text": "Změnit telefonní číslo"
   },
   "jail": {
     "location_section": {
@@ -209,9 +195,7 @@
     "activeness_probe": {
       "note": "Aktualizujeme tvůj profil, aby odpovídal této volbě!",
       "still_hosting": "Pořád chci hostit!",
-      "not_hosting": "Už nemohu dále hostit.",
-      "description": "",
-      "title": ""
+      "not_hosting": "Už nemohu dále hostit."
     },
     "description": "Zkontroluj prosím následující, aby bylo možné pokračovat."
   },
@@ -239,147 +223,7 @@
   "unhandled_sign_up_state": "Chyba: unhandled signup flow state.",
   "sign_up_need_verification_title": "Už jsme skoro hotovi, ještě poslední věc!",
   "feature_preview": {
-    "title": "Náhled funkcionality",
-    "explanation": "",
-    "no_previews": {
-      "title": "",
-      "explanation": ""
-    },
-    "disclaimer": ""
+    "title": "Náhled funkcionality"
   },
-  "sign_up_resend_verification_done": "Hotovo! Poslali jsme ti další e-mail.",
-  "strong_verification": {
-    "donation_title": "",
-    "instructions": {
-      "chip_location": {
-        "finland_germany_new": "",
-        "us_germany_mexico": "",
-        "australia": "",
-        "heading": "",
-        "description": ""
-      },
-      "step2": "",
-      "step1": "",
-      "download_google_play": "",
-      "step6": "",
-      "step1_apple_note": "",
-      "step3": "",
-      "step4": "",
-      "step5": "",
-      "step7": "",
-      "title": "",
-      "warning": "",
-      "step8": "",
-      "download_app_store": ""
-    },
-    "begin_button": "",
-    "subtitle": "",
-    "delete_my_data_button": "",
-    "delete_button": "",
-    "status": {
-      "disabled_message": "",
-      "enabled_message": ""
-    },
-    "complete_message1": "",
-    "donation_message1": "",
-    "donation_message2": "",
-    "delete_success": "",
-    "delete_information": "",
-    "learn_more": "",
-    "title": "",
-    "start_button": "",
-    "information_text1": "",
-    "information_text2": "",
-    "information_text3": "",
-    "complete_title": "",
-    "complete_message2": "",
-    "delete_data_title": "",
-    "delete_information_text2": "",
-    "donate_button": ""
-  },
-  "volunteer_management": {
-    "title": "",
-    "form": {
-      "link_type_linkedin": "",
-      "link_url_placeholder": "",
-      "link_url_helper": "",
-      "link_url_required": "",
-      "link_type_website": "",
-      "link_text_email_invalid": "",
-      "link_text_linkedin_invalid": "",
-      "link_text_email_helper": "",
-      "link_text_website_helper": "",
-      "link_text_required": "",
-      "link_url_label": "",
-      "display_name_label": "",
-      "override_location_label": "",
-      "link_url_invalid": "",
-      "save_button": "",
-      "title": "",
-      "override_name_label": "",
-      "display_location_label": "",
-      "show_on_team_page_label": "",
-      "link_type_label": "",
-      "link_type_couchers": "",
-      "link_type_email": "",
-      "link_text_label": "",
-      "link_text_linkedin_placeholder": "",
-      "link_text_email_placeholder": "",
-      "link_text_website_placeholder": "",
-      "link_text_linkedin_helper": ""
-    },
-    "current_volunteer": "",
-    "shown_on_team_page_past": "",
-    "card_preview_label": "",
-    "description": "",
-    "not_a_volunteer_message": "",
-    "past_volunteer": "",
-    "shown_on_team_page_current": "",
-    "not_shown_on_team_page": "",
-    "update_success": ""
-  },
-  "motivations_form": {
-    "events_description": "",
-    "community_organizing": "",
-    "hosting": "",
-    "community_organizing_description": "",
-    "something_else": "",
-    "surfing": "",
-    "header": "",
-    "surfing_description": "",
-    "hosting_description": "",
-    "events": "",
-    "something_else_description": ""
-  },
-  "active_logins": {
-    "description": "",
-    "settings_page_text": "",
-    "log_out_of_session": "",
-    "log_out_of_all_session": "",
-    "heading": "",
-    "login_header": "",
-    "location": "",
-    "last_activity": "",
-    "expiry": "",
-    "current_session": "",
-    "settings_page_link": ""
-  },
-  "profile_visibility": {
-    "title": "",
-    "choose": "",
-    "visiblility_options": {
-      "most": "",
-      "map_only": "",
-      "limited": "",
-      "nothing": "",
-      "full_profile": ""
-    }
-  },
-  "quick_links": {
-    "missing_payload_or_sig": "",
-    "title": "",
-    "button_text": "",
-    "error_message": ""
-  },
-  "sign_up_resend_verification_email_help": ""
+  "sign_up_resend_verification_done": "Hotovo! Poslali jsme ti další e-mail."
 }
