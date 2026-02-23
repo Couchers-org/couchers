@@ -119,7 +119,13 @@
     "invite_user_text": "{{user}} a invité {{target_user}}",
     "user_left_chat_text": "{{user}} a quitté la discussion",
     "admin_removal_text": "{{user}} a retiré {{target_user}} en tant qu'administrateur.trice",
-    "unknown_message_text": "Message de contrôle inconnu"
+    "unknown_message_text": "Message de contrôle inconnu",
+    "host_request_status_changed": {
+      "rejected": "",
+      "accepted": "",
+      "cancelled": "",
+      "confirmed": ""
+    }
   },
   "host_request_status": {
     "rejected": "Refusé",
