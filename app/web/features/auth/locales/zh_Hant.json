@@ -53,7 +53,8 @@
       "field_label": "用戶名稱",
       "username_taken_error": "該用戶名稱已經被註冊。",
       "required_error": "請輸入您的用戶名稱",
-      "helper_text": ""
+      "helper_text": "",
+      "validation_error": ""
     },
     "birthday": {
       "field_label": "生日",
