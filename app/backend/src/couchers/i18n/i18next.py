@@ -6,10 +6,10 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from html import escape, unescape
-from markupsafe import Markup
 from typing import Any
 
 from babel import Locale
+from markupsafe import Markup
 
 PLURALIZABLE_VARIABLE_NAME = "count"
 """Special variable name for which i18next supports pluralization forms."""
@@ -30,9 +30,7 @@ class I18Next:
     default_translation: Translation | None = None
     """The translation used to look up strings in unsupported locales."""
 
-    def add_translation(
-        self, locale: str, *, json_dict: dict[str, Any] | None = None
-    ) -> Translation:
+    def add_translation(self, locale: str, *, json_dict: dict[str, Any] | None = None) -> Translation:
         translation = Translation(locale)
         self.translations_by_locale[locale] = translation
         if json_dict:
