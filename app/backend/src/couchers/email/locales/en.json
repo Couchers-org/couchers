@@ -1,0 +1,16 @@
+{
+  "generic": {
+    "greeting_line": "Hi {{name}},"
+  },
+  "plaintext_formats": {
+    "action": "{{text}}: {{url}}",
+    "user": "{{name}}, {{age}}, {{city}}"
+  },
+  "host_request_received": {
+    "subject": "{{ name }} sent you a host request",
+    "event_description": "{{ name }} sent you a host request.",
+    "requested_dates": "Requested from <b>{{ from_date }}</b> to <b>{{ to_date }}</b>.",
+    "view_request_link": "View host request",
+    "quick_decline_link": "Quick decline (no login needed)"
+  }
+}

@@ -312,10 +312,9 @@
   "click_to_add_photo": "Click to add a photo",
   "profile_changes_saved_message": "Profile changes saved!",
   "hosting_preferences_success_message": "Hosting preferences saved!",
-  "couldnt_read_file": "Couldn't read file",
-  "select_an_image": "Select an image",
   "gallery": {
     "photo_item_a11y": "Photo",
+    "photo": "Photo",
     "profile_photo": "Profile Photo",
     "add_photo": "Add photo",
     "uploading": "Uploading...",
