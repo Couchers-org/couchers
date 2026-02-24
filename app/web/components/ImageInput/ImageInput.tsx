@@ -135,7 +135,7 @@ function ImageInput(props: RectImgInputProps) {
           },
         },
       );
-      setReaderError(t("global:couldnt_read_file"));
+      setReaderError(t("global:image_input.read_file_error_message"));
     }
   };
 
@@ -173,7 +173,7 @@ function ImageInput(props: RectImgInputProps) {
       Sentry.captureException(e, {
         tags: { component: "ImageInput", native: true },
       });
-      setReaderError(t("global:couldnt_read_file"));
+      setReaderError(t("global:image_input.read_file_error_message"));
     }
   }, [pickImage, mutation, t]);
 
@@ -186,7 +186,7 @@ function ImageInput(props: RectImgInputProps) {
       {fileSizeError && <Alert severity="error">{fileSizeError}</Alert>}
       <FlexWrapper>
         <StyledInput
-          aria-label={t("global:select_an_image")}
+          aria-label={t("global:image_input.select_button_a11y")}
           accept="image/jpeg,image/png,image/gif"
           id={id}
           type="file"

@@ -41,9 +41,11 @@
   "confirm": "Confirm",
   "copy": "Copy",
   "copied": "Copied to clipboard",
-  "select_an_image": "Select an image",
-  "click_replace_image": "Click to replace image",
-  "couldnt_read_file": "Couldn't read file",
+  "image_input": {
+    "select_button_a11y": "Select an image",
+    "replace_image_tooltip": "Click to replace image",
+    "read_file_error_message": "Couldn't read file"
+  },
   "load_more": "Load more",
   "read_more": "Read more",
   "next": "Next",
