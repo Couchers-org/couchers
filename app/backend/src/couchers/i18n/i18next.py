@@ -96,7 +96,9 @@ class Translation:
         add_strings(json_dict, key_prefix=None)
 
     def add_string(self, key: str, value: str) -> None:
-        self.strings_by_key[key] = String(key, StringTemplate.parse(value))
+        # Weblate and i18next consider an empty string as the absence of a translation.
+        if value:
+            self.strings_by_key[key] = String(key, StringTemplate.parse(value))
 
     def find_string(self, key: str, substitutions: SubstitutionDict | None = None) -> String | None:
         # if we have a numerical "count" substitution,

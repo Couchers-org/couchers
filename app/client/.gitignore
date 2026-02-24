@@ -1,4 +1,5 @@
 venv/
+.venv/
 __pycache__/
 *.egg-info/
 src/couchers/proto
