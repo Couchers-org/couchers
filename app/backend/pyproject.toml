@@ -41,6 +41,9 @@ dependencies = [
     "statsig-python-core>=0.8.0",
 ]
 
+[project.scripts]
+dump-emails = "couchers.email.dump_emails:main"
+
 [dependency-groups]
 dev = [
     "ruff>=0.14.3",

@@ -12,11 +12,51 @@
     },
     "account_deletion__complete": {
       "title": "Účet smazán",
-      "ios_title": "Účet smazán"
+      "ios_title": "Účet smazán",
+      "body_one": "Můžeš jej obnovit do {{count}} dne pomocí odkazu, který jsme ti zaslali e-mailem.",
+      "body_few": "Můžeš jej obnovit do {{count}} dní pomocí odkazu, který jsme ti zaslali e-mailem.",
+      "body_other": "Můžeš jej obnovit do {{count}} dnů pomocí odkazu, který jsme ti zaslali e-mailem."
     },
     "activeness__probe": {
       "title": "Stále máš zájem o hostování?",
       "ios_title": "Stále máš zájem o hostování?"
+    },
+    "adhoc__push_enabled": {
+      "title": "Push notifikace povoleny",
+      "ios_title": "Push notifikace povoleny",
+      "body": "Nyní budeš dostávat oznámení na tomto zařízení."
+    },
+    "api_key__create": {
+      "title": "API klíč vytvořen",
+      "ios_title": "API klíč vytvořen",
+      "body": "Podrobnosti ti byly zaslány e-mailem."
+    },
+    "badge__add": {
+      "title": "Nový odznak profilu: {{badge_name}}",
+      "ios_title": "Nový profilový odznak",
+      "body": "Odznak {{badge_name}} byl přidán do tvého profilu."
+    },
+    "badge__remove": {
+      "title": "Odznak profilu odstraněn",
+      "ios_title": "Odznak profilu odstraněn",
+      "body": "Odznak {{badge_name}} byl odstraněn z tvého profilu."
+    },
+    "birthdate__change": {
+      "title": "Datum narození změněno",
+      "ios_title": "Datum narození změněno",
+      "body": "Administrátor změnil tvé datum narození na {{birthdate}}."
+    },
+    "chat__missed_messages": {
+      "title_one": "{{count}} zmeškaná zpráva",
+      "title_few": "{{count}} zmeškané zprávy",
+      "title_other": "{{count}} zmeškaných zpráv",
+      "ios_title_one": "{{count}} zmeškaná zpráva",
+      "ios_title_few": "{{count}} zmeškané zprávy",
+      "ios_title_other": "{{count}} zmeškaných zpráv",
+      "body": "Máš nové nepřečtené zprávy."
+    },
+    "donation__received": {
+      "title": "Dar přijat"
     }
   }
 }

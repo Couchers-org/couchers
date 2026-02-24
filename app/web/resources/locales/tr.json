@@ -172,7 +172,9 @@
     "built_with": "Açık Kaynak",
     "invite_members": "Üye Davet Et",
     "badges": "Rozetler",
-    "dashboard": "Kontrol Paneli"
+    "dashboard": "Kontrol Paneli",
+    "legal_more": "Yasal & Fazlası",
+    "landing_page": "Başlangıç Sayfası"
   },
   "what_is_cs": {
     "timeline": {
@@ -215,5 +217,10 @@
     "more_specific": "Lütfen daha belirli bir yer seçin",
     "search_location_hint": "Bir konum seçmek için Enter tuşuna basın veya arama simgesine tıklayın",
     "search_location_button": "Konum ara"
+  },
+  "invites": {
+    "title": "Üye davet et",
+    "create": "Davet oluştur",
+    "disable": "Devre dışı bırak"
   }
 }
