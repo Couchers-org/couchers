@@ -83,7 +83,9 @@ describe("ImageInput component", () => {
   it("uploads and submits key", async () => {
     const user = userEvent.setup({ applyAccept: false });
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(
+        t("global:image_input.select_button_a11y"),
+      ) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -118,7 +120,9 @@ describe("ImageInput component", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(
+        t("global:image_input.select_button_a11y"),
+      ) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -136,11 +140,15 @@ describe("ImageInput component", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(
+        t("global:image_input.select_button_a11y"),
+      ) as HTMLInputElement,
       new File([new Blob(undefined)], ""),
     );
     expect(
-      await screen.findByText(new RegExp(t("profile:couldnt_read_file"))),
+      await screen.findByText(
+        new RegExp(t("global:image_input.read_file_error_message")),
+      ),
     ).toBeVisible();
   });
 
@@ -151,7 +159,9 @@ describe("ImageInput component", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(
+        t("global:image_input.select_button_a11y"),
+      ) as HTMLInputElement,
       new File([new Blob(undefined)], ""),
     );
 
@@ -170,7 +180,9 @@ describe("ImageInput component", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(
+        t("global:image_input.select_button_a11y"),
+      ) as HTMLInputElement,
       largeFile,
     );
 
@@ -207,7 +219,7 @@ describe("ImageInput component", () => {
     // Start upload
     await user.upload(
       within(form).getByLabelText(
-        t("profile:select_an_image"),
+        t("global:image_input.select_button_a11y"),
       ) as HTMLInputElement,
       MOCK_FILE,
     );
@@ -274,7 +286,9 @@ describe("ImageInput http error tests", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(
+        t("global:image_input.select_button_a11y"),
+      ) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -294,7 +308,9 @@ describe("ImageInput http error tests", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(
+        t("global:image_input.select_button_a11y"),
+      ) as HTMLInputElement,
       MOCK_FILE,
     );
 
@@ -317,7 +333,9 @@ describe("ImageInput http error tests", () => {
     const user = userEvent.setup({ applyAccept: false });
 
     await user.upload(
-      screen.getByLabelText(t("profile:select_an_image")) as HTMLInputElement,
+      screen.getByLabelText(
+        t("global:image_input.select_button_a11y"),
+      ) as HTMLInputElement,
       MOCK_FILE,
     );
 

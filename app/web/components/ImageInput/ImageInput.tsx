@@ -2,7 +2,7 @@ import { styled } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Sentry from "platform/sentry";
 import React, { useCallback, useRef, useState } from "react";
 import { Control, useController } from "react-hook-form";
@@ -73,7 +73,7 @@ const StyledInput = styled("input")(({ theme }) => ({
 function ImageInput(props: RectImgInputProps) {
   const { className, control, id, initialPreviewSrc, name } = props;
 
-  const { t } = useTranslation([PROFILE]);
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const { isNative, pickImage } = useNativeImagePicker();
 
   const [imageUrl, setImageUrl] = useState(initialPreviewSrc);
@@ -135,7 +135,7 @@ function ImageInput(props: RectImgInputProps) {
           },
         },
       );
-      setReaderError(t("profile:couldnt_read_file"));
+      setReaderError(t("global:image_input.read_file_error_message"));
     }
   };
 
@@ -173,7 +173,7 @@ function ImageInput(props: RectImgInputProps) {
       Sentry.captureException(e, {
         tags: { component: "ImageInput", native: true },
       });
-      setReaderError(t("profile:couldnt_read_file"));
+      setReaderError(t("global:image_input.read_file_error_message"));
     }
   }, [pickImage, mutation, t]);
 
@@ -186,7 +186,7 @@ function ImageInput(props: RectImgInputProps) {
       {fileSizeError && <Alert severity="error">{fileSizeError}</Alert>}
       <FlexWrapper>
         <StyledInput
-          aria-label={t("profile:select_an_image")}
+          aria-label={t("global:image_input.select_button_a11y")}
           accept="image/jpeg,image/png,image/gif"
           id={id}
           type="file"
