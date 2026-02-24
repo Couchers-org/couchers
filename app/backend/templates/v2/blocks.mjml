@@ -1,0 +1,45 @@
+<!-- begin-block:para -->
+<mj-section padding="0px">
+  <mj-column>
+    <mj-text>{{ text }}</mj-text>
+  </mj-column>
+</mj-section>
+<!-- end-block:para -->
+
+<!-- begin-block:action -->
+<mj-section padding="0px">
+  <mj-column>
+    <mj-button background-color="#00a398" color="white" border-radius="5px" href="{{ target_url }}">
+      <b>{{ text }}</b>
+    </mj-button>
+  </mj-column>
+</mj-section>
+<!-- end-block:action -->
+
+<!-- begin-block:user -->
+<mj-section padding="0px" text-align="left">
+  <mj-column>
+    <mj-table>
+      <tr>
+        <td style="width: 100px;">
+          <img width="80px" style="border-radius: 80px" src="{{ avatar_url }}" />
+        </td>
+        <td>
+          <b>{{ name }}</b>, {{ age }}<br />
+          {{ city }}{% if comment %}<br />
+          {{ comment }}
+          {% endif %}
+        </td>
+      </tr>
+    </mj-table>
+  </mj-column>
+</mj-section>
+<!-- end-block:user -->
+
+<!-- begin-block:quote -->
+<mj-section padding="10px 20px" text-align="left">
+  <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
+    <mj-text>{{ text }}</mj-text>
+  </mj-column>
+</mj-section>
+<!-- end-block:quote -->

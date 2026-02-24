@@ -217,7 +217,14 @@
     "moderator_note_not_found": "Moderatorennotiz nicht gefunden.",
     "dev_apis_disabled": "Entwicklungs-APIs sind auf diesem Server nicht aktiviert.",
     "moderator_note_need_to_acknowledge": "Du musst die Moderatorennotiz lesen und bestätigen.",
-    "signup_flow_motivations_filled": "Du hast uns bereits erzählt, warum du dich anmeldest."
+    "signup_flow_motivations_filled": "Du hast uns bereits erzählt, warum du dich anmeldest.",
+    "invalid_diagnostics_json": "Ungültiges JSON in den Eigenschaften des Diagnoseereignisses.",
+    "admin_tag_already_exists": "Dieses Admin-Tag existiert bereits.",
+    "admin_tag_cant_be_empty": "Der Admin-Tag darf nicht leer sein.",
+    "admin_tag_not_found": "Admin-Tag nicht gefunden.",
+    "too_many_diagnostic_infos": "Zu viele Diagnoseereignisse in einem Batch.",
+    "user_already_has_admin_tag": "Der Benutzer hat dieses Admin-Tag bereits.",
+    "user_does_not_have_admin_tag": "Der Benutzer hat dieses Admin-Tag nicht."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",
