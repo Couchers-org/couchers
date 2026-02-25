@@ -303,7 +303,7 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         if auth_info:
             loc_context = auth_info.loc_context
         else:
-            loc_context = LocalizationContext(locale=headers.ui_lang or DEFAULT_LOCALE, timezone=ZoneInfo("Utc/ETC"))
+            loc_context = LocalizationContext(locale=headers.ui_lang or DEFAULT_LOCALE, timezone=ZoneInfo("Etc/UTC"))
 
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
             couchers_context = make_interactive_context(
