@@ -1,7 +1,6 @@
 import functools
 import json
 import logging
-from zoneinfo import ZoneInfo
 
 import grpc
 from google.protobuf import empty_pb2

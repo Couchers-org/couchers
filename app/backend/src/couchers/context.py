@@ -195,10 +195,7 @@ def make_interactive_context(
     )
 
 
-def make_one_off_interactive_user_context(
-    couchers_context: CouchersContext,
-    user_id: int
-) -> CouchersContext:
+def make_one_off_interactive_user_context(couchers_context: CouchersContext, user_id: int) -> CouchersContext:
     return CouchersContext(
         is_interactive=True,
         grpc_context=couchers_context._grpc_context,

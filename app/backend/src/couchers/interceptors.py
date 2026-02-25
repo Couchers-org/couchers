@@ -132,8 +132,7 @@ def _try_get_and_update_user_details(
         session.commit()
 
         loc_context = LocalizationContext(
-            locale=user.ui_language_preference or DEFAULT_LOCALE,
-            timezone=ZoneInfo(user.timezone or "Etc/UTC")
+            locale=user.ui_language_preference or DEFAULT_LOCALE, timezone=ZoneInfo(user.timezone or "Etc/UTC")
         )
 
         return UserAuthInfo(
