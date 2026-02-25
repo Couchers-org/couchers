@@ -1,10 +1,4 @@
-import {
-  alpha,
-  Box,
-  styled,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { alpha, Box, styled, Typography, useMediaQuery } from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";

@@ -44,47 +44,48 @@ type LoggedInMenuDialogItem = {
 
 export type LoggedInMenuItem = LoggedInMenuLinkItem | LoggedInMenuDialogItem;
 
-const StyledMenu = styled(Menu)<{ $isNativeEmbed?: boolean }>(
-  ({ theme, $isNativeEmbed }) => {
-    // Native embed: full height (native tabs handle safe area)
-    // Mobile web: subtract bottom nav + safe area
-    const menuHeight = $isNativeEmbed
-      ? "100vh"
-      : "calc(100vh - 56px - env(safe-area-inset-bottom, 0px))";
+const StyledMenu = styled(Menu)<{ $isNativeEmbed?: boolean }>(({
+  theme,
+  $isNativeEmbed,
+}) => {
+  // Native embed: full height (native tabs handle safe area)
+  // Mobile web: subtract bottom nav + safe area
+  const menuHeight = $isNativeEmbed
+    ? "100vh"
+    : "calc(100vh - 56px - env(safe-area-inset-bottom, 0px))";
 
-    return {
-      "& .MuiPaper-root": {
-        boxShadow: theme.shadows[1],
-        minWidth: "12rem",
-        maxHeight: "calc(100vh - 156px)", // Leave space for header, margins, and menu padding
+  return {
+    "& .MuiPaper-root": {
+      boxShadow: theme.shadows[1],
+      minWidth: "12rem",
+      maxHeight: "calc(100vh - 156px)", // Leave space for header, margins, and menu padding
 
-        [theme.breakpoints.down("md")]: {
-          width: "100vw",
-          height: menuHeight,
-          maxWidth: "100vw",
-          maxHeight: menuHeight,
-          borderRadius: 0,
-          margin: 0,
-          padding: 0,
-          top: 0,
-          left: 0,
-          position: "fixed",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          zIndex: 1300,
-        },
+      [theme.breakpoints.down("md")]: {
+        width: "100vw",
+        height: menuHeight,
+        maxWidth: "100vw",
+        maxHeight: menuHeight,
+        borderRadius: 0,
+        margin: 0,
+        padding: 0,
+        top: 0,
+        left: 0,
+        position: "fixed",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        zIndex: 1300,
       },
+    },
 
-      "& .MuiPopover-paper": {
-        [theme.breakpoints.down("md")]: {
-          transform: "none !important",
-          inset: "0 !important",
-        },
+    "& .MuiPopover-paper": {
+      [theme.breakpoints.down("md")]: {
+        transform: "none !important",
+        inset: "0 !important",
       },
-    };
-  },
-);
+    },
+  };
+});
 
 const StyledMenuButton = styled(Button)(({ theme }) => ({
   display: "flex",

@@ -162,38 +162,39 @@ const AvatarTextWrapper = styled(Box)(({ theme }) => ({
   },
 }));
 
-const StickySaveBar = styled(Box)<{ $isNativeEmbed?: boolean }>(
-  ({ theme, $isNativeEmbed }) => {
-    // Mobile web has bottom nav (55px), native embed doesn't
-    const bottomNavHeight = $isNativeEmbed ? 0 : 55;
-    // Native tabs handle safe area, mobile web needs extra padding
-    const safePadding = $isNativeEmbed
-      ? theme.spacing(1)
-      : `calc(${theme.spacing(1)} + env(safe-area-inset-bottom, 0px))`;
+const StickySaveBar = styled(Box)<{ $isNativeEmbed?: boolean }>(({
+  theme,
+  $isNativeEmbed,
+}) => {
+  // Mobile web has bottom nav (55px), native embed doesn't
+  const bottomNavHeight = $isNativeEmbed ? 0 : 55;
+  // Native tabs handle safe area, mobile web needs extra padding
+  const safePadding = $isNativeEmbed
+    ? theme.spacing(1)
+    : `calc(${theme.spacing(1)} + env(safe-area-inset-bottom, 0px))`;
 
-    return {
-      position: "fixed",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      backgroundColor: "var(--mui-palette-background-paper)",
-      borderTop: `1px solid var(--mui-palette-grey-200)`,
-      boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
-      padding: theme.spacing(1.5, 3),
-      zIndex: 1200,
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      gap: theme.spacing(2),
+  return {
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "var(--mui-palette-background-paper)",
+    borderTop: `1px solid var(--mui-palette-grey-200)`,
+    boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
+    padding: theme.spacing(1.5, 3),
+    zIndex: 1200,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: theme.spacing(2),
 
-      [theme.breakpoints.down("md")]: {
-        bottom: bottomNavHeight,
-        padding: theme.spacing(1),
-        paddingBottom: safePadding,
-      },
-    };
-  },
-);
+    [theme.breakpoints.down("md")]: {
+      bottom: bottomNavHeight,
+      padding: theme.spacing(1),
+      paddingBottom: safePadding,
+    },
+  };
+});
 
 const SaveButton = styled(Button)(({ theme }) => ({
   minWidth: 200,
