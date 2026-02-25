@@ -255,8 +255,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         session.add(subscription)
         session.flush()
 
-        loc_context = LocalizationContext(locale=context.ui_language_preference or "en", timezone=ZoneInfo("Etc/UTC"))
-        push_content = render_adhoc_push_notification("push_enabled", loc_context)
+        push_content = render_adhoc_push_notification("push_enabled", context.localization)
         push_to_subscription(
             session,
             push_notification_subscription_id=subscription.id,

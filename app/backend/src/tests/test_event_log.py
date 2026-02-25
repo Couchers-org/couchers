@@ -61,7 +61,7 @@ def test_log_event_authenticated_context(db):
             user_id=user.id,
             is_api_key=False,
             token=token,
-            ui_language_preference=None,
+            loc_context=None,
             sofa="test-sofa-123",
         )
         log_event(context, session, "test.event", {"key": "value"})
@@ -86,7 +86,7 @@ def test_log_event_with_override_user_id(db):
             user_id=None,
             is_api_key=False,
             token=None,
-            ui_language_preference=None,
+            loc_context=None,
             sofa="sofa-456",
         )
         log_event(context, session, "account.signup_completed", {"gender": "Woman"}, _override_user_id=user.id)
@@ -107,7 +107,7 @@ def test_log_event_anonymous(db):
             user_id=None,
             is_api_key=False,
             token=None,
-            ui_language_preference=None,
+            loc_context=None,
         )
         log_event(context, session, "account.signup_initiated", {"has_invite_code": False})
 
@@ -138,7 +138,7 @@ def test_log_event_complex_properties(db):
             user_id=user.id,
             is_api_key=False,
             token=token,
-            ui_language_preference=None,
+            loc_context=None,
         )
         log_event(context, session, "test.complex", props)
 
@@ -158,7 +158,7 @@ def test_log_event_empty_properties(db):
             user_id=user.id,
             is_api_key=False,
             token=token,
-            ui_language_preference=None,
+            loc_context=None,
         )
         log_event(context, session, "account.logout", {})
 
@@ -178,7 +178,7 @@ def test_log_event_multiple_events(db):
             user_id=user.id,
             is_api_key=False,
             token=token,
-            ui_language_preference=None,
+            loc_context=None,
         )
         log_event(context, session, "test.first", {"n": 1})
         log_event(context, session, "test.second", {"n": 2})

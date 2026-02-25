@@ -174,7 +174,7 @@ class FakeChannel:
                     user_id=auth_info.user_id if auth_info else None,
                     is_api_key=False,
                     token=self._token if auth_info else None,
-                    ui_language_preference=auth_info.ui_language_preference if auth_info else None,
+                    localization=auth_info.loc_context if auth_info else None,
                 )
 
                 response = handler.unary_unary(request, context, session)

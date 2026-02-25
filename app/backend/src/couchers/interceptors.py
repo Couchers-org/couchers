@@ -8,6 +8,7 @@ from threading import get_ident
 from time import perf_counter_ns
 from traceback import format_exception
 from typing import Any, NoReturn, cast, overload
+from zoneinfo import ZoneInfo
 
 import grpc
 import sentry_sdk
@@ -30,6 +31,8 @@ from couchers.constants import (
 from couchers.context import CouchersContext, make_interactive_context, make_media_context
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
+from couchers.i18n import LocalizationContext
+from couchers.i18n.locales import DEFAULT_LOCALE
 from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserActivity, UserSession
 from couchers.proto import annotations_pb2
@@ -58,7 +61,7 @@ class UserAuthInfo:
     is_editor: bool
     is_superuser: bool
     token_expiry: datetime
-    ui_language_preference: str | None
+    loc_context: LocalizationContext
     token: str = field(repr=False)
     is_api_key: bool
 
@@ -128,13 +131,18 @@ def _try_get_and_update_user_details(
 
         session.commit()
 
+        loc_context = LocalizationContext(
+            locale=user.ui_language_preference or DEFAULT_LOCALE,
+            timezone=ZoneInfo(user.timezone or "Etc/UTC")
+        )
+
         return UserAuthInfo(
             user_id=user.id,
             is_jailed=user.is_jailed,
             is_editor=user.is_editor,
             is_superuser=user.is_superuser,
             token_expiry=user_session.expiry,
-            ui_language_preference=user.ui_language_preference,
+            loc_context=loc_context,
             token=token,
             is_api_key=is_api_key,
         )
@@ -292,13 +300,18 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         else:
             sofa, new_sofa_cookie = generate_sofa_cookie()
 
+        if auth_info:
+            loc_context = auth_info.loc_context
+        else:
+            loc_context = LocalizationContext(locale=headers.ui_lang or DEFAULT_LOCALE, timezone=ZoneInfo("Utc/ETC"))
+
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
             couchers_context = make_interactive_context(
                 grpc_context=grpc_context,
                 user_id=auth_info.user_id if auth_info else None,
                 is_api_key=auth_info.is_api_key if auth_info else False,
                 token=auth_info.token if auth_info else None,
-                ui_language_preference=(auth_info.ui_language_preference if auth_info else None) or headers.ui_lang,
+                localization=loc_context,
                 sofa=sofa,
             )
 
@@ -361,8 +374,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     couchers_context.set_cookies(
                         create_session_cookies(auth_info.token, auth_info.user_id, auth_info.token_expiry)
                     )
-                if auth_info.ui_language_preference and auth_info.ui_language_preference != headers.ui_lang:
-                    couchers_context.set_cookies(create_lang_cookie(auth_info.ui_language_preference))
+                if auth_info.loc_context.locale != headers.ui_lang:
+                    couchers_context.set_cookies(create_lang_cookie(auth_info.loc_context.locale))
 
             if new_sofa_cookie:
                 couchers_context.set_cookies([new_sofa_cookie])
