@@ -334,7 +334,8 @@
     "uploading": "Wird hochgeladen...",
     "no_photos": "Noch keine Fotos",
     "add_photo_error": "Foto konnte nicht hinzugefügt werden. Bitte versuche es erneut.",
-    "remove_photo_error": "Das Entfernen des Fotos ist fehlgeschlagen. Bitte versuche es erneut."
+    "remove_photo_error": "Das Entfernen des Fotos ist fehlgeschlagen. Bitte versuche es erneut.",
+    "photo": "Foto"
   },
   "click_to_add_photo": "Klicke, um ein Foto hinzuzufügen",
   "avatar_placeholder_info": "<bold>Klicke auf den Platzhalter-Avatar, um zum Foto-Upload-Bereich zu springen.</bold> Ein Foto von dir ist erforderlich, um mit der Community zu interagieren. Ein klares, freundliches Foto, das dein Gesicht zeigt, schafft Vertrauen und hilft anderen, sich wohl zu fühlen."

@@ -387,5 +387,10 @@
     "cta_message": "Möchtest du bei unserem Blog mitschreiben oder dich ehrenamtlich engagieren? <1>Melde dich an</1> und lass es uns wissen. Freiwillige und <3>Spenden</3> machen Couchers.org erst möglich!",
     "byline_with_author": "Geschrieben von <1/>. Veröffentlicht am {{date}}.",
     "byline_without_author": "Veröffentlicht am {{date}}."
+  },
+  "image_input": {
+    "select_button_a11y": "Wähle ein Bild aus",
+    "replace_image_tooltip": "Klicke um das Bild zu ändern",
+    "read_file_error_message": "Die Datei konnte nicht gelesen werden"
   }
 }
