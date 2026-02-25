@@ -1,4 +1,10 @@
-import { alpha, Box, styled, Typography } from "@mui/material";
+import {
+  alpha,
+  Box,
+  styled,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
@@ -43,6 +49,7 @@ export default function Login() {
   const error = authState.error;
 
   const router = useRouter();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const from = stringOrFirstString(router.query.from) ?? dashboardRoute;
   const redirectTo = from === "/" || from === "%2F" ? dashboardRoute : from;
 
@@ -93,15 +100,17 @@ export default function Login() {
             <AntibotNote />
           </Typography>
         </StyledFormWrapper>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: theme.spacing(2),
-          }}
-        >
-          <LanguagePickerSelect />
-        </Box>
+        {isMobile && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: theme.spacing(2),
+            }}
+          >
+            <LanguagePickerSelect />
+          </Box>
+        )}
       </StyledContent>
     </>
   );
