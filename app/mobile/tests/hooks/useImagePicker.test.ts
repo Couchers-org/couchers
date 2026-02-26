@@ -105,8 +105,7 @@ describe("useImagePicker", () => {
         expect(ImagePicker.requestCameraPermissionsAsync).toHaveBeenCalled();
         expect(ImagePicker.launchCameraAsync).toHaveBeenCalledWith({
           mediaTypes: ["images"],
-          allowsEditing: true,
-          aspect: [1, 1],
+          allowsEditing: false,
           quality: 0.8,
           base64: true,
         });
@@ -144,8 +143,7 @@ describe("useImagePicker", () => {
       await waitFor(() => {
         expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalledWith({
           mediaTypes: ["images"],
-          allowsEditing: true,
-          aspect: [1, 1],
+          allowsEditing: false,
           quality: 0.8,
           base64: true,
         });

@@ -3,7 +3,10 @@ import { useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { WebViewNavigation } from "react-native-webview";
 
-import { globalWebPathRef, lastMobileNavigationRef } from "@/state/webViewState";
+import {
+  globalWebPathRef,
+  lastMobileNavigationRef,
+} from "@/state/webViewState";
 
 interface UseWebNavigationOptions {
   webBaseUrl: string;
@@ -55,11 +58,31 @@ export function useWebNavigation({
 
       // Main tab routes - match exact paths only (with optional trailing slash or query params)
       // Don't match deeper nested paths like /messages/chats/123
-      if (pathWithoutLocale === "/dashboard" || pathWithoutLocale.startsWith("/dashboard?")) return "dashboard";
-      if (pathWithoutLocale === "/messages" || pathWithoutLocale.startsWith("/messages?")) return "messages";
-      if (pathWithoutLocale === "/search" || pathWithoutLocale.startsWith("/search?")) return "search";
-      if (pathWithoutLocale === "/communities" || pathWithoutLocale.startsWith("/communities?")) return "communities";
-      if (pathWithoutLocale === "/events" || pathWithoutLocale.startsWith("/events?")) return "events";
+      if (
+        pathWithoutLocale === "/dashboard" ||
+        pathWithoutLocale.startsWith("/dashboard?")
+      )
+        return "dashboard";
+      if (
+        pathWithoutLocale === "/messages" ||
+        pathWithoutLocale.startsWith("/messages?")
+      )
+        return "messages";
+      if (
+        pathWithoutLocale === "/search" ||
+        pathWithoutLocale.startsWith("/search?")
+      )
+        return "search";
+      if (
+        pathWithoutLocale === "/communities" ||
+        pathWithoutLocale.startsWith("/communities?")
+      )
+        return "communities";
+      if (
+        pathWithoutLocale === "/events" ||
+        pathWithoutLocale.startsWith("/events?")
+      )
+        return "events";
 
       // Special routes
       if (pathWithoutLocale.startsWith("/md/")) return "md/[...slug]";
