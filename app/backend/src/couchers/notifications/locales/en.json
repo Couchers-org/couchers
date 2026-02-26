@@ -64,6 +64,9 @@
       "complete": "Your account is deleted",
       "recovered": "Your account is recovered (undeleted)"
     },
+    "activeness": {
+      "probe": "You accept guests but haven't logged in a while",
+    },
     "api_key": {
       "create": "An API key is created for your account"
     },
