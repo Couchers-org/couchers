@@ -1,7 +1,8 @@
-- Fix issue where users were unexpectedly logged out
-- Fix "Message" button navigating to messages list instead of specific conversation
-- Hide "open in new tab" icon on search result cards (not applicable in mobile app)
-- Remove beta flag from app
-- Fix caching issues causing stale content (version numbers, language switching, message routing bugs)
-- Fix full-screen menu display in native app (remove bottom gap)
-- Fix save button positioning in profile editor (proper spacing for native tabs)
+- Fix unexpected logouts
+- Fix "Message" button opening wrong conversation when clicked via profile
+- Fix tab highlighting after clicking couchers logo in navigation
+- Fix image uploads being forced to square
+- Hide "open in new tab" icon on search results
+- Remove beta flag
+- Fix issues with stale content on page change
+- Fix save button spacing in profile editor
