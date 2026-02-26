@@ -3,7 +3,10 @@ import { useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { WebViewNavigation } from "react-native-webview";
 
-import { globalWebPathRef } from "@/state/webViewState";
+import {
+  globalWebPathRef,
+  lastMobileNavigationRef,
+} from "@/state/webViewState";
 
 interface UseWebNavigationOptions {
   webBaseUrl: string;
@@ -53,12 +56,33 @@ export function useWebNavigation({
       // Strip locale prefix if present
       const pathWithoutLocale = stripLocalePrefix(webPath);
 
-      // Main tab routes
-      if (pathWithoutLocale.startsWith("/dashboard")) return "dashboard";
-      if (pathWithoutLocale.startsWith("/messages")) return "messages";
-      if (pathWithoutLocale.startsWith("/search")) return "search";
-      if (pathWithoutLocale.startsWith("/communities")) return "communities";
-      if (pathWithoutLocale.startsWith("/events")) return "events";
+      // Main tab routes - match exact paths only (with optional trailing slash or query params)
+      // Don't match deeper nested paths like /messages/chats/123
+      if (
+        pathWithoutLocale === "/dashboard" ||
+        pathWithoutLocale.startsWith("/dashboard?")
+      )
+        return "dashboard";
+      if (
+        pathWithoutLocale === "/messages" ||
+        pathWithoutLocale.startsWith("/messages?")
+      )
+        return "messages";
+      if (
+        pathWithoutLocale === "/search" ||
+        pathWithoutLocale.startsWith("/search?")
+      )
+        return "search";
+      if (
+        pathWithoutLocale === "/communities" ||
+        pathWithoutLocale.startsWith("/communities?")
+      )
+        return "communities";
+      if (
+        pathWithoutLocale === "/events" ||
+        pathWithoutLocale.startsWith("/events?")
+      )
+        return "events";
 
       // Special routes
       if (pathWithoutLocale.startsWith("/md/")) return "md/[...slug]";
@@ -130,26 +154,23 @@ export function useWebNavigation({
         return;
       }
 
-      // Navigate native router when the route changes
+      // Update native router to keep tab highlights in sync
       if (targetRoute !== currentRoute && targetRoute) {
         if (targetRoute === "[...slug]" || targetRoute === "md/[...slug]") {
-          // For catch-all routes, navigate with full path
-          router.navigate(webPathWithoutQuery as Href);
+          // For catch-all routes, navigate to the appropriate screen
+          // Strip locale prefix for mobile router (mobile routes don't use locale prefixes)
+          const pathForMobileRouter = stripLocalePrefix(webPathWithoutQuery);
+          lastMobileNavigationRef.current = pathForMobileRouter;
+          router.push(pathForMobileRouter as Href);
         } else {
-          // For main tab routes, preserve query parameters
+          // For main tab routes, use push() to ensure tab highlighting updates correctly
           const queryString = webPath.includes("?")
             ? webPath.substring(webPath.indexOf("?"))
             : "";
-          router.navigate(`/${targetRoute}${queryString}` as Href);
+          const targetPath = `/${targetRoute}${queryString}`;
+          lastMobileNavigationRef.current = targetPath;
+          router.push(targetPath as Href);
         }
-      } else if (
-        targetRoute === "[...slug]" &&
-        currentRoute === "[...slug]" &&
-        stripLocalePrefix(webPathWithoutQuery) !==
-          stripLocalePrefix(currentPath)
-      ) {
-        // Both are catch-all routes but different paths (ignoring locale) - keep them in sync
-        router.navigate(webPathWithoutQuery as Href);
       }
     },
     [
