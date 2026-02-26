@@ -46,6 +46,7 @@ from couchers.utils import get_coordinates, last_active_coarsen, now
 if TYPE_CHECKING:
     from couchers.models import UserBadge
     from couchers.models.admin import UserAdminTag
+    from couchers.models.public_trips import PublicTrip
     from couchers.models.rest import InviteCode, ModerationUserList
     from couchers.models.uploads import PhotoGallery
 
@@ -354,6 +355,8 @@ class User(Base, kw_only=True):
         uselist=False,
         back_populates="user",
     )
+
+    public_trips: Mapped[list[PublicTrip]] = relationship(init=False, back_populates="user")
 
     __table_args__ = (
         # Verified phone numbers should be unique

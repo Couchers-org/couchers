@@ -1,6 +1,5 @@
 import {
   AppBar,
-  Badge,
   Box,
   Drawer,
   IconButton,
@@ -48,7 +47,6 @@ import {
 import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
-import BetaFlag from "../BetaFlag";
 import BottomNavigation from "./BottomNavigation";
 import DarkModeToggle from "./DarkModeToggle";
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
@@ -379,28 +377,9 @@ export default function Navigation() {
               </StyledDrawer>
             </>
           )}
-          <Badge
-            overlap="circular"
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            badgeContent={isNativeEmbed && <BetaFlag />}
-            sx={{
-              "& .MuiBadge-badge": {
-                padding: 0,
-                background: "transparent",
-                minWidth: "unset",
-                height: "auto",
-                top: 6,
-                right: -8,
-              },
-            }}
-          >
-            <Box sx={{ display: "inline-flex", alignItems: "center" }}>
-              <CouchersLogo isLoggedIn={authState.authenticated} />
-            </Box>
-          </Badge>
+          <Box sx={{ display: "inline-flex", alignItems: "center" }}>
+            <CouchersLogo isLoggedIn={authState.authenticated} />
+          </Box>
 
           {!isMobile && (
             <StyledFlexbox>

@@ -103,6 +103,16 @@ def test_fallback_locale():
     assert i18next.localize("greeting", "fr") == "hello"
 
 
+# An empty string in a translation should be considered as the lack of a string,
+# since this is how Weblate/i18next interpret it.
+def test_fallback_on_empty_string():
+    i18next = I18Next()
+    en = i18next.add_translation("en", PluralRules.en, json_dict={"greeting": "hello"})
+    fr = i18next.add_translation("fr", PluralRules.fr, json_dict={"greeting": ""})
+    fr.fallbacks.append(en)
+    assert i18next.localize("greeting", "fr") == "hello"
+
+
 def test_missing_locale():
     i18next = I18Next()
     with pytest.raises(LocalizationError) as raised:

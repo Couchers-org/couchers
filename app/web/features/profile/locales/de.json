@@ -283,8 +283,6 @@
     "title": "Couchers.org Abzeichen erforschen",
     "subtitle": "Erfahre mehr über Benutzerabzeichen, sieh wer sie hat und erfahre wie du sie bekommen kannst."
   },
-  "image_uploading_warning": "Dein Profilbild wird noch hochgeladen. Bist du sicher, dass du die Seite verlassen willst?",
-  "click_replace_image": "Klick hier zum ändern des Bildes",
   "reference_amounts": {
     "no_references": "Keine Referenzen",
     "count_references_one": "{{count}} Referenz",
@@ -309,9 +307,6 @@
   "what_options_mean": "Was diese Optionen bedeuten",
   "profile_changes_saved_message": "Profiländerungen gespeichert!",
   "hosting_preferences_success_message": "Host-einstellungen gespeichert!",
-  "couldnt_read_file": "Die Datei konnte nicht gelesen werden",
-  "select_an_image": "Bild auswählen",
-  "names_profile_photo": "Profilfoto von {{name}}",
   "edit": "Profil bearbeiten",
   "write_friend_reference": "Freund-Referenz schreiben",
   "have_pending_reference_text": "Du hast eine Referenz für dieses Mitglied zu verfassen ausstehend",
@@ -339,7 +334,8 @@
     "uploading": "Wird hochgeladen...",
     "no_photos": "Noch keine Fotos",
     "add_photo_error": "Foto konnte nicht hinzugefügt werden. Bitte versuche es erneut.",
-    "remove_photo_error": "Das Entfernen des Fotos ist fehlgeschlagen. Bitte versuche es erneut."
+    "remove_photo_error": "Das Entfernen des Fotos ist fehlgeschlagen. Bitte versuche es erneut.",
+    "photo": "Foto"
   },
   "click_to_add_photo": "Klicke, um ein Foto hinzuzufügen",
   "avatar_placeholder_info": "<bold>Klicke auf den Platzhalter-Avatar, um zum Foto-Upload-Bereich zu springen.</bold> Ein Foto von dir ist erforderlich, um mit der Community zu interagieren. Ein klares, freundliches Foto, das dein Gesicht zeigt, schafft Vertrauen und hilft anderen, sich wohl zu fühlen."

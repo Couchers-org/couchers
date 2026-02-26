@@ -33,6 +33,12 @@
       "title": "Profil rozeti kaldırıldı",
       "ios_title": "Profil Rozeti Kaldırıldı",
       "body": "{{badge_name}} rozeti profilinizden kaldırıldı."
+    },
+    "chat__missed_messages": {
+      "title_one": "{{count}} cevapsız mesaj",
+      "title_other": "{{count}} cevapsız mesaj",
+      "ios_title_one": "{{count}} Cevapsız Mesaj",
+      "ios_title_other": "{{count}} Cevapsız Mesaj"
     }
   }
 }
