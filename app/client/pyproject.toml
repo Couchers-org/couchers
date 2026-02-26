@@ -1,9 +1,33 @@
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
+[project]
+name = "couchers"
+dynamic = ["version"]
+description = "Couchers.org: The next-generation couch surfing platform. Free forever. Community-led. Non-profit. Modern."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [
+    { name = "Couchers, Inc. and Contributors", email = "support@couchers.org" },
 ]
-build-backend = "setuptools.build_meta"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "grpcio",
+    "protobuf",
+]
+
+[project.urls]
+Homepage = "https://couchers.org"
+GitHub = "https://github.com/Couchers-org/couchers"
+"Bug Tracker" = "https://github.com/Couchers-org/couchers/issues"
+
+[dependency-groups]
+dev = [
+    "build",
+    "ruff",
+    "twine",
+]
 
 [tool.ruff]
 line-length = 120
@@ -30,3 +54,19 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["couchers"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/couchers/version"
+pattern = "(?P<version>.+)"
+
+[tool.hatch.build.targets.sdist]
+ignore-vcs = true
+include = ["src/couchers"]
+
+[tool.hatch.build.targets.wheel]
+ignore-vcs = true
+packages = ["src/couchers"]

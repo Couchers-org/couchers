@@ -1,18 +1,18 @@
 {
-    "errors": {
-        "account_not_found": "未找到该用户名或邮箱的账户。",
-        "account_suspended": "您的账户已被暂停。",
-        "admin_blog_title_too_long": "博客文章标题太长了。",
-        "admin_cannot_edit_badge": "管理员无法编辑该徽章。",
-        "admin_note_cant_be_empty": "管理员备注不能为空。",
-        "already_admin": "该用户已经是管理员。",
-        "already_have_dm": "你已与该用户存在私信对话。",
-        "already_in_community": "你已加入该社区。",
-        "already_in_group": "你已加入该群组。",
-        "already_left_host_request_feedback": "您已经给这位沙发主留过反馈啦!",
-        "at_least_two_users_required": "请至少选择2位用户",
-        "badge_not_found": "未找到徽章。",
-        "admin_blog_blurb_too_long": "博客文章简介太长了。",
-        "already_in_chat": "该用户已在此聊天中。"
-    }
+  "errors": {
+    "account_not_found": "未找到该用户名或邮箱的账户。",
+    "account_suspended": "您的账户已被暂停。",
+    "admin_blog_title_too_long": "博客文章标题太长了。",
+    "admin_cannot_edit_badge": "管理员无法编辑该徽章。",
+    "admin_note_cant_be_empty": "管理员备注不能为空。",
+    "already_admin": "该用户已经是管理员。",
+    "already_have_dm": "你已与该用户存在私信对话。",
+    "already_in_community": "你已加入该社区。",
+    "already_in_group": "你已加入该群组。",
+    "already_left_host_request_feedback": "您已经给这位沙发主留过反馈啦!",
+    "at_least_two_users_required": "请至少选择2位用户",
+    "badge_not_found": "未找到徽章。",
+    "admin_blog_blurb_too_long": "博客文章简介太长了。",
+    "already_in_chat": "该用户已在此聊天中。"
+  }
 }

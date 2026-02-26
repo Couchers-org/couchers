@@ -1,5 +1,0 @@
-build
-grpcio
-protobuf
-ruff
-twine

@@ -250,8 +250,6 @@
   "response_rate_text_almost_all": "Presque toujours",
   "response_rate_text_most": "Habituellement",
   "response_time_label": "Temps de réponse",
-  "image_uploading_warning": "Votre image de profil est encore en cours de téléchargement. Êtes-vous sûr.e de vouloir quitter la page ?",
-  "click_replace_image": "Cliquez pour remplacer l’image",
   "regions_empty_state": "Aucune",
   "response_rate_label": "Taux de réponse",
   "reference_filter_label": {
@@ -310,13 +308,9 @@
   },
   "profile_changes_saved_message": "Changements au profil enregistrés !",
   "hosting_preferences_success_message": "Préférences d'hébergement enregistrés !",
-  "couldnt_read_file": "Impossible de lire le fichier",
-  "select_an_image": "Sélectionner une image",
-  "names_profile_photo": "Photo de profil de {{name}}",
   "have_pending_reference_text": "Vous avez une référence en attente à rédiger pour ce membre",
   "avatar_photo_info": "<bold>Une photo de vous est requise pour interagir avec la communauté.</bold> Une photo claire et amicale montrant votre visage inspire confiance, aide les autres à se sentir à l’aise et augmente considérablement vos chances de recevoir une réponse.",
   "gallery": {
-    "primary": "Principale",
     "add_photo": "Ajouter une photo",
     "remove_photo": "Supprimer la photo",
     "photo_count": "{{current}} de {{total}}",

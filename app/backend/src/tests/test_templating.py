@@ -53,7 +53,7 @@ def test_date_formatting() -> None:
 
 def _greeting_i18next(value: str) -> I18Next:
     i18next = I18Next()
-    language = i18next.add_language("en", PluralRules.en)
+    language = i18next.add_translation("en", PluralRules.en)
     language.add_string("greeting", value)
     return i18next
 
@@ -61,7 +61,7 @@ def _greeting_i18next(value: str) -> I18Next:
 def _i18next_from_dict(value: dict[str, dict[str, str]]) -> I18Next:
     i18next = I18Next()
     for lang_code, strings in value.items():
-        language = i18next.add_language(lang_code, PluralRules.en)
+        language = i18next.add_translation(lang_code, PluralRules.en)
         language.load_json_dict(strings)
     return i18next
 
@@ -76,8 +76,8 @@ def test_translate_no_substitutions() -> None:
 def test_translate_multiple_languages() -> None:
     template = Jinja2Template(source='{{ "greeting"|translate }}', html=False)
     i18next = I18Next()
-    i18next.add_language("en", PluralRules.en).add_string("greeting", "Hello!")
-    i18next.add_language("fr", PluralRules.en).add_string("greeting", "Bonjour!")
+    i18next.add_translation("en", PluralRules.en).add_string("greeting", "Hello!")
+    i18next.add_translation("fr", PluralRules.en).add_string("greeting", "Bonjour!")
     fr_loc_context = LocalizationContext(locale="fr", timezone=ZoneInfo("Etc/UTC"))
     rendered = template.render({}, fr_loc_context, i18next)
     assert rendered == "Bonjour!"

@@ -3,7 +3,8 @@
     "try_again": "Inténtalo de nuevo",
     "failed_to_load": "Error al cargar",
     "check_connection": "Comprueba tu conexión a internet y vuélvelo a intentar.",
-    "camera_permission_denied": "Se requiere el permiso de cámara para hacer fotos."
+    "camera_permission_denied": "Se requiere el permiso de cámara para hacer fotos.",
+    "camera_permission_required": "Permiso de Cámara Requerido"
   },
   "not_found": {
     "title": "¡Ups!",

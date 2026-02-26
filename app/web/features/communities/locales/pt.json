@@ -19,6 +19,7 @@
   "discover_events_title": "Descobre eventos do Couchers.org",
   "edit_info_page_success_message": "A página da comunidade foi atualizada com sucesso.",
   "attendees_count_one": "{{count}} participante",
+  "attendees_count_many": "",
   "attendees_count_other": "{{count}} participantes",
   "by_creator": "Por {{name}}",
   "comment": "Comentar",
