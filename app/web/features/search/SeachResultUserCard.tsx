@@ -12,6 +12,7 @@ import LinesEllipsis from "react-lines-ellipsis";
 import { routeToUser } from "routes";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
+import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
 import { hourMillis, timeAgoI18n } from "utils/timeAgo";
 
@@ -155,6 +156,7 @@ const SearchResultUserCard = ({
   user,
 }: SearchResultUserCardProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isNativeEmbed = useIsNativeEmbed();
   const { t } = useTranslation([GLOBAL, PROFILE]);
 
   const handleUserCardClick = () => {
@@ -189,23 +191,25 @@ const SearchResultUserCard = ({
                 </Typography>
               </StyledLink>
             </FlexRow>
-            <StyledLink
-              aria-label={t("profile:open_profile_new_tab")}
-              href={routeToUser(user.username)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Tooltip title={t("profile:open_profile_new_tab")}>
-                <StyledOpenInNewIcon
-                  sx={{
-                    "&:hover": {
-                      color: "var(--mui-palette-primary-dark)",
-                    },
-                  }}
-                />
-              </Tooltip>
-            </StyledLink>
+            {!isNativeEmbed && (
+              <StyledLink
+                aria-label={t("profile:open_profile_new_tab")}
+                href={routeToUser(user.username)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Tooltip title={t("profile:open_profile_new_tab")}>
+                  <StyledOpenInNewIcon
+                    sx={{
+                      "&:hover": {
+                        color: "var(--mui-palette-primary-dark)",
+                      },
+                    }}
+                  />
+                </Tooltip>
+              </StyledLink>
+            )}
           </FlexRow>
 
           <FlexRow justifyContent="space-between">

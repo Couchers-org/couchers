@@ -112,8 +112,14 @@ export default function TabLayout() {
         }}
       />
       {/* Catch-all and special routes that shouldn't show in tab bar */}
-      <Tabs.Screen name="md/[...slug]" options={{ href: null }} />
-      <Tabs.Screen name="[...slug]" options={{ href: null }} />
+      <Tabs.Screen
+        name="md/[...slug]"
+        options={{ href: null, animation: "none" }}
+      />
+      <Tabs.Screen
+        name="[...slug]"
+        options={{ href: null, animation: "none" }}
+      />
     </Tabs>
   );
 }

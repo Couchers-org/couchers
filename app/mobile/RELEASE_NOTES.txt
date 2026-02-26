@@ -1,3 +1,6 @@
+- Fix issue where users were unexpectedly logged out
+- Fix "Message" button navigating to messages list instead of specific conversation
+- Hide "open in new tab" icon on search result cards (not applicable in mobile app)
 - Remove beta flag from app
 - Fix caching issues causing stale content (version numbers, language switching, message routing bugs)
 - Fix full-screen menu display in native app (remove bottom gap)
