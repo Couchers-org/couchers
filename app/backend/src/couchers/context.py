@@ -181,7 +181,7 @@ def make_interactive_context(
     user_id: int | None,
     is_api_key: bool,
     token: str | None,
-    localization: LocalizationContext | None,
+    localization: LocalizationContext,
     sofa: str | None = None,
 ) -> CouchersContext:
     return CouchersContext(
@@ -190,7 +190,7 @@ def make_interactive_context(
         user_id=user_id,
         is_api_key=is_api_key,
         token=token,
-        localization=localization or LocalizationContext.en_utc(),
+        localization=localization,
         sofa=sofa,
     )
 
@@ -228,12 +228,12 @@ def make_background_user_context(user_id: int, localization: LocalizationContext
     )
 
 
-def make_logged_out_context(localization: LocalizationContext | None = None) -> CouchersContext:
+def make_logged_out_context(localization: LocalizationContext) -> CouchersContext:
     return CouchersContext(
         user_id=None,
         is_interactive=False,
         is_api_key=None,
         grpc_context=None,
         token=None,
-        localization=localization or LocalizationContext.en_utc(),
+        localization=localization,
     )

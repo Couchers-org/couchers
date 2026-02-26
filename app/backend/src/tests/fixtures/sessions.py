@@ -178,8 +178,9 @@ class FakeChannel:
                     is_api_key=False,
                     token=self._token if auth_info else None,
                     localization=LocalizationContext(
-                        locale=auth_info.ui_language_preference or DEFAULT_LOCALE,
-                        timezone=ZoneInfo(auth_info.timezone or "Etc/UTC"),
+                        locale=(auth_info and auth_info.ui_language_preference) or DEFAULT_LOCALE,
+                        timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
+                    ),
                 )
 
                 response = handler.unary_unary(request, context, session)

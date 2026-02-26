@@ -8,6 +8,7 @@ from couchers.context import make_interactive_context
 from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.event_log import log_event
+from couchers.i18n import LocalizationContext
 from couchers.models.logging import EventLog
 from couchers.proto import (
     api_pb2,
@@ -61,7 +62,7 @@ def test_log_event_authenticated_context(db):
             user_id=user.id,
             is_api_key=False,
             token=token,
-            localization=None,
+            localization=LocalizationContext.en_utc(),
             sofa="test-sofa-123",
         )
         log_event(context, session, "test.event", {"key": "value"})
@@ -86,7 +87,7 @@ def test_log_event_with_override_user_id(db):
             user_id=None,
             is_api_key=False,
             token=None,
-            localization=None,
+            localization=LocalizationContext.en_utc(),
             sofa="sofa-456",
         )
         log_event(context, session, "account.signup_completed", {"gender": "Woman"}, _override_user_id=user.id)
@@ -107,7 +108,7 @@ def test_log_event_anonymous(db):
             user_id=None,
             is_api_key=False,
             token=None,
-            localization=None,
+            localization=LocalizationContext.en_utc(),
         )
         log_event(context, session, "account.signup_initiated", {"has_invite_code": False})
 
@@ -138,7 +139,7 @@ def test_log_event_complex_properties(db):
             user_id=user.id,
             is_api_key=False,
             token=token,
-            localization=None,
+            localization=LocalizationContext.en_utc(),
         )
         log_event(context, session, "test.complex", props)
 
@@ -158,7 +159,7 @@ def test_log_event_empty_properties(db):
             user_id=user.id,
             is_api_key=False,
             token=token,
-            localization=None,
+            localization=LocalizationContext.en_utc(),
         )
         log_event(context, session, "account.logout", {})
 
@@ -178,7 +179,7 @@ def test_log_event_multiple_events(db):
             user_id=user.id,
             is_api_key=False,
             token=token,
-            localization=None,
+            localization=LocalizationContext.en_utc(),
         )
         log_event(context, session, "test.first", {"n": 1})
         log_event(context, session, "test.second", {"n": 2})

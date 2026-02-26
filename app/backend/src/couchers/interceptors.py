@@ -138,7 +138,7 @@ def _try_get_and_update_user_details(
             is_editor=user.is_editor,
             is_superuser=user.is_superuser,
             token_expiry=user_session.expiry,
-            locale=user.ui_language_preference,
+            ui_language_preference=user.ui_language_preference,
             timezone=user.timezone,
             token=token,
             is_api_key=is_api_key,
@@ -298,8 +298,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             sofa, new_sofa_cookie = generate_sofa_cookie()
 
         loc_context = LocalizationContext(
-            locale=auth_info.ui_language_preference or headers.ui_lang or DEFAULT_LOCALE,
-            timezone=ZoneInfo(auth_info.timezone or "Etc/UTC"))
+            locale=(auth_info and auth_info.ui_language_preference) or headers.ui_lang or DEFAULT_LOCALE,
+            timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
+        )
 
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
             couchers_context = make_interactive_context(

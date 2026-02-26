@@ -19,7 +19,6 @@ from couchers.constants import (
 from couchers.crypto import b64encode, random_hex, simple_encrypt
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
-from couchers.i18n import LocalizationContext
 from couchers.interceptors import (
     AbortError,
     BadHeaders,
@@ -811,7 +810,8 @@ def test_check_auth_open_service_with_auth():
         is_editor=False,
         is_superuser=False,
         token_expiry=now(),
-        loc_context=LocalizationContext.en_utc(),
+        ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -830,7 +830,8 @@ def test_check_auth_secure_service_with_normal_auth():
         is_editor=False,
         is_superuser=False,
         token_expiry=now(),
-        loc_context=LocalizationContext.en_utc(),
+        ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -844,7 +845,8 @@ def test_check_auth_secure_service_with_jailed_user():
         is_editor=False,
         is_superuser=False,
         token_expiry=now(),
-        loc_context=LocalizationContext.en_utc(),
+        ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -859,7 +861,8 @@ def test_check_auth_jailed_service_with_jailed_user():
         is_editor=False,
         is_superuser=False,
         token_expiry=now(),
-        loc_context=LocalizationContext.en_utc(),
+        ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -878,7 +881,8 @@ def test_check_auth_editor_service_without_editor():
         is_editor=False,
         is_superuser=False,
         token_expiry=now(),
-        loc_context=LocalizationContext.en_utc(),
+        ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -893,7 +897,8 @@ def test_check_auth_editor_service_with_editor():
         is_editor=True,
         is_superuser=False,
         token_expiry=now(),
-        loc_context=LocalizationContext.en_utc(),
+        ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -907,7 +912,8 @@ def test_check_auth_admin_service_without_superuser():
         is_editor=True,
         is_superuser=False,
         token_expiry=now(),
-        loc_context=LocalizationContext.en_utc(),
+        ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -922,7 +928,8 @@ def test_check_auth_admin_service_with_superuser():
         is_editor=True,
         is_superuser=True,
         token_expiry=now(),
-        loc_context=LocalizationContext.en_utc(),
+        ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
