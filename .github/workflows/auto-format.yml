@@ -38,7 +38,6 @@ jobs:
               - 'app/backend/src/couchers/migrations/versions/**'
             templates:
               - 'app/backend/templates/v2/**'
-              - '!app/backend/templates/v2/generated_html/**'
 
   format-backend:
     needs: detect-changes
