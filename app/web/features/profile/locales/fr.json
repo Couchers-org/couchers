@@ -308,8 +308,6 @@
   },
   "profile_changes_saved_message": "Changements au profil enregistrés !",
   "hosting_preferences_success_message": "Préférences d'hébergement enregistrés !",
-  "couldnt_read_file": "Impossible de lire le fichier",
-  "select_an_image": "Sélectionner une image",
   "have_pending_reference_text": "Vous avez une référence en attente à rédiger pour ce membre",
   "avatar_photo_info": "<bold>Une photo de vous est requise pour interagir avec la communauté.</bold> Une photo claire et amicale montrant votre visage inspire confiance, aide les autres à se sentir à l’aise et augmente considérablement vos chances de recevoir une réponse.",
   "gallery": {
