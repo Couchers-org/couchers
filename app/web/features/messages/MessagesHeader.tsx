@@ -11,6 +11,12 @@ const StyledRoot = styled("div")(({ theme }) => ({
   paddingRight: theme.spacing(2),
 }));
 
+const StyledHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(2),
+}));
+
 export default function MessagesHeader({
   tab,
 }: {
@@ -31,8 +37,10 @@ export default function MessagesHeader({
   return (
     <StyledRoot>
       <HtmlMeta title={t("messages_page.title")} />
-      <PageTitle>{t("messages_page.title")}</PageTitle>
-      {markAllReadType && <MarkAllReadButton type={markAllReadType} />}
+      <StyledHeader>
+        <PageTitle>{t("messages_page.title")}</PageTitle>
+        {markAllReadType && <MarkAllReadButton type={markAllReadType} />}
+      </StyledHeader>
     </StyledRoot>
   );
 }

@@ -3,6 +3,7 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import NotificationBadge from "components/NotificationBadge";
 import TextBody from "components/TextBody";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
@@ -31,9 +32,33 @@ const StyledList = styled(List)(() => ({
   width: "100%",
 }));
 
-const StyledCreateGroupChatListItem = styled(CreateGroupChat)(() => ({
+const StyledCreateGroupChatButton = styled(CreateGroupChat)(({ theme }) => ({
+  marginBottom: theme.spacing(1.5),
   marginInline: `-${theme.spacing(2)}`,
-  paddingInline: `${theme.spacing(2)}`,
+  "& .MuiListItemButton-root": {
+    padding: theme.spacing(0.75),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    borderRadius: theme.shape.borderRadius,
+    border: "1px dashed var(--mui-palette-grey-400)",
+    backgroundColor: "var(--mui-palette-background-paper)",
+    [theme.breakpoints.up("md")]: {
+      padding: theme.spacing(1),
+      paddingLeft: theme.spacing(2),
+      paddingRight: theme.spacing(2),
+    },
+    "&:hover": {
+      backgroundColor: "var(--mui-palette-grey-100)",
+      borderColor: "var(--mui-palette-grey-600)",
+    },
+  },
+  "& .MuiListItemAvatar-root": {
+    minWidth: 40,
+    marginLeft: 0,
+    [theme.breakpoints.up("md")]: {
+      minWidth: 56,
+    },
+  },
 }));
 
 const StyledGroupChatListItem = styled(GroupChatListItem)(() => ({
@@ -222,33 +247,49 @@ export default function AllMessagesTab() {
     await Promise.all(promises);
   };
 
+  // Calculate unread counts for each filter
+  const unseenChatsCount = notifications?.unseenMessageCount ?? 0;
+  const unseenHostingCount = notifications?.unseenReceivedHostRequestCount ?? 0;
+  const unseenSurfingCount = notifications?.unseenSentHostRequestCount ?? 0;
+  const unseenAllCount =
+    unseenChatsCount + unseenHostingCount + unseenSurfingCount;
+
   return (
     <StyledWrapper>
+      {!showArchived && filter === "all" && <StyledCreateGroupChatButton />}
       <StyledFilterContainer>
-        <Chip
-          label={t("all_messages_tab.filter.all")}
-          onClick={() => handleFilterChange("all")}
-          color={filter === "all" ? "primary" : "default"}
-          variant={filter === "all" ? "filled" : "outlined"}
-        />
-        <Chip
-          label={t("messages_page.tabs.chats")}
-          onClick={() => handleFilterChange("chats")}
-          color={filter === "chats" ? "primary" : "default"}
-          variant={filter === "chats" ? "filled" : "outlined"}
-        />
-        <Chip
-          label={t("messages_page.tabs.hosting")}
-          onClick={() => handleFilterChange("hosting")}
-          color={filter === "hosting" ? "primary" : "default"}
-          variant={filter === "hosting" ? "filled" : "outlined"}
-        />
-        <Chip
-          label={t("messages_page.tabs.surfing")}
-          onClick={() => handleFilterChange("surfing")}
-          color={filter === "surfing" ? "primary" : "default"}
-          variant={filter === "surfing" ? "filled" : "outlined"}
-        />
+        <NotificationBadge count={unseenAllCount}>
+          <Chip
+            label={t("all_messages_tab.filter.all")}
+            onClick={() => handleFilterChange("all")}
+            color={filter === "all" ? "primary" : "default"}
+            variant={filter === "all" ? "filled" : "outlined"}
+          />
+        </NotificationBadge>
+        <NotificationBadge count={unseenChatsCount}>
+          <Chip
+            label={t("messages_page.tabs.chats")}
+            onClick={() => handleFilterChange("chats")}
+            color={filter === "chats" ? "primary" : "default"}
+            variant={filter === "chats" ? "filled" : "outlined"}
+          />
+        </NotificationBadge>
+        <NotificationBadge count={unseenHostingCount}>
+          <Chip
+            label={t("messages_page.tabs.hosting")}
+            onClick={() => handleFilterChange("hosting")}
+            color={filter === "hosting" ? "primary" : "default"}
+            variant={filter === "hosting" ? "filled" : "outlined"}
+          />
+        </NotificationBadge>
+        <NotificationBadge count={unseenSurfingCount}>
+          <Chip
+            label={t("messages_page.tabs.surfing")}
+            onClick={() => handleFilterChange("surfing")}
+            color={filter === "surfing" ? "primary" : "default"}
+            variant={filter === "surfing" ? "filled" : "outlined"}
+          />
+        </NotificationBadge>
         <Chip
           label={t("archive.archived")}
           onClick={() =>
@@ -263,9 +304,6 @@ export default function AllMessagesTab() {
         <CenteredSpinner />
       ) : (
         <StyledList>
-          {!showArchived && filter === "all" && (
-            <StyledCreateGroupChatListItem />
-          )}
           {filteredMessages.length === 0 ? (
             <TextBody>
               {showArchived
