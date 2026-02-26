@@ -61,7 +61,8 @@ class UserAuthInfo:
     is_editor: bool
     is_superuser: bool
     token_expiry: datetime
-    loc_context: LocalizationContext
+    ui_language_preference: str | None
+    timezone: str | None
     token: str = field(repr=False)
     is_api_key: bool
 
@@ -131,17 +132,14 @@ def _try_get_and_update_user_details(
 
         session.commit()
 
-        loc_context = LocalizationContext(
-            locale=user.ui_language_preference or DEFAULT_LOCALE, timezone=ZoneInfo(user.timezone or "Etc/UTC")
-        )
-
         return UserAuthInfo(
             user_id=user.id,
             is_jailed=user.is_jailed,
             is_editor=user.is_editor,
             is_superuser=user.is_superuser,
             token_expiry=user_session.expiry,
-            loc_context=loc_context,
+            locale=user.ui_language_preference,
+            timezone=user.timezone,
             token=token,
             is_api_key=is_api_key,
         )
@@ -299,10 +297,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
         else:
             sofa, new_sofa_cookie = generate_sofa_cookie()
 
-        if auth_info:
-            loc_context = auth_info.loc_context
-        else:
-            loc_context = LocalizationContext(locale=headers.ui_lang or DEFAULT_LOCALE, timezone=ZoneInfo("Etc/UTC"))
+        loc_context = LocalizationContext(
+            locale=auth_info.ui_language_preference or headers.ui_lang or DEFAULT_LOCALE,
+            timezone=ZoneInfo(auth_info.timezone or "Etc/UTC"))
 
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
             couchers_context = make_interactive_context(
@@ -373,8 +370,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
                     couchers_context.set_cookies(
                         create_session_cookies(auth_info.token, auth_info.user_id, auth_info.token_expiry)
                     )
-                if auth_info.loc_context.locale != headers.ui_lang:
-                    couchers_context.set_cookies(create_lang_cookie(auth_info.loc_context.locale))
+                if auth_info.ui_language_preference and auth_info.ui_language_preference != headers.ui_lang:
+                    couchers_context.set_cookies(create_lang_cookie(auth_info.ui_language_preference))
 
             if new_sofa_cookie:
                 couchers_context.set_cookies([new_sofa_cookie])
