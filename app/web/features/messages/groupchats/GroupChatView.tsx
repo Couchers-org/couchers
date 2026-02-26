@@ -53,14 +53,14 @@ const StyledPageWrapper = styled("div")<{ isNativeEmbed: boolean }>(
     flexDirection: "column",
     overflow: "hidden", // Prevent page scroll - only messages should scroll
     // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
-    // On mobile web (not native app), subtract both top nav and bottom nav (56px)
+    // Use CSS custom property set by Navigation component for actual height
     height: isNativeEmbed
-      ? `calc(100dvh - ${theme.shape.navPaddingXs})`
-      : `calc(100dvh - ${theme.shape.navPaddingXs} - 56px)`,
+      ? "calc(100dvh - var(--nav-height, 3.5rem))"
+      : "calc(100dvh - var(--nav-height, 3.5rem) - 56px - env(safe-area-inset-bottom, 0px))",
 
     [theme.breakpoints.up("md")]: {
       // On desktop, only subtract top nav (no bottom nav)
-      height: `calc(100dvh - ${theme.shape.navPaddingSmUp})`,
+      height: "calc(100dvh - var(--nav-height, 4rem))",
     },
   }),
 );

@@ -96,6 +96,15 @@ window.scroll = jest.fn();
 window.URL.createObjectURL = jest.fn();
 window.matchMedia = createMatchMedia(window.innerWidth);
 
+// Mock ResizeObserver for Navigation height tracking and MUI components
+// Using class pattern as recommended by Jest for constructor-based APIs
+global.ResizeObserver = class ResizeObserver {
+  constructor(public callback: ResizeObserverCallback) {}
+  observe = jest.fn();
+  unobserve = jest.fn();
+  disconnect = jest.fn();
+};
+
 declare global {
   /* eslint-disable no-var */ // Disable the rule for this block
   var defaultUser: typeof user;

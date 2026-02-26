@@ -23,7 +23,7 @@ import { GLOBAL } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import React, { useMemo, useState } from "react";
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,
@@ -287,6 +287,34 @@ export default function Navigation() {
 
   const { t } = useTranslation(GLOBAL);
 
+  const navRef = useRef<HTMLDivElement>(null);
+
+  // Update CSS custom property with actual Navigation height
+  // useLayoutEffect runs synchronously before browser paint to prevent flickering
+  useLayoutEffect(() => {
+    const updateNavHeight = () => {
+      if (navRef.current) {
+        const height = navRef.current.offsetHeight;
+        document.documentElement.style.setProperty(
+          "--nav-height",
+          `${height}px`,
+        );
+      }
+    };
+
+    updateNavHeight();
+
+    // Use ResizeObserver to update when banners appear/disappear
+    const resizeObserver = new ResizeObserver(updateNavHeight);
+    if (navRef.current) {
+      resizeObserver.observe(navRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [authState.authenticated, isNativeEmbed]);
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -336,7 +364,7 @@ export default function Navigation() {
   );
 
   return (
-    <StyledAppBar position="sticky" color="inherit">
+    <StyledAppBar position="sticky" color="inherit" ref={navRef}>
       <StyledToolbar>
         <StyledNav sx={{ marginLeft: 2 }}>
           {isMobile && !authState.authenticated && (
