@@ -307,8 +307,6 @@
   "what_options_mean": "Что означают эти параметры",
   "profile_changes_saved_message": "Изменения профиля сохранены!",
   "hosting_preferences_success_message": "Настройки размещения сохранены!",
-  "couldnt_read_file": "Не удалось прочитать файл",
-  "select_an_image": "Выберите изображение",
   "write_friend_reference": "Написать Отзыв Другу",
   "have_pending_reference_text": "У вас есть ожидающий отзыв, который нужно написать для этого пользователя",
   "edit": "Редактировать Профиль",

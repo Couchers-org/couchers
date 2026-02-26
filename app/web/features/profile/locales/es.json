@@ -312,8 +312,6 @@
   },
   "profile_changes_saved_message": "¡Cambios en el perfil guardados!",
   "hosting_preferences_success_message": "¡Preferencias de alojamiento guardadas!",
-  "couldnt_read_file": "No se pudo leer el archivo",
-  "select_an_image": "Selecciona una imagen",
   "what_options_mean": "Qué significan estas opciones",
   "gallery": {
     "photo_item_a11y": "Foto",
