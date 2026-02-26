@@ -298,8 +298,8 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             sofa, new_sofa_cookie = generate_sofa_cookie()
 
         loc_context = LocalizationContext(
-            locale=auth_info.ui_language_preference if auth_info else (headers.ui_lang or DEFAULT_LOCALE),
-            timezone=ZoneInfo(auth_info.timezone if auth_info else "Etc/UTC"),
+            locale=(auth_info.ui_language_preference if auth_info else headers.ui_lang) or DEFAULT_LOCALE,
+            timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
         )
 
         def function_without_couchers_stuff(req: Message, grpc_context: grpc.ServicerContext) -> Message | None:
