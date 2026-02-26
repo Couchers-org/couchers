@@ -125,7 +125,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
     syncTargetPathRef.current = targetPath;
     // Use postMessage to trigger client-side Next.js navigation
-    // This avoids middleware redirects based on stale cookies
+    // This is faster (no page reload) and avoids server-side middleware redirects
     webviewRef.current?.injectJavaScript(`
       window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
       true;
@@ -289,8 +289,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         source={{ uri: WEB_BASE_URL + path }}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled
-        cacheEnabled
-        cacheMode="LOAD_CACHE_ELSE_NETWORK"
+        cacheEnabled={false}
         startInLoadingState
         javaScriptEnabled={true}
         domStorageEnabled={true}
