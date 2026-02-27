@@ -47,6 +47,30 @@ const StyledAutocomplete = styled(
   },
 }));
 
+const StyledAvatar = styled(Avatar)(({ theme }) => ({
+  width: 32,
+  height: 32,
+  [theme.breakpoints.up("md")]: {
+    width: 40,
+    height: 40,
+  },
+  "& .MuiSvgIcon-root": {
+    fontSize: "1rem",
+    [theme.breakpoints.up("md")]: {
+      fontSize: "1.25rem",
+    },
+  },
+}));
+
+const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
+  paddingTop: theme.spacing(0.75),
+  paddingBottom: theme.spacing(0.75),
+  [theme.breakpoints.up("md")]: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+  },
+}));
+
 interface CreateGroupChatFormData {
   title: string;
   users: User.AsObject[];
@@ -105,14 +129,17 @@ export default function CreateGroupChat({ className }: { className?: string }) {
 
   return (
     <>
-      <ListItemButton onClick={() => setIsOpen(true)} className={className}>
+      <StyledListItemButton
+        onClick={() => setIsOpen(true)}
+        className={className}
+      >
         <ListItemAvatar>
-          <Avatar>
+          <StyledAvatar>
             <AddIcon />
-          </Avatar>
+          </StyledAvatar>
         </ListItemAvatar>
         <ListItemText>{t("messages:create_chat.group_title")}</ListItemText>
-      </ListItemButton>
+      </StyledListItemButton>
       <Dialog
         aria-labelledby="create-dialog-title"
         open={isOpen}

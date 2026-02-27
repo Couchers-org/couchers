@@ -118,15 +118,17 @@ export const discussionKey = (discussionId: number) => [
 export const threadKey = (threadId: number) => ["thread", threadId];
 
 // messaging
-export const groupChatsListKey = "groupChatsList";
+export const groupChatsListKey = (filters?: { onlyArchived?: boolean }) =>
+  filters ? ["groupChatsList", filters] : ["groupChatsList"];
 export const groupChatKey = (groupChatId: number) => ["groupChat", groupChatId];
 export const groupChatMessagesKey = (groupChatId: number) => [
   "groupChatMessages",
   groupChatId,
 ];
 export const hostRequestsListKey = (filters?: {
-  onlyActive: boolean;
-  type: "all" | "hosting" | "surfing";
+  onlyActive?: boolean;
+  onlyArchived?: boolean;
+  type?: "all" | "hosting" | "surfing";
 }) => (filters ? ["hostRequests", filters] : ["hostRequests"]);
 export const hostRequestKey = (id?: number) => ["hostRequest", id];
 export const hostRequestMessagesKey = (id?: number) => [
