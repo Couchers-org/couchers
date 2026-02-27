@@ -21,6 +21,7 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
 import errorGraphic from "@/resources/404graphic.png";
+import { lastMobileNavigationRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
@@ -113,6 +114,13 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
     if (currentRoute === targetRoute) {
       // Same route, just different locale or already synced
+      return;
+    }
+
+    // Check if we just navigated here from mobile router
+    // If so, skip sync to avoid reload loop (WebView is already navigating there)
+    if (lastMobileNavigationRef.current === targetRoute) {
+      lastMobileNavigationRef.current = null; // Clear so next change is synced
       return;
     }
 
@@ -289,7 +297,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         source={{ uri: WEB_BASE_URL + path }}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled
-        cacheEnabled={false}
+        cacheEnabled={true}
+        cacheMode="LOAD_DEFAULT" // Revalidates on normal loads (prevents stale content), uses cache for back nav (maintains cookies)
         startInLoadingState
         javaScriptEnabled={true}
         domStorageEnabled={true}

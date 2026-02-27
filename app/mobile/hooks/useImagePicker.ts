@@ -72,16 +72,14 @@ export function useImagePicker(): UseImagePickerReturn {
 
           result = await launchCameraAsync({
             mediaTypes: ["images"],
-            allowsEditing: true,
-            aspect: [1, 1],
+            allowsEditing: false,
             quality: 0.8,
             base64: true,
           });
         } else {
           result = await launchImageLibraryAsync({
             mediaTypes: ["images"],
-            allowsEditing: true,
-            aspect: [1, 1],
+            allowsEditing: false,
             quality: 0.8,
             base64: true,
           });

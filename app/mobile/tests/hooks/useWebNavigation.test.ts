@@ -34,6 +34,7 @@ jest.mock("react-i18next", () => ({
 describe("useWebNavigation", () => {
   const mockRouter = {
     navigate: jest.fn(),
+    push: jest.fn(),
   };
 
   beforeEach(() => {
@@ -56,7 +57,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/messages`, false),
       );
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith("/messages");
+      expect(mockRouter.push).toHaveBeenCalledWith("/messages");
     });
 
     it("navigates to search tab when WebView navigates to /search", () => {
@@ -73,7 +74,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/search`, false),
       );
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
+      expect(mockRouter.push).toHaveBeenCalledWith("/search");
     });
 
     it("navigates to communities tab when WebView navigates to /communities", () => {
@@ -90,7 +91,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/communities`, false),
       );
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith("/communities");
+      expect(mockRouter.push).toHaveBeenCalledWith("/communities");
     });
 
     it("triggers native navigation for non-tab routes (catch-all)", () => {
@@ -107,7 +108,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/user/123`, false),
       );
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith("/user/123");
+      expect(mockRouter.push).toHaveBeenCalledWith("/user/123");
     });
 
     it("does not navigate when URL is still loading", () => {
@@ -124,10 +125,10 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/messages`, true),
       );
 
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
+      expect(mockRouter.push).not.toHaveBeenCalled();
     });
 
-    it("does not navigate when staying on the same tab", () => {
+    it("navigates to catch-all for detail pages (no tab highlighted)", () => {
       const syncTargetPathRef = { current: null };
       const { result } = renderHook(() =>
         useWebNavigation({
@@ -141,7 +142,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/messages/123`, false),
       );
 
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
+      expect(mockRouter.push).toHaveBeenCalledWith("/messages/123");
     });
 
     it("strips hash fragments from URL when navigating to main tabs", () => {
@@ -158,7 +159,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/search#10/40.7127/-74.006`, false),
       );
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
+      expect(mockRouter.push).toHaveBeenCalledWith("/search");
     });
 
     it("does not trigger navigation for query parameter changes on same route", () => {
@@ -175,13 +176,13 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/user/username?tab=about`, false),
       );
 
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
+      expect(mockRouter.push).not.toHaveBeenCalled();
 
       result.current.handleNavigationStateChange(
         createNavState(`${mockWebBaseUrl}/user/username?tab=home`, false),
       );
 
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
+      expect(mockRouter.push).not.toHaveBeenCalled();
     });
   });
 
@@ -190,8 +191,8 @@ describe("useWebNavigation", () => {
       { webPath: "/dashboard", expectedTab: "dashboard", expectedPath: null },
       {
         webPath: "/dashboard/settings",
-        expectedTab: "dashboard",
-        expectedPath: null,
+        expectedTab: null,
+        expectedPath: "/dashboard/settings",
       },
       {
         webPath: "/messages",
@@ -200,8 +201,8 @@ describe("useWebNavigation", () => {
       },
       {
         webPath: "/messages/123",
-        expectedTab: "messages",
-        expectedPath: "/messages",
+        expectedTab: null,
+        expectedPath: "/messages/123",
       },
       { webPath: "/search", expectedTab: "search", expectedPath: "/search" },
       {
@@ -216,8 +217,8 @@ describe("useWebNavigation", () => {
       },
       {
         webPath: "/communities/456",
-        expectedTab: "communities",
-        expectedPath: "/communities",
+        expectedTab: null,
+        expectedPath: "/communities/456",
       },
       { webPath: "/events", expectedTab: "events", expectedPath: "/events" },
       { webPath: "/user/789", expectedTab: null, expectedPath: "/user/789" },
@@ -234,7 +235,7 @@ describe("useWebNavigation", () => {
           }),
         );
 
-        mockRouter.navigate.mockClear();
+        mockRouter.push.mockClear();
 
         result.current.handleNavigationStateChange(
           createNavState(`${mockWebBaseUrl}${webPath}`, false),
@@ -242,13 +243,13 @@ describe("useWebNavigation", () => {
 
         if (expectedTab === "dashboard") {
           // Same tab - no navigation
-          expect(mockRouter.navigate).not.toHaveBeenCalled();
+          expect(mockRouter.push).not.toHaveBeenCalled();
         } else if (expectedPath) {
           // Different route - navigate (main tabs or catch-all)
-          expect(mockRouter.navigate).toHaveBeenCalledWith(expectedPath);
+          expect(mockRouter.push).toHaveBeenCalledWith(expectedPath);
         } else {
           // Sub-route of same tab - no navigation
-          expect(mockRouter.navigate).not.toHaveBeenCalled();
+          expect(mockRouter.push).not.toHaveBeenCalled();
         }
       });
     });
@@ -269,7 +270,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/messages`, false),
       );
 
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
+      expect(mockRouter.push).not.toHaveBeenCalled();
     });
 
     it("clears sync target when sync navigation completes", () => {
@@ -287,7 +288,7 @@ describe("useWebNavigation", () => {
       );
 
       expect(syncTargetPathRef.current).toBeNull();
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
+      expect(mockRouter.push).not.toHaveBeenCalled();
     });
   });
 
