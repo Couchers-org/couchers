@@ -18,16 +18,24 @@ import {
   MuteGroupChatReq,
   RemoveGroupChatAdminReq,
   SendMessageReq,
+  SetGroupChatArchiveStatusReq,
 } from "proto/conversations_pb";
 
 import client from "./client";
 import { Duration, duration2pb } from "./utils/date";
 import isGrpcError from "./utils/isGrpcError";
 
-export async function listGroupChats(lastMessageId = 0, count = 10) {
+export async function listGroupChats(
+  lastMessageId = 0,
+  count = 10,
+  onlyArchived?: boolean,
+) {
   const req = new ListGroupChatsReq();
   req.setLastMessageId(lastMessageId);
   req.setNumber(count);
+  if (onlyArchived !== undefined) {
+    req.setOnlyArchived(onlyArchived);
+  }
 
   const response = await client.conversations.listGroupChats(req);
 
@@ -161,4 +169,14 @@ export async function muteChat(options: MuteChatOptions) {
   if (options.forever) req.setForever(true);
   if (options.forDuration) req.setForDuration(duration2pb(options.forDuration));
   return client.conversations.muteGroupChat(req);
+}
+
+export async function setGroupChatArchiveStatus(
+  groupChatId: number,
+  isArchived: boolean,
+) {
+  const req = new SetGroupChatArchiveStatusReq();
+  req.setGroupChatId(groupChatId);
+  req.setIsArchived(isArchived);
+  return client.conversations.setGroupChatArchiveStatus(req);
 }

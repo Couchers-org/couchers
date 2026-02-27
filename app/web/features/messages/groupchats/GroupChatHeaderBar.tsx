@@ -1,3 +1,9 @@
+import {
+  ArchiveOutlined,
+  NotificationsActive,
+  NotificationsOff,
+  UnarchiveOutlined,
+} from "@mui/icons-material";
 import { Skeleton, styled, useMediaQuery } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import CircularProgress from "components/CircularProgress";
@@ -19,11 +25,11 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { GroupChat } from "proto/conversations_pb";
 import { useRef, useState } from "react";
-import { groupChatsRoute, routeToUser } from "routes";
+import { groupChatsRoute, messagesRoute, routeToUser } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
-import { groupChatKey } from "../../queryKeys";
+import { groupChatKey, groupChatsListKey } from "../../queryKeys";
 
 const StyledTitleBox = styled("div")({
   flexGrow: 1,
@@ -82,6 +88,20 @@ export default function GroupChatHeaderBar({
         muteInfo: { muted: false },
       });
       queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
+    },
+  });
+
+  const archiveMutation = useMutation<void, RpcError>({
+    mutationFn: async () => {
+      await service.conversations.setGroupChatArchiveStatus(
+        chatId,
+        !groupChat?.isArchived,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [groupChatsListKey()] });
+      queryClient.invalidateQueries({ queryKey: groupChatKey(chatId) });
+      router.push(messagesRoute);
     },
   });
 
@@ -182,9 +202,36 @@ export default function GroupChatHeaderBar({
           {[
             groupChat ? (
               <MenuItem onClick={() => handleClick("mute")} key="mute">
-                {!groupChat.muteInfo?.muted
-                  ? t("messages:chat_view.mute.button_label")
-                  : t("messages:chat_view.mute.unmute_button_label")}
+                {!groupChat.muteInfo?.muted ? (
+                  <>
+                    <NotificationsOff fontSize="small" sx={{ mr: 1 }} />
+                    {t("messages:chat_view.mute.button_label")}
+                  </>
+                ) : (
+                  <>
+                    <NotificationsActive fontSize="small" sx={{ mr: 1 }} />
+                    {t("messages:chat_view.mute.unmute_button_label")}
+                  </>
+                )}
+              </MenuItem>
+            ) : null,
+            groupChat ? (
+              <MenuItem
+                onClick={() => archiveMutation.mutate()}
+                key="archive"
+                disabled={archiveMutation.isPending}
+              >
+                {groupChat.isArchived ? (
+                  <>
+                    <UnarchiveOutlined fontSize="small" sx={{ mr: 1 }} />
+                    {t("messages:archive.unarchive_button")}
+                  </>
+                ) : (
+                  <>
+                    <ArchiveOutlined fontSize="small" sx={{ mr: 1 }} />
+                    {t("messages:archive.archive_button")}
+                  </>
+                )}
               </MenuItem>
             ) : null,
             !groupChat?.isDm

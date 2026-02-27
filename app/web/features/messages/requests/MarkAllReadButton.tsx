@@ -1,4 +1,3 @@
-import { styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import { DoneAllIcon } from "components/Icons";
@@ -13,28 +12,20 @@ import { MESSAGES } from "i18n/namespaces";
 import { service } from "service";
 import getAllPages from "utils/getAllPages";
 
-const MarkAsReadButtonStyled = styled(Button)(({ theme }) => ({
-  border: `1px solid var(--mui-palette-grey-800)`,
-  borderRadius: theme.shape.borderRadius,
-  marginBottom: theme.spacing(1),
-  color: "var(--mui-palette-text-primary)",
-}));
-
-const MarkAsReadIconStyled = styled(DoneAllIcon)(({ theme }) => ({
-  marginInlineEnd: theme.spacing(1),
-  fontSize: theme.typography.body1.fontSize,
-}));
-
 export default function MarkAllReadButton({
   type,
 }: {
-  type: "chats" | "hosting" | "surfing";
+  type: "chats" | "hosting" | "surfing" | "all";
 }) {
   const { t } = useTranslation(MESSAGES);
   const queryClient = useQueryClient();
   const markAll = useMutation({
     mutationFn: async () => {
-      if (type === "chats") {
+      const shouldMarkChats = type === "chats" || type === "all";
+      const shouldMarkRequests =
+        type === "hosting" || type === "surfing" || type === "all";
+
+      if (shouldMarkChats) {
         const data = await getAllPages({
           serviceFunction: service.conversations.listGroupChats,
           listKey: "groupChatsList",
@@ -52,13 +43,17 @@ export default function MarkAllReadButton({
               : Promise.resolve(),
           ),
         );
-      } else {
+      }
+
+      if (shouldMarkRequests) {
+        const requestType: "all" | "hosting" | "surfing" =
+          type === "hosting" || type === "surfing" ? type : "all";
         const data = await getAllPages({
           serviceFunction: service.requests.listHostRequests,
           listKey: "hostRequestsList",
           params: (previousData) => ({
             lastRequestId: previousData?.lastRequestId,
-            type,
+            type: requestType,
           }),
           hasMore: (previousData) => !previousData.noMore,
         });
@@ -96,17 +91,28 @@ export default function MarkAllReadButton({
         <Snackbar severity="error">{markAll.error.message}</Snackbar>
       )}
 
-      <MarkAsReadButtonStyled
+      <Button
+        onClick={() => markAll.mutate()}
         loading={markAll.isPending}
         variant="text"
-        onClick={() => markAll.mutate()}
-        sx={{ color: "var(--mui-palette-text-primary)" }}
+        size="small"
+        startIcon={<DoneAllIcon sx={{ fontSize: "0.875rem" }} />}
+        sx={{
+          textTransform: "none",
+          color: "var(--mui-palette-text-secondary)",
+          fontSize: "0.875rem",
+          paddingX: 1,
+          paddingY: 0.5,
+          "&:hover": {
+            backgroundColor: "var(--mui-palette-action-hover)",
+            color: "var(--mui-palette-text-primary)",
+          },
+        }}
       >
-        <MarkAsReadIconStyled />
-        <Typography component="span">
-          {t(`mark_all_read_button_text_${type}`)}
-        </Typography>
-      </MarkAsReadButtonStyled>
+        {type === "all"
+          ? t("mark_all_read_button_text")
+          : t(`mark_all_read_button_text_${type}`)}
+      </Button>
     </>
   );
 }

@@ -23,7 +23,7 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
   return (
     <>
       <PageTitle>{t("error.fallback.title")}</PageTitle>
-      <Typography variant="body1">
+      <Typography variant="body1" sx={{ marginBottom: theme.spacing(2) }}>
         {isFatal ? t("error.fatal_message") : t("error.fallback.subtitle")}
       </Typography>
       {!isFatal && <StyledReportButton isResponsive={false} />}
@@ -34,13 +34,7 @@ export default function ErrorFallback({ isFatal }: { isFatal?: boolean }) {
             component={Link}
             href={baseRoute}
             sx={{
-              color: theme.palette.common.black,
-              borderColor: theme.palette.grey[300],
-
-              "&:hover": {
-                borderColor: theme.palette.grey[300],
-                backgroundColor: "#3135390A",
-              },
+              marginRight: theme.spacing(2),
             }}
           >
             {t("error.fallback.home_page_link_label")}

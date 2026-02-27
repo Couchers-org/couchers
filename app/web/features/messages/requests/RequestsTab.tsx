@@ -1,4 +1,4 @@
-import { List, styled } from "@mui/material";
+import { Chip, List, styled } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -12,6 +12,7 @@ import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { ListHostRequestsRes } from "proto/requests_pb";
 import * as React from "react";
+import { useState } from "react";
 import { routeToHostRequest } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -29,14 +30,20 @@ const StyledListItem = styled(HostRequestListItem)(() => ({
   paddingInline: `${theme.spacing(2)}`,
 }));
 
+const StyledToggleContainer = styled("div")(() => ({
+  display: "flex",
+  gap: theme.spacing(1),
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+}));
+
 export default function RequestsTab({
   type,
-  onlyActive = false,
 }: {
   type: "all" | "hosting" | "surfing";
-  onlyActive?: boolean;
 }) {
   const { t } = useTranslation(MESSAGES);
+  const [showArchived, setShowArchived] = useState(false);
   const {
     data,
     isLoading,
@@ -45,11 +52,14 @@ export default function RequestsTab({
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<ListHostRequestsRes.AsObject, RpcError>({
-    queryKey: hostRequestsListKey({ onlyActive, type }),
+    queryKey: hostRequestsListKey({
+      onlyArchived: showArchived,
+      type,
+    }),
     queryFn: ({ pageParam: lastRequestId }) =>
       service.requests.listHostRequests({
         lastRequestId: lastRequestId as number | undefined,
-        onlyActive,
+        onlyArchived: showArchived,
         type,
       }),
     getNextPageParam: (lastPage) =>
@@ -61,6 +71,14 @@ export default function RequestsTab({
 
   return (
     <StyledWrapper>
+      <StyledToggleContainer>
+        <Chip
+          label={t("archive.archived")}
+          onClick={() => setShowArchived(!showArchived)}
+          color={showArchived ? "primary" : "default"}
+          variant={showArchived ? "filled" : "outlined"}
+        />
+      </StyledToggleContainer>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
@@ -71,7 +89,9 @@ export default function RequestsTab({
               pageNumber === 0 &&
               hostRequestsRes.hostRequestsList.length === 0 ? (
                 <TextBody key="no-requests-text">
-                  {t("requests_tab.no_requests_message")}
+                  {showArchived
+                    ? t("archive.no_archived_requests")
+                    : t("requests_tab.no_requests_message")}
                 </TextBody>
               ) : (
                 <React.Fragment key={`host-requests-page-${pageNumber}`}>
@@ -80,7 +100,10 @@ export default function RequestsTab({
                       href={routeToHostRequest(hostRequest.hostRequestId)}
                       key={hostRequest.hostRequestId}
                     >
-                      <StyledListItem hostRequest={hostRequest} />
+                      <StyledListItem
+                        hostRequest={hostRequest}
+                        isArchived={showArchived}
+                      />
                     </Link>
                   ))}
                 </React.Fragment>

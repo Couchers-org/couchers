@@ -9,6 +9,7 @@ import {
   MarkLastSeenHostRequestReq,
   RespondHostRequestReq,
   SendHostRequestMessageReq,
+  SetHostRequestArchiveStatusReq,
 } from "proto/requests_pb";
 
 import client from "./client";
@@ -17,19 +18,26 @@ export async function listHostRequests({
   lastRequestId = 0,
   count = 10,
   type = "all",
-  onlyActive = false,
+  onlyActive,
+  onlyArchived,
 }: {
   lastRequestId?: number;
   count?: number;
   type?: "all" | "hosting" | "surfing";
   onlyActive?: boolean;
+  onlyArchived?: boolean;
 }) {
   const req = new ListHostRequestsReq();
-  req.setOnlyActive(onlyActive);
+  if (onlyActive !== undefined) {
+    req.setOnlyActive(onlyActive);
+  }
   req.setOnlyReceived(type === "hosting");
   req.setOnlySent(type === "surfing");
   req.setLastRequestId(lastRequestId);
   req.setNumber(count);
+  if (onlyArchived !== undefined) {
+    req.setOnlyArchived(onlyArchived);
+  }
 
   const response = await client.requests.listHostRequests(req);
 
@@ -110,4 +118,14 @@ export async function getResponseRate(userId: number) {
   const req = new GetResponseRateReq();
   req.setUserId(userId);
   return (await client.requests.getResponseRate(req)).toObject();
+}
+
+export async function setHostRequestArchiveStatus(
+  hostRequestId: number,
+  isArchived: boolean,
+) {
+  const req = new SetHostRequestArchiveStatusReq();
+  req.setHostRequestId(hostRequestId);
+  req.setIsArchived(isArchived);
+  return client.requests.setHostRequestArchiveStatus(req);
 }
