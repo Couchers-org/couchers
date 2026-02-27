@@ -6,10 +6,10 @@ import {
   useFunnelStep,
   useHoverDwell,
   useScrollDepth,
-} from "./journey-hooks";
+} from "./journeyHooks";
 
 const mockLogEvent = jest.fn();
-jest.mock("./event-collector", () => ({
+jest.mock("./eventCollector", () => ({
   logEvent: (...args: unknown[]) => mockLogEvent(...args),
 }));
 

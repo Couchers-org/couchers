@@ -2,9 +2,9 @@ import { act, renderHook } from "@testing-library/react";
 
 import { useDurationEvent, useImpressionRef, useLogEvent } from "./hooks";
 
-// Mock the event-collector module
+// Mock the eventCollector module
 const mockLogEvent = jest.fn();
-jest.mock("./event-collector", () => ({
+jest.mock("./eventCollector", () => ({
   logEvent: (...args: unknown[]) => mockLogEvent(...args),
 }));
 

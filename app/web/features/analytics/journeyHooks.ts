@@ -25,7 +25,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 
-import { logEvent } from "./event-collector";
+import { logEvent } from "./eventCollector";
 
 /**
  * Track user progress through a multi-step flow (signup, checkout, onboarding, etc.).

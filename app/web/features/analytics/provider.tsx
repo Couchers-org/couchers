@@ -21,7 +21,7 @@
  * </AnalyticsProvider>
  *
  * For custom event tracking beyond automatic page views, use the hooks from
- * journey-hooks.ts or call logEvent() directly from event-collector.ts.
+ * journeyHooks.ts or call logEvent() directly from eventCollector.ts.
  */
 
 import { useRouter } from "next/router";
@@ -31,7 +31,7 @@ import {
   destroyCollector,
   initializeCollector,
   logEvent,
-} from "./event-collector";
+} from "./eventCollector";
 
 /**
  * Extract UTM parameters from the URL for marketing attribution.

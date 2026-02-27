@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 
-import { logEvent } from "./event-collector";
+import { logEvent } from "./eventCollector";
 
 /**
  * Returns a stable `logEvent` function for use in components.

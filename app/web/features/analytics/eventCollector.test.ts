@@ -7,7 +7,7 @@ import {
   _resetCollectorState,
   destroyCollector,
   logEvent,
-} from "./event-collector";
+} from "./eventCollector";
 
 const mockReportDiagnostics = jest.fn();
 

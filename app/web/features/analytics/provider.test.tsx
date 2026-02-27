@@ -7,7 +7,7 @@ const mockLogEvent = jest.fn();
 const mockDestroyCollector = jest.fn();
 const mockInitializeCollector = jest.fn();
 
-jest.mock("./event-collector", () => ({
+jest.mock("./eventCollector", () => ({
   logEvent: (...args: unknown[]) => mockLogEvent(...args),
   destroyCollector: () => mockDestroyCollector(),
   initializeCollector: () => mockInitializeCollector(),
