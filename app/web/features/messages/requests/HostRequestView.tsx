@@ -35,6 +35,7 @@ import { messagesRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import { firstName } from "utils/names";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 import { requestStatusToTransKey } from "../constants";
 import ChatContent from "../groupchats/ChatContent";
@@ -69,16 +70,22 @@ const StyledPageTitle = styled(PageTitle)({
   },
 });
 
-const StyledPageWrapper = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
-  height: `calc(100dvh - ${theme.shape.navPaddingXs})`,
+const StyledPageWrapper = styled("div")<{ isNativeEmbed: boolean }>(
+  ({ theme, isNativeEmbed }) => ({
+    display: "flex",
+    flexDirection: "column",
+    // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
+    // Use CSS custom property set by Navigation component for actual height
+    height: isNativeEmbed
+      ? "calc(100dvh - var(--nav-height, 3.5rem))"
+      : "calc(100dvh - var(--nav-height, 3.5rem) - 56px - env(safe-area-inset-bottom, 0px))",
 
-  [theme.breakpoints.up("sm")]: {
-    height: `calc(100dvh - ${theme.shape.navPaddingSmUp})`,
-  },
-}));
+    [theme.breakpoints.up("md")]: {
+      // On desktop, only subtract top nav (no bottom nav)
+      height: "calc(100dvh - var(--nav-height, 4rem))",
+    },
+  }),
+);
 
 // Footer is fixed at bottom - never scrolls away
 const StyledFooter = styled("div")(({ theme }) => ({
@@ -91,6 +98,7 @@ const StyledFooter = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
+    paddingBottom: `calc(${theme.spacing(2)} + env(safe-area-inset-bottom, 0px))`,
   },
 }));
 
@@ -100,6 +108,7 @@ export default function HostRequestView({
   hostRequestId: number;
 }) {
   const { t } = useTranslation(MESSAGES);
+  const isNativeEmbed = useIsNativeEmbed();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -246,7 +255,7 @@ export default function HostRequestView({
   }
 
   return (
-    <StyledPageWrapper>
+    <StyledPageWrapper isNativeEmbed={isNativeEmbed}>
       <StyledHeader>
         <HeaderButton
           onClick={handleBack}
