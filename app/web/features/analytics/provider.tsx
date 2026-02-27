@@ -1,3 +1,29 @@
+/**
+ * Analytics Provider
+ *
+ * Wraps your app to automatically track key user behaviors without any additional setup.
+ * Just wrap your app once and you're done!
+ *
+ * WHAT IT TRACKS AUTOMATICALLY:
+ * - Session starts (when users first land on your site)
+ * - Page views (including time spent on each page)
+ * - Device info (screen size, browser, language)
+ * - Marketing attribution (UTM parameters from ads/campaigns)
+ * - Referral sources (where users came from)
+ *
+ * HOW TO USE:
+ * Wrap your app's root component with this provider. That's it!
+ *
+ * @example
+ * // In your _app.tsx or root layout
+ * <AnalyticsProvider>
+ *   <YourApp />
+ * </AnalyticsProvider>
+ *
+ * For custom event tracking beyond automatic page views, use the hooks from
+ * journey-hooks.ts or call logEvent() directly from event-collector.ts.
+ */
+
 import { useRouter } from "next/router";
 import { ReactNode, useEffect, useRef } from "react";
 
@@ -7,6 +33,10 @@ import {
   logEvent,
 } from "./event-collector";
 
+/**
+ * Extract UTM parameters from the URL for marketing attribution.
+ * These help track which campaigns, ads, or links brought users to your site.
+ */
 function getUtmParams(): Record<string, string> {
   const params = new URLSearchParams(window.location.search);
   const utm: Record<string, string> = {};
@@ -23,6 +53,10 @@ function getUtmParams(): Record<string, string> {
   return utm;
 }
 
+/**
+ * Get query parameters excluding UTM params (for cleaner page.viewed events).
+ * This keeps your analytics focused on actual page parameters, not marketing tags.
+ */
 function getFilteredSearch(queryString: string): string | null {
   const params = new URLSearchParams(queryString);
   const filtered = new URLSearchParams();
@@ -35,6 +69,17 @@ function getFilteredSearch(queryString: string): string | null {
   return result || null;
 }
 
+/**
+ * Provider component that enables automatic analytics tracking.
+ *
+ * Handles the complete analytics lifecycle:
+ * - Initializes event collection on mount
+ * - Tracks session start with device/attribution data
+ * - Tracks all page navigation automatically
+ * - Cleans up and flushes events on unmount
+ *
+ * @param children - Your app's components
+ */
 export default function AnalyticsProvider({
   children,
 }: {

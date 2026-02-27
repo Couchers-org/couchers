@@ -1,12 +1,49 @@
+/**
+ * Analytics Journey Hooks
+ *
+ * Specialized hooks for tracking detailed user interactions and behavior patterns.
+ * These help measure how users navigate through your app and interact with content.
+ *
+ * WHAT YOU CAN TRACK:
+ * - Funnel steps (signup flows, checkout, etc.) with time spent per step
+ * - Scroll depth to see how far users read content
+ * - Hover dwell time to measure interest in elements
+ * - Form interactions to understand where users struggle
+ *
+ * HOW TO USE:
+ * Import the hook you need and add it to your component. Each hook automatically
+ * logs events at the right time (e.g., on mount, unmount, scroll, etc.).
+ *
+ * @example
+ * // Track a signup step
+ * useFunnelStep("signup", "email-verification");
+ *
+ * // Track how far users scroll
+ * const scrollRef = useScrollDepth("article.scroll", { article_id: "123" });
+ * <div ref={scrollRef}>...</div>
+ */
+
 import { useCallback, useEffect, useRef } from "react";
 
 import { logEvent } from "./event-collector";
 
 /**
- * Logs `funnel.step_entered` on mount and `funnel.step_exited` with duration
- * (seconds) as value on unmount. Props stored in ref for stability.
+ * Track user progress through a multi-step flow (signup, checkout, onboarding, etc.).
  *
- * Usage: `useFunnelStep("signup", "basic")` in each form step component.
+ * Automatically logs when the user enters a step and when they leave, including
+ * how long they spent on that step. This helps identify where users drop off or
+ * get stuck in your flows.
+ *
+ * @param funnelName - Name of the overall flow (e.g., "signup", "checkout")
+ * @param stepName - Name of this specific step (e.g., "email", "payment")
+ * @param properties - Optional additional data to track with this step
+ *
+ * @example
+ * // In your step component
+ * useFunnelStep("checkout", "payment-info");
+ *
+ * // With extra properties
+ * useFunnelStep("signup", "profile-setup", { user_type: "host" });
  */
 export function useFunnelStep(
   funnelName: string,
@@ -42,10 +79,20 @@ export function useFunnelStep(
 }
 
 /**
- * Returns a ref to attach to a scrollable container. On unmount (or
- * visibilitychange hidden), logs the max scroll depth reached.
+ * Track how far users scroll through content (articles, long pages, etc.).
  *
- * Properties: `max_depth` (0-100 integer), value: depth (0.0-1.0).
+ * Returns a ref to attach to your scrollable element. Automatically tracks the
+ * maximum scroll depth reached and logs it when the user leaves the page or
+ * closes the tab. This helps you understand if users are reading your content
+ * or dropping off early.
+ *
+ * @param eventType - Name for the event (e.g., "article.scrolled")
+ * @param properties - Additional data about the content being scrolled
+ * @returns A ref to attach to your scrollable element
+ *
+ * @example
+ * const scrollRef = useScrollDepth("article.read", { article_id: post.id });
+ * return <article ref={scrollRef}>...</article>;
  */
 export function useScrollDepth(
   eventType: string,
@@ -105,8 +152,19 @@ export function useScrollDepth(
 }
 
 /**
- * Returns `{ onMouseEnter, onMouseLeave }` event handlers.
- * Logs hover dwell time (seconds) as value on mouse leave.
+ * Track how long users hover over an element (useful for measuring interest).
+ *
+ * Returns event handlers to attach to your element. Logs the hover duration
+ * when the user moves their mouse away. This helps identify which elements
+ * catch users' attention.
+ *
+ * @param eventType - Name for the event (e.g., "cta.hovered")
+ * @param properties - Additional data about the element
+ * @returns Object with onMouseEnter and onMouseLeave handlers
+ *
+ * @example
+ * const hoverHandlers = useHoverDwell("feature.explored", { feature: "map" });
+ * return <div {...hoverHandlers}>...</div>;
  */
 export function useHoverDwell(
   eventType: string,
@@ -132,13 +190,28 @@ export function useHoverDwell(
 }
 
 /**
- * Returns `{ trackFieldFocus, trackFieldBlur, trackSubmit }` for tracking
- * form interactions.
+ * Track detailed form interactions to understand where users struggle.
  *
- * - First field focus logs `form.interaction_started`
- * - `trackFieldBlur` logs `form.field_blurred` with per-field duration
- * - `trackSubmit` logs `form.submitted` with total duration as value and
- *   a `field_durations` map in properties
+ * Returns functions to call on field focus, blur, and form submit. Automatically
+ * tracks which fields users spend time on, helping identify confusing or
+ * problematic form fields.
+ *
+ * @param formName - Name of the form (e.g., "signup", "profile-edit")
+ * @returns Object with trackFieldFocus, trackFieldBlur, and trackSubmit functions
+ *
+ * Events logged:
+ * - `form.interaction_started` - When user focuses first field
+ * - `form.field_blurred` - When user leaves each field (with time spent)
+ * - `form.submitted` - When form is submitted (with per-field duration breakdown)
+ *
+ * @example
+ * const { trackFieldFocus, trackFieldBlur, trackSubmit } = useFormInteraction("signup");
+ *
+ * <input
+ *   onFocus={() => trackFieldFocus("email")}
+ *   onBlur={() => trackFieldBlur("email")}
+ * />
+ * <button onClick={() => trackSubmit({ success: true })}>Submit</button>
  */
 export function useFormInteraction(formName: string) {
   const startTimeRef = useRef<number | null>(null);
