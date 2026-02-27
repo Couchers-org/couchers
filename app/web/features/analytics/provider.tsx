@@ -1,7 +1,11 @@
 import { useRouter } from "next/router";
 import { ReactNode, useEffect, useRef } from "react";
 
-import { destroyCollector, logEvent } from "./event-collector";
+import {
+  destroyCollector,
+  initializeCollector,
+  logEvent,
+} from "./event-collector";
 
 function getUtmParams(): Record<string, string> {
   const params = new URLSearchParams(window.location.search);
@@ -45,6 +49,9 @@ export default function AnalyticsProvider({
   useEffect(() => {
     if (initializedRef.current) return;
     initializedRef.current = true;
+
+    // Initialize event listeners
+    initializeCollector();
 
     logEvent("session.started", {
       ...getUtmParams(),

@@ -1,10 +1,13 @@
 /**
- * Tests for the EventCollector.
+ * Tests for the event collector.
  *
- * We import the class directly and create fresh instances per test
- * to avoid singleton state leaking between tests.
+ * We reset module state before each test to avoid state leaking between tests.
  */
-import { _EventCollector as EventCollector } from "./event-collector";
+import {
+  _resetCollectorState,
+  destroyCollector,
+  logEvent,
+} from "./event-collector";
 
 const mockReportDiagnostics = jest.fn();
 
@@ -12,26 +15,24 @@ jest.mock("service/diagnostics", () => ({
   reportDiagnostics: (...args: unknown[]) => mockReportDiagnostics(...args),
 }));
 
-let collector: InstanceType<typeof EventCollector>;
-
 beforeEach(() => {
   jest.useFakeTimers();
   mockReportDiagnostics.mockReset();
   mockReportDiagnostics.mockResolvedValue(undefined);
   global.fetch = jest.fn().mockResolvedValue({ ok: true });
-  collector = new EventCollector();
+  _resetCollectorState();
 });
 
 afterEach(() => {
-  collector.destroy();
+  destroyCollector();
   jest.useRealTimers();
 });
 
-describe("EventCollector", () => {
+describe("event-collector", () => {
   describe("initial flush delay", () => {
     it("batches initial events with a 150ms delay instead of flushing immediately", () => {
-      collector.logEvent("session.started", { landing_page: "/" });
-      collector.logEvent("page.viewed", { path: "/" });
+      logEvent("session.started", { landing_page: "/" });
+      logEvent("page.viewed", { path: "/" });
 
       expect(mockReportDiagnostics).not.toHaveBeenCalled();
 
@@ -45,13 +46,13 @@ describe("EventCollector", () => {
     });
 
     it("does not start a second timer if events arrive within the initial delay", () => {
-      collector.logEvent("session.started");
+      logEvent("session.started");
 
       jest.advanceTimersByTime(50);
-      collector.logEvent("page.viewed", { path: "/" });
+      logEvent("page.viewed", { path: "/" });
 
       jest.advanceTimersByTime(50);
-      collector.logEvent("some.other.event");
+      logEvent("some.other.event");
 
       expect(mockReportDiagnostics).not.toHaveBeenCalled();
 
@@ -64,11 +65,11 @@ describe("EventCollector", () => {
 
   describe("normal flush scheduling", () => {
     it("schedules subsequent events on a 3s interval after the first flush", () => {
-      collector.logEvent("session.started");
+      logEvent("session.started");
       jest.advanceTimersByTime(150);
       expect(mockReportDiagnostics).toHaveBeenCalledTimes(1);
 
-      collector.logEvent("button.clicked", { id: "cta" });
+      logEvent("button.clicked", { id: "cta" });
       expect(mockReportDiagnostics).toHaveBeenCalledTimes(1);
 
       jest.advanceTimersByTime(3000);
@@ -81,11 +82,7 @@ describe("EventCollector", () => {
 
   describe("event properties and value", () => {
     it("serialises properties as JSON and passes through the value", () => {
-      collector.logEvent(
-        "search.performed",
-        { query: "paris", filters: 3 },
-        42,
-      );
+      logEvent("search.performed", { query: "paris", filters: 3 }, 42);
       jest.advanceTimersByTime(150);
 
       const event = mockReportDiagnostics.mock.calls[0][0][0];
@@ -99,7 +96,7 @@ describe("EventCollector", () => {
     });
 
     it("uses default empty properties and value=1 when not provided", () => {
-      collector.logEvent("page.viewed");
+      logEvent("page.viewed");
       jest.advanceTimersByTime(150);
 
       const event = mockReportDiagnostics.mock.calls[0][0][0];
@@ -112,7 +109,7 @@ describe("EventCollector", () => {
     it("re-queues events and retries with exponential backoff on failure", async () => {
       mockReportDiagnostics.mockRejectedValueOnce(new Error("network error"));
 
-      collector.logEvent("session.started");
+      logEvent("session.started");
 
       // Initial flush at 150ms
       jest.advanceTimersByTime(150);
@@ -140,7 +137,7 @@ describe("EventCollector", () => {
         .mockRejectedValueOnce(new Error("fail"))
         .mockResolvedValueOnce(undefined);
 
-      collector.logEvent("event.one");
+      logEvent("event.one");
       jest.advanceTimersByTime(150);
       await Promise.resolve();
       await Promise.resolve();
@@ -152,7 +149,7 @@ describe("EventCollector", () => {
       expect(mockReportDiagnostics).toHaveBeenCalledTimes(2);
 
       // Now log a new event — should use normal 3s interval (no backoff)
-      collector.logEvent("event.two");
+      logEvent("event.two");
       jest.advanceTimersByTime(3000);
       expect(mockReportDiagnostics).toHaveBeenCalledTimes(3);
     });
@@ -160,7 +157,7 @@ describe("EventCollector", () => {
     it("caps backoff at 60 seconds", async () => {
       mockReportDiagnostics.mockRejectedValue(new Error("fail"));
 
-      collector.logEvent("event.one");
+      logEvent("event.one");
       jest.advanceTimersByTime(150);
 
       for (let i = 0; i < 10; i++) {
@@ -177,7 +174,7 @@ describe("EventCollector", () => {
 
   describe("beacon flush on unload (item 1)", () => {
     it("uses fetch with keepalive on visibilitychange hidden", () => {
-      collector.logEvent("page.viewed", { path: "/about" });
+      logEvent("page.viewed", { path: "/about" });
 
       Object.defineProperty(document, "visibilityState", {
         value: "hidden",
@@ -208,7 +205,7 @@ describe("EventCollector", () => {
     });
 
     it("uses fetch with keepalive on beforeunload", () => {
-      collector.logEvent("session.ended");
+      logEvent("session.ended");
 
       window.dispatchEvent(new Event("beforeunload"));
 
@@ -218,8 +215,8 @@ describe("EventCollector", () => {
     });
 
     it("uses beacon flush in destroy()", () => {
-      collector.logEvent("final.event");
-      collector.destroy();
+      logEvent("final.event");
+      destroyCollector();
 
       expect(global.fetch).toHaveBeenCalledTimes(1);
       const [, options] = (global.fetch as jest.Mock).mock.calls[0];
@@ -227,7 +224,7 @@ describe("EventCollector", () => {
     });
 
     it("does not beacon if queue is empty", () => {
-      collector.destroy();
+      destroyCollector();
       expect(global.fetch).not.toHaveBeenCalled();
     });
 
@@ -236,14 +233,14 @@ describe("EventCollector", () => {
         throw new Error("fetch unavailable");
       });
 
-      collector.logEvent("important.event");
+      logEvent("important.event");
 
       // Beacon via beforeunload — fetch throws, events re-queued
       window.dispatchEvent(new Event("beforeunload"));
 
       // Reset fetch so destroy's beacon works
       (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
-      collector.destroy();
+      destroyCollector();
 
       // The event should have been sent on destroy after the re-queue
       const lastCall = (global.fetch as jest.Mock).mock.calls.at(-1);
@@ -258,8 +255,8 @@ describe("EventCollector", () => {
 
   describe("destroy", () => {
     it("ignores events logged after destroy", () => {
-      collector.destroy();
-      collector.logEvent("should.be.ignored");
+      destroyCollector();
+      logEvent("should.be.ignored");
 
       jest.advanceTimersByTime(10_000);
       expect(mockReportDiagnostics).not.toHaveBeenCalled();
@@ -269,7 +266,7 @@ describe("EventCollector", () => {
       const removeSpy = jest.spyOn(document, "removeEventListener");
       const removeWindowSpy = jest.spyOn(window, "removeEventListener");
 
-      collector.destroy();
+      destroyCollector();
 
       expect(removeSpy).toHaveBeenCalledWith(
         "visibilitychange",

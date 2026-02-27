@@ -5,10 +5,12 @@ import AnalyticsProvider from "./provider";
 
 const mockLogEvent = jest.fn();
 const mockDestroyCollector = jest.fn();
+const mockInitializeCollector = jest.fn();
 
 jest.mock("./event-collector", () => ({
   logEvent: (...args: unknown[]) => mockLogEvent(...args),
   destroyCollector: () => mockDestroyCollector(),
+  initializeCollector: () => mockInitializeCollector(),
 }));
 
 let eventOnSpy: jest.SpyInstance;
@@ -17,6 +19,7 @@ let eventOffSpy: jest.SpyInstance;
 beforeEach(() => {
   mockLogEvent.mockReset();
   mockDestroyCollector.mockReset();
+  mockInitializeCollector.mockReset();
   eventOnSpy = jest.spyOn(mockRouter.events, "on");
   eventOffSpy = jest.spyOn(mockRouter.events, "off");
 
