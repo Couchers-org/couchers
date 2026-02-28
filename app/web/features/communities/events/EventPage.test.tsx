@@ -153,7 +153,7 @@ describe("Event page", () => {
 
     expect(
       await screen.findByText(
-        "Tuesday, June 29, 2021 9:00 PM to Wednesday, June 30, 2021 2:00 AM",
+        "Tuesday, June 29, 2021 at 9:00 PM to Wednesday, June 30, 2021 at 2:00 AM",
       ),
     ).toBeVisible();
   });

@@ -49,7 +49,9 @@ describe("Event card", () => {
       screen.getByText(thirdEvent.offlineInformation!.address),
     ).toBeVisible();
     expect(
-      screen.getByText("Tue, Jun 29, 2021 9:00 PM - Wed, Jun 30, 2021 2:00 AM"),
+      screen.getByText(
+        "Tue, Jun 29, 2021, 9:00 PM - Wed, Jun 30, 2021, 2:00 AM",
+      ),
     ).toBeVisible();
     expect(
       screen.getByText(
