@@ -47,11 +47,37 @@
         "friend_request": {
           "create": "Biri sana bir arkadaşlık isteği gönderdiğinde",
           "accept": "Birisi senin arkadaşlık isteğini kabul ettiğinde"
+        },
+        "phone_number": {
+          "change": "Telefon numaranız değiştirildi",
+          "verify": "Telefon numaranız doğrulandı"
+        },
+        "birthdate": {
+          "change": "Doğum tarihiniz değiştirildi"
+        },
+        "gender": {
+          "change": "Profilinizde gösterilen cinsiyet değiştirildi"
+        },
+        "discussion": {
+          "create": "Birisi içinde bulunduğun toplulukta bir tartışma başlattığında",
+          "comment": "Takip ettiğin bir tartışmada birisi yorum yapınca"
+        },
+        "thread": {
+          "reply": "Birisi yorumuna cevap verdiğinde"
         }
       },
       "expand_all": "Tümünü genişlet",
       "collapse_all": "Tümünü daralt",
       "error_loading": "Bildirim ayarlarını yüklemede hata oluştu"
+    },
+    "push_notifications": {
+      "title": "Anlık Bildirimler",
+      "description": "Cihazınızda Couchers.org için anlık bildirimleri etkinleştirebilirsiniz. Bu özelliği büyütmek için çalışıyoruz.",
+      "allow_push": "Anlık bildirimleri etkinleştirmek için tarayıcınızda açılan penceredeki 'İzin Ver' düğmesine tıklayın.",
+      "enabled_message": "Şu anda anlık bildirimleriniz <1>açık</1>.",
+      "disabled_message": "Şu anda anlık bildirimler <1>kapalı</1>.",
+      "error_generic": "Anlık bildirimlere abonelik sırasında hata oluştu",
+      "error_not_granted": "Anlık bildirimler gönderebilmemiz için izin vermediniz."
     }
   },
   "all": "Hepsi"

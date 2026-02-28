@@ -181,7 +181,8 @@
       "early_2000s_year": "2000'lerin başı",
       "2010s_year": "2010'lar",
       "2020_year": "2020",
-      "today_year": "Bugün"
+      "today_year": "Bugün",
+      "early_2000s_text": "Çevrimiçi kanepe sörfü hareketi doğdu: yerel halkla birlikte kalın, kültür paylaşın."
     },
     "actions": {
       "host": "Şehrini ziyaret eden bir gezgine ev sahipliği yap",
@@ -190,11 +191,17 @@
       "find_people": "Şehrinizde kafadar insanları bulun ve buluşun",
       "join_discussions": "Yerel topluluğundaki tartışmalara katıl veya yeni tartışmalar oluştur"
     },
-    "why_people_title": "İnsanlar neden koltuk sörfünü seviyor",
+    "why_people_title": "İnsanlar neden kanepe sörfünü seviyor",
     "why_people_points": {
       "travelers": "<bold>Yolcular için</bold>: Turistik yolların ötesine geçen daha derin, daha insancıl deneyimler",
       "hosts": "<bold>Ev sahipleri için</bold>: dünya genelinden insanlarla tanış ve onlarla şehrini paylaş"
-    }
+    },
+    "title": "Kanepe sörfü nedir?",
+    "description_1": "Kanepe sörfü bazı üyelerin(ev sahipleri) platformda paylaşım yaparak şehirlerini ziyaret eden diğer üyeleri(sörfçüler) konaklamaya açık olduklarını paylaşmalarını sağlayan bir konsepttir.",
+    "description_2": "Başka bir şehirde bir arkadaşın varmış ve onu ziyarete gidiyormuşsun gibi, ama oraya vardığında arkadaşınla ilk kez tanışıyorsun!",
+    "get_involved_title": "Couchers.org'da neler yapabilirim?",
+    "get_started": "Başlayın",
+    "timeline_title": "Kanepe sörfünün kısa bir tarihi"
   },
   "beta": "Beta",
   "relative_time": {
@@ -222,5 +229,11 @@
     "title": "Üye davet et",
     "create": "Davet oluştur",
     "disable": "Devre dışı bırak"
+  },
+  "strong_verification": {
+    "helper_text": "Bu kullanıcı kimliğini biyometrik pasaport kullanarak doğrulamıştır"
+  },
+  "footer": {
+    "non_profit_note": "Couchers.org, ABD'de 501(c)(3) statüsünde kar amacı gütmeyen, vergiden muaf bir kuruluş olan Couchers, Inc.'in bir projesidir."
   }
 }

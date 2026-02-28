@@ -45,5 +45,22 @@
   "join_community": "Topluluğa katıl",
   "load_earlier_replies": "Daha önceki yanıtları yükle",
   "load_more_moderators": "Daha fazla Topluluk Mimarı yükle",
-  "local_info_label": "Yerel bilgi"
+  "local_info_label": "Yerel bilgi",
+  "see_all_moderators": "Tüm Topluluk Mimarlarını gör",
+  "see_more_discussions_label": "Daha fazla tartışma göster",
+  "see_more_information": "Daha fazla bilgi gör",
+  "see_more_places_label": "Daha fazla yer gör",
+  "unknown_user": "Bilinmeyen kullanıcı",
+  "upload_image": "Resim yükle",
+  "details_subheading_colon": "Detaylar:",
+  "details_subheading": "Detaylar",
+  "write_comment_a11y_label": "Bir yorum yaz",
+  "attendees": "Katılımcılar",
+  "create_an_event": "Bir etkinlik oluştur",
+  "create_new_event": "Yeni bir etkinlik oluştur",
+  "create_event_page_title": "Etkinlik oluştur",
+  "create_event_disclaimer": "Bu butonu seçince etkinliğiniz Couchers.org topluluğunun tamamının görebileceği şekilde gösterilecek.",
+  "date_required": "Lütfen bir tarih girin.",
+  "time_required": "Lütfen bir zaman girin.",
+  "end_date": "Bitiş tarihi"
 }
