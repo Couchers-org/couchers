@@ -1,10 +1,9 @@
 // format a date
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
+import { TFunction } from "i18next";
 
 import daysjs, { Dayjs } from "./dayjs";
 import { dayMillis } from "./timeAgo";
-import { TFunction } from "i18next";
-import { ConstructionOutlined } from "@mui/icons-material";
 
 const monthFormatter = (locale: string) =>
   new Intl.DateTimeFormat(locale, {
@@ -42,7 +41,7 @@ function localizeDate(
     long?: boolean;
   } = {},
 ): string {
-  let intlOptions: Intl.DateTimeFormatOptions = {
+  const intlOptions: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: options.long ? "long" : "short",
     day: "numeric",
@@ -58,11 +57,7 @@ function localizeDate(
     }
   }
   if (daysjs.isDayjs(date)) {
-    const anyDate: any = date;
-    const timezone: string | undefined = anyDate?.$x?.timezone; // Daysjs stores its timezone here
-    if (timezone) {
-      intlOptions.timeZone = timezone;
-    }
+    intlOptions.timeZone = getDayjsTimezone(date);
     date = date.toDate();
   }
   const format = Intl.DateTimeFormat(locale, intlOptions);
@@ -77,7 +72,7 @@ function localizeTime(
     includeSeconds?: boolean;
   } = {},
 ): string {
-  let intlOptions: Intl.DateTimeFormatOptions = {
+  const intlOptions: Intl.DateTimeFormatOptions = {
     hour: "numeric",
     minute: "numeric",
   };
@@ -142,7 +137,7 @@ function timestamp2Date(timestamp: Timestamp.AsObject): Date {
 
 function getDayjsTimezone(date: Dayjs): string | undefined {
   // There is no API to get the value, but the state exists and impacts formatting.
-  return (date as any)?.$x?.timezone;
+  return (date as any)?.$x?.timezone; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 function isSameDate(date1: Dayjs, date2: Dayjs): boolean {
