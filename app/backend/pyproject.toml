@@ -103,6 +103,7 @@ extra-standard-library = ["zoneinfo"]
 
 # Pytest
 [tool.pytest.ini_options]
+pythonpath = ["src"]
 strict = true
 filterwarnings = [
     "error",  # Treat all warnings as errors by default
