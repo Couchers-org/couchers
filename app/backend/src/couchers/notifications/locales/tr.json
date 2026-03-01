@@ -39,6 +39,28 @@
       "title_other": "{{count}} cevapsız mesaj",
       "ios_title_one": "{{count}} Cevapsız Mesaj",
       "ios_title_other": "{{count}} Cevapsız Mesaj"
+    },
+    "event__reminder": {
+      "ios_title": "Yaklaşan Etkinlik",
+      "body": "Etkinlik {{date_and_time}} tarihinde başlayacak."
+    },
+    "event__cancel": {
+      "title": "{{title}} Etkinliği iptal edildi",
+      "ios_title": "Etkinlik İptal Edildi",
+      "body": "{{user}} etkinliği iptal etti."
+    },
+    "event__delete": {
+      "title": "Silinen etkinlik: {{title}}",
+      "ios_title": "Etkinlik Silindi",
+      "body": "Bir moderatör bu etkinliği sildi."
+    },
+    "friend_request__create": {
+      "title": "{{from_user}}'dan arkadaşlık isteği",
+      "ios_subtitle": "Arkadaşlık İsteği",
+      "body": "{{from_user}} arkadaşın olmak istiyor."
+    },
+    "friend_request__accept": {
+      "title": "{{friend}} arkadaşlık isteğini kabul etti"
     }
   }
 }
