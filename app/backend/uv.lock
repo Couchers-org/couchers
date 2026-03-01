@@ -1491,22 +1491,22 @@ wheels = [
 
 [[package]]
 name = "statsig-python-core"
-version = "0.13.0"
+version = "0.16.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5f/24/6c048bf4a51d1921ec13ddad9a9e790c6908b5ce1a8f4f972ddc04ef42e0/statsig_python_core-0.13.0.tar.gz", hash = "sha256:cc792b053b335fd38c5816dacd265037509c9da121299a20d8e145bdeb25ebc0", size = 1631337, upload-time = "2025-12-01T22:47:12.498Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cc/d6/791ac7588fe20baaf4647c06e37d670b01449462ec095b0575aabc76f0d6/statsig_python_core-0.16.2.tar.gz", hash = "sha256:cdaf974f958cad2d76002ea8a3ba83af9d9d8a4c88b0baa4ec1dd966b42fc3a4", size = 1793473, upload-time = "2026-02-24T00:43:34.485Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/42/90/9dd77de0fea691863802b99a95ae4d4982a3ee927bd34bbcb29bb59cdcef/statsig_python_core-0.13.0-cp37-abi3-macosx_10_12_x86_64.whl", hash = "sha256:0efdb44dd023853611eaf5ef6e82bb9098d0a759f872d9d955cbc52ba54b7baf", size = 3053896, upload-time = "2025-12-01T22:47:01.798Z" },
-    { url = "https://files.pythonhosted.org/packages/9f/ad/d572417a7f9e5b853cc3fea7e93ebcc09f17d83bc56460f31ff8de68f72c/statsig_python_core-0.13.0-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:16ea3f4e19137bb9e6832a9e712c220bb020c768f644da79ce1976df3ce5f64e", size = 2967897, upload-time = "2025-12-01T22:47:03.842Z" },
-    { url = "https://files.pythonhosted.org/packages/2d/a8/aea4f85781014dc71604100cd409e7e70f079c10253764429f0e39b7d5fe/statsig_python_core-0.13.0-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:35939fcc27f165bfc9d42cbeed6faee3f7d54f55d2c3bb964d6f34fdfb28bfd3", size = 3098416, upload-time = "2025-12-01T22:47:07.271Z" },
-    { url = "https://files.pythonhosted.org/packages/4e/b7/7cb6303aa2e576abd92fb0839e06d920cff89bd3888b00a348c4be5faac0/statsig_python_core-0.13.0-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4927d0846a525ef26141af970eb69e41fa990fc653fed9945add6913014e0303", size = 3216067, upload-time = "2025-12-01T22:47:05.367Z" },
-    { url = "https://files.pythonhosted.org/packages/fb/75/36c4f489e9a9c0403ad1ba06fd06136fb71ff7dc907e4308f49292d03876/statsig_python_core-0.13.0-cp37-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:f75f29388e7d728bc17a5f17b6f8dc53de2929fc4990f20dd8977aa1d72c09a1", size = 3163774, upload-time = "2025-12-01T22:47:11.043Z" },
-    { url = "https://files.pythonhosted.org/packages/cd/dd/88bff12e5793e64ef931c15c56bc0f391843ef19caaa15fd881688a0aafd/statsig_python_core-0.13.0-cp37-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:7c35825c3fc21c75c84dd5d0920adfb2ebaa7e73a12f2d14d6e27d9bcea22605", size = 3287509, upload-time = "2025-12-01T22:47:08.734Z" },
-    { url = "https://files.pythonhosted.org/packages/9d/5a/d1001886ff42005f5293eb710620ccd916b6c12ca25c3b5ee23774f270ce/statsig_python_core-0.13.0-cp37-abi3-win32.whl", hash = "sha256:ac0226acb7e451b56d034ad25cbc9f33fc72dd108e910f941d4394ac4a62dee4", size = 2825963, upload-time = "2025-12-01T22:46:59.999Z" },
-    { url = "https://files.pythonhosted.org/packages/4a/35/8abc829013bdc6e13f22e0202f4a32b013325d22fd06f6b06accd14f3846/statsig_python_core-0.13.0-cp37-abi3-win_amd64.whl", hash = "sha256:27368c165510c8d1b2e137d3cde2bf2a1cf22bb6cc0407807673eaad8b99d1ec", size = 3212866, upload-time = "2025-12-01T22:46:58.241Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/25/546be46d59c7143c1522e39bfddd83c1a8ac6801f94611edc6a0c3790130/statsig_python_core-0.16.2-cp37-abi3-macosx_10_12_x86_64.whl", hash = "sha256:bf4e5228b2d4c6a853cc0fc6c4b710b0983163be8a4f791b7a06ff7b63c93543", size = 3330871, upload-time = "2026-02-24T00:43:23.557Z" },
+    { url = "https://files.pythonhosted.org/packages/eb/1e/117e5af59408f5042ac7839d8106abc4c043f9079a3b9dde6b4eb960030c/statsig_python_core-0.16.2-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:cb7c69d3b232373257dd4efd2635b8f131162b53484e23e5918b047912b49b3d", size = 3244718, upload-time = "2026-02-24T00:43:25.38Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/0f/0d4762d6395aad42aa4d9ec1f1366323a78f4eea53a39c6968fb64819018/statsig_python_core-0.16.2-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ba3e66df183c52e0722915d48d5df521fd6eb1ca01d2fcef5dd7d55781028f1a", size = 3504194, upload-time = "2026-02-24T00:43:29.087Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/f7/8bd53dc1f90a55a1bcd6ba83338ae886dd101d40c94133be4742266336b6/statsig_python_core-0.16.2-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e8f6269629decf3629cd978ec4c93d25ac3844f40d2c536c91b86858a6295706", size = 3527400, upload-time = "2026-02-24T00:43:27.059Z" },
+    { url = "https://files.pythonhosted.org/packages/6f/02/8ffd53b2134fcdca3b680106acc0ef0ae6db428abd4c279a536bc94f5c7b/statsig_python_core-0.16.2-cp37-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:a175615be8d5af09d2ac7369bea7ccf09fa878433600ec7bac7df27e88a74d02", size = 3453086, upload-time = "2026-02-24T00:43:32.503Z" },
+    { url = "https://files.pythonhosted.org/packages/47/cb/4375764ee05d41c9774bb8343d78b73fcf33ea6c002adcc973881d4e9f73/statsig_python_core-0.16.2-cp37-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:1a2ea7387f8d39355f03b9207841bd48171ed22b03af43e12fdbc312dfa86e72", size = 3624646, upload-time = "2026-02-24T00:43:30.669Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/f5/a00c979df2f2967b5f185a600d381fc807339d3745707fc52a2bde31943a/statsig_python_core-0.16.2-cp37-abi3-win32.whl", hash = "sha256:23c56c1c7ee9e7e4296f01947a788707c2c3821712866feeffa739ff4068e320", size = 3104074, upload-time = "2026-02-24T00:43:21.617Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/52/5301b8feae0f1689fc39d988e03a24883632367057eedc04b20cfdd35b67/statsig_python_core-0.16.2-cp37-abi3-win_amd64.whl", hash = "sha256:eb2747f2a614c7c3020ef1e41d06bb794e4d6c5a9070fc21288aaf77b3d175a2", size = 3494038, upload-time = "2026-02-24T00:43:18.777Z" },
 ]
 
 [[package]]
