@@ -48,7 +48,7 @@
     "google-protobuf": "^4.0.0",
     "grpc-web": "^2.0.1",
     "i18next": "^25.0.2",
-    "react": "19.1.0",
+    "react": "19.2.4",
     "react-dom": "19.1.0",
     "react-i18next": "^15.7.3",
     "react-native": "0.81.5",
