@@ -86,7 +86,10 @@
     "no_friends_found_message": "Couldn't find any friends",
     "user_load_error_message": "(User load error)",
     "friends_input_label": "Friends",
-    "title_label": "Title"
+    "title_label": "Title",
+    "create_button": "Create chat",
+    "back_button": "Back",
+    "hosting_request_hint": "Sending a hosting request? Go <0>Back</0> and use the <1>Request</1> button instead."
   },
   "chat_input": {
     "label": "Message"
