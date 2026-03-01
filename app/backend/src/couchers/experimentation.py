@@ -167,7 +167,8 @@ def get_experiment(context: CouchersContext, experiment_name: str) -> dict[str, 
     _check_initialized()
     if not config["EXPERIMENTATION_ENABLED"]:
         return {}
-    experiment = Statsig.shared().get_experiment(_get_statsig_user(context), experiment_name)
+    # TODO: remove type: ignore when upstream fixes types, see https://github.com/statsig-io/statsig-server-core/issues/36
+    experiment = Statsig.shared().get_experiment(_get_statsig_user(context), experiment_name)  # type: ignore[attr-defined]
     return experiment.value if experiment else {}
 
 
@@ -189,7 +190,8 @@ def get_dynamic_config(context: CouchersContext, config_name: str) -> dict[str, 
     _check_initialized()
     if not config["EXPERIMENTATION_ENABLED"]:
         return {}
-    dynamic_config = Statsig.shared().get_dynamic_config(_get_statsig_user(context), config_name)
+    # TODO: remove type: ignore when upstream fixes types, see https://github.com/statsig-io/statsig-server-core/issues/36
+    dynamic_config = Statsig.shared().get_dynamic_config(_get_statsig_user(context), config_name)  # type: ignore[attr-defined]
     return dynamic_config.value if dynamic_config else {}
 
 
