@@ -251,10 +251,10 @@ export default function CreateGroupChat({ className }: { className?: string }) {
           </DialogActions>
           {createMessageToUsername && (
             <Typography variant="body2" sx={{ px: 3, pb: 2 }}>
-              <Trans i18nKey="messages:create_chat.hosting_request_hint">
-                Sending a hosting request? Go <strong>Back</strong> and use the{" "}
-                <strong>Request</strong> button instead.
-              </Trans>
+              <Trans
+                i18nKey="messages:create_chat.hosting_request_hint"
+                components={{ 0: <strong />, 1: <strong /> }}
+              />
             </Typography>
           )}
         </form>
