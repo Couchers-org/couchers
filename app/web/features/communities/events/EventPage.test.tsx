@@ -96,7 +96,9 @@ describe("Event page", () => {
       await screen.findByText(firstEvent.offlineInformation!.address),
     ).toBeVisible();
     expect(
-      await screen.findByText("Tuesday, June 29, 2021 2:37 AM to 3:37 AM"),
+      await screen.findByText("Tuesday, June 29, 2021, 2:37 – 3:37 AM", {
+        normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
+      }),
     ).toBeVisible();
     // Event image
 
@@ -153,7 +155,10 @@ describe("Event page", () => {
 
     expect(
       await screen.findByText(
-        "Tuesday, June 29, 2021 9:00 PM to Wednesday, June 30, 2021 2:00 AM",
+        "Tuesday, June 29, 2021 at 9:00 PM – Wednesday, June 30, 2021 at 2:00 AM",
+        {
+          normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
+        },
       ),
     ).toBeVisible();
   });

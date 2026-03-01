@@ -21,7 +21,6 @@ import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import EventAttendees from "features/communities/events/EventAttendees";
 import NotFoundPage from "features/NotFoundPage";
-import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
@@ -36,7 +35,7 @@ import {
 } from "routes";
 import { service } from "service";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
+import { localizeDateTimeRange, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
@@ -172,18 +171,6 @@ const StyledDiscussionContainer = styled("div")(() => ({
   marginBlockEnd: theme.spacing(5),
 }));
 
-function getEventTimeString(
-  startTime: Timestamp.AsObject,
-  endTime: Timestamp.AsObject,
-) {
-  const start = dayjs(timestamp2Date(startTime));
-  const end = dayjs(timestamp2Date(endTime));
-
-  return `${start.format("LLLL")} to ${end.format(
-    end.isSame(start, "day") ? "LT" : "LLLL",
-  )}`;
-}
-
 export default function EventPage({
   eventId,
   eventSlug,
@@ -191,7 +178,10 @@ export default function EventPage({
   eventId: number;
   eventSlug: string;
 }) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([COMMUNITIES]);
   const router = useRouter();
   const queryClient = useQueryClient();
   const currentUserId = useAuthContext().authState.userId;
@@ -419,7 +409,12 @@ export default function EventPage({
               <StyledEventTimeContainer>
                 <StyledCalendarIcon />
                 <Typography variant="body1">
-                  {getEventTimeString(event.startTime!, event.endTime!)}
+                  {localizeDateTimeRange(
+                    dayjs(timestamp2Date(event.startTime!)),
+                    dayjs(timestamp2Date(event.endTime!)),
+                    locale,
+                    { includeDayOfWeek: true, long: true },
+                  )}
                 </Typography>
               </StyledEventTimeContainer>
             </StyledHeader>
