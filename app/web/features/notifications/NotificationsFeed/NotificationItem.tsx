@@ -142,10 +142,11 @@ const NotificationItem = ({
       <FlexColumn>
         <LinesEllipsis
           text={notification.title}
-          maxLine={2}
-          ellipsis="..."
+          maxLine={1}
+          ellipsis="…"
           style={{
             fontSize: theme.typography.body2.fontSize,
+            fontWeight: 600,
             whiteSpace: "normal",
             wordBreak: "break-word",
           }}
@@ -157,6 +158,16 @@ const NotificationItem = ({
             locale,
           })}
         </Typography>
+        <LinesEllipsis
+          text={notification.body}
+          maxLine={2}
+          ellipsis="…"
+          style={{
+            fontSize: theme.typography.body2.fontSize,
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+          }}
+        />
       </FlexColumn>
       {!notification.isSeen && (
         <Circle
