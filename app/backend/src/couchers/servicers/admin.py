@@ -101,12 +101,8 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         .order_by(AdminAction.created.asc())
     ).all()
 
-    # Build backwards-compatible admin_note string
-    note_parts = []
     action_pbs = []
     for action, admin_username in actions:
-        if action.note:
-            note_parts.append(f"[{action.created.isoformat()}] {admin_username} [{action.action_type}] {action.note}")
         action_pbs.append(
             admin_pb2.AdminActionLog(
                 admin_action_id=action.id,
@@ -119,8 +115,6 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
                 tag=action.tag or "",
             )
         )
-
-    admin_note = "\n".join(note_parts)
 
     # Query admin tags
     admin_tags = (
@@ -147,7 +141,6 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         badges=[badge.badge_id for badge in user.badges],
         **get_strong_verification_fields(session, user),
         has_passport_sex_gender_exception=user.has_passport_sex_gender_exception,
-        admin_note=admin_note,
         pending_mod_notes_count=user.mod_notes.where(ModNote.is_pending).count(),
         acknowledged_mod_notes_count=user.mod_notes.where(~ModNote.is_pending).count(),
         admin_actions=action_pbs,
@@ -212,9 +205,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
             statement = statement.where(User.email.ilike(request.email))
         if request.name:
             statement = statement.where(User.name.ilike(request.name))
-        if request.admin_note:
+        if request.admin_action_log:
             statement = statement.where(
-                User.id.in_(select(AdminAction.target_user_id).where(AdminAction.note.ilike(request.admin_note)))
+                User.id.in_(select(AdminAction.target_user_id).where(AdminAction.note.ilike(request.admin_action_log)))
             )
         if request.city:
             statement = statement.where(User.city.ilike(request.city))
@@ -528,26 +521,32 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        # Cache for UserDetails to avoid recomputing for the same user
-        user_details_cache = {}
+        # Cache for ChatUserInfo to avoid recomputing for the same user
+        user_info_cache = {}
 
-        def get_user_details(user_id: int) -> admin_pb2.UserDetails:
-            if user_id not in user_details_cache:
+        def get_chat_user_info(user_id: int) -> admin_pb2.ChatUserInfo:
+            if user_id not in user_info_cache:
                 u = session.execute(select(User).where(User.id == user_id)).scalar_one()
-                user_details_cache[user_id] = _user_to_details(session, u)
-            return user_details_cache[user_id]
+                user_info_cache[user_id] = admin_pb2.ChatUserInfo(
+                    user_id=u.id,
+                    username=u.username,
+                    name=u.name,
+                    birthdate=date_to_api(u.birthdate),
+                    gender=u.gender,
+                )
+            return user_info_cache[user_id]
 
         def message_to_pb(message: Message) -> admin_pb2.ChatMessage:
             return admin_pb2.ChatMessage(
                 message_id=message.id,
-                author=get_user_details(message.author_id),
+                author=get_chat_user_info(message.author_id),
                 time=Timestamp_from_datetime(message.time),
                 message_type=message.message_type.name if message.message_type else "",
                 text=message.text or "",
                 host_request_status_target=(
                     message.host_request_status_target.name if message.host_request_status_target else ""
                 ),
-                target=get_user_details(message.target_id) if message.target_id else None,
+                target=get_chat_user_info(message.target_id) if message.target_id else None,
             )
 
         def get_messages_for_conversation(conversation_id: int) -> list[admin_pb2.ChatMessage]:
@@ -563,8 +562,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         def get_host_request_pb(host_request: HostRequest) -> admin_pb2.AdminHostRequest:
             return admin_pb2.AdminHostRequest(
                 host_request_id=host_request.conversation_id,
-                surfer=get_user_details(host_request.surfer_user_id),
-                host=get_user_details(host_request.host_user_id),
+                surfer=get_chat_user_info(host_request.surfer_user_id),
+                host=get_chat_user_info(host_request.host_user_id),
                 status=host_request.status.name if host_request.status else "",
                 from_date=date_to_api(host_request.from_date),
                 to_date=date_to_api(host_request.to_date),
@@ -584,7 +583,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
             members = [
                 admin_pb2.GroupChatMember(
-                    user=get_user_details(sub.user_id),
+                    user=get_chat_user_info(sub.user_id),
                     joined=Timestamp_from_datetime(sub.joined),
                     left=Timestamp_from_datetime(sub.left) if sub.left else None,
                     role=sub.role.name if sub.role else "",
@@ -595,7 +594,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                 group_chat_id=group_chat.conversation_id,
                 title=group_chat.title or "",
                 is_dm=group_chat.is_dm,
-                creator=get_user_details(group_chat.creator_id),
+                creator=get_chat_user_info(group_chat.creator_id),
                 members=members,
                 messages=get_messages_for_conversation(group_chat.conversation_id),
             )
@@ -626,7 +625,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         )
 
         return admin_pb2.GetChatsRes(
-            user=get_user_details(user.id),
+            user=get_chat_user_info(user.id),
             host_requests=[get_host_request_pb(hr) for hr in host_requests],
             group_chats=[get_group_chat_pb(gc) for gc in group_chats],
         )
