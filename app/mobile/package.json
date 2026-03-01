@@ -35,7 +35,7 @@
     "expo-build-properties": "^1.0.10",
     "expo-constants": "~18.0.11",
     "expo-dev-client": "~6.0.20",
-    "expo-device": "~8.0.10",
+    "expo-device": "~55.0.9",
     "expo-font": "~14.0.11",
     "expo-image-picker": "^17.0.10",
     "expo-linking": "~8.0.11",
