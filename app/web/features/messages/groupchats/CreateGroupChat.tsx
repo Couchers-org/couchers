@@ -250,10 +250,13 @@ export default function CreateGroupChat({ className }: { className?: string }) {
             )}
           </DialogActions>
           {createMessageToUsername && (
-            <Typography variant="body2" sx={{ px: 3, pb: 2 }}>
+            <Typography
+              variant="body2"
+              sx={{ px: 3, pb: 2, textAlign: "center" }}
+            >
               <Trans
                 i18nKey="messages:create_chat.hosting_request_hint"
-                components={{ 0: <strong />, 1: <strong /> }}
+                components={{ back: <strong />, request: <strong /> }}
               />
             </Typography>
           )}

@@ -89,7 +89,7 @@
     "title_label": "Title",
     "create_button": "Create chat",
     "back_button": "Back",
-    "hosting_request_hint": "Sending a hosting request? Go <0>Back</0> and use the <1>Request</1> button instead."
+    "hosting_request_hint": "Sending a hosting request? Go <back>Back</back> and use the <request>Request</request> button instead."
   },
   "chat_input": {
     "label": "Message"
