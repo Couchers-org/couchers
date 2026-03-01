@@ -392,11 +392,5 @@
     "zh-Hans": "Chinese (Simplified)",
     "zh-Hant": "Chinese (Traditional)",
     "hu": "Hungarian"
-  },
-  "datetime_formats": {
-    "datetime_range_sameday_short": "{{date}} {{startTime}} - {{endTime}}",
-    "datetime_range_multiday_short": "{{startDateTime}} - {{endDateTime}}",
-    "datetime_range_sameday_long": "{{date}} {{startTime}} to {{endTime}}",
-    "datetime_range_multiday_long": "{{startDateTime}} to {{endDateTime}}"
   }
 }

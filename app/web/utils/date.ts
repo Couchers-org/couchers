@@ -1,6 +1,5 @@
 // format a date
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
-import { TFunction } from "i18next";
 
 import daysjs, { Dayjs } from "./dayjs";
 import { dayMillis } from "./timeAgo";
@@ -41,20 +40,10 @@ function localizeDate(
     long?: boolean;
   } = {},
 ): string {
-  const intlOptions: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: options.long ? "long" : "short",
-    day: "numeric",
-  };
-  if (options.includeDayOfWeek) {
-    intlOptions.weekday = options.long ? "long" : "short";
-  }
+  const intlOptions: Intl.DateTimeFormatOptions = {};
+  fillDateOptions(intlOptions, options);
   if (options.includeTime) {
-    intlOptions.hour = "numeric";
-    intlOptions.minute = "numeric";
-    if (options.includeSeconds) {
-      intlOptions.second = "numeric";
-    }
+    fillTimeOptions(intlOptions, options);
   }
   if (daysjs.isDayjs(date)) {
     intlOptions.timeZone = getDayjsTimezone(date);
@@ -72,13 +61,8 @@ function localizeTime(
     includeSeconds?: boolean;
   } = {},
 ): string {
-  const intlOptions: Intl.DateTimeFormatOptions = {
-    hour: "numeric",
-    minute: "numeric",
-  };
-  if (options.includeSeconds) {
-    intlOptions.second = "numeric";
-  }
+  const intlOptions: Intl.DateTimeFormatOptions = {};
+  fillTimeOptions(intlOptions, options);
   if (daysjs.isDayjs(time)) {
     intlOptions.timeZone = getDayjsTimezone(time);
     time = time.toDate();
@@ -89,45 +73,57 @@ function localizeTime(
 
 /// Localizes a range of dates as a string.
 function localizeDateTimeRange(
-  start: Dayjs,
-  end: Dayjs,
+  start: Date | Dayjs,
+  end: Date | Dayjs,
   locale: string,
-  t: TFunction,
   options: {
     includeDayOfWeek?: boolean;
+    includeTime?: boolean;
     includeSeconds?: boolean;
     long?: boolean;
   } = {},
 ): string {
-  if (isSameDate(start, end)) {
-    const stringKey =
-      "global:datetime_formats.datetime_range_sameday_" +
-      (options.long ? "long" : "short");
-    return t(stringKey, {
-      date: localizeDate(start, locale, {
-        includeDayOfWeek: options.includeDayOfWeek,
-        includeTime: false,
-        long: options.long,
-      }),
-      startTime: localizeTime(start, locale),
-      endTime: localizeTime(end, locale),
-    });
-  } else {
-    const stringKey =
-      "global:datetime_formats.datetime_range_multiday_" +
-      (options.long ? "long" : "short");
-    return t(stringKey, {
-      startDateTime: localizeDate(start, locale, {
-        includeDayOfWeek: options.includeDayOfWeek,
-        includeTime: true,
-        long: options.long,
-      }),
-      endDateTime: localizeDate(end, locale, {
-        includeDayOfWeek: options.includeDayOfWeek,
-        includeTime: true,
-        long: options.long,
-      }),
-    });
+  const intlOptions: Intl.DateTimeFormatOptions = {};
+  fillDateOptions(intlOptions, options);
+  fillTimeOptions(intlOptions, options);
+  if (daysjs.isDayjs(start)) {
+    intlOptions.timeZone = getDayjsTimezone(start);
+    start = start.toDate();
+  }
+  if (daysjs.isDayjs(end)) {
+    end = end.toDate();
+  }
+  const format = Intl.DateTimeFormat(locale, intlOptions);
+  return format.formatRange(start, end);
+}
+
+/// Fills in an Intl.DateTimeFormatOptions date-related properties.
+function fillDateOptions(
+  options: Intl.DateTimeFormatOptions,
+  args: {
+    includeDayOfWeek?: boolean;
+    long?: boolean;
+  },
+) {
+  options.year = "numeric";
+  options.month = args.long ? "long" : "short";
+  options.day = "numeric";
+  if (args.includeDayOfWeek) {
+    options.weekday = args.long ? "long" : "short";
+  }
+}
+
+/// Fills in an Intl.DateTimeFormatOptions time-related properties.
+function fillTimeOptions(
+  options: Intl.DateTimeFormatOptions,
+  args: {
+    includeSeconds?: boolean;
+  },
+) {
+  options.hour = "numeric";
+  options.minute = "numeric";
+  if (args.includeSeconds) {
+    options.second = "numeric";
   }
 }
 

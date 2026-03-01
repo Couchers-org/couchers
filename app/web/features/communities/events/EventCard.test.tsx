@@ -20,7 +20,9 @@ describe("Event card", () => {
       screen.getByText(firstEvent.offlineInformation!.address),
     ).toBeVisible();
     expect(
-      screen.getByText("Tue, Jun 29, 2021 2:37 AM - 3:37 AM"),
+      screen.getByText("Tue, Jun 29, 2021, 2:37 – 3:37 AM", {
+        normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
+      }),
     ).toBeVisible();
     expect(
       screen.getByText(
@@ -50,7 +52,10 @@ describe("Event card", () => {
     ).toBeVisible();
     expect(
       screen.getByText(
-        "Tue, Jun 29, 2021, 9:00 PM - Wed, Jun 30, 2021, 2:00 AM",
+        "Tue, Jun 29, 2021, 9:00 PM – Wed, Jun 30, 2021, 2:00 AM",
+        {
+          normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
+        },
       ),
     ).toBeVisible();
     expect(
@@ -80,7 +85,9 @@ describe("Event card", () => {
       screen.getByText(t("communities:virtual_event_location_placeholder")),
     ).toBeVisible();
     expect(
-      screen.getByText("Tue, Jun 29, 2021 9:00 PM - 10:00 PM"),
+      screen.getByText("Tue, Jun 29, 2021, 9:00 – 10:00 PM", {
+        normalizer: (x) => x, // Match non-breaking spaces and en dashes exactly
+      }),
     ).toBeVisible();
     expect(
       screen.getByText(

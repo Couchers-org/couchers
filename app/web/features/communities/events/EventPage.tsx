@@ -413,7 +413,6 @@ export default function EventPage({
                     dayjs(timestamp2Date(event.startTime!)),
                     dayjs(timestamp2Date(event.endTime!)),
                     locale,
-                    t,
                     { includeDayOfWeek: true, long: true },
                   )}
                 </Typography>
