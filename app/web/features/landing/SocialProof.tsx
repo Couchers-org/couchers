@@ -10,7 +10,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useState } from "react";
 import { theme } from "theme";
-import { timeAgoI18n } from "utils/timeAgo";
+import { timeAgo } from "utils/timeAgo";
 
 interface SignupInfo {
   userCount: string;
@@ -19,7 +19,10 @@ interface SignupInfo {
 }
 
 const SocialProof = () => {
-  const { t } = useTranslation([GLOBAL, LANDING]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([GLOBAL, LANDING]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
@@ -161,9 +164,10 @@ const SocialProof = () => {
                 }}
               >
                 {t("landing:last_signup", {
-                  timeAgo: timeAgoI18n({
-                    input: signupInfo.lastSignup,
-                    t: t,
+                  timeAgo: timeAgo({
+                    since: new Date(signupInfo.lastSignup),
+                    t,
+                    locale,
                   }),
                 })}
               </Typography>

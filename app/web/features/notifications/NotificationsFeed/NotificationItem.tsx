@@ -17,7 +17,7 @@ import { useState } from "react";
 import LinesEllipsis from "react-lines-ellipsis";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
-import { timeAgoI18n } from "utils/timeAgo";
+import { timeAgo } from "utils/timeAgo";
 
 import { mapNotificationFeedTypeToIcon } from "../utils/constants";
 
@@ -74,7 +74,10 @@ const NotificationItem = ({
   onClose,
   onMarkIsSeen,
 }: NotificationItemProps) => {
-  const { t } = useTranslation([GLOBAL]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([GLOBAL]);
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -148,9 +151,10 @@ const NotificationItem = ({
           }}
         />
         <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
-          {timeAgoI18n({
-            input: timestamp2Date(notification.created!),
+          {timeAgo({
+            since: timestamp2Date(notification.created!),
             t,
+            locale,
           })}
         </Typography>
       </FlexColumn>

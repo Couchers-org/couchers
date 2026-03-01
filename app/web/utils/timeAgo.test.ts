@@ -7,7 +7,7 @@ import {
   minuteMillis,
   monthMillis,
   secondMillis,
-  timeAgoI18n,
+  timeAgo,
   TimeUnit,
   weekMillis,
 } from "./timeAgo";
@@ -42,38 +42,28 @@ test("FriendlyTimeSpan.fromMillis", () => {
 
 /// Mock translation function, returns "key,count"
 const mockT = ((key: string, options?: TOptions): string => {
-  key = key.replace("relative_time.", "");
   if (options && options.count) {
     return `${key},${options.count}`;
   }
   return key;
 }) as TFunction;
 
-test("timeAgoI18n function, less than a minute", () => {
-  const now = Date.now();
-  const before = new Date(now - 10.5 * secondMillis);
-  const timeString = timeAgoI18n({ input: before, t: mockT });
-  expect(timeString).toBe("less_than_a_minute_ago");
-});
-
-test("timeAgoI18n function, normal case", () => {
+test("timeAgo function, normal case", () => {
   const now = Date.now();
   const before = new Date(now - 8.5 * hourMillis);
-  const timeString = timeAgoI18n({ input: before, t: mockT });
-  expect(timeString).toBe("n_hours_ago,8");
+  const timeString = timeAgo({ since: before, t: mockT, locale: "es" });
+  expect(timeString).toBe("hace 8 horas");
 });
 
-test("timeAgoI18n function with fuzzy", () => {
+test("timeAgo function with minimum unit", () => {
   const now = Date.now();
   const date = new Date(now - 2 * minuteMillis);
-  const lessThanHour = "less_than_hour";
-  const timeString = timeAgoI18n({
-    input: date,
+  const lessThanHour = "global:relative_time.less_than_one_hour_ago";
+  const timeString = timeAgo({
+    since: date,
     t: mockT,
-    fuzzy: {
-      millis: hourMillis,
-      translationKey: lessThanHour,
-    },
+    locale: "en",
+    minimumUnit: TimeUnit.Hours,
   });
   expect(timeString).toBe(lessThanHour);
 });
