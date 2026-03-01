@@ -374,6 +374,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        # Ensure admin note is logged directly
+        log_admin_action(session, context, user, "ban", note=request.admin_note, level=AdminActionLevel.high)
+        user.is_banned = True
+        notifications = Notification()
+        notifications.DisableAllNotifications(
+        request=notifications_pb2.DisableAllNotificationsReq(),
+        context=CouchersContext(user_id=context.user_id),
+        session=session,
+    )
         if not request.admin_note.strip():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
         log_admin_action(session, context, user, "ban", note=request.admin_note, level=AdminActionLevel.high)

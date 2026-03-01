@@ -5,16 +5,15 @@ This bot processes new issues using an LLM to determine appropriate actions
 such as tagging, closing, translating, or requesting more information.
 """
 
+import json
 import os
 import sys
-import json
-from typing import List, Optional
 from enum import Enum
+from typing import List, Optional
 
-from pydantic import BaseModel, Field
 from a5.ai import LLM
-from github import Github, Auth
-
+from github import Auth, Github
+from pydantic import BaseModel, Field
 
 # ============================================================================
 # Configuration
@@ -225,16 +224,16 @@ Respond only in JSON with the following format:
             # Add debug information section
             comment_body += self._format_debug_section(decision)
 
-            print(f"\nPosting comment...")
+            print("\nPosting comment...")
             self.issue.create_comment(comment_body)
 
         # Close issue if needed
         if decision.action == IssueAction.CLOSE:
-            print(f"\nClosing issue...")
+            print("\nClosing issue...")
             self.issue.edit(state="closed")
 
         # Always add bot-processed label to indicate the bot has taken action
-        print(f"\nAdding bot-processed label...")
+        print("\nAdding bot-processed label...")
         self.issue.add_to_labels("bot-processed")
 
         print(f"\n✅ Successfully processed issue #{self.issue_number}")

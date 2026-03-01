@@ -7,15 +7,14 @@ summary in the appropriate format.
 """
 
 import os
-import sys
 import re
-from typing import Optional, List, Dict, Any
+import sys
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
 from a5.ai import LLM
-from github import Github, Auth
-
+from github import Auth, Github
+from pydantic import BaseModel, Field
 
 # ============================================================================
 # Configuration
@@ -476,7 +475,7 @@ This PR should be included in the release notes.
 """
                 comment_body += self._format_debug_section(decision)
 
-                print(f"\nPosting release note comment...")
+                print("\nPosting release note comment...")
                 self.pr.create_issue_comment(comment_body)
 
         else:  # EXCLUDE
@@ -493,7 +492,7 @@ This PR does not need to be included in release notes.
 """
             comment_body += self._format_debug_section(decision)
 
-            print(f"\nPosting exclusion comment...")
+            print("\nPosting exclusion comment...")
             self.pr.create_issue_comment(comment_body)
 
         print(f"\n✅ Successfully processed PR #{self.pr_number}")

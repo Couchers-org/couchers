@@ -16,8 +16,8 @@ from nacl.utils import random as random_bytes
 from PIL import Image
 from PIL.JpegImagePlugin import JpegImageFile
 
-from media.server import create_app
 from media.proto import media_pb2, media_pb2_grpc
+from media.server import create_app
 
 DATADIR = Path(__file__).parent / "data"
 
