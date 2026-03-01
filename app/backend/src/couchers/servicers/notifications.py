@@ -126,8 +126,10 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             notifications=[notification_to_pb(user, notification) for notification in notifications[:page_size]],
             next_page_token=str(notifications[-1].id) if len(notifications) > page_size else None,
         )
-    def DisableAllNotifications(self,request:
-        notifications_pb2.DisableAllNotificationsReq, context: CouchersContext, session: Session) -> empty_pb2.Empty:
+
+    def DisableAllNotifications(
+        self, request: notifications_pb2.DisableAllNotificationsReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
         # disables notifications by updating disabled_at=now(), which is used across as check to send notitication
         session.execute(
             update(PushNotificationSubscription)

@@ -2,13 +2,13 @@ import logging
 from datetime import timedelta
 
 import grpc
+from app.backend.src.proto import notifications_pb2
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
 
-from app.backend.src.proto import notifications_pb2
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.crypto import urlsafe_secure_token
@@ -379,10 +379,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user.is_banned = True
         notifications = Notification()
         notifications.DisableAllNotifications(
-        request=notifications_pb2.DisableAllNotificationsReq(),
-        context=CouchersContext(user_id=context.user_id),
-        session=session,
-    )
+            request=notifications_pb2.DisableAllNotificationsReq(),
+            context=CouchersContext(user_id=context.user_id),
+            session=session,
+        )
         if not request.admin_note.strip():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
         log_admin_action(session, context, user, "ban", note=request.admin_note, level=AdminActionLevel.high)

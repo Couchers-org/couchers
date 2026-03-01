@@ -44,6 +44,7 @@ def notify(
     logger.info(f"Generating notification of type {topic_action.display} for user {user_id}")
     # Import here to avoid circular dependency
     from couchers.notifications.background import handle_notification
+
     user = session.get("User", user_id)
     if user.is_banned:
         logger.info(f"Not sending notification to banned user {user_id}")
