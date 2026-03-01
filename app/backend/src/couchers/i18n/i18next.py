@@ -8,9 +8,8 @@ from dataclasses import dataclass, field
 from html import escape, unescape
 from typing import Any
 
+from babel import Locale
 from markupsafe import Markup
-
-from couchers.i18n.plurals import PluralRule
 
 PLURALIZABLE_VARIABLE_NAME = "count"
 """Special variable name for which i18next supports pluralization forms."""
@@ -31,10 +30,8 @@ class I18Next:
     default_translation: Translation | None = None
     """The translation used to look up strings in unsupported locales."""
 
-    def add_translation(
-        self, locale: str, plural_rule: PluralRule, *, json_dict: dict[str, Any] | None = None
-    ) -> Translation:
-        translation = Translation(locale, plural_rule)
+    def add_translation(self, locale: str, *, json_dict: dict[str, Any] | None = None) -> Translation:
+        translation = Translation(locale)
         self.translations_by_locale[locale] = translation
         if json_dict:
             translation.load_json_dict(json_dict)
@@ -77,8 +74,6 @@ class Translation:
 
     locale: str
     """The locale, e.g. 'en' or 'fr-CA'"""
-    plural_rule: PluralRule
-    """The rule for plurals in this language."""
     strings_by_key: dict[str, String] = field(default_factory=dict)
     fallbacks: list[Translation] = field(default_factory=list)
 
@@ -108,8 +103,8 @@ class Translation:
         if substitutions:
             if count := substitutions.get(PLURALIZABLE_VARIABLE_NAME):
                 if isinstance(count, int):
-                    plural_category = self.plural_rule(count)
-                    plural_key = key + "_" + plural_category.value
+                    plural_form = Locale(self.locale).plural_form(count)
+                    plural_key = key + "_" + plural_form
                     if string := self.strings_by_key.get(plural_key):
                         return string
         return self.strings_by_key.get(key)

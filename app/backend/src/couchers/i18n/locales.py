@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 
 from couchers.i18n.i18next import I18Next
-from couchers.i18n.plurals import PluralRules
 
 # The default locale if a language or string is unavailable.
 # Note: "en" is a valid locale even if it doesn't include a region.
@@ -41,8 +40,7 @@ def load_locales(directory: Path) -> I18Next:
         with open(locale_file, "r", encoding="utf-8") as f:
             translations = json.load(f)
 
-        plural_rule = PluralRules.for_language(locale) or PluralRules.en
-        translation = i18next.add_translation(locale, plural_rule)
+        translation = i18next.add_translation(locale)
         translation.load_json_dict(translations)
 
     # English is our default for undefined languages
