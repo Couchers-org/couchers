@@ -106,7 +106,8 @@ class Translation:
                     try:
                         plural_form = Locale(self.locale).plural_form(count)
                     except UnknownLocaleError:
-                        plural_form = Locale("en").plural_form(count)
+                        # Fallback to English-style plural rule.
+                        plural_form = "one" if 1 else "other"
                     plural_key = key + "_" + plural_form
                     if string := self.strings_by_key.get(plural_key):
                         return string
