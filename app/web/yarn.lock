@@ -2182,12 +2182,24 @@
   resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.31.2.tgz#556ff33b5194847d6bd5097e5f4a52cde9055887"
   integrity sha512-Tfa3JC0fJJL0Pd13Le9ZxqZp1QD8XKQ9pyPaBeyhpB6QWzr6qqGusGFaSmmCJXu9ViN672Lgg87/43mANg2LBw==
 
+"@statsig/client-core@3.32.0":
+  version "3.32.0"
+  resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.32.0.tgz#a75972ee9a09cdd5f94785b72bdbc91f568c1f66"
+  integrity sha512-/cVPhFt4uvbhK9pI0ju8Ko4ZiJqc5paG9DoYZCtdy79ChA5LJ2gEo6L8qAvOfXQ9huYSSrwaFpv/29oJfXlEiw==
+
 "@statsig/js-client@3.31.2":
   version "3.31.2"
   resolved "https://registry.yarnpkg.com/@statsig/js-client/-/js-client-3.31.2.tgz#1d7321aac86fe08de890422ad0236abf50253b99"
   integrity sha512-uEIt2Zg0NTgIhg4jaMQYtdttrTDgQRtlk4E8N6cNBcq2i/Igea1DzVYD7RyEV9oiq3InHDOfuuP+p+w5oO+qeA==
   dependencies:
     "@statsig/client-core" "3.31.2"
+
+"@statsig/js-client@3.32.0":
+  version "3.32.0"
+  resolved "https://registry.yarnpkg.com/@statsig/js-client/-/js-client-3.32.0.tgz#ea813043ad5627dcd57b65a221097f536c1b4b94"
+  integrity sha512-TNsVTThSKRaRTb1bI5ZxL6lL63TukB2pcYcl4arWUt+8vdzZMlTRgRDFOxe3+vNj1HLSeF1NINWEflGSg7CDzQ==
+  dependencies:
+    "@statsig/client-core" "3.32.0"
 
 "@statsig/react-bindings@^3.31.2":
   version "3.31.2"
@@ -2206,13 +2218,13 @@
     "@statsig/client-core" "3.30.2"
     rrweb "2.0.0-alpha.17"
 
-"@statsig/web-analytics@^3.31.2":
-  version "3.31.2"
-  resolved "https://registry.yarnpkg.com/@statsig/web-analytics/-/web-analytics-3.31.2.tgz#adf6c76c3155cf1058283e58192b1fedba565146"
-  integrity sha512-9Y1I9s+7IK6YYK4E7hfSH/82zk2na3TDAKB3E6P6o9Z/E96vCRbfMETKyJKofPweEg35Asec/qcT9rpbDuuurw==
+"@statsig/web-analytics@^3.32.0":
+  version "3.32.0"
+  resolved "https://registry.yarnpkg.com/@statsig/web-analytics/-/web-analytics-3.32.0.tgz#9faf045d0e1a7faadb999179f1695fe5ee67ea3b"
+  integrity sha512-L5j6B7vPLLgDCVs1t8oLjGUdPwDU2na4PK8Wv+2FdpIVW4hopG5aV3N9X8bE2UJFVu52OJEioaXnzXoYcxYhZw==
   dependencies:
-    "@statsig/client-core" "3.31.2"
-    "@statsig/js-client" "3.31.2"
+    "@statsig/client-core" "3.32.0"
+    "@statsig/js-client" "3.32.0"
     web-vitals "5.0.3"
 
 "@stripe/stripe-js@^8.6.4":
