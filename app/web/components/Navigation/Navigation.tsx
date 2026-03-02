@@ -1,6 +1,5 @@
 import {
   AppBar,
-  Badge,
   Box,
   Drawer,
   IconButton,
@@ -24,7 +23,7 @@ import { GLOBAL } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import React, { useMemo, useState } from "react";
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,
@@ -48,7 +47,6 @@ import {
 import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
-import BetaFlag from "../BetaFlag";
 import BottomNavigation from "./BottomNavigation";
 import DarkModeToggle from "./DarkModeToggle";
 import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
@@ -289,6 +287,34 @@ export default function Navigation() {
 
   const { t } = useTranslation(GLOBAL);
 
+  const navRef = useRef<HTMLDivElement>(null);
+
+  // Update CSS custom property with actual Navigation height
+  // useLayoutEffect runs synchronously before browser paint to prevent flickering
+  useLayoutEffect(() => {
+    const updateNavHeight = () => {
+      if (navRef.current) {
+        const height = navRef.current.offsetHeight;
+        document.documentElement.style.setProperty(
+          "--nav-height",
+          `${height}px`,
+        );
+      }
+    };
+
+    updateNavHeight();
+
+    // Use ResizeObserver to update when banners appear/disappear
+    const resizeObserver = new ResizeObserver(updateNavHeight);
+    if (navRef.current) {
+      resizeObserver.observe(navRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [authState.authenticated, isNativeEmbed]);
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -338,7 +364,7 @@ export default function Navigation() {
   );
 
   return (
-    <StyledAppBar position="sticky" color="inherit">
+    <StyledAppBar position="sticky" color="inherit" ref={navRef}>
       <StyledToolbar>
         <StyledNav sx={{ marginLeft: 2 }}>
           {isMobile && !authState.authenticated && (
@@ -379,28 +405,9 @@ export default function Navigation() {
               </StyledDrawer>
             </>
           )}
-          <Badge
-            overlap="circular"
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            badgeContent={isNativeEmbed && <BetaFlag />}
-            sx={{
-              "& .MuiBadge-badge": {
-                padding: 0,
-                background: "transparent",
-                minWidth: "unset",
-                height: "auto",
-                top: 6,
-                right: -8,
-              },
-            }}
-          >
-            <Box sx={{ display: "inline-flex", alignItems: "center" }}>
-              <CouchersLogo isLoggedIn={authState.authenticated} />
-            </Box>
-          </Badge>
+          <Box sx={{ display: "inline-flex", alignItems: "center" }}>
+            <CouchersLogo isLoggedIn={authState.authenticated} />
+          </Box>
 
           {!isMobile && (
             <StyledFlexbox>

@@ -239,7 +239,6 @@
   },
   "response_time_label": "Время отклика",
   "unsaved_changes_warning": "Вы не сохранили изменения. Вы уверены, что хотите покинуть страницу?",
-  "image_uploading_warning": "Ваше изображение профиля все еще загружается. Вы уверены, что хотите покинуть страницу?",
   "reference_amounts": {
     "no_references": "Нет отзывов",
     "hundred_or_more_references": "100+ отзывов",
@@ -296,7 +295,6 @@
   "response_time_text_some": "Может быть в {{p33}}",
   "response_time_text_most": "Обычно в {{p33}} до {{p66}}",
   "response_time_text_almost_all": "Обычно в {{p33}} до {{p66}}",
-  "click_replace_image": "Нажмите, чтобы заменить изображение",
   "badges": {
     "title": "Изучите значки Couchers.org",
     "subtitle": "Узнайте о пользовательских значках, посмотрите, у кого они есть, и узнайте, как вы можете их получить.",
@@ -309,9 +307,6 @@
   "what_options_mean": "Что означают эти параметры",
   "profile_changes_saved_message": "Изменения профиля сохранены!",
   "hosting_preferences_success_message": "Настройки размещения сохранены!",
-  "couldnt_read_file": "Не удалось прочитать файл",
-  "select_an_image": "Выберите изображение",
-  "names_profile_photo": "Фото профиля {{name}}",
   "write_friend_reference": "Написать Отзыв Другу",
   "have_pending_reference_text": "У вас есть ожидающий отзыв, который нужно написать для этого пользователя",
   "edit": "Редактировать Профиль",

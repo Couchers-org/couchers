@@ -41,6 +41,11 @@
   "confirm": "Confirm",
   "copy": "Copy",
   "copied": "Copied to clipboard",
+  "image_input": {
+    "select_button_a11y": "Select an image",
+    "replace_image_tooltip": "Click to replace image",
+    "read_file_error_message": "Couldn't read file"
+  },
   "load_more": "Load more",
   "read_more": "Read more",
   "next": "Next",
@@ -236,19 +241,7 @@
   "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "< 1 minute ago",
-    "n_minutes_ago_one": "{{count}} minute ago",
-    "n_minutes_ago_other": "{{count}} minutes ago",
-    "less_than_one_hour_ago": "Less than an hour ago",
-    "n_hours_ago_one": "{{count}} hour ago",
-    "n_hours_ago_other": "{{count}} hours ago",
-    "n_days_ago_one": "{{count}} day ago",
-    "n_days_ago_other": "{{count}} days ago",
-    "n_weeks_ago_one": "{{count}} week ago",
-    "n_weeks_ago_other": "{{count}} weeks ago",
-    "n_months_ago_one": "{{count}} month ago",
-    "n_months_ago_other": "{{count}} months ago",
-    "n_years_ago_one": "{{count}} year ago",
-    "n_years_ago_other": "{{count}} years ago"
+    "less_than_one_hour_ago": "Less than an hour ago"
   },
   "location_autocomplete": {
     "more_specific": "Please choose a more specific place",

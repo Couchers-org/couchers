@@ -199,7 +199,7 @@ describe("Discussion page", () => {
       commentCards[0].getByText(
         `${t("communities:by_creator", {
           name: commentUser.name,
-        })} • 1 year ago`,
+        })} • last year`,
       ),
     ).toBeVisible();
     expect(
@@ -221,7 +221,7 @@ describe("Discussion page", () => {
     ).toBeVisible();
     expect(
       commentCards[1].getByText(
-        `${t("communities:by_creator", { name: replyUser.name })} • 1 year ago`,
+        `${t("communities:by_creator", { name: replyUser.name })} • last year`,
       ),
     ).toBeVisible();
     expect(commentCards[1].getByText("+6")).toBeVisible();

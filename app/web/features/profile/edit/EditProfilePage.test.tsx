@@ -79,10 +79,10 @@ describe("Edit profile", () => {
     await waitFor(() => expect(aboutMeInput).toHaveValue(""));
     await user.type(aboutMeInput, aboutMeText);
 
-    const saveButtons = await screen.findAllByRole("button", {
+    const saveButton = await screen.findByRole("button", {
       name: t("global:save_changes"),
     });
-    await user.click(saveButtons[0]);
+    await user.click(saveButton);
 
     if (screen.queryByRole("dialog")) {
       const saveAnywayButton = await screen.findByRole("button", {
@@ -120,10 +120,10 @@ describe("Edit profile", () => {
     await waitFor(() => expect(aboutMeInput).toHaveValue(""));
     await user.type(aboutMeInput, "test");
 
-    const saveButtons = await screen.findAllByRole("button", {
+    const saveButton = await screen.findByRole("button", {
       name: t("global:save_changes"),
     });
-    await user.click(saveButtons[0]);
+    await user.click(saveButton);
 
     const saveAnywayButton = await screen.findByRole("button", {
       name: t("profile:incomplete_dialog.save_anyway"),
@@ -163,10 +163,10 @@ describe("Edit profile", () => {
     await waitFor(() => expect(aboutMeInput).toHaveValue(""));
     await user.type(aboutMeInput, "test");
 
-    const saveButtons = await screen.findAllByRole("button", {
+    const saveButton = await screen.findByRole("button", {
       name: t("global:save_changes"),
     });
-    await user.click(saveButtons[0]);
+    await user.click(saveButton);
 
     await screen.findByRole("dialog");
 
@@ -216,17 +216,15 @@ describe("Edit profile", () => {
     });
   }, 10000);
 
-  it("should only show sticky save bar when form is dirty", async () => {
+  it("should only show save bar when form is dirty", async () => {
     jest.spyOn(window, "confirm").mockImplementation(() => true);
 
     getUserMock.mockImplementation(getUser);
 
     await renderPage();
 
-    // The top save button is always visible, but the sticky bar should not appear
-    const saveButtons = screen.getAllByRole("button", {
-      name: t("global:save_changes"),
-    });
-    expect(saveButtons).toHaveLength(1);
+    expect(
+      screen.queryByRole("button", { name: t("global:save_changes") }),
+    ).not.toBeInTheDocument();
   });
 });

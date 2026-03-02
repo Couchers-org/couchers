@@ -21,6 +21,7 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
 import errorGraphic from "@/resources/404graphic.png";
+import { lastMobileNavigationRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
@@ -116,6 +117,13 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       return;
     }
 
+    // Check if we just navigated here from mobile router
+    // If so, skip sync to avoid reload loop (WebView is already navigating there)
+    if (lastMobileNavigationRef.current === targetRoute) {
+      lastMobileNavigationRef.current = null; // Clear so next change is synced
+      return;
+    }
+
     // Routes differ - sync WebView, using mobile i18n language as source of truth
     // This ensures language selection persists across tab switches
     const currentLocale = i18n.language !== "en" ? i18n.language : null;
@@ -125,7 +133,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
     syncTargetPathRef.current = targetPath;
     // Use postMessage to trigger client-side Next.js navigation
-    // This avoids middleware redirects based on stale cookies
+    // This is faster (no page reload) and avoids server-side middleware redirects
     webviewRef.current?.injectJavaScript(`
       window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
       true;
@@ -289,8 +297,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         source={{ uri: WEB_BASE_URL + path }}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled
-        cacheEnabled
-        cacheMode="LOAD_CACHE_ELSE_NETWORK"
+        cacheEnabled={true}
+        cacheMode="LOAD_DEFAULT" // Revalidates on normal loads (prevents stale content), uses cache for back nav (maintains cookies)
         startInLoadingState
         javaScriptEnabled={true}
         domStorageEnabled={true}

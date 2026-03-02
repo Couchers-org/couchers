@@ -159,7 +159,7 @@ def test_ChangeUserBirthdate(db, push_collector: PushCollector):
 
     push = push_collector.pop_for_user(normal_user.id, last=True)
     assert push.content.title == "Birthdate changed"
-    assert push.content.body == "An admin changed your date of birth to Friday 25 May 1990."
+    assert push.content.body == "An admin changed your date of birth to May 25, 1990."
 
 
 def test_BanUser(db):
@@ -176,9 +176,6 @@ def test_BanUser(db):
     assert parse_date(res.birthdate) == normal_user.birthdate
     assert res.banned
     assert not res.deleted
-    assert admin_note in res.admin_note
-    assert super_user.username in res.admin_note
-    assert "[ban]" in res.admin_note
     assert len(res.admin_actions) == 1
     assert res.admin_actions[0].action_type == "ban"
     assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
@@ -201,9 +198,6 @@ def test_UnbanUser(db):
     assert parse_date(res.birthdate) == normal_user.birthdate
     assert not res.banned
     assert not res.deleted
-    assert admin_note in res.admin_note
-    assert super_user.username in res.admin_note
-    assert "[unban]" in res.admin_note
     assert len(res.admin_actions) == 1
     assert res.admin_actions[0].action_type == "unban"
     assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
@@ -224,8 +218,6 @@ def test_AddAdminNote(db):
     assert parse_date(res.birthdate) == normal_user.birthdate
     assert not res.banned
     assert not res.deleted
-    assert admin_note1 in res.admin_note
-    assert "[note]" in res.admin_note
     assert len(res.admin_actions) == 1
     assert res.admin_actions[0].action_type == "note"
     assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_NORMAL
@@ -233,8 +225,6 @@ def test_AddAdminNote(db):
 
     with real_admin_session(super_token) as api:
         res = api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=normal_user.username, admin_note=admin_note2))
-    assert admin_note1 in res.admin_note
-    assert admin_note2 in res.admin_note
     assert len(res.admin_actions) == 2
     assert res.admin_actions[0].note == admin_note1
     assert res.admin_actions[1].note == admin_note2
@@ -438,11 +428,9 @@ def test_GetChats(db):
 
     with real_admin_session(super_token) as api:
         res = api.GetChats(admin_pb2.GetChatsReq(user=normal_user.username))
-    # Check the structured response fields - user field contains full UserDetails
     assert res.user.user_id == normal_user.id
     assert res.user.username == normal_user.username
     assert res.user.name == normal_user.name
-    assert res.user.email == normal_user.email
     # New user should have no chats
     assert len(res.host_requests) == 0
     assert len(res.group_chats) == 0
@@ -1131,8 +1119,8 @@ def test_search_users_by_admin_note(db):
         api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="suspicious activity"))
         api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user2.username, admin_note="normal user"))
 
-        # Search by note content (ilike)
-        res = api.SearchUsers(admin_pb2.SearchUsersReq(admin_note="%suspicious%"))
+        # Search by admin action log content (ilike)
+        res = api.SearchUsers(admin_pb2.SearchUsersReq(admin_action_log="%suspicious%"))
         user_ids = {u.user_id for u in res.users}
         assert user1.id in user_ids
         assert user2.id not in user_ids

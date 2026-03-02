@@ -42,7 +42,7 @@ import {
   volunteerRoute,
 } from "routes";
 import { useIsNativeEmbed } from "utils/nativeLink";
-import { timeAgoI18n } from "utils/timeAgo";
+import { timeAgo } from "utils/timeAgo";
 
 const StyledFooter = styled("footer")<{ bottomMargin?: string }>(
   ({ bottomMargin }) => ({
@@ -161,15 +161,19 @@ const VersionLink = styled(Link)(({ theme }) => ({
 }));
 
 export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
-  const { t } = useTranslation(GLOBAL);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(GLOBAL);
   const isNativeEmbed = useIsNativeEmbed();
 
   const version_text = process.env.NEXT_PUBLIC_DISPLAY_VERSION || "dev";
   const version_link = roadmapRoute;
   const updated_ago_text = process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP
-    ? timeAgoI18n({
-        input: new Date(process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP),
-        t: t,
+    ? timeAgo({
+        since: new Date(process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP),
+        t,
+        locale,
       })
     : "unknown";
   const updated_ago_link = githubUpdatesURL;

@@ -3,17 +3,18 @@ Defines low-level localization functions for strings, dates, etc.
 Most code should use the higher-level couchers.i18n.LocalizationContext object.
 """
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from datetime import date, datetime, time
 from functools import lru_cache
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import phonenumbers
+from babel.dates import format_date, format_datetime, format_time, get_timezone_name
 from google.protobuf.timestamp_pb2 import Timestamp
 
 from couchers.i18n.i18next import I18Next
-from couchers.i18n.locales import load_locales
+from couchers.i18n.locales import DEFAULT_LOCALE, get_locale_fallbacks, load_locales
 from couchers.utils import to_aware_datetime
 
 
@@ -35,13 +36,16 @@ def localize_string(lang: str | None, key: str, *, substitutions: Mapping[str, s
     Returns:
         The translated string with substitutions applied
     """
-    return get_main_i18next().localize(key, lang or "en", substitutions)
+    return get_main_i18next().localize(key, lang or DEFAULT_LOCALE, substitutions)
 
 
 def localize_date(value: date, locale: str) -> str:
     """Formats a time- and timezone-agnostic date for the given locale."""
-    # TODO(#7590): Account for locale
-    return value.strftime("%A %-d %B %Y")
+    return _localize_with_fallbacks(
+        locale,
+        lambda candidate_locale: format_date(value, locale=candidate_locale),
+        lambda: value.strftime("%A %-d %B %Y"),
+    )
 
 
 def localize_date_from_iso(value: str, locale: str) -> str:
@@ -51,8 +55,11 @@ def localize_date_from_iso(value: str, locale: str) -> str:
 
 def localize_time(value: time, locale: str) -> str:
     """Formats a date- and timezone-agnostic time for the given locale."""
-    # TODO(#7590): Account for locale
-    return value.strftime("%-I:%M %p (%H:%M)")
+    return _localize_with_fallbacks(
+        locale,
+        lambda candidate_locale: format_time(value, locale=candidate_locale),
+        lambda: value.strftime("%-I:%M %p (%H:%M)"),
+    )
 
 
 def localize_datetime(value: datetime | Timestamp, timezone: ZoneInfo | None, locale: str) -> str:
@@ -76,16 +83,39 @@ def localize_datetime(value: datetime | Timestamp, timezone: ZoneInfo | None, lo
     if timezone is not None:
         value = value.astimezone(timezone)
 
-    localized_date = localize_date(value.date(), locale)
-    localized_time = localize_time(value.time(), locale)
-
-    # TODO(#7590): Account for locale
-    return f"{localized_date} at {localized_time}"
+    return _localize_with_fallbacks(
+        locale,
+        lambda candidate_locale: format_datetime(value, locale=candidate_locale),
+        lambda: localize_date(value.date(), locale) + " " + localize_time(value.time(), locale),
+    )
 
 
 def localize_timezone(timezone: ZoneInfo, locale: str) -> str:
-    # TODO(#7590): Account for locale
-    return datetime.now(tz=timezone).strftime("%Z/UTC%z")
+    return _localize_with_fallbacks(
+        locale,
+        lambda candidate_locale: get_timezone_name(timezone, locale=candidate_locale),
+        lambda: datetime.now(tz=timezone).strftime("%Z/UTC%z"),
+    )
+
+
+def _localize_with_fallbacks(
+    locale: str, localize: Callable[[str], str], fallback: Callable[[], str] | None = None
+) -> str:
+    """
+    Attempts to localize a value using fallback locales if the locale is unavailable, or a final unlocalized fallback.
+    """
+    exception: Exception | None
+    for candidate_locale in [locale] + get_locale_fallbacks(locale):
+        try:
+            return localize(candidate_locale.replace("-", "_"))  # Babel expects "en_US", not "en-US".
+        except Exception as e:
+            exception = e
+            pass
+
+    if fallback:
+        return fallback()
+
+    raise exception or Exception(f"Failed to localize to {locale}.")
 
 
 def format_phone_number(value: str) -> str:

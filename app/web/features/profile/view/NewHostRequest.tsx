@@ -79,7 +79,7 @@ export default function NewHostRequest({
     reset,
     formState: { errors },
   } = useForm<CreateHostRequestWrapper>({
-    defaultValues: { recipientUserId: user.userId },
+    defaultValues: { hostUserId: user.userId },
   });
 
   const textField = watch("text") ?? "";

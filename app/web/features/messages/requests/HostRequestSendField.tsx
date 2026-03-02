@@ -69,10 +69,10 @@ export default function HostRequestSendField({
   const { t } = useTranslation([MESSAGES, GLOBAL]);
   const { authState } = useAuthContext();
 
-  const isHost = hostRequest.recipientUserId === authState.userId;
+  const isHost = hostRequest.hostUserId === authState.userId;
 
   const { data: availableRefrences } = useListAvailableReferences(
-    isHost ? hostRequest.initiatorUserId : hostRequest.recipientUserId,
+    isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
   );
 
   const { mutate: handleSend, isPending } = sendMutation;
@@ -118,7 +118,7 @@ export default function HostRequestSendField({
         ? ReferenceType.REFERENCE_TYPE_HOSTED
         : ReferenceType.REFERENCE_TYPE_SURFED
     ],
-    isHost ? hostRequest.initiatorUserId : hostRequest.recipientUserId,
+    isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
     hostRequest.hostRequestId,
   );
 

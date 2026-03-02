@@ -9,7 +9,6 @@ React Native mobile app built with [Expo](https://expo.dev).
 - [Local Development](#local-development)
 - [Seeing web or backend changes on the mobile app](#seeing-web-or-backend-changes-on-the-local-mobile-app)
 - [Before Opening a PR](#before-opening-a-pr)
-- [Publish Your Changes - TestFlight / Play Store Builds](#publish-your-changes---testflight--play-store-builds)
 - [Submitting Builds for Testing](#submitting-builds-for-testing)
 - [Learn More](#learn-more)
 
@@ -103,15 +102,6 @@ npx expo start   # make sure app starts and click around
 npx expo-doctor  # make sure no errors get flagged for a build
 ```
 
-## Publish your changes - TestFlight / Play Store Builds
-
-Use [EAS Build](https://expo.dev/eas) for production builds. These build in the cloud so no local native tools are required, but there's a small charge per build.
-
-```bash
-eas build --platform ios
-eas build --platform android
-```
-
 ## Submitting Builds for Testing
 
 ### iOS (TestFlight)
@@ -167,5 +157,6 @@ Once submitted, the build will be immediately available for internal testing (no
 
 ## Learn More
 
+- **[Mobile App Architecture Guide](./ARCHITECTURE.md)**: Understand how the mobile app wraps the web app, routing synchronization, authentication, and common pitfalls
 - [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
 - [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.

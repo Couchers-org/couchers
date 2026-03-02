@@ -12,16 +12,17 @@ import {
 import { theme } from "theme";
 import { monthFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
-import { hourMillis, timeAgoI18n } from "utils/timeAgo";
+import { timeAgo, TimeUnit } from "utils/timeAgo";
 
 interface Props {
   user: User.AsObject;
 }
 
 export const ReferencesLastActiveLabels = ({ user }: Props) => {
-  const { t } = useTranslation(PROFILE);
-  //workaround for not being able to type timeAgoI18n properly
-  const { t: tGlobal } = useTranslation(GLOBAL);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(PROFILE);
   return (
     <>
       <LabelAndText
@@ -32,13 +33,11 @@ export const ReferencesLastActiveLabels = ({ user }: Props) => {
         label={t("heading.last_active")}
         text={
           user.lastActive
-            ? timeAgoI18n({
-                input: timestamp2Date(user.lastActive),
-                t: tGlobal,
-                fuzzy: {
-                  millis: hourMillis,
-                  translationKey: "relative_time.less_than_one_hour_ago",
-                },
+            ? timeAgo({
+                since: timestamp2Date(user.lastActive),
+                t,
+                locale,
+                minimumUnit: TimeUnit.Hours,
               })
             : t("last_active_false")
         }

@@ -45,7 +45,7 @@ def _(testconfig):
     pass
 
 
-def create_test_host_request_with_moderation(surfer_token, recipient_user_id):
+def create_test_host_request_with_moderation(surfer_token, host_user_id):
     """Helper to create a host request and return its moderation state ID"""
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
     today_plus_3 = (today() + timedelta(days=3)).isoformat()
@@ -53,7 +53,7 @@ def create_test_host_request_with_moderation(surfer_token, recipient_user_id):
     with requests_session(surfer_token) as api:
         hr_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=recipient_user_id,
+                host_user_id=host_user_id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -113,7 +113,7 @@ def test_add_to_moderation_queue(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -159,7 +159,7 @@ def test_moderate_content(db):
     with requests_session(token) as api:
         hr_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=host.id,
+                host_user_id=host.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -218,7 +218,7 @@ def test_resolve_queue_item(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -276,7 +276,7 @@ def test_approve_content_via_api(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -334,7 +334,7 @@ def test_create_host_request_creates_moderation_state(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -383,7 +383,7 @@ def test_host_request_no_notification_before_approval(db, push_collector: PushCo
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -409,7 +409,7 @@ def test_shadowed_notification_not_in_list_notifications(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -436,7 +436,7 @@ def test_notification_visible_after_approval(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -484,7 +484,7 @@ def test_shadowed_host_request_visible_to_author_only(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -515,7 +515,7 @@ def test_unlisted_host_request_not_in_lists(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -545,7 +545,7 @@ def test_approved_host_request_in_lists_and_notifications(db, push_collector: Pu
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -607,7 +607,7 @@ def test_hidden_host_request_invisible_to_all(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -677,7 +677,7 @@ def test_multiple_host_requests_listing_visibility(db):
         for i in range(3):
             hr_id = api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    recipient_user_id=user2.id,
+                    host_user_id=user2.id,
                     from_date=today_plus_2,
                     to_date=today_plus_3,
                     text=valid_request_text(f"Test request {i + 1}"),
@@ -818,7 +818,7 @@ def test_moderation_queue_workflow(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -1134,7 +1134,7 @@ def test_GetModerationQueue_filter_by_author(db):
     with requests_session(token1) as api:
         hr1_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=host_user.id,
+                host_user_id=host_user.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -1143,7 +1143,7 @@ def test_GetModerationQueue_filter_by_author(db):
 
         hr2_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=host_user.id,
+                host_user_id=host_user.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -1154,7 +1154,7 @@ def test_GetModerationQueue_filter_by_author(db):
     with requests_session(token2) as api:
         hr3_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=host_user.id,
+                host_user_id=host_user.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -1262,7 +1262,7 @@ def test_GetModerationQueue_pagination_newest_first(db):
         for i in range(5):
             hr_id = api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    recipient_user_id=host_user.id,
+                    host_user_id=host_user.id,
                     from_date=today_plus_2,
                     to_date=today_plus_3,
                     text=valid_request_text(),
@@ -1370,7 +1370,7 @@ def test_GetModerationState(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -1435,7 +1435,7 @@ def test_ModerateContent_approve(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -1553,7 +1553,7 @@ def test_FlagContentForReview(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -1794,7 +1794,7 @@ def test_auto_approve_moderation_queue_disabled_when_zero(db):
         with mock_notification_email() as mock:
             host_request_id = api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    recipient_user_id=user2.id,
+                    host_user_id=user2.id,
                     from_date=today_plus_2,
                     to_date=today_plus_3,
                     text=valid_request_text(),
@@ -1859,7 +1859,7 @@ def test_auto_approve_moderation_queue_approves_old_items(db, push_collector: Pu
         with mock_notification_email() as mock:
             host_request_id = api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    recipient_user_id=user2.id,
+                    host_user_id=user2.id,
                     from_date=today_plus_2,
                     to_date=today_plus_3,
                     text=valid_request_text("Test request for auto-approval"),
@@ -1952,7 +1952,7 @@ def test_auto_approve_does_not_approve_recent_items(db):
         with mock_notification_email() as mock:
             host_request_id = api.CreateHostRequest(
                 requests_pb2.CreateHostRequestReq(
-                    recipient_user_id=user2.id,
+                    host_user_id=user2.id,
                     from_date=today_plus_2,
                     to_date=today_plus_3,
                     text=valid_request_text(),
@@ -2011,7 +2011,7 @@ def test_auto_approve_does_not_approve_already_approved(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -2077,7 +2077,7 @@ def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
     with requests_session(token1) as api:
         host_request_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id,
+                host_user_id=user2.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -2164,7 +2164,7 @@ def test_host_request_message_notifications_suppressed_before_approval(db, push_
     with requests_session(surfer_token) as api:
         hr_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=host.id,
+                host_user_id=host.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text("Initial request message"),
@@ -2223,7 +2223,7 @@ def test_host_request_status_notifications_suppressed_before_approval(db, push_c
     with requests_session(surfer_token) as api:
         hr_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=host.id,
+                host_user_id=host.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),
@@ -2262,7 +2262,7 @@ def test_host_request_notifications_sent_after_approval(db, push_collector: Push
     with requests_session(surfer_token) as api:
         hr_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=host.id,
+                host_user_id=host.id,
                 from_date=today_plus_2,
                 to_date=today_plus_3,
                 text=valid_request_text(),

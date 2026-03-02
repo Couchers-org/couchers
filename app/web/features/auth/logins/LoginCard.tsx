@@ -22,7 +22,7 @@ import { useTranslation } from "next-i18next";
 import { ActiveSession } from "proto/account_pb";
 import { service } from "service";
 import { dateFormatter, dateTimeFormatter, timestamp2Date } from "utils/date";
-import { timeAgoI18n } from "utils/timeAgo";
+import { timeAgo } from "utils/timeAgo";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   marginTop: theme.spacing(1),
@@ -39,9 +39,10 @@ export default function LoginsPage({
     i18n: { language: locale },
   } = useTranslation([GLOBAL, AUTH]);
 
-  const lastSeenDisplay = timeAgoI18n({
-    input: timestamp2Date(session.lastSeen!),
-    t: t,
+  const lastSeenDisplay = timeAgo({
+    since: timestamp2Date(session.lastSeen!),
+    t,
+    locale,
   });
   const createdDisplay = dateTimeFormatter(locale).format(
     timestamp2Date(session.created!),

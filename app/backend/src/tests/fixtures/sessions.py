@@ -2,6 +2,7 @@ from collections.abc import Generator
 from concurrent import futures
 from contextlib import contextmanager
 from typing import Any, NoReturn
+from zoneinfo import ZoneInfo
 
 import grpc
 from grpc._server import _validate_generic_rpc_handlers
@@ -9,6 +10,8 @@ from grpc._server import _validate_generic_rpc_handlers
 from couchers.context import make_interactive_context
 from couchers.db import session_scope
 from couchers.descriptor_pool import get_descriptor_pool
+from couchers.i18n import LocalizationContext
+from couchers.i18n.locales import DEFAULT_LOCALE
 from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
     _try_get_and_update_user_details,
@@ -174,7 +177,10 @@ class FakeChannel:
                     user_id=auth_info.user_id if auth_info else None,
                     is_api_key=False,
                     token=self._token if auth_info else None,
-                    ui_language_preference=auth_info.ui_language_preference if auth_info else None,
+                    localization=LocalizationContext(
+                        locale=(auth_info and auth_info.ui_language_preference) or DEFAULT_LOCALE,
+                        timezone=ZoneInfo((auth_info and auth_info.timezone) or "Etc/UTC"),
+                    ),
                 )
 
                 response = handler.unary_unary(request, context, session)

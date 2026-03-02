@@ -64,7 +64,7 @@ describe("MarkdownInput", () => {
     await user.click(screen.getByRole("button", { name: INSERT_IMAGE }));
     const dialog = await screen.findByRole("dialog");
     await user.upload(
-      within(dialog).getByLabelText(t("profile:select_an_image")),
+      within(dialog).getByLabelText(t("global:image_input.select_button_a11y")),
       MOCK_FILE,
     );
     await user.type(

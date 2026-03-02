@@ -15,7 +15,7 @@ import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import { routeToEvent } from "routes";
-import { timestamp2Date } from "utils/date";
+import { localizeDateTimeRange, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import stripMarkdown from "utils/stripMarkdown";
 
@@ -128,19 +128,25 @@ export default function EventCard({
   className,
   attendeesCountFormatter,
 }: EventCardProps) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([COMMUNITIES]);
 
-  const startTime = dayjs(timestamp2Date(event.startTime!));
-  const endTime = dayjs(timestamp2Date(event.endTime!));
+  const dateTimeRangeText = localizeDateTimeRange(
+    dayjs(timestamp2Date(event.startTime!)),
+    dayjs(timestamp2Date(event.endTime!)),
+    locale,
+    {
+      includeDayOfWeek: true,
+      long: false,
+    },
+  );
 
   const strippedContent = useMemo(
     () => stripMarkdown(event.content),
     [event.content],
   );
-
-  const formattedEventDates = `${startTime.format("llll")} - ${endTime.format(
-    endTime.isSame(startTime, "day") ? "LT" : "llll",
-  )}`;
 
   const eventImageSrc = event.photoUrl || eventImagePlaceholderUrl;
 
@@ -184,9 +190,9 @@ export default function EventCard({
             variant="body2"
             color="textSecondary"
             gutterBottom
-            title={formattedEventDates}
+            title={dateTimeRangeText}
           >
-            {formattedEventDates}
+            {dateTimeRangeText}
           </EventTime>
           <Title variant="h3" gutterBottom>
             {event.title}

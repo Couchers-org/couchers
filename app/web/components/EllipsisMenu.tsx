@@ -90,6 +90,8 @@ const EllipsisMenu = ({
             <MenuItem
               key={index}
               onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
                 if (item.shouldCloseMenu !== false) {
                   onMenuClose(e);
                 }

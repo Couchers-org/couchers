@@ -1,3 +1,4 @@
+import { ArchiveOutlined, UnarchiveOutlined } from "@mui/icons-material";
 import {
   ListItemAvatar,
   ListItemButton,
@@ -7,7 +8,9 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Avatar from "components/Avatar";
+import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import { MuteIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
 import {
@@ -16,11 +19,14 @@ import {
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
+import { groupChatsListKey } from "features/queryKeys";
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import { GroupChat } from "proto/conversations_pb";
-import React from "react";
+import React, { useState } from "react";
+import { service } from "service";
 import { theme } from "theme";
 import { firstName } from "utils/names";
 
@@ -38,13 +44,27 @@ const StyledTitle = styled("span")(() => ({
   marginInlineEnd: theme.spacing(1),
 }));
 
+const StyledListItemContainer = styled("div")(() => ({
+  position: "relative",
+  width: "100%",
+}));
+
+const StyledMenuContainer = styled("div")(() => ({
+  position: "absolute",
+  bottom: theme.spacing(1),
+  right: theme.spacing(1),
+  zIndex: 1,
+}));
+
 interface GroupChatListItemProps extends ListItemProps {
   groupChat: GroupChat.AsObject;
+  isArchived?: boolean;
 }
 
 export default function GroupChatListItem({
   groupChat,
   className,
+  isArchived = false,
 }: GroupChatListItemProps) {
   const { t } = useTranslation(MESSAGES);
   const currentUserId = useAuthContext().authState.userId!;
@@ -95,41 +115,101 @@ export default function GroupChatListItem({
     text = `${authorName}: ${groupChat.latestMessage?.text?.text || ""}`;
   }
 
+  const queryClient = useQueryClient();
+
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
+    null,
+  );
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    event.preventDefault();
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = (event?: React.MouseEvent | React.KeyboardEvent) => {
+    if (event) {
+      event.stopPropagation();
+    }
+    setMenuAnchorEl(null);
+  };
+
+  const archiveMutation = useMutation<void, RpcError>({
+    mutationFn: async () => {
+      await service.conversations.setGroupChatArchiveStatus(
+        groupChat.groupChatId,
+        !isArchived,
+      );
+    },
+    onMutate: async () => {
+      handleMenuClose();
+      // Cancel outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: groupChatsListKey() });
+    },
+    onSettled: () => {
+      // Refetch after mutation completes (success or error)
+      queryClient.invalidateQueries({ queryKey: groupChatsListKey() });
+    },
+  });
+
+  const menuItems: EllipsisMenuItem[] = [
+    {
+      icon: isArchived ? UnarchiveOutlined : ArchiveOutlined,
+      label: isArchived
+        ? t("archive.unarchive_button")
+        : t("archive.archive_button"),
+      onClick: () => archiveMutation.mutate(),
+    },
+  ];
+
   return (
-    <ListItemButton className={className}>
-      <ListItemAvatar>
-        {groupChatMembersQuery.isLoading ? (
-          <Skeleton />
-        ) : (
-          <Avatar
-            user={groupChatMembersQuery.data?.get(avatarUserId)}
-            isProfileLink={false}
-          />
-        )}
-      </ListItemAvatar>
-      <ListItemText
-        slotProps={{
-          primary: { component: "span" },
-          secondary: { component: "span" },
-        }}
-        primary={
-          <StyledListItemTypography isUnread={isUnread} noWrap>
-            {groupChatMembersQuery.isLoading ? (
-              <Skeleton />
-            ) : (
-              <>
-                <StyledTitle>{title}</StyledTitle>
-                {groupChat.muteInfo?.muted && <StyledMuteIcon />}
-              </>
-            )}
-          </StyledListItemTypography>
-        }
-        secondary={
-          <StyledListItemTypography isUnread={isUnread} noWrap>
-            {groupChatMembersQuery.isLoading ? <Skeleton /> : text}
-          </StyledListItemTypography>
-        }
-      />
-    </ListItemButton>
+    <StyledListItemContainer>
+      <ListItemButton className={className} sx={{ paddingRight: 7 }}>
+        <ListItemAvatar>
+          {groupChatMembersQuery.isLoading ? (
+            <Skeleton />
+          ) : (
+            <Avatar
+              user={groupChatMembersQuery.data?.get(avatarUserId)}
+              isProfileLink={false}
+            />
+          )}
+        </ListItemAvatar>
+        <ListItemText
+          sx={{ paddingRight: 5 }}
+          slotProps={{
+            primary: { component: "span" },
+            secondary: { component: "span" },
+          }}
+          primary={
+            <StyledListItemTypography isUnread={isUnread} noWrap>
+              {groupChatMembersQuery.isLoading ? (
+                <Skeleton />
+              ) : (
+                <>
+                  <StyledTitle>{title}</StyledTitle>
+                  {groupChat.muteInfo?.muted && <StyledMuteIcon />}
+                </>
+              )}
+            </StyledListItemTypography>
+          }
+          secondary={
+            <StyledListItemTypography isUnread={isUnread} noWrap>
+              {groupChatMembersQuery.isLoading ? <Skeleton /> : text}
+            </StyledListItemTypography>
+          }
+        />
+      </ListItemButton>
+      <StyledMenuContainer>
+        <EllipsisMenu
+          idName={`group-chat-${groupChat.groupChatId}`}
+          isMenuOpen={!!menuAnchorEl}
+          menuAnchorEl={menuAnchorEl}
+          onMenuOpen={handleMenuOpen}
+          onMenuClose={handleMenuClose}
+          items={menuItems}
+        />
+      </StyledMenuContainer>
+    </StyledListItemContainer>
   );
 }

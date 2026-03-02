@@ -5,7 +5,7 @@
           <mj-text align="center" font-size="10px"><a href="https://couchers.org/donate">Donate</a> | <a href="https://github.com/Couchers-org/couchers">GitHub</a> | <a href="https://couchers.org/volunteer">Volunteer</a> | <a href="https://couchers.org/blog">Blog</a></mj-text>
           <mj-text align="center" font-size="8px" line-height="10px">
             &copy; {{ footer_copyright_year }} Couchers, Inc.<br />
-            3120 Winkler Ave, Unit 9. Fort Myers, FL 33916, USA.<br />
+            1908 Thomes Ave, Suite 79585, Cheyenne, WY 82001, USA.<br />
             <i>Couchers.org is a project of Couchers, Inc. a U.S. 501(c)(3) non-profit, tax-exempt organization.</i>
           </mj-text>
         </mj-column>
