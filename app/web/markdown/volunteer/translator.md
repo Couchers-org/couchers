@@ -36,4 +36,4 @@ This is a volunteer position (unpaid). Couchers.org is built and run entirely by
 
 1. We'll review your application and get back to you as soon as possible to schedule a Zoom meeting and answer any questions.
 
-1. After accepting the position, we'll add you to our Slack workspace and get you onboarded with the people who will be your contact points.
+1. After accepting the position, we'll add you to our Slack workspace and get you onboarded onto the translation team.
