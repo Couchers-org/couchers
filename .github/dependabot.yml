@@ -32,6 +32,10 @@ updates:
     labels:
       - "mobile app"
       - "dependencies"
+    groups:
+      mobile-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: "docker"
     directories:
