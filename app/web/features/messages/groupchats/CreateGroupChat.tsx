@@ -3,6 +3,7 @@ import {
   ListItemButton,
   ListItemText,
   styled,
+  Typography,
 } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -21,12 +22,13 @@ import useFriendList from "features/connections/friends/useFriendList";
 import { groupChatsListKey } from "features/queryKeys";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { RpcError } from "grpc-web";
-import { useTranslation } from "i18n";
-import { GLOBAL, MESSAGES } from "i18n/namespaces";
+import { Trans, useTranslation } from "i18n";
+import { MESSAGES } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { LiteUser, User } from "proto/api_pb";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { routeToGroupChat, routeToUser } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
@@ -77,7 +79,7 @@ interface CreateGroupChatFormData {
 }
 
 export default function CreateGroupChat({ className }: { className?: string }) {
-  const { t } = useTranslation([GLOBAL, MESSAGES]);
+  const { t } = useTranslation([MESSAGES]);
 
   //handle redirects which want to create a new message with someone
   const router = useRouter();
@@ -104,12 +106,13 @@ export default function CreateGroupChat({ className }: { className?: string }) {
   } = useMutation<number, RpcError, CreateGroupChatFormData>({
     mutationFn: ({ title, users }) =>
       service.conversations.createGroupChat(title, users),
-    onSuccess: () => {
+    onSuccess: (chatId) => {
       queryClient.invalidateQueries({
         queryKey: [groupChatsListKey],
       });
       resetForm();
       setIsOpen(false);
+      router.push(routeToGroupChat(chatId));
     },
   });
 
@@ -232,9 +235,31 @@ export default function CreateGroupChat({ className }: { className?: string }) {
               onClick={onSubmit}
               loading={isCreateLoading}
             >
-              {t("global:create")}
+              {t("messages:create_chat.create_button")}
             </Button>
+            {createMessageToUsername && (
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() =>
+                  router.push(routeToUser(createMessageToUsername))
+                }
+              >
+                {t("messages:create_chat.back_button")}
+              </Button>
+            )}
           </DialogActions>
+          {createMessageToUsername && (
+            <Typography
+              variant="body2"
+              sx={{ px: 3, pb: 2, textAlign: "center" }}
+            >
+              <Trans
+                i18nKey="messages:create_chat.hosting_request_hint"
+                components={{ back: <strong />, request: <strong /> }}
+              />
+            </Typography>
+          )}
         </form>
       </Dialog>
     </>

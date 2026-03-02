@@ -25,12 +25,6 @@ const StyledStrongStatus = styled("b")(({ theme }) => ({
   textTransform: "uppercase",
 }));
 
-const WrappingPre = styled("pre")(({ theme }) => ({
-  textWrap: "wrap",
-  whiteSpace: "pre-wrap",
-  wordWrap: "break-word",
-}));
-
 export default function ModPanel({ userDetails }: ModPanelProps) {
   const { t } = useTranslation([GLOBAL, MOD]);
   return (
@@ -117,13 +111,6 @@ export default function ModPanel({ userDetails }: ModPanelProps) {
         text={userDetails.acknowledgedModNotesCount}
       />
       <StyledDivider />
-      {userDetails.adminNote && (
-        <>
-          <Typography variant="h2">{t("mod:panel.admin_note")}</Typography>
-          <WrappingPre>{userDetails.adminNote}</WrappingPre>
-          <StyledDivider />
-        </>
-      )}
     </StyledWrapper>
   );
 }
