@@ -256,7 +256,7 @@ export default function AllMessagesTab() {
 
   return (
     <StyledWrapper>
-      {!showArchived && filter === "all" && <StyledCreateGroupChatButton />}
+      {!showArchived && <StyledCreateGroupChatButton />}
       <StyledFilterContainer>
         <NotificationBadge count={unseenAllCount}>
           <Chip
