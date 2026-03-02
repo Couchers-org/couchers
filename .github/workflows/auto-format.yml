@@ -41,7 +41,7 @@ jobs:
 
   format-backend:
     needs: detect-changes
-    if: needs.detect-changes.outputs.backend == 'true'
+    if: needs.detect-changes.outputs.backend == 'true' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@v2
@@ -82,7 +82,7 @@ jobs:
 
   format-frontend:
     needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true'
+    if: needs.detect-changes.outputs.frontend == 'true' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@v2
@@ -127,7 +127,7 @@ jobs:
 
   generate-migration:
     needs: detect-changes
-    if: needs.detect-changes.outputs.models == 'true' && needs.detect-changes.outputs.migrations == 'false'
+    if: needs.detect-changes.outputs.models == 'true' && needs.detect-changes.outputs.migrations == 'false' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -219,7 +219,7 @@ jobs:
 
   regenerate-html-templates:
     needs: detect-changes
-    if: needs.detect-changes.outputs.templates == 'true'
+    if: needs.detect-changes.outputs.templates == 'true' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@v2
