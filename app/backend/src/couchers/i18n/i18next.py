@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from html import escape, unescape
 from typing import Any
 
-from babel import Locale
+from babel import Locale, UnknownLocaleError
 from markupsafe import Markup
 
 PLURALIZABLE_VARIABLE_NAME = "count"
@@ -103,7 +103,10 @@ class Translation:
         if substitutions:
             if count := substitutions.get(PLURALIZABLE_VARIABLE_NAME):
                 if isinstance(count, int):
-                    plural_form = Locale(self.locale).plural_form(count)
+                    try:
+                        plural_form = Locale(self.locale).plural_form(count)
+                    except UnknownLocaleError:
+                        plural_form = Locale("en").plural_form(count)
                     plural_key = key + "_" + plural_form
                     if string := self.strings_by_key.get(plural_key):
                         return string
