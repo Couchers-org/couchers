@@ -560,6 +560,24 @@ test:mobile-typecheck:
       changes:
         - app/mobile/**/*
 
+test:mobile-expo-doctor:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npx expo-doctor
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/mobile/package.json
+        - app/mobile/package-lock.json
+
 test:proxy:
   needs: ["build:proxy"]
   stage: test
@@ -861,6 +879,9 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:mobile-typecheck
+      artifacts: false
+      optional: true
+    - job: test:mobile-expo-doctor
       artifacts: false
       optional: true
 
