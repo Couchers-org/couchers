@@ -7,7 +7,7 @@ description: "Help us translate Couchers.org!"
 
 **This is a remote position**
 
-Couchers.org is seeking speakers of the world's languages to help us translate our website and app. As a translator, you represent a linguistic and cultural population and use your expertise to shape a Couchers experience that feels native to them.
+Couchers.org is seeking speakers of the world's languages to translate our website and app, making Couchers feel native for everyone.
 
 ### Duties
 
@@ -20,7 +20,7 @@ Couchers.org is seeking speakers of the world's languages to help us translate o
 
 ### Requirements
 
-You must know your language at a native or near-native level.
+Your language level must be native or highly fluent.
 
 ### Expectations/Commitment
 
@@ -28,7 +28,7 @@ This is a volunteer position (unpaid). Couchers.org is built and run entirely by
 
 ### Apply
 
-1. Review our [Translator Guide](https://docs.google.com/document/d/1SQgp3-FvpewJFAPkJ65LruVB9dCPQzyyWjvLTUtszw4) to learn about our translation tooling and conventions.
+1. Review our [Translator Guide](/translator-guide) to learn about our translation tooling and conventions.
 
 1. Create an account on our [Weblate](https://translate.couchershq.org/) and start submitting translation suggestions. Can’t see your language? Use the report a problem button (technical problem) to request it.
 
