@@ -12,7 +12,7 @@ import HeaderButton from "components/HeaderButton";
 import { BackIcon, OverflowMenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
-import dayjs from "dayjs";
+import dayjs from "utils/dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
 import useMarkLastSeen from "features/messages/useMarkLastSeen";
@@ -146,9 +146,7 @@ export default function HostRequestView({
   const currentUserId = useAuthContext().authState.userId;
   const isHost = host?.userId === currentUserId;
   const otherUser = isHost ? surfer : host;
-  const isRequestPast = dayjs(hostRequest?.toDate).isBefore(
-    dayjs().format("L"),
-  );
+  const isRequestPast = dayjs(hostRequest?.toDate).isBefore(dayjs(), "day");
 
   let title =
     otherUser && hostRequest

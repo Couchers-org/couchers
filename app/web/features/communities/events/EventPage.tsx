@@ -35,7 +35,7 @@ import {
 } from "routes";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateTimeRange, timestamp2Date } from "utils/date";
+import { localizeDateRange, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
@@ -409,11 +409,11 @@ export default function EventPage({
               <StyledEventTimeContainer>
                 <StyledCalendarIcon />
                 <Typography variant="body1">
-                  {localizeDateTimeRange(
+                  {localizeDateRange(
                     dayjs(timestamp2Date(event.startTime!)),
                     dayjs(timestamp2Date(event.endTime!)),
                     locale,
-                    { includeDayOfWeek: true, long: true },
+                    { includeDayOfWeek: true, includeTime: true, long: true },
                   )}
                 </Typography>
               </StyledEventTimeContainer>

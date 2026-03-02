@@ -10,19 +10,6 @@ const monthFormatter = (locale: string) =>
     year: "numeric",
   });
 
-const dateTimeFormatter = (locale: string) =>
-  new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium",
-    timeStyle: "medium",
-  });
-
-const dateFormatter = (locale: string) =>
-  new Intl.DateTimeFormat(locale, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
-
 const numNights = (date1: string, date2: string) => {
   const diffTime = Date.parse(date1) - Date.parse(date2);
   const diffDays = Math.ceil(diffTime / dayMillis);
@@ -72,7 +59,7 @@ function localizeTime(
 }
 
 /// Localizes a range of dates as a string.
-function localizeDateTimeRange(
+function localizeDateRange(
   start: Date | Dayjs,
   end: Date | Dayjs,
   locale: string,
@@ -85,7 +72,9 @@ function localizeDateTimeRange(
 ): string {
   const intlOptions: Intl.DateTimeFormatOptions = {};
   fillDateOptions(intlOptions, options);
-  fillTimeOptions(intlOptions, options);
+  if (options.includeTime) {
+    fillTimeOptions(intlOptions, options);
+  }
   if (daysjs.isDayjs(start)) {
     intlOptions.timeZone = getDayjsTimezone(start);
     start = start.toDate();
@@ -133,7 +122,7 @@ function timestamp2Date(timestamp: Timestamp.AsObject): Date {
 
 function getDayjsTimezone(date: Dayjs): string | undefined {
   // There is no API to get the value, but the state exists and impacts formatting.
-  return (date as any)?.$x?.timezone; // eslint-disable-line @typescript-eslint/no-explicit-any
+  return (date as any)?.$x?.$timezone; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 function isSameDate(date1: Dayjs, date2: Dayjs): boolean {
@@ -150,11 +139,9 @@ function isSameOrFutureDate(date1: Dayjs, date2: Dayjs): boolean {
 }
 
 export {
-  dateFormatter,
-  dateTimeFormatter,
   isSameOrFutureDate,
   localizeDate,
-  localizeDateTimeRange,
+  localizeDateRange,
   localizeTime,
   monthFormatter,
   numNights,

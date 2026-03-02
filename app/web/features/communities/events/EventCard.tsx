@@ -15,7 +15,7 @@ import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import { routeToEvent } from "routes";
-import { localizeDateTimeRange, timestamp2Date } from "utils/date";
+import { localizeDateRange, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import stripMarkdown from "utils/stripMarkdown";
 
@@ -133,12 +133,13 @@ export default function EventCard({
     i18n: { language: locale },
   } = useTranslation([COMMUNITIES]);
 
-  const dateTimeRangeText = localizeDateTimeRange(
+  const dateTimeRangeText = localizeDateRange(
     dayjs(timestamp2Date(event.startTime!)),
     dayjs(timestamp2Date(event.endTime!)),
     locale,
     {
       includeDayOfWeek: true,
+      includeTime: true,
       long: false,
     },
   );

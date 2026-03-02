@@ -12,8 +12,8 @@ import { MESSAGES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { HostRequest } from "proto/requests_pb";
 import { theme } from "theme";
-import { numNights } from "utils/date";
 import dayjs from "utils/dayjs";
+import { localizeDateRange, numNights } from "utils/date";
 import truncateTextEllipsis from "utils/truncateTextEllipsis";
 
 const StyledRequestedDatesWrapper = styled("div")(({ theme }) => ({
@@ -56,7 +56,10 @@ const HostRequestUserSummarySection = ({
   hostRequest: HostRequest.AsObject | undefined;
   otherUser: LiteUser.AsObject | undefined;
 }) => {
-  const { t } = useTranslation(MESSAGES);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(MESSAGES);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const smallUserSummarySection = (
@@ -92,9 +95,11 @@ const HostRequestUserSummarySection = ({
             variant="h3"
             sx={{ paddingRight: theme.spacing(1) }}
           >
-            {`${dayjs(hostRequest.fromDate).format("ll")} - ${dayjs(
-              hostRequest.toDate,
-            ).format("ll")}`}
+            {localizeDateRange(
+              dayjs(hostRequest.fromDate),
+              dayjs(hostRequest.toDate),
+              locale,
+            )}
           </Typography>
         )}
       </StyledShortUserInfo>
@@ -111,9 +116,12 @@ const HostRequestUserSummarySection = ({
               variant="h3"
               sx={{ paddingRight: theme.spacing(1) }}
             >
-              {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
-                hostRequest.toDate,
-              ).format("LL")}`}
+              {localizeDateRange(
+                dayjs(hostRequest.fromDate),
+                dayjs(hostRequest.toDate),
+                locale,
+                { long: true },
+              )}
             </Typography>
             <Typography
               component="p"

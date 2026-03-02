@@ -30,6 +30,7 @@ import { HostRequest } from "proto/requests_pb";
 import React, { useState } from "react";
 import { service } from "service";
 import { theme } from "theme";
+import { localizeDateRange } from "utils/date";
 import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 
@@ -99,7 +100,10 @@ export default function HostRequestListItem({
   className,
   isArchived = false,
 }: HostRequestListItemProps) {
-  const { t } = useTranslation(MESSAGES);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
   const isHost = authState.userId === hostRequest.hostUserId;
   const { data: currentUser } = useCurrentUser();
@@ -136,7 +140,7 @@ export default function HostRequestListItem({
         }`
     : "";
 
-  const isPast = dayjs(hostRequest?.toDate).isBefore(dayjs().format("L"));
+  const isPast = dayjs(hostRequest?.toDate).isBefore(dayjs(), "day");
 
   const queryClient = useQueryClient();
 
@@ -220,9 +224,12 @@ export default function HostRequestListItem({
               </StyledHostStatusContainer>
               <StyledDateAndBadgeContainer>
                 <Typography component="div" display="inline" variant="h3">
-                  {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
-                    hostRequest.toDate,
-                  ).format("LL")}`}
+                  {localizeDateRange(
+                    dayjs(hostRequest.fromDate),
+                    dayjs(hostRequest.toDate),
+                    locale,
+                    { long: true },
+                  )}
                 </Typography>
                 <RequestTypeChip
                   label={
