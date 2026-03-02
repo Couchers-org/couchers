@@ -6,6 +6,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import WebEmbed from "@/components/WebEmbed";
 import { useAuthContext } from "@/features/auth/AuthContext";
+import { useImagePicker } from "@/hooks/useImagePicker";
+import { useWebNavigation } from "@/hooks/useWebNavigation";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
@@ -23,6 +25,9 @@ jest.mock("react-native-safe-area-context", () => ({
 jest.mock("@/features/auth/AuthContext", () => ({
   useAuthContext: jest.fn(),
 }));
+
+jest.mock("@/hooks/useImagePicker");
+jest.mock("@/hooks/useWebNavigation");
 
 // WebView mock - captures props and ref methods for test assertions
 const mockWebViewRef = {
@@ -43,6 +48,7 @@ let capturedWebViewProps: {
   onMessage?: (event: { nativeEvent: { data: string } }) => void;
   onError?: (event: { nativeEvent: unknown }) => void;
   onOpenWindow?: (event: { nativeEvent: { targetUrl: string } }) => void;
+  onShouldStartLoadWithRequest?: (event: { url: string }) => boolean;
 } = {};
 
 // BackHandler mock - captures the hardware back press listener
@@ -88,8 +94,16 @@ describe("WebEmbed", () => {
 
   const user = userEvent.setup();
 
+  // Mock return values for hooks
+  const mockPickImage = jest.fn();
+  const mockHandleNavigationStateChange = jest.fn();
+  const mockCanGoBackRef = { current: false };
+  const mockCurrentWebPathRef = { current: "/dashboard" };
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockCanGoBackRef.current = false;
+    mockCurrentWebPathRef.current = "/dashboard";
 
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (useSafeAreaInsets as jest.Mock).mockReturnValue({
@@ -105,6 +119,18 @@ describe("WebEmbed", () => {
         focusEffectCleanups.push(cleanup);
       }
     });
+
+    // Mock useImagePicker
+    (useImagePicker as jest.Mock).mockReturnValue({
+      pickImage: mockPickImage,
+    });
+
+    // Mock useWebNavigation
+    (useWebNavigation as jest.Mock).mockReturnValue({
+      handleNavigationStateChange: mockHandleNavigationStateChange,
+      canGoBackRef: mockCanGoBackRef,
+      currentWebPathRef: mockCurrentWebPathRef,
+    });
   });
 
   describe("rendering", () => {
@@ -114,6 +140,17 @@ describe("WebEmbed", () => {
       expect(capturedWebViewProps.source?.uri).toBe(
         `${mockWebBaseUrl}/dashboard`,
       );
+
+      // Verify hooks are called with correct arguments
+      expect(useImagePicker).toHaveBeenCalledWith();
+      expect(useWebNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          webBaseUrl: mockWebBaseUrl,
+          currentPath: "/dashboard",
+          syncTargetPathRef: expect.objectContaining({ current: null }),
+          onRetryCountReset: expect.any(Function),
+        }),
+      );
     });
 
     it("renders with different paths", () => {
@@ -122,9 +159,21 @@ describe("WebEmbed", () => {
       expect(capturedWebViewProps.source?.uri).toBe(
         `${mockWebBaseUrl}/messages`,
       );
+      expect(useWebNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currentPath: "/messages",
+        }),
+      );
+
+      (useWebNavigation as jest.Mock).mockClear();
 
       rerender(<WebEmbed path="/search" />);
       expect(capturedWebViewProps.source?.uri).toBe(`${mockWebBaseUrl}/search`);
+      expect(useWebNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currentPath: "/search",
+        }),
+      );
     });
 
     it("enables iOS back/forward navigation gestures", () => {
@@ -136,134 +185,60 @@ describe("WebEmbed", () => {
     });
   });
 
-  describe("navigation state changes", () => {
-    it("navigates to messages tab when WebView navigates to /messages", () => {
+  describe("navigation integration", () => {
+    it("blocks external URLs via onShouldStartLoadWithRequest", () => {
+      const openURLSpy = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
+
       render(<WebEmbed path="/dashboard" />);
 
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/messages`,
-          loading: false,
-        });
+      // External URLs should return false to prevent loading in WebView
+      const result = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: "https://external-site.com/page",
       });
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith("/messages");
-    });
-
-    it("navigates to search tab when WebView navigates to /search", () => {
-      render(<WebEmbed path="/dashboard" />);
-
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/search`,
-          loading: false,
-        });
-      });
-
-      expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
-    });
-
-    it("navigates to communities tab when WebView navigates to /communities", () => {
-      render(<WebEmbed path="/dashboard" />);
-
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/communities`,
-          loading: false,
-        });
-      });
-
-      expect(mockRouter.navigate).toHaveBeenCalledWith("/communities");
-    });
-
-    it("does not trigger native navigation for non-tab routes", () => {
-      render(<WebEmbed path="/dashboard" />);
-
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/user/123`,
-          loading: false,
-        });
-      });
-
-      // WebView handles internal navigation without triggering native router
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
-    });
-
-    it("does not navigate when URL is still loading", () => {
-      render(<WebEmbed path="/dashboard" />);
-
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/messages`,
-          loading: true,
-        });
-      });
-
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
-    });
-
-    it("does not navigate when staying on the same tab", () => {
-      render(<WebEmbed path="/messages" />);
-
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/messages/123`,
-          loading: false,
-        });
-      });
-
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
-    });
-
-    it("strips hash fragments from URL when navigating to main tabs", () => {
-      render(<WebEmbed path="/dashboard" />);
-
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/search#10/40.7127/-74.006`,
-          loading: false,
-        });
-      });
-
-      expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
-    });
-
-    it("does not trigger navigation for query parameter changes", () => {
-      render(<WebEmbed path="/dashboard" />);
-
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/user/username?tab=about`,
-          loading: false,
-        });
-      });
-
+      expect(result).toBe(false);
+      expect(openURLSpy).toHaveBeenCalledWith("https://external-site.com/page");
       expect(mockRouter.navigate).not.toHaveBeenCalled();
 
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/user/username?tab=home`,
-          loading: false,
-        });
-      });
-
-      // Query param change (tab switch) should not trigger native navigation
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
+      openURLSpy.mockRestore();
     });
 
-    it("stops loading for external URLs", () => {
+    it("allows internal URLs via onShouldStartLoadWithRequest", () => {
       render(<WebEmbed path="/dashboard" />);
 
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: "https://external-site.com/page",
-          loading: false,
-        });
+      const result = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: `${mockWebBaseUrl}/some-page`,
       });
 
-      expect(mockWebViewRef.stopLoading).toHaveBeenCalled();
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
+      expect(result).toBe(true);
+    });
+
+    it("allows special URLs like about:blank via onShouldStartLoadWithRequest", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      const aboutBlank = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: "about:blank",
+      });
+      const dataUrl = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: "data:text/html,<h1>Test</h1>",
+      });
+
+      expect(aboutBlank).toBe(true);
+      expect(dataUrl).toBe(true);
+    });
+
+    it("allows reCAPTCHA URLs via onShouldStartLoadWithRequest", () => {
+      render(<WebEmbed path="/dashboard" />);
+
+      const recaptcha = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: "https://www.google.com/recaptcha/api2/anchor",
+      });
+      const gstatic = capturedWebViewProps.onShouldStartLoadWithRequest?.({
+        url: "https://www.gstatic.com/recaptcha/releases/abc123/recaptcha.js",
+      });
+
+      expect(recaptcha).toBe(true);
+      expect(gstatic).toBe(true);
     });
   });
 
@@ -402,97 +377,10 @@ describe("WebEmbed", () => {
     });
   });
 
-  describe("focus effect", () => {
-    it("navigates WebView back to expected path when drifted", () => {
-      let focusCallback: (() => void) | undefined;
-      (useFocusEffect as jest.Mock).mockImplementation(
-        (callback: () => void) => (focusCallback = callback),
-      );
-
-      render(<WebEmbed path="/dashboard" />);
-
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/messages/123`,
-          loading: false,
-        });
-      });
-
-      mockWebViewRef.injectJavaScript.mockClear();
-
-      expect(focusCallback).toBeDefined();
-      focusCallback!();
-
-      expect(mockWebViewRef.injectJavaScript).toHaveBeenCalledWith(
-        `window.location.href = "${mockWebBaseUrl}/dashboard"; true;`,
-      );
-    });
-  });
-
-  describe("tab mapping", () => {
-    const testCases = [
-      { webPath: "/dashboard", expectedTab: "dashboard", expectedPath: null },
-      {
-        webPath: "/dashboard/settings",
-        expectedTab: "dashboard",
-        expectedPath: null,
-      },
-      {
-        webPath: "/messages",
-        expectedTab: "messages",
-        expectedPath: "/messages",
-      },
-      {
-        webPath: "/messages/123",
-        expectedTab: "messages",
-        expectedPath: "/messages",
-      },
-      { webPath: "/search", expectedTab: "search", expectedPath: "/search" },
-      {
-        webPath: "/search?query=test",
-        expectedTab: "search",
-        expectedPath: "/search?query=test",
-      },
-      {
-        webPath: "/communities",
-        expectedTab: "communities",
-        expectedPath: "/communities",
-      },
-      {
-        webPath: "/communities/456",
-        expectedTab: "communities",
-        expectedPath: "/communities",
-      },
-      { webPath: "/events", expectedTab: "events", expectedPath: "/events" },
-      { webPath: "/user/789", expectedTab: null, expectedPath: null },
-    ];
-
-    testCases.forEach(({ webPath, expectedTab, expectedPath }) => {
-      it(`maps ${webPath} to tab: ${expectedTab}`, () => {
-        render(<WebEmbed path="/dashboard" />);
-        mockRouter.navigate.mockClear();
-
-        act(() => {
-          capturedWebViewProps.onNavigationStateChange?.({
-            url: `${mockWebBaseUrl}${webPath}`,
-            loading: false,
-          });
-        });
-
-        if (expectedTab === "dashboard") {
-          // Same tab - no navigation
-          expect(mockRouter.navigate).not.toHaveBeenCalled();
-        } else if (expectedPath) {
-          // Different main tab - navigate to that tab (preserving query params)
-          expect(mockRouter.navigate).toHaveBeenCalledWith(expectedPath);
-        } else {
-          // Non-tab route - let WebView handle it internally, don't trigger native navigation
-          expect(mockRouter.navigate).not.toHaveBeenCalled();
-        }
-      });
-    });
-  });
-
+  // Note: Android back button tests below test integration glue code
+  // between BackHandler and WebView. While not pure user behavior tests,
+  // they verify important functionality that can't be tested by simulating
+  // actual hardware back button presses.
   describe("Android back button handling", () => {
     let backHandlerSpy: jest.SpyInstance;
 
@@ -534,14 +422,8 @@ describe("WebEmbed", () => {
     it("calls WebView goBack when canGoBack is true and back button is pressed", () => {
       render(<WebEmbed path="/messages" />);
 
-      // Simulate WebView navigation that sets canGoBack to true
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/messages/123`,
-          loading: false,
-          canGoBack: true,
-        });
-      });
+      // Set canGoBack to true to simulate WebView having history
+      mockCanGoBackRef.current = true;
 
       // Simulate pressing hardware back button
       expect(capturedBackHandler).toBeDefined();
@@ -594,31 +476,17 @@ describe("WebEmbed", () => {
       expect(BackHandler.addEventListener).not.toHaveBeenCalled();
     });
 
-    it("updates BackHandler when canGoBack state changes", () => {
+    it("responds correctly to canGoBackRef changes", () => {
       render(<WebEmbed path="/messages" />);
 
-      // First, canGoBack is false
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/messages`,
-          loading: false,
-          canGoBack: false,
-        });
-      });
-
+      // When canGoBack is false
+      mockCanGoBackRef.current = false;
       let result = capturedBackHandler!();
       expect(result).toBe(false);
       expect(mockWebViewRef.goBack).not.toHaveBeenCalled();
 
-      // Then, user navigates to a message detail, canGoBack becomes true
-      act(() => {
-        capturedWebViewProps.onNavigationStateChange?.({
-          url: `${mockWebBaseUrl}/messages/456`,
-          loading: false,
-          canGoBack: true,
-        });
-      });
-
+      // When canGoBack becomes true
+      mockCanGoBackRef.current = true;
       result = capturedBackHandler!();
       expect(result).toBe(true);
       expect(mockWebViewRef.goBack).toHaveBeenCalled();

@@ -1,8 +1,10 @@
 {
   "member_count_one": "{{count}} membre",
+  "member_count_many": "",
   "member_count_other": "{{count}} membres",
   "events_empty_state": "No hi ha esdeveniments en aquest moment. Per què no en <0>crees</0> un ✨?",
   "attendees_count_one": "{{count}} participant",
+  "attendees_count_many": "",
   "attendees_count_other": "{{count}} participants",
   "dashboard": "Tauler de control",
   "please_complete_profile": "Si us plau, completa el teu perfil i assegura't que apareixes a les cerques:",

@@ -39,8 +39,8 @@
   },
   "edit": "Edit Profile",
   "helper_text": {
-    "characters_remaining_one": "<bold>Please write at least {{count}} character to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
-    "characters_remaining_other": "<bold>Please write at least {{count}} characters to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
+    "characters_remaining_one": "<bold>Please write at least {{count}} more character to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
+    "characters_remaining_other": "<bold>Please write at least {{count}} more characters to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",
     "missing_profile_photo": "Please add a photo to complete your profile."
   },
   "section_tabs_a11y_label": "tabs for user's details",
@@ -236,7 +236,8 @@
     "request": "Request",
     "request_description": "Share your plans for the visit and include why you're requesting to stay with this particular host",
     "request_description_empty": "Please write a request message",
-    "request_char_length_too_short": "Please write at least {{charactersRemaining}} more characters to send a host request.",
+    "request_chars_remaining_one": "Please write at least {{count}} more character to send a host request.",
+    "request_chars_remaining_other": "Please write at least {{count}} more characters to send a host request.",
     "stay_type_a11y_text": "stay type",
     "success": "Request sent!",
     "guest_count": "Number of guests"
@@ -275,8 +276,6 @@
   "response_time_text_most": "Usually in {{p33}} to {{p66}}",
   "response_time_text_almost_all": "Usually in {{p33}} to {{p66}}",
   "unsaved_changes_warning": "You haven't saved your changes. Are you sure you want to leave the page?",
-  "image_uploading_warning": "Your profile image is still uploading. Are you sure you want to leave the page?",
-  "click_replace_image": "Click to replace image",
   "profile_tag_input": {
     "header_text": "Press 'Enter' to add\n<support_link>Email us</support_link> to add an entry",
     "remove_button_a11y_text": "Remove {{tag}}"
@@ -309,14 +308,14 @@
     "does_not_want_to_meetup_description": "I prefer not to meet up with others"
   },
   "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response.",
+  "avatar_placeholder_info": "<bold>Click the placeholder avatar to jump to the photo upload section.</bold> A photo of yourself is required to interact with the community. A clear, friendly photo showing your face builds trust and helps others feel comfortable.",
+  "click_to_add_photo": "Click to add a photo",
   "profile_changes_saved_message": "Profile changes saved!",
   "hosting_preferences_success_message": "Hosting preferences saved!",
-  "couldnt_read_file": "Couldn't read file",
-  "select_an_image": "Select an image",
-  "names_profile_photo": "{{name}}'s profile photo",
   "gallery": {
     "photo_item_a11y": "Photo",
-    "primary": "Primary",
+    "photo": "Photo",
+    "profile_photo": "Profile Photo",
     "add_photo": "Add photo",
     "uploading": "Uploading...",
     "remove_photo": "Remove photo",

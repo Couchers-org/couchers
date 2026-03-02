@@ -202,10 +202,6 @@
     },
     "caveat": "Wenn du diese Einstellung aktivierst, wird dein Konto so eingestellt, dass es keine Hostanfragen akzeptiert. Du erhälst jedoch weiterhin Sicherheits-E-Mails (z. B. zum Zurücksetzen deines Passworts). Den Newsletter kannst du separat über den Link in der Fußzeile des Newsletters abbestellen."
   },
-  "feedback_form": {
-    "header": "Deine Meinung zählt",
-    "skip_step_text": "Kein Interesse? <2>Diesen Schritt Überspringen</2>"
-  },
   "unhandled_sign_up_state": "Fehler: unhandled signup flow state.",
   "change_phone": {
     "no_phone_description": "Du hast keine Telefonnummer zu deinem Konto hinzugefügt. Um eine hinzuzufügen, geb sie unten ein. Wir werden die Nummer mit einer SMS verifizieren.",
@@ -314,7 +310,7 @@
   },
   "sign_up_resend_verification_email_help": "Keine E-Mail erhalten? Klick <2>hier, um den Bestätigungslink erneut zu senden</2>.",
   "sign_up_resend_verification_done": "Erledigt! Wir haben dir eine weitere E-Mail gesendet.",
-  "sign_up_need_verification_title": "Fast geschafft, noch eine letzte Sache!",
+  "sign_up_need_verification_title": "Eine letzte Sache: Bestätige deine E-Mail.",
   "profile_visibility": {
     "title": "Profil-Sichtbarkeit",
     "choose": "Wähle aus, welche Informationen für abgemeldete Nutzer sichtbar sind",
@@ -372,5 +368,18 @@
       "link_text_linkedin_helper": "Der Benutzername aus deiner Profil-URL (z. B. linkedin.com/in/jane-doe-a1b2c3)",
       "link_url_invalid": "Bitte gib eine gültige URL ein, die mit http:// oder https:// beginnt"
     }
+  },
+  "motivations_form": {
+    "header": "Was führt dich zu Couchers?",
+    "surfing": "Surfen",
+    "events": "Events",
+    "something_else": "Etwas anderes",
+    "community_organizing_description": "Ich möchte Events und Aktivitäten auf der Plattform organisieren",
+    "hosting": "Hosten",
+    "events_description": "Ich würde gerne an Events teilnehmen und die Community kennenlernen",
+    "community_organizing": "Community organisieren",
+    "surfing_description": "Ich plane eine Reise und suche einen Host",
+    "hosting_description": "Ich würde gerne Reisende in meiner Stadt hosten und willkommen heißen",
+    "something_else_description": "Ich schaue mich nur um oder habe mich noch nicht entschieden"
   }
 }

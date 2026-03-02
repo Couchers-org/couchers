@@ -71,7 +71,7 @@
     },
     "submit_button_label": "Appliquer",
     "search_filters": "Filtres de recherche",
-    "by_location_filter_label": "Par localisation",
+    "by_location_filter_label": "Par emplacement",
     "clear_filters": "Effacer les filtres"
   },
   "choose_search_criteria": "Saisissez un lieu ou appliquez un filtre pour rechercher.",
@@ -81,7 +81,10 @@
     "show_user_button_label": "Montrer {{name}} sur la carte",
     "few_results_suggestion": "Par défaut, les profils vides ou qui n'hébergent pas sont cachés.",
     "include_empty_profiles_button": "Afficher tous les profils",
-    "missing_about_description": "{{name}} n'a pas encore rempli son profil"
+    "missing_about_description": "{{name}} n'a pas encore rempli son profil",
+    "people_range_message_one": "{{currentRange}} de {{count}} membre",
+    "people_range_message_many": "{{currentRange}} de {{count}} membre",
+    "people_range_message_other": "{{currentRange}} de {{count}} membres"
   },
   "views": {
     "list": "Liste",

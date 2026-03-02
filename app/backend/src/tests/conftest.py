@@ -28,9 +28,6 @@ from tests.fixtures.db import (  # noqa: E402
 )
 from tests.fixtures.misc import Moderator, PushCollector  # noqa: E402
 
-# Register the "pytest-split" plugin (vendored for pytest 9+ compatibility)
-pytest_plugins = ["tests.pytest_split.plugin"]
-
 
 @pytest.fixture(scope="session")
 def postgres_engine() -> Generator[Engine]:
@@ -237,6 +234,12 @@ def testconfig():
 
     # Dev APIs disabled by default in tests
     config["ENABLE_DEV_APIS"] = False
+
+    # Slack notifications disabled by default in tests
+    config["SLACK_ENABLED"] = False
+    config["SLACK_BOT_TOKEN"] = ""
+    config["SLACK_DONATIONS_CHANNEL"] = ""
+    config["SLACK_MERCH_CHANNEL"] = ""
 
     config["ENABLE_NOTIFICATION_TRANSLATIONS"] = False
 

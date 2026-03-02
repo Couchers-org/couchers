@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "Emailini değiştir",
-    "current_email_message": "Email adresiniz şuanda <1>{{email}}</1>.",
+    "current_email_message": "Email adresiniz şu anda <1>{{email}}</1>.",
     "success_message": "Email değişiklik isteğiniz alındı. Değişimi tamamlamak için yeni mailinizi kontrol edin.",
     "current_password": "Şimdiki şifre",
     "new_email": "Yeni email"
@@ -63,6 +63,38 @@
       "required_error": "Kullanıcı adınızı girin",
       "username_taken_error": "Bu kullanıcı adı alınmış.",
       "validation_error": "Kullanıcı adları sadece harfler, numaralar ve ''_'' içerebilir ve bir harfle başlamalıdır."
+    },
+    "gender": {
+      "woman": "Kadın"
+    },
+    "opt_in_newsletter": "Topluluk güncellemeleri hakkında olan haber bültenimize abone olun.",
+    "tos_prompt": "Devam etmek için lütfen <1></1>'nı okuyup kabul edin.",
+    "tos_accept_label": "Hizmet Şartlarını kabul ediyorum."
+  },
+  "basic_form": {
+    "name": {
+      "field_label": "İsim",
+      "empty_error": "Lütfen adınızı yazın",
+      "required_error": "Bu alan boş bırakılamaz."
+    },
+    "email": {
+      "field_label": "E-posta",
+      "empty_error": "Lütfen geçerli bir e-posta adresi girin",
+      "required_error": "E-posta boş bırakılamaz."
     }
+  },
+  "location": {
+    "field_label": "Konumun",
+    "validation_error": "Lütfen geçerli bir konum seçin."
+  },
+  "community_guidelines_form": {
+    "header": "Topluluk Kuralları",
+    "guideline": {
+      "checkbox_label": "Tamam, anladım",
+      "required_error": "Tüm onay kutularının doldurulması zorunlu"
+    }
+  },
+  "motivations_form": {
+    "header": "Seni Couchers'a ne getirdi?"
   }
 }

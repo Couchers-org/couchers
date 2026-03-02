@@ -1,3 +1,4 @@
+import { ArchiveOutlined, UnarchiveOutlined } from "@mui/icons-material";
 import { Skeleton, styled, useMediaQuery } from "@mui/material";
 import {
   InfiniteData,
@@ -8,7 +9,8 @@ import {
 } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import HeaderButton from "components/HeaderButton";
-import { BackIcon } from "components/Icons";
+import { BackIcon, OverflowMenuIcon } from "components/Icons";
+import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
 import dayjs from "dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
@@ -28,10 +30,12 @@ import {
   GetHostRequestMessagesRes,
   RespondHostRequestReq,
 } from "proto/requests_pb";
+import { useRef, useState } from "react";
 import { messagesRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import { firstName } from "utils/names";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 import { requestStatusToTransKey } from "../constants";
 import ChatContent from "../groupchats/ChatContent";
@@ -66,16 +70,22 @@ const StyledPageTitle = styled(PageTitle)({
   },
 });
 
-const StyledPageWrapper = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
-  height: `calc(100dvh - ${theme.shape.navPaddingXs})`,
+const StyledPageWrapper = styled("div")<{ isNativeEmbed: boolean }>(
+  ({ theme, isNativeEmbed }) => ({
+    display: "flex",
+    flexDirection: "column",
+    // Use dvh (dynamic viewport height) which adjusts for mobile keyboard
+    // Use CSS custom property set by Navigation component for actual height
+    height: isNativeEmbed
+      ? "calc(100dvh - var(--nav-height, 3.5rem))"
+      : "calc(100dvh - var(--nav-height, 3.5rem) - 56px - env(safe-area-inset-bottom, 0px))",
 
-  [theme.breakpoints.up("sm")]: {
-    height: `calc(100dvh - ${theme.shape.navPaddingSmUp})`,
-  },
-}));
+    [theme.breakpoints.up("md")]: {
+      // On desktop, only subtract top nav (no bottom nav)
+      height: "calc(100dvh - var(--nav-height, 4rem))",
+    },
+  }),
+);
 
 // Footer is fixed at bottom - never scrolls away
 const StyledFooter = styled("div")(({ theme }) => ({
@@ -88,6 +98,7 @@ const StyledFooter = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
+    paddingBottom: `calc(${theme.spacing(2)} + env(safe-area-inset-bottom, 0px))`,
   },
 }));
 
@@ -97,6 +108,7 @@ export default function HostRequestView({
   hostRequestId: number;
 }) {
   const { t } = useTranslation(MESSAGES);
+  const isNativeEmbed = useIsNativeEmbed();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -211,7 +223,25 @@ export default function HostRequestView({
     hostRequest?.lastSeenMessageId,
   );
 
+  const archiveMutation = useMutation<void, RpcError>({
+    mutationFn: async () => {
+      await service.requests.setHostRequestArchiveStatus(
+        hostRequestId,
+        !hostRequest?.isArchived,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [hostRequestsListKey()] });
+      queryClient.invalidateQueries({
+        queryKey: hostRequestKey(hostRequestId),
+      });
+      router.push(messagesRoute);
+    },
+  });
+
   const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuAnchor = useRef<HTMLButtonElement>(null);
 
   const handleBack = () => router.push(messagesRoute);
 
@@ -225,7 +255,7 @@ export default function HostRequestView({
   }
 
   return (
-    <StyledPageWrapper>
+    <StyledPageWrapper isNativeEmbed={isNativeEmbed}>
       <StyledHeader>
         <HeaderButton
           onClick={handleBack}
@@ -238,6 +268,46 @@ export default function HostRequestView({
         <StyledPageTitle>
           {!title || hostRequestError ? <Skeleton width="100" /> : title}
         </StyledPageTitle>
+
+        <HeaderButton
+          onClick={() => setIsMenuOpen(true)}
+          aria-label="Show more actions"
+          aria-haspopup="true"
+          aria-controls="request-menu"
+          ref={menuAnchor}
+          {...(isMobile ? { size: "small" } : {})}
+        >
+          <OverflowMenuIcon sx={{ fontSize: isMobile ? "small" : "medium" }} />
+        </HeaderButton>
+        <Menu
+          id="request-menu"
+          anchorEl={menuAnchor.current}
+          keepMounted
+          open={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+        >
+          {hostRequest && (
+            <MenuItem
+              onClick={() => {
+                archiveMutation.mutate();
+                setIsMenuOpen(false);
+              }}
+              disabled={archiveMutation.isPending}
+            >
+              {hostRequest.isArchived ? (
+                <>
+                  <UnarchiveOutlined fontSize="small" sx={{ mr: 1 }} />
+                  {t("archive.unarchive_button")}
+                </>
+              ) : (
+                <>
+                  <ArchiveOutlined fontSize="small" sx={{ mr: 1 }} />
+                  {t("archive.archive_button")}
+                </>
+              )}
+            </MenuItem>
+          )}
+        </Menu>
       </StyledHeader>
       <HostRequestUserSummarySection
         hostRequest={hostRequest}

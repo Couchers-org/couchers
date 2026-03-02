@@ -1,12 +1,20 @@
+import enum
 from datetime import datetime
+from typing import Any
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Float, String, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Enum, Float, Index, String, func
 from sqlalchemy import LargeBinary as Binary
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import expression
 
 from couchers.config import config
 from couchers.models.base import Base
+
+
+class EventSource(enum.Enum):
+    backend = enum.auto()
+    frontend = enum.auto()
 
 
 class APICall(Base, kw_only=True):
@@ -61,3 +69,49 @@ class APICall(Base, kw_only=True):
     user_agent: Mapped[str | None] = mapped_column(String, default=None)
 
     sofa: Mapped[str | None] = mapped_column(String, default=None)
+
+
+class EventLog(Base, kw_only=True):
+    """
+    Analytics event log for tracking user behavior and business metrics.
+
+    Append-only table for ELT extraction. Do not query this table for user-facing features.
+    """
+
+    __tablename__ = "event_log"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    # when the row was inserted into the DB
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    # when the event actually happened (same as created for backend; may differ for frontend events)
+    occurred: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    # backend/frontend version
+    version: Mapped[str] = mapped_column(String, default=config["VERSION"])
+
+    # sofa, null for background/system events
+    sofa: Mapped[str | None] = mapped_column(String, default=None)
+
+    # hierarchical event type, e.g. "host_request.sent", "account.login"
+    event_type: Mapped[str] = mapped_column(String)
+
+    # user who triggered the event, nullable for system events
+    user_id: Mapped[int | None] = mapped_column(BigInteger, default=None)
+
+    # flexible event-specific properties
+    properties: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+    # numeric value (duration, count, etc.)
+    value: Mapped[float] = mapped_column(Float, server_default="1.0", default=1.0)
+
+    # where the event originated
+    source: Mapped[EventSource] = mapped_column(Enum(EventSource))
+
+    __table_args__ = (
+        Index("ix_logging_event_log_created", "created"),
+        Index("ix_logging_event_log_event_type_created", "event_type", "created"),
+        Index("ix_logging_event_log_user_id_created", "user_id", "created"),
+        {"schema": "logging"},
+    )

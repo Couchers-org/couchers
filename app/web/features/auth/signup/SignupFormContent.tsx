@@ -1,16 +1,18 @@
-import { Link, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import StyledLink from "components/StyledLink";
 import AntibotNote from "features/antibot/AntibotNote";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { GetSignupPageInfoRes } from "proto/public_pb";
 import { useEffect, useState } from "react";
-import { baseRoute, tosRoute } from "routes";
+import { missionRoute, tosRoute } from "routes";
 
+import { useIsNativeEmbed } from "../../../utils/nativeLink";
 import { useAuthContext } from "../AuthProvider";
 import AccountForm from "./AccountForm";
 import BasicForm from "./BasicForm";
 import CommunityGuidelinesForm from "./CommunityGuidelinesForm";
+import MotivationsForm from "./MotivationsForm";
 import ResendVerificationEmailForm from "./ResendVerificationEmailForm";
 
 export default function SignupFormContent({
@@ -21,6 +23,7 @@ export default function SignupFormContent({
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { authState } = useAuthContext();
   const state = authState.flowState;
+  const isNativeEmbed = useIsNativeEmbed();
 
   const [signupInfo, setSignupInfo] =
     useState<GetSignupPageInfoRes.AsObject | null>(null);
@@ -56,20 +59,24 @@ export default function SignupFormContent({
         </Typography>
         <Typography gutterBottom sx={{ marginBottom: 2 }}>
           <Trans
-            i18nKey="landing:signup_description"
+            i18nKey={
+              isNativeEmbed
+                ? "landing:signup_description_no_link"
+                : "landing:signup_description"
+            }
             values={{
               user_count: signupInfo?.userCount
                 ? Number(signupInfo.userCount).toLocaleString()
                 : "65k+",
             }}
-            components={{
-              2: <Link href={baseRoute} underline="hover" />,
-            }}
-          >
-            Travel, host, and connect with{" "}
-            {{ user_count: signupInfo?.userCount || "56k" }} members.{" "}
-            <StyledLink href={baseRoute}>Learn more about us</StyledLink>.
-          </Trans>
+            components={
+              isNativeEmbed
+                ? {}
+                : {
+                    2: <StyledLink href={missionRoute} />,
+                  }
+            }
+          />
         </Typography>
         <BasicForm
           inviteCode={inviteCode}
@@ -108,6 +115,15 @@ export default function SignupFormContent({
           {t("auth:community_guidelines_form.header")}
         </Typography>
         <CommunityGuidelinesForm />
+      </>
+    );
+  } else if (state.needMotivations) {
+    return (
+      <>
+        <Typography variant="h2" gutterBottom>
+          {t("auth:motivations_form.header")}
+        </Typography>
+        <MotivationsForm />
       </>
     );
   } else if (state.needVerifyEmail) {

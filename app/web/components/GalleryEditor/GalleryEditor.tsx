@@ -67,9 +67,9 @@ const InfoBox = styled(Box)(({ theme }) => ({
   alignItems: "center",
   gap: theme.spacing(1),
   padding: theme.spacing(1.5, 2),
-  backgroundColor: theme.palette.grey[50],
+  backgroundColor: "var(--mui-palette-grey-50)",
   borderRadius: theme.shape.borderRadius,
-  border: `1px solid ${theme.palette.grey[200]}`,
+  border: "1px solid var(--mui-palette-grey-200)",
 }));
 
 const StyledImageList = styled(ImageList)(({ theme }) => ({
@@ -92,21 +92,21 @@ const EmptyState = styled(Box)(({ theme }) => ({
   alignItems: "center",
   justifyContent: "center",
   padding: theme.spacing(6),
-  backgroundColor: theme.palette.grey[50],
+  backgroundColor: "var(--mui-palette-grey-50)",
   borderRadius: theme.shape.borderRadius * 2,
-  border: `2px dashed ${theme.palette.grey[300]}`,
+  border: "2px dashed var(--mui-palette-grey-300)",
   textAlign: "center",
   cursor: "pointer",
   transition: "all 0.2s ease",
   "&:hover": {
-    backgroundColor: theme.palette.grey[100],
-    borderColor: theme.palette.primary.main,
+    backgroundColor: "var(--mui-palette-grey-100)",
+    borderColor: "var(--mui-palette-primary-main)",
   },
 }));
 
 const EmptyStateIcon = styled(AddPhotoAlternate)(({ theme }) => ({
   fontSize: 64,
-  color: theme.palette.grey[400],
+  color: "var(--mui-palette-grey-400)",
   marginBottom: theme.spacing(2),
 }));
 
@@ -118,7 +118,7 @@ const LoadingContainer = styled(Box)(({ theme }) => ({
 }));
 
 const PhotoCountBadge = styled(Typography)(({ theme }) => ({
-  color: theme.palette.text.secondary,
+  color: "var(--mui-palette-text-secondary)",
   fontSize: "0.875rem",
 }));
 
@@ -478,7 +478,11 @@ export default function GalleryEditor({
               </Box>
             )}
             {description && (
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              <Typography
+                variant="body2"
+                color="var(--mui-palette-text-secondary)"
+                sx={{ mt: 1 }}
+              >
                 {description}
               </Typography>
             )}
@@ -495,19 +499,12 @@ export default function GalleryEditor({
               <UploadButton
                 variant="contained"
                 color="primary"
-                startIcon={
-                  isUploading ? (
-                    <CircularProgress size={16} />
-                  ) : (
-                    <AddPhotoAlternate />
-                  )
-                }
+                startIcon={<AddPhotoAlternate />}
                 onClick={handleUploadClick}
                 disabled={!canAddMore || isUploading}
+                loading={isUploading}
               >
-                {isUploading
-                  ? t("profile:gallery.uploading")
-                  : t("profile:gallery.add_photo")}
+                {t("profile:gallery.add_photo")}
               </UploadButton>
             </Box>
           )}
@@ -574,17 +571,27 @@ export default function GalleryEditor({
         canEdit ? (
           <EmptyState onClick={handleUploadClick}>
             <EmptyStateIcon />
-            <Typography variant="h3" gutterBottom>
+            <Typography
+              variant="h3"
+              gutterBottom
+              sx={{ color: "var(--mui-palette-text-primary)" }}
+            >
               {t("profile:gallery.empty_title")}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{ color: "var(--mui-palette-text-secondary)" }}
+            >
               {t("profile:gallery.empty_description")}
             </Typography>
           </EmptyState>
         ) : (
-          <EmptyState sx={{ cursor: "default", "&:hover": {} }}>
+          <EmptyState sx={{ cursor: "default" }}>
             <EmptyStateIcon />
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{ color: "var(--mui-palette-text-secondary)" }}
+            >
               {t("profile:gallery.no_photos")}
             </Typography>
           </EmptyState>

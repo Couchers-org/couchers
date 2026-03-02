@@ -5,7 +5,7 @@ export const validatePassword = (password: string) => {
   return password.length >= 8 && password.length < 256;
 };
 export const emailValidationPattern =
-  /^[0-9a-z][0-9a-z\-_+.]*@([0-9a-z-]+\.)*[0-9a-z-]+\.[a-z]{2,}$/i;
+  /^[0-9a-z]([0-9a-z\-_+]|(\.[0-9a-z\-_+]))*@([0-9a-z-]+\.)*[0-9a-z-]+\.[a-z]{2,}$/i;
 export const timePattern = /\d{2}:\d{2}/;
 
 export function validatePastDate(stringDate: string) {

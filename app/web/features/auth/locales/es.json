@@ -101,10 +101,6 @@
     "field_label": "Tu ubicación",
     "validation_error": "Por favor selecciona una ubicación válida."
   },
-  "feedback_form": {
-    "header": "Da tu opinión",
-    "skip_step_text": "¿No te interesa? <2>Saltar este paso</2>"
-  },
   "jail": {
     "title": "Se requiere más información",
     "location_section": {

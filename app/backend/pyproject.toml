@@ -5,6 +5,7 @@ description = "Couchers.org backend application"
 requires-python = "==3.14.*"
 dependencies = [
     "alembic>=1.17.1",
+    "babel>=2.18.0",
     "boto3>=1.39.3",
     "cachetools>=6.2.1",
     "cryptography>=46.0.3",
@@ -41,6 +42,9 @@ dependencies = [
     "statsig-python-core>=0.8.0",
 ]
 
+[project.scripts]
+dump-emails = "couchers.email.dump_emails:main"
+
 [dependency-groups]
 dev = [
     "ruff>=0.14.3",
@@ -58,6 +62,7 @@ dev = [
     "types-cachetools",
     "types-psycopg2",
     "types-python-dateutil>=2.9.0.20251115",
+    "pytest-split>=0.11.0",
 ]
 
 
@@ -67,7 +72,6 @@ line-length = 120
 exclude = [
     ".venv",
     "src/couchers/proto",
-    "src/tests/pytest_split",
 ]
 
 [tool.ruff.lint]
@@ -100,6 +104,7 @@ extra-standard-library = ["zoneinfo"]
 
 # Pytest
 [tool.pytest.ini_options]
+pythonpath = ["src"]
 strict = true
 filterwarnings = [
     "error",  # Treat all warnings as errors by default
@@ -143,11 +148,6 @@ disallow_incomplete_defs = false
 module = ["tests.fixtures.sessions"]
 # Mock gRPC infrastructure intentionally violates type contracts
 disable_error_code = ["arg-type"]
-
-[[tool.mypy.overrides]]
-module = ["tests.pytest_split.*"]
-# Vendored pytest-split code
-ignore_errors = true
 
 
 # Coverage

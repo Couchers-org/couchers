@@ -24,11 +24,59 @@ jobs:
       issues: read
       id-token: write
       actions: read # Required for Claude to read CI results on PRs
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_PASSWORD: "06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1"
+          PGPORT: "6544"
+          PGDATA: /pgdata
+        ports:
+          - 6544:6544
+        options: >-
+          --tmpfs /pgdata
+          --health-cmd "psql -U postgres -c 'SELECT PostGIS_Version();' || exit 1"
+          --health-interval 1s
+          --health-timeout 10s
+          --health-start-period 5s
+          --health-retries 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      # Backend setup
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: app/backend/pyproject.toml
+          allow-prereleases: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install backend dependencies
+        working-directory: app/backend
+        run: uv sync
+
+      - name: Generate protobuf files
+        working-directory: app/backend
+        run: make protos
+
+      # Frontend setup
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: app/web/.nvmrc
+
+      - name: Install web dependencies
+        working-directory: app/web
+        run: yarn install --frozen-lockfile
+
+      # Environment variables for backend (conftest.py defaults handle DATABASE_CONNECTION_STRING)
+      - name: Load backend environment
+        run: grep -v '^#' app/backend.dev.env | grep '=' >> "$GITHUB_ENV"
 
       - name: Run Claude Code
         id: claude
@@ -41,5 +89,5 @@ jobs:
 
           # Allow standard development tools for formatting, type checking, testing, and proto generation
           claude_args: |
-            --model claude-opus-4-5-20251101
-            --allowedTools "Bash(uv run ruff:*),Bash(uv run mypy:*),Bash(uv run pytest:*),Bash(uv run alembic:*),Bash(make format:*),Bash(make fmt:*),Bash(make mypy:*),Bash(make protos:*),Bash(make test:*),Bash(yarn format:*),Bash(yarn lint:*),Bash(yarn typecheck),Bash(yarn tsc),Bash(yarn build),Bash(yarn jest:*),Bash(docker:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh pr:*),Bash(gh issue:*),Bash(nvm use:*),Bash(source ~/.nvm/nvm.sh:*),Bash(ls:*),Bash(pwd),Bash(cd:*)"
+            --model opus
+            --allowedTools "Bash(uv run ruff:*),Bash(uv run mypy:*),Bash(uv run pytest:*),Bash(uv run alembic:*),Bash(make format:*),Bash(make fmt:*),Bash(make mypy:*),Bash(make protos:*),Bash(make test:*),Bash(yarn format:*),Bash(yarn lint:*),Bash(yarn typecheck),Bash(yarn tsc),Bash(yarn build),Bash(yarn jest:*),Bash(docker:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh pr:*),Bash(gh issue:*),Bash(nvm use:*),Bash(source ~/.nvm/nvm.sh:*),Bash(ls:*),Bash(pwd),Bash(cd:*),Bash(uv run --project .claude/tools ci-status:*),Bash(uv run --project .claude/tools ci-job-log:*)"

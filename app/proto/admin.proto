@@ -9,6 +9,13 @@ import "google/protobuf/wrappers.proto";
 import "annotations.proto";
 import "api.proto";
 
+enum AdminActionLevel {
+  ADMIN_ACTION_LEVEL_UNSPECIFIED = 0;
+  ADMIN_ACTION_LEVEL_DEBUG = 1;    // low-importance chatter
+  ADMIN_ACTION_LEVEL_NORMAL = 2;   // regular admin work
+  ADMIN_ACTION_LEVEL_HIGH = 3;     // significant state changes
+}
+
 service Admin {
   option (auth_level) = AUTH_LEVEL_ADMIN;
 
@@ -80,6 +87,30 @@ service Admin {
   rpc AccessStats(AccessStatsReq) returns (AccessStatsRes) {}
 
   rpc SetLastDonated(SetLastDonatedReq) returns (UserDetails) {}
+
+  rpc CreateAdminTag(CreateAdminTagReq) returns (AdminTagInfo) {}
+
+  rpc ListAdminTags(ListAdminTagsReq) returns (ListAdminTagsRes) {}
+
+  rpc AddAdminTagToUser(AddAdminTagToUserReq) returns (UserDetails) {}
+
+  rpc RemoveAdminTagFromUser(RemoveAdminTagFromUserReq) returns (UserDetails) {}
+}
+
+message AdminActionLog {
+  int64 admin_action_id = 1;
+  google.protobuf.Timestamp created = 2;
+  int64 admin_user_id = 3;
+  string admin_username = 4;
+  string action_type = 5;
+  string note = 6;   // optional note/details
+  string tag = 7;    // for tag-related actions
+  AdminActionLevel level = 8;
+}
+
+message AdminTagInfo {
+  int64 admin_tag_id = 1;
+  string tag = 2;
 }
 
 message UserDetails {
@@ -99,10 +130,14 @@ message UserDetails {
   org.couchers.api.core.GenderVerificationStatus gender_verification_status = 11;
   bool has_passport_sex_gender_exception = 12;
 
-  string admin_note = 13;
+  reserved 13;
+  reserved "admin_note";
 
   int64 pending_mod_notes_count = 16;
   int64 acknowledged_mod_notes_count = 17;
+
+  repeated AdminActionLog admin_actions = 18;
+  repeated string admin_tags = 19;
 }
 
 message GetUserDetailsReq {
@@ -118,7 +153,7 @@ message SearchUsersReq {
   string username = 3;
   string email = 4;
   string name = 5;
-  string admin_note = 6;
+  string admin_action_log = 6;
   string city = 7;
   int64 min_user_id = 8;
   int64 max_user_id = 9;
@@ -133,6 +168,7 @@ message SearchUsersReq {
   google.protobuf.BoolValue is_deleted = 18;
   google.protobuf.BoolValue is_banned = 19;
   google.protobuf.BoolValue has_avatar = 20;
+  repeated string admin_tags = 21;
 
   uint32 page_size = 1;
   string page_token = 2;
@@ -187,6 +223,7 @@ message AddAdminNoteReq {
   // username, email, or user id
   string user = 1;
   string admin_note = 2;
+  AdminActionLevel level = 3;  // defaults to NORMAL if unset
 }
 
 message ContentReport {
@@ -253,18 +290,26 @@ message GetChatsReq {
   string user = 1;
 }
 
+message ChatUserInfo {
+  int64 user_id = 1;
+  string username = 2;
+  string name = 3;
+  string birthdate = 4;
+  string gender = 5;
+}
+
 message ChatMessage {
   int64 message_id = 1;
-  UserDetails author = 2;
+  ChatUserInfo author = 2;
   google.protobuf.Timestamp time = 3;
   string message_type = 4; // e.g. "text", "chat_created", "host_request_status_changed"
   string text = 5;
   string host_request_status_target = 6; // if applicable
-  UserDetails target = 7; // for user_invited, user_made_admin, etc.
+  ChatUserInfo target = 7; // for user_invited, user_made_admin, etc.
 }
 
 message GroupChatMember {
-  UserDetails user = 1;
+  ChatUserInfo user = 1;
   google.protobuf.Timestamp joined = 2;
   google.protobuf.Timestamp left = 3; // not set if still member
   string role = 4; // e.g. "admin", "participant"
@@ -274,15 +319,15 @@ message AdminGroupChat {
   int64 group_chat_id = 1;
   string title = 2;
   bool is_dm = 3;
-  UserDetails creator = 4;
+  ChatUserInfo creator = 4;
   repeated GroupChatMember members = 5;
   repeated ChatMessage messages = 6;
 }
 
 message AdminHostRequest {
   int64 host_request_id = 1;
-  UserDetails surfer = 2;
-  UserDetails host = 3;
+  ChatUserInfo surfer = 2;
+  ChatUserInfo host = 3;
   string status = 4;
   string from_date = 5;
   string to_date = 6;
@@ -291,7 +336,7 @@ message AdminHostRequest {
 }
 
 message GetChatsRes {
-  UserDetails user = 1;
+  ChatUserInfo user = 1;
   repeated AdminHostRequest host_requests = 2;
   repeated AdminGroupChat group_chats = 3;
 }
@@ -432,4 +477,24 @@ message SetLastDonatedReq {
   string user = 1;
   // if not set, clears last_donated (removes donor status)
   google.protobuf.Timestamp last_donated = 2;
+}
+
+message CreateAdminTagReq {
+  string tag = 1;
+}
+
+message ListAdminTagsReq {}
+
+message ListAdminTagsRes {
+  repeated AdminTagInfo tags = 1;
+}
+
+message AddAdminTagToUserReq {
+  string user = 1;
+  string tag = 2;
+}
+
+message RemoveAdminTagFromUserReq {
+  string user = 1;
+  string tag = 2;
 }

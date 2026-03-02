@@ -2,7 +2,9 @@
   "errors": {
     "try_again": "Inténtalo de nuevo",
     "failed_to_load": "Error al cargar",
-    "check_connection": "Comprueba tu conexión a internet y vuélvelo a intentar."
+    "check_connection": "Comprueba tu conexión a internet y vuélvelo a intentar.",
+    "camera_permission_denied": "Se requiere el permiso de cámara para hacer fotos.",
+    "camera_permission_required": "Permiso de Cámara Requerido"
   },
   "not_found": {
     "title": "¡Ups!",
@@ -15,5 +17,12 @@
     "communities": "Comunidades",
     "search": "Buscar",
     "events": "Eventos"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "add_photo": "Añadir Foto",
+    "choose_photo_source": "Elige de dónde obtener tu foto",
+    "take_photo": "Hacer Foto",
+    "choose_from_library": "Elegir de la Biblioteca"
   }
 }

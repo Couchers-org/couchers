@@ -33,11 +33,16 @@
     "community_standing": "Prestigio comunitario",
     "languages_conversational": "Idiomas con los que me defiendo",
     "gender_verification_verified": "Este usuario ha verificado su género",
-    "gender_verification_mismatch": "El género indicado por el usuario no se corresponde con el género verificado"
+    "gender_verification_mismatch": "El género indicado por el usuario no se corresponde con el género verificado",
+    "photos_section": "Fotos"
   },
   "last_active_false": "Desconocido",
   "reference_amounts": {
-    "no_references": "Sin referencias"
+    "no_references": "Sin referencias",
+    "hundred_or_more_references": "+100 referencias",
+    "count_references_one": "{{count}} referencia",
+    "count_references_many": "{{count}} de referencias",
+    "count_references_other": "{{count}} referencias"
   },
   "edit_profile_headings": {
     "name": "Nombre",
@@ -200,9 +205,11 @@
     "meetup_only": "Sólo quedada",
     "overnight_stay": "Pernocta",
     "request_description_empty": "Por favor, escribe un mensaje de solicitud",
-    "request_char_length_too_short": "Por favor, escribe al menos {{charactersRemaining}} caracteres más para enviar una solicitud de alojamiento.",
     "stay_type_a11y_text": "tipo que estancia",
-    "success": "¡Solicitud enviada!"
+    "success": "¡Solicitud enviada!",
+    "request_chars_remaining_one": "Por favor, escribe al menos {{count}} carácter más para enviar una solicitud de hospedaje.",
+    "request_chars_remaining_many": "Por favor, escribe al menos {{count}} de caracteres más para enviar una solicitud de hospedaje.",
+    "request_chars_remaining_other": "Por favor, escribe al menos {{count}} carácteres más para enviar una solicitud de hospedaje."
   },
   "my_connections": "Mis contactos",
   "active": "Activo",
@@ -216,9 +223,9 @@
   },
   "helper_text": {
     "missing_profile_photo": "Por favor añade una foto para completar tu perfil.",
-    "characters_remaining_one": "<bold>Por favor, escribe al menos {{count}} caracter para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!",
-    "characters_remaining_many": "<bold>Por favor, escribe al menos {{count}} de caracteres para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!",
-    "characters_remaining_other": "<bold>Por favor, escribe al menos {{count}} caracteres para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!"
+    "characters_remaining_one": "<bold>Por favor, escribe al menos {{count}} caracter más para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!",
+    "characters_remaining_many": "<bold>Por favor, escribe al menos {{count}} de caracteres más para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!",
+    "characters_remaining_other": "<bold>Por favor, escribe al menos {{count}} caracteres más para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!"
   },
   "section_tabs_a11y_label": "pestañas para detalles de usuario",
   "incomplete_dialog": {
@@ -229,10 +236,8 @@
     "save_anyway": "¿Guardar de todas formas?",
     "continue_editing": "Continuar editando"
   },
-  "image_uploading_warning": "Tu foto de perfil todavía se está cargando. ¿De verdad deseas salir de la página?",
   "avatar_photo_info": "<bold>Se requiere una foto tuya para interactuar con la comunidad.</bold> Una foto clara y amigable que muestre tu rostro genera confianza, ayuda a que los demás se sientan cómodos y mejora considerablemente tus posibilidades de recibir una respuesta.",
   "search_indicator": "El principio de esta sección es visible en los resultados de búsqueda cuando otros miembros te buscan",
-  "click_replace_image": "Haz clic para reemplazar la imagen",
   "badges": {
     "subtitle": "Aprende sobre las insignias de usuario, mira quién las tiene, y aprende cómo puedes conseguirlas.",
     "title": "Explorar las insignias de Couchers.org",
@@ -307,8 +312,32 @@
   },
   "profile_changes_saved_message": "¡Cambios en el perfil guardados!",
   "hosting_preferences_success_message": "¡Preferencias de alojamiento guardadas!",
-  "couldnt_read_file": "No se pudo leer el archivo",
-  "select_an_image": "Selecciona una imagen",
-  "names_profile_photo": "Foto de perfil de {{name}}",
-  "what_options_mean": "Qué significan estas opciones"
+  "what_options_mean": "Qué significan estas opciones",
+  "gallery": {
+    "photo_item_a11y": "Foto",
+    "add_photo": "Añadir foto",
+    "uploading": "Subiendo...",
+    "remove_photo": "Eliminar foto",
+    "select_photo": "Seleccionar una foto",
+    "photo_count": "{{current}} de {{total}}",
+    "empty_title": "Añade tu primera foto",
+    "empty_description": "Haz clic aquí o en el botón de arriba para subir una foto",
+    "no_photos": "Aún no hay fotos",
+    "add_photo_error": "No se pudo añadir la foto. Por favor inténtalo de nuevo.",
+    "remove_photo_error": "No se pudo eliminar la foto. Por favor inténtalo de nuevo.",
+    "move_photo_error": "No se pudieron reordenar las fotos. Por favor inténtalo de nuevo.",
+    "reorder_success": "¡Fotos reordenadas satisfactoriamente!",
+    "upload_success": "¡Foto subida satisfactoriamente!",
+    "profile_photos_title": "Fotos de Perfil",
+    "profile_photos_description": "Añade fotos tuyas para ayudar a otros a conocerte. Arrastra y suelta para reordenar.",
+    "verification_required_for_more_photos": "Has alcanzado tu límite de fotos. Completa la verificación robusta para añadir más fotos.",
+    "get_verified": "Obten la verificación",
+    "photo_viewer_aria": "Visor de fotos",
+    "previous_photo": "Foto anterior",
+    "next_photo": "Foto siguiente",
+    "close_viewer": "Cerrar el visor de fotos",
+    "report_photo": "Denunciar foto"
+  },
+  "click_to_add_photo": "Haz clic para añadir una foto",
+  "avatar_placeholder_info": "<bold>Haz clic en el avatar del marcador de posición para ir a la sección de carga de fotos.</bold> Se requiere una foto tuya para interactuar con la comunidad. Una foto clara y amigable que muestre tu rostro genera confianza y ayuda a que otros se sientan cómodos."
 }

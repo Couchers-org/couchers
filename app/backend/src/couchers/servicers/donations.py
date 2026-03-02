@@ -2,6 +2,7 @@ import json
 import logging
 
 import grpc
+import sentry_sdk
 import stripe
 from google.protobuf import empty_pb2
 from sqlalchemy import select
@@ -10,12 +11,14 @@ from sqlalchemy.orm import Session
 from couchers import urls
 from couchers.config import config
 from couchers.context import CouchersContext
+from couchers.event_log import log_event
 from couchers.helpers.badges import user_add_badge
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
+from couchers.slack import send_slack_message
 from couchers.utils import not_none
 
 logger = logging.getLogger(__name__)
@@ -91,6 +94,13 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             )
         )
 
+        log_event(
+            context,
+            session,
+            "donation.initiated",
+            {"amount": request.amount, "recurring": request.recurring, "source": request.source or None},
+        )
+
         return donations_pb2.InitiateDonationRes(
             stripe_checkout_session_id=checkout_session.id, stripe_checkout_url=checkout_session.url
         )
@@ -140,11 +150,22 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         if event_type == "charge.succeeded":
             if metadata.get("site_url") == config["MERCH_SHOP_URL"]:
                 # merch shop. look up this email and give them the swagster badge
-                user = session.execute(
-                    select(User).where(User.email == metadata["customer_email"])
-                ).scalar_one_or_none()
+                customer_email = metadata["customer_email"]
+                amount = int(data_object["amount"]) // 100
+                user = session.execute(select(User).where(User.email == customer_email)).scalar_one_or_none()
                 if user:
                     user_add_badge(session, user.id, "swagster")
+                    user_link = urls.user_link(username=user.username)
+                    customer_info = f"<{user_link}|{user.name}>"
+                else:
+                    customer_info = customer_email
+                try:
+                    send_slack_message(
+                        config["SLACK_MERCH_CHANNEL"],
+                        f"Merch purchase: ${amount} from {customer_info}",
+                    )
+                except Exception as e:
+                    sentry_sdk.capture_exception(e)
             else:
                 customer_id = data_object["customer"]
                 user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
@@ -174,6 +195,18 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                         receipt_url=receipt_url,
                     ),
                 )
+
+                # Recurring donations go through Stripe invoices, one-time don't
+                is_recurring = data_object.get("invoice") is not None
+                donation_type = "recurring" if is_recurring else "one-time"
+                user_link = urls.user_link(username=user.username)
+                try:
+                    send_slack_message(
+                        config["SLACK_DONATIONS_CHANNEL"],
+                        f"Donation received: ${amount} ({donation_type}) from <{user_link}|{user.name}>",
+                    )
+                except Exception as e:
+                    sentry_sdk.capture_exception(e)
         else:
             logger.info(f"Unhandled event from Stripe: {event_type}")
 

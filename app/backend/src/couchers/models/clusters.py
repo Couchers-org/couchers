@@ -31,6 +31,17 @@ from couchers.utils import get_coordinates
 
 if TYPE_CHECKING:
     from couchers.models import Discussion, Event, Thread, Upload, User
+    from couchers.models.public_trips import PublicTrip
+
+
+class NodeType(enum.Enum):
+    # Ordinal: lower values are broader geographic areas
+    world = 1
+    macroregion = 2
+    region = 3
+    subregion = 4
+    locality = 5
+    sublocality = 6
 
 
 class Node(Base, kw_only=True):
@@ -50,6 +61,8 @@ class Node(Base, kw_only=True):
         init=False,
     )
 
+    node_type: Mapped[NodeType] = mapped_column(Enum(NodeType))
+
     # name and description come from the official cluster
     parent_node_id: Mapped[int | None] = mapped_column(ForeignKey("nodes.id"), default=None, index=True)
     geom: Mapped[Geom] = deferred(mapped_column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False))
@@ -67,6 +80,7 @@ class Node(Base, kw_only=True):
         uselist=False,
         viewonly=True,
     )
+    public_trips: Mapped[list[PublicTrip]] = relationship(init=False, back_populates="node")
 
 
 class Cluster(Base, kw_only=True):

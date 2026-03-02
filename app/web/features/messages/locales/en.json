@@ -19,8 +19,19 @@
       "aria_label": "Tabs for different message types",
       "chats": "Chats",
       "hosting": "Hosting",
-      "surfing": "Surfing"
+      "surfing": "Surfing",
+      "archived": "Archived"
     }
+  },
+  "archive": {
+    "archived": "Archived",
+    "archive_button": "Archive",
+    "unarchive_button": "Unarchive",
+    "show_archived": "Show archived",
+    "show_active": "Show active",
+    "no_archived_chats": "No archived chats",
+    "no_archived_requests": "No archived requests",
+    "no_archived_messages": "No archived messages"
   },
   "chat_view": {
     "cannot_message_text": "You cannot send messages in this chat",
@@ -75,7 +86,10 @@
     "no_friends_found_message": "Couldn't find any friends",
     "user_load_error_message": "(User load error)",
     "friends_input_label": "Friends",
-    "title_label": "Title"
+    "title_label": "Title",
+    "create_button": "Create chat",
+    "back_button": "Back",
+    "hosting_request_hint": "Sending a hosting request? Go <back>Back</back> and use the <request>Request</request> button instead."
   },
   "chat_input": {
     "label": "Message"
@@ -96,6 +110,13 @@
   "requests_tab": {
     "no_requests_message": "No requests yet",
     "load_more_button_label": "Load more"
+  },
+  "all_messages_tab": {
+    "no_messages": "No messages yet",
+    "load_more": "Load more",
+    "filter": {
+      "all": "All"
+    }
   },
   "invite_dialog": {
     "title": "Invite to chat",
@@ -120,7 +141,12 @@
     "user_left_chat_text": "{{user}} left the chat",
     "admin_assignment_text": "{{user}} made {{target_user}} an admin",
     "admin_removal_text": "{{user}} removed {{target_user}} as admin",
-    "host_request_status_changed_text": "{{user}} changed the request to {{status}}",
+    "host_request_status_changed": {
+      "accepted": "{{user}} has accepted the request",
+      "cancelled": "{{user}} has cancelled the request",
+      "confirmed": "{{user}} has confirmed the request",
+      "rejected": "{{user}} has rejected the request"
+    },
     "unknown_message_text": "Unknown control message"
   },
   "host_request_status": {

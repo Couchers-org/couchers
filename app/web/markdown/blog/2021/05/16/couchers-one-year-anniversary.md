@@ -1,8 +1,10 @@
 ---
+is_blog_post: true
 title: "Celebrating our one-year anniversary"
 description: "A brief recap of the platform’s milestones so far, and what we hope to achieve over the next 12 months."
 date: 2021/05/16
 author: Mindy
+author_username: mindelyn
 share_image: https://couchers.org/img/blog/20210516_1st_birthday.jpg
 ---
 
@@ -41,10 +43,3 @@ This next year is all about growth. In this next stage, we will focus on recruit
 Finally, a heartfelt thank you for the contributions of our entire volunteer team, who are at the heart of Couchers.org. Their tireless efforts are turning this vision into a reality. We know we’re attempting something radical here: taking back a corporatized construct and returning couch surfing to the hands of its users. We believe in the life-changing nature of travel and couch surfing and hospitality exchange, and believe it should be accessible to all. We’re excited and passionate about the future of this movement we’ve started.
 
 If you’re also excited about where this is headed and passionate about this mission—[join us](https://couchers.org/signup).
-
-
-
-
-*Written by Mindy. Published on 2021/05/16.*
-
-**Want to help write our blog or volunteer? [Sign up](/volunteer) and let us know. Volunteers and [donations](/donate) are what make Couchers.org possible!**

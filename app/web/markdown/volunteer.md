@@ -62,7 +62,7 @@ Want to help but don't see anything listed for you? [Fill out this form](/volunt
 #### Community
 
 - [Community Builder Program Manager](./volunteer/community-builder-program-manager)
-- [Event Organizer](./volunteer/event-organizer.md)
+- [Event Organizer](./volunteer/event-organizer)
 
 #### Development
 

@@ -1,9 +1,11 @@
 ---
+is_blog_post: true
 title: "Introducing the Official Couchers.org Merchandise Shop!"
 slug: merch-shop-release
 description: "We’re excited to share a milestone the community has been waiting for: The official Couchers Merchandise Shop is now live!"
 date: 2026/01/04
 author: Iason
+author_username: iliossatos
 ---
 
 We’re excited to share a milestone the community has been waiting for:
@@ -13,7 +15,6 @@ The official [Couchers Merchandise Shop](https://couchers.org/shop) is now live!
 Couchers.org has grown through the passion and hard work of volunteers across the world: developers, designers, translators, community builders, hosts, and travelers. Now, for the first time, you can represent that spirit in your everyday life with high-quality merch created specifically for the community.
 
 Whether you’re attending a meetup, hosting travelers, or exploring new places, Couchers.org merch (merchandise) is a fun way to show your support while helping grow our community and platform.
-
 
 ## Why a Merchandise Shop?
 
@@ -62,11 +63,7 @@ Check out the full collection here:
   <a href="https://couchers.org/shop" style="display: inline-block; background-color: #00a398; color: white; padding: 6px 16px; font-size: 0.875rem; font-weight: 500; line-height: 1.75; border-radius: 4px; text-decoration: none; text-transform: uppercase; letter-spacing: 0.02857em; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.25); transition: background-color 0.3s;">Visit the Merch Shop</a>
 </div>
 
-
 Thank you for supporting Couchers - whether by hosting, volunteering, donating, or rocking some stylish merch.
 
 Together, we’re building a better hospitality platform for the world.
 Happy Merch Drop!
-
-
-*Written by [Iason](https://couchers.org/user/iliossatos). Published on 2026/01/03*

@@ -41,7 +41,8 @@ import {
   tosRoute,
   volunteerRoute,
 } from "routes";
-import { timeAgoI18n } from "utils/timeAgo";
+import { useIsNativeEmbed } from "utils/nativeLink";
+import { timeAgo } from "utils/timeAgo";
 
 const StyledFooter = styled("footer")<{ bottomMargin?: string }>(
   ({ bottomMargin }) => ({
@@ -101,23 +102,30 @@ const StyledMiddleContainer = styled("div")(({ theme }) => ({
 const StyledLowerOuterContainer = styled("div")(({ theme }) => ({
   paddingBlockStart: theme.spacing(2),
   paddingBlockEnd: theme.spacing(2),
+  backgroundColor: "var(--mui-palette-primary-main)",
+  color: "var(--mui-palette-primary-contrastText)",
 }));
 
 const StyledLowerContainer = styled("div")(({ theme }) => ({
   display: "flex",
-  flexWrap: "wrap",
+  flexDirection: "column",
+  alignItems: "center",
   margin: "0 auto",
-  justifyContent: "center",
   maxWidth: theme.breakpoints.values.md,
   paddingInlineStart: theme.spacing(4),
   paddingInlineEnd: theme.spacing(4),
 
-  "& > * + *": {
-    marginInlineStart: theme.spacing(2),
-  },
-  "& > * + *::before": {
-    content: "'|'",
-    marginInlineEnd: theme.spacing(2),
+  [theme.breakpoints.up("sm")]: {
+    flexDirection: "row",
+    justifyContent: "center",
+
+    "& > * + *": {
+      marginInlineStart: theme.spacing(2),
+    },
+    "& > * + *::before": {
+      content: "'|'",
+      marginInlineEnd: theme.spacing(2),
+    },
   },
 }));
 
@@ -149,17 +157,23 @@ const StyledButton = styled(Button)<ButtonProps>(({ theme }) => ({
 
 const VersionLink = styled(Link)(({ theme }) => ({
   fontWeight: 700,
+  color: "inherit",
 }));
 
 export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
-  const { t } = useTranslation(GLOBAL);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(GLOBAL);
+  const isNativeEmbed = useIsNativeEmbed();
 
   const version_text = process.env.NEXT_PUBLIC_DISPLAY_VERSION || "dev";
   const version_link = roadmapRoute;
   const updated_ago_text = process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP
-    ? timeAgoI18n({
-        input: new Date(process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP),
-        t: t,
+    ? timeAgo({
+        since: new Date(process.env.NEXT_PUBLIC_COMMIT_TIMESTAMP),
+        t,
+        locale,
       })
     : "unknown";
   const updated_ago_link = githubUpdatesURL;
@@ -206,13 +220,15 @@ export default function Footer({ bottomMargin }: { bottomMargin?: string }) {
             <ReportButton isMenuLink />
           </div>
           <StyledButtonContainer>
-            <StyledButton
-              component={Link}
-              href={donationsRoute}
-              variant="contained"
-            >
-              {t("nav.donate")}
-            </StyledButton>
+            {!isNativeEmbed && (
+              <StyledButton
+                component={Link}
+                href={donationsRoute}
+                variant="contained"
+              >
+                {t("nav.donate")}
+              </StyledButton>
+            )}
             <StyledButton
               component={Link}
               href={volunteerRoute}

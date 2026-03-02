@@ -1,9 +1,9 @@
 {
-    "create_an_account": "Vytvořit účet",
-    "what_couchsurfing_title": "Couchers.org: jiný způsob cestování",
-    "introduction_title": "Sejděte se jako cizinci, odejděte jako přátelé",
-    "introduction_subtitle2": "Navždy zdarma. Vedené komunitou. Neziskově.",
-    "signup_header": "Přidej se ke komunitě Couchers.org",
-    "signup_description": "Cestuj, ubytuj hosty a spoj se s {{ user_count }} členy. <2>Zjisti o nás více</2>.",
-    "signup_continue": "Dokonči registraci"
+  "create_an_account": "Vytvořit účet",
+  "what_couchsurfing_title": "Couchers.org: jiný způsob cestování",
+  "introduction_title": "Sejděte se jako cizinci, odejděte jako přátelé",
+  "introduction_subtitle2": "Navždy zdarma. Vedené komunitou. Neziskově.",
+  "signup_header": "Přidej se ke komunitě Couchers.org",
+  "signup_description": "Cestuj, ubytuj hosty a spoj se s {{ user_count }} členy. <2>Zjisti o nás více</2>.",
+  "signup_continue": "Dokonči registraci"
 }

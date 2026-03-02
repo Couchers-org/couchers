@@ -2,7 +2,7 @@ from typing import NoReturn, cast
 
 import grpc
 
-from couchers.i18n.localize import localize_string
+from couchers.i18n import LocalizationContext
 
 
 class NonInteractiveContextException(Exception):
@@ -66,14 +66,16 @@ class CouchersContext:
         user_id: int | None,
         is_api_key: bool | None,
         token: str | None,
-        ui_language_preference: str | None,
+        localization: LocalizationContext,
+        sofa: str | None = None,
     ):
         """Don't ever construct directly, always use the `make_*_context_` functions!"""
         self._grpc_context = grpc_context
         self._user_id = user_id
         self._is_api_key = is_api_key
         self.__token = token
-        self.__ui_language_preference = ui_language_preference
+        self.__localization = localization
+        self._sofa = sofa
         self.__is_interactive = is_interactive
         self.__logged_in = self._user_id is not None
         self.__cookies: list[str] = []
@@ -101,20 +103,6 @@ class CouchersContext:
     def is_logged_out(self) -> bool:
         return not self.__logged_in
 
-    def get_localized_string(self, key: str, *, substitutions: dict[str, str | int] | None = None) -> str:
-        """
-        Get a localized string using the user's language preference.
-        Falls back to the default language if no preference is set.
-
-        Args:
-            key: The key for the specific string
-            substitutions: Dictionary of variable substitutions for the string (optional)
-
-        Returns:
-            The translated string with substitutions applied
-        """
-        return localize_string(self.__ui_language_preference, key, substitutions=substitutions)
-
     def abort(self, status_code: grpc.StatusCode, error_message: str) -> NoReturn:
         """
         Raises an error that's returned to the user
@@ -136,7 +124,7 @@ class CouchersContext:
         else:
             context = cast(grpc.ServicerContext, self._grpc_context)
             # Get the translated error message using the user's language preference
-            error_message = self.get_localized_string(f"errors.{error_message_id}", substitutions=substitutions)
+            error_message = self.localization.localize_string(f"errors.{error_message_id}", substitutions=substitutions)
             context.abort(status_code, error_message)
 
     def set_cookies(self, cookies: list[str]) -> None:
@@ -184,8 +172,8 @@ class CouchersContext:
         return cast(str, self.__token)
 
     @property
-    def ui_language_preference(self) -> str | None:
-        return self.__ui_language_preference
+    def localization(self) -> LocalizationContext:
+        return self.__localization
 
 
 def make_interactive_context(
@@ -193,7 +181,8 @@ def make_interactive_context(
     user_id: int | None,
     is_api_key: bool,
     token: str | None,
-    ui_language_preference: str | None,
+    localization: LocalizationContext,
+    sofa: str | None = None,
 ) -> CouchersContext:
     return CouchersContext(
         is_interactive=True,
@@ -201,21 +190,19 @@ def make_interactive_context(
         user_id=user_id,
         is_api_key=is_api_key,
         token=token,
-        ui_language_preference=ui_language_preference,
+        localization=localization,
+        sofa=sofa,
     )
 
 
-def make_one_off_interactive_user_context(
-    couchers_context: CouchersContext,
-    user_id: int,
-) -> CouchersContext:
+def make_one_off_interactive_user_context(couchers_context: CouchersContext, user_id: int) -> CouchersContext:
     return CouchersContext(
         is_interactive=True,
         grpc_context=couchers_context._grpc_context,
         user_id=user_id,
         is_api_key=None,
         token=None,
-        ui_language_preference=None,
+        localization=couchers_context.localization,
     )
 
 
@@ -226,27 +213,27 @@ def make_media_context(grpc_context: grpc.ServicerContext) -> CouchersContext:
         is_api_key=False,
         grpc_context=grpc_context,
         token=None,
-        ui_language_preference=None,
+        localization=LocalizationContext.en_utc(),
     )
 
 
-def make_background_user_context(user_id: int) -> CouchersContext:
+def make_background_user_context(user_id: int, localization: LocalizationContext | None = None) -> CouchersContext:
     return CouchersContext(
         is_interactive=False,
         user_id=user_id,
         is_api_key=None,
         grpc_context=None,
         token=None,
-        ui_language_preference=None,
+        localization=localization or LocalizationContext.en_utc(),
     )
 
 
-def make_logged_out_context() -> CouchersContext:
+def make_logged_out_context(localization: LocalizationContext) -> CouchersContext:
     return CouchersContext(
         user_id=None,
         is_interactive=False,
         is_api_key=None,
         grpc_context=None,
         token=None,
-        ui_language_preference=None,
+        localization=localization,
     )

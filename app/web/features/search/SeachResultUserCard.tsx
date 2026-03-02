@@ -12,8 +12,9 @@ import LinesEllipsis from "react-lines-ellipsis";
 import { routeToUser } from "routes";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
+import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
-import { hourMillis, timeAgoI18n } from "utils/timeAgo";
+import { timeAgo, TimeUnit } from "utils/timeAgo";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
 import { aboutText, truncateWithEllipsis } from "./utils/constants";
@@ -155,7 +156,11 @@ const SearchResultUserCard = ({
   user,
 }: SearchResultUserCardProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const { t } = useTranslation([GLOBAL, PROFILE]);
+  const isNativeEmbed = useIsNativeEmbed();
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([GLOBAL, PROFILE]);
 
   const handleUserCardClick = () => {
     onUserCardClick(user.userId);
@@ -189,23 +194,25 @@ const SearchResultUserCard = ({
                 </Typography>
               </StyledLink>
             </FlexRow>
-            <StyledLink
-              aria-label={t("profile:open_profile_new_tab")}
-              href={routeToUser(user.username)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Tooltip title={t("profile:open_profile_new_tab")}>
-                <StyledOpenInNewIcon
-                  sx={{
-                    "&:hover": {
-                      color: "var(--mui-palette-primary-dark)",
-                    },
-                  }}
-                />
-              </Tooltip>
-            </StyledLink>
+            {!isNativeEmbed && (
+              <StyledLink
+                aria-label={t("profile:open_profile_new_tab")}
+                href={routeToUser(user.username)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Tooltip title={t("profile:open_profile_new_tab")}>
+                  <StyledOpenInNewIcon
+                    sx={{
+                      "&:hover": {
+                        color: "var(--mui-palette-primary-dark)",
+                      },
+                    }}
+                  />
+                </Tooltip>
+              </StyledLink>
+            )}
           </FlexRow>
 
           <FlexRow justifyContent="space-between">
@@ -233,13 +240,11 @@ const SearchResultUserCard = ({
             <Typography variant="body2">
               {user.lastActive
                 ? `${t("profile:active")}: ` +
-                  timeAgoI18n({
-                    input: timestamp2Date(user.lastActive),
+                  timeAgo({
+                    since: timestamp2Date(user.lastActive),
                     t,
-                    fuzzy: {
-                      millis: hourMillis,
-                      translationKey: "relative_time.less_than_one_hour_ago",
-                    },
+                    locale,
+                    minimumUnit: TimeUnit.Hours,
                   })
                 : t("last_active_false")}
             </Typography>

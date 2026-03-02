@@ -11,9 +11,9 @@ It's possible to run your local dev environment on your phone, for example if yo
 3. In `app/backend.dev.env` change the value of `COOKIE_DOMAIN` to `COOKIE_DOMAIN={YOUR_IP_ADDRESS}`. No http or slashes here.
 4. In `app/web/.env.localdev` and `app/web/.env.development` (or `.env.development.local` depending what you're using), change this value:
    - `NEXT_PUBLIC_API_BASE_URL=http://{YOUR_IP_ADDRESS}:8888`
-5. (Optional) If you need to test **photo uploads** from your phone, also update the media server URLs in `app/backend.dev.env`:
-   - `MEDIA_SERVER_BASE_URL=http://{YOUR_IP_ADDRESS}:5001`
-   - `MEDIA_SERVER_UPLOAD_BASE_URL=http://{YOUR_IP_ADDRESS}:5001`
+5. (Optional) If you need to test **photo uploads** from your phone, update the media server URLs in both env files (same IP in both):
+   - `app/backend.dev.env`: `MEDIA_SERVER_BASE_URL=http://{YOUR_IP_ADDRESS}:5001` and `MEDIA_SERVER_UPLOAD_BASE_URL=http://{YOUR_IP_ADDRESS}:5001`
+   - `app/media.dev.env`: `MEDIA_SERVER_BASE_URL=http://{YOUR_IP_ADDRESS}:5001` (so upload response URLs work in the app)
 6. If you're working on the React Native mobile app, update `app/mobile/.env` - comment out the stage env vars and add dev vars:
    ```
    # LOCAL:

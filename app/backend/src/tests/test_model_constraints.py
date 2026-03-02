@@ -3,7 +3,17 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import func
 
 from couchers.db import session_scope
-from couchers.models import ActivenessProbe, ActivenessProbeStatus, Cluster, Node, Page, PageType, PageVersion, Thread
+from couchers.models import (
+    ActivenessProbe,
+    ActivenessProbeStatus,
+    Cluster,
+    Node,
+    NodeType,
+    Page,
+    PageType,
+    PageVersion,
+    Thread,
+)
 from couchers.utils import create_polygon_lat_lng, to_multi
 from tests.fixtures.db import generate_user
 from tests.test_communities import create_1d_polygon, create_community
@@ -18,7 +28,7 @@ def test_node_constraints(db):
     # check we can't have two official clusters for a given node
     with pytest.raises(IntegrityError) as e:
         with session_scope() as session:
-            node = Node(geom=to_multi(create_1d_polygon(0, 2)))
+            node = Node(geom=to_multi(create_1d_polygon(0, 2)), node_type=NodeType.world)
             session.add(node)
             session.flush()
             cluster1 = Cluster(
@@ -72,7 +82,9 @@ def test_page_constraints(db):
     assert "one_owner" in str(e.value)
 
     with session_scope() as session:
-        node = Node(geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])))
+        node = Node(
+            geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])), node_type=NodeType.world
+        )
         session.add(node)
         session.flush()
         cluster = Cluster(

@@ -41,6 +41,11 @@
   "confirm": "Confirm",
   "copy": "Copy",
   "copied": "Copied to clipboard",
+  "image_input": {
+    "select_button_a11y": "Select an image",
+    "replace_image_tooltip": "Click to replace image",
+    "read_file_error_message": "Couldn't read file"
+  },
   "load_more": "Load more",
   "read_more": "Read more",
   "next": "Next",
@@ -191,6 +196,7 @@
     "help_center": "Help Center",
     "roadmap_updates": "Roadmap & Updates",
     "help": "Help",
+    "home": "Home",
     "log_out": "Log out",
     "map_search": "Search",
     "mission": "Mission and Values",
@@ -235,19 +241,7 @@
   "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "< 1 minute ago",
-    "n_minutes_ago_one": "{{count}} minute ago",
-    "n_minutes_ago_other": "{{count}} minutes ago",
-    "less_than_one_hour_ago": "Less than an hour ago",
-    "n_hours_ago_one": "{{count}} hour ago",
-    "n_hours_ago_other": "{{count}} hours ago",
-    "n_days_ago_one": "{{count}} day ago",
-    "n_days_ago_other": "{{count}} days ago",
-    "n_weeks_ago_one": "{{count}} week ago",
-    "n_weeks_ago_other": "{{count}} weeks ago",
-    "n_months_ago_one": "{{count}} month ago",
-    "n_months_ago_other": "{{count}} months ago",
-    "n_years_ago_one": "{{count}} year ago",
-    "n_years_ago_other": "{{count}} years ago"
+    "less_than_one_hour_ago": "Less than an hour ago"
   },
   "location_autocomplete": {
     "more_specific": "Please choose a more specific place",
@@ -353,6 +347,11 @@
       }
     },
     "tap_press_to_flip": "Tap / press to flip"
+  },
+  "blog": {
+    "byline_with_author": "Written by <1/>. Published on {{date}}.",
+    "byline_without_author": "Published on {{date}}.",
+    "cta_message": "Want to help write our blog or volunteer? <1>Sign up</1> and let us know. Volunteers and <3>donations</3> are what make Couchers.org possible!"
   },
   "error_loading_languages": "Failed to load language options",
   "language_names": {

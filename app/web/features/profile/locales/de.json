@@ -26,7 +26,8 @@
     "travel_section": "Ich reiste nach",
     "lived_section": "Ich lebte in",
     "hosting_status": "Hosting-Status",
-    "map_section": "Reisekarte"
+    "map_section": "Reisekarte",
+    "photos_section": "Fotos"
   },
   "actions": {
     "message_label": "Chatten",
@@ -43,8 +44,8 @@
   "view_in_admin_console": "Benutzer in Admin-Panel ansehen",
   "helper_text": {
     "missing_profile_photo": "Bitte fügen ein Foto hinzu, um dein Profil zu vervollständigen.",
-    "characters_remaining_one": "<bold>Bitte schreib mindestens {{count}} Zeichen, um Chats und Anfragen freizuschalten.</bold> Authentische Profile bilden eine Community des Vertrauens. Je mehr du teilst, desto einfacher ist es, Kontakte zu knüpfen!",
-    "characters_remaining_other": "<bold>Bitte schreib mindestens {{count}} Zeichen, um Chats und Anfragen freizuschalten.</bold> Authentische Profile bilden eine Community des Vertrauens. Je mehr du teilst, desto einfacher ist es, Kontakte zu knüpfen!"
+    "characters_remaining_one": "<bold>Bitte schreibe mindestens {{count}} weiteres Zeichen, um Chats und Anfragen freizuschalten.</bold> Authentische Profile bilden eine Community des Vertrauens. Je mehr du teilst, desto einfacher ist es, Kontakte zu knüpfen!",
+    "characters_remaining_other": "<bold>Bitte schreibe mindestens {{count}} weitere Zeichen, um Chats und Anfragen freizuschalten.</bold> Authentische Profile bilden eine Community des Vertrauens. Je mehr du teilst, desto einfacher ist es, Kontakte zu knüpfen!"
   },
   "section_tabs_a11y_label": "tabs für User details",
   "incomplete_dialog": {
@@ -224,7 +225,8 @@
     "request_description": "Teile deine Pläne für den Besuch mit und gib an, warum du bei diesem bestimmten Host übernachten willst",
     "request_description_empty": "Bitte schreib eine Anfragenachricht",
     "stay_type_a11y_text": "Aufenthaltstyp",
-    "request_char_length_too_short": "Bitte schreibe mindestens {{charactersRemaining}} weitere Zeichen, um eine Host-Anfrage zu senden."
+    "request_chars_remaining_one": "Bitte schreibe mindestens noch {{count}} Zeichen, um eine Host-Anfrage zu senden.",
+    "request_chars_remaining_other": "Bitte schreibe mindestens noch {{count}} Zeichen, um eine Host-Anfrage zu senden."
   },
   "response_rate_text_some": "Manchmal",
   "reference_filter_label": {
@@ -281,8 +283,6 @@
     "title": "Couchers.org Abzeichen erforschen",
     "subtitle": "Erfahre mehr über Benutzerabzeichen, sieh wer sie hat und erfahre wie du sie bekommen kannst."
   },
-  "image_uploading_warning": "Dein Profilbild wird noch hochgeladen. Bist du sicher, dass du die Seite verlassen willst?",
-  "click_replace_image": "Klick hier zum ändern des Bildes",
   "reference_amounts": {
     "no_references": "Keine Referenzen",
     "count_references_one": "{{count}} Referenz",
@@ -307,10 +307,36 @@
   "what_options_mean": "Was diese Optionen bedeuten",
   "profile_changes_saved_message": "Profiländerungen gespeichert!",
   "hosting_preferences_success_message": "Host-einstellungen gespeichert!",
-  "couldnt_read_file": "Die Datei konnte nicht gelesen werden",
-  "select_an_image": "Bild auswählen",
-  "names_profile_photo": "Profilfoto von {{name}}",
   "edit": "Profil bearbeiten",
   "write_friend_reference": "Freund-Referenz schreiben",
-  "have_pending_reference_text": "Du hast eine Referenz für dieses Mitglied zu verfassen ausstehend"
+  "have_pending_reference_text": "Du hast eine Referenz für dieses Mitglied zu verfassen ausstehend",
+  "gallery": {
+    "profile_photo": "Profilfoto",
+    "photo_viewer_aria": "Fotoanzeige",
+    "previous_photo": "Vorheriges Foto",
+    "next_photo": "Nächstes Foto",
+    "close_viewer": "Fotoanzeige schließen",
+    "report_photo": "Foto melden",
+    "get_verified": "Verifiziert werden",
+    "move_photo_error": "Fotos konnten nicht neu angeordnet werden. Bitte versuche es erneut.",
+    "remove_photo": "Foto entfernen",
+    "photo_count": "{{current}} von {{total}}",
+    "profile_photos_title": "Profilfotos",
+    "photo_item_a11y": "Foto",
+    "empty_description": "Klick hier oder auf die Schaltfläche oben, um ein Foto hochzuladen",
+    "add_photo": "Foto hinzufügen",
+    "empty_title": "Füge dein erstes Foto hinzu",
+    "reorder_success": "Fotos erfolgreich neu angeordnet!",
+    "upload_success": "Foto erfolgreich hochgeladen!",
+    "select_photo": "Foto auswählen",
+    "profile_photos_description": "Füge Fotos von dir hinzu, damit andere dich kennenlernen können. Zum Neuanordnen ziehen und ablegen.",
+    "verification_required_for_more_photos": "Du hast dein Fotolimit erreicht. Schließe die starke Verifizierung ab, um weitere Fotos hinzuzufügen.",
+    "uploading": "Wird hochgeladen...",
+    "no_photos": "Noch keine Fotos",
+    "add_photo_error": "Foto konnte nicht hinzugefügt werden. Bitte versuche es erneut.",
+    "remove_photo_error": "Das Entfernen des Fotos ist fehlgeschlagen. Bitte versuche es erneut.",
+    "photo": "Foto"
+  },
+  "click_to_add_photo": "Klicke, um ein Foto hinzuzufügen",
+  "avatar_placeholder_info": "<bold>Klicke auf den Platzhalter-Avatar, um zum Foto-Upload-Bereich zu springen.</bold> Ein Foto von dir ist erforderlich, um mit der Community zu interagieren. Ein klares, freundliches Foto, das dein Gesicht zeigt, schafft Vertrauen und hilft anderen, sich wohl zu fühlen."
 }

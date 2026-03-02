@@ -14,7 +14,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
-import { timestamp2Date } from "utils/date";
+import { localizeDateTimeRange, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -126,9 +126,21 @@ const LongEventCard = ({
   event: Event.AsObject;
   userId?: number | null | undefined;
 }) => {
-  const { t } = useTranslation([COMMUNITIES]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([COMMUNITIES]);
 
-  const startTime = dayjs(timestamp2Date(event.startTime!)).format("llll");
+  const dateTimeRangeText = localizeDateTimeRange(
+    dayjs(timestamp2Date(event.startTime!)),
+    dayjs(timestamp2Date(event.endTime!)),
+    locale,
+    {
+      includeDayOfWeek: true,
+      long: true,
+    },
+  );
+
   const isCreatedByMe = event.creatorUserId === userId;
   const isOnline = event.onlineInformation?.link !== undefined;
   const isCancelled = event.isCancelled;
@@ -178,7 +190,7 @@ const LongEventCard = ({
               {event.offlineInformation
                 ? event.offlineInformation.address
                 : t("communities:virtual_event_location_placeholder")}
-              <div>{startTime}</div>
+              <div>{dateTimeRangeText}</div>
             </EventInfo>
             <ActivityStatsWrapper>
               <Attendees>

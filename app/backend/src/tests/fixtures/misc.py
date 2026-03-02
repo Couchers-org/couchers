@@ -20,7 +20,7 @@ def process_jobs() -> None:
 
 @contextmanager
 def mock_notification_email() -> Generator[Mock]:
-    with patch("couchers.email._queue_email") as mock:
+    with patch("couchers.email.queuing._queue_email") as mock:
         yield mock
         process_jobs()
 
@@ -136,6 +136,54 @@ class Moderator:
                 moderation_pb2.GetModerationStateReq(
                     object_type=moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
                     object_id=group_chat_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=reason,
+                )
+            )
+
+    def approve_friend_request(self, friend_request_id: int, reason: str = "Test approval") -> None:
+        """
+        Approve a friend request using the moderation API.
+
+        Args:
+            friend_request_id: The ID of the friend request (FriendRelationship.id)
+            reason: Optional reason for approval
+        """
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST,
+                    object_id=friend_request_id,
+                )
+            )
+            api.ModerateContent(
+                moderation_pb2.ModerateContentReq(
+                    moderation_state_id=state_res.moderation_state.moderation_state_id,
+                    action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    reason=reason,
+                )
+            )
+
+    def approve_event_occurrence(self, occurrence_id: int, reason: str = "Test approval") -> None:
+        """
+        Approve an event occurrence using the moderation API.
+
+        Args:
+            occurrence_id: The ID of the EventOccurrence (what the proto calls event_id)
+            reason: Optional reason for approval
+        """
+        with real_moderation_session(self.token) as api:
+            state_res = api.GetModerationState(
+                moderation_pb2.GetModerationStateReq(
+                    object_type=moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE,
+                    object_id=occurrence_id,
                 )
             )
             api.ModerateContent(

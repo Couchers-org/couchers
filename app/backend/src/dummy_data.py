@@ -12,6 +12,7 @@ from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.context import CouchersContext
 from couchers.crypto import hash_password
 from couchers.db import session_scope
+from couchers.helpers.clusters import CHILD_NODE_TYPE
 from couchers.models import (
     Cluster,
     ClusterRole,
@@ -26,10 +27,7 @@ from couchers.models import (
     LanguageFluency,
     Message,
     MessageType,
-    ModerationAction,
-    ModerationLog,
     ModerationObjectType,
-    ModerationState,
     ModerationVisibility,
     Node,
     Page,
@@ -44,6 +42,7 @@ from couchers.models import (
     User,
     Volunteer,
 )
+from couchers.moderation.utils import create_moderation
 from couchers.proto.api_pb2 import HostingStatus
 from couchers.servicers.api import hostingstatus2sql
 from couchers.servicers.auth import create_session
@@ -138,12 +137,27 @@ def add_dummy_users() -> None:
         session.commit()
 
         for username1, username2 in data["friendships"]:
-            friend_relationship = FriendRelationship(
-                from_user_id=session.execute(select(User).where(User.username == username1)).scalar_one().id,
-                to_user_id=session.execute(select(User).where(User.username == username2)).scalar_one().id,
-                status=FriendStatus.accepted,
+            from_user = session.execute(select(User).where(User.username == username1)).scalar_one()
+            to_user = session.execute(select(User).where(User.username == username2)).scalar_one()
+
+            def create_friend_relationship(
+                moderation_state_id: int, from_user: User = from_user, to_user: User = to_user
+            ) -> int:
+                friend_relationship = FriendRelationship(
+                    from_user_id=from_user.id,
+                    to_user_id=to_user.id,
+                    status=FriendStatus.accepted,
+                    moderation_state_id=moderation_state_id,
+                )
+                session.add(friend_relationship)
+                session.flush()
+                return friend_relationship.id
+
+            moderation_state = create_moderation(
+                session, ModerationObjectType.friend_request, create_friend_relationship, from_user.id
             )
-            session.add(friend_relationship)
+            moderation_state.visibility = ModerationVisibility.visible
+            session.flush()
 
         session.commit()
 
@@ -174,24 +188,9 @@ def add_dummy_users() -> None:
             session.add(conversation)
             session.flush()
 
-            # Create moderation state for UMS (set as VISIBLE since this is dummy data)
-            moderation_state = ModerationState(
-                object_type=ModerationObjectType.GROUP_CHAT,
-                object_id=conversation.id,
-                visibility=ModerationVisibility.VISIBLE,
-            )
-            session.add(moderation_state)
+            moderation_state = create_moderation(session, ModerationObjectType.group_chat, conversation.id, creator_id)
+            moderation_state.visibility = ModerationVisibility.visible
             session.flush()
-
-            session.add(
-                ModerationLog(
-                    moderation_state_id=moderation_state.id,
-                    action=ModerationAction.CREATE,
-                    moderator_user_id=creator_id,
-                    new_visibility=ModerationVisibility.VISIBLE,
-                    reason="Dummy data: group chat created.",
-                )
-            )
 
             chat = GroupChat(
                 conversation_id=conversation.id,
@@ -281,9 +280,11 @@ def add_dummy_communities() -> None:
                     .where(Cluster.name == community["parent"])
                 ).scalar_one()
 
+            parent_node_type = parent_node.node_type if parent_name else None
             node = Node(
                 geom=to_multi(geom),
                 parent_node_id=parent_node.id if parent_name else None,
+                node_type=CHILD_NODE_TYPE[parent_node_type],
             )
 
             session.add(node)

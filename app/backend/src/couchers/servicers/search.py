@@ -13,6 +13,7 @@ from sqlalchemy.sql import and_, func, or_
 from couchers import urls
 from couchers.context import CouchersContext
 from couchers.crypto import decrypt_page_token, encrypt_page_token
+from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.strong_verification import has_strong_verification
 from couchers.materialized_views import LiteUser, UserResponseRate
@@ -52,7 +53,7 @@ from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
 from couchers.servicers.pages import page_to_pb
-from couchers.sql import to_bool, users_visible, where_users_column_visible
+from couchers.sql import to_bool, users_visible, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import (
     Timestamp_from_datetime,
     create_coordinate,
@@ -321,9 +322,14 @@ def _search_events(
 
     occurrences = execute_search_statement(
         session,
-        select(EventOccurrence, rank, snippet)
-        .join(Event, Event.id == EventOccurrence.event_id)
-        .where(EventOccurrence.end_time >= func.now()),
+        where_moderated_content_visible(
+            select(EventOccurrence, rank, snippet)
+            .join(Event, Event.id == EventOccurrence.event_id)
+            .where(EventOccurrence.end_time >= func.now()),
+            context,
+            EventOccurrence,
+            is_list_operation=True,
+        ),
     )
 
     return [
@@ -646,6 +652,27 @@ class Search(search_pb2_grpc.SearchServicer):
     ) -> search_pb2.UserSearchRes:
         user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
 
+        log_event(
+            context,
+            session,
+            "search.performed",
+            {
+                "search_in": request.WhichOneof("search_in"),
+                "has_query": request.HasField("query"),
+                "has_filters": (
+                    len(request.hosting_status_filter) > 0
+                    or len(request.meetup_status_filter) > 0
+                    or len(request.smoking_location_filter) > 0
+                    or len(request.sleeping_arrangement_filter) > 0
+                    or len(request.parking_details_filter) > 0
+                    or len(request.language_ability_filter) > 0
+                    or request.only_with_references
+                    or request.only_with_strong_verification
+                ),
+                "total_items": total_items,
+            },
+        )
+
         user_ids_to_users: dict[int, User] = dict(
             session.execute(  # type: ignore[arg-type]
                 select(User.id, User).where(User.id.in_(user_ids_to_return))
@@ -749,6 +776,7 @@ class Search(search_pb2_grpc.SearchServicer):
         statement = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
         )
+        statement = where_moderated_content_visible(statement, context, EventOccurrence, is_list_operation=True)
 
         if request.HasField("query"):
             if request.query_title_only:

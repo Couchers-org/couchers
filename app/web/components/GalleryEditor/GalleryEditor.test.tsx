@@ -87,7 +87,7 @@ describe("GalleryEditor", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows primary badge on first photo", async () => {
+  it("shows Profile Photo badge on first photo", async () => {
     const gallery = galleryFixtures.galleries[0];
     const editInfo = galleryFixtures.editInfo[0];
 
@@ -97,7 +97,7 @@ describe("GalleryEditor", () => {
     render(<GalleryEditor galleryId={1} />, { wrapper });
 
     await waitFor(() => {
-      expect(screen.getByText("Primary")).toBeInTheDocument();
+      expect(screen.getByText("Profile Photo")).toBeInTheDocument();
     });
   });
 

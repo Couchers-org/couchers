@@ -102,7 +102,8 @@
       "info_text": "💡 Talen die voor 50-80% klaar zijn, zijn grijs in de taalkiezer hierboven. Als een taal voor minder dan 50% klaar is, kan je hem nog niet kiezen. Omdat we heel erg blij zijn met al onze vrijwilligers en hen willen aanmoedigen, laten we hieronder ook de talen zien die voor minder dan 20% zijn vertaald."
     },
     "current_preferred_language": "De taal van jouw voorkeur is op dit moment <lang>{{language}}</lang>.",
-    "show_all_languages": "Alle talen laten zien in de taalkiezer"
+    "show_all_languages": "Alle talen laten zien in de taalkiezer",
+    "show_all_languages_description": "Als je dit inschakelt, laat de de taalkiezer alle talen zien, ook als ze nog niet helemaal klaar zijn. Dit kan alleen op onze staging website, om te helpen bij het testen van talen die nog in ontwikkeling zijn."
   },
   "create": "maken",
   "terms_of_service": "Servicevoorwaarden",
@@ -153,7 +154,8 @@
       "problem_helper": "Korte beschrijving van het probleem en hoe dit te reproduceren is",
       "expect_label": "Wat gebeurde er? Wat had er moeten gebeuren?",
       "expect_helper": "Korte beschrijving van wat je dacht dat er eigenlijk zou gebeuren",
-      "warning_message": "Houd er rekening mee dat deze informatie, samen met diagnostische gegevens zoals op welke pagina je je bevindt, welke webbrowser je gebruikt en wat je gebruikersnaam is, wordt opgeslagen in een openbare lijst met bugs."
+      "warning_message": "Houd er rekening mee dat deze informatie, samen met diagnostische gegevens zoals op welke pagina je je bevindt, welke webbrowser je gebruikt en wat je gebruikersnaam is, wordt opgeslagen in een openbare lijst met bugs.",
+      "success_message2": "Dankjewel voor het doorgeven van deze bug. Zo maken we Couchers weer een beetje beter. Onze developers hebben je melding ontvangen. Het bug ID is <id/>."
     },
     "content": {
       "button_label": "Ongepast gedrag of ongepaste content melden",
@@ -220,6 +222,101 @@
     "disable": "Uitzetten",
     "instructions": "Maak een uitnodigingslink om met vrienden en de community te delen. Schakel de uitnodigingen uit die je niet meer gebruikt.",
     "title": "Leden uitnodigen",
-    "create": "Uitnodiging maken"
+    "create": "Uitnodiging maken",
+    "error": {
+      "fetch_invite_info": "Kon details van de invite code niet laden"
+    }
+  },
+  "contribute_title": "Meld je aan om mee te doen",
+  "reply": "Beantwoorden",
+  "yes": "Ja",
+  "no": "Nee",
+  "ok": "OK",
+  "beta": "Beta",
+  "relative_time": {
+    "less_than_a_minute_ago": "minder dan 1 minuut geleden",
+    "n_minutes_ago_one": "{{count}} minuut geleden",
+    "n_minutes_ago_other": "{{count}} minuten geleden",
+    "less_than_one_hour_ago": "Minder dan een uur geleden",
+    "n_hours_ago_one": "{{count}} uur geleden",
+    "n_hours_ago_other": "{{count}} uur geleden",
+    "n_days_ago_one": "{{count}} dag geleden",
+    "n_days_ago_other": "{{count}} dagen geleden",
+    "n_weeks_ago_one": "{{count}} week geleden",
+    "n_weeks_ago_other": "{{count}} weken geleden",
+    "n_months_ago_one": "{{count}} maand geleden",
+    "n_months_ago_other": "{{count}} maanden geleden",
+    "n_years_ago_one": "{{count}} jaar geleden",
+    "n_years_ago_other": "{{count}} jaar geleden"
+  },
+  "location_autocomplete": {
+    "more_specific": "Kies alsjeblieft een preciezere plek",
+    "search_location_hint": "Druk op Enter of klik op het vergrootglas om een locatie te kiezen",
+    "search_location_button": "Zoek locatie",
+    "select_location_hint": "Druk op Enter of klik op het vergrootglas, kies daarna een locatie uit de lijst"
+  },
+  "strong_verification": {
+    "helper_text": "Deze gebruiker heeft zijn identiteit met een biometrisch paspoort geverifieerd"
+  },
+  "footer": {
+    "non_profit_note": "Couchers.org is een project van Couchers, Inc., een Amerikaanse 501(c)(3) non-profitorganisatie met belastingvrijstelling.",
+    "version_info": "Versie <2>{{version}}</2>, laatste update <5>{{updated_ago}}</5>."
+  },
+  "what_is_cs": {
+    "title": "Wat is couchsurfing?",
+    "description_1": "Couchsurfing is een concept waarbij sommige leden (die noemen we hosts) op het platform aangeven dat ze openstaan om andere leden (die noemen we surfers) die hun stad bezoeken te ontvangen.",
+    "description_2": "Het is alsof je op bezoek gaat bij een vriend in een andere stad, maar je ontmoet de vriend voor het eerst zodra je aankomt!",
+    "get_involved_title": "Wat kan ik doen op Couchers.org?",
+    "get_started": "Aan de slag",
+    "timeline_title": "Een korte geschiedenis van couchsurfing",
+    "timeline": {
+      "early_2000s_year": "Begin jaren 2000",
+      "early_2000s_text": "De online couchsurfing-beweging is geboren: logeer bij locals, deel cultuur.",
+      "2010s_year": "jaren 2010",
+      "2010s_text": "Communities en events groeien en bloeien; referenties geven vertrouwen — de wereld begint aan te voelen als één gezellige buurt.",
+      "2020_year": "2020",
+      "2020_text": "Een groot platform gaat commercieel; Couchers.org lanceert als een non-profit, een alternatief voor en door de community.",
+      "today_year": "Nu",
+      "today_text": "Couchers.org schrijft het volgende hoofdstuk: modern, veiliger, non-profit couchsurfing — gebouwd voor en door de community."
+    },
+    "actions": {
+      "host": "Host een reiziger die je stad bezoekt",
+      "surf": "Surf bij een local tijdens je reis",
+      "attend_events": "Ga naar events met locals en reizigers",
+      "find_people": "Vind gelijkgestemden in jouw stad en ontmoet elkaar",
+      "join_discussions": "Doe mee met online gesprekken in je lokale community of start er zelf eentje"
+    },
+    "why_people_title": "Dit is waarom mensen van couchsurfen houden",
+    "why_people_points": {
+      "travelers": "<bold>Voor reizigers</bold>: diepere en echte ervaringen, buiten de gebaande paden",
+      "hosts": "<bold>Voor hosts</bold>: ontmoet mensen van over de hele wereld en deel je stad",
+      "everyone": "<bold>Voor iedereen</bold>: community, cultuur en connectie — geen transacties"
+    },
+    "tip_label": "TIP",
+    "tip_text": "Nieuw hier? Ga eens naar een event bij jou in de buurt en leer zo de rest van de community kennen - geen verplichtingen, wel verbindingen.",
+    "compare_title": "Hoe kan je Couchers.org vergelijken?",
+    "table": {
+      "header_couchers": "Couchers.org",
+      "header_hostel": "Hostel",
+      "header_hotel": "Hotel",
+      "people_first": "Op mensen gerichte stichting",
+      "cost_to_stay": "Kost geld",
+      "free_to_stay": "Kost niks",
+      "dollar": "€",
+      "dollars_range": "€€-€€€",
+      "stay_with_locals": "Logeren bij locals",
+      "professionally_managed": "Professioneel beheerde accommodatie",
+      "meetups_communities": "Meet-ups & lokale communities",
+      "cultural_exchange": "Focus op culturen uitwisselen",
+      "non_transactional": "Niet-transactioneel gemeenschapsmodel",
+      "no_investor_pressure": "Geen druk van investeerders",
+      "social_expectation": "Aangemoedigd om tijd door te brengen met je host"
+    },
+    "bottom_cta_title": "Klaar om couchsurfing te proberen?",
+    "bottom_cta_subtitle": "Word gratis lid van Couchers.org en maak deel uit van een wereldwijde community gebouwd op gastvrijheid en verbinding.",
+    "join_couchers": "Word lid van Couchers.org",
+    "is_it_safe": {
+      "title": "Hoe veilig is couchsurfen?"
+    }
   }
 }

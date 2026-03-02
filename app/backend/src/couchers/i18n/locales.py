@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 
 from couchers.i18n.i18next import I18Next
-from couchers.i18n.plurals import PluralRules
 
 # The default locale if a language or string is unavailable.
 # Note: "en" is a valid locale even if it doesn't include a region.
@@ -36,24 +35,23 @@ def load_locales(directory: Path) -> I18Next:
 
     # Load all locale JSON files from the locales directory
     for locale_file in directory.glob("*.json"):
-        lang_code = locale_file.stem  # e.g., "en" from "en.json"
+        locale = locale_file.stem  # e.g., "en" from "en.json"
 
         with open(locale_file, "r", encoding="utf-8") as f:
             translations = json.load(f)
 
-        plural_rule = PluralRules.for_language(lang_code) or PluralRules.en
-        language = i18next.add_language(lang_code, plural_rule)
-        language.load_json_dict(translations)
+        translation = i18next.add_translation(locale)
+        translation.load_json_dict(translations)
 
     # English is our default for undefined languages
-    en = i18next.languages_by_code.get("en")
-    if en is None:
+    default_translation = i18next.translations_by_locale.get(DEFAULT_LOCALE)
+    if default_translation is None:
         raise RuntimeError("English translations must be loaded")
-    i18next.default_language = en
+    i18next.default_translation = default_translation
 
     # Apply fallbacks
-    for language in i18next.languages_by_code.values():
-        for fallback_code in get_locale_fallbacks(language.code):
-            language.fallbacks.append(i18next.languages_by_code[fallback_code])
+    for translation in i18next.translations_by_locale.values():
+        for fallback_locale in get_locale_fallbacks(translation.locale):
+            translation.fallbacks.append(i18next.translations_by_locale[fallback_locale])
 
     return i18next

@@ -811,6 +811,7 @@ def test_check_auth_open_service_with_auth():
         is_superuser=False,
         token_expiry=now(),
         ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -830,6 +831,7 @@ def test_check_auth_secure_service_with_normal_auth():
         is_superuser=False,
         token_expiry=now(),
         ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -844,6 +846,7 @@ def test_check_auth_secure_service_with_jailed_user():
         is_superuser=False,
         token_expiry=now(),
         ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -859,6 +862,7 @@ def test_check_auth_jailed_service_with_jailed_user():
         is_superuser=False,
         token_expiry=now(),
         ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -878,6 +882,7 @@ def test_check_auth_editor_service_without_editor():
         is_superuser=False,
         token_expiry=now(),
         ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -893,6 +898,7 @@ def test_check_auth_editor_service_with_editor():
         is_superuser=False,
         token_expiry=now(),
         ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -907,6 +913,7 @@ def test_check_auth_admin_service_without_superuser():
         is_superuser=False,
         token_expiry=now(),
         ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -922,6 +929,7 @@ def test_check_auth_admin_service_with_superuser():
         is_superuser=True,
         token_expiry=now(),
         ui_language_preference="en",
+        timezone="Etc/UTC",
         token="abc123",
         is_api_key=False,
     )
@@ -949,7 +957,7 @@ def test_parse_sofa_cookie_missing():
 
 
 def test_parse_sofa_cookie_no_cookies():
-    headers = {}
+    headers: dict[str, str] = {}
     result = parse_sofa_cookie(headers)
     assert result is None
 

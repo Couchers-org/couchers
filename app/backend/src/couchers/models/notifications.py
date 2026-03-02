@@ -46,14 +46,21 @@ dt_empty: list[NotificationDeliveryType] = []
 
 
 class NotificationTopicAction(enum.Enum):
+    """
+    Identifies a type of notification by the topic it relates to and the action triggered.
+    The grouping by topic allows users to unsubscribe from notifications in two ways:
+    - All notifications of a certain type (topic+action), e.g. all friend requests.
+    - All notifications about a certain instance of a topic,
+      e.g. all notifications about an event, where the key is the event id.
+    """
+
     def __init__(
-        self, topic_action: str, defaults: list[NotificationDeliveryType], user_editable: bool, data_type: type
+        self, topic_action: str, defaults: list[NotificationDeliveryType], is_critical: bool, data_type: type
     ) -> None:
         self.topic, self.action = topic_action.split(":")
         self.defaults = defaults
-        # for now user editable == not a security notification
-        self.user_editable = user_editable
-
+        # Account security, moderation, donation receipts, etc. cannot be unsubscribed from.
+        self.is_critical = is_critical
         self.data_type = data_type
 
     def unpack(self) -> tuple[str, str]:
@@ -67,91 +74,92 @@ class NotificationTopicAction(enum.Enum):
         return self.display
 
     # topic, action, default delivery types
-    friend_request__create = ("friend_request:create", dt_all, True, nd.FriendRequestCreate)
-    friend_request__accept = ("friend_request:accept", dt_all, True, nd.FriendRequestAccept)
+    friend_request__create = ("friend_request:create", dt_all, False, nd.FriendRequestCreate)
+    friend_request__accept = ("friend_request:accept", dt_all, False, nd.FriendRequestAccept)
 
     # host requests
-    host_request__create = ("host_request:create", dt_all, True, nd.HostRequestCreate)
-    host_request__accept = ("host_request:accept", dt_all, True, nd.HostRequestAccept)
-    host_request__reject = ("host_request:reject", dt_all, True, nd.HostRequestReject)
-    host_request__confirm = ("host_request:confirm", dt_all, True, nd.HostRequestConfirm)
-    host_request__cancel = ("host_request:cancel", dt_all, True, nd.HostRequestCancel)
-    host_request__message = ("host_request:message", [dt.push, dt.digest], True, nd.HostRequestMessage)
-    host_request__missed_messages = ("host_request:missed_messages", [dt.email], True, nd.HostRequestMissedMessages)
-    host_request__reminder = ("host_request:reminder", dt_all, True, nd.HostRequestReminder)
+    host_request__create = ("host_request:create", dt_all, False, nd.HostRequestCreate)
+    host_request__accept = ("host_request:accept", dt_all, False, nd.HostRequestAccept)
+    host_request__reject = ("host_request:reject", dt_all, False, nd.HostRequestReject)
+    host_request__confirm = ("host_request:confirm", dt_all, False, nd.HostRequestConfirm)
+    host_request__cancel = ("host_request:cancel", dt_all, False, nd.HostRequestCancel)
+    host_request__message = ("host_request:message", [dt.push, dt.digest], False, nd.HostRequestMessage)
+    host_request__missed_messages = ("host_request:missed_messages", [dt.email], False, nd.HostRequestMissedMessages)
+    host_request__reminder = ("host_request:reminder", dt_all, False, nd.HostRequestReminder)
 
-    activeness__probe = ("activeness:probe", dt_sec, False, nd.ActivenessProbe)
+    activeness__probe = ("activeness:probe", dt_sec, True, nd.ActivenessProbe)
 
     # you receive a friend ref
-    reference__receive_friend = ("reference:receive_friend", dt_all, True, nd.ReferenceReceiveFriend)
+    reference__receive_friend = ("reference:receive_friend", dt_all, False, nd.ReferenceReceiveFriend)
     # you receive a reference from ... the host
-    reference__receive_hosted = ("reference:receive_hosted", dt_all, True, nd.ReferenceReceiveHostRequest)
+    reference__receive_hosted = ("reference:receive_hosted", dt_all, False, nd.ReferenceReceiveHostRequest)
     # ... the surfer
-    reference__receive_surfed = ("reference:receive_surfed", dt_all, True, nd.ReferenceReceiveHostRequest)
+    reference__receive_surfed = ("reference:receive_surfed", dt_all, False, nd.ReferenceReceiveHostRequest)
 
     # you hosted
-    reference__reminder_hosted = ("reference:reminder_hosted", dt_all, True, nd.ReferenceReminder)
+    reference__reminder_hosted = ("reference:reminder_hosted", dt_all, False, nd.ReferenceReminder)
     # you surfed
-    reference__reminder_surfed = ("reference:reminder_surfed", dt_all, True, nd.ReferenceReminder)
+    reference__reminder_surfed = ("reference:reminder_surfed", dt_all, False, nd.ReferenceReminder)
 
-    badge__add = ("badge:add", [dt.push, dt.digest], True, nd.BadgeAdd)
-    badge__remove = ("badge:remove", [dt.push, dt.digest], True, nd.BadgeRemove)
+    badge__add = ("badge:add", [dt.push, dt.digest], False, nd.BadgeAdd)
+    badge__remove = ("badge:remove", [dt.push, dt.digest], False, nd.BadgeRemove)
 
     # group chats
-    chat__message = ("chat:message", [dt.push, dt.digest], True, nd.ChatMessage)
-    chat__missed_messages = ("chat:missed_messages", [dt.email], True, nd.ChatMissedMessages)
+    chat__message = ("chat:message", [dt.push, dt.digest], False, nd.ChatMessage)
+    chat__missed_messages = ("chat:missed_messages", [dt.email], False, nd.ChatMissedMessages)
 
     # events
     # approved by mods
-    event__create_approved = ("event:create_approved", dt_all, True, nd.EventCreate)
+    event__create_approved = ("event:create_approved", dt_all, False, nd.EventCreate)
     # any user creates any event, default to no notifications
-    event__create_any = ("event:create_any", dt_empty, True, nd.EventCreate)
-    event__update = ("event:update", dt_all, True, nd.EventUpdate)
-    event__cancel = ("event:cancel", dt_all, True, nd.EventCancel)
-    event__delete = ("event:delete", dt_all, True, nd.EventDelete)
-    event__invite_organizer = ("event:invite_organizer", dt_all, True, nd.EventInviteOrganizer)
-    event__reminder = ("event:reminder", dt_all, True, nd.EventReminder)
+    event__create_any = ("event:create_any", dt_empty, False, nd.EventCreate)
+    event__update = ("event:update", dt_all, False, nd.EventUpdate)
+    event__cancel = ("event:cancel", dt_all, False, nd.EventCancel)
+    event__delete = ("event:delete", dt_all, False, nd.EventDelete)
+    event__invite_organizer = ("event:invite_organizer", dt_all, False, nd.EventInviteOrganizer)
+    event__reminder = ("event:reminder", dt_all, False, nd.EventReminder)
     # toplevel comment on an event
-    event__comment = ("event:comment", dt_all, True, nd.EventComment)
+    event__comment = ("event:comment", dt_all, False, nd.EventComment)
 
     # discussion created
-    discussion__create = ("discussion:create", [dt.digest], True, nd.DiscussionCreate)
+    discussion__create = ("discussion:create", [dt.digest], False, nd.DiscussionCreate)
     # someone comments on your discussion
-    discussion__comment = ("discussion:comment", dt_all, True, nd.DiscussionComment)
+    discussion__comment = ("discussion:comment", dt_all, False, nd.DiscussionComment)
 
     # someone responds to any of your top-level comment across the platform
-    thread__reply = ("thread:reply", dt_all, True, nd.ThreadReply)
+    thread__reply = ("thread:reply", dt_all, False, nd.ThreadReply)
 
     # account settings
-    password__change = ("password:change", dt_sec, False, empty_pb2.Empty)
-    email_address__change = ("email_address:change", dt_sec, False, nd.EmailAddressChange)
-    email_address__verify = ("email_address:verify", dt_sec, False, empty_pb2.Empty)
-    phone_number__change = ("phone_number:change", dt_sec, False, nd.PhoneNumberChange)
-    phone_number__verify = ("phone_number:verify", dt_sec, False, nd.PhoneNumberVerify)
+    password__change = ("password:change", dt_sec, True, empty_pb2.Empty)
+    email_address__change = ("email_address:change", dt_sec, True, nd.EmailAddressChange)
+    email_address__verify = ("email_address:verify", dt_sec, True, empty_pb2.Empty)
+    phone_number__change = ("phone_number:change", dt_sec, True, nd.PhoneNumberChange)
+    phone_number__verify = ("phone_number:verify", dt_sec, True, nd.PhoneNumberVerify)
     # reset password
-    password_reset__start = ("password_reset:start", dt_sec, False, nd.PasswordResetStart)
-    password_reset__complete = ("password_reset:complete", dt_sec, False, empty_pb2.Empty)
+    password_reset__start = ("password_reset:start", dt_sec, True, nd.PasswordResetStart)
+    password_reset__complete = ("password_reset:complete", dt_sec, True, empty_pb2.Empty)
 
     # account deletion
-    account_deletion__start = ("account_deletion:start", dt_sec, False, nd.AccountDeletionStart)
+    account_deletion__start = ("account_deletion:start", dt_sec, True, nd.AccountDeletionStart)
     # no more pushing to do
-    account_deletion__complete = ("account_deletion:complete", dt_sec, False, nd.AccountDeletionComplete)
+    account_deletion__complete = ("account_deletion:complete", dt_sec, True, nd.AccountDeletionComplete)
     # undeleted
-    account_deletion__recovered = ("account_deletion:recovered", dt_sec, False, empty_pb2.Empty)
+    account_deletion__recovered = ("account_deletion:recovered", dt_sec, True, empty_pb2.Empty)
 
     # admin actions
-    gender__change = ("gender:change", dt_sec, False, nd.GenderChange)
-    birthdate__change = ("birthdate:change", dt_sec, False, nd.BirthdateChange)
-    api_key__create = ("api_key:create", dt_sec, False, nd.ApiKeyCreate)
+    gender__change = ("gender:change", dt_sec, True, nd.GenderChange)
+    birthdate__change = ("birthdate:change", dt_sec, True, nd.BirthdateChange)
+    api_key__create = ("api_key:create", dt_sec, True, nd.ApiKeyCreate)
 
+    # Can't unsubscribe because email includes receipt.
     donation__received = ("donation:received", dt_sec, True, nd.DonationReceived)
 
-    onboarding__reminder = ("onboarding:reminder", dt_sec, True, empty_pb2.Empty)
+    onboarding__reminder = ("onboarding:reminder", dt_sec, False, empty_pb2.Empty)
 
-    modnote__create = ("modnote:create", dt_sec, False, empty_pb2.Empty)
+    modnote__create = ("modnote:create", dt_sec, True, empty_pb2.Empty)
 
-    verification__sv_fail = ("verification:sv_fail", dt_sec, False, nd.VerificationSVFail)
-    verification__sv_success = ("verification:sv_success", dt_sec, False, empty_pb2.Empty)
+    verification__sv_fail = ("verification:sv_fail", dt_sec, True, nd.VerificationSVFail)
+    verification__sv_success = ("verification:sv_success", dt_sec, True, empty_pb2.Empty)
 
     # postal verification
     postal_verification__postcard_sent = (
@@ -160,11 +168,11 @@ class NotificationTopicAction(enum.Enum):
         False,
         nd.PostalVerificationPostcardSent,
     )
-    postal_verification__success = ("postal_verification:success", dt_sec, False, empty_pb2.Empty)
-    postal_verification__failed = ("postal_verification:failed", dt_sec, False, nd.PostalVerificationFailed)
+    postal_verification__success = ("postal_verification:success", dt_sec, True, empty_pb2.Empty)
+    postal_verification__failed = ("postal_verification:failed", dt_sec, True, nd.PostalVerificationFailed)
 
     # general announcements
-    general__new_blog_post = ("general:new_blog_post", [dt.push, dt.digest], True, nd.GeneralNewBlogPost)
+    general__new_blog_post = ("general:new_blog_post", [dt.push, dt.digest], False, nd.GeneralNewBlogPost)
 
 
 class NotificationPreference(Base, kw_only=True):

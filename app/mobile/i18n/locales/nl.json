@@ -2,7 +2,11 @@
   "errors": {
     "failed_to_load": "Laden mislukt",
     "check_connection": "Check of je wel bent verbonden met internet en probeer het opnieuw.",
-    "try_again": "Opnieuw proberen"
+    "try_again": "Opnieuw proberen",
+    "camera_permission_denied": "Cameratoestemming is nodig om foto's te kunnen maken.",
+    "camera_permission_required": "Cameratoestemming vereist",
+    "camera_permission_explanation": "Deze app heeft cameratoegang nodig om foto's te maken. Verleen toestemming wanneer daarom wordt gevraagd.",
+    "camera_permission_denied_permanently": "Cameratoegang is geweigerd. Om foto's te maken, moet je de cameratoestemming inschakelen in de instellingen van je apparaat."
   },
   "not_found": {
     "title": "Oeps!",
@@ -15,5 +19,13 @@
     "communities": "Communities",
     "search": "Zoeken",
     "events": "Events"
+  },
+  "common": {
+    "cancel": "Annuleren",
+    "add_photo": "Foto toevoegen",
+    "choose_photo_source": "Kies waar je de foto vandaan wilt halen",
+    "take_photo": "Foto maken",
+    "choose_from_library": "Kiezen uit je galerij",
+    "open_settings": "Instellingen openen"
   }
 }
