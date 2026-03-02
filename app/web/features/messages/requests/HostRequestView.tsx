@@ -12,7 +12,6 @@ import HeaderButton from "components/HeaderButton";
 import { BackIcon, OverflowMenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
-import dayjs from "utils/dayjs";
 import { useAuthContext } from "features/auth/AuthProvider";
 import HostRequestSendField from "features/messages/requests/HostRequestSendField";
 import useMarkLastSeen from "features/messages/useMarkLastSeen";
@@ -34,6 +33,7 @@ import { useRef, useState } from "react";
 import { messagesRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
+import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 import { useIsNativeEmbed } from "utils/nativeLink";
 

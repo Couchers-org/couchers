@@ -15,11 +15,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
-import { localizeDate } from "utils/date";
 import { ListInviteCodesRes } from "proto/account_pb";
 import React from "react";
 import { inviteRoute } from "routes";
 import { service } from "service";
+import { localizeDate } from "utils/date";
 
 import { inviteCodesKey } from "../queryKeys";
 
