@@ -206,19 +206,7 @@
   "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "< 1 dakika önce",
-    "n_minutes_ago_one": "{{count}} dakika önce",
-    "n_minutes_ago_other": "{{count}} dakika önce",
-    "less_than_one_hour_ago": "Bir saatten kısa süre önce",
-    "n_hours_ago_one": "{{count}} saat önce",
-    "n_hours_ago_other": "{{count}} saat önce",
-    "n_days_ago_one": "{{count}} gün önce",
-    "n_days_ago_other": "{{count}} gün önce",
-    "n_weeks_ago_one": "{{count}} hafta önce",
-    "n_weeks_ago_other": "{{count}} hafta önce",
-    "n_months_ago_one": "{{count}} ay önce",
-    "n_months_ago_other": "{{count}} ay önce",
-    "n_years_ago_one": "{{count}} yıl önce",
-    "n_years_ago_other": "{{count}} yıl önce"
+    "less_than_one_hour_ago": "Bir saatten kısa süre önce"
   },
   "location_autocomplete": {
     "more_specific": "Lütfen daha belirli bir yer seçin",
