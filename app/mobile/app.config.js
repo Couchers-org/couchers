@@ -31,19 +31,33 @@ const getAppScheme = () => {
   return "couchers";
 };
 
+const getIcon = () => {
+  if (IS_STAGING) {
+    return "./assets/images/icon_staging.png";
+  }
+  return "./assets/images/icon.png";
+};
+
+const getIosIcon = () => {
+  if (IS_STAGING) {
+    return "./assets/images/icon_ios_staging.png";
+  }
+  return "./assets/images/icon_ios.png";
+};
+
 export default {
   name: getAppName(),
   slug: "mobile",
   version: "1.1.13",
   orientation: "portrait",
-  icon: "./assets/images/icon.png",
+  icon: getIcon(),
   scheme: getAppScheme(),
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
   ios: {
     supportsTablet: true,
     bundleIdentifier: getBundleIdentifier(),
-    icon: "./assets/images/icon_ios.png",
+    icon: getIosIcon(),
     associatedDomains: IS_STAGING
       ? ["applinks:next.couchershq.org"]
       : ["applinks:couchers.org"],
