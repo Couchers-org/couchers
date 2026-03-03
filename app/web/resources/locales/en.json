@@ -12,16 +12,14 @@
   "join_us": "Join us",
   "update": "Update",
   "create": "Create",
-  "created": "Created",
   "terms_of_service": "Terms of Service",
   "required": "Required",
   "accept": "Accept",
   "continue": "Continue",
-  "disable": "Disable",
-  "disabled": "Disabled",
-  "uses": "Uses",
-  "no_invite_codes": "No invite codes yet",
-  "error_loading_invite_codes": "Couldn't get invite code details",
+  "copy_button": {
+    "a11y": "Copy",
+    "copied_tooltip": "Copied to clipboard"
+  },
   "thanks": "Thanks!",
   "donation_banner": {
     "message": "Couchers.org runs on kindness — just like couch surfing itself. This holiday season, help us keep it that way. We are raising {{goal}} to cover the cost of running Couchers.org.",
@@ -39,8 +37,6 @@
   "cancel": "Cancel",
   "submit": "Submit",
   "confirm": "Confirm",
-  "copy": "Copy",
-  "copied": "Copied to clipboard",
   "image_input": {
     "select_button_a11y": "Select an image",
     "replace_image_tooltip": "Click to replace image",
@@ -149,7 +145,6 @@
     "default_title": "Couchers.org",
     "default_description": "Share your world, discover theirs. Authentic local experiences, built on trust and genuine connection—not transactions."
   },
-  "invited_you": "{{name}} invited you to join Couchers!",
   "error": {
     "fatal_message": "This shouldn't have happened. Please contact us and tell us what you were doing to help us prevent this error in the future.",
     "unknown": "Unknown error",
@@ -220,14 +215,15 @@
   },
   "invites": {
     "title": "Invite members",
-    "create": "Create invite",
-    "disable": "Disable",
-    "share_link": "Copy share link",
     "instructions": "Create an invite link to share with friends and community. Disable codes you no longer use.",
-    "uses_suffix": "completed signups",
+    "no_codes_message": "No invite codes yet",
+    "created_datetime": "Created on {{datetime}}",
+    "disabled_datetime": "Disabled on {{datetime}}",
+    "number_of_uses": "{{count}} uses",
+    "number_of_uses_one": "{{count}} use",
+    "disable_link": "Disable",
     "banner": {
-      "invited_you": "{{name}} invited you to join Couchers!",
-      "inviter_fallback": "{{username}} invited you to join Couchers!"
+      "invited_you": "{{name}} invited you to join Couchers!"
     },
     "error": {
       "fetch_invite_info": "Couldn't get invite code details"

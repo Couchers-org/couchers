@@ -370,14 +370,18 @@ describe("Signup", () => {
     render(<View />, { wrapper });
 
     expect(
-      await screen.findByText(t("global:invited_you", { name: "Alice" })),
+      await screen.findByText(
+        t("global:invites.banner.invited_you", { name: "Alice" }),
+      ),
     ).toBeVisible();
   });
 
   it("does not show inviter banner if no inviteCode is present", async () => {
     render(<View />, { wrapper });
     expect(
-      screen.queryByText(t("global:invited_you", { name: expect.any(String) })),
+      screen.queryByText(
+        t("global:invites.banner.invited_you", { name: expect.any(String) }),
+      ),
     ).toBeNull();
   });
 
