@@ -11,7 +11,7 @@ from couchers.models import (
     NotificationPreference,
     NotificationTopicAction,
 )
-from couchers.notifications.locales import get_notifs_i18next
+from couchers.notifications.utils import get_topic_action_description
 from couchers.proto import notifications_pb2
 
 logger = logging.getLogger(__name__)
@@ -336,8 +336,7 @@ def get_user_setting_groups(user_id: int) -> list[notifications_pb2.Notification
                 actions = []
                 for topic_action in items:
                     delivery_types = get_preference(session, user_id, topic_action)
-                    description_key = f"topic_action_descriptions.{topic_action.topic}.{topic_action.action}"
-                    description = get_notifs_i18next().localize(description_key, loc_context.locale)
+                    description = get_topic_action_description(topic_action, locale=loc_context.locale)
                     actions.append(
                         notifications_pb2.NotificationItem(
                             action=topic_action.action,
