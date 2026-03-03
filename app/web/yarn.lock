@@ -2172,11 +2172,6 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@statsig/client-core@3.30.2":
-  version "3.30.2"
-  resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.30.2.tgz#87635228dc55fc33b9377b2bcf3d70276f8fbff4"
-  integrity sha512-F3u1+LDml6IFz/tMbSYI0pEOMR13OHM71lLJ3RuoWpK2KpCwfsHpt7kBmUKJxUXZ05CP/jWgmhG/ROj7eqDCPQ==
-
 "@statsig/client-core@3.31.2":
   version "3.31.2"
   resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.31.2.tgz#556ff33b5194847d6bd5097e5f4a52cde9055887"
@@ -2209,13 +2204,13 @@
     "@statsig/client-core" "3.31.2"
     "@statsig/js-client" "3.31.2"
 
-"@statsig/session-replay@^3.30.2":
-  version "3.30.2"
-  resolved "https://registry.yarnpkg.com/@statsig/session-replay/-/session-replay-3.30.2.tgz#442b3c7f89f4110f3e19b96de069a70526a6c08a"
-  integrity sha512-GTWFAnT6NqQzbFpqj9ojvBn42R8VlFXadwqP40fxOjwqboPIJrJ1NAAD+BzehTXoUnMi2vGviqsStgHNGrJ3TA==
+"@statsig/session-replay@^3.32.0":
+  version "3.32.0"
+  resolved "https://registry.yarnpkg.com/@statsig/session-replay/-/session-replay-3.32.0.tgz#a8fb9b098e7de249ceb559790afcda6fc6769318"
+  integrity sha512-7F3C/6XiT+rPnqO5i+dUEPBVXHR5CSiqsacwteREzx7q3iTSY5jfqX5urJpr0q87cCY7jRRY1K+zM7o5a9kbCg==
   dependencies:
     "@rrweb/record" "2.0.0-alpha.17"
-    "@statsig/client-core" "3.30.2"
+    "@statsig/client-core" "3.32.0"
     rrweb "2.0.0-alpha.17"
 
 "@statsig/web-analytics@^3.32.0":
