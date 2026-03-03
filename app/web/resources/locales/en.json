@@ -217,10 +217,10 @@
     "title": "Invite members",
     "instructions": "Create an invite link to share with friends and community. Disable codes you no longer use.",
     "no_codes_message": "No invite codes yet",
-    "created_datetime": "Created on {{datetime}}",
-    "disabled_datetime": "Disabled on {{datetime}}",
-    "number_of_uses": "{{count}} uses",
-    "number_of_uses_one": "{{count}} use",
+    "created_datetime": "Created: {{datetime}}",
+    "disabled_datetime": "Disabled: {{datetime}}",
+    "number_of_uses": "Uses: {{count}} completed signups",
+    "number_of_uses_one": "Uses: {{count}} completed signup",
     "disable_link": "Disable",
     "banner": {
       "invited_you": "{{name}} invited you to join Couchers!"
