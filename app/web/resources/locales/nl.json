@@ -235,19 +235,7 @@
   "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "minder dan 1 minuut geleden",
-    "n_minutes_ago_one": "{{count}} minuut geleden",
-    "n_minutes_ago_other": "{{count}} minuten geleden",
-    "less_than_one_hour_ago": "Minder dan een uur geleden",
-    "n_hours_ago_one": "{{count}} uur geleden",
-    "n_hours_ago_other": "{{count}} uur geleden",
-    "n_days_ago_one": "{{count}} dag geleden",
-    "n_days_ago_other": "{{count}} dagen geleden",
-    "n_weeks_ago_one": "{{count}} week geleden",
-    "n_weeks_ago_other": "{{count}} weken geleden",
-    "n_months_ago_one": "{{count}} maand geleden",
-    "n_months_ago_other": "{{count}} maanden geleden",
-    "n_years_ago_one": "{{count}} jaar geleden",
-    "n_years_ago_other": "{{count}} jaar geleden"
+    "less_than_one_hour_ago": "Minder dan een uur geleden"
   },
   "location_autocomplete": {
     "more_specific": "Kies alsjeblieft een preciezere plek",
