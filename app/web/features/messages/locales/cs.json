@@ -34,5 +34,8 @@
   "surfer_declined_request_help_text": "<0>Přečti si našeho průvodce</0>, jak napsat žádost, která bude přijata.",
   "messages_page": {
     "title": "Zprávy"
+  },
+  "create_chat": {
+    "back_button": "Zpět"
   }
 }

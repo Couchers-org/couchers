@@ -4,7 +4,9 @@
     "check_connection": "İnternet bağlantınızı kontrol edip tekrar deneyin.",
     "try_again": "Tekrar dene",
     "camera_permission_denied": "Fotoğraf çekmek için kamera izni gerekli.",
-    "camera_permission_required": "Kamera İzni Gerekli"
+    "camera_permission_required": "Kamera İzni Gerekli",
+    "camera_permission_explanation": "Bu uygulamanın fotoğraf çekebilmek için kamera iznine ihtiyacı var. Lütfen istendiğinde izin verin.",
+    "camera_permission_denied_permanently": "Kamera izni reddedildi. Fotoğraf çekebilmek için cihaz ayarlarından kamera iznini açmanız gerekiyor."
   },
   "not_found": {
     "title": "Hay aksi!",
@@ -17,5 +19,12 @@
     "home": "Ana Sayfa",
     "messages": "Mesajlar",
     "communities": "Topluluklar"
+  },
+  "common": {
+    "cancel": "İptal Et",
+    "add_photo": "Fotoğraf Ekle",
+    "choose_photo_source": "Fotoğrafınızı nereden alacağınızı seçin",
+    "take_photo": "Fotoğraf Çek",
+    "choose_from_library": "Kütüphaneden Seç"
   }
 }
