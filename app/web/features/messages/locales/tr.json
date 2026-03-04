@@ -16,7 +16,8 @@
       "aria_label": "Farklı mesaj türleri için sekmeler",
       "chats": "Sohbetler",
       "hosting": "Ev Sahipliği",
-      "surfing": "Sörfler"
+      "surfing": "Sörfler",
+      "archived": "Arşiv"
     }
   },
   "chat_view": {
