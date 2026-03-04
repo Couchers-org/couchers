@@ -179,25 +179,7 @@
   "ok": "De acuerdo",
   "relative_time": {
     "less_than_one_hour_ago": "Hace menos de una hora",
-    "less_than_a_minute_ago": "Hace menos de 1 minuto",
-    "n_hours_ago_one": "Hace {{count}} hora",
-    "n_hours_ago_many": "Hace {{count}} de horas",
-    "n_hours_ago_other": "Hace {{count}} horas",
-    "n_weeks_ago_one": "Hace {{count}} semana",
-    "n_weeks_ago_many": "Hace {{count}} de semanas",
-    "n_weeks_ago_other": "Hace {{count}} semanas",
-    "n_months_ago_one": "Hace {{count}} mes",
-    "n_months_ago_many": "Hace {{count}} de meses",
-    "n_months_ago_other": "Hace {{count}} meses",
-    "n_years_ago_one": "Hace {{count}} año",
-    "n_years_ago_many": "Hace {{count}} de años",
-    "n_years_ago_other": "Hace {{count}} años",
-    "n_minutes_ago_one": "Hace {{count}} minuto",
-    "n_minutes_ago_many": "Hace {{count}} de minutos",
-    "n_minutes_ago_other": "Hace {{count}} minutos",
-    "n_days_ago_one": "Hace {{count}} día",
-    "n_days_ago_many": "Hace {{count}} de días",
-    "n_days_ago_other": "Hace {{count}} días"
+    "less_than_a_minute_ago": "Hace menos de 1 minuto"
   },
   "what_is_cs": {
     "description_1": "Couch surfing es un concepto en el que algunos miembros (llamados anfitriones) publican en la plataforma indicando que están dispuestos a alojar a otros miembros (llamados viajeros) que visitan su ciudad.",
