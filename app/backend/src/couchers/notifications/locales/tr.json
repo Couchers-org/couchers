@@ -61,6 +61,11 @@
     },
     "friend_request__accept": {
       "title": "{{friend}} arkadaşlık isteğini kabul etti"
+    },
+    "adhoc__push_enabled": {
+      "title": "Anlık bildirimler etkinleştirildi",
+      "ios_title": "Anlık Bildirimler Etkinleştirildi",
+      "body": "Bu cihazda artık bildirim alacaksınız."
     }
   }
 }
