@@ -10,7 +10,7 @@
     "injectsourcemaps": "sentry-cli sourcemaps inject .next/",
     "dev": "next dev",
     "start": "yarn dev",
-    "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,css}'",
+    "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,css}' && eslint . --ext .ts,.tsx,.js,.jsx,.json --fix",
     "format:check": "prettier --check '**/*.{ts,tsx,js,jsx,json,css}'",
     "create-translation-files": "node scripts/create-translation-files.js",
     "delete-translation-files": "node scripts/delete-translation-files.js",
