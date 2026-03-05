@@ -14,7 +14,7 @@ import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
-import { localizeDateRange, timestamp2Date } from "utils/date";
+import { localizeDateTimeRange, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -131,14 +131,14 @@ const LongEventCard = ({
     i18n: { language: locale },
   } = useTranslation([COMMUNITIES]);
 
-  const dateTimeRangeText = localizeDateRange(
+  const dateTimeRangeText = localizeDateTimeRange(
     dayjs(timestamp2Date(event.startTime!)),
     dayjs(timestamp2Date(event.endTime!)),
-    locale,
     {
+      timezone: event.timezone,
+      locale,
       includeDayOfWeek: true,
       includeTime: true,
-      long: true,
     },
   );
 

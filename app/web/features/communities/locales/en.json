@@ -31,7 +31,7 @@
   "community_moderators": "Community Builders",
   "edit_info_page_success_message": "The community page has been successfully updated.",
   "community_tabs_a11y_label": "Tabs for community sub-pages",
-  "discussion_creation_date": "Created on {{dateOnly}}",
+  "discussion_creation_datetime": "Created on {{dateTime}}",
   "create_new_discussion_title": "Create new post",
   "discussions_empty_state": "No discussions at the moment.",
   "discussions_label": "Discussions",

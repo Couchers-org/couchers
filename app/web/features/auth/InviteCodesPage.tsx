@@ -19,7 +19,7 @@ import { ListInviteCodesRes } from "proto/account_pb";
 import React from "react";
 import { inviteRoute } from "routes";
 import { service } from "service";
-import { localizeDate } from "utils/date";
+import { BROWSER_TIMEZONE, localizeDateTime } from "utils/date";
 
 import { inviteCodesKey } from "../queryKeys";
 
@@ -163,11 +163,14 @@ export default function InviteCodesPage() {
                       {c.created?.seconds && (
                         <>
                           {t("global:invites.created_datetime", {
-                            datetime: localizeDate(
-                            new Date(c.created.seconds * 1000),
-                            locale,
-                            { includeTime: true },
-                          )
+                            datetime: localizeDateTime(
+                              new Date(c.created.seconds * 1000),
+                              {
+                                timezone: BROWSER_TIMEZONE,
+                                locale: locale,
+                                abbreviate: true,
+                              },
+                            ),
                           })}
                         </>
                       )}
@@ -175,10 +178,14 @@ export default function InviteCodesPage() {
                         <>
                           {" • "}
                           {t("global:invites.disabled_datetime", {
-                            datetime: localizeDate(
-                            new Date(c.disabled.seconds * 1000),
-                            locale,
-                            { includeTime: true },
+                            datetime: localizeDateTime(
+                              new Date(c.disabled.seconds * 1000),
+                              {
+                                timezone: BROWSER_TIMEZONE,
+                                locale,
+                                abbreviate: true,
+                              },
+                            ),
                           })}
                         </>
                       )}

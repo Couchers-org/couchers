@@ -30,7 +30,7 @@ import { HostRequest } from "proto/requests_pb";
 import React, { useState } from "react";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateRange } from "utils/date";
+import { localizeDateTimeRange, UTC_TIMEZONE } from "utils/date";
 import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 
@@ -224,11 +224,13 @@ export default function HostRequestListItem({
               </StyledHostStatusContainer>
               <StyledDateAndBadgeContainer>
                 <Typography component="div" display="inline" variant="h3">
-                  {localizeDateRange(
+                  {localizeDateTimeRange(
                     dayjs(hostRequest.fromDate),
                     dayjs(hostRequest.toDate),
-                    locale,
-                    { long: true },
+                    {
+                      timezone: UTC_TIMEZONE,
+                      locale,
+                    },
                   )}
                 </Typography>
                 <RequestTypeChip
