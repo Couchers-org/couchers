@@ -2,7 +2,6 @@ import logging
 from datetime import timedelta
 
 import grpc
-from app.backend.src.proto import notifications_pb2
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -49,7 +48,7 @@ from couchers.resources import get_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
 from couchers.servicers.events import generate_event_delete_notifications
-from couchers.servicers.notifications import Notification
+from couchers.servicers.notifications import disable_push_notifications_for_user
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import to_bool, username_or_email_or_id
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
@@ -377,15 +376,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
         # Ensure admin note is logged directly
         log_admin_action(session, context, user, "ban", note=request.admin_note, level=AdminActionLevel.high)
         user.is_banned = True
-        notifications = Notification()
-        notifications.DisableAllNotifications(
-            request=notifications_pb2.DisableAllNotificationsReq(),
-            context=CouchersContext(user_id=context.user_id),
+        disable_push_notifications_for_user(
+            user_id=user.id,
             session=session,
         )
         if not request.admin_note.strip():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
-        log_admin_action(session, context, user, "ban", note=request.admin_note, level=AdminActionLevel.high)
         user.banned_at = now()
         return _user_to_details(session, user)
 

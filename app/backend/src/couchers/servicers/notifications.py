@@ -61,6 +61,18 @@ def notification_to_pb(user: User, notification: Notification) -> notifications_
     )
 
 
+def disable_push_notifications_for_user(user_id: int, session: Session):
+    """
+    Disables push notifications for a specific user by updating their subscriptions.
+    """
+    session.execute(
+        update(PushNotificationSubscription)
+        .where(PushNotificationSubscription.user_id == user_id)
+        .where(PushNotificationSubscription.disabled_at > now())
+        .values(disabled_at=now())
+    )
+    session.commit()
+
 class Notifications(notifications_pb2_grpc.NotificationsServicer):
     def GetNotificationSettings(
         self, request: notifications_pb2.GetNotificationSettingsReq, context: CouchersContext, session: Session
@@ -127,17 +139,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             next_page_token=str(notifications[-1].id) if len(notifications) > page_size else None,
         )
 
-    def DisableAllNotifications(
-        self, request: notifications_pb2.DisableAllNotificationsReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
-        # disables notifications by updating disabled_at=now(), which is used across as check to send notitication
-        session.execute(
-            update(PushNotificationSubscription)
-            .where(PushNotificationSubscription.user_id == context.user_id)
-            .where(PushNotificationSubscription.disabled_at > now())
-            .values(disabled_at=now())
-        )
-        return empty_pb2.Empty()
+
 
     def MarkNotificationSeen(
         self, request: notifications_pb2.MarkNotificationSeenReq, context: CouchersContext, session: Session
