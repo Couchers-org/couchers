@@ -61,7 +61,7 @@ def notification_to_pb(user: User, notification: Notification) -> notifications_
     )
 
 
-def disable_push_notifications_for_user(user_id: int, session: Session):
+def disable_push_notifications_for_user(user_id: int, session: Session) -> None:
     """
     Disables push notifications for a specific user by updating their subscriptions.
     """

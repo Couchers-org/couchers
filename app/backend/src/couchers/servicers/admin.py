@@ -375,7 +375,6 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         # Ensure admin note is logged directly
         log_admin_action(session, context, user, "ban", note=request.admin_note, level=AdminActionLevel.high)
-        user.is_banned = True
         disable_push_notifications_for_user(
             user_id=user.id,
             session=session,
