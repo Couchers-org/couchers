@@ -45,7 +45,6 @@ def notify(
     # Import here to avoid circular dependency
     from couchers.notifications.background import handle_notification
 
-
     notification = Notification(
         user_id=user_id,
         topic_action=topic_action,

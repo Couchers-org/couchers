@@ -73,6 +73,7 @@ def disable_push_notifications_for_user(user_id: int, session: Session) -> None:
     )
     session.commit()
 
+
 class Notifications(notifications_pb2_grpc.NotificationsServicer):
     def GetNotificationSettings(
         self, request: notifications_pb2.GetNotificationSettingsReq, context: CouchersContext, session: Session
@@ -138,8 +139,6 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             notifications=[notification_to_pb(user, notification) for notification in notifications[:page_size]],
             next_page_token=str(notifications[-1].id) if len(notifications) > page_size else None,
         )
-
-
 
     def MarkNotificationSeen(
         self, request: notifications_pb2.MarkNotificationSeenReq, context: CouchersContext, session: Session
