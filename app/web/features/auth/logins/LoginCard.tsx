@@ -53,6 +53,7 @@ export default function LoginsPage({
   const expiryDisplay = localizeDateTime(timestamp2Date(session.expiry!), {
     timezone: BROWSER_TIMEZONE,
     locale,
+    includeTime: false,
     abbreviate: true,
   });
   const queryClient = useQueryClient();

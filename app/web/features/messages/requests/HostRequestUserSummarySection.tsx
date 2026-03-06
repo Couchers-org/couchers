@@ -99,6 +99,8 @@ const HostRequestUserSummarySection = ({
               dayjs(hostRequest.fromDate),
               dayjs(hostRequest.toDate),
               {
+                // Host request dates are plain dates (no time),
+                // so it they can only be interpreted in UTC.
                 timezone: UTC_TIMEZONE,
                 locale,
                 includeTime: false,
@@ -125,6 +127,8 @@ const HostRequestUserSummarySection = ({
                 dayjs(hostRequest.fromDate),
                 dayjs(hostRequest.toDate),
                 {
+                  // Host request dates are plain dates (no time),
+                  // so it they can only be interpreted in UTC.
                   timezone: UTC_TIMEZONE,
                   locale,
                   includeTime: false,
