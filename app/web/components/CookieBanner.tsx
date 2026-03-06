@@ -7,6 +7,7 @@ import { Trans, useTranslation } from "i18n";
 import { usePersistedState } from "platform/usePersistedState";
 import { tosRoute } from "routes";
 import { useIsMounted } from "utils/hooks";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   position: "fixed",
@@ -39,8 +40,12 @@ export default function CookieBanner() {
   const isMounted = useIsMounted().current;
   const auth = useAuthContext();
   const [hasSeen, setHasSeen] = usePersistedState("hasSeenCookieBanner", false);
+  const isNativeEmbed = useIsNativeEmbed();
 
-  if (auth.authState.authenticated) return null;
+  // Don't show cookie banner in native mobile app
+  // Mobile apps use app store privacy mechanisms, not cookie banners
+  // Only essential cookies are used (session/auth), which don't require consent
+  if (auth.authState.authenticated || isNativeEmbed) return null;
 
   //specifically not using our snackbar, which is designed for alerts
   return isMounted && !hasSeen ? (
