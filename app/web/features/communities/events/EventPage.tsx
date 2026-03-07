@@ -36,9 +36,9 @@ import {
 import { service } from "service";
 import { theme } from "theme";
 import {
+  BROWSER_TIMEZONE,
   localizeDateTimeRange,
   timestamp2Date,
-  BROWSER_TIMEZONE,
 } from "utils/date";
 import dayjs from "utils/dayjs";
 

@@ -15,9 +15,9 @@ import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
 import {
+  BROWSER_TIMEZONE,
   localizeDateTimeRange,
   timestamp2Date,
-  BROWSER_TIMEZONE,
 } from "utils/date";
 import dayjs from "utils/dayjs";
 

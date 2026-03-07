@@ -16,9 +16,9 @@ import { Event } from "proto/events_pb";
 import { useMemo } from "react";
 import { routeToEvent } from "routes";
 import {
+  BROWSER_TIMEZONE,
   localizeDateTimeRange,
   timestamp2Date,
-  BROWSER_TIMEZONE,
 } from "utils/date";
 import dayjs from "utils/dayjs";
 import stripMarkdown from "utils/stripMarkdown";
