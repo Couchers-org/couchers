@@ -17,7 +17,7 @@ import { routeToEvent } from "routes";
 import {
   localizeDateTimeRange,
   timestamp2Date,
-  UTC_TIMEZONE,
+  BROWSER_TIMEZONE,
 } from "utils/date";
 import dayjs from "utils/dayjs";
 
@@ -139,8 +139,7 @@ const LongEventCard = ({
     dayjs(timestamp2Date(event.startTime!)),
     dayjs(timestamp2Date(event.endTime!)),
     {
-      // TODO(#8064): Events are incorrectly timezoned
-      timezone: UTC_TIMEZONE,
+      timezone: BROWSER_TIMEZONE,
       locale,
       includeDayOfWeek: true,
       includeTime: true,
