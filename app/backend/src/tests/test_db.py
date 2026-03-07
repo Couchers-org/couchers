@@ -66,13 +66,23 @@ def test_is_valid_username() -> None:
 
 
 def test_is_valid_name() -> None:
-    assert is_valid_name("a")
+    # valid names
+    assert is_valid_name("ab")
     assert is_valid_name("a b")
-    assert is_valid_name("1")
+    assert is_valid_name("O'Connor")
+    assert is_valid_name("Jean-Luc")
     assert is_valid_name("老子")
+
+    # invalid: too short after trimming
+    assert not is_valid_name("a")
+    # invalid: only whitespace
     assert not is_valid_name("	")
     assert not is_valid_name("")
     assert not is_valid_name(" ")
+    # invalid: contains characters outside of letters/whitespace/'/-
+    assert not is_valid_name("1")
+    # invalid: too long
+    assert not is_valid_name("a" * 101)
 
 
 def test_parse_date() -> None:

@@ -27,6 +27,8 @@ from couchers.crypto import (
     encrypt_page_token,
 )
 from couchers.proto.internal import internal_pb2
+import logging
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from couchers.models import Geom
@@ -57,9 +59,25 @@ def is_valid_username(field: str) -> bool:
 
 def is_valid_name(field: str) -> bool:
     """
-    Checks if it has at least one non-whitespace character
+    Checks that the name satisfies the same rules as the web frontend:
+
+    * only letters (any Unicode letter), whitespace, apostrophes, and hyphens
+      (frontend: ``^[\\p{L}\\s'-]+$``)
+    * 2-100 characters
     """
-    return re.match(r"\S+", field) is not None
+    logger.info("validating name: %r", field)
+
+    trimmed = field.strip()
+    if len(trimmed) > 100 or len(trimmed) < 2:
+        return False
+
+    # python's re has no \p{L} -> use character check so we allow any Unicode letter.
+    for ch in field:
+        if ch.isalpha() or ch in {"'", "-"} or ch.isspace():
+            continue
+        return False
+
+    return True
 
 
 def is_valid_email(field: str) -> bool:
