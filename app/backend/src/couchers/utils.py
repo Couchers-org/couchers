@@ -1,4 +1,5 @@
 import http.cookies
+import logging
 import re
 import typing
 from collections.abc import Mapping, Sequence
@@ -27,7 +28,7 @@ from couchers.crypto import (
     encrypt_page_token,
 )
 from couchers.proto.internal import internal_pb2
-import logging
+
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
