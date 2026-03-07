@@ -139,12 +139,13 @@ export default function DiscussionPage({
                         <Skeleton width={100} />
                       ) : (
                         <Typography variant="body2">
-                          {t("communities:discussion_creation_datetime", {
-                            dateTime: localizeDateTime(
+                          {t("communities:discussion_creation_date", {
+                            dateOnly: localizeDateTime(
                               timestamp2Date(discussion.created!),
                               {
                                 timezone: BROWSER_TIMEZONE,
                                 locale,
+                                includeTime: false,
                               },
                             ),
                           })}

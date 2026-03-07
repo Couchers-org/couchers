@@ -35,7 +35,11 @@ import {
 } from "routes";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateTimeRange, timestamp2Date } from "utils/date";
+import {
+  localizeDateTimeRange,
+  timestamp2Date,
+  UTC_TIMEZONE,
+} from "utils/date";
 import dayjs from "utils/dayjs";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
@@ -413,7 +417,8 @@ export default function EventPage({
                     dayjs(timestamp2Date(event.startTime!)),
                     dayjs(timestamp2Date(event.endTime!)),
                     {
-                      timezone: event.timezone,
+                      // TODO(#8064): Events are incorrectly timezoned
+                      timezone: UTC_TIMEZONE,
                       locale,
                       includeDayOfWeek: true,
                     },
