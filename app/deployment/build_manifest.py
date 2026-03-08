@@ -12,7 +12,10 @@ Expected environment variables (set by GitLab CI):
   CI_COMMIT_TIMESTAMP, CI_PIPELINE_ID, CI_REGISTRY_IMAGE, SLUG
 
 Usage:
-  python build_manifest.py <migrations_dir> <output_file>
+  python build_manifest.py <migrations_dir> <output_dir>
+
+Output:
+  <output_dir>/deploy/manifests/<padded_commit_number>-<short_sha>.json
 """
 
 import json
@@ -69,17 +72,24 @@ def build_manifest(migrations_dir):
 
 def main():
     if len(sys.argv) != 3:
-        print(f"Usage: {sys.argv[0]} <migrations_dir> <output_file>", file=sys.stderr)
+        print(f"Usage: {sys.argv[0]} <migrations_dir> <output_dir>", file=sys.stderr)
         sys.exit(1)
 
     migrations_dir = sys.argv[1]
-    output_file = sys.argv[2]
+    output_dir = Path(sys.argv[2])
 
     manifest = build_manifest(migrations_dir)
-    with open(output_file, "w") as f:
+
+    commit_short_sha = os.environ["CI_COMMIT_SHORT_SHA"]
+    padded = f"{manifest['commit_number']:06d}"
+    output_path = output_dir / "deploy" / "manifests" / f"{padded}-{commit_short_sha}.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w") as f:
         json.dump(manifest, f, indent=2)
 
     print(json.dumps(manifest, indent=2))
+    print(f"\nWritten to {output_path}")
 
 
 if __name__ == "__main__":

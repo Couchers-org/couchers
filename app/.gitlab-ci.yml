@@ -967,27 +967,22 @@ build:manifest:
   variables:
     GIT_DEPTH: 0
   script:
-    - python app/deployment/build_manifest.py app/backend/src/couchers/migrations/versions/ manifest.json
+    - python app/deployment/build_manifest.py app/backend/src/couchers/migrations/versions/ artifacts/manifest
   artifacts:
     paths:
-      - manifest.json
+      - artifacts/manifest
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
 upload:manifest:
-  needs: ["wait:before-release", "build:manifest"]
+  needs: ["wait:before-release"]
   stage: release
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
     # no docker login
     default: false
   script:
-    - export COMMIT_NUMBER=$(python3 -c "import json; print(json.load(open('manifest.json'))['commit_number'])")
-    - export PADDED_COMMIT_NUMBER=$(printf "%06d" $COMMIT_NUMBER)
-    - export MANIFEST_KEY="deploy/manifests/${PADDED_COMMIT_NUMBER}-${CI_COMMIT_SHORT_SHA}.json"
-    - cat manifest.json
-    - aws s3 cp manifest.json "s3://$AWS_DEPLOY_BUCKET/$MANIFEST_KEY" --content-type application/json
-    - echo "Manifest uploaded to s3://$AWS_DEPLOY_BUCKET/$MANIFEST_KEY"
+    - aws s3 cp artifacts/manifest/ "s3://$AWS_DEPLOY_BUCKET/" --recursive --content-type application/json
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
