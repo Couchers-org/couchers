@@ -4,13 +4,14 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from couchers.db import session_scope
+from couchers.i18n import LocalizationContext
 from couchers.models import (
     NotificationDelivery,
     NotificationDeliveryType,
     NotificationPreference,
     NotificationTopicAction,
 )
-from couchers.notifications.utils import enum_from_topic_action
+from couchers.notifications.utils import get_topic_action_description
 from couchers.proto import notifications_pb2
 
 logger = logging.getLogger(__name__)
@@ -113,40 +114,40 @@ settings_layout = [
                 "host_request",
                 "Host requests",
                 [
-                    ("create", "Someone sends you a host request"),
-                    ("accept", "Someone accepts your host request"),
-                    ("confirm", "Someone confirms their host request"),
-                    ("reject", "Someone declines your host request"),
-                    ("cancel", "Someone cancels their host request"),
-                    ("message", "Someone sends a message in a host request"),
-                    ("missed_messages", "You miss messages in a host request"),
-                    ("reminder", "You don't respond to a pending host request for a while"),
+                    NotificationTopicAction.host_request__create,
+                    NotificationTopicAction.host_request__accept,
+                    NotificationTopicAction.host_request__confirm,
+                    NotificationTopicAction.host_request__reject,
+                    NotificationTopicAction.host_request__cancel,
+                    NotificationTopicAction.host_request__message,
+                    NotificationTopicAction.host_request__missed_messages,
+                    NotificationTopicAction.host_request__reminder,
                 ],
             ),
             (
                 "activeness",
                 "Activity Check-in",
                 [
-                    ("probe", "Check in to see if you are still hosting after a long period of inactivity"),
+                    NotificationTopicAction.activeness__probe,
                 ],
             ),
             (
                 "chat",
                 "Messaging",
                 [
-                    ("message", "Someone sends you a message"),
-                    ("missed_messages", "You miss messages in a chat"),
+                    NotificationTopicAction.chat__message,
+                    NotificationTopicAction.chat__missed_messages,
                 ],
             ),
             (
                 "reference",
                 "References",
                 [
-                    ("receive_hosted", "You receive a reference from someone who hosted you"),
-                    ("receive_surfed", "You receive a reference from someone you hosted"),
-                    ("receive_friend", "You received a reference from a friend"),
-                    ("reminder_hosted", "Reminder to write a reference to someone you hosted"),
-                    ("reminder_surfed", "Reminder to write a reference to someone you surfed with"),
+                    NotificationTopicAction.reference__receive_hosted,
+                    NotificationTopicAction.reference__receive_surfed,
+                    NotificationTopicAction.reference__receive_friend,
+                    NotificationTopicAction.reference__reminder_hosted,
+                    NotificationTopicAction.reference__reminder_surfed,
                 ],
             ),
         ],
@@ -158,37 +159,37 @@ settings_layout = [
                 "friend_request",
                 "Friend requests",
                 [
-                    ("create", "Someone sends you a friend request"),
-                    ("accept", "Someone accepts your friend request"),
+                    NotificationTopicAction.friend_request__create,
+                    NotificationTopicAction.friend_request__accept,
                 ],
             ),
             (
                 "event",
                 "Events",
                 [
-                    ("create_approved", "An event that is approved by the moderators is created in your community"),
-                    ("create_any", "A user creates any event in your community (not checked by an admin)"),
-                    ("update", "An event you are attending is updated"),
-                    ("comment", "Someone comments on an event you are organizing or attending"),
-                    ("cancel", "An event you are attending is cancelled"),
-                    ("delete", "An event you are attending is deleted"),
-                    ("invite_organizer", "Someone invites you to co-organize an event"),
-                    ("reminder", "Reminder for an upcoming event"),
+                    NotificationTopicAction.event__create_approved,
+                    NotificationTopicAction.event__create_any,
+                    NotificationTopicAction.event__update,
+                    NotificationTopicAction.event__comment,
+                    NotificationTopicAction.event__cancel,
+                    NotificationTopicAction.event__delete,
+                    NotificationTopicAction.event__invite_organizer,
+                    NotificationTopicAction.event__reminder,
                 ],
             ),
             (
                 "discussion",
                 "Community discussions",
                 [
-                    ("create", "Someone creates a discussion in one of your communities"),
-                    ("comment", "Someone comments on a discussion you authored"),
+                    NotificationTopicAction.discussion__create,
+                    NotificationTopicAction.discussion__comment,
                 ],
             ),
             (
                 "thread",
                 "Threads, Comments, & Replies",
                 [
-                    ("reply", "Someone replies to your comment"),
+                    NotificationTopicAction.thread__reply,
                 ],
             ),
         ],
@@ -200,22 +201,22 @@ settings_layout = [
                 "onboarding",
                 "Onboarding",
                 [
-                    ("reminder", "Reminder to complete your profile after signing up"),
+                    NotificationTopicAction.onboarding__reminder,
                 ],
             ),
             (
                 "badge",
                 "Updates to Badges on your profile",
                 [
-                    ("add", "A badge is added to your account"),
-                    ("remove", "A badge is removed from your account"),
+                    NotificationTopicAction.badge__add,
+                    NotificationTopicAction.badge__remove,
                 ],
             ),
             (
                 "donation",
                 "Donations",
                 [
-                    ("received", "Your donation is received"),
+                    NotificationTopicAction.donation__received,
                 ],
             ),
         ],
@@ -227,85 +228,85 @@ settings_layout = [
                 "password",
                 "Password change",
                 [
-                    ("change", "Your password is changed"),
+                    NotificationTopicAction.password__change,
                 ],
             ),
             (
                 "password_reset",
                 "Password reset",
                 [
-                    ("start", "Password reset is initiated"),
-                    ("complete", "Password reset is completed"),
+                    NotificationTopicAction.password_reset__start,
+                    NotificationTopicAction.password_reset__complete,
                 ],
             ),
             (
                 "email_address",
                 "Email address change",
                 [
-                    ("change", "Email change is initiated"),
-                    ("verify", "Your new email is verified"),
+                    NotificationTopicAction.email_address__change,
+                    NotificationTopicAction.email_address__verify,
                 ],
             ),
             (
                 "account_deletion",
                 "Account deletion",
                 [
-                    ("start", "You initiate account deletion"),
-                    ("complete", "Your account is deleted"),
-                    ("recovered", "Your account is recovered (undeleted)"),
+                    NotificationTopicAction.account_deletion__start,
+                    NotificationTopicAction.account_deletion__complete,
+                    NotificationTopicAction.account_deletion__recovered,
                 ],
             ),
             (
                 "api_key",
                 "API keys",
                 [
-                    ("create", "An API key is created for your account"),
+                    NotificationTopicAction.api_key__create,
                 ],
             ),
             (
                 "phone_number",
                 "Phone number change",
                 [
-                    ("change", "Your phone number is changed"),
-                    ("verify", "Your phone number is verified"),
+                    NotificationTopicAction.phone_number__change,
+                    NotificationTopicAction.phone_number__verify,
                 ],
             ),
             (
                 "birthdate",
                 "Birthdate change",
                 [
-                    ("change", "Your birthdate is changed"),
+                    NotificationTopicAction.birthdate__change,
                 ],
             ),
             (
                 "gender",
                 "Displayed gender change",
                 [
-                    ("change", "The gender displayed on your profile is changed"),
+                    NotificationTopicAction.gender__change,
                 ],
             ),
             (
                 "modnote",
                 "Moderator notes",
                 [
-                    ("create", "You receive a moderator note"),
+                    NotificationTopicAction.modnote__create,
                 ],
             ),
             (
                 "verification",
                 "Verification",
                 [
-                    ("sv_fail", "Strong Verification fails"),
-                    ("sv_success", "Strong Verification succeeds"),
+                    NotificationTopicAction.verification__sv_fail,
+                    NotificationTopicAction.verification__sv_success,
                 ],
             ),
             (
                 "postal_verification",
                 "Postal Verification",
                 [
-                    ("postcard_sent", "Verification postcard is sent"),
-                    ("success", "Postal Verification succeeds"),
-                    ("failed", "Postal Verification fails"),
+                    NotificationTopicAction.postal_verification__postcard_sent,
+                    NotificationTopicAction.postal_verification__success,
+                    NotificationTopicAction.postal_verification__failed,
                 ],
             ),
         ],
@@ -317,7 +318,7 @@ settings_layout = [
                 "general",
                 "General",
                 [
-                    ("new_blog_post", "We published a new blog post"),
+                    NotificationTopicAction.general__new_blog_post,
                 ],
             ),
         ],
@@ -325,44 +326,20 @@ settings_layout = [
 ]
 
 
-def check_settings() -> None:
-    # check settings contain all actions+topics
-    actions_by_topic: dict[str, list[str]] = {}
-    for t in NotificationTopicAction:
-        actions_by_topic[t.topic] = actions_by_topic.get(t.topic, []) + [t.action]
-
-    actions_by_topic_check = {}
-
-    for heading, group in settings_layout:
-        for topic, name, items in group:
-            actions = []
-            for action, description in items:
-                actions.append(action)
-            actions_by_topic_check[topic] = actions
-
-    for topic, actions in actions_by_topic.items():
-        assert sorted(actions) == sorted(actions_by_topic_check[topic]), (
-            f"Expected {actions} == {actions_by_topic_check[topic]} for {topic}"
-        )
-    assert sorted(actions_by_topic.keys()) == sorted(actions_by_topic_check.keys())
-
-
-check_settings()
-
-
 def get_user_setting_groups(user_id: int) -> list[notifications_pb2.NotificationGroup]:
+    loc_context: LocalizationContext = LocalizationContext.en_utc()
     with session_scope() as session:
         groups = []
         for heading, group in settings_layout:
             topics = []
             for topic, name, items in group:
                 actions = []
-                for action, description in items:
-                    topic_action = enum_from_topic_action[topic, action]
+                for topic_action in items:
                     delivery_types = get_preference(session, user_id, topic_action)
+                    description = get_topic_action_description(topic_action, locale=loc_context.locale)
                     actions.append(
                         notifications_pb2.NotificationItem(
-                            action=action,
+                            action=topic_action.action,
                             description=description,
                             user_editable=not topic_action.is_critical,
                             push=NotificationDeliveryType.push in delivery_types,
