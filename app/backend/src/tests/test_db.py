@@ -301,17 +301,15 @@ def test_migration_ordinals() -> None:
         down_revision = down_match.group(2)  # None if down_revision = None
 
         if revision != file_ordinal:
-            errors.append(f"{path.name}: revision = \"{revision}\" does not match filename ordinal \"{file_ordinal}\"")
+            errors.append(f'{path.name}: revision = "{revision}" does not match filename ordinal "{file_ordinal}"')
 
         if file_ordinal == "0001":
             if down_revision is not None:
-                errors.append(f"{path.name}: first migration must have down_revision = None, got \"{down_revision}\"")
+                errors.append(f'{path.name}: first migration must have down_revision = None, got "{down_revision}"')
         else:
             expected_down = f"{int(file_ordinal) - 1:04d}"
             if down_revision != expected_down:
-                errors.append(
-                    f"{path.name}: down_revision = \"{down_revision}\" but expected \"{expected_down}\""
-                )
+                errors.append(f'{path.name}: down_revision = "{down_revision}" but expected "{expected_down}"')
 
         # Check for gaps in the sequence
         expected_ordinal = f"{int(prev_ordinal) + 1:04d}" if prev_ordinal else "0001"
