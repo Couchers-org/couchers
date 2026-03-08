@@ -33,6 +33,7 @@ dependencies = [
     "qrcode>=8.0",
     "python-dateutil>=2.9.0.post0",
     "pyyaml>=6.0.3",
+    "regex>=2024.0.0",
     "requests>=2.33.1",
     "sentry-sdk>=2.43.0",
     "Shapely>=2.1.1",

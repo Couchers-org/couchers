@@ -1,5 +1,4 @@
 import http.cookies
-import logging
 import re
 import typing
 from collections.abc import Mapping, Sequence
@@ -8,6 +7,7 @@ from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
 from zoneinfo import ZoneInfo
 
+import regex
 from geoalchemy2 import WKBElement, WKTElement
 from geoalchemy2.shape import from_shape, to_shape
 from google.protobuf.duration_pb2 import Duration
@@ -29,7 +29,7 @@ from couchers.crypto import (
 )
 from couchers.proto.internal import internal_pb2
 
-logger = logging.getLogger(__name__)
+VALID_NAME_PATTERN = regex.compile(r"^[\p{L}\s'-]+$")
 
 if TYPE_CHECKING:
     from couchers.models import Geom
@@ -66,19 +66,12 @@ def is_valid_name(field: str) -> bool:
       (frontend: ``^[\\p{L}\\s'-]+$``)
     * 2-100 characters
     """
-    logger.info("validating name: %r", field)
 
     trimmed = field.strip()
     if len(trimmed) > 100 or len(trimmed) < 2:
         return False
 
-    # python's re has no \p{L} -> use character check so we allow any Unicode letter.
-    for ch in field:
-        if ch.isalpha() or ch in {"'", "-"} or ch.isspace():
-            continue
-        return False
-
-    return True
+    return VALID_NAME_PATTERN.fullmatch(field) is not None
 
 
 def is_valid_email(field: str) -> bool:
