@@ -3682,10 +3682,10 @@ cosmiconfig@^7.0.0:
     path-type "^4.0.0"
     yaml "^1.10.0"
 
-country-flag-icons@^1.5.17:
-  version "1.6.4"
-  resolved "https://registry.yarnpkg.com/country-flag-icons/-/country-flag-icons-1.6.4.tgz#ddf9d07465678ab0a5b04b0d2f60717c2f46cd6f"
-  integrity sha512-Z3Zi419FI889tlElMsVhCIS5eRkiLDWixr576J5DPiTe5RGxpbRi+enMpHdYVp5iK5WFjr8P/RgyIFAGhFsiFg==
+country-flag-icons@^1.6.14:
+  version "1.6.15"
+  resolved "https://registry.yarnpkg.com/country-flag-icons/-/country-flag-icons-1.6.15.tgz#f89014f84534d4f35109280d88930e6c371684a9"
+  integrity sha512-92HoA8l6DluEidku8tKBftjuFRj4Rv3zDW1lXxCuNnqAxhUSkvso9gM/Afj4F5BnK+wneHIe3ydI+s+4NA29/Q==
 
 create-jest@^29.7.0:
   version "29.7.0"
@@ -6344,10 +6344,10 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
-libphonenumber-js@^1.12.27:
-  version "1.12.31"
-  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.12.31.tgz#3cdb45641c6b77228dd1238f3d810c3bb5d91199"
-  integrity sha512-Z3IhgVgrqO1S5xPYM3K5XwbkDasU67/Vys4heW+lfSBALcUZjeIIzI8zCLifY+OCzSq+fpDdywMDa7z+4srJPQ==
+libphonenumber-js@^1.12.37:
+  version "1.12.38"
+  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.12.38.tgz#51e70b23cc1f5502e15c56b8ff09c71a91b86c66"
+  integrity sha512-vwzxmasAy9hZigxtqTbFEwp8ZdZ975TiqVDwj5bKx5sR+zi5ucUQy9mbVTkKM9GzqdLdxux/hTw2nmN5J7POMA==
 
 lines-and-columns@^1.1.6:
   version "1.2.4"
@@ -7444,15 +7444,15 @@ react-map-gl@^8.1.0:
     "@vis.gl/react-mapbox" "8.1.0"
     "@vis.gl/react-maplibre" "8.1.0"
 
-react-phone-number-input@^3.4.14:
-  version "3.4.14"
-  resolved "https://registry.yarnpkg.com/react-phone-number-input/-/react-phone-number-input-3.4.14.tgz#e2bbb3f1c89e99082245ba6438be3f19a46e89be"
-  integrity sha512-T9MziNuvthzv6+JAhKD71ab/jVXW5U20nQZRBJd6+q+ujmkC+/ISOf2GYo8pIi4VGjdIYRIHDftMAYn3WKZT3w==
+react-phone-number-input@^3.4.16:
+  version "3.4.16"
+  resolved "https://registry.yarnpkg.com/react-phone-number-input/-/react-phone-number-input-3.4.16.tgz#e442cdb790ce3138c14e1a705b4e254528855aff"
+  integrity sha512-ix1+SIyGuLxnlAeW+XQNhwOmmDd4Zmr6Ng1eQl0E2XS8xIuue3gdZeBG4LGTMjTIFneOTO9pUPL+AEDhV6+r+A==
   dependencies:
     classnames "^2.5.1"
-    country-flag-icons "^1.5.17"
+    country-flag-icons "^1.6.14"
     input-format "^0.3.14"
-    libphonenumber-js "^1.12.27"
+    libphonenumber-js "^1.12.37"
     prop-types "^15.8.1"
 
 react-simple-maps@^3.0.0:
