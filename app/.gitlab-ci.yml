@@ -111,6 +111,19 @@ protos:
     paths:
       - app/
 
+build:manifest:
+  needs: ["protos"]
+  stage: build
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - sh app/deployment/build_manifest.sh app/backend/src/couchers/migrations/versions/ artifacts/manifest
+  artifacts:
+    paths:
+      - artifacts/manifest
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+
 build:proxy:
   needs: ["protos"]
   stage: build
@@ -270,19 +283,6 @@ build:nginx-next:
         - app/proto/**/*
         - app/nginx/**/*
         - app/.gitlab-ci.yml
-
-build:manifest:
-  needs: ["protos"]
-  stage: build
-  variables:
-    GIT_DEPTH: 0
-  script:
-    - sh app/deployment/build_manifest.sh app/backend/src/couchers/migrations/versions/ artifacts/manifest
-  artifacts:
-    paths:
-      - artifacts/manifest
-  # rules:
-  #   - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
 test:backend:
   needs: ["build:backend"]
@@ -972,8 +972,7 @@ release:nginx-next:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
 upload:manifest:
-  # needs: ["wait:before-release"]
-  needs: ["build:manifest"]
+  needs: ["wait:before-release"]
   stage: release
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
