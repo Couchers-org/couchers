@@ -174,7 +174,8 @@
     "invite_members": "Invitar a miembros",
     "merch_shop": "Tienda de merchandising",
     "switch_to_light_mode": "Cambiar a modo claro",
-    "switch_to_dark_mode": "Cambiar a modo oscuro"
+    "switch_to_dark_mode": "Cambiar a modo oscuro",
+    "home": "Inicio"
   },
   "ok": "De acuerdo",
   "relative_time": {
@@ -369,5 +370,15 @@
     "default_title": "Couchers.org",
     "default_description": "Comparte tu mundo, descubre el de otros. Experiencias locales auténticas, construidas en la confianza y la conexión genuina, no en las transacciones."
   },
-  "invited_you": "¡{{name}} te ha invitado a unirte a Couchers!"
+  "invited_you": "¡{{name}} te ha invitado a unirte a Couchers!",
+  "image_input": {
+    "select_button_a11y": "Selecciona una imagen",
+    "replace_image_tooltip": "Haz clic para reemplazar la imagen",
+    "read_file_error_message": "No se pudo leer el fichero"
+  },
+  "blog": {
+    "byline_with_author": "Escrito por <1/>. Publicado el {{date}}.",
+    "byline_without_author": "Publicado el {{date}}.",
+    "cta_message": "¿Quieres ayudar a escribir nuestro blog o ser voluntario? <1>Regístrate</1> y cuéntanos. ¡Los voluntarios y las <3>donaciones</3> son lo que hacen posible Couchers.org!"
+  }
 }
