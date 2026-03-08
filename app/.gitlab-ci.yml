@@ -111,16 +111,18 @@ protos:
     paths:
       - app/
 
-build:manifest:
+build:deploy-manifest:
   needs: ["protos"]
   stage: build
   variables:
     GIT_DEPTH: 0
   script:
-    - sh app/deployment/build_manifest.sh app/backend/src/couchers/migrations/versions/ artifacts/manifest
+    - sh app/deployment/build_manifest.sh app/backend/src/couchers/migrations/versions/ artifacts/deploy-info
+    - mkdir -p artifacts/deploy-info/protos
+    - cp app/proto/gen/descriptors.pb "artifacts/deploy-info/protos/${SLUG}.pb"
   artifacts:
     paths:
-      - artifacts/manifest
+      - artifacts/deploy-info
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
@@ -841,7 +843,7 @@ wait:before-release:
       optional: true
     - job: build:nginx-next
       artifacts: false
-    - job: build:manifest
+    - job: build:deploy-manifest
       artifacts: false
     - job: test:backend
       artifacts: false
@@ -971,7 +973,7 @@ release:nginx-next:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
-upload:manifest:
+release:deploy-info:
   needs: ["wait:before-release"]
   stage: release
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
@@ -979,7 +981,7 @@ upload:manifest:
     # no docker login
     default: false
   script:
-    - aws s3 cp artifacts/manifest/ "s3://$AWS_DEPLOY_BUCKET/" --recursive --content-type application/json
+    - aws s3 cp artifacts/deploy-info/ "s3://$AWS_DEPLOY_BUCKET/" --recursive
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
