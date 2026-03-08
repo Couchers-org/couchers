@@ -174,7 +174,8 @@
     "badges": "Rozetler",
     "dashboard": "Kontrol Paneli",
     "legal_more": "Yasal & Fazlası",
-    "landing_page": "Başlangıç Sayfası"
+    "landing_page": "Başlangıç Sayfası",
+    "volunteer": "Gönüllü Ol"
   },
   "what_is_cs": {
     "timeline": {
@@ -201,7 +202,11 @@
     "description_2": "Başka bir şehirde bir arkadaşın varmış ve onu ziyarete gidiyormuşsun gibi, ama oraya vardığında arkadaşınla ilk kez tanışıyorsun!",
     "get_involved_title": "Couchers.org'da neler yapabilirim?",
     "get_started": "Başlayın",
-    "timeline_title": "Kanepe sörfünün kısa bir tarihi"
+    "timeline_title": "Kanepe sörfünün kısa bir tarihi",
+    "table": {
+      "no_investor_pressure": "Yatırımcı baskısı yok",
+      "social_expectation": "Ev sahibiyle vakit geçirmeyi teşvik eder"
+    }
   },
   "beta": "Beta",
   "relative_time": {
