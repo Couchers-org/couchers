@@ -271,8 +271,7 @@ def test_migration_ordinals() -> None:
       - down_revision = "NNNN-1" (or None for 0001)
       - filename starting with NNNN_
     """
-    versions_dir = Path(__file__).parent / "../../couchers/migrations/versions"
-    versions_dir = versions_dir.resolve()
+    versions_dir = Path(__file__).parent.parent / "couchers" / "migrations" / "versions"
 
     migration_files = sorted(f for f in versions_dir.glob("*.py") if re.match(r"^\d{4}_", f.name))
     assert len(migration_files) > 0, f"No migration files found in {versions_dir}"
