@@ -827,6 +827,8 @@ wait:before-release:
       optional: true
     - job: build:nginx-next
       artifacts: false
+    - job: build:manifest
+      artifacts: false
     - job: test:backend
       artifacts: false
       optional: true
@@ -955,64 +957,37 @@ release:nginx-next:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
-release:manifest:
-  needs: ["wait:before-release"]
-  stage: release
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+build:manifest:
+  needs: ["protos"]
+  stage: build
+  image: python:3.14-slim
   inherit:
     # no docker login
     default: false
   variables:
     GIT_DEPTH: 0
   script:
-    - apt-get update -qy && apt-get install -qy jq
-    # Compute commit number (monotonically increasing on develop)
-    - export COMMIT_NUMBER=$(git rev-list --count HEAD)
-    - export COMMIT_SHA=$CI_COMMIT_SHA
-    - export COMMIT_SHORT_SHA=$CI_COMMIT_SHORT_SHA
-    # Extract alembic head from migration filenames
-    - export ALEMBIC_HEAD=$(ls app/backend/src/couchers/migrations/versions/ | grep -oP '^\d+' | sort -n | tail -1)
-    # Validate alembic head is a reasonable number
-    - |
-      if [ -z "$ALEMBIC_HEAD" ] || [ "$ALEMBIC_HEAD" -lt 100 ]; then
-        echo "ERROR: Alembic head '$ALEMBIC_HEAD' is missing or suspiciously low (< 100)"
-        exit 1
-      fi
-    # Build manifest JSON
+    - python app/deployment/build_manifest.py app/backend/src/couchers/migrations/versions/ manifest.json
+  artifacts:
+    paths:
+      - manifest.json
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+
+upload:manifest:
+  needs: ["wait:before-release", "build:manifest"]
+  stage: release
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - export COMMIT_NUMBER=$(python3 -c "import json; print(json.load(open('manifest.json'))['commit_number'])")
     - export PADDED_COMMIT_NUMBER=$(printf "%06d" $COMMIT_NUMBER)
-    - export MANIFEST_KEY="deploy/manifests/${PADDED_COMMIT_NUMBER}-${COMMIT_SHORT_SHA}.json"
-    - |
-      jq -n \
-        --arg commit_sha "$COMMIT_SHA" \
-        --arg commit_short_sha "$COMMIT_SHORT_SHA" \
-        --argjson commit_number "$COMMIT_NUMBER" \
-        --arg branch "$CI_COMMIT_REF_NAME" \
-        --arg timestamp "$CI_COMMIT_TIMESTAMP" \
-        --arg alembic_head "$ALEMBIC_HEAD" \
-        --arg pipeline_id "$CI_PIPELINE_ID" \
-        --arg slug "$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA" \
-        --arg registry "$CI_REGISTRY_IMAGE" \
-        '{
-          commit_sha: $commit_sha,
-          commit_short_sha: $commit_short_sha,
-          commit_number: $commit_number,
-          branch: $branch,
-          timestamp: $timestamp,
-          alembic_head: $alembic_head,
-          pipeline_id: $pipeline_id,
-          images: {
-            backend: ($registry + "/backend:" + $slug),
-            media: ($registry + "/media:" + $slug),
-            web: ($registry + "/web:" + $slug),
-            proxy: ($registry + "/proxy:" + $slug),
-            nginx: ($registry + "/nginx:" + $slug),
-            prometheus: ($registry + "/prometheus:" + $slug)
-          }
-        }' > manifest.json
+    - export MANIFEST_KEY="deploy/manifests/${PADDED_COMMIT_NUMBER}-${CI_COMMIT_SHORT_SHA}.json"
     - cat manifest.json
-    # Upload to S3
-    - aws s3 cp manifest.json "s3://$AWS_PREVIEW_BUCKET/$MANIFEST_KEY" --content-type application/json
-    - echo "Manifest uploaded to s3://$AWS_PREVIEW_BUCKET/$MANIFEST_KEY"
+    - aws s3 cp manifest.json "s3://$AWS_DEPLOY_BUCKET/$MANIFEST_KEY" --content-type application/json
+    - echo "Manifest uploaded to s3://$AWS_DEPLOY_BUCKET/$MANIFEST_KEY"
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
