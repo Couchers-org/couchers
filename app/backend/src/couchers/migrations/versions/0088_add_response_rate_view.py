@@ -1,7 +1,7 @@
 """Add response rate view
 
-Revision ID: b16903ba2c18
-Revises: 8a62223e4cbd
+Revision ID: 0088
+Revises: 0087
 Create Date: 2025-04-06 17:16:13.762102
 
 """
@@ -9,8 +9,8 @@ Create Date: 2025-04-06 17:16:13.762102
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "b16903ba2c18"
-down_revision = "8a62223e4cbd"
+revision = "0088"
+down_revision = "0087"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """Add badges
 
-Revision ID: 69ce91d4db5e
-Revises: ffe7d9a87925
+Revision ID: 0052
+Revises: 0051
 Create Date: 2024-04-22 18:35:03.755659
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "69ce91d4db5e"
-down_revision = "ffe7d9a87925"
+revision = "0052"
+down_revision = "0051"
 branch_labels = None
 depends_on = None
 

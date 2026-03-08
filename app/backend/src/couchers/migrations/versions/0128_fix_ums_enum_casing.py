@@ -1,7 +1,7 @@
 """Fix UMS enum casing
 
-Revision ID: 5c0e25460ac2
-Revises: f016e6defa9d
+Revision ID: 0128
+Revises: 0127
 Create Date: 2026-02-04 00:19:26.124242
 
 """
@@ -9,8 +9,8 @@ Create Date: 2026-02-04 00:19:26.124242
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "5c0e25460ac2"
-down_revision = "f016e6defa9d"
+revision = "0128"
+down_revision = "0127"
 branch_labels = None
 depends_on = None
 

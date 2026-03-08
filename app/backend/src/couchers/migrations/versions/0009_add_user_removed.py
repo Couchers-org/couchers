@@ -1,7 +1,7 @@
 """Add user_removed
 
-Revision ID: 763e0bd674a5
-Revises: a3700d2af277
+Revision ID: 0009
+Revises: 0008
 Create Date: 2021-05-13 15:48:22.513281
 
 """
@@ -9,8 +9,8 @@ Create Date: 2021-05-13 15:48:22.513281
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "763e0bd674a5"
-down_revision = "a3700d2af277"
+revision = "0009"
+down_revision = "0008"
 branch_labels = None
 depends_on = None
 

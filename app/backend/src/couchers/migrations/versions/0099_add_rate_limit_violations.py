@@ -1,7 +1,7 @@
 """Add rate limit violations
 
-Revision ID: 33116a094637
-Revises: f176b9395ba1
+Revision ID: 0099
+Revises: 0098
 Create Date: 2025-07-01 18:28:06.294098
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "33116a094637"
-down_revision = "f176b9395ba1"
+revision = "0099"
+down_revision = "0098"
 branch_labels = None
 depends_on = None
 

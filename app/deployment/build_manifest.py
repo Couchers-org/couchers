@@ -4,6 +4,9 @@ Builds a deployment manifest JSON file.
 The manifest describes a release: which commit it corresponds to, what the
 current alembic migration head is, and the Docker image tags for each service.
 
+The alembic head is determined from migration filenames, which are validated
+by test_migration_ordinals to use ordinal revision IDs forming a linear chain.
+
 Expected environment variables (set by GitLab CI):
   CI_COMMIT_SHA, CI_COMMIT_SHORT_SHA, CI_COMMIT_REF_NAME,
   CI_COMMIT_TIMESTAMP, CI_PIPELINE_ID, CI_REGISTRY_IMAGE, SLUG
@@ -19,12 +22,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+
 SERVICES = ["backend", "media", "web", "proxy", "nginx", "prometheus"]
 
 
 def get_alembic_head(migrations_dir):
-    """Extract the highest migration number from the migrations directory."""
-    pattern = re.compile(r"^(\d+)_")
+    """Extract the highest ordinal migration number from the migrations directory."""
+    pattern = re.compile(r"^(\d{4})_")
     heads = []
     for entry in Path(migrations_dir).iterdir():
         m = pattern.match(entry.name)
@@ -32,10 +36,7 @@ def get_alembic_head(migrations_dir):
             heads.append(int(m.group(1)))
     if not heads:
         raise RuntimeError(f"No migrations found in {migrations_dir}")
-    head = max(heads)
-    if head < 100:
-        raise RuntimeError(f"Alembic head {head} is suspiciously low (< 100)")
-    return str(head)
+    return f"{max(heads):04d}"
 
 
 def get_commit_number():

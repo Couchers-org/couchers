@@ -1,7 +1,7 @@
 """Make hosting status non-nullable
 
-Revision ID: 9261e9647b69
-Revises: 13fe6ada1535
+Revision ID: 0042
+Revises: 0041
 Create Date: 2022-02-14 10:13:18.444848
 
 """
@@ -10,8 +10,8 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "9261e9647b69"
-down_revision = "13fe6ada1535"
+revision = "0042"
+down_revision = "0041"
 branch_labels = None
 depends_on = None
 

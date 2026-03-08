@@ -1,7 +1,7 @@
 """Add user field for accepting community guidelines
 
-Revision ID: f77ccd92eb4d
-Revises: a19fc23547ce
+Revision ID: 0022
+Revises: 0021
 Create Date: 2021-07-15 23:58:27.233804
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "f77ccd92eb4d"
-down_revision = "a19fc23547ce"
+revision = "0022"
+down_revision = "0021"
 branch_labels = None
 depends_on = None
 

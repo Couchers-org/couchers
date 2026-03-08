@@ -1,7 +1,7 @@
 """Database improvements
 
-Revision ID: 4023fed9a8db
-Revises: 8121c15b01c0
+Revision ID: 0047
+Revises: 0046
 Create Date: 2022-10-13 10:32:12.203554
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "4023fed9a8db"
-down_revision = "8121c15b01c0"
+revision = "0047"
+down_revision = "0046"
 branch_labels = None
 depends_on = None
 

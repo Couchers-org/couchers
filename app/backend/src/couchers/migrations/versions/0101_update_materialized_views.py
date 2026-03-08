@@ -1,7 +1,7 @@
 """Update materialized views
 
-Revision ID: d345174cb002
-Revises: 14585a4e1868
+Revision ID: 0101
+Revises: 0100
 Create Date: 2025-07-15 22:26:20.565635
 
 """
@@ -9,8 +9,8 @@ Create Date: 2025-07-15 22:26:20.565635
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "d345174cb002"
-down_revision = "14585a4e1868"
+revision = "0101"
+down_revision = "0100"
 branch_labels = None
 depends_on = None
 

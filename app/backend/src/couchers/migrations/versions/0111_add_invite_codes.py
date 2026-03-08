@@ -1,7 +1,7 @@
 """add invite codes
 
-Revision ID: 0ad661585a57
-Revises: 34db9c02d305
+Revision ID: 0111
+Revises: 0110
 Create Date: 2025-07-21 16:09:53.901168
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0ad661585a57"
-down_revision = "34db9c02d305"
+revision = "0111"
+down_revision = "0110"
 branch_labels = None
 depends_on = None
 

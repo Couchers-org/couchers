@@ -1,7 +1,7 @@
 """Add more email fields
 
-Revision ID: 3b63c4706f0d
-Revises: 2c084379cb84
+Revision ID: 0062
+Revises: 0061
 Create Date: 2024-05-27 19:32:59.534093
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "3b63c4706f0d"
-down_revision = "2c084379cb84"
+revision = "0062"
+down_revision = "0061"
 branch_labels = None
 depends_on = None
 

@@ -261,3 +261,63 @@ def test_database_consistency_check(db, testconfig: dict[str, Any]) -> None:
     # This should now raise an exception
     with pytest.raises(DatabaseInconsistencyError):
         check_database_consistency(empty_pb2.Empty())
+
+
+def test_migration_ordinals() -> None:
+    """
+    Validates that all migration files use ordinal revision IDs and form a
+    linear chain. Each migration NNNN must have:
+      - revision = "NNNN"
+      - down_revision = "NNNN-1" (or None for 0001)
+      - filename starting with NNNN_
+    """
+    versions_dir = Path(__file__).parent / "../../couchers/migrations/versions"
+    versions_dir = versions_dir.resolve()
+
+    migration_files = sorted(f for f in versions_dir.glob("*.py") if re.match(r"^\d{4}_", f.name))
+    assert len(migration_files) > 0, f"No migration files found in {versions_dir}"
+
+    errors = []
+    prev_ordinal = None
+
+    for path in migration_files:
+        filename_match = re.match(r"^(\d{4})_", path.name)
+        assert filename_match, f"Migration filename does not start with ordinal: {path.name}"
+        file_ordinal = filename_match.group(1)
+
+        content = path.read_text()
+
+        rev_match = re.search(r'^revision\s*=\s*"([^"]+)"', content, re.MULTILINE)
+        down_match = re.search(r"^down_revision\s*=\s*(None|\"([^\"]+)\")", content, re.MULTILINE)
+
+        if not rev_match:
+            errors.append(f"{path.name}: missing 'revision' variable")
+            continue
+        if not down_match:
+            errors.append(f"{path.name}: missing 'down_revision' variable")
+            continue
+
+        revision = rev_match.group(1)
+        down_revision = down_match.group(2)  # None if down_revision = None
+
+        if revision != file_ordinal:
+            errors.append(f"{path.name}: revision = \"{revision}\" does not match filename ordinal \"{file_ordinal}\"")
+
+        if file_ordinal == "0001":
+            if down_revision is not None:
+                errors.append(f"{path.name}: first migration must have down_revision = None, got \"{down_revision}\"")
+        else:
+            expected_down = f"{int(file_ordinal) - 1:04d}"
+            if down_revision != expected_down:
+                errors.append(
+                    f"{path.name}: down_revision = \"{down_revision}\" but expected \"{expected_down}\""
+                )
+
+        # Check for gaps in the sequence
+        expected_ordinal = f"{int(prev_ordinal) + 1:04d}" if prev_ordinal else "0001"
+        if file_ordinal != expected_ordinal:
+            errors.append(f"{path.name}: expected ordinal {expected_ordinal}, got {file_ordinal} (gap in sequence)")
+
+        prev_ordinal = file_ordinal
+
+    assert not errors, "Migration ordinal errors:\n" + "\n".join(f"  - {e}" for e in errors)

@@ -1,7 +1,7 @@
 """Add opt out of newsletter
 
-Revision ID: c7079437149a
-Revises: d45f557f87e8
+Revision ID: 0056
+Revises: 0055
 Create Date: 2024-05-19 16:15:00.273193
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "c7079437149a"
-down_revision = "d45f557f87e8"
+revision = "0056"
+down_revision = "0055"
 branch_labels = None
 depends_on = None
 

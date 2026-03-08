@@ -1,7 +1,7 @@
 """Add API keys
 
-Revision ID: 61b4c6b2df72
-Revises: f77ccd92eb4d
+Revision ID: 0023
+Revises: 0022
 Create Date: 2021-07-22 13:50:58.948747
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "61b4c6b2df72"
-down_revision = "f77ccd92eb4d"
+revision = "0023"
+down_revision = "0022"
 branch_labels = None
 depends_on = None
 

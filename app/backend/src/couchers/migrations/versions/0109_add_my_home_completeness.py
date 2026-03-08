@@ -1,7 +1,7 @@
 """Add my home completeness
 
-Revision ID: 888ec31ad793
-Revises: f7fa767c2999
+Revision ID: 0109
+Revises: 0108
 Create Date: 2025-07-27 18:50:11.427303
 
 """
@@ -9,8 +9,8 @@ Create Date: 2025-07-27 18:50:11.427303
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "888ec31ad793"
-down_revision = "f7fa767c2999"
+revision = "0109"
+down_revision = "0108"
 branch_labels = None
 depends_on = None
 
