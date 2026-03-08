@@ -270,6 +270,23 @@ build:nginx-next:
         - app/nginx/**/*
         - app/.gitlab-ci.yml
 
+build:manifest:
+  needs: ["protos"]
+  stage: build
+  image: python:3.14-slim
+  inherit:
+    # no docker login
+    default: false
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - python app/deployment/build_manifest.py app/backend/src/couchers/migrations/versions/ artifacts/manifest
+  artifacts:
+    paths:
+      - artifacts/manifest
+  # rules:
+  #   - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+
 test:backend:
   needs: ["build:backend"]
   stage: test
@@ -954,23 +971,6 @@ release:nginx-next:
     - docker pull $NGINX_NEXT_TAG
     - docker tag $NGINX_NEXT_TAG $NGINX_NEXT_RELEASE_TAG
     - docker push $NGINX_NEXT_RELEASE_TAG
-  rules:
-    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
-
-build:manifest:
-  needs: ["protos"]
-  stage: build
-  image: python:3.14-slim
-  inherit:
-    # no docker login
-    default: false
-  variables:
-    GIT_DEPTH: 0
-  script:
-    - python app/deployment/build_manifest.py app/backend/src/couchers/migrations/versions/ artifacts/manifest
-  artifacts:
-    paths:
-      - artifacts/manifest
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
