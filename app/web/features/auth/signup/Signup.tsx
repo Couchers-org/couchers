@@ -140,7 +140,7 @@ export default function Signup() {
           )}
           {inviteError && (
             <Alert severity="error" sx={{ width: "100%" }}>
-              {t("global:error_loading_invite_codes")}
+              {t("global:invites.error.fetch_invite_info")}
             </Alert>
           )}
           {inviteCode && !inviteError && (
@@ -167,7 +167,9 @@ export default function Signup() {
                     highRes
                   />
                   <Typography>
-                    {t("global:invited_you", { name: inviter.name })}
+                    {t("global:invites.banner.invited_you", {
+                      name: inviter.name,
+                    })}
                   </Typography>
                 </>
               )}
