@@ -219,8 +219,8 @@
     "no_codes_message": "No invite codes yet",
     "created_datetime": "Created: {{datetime}}",
     "disabled_datetime": "Disabled: {{datetime}}",
-    "number_of_uses": "Uses: {{count}} completed signups",
     "number_of_uses_one": "Uses: {{count}} completed signup",
+    "number_of_uses_other": "Uses: {{count}} completed signups",
     "disable_link": "Disable",
     "banner": {
       "invited_you": "{{name}} invited you to join Couchers!"
