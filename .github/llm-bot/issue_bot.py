@@ -24,6 +24,7 @@ from github import Github, Auth
 ALLOWED_LABELS = {
     "0.kind bug report",
     "0.kind feature request",
+    "bug: login or signup",
     "bot-processed",
 }
 
@@ -76,6 +77,36 @@ Analyze the issue carefully and provide clear reasoning for your decisions."""
 # ============================================================================
 # Structured Output Schema
 # ============================================================================
+
+SIGNUP_LOGIN_SYSTEM_PROMPT = """You are a GitHub issue classifier for Couchers.org, a couch surfing platform.
+
+Your job is to determine whether a GitHub issue is related to signup or login.
+
+This includes issues about:
+- Creating a new account / signing up / registration
+- Logging in / authentication
+- Email verification during signup
+- Account activation
+- Unable to sign in or sign up
+- Session expiry / being logged out unexpectedly
+
+If the issue is related to any of these topics, respond with is_signup_or_login = true.
+Otherwise, respond with is_signup_or_login = false.
+
+Provide brief reasoning for your decision."""
+
+
+class SignupLoginDecision(BaseModel):
+    """Structured output for signup/login classification."""
+
+    reasoning: str = Field(
+        description="Brief explanation of why this is or isn't related to signup/login"
+    )
+
+    is_signup_or_login: bool = Field(
+        description="Whether the issue is related to signup or login"
+    )
+
 
 class IssueAction(str, Enum):
     """Actions the bot can take on an issue."""
@@ -136,6 +167,39 @@ class IssueBot:
         # Get repository and issue objects
         self.repo = self.github_client.get_repo(self.repo_name)
         self.issue = self.repo.get_issue(self.issue_number)
+
+    def check_signup_login(self) -> SignupLoginDecision:
+        """Use LLM to check if the issue is related to signup or login."""
+        prompt = f"""{SIGNUP_LOGIN_SYSTEM_PROMPT}
+
+Analyze this GitHub issue:
+
+**Title:** {self.issue_title}
+
+**Body:**
+{self.issue_body or "(empty)"}
+
+Respond only in JSON with the following format:
+
+```json
+{json.dumps(SignupLoginDecision.model_json_schema())}
+```
+"""
+
+        print(f"\nChecking if issue #{self.issue_number} is related to signup/login...")
+        decision_dict = self.llm.json_complete(prompt, response_format=SignupLoginDecision)
+        decision = SignupLoginDecision(**decision_dict)
+
+        print(f"Signup/Login: {decision.is_signup_or_login}")
+        print(f"Reasoning: {decision.reasoning}")
+
+        return decision
+
+    def apply_signup_login_decision(self, decision: SignupLoginDecision):
+        """Apply the signup/login label if applicable."""
+        if decision.is_signup_or_login:
+            print(f"\nAdding 'bug: login or signup' label...")
+            self.issue.add_to_labels("bug: login or signup")
 
     def analyze_issue(self) -> BotDecision:
         """Use LLM to analyze the issue and determine actions."""
@@ -242,6 +306,9 @@ Respond only in JSON with the following format:
     def run(self):
         """Main execution flow."""
         try:
+            signup_login_decision = self.check_signup_login()
+            self.apply_signup_login_decision(signup_login_decision)
+
             decision = self.analyze_issue()
             self.apply_decision(decision)
         except Exception as e:
