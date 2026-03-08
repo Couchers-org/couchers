@@ -974,7 +974,7 @@ release:nginx-next:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
 release:deploy-info:
-  needs: ["wait:before-release"]
+  needs: ["wait:before-release", "build:deploy-manifest"]
   stage: release
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
