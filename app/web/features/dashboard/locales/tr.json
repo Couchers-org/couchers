@@ -42,5 +42,18 @@
   "no_sub_communities": "Alt topluluk yok.",
   "your_communities_helper_text2": "Topluluğunuzu göremiyor musunuz? <1>Hemen başlatın!</1>",
   "your_communities_helper_text": "Konumunuza göre var olan tüm topluluklara eklendiniz. Dilerseniz diğer konumlardaki <1>topluluklara da göz atabilirsiniz</1>.",
-  "find_a_host": "Bir ev sahibi bul"
+  "find_a_host": "Bir ev sahibi bul",
+  "landing_text": "Etkinlikler, yerel rehberler, moderasyon ve buluşmalar gibi yeni <1>özellikler</1> geliştiriyoruz. Bunları geliştirirkenki sabrınız ve <3>desteğiniz</3> için teşekkür ederiz.",
+  "find_your_community": "Topluluğunu bul",
+  "find_your_community_intro": "Aşağıda var olan tüm topluluk sayfalarını gezebilir veya göz atabilirsin. Şehrin veya ülken eksik mi? <1>Bu formu</1> kullanarak iste!",
+  "find_your_community_intro_simplified": "Aşağıda topluluğunu ara veya göz at. <1>Sana ait olanı göremiyor musun? Hemen iste!</1>",
+  "browse_all_communities": "Tüm Topluluklara Göz At",
+  "show_all_communities": "Tüm toplulukları göster",
+  "hide_all_communities": "Tüm toplulukları gizle",
+  "become_a_host": "Ev sahipliği yapın",
+  "search_input_label": "Nereye gidiyorsun?",
+  "search_input_placeholder": "Bir konum ara",
+  "show_map": "Haritayı Göster",
+  "hero_image_alt": "Kapadokya'da sıcak hava balonları",
+  "hero_image_attribution": "<1>Mesut Kaya</1> tarafından <3>Unsplash</3>'tan alınan fotoğraf"
 }

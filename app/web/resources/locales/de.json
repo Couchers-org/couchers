@@ -280,30 +280,16 @@
   },
   "back": "Zurück",
   "save_changes": "Änderungen speichern",
-  "created": "Erstellt",
-  "invited_you": "{{name}} hat dich eingeladen, Couchers beizutreten!",
-  "disable": "Deaktivieren",
   "invites": {
-    "create": "Einladung erstellen",
     "instructions": "Erstelle einen Einladungslink, um ihn mit Freunden und der Community zu teilen. Deaktiviere Codes, die du nicht mehr verwendest.",
     "title": "Mitglieder einladen",
-    "disable": "Deaktivieren",
-    "share_link": "Link kopieren",
-    "uses_suffix": "abgeschlossene Anmeldungen",
     "banner": {
-      "invited_you": "{{name}} hat dich eingeladen, Couchers beizutreten!",
-      "inviter_fallback": "{{username}} hat dich eingeladen, Couchers beizutreten!"
+      "invited_you": "{{name}} hat dich eingeladen, Couchers beizutreten!"
     },
     "error": {
       "fetch_invite_info": "Details des Einladungscodes konnten nicht abgerufen werden"
     }
   },
-  "no_invite_codes": "Noch keine Einladungscodes",
-  "disabled": "Deaktiviert",
-  "uses": "Verwendungen",
-  "error_loading_invite_codes": "Details des Einladungscodes konnten nicht abgerufen werden",
-  "copy": "Kopieren",
-  "copied": "In die Zwischenablage kopiert",
   "what_is_cs": {
     "get_involved_title": "Was kann ich auf Couchers.org machen?",
     "title": "Was ist Couchsurfing?",
