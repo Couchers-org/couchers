@@ -62,6 +62,7 @@ def build_manifest(migrations_dir):
         "commit_sha": os.environ["CI_COMMIT_SHA"],
         "commit_short_sha": os.environ["CI_COMMIT_SHORT_SHA"],
         "commit_number": commit_number,
+        "slug": slug,
         "branch": os.environ["CI_COMMIT_REF_NAME"],
         "timestamp": os.environ["CI_COMMIT_TIMESTAMP"],
         "alembic_head": get_alembic_head(migrations_dir),
