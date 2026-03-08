@@ -51,7 +51,8 @@ default:
 
     # All jobs that use this must have full git history to correctly set the version number.
     if [ "$GIT_DEPTH" == "0" ]; then
-        export DISPLAY_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.$(git rev-list --count "origin/$RELEASE_BRANCH")"; else echo "${base_ver}-$SLUG"; fi)
+        export COMMIT_NUMBER=$(git rev-list --count "origin/$RELEASE_BRANCH")
+        export DISPLAY_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.${COMMIT_NUMBER}"; else echo "${base_ver}-$SLUG"; fi)
         echo $DISPLAY_VERSION
     fi
 
@@ -273,14 +274,10 @@ build:nginx-next:
 build:manifest:
   needs: ["protos"]
   stage: build
-  image: python:3.14-slim
-  inherit:
-    # no docker login
-    default: false
   variables:
     GIT_DEPTH: 0
   script:
-    - python app/deployment/build_manifest.py app/backend/src/couchers/migrations/versions/ artifacts/manifest
+    - sh app/deployment/build_manifest.sh app/backend/src/couchers/migrations/versions/ artifacts/manifest
   artifacts:
     paths:
       - artifacts/manifest
