@@ -1,7 +1,7 @@
 """Implement signup motivations
 
-Revision ID: 0e07dbb98ffc
-Revises: 2e9def7290b9
+Revision ID: 0134
+Revises: 0133
 Create Date: 2026-02-16 22:51:33.008763
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0e07dbb98ffc"
-down_revision = "2e9def7290b9"
+revision = "0134"
+down_revision = "0133"
 branch_labels = None
 depends_on = None
 

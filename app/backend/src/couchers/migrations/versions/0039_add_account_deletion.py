@@ -1,7 +1,7 @@
 """Add account deletion
 
-Revision ID: 6c05f801b0c6
-Revises: 9b9a9eb3873a
+Revision ID: 0039
+Revises: 0038
 Create Date: 2022-02-06 23:41:48.605455
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "6c05f801b0c6"
-down_revision = "9b9a9eb3873a"
+revision = "0039"
+down_revision = "0038"
 branch_labels = None
 depends_on = None
 

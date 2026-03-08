@@ -1,7 +1,7 @@
 """Switch to new stripe account
 
-Revision ID: a6c8b3a9a986
-Revises: 6aa87f3539f9
+Revision ID: 0033
+Revises: 0032
 Create Date: 2022-01-14 14:33:58.465424
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "a6c8b3a9a986"
-down_revision = "6aa87f3539f9"
+revision = "0033"
+down_revision = "0032"
 branch_labels = None
 depends_on = None
 

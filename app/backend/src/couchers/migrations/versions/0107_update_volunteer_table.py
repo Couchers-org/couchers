@@ -1,7 +1,7 @@
 """Update volunteer table
 
-Revision ID: c29307a66e4b
-Revises: 71a33b6af395
+Revision ID: 0107
+Revises: 0106
 Create Date: 2025-07-27 14:16:32.183830
 
 """
@@ -9,8 +9,8 @@ Create Date: 2025-07-27 14:16:32.183830
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "c29307a66e4b"
-down_revision = "71a33b6af395"
+revision = "0107"
+down_revision = "0106"
 branch_labels = None
 depends_on = None
 

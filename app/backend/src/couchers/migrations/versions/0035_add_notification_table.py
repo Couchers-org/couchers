@@ -1,7 +1,7 @@
 """Add notification table
 
-Revision ID: 2630bc1387d1
-Revises: c21437364eb6
+Revision ID: 0035
+Revises: 0034
 Create Date: 2021-12-06 03:01:50.820380
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "2630bc1387d1"
-down_revision = "c21437364eb6"
+revision = "0035"
+down_revision = "0034"
 branch_labels = None
 depends_on = None
 

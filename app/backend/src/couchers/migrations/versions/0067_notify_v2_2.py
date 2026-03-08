@@ -1,7 +1,7 @@
 """Notify v2.2
 
-Revision ID: f53ecea60964
-Revises: 49669627f688
+Revision ID: 0067
+Revises: 0066
 Create Date: 2024-06-11 21:43:29.125853
 
 """
@@ -9,8 +9,8 @@ Create Date: 2024-06-11 21:43:29.125853
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "f53ecea60964"
-down_revision = "49669627f688"
+revision = "0067"
+down_revision = "0066"
 branch_labels = None
 depends_on = None
 

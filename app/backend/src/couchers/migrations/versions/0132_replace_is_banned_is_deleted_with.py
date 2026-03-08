@@ -1,7 +1,7 @@
 """Replace is_banned/is_deleted with banned_at/deleted_at
 
-Revision ID: eeae61c8ee09
-Revises: 738c3c9f922e
+Revision ID: 0132
+Revises: 0131
 Create Date: 2026-02-15 12:00:00.000000
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "eeae61c8ee09"
-down_revision = "738c3c9f922e"
+revision = "0132"
+down_revision = "0131"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """Add host request message bg job
 
-Revision ID: 584f70c6a0d4
-Revises: 763e0bd674a5
+Revision ID: 0010
+Revises: 0009
 Create Date: 2021-05-26 14:43:43.079500
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "584f70c6a0d4"
-down_revision = "763e0bd674a5"
+revision = "0010"
+down_revision = "0009"
 branch_labels = None
 depends_on = None
 

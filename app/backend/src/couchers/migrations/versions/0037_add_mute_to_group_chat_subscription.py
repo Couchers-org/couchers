@@ -1,7 +1,7 @@
 """Add mute to group chat subscription
 
-Revision ID: e96f385d0f66
-Revises: a0d1c7fdfe5b
+Revision ID: 0037
+Revises: 0036
 Create Date: 2022-02-01 10:59:43.112243
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "e96f385d0f66"
-down_revision = "a0d1c7fdfe5b"
+revision = "0037"
+down_revision = "0036"
 branch_labels = None
 depends_on = None
 

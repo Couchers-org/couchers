@@ -1,7 +1,7 @@
 """Add admin_note to users
 
-Revision ID: d45f557f87e8
-Revises: 12de0481c47d
+Revision ID: 0055
+Revises: 0054
 Create Date: 2024-05-18 17:35:27.362898
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "d45f557f87e8"
-down_revision = "12de0481c47d"
+revision = "0055"
+down_revision = "0054"
 branch_labels = None
 depends_on = None
 
