@@ -22,7 +22,7 @@ hide_title: true
   <tbody>
     <tr>
       <td rowspan="5" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Key Milestone</td>
-      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Join the Community</td>
+      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Join The Community</td>
     </tr>
     <tr >
       <td colspan="1"</td>
