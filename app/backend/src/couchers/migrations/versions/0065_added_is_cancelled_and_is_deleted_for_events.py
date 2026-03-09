@@ -1,7 +1,7 @@
 """Added is_cancelled and is_deleted for Events and update notification action enum
 
-Revision ID: 46e6b6a3d9ed
-Revises: 88b6bb559332
+Revision ID: 0065
+Revises: 0064
 Create Date: 2024-05-16 00:44:01.904266
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "46e6b6a3d9ed"
-down_revision = "bc79d9a6fd26"
+revision = "0065"
+down_revision = "0064"
 branch_labels = None
 depends_on = None
 

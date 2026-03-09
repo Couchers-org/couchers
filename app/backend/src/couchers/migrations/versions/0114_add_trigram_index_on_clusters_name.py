@@ -1,7 +1,7 @@
 """add trigram index on clusters.name
 
-Revision ID: 91bd06f6a96a
-Revises: 8c878b177151
+Revision ID: 0114
+Revises: 0113
 Create Date: 2025-09-20 16:19:08.556531
 
 """
@@ -9,8 +9,8 @@ Create Date: 2025-09-20 16:19:08.556531
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "91bd06f6a96a"
-down_revision = "8c878b177151"
+revision = "0114"
+down_revision = "0113"
 branch_labels = None
 depends_on = None
 

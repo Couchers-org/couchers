@@ -107,6 +107,7 @@ const StyledImageListItemBar = styled(ImageListItemBar)(({ theme }) => ({
 const DeleteButton = styled(IconButton)(({ theme }) => ({
   color: theme.palette.common.white,
   backgroundColor: "rgba(255, 255, 255, 0.1)",
+  margin: theme.spacing(0.5),
   "&:hover": {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
   },

@@ -1,7 +1,7 @@
 """Update email regex to disallow dots before @ and consecutive dots
 
-Revision ID: 2e9def7290b9
-Revises: eeae61c8ee09
+Revision ID: 0133
+Revises: 0132
 Create Date: 2026-02-16 04:23:00.000000
 
 """
@@ -9,8 +9,8 @@ Create Date: 2026-02-16 04:23:00.000000
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "2e9def7290b9"
-down_revision = "eeae61c8ee09"
+revision = "0133"
+down_revision = "0132"
 branch_labels = None
 depends_on = None
 

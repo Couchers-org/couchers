@@ -1,7 +1,7 @@
 """Add donation tables
 
-Revision ID: e6d03b494119
-Revises: 62fcd41e4dcd
+Revision ID: 0020
+Revises: 0019
 Create Date: 2021-06-25 17:11:45.036411
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "e6d03b494119"
-down_revision = "62fcd41e4dcd"
+revision = "0020"
+down_revision = "0019"
 branch_labels = None
 depends_on = None
 

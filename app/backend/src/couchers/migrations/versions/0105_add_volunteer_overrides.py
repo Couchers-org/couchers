@@ -1,7 +1,7 @@
 """Add volunteer overrides
 
-Revision ID: 02156b1739ad
-Revises: 30ee8ff72171
+Revision ID: 0105
+Revises: 0104
 Create Date: 2025-07-26 17:50:41.676528
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "02156b1739ad"
-down_revision = "30ee8ff72171"
+revision = "0105"
+down_revision = "0104"
 branch_labels = None
 depends_on = None
 

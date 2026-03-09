@@ -1,7 +1,7 @@
 """Remove unused profile fields
 
-Revision ID: 2fd7096c6d4f
-Revises: d3f2cb24b948
+Revision ID: 0077
+Revises: 0076
 Create Date: 2024-11-25 15:24:12.393262
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "2fd7096c6d4f"
-down_revision = "d3f2cb24b948"
+revision = "0077"
+down_revision = "0076"
 branch_labels = None
 depends_on = None
 

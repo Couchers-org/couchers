@@ -1,7 +1,7 @@
 """Add photo galleries
 
-Revision ID: 24c22be0362c
-Revises: 4b5abd6bc5c0
+Revision ID: 0120
+Revises: 0119
 Create Date: 2025-11-11 21:06:43.956842
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "24c22be0362c"
-down_revision = "4b5abd6bc5c0"
+revision = "0120"
+down_revision = "0119"
 branch_labels = None
 depends_on = None
 

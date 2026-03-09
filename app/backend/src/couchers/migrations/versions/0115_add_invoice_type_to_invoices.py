@@ -1,7 +1,7 @@
 """Update donation and invoice tables
 
-Revision ID: f555ed35e4d0
-Revises: 91bd06f6a96a
+Revision ID: 0115
+Revises: 0114
 Create Date: 2025-11-12 10:42:13.972975
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "f555ed35e4d0"
-down_revision = "91bd06f6a96a"
+revision = "0115"
+down_revision = "0114"
 branch_labels = None
 depends_on = None
 

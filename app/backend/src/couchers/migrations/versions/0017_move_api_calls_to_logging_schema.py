@@ -1,7 +1,7 @@
 """Move api_calls to logging schema
 
-Revision ID: 45e7e0254963
-Revises: 5e89dd9ef181
+Revision ID: 0017
+Revises: 0016
 Create Date: 2021-06-25 09:06:24.763694
 
 """
@@ -9,8 +9,8 @@ Create Date: 2021-06-25 09:06:24.763694
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "45e7e0254963"
-down_revision = "5e89dd9ef181"
+revision = "0017"
+down_revision = "0016"
 branch_labels = None
 depends_on = None
 
