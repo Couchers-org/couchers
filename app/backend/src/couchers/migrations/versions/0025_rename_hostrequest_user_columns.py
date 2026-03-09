@@ -1,7 +1,7 @@
 """Rename HostRequest user columns
 
-Revision ID: d1a68f873ee3
-Revises: 62fcd41e4dcd
+Revision ID: 0025
+Revises: 0024
 Create Date: 2021-07-13 01:47:30.120271
 
 """
@@ -9,8 +9,8 @@ Create Date: 2021-07-13 01:47:30.120271
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "d1a68f873ee3"
-down_revision = "e938e80b67a4"
+revision = "0025"
+down_revision = "0024"
 branch_labels = None
 depends_on = None
 

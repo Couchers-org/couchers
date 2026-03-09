@@ -1,7 +1,7 @@
 """Add host request archive status
 
-Revision ID: 3937eb39a4ca
-Revises: 18d100ed2803
+Revision ID: 0096
+Revises: 0095
 Create Date: 2025-06-19 21:51:25.999122
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "3937eb39a4ca"
-down_revision = "18d100ed2803"
+revision = "0096"
+down_revision = "0095"
 branch_labels = None
 depends_on = None
 

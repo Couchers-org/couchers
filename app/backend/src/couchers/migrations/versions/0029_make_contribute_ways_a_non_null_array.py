@@ -1,7 +1,7 @@
 """Make contribute_ways a non-null array
 
-Revision ID: 74e7f371be76
-Revises: 725813da484d
+Revision ID: 0029
+Revises: 0028
 Create Date: 2021-09-06 11:31:50.349578
 
 """
@@ -9,8 +9,8 @@ Create Date: 2021-09-06 11:31:50.349578
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "74e7f371be76"
-down_revision = "725813da484d"
+revision = "0029"
+down_revision = "0028"
 branch_labels = None
 depends_on = None
 

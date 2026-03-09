@@ -1,7 +1,7 @@
 """Add macroregion to nodetype enum
 
-Revision ID: e9190b051324
-Revises: dc28e9bd2b31
+Revision ID: 0136
+Revises: 0135
 Create Date: 2026-02-18 22:00:00.000000
 
 """
@@ -9,8 +9,8 @@ Create Date: 2026-02-18 22:00:00.000000
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "e9190b051324"
-down_revision = "dc28e9bd2b31"
+revision = "0136"
+down_revision = "0135"
 branch_labels = None
 depends_on = None
 

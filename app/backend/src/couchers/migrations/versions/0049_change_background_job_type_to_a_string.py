@@ -1,7 +1,7 @@
 """Change background job type to a string
 
-Revision ID: b9791722e1c0
-Revises: 989c7f1803f4
+Revision ID: 0049
+Revises: 0048
 Create Date: 2024-04-07 09:06:56.410595
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "b9791722e1c0"
-down_revision = "989c7f1803f4"
+revision = "0049"
+down_revision = "0048"
 branch_labels = None
 depends_on = None
 

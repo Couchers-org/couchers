@@ -1,7 +1,7 @@
 """Expand content reporting
 
-Revision ID: 1e9b694d08c0
-Revises: 74e7f371be76
+Revision ID: 0030
+Revises: 0029
 Create Date: 2021-08-15 18:06:39.723707
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "1e9b694d08c0"
-down_revision = "74e7f371be76"
+revision = "0030"
+down_revision = "0029"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """Add source to donation initiations
 
-Revision ID: 0613ce600e4b
-Revises: 0ad661585a57
+Revision ID: 0112
+Revises: 0111
 Create Date: 2025-07-27 16:38:41.949812
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0613ce600e4b"
-down_revision = "0ad661585a57"
+revision = "0112"
+down_revision = "0111"
 branch_labels = None
 depends_on = None
 

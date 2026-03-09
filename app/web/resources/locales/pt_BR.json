@@ -17,11 +17,8 @@
   "required": "Obrigatório",
   "continue": "Continuar",
   "thanks": "Obrigado!",
-  "created": "Criado",
-  "disable": "Desativar",
   "next": "Próximo",
   "learn_more": "Saiba mais",
-  "disabled": "Desativado",
   "donation_banner": {
     "progress_label": "Andamento da doação",
     "message": "O Couchers.org funciona à gentileza — assim como o próprio conceito de couch surfing. Ajude-nos nesse momento para continuarmos dessa forma. Estamos levantando {{goal}} para cobrir os custos de manutenção do Couchers.org.",
@@ -65,9 +62,6 @@
     "show_all_languages": "Mostrar todos os idiomas no seletor de idiomas",
     "show_all_languages_description": "Quando habilitado, o seletor de idiomas mostrará todos os idiomas, independentemente da porcentagem de conclusão. Isso mostra idiomas em preparação apenas para ajudar a testar idiomas que ainda estão em andamento."
   },
-  "uses": "Usos",
-  "no_invite_codes": "Nenhum código de convite ainda",
-  "error_loading_invite_codes": "Não foi possível obter detalhes do código de convite",
   "community_standing_description": "Calculada a partir de vários fatores, como referências e engajamento na comunidade.",
   "community_standing": "Reputação na comunidade",
   "verification_score": "Pontuação de verificação",
@@ -77,8 +71,6 @@
   "cancel": "Cancelar",
   "submit": "Enviar",
   "confirm": "Confirmar",
-  "copy": "Copiar",
-  "copied": "Copiado para a área de transferência",
   "read_more": "Ler mais",
   "previous": "Anterior",
   "meetup_status": {

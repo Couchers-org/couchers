@@ -1,7 +1,7 @@
 """Use brackets for language dialects
 
-Revision ID: 725813da484d
-Revises: 217651c73ca8
+Revision ID: 0028
+Revises: 0027
 Create Date: 2021-08-15 14:23:39.427895
 
 """
@@ -12,8 +12,8 @@ from sqlalchemy.orm.session import Session
 from couchers.resources import copy_resources_to_database
 
 # revision identifiers, used by Alembic.
-revision = "725813da484d"
-down_revision = "217651c73ca8"
+revision = "0028"
+down_revision = "0027"
 branch_labels = None
 depends_on = None
 

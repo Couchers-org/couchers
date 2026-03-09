@@ -1,7 +1,7 @@
 """Add mod notes
 
-Revision ID: 3ac39dcf3b5a
-Revises: 461446320dfa
+Revision ID: 0069
+Revises: 0068
 Create Date: 2024-06-18 12:39:15.640199
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "3ac39dcf3b5a"
-down_revision = "461446320dfa"
+revision = "0069"
+down_revision = "0068"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """Add SV to lite_users
 
-Revision ID: 2fc64cf68321
-Revises: 2fd7096c6d4f
+Revision ID: 0078
+Revises: 0077
 Create Date: 2024-11-25 21:22:48.549271
 
 """
@@ -9,8 +9,8 @@ Create Date: 2024-11-25 21:22:48.549271
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "2fc64cf68321"
-down_revision = "2fd7096c6d4f"
+revision = "0078"
+down_revision = "0077"
 branch_labels = None
 depends_on = None
 

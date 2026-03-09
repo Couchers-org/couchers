@@ -1,7 +1,7 @@
 """Add new email pattern constraint
 
-Revision ID: 128252798bc4
-Revises: 584f70c6a0d4
+Revision ID: 0011
+Revises: 0010
 Create Date: 2021-05-27 14:42:39.834981
 
 """
@@ -9,8 +9,8 @@ Create Date: 2021-05-27 14:42:39.834981
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "128252798bc4"
-down_revision = "584f70c6a0d4"
+revision = "0011"
+down_revision = "0010"
 branch_labels = None
 depends_on = None
 

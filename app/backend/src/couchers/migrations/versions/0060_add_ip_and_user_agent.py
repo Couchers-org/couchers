@@ -1,7 +1,7 @@
 """Add ip and user agent
 
-Revision ID: ca9d20814704
-Revises: c7b0540a7b6b
+Revision ID: 0060
+Revises: 0059
 Create Date: 2024-05-26 11:20:24.761107
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "ca9d20814704"
-down_revision = "c7b0540a7b6b"
+revision = "0060"
+down_revision = "0059"
 branch_labels = None
 depends_on = None
 
