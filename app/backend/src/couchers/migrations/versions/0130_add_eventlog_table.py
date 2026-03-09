@@ -1,7 +1,7 @@
 """Add EventLog table
 
-Revision ID: d3189338b8c1
-Revises: 8191f466c673
+Revision ID: 0130
+Revises: 0129
 Create Date: 2026-02-07 14:47:59.473072
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "d3189338b8c1"
-down_revision = "8191f466c673"
+revision = "0130"
+down_revision = "0129"
 branch_labels = None
 depends_on = None
 

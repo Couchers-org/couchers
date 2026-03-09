@@ -1,7 +1,7 @@
 """added host request reminders
 
-Revision ID: 18d100ed2803
-Revises: cd456767d2f7
+Revision ID: 0095
+Revises: 0094
 Create Date: 2025-06-18 00:58:42.474471
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "18d100ed2803"
-down_revision = "cd456767d2f7"
+revision = "0095"
+down_revision = "0094"
 branch_labels = None
 depends_on = None
 

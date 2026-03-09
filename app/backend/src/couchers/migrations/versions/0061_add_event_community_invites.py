@@ -1,7 +1,7 @@
 """Add event community invites
 
-Revision ID: 2c084379cb84
-Revises: ca9d20814704
+Revision ID: 0061
+Revises: 0060
 Create Date: 2024-05-27 15:25:21.916871
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "2c084379cb84"
-down_revision = "ca9d20814704"
+revision = "0061"
+down_revision = "0060"
 branch_labels = None
 depends_on = None
 

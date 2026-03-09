@@ -1,7 +1,7 @@
 """Add background job priority
 
-Revision ID: 8a62223e4cbd
-Revises: ff3ee8951d1b
+Revision ID: 0087
+Revises: 0086
 Create Date: 2025-03-19 15:20:00.911552
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "8a62223e4cbd"
-down_revision = "ff3ee8951d1b"
+revision = "0087"
+down_revision = "0086"
 branch_labels = None
 depends_on = None
 

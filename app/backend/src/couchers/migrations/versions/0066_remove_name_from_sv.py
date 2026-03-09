@@ -1,7 +1,7 @@
 """Remove name from SV
 
-Revision ID: 49669627f688
-Revises: 46e6b6a3d9ed
+Revision ID: 0066
+Revises: 0065
 Create Date: 2024-06-10 19:29:43.420090
 
 """
@@ -9,8 +9,8 @@ Create Date: 2024-06-10 19:29:43.420090
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "49669627f688"
-down_revision = "46e6b6a3d9ed"
+revision = "0066"
+down_revision = "0065"
 branch_labels = None
 depends_on = None
 

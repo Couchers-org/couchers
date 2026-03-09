@@ -42,7 +42,8 @@
     },
     "event__reminder": {
       "ios_title": "Yaklaşan Etkinlik",
-      "body": "Etkinlik {{date_and_time}} tarihinde başlayacak."
+      "body": "Etkinlik {{date_and_time}} tarihinde başlayacak.",
+      "ios_subtitle": "{{title}}"
     },
     "event__cancel": {
       "title": "{{title}} Etkinliği iptal edildi",
@@ -66,6 +67,9 @@
       "title": "Anlık bildirimler etkinleştirildi",
       "ios_title": "Anlık Bildirimler Etkinleştirildi",
       "body": "Bu cihazda artık bildirim alacaksınız."
+    },
+    "birthdate__change": {
+      "ios_title": "Doğum Tarihi Değiştirildi"
     }
   }
 }

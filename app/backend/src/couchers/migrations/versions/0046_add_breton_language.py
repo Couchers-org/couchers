@@ -1,7 +1,7 @@
 """Add Breton language
 
-Revision ID: 8121c15b01c0
-Revises: b8487ad90a52
+Revision ID: 0046
+Revises: 0045
 Create Date: 2022-10-08 11:06:15.912112
 
 """
@@ -12,8 +12,8 @@ from sqlalchemy.orm.session import Session
 from couchers.resources import copy_resources_to_database
 
 # revision identifiers, used by Alembic.
-revision = "8121c15b01c0"
-down_revision = "b8487ad90a52"
+revision = "0046"
+down_revision = "0045"
 branch_labels = None
 depends_on = None
 

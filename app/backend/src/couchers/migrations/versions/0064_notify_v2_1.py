@@ -1,7 +1,7 @@
 """Notify v2.1
 
-Revision ID: bc79d9a6fd26
-Revises: ed8f8aad559c
+Revision ID: 0064
+Revises: 0063
 Create Date: 2024-06-03 23:31:54.196399
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "bc79d9a6fd26"
-down_revision = "ed8f8aad559c"
+revision = "0064"
+down_revision = "0063"
 branch_labels = None
 depends_on = None
 

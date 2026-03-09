@@ -1,7 +1,7 @@
 """Add thread notifications
 
-Revision ID: 33944292a259
-Revises: e6205511239b
+Revision ID: 0084
+Revises: 0083
 Create Date: 2024-09-07 22:41:29.750442
 
 """
@@ -9,8 +9,8 @@ Create Date: 2024-09-07 22:41:29.750442
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "33944292a259"
-down_revision = "e6205511239b"
+revision = "0084"
+down_revision = "0083"
 branch_labels = None
 depends_on = None
 
