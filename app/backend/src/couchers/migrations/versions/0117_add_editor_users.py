@@ -1,7 +1,7 @@
 """Add editor users
 
-Revision ID: aa7270f6ddbe
-Revises: 941b04198efe
+Revision ID: 0117
+Revises: 0116
 Create Date: 2025-11-27 16:50:37.745770
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "aa7270f6ddbe"
-down_revision = "941b04198efe"
+revision = "0117"
+down_revision = "0116"
 branch_labels = None
 depends_on = None
 

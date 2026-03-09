@@ -1,7 +1,7 @@
 """Drop unsupported languages
 
-Revision ID: 217651c73ca8
-Revises: e938e80b67a4
+Revision ID: 0027
+Revises: 0026
 Create Date: 2021-07-23 14:24:10.552662
 
 """
@@ -12,8 +12,8 @@ from sqlalchemy.orm.session import Session
 from couchers.resources import copy_resources_to_database
 
 # revision identifiers, used by Alembic.
-revision = "217651c73ca8"
-down_revision = "f2abd32dee6e"
+revision = "0027"
+down_revision = "0026"
 branch_labels = None
 depends_on = None
 

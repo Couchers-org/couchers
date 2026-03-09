@@ -1,7 +1,7 @@
 """Add SMS log
 
-Revision ID: c21437364eb6
-Revises: a6c8b3a9a986
+Revision ID: 0034
+Revises: 0033
 Create Date: 2022-01-15 20:33:25.586641
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "c21437364eb6"
-down_revision = "a6c8b3a9a986"
+revision = "0034"
+down_revision = "0033"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """Add didnt meetup feature
 
-Revision ID: 99aece5bdc42
-Revises: a84888e4cb0a
+Revision ID: 0081
+Revises: 0080
 Create Date: 2025-01-20 18:11:22.641582
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "99aece5bdc42"
-down_revision = "a84888e4cb0a"
+revision = "0081"
+down_revision = "0080"
 branch_labels = None
 depends_on = None
 

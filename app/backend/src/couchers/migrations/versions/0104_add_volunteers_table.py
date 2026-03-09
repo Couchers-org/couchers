@@ -1,7 +1,7 @@
 """Add volunteers table
 
-Revision ID: 30ee8ff72171
-Revises: f40be9aecae7
+Revision ID: 0104
+Revises: 0103
 Create Date: 2025-07-26 15:39:51.915422
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "30ee8ff72171"
-down_revision = "f40be9aecae7"
+revision = "0104"
+down_revision = "0103"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """add_moderation_user list
 
-Revision ID: e3815ef8b1e3
-Revises: d345174cb002
+Revision ID: 0102
+Revises: 0101
 Create Date: 2025-06-13 15:06:08.353716
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "e3815ef8b1e3"
-down_revision = "d345174cb002"
+revision = "0102"
+down_revision = "0101"
 branch_labels = None
 depends_on = None
 

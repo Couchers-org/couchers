@@ -19,7 +19,7 @@ Fill applicable checklists below, or remove those that don't apply.
 - [ ] Added migrations if there are any database changes, rebased onto `develop` if necessary for linear migration history
 
 **Web frontend checklist**
-<!-- To avoid CI failures, first run `yarn format` and `yarn lint --fix` in app/web, and run tests locally. -->
+<!-- To avoid CI failures, first run `yarn format` in app/web, and run tests locally. -->
 - [ ] There are no console warnings when running the app
 - [ ] Added tests where relevant
 - [ ] Clicked around my changes running locally and it works

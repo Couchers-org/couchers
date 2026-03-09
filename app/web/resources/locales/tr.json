@@ -12,9 +12,6 @@
   "create": "Oluştur",
   "continue": "Devam Et",
   "load_more": "Daha fazla yükle",
-  "disable": "Devre dışı bırak",
-  "no_invite_codes": "Şimdilik davet kodu yok",
-  "error_loading_invite_codes": "Davet kodu detaylarını alınamadı",
   "thanks": "Teşekkürler!",
   "community_standing": "Topluluk İtibarı",
   "community_standing_description": "Referanslar ve topluluk aktivistesi gibi birçok faktörle hesaplanmaktadır.",
@@ -23,12 +20,9 @@
   "cancel": "İptal et",
   "confirm": "Onayla",
   "read_more": "Daha fazla oku",
-  "disabled": "Devre dışı",
   "edit": "Düzenle",
   "save": "Kaydet",
-  "copied": "Panoya kopyalandı",
   "verification_score_description": "Diğer kullanıcıların kefaletine göre hesaplandı",
-  "created": "Oluşturuldu",
   "terms_of_service": "Hizmet Şartları",
   "required": "Gerekli",
   "accept": "Kabul Et",
@@ -36,7 +30,6 @@
   "save_changes": "Değişiklikleri kaydet",
   "submit": "Gönder",
   "learn_more": "Daha fazla öğren",
-  "uses": "Kullanım sayısı",
   "previous": "Önceki",
   "next": "İleri",
   "mod": "Moderasyon",
@@ -72,7 +65,6 @@
     "progress_label": "Bağış ilerlemesi",
     "button": "Şimdi bağış yap"
   },
-  "copy": "Kopyala",
   "hosting_status": {
     "any": "Herhangi biri",
     "maybe": "Belki ev sahipliği yapabilir",
@@ -174,7 +166,8 @@
     "badges": "Rozetler",
     "dashboard": "Kontrol Paneli",
     "legal_more": "Yasal & Fazlası",
-    "landing_page": "Başlangıç Sayfası"
+    "landing_page": "Başlangıç Sayfası",
+    "volunteer": "Gönüllü Ol"
   },
   "what_is_cs": {
     "timeline": {
@@ -201,24 +194,16 @@
     "description_2": "Başka bir şehirde bir arkadaşın varmış ve onu ziyarete gidiyormuşsun gibi, ama oraya vardığında arkadaşınla ilk kez tanışıyorsun!",
     "get_involved_title": "Couchers.org'da neler yapabilirim?",
     "get_started": "Başlayın",
-    "timeline_title": "Kanepe sörfünün kısa bir tarihi"
+    "timeline_title": "Kanepe sörfünün kısa bir tarihi",
+    "table": {
+      "no_investor_pressure": "Yatırımcı baskısı yok",
+      "social_expectation": "Ev sahibiyle vakit geçirmeyi teşvik eder"
+    }
   },
   "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "< 1 dakika önce",
-    "n_minutes_ago_one": "{{count}} dakika önce",
-    "n_minutes_ago_other": "{{count}} dakika önce",
-    "less_than_one_hour_ago": "Bir saatten kısa süre önce",
-    "n_hours_ago_one": "{{count}} saat önce",
-    "n_hours_ago_other": "{{count}} saat önce",
-    "n_days_ago_one": "{{count}} gün önce",
-    "n_days_ago_other": "{{count}} gün önce",
-    "n_weeks_ago_one": "{{count}} hafta önce",
-    "n_weeks_ago_other": "{{count}} hafta önce",
-    "n_months_ago_one": "{{count}} ay önce",
-    "n_months_ago_other": "{{count}} ay önce",
-    "n_years_ago_one": "{{count}} yıl önce",
-    "n_years_ago_other": "{{count}} yıl önce"
+    "less_than_one_hour_ago": "Bir saatten kısa süre önce"
   },
   "location_autocomplete": {
     "more_specific": "Lütfen daha belirli bir yer seçin",
@@ -226,9 +211,7 @@
     "search_location_button": "Konum ara"
   },
   "invites": {
-    "title": "Üye davet et",
-    "create": "Davet oluştur",
-    "disable": "Devre dışı bırak"
+    "title": "Üye davet et"
   },
   "strong_verification": {
     "helper_text": "Bu kullanıcı kimliğini biyometrik pasaport kullanarak doğrulamıştır"

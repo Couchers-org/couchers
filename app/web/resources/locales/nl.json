@@ -120,17 +120,10 @@
   "send": "Verzenden",
   "save_changes": "Wijzigingen opslaan",
   "cancel": "Annuleren",
-  "created": "gemaakt",
-  "disable": "Uitschakelen",
-  "disabled": "Uitgeschakeld",
-  "no_invite_codes": "Nog geen invite codes",
   "submit": "Sturen",
   "confirm": "Bevestigen",
-  "copy": "Kopiëren",
-  "copied": "Gekopieerd",
   "update": "updaten",
   "expand": "Uitklappen",
-  "uses": "Gebruikt",
   "learn_more": "Meer informatie",
   "donation_banner": {
     "message": "Couchers.org draait op vriendelijkheid, net zoals couchsurfing zelf. In aanloop naar de feestdagen kan je ons helpen dat zo te houden. We proberen {{goal}} in te zamelen om de kosten van Couchers.org te dekken.",
@@ -191,7 +184,6 @@
       }
     }
   },
-  "error_loading_invite_codes": "Kon details van de invite code niet laden",
   "not_found_text_2": "Wil je gewoon <1>naar je Dashboard gaan?</1>",
   "not_found_alt": "404-fout: Bron niet gevonden",
   "change_time": "Tijd aanpassen",
@@ -200,7 +192,6 @@
     "default_title": "Couchers.org",
     "default_description": "Deel jouw wereld, ontdek die van een ander. Authentieke lokale ervaringen, op basis van vertrouwen en echte verbindingen - niet op transacties."
   },
-  "invited_you": "{{name}} heeft jou uitgenodigd om lid te worden van Couchers!",
   "error": {
     "unknown": "Onbekende fout",
     "fallback": {
@@ -213,16 +204,11 @@
   },
   "not_found_text_1": "We konden de door jou opgevraagde URL of bron niet vinden",
   "invites": {
-    "share_link": "Link kopiëren",
-    "uses_suffix": "voltooide aanmeldingen",
     "banner": {
-      "invited_you": "{{name}} heeft je uitgenodigd om lid te worden van Couchers!",
-      "inviter_fallback": "{{username}} heeft je uitgenodigd om lid te worden van Couchers!"
+      "invited_you": "{{name}} heeft je uitgenodigd om lid te worden van Couchers!"
     },
-    "disable": "Uitzetten",
     "instructions": "Maak een uitnodigingslink om met vrienden en de community te delen. Schakel de uitnodigingen uit die je niet meer gebruikt.",
     "title": "Leden uitnodigen",
-    "create": "Uitnodiging maken",
     "error": {
       "fetch_invite_info": "Kon details van de invite code niet laden"
     }
@@ -235,19 +221,7 @@
   "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "minder dan 1 minuut geleden",
-    "n_minutes_ago_one": "{{count}} minuut geleden",
-    "n_minutes_ago_other": "{{count}} minuten geleden",
-    "less_than_one_hour_ago": "Minder dan een uur geleden",
-    "n_hours_ago_one": "{{count}} uur geleden",
-    "n_hours_ago_other": "{{count}} uur geleden",
-    "n_days_ago_one": "{{count}} dag geleden",
-    "n_days_ago_other": "{{count}} dagen geleden",
-    "n_weeks_ago_one": "{{count}} week geleden",
-    "n_weeks_ago_other": "{{count}} weken geleden",
-    "n_months_ago_one": "{{count}} maand geleden",
-    "n_months_ago_other": "{{count}} maanden geleden",
-    "n_years_ago_one": "{{count}} jaar geleden",
-    "n_years_ago_other": "{{count}} jaar geleden"
+    "less_than_one_hour_ago": "Minder dan een uur geleden"
   },
   "location_autocomplete": {
     "more_specific": "Kies alsjeblieft een preciezere plek",

@@ -42,7 +42,8 @@
     },
     "event__reminder": {
       "ios_title": "Yaklaşan Etkinlik",
-      "body": "Etkinlik {{date_and_time}} tarihinde başlayacak."
+      "body": "Etkinlik {{date_and_time}} tarihinde başlayacak.",
+      "ios_subtitle": "{{title}}"
     },
     "event__cancel": {
       "title": "{{title}} Etkinliği iptal edildi",
@@ -61,6 +62,14 @@
     },
     "friend_request__accept": {
       "title": "{{friend}} arkadaşlık isteğini kabul etti"
+    },
+    "adhoc__push_enabled": {
+      "title": "Anlık bildirimler etkinleştirildi",
+      "ios_title": "Anlık Bildirimler Etkinleştirildi",
+      "body": "Bu cihazda artık bildirim alacaksınız."
+    },
+    "birthdate__change": {
+      "ios_title": "Doğum Tarihi Değiştirildi"
     }
   }
 }

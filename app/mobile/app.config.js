@@ -1,27 +1,73 @@
+// Determine app variant from environment variable
+const APP_VARIANT = process.env.APP_VARIANT || "production";
+const IS_STAGING = APP_VARIANT === "staging";
+
+// Helper functions for dynamic configuration
+const getAppName = () => {
+  if (IS_STAGING) {
+    return "Couchers (Staging)";
+  }
+  return "Couchers";
+};
+
+const getBundleIdentifier = () => {
+  if (IS_STAGING) {
+    return "org.couchers.staging.ios";
+  }
+  return "org.couchers.ios";
+};
+
+const getAndroidPackage = () => {
+  if (IS_STAGING) {
+    return "org.couchers.staging.android";
+  }
+  return "org.couchers.android";
+};
+
+const getAppScheme = () => {
+  if (IS_STAGING) {
+    return "couchers-staging";
+  }
+  return "couchers";
+};
+
+const getIcon = () => {
+  if (IS_STAGING) {
+    return "./assets/images/icon_staging.png";
+  }
+  return "./assets/images/icon.png";
+};
+
+const getIosIcon = () => {
+  if (IS_STAGING) {
+    return "./assets/images/icon_ios_staging.png";
+  }
+  return "./assets/images/icon_ios.png";
+};
+
 export default {
-  name: "Couchers",
+  name: getAppName(),
   slug: "mobile",
   version: "1.1.13",
   orientation: "portrait",
-  icon: "./assets/images/icon.png",
-  scheme: "couchers",
+  icon: getIcon(),
+  scheme: getAppScheme(),
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
   ios: {
     supportsTablet: true,
-    bundleIdentifier: "org.couchers.ios",
-    icon: "./assets/images/icon_ios.png",
-    associatedDomains: [
-      "applinks:couchers.org",
-      "applinks:next.couchershq.org",
-    ],
+    bundleIdentifier: getBundleIdentifier(),
+    icon: getIosIcon(),
+    associatedDomains: IS_STAGING
+      ? ["applinks:next.couchershq.org"]
+      : ["applinks:couchers.org"],
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
   },
   android: {
     edgeToEdgeEnabled: true,
-    package: "org.couchers.android",
+    package: getAndroidPackage(),
     googleServicesFile:
       process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
     permissions: ["POST_NOTIFICATIONS"],
@@ -33,25 +79,35 @@ export default {
       icon: "./assets/images/notification_icon.png",
       color: "#E47701",
     },
-    intentFilters: [
-      {
-        action: "VIEW",
-        autoVerify: true,
-        data: [
+    intentFilters: IS_STAGING
+      ? [
           {
-            scheme: "https",
-            host: "couchers.org",
-            pathPrefix: "/",
+            action: "VIEW",
+            autoVerify: true,
+            data: [
+              {
+                scheme: "https",
+                host: "next.couchershq.org",
+                pathPrefix: "/",
+              },
+            ],
+            category: ["BROWSABLE", "DEFAULT"],
           },
+        ]
+      : [
           {
-            scheme: "https",
-            host: "next.couchershq.org",
-            pathPrefix: "/",
+            action: "VIEW",
+            autoVerify: true,
+            data: [
+              {
+                scheme: "https",
+                host: "couchers.org",
+                pathPrefix: "/",
+              },
+            ],
+            category: ["BROWSABLE", "DEFAULT"],
           },
         ],
-        category: ["BROWSABLE", "DEFAULT"],
-      },
-    ],
   },
   web: {
     bundler: "metro",
