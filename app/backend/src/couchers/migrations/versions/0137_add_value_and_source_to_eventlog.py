@@ -1,7 +1,7 @@
 """Add value and source to EventLog
 
-Revision ID: 8eab3434914d
-Revises: e9190b051324
+Revision ID: 0137
+Revises: 0136
 Create Date: 2026-02-21 12:00:00.000000
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "8eab3434914d"
-down_revision = "e9190b051324"
+revision = "0137"
+down_revision = "0136"
 branch_labels = None
 depends_on = None
 

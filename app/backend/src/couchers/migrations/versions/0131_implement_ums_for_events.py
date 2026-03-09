@@ -1,7 +1,7 @@
 """Implement UMS for events
 
-Revision ID: 738c3c9f922e
-Revises: d3189338b8c1
+Revision ID: 0131
+Revises: 0130
 Create Date: 2026-02-07 10:00:00.000000
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "738c3c9f922e"
-down_revision = "d3189338b8c1"
+revision = "0131"
+down_revision = "0130"
 branch_labels = None
 depends_on = None
 

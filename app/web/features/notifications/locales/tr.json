@@ -36,7 +36,7 @@
           "message": "Birisi ev sahipliği isteğinde mesaj yolladığında"
         },
         "reference": {
-          "receive_hosted": "Sana ev sahipliği yapmış biri tarafından referans aldığında",
+          "receive_hosted": "Sana ev sahipliği yapmış birisi tarafından referans aldığında",
           "receive_surfed": "Ev sahipliği yaptığın birinden referans aldığında",
           "receive_friend": "Bir arkadaştan referans aldığında"
         },

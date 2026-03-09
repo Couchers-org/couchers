@@ -1,7 +1,7 @@
 """Add postal verification
 
-Revision ID: d82ad0f2ac85
-Revises: aa7270f6ddbe
+Revision ID: 0118
+Revises: 0117
 Create Date: 2025-11-28 17:03:03.831956
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "d82ad0f2ac85"
-down_revision = "aa7270f6ddbe"
+revision = "0118"
+down_revision = "0117"
 branch_labels = None
 depends_on = None
 

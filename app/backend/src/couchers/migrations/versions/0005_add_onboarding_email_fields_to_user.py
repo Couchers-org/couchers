@@ -1,7 +1,7 @@
 """Add onboarding email fields to user
 
-Revision ID: 2c6aaada8bff
-Revises: f4a49acd8801
+Revision ID: 0005
+Revises: 0004
 Create Date: 2021-05-02 12:25:35.640366
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "2c6aaada8bff"
-down_revision = "f4a49acd8801"
+revision = "0005"
+down_revision = "0004"
 branch_labels = None
 depends_on = None
 

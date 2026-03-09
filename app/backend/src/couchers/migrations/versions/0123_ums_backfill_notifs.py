@@ -1,7 +1,7 @@
 """UMS backfill notifs
 
-Revision ID: 7d04ba82351c
-Revises: 495d6b415d7d
+Revision ID: 0123
+Revises: 0122
 Create Date: 2025-12-08 02:24:10.625443
 
 """
@@ -12,8 +12,8 @@ from sqlalchemy import text
 from couchers.proto import notification_data_pb2
 
 # revision identifiers, used by Alembic.
-revision = "7d04ba82351c"
-down_revision = "495d6b415d7d"
+revision = "0123"
+down_revision = "0122"
 branch_labels = None
 depends_on = None
 

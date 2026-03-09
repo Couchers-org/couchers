@@ -217,7 +217,14 @@
     "volunteer_not_found": "Voluntário não encontrado.",
     "wrong_signature": "Assinatura incorreta.",
     "wrong_sms_code": "O código está incorreto.",
-    "signup_flow_motivations_filled": "Você já contou porque está se registrando."
+    "signup_flow_motivations_filled": "Você já contou porque está se registrando.",
+    "invalid_diagnostics_json": "JSON inválido em propriedades de evento de diagnóstico.",
+    "admin_tag_already_exists": "Essa tag de administrador já existe.",
+    "admin_tag_cant_be_empty": "A tag de administrador não pode estar vazia.",
+    "admin_tag_not_found": "Tag de administrador não localizada.",
+    "too_many_diagnostic_infos": "Muitos eventos de diagnóstico em um único lote.",
+    "user_already_has_admin_tag": "O usuário já tem essa tag de administrador.",
+    "user_does_not_have_admin_tag": "O usuário não tem essa tag de administrador."
   },
   "quick_links": {
     "do_not_email": "Você não receberá nenhum e-mail não relacionado a segurança, e seu status de hospedagem foi desabilitado. Você ainda pode receber a newsletter e precisa cancelar sua inscrição nela separadamente.",

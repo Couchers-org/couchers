@@ -1,7 +1,7 @@
 """Fix slugify
 
-Revision ID: 2d656b6ad999
-Revises: 723394ace6b5
+Revision ID: 0003
+Revises: 0002
 Create Date: 2021-04-25 15:43:19.995784
 
 """
@@ -9,8 +9,8 @@ Create Date: 2021-04-25 15:43:19.995784
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "2d656b6ad999"
-down_revision = "723394ace6b5"
+revision = "0003"
+down_revision = "0002"
 branch_labels = None
 depends_on = None
 

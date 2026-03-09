@@ -1,7 +1,7 @@
 """Add host req feedback
 
-Revision ID: f7fa767c2999
-Revises: c29307a66e4b
+Revision ID: 0108
+Revises: 0107
 Create Date: 2025-07-27 18:06:24.059573
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "f7fa767c2999"
-down_revision = "c29307a66e4b"
+revision = "0108"
+down_revision = "0107"
 branch_labels = None
 depends_on = None
 

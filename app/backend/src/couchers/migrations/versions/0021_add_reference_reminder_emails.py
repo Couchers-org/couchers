@@ -1,7 +1,7 @@
 """Add reference reminder emails
 
-Revision ID: a19fc23547ce
-Revises: e6d03b494119
+Revision ID: 0021
+Revises: 0020
 Create Date: 2021-07-13 01:18:08.138793
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "a19fc23547ce"
-down_revision = "e6d03b494119"
+revision = "0021"
+down_revision = "0020"
 branch_labels = None
 depends_on = None
 

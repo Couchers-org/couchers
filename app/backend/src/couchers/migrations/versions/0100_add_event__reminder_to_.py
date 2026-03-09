@@ -1,7 +1,7 @@
 """Add event__reminder to NotificationTopicAction
 
-Revision ID: 14585a4e1868
-Revises: 33116a094637
+Revision ID: 0100
+Revises: 0099
 Create Date: 2025-06-24 19:57:59.799511
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "14585a4e1868"
-down_revision = "33116a094637"
+revision = "0100"
+down_revision = "0099"
 branch_labels = None
 depends_on = None
 

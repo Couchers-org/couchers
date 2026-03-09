@@ -1,7 +1,7 @@
 """Add index on background jobs
 
-Revision ID: 13fe6ada1535
-Revises: e54417789a02
+Revision ID: 0041
+Revises: 0040
 Create Date: 2022-02-10 16:45:08.181199
 
 """
@@ -9,8 +9,8 @@ Create Date: 2022-02-10 16:45:08.181199
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "13fe6ada1535"
-down_revision = "e54417789a02"
+revision = "0041"
+down_revision = "0040"
 branch_labels = None
 depends_on = None
 

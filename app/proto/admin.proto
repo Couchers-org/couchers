@@ -130,7 +130,8 @@ message UserDetails {
   org.couchers.api.core.GenderVerificationStatus gender_verification_status = 11;
   bool has_passport_sex_gender_exception = 12;
 
-  string admin_note = 13;
+  reserved 13;
+  reserved "admin_note";
 
   int64 pending_mod_notes_count = 16;
   int64 acknowledged_mod_notes_count = 17;
@@ -152,7 +153,7 @@ message SearchUsersReq {
   string username = 3;
   string email = 4;
   string name = 5;
-  string admin_note = 6;
+  string admin_action_log = 6;
   string city = 7;
   int64 min_user_id = 8;
   int64 max_user_id = 9;
@@ -289,18 +290,26 @@ message GetChatsReq {
   string user = 1;
 }
 
+message ChatUserInfo {
+  int64 user_id = 1;
+  string username = 2;
+  string name = 3;
+  string birthdate = 4;
+  string gender = 5;
+}
+
 message ChatMessage {
   int64 message_id = 1;
-  UserDetails author = 2;
+  ChatUserInfo author = 2;
   google.protobuf.Timestamp time = 3;
   string message_type = 4; // e.g. "text", "chat_created", "host_request_status_changed"
   string text = 5;
   string host_request_status_target = 6; // if applicable
-  UserDetails target = 7; // for user_invited, user_made_admin, etc.
+  ChatUserInfo target = 7; // for user_invited, user_made_admin, etc.
 }
 
 message GroupChatMember {
-  UserDetails user = 1;
+  ChatUserInfo user = 1;
   google.protobuf.Timestamp joined = 2;
   google.protobuf.Timestamp left = 3; // not set if still member
   string role = 4; // e.g. "admin", "participant"
@@ -310,15 +319,15 @@ message AdminGroupChat {
   int64 group_chat_id = 1;
   string title = 2;
   bool is_dm = 3;
-  UserDetails creator = 4;
+  ChatUserInfo creator = 4;
   repeated GroupChatMember members = 5;
   repeated ChatMessage messages = 6;
 }
 
 message AdminHostRequest {
   int64 host_request_id = 1;
-  UserDetails surfer = 2;
-  UserDetails host = 3;
+  ChatUserInfo surfer = 2;
+  ChatUserInfo host = 3;
   string status = 4;
   string from_date = 5;
   string to_date = 6;
@@ -327,7 +336,7 @@ message AdminHostRequest {
 }
 
 message GetChatsRes {
-  UserDetails user = 1;
+  ChatUserInfo user = 1;
   repeated AdminHostRequest host_requests = 2;
   repeated AdminGroupChat group_chats = 3;
 }

@@ -1,7 +1,7 @@
 """Update session token default expiry
 
-Revision ID: ffe7d9a87925
-Revises: 7f9f32e4b055
+Revision ID: 0051
+Revises: 0050
 Create Date: 2024-04-18 14:26:10.920560
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "ffe7d9a87925"
-down_revision = "7f9f32e4b055"
+revision = "0051"
+down_revision = "0050"
 branch_labels = None
 depends_on = None
 

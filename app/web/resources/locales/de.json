@@ -222,19 +222,7 @@
   "ok": "OK",
   "relative_time": {
     "less_than_one_hour_ago": "Vor weniger als einer Stunde",
-    "less_than_a_minute_ago": "vor weniger als 1 Minute",
-    "n_minutes_ago_one": "vor {{count}} Minute",
-    "n_minutes_ago_other": "vor {{count}} Minuten",
-    "n_months_ago_one": "vor {{count}} Monat",
-    "n_months_ago_other": "vor {{count}} Monaten",
-    "n_years_ago_one": "vor {{count}} Jahr",
-    "n_years_ago_other": "vor {{count}} Jahren",
-    "n_weeks_ago_one": "vor {{count}} Woche",
-    "n_weeks_ago_other": "vor {{count}} Wochen",
-    "n_hours_ago_one": "vor {{count}} Stunde",
-    "n_hours_ago_other": "vor {{count}} Stunden",
-    "n_days_ago_one": "vor {{count}} Tag",
-    "n_days_ago_other": "vor {{count}} Tagen"
+    "less_than_a_minute_ago": "vor weniger als 1 Minute"
   },
   "location_autocomplete": {
     "more_specific": "Bitte wähle einen genaueren Ort aus",
@@ -292,30 +280,16 @@
   },
   "back": "Zurück",
   "save_changes": "Änderungen speichern",
-  "created": "Erstellt",
-  "invited_you": "{{name}} hat dich eingeladen, Couchers beizutreten!",
-  "disable": "Deaktivieren",
   "invites": {
-    "create": "Einladung erstellen",
     "instructions": "Erstelle einen Einladungslink, um ihn mit Freunden und der Community zu teilen. Deaktiviere Codes, die du nicht mehr verwendest.",
     "title": "Mitglieder einladen",
-    "disable": "Deaktivieren",
-    "share_link": "Link kopieren",
-    "uses_suffix": "abgeschlossene Anmeldungen",
     "banner": {
-      "invited_you": "{{name}} hat dich eingeladen, Couchers beizutreten!",
-      "inviter_fallback": "{{username}} hat dich eingeladen, Couchers beizutreten!"
+      "invited_you": "{{name}} hat dich eingeladen, Couchers beizutreten!"
     },
     "error": {
       "fetch_invite_info": "Details des Einladungscodes konnten nicht abgerufen werden"
     }
   },
-  "no_invite_codes": "Noch keine Einladungscodes",
-  "disabled": "Deaktiviert",
-  "uses": "Verwendungen",
-  "error_loading_invite_codes": "Details des Einladungscodes konnten nicht abgerufen werden",
-  "copy": "Kopieren",
-  "copied": "In die Zwischenablage kopiert",
   "what_is_cs": {
     "get_involved_title": "Was kann ich auf Couchers.org machen?",
     "title": "Was ist Couchsurfing?",
