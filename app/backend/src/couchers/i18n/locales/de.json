@@ -68,7 +68,7 @@
     "event_not_found": "Event nicht gefunden.",
     "event_too_far_in_future": "Das Event muss innerhalb des nächsten Jahres beginnen.",
     "event_too_long": "Events dürfen nicht länger als 7 Tage dauern.",
-    "event_transfer_permission_denied": "Du darfst dieses Ereignis nicht übertragen.",
+    "event_transfer_permission_denied": "Du darfst dieses Event nicht übertragen.",
     "friend_request_not_found": "Diese Freundschaftsanfrage konnte nicht gefunden werden.",
     "friends_already_or_pending": "Du bist bereits mit diesem Nutzer befreundet oder hast ihm eine Freundschaftsanfrage gesendet.",
     "group_not_found": "Gruppe nicht gefunden.",
