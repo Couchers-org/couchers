@@ -152,7 +152,7 @@ We use Sentry to capture errors. It can be accessed at https://couchers.sentry.i
 
 Once you have the protos code in `couchers/app/web/src/proto`, and you can use the below `yarn` commands to run the web frontend.
 
-While coding, your editor should auto-format with `prettier` when you save. If not, you can always run `yarn format`.
+While coding, your editor should auto-format with `prettier` and lint with `eslint` when you save. If not, you can always run `yarn format`.
 
 ---
 

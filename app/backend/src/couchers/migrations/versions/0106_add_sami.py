@@ -1,7 +1,7 @@
 """Add Sami
 
-Revision ID: 71a33b6af395
-Revises: 02156b1739ad
+Revision ID: 0106
+Revises: 0105
 Create Date: 2025-07-27 14:13:10.555200
 
 """
@@ -12,8 +12,8 @@ from sqlalchemy.orm.session import Session
 from couchers.resources import copy_resources_to_database
 
 # revision identifiers, used by Alembic.
-revision = "71a33b6af395"
-down_revision = "02156b1739ad"
+revision = "0106"
+down_revision = "0105"
 branch_labels = None
 depends_on = None
 

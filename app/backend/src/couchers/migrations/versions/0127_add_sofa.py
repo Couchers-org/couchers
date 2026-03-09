@@ -1,7 +1,7 @@
 """Add sofa
 
-Revision ID: f016e6defa9d
-Revises: 6862ecf6494d
+Revision ID: 0127
+Revises: 0126
 Create Date: 2026-01-31 23:57:48.581109
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "f016e6defa9d"
-down_revision = "6862ecf6494d"
+revision = "0127"
+down_revision = "0126"
 branch_labels = None
 depends_on = None
 

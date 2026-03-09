@@ -1,7 +1,7 @@
 """Add new events tables
 
-Revision ID: c035cdcabd40
-Revises: 87cfd4c70e1e
+Revision ID: 0007
+Revises: 0006
 Create Date: 2021-03-29 13:05:52.081028
 
 """
@@ -12,8 +12,8 @@ from alembic import op
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 
 # revision identifiers, used by Alembic.
-revision = "c035cdcabd40"
-down_revision = "87cfd4c70e1e"
+revision = "0007"
+down_revision = "0006"
 branch_labels = None
 depends_on = None
 

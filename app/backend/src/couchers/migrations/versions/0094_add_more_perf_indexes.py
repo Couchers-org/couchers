@@ -1,7 +1,7 @@
 """Add more perf indexes
 
-Revision ID: cd456767d2f7
-Revises: f7d5de383e11
+Revision ID: 0094
+Revises: 0093
 Create Date: 2025-05-24 20:09:09.274188
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "cd456767d2f7"
-down_revision = "f7d5de383e11"
+revision = "0094"
+down_revision = "0093"
 branch_labels = None
 depends_on = None
 

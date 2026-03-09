@@ -1,7 +1,7 @@
 """Regions and languages
 
-Revision ID: 3b8d963e0b7d
-Revises: 80d30951919d
+Revision ID: 0013
+Revises: 0012
 Create Date: 2021-05-10 16:22:59.580595
 
 """
@@ -14,8 +14,8 @@ from sqlalchemy.orm.session import Session
 from couchers.resources import copy_resources_to_database
 
 # revision identifiers, used by Alembic.
-revision = "3b8d963e0b7d"
-down_revision = "80d30951919d"
+revision = "0013"
+down_revision = "0012"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """Adding is_deleted and Userblocks
 
-Revision ID: 87cfd4c70e1e
-Revises: 2c6aaada8bff
+Revision ID: 0006
+Revises: 0005
 Create Date: 2021-04-16 03:49:52.816897
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "87cfd4c70e1e"
-down_revision = "2c6aaada8bff"
+revision = "0006"
+down_revision = "0005"
 branch_labels = None
 depends_on = None
 

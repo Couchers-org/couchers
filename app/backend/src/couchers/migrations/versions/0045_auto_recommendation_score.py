@@ -1,7 +1,7 @@
 """Auto recommendation score
 
-Revision ID: b8487ad90a52
-Revises: 39295ed931f6
+Revision ID: 0045
+Revises: 0044
 Create Date: 2022-03-26 13:50:45.491388
 
 """
@@ -9,8 +9,8 @@ Create Date: 2022-03-26 13:50:45.491388
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "b8487ad90a52"
-down_revision = "39295ed931f6"
+revision = "0045"
+down_revision = "0044"
 branch_labels = None
 depends_on = None
 

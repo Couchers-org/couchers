@@ -1,7 +1,7 @@
 """Add more info to SV state
 
-Revision ID: c7b0540a7b6b
-Revises: b5355a1f60f6
+Revision ID: 0059
+Revises: 0058
 Create Date: 2024-05-25 09:42:43.005852
 
 """
@@ -9,8 +9,8 @@ Create Date: 2024-05-25 09:42:43.005852
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "c7b0540a7b6b"
-down_revision = "b5355a1f60f6"
+revision = "0059"
+down_revision = "0058"
 branch_labels = None
 depends_on = None
 

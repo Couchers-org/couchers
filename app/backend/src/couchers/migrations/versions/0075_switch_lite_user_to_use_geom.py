@@ -1,7 +1,7 @@
 """Switch lite_user to use geom
 
-Revision ID: 64d94faabb20
-Revises: 6db90129a4da
+Revision ID: 0075
+Revises: 0074
 Create Date: 2024-10-25 10:40:23.121398
 
 """
@@ -9,8 +9,8 @@ Create Date: 2024-10-25 10:40:23.121398
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "64d94faabb20"
-down_revision = "6db90129a4da"
+revision = "0075"
+down_revision = "0074"
 branch_labels = None
 depends_on = None
 

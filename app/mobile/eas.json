@@ -16,6 +16,7 @@
       "channel": "staging",
       "environment": "preview",
       "env": {
+        "APP_VARIANT": "staging",
         "EXPO_PUBLIC_API_BASE_URL": "https://dev-api.couchershq.org",
         "EXPO_PUBLIC_WEB_BASE_URL": "https://next.couchershq.org",
         "EXPO_PUBLIC_COUCHERS_ENV": "preview"
@@ -25,6 +26,7 @@
       "autoIncrement": true,
       "channel": "production",
       "env": {
+        "APP_VARIANT": "production",
         "EXPO_PUBLIC_API_BASE_URL": "https://api.couchers.org",
         "EXPO_PUBLIC_WEB_BASE_URL": "https://couchers.org",
         "EXPO_PUBLIC_COUCHERS_ENV": "prod"
@@ -34,7 +36,7 @@
   "submit": {
     "staging": {
       "ios": {
-        "ascAppId": "6623776751"
+        "ascAppId": "6759947231"
       },
       "android": {
         "track": "internal",

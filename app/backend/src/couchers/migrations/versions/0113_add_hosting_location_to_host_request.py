@@ -1,7 +1,7 @@
 """add hosting location to host request
 
-Revision ID: 8c878b177151
-Revises: 14585a4e1868
+Revision ID: 0113
+Revises: 0112
 Create Date: 2025-07-07 21:01:50.381450
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from geoalchemy2 import Geometry
 
 # revision identifiers, used by Alembic.
-revision = "8c878b177151"
-down_revision = "0613ce600e4b"
+revision = "0113"
+down_revision = "0112"
 branch_labels = None
 depends_on = None
 

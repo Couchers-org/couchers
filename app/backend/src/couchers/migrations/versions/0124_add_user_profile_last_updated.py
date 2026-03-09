@@ -1,7 +1,7 @@
 """Add user profile_last_updated
 
-Revision ID: f8b4ef6e3819
-Revises: 7d04ba82351c
+Revision ID: 0124
+Revises: 0123
 Create Date: 2025-12-09 02:37:35.913970
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "f8b4ef6e3819"
-down_revision = "7d04ba82351c"
+revision = "0124"
+down_revision = "0123"
 branch_labels = None
 depends_on = None
 

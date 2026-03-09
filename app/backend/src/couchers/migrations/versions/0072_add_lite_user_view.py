@@ -1,7 +1,7 @@
 """Add lite user view
 
-Revision ID: 9c0b3af4feb6
-Revises: 999cf4ffb47a
+Revision ID: 0072
+Revises: 0071
 Create Date: 2024-09-25 12:35:03.752059
 
 """
@@ -9,8 +9,8 @@ Create Date: 2024-09-25 12:35:03.752059
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "9c0b3af4feb6"
-down_revision = "999cf4ffb47a"
+revision = "0072"
+down_revision = "0071"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """Add do not email
 
-Revision ID: b5355a1f60f6
-Revises: 1c999dea180d
+Revision ID: 0058
+Revises: 0057
 Create Date: 2024-05-03 16:46:22.121003
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "b5355a1f60f6"
-down_revision = "1c999dea180d"
+revision = "0058"
+down_revision = "0057"
 branch_labels = None
 depends_on = None
 
