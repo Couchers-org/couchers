@@ -1,7 +1,7 @@
 """Add active user index
 
-Revision ID: 82289f7fdeab
-Revises: 9261e9647b69
+Revision ID: 0043
+Revises: 0042
 Create Date: 2022-02-14 13:23:42.185952
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "82289f7fdeab"
-down_revision = "9261e9647b69"
+revision = "0043"
+down_revision = "0042"
 branch_labels = None
 depends_on = None
 

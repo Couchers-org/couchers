@@ -51,7 +51,8 @@ default:
 
     # All jobs that use this must have full git history to correctly set the version number.
     if [ "$GIT_DEPTH" == "0" ]; then
-        export DISPLAY_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.$(git rev-list --count "origin/$RELEASE_BRANCH")"; else echo "${base_ver}-$SLUG"; fi)
+        export COMMIT_NUMBER=$(git rev-list --count "origin/$RELEASE_BRANCH")
+        export DISPLAY_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.${COMMIT_NUMBER}"; else echo "${base_ver}-$SLUG"; fi)
         echo $DISPLAY_VERSION
     fi
 
@@ -109,6 +110,21 @@ protos:
   artifacts:
     paths:
       - app/
+
+build:deploy-manifest:
+  needs: ["protos"]
+  stage: build
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - sh app/deployment/build_manifest.sh app/backend/src/couchers/migrations/versions/ artifacts/deploy-info
+    - mkdir -p artifacts/deploy-info/protos
+    - cp app/proto/gen/descriptors.pb "artifacts/deploy-info/protos/${SLUG}.pb"
+  artifacts:
+    paths:
+      - artifacts/deploy-info
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
 build:proxy:
   needs: ["protos"]
@@ -560,6 +576,24 @@ test:mobile-typecheck:
       changes:
         - app/mobile/**/*
 
+test:mobile-expo-doctor:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npx expo-doctor
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/mobile/package.json
+        - app/mobile/package-lock.json
+
 test:proxy:
   needs: ["build:proxy"]
   stage: test
@@ -827,6 +861,8 @@ wait:before-release:
       optional: true
     - job: build:nginx-next
       artifacts: false
+    - job: build:deploy-manifest
+      artifacts: false
     - job: test:backend
       artifacts: false
       optional: true
@@ -861,6 +897,9 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:mobile-typecheck
+      artifacts: false
+      optional: true
+    - job: test:mobile-expo-doctor
       artifacts: false
       optional: true
 
@@ -952,6 +991,18 @@ release:nginx-next:
     - docker pull $NGINX_NEXT_TAG
     - docker tag $NGINX_NEXT_TAG $NGINX_NEXT_RELEASE_TAG
     - docker push $NGINX_NEXT_RELEASE_TAG
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+
+release:deploy-info:
+  needs: ["wait:before-release", "build:deploy-manifest"]
+  stage: release
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 cp artifacts/deploy-info/ "s3://$AWS_DEPLOY_BUCKET/" --recursive
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 

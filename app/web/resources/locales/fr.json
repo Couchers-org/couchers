@@ -14,12 +14,8 @@
   "create": "Créer",
   "continue": "Continuer",
   "terms_of_service": "Conditions d'utilisation",
-  "disable": "Désactiver",
-  "disabled": "Désactivé",
-  "created": "Créé",
   "back": "Retourner",
   "required": "Requis",
-  "error_loading_invite_codes": "Impossible d'obtenir les détails du code d'invitation",
   "thanks": "Merci !",
   "donation_banner": {
     "message": "Couchers.org fonctionne grace à votre générosité, comme le couch surfing. En ce temps des fêtes, aidez nous à continuer. Nous collectons {{goal}} pour couvrir les frais de fonctionnement de Couchers.org.",
@@ -34,16 +30,12 @@
   "send": "Envoyer",
   "save_changes": "Sauvegarder les changements",
   "retract": "Retirer",
-  "uses": "Utilisations",
-  "no_invite_codes": "Aucun code d'invitation",
   "community_standing": "Réputation communautaire",
   "submit": "Envoyer",
   "confirm": "Confirmer",
-  "copy": "Copier",
   "relative_time": {
     "less_than_one_hour_ago": "Il y a moins d'une heure"
   },
-  "copied": "Copier au bloc-note",
   "read_more": "Voir plus",
   "next": "Suivant",
   "previous": "Précédent",
@@ -159,7 +151,6 @@
   "html_meta": {
     "default_description": "Partagez votre monde, découvrez le leur. Des expériences locales et authentiques, construites sur la confiance et de vrais liens - pas de transactions."
   },
-  "invited_you": "{{name}} vous a invité à rejoindre Couchers !",
   "error": {
     "fatal_message": "Cela n'aurait pas dû arriver. Veuillez nous contacter et nous décrire ce que vous étiez en train de faire, afin d'éviter que l'erreur se reproduise.",
     "fallback": {

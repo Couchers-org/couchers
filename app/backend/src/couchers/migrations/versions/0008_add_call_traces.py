@@ -1,7 +1,7 @@
 """Add call traces
 
-Revision ID: a3700d2af277
-Revises: c035cdcabd40
+Revision ID: 0008
+Revises: 0007
 Create Date: 2021-05-11 17:02:13.021133
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "a3700d2af277"
-down_revision = "c035cdcabd40"
+revision = "0008"
+down_revision = "0007"
 branch_labels = None
 depends_on = None
 

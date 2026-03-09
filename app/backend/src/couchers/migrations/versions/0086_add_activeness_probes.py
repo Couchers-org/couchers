@@ -1,7 +1,7 @@
 """Add activeness probes
 
-Revision ID: ff3ee8951d1b
-Revises: 20842baa0c53
+Revision ID: 0086
+Revises: 0085
 Create Date: 2025-03-02 12:16:18.782722
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "ff3ee8951d1b"
-down_revision = "20842baa0c53"
+revision = "0086"
+down_revision = "0085"
 branch_labels = None
 depends_on = None
 

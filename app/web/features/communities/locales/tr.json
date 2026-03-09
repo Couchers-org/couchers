@@ -62,5 +62,6 @@
   "create_event_disclaimer": "Bu butonu seçince etkinliğiniz Couchers.org topluluğunun tamamının görebileceği şekilde gösterilecek.",
   "date_required": "Lütfen bir tarih girin.",
   "time_required": "Lütfen bir zaman girin.",
-  "end_date": "Bitiş tarihi"
+  "end_date": "Bitiş tarihi",
+  "load_more_attendees": "Daha fazla katılımcı yükle"
 }

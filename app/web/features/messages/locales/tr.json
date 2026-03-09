@@ -106,5 +106,11 @@
   },
   "control_message": {
     "created_chat_text": "{{user}} sohbeti oluşturdu"
+  },
+  "archive": {
+    "no_archived_chats": "Arşivlenmiş sohbet yok"
+  },
+  "host_request_status": {
+    "rejected": "Reddedildi"
   }
 }

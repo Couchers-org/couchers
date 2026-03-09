@@ -1,7 +1,7 @@
 """Add clustered users materialized view
 
-Revision ID: d3f2cb24b948
-Revises: 64d94faabb20
+Revision ID: 0076
+Revises: 0075
 Create Date: 2024-10-25 16:11:06.270916
 
 """
@@ -9,8 +9,8 @@ Create Date: 2024-10-25 16:11:06.270916
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "d3f2cb24b948"
-down_revision = "64d94faabb20"
+revision = "0076"
+down_revision = "0075"
 branch_labels = None
 depends_on = None
 

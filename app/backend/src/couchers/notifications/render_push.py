@@ -4,16 +4,14 @@ Renders a Notification model into a localized push notification.
 
 import logging
 from datetime import date
-from functools import lru_cache
-from pathlib import Path
 from typing import Any, assert_never
 
 from couchers import urls
 from couchers.i18n import LocalizationContext
-from couchers.i18n.i18next import I18Next, LocalizationError
-from couchers.i18n.locales import load_locales
+from couchers.i18n.i18next import LocalizationError
 from couchers.i18n.localize import format_phone_number
 from couchers.models import Notification, NotificationTopicAction
+from couchers.notifications.locales import get_notifs_i18next
 from couchers.notifications.push import PushNotificationContent
 from couchers.proto import api_pb2, notification_data_pb2
 
@@ -194,7 +192,7 @@ def _get_string(
     if isinstance(string_group, NotificationTopicAction):
         string_group = string_group.display.replace(":", "__")
     key = f"push.{string_group}.{key}"
-    return _get_notifs_i18next().localize(key, loc_context.locale, substitutions)
+    return get_notifs_i18next().localize(key, loc_context.locale, substitutions)
 
 
 def _avatar_url_or_default(user: api_pb2.User) -> str:
@@ -857,9 +855,3 @@ def _render_verification__sv_fail(
         body=_get_string(NotificationTopicAction.verification__sv_fail, body_key, loc_context),
         action_url=urls.account_settings_link(),
     )
-
-
-@lru_cache(maxsize=1)
-def _get_notifs_i18next() -> I18Next:
-    """Gets the I18Next instance for notifications."""
-    return load_locales(Path(__file__).parent / "locales")

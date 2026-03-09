@@ -1,7 +1,7 @@
 """Add strong verification
 
-Revision ID: 88b6bb559332
-Revises: 69ce91d4db5e
+Revision ID: 0053
+Revises: 0052
 Create Date: 2024-05-11 13:20:41.861077
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "88b6bb559332"
-down_revision = "69ce91d4db5e"
+revision = "0053"
+down_revision = "0052"
 branch_labels = None
 depends_on = None
 
