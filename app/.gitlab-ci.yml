@@ -1037,9 +1037,28 @@ release:nginx-next:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
-release:deploy-info:
-  needs: ["wait:before-release", "build:deploy-manifest"]
-  stage: release
+deploy:deploy-info:
+  needs:
+    - job: build:deploy-manifest
+    - job: release:proxy
+      artifacts: false
+    - job: release:nginx
+      artifacts: false
+    - job: release:prometheus
+      artifacts: false
+    - job: release:backend
+      artifacts: false
+    - job: release:media
+      artifacts: false
+    - job: release:web
+      artifacts: false
+      optional: true
+    - job: release:web-next
+      artifacts: false
+      optional: true
+    - job: release:nginx-next
+      artifacts: false
+  stage: deploy
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
     # no docker login
