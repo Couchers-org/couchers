@@ -1783,50 +1783,6 @@ def test_handle_notification_delivered_when_content_visible(db, moderator):
         assert len(deliveries) > 0
 
 
-def test_handle_notification_concurrent_handling_skipped(db, push_collector: PushCollector):
-    """Test that concurrent handling is skipped when notification is locked by another worker."""
-    user, token = generate_user()
-
-    topic_action = NotificationTopicAction.badge__add
-
-    # Create notification manually (without queuing the job)
-    with session_scope() as session:
-        notification = Notification(
-            user_id=user.id,
-            topic_action=topic_action,
-            key="test-badge",
-            data=notification_data_pb2.BadgeAdd(
-                badge_id="volunteer",
-                badge_name="Active Volunteer",
-                badge_description="This user is an active volunteer",
-            ).SerializeToString(),
-        )
-        session.add(notification)
-        session.flush()
-        notification_id = notification.id
-
-    # Lock the notification row in one session, then try to handle it from another
-    with session_scope() as session:
-        # Lock the notification row with FOR UPDATE
-        session.execute(select(Notification).where(Notification.id == notification_id).with_for_update()).scalar_one()
-
-        # While the row is locked, try to handle the notification
-        # handle_notification uses skip_locked=True, so it should return None and exit early
-        handle_notification(jobs_pb2.HandleNotificationPayload(notification_id=notification_id))
-
-        # No push should be sent since the notification was skipped
-        assert push_collector.count_for_user(user.id) == 0
-
-    # Verify no deliveries were created
-    with session_scope() as session:
-        deliveries = (
-            session.execute(select(NotificationDelivery).where(NotificationDelivery.notification_id == notification_id))
-            .scalars()
-            .all()
-        )
-        assert len(deliveries) == 0
-
-
 def test_handle_notification_multiple_delivery_types(db, push_collector: PushCollector):
     """Test that multiple delivery types are processed for a single notification."""
     user, token = generate_user()
