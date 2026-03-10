@@ -17,7 +17,8 @@
     "password_changed_success": "La tua nuova password è stata impostata e una notifica è stata inviata al tuo indirizzo e-mail.",
     "old_password": "Vecchia password",
     "new_password": "Nuova password",
-    "password_mismatch_error": "Le password non corrispondono."
+    "password_mismatch_error": "Le password non corrispondono.",
+    "reset_password_success": "La tua password è stata modificata con successo!"
   },
   "reset_password_form": {
     "enter_email": "Inserisci il tuo nome utente/e-mail",
