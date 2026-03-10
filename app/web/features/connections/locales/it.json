@@ -4,5 +4,17 @@
   "block_user_confirmation_dialog": {
     "title": "Sei sicura di voler bloccare {{name}}?",
     "message": "Messaggi e richieste da questa persona saranno bloccate ed il tuo profilo, eventi e commenti non saranno visibile a questa persona. Loro non saranno informati che tu li hai bloccati."
+  },
+  "my_connections": "I miei contatti",
+  "friends": "Amici",
+  "friend_list_title": "I tuoi amici",
+  "friend_requests": "Richieste di amicizia",
+  "friend_requests_sent": "Le richieste di amicizia che hai inviato",
+  "no_friends": "Nessun amico disponibile",
+  "no_friend_requests": "Nessuna richiesta di amicizia in attesa",
+  "pending": "In attesa",
+  "unblock_user_confirmation_dialog": {
+    "title": "Sei sicuro di voler sbloccare {{name}}?",
+    "message": "Sbloccando permetterai loro di vedere il tuo profilo ed inviarti richieste. Se eravate amici, loro rientreranno nella tua lista di amici. Non saranno avvertiti."
   }
 }

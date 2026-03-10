@@ -1,1 +1,24 @@
-{}
+{
+  "errors": {
+    "account_suspended": "Il tuo account è stato sospeso.",
+    "admin_blog_title_too_long": "Il titolo del post è troppo lungo.",
+    "already_admin": "Questo utente é già amministratore.",
+    "already_have_dm": "Hai già uno scambio di messaggi con questo utente.",
+    "already_in_community": "Sei già iscritto a quella comunità.",
+    "already_in_group": "Sei già in quel gruppo.",
+    "already_left_host_request_feedback": "Hai già lasciato una recensione per questa richiesta di ospitalità!",
+    "at_least_two_users_required": "Devi specificare almeno 2 utenti",
+    "bug_tool_request_failed": "Richiesta fallita",
+    "cannot_create_discussion": "Non puoi creare una discussione in questo gruppo o comunità.",
+    "cannot_edit_that_notification_preference": "Questa preferenza di notifica non può essere modificata dall'utente.",
+    "cant_invite_self": "Non puoi invitare te stesso in una chat.",
+    "cant_message_in_chat": "Non puoi inviare un messaggio in questa chat.",
+    "cant_write_reference_for_request": "Non puoi scrivere una referenza per quella richiesta di ospitalità, oppure non é stata trovata.",
+    "chat_initiation_rate_limit": "Hai inviato messaggi a parecchi utenti nelle ultime {{hours}} ore. Per evitare spam non puoi contattare altri utenti, per ora.",
+    "country_required": "La Nazione é obbligatoria.",
+    "date_from_after_one_year": "La data di partenza deve essere entro un anno da oggi.",
+    "date_from_before_today": "La data di inizio deve essere oggi o più tardi.",
+    "date_to_after_one_year": "Non puoi chiedere di essere ospitato per più di un anno.",
+    "discussion_not_found": "Discussione non trovata."
+  }
+}

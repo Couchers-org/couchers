@@ -1,1 +1,11 @@
-{}
+{
+  "push": {
+    "account_deletion__start": {
+      "ios_title": "E' stata richiesta la cancellazione dell'account",
+      "body": "Usa il link che ti abbiamo inviato via email per confermare."
+    },
+    "account_deletion__complete": {
+      "title": "Account cancellato"
+    }
+  }
+}
