@@ -48,7 +48,7 @@
       "empty_error": "Per favore, inserisci un indirizzo e-mail valido"
     },
     "name": {
-      "field_label": "Il tuo nome",
+      "field_label": "Nome",
       "empty_error": "Per favore, inserisci il tuo nome",
       "required_error": "Questo campo non può essere vuoto."
     }
@@ -70,7 +70,8 @@
       "field_label": "Stato ospitalità",
       "maybe": "Potrebbe ospitare",
       "cant_host": "Non può ospitare",
-      "can_host": "Può ospitare"
+      "can_host": "Può ospitare",
+      "any": "Indifferente"
     },
     "gender": {
       "required_error": "Per favore, seleziona la tua identità di genere",
@@ -125,12 +126,16 @@
       "description": "Abbiamo aggiornato i nostri Termini di Servizio. Per continuare, per favore leggi ed accetta i nuovi <1></1>."
     },
     "location_section": {
-      "title": "Per favore, aggiungi la tua posizione",
+      "title": "Per favore, aggiorna la tua posizione",
       "submit_button": {
         "inactive_text": "Grazie!",
         "active_text": "Salvare"
       },
-      "resubmit_button_text": "Inviare di nuovo"
+      "resubmit_button_text": "Inviare di nuovo",
+      "explanation": "Sembra che le tue coordinate non siano corrette. Per favore, aggiorna la tua posizione per continuare."
+    },
+    "mod_note_section": {
+      "note_title": "Nota del moderatore ricevuta il {{time}}:"
     }
   },
   "logged_out_message": "Sei stato disconnesso.",
@@ -196,5 +201,22 @@
       "success": "Il tuo conto è stato recuperato, ora puoi accedere di nuovo. Siamo felici che tu sia di ritorno!"
     },
     "missing_token": "Errore: token mancante"
+  },
+  "active_logins": {
+    "heading": "Accessi attuali",
+    "settings_page_text": "Vedi da dove sei loggato ed esci da ogni accesso di altre sessioni",
+    "login_header": "Accesso effettuato il {{login_datetime}}"
+  },
+  "strong_verification": {
+    "donation_message1": "La verifica è gratis per te, ma ha un costo per noi. Come non-profit gestita da volontari, ci affidiamo alle donazioni per coprire spese come tenere in piedi l'associazione, la verifica e gli strumenti per volontari e community builders.",
+    "donation_message2": "Se puoi, per favore prendi in considerazione l'idea di donare per aiutare Couchers.org nel rimanere aperto e a crescere."
+  },
+  "quick_links": {
+    "title": "Azione rapida da email"
+  },
+  "profile_visibility": {
+    "visiblility_options": {
+      "nothing": "<1>Nothing</1>: nascondimi completamente"
+    }
   }
 }
