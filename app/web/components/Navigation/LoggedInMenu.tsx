@@ -1,5 +1,5 @@
 import { NotificationsOutlined } from "@mui/icons-material";
-import { Box, styled, Tooltip, Typography, useMediaQuery } from "@mui/material";
+import { Box, styled, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import IconButton from "components/IconButton";
@@ -24,6 +24,7 @@ import { useIsNativeEmbed } from "utils/nativeLink";
 
 import { AccessibleDialogProps } from "../Dialog";
 import { CloseIcon, MenuIcon } from "../Icons";
+import useIsMobile from "utils/useIsMobile";
 
 type LoggedInMenuLinkItem = {
   type: "link";
@@ -267,7 +268,7 @@ export default function LoggedInMenu({
   const { data: user } = useCurrentUser();
   const { t } = useTranslation([GLOBAL]);
   const isNativeEmbed = useIsNativeEmbed();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const [notificationsAnchorEl, setNotificationsAnchorEl] =
     useState<HTMLButtonElement | null>(null);

@@ -1,4 +1,4 @@
-import { alpha, Box, styled, Typography, useMediaQuery } from "@mui/material";
+import { alpha, Box, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import HtmlMeta from "components/HtmlMeta";
 import StyledLink from "components/StyledLink";
@@ -15,6 +15,7 @@ import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
 import LoginForm from "./LoginForm";
+import useIsMobile from "utils/useIsMobile";
 
 const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",
@@ -43,7 +44,7 @@ export default function Login() {
   const error = authState.error;
 
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
   const from = stringOrFirstString(router.query.from) ?? dashboardRoute;
   const redirectTo = from === "/" || from === "%2F" ? dashboardRoute : from;
 

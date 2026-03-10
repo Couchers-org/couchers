@@ -1,4 +1,4 @@
-import { Box, Container, GlobalStyles, useMediaQuery } from "@mui/material";
+import { Box, Container, GlobalStyles } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import CookieBanner from "components/CookieBanner";
@@ -12,6 +12,7 @@ import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 import Navigation from "./Navigation";
+import useIsMobile from "utils/useIsMobile";
 
 interface AppRouteProps {
   isPrivate: boolean;
@@ -99,7 +100,7 @@ function AppRoute({
   bottomMargin,
 }: AppRouteProps) {
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
   const { pathname } = router;
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;

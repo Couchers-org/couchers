@@ -8,7 +8,6 @@ import {
   styled,
   Theme,
   Toolbar,
-  useMediaQuery,
 } from "@mui/material";
 import Button from "components/Button";
 import { GlobalMessage } from "components/GlobalMessage";
@@ -53,6 +52,7 @@ import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
 import NavButton from "./NavButton";
 import ReportButton from "./ReportButton";
 import ReportDialog from "./ReportDialog";
+import useIsMobile from "utils/useIsMobile";
 
 interface MenuItemProps {
   name: string;
@@ -274,7 +274,7 @@ const StyledMenuContainer = styled("div")(() => ({
 
 export default function Navigation() {
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
   const isLoginPage = router.pathname === loginRoute;
 
   const [open, setOpen] = useState(false);

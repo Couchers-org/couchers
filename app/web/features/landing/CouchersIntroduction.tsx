@@ -1,10 +1,11 @@
-import { Stack, styled, Typography, useMediaQuery } from "@mui/material";
+import { Stack, styled, Typography } from "@mui/material";
 import Button from "components/Button";
 import { Trans, useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { signupRoute, whatIsCouchSurfingRoute } from "routes";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 const StyledIntroduction = styled("div")(({ theme }) => ({
   flexDirection: "column",
@@ -22,7 +23,7 @@ const StyledIntroduction = styled("div")(({ theme }) => ({
 const CouchersIntroduction = () => {
   const { t } = useTranslation([GLOBAL, LANDING]);
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const routeToSignupPage = () => {
     router.push(signupRoute);

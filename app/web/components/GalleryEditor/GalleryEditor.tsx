@@ -27,6 +27,7 @@ import { service } from "service";
 import { base64ToFile, useNativeImagePicker } from "utils/nativeLink";
 
 import GalleryItem, { DropPlaceholder } from "./GalleryItem";
+import useIsMobile from "utils/useIsMobile";
 
 export interface GalleryItemData {
   itemId: number;
@@ -131,7 +132,7 @@ export default function GalleryEditor({
 }: GalleryEditorProps) {
   const { t } = useTranslation([PROFILE]);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useIsMobile();
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
   const inputRef = useRef<HTMLInputElement>(null);

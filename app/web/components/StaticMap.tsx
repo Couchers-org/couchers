@@ -1,6 +1,6 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { styled, useMediaQuery } from "@mui/material";
+import { styled } from "@mui/material";
 import {
   clusterCountLayer,
   clusterLayer,
@@ -17,6 +17,7 @@ import {
   Source,
 } from "react-map-gl/maplibre";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -42,7 +43,7 @@ const StaticMap = () => {
     }
   };
 
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const initialViewState = isMobile
     ? { zoom: 0, latitude: 10, longitude: 48 }
