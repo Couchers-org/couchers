@@ -1,12 +1,14 @@
 import html
 import json
 import re
+from datetime import timedelta
+from unittest.mock import Mock, patch
 from urllib.parse import parse_qs, urlparse
 
 import grpc
 import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from couchers.config import config
 from couchers.constants import DATETIME_INFINITY
@@ -14,6 +16,7 @@ from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
+from couchers.jobs.handlers import check_expo_push_receipts
 from couchers.jobs.worker import process_job
 from couchers.models import (
     DeviceType,
@@ -23,10 +26,14 @@ from couchers.models import (
     NotificationDelivery,
     NotificationDeliveryType,
     NotificationTopicAction,
+    PushNotificationDeliveryAttempt,
+    PushNotificationDeliveryOutcome,
     PushNotificationPlatform,
     PushNotificationSubscription,
     User,
 )
+from couchers.notifications.background import handle_notification
+from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
 from couchers.notifications.settings import get_topic_actions_by_delivery_type
 from couchers.proto import (
@@ -38,7 +45,7 @@ from couchers.proto import (
     notification_data_pb2,
     notifications_pb2,
 )
-from couchers.proto.internal import unsubscribe_pb2
+from couchers.proto.internal import jobs_pb2, unsubscribe_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.utils import not_none, now
 from tests.fixtures.db import generate_user
@@ -796,10 +803,6 @@ def test_SendTestMobilePushNotification(db, push_collector: PushCollector):
 
 
 def test_get_expo_push_receipts(db):
-    from unittest.mock import Mock, patch
-
-    from couchers.notifications.expo_api import get_expo_push_receipts
-
     mock_response = Mock()
     mock_response.status_code = 200
     mock_response.json.return_value = {
@@ -824,22 +827,12 @@ def test_get_expo_push_receipts(db):
 
 
 def test_get_expo_push_receipts_empty(db):
-    from couchers.notifications.expo_api import get_expo_push_receipts
-
     result = get_expo_push_receipts([])
     assert result == {}
 
 
 def test_check_expo_push_receipts_success(db):
     """Test batch receipt checking with successful delivery."""
-    from datetime import timedelta
-    from unittest.mock import patch
-
-    from google.protobuf import empty_pb2
-
-    from couchers.jobs.handlers import check_expo_push_receipts
-    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationDeliveryOutcome
-
     user, token = generate_user()
 
     # Create a push subscription and delivery attempt (old enough to be checked)
@@ -892,14 +885,6 @@ def test_check_expo_push_receipts_success(db):
 
 def test_check_expo_push_receipts_device_not_registered(db):
     """Test batch receipt checking with DeviceNotRegistered error disables subscription."""
-    from datetime import timedelta
-    from unittest.mock import patch
-
-    from google.protobuf import empty_pb2
-
-    from couchers.jobs.handlers import check_expo_push_receipts
-    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationDeliveryOutcome
-
     user, token = generate_user()
 
     # Create a push subscription and delivery attempt
@@ -959,14 +944,6 @@ def test_check_expo_push_receipts_device_not_registered(db):
 
 def test_check_expo_push_receipts_not_found(db):
     """Test batch receipt checking when ticket not found (expired)."""
-    from datetime import timedelta
-    from unittest.mock import patch
-
-    from google.protobuf import empty_pb2
-
-    from couchers.jobs.handlers import check_expo_push_receipts
-    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationDeliveryOutcome
-
     user, token = generate_user()
 
     with session_scope() as session:
@@ -1014,14 +991,6 @@ def test_check_expo_push_receipts_not_found(db):
 
 def test_check_expo_push_receipts_skips_already_checked(db):
     """Test that already-checked receipts are not re-checked."""
-    from datetime import timedelta
-    from unittest.mock import patch
-
-    from google.protobuf import empty_pb2
-
-    from couchers.jobs.handlers import check_expo_push_receipts
-    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationDeliveryOutcome
-
     user, token = generate_user()
 
     # Create an attempt that was already checked
@@ -1146,14 +1115,6 @@ def test_SendDevPushNotification_push_notifications_disabled(db, push_collector:
 
 def test_check_expo_push_receipts_skips_too_recent(db):
     """Test that too-recent receipts (<15 min) are not checked."""
-    from datetime import timedelta
-    from unittest.mock import patch
-
-    from google.protobuf import empty_pb2
-
-    from couchers.jobs.handlers import check_expo_push_receipts
-    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationDeliveryOutcome
-
     user, token = generate_user()
 
     # Create a recent attempt (not old enough to check)
@@ -1185,14 +1146,6 @@ def test_check_expo_push_receipts_skips_too_recent(db):
 
 def test_check_expo_push_receipts_batch(db):
     """Test that multiple receipts are checked in a single batch."""
-    from datetime import timedelta
-    from unittest.mock import patch
-
-    from google.protobuf import empty_pb2
-
-    from couchers.jobs.handlers import check_expo_push_receipts
-    from couchers.models import PushNotificationDeliveryAttempt, PushNotificationDeliveryOutcome
-
     user, token = generate_user()
 
     # Create multiple delivery attempts
@@ -1377,3 +1330,575 @@ def test_DebugRedeliverPushNotification_push_notifications_disabled(db, push_col
         assert "Push notifications are currently disabled" in not_none(e.value.details())
 
     assert push_collector.count_for_user(user.id) == 0
+
+
+def test_handle_notification_email_delivery(db):
+    """Test that email notifications are delivered when email preference is enabled."""
+    user, token = generate_user()
+
+    topic_action = NotificationTopicAction.badge__add
+
+    # Enable email notifications for this topic
+    with notifications_session(token) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="email",
+                        enabled=True,
+                    )
+                ],
+            )
+        )
+
+    with mock_notification_email() as mock:
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action=topic_action,
+                key="test-badge",
+                data=notification_data_pb2.BadgeAdd(
+                    badge_id="volunteer",
+                    badge_name="Active Volunteer",
+                    badge_description="This user is an active volunteer",
+                ),
+            )
+
+    assert mock.call_count == 1
+    assert email_fields(mock).recipient == user.email
+
+    with session_scope() as session:
+        delivery = session.execute(
+            select(NotificationDelivery)
+            .join(Notification, Notification.id == NotificationDelivery.notification_id)
+            .where(Notification.user_id == user.id)
+            .where(NotificationDelivery.delivery_type == NotificationDeliveryType.email)
+        ).scalar_one()
+        assert delivery.delivered is not None
+
+
+def test_handle_notification_push_delivery(db, push_collector: PushCollector):
+    """Test that push notifications are delivered immediately when push preference is enabled."""
+    user, token = generate_user()
+
+    topic_action = NotificationTopicAction.badge__add
+
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=topic_action,
+            key="test-badge",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer",
+            ),
+        )
+
+    process_job()
+
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert "Active Volunteer" in push.content.title
+
+    with session_scope() as session:
+        delivery = session.execute(
+            select(NotificationDelivery)
+            .join(Notification, Notification.id == NotificationDelivery.notification_id)
+            .where(Notification.user_id == user.id)
+            .where(NotificationDelivery.delivery_type == NotificationDeliveryType.push)
+        ).scalar_one()
+        assert delivery.delivered is not None
+
+
+def test_handle_notification_digest_delivery(db):
+    """Test that digest notifications are queued without a delivered timestamp."""
+    user, token = generate_user()
+
+    topic_action = NotificationTopicAction.badge__add
+
+    # Enable only digest notifications for this topic
+    with notifications_session(token) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="push",
+                        enabled=False,
+                    ),
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="digest",
+                        enabled=True,
+                    ),
+                ],
+            )
+        )
+
+    with session_scope() as session:
+        notify(
+            session,
+            user_id=user.id,
+            topic_action=topic_action,
+            key="test-badge",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer",
+            ),
+        )
+
+    process_job()
+
+    # Verify digest NotificationDelivery was created WITHOUT delivered timestamp
+    with session_scope() as session:
+        delivery = session.execute(
+            select(NotificationDelivery)
+            .join(Notification, Notification.id == NotificationDelivery.notification_id)
+            .where(Notification.user_id == user.id)
+            .where(NotificationDelivery.delivery_type == NotificationDeliveryType.digest)
+        ).scalar_one()
+        assert delivery.delivered is None
+
+
+def test_handle_notification_banned_user_no_email(db):
+    """Test that banned users don't receive email notifications."""
+    user, token = generate_user()
+
+    topic_action = NotificationTopicAction.badge__add
+
+    # Enable email notifications
+    with notifications_session(token) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="email",
+                        enabled=True,
+                    )
+                ],
+            )
+        )
+
+    # Ban the user
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(banned_at=now()))
+
+    with mock_notification_email() as mock:
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action=topic_action,
+                key="test-badge",
+                data=notification_data_pb2.BadgeAdd(
+                    badge_id="volunteer",
+                    badge_name="Active Volunteer",
+                    badge_description="This user is an active volunteer",
+                ),
+            )
+
+    # Email should not be sent to the banned user
+    assert mock.call_count == 0
+
+
+def test_handle_notification_deleted_user_no_regular_email(db):
+    """Test that deleted users don't receive non-account-deletion email notifications."""
+    user, token = generate_user()
+
+    topic_action = NotificationTopicAction.badge__add
+
+    # Enable email notifications
+    with notifications_session(token) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="email",
+                        enabled=True,
+                    )
+                ],
+            )
+        )
+
+    # Delete the user
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(deleted_at=now()))
+
+    with mock_notification_email() as mock:
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action=topic_action,
+                key="test-badge",
+                data=notification_data_pb2.BadgeAdd(
+                    badge_id="volunteer",
+                    badge_name="Active Volunteer",
+                    badge_description="This user is an active volunteer",
+                ),
+            )
+
+    # Email should not be sent to deleted user for non-account-deletion notification
+    assert mock.call_count == 0
+
+
+def test_handle_notification_deleted_user_receives_account_deletion_email(db):
+    """Test that deleted users CAN receive account deletion notifications."""
+    user, token = generate_user()
+
+    topic_action = NotificationTopicAction.account_deletion__complete
+
+    # Delete the user
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(deleted_at=now()))
+
+    with mock_notification_email() as mock:
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action=topic_action,
+                key="",
+                data=notification_data_pb2.AccountDeletionComplete(
+                    undelete_token="test-token",
+                    undelete_days=7,
+                ),
+            )
+
+    # Email SHOULD be sent to deleted user for account deletion notification
+    assert mock.call_count == 1
+    assert email_fields(mock).recipient == user.email
+
+
+def test_handle_notification_do_not_email_respected(db):
+    """Test that users with do_not_email set don't receive non-critical emails."""
+    user, token = generate_user()
+
+    topic_action = NotificationTopicAction.badge__add
+
+    # Enable email notifications
+    with notifications_session(token) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="email",
+                        enabled=True,
+                    )
+                ],
+            )
+        )
+
+    # Set do_not_email (requires hosting/meetup status to be set due to DB constraint)
+    with session_scope() as session:
+        session.execute(
+            update(User)
+            .where(User.id == user.id)
+            .values(
+                hosting_status=HostingStatus.cant_host,
+                meetup_status=MeetupStatus.does_not_want_to_meetup,
+                do_not_email=True,
+            )
+        )
+
+    with mock_notification_email() as mock:
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action=topic_action,
+                key="test-badge",
+                data=notification_data_pb2.BadgeAdd(
+                    badge_id="volunteer",
+                    badge_name="Active Volunteer",
+                    badge_description="This user is an active volunteer",
+                ),
+            )
+
+    # Email should not be sent when do_not_email is True
+    assert mock.call_count == 0
+
+
+def test_handle_notification_critical_bypasses_do_not_email(db):
+    """Test that critical notifications bypass do_not_email setting."""
+    user, token = generate_user()
+
+    topic_action = NotificationTopicAction.password__change
+
+    # Set do_not_email (requires hosting/meetup status to be set due to DB constraint)
+    with session_scope() as session:
+        session.execute(
+            update(User)
+            .where(User.id == user.id)
+            .values(
+                hosting_status=HostingStatus.cant_host,
+                meetup_status=MeetupStatus.does_not_want_to_meetup,
+                do_not_email=True,
+            )
+        )
+
+    with mock_notification_email() as mock:
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action=topic_action,
+                key="",
+                data=None,
+            )
+
+    # Critical email SHOULD be sent even with do_not_email=True
+    assert mock.call_count == 1
+    assert email_fields(mock).recipient == user.email
+
+
+def test_handle_notification_duplicate_delivery_skipped(db, push_collector: PushCollector):
+    """Test that duplicate deliveries are skipped when NotificationDelivery already exists."""
+    user, token = generate_user()
+
+    topic_action = NotificationTopicAction.badge__add
+
+    # Create notification manually
+    with session_scope() as session:
+        notification = Notification(
+            user_id=user.id,
+            topic_action=topic_action,
+            key="test-badge",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer",
+            ).SerializeToString(),
+        )
+        session.add(notification)
+        session.flush()
+        notification_id = notification.id
+
+        # Manually create a push delivery (simulating it was already delivered)
+        session.add(
+            NotificationDelivery(
+                notification_id=notification_id,
+                delivery_type=NotificationDeliveryType.push,
+                delivered=now(),
+            )
+        )
+
+    # Try to handle the notification again
+    handle_notification(jobs_pb2.HandleNotificationPayload(notification_id=notification_id))
+
+    # No new push should be sent since delivery already exists
+    assert push_collector.count_for_user(user.id) == 0
+
+    # Verify only one delivery exists
+    with session_scope() as session:
+        delivery_count = len(
+            session.execute(
+                select(NotificationDelivery)
+                .where(NotificationDelivery.notification_id == notification_id)
+                .where(NotificationDelivery.delivery_type == NotificationDeliveryType.push)
+            )
+            .scalars()
+            .all()
+        )
+        assert delivery_count == 1
+
+
+def test_handle_notification_deferred_when_content_not_visible(db, moderator):
+    """Test that notifications linked to non-visible moderated content are deferred."""
+    user1, token1 = generate_user(complete_profile=True)
+    user2, token2 = generate_user(complete_profile=True)
+
+    # Create a friend request (which creates a moderation state)
+    # This also queues a notification via SendFriendRequest
+    with api_session(token2) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+
+    # Process the queued job (handle_notification)
+    process_job()
+
+    # The notification should exist but have no deliveries because content is shadowed
+    with session_scope() as session:
+        notification = session.execute(
+            select(Notification)
+            .where(Notification.user_id == user1.id)
+            .where(Notification.topic_action == NotificationTopicAction.friend_request__create)
+        ).scalar_one()
+
+        deliveries = (
+            session.execute(select(NotificationDelivery).where(NotificationDelivery.notification_id == notification.id))
+            .scalars()
+            .all()
+        )
+        # No deliveries because content is not yet visible (shadowed)
+        assert len(deliveries) == 0
+
+
+def test_handle_notification_delivered_when_content_visible(db, moderator):
+    """Test that notifications linked to visible moderated content are delivered."""
+    user1, token1 = generate_user(complete_profile=True)
+    user2, token2 = generate_user(complete_profile=True)
+
+    # Create a friend request
+    with api_session(token2) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id = res.sent[0].friend_request_id
+
+    # Process initial job (which is deferred because content is shadowed)
+    process_job()
+
+    # Approve the friend request so it becomes visible (this queues the notification job again)
+    moderator.approve_friend_request(fr_id)
+
+    # Process the notification job that was re-queued after approval
+    process_jobs()
+
+    # Notification should have been delivered
+    with session_scope() as session:
+        notification = session.execute(
+            select(Notification)
+            .where(Notification.user_id == user1.id)
+            .where(Notification.topic_action == NotificationTopicAction.friend_request__create)
+        ).scalar_one()
+
+        deliveries = (
+            session.execute(select(NotificationDelivery).where(NotificationDelivery.notification_id == notification.id))
+            .scalars()
+            .all()
+        )
+        # At least one delivery should exist
+        assert len(deliveries) > 0
+
+
+def test_handle_notification_concurrent_handling_skipped(db, push_collector: PushCollector):
+    """Test that concurrent handling is skipped when notification is locked by another worker."""
+    user, token = generate_user()
+
+    topic_action = NotificationTopicAction.badge__add
+
+    # Create notification manually (without queuing the job)
+    with session_scope() as session:
+        notification = Notification(
+            user_id=user.id,
+            topic_action=topic_action,
+            key="test-badge",
+            data=notification_data_pb2.BadgeAdd(
+                badge_id="volunteer",
+                badge_name="Active Volunteer",
+                badge_description="This user is an active volunteer",
+            ).SerializeToString(),
+        )
+        session.add(notification)
+        session.flush()
+        notification_id = notification.id
+
+    # Lock the notification row in one session, then try to handle it from another
+    with session_scope() as session:
+        # Lock the notification row with FOR UPDATE
+        session.execute(select(Notification).where(Notification.id == notification_id).with_for_update()).scalar_one()
+
+        # While the row is locked, try to handle the notification
+        # handle_notification uses skip_locked=True, so it should return None and exit early
+        handle_notification(jobs_pb2.HandleNotificationPayload(notification_id=notification_id))
+
+        # No push should be sent since the notification was skipped
+        assert push_collector.count_for_user(user.id) == 0
+
+    # Verify no deliveries were created
+    with session_scope() as session:
+        deliveries = (
+            session.execute(select(NotificationDelivery).where(NotificationDelivery.notification_id == notification_id))
+            .scalars()
+            .all()
+        )
+        assert len(deliveries) == 0
+
+
+def test_handle_notification_multiple_delivery_types(db, push_collector: PushCollector):
+    """Test that multiple delivery types are processed for a single notification."""
+    user, token = generate_user()
+
+    topic_action = NotificationTopicAction.badge__add
+
+    # Enable both email and push notifications
+    with notifications_session(token) as notifications:
+        notifications.SetNotificationSettings(
+            notifications_pb2.SetNotificationSettingsReq(
+                preferences=[
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="email",
+                        enabled=True,
+                    ),
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="push",
+                        enabled=True,
+                    ),
+                    notifications_pb2.SingleNotificationPreference(
+                        topic=topic_action.topic,
+                        action=topic_action.action,
+                        delivery_method="digest",
+                        enabled=True,
+                    ),
+                ],
+            )
+        )
+
+    with mock_notification_email() as mock:
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action=topic_action,
+                key="test-badge",
+                data=notification_data_pb2.BadgeAdd(
+                    badge_id="volunteer",
+                    badge_name="Active Volunteer",
+                    badge_description="This user is an active volunteer",
+                ),
+            )
+
+    # Email should be sent
+    assert mock.call_count == 1
+
+    # Push should be sent
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert "Active Volunteer" in push.content.title
+
+    # All three delivery types should have deliveries
+    with session_scope() as session:
+        notification = session.execute(select(Notification).where(Notification.user_id == user.id)).scalar_one()
+
+        deliveries = (
+            session.execute(select(NotificationDelivery).where(NotificationDelivery.notification_id == notification.id))
+            .scalars()
+            .all()
+        )
+
+        delivery_types = {d.delivery_type for d in deliveries}
+        assert NotificationDeliveryType.email in delivery_types
+        assert NotificationDeliveryType.push in delivery_types
+        assert NotificationDeliveryType.digest in delivery_types
+
+        # Email and push should have delivered timestamps
+        for delivery in deliveries:
+            if delivery.delivery_type in [NotificationDeliveryType.email, NotificationDeliveryType.push]:
+                assert delivery.delivered is not None
+            elif delivery.delivery_type == NotificationDeliveryType.digest:
+                assert delivery.delivered is None
