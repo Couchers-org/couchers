@@ -1,4 +1,5 @@
 import json
+import time
 from datetime import UTC, datetime
 from typing import cast
 
@@ -11,12 +12,15 @@ from sqlalchemy.sql import func
 
 from couchers import urls
 from couchers.config import config
+from couchers.constants import STABLE_THRESHOLD_SECONDS
 from couchers.context import CouchersContext
 from couchers.descriptor_pool import get_descriptors_pb
 from couchers.models import User
 from couchers.models.logging import EventLog, EventSource
 from couchers.proto import bugs_pb2, bugs_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
+
+_start_time = time.monotonic()
 
 
 class Bugs(bugs_pb2_grpc.BugsServicer):
@@ -78,6 +82,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
             nonce=request.nonce,
             version=self._version(),
             coucher_count=coucher_count,
+            stable=time.monotonic() - _start_time >= STABLE_THRESHOLD_SECONDS,
         )
 
     def GetDescriptors(
