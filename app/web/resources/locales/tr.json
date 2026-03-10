@@ -197,7 +197,14 @@
     "timeline_title": "Kanepe sörfünün kısa bir tarihi",
     "table": {
       "no_investor_pressure": "Yatırımcı baskısı yok",
-      "social_expectation": "Ev sahibiyle vakit geçirmeyi teşvik eder"
+      "social_expectation": "Ev sahibiyle vakit geçirmeyi teşvik eder",
+      "cultural_exchange": "Kültürel değişim odağı",
+      "non_transactional": "Ödemesiz topluluk modeli"
+    },
+    "bottom_cta_subtitle": "Couchers.org'a katılın ve misafirperverlik ve bağlantı üzerine kurulu küresel bir topluluğun parçası olun.",
+    "join_couchers": "Couchers.org'a Katılın",
+    "is_it_safe": {
+      "title": "Kanepe sörfü ne kadar güvenli?"
     }
   },
   "beta": "Beta",

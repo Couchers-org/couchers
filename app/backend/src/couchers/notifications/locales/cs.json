@@ -58,5 +58,13 @@
     "donation__received": {
       "title": "Dar přijat"
     }
+  },
+  "topic_action_descriptions": {
+    "phone_number": {
+      "verify": "Tvé telefonní číslo je ověřeno."
+    },
+    "reference": {
+      "receive_friend": "Přišla ti reference od přítele."
+    }
   }
 }
