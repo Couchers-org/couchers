@@ -124,8 +124,12 @@ def _send_push_notification(session: Session, user: User, notification: Notifica
 def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
     with session_scope() as session:
         notification = session.execute(
-            select(Notification).where(Notification.id == payload.notification_id)
-        ).scalar_one()
+            select(Notification).where(Notification.id == payload.notification_id).with_for_update(skip_locked=True)
+        ).scalar_one_or_none()
+
+        if not notification:
+            logger.info("Another worker is already handling notification %s", payload.notification_id)
+            return
 
         # Check moderation visibility if this notification is linked to moderated content
         if notification.moderation_state_id:
