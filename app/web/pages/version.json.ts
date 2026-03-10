@@ -10,7 +10,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       version: process.env.NEXT_PUBLIC_VERSION || "unknown",
       display_version: process.env.NEXT_PUBLIC_DISPLAY_VERSION || "dev",
       stable: Date.now() - startTime >= STABLE_THRESHOLD_MS,
-    })
+    }),
   );
   res.end();
   return { props: {} };
