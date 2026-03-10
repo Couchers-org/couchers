@@ -1,13 +1,5 @@
 import { Circle, MoreHoriz } from "@mui/icons-material";
-import {
-  Avatar,
-  Box,
-  Menu,
-  MenuItem,
-  styled,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Avatar, Box, Menu, MenuItem, styled, Typography } from "@mui/material";
 import IconButton from "components/IconButton";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -20,6 +12,7 @@ import { timestamp2Date } from "utils/date";
 import { timeAgo } from "utils/timeAgo";
 
 import { mapNotificationFeedTypeToIcon } from "../utils/constants";
+import useIsMobile from "utils/useIsMobile";
 
 interface NotificationItemProps {
   notification: Notification.AsObject;
@@ -79,7 +72,7 @@ const NotificationItem = ({
     i18n: { language: locale },
   } = useTranslation([GLOBAL]);
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const [markUnreadMenuAnchorEl, setMarkUnseedMenuAnchorEl] =
     useState<HTMLButtonElement | null>(null);

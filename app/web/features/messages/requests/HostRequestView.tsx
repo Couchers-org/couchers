@@ -1,5 +1,5 @@
 import { ArchiveOutlined, UnarchiveOutlined } from "@mui/icons-material";
-import { Skeleton, styled, useMediaQuery } from "@mui/material";
+import { Skeleton, styled } from "@mui/material";
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -40,6 +40,7 @@ import { useIsNativeEmbed } from "utils/nativeLink";
 import { requestStatusToTransKey } from "../constants";
 import ChatContent from "../groupchats/ChatContent";
 import HostRequestUserSummarySection from "./HostRequestUserSummarySection";
+import useIsMobile from "utils/useIsMobile";
 
 const StyledHeader = styled("div")(({ theme }) => ({
   padding: theme.spacing(1, 2),
@@ -110,7 +111,7 @@ export default function HostRequestView({
   const { t } = useTranslation(MESSAGES);
   const isNativeEmbed = useIsNativeEmbed();
 
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const { data: hostRequest, error: hostRequestError } = useQuery({
     queryKey: hostRequestKey(hostRequestId),

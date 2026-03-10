@@ -1,10 +1,4 @@
-import {
-  Skeleton,
-  styled,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Skeleton, styled, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import UserSummary from "components/UserSummary";
 import { useTranslation } from "i18n";
@@ -15,6 +9,7 @@ import { theme } from "theme";
 import { numNights } from "utils/date";
 import dayjs from "utils/dayjs";
 import truncateTextEllipsis from "utils/truncateTextEllipsis";
+import useIsMobile from "utils/useIsMobile";
 
 const StyledRequestedDatesWrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -57,7 +52,7 @@ const HostRequestUserSummarySection = ({
   otherUser: LiteUser.AsObject | undefined;
 }) => {
   const { t } = useTranslation(MESSAGES);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const smallUserSummarySection = (
     <StyledSmallUserSummary>

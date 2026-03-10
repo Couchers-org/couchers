@@ -5,7 +5,6 @@ import {
   Skeleton,
   styled,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -31,6 +30,7 @@ import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
 import SignupFormContent from "./SignupFormContent";
+import useIsMobile from "utils/useIsMobile";
 
 const StyledFormWrapper = styled("div")(({ theme }) => ({
   backgroundColor: alpha(theme.palette.primary.light, 0.1),
@@ -45,7 +45,7 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
 export default function Signup() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;

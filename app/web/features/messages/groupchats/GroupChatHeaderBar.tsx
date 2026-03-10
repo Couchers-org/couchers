@@ -4,7 +4,7 @@ import {
   NotificationsOff,
   UnarchiveOutlined,
 } from "@mui/icons-material";
-import { Skeleton, styled, useMediaQuery } from "@mui/material";
+import { Skeleton, styled } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import CircularProgress from "components/CircularProgress";
 import HeaderButton from "components/HeaderButton";
@@ -30,6 +30,7 @@ import { service } from "service";
 import { theme } from "theme";
 
 import { groupChatKey, groupChatsListKey } from "../../queryKeys";
+import useIsMobile from "utils/useIsMobile";
 
 const StyledTitleBox = styled("div")({
   flexGrow: 1,
@@ -61,7 +62,7 @@ export default function GroupChatHeaderBar({
   const username = getDmUsername(groupChatMembersQuery, currentUserId);
 
   const isChatAdmin = groupChat?.adminUserIdsList.includes(currentUserId);
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useIsMobile();
 
   const menuAnchor = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState({
