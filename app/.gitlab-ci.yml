@@ -829,6 +829,30 @@ preview:web-next:
       changes:
       - app/web/**/*
 
+publish:client:
+  needs: ["protos"]
+  stage: preview
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - apk add --no-cache python3
+    - wget -qO- https://astral.sh/uv/install.sh | sh
+    - export PATH="$HOME/.local/bin:$PATH"
+    - echo "${DISPLAY_VERSION}" > app/client/src/couchers/version
+    - echo "Publishing version ${DISPLAY_VERSION}"
+    - cd app/client
+    - uv build
+    # Smoke tests
+    - uv run --isolated --no-project --with dist/*.whl python -c "import couchers; print(couchers.__version__)"
+    - uv run --isolated --no-project --with dist/*.tar.gz python -c "import couchers; print(couchers.__version__)"
+    # Publish
+    - uv publish
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+      changes:
+        - app/client/**/*
+        - app/proto/**/*
+
 preview:protos:
   needs: ["protos"]
   stage: preview
