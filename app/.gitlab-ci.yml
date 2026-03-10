@@ -942,9 +942,6 @@ wait:before-release:
     - job: test:mobile-typecheck
       artifacts: false
       optional: true
-    - job: test:mobile-expo-doctor
-      artifacts: false
-      optional: true
 
 release:proxy:
   needs: ["wait:before-release"]
