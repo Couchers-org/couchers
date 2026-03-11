@@ -17,7 +17,8 @@
     "password_changed_success": "La tua nuova password è stata impostata e una notifica è stata inviata al tuo indirizzo e-mail.",
     "old_password": "Vecchia password",
     "new_password": "Nuova password",
-    "password_mismatch_error": "Le password non corrispondono."
+    "password_mismatch_error": "Le password non corrispondono.",
+    "reset_password_success": "La tua password è stata modificata con successo!"
   },
   "reset_password_form": {
     "enter_email": "Inserisci il tuo nome utente/e-mail",
@@ -47,7 +48,7 @@
       "empty_error": "Per favore, inserisci un indirizzo e-mail valido"
     },
     "name": {
-      "field_label": "Il tuo nome",
+      "field_label": "Nome",
       "empty_error": "Per favore, inserisci il tuo nome",
       "required_error": "Questo campo non può essere vuoto."
     }
@@ -69,7 +70,8 @@
       "field_label": "Stato ospitalità",
       "maybe": "Potrebbe ospitare",
       "cant_host": "Non può ospitare",
-      "can_host": "Può ospitare"
+      "can_host": "Può ospitare",
+      "any": "Indifferente"
     },
     "gender": {
       "required_error": "Per favore, seleziona la tua identità di genere",
@@ -84,7 +86,8 @@
       "field_label": "Password",
       "required_error": "Inserisci una password",
       "validation_error": "La password deve contenere da 8 a 256 caratteri e non essere troppo comune."
-    }
+    },
+    "opt_in_newsletter": "Iscriviti alla nostra newsletter periodica riguardo gli aggiornamenti della comunità"
   },
   "location": {
     "field_label": "La tua posizione",
@@ -124,12 +127,25 @@
       "description": "Abbiamo aggiornato i nostri Termini di Servizio. Per continuare, per favore leggi ed accetta i nuovi <1></1>."
     },
     "location_section": {
-      "title": "Per favore, aggiungi la tua posizione",
+      "title": "Per favore, aggiorna la tua posizione",
       "submit_button": {
         "inactive_text": "Grazie!",
         "active_text": "Salvare"
       },
-      "resubmit_button_text": "Inviare di nuovo"
+      "resubmit_button_text": "Inviare di nuovo",
+      "explanation": "Sembra che le tue coordinate non siano corrette. Per favore, aggiorna la tua posizione per continuare."
+    },
+    "mod_note_section": {
+      "note_title": "Nota del moderatore ricevuta il {{time}}:",
+      "title": "Hai ricevuto un avviso dai moderatori",
+      "description": "I moderatori ti hanno inviato questo avviso. Leggilo attentamente e conferma di averlo letto e compreso prima di continuare."
+    },
+    "activeness_probe": {
+      "title": "Sei tuttora disponibile ad ospitare?",
+      "description": "Abbiamo notato che è da un po' che non ti colleghi e volevamo verificare se sei ancora disponibile ad ospitare.",
+      "still_hosting": "Sono ancora disponibile ad ospitare!",
+      "not_hosting": "Non ho più la possibilità di ospitare.",
+      "note": "Aggiorneremo il tuo profilo in funzione di questa scelta!"
     }
   },
   "logged_out_message": "Sei stato disconnesso.",
@@ -169,21 +185,22 @@
     "remove_button_text": "Elimina l'attuale numero di telefono",
     "change_to_different_description": "Per cambiare il tuo numero di telefono, inserisci quello nuovo qui sotto.",
     "change_button_text": "Modifica numero di telefono",
-    "code_label": "Codice di verifica"
+    "code_label": "Codice di verifica",
+    "need_to_donate": "Devi prima fare una <2>donazione</2> per completare la verifica del telefono."
   },
   "delete_account": {
     "request": {
       "title": "Elimina conto",
       "description": "Per eliminare il tuo conto segui le istruzioni qui sotto. Ti invieremo una e-mail di conferma.",
-      "reason_explanation": "Per favore, aiutaci a migliorare la piattaforma facendoci sapere perché hai deciso di eliminare il tuo conto.",
-      "reason_label": "Ragione per eliminazione del conto",
-      "success_message": "Eliminazione del conto iniziata. Per completare l'eliminazione del conto, per favore confermala tramite il messaggio e-mail che ti abbiamo inviato.",
+      "reason_explanation": "Per favore, aiutaci a migliorare la piattaforma facendoci sapere perché hai deciso di eliminare il tuo account.",
+      "reason_label": "Ragione per eliminazione dell'account",
+      "success_message": "Eliminazione dell'account iniziata. Per completare l'eliminazione dell'account, per favore confermala tramite il messaggio e-mail che ti abbiamo inviato.",
       "confirm_username_label": "Conferma nome utente",
       "username_mismatch": "Il nome utente non coincide.",
       "confirm_username_explanation": "Il tuo nome utente è <1>{{ username }}</1>, per favore digitalo qui sotto per confermare l'eliminazione del tuo profilo."
     },
     "confirm": {
-      "title": "Conferma eliminazione conto",
+      "title": "Conferma eliminazione account",
       "error_message": "Non si è potuto eliminare il conto: {{message}}",
       "button_text": "Conferma eliminazione conto",
       "account_deleted": "Conto eliminato. Grazie per aver usato Couchers.org!"
@@ -195,5 +212,42 @@
       "success": "Il tuo conto è stato recuperato, ora puoi accedere di nuovo. Siamo felici che tu sia di ritorno!"
     },
     "missing_token": "Errore: token mancante"
-  }
+  },
+  "active_logins": {
+    "heading": "Accessi attuali",
+    "settings_page_text": "Vedi da dove sei loggato ed esci da ogni accesso di altre sessioni",
+    "login_header": "Accesso effettuato il {{login_datetime}}",
+    "settings_page_link": "Gestisci gli accessi correnti",
+    "description": "Questa pagina elenca gli accessi attivi, puoi disconnetterti da uno qualsiasi di essi cliccando sul pulsante accanto all'accesso oppure scorrendo fino in fondo alla pagina e cliccando sul pulsante per disconnetterti da tutte le sessioni tranne questa.",
+    "location": "Vicino a <2>{{approximate_location}}</2>",
+    "last_activity": "Ultima attività <2>{{last_activity_ago}}</2>",
+    "expiry": "Scade il <1>{{expiry_datetime}}</1>",
+    "current_session": "Questa è la tua sessione attuale.",
+    "log_out_of_session": "Disconnetti da questa sessione",
+    "log_out_of_all_session": "Disconnetti tutte le altre sessioni"
+  },
+  "strong_verification": {
+    "donation_message1": "La verifica è gratis per te, ma ha un costo per noi. Come non-profit gestita da volontari, ci affidiamo alle donazioni per coprire spese come tenere in piedi l'associazione, la verifica e gli strumenti per volontari e community builders.",
+    "donation_message2": "Se puoi, per favore prendi in considerazione l'idea di donare per aiutare Couchers.org nel rimanere aperto e a crescere.",
+    "information_text2": "Cliccando sul pulsante qui sotto, verrai indirizzato al sito web di Iris ID per completare la procedura di verifica del passaporto.",
+    "complete_message1": "Il tuo passaporto sta per essere validato. Riceverai una email con il risultato entro pochi minuti.",
+    "delete_my_data_button": "Elimina i miei dati",
+    "delete_success": "I dati del tuo passaporto sono stati eliminati.",
+    "donation_title": "Grazie per avere effettuato la verifica, ci stai aiutando a rendere Couchers.org più sicuro per tutti.",
+    "donate_button": "Fai una donazione per supportare Couchers.org"
+  },
+  "quick_links": {
+    "title": "Azione rapida da email",
+    "error_message": "Errore: {{message}}",
+    "missing_payload_or_sig": "URL non valido"
+  },
+  "profile_visibility": {
+    "visiblility_options": {
+      "nothing": "<1>Nothing</1>: nascondimi completamente"
+    },
+    "title": "Visibilità del profilo",
+    "choose": "Scegli quali informazioni saranno visibili agli utenti non connessi"
+  },
+  "sign_up_resend_verification_email_help": "Non hai ricevuto la email? Clicca <2>qui per reinviare il link di verifica</2>.",
+  "sign_up_resend_verification_done": "Fatto! Ti abbiamo inviato un'altra email."
 }

@@ -225,5 +225,27 @@
   },
   "footer": {
     "non_profit_note": "Couchers.org, ABD'de 501(c)(3) statüsünde kar amacı gütmeyen, vergiden muaf bir kuruluş olan Couchers, Inc.'in bir projesidir."
+  },
+  "team": {
+    "title": "Takım",
+    "join_the_team": "Takıma katıl",
+    "join_our_team": "Takımımıza katıl",
+    "have_skills_contribute": "Katkıda bulunmak istediğiniz becerileriniz mi var?",
+    "current_members": "Mevcut Üyeler",
+    "past_members": "Eski Üyeler",
+    "board_member": "Yönetim Kurulu Üyesi",
+    "co_founder_president": "Kurucu Ortak, Başkan & Yönetim Kurulu Başkanı",
+    "co_founder": "Kurucu Ortak",
+    "secretary": "Sekreter",
+    "treasurer": "Sayman",
+    "community_coordinator": "Topluluk Koordinatörü",
+    "developer": "Geliştirici",
+    "ui_ux_designer": "UI/UX Tasarımcısı",
+    "translations_lead": "Çeviri Lideri",
+    "volunteer_settings": {
+      "show_on_team_page": {
+        "title": "Gönüllü profilimi takım sayfasında göster"
+      }
+    }
   }
 }
