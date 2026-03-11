@@ -65,7 +65,7 @@
                     "cancel": "An event you are attending is cancelled",
                     "delete": "An event you are attending is deleted",
                     "invite_organizer": "Someone invites you to co-organize an event",
-                    "comment": " A user comments on an event you are going to",
+                    "comment": "A user comments on an event you are going to",
                     "reminder": "Reminder that an event you are going to is happening soon"
                 },
                 "onboarding": {
