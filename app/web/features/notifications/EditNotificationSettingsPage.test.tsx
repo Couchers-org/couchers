@@ -193,6 +193,7 @@ describe("EditNotificationSettingsPage", () => {
       <NotificationSettingsSubListItem
         topic="host_request"
         action="host_request"
+        description="New host request"
         email={false}
         push={false}
       />,
