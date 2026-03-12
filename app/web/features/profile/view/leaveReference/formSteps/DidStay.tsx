@@ -25,10 +25,10 @@ import {
 } from "routes";
 import { indicateDidntMeetup } from "service/references";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 import { ReferenceStepProps } from "../ReferenceForm";
 import ReferenceStepHeader from "./ReferenceStepHeader";
-import useIsMobile from "utils/useIsMobile";
 
 interface IndicateDidntMeetupFormData {
   didStay: boolean;

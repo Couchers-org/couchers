@@ -36,11 +36,11 @@ import { service } from "service";
 import { theme } from "theme";
 import { firstName } from "utils/names";
 import { useIsNativeEmbed } from "utils/nativeLink";
+import useIsMobile from "utils/useIsMobile";
 
 import { requestStatusToTransKey } from "../constants";
 import ChatContent from "../groupchats/ChatContent";
 import HostRequestUserSummarySection from "./HostRequestUserSummarySection";
-import useIsMobile from "utils/useIsMobile";
 
 const StyledHeader = styled("div")(({ theme }) => ({
   padding: theme.spacing(1, 2),

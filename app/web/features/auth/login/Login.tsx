@@ -12,10 +12,10 @@ import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, signupRoute } from "routes";
 import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
+import useIsMobile from "utils/useIsMobile";
 
 import { useAuthContext } from "../AuthProvider";
 import LoginForm from "./LoginForm";
-import useIsMobile from "utils/useIsMobile";
 
 const StyledContent = styled("div")(({ theme }) => ({
   width: "100%",

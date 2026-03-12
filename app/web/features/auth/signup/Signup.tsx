@@ -27,10 +27,10 @@ import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
+import useIsMobile from "utils/useIsMobile";
 
 import { useAuthContext } from "../AuthProvider";
 import SignupFormContent from "./SignupFormContent";
-import useIsMobile from "utils/useIsMobile";
 
 const StyledFormWrapper = styled("div")(({ theme }) => ({
   backgroundColor: alpha(theme.palette.primary.light, 0.1),

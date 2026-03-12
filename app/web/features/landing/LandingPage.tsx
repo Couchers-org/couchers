@@ -9,13 +9,13 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { signupRoute } from "routes";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 import CouchersMission from "./CouchersMission";
 import HeroSection from "./HeroSection";
 import MapSection from "./MapSection";
 import SocialProof from "./SocialProof";
 import WhyCouchersSection from "./WhyCouchersSection";
-import useIsMobile from "utils/useIsMobile";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
   height: "3.5rem",

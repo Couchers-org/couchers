@@ -8,11 +8,10 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import { useRouter } from "next/router";
 import { ReactNode, useEffect, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
-import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
+import useIsMobile from "utils/useIsMobile";
 
 import Navigation from "./Navigation";
-import useIsMobile from "utils/useIsMobile";
 
 interface AppRouteProps {
   isPrivate: boolean;

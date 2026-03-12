@@ -10,9 +10,9 @@ import LinesEllipsis from "react-lines-ellipsis";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import { timeAgo } from "utils/timeAgo";
+import useIsMobile from "utils/useIsMobile";
 
 import { mapNotificationFeedTypeToIcon } from "../utils/constants";
-import useIsMobile from "utils/useIsMobile";
 
 interface NotificationItemProps {
   notification: Notification.AsObject;

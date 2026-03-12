@@ -18,12 +18,12 @@ import { useState } from "react";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
+import useIsMobile from "utils/useIsMobile";
 
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapSearchTypes } from "./utils/constants";
 import { getMapBounds } from "./utils/mapUtils";
-import useIsMobile from "utils/useIsMobile";
 
 interface FloatingSearchNavigationProps {
   mapRef: React.RefObject<MapRef | null>;
