@@ -7,7 +7,6 @@ import {
   Link,
   styled,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import { CatalanFlagIcon } from "components/Icons";
 import { useWeblateStats } from "features/weblate/useWeblateStats";
@@ -24,6 +23,7 @@ import {
   HIDDEN_CUTOFF,
   SELECTOR_CUTOFF,
 } from "./constants";
+import useIsMobile from "utils/useIsMobile";
 
 const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
   width: "100%",
@@ -136,7 +136,7 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
 }));
 
 export default function TranslationProgress() {
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
   const { t } = useTranslation([GLOBAL]);
 
   const { data: languages, isLoading, error } = useWeblateStats();

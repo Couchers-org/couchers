@@ -1,4 +1,4 @@
-import { Box, Container, styled, useMediaQuery } from "@mui/material";
+import { Box, Container, styled } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
@@ -15,6 +15,7 @@ import HeroSection from "./HeroSection";
 import MapSection from "./MapSection";
 import SocialProof from "./SocialProof";
 import WhyCouchersSection from "./WhyCouchersSection";
+import useIsMobile from "utils/useIsMobile";
 
 const StyledSpacer = styled("div")(({ theme }) => ({
   height: "3.5rem",
@@ -22,7 +23,7 @@ const StyledSpacer = styled("div")(({ theme }) => ({
 
 export default function LandingPage() {
   const { authState } = useAuthContext();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
   const router = useRouter();
   const { t } = useTranslation(GLOBAL);
 

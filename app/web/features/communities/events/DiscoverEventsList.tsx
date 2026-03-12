@@ -1,4 +1,4 @@
-import { Pagination, styled, Typography, useMediaQuery } from "@mui/material";
+import { Pagination, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import LocationAutocomplete from "components/LocationAutocomplete";
@@ -14,6 +14,7 @@ import { GeocodeResult } from "utils/hooks";
 
 import EventsList from "./EventsList";
 import { useEventSearch } from "./hooks";
+import useIsMobile from "utils/useIsMobile";
 
 const StyledLocationSearch = styled(LocationAutocomplete)(() => ({
   marginRight: theme.spacing(2),
@@ -82,7 +83,7 @@ const DiscoverEventsList = () => {
     mode: "onChange",
   });
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
   const pageSize = 12;
 
   const [pageNumber, setPageNumber] = useState(1);

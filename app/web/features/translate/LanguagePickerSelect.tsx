@@ -11,7 +11,6 @@ import {
   Stack,
   styled,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { CatalanFlagIcon } from "components/Icons";
@@ -30,6 +29,7 @@ import { theme } from "theme";
 import { ALMOST_DONE_CUTOFF } from "./constants";
 import { useShowAllLanguages } from "./useShowAllLanguages";
 import { getAvailableLanguages } from "./utils";
+import useIsMobile from "utils/useIsMobile";
 
 interface StyledMuiSelectProps {
   displayMode?: "round" | "rect";
@@ -72,7 +72,7 @@ export default function LanguagePickerSelect({
   const { authState } = useAuthContext();
   const isAuthenticated = authState.authenticated;
 
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
   const { t } = useTranslation([GLOBAL]);
 
   const { data: languages, isLoading, error } = useWeblateStats();

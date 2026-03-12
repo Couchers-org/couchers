@@ -1,5 +1,5 @@
 import { styled, Tooltip, Typography } from "@mui/material";
-import { FlexboxProps, useMediaQuery } from "@mui/system";
+import { FlexboxProps } from "@mui/system";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
@@ -18,6 +18,7 @@ import { timeAgo, TimeUnit } from "utils/timeAgo";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
 import { aboutText, truncateWithEllipsis } from "./utils/constants";
+import useIsMobile from "utils/useIsMobile";
 
 interface SearchResultUserCardProps {
   isHighlighted?: boolean;
@@ -155,7 +156,7 @@ const SearchResultUserCard = ({
   onUserCardClick,
   user,
 }: SearchResultUserCardProps) => {
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
   const isNativeEmbed = useIsNativeEmbed();
   const {
     t,

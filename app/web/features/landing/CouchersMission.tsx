@@ -11,6 +11,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useRef, useState } from "react";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 interface StyledBubbleProps extends React.ComponentProps<typeof Box> {
   selected?: boolean;
@@ -60,7 +61,7 @@ const StyledBubble = styled(Box, {
 const CouchersMission = () => {
   const { t } = useTranslation([LANDING, GLOBAL]);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const [selectedItem, setSelectedItem] = useState("nonprofit");
   const [canScrollLeft, setCanScrollLeft] = useState(false);

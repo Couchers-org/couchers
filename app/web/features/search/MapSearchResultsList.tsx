@@ -1,14 +1,14 @@
-import { styled, useMediaQuery } from "@mui/material";
+import { styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ResizeableDrawer from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { SearchUser } from "proto/search_pb";
-import { theme } from "theme";
 
 import PreviousNextPagination from "./PreviousNextPagination";
 import SearchResultListContent from "./SearchResultListContent";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { MapViews } from "./utils/constants";
+import useIsMobile from "utils/useIsMobile";
 
 interface MapSearchResultsListProps {
   error: RpcError | null;
@@ -55,7 +55,7 @@ const MapSearchResultsList = ({
   totalItems,
   users,
 }: MapSearchResultsListProps) => {
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const {
     hasActiveFilters,
