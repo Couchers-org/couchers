@@ -108,5 +108,91 @@
       "ios_subtitle": "{{title}}",
       "body": "L'événement commence le {{date_and_time}}."
     }
+  },
+  "topic_action_descriptions": {
+    "host_request": {
+      "accept": "Quelqu'un.e accepte votre demande d'hébergement",
+      "confirm": "Quelqu'un.e confirme sa demande d'hébergement",
+      "reject": "Quelqu'un.e refuse votre demande d'hébergement",
+      "cancel": "Quelqu'un.e annule sa demande d'hébergement",
+      "message": "Quelqu’un.e envoie un message dans une demande d’hébergement",
+      "create": "Quelqu’un.e vous envoie une demande d’hébergement",
+      "missed_messages": "Vous manquez des messages dans une demande d'hébergement",
+      "reminder": "Vous n'avez pas répondu à une demande d'hébergement en attente"
+    },
+    "chat": {
+      "message": "Quelqu’un.e vous envoie un message",
+      "missed_messages": "Vous manquez des messages dans une discussion"
+    },
+    "general": {
+      "new_blog_post": "Un nouvel article de blog est publié"
+    },
+    "reference": {
+      "receive_hosted": "Vous recevez une référence de la part de quelqu’un.e qui vous a hébergé.e.",
+      "receive_friend": "Vous avez reçu une référence d’un ami",
+      "reminder_hosted": "Rappel d'écrire une référence pour quelqu'un.e que vous avez hébergé.e",
+      "reminder_surfed": "Attention : Rappel d'écrire une référence pour quelqu'un.e avec qui vous avez surfé",
+      "receive_surfed": "Vous recevez une référence de la part de quelqu’un.e que vous avez hébergé.e"
+    },
+    "friend_request": {
+      "create": "Quelqu’un.e vous envoie une demande d’ami",
+      "accept": "Quelqu'un.e accepte votre demande d'ami"
+    },
+    "event": {
+      "update": "Un événement auquel vous participez a été mis à jour",
+      "cancel": "Un événement auquel vous participez a été annulé",
+      "delete": "Un événement auquel vous participez a été supprimé",
+      "invite_organizer": "Quelqu'un.e vous invite à coorganiser un événement",
+      "comment": " Un utilisateur commente un événement auquel vous participez",
+      "reminder": "Rappel : un événement auquel vous participez aura lieu bientôt",
+      "create_approved": "Un événement approuvé par les modérateurs a été créé dans votre communauté",
+      "create_any": "Un utilisateur crée un événement dans votre communauté (non vérifié par un administrateur)"
+    },
+    "badge": {
+      "add": "Un badge a été ajouté à votre compte",
+      "remove": "Un badge a été retiré de votre compte"
+    },
+    "donation": {
+      "received": "Votre don a été reçu"
+    },
+    "password": {
+      "change": "Votre mot de passe a été modifié"
+    },
+    "password_reset": {
+      "start": "La réinitialisation de votre mot de passe est lancée",
+      "complete": "La réinitialisation de votre mot de passe est achevée"
+    },
+    "email_address": {
+      "verify": "Votre nouvelle adresse mail est vérifiée",
+      "change": "Le changement de votre adresse mail est lancé"
+    },
+    "account_deletion": {
+      "start": "Vous initiez la suppression de votre compte",
+      "complete": "Votre compte est supprimé",
+      "recovered": "Votre compte a été récupéré (restauré)"
+    },
+    "api_key": {
+      "create": "Une clé API a été créée pour votre compte"
+    },
+    "onboarding": {
+      "reminder": "Rappel de compléter votre profil après votre inscription récente"
+    },
+    "phone_number": {
+      "change": "Votre numéro de téléphone a été changé",
+      "verify": "Votre numéro de téléphone est vérifié"
+    },
+    "birthdate": {
+      "change": "Votre date de naissance a été modifiée"
+    },
+    "gender": {
+      "change": "Le genre affiché sur votre profil a été modifié"
+    },
+    "discussion": {
+      "create": "Quelqu’un autre a crée une discussion dans une communauté dont vous faites partie",
+      "comment": "Quelqu’un a commenté une discussion que vous suivez"
+    },
+    "thread": {
+      "reply": "Quelqu’un a répondu à votre commentaire"
+    }
   }
 }
