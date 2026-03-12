@@ -1,4 +1,4 @@
-import { Alert, Box, styled, useMediaQuery } from "@mui/material";
+import { Alert, Box, styled } from "@mui/material";
 import Button from "components/Button";
 import {
   Dialog,
@@ -28,6 +28,7 @@ import { theme } from "theme";
 
 import { ReferenceStepProps } from "../ReferenceForm";
 import ReferenceStepHeader from "./ReferenceStepHeader";
+import useIsMobile from "utils/useIsMobile";
 
 interface IndicateDidntMeetupFormData {
   didStay: boolean;
@@ -72,7 +73,7 @@ const DidStay = ({
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const [didSubmitNotStay, setDidSubmitNotStay] = useState(false);
   const [

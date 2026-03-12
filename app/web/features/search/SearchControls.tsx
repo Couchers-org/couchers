@@ -1,14 +1,13 @@
-import { styled, useMediaQuery } from "@mui/material";
+import { styled } from "@mui/material";
 import { useState } from "react";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
-import { theme } from "theme";
-
 import FilterDialog from "./FilterDialog";
 import FloatingSearchControls from "./FloatingSearchControls";
 import MapViewToggle from "./MapViewToggle";
 import SearchTypeRadioGroup from "./SearchTypeRadioGroup";
 import { useSearchFilters } from "./state/useSearchFilters";
 import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
+import useIsMobile from "utils/useIsMobile";
 
 interface SearchControlsProps {
   drawerWidth: number;
@@ -65,7 +64,7 @@ const SearchControls = ({
   onSetMapView,
   onZoomIn,
 }: SearchControlsProps) => {
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");

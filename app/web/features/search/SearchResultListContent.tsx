@@ -6,7 +6,6 @@ import {
   IconButton,
   styled,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import BetaFlag from "components/BetaFlag";
 import { DEFAULT_DRAWER_WIDTH } from "components/ResizeableDrawer";
@@ -20,6 +19,7 @@ import SearchResultUserCard from "./SeachResultUserCard";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapViews } from "./utils/constants";
+import useIsMobile from "utils/useIsMobile";
 
 interface SearchResultListContentProps {
   error: RpcError | null;
@@ -86,7 +86,7 @@ const SearchResultListContent = ({
   users,
 }: SearchResultListContentProps) => {
   const { t } = useTranslation([SEARCH]);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const { filters, selectedUserId } = useMapSearchState();
 

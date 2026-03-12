@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { styled, useMediaQuery } from "@mui/system";
+import { styled } from "@mui/system";
 import BetaFlag from "components/BetaFlag";
 import CustomColorSwitch from "components/CustomColorSwitch";
 import { Dialog, DialogTitle } from "components/Dialog";
@@ -36,6 +36,7 @@ import {
   lastActiveOptions,
   SleepingArrangementOptions,
 } from "./utils/constants";
+import useIsMobile from "utils/useIsMobile";
 
 interface FilterDialogProps {
   filters: FilterOptions;
@@ -126,7 +127,7 @@ const FilterDialog = ({
   updateFilter,
 }: FilterDialogProps) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
   const { data: currentUser } = useCurrentUser();
 
   const { setSearchFilters } = useMapSearchActions();

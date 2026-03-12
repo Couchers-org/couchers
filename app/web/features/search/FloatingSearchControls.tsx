@@ -7,7 +7,6 @@ import {
   SelectChangeEvent,
   styled,
   Tooltip,
-  useMediaQuery,
 } from "@mui/material";
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
@@ -24,6 +23,7 @@ import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapSearchTypes } from "./utils/constants";
 import { getMapBounds } from "./utils/mapUtils";
+import useIsMobile from "utils/useIsMobile";
 
 interface FloatingSearchNavigationProps {
   mapRef: React.RefObject<MapRef | null>;
@@ -157,7 +157,7 @@ const FloatingSearchControls = ({
   searchType,
 }: FloatingSearchNavigationProps) => {
   const { t } = useTranslation([SEARCH]);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
 
   const [keyword, setKeyword] = useState("");
 

@@ -16,7 +16,6 @@ import {
   NavigationControl,
   Source,
 } from "react-map-gl/maplibre";
-import { theme } from "theme";
 import useIsMobile from "utils/useIsMobile";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;

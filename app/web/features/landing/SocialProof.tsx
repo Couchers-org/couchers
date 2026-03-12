@@ -1,15 +1,10 @@
 import { Favorite, Language, Star } from "@mui/icons-material";
-import {
-  Box,
-  Divider,
-  Skeleton,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, Divider, Skeleton, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useState } from "react";
 import { theme } from "theme";
+import { useIsMounted } from "utils/hooks";
 import { timeAgo } from "utils/timeAgo";
 
 interface SignupInfo {
@@ -23,7 +18,7 @@ const SocialProof = () => {
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, LANDING]);
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMounted();
 
   const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
