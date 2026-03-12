@@ -323,7 +323,20 @@
       "create_any": "Ein Benutzer erstellt ein Event in deiner Community (nicht von einem Administrator überprüft).",
       "update": "Ein Event, an dem du teilnimmst, wird aktualisiert.",
       "cancel": "Ein Event, an dem du teilnimmst, wird abgesagt.",
-      "delete": "Ein Event, an dem du teilnimmst, wird gelöscht."
+      "delete": "Ein Event, an dem du teilnimmst, wird gelöscht.",
+      "invite_organizer": "Jemand lädt dich ein, ein Event mit zu organisieren.",
+      "comment": " Ein Mitglied kommentiert ein Event, an dem du teilnimmst.",
+      "reminder": "Erinnerung, dass ein Event, an dem du teilnehmen wirst, bald stattfindet."
+    },
+    "friend_request": {
+      "create": "Jemand sendet dir eine Freundschaftsanfrage.",
+      "accept": "Jemand akzeptiert deine Freundschaftsanfrage."
+    },
+    "general": {
+      "new_blog_post": "Ein neuer Blogbeitrag wurde veröffentlicht."
+    },
+    "gender": {
+      "change": "Das auf deinem Profil angezeigte Geschlecht wurde geändert."
     }
   }
 }
