@@ -1,9 +1,4 @@
-import {
-  Divider,
-  DividerProps,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Divider, DividerProps, styled, Typography } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
