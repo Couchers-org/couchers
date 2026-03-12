@@ -25,9 +25,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { settingsRoute } from "routes";
 import { service } from "service";
 import { base64ToFile, useNativeImagePicker } from "utils/nativeLink";
+import useIsMobile from "utils/useIsMobile";
 
 import GalleryItem, { DropPlaceholder } from "./GalleryItem";
-import useIsMobile from "utils/useIsMobile";
 
 export interface GalleryItemData {
   itemId: number;

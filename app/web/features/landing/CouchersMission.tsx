@@ -1,12 +1,5 @@
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-import {
-  Box,
-  Grid,
-  IconButton,
-  styled,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, Grid, IconButton, styled, Typography } from "@mui/material";
 import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useRef, useState } from "react";

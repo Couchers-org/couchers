@@ -21,10 +21,10 @@ import React, {
 } from "react";
 import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
+import useIsMobile from "utils/useIsMobile";
 
 import { AccessibleDialogProps } from "../Dialog";
 import { CloseIcon, MenuIcon } from "../Icons";
-import useIsMobile from "utils/useIsMobile";
 
 type LoggedInMenuLinkItem = {
   type: "link";

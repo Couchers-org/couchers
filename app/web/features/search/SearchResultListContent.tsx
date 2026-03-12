@@ -14,12 +14,12 @@ import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { SearchUser } from "proto/search_pb";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 import SearchResultUserCard from "./SeachResultUserCard";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapViews } from "./utils/constants";
-import useIsMobile from "utils/useIsMobile";
 
 interface SearchResultListContentProps {
   error: RpcError | null;

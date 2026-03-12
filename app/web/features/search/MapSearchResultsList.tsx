@@ -3,12 +3,12 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ResizeableDrawer from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { SearchUser } from "proto/search_pb";
+import useIsMobile from "utils/useIsMobile";
 
 import PreviousNextPagination from "./PreviousNextPagination";
 import SearchResultListContent from "./SearchResultListContent";
 import { useMapSearchState } from "./state/mapSearchContext";
 import { MapViews } from "./utils/constants";
-import useIsMobile from "utils/useIsMobile";
 
 interface MapSearchResultsListProps {
   error: RpcError | null;

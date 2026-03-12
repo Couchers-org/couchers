@@ -25,11 +25,11 @@ import { useState } from "react";
 import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 import { ALMOST_DONE_CUTOFF } from "./constants";
 import { useShowAllLanguages } from "./useShowAllLanguages";
 import { getAvailableLanguages } from "./utils";
-import useIsMobile from "utils/useIsMobile";
 
 interface StyledMuiSelectProps {
   displayMode?: "round" | "rect";

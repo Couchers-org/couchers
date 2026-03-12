@@ -1,13 +1,14 @@
 import { styled } from "@mui/material";
 import { useState } from "react";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
+import useIsMobile from "utils/useIsMobile";
+
 import FilterDialog from "./FilterDialog";
 import FloatingSearchControls from "./FloatingSearchControls";
 import MapViewToggle from "./MapViewToggle";
 import SearchTypeRadioGroup from "./SearchTypeRadioGroup";
 import { useSearchFilters } from "./state/useSearchFilters";
 import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
-import useIsMobile from "utils/useIsMobile";
 
 interface SearchControlsProps {
   drawerWidth: number;

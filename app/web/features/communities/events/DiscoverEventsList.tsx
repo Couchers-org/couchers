@@ -11,10 +11,10 @@ import { useForm } from "react-hook-form";
 import { routeToNewEvent } from "routes";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
+import useIsMobile from "utils/useIsMobile";
 
 import EventsList from "./EventsList";
 import { useEventSearch } from "./hooks";
-import useIsMobile from "utils/useIsMobile";
 
 const StyledLocationSearch = styled(LocationAutocomplete)(() => ({
   marginRight: theme.spacing(2),

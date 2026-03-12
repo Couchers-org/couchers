@@ -15,10 +15,10 @@ import { timestamp2Date } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
 import { timeAgo, TimeUnit } from "utils/timeAgo";
+import useIsMobile from "utils/useIsMobile";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
 import { aboutText, truncateWithEllipsis } from "./utils/constants";
-import useIsMobile from "utils/useIsMobile";
 
 interface SearchResultUserCardProps {
   isHighlighted?: boolean;

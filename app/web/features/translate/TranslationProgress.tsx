@@ -15,7 +15,7 @@ import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import React from "react";
 import { translateJobURL } from "routes";
-import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 import {
   ALMOST_DONE_CUTOFF,
@@ -23,7 +23,6 @@ import {
   HIDDEN_CUTOFF,
   SELECTOR_CUTOFF,
 } from "./constants";
-import useIsMobile from "utils/useIsMobile";
 
 const ProgressBar = styled(Box)<{ percent: number }>(({ theme, percent }) => ({
   width: "100%",

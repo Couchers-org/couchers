@@ -45,6 +45,7 @@ import {
 } from "routes";
 import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
+import useIsMobile from "utils/useIsMobile";
 
 import BottomNavigation from "./BottomNavigation";
 import DarkModeToggle from "./DarkModeToggle";
@@ -52,7 +53,6 @@ import LoggedInMenu, { LoggedInMenuItem } from "./LoggedInMenu";
 import NavButton from "./NavButton";
 import ReportButton from "./ReportButton";
 import ReportDialog from "./ReportDialog";
-import useIsMobile from "utils/useIsMobile";
 
 interface MenuItemProps {
   name: string;

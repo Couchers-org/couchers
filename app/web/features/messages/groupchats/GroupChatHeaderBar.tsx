@@ -28,9 +28,9 @@ import { useRef, useState } from "react";
 import { groupChatsRoute, messagesRoute, routeToUser } from "routes";
 import { service } from "service";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 import { groupChatKey, groupChatsListKey } from "../../queryKeys";
-import useIsMobile from "utils/useIsMobile";
 
 const StyledTitleBox = styled("div")({
   flexGrow: 1,

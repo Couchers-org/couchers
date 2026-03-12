@@ -26,6 +26,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus, SleepingArrangement } from "proto/api_pb";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 import { settingsRoute } from "../../routes";
 import { FilterOptions } from "./SearchPage";
@@ -36,7 +37,6 @@ import {
   lastActiveOptions,
   SleepingArrangementOptions,
 } from "./utils/constants";
-import useIsMobile from "utils/useIsMobile";
 
 interface FilterDialogProps {
   filters: FilterOptions;
