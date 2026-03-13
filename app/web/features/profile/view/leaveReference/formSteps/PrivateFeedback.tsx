@@ -6,7 +6,6 @@ import {
   RadioGroup,
   styled,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -33,6 +32,7 @@ import {
   referenceTypeRoute,
 } from "routes";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 const ACCEPTABLE_RATING_THRESHOLD = 0.33;
 
@@ -91,7 +91,7 @@ export default function PrivateFeedback({
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
-  const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
+  const isMobile = useIsMobile();
 
   const {
     control,
@@ -273,7 +273,7 @@ export default function PrivateFeedback({
       </StyledCard>
 
       <StyledButtonContainer>
-        <Button fullWidth={!isSmOrWider} type="submit">
+        <Button fullWidth={isMobile} type="submit">
           {t("profile:leave_reference.next_step_label")}
         </Button>
       </StyledButtonContainer>

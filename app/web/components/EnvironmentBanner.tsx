@@ -1,11 +1,6 @@
-import {
-  Chip,
-  keyframes,
-  styled,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Chip, keyframes, styled } from "@mui/material";
 import React, { useState } from "react";
+import useIsMobile from "utils/useIsMobile";
 
 // Define the keyframes animation
 const attention = keyframes`
@@ -28,8 +23,7 @@ const Banner = styled(Chip)(({ theme }) => ({
 }));
 
 export function EnvironmentBanner() {
-  const theme = useTheme();
-  const isBelowSm = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useIsMobile();
   const [isShown, setIsShown] = useState(
     process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod",
   );
@@ -37,7 +31,7 @@ export function EnvironmentBanner() {
   return isShown ? (
     <Banner
       label={`This is a preview build of the app.${
-        !isBelowSm ? " It uses a separate database to the production app." : ""
+        !isMobile ? " It uses a separate database to the production app." : ""
       }`}
       onDelete={() => setIsShown(false)}
     />

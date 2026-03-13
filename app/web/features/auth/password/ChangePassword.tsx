@@ -1,4 +1,4 @@
-import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -11,6 +11,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 interface ChangePasswordVariables {
   oldPassword: string;
@@ -34,8 +35,7 @@ const StyledForm = styled("form")(() => ({
 
 export default function ChangePassword({ className }: ChangePasswordProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const theme = useTheme();
-  const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
+  const isMobile = useIsMobile();
 
   const {
     getValues,
@@ -86,7 +86,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
           id="oldPassword"
           label={t("auth:change_password_form.old_password")}
           type="password"
-          fullWidth={!isMdOrWider}
+          fullWidth={isMobile}
         />
         <TextField
           id="newPassword"
@@ -94,7 +94,7 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
           label={t("auth:change_password_form.new_password")}
           name="newPassword"
           type="password"
-          fullWidth={!isMdOrWider}
+          fullWidth={isMobile}
         />
         <TextField
           id="passwordConfirmation"
@@ -104,12 +104,12 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
               t("auth:change_password_form.password_mismatch_error"),
           })}
           label={t("auth:change_password_form.confirm_password")}
-          fullWidth={!isMdOrWider}
+          fullWidth={isMobile}
           type="password"
           helperText={errors.passwordConfirmation?.message}
         />
         <Button
-          fullWidth={!isMdOrWider}
+          fullWidth={isMobile}
           loading={isChangePasswordLoading}
           type="submit"
         >

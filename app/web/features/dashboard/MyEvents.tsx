@@ -1,4 +1,4 @@
-import { styled, Typography, useMediaQuery } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -11,6 +11,7 @@ import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { routeToNewEvent } from "routes";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 import Button from "../../components/Button";
 import { ListMyEventsRes } from "../../proto/events_pb";
@@ -72,7 +73,7 @@ const PAGE_SIZE = 2;
 
 export default function MyEvents() {
   const { t } = useTranslation([DASHBOARD]);
-  const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useIsMobile();
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
     useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
@@ -97,7 +98,7 @@ export default function MyEvents() {
       ) : hasAtLeastOnePage(data, "eventsList") ? (
         <>
           <StyledCardContainer
-            fetchNext={isBelowSm ? fetchNextPage : undefined}
+            fetchNext={isMobile ? fetchNextPage : undefined}
             hasMore={hasNextPage}
             isFetching={isFetching}
           >
@@ -115,7 +116,7 @@ export default function MyEvents() {
                 );
               })}
           </StyledCardContainer>
-          {hasNextPage && !isBelowSm && (
+          {hasNextPage && !isMobile && (
             <StyledButtonContainer>
               <Button onClick={() => fetchNextPage()}>
                 {t("dashboard:load_more")}

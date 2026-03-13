@@ -1,4 +1,4 @@
-import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -10,6 +10,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 import { lowercaseAndTrimField } from "utils/validation";
 
 const StyledForm = styled("form")(() => ({
@@ -31,9 +32,7 @@ interface ChangeEmailProps {
 
 export default function ChangeEmail({ className, email }: ChangeEmailProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const theme = useTheme();
-  const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
-
+  const isMobile = useIsMobile();
   const {
     handleSubmit,
     register,
@@ -84,17 +83,17 @@ export default function ChangeEmail({ className, email }: ChangeEmailProps) {
             {...register("currentPassword", { required: true })}
             label={t("auth:change_email_form.current_password")}
             type="password"
-            fullWidth={!isMdOrWider}
+            fullWidth={isMobile}
           />
           <TextField
             id="newEmail"
             {...register("newEmail", { required: true })}
             label={t("auth:change_email_form.new_email")}
             name="newEmail"
-            fullWidth={!isMdOrWider}
+            fullWidth={isMobile}
           />
           <Button
-            fullWidth={!isMdOrWider}
+            fullWidth={isMobile}
             loading={isChangeEmailLoading}
             type="submit"
           >

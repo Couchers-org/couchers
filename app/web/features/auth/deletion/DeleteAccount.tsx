@@ -1,4 +1,4 @@
-import { styled, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -10,6 +10,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 import { lowercaseAndTrimField } from "utils/validation";
 
 const StyledForm = styled("form")(() => ({
@@ -34,8 +35,7 @@ export default function DeleteAccount({
   username,
 }: DeleteAccountProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const theme = useTheme();
-  const isMdOrWider = useMediaQuery(theme.breakpoints.up("md"));
+  const isMobile = useIsMobile();
 
   const {
     handleSubmit,
@@ -99,7 +99,7 @@ export default function DeleteAccount({
             id="confirmUsername"
             {...register("confirmUsername", { required: true })}
             label={t("auth:delete_account.request.confirm_username_label")}
-            fullWidth={!isMdOrWider}
+            fullWidth={!isMobile}
           />
           <Typography variant="subtitle1">
             {t("auth:delete_account.request.reason_explanation")}
@@ -114,7 +114,7 @@ export default function DeleteAccount({
             fullWidth
           />
           <Button
-            fullWidth={!isMdOrWider}
+            fullWidth={!isMobile}
             loading={isDeleteAccountLoading}
             type="submit"
           >

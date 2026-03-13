@@ -1,4 +1,4 @@
-import { styled, Typography, useMediaQuery } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
@@ -22,6 +22,7 @@ import {
   referenceTypeRoute,
 } from "routes";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 const StyledForm = styled("form")(({ theme }) => ({
   marginBottom: theme.spacing(2),
@@ -59,7 +60,7 @@ export default function Text({
   const { t } = useTranslation([PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
-  const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
+  const isMobile = useIsMobile();
   const {
     control,
     handleSubmit,
@@ -142,7 +143,7 @@ export default function Text({
         />
       </Typography>
       <StyledButtonContainer>
-        <Button fullWidth={!isSmOrWider} type="submit">
+        <Button fullWidth={isMobile} type="submit">
           {t("profile:leave_reference.next_step_label")}
         </Button>
       </StyledButtonContainer>

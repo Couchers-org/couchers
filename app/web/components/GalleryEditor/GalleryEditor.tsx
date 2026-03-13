@@ -1,12 +1,5 @@
 import { AddPhotoAlternate, InfoOutlined } from "@mui/icons-material";
-import {
-  Box,
-  ImageList,
-  styled,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, ImageList, styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import BetaFlag from "components/BetaFlag";
 import Button from "components/Button";
@@ -26,6 +19,7 @@ import { settingsRoute } from "routes";
 import { service } from "service";
 import { base64ToFile, useNativeImagePicker } from "utils/nativeLink";
 import useIsMobile from "utils/useIsMobile";
+import useIsTabletOrSmaller from "utils/useIsTabletOrSmaller";
 
 import GalleryItem, { DropPlaceholder } from "./GalleryItem";
 
@@ -44,7 +38,7 @@ interface GalleryEditorProps {
   hasStrongVerification?: boolean;
 }
 
-const Root = styled(Box)(({ theme }) => ({
+const Root = styled(Box)(() => ({
   width: "100%",
 }));
 
@@ -79,7 +73,7 @@ const StyledImageList = styled(ImageList)(({ theme }) => ({
   margin: 0,
 }));
 
-const UploadButton = styled(Button)(({ theme }) => ({
+const UploadButton = styled(Button)(() => ({
   minWidth: 140,
 }));
 
@@ -118,7 +112,7 @@ const LoadingContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(4),
 }));
 
-const PhotoCountBadge = styled(Typography)(({ theme }) => ({
+const PhotoCountBadge = styled(Typography)(() => ({
   color: "var(--mui-palette-text-secondary)",
   fontSize: "0.875rem",
 }));
@@ -131,10 +125,8 @@ export default function GalleryEditor({
   hasStrongVerification,
 }: GalleryEditorProps) {
   const { t } = useTranslation([PROFILE]);
-  const theme = useTheme();
   const isMobile = useIsMobile();
-  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
-
+  const isTablet = useIsTabletOrSmaller();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [draggedItemId, setDraggedItemId] = useState<number | null>(null);

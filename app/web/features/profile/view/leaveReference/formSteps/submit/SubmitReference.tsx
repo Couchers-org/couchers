@@ -1,4 +1,4 @@
-import { styled, useMediaQuery } from "@mui/material";
+import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import {
@@ -22,6 +22,7 @@ import {
   WriteHostRequestReferenceInput,
 } from "service/references";
 import { theme } from "theme";
+import useIsMobile from "utils/useIsMobile";
 
 import ReferenceStepHeader from "../ReferenceStepHeader";
 
@@ -60,7 +61,7 @@ export default function SubmitReference({
   } = useWriteHostReference(userId);
 
   const router = useRouter();
-  const isSmOrWider = useMediaQuery(theme.breakpoints.up("sm"));
+  const isMobile = useIsMobile();
   const { handleSubmit } = useForm<ReferenceContextFormData>();
 
   const onFriendReferenceSubmit = () => {
@@ -171,7 +172,7 @@ export default function SubmitReference({
         <ReferenceOverview referenceData={referenceData} />
         <StyledButtonContainer>
           <Button
-            fullWidth={!isSmOrWider}
+            fullWidth={isMobile}
             type="submit"
             loading={isFriendReferenceLoading || isHostRequestReferenceLoading}
           >

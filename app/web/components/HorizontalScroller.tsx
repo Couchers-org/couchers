@@ -1,6 +1,7 @@
-import { styled, useMediaQuery, useTheme } from "@mui/material";
+import { styled } from "@mui/material";
 import { Breakpoint } from "@mui/material/styles";
 import React, { ReactNode } from "react";
+import useIsMobile from "utils/useIsMobile";
 
 import useOnVisibleEffect from "../utils/useOnVisibleEffect";
 import CircularProgress from "./CircularProgress";
@@ -29,7 +30,7 @@ const StyledWrapper = styled("div")<CustomWrapperProps>(
   }),
 );
 
-const StyledLoaderContainer = styled("div")(({ theme }) => ({
+const StyledLoaderContainer = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
 }));
@@ -45,7 +46,6 @@ interface HorizontalScrollerProps {
 }
 
 export default function HorizontalScroller({
-  breakpoint = "xs",
   fetchNext,
   isFetching,
   hasMore,
@@ -54,11 +54,10 @@ export default function HorizontalScroller({
 }: HorizontalScrollerProps) {
   const { ref: loaderRef } = useOnVisibleEffect(fetchNext);
 
-  const theme = useTheme();
-  const isBelowBreakpoint = useMediaQuery(theme.breakpoints.down(breakpoint));
+  const isMobile = useIsMobile();
 
   return (
-    <StyledWrapper className={className} isBelowBreakpoint={isBelowBreakpoint}>
+    <StyledWrapper className={className} isBelowBreakpoint={isMobile}>
       {children}
       {fetchNext && hasMore && (
         <StyledLoaderContainer>
