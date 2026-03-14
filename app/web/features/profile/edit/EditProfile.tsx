@@ -917,7 +917,6 @@ export default function EditProfileForm() {
               <FieldGroup>
                 <StyledProfileMarkdownInput
                   id="aboutMe"
-                  data-testId="aboutMe-input"
                   label={t("profile:heading.about_me")}
                   name="aboutMe"
                   placeholder={DEFAULT_ABOUT_ME_HEADINGS}
@@ -1056,7 +1055,6 @@ export default function EditProfileForm() {
                 loading={updateIsLoading}
                 disabled={!isDirty || updateIsLoading}
                 onClick={handleSubmitButtonClick}
-                data-testid="save-profile-changes-button"
               >
                 {t("global:save_changes")}
               </SaveButton>

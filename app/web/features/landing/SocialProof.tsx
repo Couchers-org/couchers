@@ -4,8 +4,8 @@ import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useState } from "react";
 import { theme } from "theme";
-import { useIsMounted } from "utils/hooks";
 import { timeAgo } from "utils/timeAgo";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 interface SignupInfo {
   userCount: string;
@@ -18,7 +18,7 @@ const SocialProof = () => {
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, LANDING]);
-  const isMobile = useIsMounted();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);

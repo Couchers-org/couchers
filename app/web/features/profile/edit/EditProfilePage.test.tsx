@@ -76,17 +76,13 @@ describe("Edit profile", () => {
     const aboutMeInput = await screen.findByTestId("aboutMe-input");
 
     await user.clear(aboutMeInput);
-
-    console.log("***** CHECKPOINT 1 *****" + Date.now().toLocaleString());
     await waitFor(() => expect(aboutMeInput).toHaveValue(""));
-    console.log("***** CHECKPOINT 2 *****" + Date.now().toLocaleString());
     await user.type(aboutMeInput, aboutMeText);
 
-    console.log("***** CHECKPOINT 3 *****" + Date.now().toLocaleString());
-
-    (await screen.findByTestId("save-profile-changes-button")).click();
-    console.log("***** CHECKPOINT 3.5  *****" + Date.now().toLocaleString());
-    await screen.findByTestId("incomplete-profile-dialog");
+    const saveButton = await screen.findByRole("button", {
+      name: t("global:save_changes"),
+    });
+    await user.click(saveButton);
 
     if (screen.queryByRole("dialog")) {
       const saveAnywayButton = await screen.findByRole("button", {
@@ -95,13 +91,11 @@ describe("Edit profile", () => {
       await user.click(saveAnywayButton);
     }
 
-    console.log("***** CHECKPOINT 4 *****" + Date.now().toLocaleString());
     await waitFor(() =>
       expect(updateProfileMock).toHaveBeenCalledWith(
         expect.objectContaining({ aboutMe: aboutMeText }),
       ),
     );
-    console.log("***** CHECKPOINT 5 *****" + Date.now().toLocaleString());
 
     await screen.findByText(t("profile:profile_changes_saved_message"));
   }, 20000);
