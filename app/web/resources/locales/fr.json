@@ -93,13 +93,20 @@
       "block_user_explainer": "Les discussions et demandes de ce membre seront bloquées et votre profil, vos événements et vos commentaires ne seront pas visibles par ce membre. Ce membre ne sera pas informé que vous l'avez bloqué.",
       "button_aria_label": "Signaler un contenu ou un membre",
       "description_label": "Décrivez le problème",
-      "description_helper": "Veuillez nous dire pourquoi vous signalez cela."
+      "description_helper": "Veuillez nous dire pourquoi vous signalez cela.",
+      "title": "Signaler du contenu ou un utilisateur",
+      "profile_title": "Signaler ou bloquer",
+      "reason_label": "Raison du signalement",
+      "reason_helper": "Pour quelle raison signalez-vous ce contenu ?",
+      "reason_required": "La raison est obligatoire.",
+      "description_required": "Une description est obligatoire.",
+      "profile_reason_required": "Merci de remplir la description ou de bloquer la personne."
     },
     "bug": {
       "expect_label": "Que s'est-il passé ? Qu'aurait-il dû se passer ?",
       "button_label": "Signaler un problème technique",
       "warning_message": "Veuillez noter que cette information, ainsi que les données du diagnostic incluant sur quelle page vous vous trouvez, quel navigateur vous utilisez et le nom d'utilisateur.trice seront conservés dans une liste publique de bogues.",
-      "title_label": "Titre de signalement",
+      "title_label": "Titre du rapport",
       "title_helper": "Brève description du bogue",
       "problem_helper": "Brève description du problème et de la façon de le reproduire",
       "problem_label": "Qu'avez-vous fait pour déclencher le bogue ?",
@@ -155,8 +162,46 @@
     "fatal_message": "Cela n'aurait pas dû arriver. Veuillez nous contacter et nous décrire ce que vous étiez en train de faire, afin d'éviter que l'erreur se reproduise.",
     "fallback": {
       "title": "Oups ...ceci est une erreur inconnue",
-      "subtitle": "Veuillez utiliser le bouton « Signaler un problème » et nous indiquer ce que vous étiez en train de faire, afin d'éviter cette erreur à l'avenir."
+      "subtitle": "Veuillez utiliser le bouton « Signaler un problème » et nous indiquer ce que vous étiez en train de faire, afin d'éviter cette erreur à l'avenir.",
+      "home_page_link_label": "Aller à la page d'accueil"
     },
     "unknown": "Erreur inconnue"
+  },
+  "components": {
+    "datepicker": {
+      "change_date": "Modifier la date"
+    },
+    "edit_location_map": {
+      "display_location_label": "Afficher la localisation",
+      "search_location_label": "Rechercher un lieu",
+      "invalid_coordinate": "Coordonnées manquantes, veuillez indiquer une localisation sur la carte au-dessus.",
+      "location_accuracy": "Précision de la localisation",
+      "location_publicly_visible": "Cela sera visible publiquement.",
+      "location_warn": "Clique et bouge le cercle ci-dessous pour montrer approximativement aux gens, où se situe ta maison. Fais attention de ne pas placer ta maison au centre du cercle, afin que les gens ne sachent pas exactement où se trouve ta maison.",
+      "radius_text": "{{radius}} mètres",
+      "press_enter_to_search": "Appuyer sur \"entrée\" pour chercher."
+    }
+  },
+  "nav": {
+    "account_settings": "Paramètres du compte",
+    "about": "A propos de",
+    "badges": "Badges",
+    "community": "Communauté",
+    "communities": "Communautés",
+    "dashboard": "Tableau de bord",
+    "events": "Événements",
+    "faq": "FAQ",
+    "forum": "Forum",
+    "github": "GitHub",
+    "help_center": "Centre d'aide",
+    "help": "Aide",
+    "mission": "Mission et valeurs",
+    "messages": "Messages",
+    "newsletter": "Newsletter",
+    "notifications": "Notifications",
+    "our_team": "Notre équipe",
+    "profile": "Profil",
+    "the_team": "L'équipe",
+    "contact_us": "Contactez nous"
   }
 }
