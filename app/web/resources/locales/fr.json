@@ -194,7 +194,10 @@
     "bottom_cta_subtitle": "Rejoignez Couchers.org et faites partie d'une communauté mondiale fondée sur l'hospitalité et les relations.",
     "join_couchers": "Rejoindre Couchers.org",
     "is_it_safe": {
-      "title": "Le couch surfing est-il sûr ?"
+      "title": "Le couch surfing est-il sûr ?",
+      "description_1": "Bien que tous les voyages et interactions avec des inconnus comportent certains risques, le couch surfing est bien plus sûr que beaucoup de gens ne l'imaginent au premier abord.",
+      "description_2": "Notre communauté est fondée sur la confiance entre ses membres, établie grâce aux évaluations laissées après chaque séjour. Notre équipe de modération active prend chaque signalement au sérieux et lutte avec diligence contre les mauvais acteurs qui ne respectent pas nos <guidelines>Directives communautaires</guidelines>.",
+      "description_3": "De plus, la plateforme Couchers inclut des  divers outils comme la Vérification renforcée avec le passeport biométrique. Cela permet d'ajouter un niveau de sécurité supplémentaire. Il est important d'avoir un plan alternatif au cas où les choses ne se passeraient pas comme prévu, et de faire confiance à son instinct!"
     }
   },
   "location_autocomplete": {
@@ -283,5 +286,8 @@
   "reply": "Répondre",
   "yes": "Oui",
   "no": "Non",
-  "beta": "Beta"
+  "beta": "Beta",
+  "team": {
+    "title": "L'équipe"
+  }
 }
