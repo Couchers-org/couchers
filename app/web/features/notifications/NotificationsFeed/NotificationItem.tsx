@@ -10,7 +10,7 @@ import LinesEllipsis from "react-lines-ellipsis";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
 import { timeAgo } from "utils/timeAgo";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import { mapNotificationFeedTypeToIcon } from "../utils/constants";
 
@@ -72,7 +72,7 @@ const NotificationItem = ({
     i18n: { language: locale },
   } = useTranslation([GLOBAL]);
   const router = useRouter();
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const [markUnreadMenuAnchorEl, setMarkUnseedMenuAnchorEl] =
     useState<HTMLButtonElement | null>(null);

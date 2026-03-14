@@ -3,7 +3,7 @@ import Button from "components/Button";
 import { BugIcon } from "components/Icons";
 import { useTranslation } from "i18n";
 import { useState } from "react";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import ReportDialog from "./ReportDialog";
 
@@ -34,7 +34,7 @@ export default function ReportButton({
   sx?: SxProps<Theme>;
 }) {
   const { t } = useTranslation("global");
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (

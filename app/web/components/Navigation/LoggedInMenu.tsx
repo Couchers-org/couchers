@@ -21,7 +21,7 @@ import React, {
 } from "react";
 import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import { AccessibleDialogProps } from "../Dialog";
 import { CloseIcon, MenuIcon } from "../Icons";
@@ -268,7 +268,7 @@ export default function LoggedInMenu({
   const { data: user } = useCurrentUser();
   const { t } = useTranslation([GLOBAL]);
   const isNativeEmbed = useIsNativeEmbed();
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const [notificationsAnchorEl, setNotificationsAnchorEl] =
     useState<HTMLButtonElement | null>(null);

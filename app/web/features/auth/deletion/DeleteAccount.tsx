@@ -10,7 +10,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 import { lowercaseAndTrimField } from "utils/validation";
 
 const StyledForm = styled("form")(() => ({
@@ -35,7 +35,7 @@ export default function DeleteAccount({
   username,
 }: DeleteAccountProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const {
     handleSubmit,

@@ -27,7 +27,7 @@ import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import { useAuthContext } from "../AuthProvider";
 import SignupFormContent from "./SignupFormContent";
@@ -45,7 +45,7 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
 export default function Signup() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;

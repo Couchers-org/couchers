@@ -1,7 +1,7 @@
 import { styled } from "@mui/material";
 import { Breakpoint } from "@mui/material/styles";
 import React, { ReactNode } from "react";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import useOnVisibleEffect from "../utils/useOnVisibleEffect";
 import CircularProgress from "./CircularProgress";
@@ -54,7 +54,7 @@ export default function HorizontalScroller({
 }: HorizontalScrollerProps) {
   const { ref: loaderRef } = useOnVisibleEffect(fetchNext);
 
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   return (
     <StyledWrapper className={className} isBelowBreakpoint={isMobile}>

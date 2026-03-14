@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 import { ReactNode, useEffect, useState } from "react";
 import { jailRoute, loginRoute } from "routes";
 import { useIsNativeEmbed } from "utils/nativeLink";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import Navigation from "./Navigation";
 
@@ -99,7 +99,7 @@ function AppRoute({
   bottomMargin,
 }: AppRouteProps) {
   const router = useRouter();
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
   const { pathname } = router;
   const { authState, authActions } = useAuthContext();
   const isAuthenticated = authState.authenticated;

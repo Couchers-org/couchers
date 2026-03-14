@@ -22,7 +22,7 @@ import {
   referenceTypeRoute,
 } from "routes";
 import { theme } from "theme";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 const StyledForm = styled("form")(({ theme }) => ({
   marginBottom: theme.spacing(2),
@@ -60,7 +60,7 @@ export default function Text({
   const { t } = useTranslation([PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
   const {
     control,
     handleSubmit,

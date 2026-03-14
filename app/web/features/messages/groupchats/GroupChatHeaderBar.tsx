@@ -28,7 +28,7 @@ import { useRef, useState } from "react";
 import { groupChatsRoute, messagesRoute, routeToUser } from "routes";
 import { service } from "service";
 import { theme } from "theme";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import { groupChatKey, groupChatsListKey } from "../../queryKeys";
 
@@ -62,7 +62,7 @@ export default function GroupChatHeaderBar({
   const username = getDmUsername(groupChatMembersQuery, currentUserId);
 
   const isChatAdmin = groupChat?.adminUserIdsList.includes(currentUserId);
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const menuAnchor = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState({

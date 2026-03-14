@@ -15,7 +15,7 @@ import { timestamp2Date } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
 import stripMarkdown from "utils/stripMarkdown";
 import { timeAgo, TimeUnit } from "utils/timeAgo";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import HostMeetupReferenceStatus from "./HostMeetupReferenceStatus";
 import { aboutText, truncateWithEllipsis } from "./utils/constants";
@@ -156,7 +156,7 @@ const SearchResultUserCard = ({
   onUserCardClick,
   user,
 }: SearchResultUserCardProps) => {
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
   const isNativeEmbed = useIsNativeEmbed();
   const {
     t,

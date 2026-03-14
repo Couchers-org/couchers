@@ -45,7 +45,7 @@ import {
 } from "routes";
 import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import BottomNavigation from "./BottomNavigation";
 import DarkModeToggle from "./DarkModeToggle";
@@ -274,7 +274,7 @@ const StyledMenuContainer = styled("div")(() => ({
 
 export default function Navigation() {
   const router = useRouter();
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
   const isLoginPage = router.pathname === loginRoute;
 
   const [open, setOpen] = useState(false);

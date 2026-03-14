@@ -12,7 +12,7 @@ import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, signupRoute } from "routes";
 import { theme } from "theme";
 import stringOrFirstString from "utils/stringOrFirstString";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import { useAuthContext } from "../AuthProvider";
 import LoginForm from "./LoginForm";
@@ -44,7 +44,7 @@ export default function Login() {
   const error = authState.error;
 
   const router = useRouter();
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
   const from = stringOrFirstString(router.query.from) ?? dashboardRoute;
   const redirectTo = from === "/" || from === "%2F" ? dashboardRoute : from;
 

@@ -16,7 +16,7 @@ import {
   NavigationControl,
   Source,
 } from "react-map-gl/maplibre";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -42,7 +42,7 @@ const StaticMap = () => {
     }
   };
 
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const initialViewState = isMobile
     ? { zoom: 0, latitude: 10, longitude: 48 }

@@ -4,7 +4,7 @@ import { getSliderColor } from "components/RatingsSlider/getSliderColor";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 interface ColorProps {
   sliderColor: string;
@@ -79,7 +79,7 @@ const StyledSlider = styled(Slider, {
 
 export default function RatingsSlider({ value, onChange }: SliderProps) {
   const { t } = useTranslation(PROFILE);
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const marks = [
     {

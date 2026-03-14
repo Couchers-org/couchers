@@ -18,7 +18,7 @@ import { useState } from "react";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import { useMapSearchState } from "./state/mapSearchContext";
 import { useMapSearchActions } from "./state/useMapSearchActions";
@@ -157,7 +157,7 @@ const FloatingSearchControls = ({
   searchType,
 }: FloatingSearchNavigationProps) => {
   const { t } = useTranslation([SEARCH]);
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const [keyword, setKeyword] = useState("");
 

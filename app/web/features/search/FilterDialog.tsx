@@ -26,7 +26,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, SEARCH } from "i18n/namespaces";
 import { HostingStatus, MeetupStatus, SleepingArrangement } from "proto/api_pb";
 import { theme } from "theme";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import { settingsRoute } from "../../routes";
 import { FilterOptions } from "./SearchPage";
@@ -127,7 +127,7 @@ const FilterDialog = ({
   updateFilter,
 }: FilterDialogProps) => {
   const { t } = useTranslation([GLOBAL, SEARCH]);
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
   const { data: currentUser } = useCurrentUser();
 
   const { setSearchFilters } = useMapSearchActions();

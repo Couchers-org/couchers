@@ -1,7 +1,7 @@
 import { styled } from "@mui/material";
 import { useState } from "react";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import FilterDialog from "./FilterDialog";
 import FloatingSearchControls from "./FloatingSearchControls";
@@ -65,7 +65,7 @@ const SearchControls = ({
   onSetMapView,
   onZoomIn,
 }: SearchControlsProps) => {
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");

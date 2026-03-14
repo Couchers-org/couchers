@@ -1,6 +1,6 @@
 import { Chip, keyframes, styled } from "@mui/material";
 import React, { useState } from "react";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 // Define the keyframes animation
 const attention = keyframes`
@@ -23,7 +23,7 @@ const Banner = styled(Chip)(({ theme }) => ({
 }));
 
 export function EnvironmentBanner() {
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
   const [isShown, setIsShown] = useState(
     process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod",
   );

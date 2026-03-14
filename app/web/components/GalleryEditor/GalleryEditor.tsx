@@ -18,25 +18,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { settingsRoute } from "routes";
 import { service } from "service";
 import { base64ToFile, useNativeImagePicker } from "utils/nativeLink";
-import useIsMobile from "utils/useIsMobile";
-import useIsTabletOrSmaller from "utils/useIsTabletOrSmaller";
-
-import GalleryItem, { DropPlaceholder } from "./GalleryItem";
-
-export interface GalleryItemData {
-  itemId: number;
-  fullUrl: string;
-  thumbnailUrl: string;
-  caption: string;
-}
-
-interface GalleryEditorProps {
-  galleryId: number | undefined;
-  userId?: number;
-  title?: string;
-  description?: string;
-  hasStrongVerification?: boolean;
-}
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 const Root = styled(Box)(() => ({
   width: "100%",
@@ -125,8 +107,8 @@ export default function GalleryEditor({
   hasStrongVerification,
 }: GalleryEditorProps) {
   const { t } = useTranslation([PROFILE]);
-  const isMobile = useIsMobile();
-  const isTablet = useIsTabletOrSmaller();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isTablet = useIsScreenSmallerThan("TABLET");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [draggedItemId, setDraggedItemId] = useState<number | null>(null);

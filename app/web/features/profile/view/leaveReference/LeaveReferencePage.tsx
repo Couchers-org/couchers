@@ -16,7 +16,7 @@ import React from "react";
 import { ReferenceStep, referenceTypeRoute } from "routes";
 import { service } from "service";
 import { ReferenceTypeStrings } from "service/references";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 const StyledRoot = styled("div")(({ theme }) => ({
   padding: theme.spacing(1),
@@ -58,7 +58,7 @@ export default function LeaveReferencePage({
   step?: ReferenceStep;
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const { data: statusRes } = useQuery({
     queryKey: [hasGivenHostRequestReferenceKey, hostRequestId],

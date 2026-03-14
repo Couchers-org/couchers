@@ -25,7 +25,7 @@ import {
 } from "routes";
 import { indicateDidntMeetup } from "service/references";
 import { theme } from "theme";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import { ReferenceStepProps } from "../ReferenceForm";
 import ReferenceStepHeader from "./ReferenceStepHeader";
@@ -73,7 +73,7 @@ const DidStay = ({
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const [didSubmitNotStay, setDidSubmitNotStay] = useState(false);
   const [

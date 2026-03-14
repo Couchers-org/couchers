@@ -36,7 +36,7 @@ import { service } from "service";
 import { theme } from "theme";
 import { firstName } from "utils/names";
 import { useIsNativeEmbed } from "utils/nativeLink";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import { requestStatusToTransKey } from "../constants";
 import ChatContent from "../groupchats/ChatContent";
@@ -111,7 +111,7 @@ export default function HostRequestView({
   const { t } = useTranslation(MESSAGES);
   const isNativeEmbed = useIsNativeEmbed();
 
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const { data: hostRequest, error: hostRequestError } = useQuery({
     queryKey: hostRequestKey(hostRequestId),

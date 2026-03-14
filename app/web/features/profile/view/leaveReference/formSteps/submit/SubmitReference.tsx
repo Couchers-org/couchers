@@ -22,7 +22,7 @@ import {
   WriteHostRequestReferenceInput,
 } from "service/references";
 import { theme } from "theme";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import ReferenceStepHeader from "../ReferenceStepHeader";
 
@@ -61,7 +61,7 @@ export default function SubmitReference({
   } = useWriteHostReference(userId);
 
   const router = useRouter();
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
   const { handleSubmit } = useForm<ReferenceContextFormData>();
 
   const onFriendReferenceSubmit = () => {

@@ -14,7 +14,7 @@ import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
 import { SearchUser } from "proto/search_pb";
 import { theme } from "theme";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import SearchResultUserCard from "./SeachResultUserCard";
 import { useMapSearchState } from "./state/mapSearchContext";
@@ -86,7 +86,7 @@ const SearchResultListContent = ({
   users,
 }: SearchResultListContentProps) => {
   const { t } = useTranslation([SEARCH]);
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const { filters, selectedUserId } = useMapSearchState();
 

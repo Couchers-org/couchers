@@ -11,7 +11,7 @@ import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { routeToNewEvent } from "routes";
 import { theme } from "theme";
-import useIsMobile from "utils/useIsMobile";
+import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import Button from "../../components/Button";
 import { ListMyEventsRes } from "../../proto/events_pb";
@@ -73,7 +73,7 @@ const PAGE_SIZE = 2;
 
 export default function MyEvents() {
   const { t } = useTranslation([DASHBOARD]);
-  const isMobile = useIsMobile();
+  const isMobile = useIsScreenSmallerThan("MOBILE");
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
     useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
