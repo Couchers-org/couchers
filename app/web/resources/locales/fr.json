@@ -34,7 +34,8 @@
   "submit": "Envoyer",
   "confirm": "Confirmer",
   "relative_time": {
-    "less_than_one_hour_ago": "Il y a moins d'une heure"
+    "less_than_one_hour_ago": "Il y a moins d'une heure",
+    "less_than_a_minute_ago": "Il y a moins d'une minute"
   },
   "read_more": "Voir plus",
   "next": "Suivant",
@@ -137,7 +138,8 @@
     "instructions": "Créez un lien d'invitation à partager avec vos amis et votre communauté. Désactivez les codes que vous n'utilisez plus.",
     "banner": {
       "invited_you": "{{name}} vous a invité à rejoindre Couchers !"
-    }
+    },
+    "title": "Inviter des membres"
   },
   "what_is_cs": {
     "get_started": "Commencer",
@@ -268,11 +270,18 @@
     "switch_to_light_mode": "Passer au mode clair",
     "switch_to_dark_mode": "Passer au mode sombre",
     "map_search": "Rechercher",
-    "volunteer": "Bénévolat"
+    "volunteer": "Bénévolat",
+    "landing_page": "Page d'accueil",
+    "invite_members": "Inviter des membres"
   },
   "image_input": {
     "select_button_a11y": "Sélectionner une image",
     "replace_image_tooltip": "Cliquer pour remplacer l'image",
     "read_file_error_message": "Fichier non lisible"
-  }
+  },
+  "contribute_title": "S'enregistrer pour contribuer",
+  "reply": "Répondre",
+  "yes": "Oui",
+  "no": "Non",
+  "beta": "Beta"
 }
