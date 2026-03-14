@@ -238,6 +238,6 @@ describe("EditNotificationSettingsPage", () => {
     expect(screen.getByText("New host request")).toBeInTheDocument();
 
     expect(screen.queryByText("friend_request")).not.toBeInTheDocument();
-    expect(screen.queryByText("ew friend request")).not.toBeInTheDocument();
+    expect(screen.queryByText("New friend request")).not.toBeInTheDocument();
   });
 });
