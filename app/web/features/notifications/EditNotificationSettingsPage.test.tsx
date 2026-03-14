@@ -41,7 +41,7 @@ describe("EditNotificationSettingsPage", () => {
             itemsList: [
               {
                 action: "change",
-                description: "Your password is changed",
+                description: "Password changed",
                 email: true,
                 push: false,
                 userEditable: true,
@@ -58,7 +58,7 @@ describe("EditNotificationSettingsPage", () => {
             itemsList: [
               {
                 action: "create",
-                description: "Someone sends you a host request",
+                description: "New host request",
                 email: false,
                 push: true,
                 userEditable: true,
@@ -75,10 +75,10 @@ describe("EditNotificationSettingsPage", () => {
             itemsList: [
               {
                 action: "create",
-                description: "Test description not user editable",
+                description: "New friend request",
                 email: true,
                 push: false,
-                userEditable: false,
+                userEditable: false, // Test non-user editable
               },
             ],
           },
@@ -161,10 +161,10 @@ describe("EditNotificationSettingsPage", () => {
 
     // Check if NotificationSettingsListItems are rendered
     expect(screen.getByText("account_security")).toBeInTheDocument();
-    expect(screen.getByText("password.change")).toBeInTheDocument();
+    expect(screen.getByText("Password changed")).toBeInTheDocument();
 
     expect(screen.getByText("host_request")).toBeInTheDocument();
-    expect(screen.getByText("host_request.create")).toBeInTheDocument();
+    expect(screen.getByText("New host request")).toBeInTheDocument();
   });
 
   it("Handles no data gracefully", () => {
@@ -178,7 +178,7 @@ describe("EditNotificationSettingsPage", () => {
 
     expect(screen.getByText("title")).toBeInTheDocument();
     expect(screen.queryByText("account_security")).not.toBeInTheDocument();
-    expect(screen.queryByText("password.change")).not.toBeInTheDocument();
+    expect(screen.queryByText("Password changed")).not.toBeInTheDocument();
   });
 
   it("Should call updateNotificationSettings on switch click with opposite value", async () => {
@@ -232,12 +232,12 @@ describe("EditNotificationSettingsPage", () => {
 
     // Check if NotificationSettingsListItems are rendered
     expect(screen.getByText("account_security")).toBeInTheDocument();
-    expect(screen.getByText("password.change")).toBeInTheDocument();
+    expect(screen.getByText("Password changed")).toBeInTheDocument();
 
     expect(screen.getByText("host_request")).toBeInTheDocument();
-    expect(screen.getByText("host_request.create")).toBeInTheDocument();
+    expect(screen.getByText("New host request")).toBeInTheDocument();
 
     expect(screen.queryByText("friend_request")).not.toBeInTheDocument();
-    expect(screen.queryByText("friend_request.create")).not.toBeInTheDocument();
+    expect(screen.queryByText("ew friend request")).not.toBeInTheDocument();
   });
 });

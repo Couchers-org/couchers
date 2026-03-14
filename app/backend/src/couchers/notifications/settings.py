@@ -326,8 +326,9 @@ settings_layout = [
 ]
 
 
-def get_user_setting_groups(user_id: int) -> list[notifications_pb2.NotificationGroup]:
-    loc_context: LocalizationContext = LocalizationContext.en_utc()
+def get_user_setting_groups(
+    user_id: int, loc_context: LocalizationContext
+) -> list[notifications_pb2.NotificationGroup]:
     with session_scope() as session:
         groups = []
         for heading, group in settings_layout:
