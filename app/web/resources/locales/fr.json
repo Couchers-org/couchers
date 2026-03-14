@@ -97,10 +97,10 @@
       "title": "Signaler du contenu ou un utilisateur",
       "profile_title": "Signaler ou bloquer",
       "reason_label": "Raison du signalement",
-      "reason_helper": "Pour quelle raison signalez-vous ce contenu ?",
+      "reason_helper": "Pour quelle raison signalez-vous ce contenu ?",
       "reason_required": "La raison est obligatoire.",
       "description_required": "Une description est obligatoire.",
-      "profile_reason_required": "Merci de remplir la description ou de bloquer la personne.",
+      "profile_reason_required": "Veuillez remplir la description ou bloquer la personne",
       "profile_button_aria_label": "Signaler un contenu ou bloquer un utilisateur",
       "explainer": "Signaler de manière confidentielle à l'équipe Sécurité et confiance"
     },
@@ -136,7 +136,7 @@
     },
     "instructions": "Créez un lien d'invitation à partager avec vos amis et votre communauté. Désactivez les codes que vous n'utilisez plus.",
     "banner": {
-      "invited_you": "{{name}} vous a invité à rejoindre Couchers!"
+      "invited_you": "{{name}} vous a invité à rejoindre Couchers !"
     }
   },
   "what_is_cs": {
@@ -147,7 +147,7 @@
     "description_1": "Couch surfing est un concept où certains membres (appelés hôtes) publient sur la plateforme, indiquant qu'il sont disposés à héberger d'autres membres (appelés surfers) qui visitent leur ville.",
     "timeline": {
       "early_2000s_year": "Début des années 2000",
-      "early_2000s_text": "Le mouvement  couch surfing en ligne est né: séjourner chez l'habitant, partager la culture.",
+      "early_2000s_text": "Le mouvement couch surfing en ligne est né: séjourner chez l'habitant, partager la culture.",
       "2010s_year": "Années 2010",
       "2010s_text": "Les communautés et les événements prospèrent, les références renforcent la confiance ; le monde commence à ressembler à un quartier convivial",
       "2020_year": "Année 2020",
@@ -159,18 +159,18 @@
       "host": "Héberger un voyageur qui visite votre ville",
       "surf": "Être hébergé par un local pendant votre voyage",
       "attend_events": "Assister à des évènements avec des locaux et des voyageurs",
-      "find_people": "Trouvez des personnes qui partagent vos centres d'intérêt dans votre ville et rencontrez-les.",
+      "find_people": "Trouvez des personnes qui partagent vos centres d'intérêt dans votre ville et rencontrez-les",
       "join_discussions": "Rejoindre ou commencer des discussions dans votre communauté locale"
     },
-    "why_people_title": "Pourquoi les gens aime le couch surfing",
+    "why_people_title": "Pourquoi les gens aiment le couch surfing",
     "why_people_points": {
-      "travelers": "<bold>Pour les voyageurs</bold>: des expériences plus profondes, et plus humaines en dehors des sentiers battus",
+      "travelers": "<bold>Pour les voyageurs</bold>: des expériences plus profondes et plus humaines, en dehors des sentiers battus",
       "hosts": "<bold>Pour les hôtes</bold>: rencontrer des personnes venant des 4 coins du monde et partager votre ville",
       "everyone": "<bold>Pour tous</bold>: communauté, culture et connexion ; pas de transaction"
     },
     "tip_label": "CONSEIL",
-    "tip_text": "Nouveau ici? Assister à un événement local pour vous faire une idée de la communauté ; peu d'engagement, connexion élevée",
-    "compare_title": "En quoi Couchers.org se distingue-t-il des autres ?",
+    "tip_text": "Vous êtes nouveau ? Assistez à un événement local pour vous faire une idée de la communauté ; peu d'engagement, connexion élevée",
+    "compare_title": "En quoi Couchers.org se distingue-t-il des autres ?",
     "table": {
       "header_couchers": "Couchers.org",
       "header_hostel": "Auberge",
@@ -188,11 +188,11 @@
       "no_investor_pressure": "Aucune pression des investisseurs",
       "social_expectation": "Encouragé à passer du temps avec l'hôte"
     },
-    "bottom_cta_title": "Prêt.e à essayer le couch surfing ?",
+    "bottom_cta_title": "Prêt.e à essayer le couch surfing ?",
     "bottom_cta_subtitle": "Rejoignez Couchers.org et faites partie d'une communauté mondiale fondée sur l'hospitalité et les relations.",
     "join_couchers": "Rejoindre Couchers.org",
     "is_it_safe": {
-      "title": "Le couch surfing est-il sûr ?"
+      "title": "Le couch surfing est-il sûr ?"
     }
   },
   "location_autocomplete": {
@@ -234,18 +234,18 @@
     "edit_location_map": {
       "display_location_label": "Afficher la localisation",
       "search_location_label": "Rechercher un lieu",
-      "invalid_coordinate": "Coordonnées manquantes, veuillez indiquer une localisation sur la carte au-dessus.",
+      "invalid_coordinate": "Coordonnées manquantes, veuillez indiquer une localisation sur la carte au-dessus",
       "location_accuracy": "Précision de la localisation",
-      "location_publicly_visible": "Cela sera visible publiquement.",
+      "location_publicly_visible": "Cela sera visible publiquement",
       "location_warn": "Clique et bouge le cercle ci-dessous pour montrer approximativement aux gens, où se situe ta maison. Fais attention de ne pas placer ta maison au centre du cercle, afin que les gens ne sachent pas exactement où se trouve ta maison.",
       "radius_text": "{{radius}} mètres",
-      "press_enter_to_search": "Appuyer sur \"entrée\" pour chercher.",
+      "press_enter_to_search": "Appuyez sur \"entrée\" pour rechercher",
       "display_location_not_empty": "Veuillez ajouter votre localisation"
     }
   },
   "nav": {
     "account_settings": "Paramètres du compte",
-    "about": "A propos de",
+    "about": "À propos de",
     "badges": "Badges",
     "community": "Communauté",
     "communities": "Communautés",
@@ -263,10 +263,12 @@
     "our_team": "Notre équipe",
     "profile": "Profil",
     "the_team": "L'équipe",
-    "contact_us": "Contactez nous",
+    "contact_us": "Contactez-nous",
     "home": "Accueil",
     "switch_to_light_mode": "Passer au mode clair",
-    "switch_to_dark_mode": "Passer au mode sombre"
+    "switch_to_dark_mode": "Passer au mode sombre",
+    "map_search": "Rechercher",
+    "volunteer": "Bénévolat"
   },
   "image_input": {
     "select_button_a11y": "Sélectionner une image",
