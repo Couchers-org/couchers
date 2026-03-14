@@ -23,7 +23,7 @@
           "cancel": "Um evento do qual você vai participar é cancelado",
           "delete": "Um evento do qual você vai participar é excluído",
           "reminder": "Lembrete de que um evento ao qual você vai está prestes a acontecer",
-          "comment": " Um usuário comenta em um evento que você irá participar"
+          "comment": "Um usuário comenta em um evento que você irá participar"
         },
         "host_request": {
           "reject": "Alguém recusa sua solicitação de hospedagem",
