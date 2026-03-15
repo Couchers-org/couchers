@@ -2,6 +2,7 @@ import io
 import json
 import logging
 from dataclasses import dataclass
+from typing import Any
 
 import qrcode
 import requests
@@ -43,6 +44,10 @@ def _generate_postcard_image(verification_code: str, qr_code_url: str) -> bytes:
 
     # Use default font at various sizes (Pillow's built-in bitmap font doesn't scale,
     # so we use truetype with the default font)
+    font_large: ImageFont.FreeTypeFont | ImageFont.ImageFont
+    font_code: ImageFont.FreeTypeFont | ImageFont.ImageFont
+    font_medium: ImageFont.FreeTypeFont | ImageFont.ImageFont
+    font_small: ImageFont.FreeTypeFont | ImageFont.ImageFont
     try:
         font_large = ImageFont.truetype("DejaVuSans-Bold.ttf", 80)
         font_code = ImageFont.truetype("DejaVuSans-Bold.ttf", 120)
@@ -111,12 +116,12 @@ def _generate_postcard_image(verification_code: str, qr_code_url: str) -> bytes:
     qr = qrcode.QRCode(version=1, box_size=8, border=2)
     qr.add_data(qr_code_url)
     qr.make(fit=True)
-    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+    qr_pil_img: Image.Image = qr.make_image(fill_color="black", back_color="white").get_image().convert("RGB")
     qr_size = 280
-    qr_img = qr_img.resize((qr_size, qr_size))
+    qr_pil_img = qr_pil_img.resize((qr_size, qr_size))
     qr_x = (POSTCARD_WIDTH - qr_size) // 2
     qr_y = 720
-    img.paste(qr_img, (qr_x, qr_y))
+    img.paste(qr_pil_img, (qr_x, qr_y))
 
     # Instructions below QR code
     draw.text(
@@ -162,10 +167,10 @@ def _authenticate() -> str:
     if "auth_token" not in data:
         raise PostcardServiceError(f"MyPostcard auth failed: {data}")
 
-    return data["auth_token"]
+    return str(data["auth_token"])
 
 
-def _place_order(auth_token: str, recipient_data: dict, image_data: bytes) -> dict:
+def _place_order(auth_token: str, recipient_data: dict[str, str], image_data: bytes) -> dict[str, Any]:
     """
     Places a postcard order with MyPostcard API.
     """
@@ -195,7 +200,8 @@ def _place_order(auth_token: str, recipient_data: dict, image_data: bytes) -> di
         timeout=60,
     )
     response.raise_for_status()
-    return response.json()
+    result: dict[str, Any] = response.json()
+    return result
 
 
 def send_postcard(

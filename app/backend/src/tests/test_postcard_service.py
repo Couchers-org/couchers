@@ -165,7 +165,7 @@ class TestSendPostcard:
         )
 
         assert result.success is False
-        assert "Connection refused" in result.error_message
+        assert "Connection refused" in (result.error_message or "")
 
     @patch("couchers.postal.postcard_service._authenticate")
     @patch("couchers.postal.postcard_service._generate_postcard_image")
@@ -186,7 +186,7 @@ class TestSendPostcard:
         )
 
         assert result.success is False
-        assert "auth failed" in result.error_message
+        assert "auth failed" in (result.error_message or "")
 
     @patch("couchers.postal.postcard_service._place_order")
     @patch("couchers.postal.postcard_service._authenticate")
@@ -209,4 +209,4 @@ class TestSendPostcard:
         )
 
         assert result.success is False
-        assert "500 Server Error" in result.error_message
+        assert "500 Server Error" in (result.error_message or "")
