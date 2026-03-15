@@ -20,7 +20,24 @@ import { service } from "service";
 import { base64ToFile, useNativeImagePicker } from "utils/nativeLink";
 import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
-const Root = styled(Box)(() => ({
+import GalleryItem, { DropPlaceholder } from "./GalleryItem";
+
+export interface GalleryItemData {
+  itemId: number;
+  fullUrl: string;
+  thumbnailUrl: string;
+  caption: string;
+}
+
+interface GalleryEditorProps {
+  galleryId: number | undefined;
+  userId?: number;
+  title?: string;
+  description?: string;
+  hasStrongVerification?: boolean;
+}
+
+const Root = styled(Box)(({}) => ({
   width: "100%",
 }));
 
@@ -94,7 +111,7 @@ const LoadingContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(4),
 }));
 
-const PhotoCountBadge = styled(Typography)(() => ({
+const PhotoCountBadge = styled(Typography)(({}) => ({
   color: "var(--mui-palette-text-secondary)",
   fontSize: "0.875rem",
 }));
@@ -107,8 +124,11 @@ export default function GalleryEditor({
   hasStrongVerification,
 }: GalleryEditorProps) {
   const { t } = useTranslation([PROFILE]);
-  const isMobile = useIsScreenSmallerThan("MOBILE");
-  const isTablet = useIsScreenSmallerThan("TABLET");
+
+  // TODO #5227 - decide on consistent usage of breakpoints
+  const isMobile = useIsScreenSmallerThan("SMALL_MOBILE");
+  const isTablet = useIsScreenSmallerThan("MOBILE");
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [draggedItemId, setDraggedItemId] = useState<number | null>(null);

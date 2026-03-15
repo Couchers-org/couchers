@@ -73,7 +73,9 @@ const PAGE_SIZE = 2;
 
 export default function MyEvents() {
   const { t } = useTranslation([DASHBOARD]);
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+
+  // TODO #5227 - decide on consistent usage of breakpoints
+  const isMobile = useIsScreenSmallerThan("SMALL_MOBILE");
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
     useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({

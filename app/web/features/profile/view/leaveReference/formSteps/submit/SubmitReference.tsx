@@ -61,7 +61,9 @@ export default function SubmitReference({
   } = useWriteHostReference(userId);
 
   const router = useRouter();
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+
+  // TODO #5227 - decide on consistent usage of breakpoints
+  const isMobile = useIsScreenSmallerThan("SMALL_MOBILE");
   const { handleSubmit } = useForm<ReferenceContextFormData>();
 
   const onFriendReferenceSubmit = () => {

@@ -60,7 +60,8 @@ export default function Text({
   const { t } = useTranslation([PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  // TODO #5227 - decide on consistent usage of breakpoints
+  const isMobile = useIsScreenSmallerThan("SMALL_MOBILE");
   const {
     control,
     handleSubmit,

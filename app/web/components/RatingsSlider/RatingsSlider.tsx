@@ -79,7 +79,9 @@ const StyledSlider = styled(Slider, {
 
 export default function RatingsSlider({ value, onChange }: SliderProps) {
   const { t } = useTranslation(PROFILE);
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+
+  // TODO #5227 - decide on consistent usage of breakpoints
+  const isMobile = useIsScreenSmallerThan("SMALL_MOBILE");
 
   const marks = [
     {

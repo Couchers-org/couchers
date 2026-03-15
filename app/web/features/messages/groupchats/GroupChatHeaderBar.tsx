@@ -62,7 +62,9 @@ export default function GroupChatHeaderBar({
   const username = getDmUsername(groupChatMembersQuery, currentUserId);
 
   const isChatAdmin = groupChat?.adminUserIdsList.includes(currentUserId);
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+
+  // TODO #5227 - decide on consistent usage of breakpoints
+  const isMobile = useIsScreenSmallerThan("SMALL_MOBILE");
 
   const menuAnchor = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState({

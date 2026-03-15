@@ -1,7 +1,6 @@
-import { styled } from "@mui/material";
+import { styled, useMediaQuery, useTheme } from "@mui/material";
 import { Breakpoint } from "@mui/material/styles";
 import React, { ReactNode } from "react";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
 
 import useOnVisibleEffect from "../utils/useOnVisibleEffect";
 import CircularProgress from "./CircularProgress";
@@ -30,7 +29,7 @@ const StyledWrapper = styled("div")<CustomWrapperProps>(
   }),
 );
 
-const StyledLoaderContainer = styled("div")(() => ({
+const StyledLoaderContainer = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
 }));
@@ -45,7 +44,9 @@ interface HorizontalScrollerProps {
   children?: ReactNode;
 }
 
+// TODO #5227 - decide on consistent usage of breakpoints: xs is 0px
 export default function HorizontalScroller({
+  breakpoint = "xs",
   fetchNext,
   isFetching,
   hasMore,
@@ -54,10 +55,11 @@ export default function HorizontalScroller({
 }: HorizontalScrollerProps) {
   const { ref: loaderRef } = useOnVisibleEffect(fetchNext);
 
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const theme = useTheme();
+  const isBelowBreakpoint = useMediaQuery(theme.breakpoints.down(breakpoint));
 
   return (
-    <StyledWrapper className={className} isBelowBreakpoint={isMobile}>
+    <StyledWrapper className={className} isBelowBreakpoint={isBelowBreakpoint}>
       {children}
       {fetchNext && hasMore && (
         <StyledLoaderContainer>
