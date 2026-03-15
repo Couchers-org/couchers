@@ -52,6 +52,12 @@ CONFIG_OPTIONS: CONFIG_T = [
     ("VERIFICATION_DATA_PUBLIC_KEY", bytes),
     # Postal verification
     ("ENABLE_POSTAL_VERIFICATION", bool),
+    # MyPostcard API credentials
+    ("MYPOSTCARD_API_KEY", str),
+    ("MYPOSTCARD_USERNAME", str),
+    ("MYPOSTCARD_PASSWORD", str),
+    ("MYPOSTCARD_PRODUCT_CODE", str),
+    ("MYPOSTCARD_CAMPAIGN_ID", str),
     # SMS
     ("ENABLE_SMS", bool),
     ("SMS_SENDER_ID", str),
@@ -152,6 +158,16 @@ def check_config(cfg: dict[str, Any]) -> None:
     if cfg["ENABLE_STRONG_VERIFICATION"]:
         if not cfg["IRIS_ID_PUBKEY"] or not cfg["IRIS_ID_SECRET"] or not cfg["VERIFICATION_DATA_PUBLIC_KEY"]:
             raise Exception("No Iris ID pubkey/secret or verification data pubkey but strong verification enabled")
+
+    if cfg["ENABLE_POSTAL_VERIFICATION"]:
+        if (
+            not cfg["MYPOSTCARD_API_KEY"]
+            or not cfg["MYPOSTCARD_USERNAME"]
+            or not cfg["MYPOSTCARD_PASSWORD"]
+            or not cfg["MYPOSTCARD_PRODUCT_CODE"]
+            or not cfg["MYPOSTCARD_CAMPAIGN_ID"]
+        ):
+            raise Exception("MyPostcard API credentials not configured but postal verification enabled")
 
     if cfg["EXPERIMENTATION_ENABLED"]:
         if not cfg["STATSIG_SERVER_SECRET_KEY"]:

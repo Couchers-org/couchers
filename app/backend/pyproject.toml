@@ -40,6 +40,8 @@ dependencies = [
     "ua-parser>=1.0.1",
     "user-agents>=2.2.0",
     "statsig-python-core>=0.8.0",
+    "pillow>=12.1.1",
+    "qrcode>=8.2",
 ]
 
 [project.scripts]
