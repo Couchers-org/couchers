@@ -40,10 +40,7 @@ export default function MyDocument(
             src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
           ></script>
         )}
-        <script
-          async
-          src="https://twdl.couchers.org/script.js"
-        ></script>
+        <script async src="https://twdl.couchers.org/script.js"></script>
       </Head>
       <body>
         <InitColorSchemeScript
