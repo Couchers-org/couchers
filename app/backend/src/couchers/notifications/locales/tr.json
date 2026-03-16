@@ -70,6 +70,9 @@
     },
     "birthdate__change": {
       "ios_title": "Doğum Tarihi Değiştirildi"
+    },
+    "email_address__change": {
+      "body": "Yeni adresinizi onaylamak için {{email}} adresine gönderdiğimiz bağlantıyı kullanın."
     }
   },
   "topic_action_descriptions": {

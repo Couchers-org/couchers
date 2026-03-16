@@ -82,7 +82,8 @@
       "title_helper": "Hatanın kısa bir açıklaması",
       "problem_helper": "Sorunun kısa bir açıklaması ve nasıl tekrardan oluşturulabileceği",
       "expect_label": "Ne oldu? Olması gereken neydi?",
-      "expect_helper": "Olmasını beklediğiniz şey hakkında kısa bir açıklama"
+      "expect_helper": "Olmasını beklediğiniz şey hakkında kısa bir açıklama",
+      "success_message2": "Bu hatayı bildirdiğiniz ve Couchers'ı daha iyi hale getirdiğiniz için teşekkür ederiz, geliştiricilere bir rapor gönderildi! Hata kimliği <id/>."
     },
     "label": "Bir sorun bildir",
     "flag": {
@@ -99,7 +100,23 @@
         "safety": "Güvenlik endişesi (kendi veya başkalarının güvenliğine karşı)",
         "spam": "Kanepe sörfü ile ilgisi olmayan spam veya promosyon",
         "sexualized": "Cinsel içerikli içerik veya davranış"
-      }
+      },
+      "block_user": "{{username}} Kişisini Engelle",
+      "block_user_explainer": "Bu kullanıcıdan gelecek mesaj ve istekler engellenecek, profilin, etkinliklerin ve yorumların bu kişiye görünmeyecek. Onu engellediğin hakkında bilgilendirilmeyecekler.",
+      "button_aria_label": "Bir içeriği veya kullanıcıyı bildir",
+      "profile_button_aria_label": "Bir içeriği bildir veya bir kullanıcıyı engelle",
+      "explainer": "Güvenlik ve Güven ekibine gizlilik altında bir rapor gönderin.",
+      "title": "Bir içeriği veya kullanıcıyı bildir",
+      "profile_title": "Bildir veya Engelle",
+      "reason_label": "Bildirme nedeni",
+      "reason_helper": "Bu içeriği neden bildiriyorsunuz?",
+      "profile_reason_required": "Lütfen açıklamayı veya bloğu doldurun",
+      "description_label": "Sorunu açıklayın",
+      "description_helper": "Lütfen bunu neden bildirdiğinizi bize söyleyin."
+    },
+    "content": {
+      "button_label": "Uygunsuz içerik veya davranışı bildir",
+      "success_message": "Raporunuz ile Couchers'ı herkes için daha iyi bir platform yaptığın için teşekkürler!"
     }
   },
   "meetup_status": {
@@ -167,7 +184,8 @@
     "dashboard": "Kontrol Paneli",
     "legal_more": "Yasal & Fazlası",
     "landing_page": "Başlangıç Sayfası",
-    "volunteer": "Gönüllü Ol"
+    "volunteer": "Gönüllü Ol",
+    "home": "Ana Sayfa"
   },
   "what_is_cs": {
     "timeline": {
@@ -218,7 +236,17 @@
     "search_location_button": "Konum ara"
   },
   "invites": {
-    "title": "Üye davet et"
+    "title": "Üye davet et",
+    "no_codes_message": "Henüz davet kodu yok",
+    "created_datetime": "Oluşturulduğu Tarih: {{datetime}}",
+    "disabled_datetime": "Devre Dışı Bırakıldığı Tarih: {{datetime}}",
+    "disable_link": "Devre dışı bırak",
+    "banner": {
+      "invited_you": "{{name}} sizi Couchers'a katılmaya davet etti!"
+    },
+    "error": {
+      "fetch_invite_info": "Davet kodu detayları alınamadı"
+    }
   },
   "strong_verification": {
     "helper_text": "Bu kullanıcı kimliğini biyometrik pasaport kullanarak doğrulamıştır"
@@ -247,5 +275,55 @@
         "title": "Gönüllü profilimi takım sayfasında göster"
       }
     }
-  }
+  },
+  "language_names": {
+    "es-419": "İspanyolca",
+    "fr": "Fransızca (Fransa)",
+    "fr-CA": "Fransızca (Kanada)",
+    "he": "İbranice",
+    "hi": "Hintçe",
+    "it": "İtalyanca",
+    "ja": "Japonca",
+    "nb-NO": "Norveççe (Bokmål)",
+    "nl": "Felemenkçe",
+    "pl": "Lehçe",
+    "pt": "Portekizce (Portekiz)",
+    "pt-BR": "Portekizce (Brezilya)",
+    "ru": "Rusça",
+    "sv": "İsveççe",
+    "tr": "Türkçe",
+    "uk": "Ukraynaca",
+    "zh-Hans": "Basitleştirilmiş Çince",
+    "zh-Hant": "Geleneksel Çince",
+    "hu": "Macarca"
+  },
+  "copy_button": {
+    "a11y": "Kopyala",
+    "copied_tooltip": "Panoya kopyalandı"
+  },
+  "image_input": {
+    "select_button_a11y": "Bir resim seçin",
+    "replace_image_tooltip": "Resmi değiştirmek için tıkla",
+    "read_file_error_message": "Dosya okunamadı"
+  },
+  "html_meta": {
+    "title_suffix": " | Couchers.org",
+    "default_title": "Couchers.org",
+    "default_description": "Dünyanı paylaş, onların dünyasını keşfet. Güven ve gerçek bağlantı üzerine kurulu otantik yerel deneyimler—harcama üzerine kurulu değil."
+  },
+  "error": {
+    "fatal_message": "Bu olmamalıydı. Lütfen bizimle iletişime geçin ve gelecekte bu hatayı önlememize yardımcı olmak için ne yapıyor olduğunuzu bize anlatın.",
+    "unknown": "Bilinmeyen hata",
+    "fallback": {
+      "title": "Hay aksi... bu bilinmeyen bir hata",
+      "subtitle": "Lütfen 'Sorun bildir' düğmesini kullanın ve gelecekte bu hatayı önlememize yardımcı olmak için ne yapıyor olduğunuzu bize anlatın.",
+      "refresh_page_button_label": "Sayfayı yenile",
+      "home_page_link_label": "Ana sayfaya git"
+    }
+  },
+  "contribute_title": "Katkıda bulunmak için kaydolun",
+  "reply": "Cevap Ver",
+  "yes": "Evet",
+  "no": "Hayır",
+  "ok": "Tamam"
 }

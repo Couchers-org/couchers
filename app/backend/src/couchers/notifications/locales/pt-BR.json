@@ -373,6 +373,21 @@
     },
     "general": {
       "new_blog_post": "Um nova postagem foi publicada no blog"
+    },
+    "activeness": {
+      "probe": "Você aceita hóspedes, mas não faz login há um tempo"
+    },
+    "modnote": {
+      "create": "Um moderador envia uma mensagem"
+    },
+    "postal_verification": {
+      "postcard_sent": "Seu cartão-postal de verificação foi enviado",
+      "success": "Sua verificação por correio funcionou",
+      "failed": "Sua verificação por correio falhou"
+    },
+    "verification": {
+      "sv_fail": "Sua verificação forte falhou",
+      "sv_success": "Sua verificação forte funcionou"
     }
   }
 }

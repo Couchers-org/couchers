@@ -139,6 +139,11 @@ const DiscoverEventsList = () => {
       fieldError={undefined}
       fullWidth={isMobile}
       autocompleteContext="discover-events-list"
+      sx={{
+        "#location-autocomplete": {
+          width: "100%",
+        },
+      }}
     />
   );
 

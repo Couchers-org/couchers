@@ -286,19 +286,19 @@
   },
   "topic_action_descriptions": {
     "account_deletion": {
-      "start": "Du hast die Kontolöschung eingeleitet.",
-      "complete": "Dein Konto wurde gelöscht.",
-      "recovered": "Dein Konto wurde wiederhergestellt (un-gelöscht)."
+      "start": "Du hast die Kontolöschung eingeleitet",
+      "complete": "Dein Konto wurde gelöscht",
+      "recovered": "Dein Konto wurde wiederhergestellt (un-gelöscht)"
     },
     "activeness": {
-      "probe": "Du akzeptierst Gäste, aber hast dich schon länger nicht mehr eingeloggt."
+      "probe": "Du akzeptierst Gäste, aber hast dich schon länger nicht mehr eingeloggt"
     },
     "api_key": {
-      "create": "Ein API-Schlüssel wurde für dein Konto erstellt."
+      "create": "Ein API-Schlüssel wurde für dein Konto erstellt"
     },
     "badge": {
-      "add": "Ein Abzeichen wird deinem Konto hinzugefügt.",
-      "remove": "Ein Abzeichen wird von deinem Konto entfernt."
+      "add": "Ein Abzeichen wird deinem Konto hinzugefügt",
+      "remove": "Ein Abzeichen wird von deinem Konto entfernt"
     },
     "birthdate": {
       "change": "Dein Geburtsdatum wird geändert."

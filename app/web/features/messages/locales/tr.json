@@ -105,7 +105,8 @@
     "title": "Sohbet Üyeleri"
   },
   "control_message": {
-    "created_chat_text": "{{user}} sohbeti oluşturdu"
+    "created_chat_text": "{{user}} sohbeti oluşturdu",
+    "unknown_message_text": "Bilinmeyen kontrol mesajı"
   },
   "archive": {
     "no_archived_chats": "Arşivlenmiş sohbet yok"
