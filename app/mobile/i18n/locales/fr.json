@@ -1,1 +1,5 @@
-{}
+{
+  "errors": {
+    "failed_to_load": "Erreur de chargement"
+  }
+}

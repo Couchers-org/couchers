@@ -58,5 +58,29 @@
     "donation__received": {
       "title": "Dar přijat"
     }
+  },
+  "topic_action_descriptions": {
+    "host_request": {
+      "cancel": "Někdo zruší žádost o ubytování",
+      "reject": "Někdo odmítne tvou žádost o ubytování",
+      "confirm": "Někdo potvrdí žádost o ubytování",
+      "accept": "Někdo přijme tvou žádost o ubytování",
+      "message": "Někdo ti pošle zprávu v žádosti o ubytování",
+      "create": "Někdo ti zašle žádost o ubytování",
+      "missed_messages": "Utekla ti zpráva v žádosti o ubytování"
+    },
+    "chat": {
+      "missed_messages": "Utekly ti zprávy v chatu",
+      "message": "Někdo ti pošle zprávu"
+    },
+    "general": {
+      "new_blog_post": "Byl zveřejněn nový blogový příspěvek"
+    },
+    "phone_number": {
+      "verify": "Tvé telefonní číslo je ověřeno."
+    },
+    "reference": {
+      "receive_friend": "Přišla ti reference od přítele."
+    }
   }
 }

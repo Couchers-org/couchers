@@ -17,6 +17,7 @@ services:
       - -c
       - ssl_min_protocol_version=TLSv1.3
     restart: always
+    stop_grace_period: 30s
     env_file: postgres.prod.env
     volumes:
       - "./data/postgres/pgdata/:/var/lib/postgresql/data/"
@@ -35,6 +36,7 @@ services:
   backend:
     image: registry.gitlab.com/couchers/couchers/backend
     restart: always
+    stop_grace_period: 30s
     init: true
     env_file: backend.prod.env
     volumes:
@@ -56,6 +58,7 @@ services:
   media:
     image: registry.gitlab.com/couchers/couchers/media
     restart: always
+    stop_grace_period: 5s
     init: true
     env_file: media.prod.env
     volumes:
@@ -71,6 +74,7 @@ services:
   envoy:
     image: registry.gitlab.com/couchers/couchers/proxy
     restart: always
+    stop_grace_period: 5s
     expose:
       - 8888
       - 9901
@@ -82,6 +86,7 @@ services:
   nginx:
     image: registry.gitlab.com/couchers/couchers/nginx
     restart: always
+    stop_grace_period: 5s
     env_file: nginx.prod.env
     volumes:
       - "./data/certs/:/certs/"
@@ -99,6 +104,7 @@ services:
   pgprom:
     image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
     restart: always
+    stop_grace_period: 5s
     env_file: pgprom.prod.env
     expose:
       - 9187
@@ -109,6 +115,7 @@ services:
   node_exporter:
     image: quay.io/prometheus/node-exporter:v1.8.2
     restart: always
+    stop_grace_period: 5s
     command:
       - "--path.rootfs=/host"
       - "--collector.processes"
@@ -119,6 +126,7 @@ services:
   prometheus:
     image: registry.gitlab.com/couchers/couchers/prometheus
     restart: always
+    stop_grace_period: 5s
     env_file: prometheus.prod.env
     depends_on:
       - backend
@@ -135,6 +143,7 @@ services:
   web:
     image: registry.gitlab.com/couchers/couchers/web
     restart: always
+    stop_grace_period: 5s
     expose:
       - 3000
     networks:
@@ -143,6 +152,7 @@ services:
   jaeger:
     image: jaegertracing/all-in-one:1.60
     restart: always
+    stop_grace_period: 5s
     ports:
       - "16686:16686"
     expose:

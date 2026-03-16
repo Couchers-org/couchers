@@ -288,7 +288,13 @@
     },
     "error": {
       "fetch_invite_info": "Details des Einladungscodes konnten nicht abgerufen werden"
-    }
+    },
+    "no_codes_message": "Noch keine Einladungscodes",
+    "created_datetime": "Erstellt: {{datetime}}",
+    "disabled_datetime": "Deaktiviert: {{datetime}}",
+    "number_of_uses_one": "Verwendet: {{count}} abgeschlossene Anmeldung",
+    "number_of_uses_other": "Verwendet: {{count}} abgeschlossene Anmeldungen",
+    "disable_link": "Deaktivieren"
   },
   "what_is_cs": {
     "get_involved_title": "Was kann ich auf Couchers.org machen?",
@@ -366,5 +372,9 @@
     "select_button_a11y": "Wähle ein Bild aus",
     "replace_image_tooltip": "Klicke um das Bild zu ändern",
     "read_file_error_message": "Die Datei konnte nicht gelesen werden"
+  },
+  "copy_button": {
+    "a11y": "Kopieren",
+    "copied_tooltip": "In die Zwischenablage kopiert"
   }
 }

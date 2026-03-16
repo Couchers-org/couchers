@@ -95,7 +95,7 @@
       "title": "Neues Event: {{title}}",
       "ios_title": "Neues Event",
       "ios_subtitle": "{{title}}",
-      "body": "{{user}} hat das Ereignis am {{date_and_time}} erstellt."
+      "body": "{{user}} hat das Event am {{date_and_time}} erstellt."
     },
     "event__create_approved": {
       "title": "Neues Event: {{title}}",
@@ -282,6 +282,61 @@
       "body_wrong_birthdate_gender": "Das Geburtsdatum oder Geschlecht in deinem Profil stimmt nicht mit dem Geburtsdatum oder Geschlecht in deinem Reisepass überein. Bitte kontaktiere das Support-Team, um dein Geburtsdatum oder Geschlecht zu aktualisieren, oder falls das Geschlecht in deinem Reisepass nicht mit deiner Geschlechtsidentität übereinstimmt.",
       "body_not_a_passport": "Du hast ein anderes Dokument als einen Reisepass verwendet. Für die starke Verifizierung kannst du nur einen Reisepass verwenden.",
       "body_duplicate": "Du hast einen Reisepass verwendet, der bereits zur Verifizierung genutzt wurde. Bitte verwende einen anderen Reisepass."
+    }
+  },
+  "topic_action_descriptions": {
+    "account_deletion": {
+      "start": "Du hast die Kontolöschung eingeleitet",
+      "complete": "Dein Konto wurde gelöscht",
+      "recovered": "Dein Konto wurde wiederhergestellt (un-gelöscht)"
+    },
+    "activeness": {
+      "probe": "Du akzeptierst Gäste, aber hast dich schon länger nicht mehr eingeloggt"
+    },
+    "api_key": {
+      "create": "Ein API-Schlüssel wurde für dein Konto erstellt"
+    },
+    "badge": {
+      "add": "Ein Abzeichen wird deinem Konto hinzugefügt",
+      "remove": "Ein Abzeichen wird von deinem Konto entfernt"
+    },
+    "birthdate": {
+      "change": "Dein Geburtsdatum wird geändert."
+    },
+    "chat": {
+      "message": "Jemand sendet dir eine Nachricht.",
+      "missed_messages": "Du verpasst Nachrichten in einem Chat."
+    },
+    "discussion": {
+      "create": "Jemand schreibt einen Beitrag in einer Community, in der du Mitglied bist.",
+      "comment": "Jemand kommentiert einen Beitrag, den du verfolgst."
+    },
+    "donation": {
+      "received": "Deine Spende wurde erhalten."
+    },
+    "email_address": {
+      "change": "E-Mail-Änderung wurde eingeleitet.",
+      "verify": "Deine neue E-Mail wurde verifiziert."
+    },
+    "event": {
+      "create_approved": "Ein Event, das von den Moderatoren genehmigt wurde, wird in deiner Community erstellt.",
+      "create_any": "Ein Benutzer erstellt ein Event in deiner Community (nicht von einem Administrator überprüft).",
+      "update": "Ein Event, an dem du teilnimmst, wird aktualisiert.",
+      "cancel": "Ein Event, an dem du teilnimmst, wird abgesagt.",
+      "delete": "Ein Event, an dem du teilnimmst, wird gelöscht.",
+      "invite_organizer": "Jemand lädt dich ein, ein Event mit zu organisieren.",
+      "comment": " Ein Mitglied kommentiert ein Event, an dem du teilnimmst.",
+      "reminder": "Erinnerung, dass ein Event, an dem du teilnehmen wirst, bald stattfindet."
+    },
+    "friend_request": {
+      "create": "Jemand sendet dir eine Freundschaftsanfrage.",
+      "accept": "Jemand akzeptiert deine Freundschaftsanfrage."
+    },
+    "general": {
+      "new_blog_post": "Ein neuer Blogbeitrag wurde veröffentlicht."
+    },
+    "gender": {
+      "change": "Das auf deinem Profil angezeigte Geschlecht wurde geändert."
     }
   }
 }

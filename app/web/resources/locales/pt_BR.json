@@ -100,7 +100,59 @@
     "title": "Reportar um problema",
     "flag": {
       "block_user": "Bloquear {{username}}",
-      "block_user_explainer": "Mensagens e solicitações dessa pessoa serão bloqueadas, e seu perfil, eventos e comentários não serão visíveis para ela. Ela não será informada sobre o bloqueio."
+      "block_user_explainer": "Mensagens e solicitações dessa pessoa serão bloqueadas, e seu perfil, eventos e comentários não serão visíveis para ela. Ela não será informada sobre o bloqueio.",
+      "button_aria_label": "Reportar conteúdo ou um usuário",
+      "profile_button_aria_label": "Reportar conteúdo ou bloquear um usuário",
+      "explainer": "Envie confidencialmente uma denúncia para a equipe de Segurança e Confiança.",
+      "title": "Reportar conteúdo ou um usuário",
+      "profile_title": "Reportar ou Bloquear",
+      "reason_label": "Motivo para reportar",
+      "reason_helper": "Por que você está reportando este conteúdo?",
+      "reason_required": "O motivo é obrigatório.",
+      "description_required": "A descrição é obrigatória.",
+      "profile_reason_required": "Preencha a descrição ou bloqueio",
+      "description_label": "Descreva o problema",
+      "description_helper": "Conte-nos porque você está reportando isso.",
+      "success": "Agradecemos por sua denúncia e por tornar o Couchers uma plataforma melhor para todos!",
+      "reason": {
+        "dating": "Comportamento de aplicativo de paquera/namoro ou semelhante",
+        "external": "Incidente fora da plataforma",
+        "harassment": "Assédio, intimidação, discurso de ódio ou conteúdo ilegal",
+        "guidelines_breach": "Violação de regra ou política (cobrar dinheiro, nudismo, camas compartilhadas, etc.)",
+        "safety": "Preocupação com segurança (sua ou de outros)",
+        "scam": "Informações enganosas ou falsas",
+        "spam": "Spam ou conteúdo promocional não relacionado a couch surfing",
+        "sexualized": "Conteúdo ou comportamento sexualizado",
+        "other": "Outro (especifique abaixo)"
+      }
+    }
+  },
+  "copy_button": {
+    "a11y": "Copiar",
+    "copied_tooltip": "Copiado para área de transferência"
+  },
+  "image_input": {
+    "select_button_a11y": "Selecione uma imagem",
+    "replace_image_tooltip": "Clique para substituir a imagem",
+    "read_file_error_message": "Não foi possível ler o arquivo"
+  },
+  "not_found_text_1": "Não foi possível encontrar o URL ou recurso solicitado",
+  "not_found_text_2": "Quer apenas voltar ao <1>painel inicial?</1>",
+  "not_found_alt": "Erro 404: recurso não encontrado",
+  "change_time": "Alterar hora",
+  "html_meta": {
+    "title_suffix": " | Couchers.org",
+    "default_title": "Couchers.org",
+    "default_description": "Compartilhe o seu mundo, descubra o dos outros. Experiências locais autênticas, construídas com base em confiança e coneção genuína – não em trasações."
+  },
+  "error": {
+    "fatal_message": "Isso não deveria ter acontecido. Entre em contato conosco e conte o que você estava fazendo para nos ajudar a evitar esse erro no futuro.",
+    "unknown": "Erro desconhecido",
+    "fallback": {
+      "title": "Opa! Esse é um erro desconhcido.",
+      "subtitle": "Use o botão 'Reportar um problema' e conte-nos o que você estava fazendo para nos ajudar a evitar esse erro no futuro.",
+      "refresh_page_button_label": "Atualizar a página",
+      "home_page_link_label": "Ir para a página inicial"
     }
   }
 }
