@@ -96,5 +96,10 @@
   },
   "motivations_form": {
     "header": "Seni Couchers'a ne getirdi?"
+  },
+  "jail": {
+    "location_section": {
+      "title": "Lütfen konumunuzu güncelleyin"
+    }
   }
 }

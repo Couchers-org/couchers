@@ -1,1 +1,6 @@
-{}
+{
+  "errors": {
+    "check_connection": "Controlla la tua connessione Internet e riprova.",
+    "try_again": "Riprova"
+  }
+}

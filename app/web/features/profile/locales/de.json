@@ -50,7 +50,7 @@
   "section_tabs_a11y_label": "tabs für User details",
   "incomplete_dialog": {
     "title": "Profil unvollständig",
-    "description": "Du kannst keine Anfragen und Nachrichten senden oder Ereignisse erstellen, bis du:",
+    "description": "Du kannst keine Anfragen und Nachrichten senden oder Events erstellen, bis du:",
     "about_me_message": "Mach deinen „Wer ich bin“ Abschnitt mindestens 150 Zeichen lang.",
     "missing_photo_message": "Füge ein Profilfoto hinzu.",
     "save_anyway": "Dennoch speichern?",
