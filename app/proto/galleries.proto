@@ -33,7 +33,7 @@ service Galleries {
 }
 
 message PhotoGalleryItem {
-  int64 item_id = 1;
+  int64 item_id = 1 [jstype = JS_STRING];
   string full_url = 2;
   string thumbnail_url = 3;
   string caption = 4;
@@ -41,45 +41,45 @@ message PhotoGalleryItem {
 }
 
 message PhotoGallery {
-  int64 gallery_id = 1;
+  int64 gallery_id = 1 [jstype = JS_STRING];
   repeated PhotoGalleryItem photos = 2;
   bool can_edit = 3;
 }
 
 message GetGalleryReq {
-  int64 gallery_id = 1;
+  int64 gallery_id = 1 [jstype = JS_STRING];
 }
 
 message AddPhotoToGalleryReq {
-  int64 gallery_id = 1;
+  int64 gallery_id = 1 [jstype = JS_STRING];
   string upload_key = 2;
   string caption = 3;
 }
 
 message RemovePhotoFromGalleryReq {
-  int64 gallery_id = 1;
-  int64 item_id = 2;
+  int64 gallery_id = 1 [jstype = JS_STRING];
+  int64 item_id = 2 [jstype = JS_STRING];
 }
 
 message MovePhotoReq {
-  int64 gallery_id = 1;
-  int64 item_id = 2;
+  int64 gallery_id = 1 [jstype = JS_STRING];
+  int64 item_id = 2 [jstype = JS_STRING];
   // ID of photo to place this one after, or 0 to move to first position
-  int64 after_item_id = 3;
+  int64 after_item_id = 3 [jstype = JS_STRING];
 }
 
 message UpdatePhotoCaptionReq {
-  int64 gallery_id = 1;
-  int64 item_id = 2;
+  int64 gallery_id = 1 [jstype = JS_STRING];
+  int64 item_id = 2 [jstype = JS_STRING];
   string caption = 3;
 }
 
 message GetGalleryEditInfoReq {
-  int64 gallery_id = 1;
+  int64 gallery_id = 1 [jstype = JS_STRING];
 }
 
 message GetGalleryEditInfoRes {
-  int64 gallery_id = 1;
+  int64 gallery_id = 1 [jstype = JS_STRING];
   uint32 max_photos = 2;
   uint32 current_photo_count = 3;
 }

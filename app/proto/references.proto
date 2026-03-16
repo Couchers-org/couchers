@@ -48,23 +48,23 @@ enum ReferenceType {
 }
 
 message Reference {
-  int64 reference_id = 1;
+  int64 reference_id = 1 [jstype = JS_STRING];
 
-  int64 from_user_id = 2;
-  int64 to_user_id = 3;
+  int64 from_user_id = 2 [jstype = JS_STRING];
+  int64 to_user_id = 3 [jstype = JS_STRING];
 
   ReferenceType reference_type = 4;
   string text = 5; // plain text
   google.protobuf.Timestamp written_time = 6; // not exact
 
   // if the reference is about the current user, this tells which host request it's about
-  int64 host_request_id = 7;
+  int64 host_request_id = 7 [jstype = JS_STRING];
 }
 
 message ListReferencesReq {
   // at least one of these two must be set, zero means "any"
-  uint64 from_user_id = 1;
-  uint64 to_user_id = 2;
+  uint64 from_user_id = 1 [jstype = JS_STRING];
+  uint64 to_user_id = 2 [jstype = JS_STRING];
 
   // empty filter means include all, otherwise only those in the filter
   repeated ReferenceType reference_type_filter = 3;
@@ -80,7 +80,7 @@ message ListReferencesRes {
 }
 
 message WriteFriendReferenceReq {
-  int64 to_user_id = 1;
+  int64 to_user_id = 1 [jstype = JS_STRING];
   string text = 2; // plain text
   // private text to be send to moderation
   string private_text = 5; // plain text
@@ -90,7 +90,7 @@ message WriteFriendReferenceReq {
 }
 
 message WriteHostRequestReferenceReq {
-  int64 host_request_id = 1;
+  int64 host_request_id = 1 [jstype = JS_STRING];
   string text = 2; // plain text
   // private text to be send to moderation
   string private_text = 5; // plain text
@@ -100,17 +100,17 @@ message WriteHostRequestReferenceReq {
 }
 
 message HostRequestIndicateDidntMeetupReq {
-  int64 host_request_id = 1;
+  int64 host_request_id = 1 [jstype = JS_STRING];
   // reason why the host request didn't happen, can be blank
   string reason_didnt_meetup = 6; // plain text
 }
 
 message AvailableWriteReferencesReq {
-  int64 to_user_id = 1;
+  int64 to_user_id = 1 [jstype = JS_STRING];
 }
 
 message AvailableWriteReferenceType {
-  int64 host_request_id = 1;
+  int64 host_request_id = 1 [jstype = JS_STRING];
   // surfed or hosted
   ReferenceType reference_type = 2;
   google.protobuf.Timestamp time_expires = 3;
@@ -126,7 +126,7 @@ message ListPendingReferencesToWriteRes {
 }
 
 message GetHostRequestReferenceStatusReq {
-  int64 host_request_id = 1;
+  int64 host_request_id = 1 [jstype = JS_STRING];
 }
 
 message GetHostRequestReferenceStatusRes {

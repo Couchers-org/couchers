@@ -108,7 +108,7 @@ service Communities {
 }
 
 message Community {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
   string name = 2;
   // a short URL fragment generated from the name, e.g. New York City: a guide to Phở might become
   // new-york-city-guide-to-pho
@@ -132,12 +132,12 @@ message Community {
 }
 
 message GetCommunityReq {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
 }
 
 message ListCommunitiesReq {
   // leave blank (aka 0) to list all communities
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
 
   uint32 page_size = 2;
   string page_token = 3;
@@ -164,7 +164,7 @@ message ListUserCommunitiesRes {
 }
 
 message ListGroupsReq {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
 
   uint32 page_size = 2;
   string page_token = 3;
@@ -177,56 +177,56 @@ message ListGroupsRes {
 }
 
 message ListAdminsReq {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
 
   uint32 page_size = 2;
   string page_token = 3;
 }
 
 message ListAdminsRes {
-  repeated int64 admin_user_ids = 1;
+  repeated int64 admin_user_ids = 1 [jstype = JS_STRING];
 
   string next_page_token = 2;
 }
 
 message AddAdminReq {
-  int64 user_id = 1;
-  int64 community_id = 2;
+  int64 user_id = 1 [jstype = JS_STRING];
+  int64 community_id = 2 [jstype = JS_STRING];
 }
 
 message RemoveAdminReq {
-  int64 user_id = 1;
-  int64 community_id = 2;
+  int64 user_id = 1 [jstype = JS_STRING];
+  int64 community_id = 2 [jstype = JS_STRING];
 }
 
 message ListMembersReq {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
 
   uint32 page_size = 2;
   string page_token = 3;
 }
 
 message ListMembersRes {
-  repeated int64 member_user_ids = 1;
+  repeated int64 member_user_ids = 1 [jstype = JS_STRING];
 
   string next_page_token = 2;
 }
 
 message ListNearbyUsersReq {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
 
   uint32 page_size = 2;
   string page_token = 3;
 }
 
 message ListNearbyUsersRes {
-  repeated int64 nearby_user_ids = 1;
+  repeated int64 nearby_user_ids = 1 [jstype = JS_STRING];
 
   string next_page_token = 2;
 }
 
 message ListPlacesReq {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
 
   uint32 page_size = 2;
   string page_token = 3;
@@ -239,7 +239,7 @@ message ListPlacesRes {
 }
 
 message ListGuidesReq {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
 
   uint32 page_size = 2;
   string page_token = 3;
@@ -252,7 +252,7 @@ message ListGuidesRes {
 }
 
 message ListEventsReq {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
   bool past = 4;
   // whether to include events in all parent communities as well
   bool include_parents = 5;
@@ -268,7 +268,7 @@ message ListEventsRes {
 }
 
 message ListDiscussionsReq {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
 
   uint32 page_size = 2;
   string page_token = 3;
@@ -281,11 +281,11 @@ message ListDiscussionsRes {
 }
 
 message JoinCommunityReq {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
 }
 
 message LeaveCommunityReq {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
 }
 
 message SearchCommunitiesReq {
@@ -298,7 +298,7 @@ message SearchCommunitiesRes {
 }
 
 message CommunitySummary {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
   string name = 2;
   string slug = 3;
   bool member = 4;

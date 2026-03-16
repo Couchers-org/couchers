@@ -72,7 +72,7 @@ message SearchReq {
   //   // search in given area
   //   Area search_in_area = 11;
   //   // search inside the area defined by the community
-  //   int64 search_in_community_id = 12;
+  //   int64 search_in_community_id = 12 [jstype = JS_STRING];
   // }
 
   // whether to only perform a trigram based search on titles and not do full text search
@@ -109,7 +109,7 @@ message SearchRes {
 
 message UserSearchReq {
   // if this field is present, we filter to exactly these users (any invalid ids are ignored)
-  repeated int64 exactly_user_ids = 35;
+  repeated int64 exactly_user_ids = 35 [jstype = JS_STRING];
 
   google.protobuf.StringValue query = 3;
   // whether the query (if any) should only search through username and display name
@@ -123,7 +123,7 @@ message UserSearchReq {
     // search in given area
     Area search_in_area = 28;
     // search inside the area defined by the community
-    int64 search_in_community_id = 29;
+    int64 search_in_community_id = 29 [jstype = JS_STRING];
     RectArea search_in_rectangle = 33;
   }
 
@@ -173,7 +173,7 @@ message UserSearchRes {
 }
 
 message SearchUser {
-  int64 user_id = 1;
+  int64 user_id = 1 [jstype = JS_STRING];
   string username = 2;
   string name = 3;
   string city = 4;
@@ -249,7 +249,7 @@ message EventSearchReq {
     // search in given area
     Area search_in_area = 5;
     // search inside the area defined by the community
-    int64 search_in_community_id = 6;
+    int64 search_in_community_id = 6 [jstype = JS_STRING];
     RectArea search_in_rectangle = 7;
   }
 

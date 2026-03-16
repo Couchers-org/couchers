@@ -31,16 +31,16 @@ service Editor {
 message CreateCommunityReq {
   string name = 1;
   string description = 3;
-  int64 parent_node_id = 4;
-  repeated int64 admin_ids = 5;
+  int64 parent_node_id = 4 [jstype = JS_STRING];
+  repeated int64 admin_ids = 5 [jstype = JS_STRING];
   string geojson = 6;
 }
 
 message UpdateCommunityReq {
-  int64 community_id = 1;
+  int64 community_id = 1 [jstype = JS_STRING];
   string name = 2;
   string description = 3;
-  int64 parent_node_id = 4;
+  int64 parent_node_id = 4 [jstype = JS_STRING];
   string geojson = 5;
 }
 
@@ -50,14 +50,14 @@ message ListEventCommunityInviteRequestsReq {
 }
 
 message EventCommunityInviteRequest {
-  int64 event_community_invite_request_id = 1;
+  int64 event_community_invite_request_id = 1 [jstype = JS_STRING];
 
-  int64 user_id = 2;
+  int64 user_id = 2 [jstype = JS_STRING];
   string event_url = 3;
 
   // assuming they have notifs enabled
   uint32 approx_users_to_notify = 4;
-  int64 community_id = 5;
+  int64 community_id = 5 [jstype = JS_STRING];
 }
 
 message ListEventCommunityInviteRequestsRes {
@@ -67,7 +67,7 @@ message ListEventCommunityInviteRequestsRes {
 }
 
 message DecideEventCommunityInviteRequestReq {
-  int64 event_community_invite_request_id = 1;
+  int64 event_community_invite_request_id = 1 [jstype = JS_STRING];
 
   // whether to approve or deny it
   bool approve = 2;
@@ -82,7 +82,7 @@ message SendBlogPostNotificationReq {
 }
 
 message MakeUserVolunteerReq {
-  int64 user_id = 1;
+  int64 user_id = 1 [jstype = JS_STRING];
   string role = 2;
   // date as "yyyy-mm-dd", defaults to today if not provided
   string started_volunteering = 3;
@@ -91,7 +91,7 @@ message MakeUserVolunteerReq {
 }
 
 message UpdateVolunteerReq {
-  int64 user_id = 1;
+  int64 user_id = 1 [jstype = JS_STRING];
   google.protobuf.StringValue role = 2;
   google.protobuf.DoubleValue sort_key = 3;
   // dates as "yyyy-mm-dd"
@@ -106,7 +106,7 @@ message ListVolunteersReq {
 }
 
 message Volunteer {
-  int64 user_id = 1;
+  int64 user_id = 1 [jstype = JS_STRING];
   // display name
   string name = 2;
   // couchers username

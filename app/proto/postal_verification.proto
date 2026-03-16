@@ -84,7 +84,7 @@ message InitiatePostalVerificationReq {
 
 message InitiatePostalVerificationRes {
   // The ID of the created postal verification attempt
-  int64 postal_verification_attempt_id = 1;
+  int64 postal_verification_attempt_id = 1 [jstype = JS_STRING];
   // The validated/corrected address
   PostalAddress corrected_address = 2;
   // Whether the address needed correction
@@ -93,7 +93,7 @@ message InitiatePostalVerificationRes {
 
 // Step 2: Confirm the (possibly corrected) address and send postcard
 message ConfirmPostalAddressReq {
-  int64 postal_verification_attempt_id = 1;
+  int64 postal_verification_attempt_id = 1 [jstype = JS_STRING];
 }
 
 message ConfirmPostalAddressRes {
@@ -103,7 +103,7 @@ message ConfirmPostalAddressRes {
 // Get current postal verification status
 message GetPostalVerificationStatusReq {
   // Optional: if 0 or not provided, returns latest attempt
-  int64 postal_verification_attempt_id = 1;
+  int64 postal_verification_attempt_id = 1 [jstype = JS_STRING];
 }
 
 message GetPostalVerificationStatusRes {
@@ -112,7 +112,7 @@ message GetPostalVerificationStatusRes {
 
   // Current/latest attempt details (if any)
   bool has_active_attempt = 2;
-  int64 postal_verification_attempt_id = 3;
+  int64 postal_verification_attempt_id = 3 [jstype = JS_STRING];
   PostalVerificationStatus status = 4;
   PostalAddress address = 5;
   google.protobuf.Timestamp created = 6;
@@ -140,7 +140,7 @@ message VerifyPostalCodeRes {
 
 // Cancel an in-progress attempt
 message CancelPostalVerificationReq {
-  int64 postal_verification_attempt_id = 1;
+  int64 postal_verification_attempt_id = 1 [jstype = JS_STRING];
 }
 
 // List all postal verification attempts (history)
@@ -153,7 +153,7 @@ message ListPostalVerificationAttemptsRes {
 }
 
 message PostalVerificationAttemptSummary {
-  int64 postal_verification_attempt_id = 1;
+  int64 postal_verification_attempt_id = 1 [jstype = JS_STRING];
   PostalVerificationStatus status = 2;
   PostalAddress address = 3;
   google.protobuf.Timestamp created = 4;

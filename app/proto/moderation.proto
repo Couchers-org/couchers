@@ -61,33 +61,33 @@ enum ModerationObjectType {
 }
 
 message ModerationStateInfo {
-  int64 moderation_state_id = 1;
+  int64 moderation_state_id = 1 [jstype = JS_STRING];
   ModerationObjectType object_type = 2;
-  int64 object_id = 3;
+  int64 object_id = 3 [jstype = JS_STRING];
   ModerationVisibility visibility = 4;
   google.protobuf.Timestamp created = 5;
   google.protobuf.Timestamp updated = 6;
-  int64 author_user_id = 7;
+  int64 author_user_id = 7 [jstype = JS_STRING];
   string content = 8;
 }
 
 message ModerationQueueItemInfo {
-  int64 queue_item_id = 1;
-  int64 moderation_state_id = 2;
+  int64 queue_item_id = 1 [jstype = JS_STRING];
+  int64 moderation_state_id = 2 [jstype = JS_STRING];
   google.protobuf.Timestamp time_created = 3;
   ModerationTrigger trigger = 4;
   string reason = 5;
   bool is_resolved = 6;
-  int64 resolved_by_log_id = 7;
+  int64 resolved_by_log_id = 7 [jstype = JS_STRING];
   ModerationStateInfo moderation_state = 8;
 }
 
 message ModerationLogEntryInfo {
-  int64 log_entry_id = 1;
-  int64 moderation_state_id = 2;
+  int64 log_entry_id = 1 [jstype = JS_STRING];
+  int64 moderation_state_id = 2 [jstype = JS_STRING];
   google.protobuf.Timestamp time = 3;
   ModerationAction action = 4;
-  int64 moderator_user_id = 5;
+  int64 moderator_user_id = 5 [jstype = JS_STRING];
   ModerationVisibility new_visibility = 6;
   string reason = 7;
 }
@@ -104,7 +104,7 @@ message GetModerationQueueReq {
   // Filter to items created after this time (optional)
   google.protobuf.Timestamp created_after = 8;
   // Filter by content author (optional)
-  int64 item_author_user_id = 9;
+  int64 item_author_user_id = 9 [jstype = JS_STRING];
 
   // Pagination
   uint32 page_size = 1;
@@ -120,7 +120,7 @@ message GetModerationQueueRes {
 
 message GetModerationStateReq {
   ModerationObjectType object_type = 1;
-  int64 object_id = 2;
+  int64 object_id = 2 [jstype = JS_STRING];
 }
 
 message GetModerationStateRes {
@@ -128,7 +128,7 @@ message GetModerationStateRes {
 }
 
 message GetModerationLogReq {
-  int64 moderation_state_id = 1;
+  int64 moderation_state_id = 1 [jstype = JS_STRING];
 }
 
 message GetModerationLogRes {
@@ -137,7 +137,7 @@ message GetModerationLogRes {
 }
 
 message ModerateContentReq {
-  int64 moderation_state_id = 1;
+  int64 moderation_state_id = 1 [jstype = JS_STRING];
   // Required
   ModerationAction action = 2;
   // Required
@@ -150,7 +150,7 @@ message ModerateContentRes {
 }
 
 message FlagContentForReviewReq {
-  int64 moderation_state_id = 1;
+  int64 moderation_state_id = 1 [jstype = JS_STRING];
   ModerationTrigger trigger = 2;
   string reason = 3;
 }
@@ -160,7 +160,7 @@ message FlagContentForReviewRes {
 }
 
 message UnflagContentReq {
-  int64 moderation_state_id = 1;
+  int64 moderation_state_id = 1 [jstype = JS_STRING];
   string reason = 2;
 }
 

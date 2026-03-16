@@ -230,7 +230,7 @@ message DeleteAccountReq {
 
 message ModNote {
   // used in ack
-  uint64 note_id = 1;
+  uint64 note_id = 1 [jstype = JS_STRING];
   string note_content = 2; // CommonMark without images
   google.protobuf.Timestamp created = 3;
   // will be empty if pending
@@ -312,12 +312,12 @@ message CompleteProfileReminder {}
 message CompleteVerificationReminder {}
 
 message RespondToHostRequestReminder {
-  int64 host_request_id = 1;
+  int64 host_request_id = 1 [jstype = JS_STRING];
   org.couchers.api.core.LiteUser surfer_user = 2;
 }
 
 message WriteReferenceReminder {
-  int64 host_request_id = 1;
+  int64 host_request_id = 1 [jstype = JS_STRING];
   org.couchers.api.core.LiteUser other_user = 2;
   org.couchers.api.references.ReferenceType reference_type = 3;
 }

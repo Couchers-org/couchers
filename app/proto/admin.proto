@@ -98,9 +98,9 @@ service Admin {
 }
 
 message AdminActionLog {
-  int64 admin_action_id = 1;
+  int64 admin_action_id = 1 [jstype = JS_STRING];
   google.protobuf.Timestamp created = 2;
-  int64 admin_user_id = 3;
+  int64 admin_user_id = 3 [jstype = JS_STRING];
   string admin_username = 4;
   string action_type = 5;
   string note = 6;   // optional note/details
@@ -109,12 +109,12 @@ message AdminActionLog {
 }
 
 message AdminTagInfo {
-  int64 admin_tag_id = 1;
+  int64 admin_tag_id = 1 [jstype = JS_STRING];
   string tag = 2;
 }
 
 message UserDetails {
-  int64 user_id = 1;
+  int64 user_id = 1 [jstype = JS_STRING];
   string username = 2;
   string name = 14;
   string email = 3;
@@ -133,8 +133,8 @@ message UserDetails {
   reserved 13;
   reserved "admin_note";
 
-  int64 pending_mod_notes_count = 16;
-  int64 acknowledged_mod_notes_count = 17;
+  int64 pending_mod_notes_count = 16 [jstype = JS_STRING];
+  int64 acknowledged_mod_notes_count = 17 [jstype = JS_STRING];
 
   repeated AdminActionLog admin_actions = 18;
   repeated string admin_tags = 19;
@@ -155,8 +155,8 @@ message SearchUsersReq {
   string name = 5;
   string admin_action_log = 6;
   string city = 7;
-  int64 min_user_id = 8;
-  int64 max_user_id = 9;
+  int64 min_user_id = 8 [jstype = JS_STRING];
+  int64 max_user_id = 9 [jstype = JS_STRING];
   string min_birthdate = 10; // in YYYY-MM-DD format
   string max_birthdate = 11; // in YYYY-MM-DD format
   string min_joined_date = 12; // in YYYY-MM-DD format
@@ -227,10 +227,10 @@ message AddAdminNoteReq {
 }
 
 message ContentReport {
-  int64 content_report_id = 1;
+  int64 content_report_id = 1 [jstype = JS_STRING];
   google.protobuf.Timestamp time = 2;
-  int64 reporting_user_id = 3;
-  int64 author_user_id = 4;
+  int64 reporting_user_id = 3 [jstype = JS_STRING];
+  int64 author_user_id = 4 [jstype = JS_STRING];
   string reason = 5;
   string description = 6;
   string content_ref = 7;
@@ -239,7 +239,7 @@ message ContentReport {
 }
 
 message GetContentReportReq {
-  int64 content_report_id = 1;
+  int64 content_report_id = 1 [jstype = JS_STRING];
 }
 
 message GetContentReportRes {
@@ -291,7 +291,7 @@ message GetChatsReq {
 }
 
 message ChatUserInfo {
-  int64 user_id = 1;
+  int64 user_id = 1 [jstype = JS_STRING];
   string username = 2;
   string name = 3;
   string birthdate = 4;
@@ -299,7 +299,7 @@ message ChatUserInfo {
 }
 
 message ChatMessage {
-  int64 message_id = 1;
+  int64 message_id = 1 [jstype = JS_STRING];
   ChatUserInfo author = 2;
   google.protobuf.Timestamp time = 3;
   string message_type = 4; // e.g. "text", "chat_created", "host_request_status_changed"
@@ -316,7 +316,7 @@ message GroupChatMember {
 }
 
 message AdminGroupChat {
-  int64 group_chat_id = 1;
+  int64 group_chat_id = 1 [jstype = JS_STRING];
   string title = 2;
   bool is_dm = 3;
   ChatUserInfo creator = 4;
@@ -325,7 +325,7 @@ message AdminGroupChat {
 }
 
 message AdminHostRequest {
-  int64 host_request_id = 1;
+  int64 host_request_id = 1 [jstype = JS_STRING];
   ChatUserInfo surfer = 2;
   ChatUserInfo host = 3;
   string status = 4;
@@ -342,7 +342,7 @@ message GetChatsRes {
 }
 
 message DeleteEventReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
 }
 
 message ListUserIdsReq {
@@ -354,18 +354,18 @@ message ListUserIdsReq {
 }
 
 message ListUserIdsRes {
-  repeated int64 user_ids = 1;
+  repeated int64 user_ids = 1 [jstype = JS_STRING];
 
   string next_page_token = 2;
 }
 
 message EditReferenceTextReq {
-  int64 reference_id = 1;
+  int64 reference_id = 1 [jstype = JS_STRING];
   string new_text = 2;
 }
 
 message DeleteReferenceReq {
-  int64 reference_id = 1;
+  int64 reference_id = 1 [jstype = JS_STRING];
 }
 
 message GetUserReferencesReq {
@@ -374,14 +374,14 @@ message GetUserReferencesReq {
 }
 
 message AdminReference {
-  int64 reference_id = 1;
-  int64 from_user_id = 2;
-  int64 to_user_id = 3;
+  int64 reference_id = 1 [jstype = JS_STRING];
+  int64 from_user_id = 2 [jstype = JS_STRING];
+  int64 to_user_id = 3 [jstype = JS_STRING];
   string reference_type = 4;
   string text = 5;
   string private_text = 6;
   google.protobuf.Timestamp time = 7;
-  int64 host_request_id = 8;
+  int64 host_request_id = 8 [jstype = JS_STRING];
   double rating = 9;
   bool was_appropriate = 10;
   bool is_deleted = 11;
@@ -395,20 +395,20 @@ message GetUserReferencesRes {
 }
 
 message EditDiscussionReq {
-  int64 discussion_id = 1;
+  int64 discussion_id = 1 [jstype = JS_STRING];
   string new_title = 2;
   string new_content = 3;
 }
 
 message EditReplyReq {
-  int64 reply_id = 1;
+  int64 reply_id = 1 [jstype = JS_STRING];
   string new_content = 2;
 }
 
 message AddUsersToModerationUserListReq {
   // username, email, or user id
   repeated string users = 1;
-  int64 moderation_list_id = 2;
+  int64 moderation_list_id = 2 [jstype = JS_STRING];
 }
 
 message ListModerationUserListsReq {
@@ -417,8 +417,8 @@ message ListModerationUserListsReq {
 }
 
 message ModerationList {
-  int64 moderation_list_id = 1;
-  repeated int64 member_ids = 2;
+  int64 moderation_list_id = 1 [jstype = JS_STRING];
+  repeated int64 member_ids = 2 [jstype = JS_STRING];
 }
 
 message ListModerationUserListsRes {
@@ -426,19 +426,19 @@ message ListModerationUserListsRes {
 }
 
 message AddUsersToModerationUserListRes {
-  int64 moderation_list_id = 1;
+  int64 moderation_list_id = 1 [jstype = JS_STRING];
 }
 
 message RemoveUserFromModerationUserListReq {
   // username, email, or user id
   string user = 1;
-  int64 moderation_list_id = 2;
+  int64 moderation_list_id = 2 [jstype = JS_STRING];
 }
 
 message CreateAccountDeletionLinkReq {
   // username, email, or user id
   string user = 1;
-  int64 expiry_days = 2;
+  int64 expiry_days = 2 [jstype = JS_STRING];
 }
 
 message CreateAccountDeletionLinkRes {
@@ -462,8 +462,8 @@ message AccessStat {
   string browser = 7;
   string device = 8;
   string approximate_location = 9;
-  uint64 api_call_count = 10;
-  uint64 periods_count = 11;
+  uint64 api_call_count = 10 [jstype = JS_STRING];
+  uint64 periods_count = 11 [jstype = JS_STRING];
   google.protobuf.Timestamp first_seen = 12;
   google.protobuf.Timestamp last_seen = 13;
 }

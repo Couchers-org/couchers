@@ -60,11 +60,11 @@ service API {
 }
 
 message SendFriendRequestReq {
-  int64 user_id = 1;
+  int64 user_id = 1 [jstype = JS_STRING];
 }
 
 message FriendRequest {
-  int64 friend_request_id = 1;
+  int64 friend_request_id = 1 [jstype = JS_STRING];
 
   enum FriendRequestStatus {
     // these are the only two states that a user will see
@@ -74,20 +74,20 @@ message FriendRequest {
 
   FriendRequestStatus state = 2;
 
-  int64 user_id = 3;
+  int64 user_id = 3 [jstype = JS_STRING];
 
   // we sent the request if true, received it if false
   bool sent = 4;
 }
 
 message RespondFriendRequestReq {
-  int64 friend_request_id = 1;
+  int64 friend_request_id = 1 [jstype = JS_STRING];
 
   bool accept = 2;
 }
 
 message CancelFriendRequestReq {
-  int64 friend_request_id = 1;
+  int64 friend_request_id = 1 [jstype = JS_STRING];
 }
 
 message ListFriendRequestsRes {
@@ -96,15 +96,15 @@ message ListFriendRequestsRes {
 }
 
 message ListFriendsRes {
-  repeated int64 user_ids = 1;
+  repeated int64 user_ids = 1 [jstype = JS_STRING];
 }
 
 message RemoveFriendReq {
-  int64 user_id = 1;
+  int64 user_id = 1 [jstype = JS_STRING];
 }
 
 message ListMutualFriendsReq {
-  int64 user_id = 1;
+  int64 user_id = 1 [jstype = JS_STRING];
 }
 
 message ListMutualFriendsRes {
@@ -124,7 +124,7 @@ message PingRes {
 }
 
 message MutualFriend {
-  int64 user_id = 1;
+  int64 user_id = 1 [jstype = JS_STRING];
   string username = 2;
   string name = 3;
 }
@@ -222,7 +222,7 @@ message User {
     NA = 3; // not applicable, e.g. user requesting is self
   }
 
-  int64 user_id = 1;
+  int64 user_id = 1 [jstype = JS_STRING];
   bool is_ghost = 56;
 
   string username = 2;
@@ -290,7 +290,7 @@ message User {
 
   string avatar_url = 32;
   string avatar_thumbnail_url = 44;
-  uint64 profile_gallery_id = 123;
+  uint64 profile_gallery_id = 123 [jstype = JS_STRING];
   repeated LanguageAbility language_abilities = 37;
 
   repeated string badges = 38;
@@ -320,7 +320,7 @@ message GetUserReq {
 }
 
 message LiteUser {
-  int64 user_id = 1;
+  int64 user_id = 1 [jstype = JS_STRING];
   bool is_ghost = 12;
 
   string username = 2;
@@ -448,7 +448,7 @@ message ListBadgeUsersReq {
 }
 
 message ListBadgeUsersRes {
-  repeated int64 user_ids = 1;
+  repeated int64 user_ids = 1 [jstype = JS_STRING];
 
   string next_page_token = 2;
 }

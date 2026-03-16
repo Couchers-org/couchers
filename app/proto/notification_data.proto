@@ -97,7 +97,7 @@ message EmailAddressChange {
 
 message DonationReceived {
   // whole dollar amount
-  int64 amount = 1;
+  int64 amount = 1 [jstype = JS_STRING];
   string receipt_url = 2;
 }
 
@@ -152,7 +152,7 @@ message ChatMessage {
   org.couchers.api.core.User author = 1;
   string message = 2;
   string text = 3;
-  uint64 group_chat_id = 4;
+  uint64 group_chat_id = 4 [jstype = JS_STRING];
 }
 
 message ChatMissedMessages {
@@ -165,14 +165,14 @@ message ReferenceReceiveFriend {
 }
 
 message ReferenceReceiveHostRequest {
-  int64 host_request_id = 1;
+  int64 host_request_id = 1 [jstype = JS_STRING];
   org.couchers.api.core.User from_user = 2;
   // this is non-empty iff both have written a reference, so they are unhidden
   string text = 3;
 }
 
 message ReferenceReminder {
-  int64 host_request_id = 1;
+  int64 host_request_id = 1 [jstype = JS_STRING];
   org.couchers.api.core.User other_user = 2;
   // time left to write the req in days
   uint32 days_left = 3;
@@ -244,7 +244,7 @@ message ThreadReply {
 
 message ActivenessProbe {
   // 1, 2, 3, etc
-  uint64 reminder_number = 1;
+  uint64 reminder_number = 1 [jstype = JS_STRING];
   google.protobuf.Timestamp deadline = 2;
 }
 

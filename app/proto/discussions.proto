@@ -20,13 +20,13 @@ service Discussions {
 }
 
 message Discussion {
-  int64 discussion_id = 1;
+  int64 discussion_id = 1 [jstype = JS_STRING];
   string slug = 2;
   google.protobuf.Timestamp created = 3;
-  int64 creator_user_id = 4;
+  int64 creator_user_id = 4 [jstype = JS_STRING];
   oneof owner {
-    int64 owner_community_id = 5;
-    int64 owner_group_id = 6;
+    int64 owner_community_id = 5 [jstype = JS_STRING];
+    int64 owner_group_id = 6 [jstype = JS_STRING];
   }
   // name of community/group that this belongs in
   string owner_title = 12;
@@ -41,11 +41,11 @@ message CreateDiscussionReq {
   string title = 1;
   string content = 2;
   oneof owner {
-    int64 owner_community_id = 3;
-    int64 owner_group_id = 4;
+    int64 owner_community_id = 3 [jstype = JS_STRING];
+    int64 owner_group_id = 4 [jstype = JS_STRING];
   }
 }
 
 message GetDiscussionReq {
-  int64 discussion_id = 1;
+  int64 discussion_id = 1 [jstype = JS_STRING];
 }

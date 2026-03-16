@@ -98,22 +98,22 @@ message MessageContentChatCreated {}
 message MessageContentChatEdited {}
 
 message MessageContentUserInvited {
-  uint64 target_user_id = 1;
+  uint64 target_user_id = 1 [jstype = JS_STRING];
 }
 
 message MessageContentUserLeft {}
 
 message MessageContentUserMadeAdmin {
-  uint64 target_user_id = 1;
+  uint64 target_user_id = 1 [jstype = JS_STRING];
 }
 
 message MessageContentUserRemovedAdmin {
-  uint64 target_user_id = 1;
+  uint64 target_user_id = 1 [jstype = JS_STRING];
 }
 
 // field in Message, when a user is removed by admin
 message MessageContentUserRemoved {
-  uint64 target_user_id = 1;
+  uint64 target_user_id = 1 [jstype = JS_STRING];
 }
 
 enum HostRequestStatus {
@@ -130,8 +130,8 @@ message MessageContentHostRequestStatusChanged {
 }
 
 message Message {
-  uint64 message_id = 1;
-  uint64 author_user_id = 2;
+  uint64 message_id = 1 [jstype = JS_STRING];
+  uint64 author_user_id = 2 [jstype = JS_STRING];
   google.protobuf.Timestamp time = 3;
   oneof content {
     MessageContentText text = 4; // plain text
@@ -154,15 +154,15 @@ message MuteInfo {
 }
 
 message GroupChat {
-  uint64 group_chat_id = 1;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
   string title = 2;
-  repeated uint64 member_user_ids = 3; // inclusive of admins
-  repeated uint64 admin_user_ids = 4;
+  repeated uint64 member_user_ids = 3 [jstype = JS_STRING]; // inclusive of admins
+  repeated uint64 admin_user_ids = 4 [jstype = JS_STRING];
   bool only_admins_invite = 5;
   bool is_dm = 6;
   google.protobuf.Timestamp created = 7;
   uint32 unseen_message_count = 8;
-  uint64 last_seen_message_id = 9;
+  uint64 last_seen_message_id = 9 [jstype = JS_STRING];
   Message latest_message = 10;
   MuteInfo mute_info = 11;
   bool can_message = 12;
@@ -170,31 +170,31 @@ message GroupChat {
 }
 
 message GetGroupChatReq {
-  uint64 group_chat_id = 1;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
 }
 
 message ListGroupChatsReq {
-  uint64 last_message_id = 1;
+  uint64 last_message_id = 1 [jstype = JS_STRING];
   uint32 number = 2;
   optional bool only_archived = 3;
 }
 
 message ListGroupChatsRes {
   repeated GroupChat group_chats = 1;
-  uint64 last_message_id = 2;
+  uint64 last_message_id = 2 [jstype = JS_STRING];
   bool no_more = 3;
 }
 
 message GetUpdatesReq {
-  uint64 newest_message_id = 1;
+  uint64 newest_message_id = 1 [jstype = JS_STRING];
 }
 
 message GetDirectMessageReq {
-  uint64 user_id = 1;
+  uint64 user_id = 1 [jstype = JS_STRING];
 }
 
 message Update {
-  uint64 group_chat_id = 1;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
   Message message = 2;
 }
 
@@ -204,25 +204,25 @@ message GetUpdatesRes {
 }
 
 message GetGroupChatMessagesReq {
-  uint64 group_chat_id = 1;
-  uint64 last_message_id = 2;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
+  uint64 last_message_id = 2 [jstype = JS_STRING];
   uint32 number = 3;
   bool only_unseen = 4;
 }
 
 message GetGroupChatMessagesRes {
   repeated Message messages = 1;
-  uint64 last_message_id = 2;
+  uint64 last_message_id = 2 [jstype = JS_STRING];
   bool no_more = 3;
 }
 
 message MarkLastSeenGroupChatReq {
-  uint64 group_chat_id = 1;
-  uint64 last_seen_message_id = 2;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
+  uint64 last_seen_message_id = 2 [jstype = JS_STRING];
 }
 
 message MuteGroupChatReq {
-  uint64 group_chat_id = 1;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
   oneof duration {
     bool unmute = 2;
     bool forever = 3;
@@ -231,78 +231,78 @@ message MuteGroupChatReq {
 }
 
 message SetGroupChatArchiveStatusReq {
-  uint64 group_chat_id = 1;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
   bool is_archived = 2;
 }
 
 message SetGroupChatArchiveStatusRes {
-  uint64 group_chat_id = 1;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
   bool is_archived = 2;
 }
 
 message CreateGroupChatReq {
   google.protobuf.StringValue title = 1;
-  repeated uint64 recipient_user_ids = 2;
+  repeated uint64 recipient_user_ids = 2 [jstype = JS_STRING];
 }
 
 message EditGroupChatReq {
-  uint64 group_chat_id = 1;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
   google.protobuf.StringValue title = 2;
   google.protobuf.BoolValue only_admins_invite = 3;
 }
 
 message InviteToGroupChatReq {
-  uint64 group_chat_id = 1;
-  uint64 user_id = 2;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
+  uint64 user_id = 2 [jstype = JS_STRING];
 }
 
 message MakeGroupChatAdminReq {
-  uint64 group_chat_id = 1;
-  uint64 user_id = 2;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
+  uint64 user_id = 2 [jstype = JS_STRING];
 }
 
 // required fields and types
 message RemoveGroupChatUserReq {
-  uint64 group_chat_id = 1;
-  uint64 user_id = 2;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
+  uint64 user_id = 2 [jstype = JS_STRING];
 }
 
 message RemoveGroupChatAdminReq {
-  uint64 group_chat_id = 1;
-  uint64 user_id = 2;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
+  uint64 user_id = 2 [jstype = JS_STRING];
 }
 
 message SendMessageReq {
-  uint64 group_chat_id = 1;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
   string text = 2;
 }
 
 message SendDirectMessageReq {
-  uint64 recipient_user_id = 1;
+  uint64 recipient_user_id = 1 [jstype = JS_STRING];
   string text = 2;
 }
 
 message SendDirectMessageRes {
-  uint64 group_chat_id = 1;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
 }
 
 message LeaveGroupChatReq {
-  uint64 group_chat_id = 1;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
 }
 
 message SearchMessagesReq {
   string query = 1;
-  uint64 last_message_id = 2;
+  uint64 last_message_id = 2 [jstype = JS_STRING];
   uint32 number = 3;
 }
 
 message MessageSearchResult {
-  uint64 group_chat_id = 1;
+  uint64 group_chat_id = 1 [jstype = JS_STRING];
   Message message = 2;
 }
 
 message SearchMessagesRes {
   repeated MessageSearchResult results = 1;
-  uint64 last_message_id = 2;
+  uint64 last_message_id = 2 [jstype = JS_STRING];
   bool no_more = 3;
 }

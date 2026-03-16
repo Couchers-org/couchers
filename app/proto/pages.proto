@@ -55,19 +55,19 @@ enum PageType {
 }
 
 message Page {
-  int64 page_id = 1;
+  int64 page_id = 1 [jstype = JS_STRING];
   PageType type = 2;
   // a short URL fragment generated from the name, e.g. New York City: a guide to Phở might become
   // new-york-city-guide-to-pho
   string slug = 3;
   google.protobuf.Timestamp created = 4;
   google.protobuf.Timestamp last_edited = 5;
-  int64 last_editor_user_id = 6;
-  int64 creator_user_id = 7;
+  int64 last_editor_user_id = 6 [jstype = JS_STRING];
+  int64 creator_user_id = 7 [jstype = JS_STRING];
   oneof owner {
-    int64 owner_user_id = 8;
-    int64 owner_community_id = 17;
-    int64 owner_group_id = 9;
+    int64 owner_user_id = 8 [jstype = JS_STRING];
+    int64 owner_community_id = 17 [jstype = JS_STRING];
+    int64 owner_group_id = 9 [jstype = JS_STRING];
   }
   org.couchers.api.threads.Thread thread = 20;
 
@@ -77,7 +77,7 @@ message Page {
   string photo_url = 19;
   string address = 13;
   Coordinate location = 14;
-  repeated int64 editor_user_ids = 15;
+  repeated int64 editor_user_ids = 15 [jstype = JS_STRING];
   bool can_edit = 16;
   bool can_moderate = 18;
 }
@@ -96,17 +96,17 @@ message CreateGuideReq {
   string content = 2;
   // from media server
   string photo_key = 6;
-  int64 parent_community_id = 3;
+  int64 parent_community_id = 3 [jstype = JS_STRING];
   string address = 4; // optional
   Coordinate location = 5; // optional
 }
 
 message GetPageReq {
-  int64 page_id = 1;
+  int64 page_id = 1 [jstype = JS_STRING];
 }
 
 message UpdatePageReq {
-  int64 page_id = 1;
+  int64 page_id = 1 [jstype = JS_STRING];
 
   google.protobuf.StringValue title = 2;
   google.protobuf.StringValue content = 3;
@@ -119,10 +119,10 @@ message UpdatePageReq {
 }
 
 message TransferPageReq {
-  int64 page_id = 1;
+  int64 page_id = 1 [jstype = JS_STRING];
   oneof new_owner {
-    int64 new_owner_community_id = 3;
-    int64 new_owner_group_id = 2;
+    int64 new_owner_community_id = 3 [jstype = JS_STRING];
+    int64 new_owner_group_id = 2 [jstype = JS_STRING];
   }
 }
 

@@ -38,13 +38,13 @@ service Threads {
 // object returned by pages, discussions etc to refer to top level threads.
 message Thread {
   // top level thread id.
-  int64 thread_id = 1;
+  int64 thread_id = 1 [jstype = JS_STRING];
   // total number of comments and replies to comments.
-  int64 num_responses = 2;
+  int64 num_responses = 2 [jstype = JS_STRING];
 }
 
 message GetThreadReq {
-  int64 thread_id = 1;
+  int64 thread_id = 1 [jstype = JS_STRING];
 
   // Maximum number of replies to return. Defaults to 1000.
   uint32 page_size = 2;
@@ -67,9 +67,9 @@ message GetThreadRes {
 }
 
 message Reply {
-  int64 thread_id = 1; // id of this comment
+  int64 thread_id = 1 [jstype = JS_STRING]; // id of this comment
   string content = 2; // CommonMark without images
-  int64 author_user_id = 3;
+  int64 author_user_id = 3 [jstype = JS_STRING];
   google.protobuf.Timestamp created_time = 4;
 
   // number of replies to this comment
@@ -77,11 +77,11 @@ message Reply {
 }
 
 message PostReplyReq {
-  int64 thread_id = 1; // The comment to reply to
+  int64 thread_id = 1 [jstype = JS_STRING]; // The comment to reply to
   string content = 2; // CommonMark without images
 }
 
 message PostReplyRes {
   // The id of the just posted comment
-  int64 thread_id = 1;
+  int64 thread_id = 1 [jstype = JS_STRING];
 }

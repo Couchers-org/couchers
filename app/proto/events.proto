@@ -102,7 +102,7 @@ enum AttendanceState {
 }
 
 message Event {
-  int64 event_id = 1; // = occurrence_id
+  int64 event_id = 1 [jstype = JS_STRING]; // = occurrence_id
   // whether this is the next occurrence of this particular event
   // e.g. if this is a recurring event
   bool is_next = 2;
@@ -125,7 +125,7 @@ message Event {
 
   google.protobuf.Timestamp created = 13;
   google.protobuf.Timestamp last_edited = 14;
-  int64 creator_user_id = 15;
+  int64 creator_user_id = 15 [jstype = JS_STRING];
 
   // the UTC timestamps of start and end times
   google.protobuf.Timestamp start_time = 16;
@@ -151,9 +151,9 @@ message Event {
   uint32 subscriber_count = 27;
 
   oneof owner {
-    int64 owner_user_id = 28;
-    int64 owner_community_id = 29;
-    int64 owner_group_id = 30;
+    int64 owner_user_id = 28 [jstype = JS_STRING];
+    int64 owner_community_id = 29 [jstype = JS_STRING];
+    int64 owner_group_id = 30 [jstype = JS_STRING];
   }
   org.couchers.api.threads.Thread thread = 34;
 
@@ -171,7 +171,7 @@ message CreateEventReq {
     OfflineEventInformation offline_information = 5;
   }
   // must give this if online, otherwise optional as it can be auto-filled from the location
-  int64 parent_community_id = 8;
+  int64 parent_community_id = 8 [jstype = JS_STRING];
   // timestamps are in UTC
   google.protobuf.Timestamp start_time = 9;
   google.protobuf.Timestamp end_time = 10;
@@ -180,7 +180,7 @@ message CreateEventReq {
 }
 
 message ScheduleEventReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
   string content = 2; // CommonMark without images
   // from media server
   string photo_key = 3;
@@ -196,7 +196,7 @@ message ScheduleEventReq {
 }
 
 message UpdateEventReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
   // whether to update all future occurrences or just this one
   bool update_all_future = 2;
   google.protobuf.StringValue title = 3;
@@ -217,52 +217,52 @@ message UpdateEventReq {
 }
 
 message GetEventReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
 }
 
 message CancelEventReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
 }
 
 message RequestCommunityInviteReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
 }
 
 message ListEventAttendeesReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
 
   uint32 page_size = 2;
   string page_token = 3;
 }
 
 message ListEventAttendeesRes {
-  repeated int64 attendee_user_ids = 1;
+  repeated int64 attendee_user_ids = 1 [jstype = JS_STRING];
 
   string next_page_token = 2;
 }
 
 message ListEventSubscribersReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
 
   uint32 page_size = 2;
   string page_token = 3;
 }
 
 message ListEventSubscribersRes {
-  repeated int64 subscriber_user_ids = 1;
+  repeated int64 subscriber_user_ids = 1 [jstype = JS_STRING];
 
   string next_page_token = 2;
 }
 
 message ListEventOrganizersReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
 
   uint32 page_size = 2;
   string page_token = 3;
 }
 
 message ListEventOrganizersRes {
-  repeated int64 organizer_user_ids = 1;
+  repeated int64 organizer_user_ids = 1 [jstype = JS_STRING];
 
   string next_page_token = 2;
 }
@@ -313,7 +313,7 @@ message ListAllEventsRes {
 }
 
 message ListEventOccurrencesReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
   // whether to paginate backwards
   bool past = 2;
 
@@ -330,29 +330,29 @@ message ListEventOccurrencesRes {
 }
 
 message TransferEventReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
   oneof new_owner {
-    int64 new_owner_community_id = 3;
-    int64 new_owner_group_id = 2;
+    int64 new_owner_community_id = 3 [jstype = JS_STRING];
+    int64 new_owner_group_id = 2 [jstype = JS_STRING];
   }
 }
 
 message SetEventSubscriptionReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
   bool subscribe = 2;
 }
 
 message SetEventAttendanceReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
   AttendanceState attendance_state = 2;
 }
 
 message InviteEventOrganizerReq {
-  int64 event_id = 1;
-  int64 user_id = 2;
+  int64 event_id = 1 [jstype = JS_STRING];
+  int64 user_id = 2 [jstype = JS_STRING];
 }
 
 message RemoveEventOrganizerReq {
-  int64 event_id = 1;
+  int64 event_id = 1 [jstype = JS_STRING];
   google.protobuf.Int64Value user_id = 2;
 }

@@ -92,7 +92,7 @@ message SetNotificationSettingsReq {
 }
 
 message Notification {
-  int64 notification_id = 1;
+  int64 notification_id = 1 [jstype = JS_STRING];
   google.protobuf.Timestamp created = 2;
   string topic = 3;
   string action = 4;
@@ -119,13 +119,13 @@ message ListNotificationsRes {
 }
 
 message MarkNotificationSeenReq {
-  int64 notification_id = 1;
+  int64 notification_id = 1 [jstype = JS_STRING];
   bool set_seen = 2;
 }
 
 message MarkAllNotificationsSeenReq {
   // mark all notifications up to and including this one as seen
-  int64 latest_notification_id = 1;
+  int64 latest_notification_id = 1 [jstype = JS_STRING];
 }
 
 message GetVapidPublicKeyRes {
@@ -174,5 +174,5 @@ message SendDevPushNotificationReq {
 
 message DebugRedeliverPushNotificationReq {
   // The notification to redeliver
-  int64 notification_id = 1;
+  int64 notification_id = 1 [jstype = JS_STRING];
 }

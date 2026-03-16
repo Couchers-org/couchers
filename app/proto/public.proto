@@ -102,7 +102,7 @@ message GetSignupPageInfoRes {
   google.protobuf.Timestamp last_signup = 1;
   string last_location = 2;
 
-  uint64 user_count = 3;
+  uint64 user_count = 3 [jstype = JS_STRING];
 }
 
 message Volunteer {
@@ -134,7 +134,7 @@ message GetVolunteersRes {
 
 message GetDonationStatsRes {
   // Total donations received this year in USD (whole dollars)
-  uint64 total_donated_ytd = 1;
+  uint64 total_donated_ytd = 1 [jstype = JS_STRING];
   // The fundraising goal in USD (whole dollars)
-  uint64 goal = 2;
+  uint64 goal = 2 [jstype = JS_STRING];
 }

@@ -77,7 +77,7 @@ message StatusReq {
 message StatusRes {
   string nonce = 1;
   string version = 2;
-  uint64 coucher_count = 3;
+  uint64 coucher_count = 3 [jstype = JS_STRING];
   bool stable = 4;
 }
 

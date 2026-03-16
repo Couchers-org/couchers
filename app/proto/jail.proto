@@ -80,7 +80,7 @@ message AcceptCommunityGuidelinesReq {
 }
 
 message AcknowledgePendingModNoteReq {
-  uint64 note_id = 1;
+  uint64 note_id = 1 [jstype = JS_STRING];
   // whether the user acknowledges the note or not
   bool acknowledge = 2;
 }
