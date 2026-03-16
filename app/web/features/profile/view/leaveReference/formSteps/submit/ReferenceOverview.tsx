@@ -7,7 +7,7 @@ import { ReferenceContextFormData } from "features/profile/view/leaveReference/R
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { theme } from "theme";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 const StyledTextBody = styled(TextBody)(({ theme }) => ({
   "& > .MuiInputBase-root": {
@@ -45,7 +45,7 @@ export default function ReferenceOverview({
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
 
   return (
     <>

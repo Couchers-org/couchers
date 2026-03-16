@@ -22,7 +22,7 @@ import {
   referenceTypeRoute,
 } from "routes";
 import { theme } from "theme";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 const StyledForm = styled("form")(({ theme }) => ({
   marginBottom: theme.spacing(2),
@@ -61,7 +61,7 @@ export default function Text({
   const user = useProfileUser();
   const router = useRouter();
   // TODO #5227 - decide on consistent usage of breakpoints
-  const isMobile = useIsScreenSmallerThan("SMALL_MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("smallMobile");
   const {
     control,
     handleSubmit,

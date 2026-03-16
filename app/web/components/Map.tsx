@@ -18,7 +18,7 @@ import {
   Source,
   ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -49,7 +49,7 @@ const Map = ({
   onZoomControlOutClick,
   pins,
 }: MapProps) => {
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const isZoomFromControlRef = useRef(false);
 
   const {

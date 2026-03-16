@@ -3,18 +3,18 @@ import { theme } from "theme";
 
 export type Screensize =
   // 600 px
-  | "SMALL_MOBILE"
+  | "smallMobile"
   // 900 px
-  | "MOBILE"
+  | "mobile"
   // 1200 px
-  | "TABLET";
+  | "tablet";
 
 const themeSizes = {
-  SMALL_MOBILE: "sm" as Breakpoint,
-  MOBILE: "md" as Breakpoint,
-  TABLET: "lg" as Breakpoint,
+  smallMobile: "sm" as Breakpoint,
+  mobile: "md" as Breakpoint,
+  tablet: "lg" as Breakpoint,
 };
 
-export default function useIsScreenSmallerThan(size: Screensize) {
+export default function useIsScreenSizeOrSmaller(size: Screensize) {
   return useMediaQuery(theme.breakpoints.down(themeSizes[size]));
 }

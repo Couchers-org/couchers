@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { signupRoute } from "routes";
 import { theme } from "theme";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import CouchersMission from "./CouchersMission";
 import HeroSection from "./HeroSection";
@@ -23,7 +23,7 @@ const StyledSpacer = styled("div")(({ theme }) => ({
 
 export default function LandingPage() {
   const { authState } = useAuthContext();
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const router = useRouter();
   const { t } = useTranslation(GLOBAL);
 

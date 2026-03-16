@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { routeToNewEvent } from "routes";
 import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import EventsList from "./EventsList";
 import { useEventSearch } from "./hooks";
@@ -83,7 +83,7 @@ const DiscoverEventsList = () => {
     mode: "onChange",
   });
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const pageSize = 12;
 
   const [pageNumber, setPageNumber] = useState(1);

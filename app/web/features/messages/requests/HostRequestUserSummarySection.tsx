@@ -9,7 +9,7 @@ import { theme } from "theme";
 import { numNights } from "utils/date";
 import dayjs from "utils/dayjs";
 import truncateTextEllipsis from "utils/truncateTextEllipsis";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 const StyledRequestedDatesWrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -52,7 +52,7 @@ const HostRequestUserSummarySection = ({
   otherUser: LiteUser.AsObject | undefined;
 }) => {
   const { t } = useTranslation(MESSAGES);
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
 
   const smallUserSummarySection = (
     <StyledSmallUserSummary>

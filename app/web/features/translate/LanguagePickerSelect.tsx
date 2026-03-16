@@ -25,7 +25,7 @@ import { useState } from "react";
 import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import { ALMOST_DONE_CUTOFF } from "./constants";
 import { useShowAllLanguages } from "./useShowAllLanguages";
@@ -72,7 +72,7 @@ export default function LanguagePickerSelect({
   const { authState } = useAuthContext();
   const isAuthenticated = authState.authenticated;
 
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const { t } = useTranslation([GLOBAL]);
 
   const { data: languages, isLoading, error } = useWeblateStats();

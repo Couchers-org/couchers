@@ -32,7 +32,7 @@ import {
   referenceTypeRoute,
 } from "routes";
 import { theme } from "theme";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 const ACCEPTABLE_RATING_THRESHOLD = 0.33;
 
@@ -91,7 +91,7 @@ export default function PrivateFeedback({
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
 
   const {
     control,

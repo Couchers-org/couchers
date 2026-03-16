@@ -22,7 +22,7 @@ import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
 import { howToDonateUrl } from "routes";
 import { service } from "service";
 import { theme } from "theme";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 const StyledForm = styled("form")(() => ({
   marginBottom: theme.spacing(2),
@@ -52,7 +52,7 @@ export default function ChangePhone({
   accountInfo,
 }: ChangePhoneProps) {
   const { t } = useTranslation([AUTH]);
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const queryClient = useQueryClient();
 
   const {

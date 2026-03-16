@@ -15,7 +15,7 @@ import { LANGUAGE_MAP } from "i18n/constants";
 import { GLOBAL } from "i18n/namespaces";
 import React from "react";
 import { translateJobURL } from "routes";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import {
   ALMOST_DONE_CUTOFF,
@@ -135,7 +135,7 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
 }));
 
 export default function TranslationProgress() {
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const { t } = useTranslation([GLOBAL]);
 
   const { data: languages, isLoading, error } = useWeblateStats();

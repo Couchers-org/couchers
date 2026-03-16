@@ -4,7 +4,7 @@ import { getSliderColor } from "components/RatingsSlider/getSliderColor";
 import SliderLabel from "components/RatingsSlider/SliderLabel";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 interface ColorProps {
   sliderColor: string;
@@ -81,7 +81,7 @@ export default function RatingsSlider({ value, onChange }: SliderProps) {
   const { t } = useTranslation(PROFILE);
 
   // TODO #5227 - decide on consistent usage of breakpoints
-  const isMobile = useIsScreenSmallerThan("SMALL_MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("smallMobile");
 
   const marks = [
     {

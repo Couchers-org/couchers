@@ -5,7 +5,7 @@ import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { signupRoute, whatIsCouchSurfingRoute } from "routes";
 import { theme } from "theme";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 const StyledIntroduction = styled("div")(({ theme }) => ({
   flexDirection: "column",
@@ -23,7 +23,7 @@ const StyledIntroduction = styled("div")(({ theme }) => ({
 const CouchersIntroduction = () => {
   const { t } = useTranslation([GLOBAL, LANDING]);
   const router = useRouter();
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
 
   const routeToSignupPage = () => {
     router.push(signupRoute);

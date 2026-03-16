@@ -6,7 +6,7 @@ import Badge from "features/badges/Badge";
 import { useBadges } from "features/badges/hooks";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import BadgeUserList from "./BadgeUserList";
 
@@ -53,7 +53,7 @@ export default function BadgesPage({ badgeId = undefined }: BadgesPageProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const { badges, isLoading: isBadgesLoading } = useBadges();
 
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
 
   return (
     <>

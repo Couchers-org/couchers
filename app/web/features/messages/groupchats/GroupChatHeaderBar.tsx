@@ -28,7 +28,7 @@ import { useRef, useState } from "react";
 import { groupChatsRoute, messagesRoute, routeToUser } from "routes";
 import { service } from "service";
 import { theme } from "theme";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import { groupChatKey, groupChatsListKey } from "../../queryKeys";
 
@@ -64,7 +64,7 @@ export default function GroupChatHeaderBar({
   const isChatAdmin = groupChat?.adminUserIdsList.includes(currentUserId);
 
   // TODO #5227 - decide on consistent usage of breakpoints
-  const isMobile = useIsScreenSmallerThan("SMALL_MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("smallMobile");
 
   const menuAnchor = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState({

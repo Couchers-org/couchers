@@ -22,7 +22,7 @@ import {
   WriteHostRequestReferenceInput,
 } from "service/references";
 import { theme } from "theme";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import ReferenceStepHeader from "../ReferenceStepHeader";
 
@@ -63,7 +63,7 @@ export default function SubmitReference({
   const router = useRouter();
 
   // TODO #5227 - decide on consistent usage of breakpoints
-  const isMobile = useIsScreenSmallerThan("SMALL_MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("smallMobile");
   const { handleSubmit } = useForm<ReferenceContextFormData>();
 
   const onFriendReferenceSubmit = () => {

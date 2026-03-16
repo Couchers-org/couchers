@@ -11,7 +11,7 @@ import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
 import { routeToNewEvent } from "routes";
 import { theme } from "theme";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import Button from "../../components/Button";
 import { ListMyEventsRes } from "../../proto/events_pb";
@@ -75,7 +75,7 @@ export default function MyEvents() {
   const { t } = useTranslation([DASHBOARD]);
 
   // TODO #5227 - decide on consistent usage of breakpoints
-  const isMobile = useIsScreenSmallerThan("SMALL_MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("smallMobile");
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
     useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({

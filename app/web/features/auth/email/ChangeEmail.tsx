@@ -10,7 +10,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 import { lowercaseAndTrimField } from "utils/validation";
 
 const StyledForm = styled("form")(() => ({
@@ -32,7 +32,7 @@ interface ChangeEmailProps {
 
 export default function ChangeEmail({ className, email }: ChangeEmailProps) {
   const { t } = useTranslation([AUTH, GLOBAL]);
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
   const {
     handleSubmit,
     register,

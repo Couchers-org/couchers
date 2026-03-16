@@ -3,7 +3,7 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import ResizeableDrawer from "components/ResizeableDrawer";
 import { RpcError } from "grpc-web";
 import { SearchUser } from "proto/search_pb";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import PreviousNextPagination from "./PreviousNextPagination";
 import SearchResultListContent from "./SearchResultListContent";
@@ -55,7 +55,7 @@ const MapSearchResultsList = ({
   totalItems,
   users,
 }: MapSearchResultsListProps) => {
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
 
   const {
     hasActiveFilters,

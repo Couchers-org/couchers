@@ -18,7 +18,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { settingsRoute } from "routes";
 import { service } from "service";
 import { base64ToFile, useNativeImagePicker } from "utils/nativeLink";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 import GalleryItem, { DropPlaceholder } from "./GalleryItem";
 
@@ -126,8 +126,8 @@ export default function GalleryEditor({
   const { t } = useTranslation([PROFILE]);
 
   // TODO #5227 - decide on consistent usage of breakpoints
-  const isMobile = useIsScreenSmallerThan("SMALL_MOBILE");
-  const isTablet = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("smallMobile");
+  const isTablet = useIsScreenSizeOrSmaller("mobile");
 
   const inputRef = useRef<HTMLInputElement>(null);
 

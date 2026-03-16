@@ -4,7 +4,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useRef, useState } from "react";
 import { theme } from "theme";
-import useIsScreenSmallerThan from "utils/useIsScreenSmallerThan";
+import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
 
 interface StyledBubbleProps extends React.ComponentProps<typeof Box> {
   selected?: boolean;
@@ -54,7 +54,7 @@ const StyledBubble = styled(Box, {
 const CouchersMission = () => {
   const { t } = useTranslation([LANDING, GLOBAL]);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsScreenSmallerThan("MOBILE");
+  const isMobile = useIsScreenSizeOrSmaller("mobile");
 
   const [selectedItem, setSelectedItem] = useState("nonprofit");
   const [canScrollLeft, setCanScrollLeft] = useState(false);
