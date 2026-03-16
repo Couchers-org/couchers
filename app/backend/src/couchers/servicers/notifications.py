@@ -68,7 +68,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         return notifications_pb2.GetNotificationSettingsRes(
             do_not_email_enabled=user.do_not_email,
-            groups=get_user_setting_groups(user.id),
+            groups=get_user_setting_groups(user.id, context.localization),
         )
 
     def SetNotificationSettings(
@@ -95,7 +95,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 )
         return notifications_pb2.GetNotificationSettingsRes(
             do_not_email_enabled=user.do_not_email,
-            groups=get_user_setting_groups(user.id),
+            groups=get_user_setting_groups(user.id, context.localization),
         )
 
     def ListNotifications(
