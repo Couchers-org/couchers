@@ -1,1 +1,94 @@
-{}
+{
+  "any": "Jakékoli",
+  "choose_search_criteria": "Zadej místo nebo použij filtr pro vyhledávání.",
+  "error_loading_users": "Chyba při načítání uživatelů",
+  "filter_dialog": {
+    "search_here_button": "Hledat v této oblasti",
+    "desktop_title": "Filtry",
+    "mobile_title": "Hledat"
+  },
+  "last_active_options": {
+    "last_week": "Minulý týden",
+    "last_month": "Minulý měsíc",
+    "last_3_months": "Poslední 3 měsíce",
+    "last_6_months": "Posledních 6 měsíců",
+    "last_year": "Minulý rok"
+  },
+  "form": {
+    "location_field_label": "Poblíž polohy",
+    "missing_location_validation_error": "Zadej místo, aby bylo možné tento filtr použít",
+    "keywords": {
+      "field_label": "Jméno, klíčová slova nebo uživatelské jméno",
+      "clear_field_action_a11y_label": "Vymazat vyhledávání",
+      "search_this_keyword_a11y_label": "Vyhledat toto klíčové slovo"
+    },
+    "by_location_filter_label": "Podle lokality",
+    "by_keyword_filter_label": "Podle klíčového slova nebo názvu",
+    "host_filters": {
+      "age": {
+        "min_age": "Minimální věk",
+        "max_age": "Maximální věk"
+      },
+      "last_active_field_label": "Naposledy aktivní",
+      "complete_profiles_label": "Kompletní profily"
+    },
+    "accommodation_filters": {
+      "title": "Filtry ubytování",
+      "guests_field_label": "Počet hostů",
+      "sleeping_arrangement_label": "Uspořádání spaní",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "label": "Sdílený pokoj",
+          "description": " - např. sdílená ložnice s vlastním lůžkem"
+        },
+        "private": {
+          "label": "Soukromý prostor",
+          "description": " - např. vlastní pokoj nebo podobné"
+        },
+        "common": {
+          "label": "Sdílená místnost",
+          "description": " - např. pohovka v obývacím pokoji"
+        }
+      }
+    },
+    "empty_profile_filters": {
+      "title": "Zobrazit prázdné profily"
+    },
+    "general_filters": {
+      "accepts_last_minute_requests": "Přijímá požadavky na poslední chvíli",
+      "has_strong_verification": "Má silné ověření",
+      "has_references": "Má reference",
+      "same_gender_only": "Zobrazit pouze stejné pohlaví",
+      "same_gender_only_helper_text": "Tento filtr mohou používat jen silně ověření uživatelé.",
+      "get_strong_verification": "Získejte silné ověření zde (je to zdarma)."
+    },
+    "rules": {
+      "title": "Pravidla",
+      "alcohol_allowed": "Alkohol povolen",
+      "kids_allowed": "Děti povoleny",
+      "pets_allowed": "Domácí mazlíčci povoleni",
+      "smokes_at_home": "Kouření doma"
+    },
+    "submit_button_label": "Použít",
+    "search_filters": "Vyhledávací filtry",
+    "clear_filters": "Vymazat všechny filtry"
+  },
+  "search_result": {
+    "no_user_result_message": "Nebyl nalezen žádný uživatel. Zkus odebrat některé filtry, aby se zobrazilo více výsledků.",
+    "show_user_button_label": "Zobrazit {{name}} na mapě",
+    "missing_about_description": "{{name}} nemá zatím vyplněn svůj profil",
+    "people_range_message_one": "{{currentRange}} z {{count}} osoby",
+    "people_range_message_few": "{{currentRange}} z {{count}} osob",
+    "people_range_message_other": "{{currentRange}} z {{count}} osob",
+    "few_results_suggestion": "Ve výchozím nastavení jsou prázdné profily a profily s „nemůže hostit\" skryté.",
+    "include_empty_profiles_button": "Zobrazit všechny profily"
+  },
+  "views": {
+    "choose_map_view": "Vybrat zobrazení mapy",
+    "list": "Seznam",
+    "map_and_list": "Mapa a seznam"
+  },
+  "location": "Poloha",
+  "keyword": "Klíčové slovo",
+  "search_this_area": "Hledat v této oblasti"
+}
