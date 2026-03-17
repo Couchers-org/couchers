@@ -19,7 +19,7 @@ export default function PagePage({
   pageSlug,
 }: {
   pageType: PageType;
-  pageId: number;
+  pageId: string;
   pageSlug?: string;
 }) {
   const { t } = useTranslation(["communities", "global"]);

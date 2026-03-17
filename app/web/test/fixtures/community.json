@@ -1,5 +1,5 @@
 {
-  "communityId": 2,
+  "communityId": "2",
   "name": "Amsterdam",
   "slug": "amsterdam",
   "description": "This is amsterdam",
@@ -7,7 +7,7 @@
   "parentsList": [
     {
       "community": {
-        "communityId": 1,
+        "communityId": "1",
         "name": "Netherlands",
         "slug": "netherlands",
         "description": "Netherlands region"
@@ -21,7 +21,7 @@
     "lastEditorUserId": 3,
     "creatorUserId": 3,
     "ownerUserId": 0,
-    "ownerCommunityId": 1,
+    "ownerCommunityId": "1",
     "ownerGroupId": 0,
     "threadId": 5,
     "title": "Amsterdam community page",

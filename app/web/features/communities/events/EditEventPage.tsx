@@ -18,7 +18,7 @@ import { communityEventsBaseKey, eventKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
 
-export default function EditEventPage({ eventId }: { eventId: number }) {
+export default function EditEventPage({ eventId }: { eventId: string }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES, PROFILE]);
   const router = useRouter();
 

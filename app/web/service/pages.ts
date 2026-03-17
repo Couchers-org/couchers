@@ -35,7 +35,7 @@ export async function createPlace(
 export async function createGuide(
   title: string,
   content: string,
-  parentCommunityId: number,
+  parentCommunityId: string,
   address: string,
   lat?: number,
   lng?: number,
@@ -56,7 +56,7 @@ export async function createGuide(
   return response.toObject();
 }
 
-export async function getPage(pageId: number) {
+export async function getPage(pageId: string) {
   const req = new GetPageReq();
   req.setPageId(pageId);
   const response = await client.pages.getPage(req);
@@ -65,7 +65,7 @@ export async function getPage(pageId: number) {
 
 interface UpdatePageInput {
   content?: string;
-  pageId: number;
+  pageId: string;
   title?: string;
   photoKey?: string;
 }

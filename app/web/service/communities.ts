@@ -17,7 +17,7 @@ import {
 
 import client from "./client";
 
-export async function getCommunity(communityId: number) {
+export async function getCommunity(communityId: string) {
   const req = new GetCommunityReq();
   req.setCommunityId(communityId);
   const response = await client.communities.getCommunity(req);
@@ -27,7 +27,7 @@ export async function getCommunity(communityId: number) {
 /**
  * List sub-communities of a given community
  */
-export async function listCommunities(communityId: number, pageToken?: string) {
+export async function listCommunities(communityId: string, pageToken?: string) {
   const req = new ListCommunitiesReq();
   req.setCommunityId(communityId);
   if (pageToken) {
@@ -37,7 +37,7 @@ export async function listCommunities(communityId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function listGroups(communityId: number, pageToken?: string) {
+export async function listGroups(communityId: string, pageToken?: string) {
   const req = new ListGroupsReq();
   req.setCommunityId(communityId);
   if (pageToken) {
@@ -47,7 +47,7 @@ export async function listGroups(communityId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function listAdmins(communityId: number, pageToken?: string) {
+export async function listAdmins(communityId: string, pageToken?: string) {
   const req = new ListAdminsReq();
   req.setCommunityId(communityId);
   if (pageToken) {
@@ -63,7 +63,7 @@ export async function listMembers({
   pageSize,
   pageToken,
 }: {
-  communityId: number;
+  communityId: string;
   pageSize?: number;
   pageToken?: string;
 }) {
@@ -83,7 +83,7 @@ export async function listMembers({
   return response.toObject();
 }
 
-export async function listNearbyUsers(communityId: number, pageToken?: string) {
+export async function listNearbyUsers(communityId: string, pageToken?: string) {
   const req = new ListNearbyUsersReq();
   req.setCommunityId(communityId);
   if (pageToken) {
@@ -93,7 +93,7 @@ export async function listNearbyUsers(communityId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function listPlaces(communityId: number, pageToken?: string) {
+export async function listPlaces(communityId: string, pageToken?: string) {
   const req = new ListPlacesReq();
   req.setCommunityId(communityId);
   if (pageToken) {
@@ -103,7 +103,7 @@ export async function listPlaces(communityId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function listGuides(communityId: number, pageToken?: string) {
+export async function listGuides(communityId: string, pageToken?: string) {
   const req = new ListGuidesReq();
   req.setCommunityId(communityId);
   if (pageToken) {
@@ -113,7 +113,7 @@ export async function listGuides(communityId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function listDiscussions(communityId: number, pageToken?: string) {
+export async function listDiscussions(communityId: string, pageToken?: string) {
   const req = new ListDiscussionsReq();
   req.setCommunityId(communityId);
   if (pageToken) {
@@ -123,13 +123,13 @@ export async function listDiscussions(communityId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function joinCommunity(communityId: number) {
+export async function joinCommunity(communityId: string) {
   const req = new JoinCommunityReq();
   req.setCommunityId(communityId);
   await client.communities.joinCommunity(req);
 }
 
-export async function leaveCommunity(communityId: number) {
+export async function leaveCommunity(communityId: string) {
   const req = new LeaveCommunityReq();
   req.setCommunityId(communityId);
   await client.communities.leaveCommunity(req);

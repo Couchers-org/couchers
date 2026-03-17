@@ -107,7 +107,7 @@ export const useListDiscussions = (communityId: number) =>
       lastPage.nextPageToken ? lastPage.nextPageToken : undefined,
   });
 
-export const useListAdmins = (communityId: number, type: QueryType) => {
+export const useListAdmins = (communityId: string, type: QueryType) => {
   const query = useInfiniteQuery<ListAdminsRes.AsObject, RpcError>({
     queryKey: communityAdminsKey(communityId, type),
     queryFn: ({ pageParam }) =>

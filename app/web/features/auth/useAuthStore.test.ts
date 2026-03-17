@@ -219,7 +219,7 @@ describe("firstLogin action", () => {
     expect(result.current.authState.authenticated).toBe(false);
     await act(() =>
       result.current.authActions.firstLogin({
-        userId: 55,
+        userId: "55",
         jailed: false,
       }),
     );

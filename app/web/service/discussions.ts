@@ -5,8 +5,8 @@ import client from "./client";
 export async function createDiscussion(
   title: string,
   content: string,
-  ownerCommunityId?: number,
-  ownerGroupId?: number,
+  ownerCommunityId?: string,
+  ownerGroupId?: string,
 ) {
   const req = new CreateDiscussionReq();
   req.setTitle(title);
@@ -23,7 +23,7 @@ export async function createDiscussion(
   return response.toObject();
 }
 
-export async function getDiscussion(discussionId: number) {
+export async function getDiscussion(discussionId: string) {
   const req = new GetDiscussionReq();
   req.setDiscussionId(discussionId);
   const response = await client.discussions.getDiscussion(req);

@@ -138,30 +138,30 @@ export const jailRoute = "/restricted";
 export const tosRoute = "/terms";
 
 const placeBaseRoute = "/place";
-export const routeToPlace = (id: number, slug: string) =>
+export const routeToPlace = (id: string, slug: string) =>
   `${placeBaseRoute}/${id}/${slug}`;
 
 const guideBaseRoute = "/guide";
-export const routeToGuide = (id: number, slug: string) =>
+export const routeToGuide = (id: string, slug: string) =>
   `${guideBaseRoute}/${id}/${slug}`;
 
 const groupBaseRoute = "/group";
-export const routeToGroup = (id: number, slug: string) =>
+export const routeToGroup = (id: string, slug: string) =>
   `${groupBaseRoute}/${id}/${slug}`;
 
 export const discussionBaseRoute = "/discussion";
-export const routeToDiscussion = (id: number, slug: string) =>
+export const routeToDiscussion = (id: string, slug: string) =>
   `${discussionBaseRoute}/${id}/${slug}`;
 
 export const eventBaseRoute = "/event";
 export const newEventRoute = `${eventBaseRoute}/new`;
-export const routeToNewEvent = (communityId?: number) =>
+export const routeToNewEvent = (communityId?: string) =>
   `${newEventRoute}${communityId ? `?communityId=${communityId}` : ""}`;
-export const routeToDuplicateEvent = (eventId: number) =>
+export const routeToDuplicateEvent = (eventId: string) =>
   `${newEventRoute}?duplicateEventId=${eventId}`;
-export const routeToEvent = (id: number, slug: string) =>
+export const routeToEvent = (id: string, slug: string) =>
   `${eventBaseRoute}/${id}/${slug}`;
-export const routeToEditEvent = (id: number, slug: string) =>
+export const routeToEditEvent = (id: string, slug: string) =>
   `${routeToEvent(id, slug)}/edit`;
 
 const communityBaseRoute = "/community";
@@ -175,11 +175,11 @@ export const communityTabs = [
 export type CommunityTab = (typeof communityTabs)[number];
 
 export const routeToCommunity = (
-  id: number,
+  id: string,
   slug: string,
   page?: CommunityTab,
 ) => `${communityBaseRoute}/${id}/${slug}${page ? `/${page}` : ""}`;
-export const routeToEditCommunityPage = (id: number, slug: string) =>
+export const routeToEditCommunityPage = (id: string, slug: string) =>
   `${routeToCommunity(id, slug, "info")}/edit`;
 
 export const composingDiscussionHash = "new";

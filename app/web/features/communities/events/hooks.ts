@@ -80,7 +80,7 @@ export function useEvent({
   eventId,
   enabled,
 }: {
-  eventId: number;
+  eventId: string;
   enabled?: boolean;
 }) {
   const isValidEventId = eventId > 0;

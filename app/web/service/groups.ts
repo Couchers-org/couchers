@@ -11,14 +11,14 @@ import {
 
 import client from "./client";
 
-export async function getGroup(groupId: number) {
+export async function getGroup(groupId: string) {
   const req = new GetGroupReq();
   req.setGroupId(groupId);
   const response = await client.groups.getGroup(req);
   return response.toObject();
 }
 
-export async function listAdmins(groupId: number, pageToken?: string) {
+export async function listAdmins(groupId: string, pageToken?: string) {
   const req = new ListAdminsReq();
   req.setGroupId(groupId);
   if (pageToken) {
@@ -28,7 +28,7 @@ export async function listAdmins(groupId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function listMembers(groupId: number, pageToken?: string) {
+export async function listMembers(groupId: string, pageToken?: string) {
   const req = new ListMembersReq();
   req.setGroupId(groupId);
   if (pageToken) {
@@ -38,7 +38,7 @@ export async function listMembers(groupId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function listPlaces(groupId: number, pageToken?: string) {
+export async function listPlaces(groupId: string, pageToken?: string) {
   const req = new ListPlacesReq();
   req.setGroupId(groupId);
   if (pageToken) {
@@ -48,7 +48,7 @@ export async function listPlaces(groupId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function listGuides(groupId: number, pageToken?: string) {
+export async function listGuides(groupId: string, pageToken?: string) {
   const req = new ListGuidesReq();
   req.setGroupId(groupId);
   if (pageToken) {
@@ -58,7 +58,7 @@ export async function listGuides(groupId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function listDiscussions(groupId: number, pageToken?: string) {
+export async function listDiscussions(groupId: string, pageToken?: string) {
   const req = new ListDiscussionsReq();
   req.setGroupId(groupId);
   if (pageToken) {
@@ -68,13 +68,13 @@ export async function listDiscussions(groupId: number, pageToken?: string) {
   return response.toObject();
 }
 
-export async function joinGroup(groupId: number) {
+export async function joinGroup(groupId: string) {
   const req = new JoinGroupReq();
   req.setGroupId(groupId);
   await client.groups.joinGroup(req);
 }
 
-export async function leaveGroup(groupId: number) {
+export async function leaveGroup(groupId: string) {
   const req = new LeaveGroupReq();
   req.setGroupId(groupId);
   await client.groups.leaveGroup(req);

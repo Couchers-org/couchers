@@ -16,7 +16,7 @@ export const pingQueryKey = "ping";
 export const username2Id = "username2Id";
 export const volunteerInfoQueryKey = "volunteerInfo";
 
-export function userKey(userId?: number) {
+export function userKey(userId?: string) {
   return userId === undefined ? ["user"] : ["user", userId];
 }
 
@@ -56,12 +56,12 @@ export const friendRequestKey = (type: FriendRequestType) => [
 
 // communities
 export const communityKey = (id: number) => ["community", id];
-export const subCommunitiesKey = (communityId: number) => [
+export const subCommunitiesKey = (communityId: string) => [
   "subCommunities",
   communityId,
 ];
 
-export const communityDiscussionsKey = (communityId: number) => [
+export const communityDiscussionsKey = (communityId: string) => [
   "communityDiscussions",
   communityId,
 ];
@@ -69,32 +69,32 @@ export const communityDiscussionsKey = (communityId: number) => [
 // Determines whether only some entities can be revealed or all can be revealed
 // with a fetch more button
 export type QueryType = "summary" | "all";
-export const communityAdminsKey = (communityId: number, type: QueryType) => [
+export const communityAdminsKey = (communityId: string, type: QueryType) => [
   "communityAdmins",
   { communityId, type },
 ];
 
-export const communityMembersKey = (communityId: number) => [
+export const communityMembersKey = (communityId: string) => [
   "communityMembers",
   communityId,
 ];
-export const communityNearbyUsersKey = (communityId: number) => [
+export const communityNearbyUsersKey = (communityId: string) => [
   "communityNearbyUsers",
   communityId,
 ];
 
 export const communityEventsBaseKey = "communityEvents";
-export const communityEventsKey = (communityId: number, type: QueryType) => [
+export const communityEventsKey = (communityId: string, type: QueryType) => [
   communityEventsBaseKey,
   communityId,
   { type },
 ];
 
 // events
-export const eventKey = (eventId: number) => ["event", eventId];
+export const eventKey = (eventId: string) => ["event", eventId];
 export type EventsType = "upcoming" | "past";
 interface EventUsersInput {
-  eventId: number;
+  eventId: string;
   type: QueryType;
 }
 

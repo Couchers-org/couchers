@@ -3,7 +3,7 @@ import { galleryEditInfoKey, galleryKey, userKey } from "features/queryKeys";
 import { PhotoGallery } from "proto/galleries_pb";
 import { service } from "service";
 
-export function useGallery(galleryId: number | undefined) {
+export function useGallery(galleryId: string | undefined) {
   return useQuery({
     queryKey: galleryKey(galleryId || 0),
     queryFn: () => service.gallery.getGallery(galleryId!),
@@ -11,7 +11,7 @@ export function useGallery(galleryId: number | undefined) {
   });
 }
 
-export function useGalleryEditInfo(galleryId: number | undefined) {
+export function useGalleryEditInfo(galleryId: string | undefined) {
   return useQuery({
     queryKey: galleryEditInfoKey(galleryId || 0),
     queryFn: () => service.gallery.getGalleryEditInfo(galleryId!),
@@ -19,7 +19,7 @@ export function useGalleryEditInfo(galleryId: number | undefined) {
   });
 }
 
-export function useAddPhotoToGallery(galleryId: number, userId?: number) {
+export function useAddPhotoToGallery(galleryId: string, userId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({

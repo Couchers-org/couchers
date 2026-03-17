@@ -21,12 +21,12 @@ export enum ReferenceTypeStrings {
 }
 
 interface GetReferencesBaseInput {
-  userId: number;
+  userId: string;
   pageToken?: string;
 }
 
 interface GetAvailableReferencesInput {
-  userId: number;
+  userId: string;
 }
 
 interface WriteReferenceBaseInput {
@@ -38,11 +38,11 @@ interface WriteReferenceBaseInput {
 
 export interface WriteHostRequestReferenceInput
   extends WriteReferenceBaseInput {
-  hostRequestId: number;
+  hostRequestId: string;
 }
 
 export interface WriteFriendReferenceInput extends WriteReferenceBaseInput {
-  toUserId: number;
+  toUserId: string;
 }
 
 type GetReferencesGivenInput = GetReferencesBaseInput;
@@ -134,7 +134,7 @@ export async function listPendingReferencesToWrite() {
   return res.toObject();
 }
 
-export async function getHostRequestReferenceStatus(hostRequestId: number) {
+export async function getHostRequestReferenceStatus(hostRequestId: string) {
   const req = new GetHostRequestReferenceStatusReq();
   req.setHostRequestId(hostRequestId);
   const res = await client.references.getHostRequestReferenceStatus(req);

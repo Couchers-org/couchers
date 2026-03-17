@@ -36,13 +36,13 @@ const mockListAllCommunities =
 
 const mockCommunities: CommunitySummary.AsObject[] = [
   {
-    communityId: 2,
+    communityId: "2",
     name: "Amsterdam",
     slug: "amsterdam",
     parentsList: [
       {
         community: {
-          communityId: 1,
+          communityId: "1",
           name: "Europe",
           slug: "europe",
           description: "European region",
@@ -55,13 +55,13 @@ const mockCommunities: CommunitySummary.AsObject[] = [
     nodeType: NodeType.NODE_TYPE_LOCALITY,
   },
   {
-    communityId: 3,
+    communityId: "3",
     name: "Rotterdam",
     slug: "rotterdam",
     parentsList: [
       {
         community: {
-          communityId: 1,
+          communityId: "1",
           name: "Europe",
           slug: "europe",
           description: "European region",
@@ -74,13 +74,13 @@ const mockCommunities: CommunitySummary.AsObject[] = [
     nodeType: NodeType.NODE_TYPE_LOCALITY,
   },
   {
-    communityId: 4,
+    communityId: "4",
     name: "Berlin",
     slug: "berlin",
     parentsList: [
       {
         community: {
-          communityId: 1,
+          communityId: "1",
           name: "Europe",
           slug: "europe",
           description: "European region",

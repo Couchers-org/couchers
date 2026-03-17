@@ -9,7 +9,7 @@ import { userStaleTime } from "./constants";
 
 // React Query typically retains the last successful data until the next successful fetch
 // if ids is `[]`, then `data` is `undefined`
-function useLiteUsers(ids: (number | undefined)[] | undefined) {
+function useLiteUsers(ids: (string | undefined)[] | undefined) {
   const nonFalseyIds = ids?.filter((id) => id !== undefined);
   // remove duplicate IDs from this list
   const uniqueIds = Array.from(new Set(nonFalseyIds));
@@ -38,7 +38,7 @@ function useLiteUsers(ids: (number | undefined)[] | undefined) {
 }
 
 // Like above, but returns users in a list of the same size in same order
-function useLiteUsersList(ids: (number | undefined)[] | undefined) {
+function useLiteUsersList(ids: (string | undefined)[] | undefined) {
   const liteUsersMap = useLiteUsers(ids);
   const usersList = ids
     ?.map((id) => liteUsersMap.data?.get(id))
@@ -52,7 +52,7 @@ function useLiteUsersList(ids: (number | undefined)[] | undefined) {
 }
 
 // React Query typically retains the last successful data until the next successful fetch
-function useLiteUser(id: number | undefined) {
+function useLiteUser(id: string | undefined) {
   const query = useQuery<LiteUser.AsObject, RpcError>({
     queryKey: liteUserKey(id),
     queryFn: () => service.user.getLiteUser(id?.toString() || ""),

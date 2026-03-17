@@ -26,7 +26,7 @@ import { Duration, duration2pb } from "./utils/date";
 import isGrpcError from "./utils/isGrpcError";
 
 export async function listGroupChats(
-  lastMessageId = 0,
+  lastMessageId = "0",
   count = 10,
   onlyArchived?: boolean,
 ) {
@@ -42,7 +42,7 @@ export async function listGroupChats(
   return response.toObject();
 }
 
-export async function getGroupChat(id: number) {
+export async function getGroupChat(id: string) {
   const req = new GetGroupChatReq();
   req.setGroupChatId(id);
   const response = await client.conversations.getGroupChat(req);
@@ -50,8 +50,8 @@ export async function getGroupChat(id: number) {
 }
 
 export async function getGroupChatMessages(
-  groupChatId: number,
-  lastMessageId = 0,
+  groupChatId: string,
+  lastMessageId = "0",
   count = 20,
 ) {
   const req = new GetGroupChatMessagesReq();
@@ -67,7 +67,7 @@ export async function getGroupChatMessages(
 export async function createGroupChat(
   title: string,
   users: User.AsObject[],
-): Promise<number> {
+): Promise<string> {
   const req = new CreateGroupChatReq();
   req.setRecipientUserIdsList(users.map((user) => user.userId));
   req.setTitle(new StringValue().setValue(title));
@@ -77,20 +77,20 @@ export async function createGroupChat(
   return groupChatId;
 }
 
-export async function sendMessage(groupChatId: number, text: string) {
+export async function sendMessage(groupChatId: string, text: string) {
   const req = new SendMessageReq();
   req.setGroupChatId(groupChatId);
   req.setText(text);
   return await client.conversations.sendMessage(req);
 }
 
-export function leaveGroupChat(groupChatId: number) {
+export function leaveGroupChat(groupChatId: string) {
   const req = new LeaveGroupChatReq();
   req.setGroupChatId(groupChatId);
   return client.conversations.leaveGroupChat(req);
 }
 
-export function inviteToGroupChat(groupChatId: number, users: User.AsObject[]) {
+export function inviteToGroupChat(groupChatId: string, users: User.AsObject[]) {
   const promises = users.map((user) => {
     const req = new InviteToGroupChatReq();
     req.setGroupChatId(groupChatId);
@@ -101,7 +101,7 @@ export function inviteToGroupChat(groupChatId: number, users: User.AsObject[]) {
 }
 
 export function makeGroupChatAdmin(
-  groupChatId: number,
+  groupChatId: string,
   user: LiteUser.AsObject,
 ) {
   const req = new MakeGroupChatAdminReq();
@@ -111,7 +111,7 @@ export function makeGroupChatAdmin(
 }
 
 export function removeGroupChatAdmin(
-  groupChatId: number,
+  groupChatId: string,
   user: LiteUser.AsObject,
 ) {
   const req = new RemoveGroupChatAdminReq();
@@ -121,7 +121,7 @@ export function removeGroupChatAdmin(
 }
 
 export function editGroupChat(
-  groupChatId: number,
+  groupChatId: string,
   title?: string,
   onlyAdminsInvite?: boolean,
 ) {
@@ -134,8 +134,8 @@ export function editGroupChat(
 }
 
 export function markLastSeenGroupChat(
-  groupChatId: number,
-  lastSeenMessageId: number,
+  groupChatId: string,
+  lastSeenMessageId: string,
 ) {
   const req = new MarkLastSeenGroupChatReq();
   req.setGroupChatId(groupChatId);
@@ -143,7 +143,7 @@ export function markLastSeenGroupChat(
   return client.conversations.markLastSeenGroupChat(req);
 }
 
-export async function getDirectMessage(userId: number) {
+export async function getDirectMessage(userId: string) {
   const req = new GetDirectMessageReq();
   req.setUserId(userId);
   try {
@@ -172,7 +172,7 @@ export async function muteChat(options: MuteChatOptions) {
 }
 
 export async function setGroupChatArchiveStatus(
-  groupChatId: number,
+  groupChatId: string,
   isArchived: boolean,
 ) {
   const req = new SetGroupChatArchiveStatusReq();

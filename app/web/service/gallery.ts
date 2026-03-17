@@ -12,7 +12,7 @@ import client from "./client";
 /**
  * Get a gallery by ID
  */
-export async function getGallery(galleryId: number) {
+export async function getGallery(galleryId: string) {
   const req = new GetGalleryReq();
   req.setGalleryId(galleryId);
 
@@ -23,7 +23,7 @@ export async function getGallery(galleryId: number) {
 /**
  * Get edit info for a gallery (only available to gallery owner)
  */
-export async function getGalleryEditInfo(galleryId: number) {
+export async function getGalleryEditInfo(galleryId: string) {
   const req = new GetGalleryEditInfoReq();
   req.setGalleryId(galleryId);
 
@@ -35,7 +35,7 @@ export async function getGalleryEditInfo(galleryId: number) {
  * Add a photo to a gallery
  */
 export async function addPhotoToGallery(
-  galleryId: number,
+  galleryId: string,
   uploadKey: string,
   caption?: string,
 ) {
@@ -55,8 +55,8 @@ export async function addPhotoToGallery(
  * Remove a photo from a gallery
  */
 export async function removePhotoFromGallery(
-  galleryId: number,
-  itemId: number,
+  galleryId: string,
+  itemId: string,
 ) {
   const req = new RemovePhotoFromGalleryReq();
   req.setGalleryId(galleryId);
@@ -71,9 +71,9 @@ export async function removePhotoFromGallery(
  * @param afterItemId - ID of the photo to place after, or 0 to move to first position
  */
 export async function movePhoto(
-  galleryId: number,
-  itemId: number,
-  afterItemId: number,
+  galleryId: string,
+  itemId: string,
+  afterItemId: string,
 ) {
   const req = new MovePhotoReq();
   req.setGalleryId(galleryId);
@@ -88,8 +88,8 @@ export async function movePhoto(
  * Update the caption of a photo
  */
 export async function updatePhotoCaption(
-  galleryId: number,
-  itemId: number,
+  galleryId: string,
+  itemId: string,
   caption: string,
 ) {
   const req = new UpdatePhotoCaptionReq();

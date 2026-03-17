@@ -38,7 +38,7 @@ export interface UserSearchFilters {
   showEmptyProfile?: boolean;
   pageNumber?: number;
   pageSize?: number;
-  selectedUserId?: number;
+  selectedUserId?: string;
   sleepingArrangement?: SleepingArrangementOptions[];
   sameGenderOnly?: boolean;
   smokesAtHome?: boolean | undefined;

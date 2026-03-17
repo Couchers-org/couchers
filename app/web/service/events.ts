@@ -25,7 +25,7 @@ import {
 import client from "./client";
 
 export async function listCommunityEvents(
-  communityId: number,
+  communityId: string,
   pageToken?: string,
   pageSize?: number,
 ) {
@@ -42,27 +42,27 @@ export async function listCommunityEvents(
   return res.toObject();
 }
 
-export async function getEvent(eventId: number) {
+export async function getEvent(eventId: string) {
   const req = new GetEventReq();
   req.setEventId(eventId);
   const res = await client.events.getEvent(req);
   return res.toObject();
 }
 
-export function cancelEvent(eventId: number) {
+export function cancelEvent(eventId: string) {
   const req = new CancelEventReq();
   req.setEventId(eventId);
   return client.events.cancelEvent(req);
 }
 
-export function RequestCommunityInvite(eventId: number) {
+export function RequestCommunityInvite(eventId: string) {
   const req = new RequestCommunityInviteReq();
   req.setEventId(eventId);
   return client.events.requestCommunityInvite(req);
 }
 
 interface ListEventUsersInput {
-  eventId: number;
+  eventId: string;
   pageSize?: number;
   pageToken?: string;
 }
@@ -106,7 +106,7 @@ export async function setEventAttendance({
   eventId,
 }: {
   attendanceState: AttendanceState;
-  eventId: number;
+  eventId: string;
 }) {
   const req = new SetEventAttendanceReq();
   req.setEventId(eventId);
@@ -125,7 +125,7 @@ interface EventInput {
 
 interface OnlineEventInput extends EventInput {
   isOnline: true;
-  parentCommunityId: number;
+  parentCommunityId: string;
   link: string;
 }
 
@@ -134,7 +134,7 @@ interface OfflineEventInput extends EventInput {
   address: string;
   lat: number;
   lng: number;
-  parentCommunityId?: number;
+  parentCommunityId?: string;
 }
 
 export type CreateEventInput = OnlineEventInput | OfflineEventInput;
@@ -182,7 +182,7 @@ export interface UpdateOfflineEventInput
 export type UpdateEventInput = (
   | UpdateOnlineEventInput
   | UpdateOfflineEventInput
-) & { eventId: number; shouldNotify: boolean };
+) & { eventId: string; shouldNotify: boolean };
 
 export async function updateEvent(input: UpdateEventInput) {
   const req = new UpdateEventReq();
@@ -309,7 +309,7 @@ export async function listMyEvents({
   return res.toObject();
 }
 
-export async function inviteEventOrganizer(eventId: number, userId: number) {
+export async function inviteEventOrganizer(eventId: string, userId: string) {
   const req = new InviteEventOrganizerReq();
   req.setEventId(eventId);
   req.setUserId(userId);
@@ -317,10 +317,10 @@ export async function inviteEventOrganizer(eventId: number, userId: number) {
   return res.toObject();
 }
 
-export async function removeEventOrganizer(eventId: number, userId: number) {
+export async function removeEventOrganizer(eventId: string, userId: string) {
   const req = new RemoveEventOrganizerReq();
   req.setEventId(eventId);
-  req.setUserId(new Int64Value().setValue(userId));
+  req.setUserId(new Int64Value().setValue(Number(userId)));
   const res = await client.events.removeEventOrganizer(req);
   return res.toObject();
 }

@@ -19,7 +19,7 @@ const StyledUsersDiv = styled("div")(({ theme }) => ({
 }));
 
 interface UsersListProps {
-  userIds: number[] | undefined;
+  userIds: string[] | undefined;
   emptyListChildren?: ReactNode;
   endChildren?: ReactNode;
   error?: RpcError | null;

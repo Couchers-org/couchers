@@ -15,13 +15,13 @@ import {
 import client from "./client";
 
 export async function listHostRequests({
-  lastRequestId = 0,
+  lastRequestId = "0",
   count = 10,
   type = "all",
   onlyActive,
   onlyArchived,
 }: {
-  lastRequestId?: number;
+  lastRequestId?: string;
   count?: number;
   type?: "all" | "hosting" | "surfing";
   onlyActive?: boolean;
@@ -44,14 +44,14 @@ export async function listHostRequests({
   return response.toObject();
 }
 
-export async function getHostRequest(id: number) {
+export async function getHostRequest(id: string) {
   const req = new GetHostRequestReq();
   req.setHostRequestId(id);
   const response = await client.requests.getHostRequest(req);
   return response.toObject();
 }
 
-export async function sendHostRequestMessage(id: number, text: string) {
+export async function sendHostRequestMessage(id: string, text: string) {
   const req = new SendHostRequestMessageReq();
   req.setHostRequestId(id);
   req.setText(text);
@@ -63,7 +63,7 @@ export async function sendHostRequestMessage(id: number, text: string) {
 }
 
 export async function respondHostRequest(
-  id: number,
+  id: string,
   status: HostRequestStatus,
   text: string,
 ) {
@@ -75,8 +75,8 @@ export async function respondHostRequest(
 }
 
 export async function getHostRequestMessages(
-  id: number,
-  lastMessageId = 0,
+  id: string,
+  lastMessageId = "0",
   count = 20,
 ) {
   const req = new GetHostRequestMessagesReq();
@@ -106,7 +106,7 @@ export async function createHostRequest(data: CreateHostRequestWrapper) {
   return response.getHostRequestId();
 }
 
-export function markLastRequestSeen(hostRequestId: number, messageId: number) {
+export function markLastRequestSeen(hostRequestId: string, messageId: string) {
   const req = new MarkLastSeenHostRequestReq();
   req.setHostRequestId(hostRequestId);
   req.setLastSeenMessageId(messageId);
@@ -114,14 +114,14 @@ export function markLastRequestSeen(hostRequestId: number, messageId: number) {
   return client.requests.markLastSeenHostRequest(req);
 }
 
-export async function getResponseRate(userId: number) {
+export async function getResponseRate(userId: string) {
   const req = new GetResponseRateReq();
   req.setUserId(userId);
   return (await client.requests.getResponseRate(req)).toObject();
 }
 
 export async function setHostRequestArchiveStatus(
-  hostRequestId: number,
+  hostRequestId: string,
   isArchived: boolean,
 ) {
   const req = new SetHostRequestArchiveStatusReq();

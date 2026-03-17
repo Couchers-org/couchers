@@ -20,7 +20,7 @@ import { service } from "service";
 export default function CancelEventDialog({
   eventId,
   ...props
-}: DialogProps & { eventId: number }) {
+}: DialogProps & { eventId: string }) {
   const { t } = useTranslation([GLOBAL, COMMUNITIES]);
   const queryClient = useQueryClient();
   const cancelEventMutation = useMutation<Empty, RpcError, void>({

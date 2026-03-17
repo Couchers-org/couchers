@@ -282,7 +282,7 @@ describe("Signup", () => {
       );
       signupFlowMotivationsMock.mockResolvedValue({
         flowToken: "token",
-        authRes: { userId: 1, jailed: false },
+        authRes: { userId: "1", jailed: false },
         needBasic: false,
         needAccount: false,
         needAcceptCommunityGuidelines: false,

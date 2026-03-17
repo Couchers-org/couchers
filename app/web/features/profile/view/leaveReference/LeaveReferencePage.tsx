@@ -53,8 +53,8 @@ export default function LeaveReferencePage({
   step = "did-stay",
 }: {
   referenceType: string;
-  userId: number;
-  hostRequestId?: number;
+  userId: string;
+  hostRequestId?: string;
   step?: ReferenceStep;
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);

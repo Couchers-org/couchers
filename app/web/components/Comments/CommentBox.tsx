@@ -10,7 +10,7 @@ import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 
 interface CommentBoxProps {
-  threadId: number;
+  threadId: string;
 }
 
 // Reply with more Reply objects as children
@@ -61,7 +61,7 @@ export default function CommentBox({ threadId }: CommentBoxProps) {
     })();
   }, [t, threadId]);
 
-  const handleComment = async (threadId: number, content: string) => {
+  const handleComment = async (threadId: string, content: string) => {
     await service.threads.postReply(threadId, content);
     setLoading(true);
     try {

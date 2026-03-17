@@ -55,7 +55,7 @@ export async function setAcceptedCommunityGuidelines(accepted: boolean) {
 }
 
 export async function acknowledgePendingModNote(
-  modNoteId: number,
+  modNoteId: string,
   acknowledge: boolean,
 ) {
   const req = new AcknowledgePendingModNoteReq();

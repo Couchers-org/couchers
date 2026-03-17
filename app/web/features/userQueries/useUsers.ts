@@ -73,7 +73,7 @@ export default function useUsers(
   };
 }
 
-export function useUser(id: number | undefined, invalidate = false) {
+export function useUser(id: string | undefined, invalidate = false) {
   const result = useUsers([id], invalidate);
   return {
     data: result.data?.get(id),

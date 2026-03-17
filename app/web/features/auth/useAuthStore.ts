@@ -51,7 +51,7 @@ export default function useAuthStore() {
     false,
   );
   const [jailed, setJailed] = usePersistedState("auth.jailed", false);
-  const [userId, setUserId] = usePersistedState<number | null>(
+  const [userId, setUserId] = usePersistedState<string | null>(
     "auth.userId",
     null,
   );

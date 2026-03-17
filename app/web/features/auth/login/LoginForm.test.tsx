@@ -16,7 +16,7 @@ const passwordLoginMock = service.user.passwordLogin as MockedService<
 describe("LoginForm", () => {
   beforeEach(() => {
     passwordLoginMock.mockResolvedValue({
-      userId: 1,
+      userId: "1",
       jailed: false,
     });
   });
