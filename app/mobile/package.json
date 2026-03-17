@@ -1,7 +1,7 @@
 {
   "name": "couchers.org",
   "main": "expo-router/entry",
-  "version": "1.1.13",
+  "version": "1.1.14",
   "scripts": {
     "start": "expo start",
     "start:localhost": "expo start --localhost",
@@ -44,7 +44,7 @@
     "expo-splash-screen": "~31.0.13",
     "expo-status-bar": "^3.0.9",
     "expo-system-ui": "~6.0.9",
-    "expo-updates": "~55.0.12",
+    "expo-updates": "~29.0.16",
     "google-protobuf": "^4.0.0",
     "grpc-web": "^2.0.1",
     "i18next": "^25.0.2",
@@ -78,6 +78,5 @@
     "prettier": "^3.4.2",
     "typescript": "~5.9.2"
   },
-  "private": true,
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "private": true
 }
