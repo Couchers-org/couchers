@@ -3,7 +3,6 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
 import daysjs, { Dayjs } from "./dayjs";
 import { dayMillis } from "./timeAgo";
-import dayjs, { DayjsTimezone } from "dayjs";
 
 const numNights = (date1: string, date2: string) => {
   const diffTime = Date.parse(date1) - Date.parse(date2);
