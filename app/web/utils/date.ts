@@ -66,8 +66,28 @@ export function localizeDateTimeRange(
   return format.formatRange(start, end);
 }
 
-/// gets in an Intl.DateTimeFormat based on params.
+// Creating Intl.DateTimeFormat every time is 40x slower.
+const intlDateTimeFormatCache = new Map<string, Intl.DateTimeFormat>();
+
+/// Gets an Intl.DateTimeFormat based on params.
 function getIntlDateTimeFormat(
+  args: LocalizeDateTimeParams,
+): Intl.DateTimeFormat {
+  // We can't use args as the Map key as it uses reference equality.
+  // Convert it to a json string. The Symbol type requires special handling.
+  const cacheKey = JSON.stringify(args, (_, v) =>
+    typeof v === "symbol" ? v.toString() : v,
+  );
+  const cached = intlDateTimeFormatCache.get(cacheKey);
+  if (cached) return cached;
+
+  const format = createIntlDateTimeFormat(args);
+  intlDateTimeFormatCache.set(cacheKey, format);
+  return format;
+}
+
+/// Creates a new Intl.DateTimeFormat object based on params.
+function createIntlDateTimeFormat(
   args: LocalizeDateTimeParams,
 ): Intl.DateTimeFormat {
   const options: Intl.DateTimeFormatOptions = {};
