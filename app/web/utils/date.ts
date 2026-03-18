@@ -3,12 +3,7 @@ import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
 import daysjs, { Dayjs } from "./dayjs";
 import { dayMillis } from "./timeAgo";
-
-const monthFormatter = (locale: string) =>
-  new Intl.DateTimeFormat(locale, {
-    month: "short",
-    year: "numeric",
-  });
+import dayjs, { DayjsTimezone } from "dayjs";
 
 const numNights = (date1: string, date2: string) => {
   const diffTime = Date.parse(date1) - Date.parse(date2);
@@ -28,6 +23,8 @@ interface LocalizeDateTimeParams {
   locale: string;
   /// Whether to include the date (defaults to true).
   includeDate?: boolean;
+  /// If including the date, whether to include the day (defaults to true).
+  includeDay?: boolean;
   /// If including the date, whether to include the day of week (defaults to false).
   includeDayOfWeek?: boolean;
   /// Whether to include the time (defaults to true).
@@ -48,6 +45,24 @@ export function localizeDateTime(
   }
   const format = getIntlDateTimeFormat(args);
   return format.format(date);
+}
+
+/// Localizes only the year and month of a date.
+export function localizeYearMonth(
+  date: Date | Dayjs,
+  args: {
+    timezone?: string | typeof BROWSER_TIMEZONE;
+    locale: string;
+    abbreviate?: boolean;
+  },
+): string {
+  return localizeDateTime(date, {
+    timezone: args.timezone ?? BROWSER_TIMEZONE,
+    locale: args.locale,
+    abbreviate: args.abbreviate,
+    includeDay: false,
+    includeTime: false,
+  });
 }
 
 /// Localizes a range of date and times as a string.
@@ -74,7 +89,9 @@ function getIntlDateTimeFormat(
   if (args.includeDate !== false) {
     options.year = "numeric";
     options.month = args.abbreviate ? "short" : "long";
-    options.day = "numeric";
+    if (args.includeDay !== false) {
+      options.day = "numeric";
+    }
     if (args.includeDayOfWeek) {
       options.weekday = args.abbreviate ? "short" : "long";
     }
@@ -109,4 +126,4 @@ function isSameOrFutureDate(date1: Dayjs, date2: Dayjs): boolean {
   return isSameDate(date1, date2) || date1.isAfter(date2);
 }
 
-export { isSameOrFutureDate, monthFormatter, numNights, timestamp2Date };
+export { isSameOrFutureDate, numNights, timestamp2Date };
