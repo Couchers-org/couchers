@@ -35,7 +35,11 @@ import {
 } from "routes";
 import { service } from "service";
 import { theme } from "theme";
-import { localizeDateTimeRange, timestamp2Date } from "utils/date";
+import {
+  BROWSER_TIMEZONE,
+  localizeDateTimeRange,
+  timestamp2Date,
+} from "utils/date";
 import dayjs from "utils/dayjs";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
@@ -412,8 +416,11 @@ export default function EventPage({
                   {localizeDateTimeRange(
                     dayjs(timestamp2Date(event.startTime!)),
                     dayjs(timestamp2Date(event.endTime!)),
-                    locale,
-                    { includeDayOfWeek: true, long: true },
+                    {
+                      timezone: BROWSER_TIMEZONE,
+                      locale,
+                      includeDayOfWeek: true,
+                    },
                   )}
                 </Typography>
               </StyledEventTimeContainer>
