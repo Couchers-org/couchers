@@ -2,6 +2,7 @@ import { Href, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  ActivityIndicator,
   Appearance,
   BackHandler,
   Image,
@@ -271,8 +272,17 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         sharedCookiesEnabled
         cacheEnabled={true}
         cacheMode="LOAD_DEFAULT" // Revalidates on normal loads (prevents stale content), uses cache for back nav (maintains cookies)
+        startInLoadingState
         javaScriptEnabled={true}
         domStorageEnabled={true}
+        renderLoading={() => (
+          <View style={[styles.loadingContainer, { backgroundColor }]}>
+            <ActivityIndicator
+              size="large"
+              color={theme.palette.primary.main}
+            />
+          </View>
+        )}
         injectedJavaScriptObject={{ isNativeEmbed: true }}
         onNavigationStateChange={handleNavigationStateChange}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
