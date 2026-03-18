@@ -141,6 +141,7 @@ export default function EventCard({
     dayjs(timestamp2Date(event.startTime!)),
     dayjs(timestamp2Date(event.endTime!)),
     {
+      // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
       timezone: BROWSER_TIMEZONE,
       locale,
       includeDayOfWeek: true,
