@@ -1,1 +1,2 @@
 - Fix incompatible dependencies
+- Improve navigation behavior

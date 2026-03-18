@@ -2,7 +2,6 @@ import { Href, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ActivityIndicator,
   Appearance,
   BackHandler,
   Image,
@@ -21,7 +20,6 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
 import errorGraphic from "@/resources/404graphic.png";
-import { lastMobileNavigationRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
@@ -48,15 +46,14 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
   // Custom hooks for image picking and navigation
   const { pickImage } = useImagePicker();
-  const { handleNavigationStateChange, canGoBackRef, currentWebPathRef } =
-    useWebNavigation({
-      webBaseUrl: WEB_BASE_URL,
-      currentPath: path,
-      syncTargetPathRef,
-      onRetryCountReset: () => {
-        retryCountRef.current = 0;
-      },
-    });
+  const { handleNavigationStateChange, canGoBackRef } = useWebNavigation({
+    webBaseUrl: WEB_BASE_URL,
+    currentPath: path,
+    syncTargetPathRef,
+    onRetryCountReset: () => {
+      retryCountRef.current = 0;
+    },
+  });
 
   // Handle Android hardware back button - go back in WebView if possible
   useFocusEffect(
@@ -105,26 +102,10 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       return;
     }
 
-    // Read the current WebView path from the ref (always up-to-date)
-    const currentWebPath = currentWebPathRef.current;
-
-    // Strip locales from both paths for comparison
-    const currentRoute = stripLocale(currentWebPath);
+    // Strip locale for comparison
     const targetRoute = stripLocale(path);
 
-    if (currentRoute === targetRoute) {
-      // Same route, just different locale or already synced
-      return;
-    }
-
-    // Check if we just navigated here from mobile router
-    // If so, skip sync to avoid reload loop (WebView is already navigating there)
-    if (lastMobileNavigationRef.current === targetRoute) {
-      lastMobileNavigationRef.current = null; // Clear so next change is synced
-      return;
-    }
-
-    // Routes differ - sync WebView, using mobile i18n language as source of truth
+    // Sync WebView, using mobile i18n language as source of truth
     // This ensures language selection persists across tab switches
     const currentLocale = i18n.language !== "en" ? i18n.language : null;
     const targetPath = currentLocale
@@ -138,7 +119,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
       true;
     `);
-  }, [path, WEB_BASE_URL, stripLocale, i18n.language, currentWebPathRef]);
+  }, [path, stripLocale, i18n.language]);
 
   // Sync WebView when screen comes back into focus (tab switch)
   useFocusEffect(
@@ -148,19 +129,10 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         return;
       }
 
-      // Read the current WebView path from the ref (always up-to-date)
-      const currentWebPath = currentWebPathRef.current;
-
-      // Strip locales from both paths for comparison
-      const currentRoute = stripLocale(currentWebPath);
+      // Strip locale for comparison
       const targetRoute = stripLocale(path);
 
-      if (currentRoute === targetRoute) {
-        // Same route, just different locale or already synced
-        return;
-      }
-
-      // Routes differ - sync WebView, using mobile i18n language as source of truth
+      // Sync WebView, using mobile i18n language as source of truth
       // This ensures language selection persists across tab switches
       const currentLocale = i18n.language !== "en" ? i18n.language : null;
       const targetPath = currentLocale
@@ -174,7 +146,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
         true;
       `);
-    }, [path, stripLocale, i18n.language, currentWebPathRef]),
+    }, [path, stripLocale, i18n.language]),
   );
 
   // Send result back to web app
@@ -299,17 +271,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         sharedCookiesEnabled
         cacheEnabled={true}
         cacheMode="LOAD_DEFAULT" // Revalidates on normal loads (prevents stale content), uses cache for back nav (maintains cookies)
-        startInLoadingState
         javaScriptEnabled={true}
         domStorageEnabled={true}
-        renderLoading={() => (
-          <View style={[styles.loadingContainer, { backgroundColor }]}>
-            <ActivityIndicator
-              size="large"
-              color={theme.palette.primary.main}
-            />
-          </View>
-        )}
         injectedJavaScriptObject={{ isNativeEmbed: true }}
         onNavigationStateChange={handleNavigationStateChange}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
