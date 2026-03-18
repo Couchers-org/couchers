@@ -1,2 +1,3 @@
 - Fix incompatible dependencies
 - Improve navigation behavior
+- Fix menu staying open after switching tabs
