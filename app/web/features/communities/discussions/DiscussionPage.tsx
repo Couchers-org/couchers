@@ -17,7 +17,7 @@ import { useRouter } from "next/router";
 import { Discussion } from "proto/discussions_pb";
 import { service } from "service";
 import { theme } from "theme";
-import { dateFormatter, timestamp2Date } from "utils/date";
+import { BROWSER_TIMEZONE, localizeDateTime, timestamp2Date } from "utils/date";
 
 import CommunityBase from "../CommunityBase";
 import CommunityPageSubHeader from "../CommunityPage/CommunityPageSubHeader";
@@ -140,8 +140,13 @@ export default function DiscussionPage({
                       ) : (
                         <Typography variant="body2">
                           {t("communities:discussion_creation_date", {
-                            dateOnly: dateFormatter(locale).format(
+                            dateOnly: localizeDateTime(
                               timestamp2Date(discussion.created!),
+                              {
+                                timezone: BROWSER_TIMEZONE,
+                                locale,
+                                includeTime: false,
+                              },
                             ),
                           })}
                         </Typography>
