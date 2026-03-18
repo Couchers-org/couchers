@@ -4,9 +4,8 @@ import pytest
 from requests import RequestException
 
 from couchers.postal.postcard_service import (
-    PostcardServiceError,
     _authenticate,
-    _generate_postcard_image,
+    _get_postcard_front_image,
     _place_order,
     send_postcard,
 )
@@ -17,18 +16,13 @@ def _(testconfig):
     pass
 
 
-class TestGeneratePostcardImage:
-    def test_returns_jpeg_bytes(self):
-        data = _generate_postcard_image("ABC123", "https://example.com/verify?code=ABC123")
+class TestGetPostcardFrontImage:
+    def test_returns_png_bytes(self):
+        data = _get_postcard_front_image()
         assert isinstance(data, bytes)
         assert len(data) > 0
-        # JPEG magic bytes
-        assert data[:2] == b"\xff\xd8"
-
-    def test_different_codes_produce_different_images(self):
-        img1 = _generate_postcard_image("ABC123", "https://example.com/verify?code=ABC123")
-        img2 = _generate_postcard_image("XYZ789", "https://example.com/verify?code=XYZ789")
-        assert img1 != img2
+        # PNG magic bytes
+        assert data[:4] == b"\x89PNG"
 
 
 class TestAuthenticate:
@@ -48,7 +42,7 @@ class TestAuthenticate:
             status_code=200,
             json=lambda: {"error": "invalid credentials"},
         )
-        with pytest.raises(PostcardServiceError, match="auth failed"):
+        with pytest.raises(Exception, match="auth failed"):
             _authenticate()
 
     @patch("couchers.postal.postcard_service.requests.post")
@@ -78,7 +72,7 @@ class TestPlaceOrder:
 
         call_kwargs = mock_post.call_args
         assert call_kwargs.kwargs["data"]["auth_token"] == "auth-token"
-        assert call_kwargs.kwargs["files"]["photo"][0] == "postcard.jpg"
+        assert call_kwargs.kwargs["files"]["photo"][0] == "postcard.png"
 
     @patch("couchers.postal.postcard_service.requests.post")
     def test_raises_on_http_error(self, mock_post):
@@ -91,13 +85,13 @@ class TestPlaceOrder:
 class TestSendPostcard:
     @patch("couchers.postal.postcard_service._place_order")
     @patch("couchers.postal.postcard_service._authenticate")
-    @patch("couchers.postal.postcard_service._generate_postcard_image")
+    @patch("couchers.postal.postcard_service._get_postcard_front_image")
     def test_success(self, mock_image, mock_auth, mock_order):
         mock_image.return_value = b"fake-image"
         mock_auth.return_value = "auth-token"
         mock_order.return_value = {"job_id": "123"}
 
-        result = send_postcard(
+        send_postcard(
             recipient_name="Test User",
             address_line_1="123 Main St",
             address_line_2="Apt 4",
@@ -108,9 +102,6 @@ class TestSendPostcard:
             verification_code="ABC123",
             qr_code_url="https://example.com/verify?code=ABC123",
         )
-
-        assert result.success is True
-        assert result.error_message is None
 
         # Verify recipient was built correctly
         recipient_arg = mock_order.call_args[0][1]
@@ -123,7 +114,7 @@ class TestSendPostcard:
 
     @patch("couchers.postal.postcard_service._place_order")
     @patch("couchers.postal.postcard_service._authenticate")
-    @patch("couchers.postal.postcard_service._generate_postcard_image")
+    @patch("couchers.postal.postcard_service._get_postcard_front_image")
     def test_optional_fields_excluded_when_none(self, mock_image, mock_auth, mock_order):
         mock_image.return_value = b"fake-image"
         mock_auth.return_value = "auth-token"
@@ -147,66 +138,60 @@ class TestSendPostcard:
         assert "state" not in recipient_arg
 
     @patch("couchers.postal.postcard_service._authenticate")
-    @patch("couchers.postal.postcard_service._generate_postcard_image")
-    def test_auth_failure_returns_error(self, mock_image, mock_auth):
+    @patch("couchers.postal.postcard_service._get_postcard_front_image")
+    def test_auth_failure_raises(self, mock_image, mock_auth):
         mock_image.return_value = b"fake-image"
         mock_auth.side_effect = RequestException("Connection refused")
 
-        result = send_postcard(
-            recipient_name="Test User",
-            address_line_1="123 Main St",
-            address_line_2=None,
-            city="Berlin",
-            state=None,
-            postal_code=None,
-            country="DE",
-            verification_code="ABC123",
-            qr_code_url="https://example.com/verify?code=ABC123",
-        )
-
-        assert result.success is False
-        assert "Connection refused" in (result.error_message or "")
+        with pytest.raises(RequestException, match="Connection refused"):
+            send_postcard(
+                recipient_name="Test User",
+                address_line_1="123 Main St",
+                address_line_2=None,
+                city="Berlin",
+                state=None,
+                postal_code=None,
+                country="DE",
+                verification_code="ABC123",
+                qr_code_url="https://example.com/verify?code=ABC123",
+            )
 
     @patch("couchers.postal.postcard_service._authenticate")
-    @patch("couchers.postal.postcard_service._generate_postcard_image")
-    def test_auth_service_error_returns_error(self, mock_image, mock_auth):
+    @patch("couchers.postal.postcard_service._get_postcard_front_image")
+    def test_auth_service_error_raises(self, mock_image, mock_auth):
         mock_image.return_value = b"fake-image"
-        mock_auth.side_effect = PostcardServiceError("auth failed: invalid credentials")
+        mock_auth.side_effect = Exception("auth failed: invalid credentials")
 
-        result = send_postcard(
-            recipient_name="Test User",
-            address_line_1="123 Main St",
-            address_line_2=None,
-            city="Berlin",
-            state=None,
-            postal_code=None,
-            country="DE",
-            verification_code="ABC123",
-            qr_code_url="https://example.com/verify?code=ABC123",
-        )
-
-        assert result.success is False
-        assert "auth failed" in (result.error_message or "")
+        with pytest.raises(Exception, match="auth failed"):
+            send_postcard(
+                recipient_name="Test User",
+                address_line_1="123 Main St",
+                address_line_2=None,
+                city="Berlin",
+                state=None,
+                postal_code=None,
+                country="DE",
+                verification_code="ABC123",
+                qr_code_url="https://example.com/verify?code=ABC123",
+            )
 
     @patch("couchers.postal.postcard_service._place_order")
     @patch("couchers.postal.postcard_service._authenticate")
-    @patch("couchers.postal.postcard_service._generate_postcard_image")
-    def test_order_failure_returns_error(self, mock_image, mock_auth, mock_order):
+    @patch("couchers.postal.postcard_service._get_postcard_front_image")
+    def test_order_failure_raises(self, mock_image, mock_auth, mock_order):
         mock_image.return_value = b"fake-image"
         mock_auth.return_value = "auth-token"
         mock_order.side_effect = RequestException("500 Server Error")
 
-        result = send_postcard(
-            recipient_name="Test User",
-            address_line_1="123 Main St",
-            address_line_2=None,
-            city="Berlin",
-            state=None,
-            postal_code=None,
-            country="DE",
-            verification_code="ABC123",
-            qr_code_url="https://example.com/verify?code=ABC123",
-        )
-
-        assert result.success is False
-        assert "500 Server Error" in (result.error_message or "")
+        with pytest.raises(RequestException, match="500 Server Error"):
+            send_postcard(
+                recipient_name="Test User",
+                address_line_1="123 Main St",
+                address_line_2=None,
+                city="Berlin",
+                state=None,
+                postal_code=None,
+                country="DE",
+                verification_code="ABC123",
+                qr_code_url="https://example.com/verify?code=ABC123",
+            )
