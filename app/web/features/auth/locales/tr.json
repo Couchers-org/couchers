@@ -99,7 +99,15 @@
   },
   "jail": {
     "location_section": {
-      "title": "Lütfen konumunuzu güncelleyin"
+      "title": "Lütfen konumunuzu güncelleyin",
+      "submit_button": {
+        "active_text": "Kaydet",
+        "inactive_text": "Teşekkürler!"
+      },
+      "resubmit_button_text": "Yeniden gönder"
+    },
+    "mod_note_section": {
+      "title": "Moderatörlerden bir not aldınız"
     }
   }
 }

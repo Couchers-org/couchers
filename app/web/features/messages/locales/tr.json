@@ -113,5 +113,9 @@
   },
   "host_request_status": {
     "rejected": "Reddedildi"
+  },
+  "host_request_item": {
+    "expired": "Bu isteğin süresi doldu",
+    "pending": "Bu istek hala bekliyor"
   }
 }
