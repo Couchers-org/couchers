@@ -347,6 +347,7 @@ export default function LoggedInMenu({
         open={menuOpen}
         anchorEl={isMobile ? undefined : menuRef.current}
         onClose={() => setMenuOpen(false)}
+        onBlur={() => setMenuOpen(false)}
         $isNativeEmbed={isNativeEmbed}
         anchorOrigin={
           isMobile ? undefined : { vertical: "bottom", horizontal: "right" }

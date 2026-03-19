@@ -1,8 +1,3 @@
-- Fix unexpected logouts
-- Fix "Message" button opening wrong conversation when clicked via profile
-- Fix tab highlighting after clicking couchers logo in navigation
-- Fix image uploads being forced to square
-- Hide "open in new tab" icon on search results
-- Remove beta flag
-- Fix issues with stale content on page change
-- Fix save button spacing in profile editor
+- Fix incompatible dependencies
+- Improve navigation behavior
+- Fix menu staying open after switching tabs
