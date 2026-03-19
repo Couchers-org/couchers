@@ -77,10 +77,10 @@
       "new_blog_post": "Byl zveřejněn nový blogový příspěvek"
     },
     "phone_number": {
-      "verify": "Tvé telefonní číslo je ověřeno."
+      "verify": "Tvé telefonní číslo je ověřeno"
     },
     "reference": {
-      "receive_friend": "Přišla ti reference od přítele."
+      "receive_friend": "Přišla ti reference od přítele"
     }
   }
 }

@@ -87,11 +87,26 @@ export default function BasicForm({
         <StyledTextField
           id="name"
           {...register("name", {
+            required: t("auth:basic_form.name.required_error"),
+            minLength: {
+              value: 2,
+              message: t("auth:basic_form.name.min_length_error"),
+            },
+            maxLength: {
+              value: 100,
+              message: t("auth:basic_form.name.max_length_error"),
+            },
             pattern: {
-              message: t("auth:basic_form.name.empty_error"),
+              message: t("auth:basic_form.name.invalid_characters_error"),
               value: nameValidationPattern,
             },
-            required: t("auth:basic_form.name.required_error"),
+            validate: (value) => {
+              const trimmed = value.trim();
+              if (trimmed.length < 2) {
+                return t("auth:basic_form.name.min_length_error");
+              }
+              return true;
+            },
           })}
           fullWidth
           name="name"

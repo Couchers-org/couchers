@@ -64,5 +64,6 @@
     },
     "by_location_filter_label": "Konuma göre"
   },
-  "choose_search_criteria": "Aramaya bir konum yaz veya bir filtre uygula."
+  "choose_search_criteria": "Aramaya bir konum yaz veya bir filtre uygula.",
+  "location": "Konum"
 }

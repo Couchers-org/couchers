@@ -1,6 +1,7 @@
 import { Typography } from "@mui/material";
 import { Trans, useTranslation } from "i18n";
 import { AUTH } from "i18n/namespaces";
+import { localizeDateTime } from "utils/date";
 import dayjs from "utils/dayjs";
 
 interface TimezoneProps {
@@ -9,7 +10,10 @@ interface TimezoneProps {
 }
 
 export default function Timezone({ className, timezone }: TimezoneProps) {
-  const { t } = useTranslation(AUTH);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(AUTH);
 
   return (
     <div className={className}>
@@ -22,13 +26,23 @@ export default function Timezone({ className, timezone }: TimezoneProps) {
           i18nKey="account_settings_page.timezone_section.description"
           values={{
             timezone: timezone,
-            time: dayjs().tz(timezone).format("LT"),
+            time: localizeDateTime(dayjs(), {
+              timezone,
+              locale,
+              includeDate: false,
+            }),
           }}
         >
           {`Your timezone is `}
           <strong>{timezone}</strong>. Based on this, your local time is
           approximately{` `}
-          <strong>{dayjs().tz(timezone).format("LT")}</strong>
+          <strong>
+            {localizeDateTime(dayjs(), {
+              timezone,
+              locale,
+              includeDate: false,
+            })}
+          </strong>
           {`.`}
         </Trans>
       </Typography>
