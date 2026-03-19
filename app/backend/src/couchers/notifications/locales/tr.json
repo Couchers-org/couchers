@@ -73,6 +73,13 @@
     },
     "email_address__change": {
       "body": "Yeni adresinizi onaylamak için {{email}} adresine gönderdiğimiz bağlantıyı kullanın."
+    },
+    "event__create_any": {
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} etkinliği {{date_and_time}} tarihinde oluşturdu."
+    },
+    "event__create_approved": {
+      "title": "Yeni etkinlik: {{title}}"
     }
   },
   "topic_action_descriptions": {

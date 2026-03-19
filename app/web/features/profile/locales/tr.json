@@ -103,5 +103,13 @@
     "basic_information": "Temel Bilgiler",
     "name": "İsim"
   },
-  "edit_profile_helper_text": "Nereden başlayağına karar vermek için ilham mı arıyorsun? <2>Harika bir profil yaratmak üzerine olan rehberimize bak</2>."
+  "edit_profile_helper_text": "Nereden başlayağına karar vermek için ilham mı arıyorsun? <2>Harika bir profil yaratmak üzerine olan rehberimize bak</2>.",
+  "smoking_location": {
+    "yes": "Evet"
+  },
+  "edit_profile_name_required": "İsim gerekli",
+  "edit_home_questions": {
+    "accept_drinking": "İnsanların içki içmesiyle sorunum yok",
+    "accept_pets": "Evcil hayvanı olan kişilere ev sahipliği yapar"
+  }
 }
