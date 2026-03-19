@@ -125,9 +125,17 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   // Sync WebView when screen comes back into focus (tab switch)
   useFocusEffect(
     useCallback(() => {
+      // Blur cleanup: when leaving this tab, blur the active element so web-side menus close via onBlur
+      const cleanup = () => {
+        webviewRef.current?.injectJavaScript(`
+          document.activeElement?.blur();
+          true;
+        `);
+      };
+
       // If there's already a sync in progress, skip this one to avoid conflicts
       if (syncTargetPathRef.current !== null) {
-        return;
+        return cleanup;
       }
 
       // Strip locale for comparison
@@ -147,6 +155,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
         true;
       `);
+
+      return cleanup;
     }, [path, stripLocale, i18n.language]),
   );
 

@@ -48,7 +48,7 @@ const getIosIcon = () => {
 export default {
   name: getAppName(),
   slug: "mobile",
-  version: "1.1.14",
+  version: "1.1.15",
   orientation: "portrait",
   icon: getIcon(),
   scheme: getAppScheme(),
