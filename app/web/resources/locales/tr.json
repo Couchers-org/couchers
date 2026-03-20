@@ -12,9 +12,6 @@
   "create": "Oluştur",
   "continue": "Devam Et",
   "load_more": "Daha fazla yükle",
-  "disable": "Devre dışı bırak",
-  "no_invite_codes": "Şimdilik davet kodu yok",
-  "error_loading_invite_codes": "Davet kodu detaylarını alınamadı",
   "thanks": "Teşekkürler!",
   "community_standing": "Topluluk İtibarı",
   "community_standing_description": "Referanslar ve topluluk aktivistesi gibi birçok faktörle hesaplanmaktadır.",
@@ -23,12 +20,9 @@
   "cancel": "İptal et",
   "confirm": "Onayla",
   "read_more": "Daha fazla oku",
-  "disabled": "Devre dışı",
   "edit": "Düzenle",
   "save": "Kaydet",
-  "copied": "Panoya kopyalandı",
   "verification_score_description": "Diğer kullanıcıların kefaletine göre hesaplandı",
-  "created": "Oluşturuldu",
   "terms_of_service": "Hizmet Şartları",
   "required": "Gerekli",
   "accept": "Kabul Et",
@@ -36,7 +30,6 @@
   "save_changes": "Değişiklikleri kaydet",
   "submit": "Gönder",
   "learn_more": "Daha fazla öğren",
-  "uses": "Kullanım sayısı",
   "previous": "Önceki",
   "next": "İleri",
   "mod": "Moderasyon",
@@ -72,7 +65,6 @@
     "progress_label": "Bağış ilerlemesi",
     "button": "Şimdi bağış yap"
   },
-  "copy": "Kopyala",
   "hosting_status": {
     "any": "Herhangi biri",
     "maybe": "Belki ev sahipliği yapabilir",
@@ -90,7 +82,8 @@
       "title_helper": "Hatanın kısa bir açıklaması",
       "problem_helper": "Sorunun kısa bir açıklaması ve nasıl tekrardan oluşturulabileceği",
       "expect_label": "Ne oldu? Olması gereken neydi?",
-      "expect_helper": "Olmasını beklediğiniz şey hakkında kısa bir açıklama"
+      "expect_helper": "Olmasını beklediğiniz şey hakkında kısa bir açıklama",
+      "success_message2": "Bu hatayı bildirdiğiniz ve Couchers'ı daha iyi hale getirdiğiniz için teşekkür ederiz, geliştiricilere bir rapor gönderildi! Hata kimliği <id/>."
     },
     "label": "Bir sorun bildir",
     "flag": {
@@ -107,7 +100,23 @@
         "safety": "Güvenlik endişesi (kendi veya başkalarının güvenliğine karşı)",
         "spam": "Kanepe sörfü ile ilgisi olmayan spam veya promosyon",
         "sexualized": "Cinsel içerikli içerik veya davranış"
-      }
+      },
+      "block_user": "{{username}} Kişisini Engelle",
+      "block_user_explainer": "Bu kullanıcıdan gelecek mesaj ve istekler engellenecek, profilin, etkinliklerin ve yorumların bu kişiye görünmeyecek. Onu engellediğin hakkında bilgilendirilmeyecekler.",
+      "button_aria_label": "Bir içeriği veya kullanıcıyı bildir",
+      "profile_button_aria_label": "Bir içeriği bildir veya bir kullanıcıyı engelle",
+      "explainer": "Güvenlik ve Güven ekibine gizlilik altında bir rapor gönderin.",
+      "title": "Bir içeriği veya kullanıcıyı bildir",
+      "profile_title": "Bildir veya Engelle",
+      "reason_label": "Bildirme nedeni",
+      "reason_helper": "Bu içeriği neden bildiriyorsunuz?",
+      "profile_reason_required": "Lütfen açıklamayı veya bloğu doldurun",
+      "description_label": "Sorunu açıklayın",
+      "description_helper": "Lütfen bunu neden bildirdiğinizi bize söyleyin."
+    },
+    "content": {
+      "button_label": "Uygunsuz içerik veya davranışı bildir",
+      "success_message": "Raporunuz ile Couchers'ı herkes için daha iyi bir platform yaptığın için teşekkürler!"
     }
   },
   "meetup_status": {
@@ -174,7 +183,9 @@
     "badges": "Rozetler",
     "dashboard": "Kontrol Paneli",
     "legal_more": "Yasal & Fazlası",
-    "landing_page": "Başlangıç Sayfası"
+    "landing_page": "Başlangıç Sayfası",
+    "volunteer": "Gönüllü Ol",
+    "home": "Ana Sayfa"
   },
   "what_is_cs": {
     "timeline": {
@@ -201,24 +212,24 @@
     "description_2": "Başka bir şehirde bir arkadaşın varmış ve onu ziyarete gidiyormuşsun gibi, ama oraya vardığında arkadaşınla ilk kez tanışıyorsun!",
     "get_involved_title": "Couchers.org'da neler yapabilirim?",
     "get_started": "Başlayın",
-    "timeline_title": "Kanepe sörfünün kısa bir tarihi"
+    "timeline_title": "Kanepe sörfünün kısa bir tarihi",
+    "table": {
+      "no_investor_pressure": "Yatırımcı baskısı yok",
+      "social_expectation": "Ev sahibiyle vakit geçirmeyi teşvik eder",
+      "cultural_exchange": "Kültürel değişim odağı",
+      "non_transactional": "Ödemesiz topluluk modeli"
+    },
+    "bottom_cta_subtitle": "Couchers.org'a katılın ve misafirperverlik ve bağlantı üzerine kurulu küresel bir topluluğun parçası olun.",
+    "join_couchers": "Couchers.org'a Katılın",
+    "is_it_safe": {
+      "title": "Kanepe sörfü ne kadar güvenli?"
+    },
+    "tip_label": "İpucu"
   },
   "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "< 1 dakika önce",
-    "n_minutes_ago_one": "{{count}} dakika önce",
-    "n_minutes_ago_other": "{{count}} dakika önce",
-    "less_than_one_hour_ago": "Bir saatten kısa süre önce",
-    "n_hours_ago_one": "{{count}} saat önce",
-    "n_hours_ago_other": "{{count}} saat önce",
-    "n_days_ago_one": "{{count}} gün önce",
-    "n_days_ago_other": "{{count}} gün önce",
-    "n_weeks_ago_one": "{{count}} hafta önce",
-    "n_weeks_ago_other": "{{count}} hafta önce",
-    "n_months_ago_one": "{{count}} ay önce",
-    "n_months_ago_other": "{{count}} ay önce",
-    "n_years_ago_one": "{{count}} yıl önce",
-    "n_years_ago_other": "{{count}} yıl önce"
+    "less_than_one_hour_ago": "Bir saatten kısa süre önce"
   },
   "location_autocomplete": {
     "more_specific": "Lütfen daha belirli bir yer seçin",
@@ -227,13 +238,93 @@
   },
   "invites": {
     "title": "Üye davet et",
-    "create": "Davet oluştur",
-    "disable": "Devre dışı bırak"
+    "no_codes_message": "Henüz davet kodu yok",
+    "created_datetime": "Oluşturulduğu Tarih: {{datetime}}",
+    "disabled_datetime": "Devre Dışı Bırakıldığı Tarih: {{datetime}}",
+    "disable_link": "Devre dışı bırak",
+    "banner": {
+      "invited_you": "{{name}} sizi Couchers'a katılmaya davet etti!"
+    },
+    "error": {
+      "fetch_invite_info": "Davet kodu detayları alınamadı"
+    }
   },
   "strong_verification": {
     "helper_text": "Bu kullanıcı kimliğini biyometrik pasaport kullanarak doğrulamıştır"
   },
   "footer": {
     "non_profit_note": "Couchers.org, ABD'de 501(c)(3) statüsünde kar amacı gütmeyen, vergiden muaf bir kuruluş olan Couchers, Inc.'in bir projesidir."
-  }
+  },
+  "team": {
+    "title": "Takım",
+    "join_the_team": "Takıma katıl",
+    "join_our_team": "Takımımıza katıl",
+    "have_skills_contribute": "Katkıda bulunmak istediğiniz becerileriniz mi var?",
+    "current_members": "Mevcut Üyeler",
+    "past_members": "Eski Üyeler",
+    "board_member": "Yönetim Kurulu Üyesi",
+    "co_founder_president": "Kurucu Ortak, Başkan & Yönetim Kurulu Başkanı",
+    "co_founder": "Kurucu Ortak",
+    "secretary": "Sekreter",
+    "treasurer": "Sayman",
+    "community_coordinator": "Topluluk Koordinatörü",
+    "developer": "Geliştirici",
+    "ui_ux_designer": "UI/UX Tasarımcısı",
+    "translations_lead": "Çeviri Lideri",
+    "volunteer_settings": {
+      "show_on_team_page": {
+        "title": "Gönüllü profilimi takım sayfasında göster"
+      }
+    }
+  },
+  "language_names": {
+    "es-419": "İspanyolca",
+    "fr": "Fransızca (Fransa)",
+    "fr-CA": "Fransızca (Kanada)",
+    "he": "İbranice",
+    "hi": "Hintçe",
+    "it": "İtalyanca",
+    "ja": "Japonca",
+    "nb-NO": "Norveççe (Bokmål)",
+    "nl": "Felemenkçe",
+    "pl": "Lehçe",
+    "pt": "Portekizce (Portekiz)",
+    "pt-BR": "Portekizce (Brezilya)",
+    "ru": "Rusça",
+    "sv": "İsveççe",
+    "tr": "Türkçe",
+    "uk": "Ukraynaca",
+    "zh-Hans": "Basitleştirilmiş Çince",
+    "zh-Hant": "Geleneksel Çince",
+    "hu": "Macarca"
+  },
+  "copy_button": {
+    "a11y": "Kopyala",
+    "copied_tooltip": "Panoya kopyalandı"
+  },
+  "image_input": {
+    "select_button_a11y": "Bir resim seçin",
+    "replace_image_tooltip": "Resmi değiştirmek için tıkla",
+    "read_file_error_message": "Dosya okunamadı"
+  },
+  "html_meta": {
+    "title_suffix": " | Couchers.org",
+    "default_title": "Couchers.org",
+    "default_description": "Dünyanı paylaş, onların dünyasını keşfet. Güven ve gerçek bağlantı üzerine kurulu otantik yerel deneyimler—harcama üzerine kurulu değil."
+  },
+  "error": {
+    "fatal_message": "Bu olmamalıydı. Lütfen bizimle iletişime geçin ve gelecekte bu hatayı önlememize yardımcı olmak için ne yapıyor olduğunuzu bize anlatın.",
+    "unknown": "Bilinmeyen hata",
+    "fallback": {
+      "title": "Hay aksi... bu bilinmeyen bir hata",
+      "subtitle": "Lütfen 'Sorun bildir' düğmesini kullanın ve gelecekte bu hatayı önlememize yardımcı olmak için ne yapıyor olduğunuzu bize anlatın.",
+      "refresh_page_button_label": "Sayfayı yenile",
+      "home_page_link_label": "Ana sayfaya git"
+    }
+  },
+  "contribute_title": "Katkıda bulunmak için kaydolun",
+  "reply": "Cevap Ver",
+  "yes": "Evet",
+  "no": "Hayır",
+  "ok": "Tamam"
 }

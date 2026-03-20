@@ -1,7 +1,7 @@
 """Add phone verification constraints
 
-Revision ID: bf12729fa8eb
-Revises: d3cee8207c3d
+Revision ID: 0015
+Revises: 0014
 Create Date: 2021-06-14 09:10:35.309227
 
 """
@@ -9,8 +9,8 @@ Create Date: 2021-06-14 09:10:35.309227
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "bf12729fa8eb"
-down_revision = "d3cee8207c3d"
+revision = "0015"
+down_revision = "0014"
 branch_labels = None
 depends_on = None
 

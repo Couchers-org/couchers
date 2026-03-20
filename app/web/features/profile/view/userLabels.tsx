@@ -10,7 +10,7 @@ import {
   User,
 } from "proto/api_pb";
 import { theme } from "theme";
-import { monthFormatter, timestamp2Date } from "utils/date";
+import { localizeDateTime, monthFormatter, timestamp2Date } from "utils/date";
 import dayjs from "utils/dayjs";
 import { timeAgo, TimeUnit } from "utils/timeAgo";
 
@@ -270,9 +270,11 @@ export const RemainingAboutLabels = ({ user }: Props) => {
       />
       <LabelAndText
         label={t("profile:heading.local_time")}
-        text={dayjs()
-          .tz(user.timezone || "Etc/UTC")
-          .format("LT")}
+        text={localizeDateTime(dayjs(), {
+          timezone: user.timezone || "Etc/UTC",
+          locale,
+          includeDate: false,
+        })}
       />
     </>
   );

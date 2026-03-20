@@ -1,7 +1,7 @@
 """Add antibot
 
-Revision ID: 83eff0255b38
-Revises: 3937eb39a4ca
+Revision ID: 0097
+Revises: 0096
 Create Date: 2025-06-28 11:45:33.996222
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "83eff0255b38"
-down_revision = "3937eb39a4ca"
+revision = "0097"
+down_revision = "0096"
 branch_labels = None
 depends_on = None
 

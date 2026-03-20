@@ -16,4 +16,4 @@ if [[ -n "$OUTAGE_REDIRECT_URL" ]]; then
   envsubst '${OUTAGE_REDIRECT_URL}' < "/etc/nginx/outage.conf" > "/etc/nginx/sites-enabled/outage.conf"
 fi
 
-nginx -g 'daemon off;'
+exec nginx -g 'daemon off;'

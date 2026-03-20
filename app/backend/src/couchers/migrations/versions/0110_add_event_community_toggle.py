@@ -1,7 +1,7 @@
 """Add event/community toggle
 
-Revision ID: 34db9c02d305
-Revises: 888ec31ad793
+Revision ID: 0110
+Revises: 0109
 Create Date: 2025-07-16 09:19:34.257615
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "34db9c02d305"
-down_revision = "888ec31ad793"
+revision = "0110"
+down_revision = "0109"
 branch_labels = None
 depends_on = None
 

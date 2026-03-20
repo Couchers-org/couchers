@@ -1,7 +1,7 @@
 """Add SV duplicate
 
-Revision ID: dc57b0bfab39
-Revises: 2fc64cf68321
+Revision ID: 0079
+Revises: 0078
 Create Date: 2024-12-13 20:45:39.172527
 
 """
@@ -9,8 +9,8 @@ Create Date: 2024-12-13 20:45:39.172527
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "dc57b0bfab39"
-down_revision = "2fc64cf68321"
+revision = "0079"
+down_revision = "0078"
 branch_labels = None
 depends_on = None
 

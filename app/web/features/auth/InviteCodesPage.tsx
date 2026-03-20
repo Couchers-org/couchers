@@ -12,7 +12,6 @@ import {
   Typography,
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import dayjs from "dayjs";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -20,11 +19,15 @@ import { ListInviteCodesRes } from "proto/account_pb";
 import React from "react";
 import { inviteRoute } from "routes";
 import { service } from "service";
+import { BROWSER_TIMEZONE, localizeDateTime } from "utils/date";
 
 import { inviteCodesKey } from "../queryKeys";
 
 export default function InviteCodesPage() {
-  const { t } = useTranslation(GLOBAL);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(GLOBAL);
   const queryClient = useQueryClient();
 
   const { data, error, isLoading } = useQuery<
@@ -73,11 +76,11 @@ export default function InviteCodesPage() {
   return (
     <Box sx={{ width: "100%", maxWidth: 800, mx: "auto", mt: 6, px: 2 }}>
       <Typography variant="h2" gutterBottom sx={{ mb: 1 }}>
-        {t("global:nav.invite_members")}
+        {t("global:invites.title")}
       </Typography>
 
       <Typography color="textSecondary" sx={{ mb: 3 }}>
-        {t("invites.instructions")}
+        {t("global:invites.instructions")}
       </Typography>
 
       <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
@@ -124,13 +127,13 @@ export default function InviteCodesPage() {
                   <>
                     <Tooltip
                       open={copiedCode === c.code}
-                      title={t("global:copied")}
+                      title={t("global:copy_button.copied_tooltip")}
                       placement="top"
                       arrow
                     >
                       <IconButton
                         edge="end"
-                        aria-label={t("global:copy")}
+                        aria-label={t("global:copy_button.a11y")}
                         onClick={() => copy(shareUrl, c.code)}
                         disabled={!!c.disabled}
                       >
@@ -144,7 +147,7 @@ export default function InviteCodesPage() {
                         onClick={() => disableInviteCode(c.code)}
                         disabled={isDisablePending}
                       >
-                        {t("global:disable")}
+                        {t("global:invites.disable_link")}
                       </Button>
                     )}
                   </>
@@ -159,26 +162,39 @@ export default function InviteCodesPage() {
                     <>
                       {c.created?.seconds && (
                         <>
-                          {t("global:created")}:{" "}
-                          {dayjs(new Date(c.created.seconds * 1000)).format(
-                            "YYYY-MM-DD HH:mm",
-                          )}
+                          {t("global:invites.created_datetime", {
+                            datetime: localizeDateTime(
+                              new Date(c.created.seconds * 1000),
+                              {
+                                timezone: BROWSER_TIMEZONE,
+                                locale: locale,
+                                abbreviate: true,
+                              },
+                            ),
+                          })}
                         </>
                       )}
                       {c.disabled?.seconds && (
                         <>
                           {" • "}
-                          {t("global:disabled")}:{" "}
-                          {dayjs(new Date(c.disabled.seconds * 1000)).format(
-                            "YYYY-MM-DD HH:mm",
-                          )}
+                          {t("global:invites.disabled_datetime", {
+                            datetime: localizeDateTime(
+                              new Date(c.disabled.seconds * 1000),
+                              {
+                                timezone: BROWSER_TIMEZONE,
+                                locale,
+                                abbreviate: true,
+                              },
+                            ),
+                          })}
                         </>
                       )}
                       {typeof c.uses === "number" && (
                         <>
                           {" • "}
-                          {t("global:uses")}: {c.uses}{" "}
-                          {t("invites.uses_suffix")}
+                          {t("global:invites.number_of_uses", {
+                            count: c.uses,
+                          })}
                         </>
                       )}
                     </>
@@ -189,7 +205,7 @@ export default function InviteCodesPage() {
           })}
           {!(data?.inviteCodesList?.length ?? 0) && (
             <Typography color="textSecondary">
-              {t("global:no_invite_codes")}
+              {t("global:invites.no_codes_message")}
             </Typography>
           )}
         </List>

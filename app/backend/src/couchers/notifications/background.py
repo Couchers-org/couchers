@@ -123,8 +123,9 @@ def _send_push_notification(session: Session, user: User, notification: Notifica
 
 def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
     with session_scope() as session:
+        # Select and lock the row.
         notification = session.execute(
-            select(Notification).where(Notification.id == payload.notification_id)
+            select(Notification).where(Notification.id == payload.notification_id).with_for_update()
         ).scalar_one()
 
         # Check moderation visibility if this notification is linked to moderated content

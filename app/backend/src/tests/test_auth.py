@@ -1332,6 +1332,7 @@ def test_signup_with_motivations(db):
     with session_scope() as session:
         user = session.execute(select(User).where(User.id == user_id)).scalar_one()
         assert user.heard_about_couchers == "friend"
+        assert user.signup_motivations is not None
         assert set(user.signup_motivations) == {"hosting", "surfing", "events"}
 
 

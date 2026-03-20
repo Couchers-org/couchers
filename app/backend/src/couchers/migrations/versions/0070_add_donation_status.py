@@ -1,7 +1,7 @@
 """Add donation status
 
-Revision ID: bc7b6ebf50ea
-Revises: 3ac39dcf3b5a
+Revision ID: 0070
+Revises: 0069
 Create Date: 2024-07-17 09:46:20.672556
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "bc7b6ebf50ea"
-down_revision = "3ac39dcf3b5a"
+revision = "0070"
+down_revision = "0069"
 branch_labels = None
 depends_on = None
 

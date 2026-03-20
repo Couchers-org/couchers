@@ -1,7 +1,7 @@
 """Add group chat archive status
 
-Revision ID: a1b2c3d4e5f6
-Revises: f8b4ef6e3819
+Revision ID: 0125
+Revises: 0124
 Create Date: 2026-01-13 00:00:00.000000
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "a1b2c3d4e5f6"
-down_revision = "f8b4ef6e3819"
+revision = "0125"
+down_revision = "0124"
 branch_labels = None
 depends_on = None
 

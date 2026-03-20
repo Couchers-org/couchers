@@ -25,47 +25,6 @@
         "account_security": "Hesap güvenliği",
         "other_notifications": "Diğer Bildirimler"
       },
-      "item_descriptions": {
-        "host_request": {
-          "reminder": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz",
-          "create": "Birisi sana bir ev sahipliği isteği yollayınca",
-          "accept": "Birisi ev sahipliği isteğini kabul edince",
-          "confirm": "Birisi ev sahipliği isteğini onayladığında",
-          "reject": "Birisi ev sahipliği isteğini reddettiğinde",
-          "missed_messages": "Bir ev sahipliği isteğinde mesaj kaçırdığında",
-          "message": "Birisi ev sahipliği isteğinde mesaj yolladığında"
-        },
-        "reference": {
-          "receive_hosted": "Sana ev sahipliği yapmış biri tarafından referans aldığında",
-          "receive_surfed": "Ev sahipliği yaptığın birinden referans aldığında",
-          "receive_friend": "Bir arkadaştan referans aldığında"
-        },
-        "chat": {
-          "message": "Birisi sana bir mesaj gönderdiğinde",
-          "missed_messages": "Bir sohbette mesaj kaçırdığında"
-        },
-        "friend_request": {
-          "create": "Biri sana bir arkadaşlık isteği gönderdiğinde",
-          "accept": "Birisi senin arkadaşlık isteğini kabul ettiğinde"
-        },
-        "phone_number": {
-          "change": "Telefon numaranız değiştirildi",
-          "verify": "Telefon numaranız doğrulandı"
-        },
-        "birthdate": {
-          "change": "Doğum tarihiniz değiştirildi"
-        },
-        "gender": {
-          "change": "Profilinizde gösterilen cinsiyet değiştirildi"
-        },
-        "discussion": {
-          "create": "Birisi içinde bulunduğun toplulukta bir tartışma başlattığında",
-          "comment": "Takip ettiğin bir tartışmada birisi yorum yapınca"
-        },
-        "thread": {
-          "reply": "Birisi yorumuna cevap verdiğinde"
-        }
-      },
       "expand_all": "Tümünü genişlet",
       "collapse_all": "Tümünü daralt",
       "error_loading": "Bildirim ayarlarını yüklemede hata oluştu"

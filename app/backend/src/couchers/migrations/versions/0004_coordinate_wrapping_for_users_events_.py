@@ -1,7 +1,7 @@
 """Coordinate wrapping for Users, Events, Page_Versions
 
-Revision ID: f4a49acd8801
-Revises: 2d656b6ad999
+Revision ID: 0004
+Revises: 0003
 Create Date: 2021-05-02 12:03:43.004161
 
 """
@@ -9,8 +9,8 @@ Create Date: 2021-05-02 12:03:43.004161
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "f4a49acd8801"
-down_revision = "2d656b6ad999"
+revision = "0004"
+down_revision = "0003"
 branch_labels = None
 depends_on = None
 

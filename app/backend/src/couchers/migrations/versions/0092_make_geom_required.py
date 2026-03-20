@@ -1,7 +1,7 @@
 """Make geom required
 
-Revision ID: dc3e31bb80f3
-Revises: 8f056dd44a58
+Revision ID: 0092
+Revises: 0091
 Create Date: 2025-05-19 12:37:25.832263
 
 """
@@ -11,8 +11,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "dc3e31bb80f3"
-down_revision = "8f056dd44a58"
+revision = "0092"
+down_revision = "0091"
 branch_labels = None
 depends_on = None
 

@@ -18,6 +18,7 @@ jobs:
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
+      mobile: ${{ steps.filter.outputs.mobile }}
       models: ${{ steps.filter.outputs.models }}
       migrations: ${{ steps.filter.outputs.migrations }}
       templates: ${{ steps.filter.outputs.templates }}
@@ -32,6 +33,8 @@ jobs:
               - 'app/backend/**'
             frontend:
               - 'app/web/**'
+            mobile:
+              - 'app/mobile/**'
             models:
               - 'app/backend/src/couchers/models/**'
             migrations:
@@ -41,7 +44,7 @@ jobs:
 
   format-backend:
     needs: detect-changes
-    if: needs.detect-changes.outputs.backend == 'true'
+    if: needs.detect-changes.outputs.backend == 'true' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@v2
@@ -82,7 +85,7 @@ jobs:
 
   format-frontend:
     needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true'
+    if: needs.detect-changes.outputs.frontend == 'true' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@v2
@@ -125,9 +128,54 @@ jobs:
           git add app/web/
           git diff --staged --quiet || (git commit -m "Format frontend" && git push)
 
+  format-mobile:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.mobile == 'true' && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure git for GitHub App
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        working-directory: app/mobile
+        run: npm ci
+
+      - name: Format mobile
+        working-directory: app/mobile
+        run: npm run format
+
+      - name: Commit and push mobile formatting changes
+        run: |
+          git add app/mobile/
+          git diff --staged --quiet || (git commit -m "Format mobile" && git push)
+
   generate-migration:
     needs: detect-changes
-    if: needs.detect-changes.outputs.models == 'true' && needs.detect-changes.outputs.migrations == 'false'
+    if: needs.detect-changes.outputs.models == 'true' && needs.detect-changes.outputs.migrations == 'false' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -219,7 +267,7 @@ jobs:
 
   regenerate-html-templates:
     needs: detect-changes
-    if: needs.detect-changes.outputs.templates == 'true'
+    if: needs.detect-changes.outputs.templates == 'true' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/create-github-app-token@v2

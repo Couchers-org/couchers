@@ -1,7 +1,7 @@
 """enforce_community_membership_background_job
 
-Revision ID: d3cee8207c3d
-Revises: 3b8d963e0b7d
+Revision ID: 0014
+Revises: 0013
 Create Date: 2021-06-05 11:24:10.551584
 
 """
@@ -9,8 +9,8 @@ Create Date: 2021-06-05 11:24:10.551584
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "d3cee8207c3d"
-down_revision = "3b8d963e0b7d"
+revision = "0014"
+down_revision = "0013"
 branch_labels = None
 depends_on = None
 

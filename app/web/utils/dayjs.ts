@@ -13,7 +13,5 @@ dayjs.extend(RelativeTime);
 dayjs.extend(Timezone);
 dayjs.extend(LocalizedFormat);
 
-const TIME_FORMAT = "HH:mm";
-
-export { Dayjs, TIME_FORMAT };
+export { Dayjs };
 export default dayjs;

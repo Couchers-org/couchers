@@ -1,7 +1,7 @@
 """Add node_type to nodes
 
-Revision ID: dc28e9bd2b31
-Revises: 0e07dbb98ffc
+Revision ID: 0135
+Revises: 0134
 Create Date: 2026-02-15 14:00:00.000000
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "dc28e9bd2b31"
-down_revision = "0e07dbb98ffc"
+revision = "0135"
+down_revision = "0134"
 branch_labels = None
 depends_on = None
 

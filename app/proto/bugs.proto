@@ -78,6 +78,7 @@ message StatusRes {
   string nonce = 1;
   string version = 2;
   uint64 coucher_count = 3;
+  bool stable = 4;
 }
 
 message GeolocationSearchInfoReq {

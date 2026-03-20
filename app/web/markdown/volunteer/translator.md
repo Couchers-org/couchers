@@ -3,25 +3,24 @@ title: "Translator"
 description: "Help us translate Couchers.org!"
 ---
 
-## [Apply Here](/volunteer/form)
-
 ## Position Description
 
 **This is a remote position**
 
-Couchers.org is seeking native speakers to help us translate our website into various languages. Please review our [Translator Guide](https://docs.google.com/document/d/1SQgp3-FvpewJFAPkJ65LruVB9dCPQzyyWjvLTUtszw4) first, then create an account on our [Weblate](https://translate.couchershq.org/) and start submitting translation suggestions. Once you’ve reached 50+ suggestions and you would like to take on more responsibilities you can apply for the role of language lead.
-
-Can’t see your language on weblate? Use the report a problem button (technical problem) to request it!
+Couchers.org is seeking speakers of the world's languages to translate our website and app, making Couchers feel native for everyone.
 
 ### Duties
 
-- Review suggestions and approve them
-- Translate new sentences and phrases
-- Join our Slack channel for translation discussions
+- Define conventions for your language's translations (e.g. level of formality, use of punctuation, use of genders, key terms, etc.)
+- Translate new strings and update translations when strings change.
+- Coordinate with other translators of your language to ensure consistency.
+- Review and approve suggested translations from new translators.
+- Use Couchers in your language to validate the quality of the translation as a whole.
+- Report problematic or untranslatable strings and localization issues such as date/time formats.
 
 ### Requirements
 
-You must be a native speaker of the language you will translate to.
+Your language level must be native or highly fluent.
 
 ### Expectations/Commitment
 
@@ -29,8 +28,12 @@ This is a volunteer position (unpaid). Couchers.org is built and run entirely by
 
 ### Apply
 
-1. [Fill out the volunteer form](/volunteer/form). Under "Position Applying For", put "Translator - [your language]".
+1. Review our [Translator Guide](/translator-guide) to learn about our translation tooling and conventions.
 
-2. We'll review and get back to you as soon as possible to schedule a Zoom meeting to answer any questions.
+1. Create an account on our [Weblate](https://translate.couchershq.org/) and start submitting translation suggestions. Can’t see your language? Use the report a problem button (technical problem) to request it.
 
-3. After accepting the position, we'll get you onboarded with the people who will be your contact points.
+1. Once you've reached 50+ suggestions (about 1-2 hours of work), fill out the [volunteer application form](/volunteer/form). Under "Position Applying For", put "Translator - [your language]".
+
+1. We'll review your application and get back to you as soon as possible to schedule a Zoom meeting and answer any questions.
+
+1. After accepting the position, we'll add you to our Slack workspace and get you onboarded onto the translation team.

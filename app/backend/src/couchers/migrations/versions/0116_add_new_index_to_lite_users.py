@@ -1,7 +1,7 @@
 """Add new index to lite users
 
-Revision ID: 941b04198efe
-Revises: f555ed35e4d0
+Revision ID: 0116
+Revises: 0115
 Create Date: 2025-11-16 17:23:39.481479
 
 """
@@ -9,8 +9,8 @@ Create Date: 2025-11-16 17:23:39.481479
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "941b04198efe"
-down_revision = "f555ed35e4d0"
+revision = "0116"
+down_revision = "0115"
 branch_labels = None
 depends_on = None
 

@@ -16,7 +16,7 @@ import { dashboardRoute, eventsRoute, routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
 import { theme } from "theme";
-import dayjs, { TIME_FORMAT } from "utils/dayjs";
+import dayjs from "utils/dayjs";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { communityEventsBaseKey } from "../../queryKeys";
@@ -71,8 +71,8 @@ export default function CreateEventPage() {
   >({
     mutationFn: (data) => {
       let createEventInput: CreateEventInput;
-      const startTime = dayjs(data.startTime, TIME_FORMAT);
-      const endTime = dayjs(data.endTime, TIME_FORMAT);
+      const startTime = dayjs(data.startTime);
+      const endTime = dayjs(data.endTime);
       const finalStartDate = data.startDate
         .startOf("day")
         .add(startTime.get("hour"), "hour")
