@@ -51,6 +51,7 @@ from couchers.crypto import (
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.smtp import send_smtp_email
+from couchers.event_log import log_event
 from couchers.helpers.badges import user_add_badge, user_remove_badge
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.materialized_views import (
@@ -58,6 +59,7 @@ from couchers.materialized_views import (
 )
 from couchers.metrics import (
     moderation_auto_approved_counter,
+    postcards_sent_counter,
     push_notification_counter,
     strong_verification_completions_counter,
 )
@@ -102,7 +104,7 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
-from couchers.postal.postcard_service import send_postcard
+from couchers.postal.my_postcard import send_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
@@ -1237,7 +1239,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
 
         user_name = session.execute(select(User.name).where(User.id == attempt.user_id)).scalar_one()
 
-        result = send_postcard(
+        job_id = send_postcard(
             recipient_name=user_name,
             address_line_1=attempt.address_line_1,
             address_line_2=attempt.address_line_2,
@@ -1249,9 +1251,25 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             qr_code_url=urls.postal_verification_link(code=not_none(attempt.verification_code)),
         )
 
-        if result.success:
+        if True:
+            attempt.mypostcard_job_id = job_id
             attempt.status = PostalVerificationStatus.awaiting_verification
             attempt.postcard_sent_at = func.now()
+
+            postcards_sent_counter.labels(country=attempt.country).inc()
+
+            context = make_background_user_context(attempt.user_id)
+            log_event(
+                context,
+                session,
+                "postcard.sent",
+                {
+                    "attempt_id": attempt.id,
+                    "country": attempt.country,
+                    "city": attempt.city,
+                    "mypostcard_job_id": job_id,
+                },
+            )
 
             notify(
                 session,
@@ -1263,10 +1281,37 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
                     country=attempt.country,
                 ),
             )
-        else:
-            # Could retry or fail - for now, fail
-            attempt.status = PostalVerificationStatus.failed
-            logger.error(f"Postcard send failed: {result.error_message}")
+
+
+def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
+    """
+    Checks that all MyPostcard jobs from the last week are tied to a postal verification attempt.
+    """
+    from couchers.postal.my_postcard import get_orders
+
+    with session_scope() as session:
+        week_ago = now() - timedelta(days=7)
+        date_from = week_ago.strftime("%Y-%m-%d")
+        date_to = now().strftime("%Y-%m-%d")
+
+        orders = get_orders(date_from, date_to)
+        mypostcard_job_ids = {str(order["job_id"]) for order in orders.get("orders", [])}
+
+        known_job_ids = set(
+            session.execute(
+                select(PostalVerificationAttempt.mypostcard_job_id).where(
+                    PostalVerificationAttempt.mypostcard_job_id.isnot(None)
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+        orphaned = mypostcard_job_ids - known_job_ids
+        if orphaned:
+            logger.error(
+                f"Found {len(orphaned)} orphaned MyPostcard jobs not tied to any verification attempt: {orphaned}"
+            )
 
 
 class DatabaseInconsistencyError(Exception):

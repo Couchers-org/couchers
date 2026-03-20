@@ -534,6 +534,13 @@ def observe_moderation_queue_resolution_time(
     moderation_queue_resolution_time_histogram.labels(trigger.name, action.name, object_type.name).observe(duration_s)
 
 
+postcards_sent_counter: Counter = Counter(
+    "couchers_postcards_sent_total",
+    "Number of postcards sent via MyPostcard",
+    labelnames=["country"],
+)
+
+
 def create_prometheus_server(port: int) -> Any:
     """custom start method to fix problem descrbied in https://github.com/prometheus/client_python/issues/155"""
 

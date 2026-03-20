@@ -104,6 +104,34 @@ def language_is_allowed(code: str) -> bool:
     return code in get_language_dict()
 
 
+def get_postcard_front_image() -> bytes:
+    """
+    Returns the front image of the postcard as PNG bytes.
+    """
+    return (resources_folder / "postcard-front.png").read_bytes()
+
+
+def get_postcard_logo() -> bytes:
+    """
+    Returns the logo image for the postcard as PNG bytes.
+    """
+    return (resources_folder / "postcard-logo.png").read_bytes()
+
+
+def get_postcard_font() -> bytes:
+    """
+    Returns the font file for postcard text rendering.
+    """
+    return (resources_folder / "hack-bold.ttf").read_bytes()
+
+
+def get_postcard_back_template() -> bytes:
+    """
+    Returns the back side template image for the postcard as PNG bytes.
+    """
+    return (resources_folder / "postcard-back.png").read_bytes()
+
+
 def copy_resources_to_database(session: Session) -> None:
     """
     Syncs the source-of-truth data from files into the database. Call this at the end of a migration.

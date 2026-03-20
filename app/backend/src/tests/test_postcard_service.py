@@ -3,12 +3,12 @@ from unittest.mock import MagicMock, patch
 import pytest
 from requests import RequestException
 
-from couchers.postal.postcard_service import (
+from couchers.postal.my_postcard import (
     _authenticate,
-    _get_postcard_front_image,
     _place_order,
     send_postcard,
 )
+from couchers.resources import get_postcard_front_image
 
 
 @pytest.fixture(autouse=True)
@@ -18,7 +18,7 @@ def _(testconfig):
 
 class TestGetPostcardFrontImage:
     def test_returns_png_bytes(self):
-        data = _get_postcard_front_image()
+        data = get_postcard_front_image()
         assert isinstance(data, bytes)
         assert len(data) > 0
         # PNG magic bytes
@@ -26,7 +26,7 @@ class TestGetPostcardFrontImage:
 
 
 class TestAuthenticate:
-    @patch("couchers.postal.postcard_service.requests.post")
+    @patch("couchers.postal.my_postcard.requests.post")
     def test_returns_auth_token(self, mock_post):
         mock_post.return_value = MagicMock(
             status_code=200,
@@ -36,7 +36,7 @@ class TestAuthenticate:
         assert token == "test-token-123"
         mock_post.assert_called_once()
 
-    @patch("couchers.postal.postcard_service.requests.post")
+    @patch("couchers.postal.my_postcard.requests.post")
     def test_raises_on_missing_token(self, mock_post):
         mock_post.return_value = MagicMock(
             status_code=200,
@@ -45,7 +45,7 @@ class TestAuthenticate:
         with pytest.raises(Exception, match="auth failed"):
             _authenticate()
 
-    @patch("couchers.postal.postcard_service.requests.post")
+    @patch("couchers.postal.my_postcard.requests.post")
     def test_raises_on_http_error(self, mock_post):
         mock_post.return_value = MagicMock()
         mock_post.return_value.raise_for_status.side_effect = RequestException("500 Server Error")
@@ -54,7 +54,7 @@ class TestAuthenticate:
 
 
 class TestPlaceOrder:
-    @patch("couchers.postal.postcard_service.requests.post")
+    @patch("couchers.postal.my_postcard.requests.post")
     def test_places_order_successfully(self, mock_post):
         mock_post.return_value = MagicMock(
             status_code=200,
@@ -74,7 +74,7 @@ class TestPlaceOrder:
         assert call_kwargs.kwargs["data"]["auth_token"] == "auth-token"
         assert call_kwargs.kwargs["files"]["photo"][0] == "postcard.png"
 
-    @patch("couchers.postal.postcard_service.requests.post")
+    @patch("couchers.postal.my_postcard.requests.post")
     def test_raises_on_http_error(self, mock_post):
         mock_post.return_value = MagicMock()
         mock_post.return_value.raise_for_status.side_effect = RequestException("Bad Request")
@@ -83,9 +83,9 @@ class TestPlaceOrder:
 
 
 class TestSendPostcard:
-    @patch("couchers.postal.postcard_service._place_order")
-    @patch("couchers.postal.postcard_service._authenticate")
-    @patch("couchers.postal.postcard_service._get_postcard_front_image")
+    @patch("couchers.postal.my_postcard._place_order")
+    @patch("couchers.postal.my_postcard._authenticate")
+    @patch("couchers.postal.my_postcard.get_postcard_front_image")
     def test_success(self, mock_image, mock_auth, mock_order):
         mock_image.return_value = b"fake-image"
         mock_auth.return_value = "auth-token"
@@ -112,9 +112,9 @@ class TestSendPostcard:
         assert recipient_arg["countryiso"] == "DE"
         assert "state" not in recipient_arg  # None values are excluded
 
-    @patch("couchers.postal.postcard_service._place_order")
-    @patch("couchers.postal.postcard_service._authenticate")
-    @patch("couchers.postal.postcard_service._get_postcard_front_image")
+    @patch("couchers.postal.my_postcard._place_order")
+    @patch("couchers.postal.my_postcard._authenticate")
+    @patch("couchers.postal.my_postcard.get_postcard_front_image")
     def test_optional_fields_excluded_when_none(self, mock_image, mock_auth, mock_order):
         mock_image.return_value = b"fake-image"
         mock_auth.return_value = "auth-token"
@@ -137,8 +137,8 @@ class TestSendPostcard:
         assert "zip" not in recipient_arg
         assert "state" not in recipient_arg
 
-    @patch("couchers.postal.postcard_service._authenticate")
-    @patch("couchers.postal.postcard_service._get_postcard_front_image")
+    @patch("couchers.postal.my_postcard._authenticate")
+    @patch("couchers.postal.my_postcard.get_postcard_front_image")
     def test_auth_failure_raises(self, mock_image, mock_auth):
         mock_image.return_value = b"fake-image"
         mock_auth.side_effect = RequestException("Connection refused")
@@ -156,8 +156,8 @@ class TestSendPostcard:
                 qr_code_url="https://example.com/verify?code=ABC123",
             )
 
-    @patch("couchers.postal.postcard_service._authenticate")
-    @patch("couchers.postal.postcard_service._get_postcard_front_image")
+    @patch("couchers.postal.my_postcard._authenticate")
+    @patch("couchers.postal.my_postcard.get_postcard_front_image")
     def test_auth_service_error_raises(self, mock_image, mock_auth):
         mock_image.return_value = b"fake-image"
         mock_auth.side_effect = Exception("auth failed: invalid credentials")
@@ -175,9 +175,9 @@ class TestSendPostcard:
                 qr_code_url="https://example.com/verify?code=ABC123",
             )
 
-    @patch("couchers.postal.postcard_service._place_order")
-    @patch("couchers.postal.postcard_service._authenticate")
-    @patch("couchers.postal.postcard_service._get_postcard_front_image")
+    @patch("couchers.postal.my_postcard._place_order")
+    @patch("couchers.postal.my_postcard._authenticate")
+    @patch("couchers.postal.my_postcard.get_postcard_front_image")
     def test_order_failure_raises(self, mock_image, mock_auth, mock_order):
         mock_image.return_value = b"fake-image"
         mock_auth.return_value = "auth-token"
