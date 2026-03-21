@@ -19,7 +19,7 @@ const getBundleIdentifier = () => {
 
 const getAndroidPackage = () => {
   if (IS_STAGING) {
-    return "org.couchers.staging.android";
+    return "org.couchers.android.staging";
   }
   return "org.couchers.android";
 };
