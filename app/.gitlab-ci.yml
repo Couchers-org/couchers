@@ -795,13 +795,9 @@ preview:web:
     # no docker login
     default: false
   script:
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_REF_SLUG/ --recursive
-    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-static/$CI_COMMIT_SHORT_SHA/static.tar.gz --website-redirect-location https://$CI_COMMIT_SHORT_SHA--web-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
-    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-static/$CI_COMMIT_REF_SLUG/static.tar.gz --website-redirect-location https://$CI_COMMIT_REF_SLUG--web-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
-    - echo "Done, web-static available at https://$CI_COMMIT_SHORT_SHA--web-static.$PREVIEW_DOMAIN/static.tar.gz and https://$CI_COMMIT_REF_SLUG--web-static.$PREVIEW_DOMAIN/static.tar.gz"
+    - echo "Done, web-static available at https://$CI_COMMIT_SHORT_SHA--web-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz and https://$CI_COMMIT_REF_SLUG--web-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz"
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
@@ -816,13 +812,9 @@ preview:web-next:
     # no docker login
     default: false
   script:
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_REF_SLUG/ --recursive
-    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-next-static/$CI_COMMIT_SHORT_SHA/static.tar.gz --website-redirect-location https://$CI_COMMIT_SHORT_SHA--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
-    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-next-static/$CI_COMMIT_REF_SLUG/static.tar.gz --website-redirect-location https://$CI_COMMIT_REF_SLUG--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
-    - echo "Done, web-static available at https://$CI_COMMIT_SHORT_SHA--web-next-static.$PREVIEW_DOMAIN/static.tar.gz and https://$CI_COMMIT_REF_SLUG--web-next-static.$PREVIEW_DOMAIN/static.tar.gz"
+    - echo "Done, web-next-static available at https://$CI_COMMIT_SHORT_SHA--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz and https://$CI_COMMIT_REF_SLUG--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz"
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
@@ -1086,7 +1078,7 @@ deploy:staging:
     # Deploy
     - echo "Git hash is ${rev}"
     - echo "Deploying staging..."
-    - web_next_static="https://${rev}--web-next-static.preview.couchershq.org/static.tar.gz"
+    - web_next_static="https://${rev}--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz"
     - wget -q ${web_next_static} -O next-static.tar.gz
     - mkdir -p next/
     - tar xf next-static.tar.gz --directory next/

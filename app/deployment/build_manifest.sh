@@ -52,6 +52,10 @@ cat > "$OUTPUT_PATH" <<EOF
     "proxy": "${CI_REGISTRY_IMAGE}/proxy:${SLUG}",
     "nginx": "${CI_REGISTRY_IMAGE}/nginx:${SLUG}",
     "prometheus": "${CI_REGISTRY_IMAGE}/prometheus:${SLUG}"
+  },
+  "static": {
+    "web": "static-${CI_PIPELINE_ID}-${CI_COMMIT_SHA}.tar.gz",
+    "web_next": "static-${CI_PIPELINE_ID}-${CI_COMMIT_SHA}.tar.gz"
   }
 }
 EOF
