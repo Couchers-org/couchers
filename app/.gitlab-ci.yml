@@ -222,7 +222,7 @@ build:web:
   script:
     - - *common_functions
     # Add "--load" so that the image is saved locally for "docker create"
-    - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production -f app/web/Dockerfile.prod --load
+    - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production --build-arg pipeline_id=$CI_PIPELINE_ID -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
@@ -250,7 +250,7 @@ build:web-next:
   script:
     - *common_functions
     # Add "--load" so that the image is saved locally for "docker create"
-    - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next -f app/web/Dockerfile.prod --load
+    - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next --build-arg pipeline_id=$CI_PIPELINE_ID -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
