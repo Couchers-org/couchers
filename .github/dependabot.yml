@@ -25,18 +25,6 @@ updates:
       - "1.topic frontend"
       - "dependencies"
 
-  - package-ecosystem: "npm"
-    directory: "/app/mobile"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "mobile app"
-      - "dependencies"
-    groups:
-      mobile-dependencies:
-        patterns:
-          - "*"
-
   - package-ecosystem: "docker"
     directories:
       - "/app/backend"
