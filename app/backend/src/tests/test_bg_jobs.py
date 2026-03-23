@@ -660,7 +660,7 @@ def test_send_request_notifications_host_request(db, moderator):
     with requests_session(token1) as requests:
         host_request_id = requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
             )
         ).host_request_id
     moderator.approve_host_request(host_request_id)
@@ -910,7 +910,7 @@ def test_send_reference_reminders(db):
         hr5 = create_host_request(session, user9.id, user10.id, timedelta(days=7))
 
         # case 6: neither left ref, surfer indicated they didn't meet up, (host still needs an email)
-        hr6 = create_host_request(session, user12.id, user11.id, timedelta(days=6), initiator_reason_didnt_meetup="")
+        hr6 = create_host_request(session, user12.id, user11.id, timedelta(days=6), surfer_reason_didnt_meetup="")
 
     expected_emails = [
         (
@@ -1258,7 +1258,7 @@ def test_send_request_notifications_blocked_users_no_notification(db, moderator)
     with requests_session(token1) as requests:
         host_request_id = requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
-                recipient_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
             )
         ).host_request_id
     moderator.approve_host_request(host_request_id)
