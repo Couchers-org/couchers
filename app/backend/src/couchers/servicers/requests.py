@@ -231,8 +231,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not _is_host_request_long_enough(request.text):
             context.abort_with_error_code(
                 grpc.StatusCode.INVALID_ARGUMENT,
-                "host_request_too_short",
-                substitutions={"chars": str(HOST_REQUEST_MIN_LENGTH_UTF16)},
+                "host_request_too_short2",
+                substitutions={"count": HOST_REQUEST_MIN_LENGTH_UTF16},
             )
 
         # Check if user has been sending host requests excessively
@@ -241,8 +241,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         ):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
-                "host_request_rate_limit",
-                substitutions={"hours": str(RATE_LIMIT_HOURS)},
+                "host_request_rate_limit2",
+                substitutions={"count": RATE_LIMIT_HOURS},
             )
 
         conversation = Conversation()
