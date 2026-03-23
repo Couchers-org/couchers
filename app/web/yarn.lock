@@ -2221,10 +2221,10 @@
     "@statsig/js-client" "3.32.0"
     web-vitals "5.0.3"
 
-"@stripe/stripe-js@^8.6.4":
-  version "8.6.4"
-  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-8.6.4.tgz#84debdee29edd08af71a6e4c70749824214721e3"
-  integrity sha512-ipBq9+YEt5i4FxotkwNlQDqXvt//9ts23XQ4zgwm7yOkU/k3ZHnNRnm7dR418r5nC455dVYEzP7eERUHLrIYhA==
+"@stripe/stripe-js@^8.11.0":
+  version "8.11.0"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-8.11.0.tgz#1f17759a4040e553746e76bd673ba27cb85e5a63"
+  integrity sha512-3fVF4z3efsgwgyj64nFK+6F4/vMw0mUXD2TBbOfftJtKVNx4JNv3CSfe1fY4DCtCk0JFp8/YPNcRkzgV0HJ8cg==
 
 "@swc/helpers@0.5.15":
   version "0.5.15"
