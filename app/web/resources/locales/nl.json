@@ -54,7 +54,6 @@
       "location_publicly_visible": "Dit zal voor iedereen zichtbaar zijn",
       "display_location_not_empty": "Vul een weergave-adres in",
       "location_accuracy": "Locatienauwkeurigheid",
-      "radius_text": "{{radius}} meter",
       "no_location_results_text": "Geen resultaten. Probeer alleen op de stad te zoeken.",
       "location_warn": "Klik en sleep de cirkel hieronder om mensen de globale locatie van je huis te laten zien. Zorg ervoor dat je huis niet in het midden van de cirkel staat, zodat mensen de exacte locatie niet weten.",
       "map_is_blank": "Coördinaten ontbreken, begin met het zoeken naar een locatie op bovenstaande kaart",
