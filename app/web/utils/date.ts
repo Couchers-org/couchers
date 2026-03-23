@@ -55,7 +55,7 @@ export function localizeYearMonth(
   },
 ): string {
   return localizeDateTime(date, {
-    timezone: args.timezone ?? BROWSER_TIMEZONE,
+    timezone: args.timezone,
     locale: args.locale,
     abbreviate: args.abbreviate,
     includeDay: false,
