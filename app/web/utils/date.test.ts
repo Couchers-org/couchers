@@ -11,14 +11,14 @@ describe("localizeDateTime", () => {
       localizeDateTime(dayjs("2000-01-01"), {
         timezone: UTC_TIMEZONE,
         locale: "en",
-      }).toLowerCase(),
+      }),
     ).toContain("2000");
     expect(
       localizeDateTime(dayjs("2000-01-01"), {
         timezone: UTC_TIMEZONE,
         locale: "en",
         includeDate: false,
-      }).toLowerCase(),
+      }),
     ).not.toContain("2000");
   });
 
@@ -27,14 +27,14 @@ describe("localizeDateTime", () => {
       localizeDateTime(dayjs("2000-01-01"), {
         timezone: UTC_TIMEZONE,
         locale: "en",
-      }).toLowerCase(),
-    ).toContain("january");
+      }),
+    ).toContain("January");
     expect(
       localizeDateTime(dayjs("2000-01-01"), {
         timezone: UTC_TIMEZONE,
         locale: "en",
         abbreviate: true,
-      }).toLowerCase(),
+      }),
     ).not.toContain("uary");
   });
 
@@ -44,23 +44,23 @@ describe("localizeDateTime", () => {
         timezone: UTC_TIMEZONE,
         locale: "en",
         includeDayOfWeek: false,
-      }).toLowerCase(),
-    ).not.toContain("sat");
+      }),
+    ).not.toContain("Sat");
     expect(
       localizeDateTime(dayjs("2000-01-01"), {
         timezone: UTC_TIMEZONE,
         locale: "en",
         includeDayOfWeek: true,
-      }).toLowerCase(),
-    ).toContain("saturday");
+      }),
+    ).toContain("Saturday");
     expect(
       localizeDateTime(dayjs("2000-01-01"), {
         timezone: UTC_TIMEZONE,
         locale: "en",
         includeDayOfWeek: true,
         abbreviate: true,
-      }).toLowerCase(),
-    ).toContain("sat");
+      }),
+    ).toContain("Sat");
   });
 
   it("excludes times when specified", () => {
@@ -68,14 +68,14 @@ describe("localizeDateTime", () => {
       localizeDateTime(dayjs("2000-01-01").add(11, "hours"), {
         timezone: UTC_TIMEZONE,
         locale: "en",
-      }).toLowerCase(),
+      }),
     ).toContain("11");
     expect(
       localizeDateTime(dayjs("2000-01-01").add(11, "hours"), {
         timezone: UTC_TIMEZONE,
         locale: "en",
         includeTime: false,
-      }).toLowerCase(),
+      }),
     ).not.toContain("11");
   });
 
@@ -101,16 +101,26 @@ describe("localizeDateTime", () => {
       localizeDateTime(dayjs("2000-01-01"), {
         timezone: UTC_TIMEZONE,
         locale: "en",
-      }).toLowerCase(),
-    ).toContain("jan");
+      }),
+    ).toContain("January");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en-US",
+      }),
+    ).toContain("January");
     expect(
       localizeDateTime(dayjs("2000-01-01"), {
         timezone: UTC_TIMEZONE,
         locale: "es",
-      }).toLowerCase(),
-    ).toContain(
-      "ene", // enero = january
-    );
+      }),
+    ).toContain("enero");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "de",
+      }),
+    ).toContain("Januar");
   });
 });
 
