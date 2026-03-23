@@ -1,7 +1,7 @@
 import type { GetServerSideProps } from "next";
 
 const startTime = Date.now();
-const STABLE_THRESHOLD_MS = 15 * 60 * 1000;
+const STABLE_THRESHOLD_MS = 5 * 60 * 1000;
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   res.setHeader("Content-Type", "application/json");
