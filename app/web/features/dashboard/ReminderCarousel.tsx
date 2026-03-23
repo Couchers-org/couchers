@@ -70,7 +70,9 @@ export default function ReminderCarousel() {
           >
             {reminders.map((reminder, i) => (
               <Box key={i} sx={{ minWidth: "100%", flexShrink: 0 }}>
-                <ReminderItem data={reminder} />
+                <ReminderItem
+                // data={reminder}
+                />
               </Box>
             ))}
           </Box>
