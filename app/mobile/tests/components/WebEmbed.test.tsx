@@ -147,7 +147,7 @@ describe("WebEmbed", () => {
         expect.objectContaining({
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/dashboard",
-          syncTargetPathRef: expect.objectContaining({ current: null }),
+          syncTargetPathRef: expect.objectContaining({ current: "/dashboard" }),
           onRetryCountReset: expect.any(Function),
         }),
       );

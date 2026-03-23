@@ -44,10 +44,9 @@ type LoggedInMenuDialogItem = {
 
 export type LoggedInMenuItem = LoggedInMenuLinkItem | LoggedInMenuDialogItem;
 
-const StyledMenu = styled(Menu)<{ $isNativeEmbed?: boolean }>(({
-  theme,
-  $isNativeEmbed,
-}) => {
+const StyledMenu = styled(Menu, {
+  shouldForwardProp: (prop) => prop !== "$isNativeEmbed",
+})<{ $isNativeEmbed?: boolean }>(({ theme, $isNativeEmbed }) => {
   // Native embed: full height (native tabs handle safe area)
   // Mobile web: subtract bottom nav + safe area
   const menuHeight = $isNativeEmbed
@@ -347,6 +346,7 @@ export default function LoggedInMenu({
         open={menuOpen}
         anchorEl={isMobile ? undefined : menuRef.current}
         onClose={() => setMenuOpen(false)}
+        onBlur={() => setMenuOpen(false)}
         $isNativeEmbed={isNativeEmbed}
         anchorOrigin={
           isMobile ? undefined : { vertical: "bottom", horizontal: "right" }

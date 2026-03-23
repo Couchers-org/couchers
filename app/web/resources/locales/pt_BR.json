@@ -168,7 +168,6 @@
       "location_publicly_visible": "Isto ficará visível publicamente",
       "location_warn": "Clique e arraste o círculo abaixo para mostrar às pessoas a localização aproximada da sua casa. Certifique-se de que sua casa não está no centro do círculo, assim as pessoas não saberão o local exato.",
       "map_is_blank": "Coordenadas ausentes, comece buscando uma localização no mapa acima",
-      "radius_text": "{{radius}} metros",
       "no_location_results_text": "Nenhum resultado. Tente buscar apenas pela cidade.",
       "no_map_support": "Seu dispositivo não tem suporte para o mapa. Certifique-se de que o WebGL2 está habilitado ou tente um dispositivo/navegador diferente. Sentimos muito pelo transtorno!",
       "press_enter_to_search": "Pressione enter para buscar"

@@ -136,7 +136,6 @@
       "location_accuracy": "Konum isabetliliği",
       "location_publicly_visible": "Bu herkese açık bir şekilde görünecek",
       "map_is_blank": "Koordinatlar eksik, yukarıdan bir konum arayarak başlayın",
-      "radius_text": "{{radius}} metre",
       "no_location_results_text": "Sonuç yok. Sadece şehri aramayı deneyin.",
       "no_map_support": "Cihazınız haritayı desteklemiyor. Lütfen WebGL2'nin açık olduğuna emin olun veya başka bir cihaz/tarayıcı kullanın. Bu sorun için özür dileriz!",
       "press_enter_to_search": "Aramak için enter tuşuna bas",

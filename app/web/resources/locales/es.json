@@ -330,7 +330,6 @@
       "invalid_coordinate": "Faltan las coordenadas, por favor selecciona una ubicación en el mapa de arriba",
       "location_accuracy": "Precisión de la ubicación",
       "map_is_blank": "Faltan las coordenadas, comienza buscando una ubicación con el mapa de arriba",
-      "radius_text": "{{radius}} metros",
       "no_location_results_text": "Sin resultados. Intenta buscar solo la ciudad.",
       "display_location_not_empty": "Por favor introduce una dirección para mostrar",
       "no_map_support": "Tu dispositivo no soporta el mapa. Por favor asegúrate de que WebGL2 está habilitado o prueba otro dispositivo/navegador. ¡Sentimos las molestias!",

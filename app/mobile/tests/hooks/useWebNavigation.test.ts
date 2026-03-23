@@ -94,7 +94,7 @@ describe("useWebNavigation", () => {
       expect(mockRouter.push).toHaveBeenCalledWith("/communities");
     });
 
-    it("triggers native navigation for non-tab routes (catch-all)", () => {
+    it("does not switch native screen when navigating from tab to catch-all route", () => {
       const syncTargetPathRef = { current: null };
       const { result } = renderHook(() =>
         useWebNavigation({
@@ -108,7 +108,25 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/user/123`, false),
       );
 
-      expect(mockRouter.push).toHaveBeenCalledWith("/user/123");
+      // WebView handles the navigation internally; native router stays on tab
+      expect(mockRouter.push).not.toHaveBeenCalled();
+    });
+
+    it("triggers native navigation from catch-all to tab route", () => {
+      const syncTargetPathRef = { current: null };
+      const { result } = renderHook(() =>
+        useWebNavigation({
+          webBaseUrl: mockWebBaseUrl,
+          currentPath: "/user/456",
+          syncTargetPathRef,
+        }),
+      );
+
+      result.current.handleNavigationStateChange(
+        createNavState(`${mockWebBaseUrl}/dashboard`, false),
+      );
+
+      expect(mockRouter.push).toHaveBeenCalledWith("/dashboard");
     });
 
     it("does not navigate when URL is still loading", () => {
@@ -128,7 +146,7 @@ describe("useWebNavigation", () => {
       expect(mockRouter.push).not.toHaveBeenCalled();
     });
 
-    it("navigates to catch-all for detail pages (no tab highlighted)", () => {
+    it("does not switch native screen for detail pages when on a tab", () => {
       const syncTargetPathRef = { current: null };
       const { result } = renderHook(() =>
         useWebNavigation({
@@ -142,7 +160,8 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/messages/123`, false),
       );
 
-      expect(mockRouter.push).toHaveBeenCalledWith("/messages/123");
+      // WebView handles sub-route navigation; native router stays on messages tab
+      expect(mockRouter.push).not.toHaveBeenCalled();
     });
 
     it("strips hash fragments from URL when navigating to main tabs", () => {
@@ -192,7 +211,7 @@ describe("useWebNavigation", () => {
       {
         webPath: "/dashboard/settings",
         expectedTab: null,
-        expectedPath: "/dashboard/settings",
+        expectedPath: null, // From dashboard tab to catch-all: stays on tab
       },
       {
         webPath: "/messages",
@@ -202,7 +221,7 @@ describe("useWebNavigation", () => {
       {
         webPath: "/messages/123",
         expectedTab: null,
-        expectedPath: "/messages/123",
+        expectedPath: null, // From dashboard tab to catch-all: stays on tab
       },
       { webPath: "/search", expectedTab: "search", expectedPath: "/search" },
       {
@@ -218,10 +237,14 @@ describe("useWebNavigation", () => {
       {
         webPath: "/communities/456",
         expectedTab: null,
-        expectedPath: "/communities/456",
+        expectedPath: null, // From dashboard tab to catch-all: stays on tab
       },
       { webPath: "/events", expectedTab: "events", expectedPath: "/events" },
-      { webPath: "/user/789", expectedTab: null, expectedPath: "/user/789" },
+      {
+        webPath: "/user/789",
+        expectedTab: null,
+        expectedPath: null, // From dashboard tab to catch-all: stays on tab
+      },
     ];
 
     testCases.forEach(({ webPath, expectedTab, expectedPath }) => {
