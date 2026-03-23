@@ -1,0 +1,53 @@
+"""Make hosting status non-nullable
+
+Revision ID: 0042
+Revises: 0041
+Create Date: 2022-02-14 10:13:18.444848
+
+"""
+
+from alembic import op
+from sqlalchemy.dialects import postgresql
+
+# revision identifiers, used by Alembic.
+revision = "0042"
+down_revision = "0041"
+branch_labels = None
+depends_on = None
+
+
+def upgrade() -> None:
+    op.execute("UPDATE users SET hosting_status = 'cant_host' WHERE hosting_status IS NULL")
+    op.execute("UPDATE users SET meetup_status = 'does_not_want_to_meetup' WHERE meetup_status IS NULL")
+    op.alter_column(
+        "users",
+        "hosting_status",
+        existing_type=postgresql.ENUM("can_host", "maybe", "cant_host", name="hostingstatus"),
+        nullable=False,
+    )
+    op.alter_column(
+        "users",
+        "meetup_status",
+        existing_type=postgresql.ENUM(
+            "wants_to_meetup", "open_to_meetup", "does_not_want_to_meetup", name="meetupstatus"
+        ),
+        nullable=False,
+    )
+    op.execute("ALTER TABLE users ALTER COLUMN meetup_status SET DEFAULT 'open_to_meetup'")
+
+
+def downgrade() -> None:
+    op.alter_column(
+        "users",
+        "meetup_status",
+        existing_type=postgresql.ENUM(
+            "wants_to_meetup", "open_to_meetup", "does_not_want_to_meetup", name="meetupstatus"
+        ),
+        nullable=True,
+    )
+    op.alter_column(
+        "users",
+        "hosting_status",
+        existing_type=postgresql.ENUM("can_host", "maybe", "cant_host", name="hostingstatus"),
+        nullable=True,
+    )

@@ -12,16 +12,14 @@
   "join_us": "Join us",
   "update": "Update",
   "create": "Create",
-  "created": "Created",
   "terms_of_service": "Terms of Service",
   "required": "Required",
   "accept": "Accept",
   "continue": "Continue",
-  "disable": "Disable",
-  "disabled": "Disabled",
-  "uses": "Uses",
-  "no_invite_codes": "No invite codes yet",
-  "error_loading_invite_codes": "Couldn't get invite code details",
+  "copy_button": {
+    "a11y": "Copy",
+    "copied_tooltip": "Copied to clipboard"
+  },
   "thanks": "Thanks!",
   "donation_banner": {
     "message": "Couchers.org runs on kindness — just like couch surfing itself. This holiday season, help us keep it that way. We are raising {{goal}} to cover the cost of running Couchers.org.",
@@ -39,8 +37,11 @@
   "cancel": "Cancel",
   "submit": "Submit",
   "confirm": "Confirm",
-  "copy": "Copy",
-  "copied": "Copied to clipboard",
+  "image_input": {
+    "select_button_a11y": "Select an image",
+    "replace_image_tooltip": "Click to replace image",
+    "read_file_error_message": "Couldn't read file"
+  },
   "load_more": "Load more",
   "read_more": "Read more",
   "next": "Next",
@@ -144,7 +145,6 @@
     "default_title": "Couchers.org",
     "default_description": "Share your world, discover theirs. Authentic local experiences, built on trust and genuine connection—not transactions."
   },
-  "invited_you": "{{name}} invited you to join Couchers!",
   "error": {
     "fatal_message": "This shouldn't have happened. Please contact us and tell us what you were doing to help us prevent this error in the future.",
     "unknown": "Unknown error",
@@ -168,7 +168,8 @@
       "location_publicly_visible": "This will be publicly visible",
       "location_warn": "Click and drag the circle below to show people the approximate location of your home. Make sure your home is not at the center of the circle, so people will not know the exact location.",
       "map_is_blank": "Missing coordinates, start by searching for a location with the map above",
-      "radius_text": "{{radius}} meters",
+      "radius_text2_one": "{{count}} meter",
+      "radius_text2_other": "{{count}} meters",
       "no_location_results_text": "No results. Try searching for just the city.",
       "no_map_support": "Your device doesn't support the map. Please make sure WebGL2 is enabled or try a different device/browser. Sorry for the trouble!",
       "press_enter_to_search": "Press enter to search"
@@ -215,14 +216,15 @@
   },
   "invites": {
     "title": "Invite members",
-    "create": "Create invite",
-    "disable": "Disable",
-    "share_link": "Copy share link",
     "instructions": "Create an invite link to share with friends and community. Disable codes you no longer use.",
-    "uses_suffix": "completed signups",
+    "no_codes_message": "No invite codes yet",
+    "created_datetime": "Created: {{datetime}}",
+    "disabled_datetime": "Disabled: {{datetime}}",
+    "number_of_uses_one": "Uses: {{count}} completed signup",
+    "number_of_uses_other": "Uses: {{count}} completed signups",
+    "disable_link": "Disable",
     "banner": {
-      "invited_you": "{{name}} invited you to join Couchers!",
-      "inviter_fallback": "{{username}} invited you to join Couchers!"
+      "invited_you": "{{name}} invited you to join Couchers!"
     },
     "error": {
       "fetch_invite_info": "Couldn't get invite code details"
@@ -236,19 +238,7 @@
   "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "< 1 minute ago",
-    "n_minutes_ago_one": "{{count}} minute ago",
-    "n_minutes_ago_other": "{{count}} minutes ago",
-    "less_than_one_hour_ago": "Less than an hour ago",
-    "n_hours_ago_one": "{{count}} hour ago",
-    "n_hours_ago_other": "{{count}} hours ago",
-    "n_days_ago_one": "{{count}} day ago",
-    "n_days_ago_other": "{{count}} days ago",
-    "n_weeks_ago_one": "{{count}} week ago",
-    "n_weeks_ago_other": "{{count}} weeks ago",
-    "n_months_ago_one": "{{count}} month ago",
-    "n_months_ago_other": "{{count}} months ago",
-    "n_years_ago_one": "{{count}} year ago",
-    "n_years_ago_other": "{{count}} years ago"
+    "less_than_one_hour_ago": "Less than an hour ago"
   },
   "location_autocomplete": {
     "more_specific": "Please choose a more specific place",

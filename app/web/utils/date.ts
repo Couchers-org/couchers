@@ -1,7 +1,7 @@
 // format a date
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 
-import { Dayjs } from "./dayjs";
+import daysjs, { Dayjs } from "./dayjs";
 import { dayMillis } from "./timeAgo";
 
 const monthFormatter = (locale: string) =>
@@ -10,24 +10,106 @@ const monthFormatter = (locale: string) =>
     year: "numeric",
   });
 
-const dateTimeFormatter = (locale: string) =>
-  new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium",
-    timeStyle: "medium",
-  });
-
-const dateFormatter = (locale: string) =>
-  new Intl.DateTimeFormat(locale, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
-
 const numNights = (date1: string, date2: string) => {
   const diffTime = Date.parse(date1) - Date.parse(date2);
   const diffDays = Math.ceil(diffTime / dayMillis);
   return diffDays;
 };
+
+/// Allow call sites to explicitly reference the browser's timezone (clearer than "undefined").
+export const BROWSER_TIMEZONE: unique symbol = Symbol("browser-timezone");
+export const UTC_TIMEZONE: string = "Etc/UTC";
+
+interface LocalizeDateTimeParams {
+  /// The locale to localize in.
+  locale: string;
+  /// The timezone to be used to figure the date components (defaults to the browser's).
+  timezone?: string | typeof BROWSER_TIMEZONE;
+  /// Whether to include the date (defaults to true).
+  includeDate?: boolean;
+  /// If including the date, whether to include the day of week (defaults to false).
+  includeDayOfWeek?: boolean;
+  /// Whether to include the time (defaults to true).
+  includeTime?: boolean;
+  /// If including the time, whether to include seconds (defaults to false).
+  includeSeconds?: boolean;
+  /// Whether to abbreviate days of the week and month names (defaults to false).
+  abbreviate?: boolean;
+}
+
+/// Localizes a date and time, optionally with the day of the week.
+export function localizeDateTime(
+  date: Date | Dayjs,
+  args: LocalizeDateTimeParams,
+): string {
+  if (daysjs.isDayjs(date)) {
+    date = date.toDate();
+  }
+  const format = getIntlDateTimeFormat(args);
+  return format.format(date);
+}
+
+/// Localizes a range of date and times as a string.
+export function localizeDateTimeRange(
+  start: Date | Dayjs,
+  end: Date | Dayjs,
+  args: LocalizeDateTimeParams,
+): string {
+  if (daysjs.isDayjs(start)) {
+    start = start.toDate();
+  }
+  if (daysjs.isDayjs(end)) {
+    end = end.toDate();
+  }
+  const format = getIntlDateTimeFormat(args);
+  return format.formatRange(start, end);
+}
+
+// Creating Intl.DateTimeFormat every time is 40x slower.
+const intlDateTimeFormatCache = new Map<string, Intl.DateTimeFormat>();
+
+/// Gets an Intl.DateTimeFormat based on params.
+function getIntlDateTimeFormat(
+  args: LocalizeDateTimeParams,
+): Intl.DateTimeFormat {
+  // We can't use args as the Map key as it uses reference equality.
+  // Convert it to a json string. The Symbol type requires special handling.
+  const cacheKey = JSON.stringify(args, (_, v) =>
+    typeof v === "symbol" ? v.toString() : v,
+  );
+  const cached = intlDateTimeFormatCache.get(cacheKey);
+  if (cached) return cached;
+
+  const format = createIntlDateTimeFormat(args);
+  intlDateTimeFormatCache.set(cacheKey, format);
+  return format;
+}
+
+/// Creates a new Intl.DateTimeFormat object based on params.
+function createIntlDateTimeFormat(
+  args: LocalizeDateTimeParams,
+): Intl.DateTimeFormat {
+  const options: Intl.DateTimeFormatOptions = {};
+  if (args.includeDate !== false) {
+    options.year = "numeric";
+    options.month = args.abbreviate ? "short" : "long";
+    options.day = "numeric";
+    if (args.includeDayOfWeek) {
+      options.weekday = args.abbreviate ? "short" : "long";
+    }
+  }
+  if (args.includeTime !== false) {
+    options.hour = "numeric";
+    options.minute = "numeric";
+    if (args.includeSeconds) {
+      options.second = "numeric";
+    }
+  }
+  if (args.timezone && args.timezone !== BROWSER_TIMEZONE) {
+    options.timeZone = args.timezone;
+  }
+  return Intl.DateTimeFormat(args.locale, options);
+}
 
 function timestamp2Date(timestamp: Timestamp.AsObject): Date {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
@@ -46,11 +128,4 @@ function isSameOrFutureDate(date1: Dayjs, date2: Dayjs): boolean {
   return isSameDate(date1, date2) || date1.isAfter(date2);
 }
 
-export {
-  dateFormatter,
-  dateTimeFormatter,
-  isSameOrFutureDate,
-  monthFormatter,
-  numNights,
-  timestamp2Date,
-};
+export { isSameOrFutureDate, monthFormatter, numNights, timestamp2Date };

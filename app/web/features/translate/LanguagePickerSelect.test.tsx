@@ -44,7 +44,7 @@ const changeLanguageMock = service.account.changeLanguage as MockedService<
 
 describe("LanguagePickerSelect", () => {
   beforeEach(() => {
-    mockRouter.setCurrentUrl("/messages/hosting");
+    mockRouter.setCurrentUrl("/messages/all");
     mockAuthState.authenticated = true;
     jest.clearAllMocks();
   });
@@ -111,8 +111,8 @@ describe("LanguagePickerSelect", () => {
     await waitFor(() =>
       expect(mockRouter).toEqual(
         expect.objectContaining({
-          asPath: "/messages/hosting",
-          pathname: "/messages/hosting",
+          asPath: "/messages/all",
+          pathname: "/messages/all",
           locale: "es",
         }),
       ),

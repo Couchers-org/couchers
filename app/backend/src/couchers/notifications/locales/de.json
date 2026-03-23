@@ -1,1 +1,342 @@
-{}
+{
+  "push": {
+    "api_key__create": {
+      "title": "API-Schlüssel erstellt",
+      "ios_title": "API-Schlüssel erstellt",
+      "body": "Details wurden dir per E-Mail zugesandt."
+    },
+    "adhoc__push_enabled": {
+      "body": "Du wirst von nun an Benachrichtigungen auf diesem Gerät erhalten.",
+      "title": "Push-Benachrichtigungen aktiviert",
+      "ios_title": "Push-Benachrichtigungen aktiviert"
+    },
+    "chat__missed_messages": {
+      "ios_title_one": "{{count}} Verpasste Nachricht",
+      "ios_title_other": "{{count}} Verpasste Nachrichten",
+      "title_one": "{{count}} verpasste Nachricht",
+      "title_other": "{{count}} verpasste Nachrichten",
+      "body": "Du hast neue ungelesene Nachrichten."
+    },
+    "host_request__create": {
+      "body_one": "{{user}} möchte ab {{start_date}} für {{count}} Tag bleiben.",
+      "body_other": "{{user}} möchte ab {{start_date}} für {{count}} Tage bleiben.",
+      "title": "Neue Host-Anfrage von {{user}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Neue Host-Anfrage"
+    },
+    "reference__reminder": {
+      "body_one": "Du hast noch {{count}} Tag Zeit, um eine Referenz für {{user}} zu schreiben.",
+      "body_other": "Du hast noch {{count}} Tage Zeit, um eine Referenz für {{user}} zu schreiben.",
+      "title": "Schreibe deine Referenz für {{user}}",
+      "ios_title": "Schreibe deine Referenz",
+      "ios_subtitle": "{{user}}"
+    },
+    "account_deletion__start": {
+      "title": "Kontolöschung angefordert",
+      "ios_title": "Kontolöschung angefordert",
+      "body": "Verwende den Link, den wir dir per E-Mail gesendet haben, zur Bestätigung."
+    },
+    "account_deletion__complete": {
+      "title": "Konto gelöscht",
+      "ios_title": "Konto gelöscht",
+      "body_one": "Du kannst ihn innerhalb von {{count}} Tag über den Link wiederherstellen, den wir dir per E-Mail gesendet haben.",
+      "body_other": "Du kannst ihn innerhalb von {{count}} Tagen über den Link wiederherstellen, den wir dir per E-Mail gesendet haben."
+    },
+    "account_deletion__recovered": {
+      "title": "Konto wiederhergestellt",
+      "ios_title": "Konto wiederhergestellt",
+      "body": "Willkommen zurück!"
+    },
+    "activeness__probe": {
+      "title": "Immernoch gewillt zu hosten?",
+      "ios_title": "Immernoch gewillt zu hosten?",
+      "body": "Melden dich an, um deinen Hosting-Status zu bestätigen."
+    },
+    "badge__add": {
+      "title": "Neues Profilabzeichen: {{badge_name}}",
+      "ios_title": "Neues Profil-Abzeichen",
+      "body": "Das {{badge_name}} Abzeichen wurde deinem Profil hinzugefügt."
+    },
+    "badge__remove": {
+      "title": "Profilabzeichen entfernt",
+      "ios_title": "Profilabzeichen entfernt",
+      "body": "Das {{badge_name}} Abzeichen wurde aus deinem Profil entfernt."
+    },
+    "birthdate__change": {
+      "title": "Geburtsdatum geändert",
+      "ios_title": "Geburtsdatum geändert",
+      "body": "Ein Administrator hat dein Geburtsdatum auf {{birthdate}} geändert."
+    },
+    "donation__received": {
+      "title": "Spende erhalten",
+      "ios_title": "Spende erhalten",
+      "body": "Vielen Dank für deine Spende von {{amount_with_currency}}!"
+    },
+    "discussion__create": {
+      "title": "Neue Diskussion: {{title}}",
+      "ios_title": "Neue Diskussion",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} hat die Diskussion in {{group_or_community}} gestartet."
+    },
+    "discussion__comment": {
+      "title": "{{user}} • {{title}}"
+    },
+    "email_address__change": {
+      "title": "E-Mail-Änderung angefordert",
+      "ios_title": "E-Mail-Änderung angefordert",
+      "body": "Verwende den Link, den wir an {{email}} gesendet haben, um deine neue Adresse zu bestätigen."
+    },
+    "email_address__verify": {
+      "title": "E-Mail bestätigt",
+      "ios_title": "E-Mail bestätigt",
+      "body": "Deine neue E-Mail-Adresse wurde bestätigt."
+    },
+    "event__create_any": {
+      "title": "Neues Event: {{title}}",
+      "ios_title": "Neues Event",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} hat das Event am {{date_and_time}} erstellt."
+    },
+    "event__create_approved": {
+      "title": "Neues Event: {{title}}",
+      "ios_title": "Neues Event",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} hat dich zum Event am {{date_and_time}} eingeladen."
+    },
+    "event__update": {
+      "title": "Event aktualisiert: {{title}}",
+      "ios_title": "Event aktualisiert",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} hat das Event aktualisiert."
+    },
+    "event__invite_organizer": {
+      "title": "Event aktualisiert: {{title}}",
+      "ios_title": "Event aktualisiert",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} hat dich als Mitorganisator des Events hinzugefügt."
+    },
+    "event__comment": {
+      "title": "{{user}} • {{title}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Kommentiert auf {{title}}"
+    },
+    "event__reminder": {
+      "title": "Anstehendes Event: {{title}}",
+      "ios_title": "Anstehendes Event",
+      "ios_subtitle": "{{title}}",
+      "body": "Dieses Event beginnt am {{date_and_time}}."
+    },
+    "event__cancel": {
+      "title": "Event abgesagt: {{title}}",
+      "ios_title": "Event abgesagt",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} hat das Event abgesagt."
+    },
+    "event__delete": {
+      "title": "Event gelöscht: {{title}}",
+      "ios_title": "Event gelöscht",
+      "ios_subtitle": "{{title}}",
+      "body": "Ein Moderator hat das Event gelöscht."
+    },
+    "friend_request__create": {
+      "title": "Freundschaftsanfrage von {{from_user}}",
+      "ios_title": "{{from_user}}",
+      "ios_subtitle": "Freundschaftsanfrage",
+      "body": "{{from_user}} möchte dein Freund sein."
+    },
+    "friend_request__accept": {
+      "title": "{{friend}} hat deine Freundschaftsanfrage angenommen",
+      "ios_title": "{{friend}}",
+      "ios_subtitle": "Freundschaftsanfrage angenommen",
+      "body": "Du bist jetzt mit {{friend}} befreundet."
+    },
+    "gender__change": {
+      "title": "Geschlecht geändert",
+      "ios_title": "Geschlecht geändert",
+      "body": "Ein Administrator hat dein Geschlecht zu {{gender}} geändert."
+    },
+    "general__new_blog_post": {
+      "title": "Neuer Blogbeitrag: {{title}}",
+      "ios_title": "Neuer Blogbeitrag",
+      "ios_subtitle": "{{title}}"
+    },
+    "host_request__missed_messages": {
+      "title": "Neue Nachrichten von {{user}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Verpasste Nachrichten",
+      "body": "Du hast neue ungelesene Nachrichten von {{user}}."
+    },
+    "host_request__reminder": {
+      "title": "Ausstehende Anfrage von {{user}}",
+      "ios_title": "Host-Anfrage ausstehend",
+      "ios_subtitle": "{{user}}",
+      "body": "{{user}} wartet auf deine Antwort, bitte akzeptieren oder lehnen die Anfrage ab."
+    },
+    "host_request__accept": {
+      "title": "{{user}} hat deine Host-Anfrage angenommen",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Host-Anfrage angenommen",
+      "body": "{{user}} hat deine Host-Anfrage für {{date}} angenommen."
+    },
+    "host_request__reject": {
+      "title": "{{user}} hat deine Host-Anfrage abgelehnt",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Host-Anfrage abgelehnt",
+      "body": "{{user}} hat deine Host-Anfrage für {{date}} abgelehnt."
+    },
+    "host_request__cancel": {
+      "title": "{{user}} hat seine Host-Anfrage storniert",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Host-Anfrage storniert",
+      "body": "{{user}} hat die Host-Anfrage für {{date}} storniert."
+    },
+    "host_request__confirm": {
+      "title": "{{user}} hat die Host-Anfrage bestätigt",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Host-Anfrage bestätigt",
+      "body": "{{user}} hat die Host-Anfrage für {{date}} bestätigt."
+    },
+    "modnote__create": {
+      "title": "Neuer Moderatoren-Hinweis",
+      "ios_title": "Neuer Moderatoren-Hinweis",
+      "body": "Du hast einen Moderatoren-Hinweis erhalten. Lese und bestätige ihn, um die Plattform weiter nutzen zu können."
+    },
+    "onboarding__reminder": {
+      "first": {
+        "title": "Willkommen bei Couchers!",
+        "ios_title": "Willkommen bei Couchers!",
+        "body": "Bitte vervollständige dein Profil mit einem Bild und einem kurzen Text über sich selbst."
+      },
+      "subsequent": {
+        "title": "Denke daran, dein Profil zu vervollständigen",
+        "ios_title": "Profil-Erinnerung",
+        "body": "Bitte vervollständige dein Profil mit einem Bild und einem kurzen Text über sich selbst."
+      }
+    },
+    "password__change": {
+      "title": "Passwort geändert",
+      "ios_title": "Passwort geändert",
+      "body": "Dein Passwort wurde geändert."
+    },
+    "password_reset__start": {
+      "title": "Passwort-Zurücksetzung angefordert",
+      "ios_title": "Passwort-Zurücksetzung angefordert",
+      "body": "Nutze den Link, den wir dir per E-Mail gesendet haben, um den Vorgang abzuschließen."
+    },
+    "password_reset__complete": {
+      "title": "Passwort zurückgesetzt",
+      "ios_title": "Passwort zurückgesetzt",
+      "body": "Dein Passwort wurde erfolgreich zurückgesetzt."
+    },
+    "phone_number__change": {
+      "title": "Telefonverifizierung gestartet",
+      "ios_title": "Telefonverifizierung gestartet",
+      "body": "Du hast die Telefonnummernverifizierung mit der Nummer {{phone_number}} gestartet."
+    },
+    "phone_number__verify": {
+      "title": "Telefonnummernverifizierung abgeschlossen",
+      "ios_title": "Telefonnummernverifizierung abgeschlossen",
+      "body": "Deine Telefonnummer wurde erfolgreich als {{phone_number}} verifiziert."
+    },
+    "postal_verification__postcard_sent": {
+      "title": "Adressverifizierung gestartet",
+      "ios_title": "Adressverifizierung gestartet",
+      "body": "Deine Postkarte ist auf dem Weg nach {{city}}, {{country}}. Erwarte sie innerhalb von 1-3 Wochen."
+    },
+    "postal_verification__success": {
+      "title": "Adressverifizierung abgeschlossen",
+      "ios_title": "Adressverifizierung abgeschlossen",
+      "body": "Deine Adresse ist jetzt verifiziert."
+    },
+    "postal_verification__failed": {
+      "title": "Adressverifizierung fehlgeschlagen",
+      "ios_title": "Adressverifizierung fehlgeschlagen",
+      "body_code_expired": "Dein Bestätigungscode ist abgelaufen. Codes sind 90 Tage nach dem Versand der Postkarte gültig. Du kannst eine neue Postkarte anfordern.",
+      "body_too_many_attempts": "Zu viele falsche Code-Versuche. Du kannst eine neue Postkarte anfordern.",
+      "body_generic": "Deine Adressverifizierung ist fehlgeschlagen. Du kannst eine neue Postkarte anfordern."
+    },
+    "reference__receive_friend": {
+      "title": "Neue Freundschaftsreferenz von {{user}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Neue Freundschaftsreferenz"
+    },
+    "reference__receive": {
+      "title": "Neue Referenz von {{user}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Neue Referenz",
+      "body_must_write_yours": "{{user}} hat dir eine Referenz hinterlassen, jetzt bist du dran, eine zu schreiben!"
+    },
+    "thread__reply": {
+      "title": "{{user}} • {{title}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "{{title}}"
+    },
+    "verification__sv_success": {
+      "title": "Starke Verifizierung abgeschlossen",
+      "ios_title": "Starke Verifizierung abgeschlossen",
+      "body": "Du wurdest mit starker Verifizierung verifiziert."
+    },
+    "verification__sv_fail": {
+      "title": "Starke Verifizierung fehlgeschlagen",
+      "ios_title": "Starke Verifizierung fehlgeschlagen",
+      "body_wrong_birthdate_gender": "Das Geburtsdatum oder Geschlecht in deinem Profil stimmt nicht mit dem Geburtsdatum oder Geschlecht in deinem Reisepass überein. Bitte kontaktiere das Support-Team, um dein Geburtsdatum oder Geschlecht zu aktualisieren, oder falls das Geschlecht in deinem Reisepass nicht mit deiner Geschlechtsidentität übereinstimmt.",
+      "body_not_a_passport": "Du hast ein anderes Dokument als einen Reisepass verwendet. Für die starke Verifizierung kannst du nur einen Reisepass verwenden.",
+      "body_duplicate": "Du hast einen Reisepass verwendet, der bereits zur Verifizierung genutzt wurde. Bitte verwende einen anderen Reisepass."
+    }
+  },
+  "topic_action_descriptions": {
+    "account_deletion": {
+      "start": "Du hast die Kontolöschung eingeleitet",
+      "complete": "Dein Konto wurde gelöscht",
+      "recovered": "Dein Konto wurde wiederhergestellt (un-gelöscht)"
+    },
+    "activeness": {
+      "probe": "Du akzeptierst Gäste, aber hast dich schon länger nicht mehr eingeloggt"
+    },
+    "api_key": {
+      "create": "Ein API-Schlüssel wurde für dein Konto erstellt"
+    },
+    "badge": {
+      "add": "Ein Abzeichen wird deinem Konto hinzugefügt",
+      "remove": "Ein Abzeichen wird von deinem Konto entfernt"
+    },
+    "birthdate": {
+      "change": "Dein Geburtsdatum wird geändert."
+    },
+    "chat": {
+      "message": "Jemand sendet dir eine Nachricht.",
+      "missed_messages": "Du verpasst Nachrichten in einem Chat."
+    },
+    "discussion": {
+      "create": "Jemand schreibt einen Beitrag in einer Community, in der du Mitglied bist.",
+      "comment": "Jemand kommentiert einen Beitrag, den du verfolgst."
+    },
+    "donation": {
+      "received": "Deine Spende wurde erhalten."
+    },
+    "email_address": {
+      "change": "E-Mail-Änderung wurde eingeleitet.",
+      "verify": "Deine neue E-Mail wurde verifiziert."
+    },
+    "event": {
+      "create_approved": "Ein Event, das von den Moderatoren genehmigt wurde, wird in deiner Community erstellt.",
+      "create_any": "Ein Benutzer erstellt ein Event in deiner Community (nicht von einem Administrator überprüft).",
+      "update": "Ein Event, an dem du teilnimmst, wird aktualisiert.",
+      "cancel": "Ein Event, an dem du teilnimmst, wird abgesagt.",
+      "delete": "Ein Event, an dem du teilnimmst, wird gelöscht.",
+      "invite_organizer": "Jemand lädt dich ein, ein Event mit zu organisieren.",
+      "comment": " Ein Mitglied kommentiert ein Event, an dem du teilnimmst.",
+      "reminder": "Erinnerung, dass ein Event, an dem du teilnehmen wirst, bald stattfindet."
+    },
+    "friend_request": {
+      "create": "Jemand sendet dir eine Freundschaftsanfrage.",
+      "accept": "Jemand akzeptiert deine Freundschaftsanfrage."
+    },
+    "general": {
+      "new_blog_post": "Ein neuer Blogbeitrag wurde veröffentlicht."
+    },
+    "gender": {
+      "change": "Das auf deinem Profil angezeigte Geschlecht wurde geändert."
+    }
+  }
+}

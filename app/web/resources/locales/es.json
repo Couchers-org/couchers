@@ -36,7 +36,6 @@
   "join_us": "Unirse",
   "back": "Volver",
   "learn_more": "Saber más",
-  "created": "Creado",
   "login": "Iniciar sesión",
   "sign_up": "Regístrate",
   "legal_name": "Couchers, Inc.",
@@ -46,7 +45,6 @@
     "progress_label": "Progreso de las donaciones"
   },
   "thanks": "¡Gracias!",
-  "error_loading_invite_codes": "No se pudieron obtener los detalles del código de invitación",
   "community_standing_description": "Calculado a partir de varios factores como referencias y participación en la comunidad.",
   "verification_score": "Puntuación de verificación",
   "community_standing": "Prestigio comunitario",
@@ -120,16 +118,10 @@
   },
   "continue": "Continuar",
   "required": "Requerido",
-  "disable": "Desactivar",
-  "disabled": "Desactivado",
-  "uses": "Usos",
-  "no_invite_codes": "Aún no hay códigos de invitación",
   "verification_score_description": "Calculado a partir de recomendaciones de otros usuarios",
   "edit": "Editar",
   "save": "Guardar",
   "submit": "Enviar",
-  "copy": "Copiar",
-  "copied": "Copiado al portapapeles",
   "previous": "Anterior",
   "save_changes": "Guardar cambios",
   "send": "Enviar",
@@ -174,30 +166,13 @@
     "invite_members": "Invitar a miembros",
     "merch_shop": "Tienda de merchandising",
     "switch_to_light_mode": "Cambiar a modo claro",
-    "switch_to_dark_mode": "Cambiar a modo oscuro"
+    "switch_to_dark_mode": "Cambiar a modo oscuro",
+    "home": "Inicio"
   },
   "ok": "De acuerdo",
   "relative_time": {
     "less_than_one_hour_ago": "Hace menos de una hora",
-    "less_than_a_minute_ago": "Hace menos de 1 minuto",
-    "n_hours_ago_one": "Hace {{count}} hora",
-    "n_hours_ago_many": "Hace {{count}} de horas",
-    "n_hours_ago_other": "Hace {{count}} horas",
-    "n_weeks_ago_one": "Hace {{count}} semana",
-    "n_weeks_ago_many": "Hace {{count}} de semanas",
-    "n_weeks_ago_other": "Hace {{count}} semanas",
-    "n_months_ago_one": "Hace {{count}} mes",
-    "n_months_ago_many": "Hace {{count}} de meses",
-    "n_months_ago_other": "Hace {{count}} meses",
-    "n_years_ago_one": "Hace {{count}} año",
-    "n_years_ago_many": "Hace {{count}} de años",
-    "n_years_ago_other": "Hace {{count}} años",
-    "n_minutes_ago_one": "Hace {{count}} minuto",
-    "n_minutes_ago_many": "Hace {{count}} de minutos",
-    "n_minutes_ago_other": "Hace {{count}} minutos",
-    "n_days_ago_one": "Hace {{count}} día",
-    "n_days_ago_many": "Hace {{count}} de días",
-    "n_days_ago_other": "Hace {{count}} días"
+    "less_than_a_minute_ago": "Hace menos de 1 minuto"
   },
   "what_is_cs": {
     "description_1": "Couch surfing es un concepto en el que algunos miembros (llamados anfitriones) publican en la plataforma indicando que están dispuestos a alojar a otros miembros (llamados viajeros) que visitan su ciudad.",
@@ -275,14 +250,9 @@
   "beta": "Beta",
   "no": "No",
   "invites": {
-    "create": "Crear invitación",
-    "disable": "Desactivar",
-    "share_link": "Copiar enlace para compartir",
     "instructions": "Crea un enlace de invitación para compartir con amigos y la comunidad. Desactiva los códigos que ya no uses.",
-    "uses_suffix": "registros completados",
     "banner": {
-      "invited_you": "¡{{name}} te ha invitado a unirte a Couchers!",
-      "inviter_fallback": "¡{{username}} te ha invitado a unirte a Couchers!"
+      "invited_you": "¡{{name}} te ha invitado a unirte a Couchers!"
     },
     "error": {
       "fetch_invite_info": "No se han podido obtener los detalles del código de invitación"
@@ -360,7 +330,6 @@
       "invalid_coordinate": "Faltan las coordenadas, por favor selecciona una ubicación en el mapa de arriba",
       "location_accuracy": "Precisión de la ubicación",
       "map_is_blank": "Faltan las coordenadas, comienza buscando una ubicación con el mapa de arriba",
-      "radius_text": "{{radius}} metros",
       "no_location_results_text": "Sin resultados. Intenta buscar solo la ciudad.",
       "display_location_not_empty": "Por favor introduce una dirección para mostrar",
       "no_map_support": "Tu dispositivo no soporta el mapa. Por favor asegúrate de que WebGL2 está habilitado o prueba otro dispositivo/navegador. ¡Sentimos las molestias!",
@@ -387,5 +356,14 @@
     "default_title": "Couchers.org",
     "default_description": "Comparte tu mundo, descubre el de otros. Experiencias locales auténticas, construidas en la confianza y la conexión genuina, no en las transacciones."
   },
-  "invited_you": "¡{{name}} te ha invitado a unirte a Couchers!"
+  "image_input": {
+    "select_button_a11y": "Selecciona una imagen",
+    "replace_image_tooltip": "Haz clic para reemplazar la imagen",
+    "read_file_error_message": "No se pudo leer el fichero"
+  },
+  "blog": {
+    "byline_with_author": "Escrito por <1/>. Publicado el {{date}}.",
+    "byline_without_author": "Publicado el {{date}}.",
+    "cta_message": "¿Quieres ayudar a escribir nuestro blog o ser voluntario? <1>Regístrate</1> y cuéntanos. ¡Los voluntarios y las <3>donaciones</3> son lo que hacen posible Couchers.org!"
+  }
 }

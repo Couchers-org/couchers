@@ -10,7 +10,7 @@ import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { service } from "service";
 import type { UpdateEventInput } from "service/events";
-import dayjs, { TIME_FORMAT } from "utils/dayjs";
+import dayjs from "utils/dayjs";
 
 import { Event } from "../../../proto/events_pb";
 import { routeToEvent } from "../../../routes";
@@ -42,8 +42,8 @@ export default function EditEventPage({ eventId }: { eventId: number }) {
   >({
     mutationFn: (data) => {
       let updateEventInput: UpdateEventInput;
-      const startTime = dayjs(data.startTime, TIME_FORMAT);
-      const endTime = dayjs(data.endTime, TIME_FORMAT);
+      const startTime = dayjs(data.startTime);
+      const endTime = dayjs(data.endTime);
       const finalStartDate = data.startDate
         .startOf("day")
         .add(startTime.get("hour"), "hour")

@@ -2,5 +2,6 @@
   "invite_community_dialog_buttons": {
     "confirm": "Potvrdit",
     "close": "Zrušit"
-  }
+  },
+  "location": "Poloha"
 }

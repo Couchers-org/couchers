@@ -5,6 +5,7 @@ import {
   Skeleton,
   styled,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
@@ -44,6 +45,7 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
 export default function Signup() {
   const { t } = useTranslation([AUTH, GLOBAL]);
   const router = useRouter();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { authState, authActions } = useAuthContext();
   const authenticated = authState.authenticated;
@@ -138,7 +140,7 @@ export default function Signup() {
           )}
           {inviteError && (
             <Alert severity="error" sx={{ width: "100%" }}>
-              {t("global:error_loading_invite_codes")}
+              {t("global:invites.error.fetch_invite_info")}
             </Alert>
           )}
           {inviteCode && !inviteError && (
@@ -165,7 +167,9 @@ export default function Signup() {
                     highRes
                   />
                   <Typography>
-                    {t("global:invited_you", { name: inviter.name })}
+                    {t("global:invites.banner.invited_you", {
+                      name: inviter.name,
+                    })}
                   </Typography>
                 </>
               )}
@@ -190,15 +194,17 @@ export default function Signup() {
             </Trans>
           </Typography>
         </StyledFormWrapper>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: theme.spacing(2),
-          }}
-        >
-          <LanguagePickerSelect />
-        </Box>
+        {isMobile && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: theme.spacing(2),
+            }}
+          >
+            <LanguagePickerSelect />
+          </Box>
+        )}
       </Container>
     </>
   );

@@ -206,7 +206,10 @@
     "overnight_stay": "Pernocta",
     "request_description_empty": "Por favor, escribe un mensaje de solicitud",
     "stay_type_a11y_text": "tipo que estancia",
-    "success": "¡Solicitud enviada!"
+    "success": "¡Solicitud enviada!",
+    "request_chars_remaining_one": "Por favor, escribe al menos {{count}} carácter más para enviar una solicitud de hospedaje.",
+    "request_chars_remaining_many": "Por favor, escribe al menos {{count}} de caracteres más para enviar una solicitud de hospedaje.",
+    "request_chars_remaining_other": "Por favor, escribe al menos {{count}} carácteres más para enviar una solicitud de hospedaje."
   },
   "my_connections": "Mis contactos",
   "active": "Activo",
@@ -220,9 +223,9 @@
   },
   "helper_text": {
     "missing_profile_photo": "Por favor añade una foto para completar tu perfil.",
-    "characters_remaining_one": "<bold>Por favor, escribe al menos {{count}} caracter para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!",
-    "characters_remaining_many": "<bold>Por favor, escribe al menos {{count}} de caracteres para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!",
-    "characters_remaining_other": "<bold>Por favor, escribe al menos {{count}} caracteres para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!"
+    "characters_remaining_one": "<bold>Por favor, escribe al menos {{count}} caracter más para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!",
+    "characters_remaining_many": "<bold>Por favor, escribe al menos {{count}} de caracteres más para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!",
+    "characters_remaining_other": "<bold>Por favor, escribe al menos {{count}} caracteres más para desbloquear los mensajes y las solicitudes.</bold> Los perfiles genuinos construyen una comunidad confiable. ¡Cuanto más compartes, más fácil es conectar!"
   },
   "section_tabs_a11y_label": "pestañas para detalles de usuario",
   "incomplete_dialog": {
@@ -233,10 +236,8 @@
     "save_anyway": "¿Guardar de todas formas?",
     "continue_editing": "Continuar editando"
   },
-  "image_uploading_warning": "Tu foto de perfil todavía se está cargando. ¿De verdad deseas salir de la página?",
   "avatar_photo_info": "<bold>Se requiere una foto tuya para interactuar con la comunidad.</bold> Una foto clara y amigable que muestre tu rostro genera confianza, ayuda a que los demás se sientan cómodos y mejora considerablemente tus posibilidades de recibir una respuesta.",
   "search_indicator": "El principio de esta sección es visible en los resultados de búsqueda cuando otros miembros te buscan",
-  "click_replace_image": "Haz clic para reemplazar la imagen",
   "badges": {
     "subtitle": "Aprende sobre las insignias de usuario, mira quién las tiene, y aprende cómo puedes conseguirlas.",
     "title": "Explorar las insignias de Couchers.org",
@@ -311,13 +312,9 @@
   },
   "profile_changes_saved_message": "¡Cambios en el perfil guardados!",
   "hosting_preferences_success_message": "¡Preferencias de alojamiento guardadas!",
-  "couldnt_read_file": "No se pudo leer el archivo",
-  "select_an_image": "Selecciona una imagen",
-  "names_profile_photo": "Foto de perfil de {{name}}",
   "what_options_mean": "Qué significan estas opciones",
   "gallery": {
     "photo_item_a11y": "Foto",
-    "primary": "Principal",
     "add_photo": "Añadir foto",
     "uploading": "Subiendo...",
     "remove_photo": "Eliminar foto",
@@ -339,6 +336,10 @@
     "previous_photo": "Foto anterior",
     "next_photo": "Foto siguiente",
     "close_viewer": "Cerrar el visor de fotos",
-    "report_photo": "Denunciar foto"
-  }
+    "report_photo": "Denunciar foto",
+    "photo": "Foto",
+    "profile_photo": "Foto de Perfil"
+  },
+  "click_to_add_photo": "Haz clic para añadir una foto",
+  "avatar_placeholder_info": "<bold>Haz clic en el avatar del marcador de posición para ir a la sección de carga de fotos.</bold> Se requiere una foto tuya para interactuar con la comunidad. Una foto clara y amigable que muestre tu rostro genera confianza y ayuda a que otros se sientan cómodos."
 }

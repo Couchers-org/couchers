@@ -82,8 +82,6 @@
   "terms_of_service": "Podmínky služby",
   "required": "Vyžadováno",
   "continue": "Pokračovat",
-  "disable": "Vypnout",
-  "disabled": "Vypnuto",
   "thanks": "Díky!",
   "community_standing_description": "Vypočteno na základě různých faktorů, jako jsou reference a zapojení do komunity.",
   "edit": "Editovat",
@@ -93,8 +91,6 @@
   "cancel": "Zrušit",
   "submit": "Odeslat",
   "confirm": "Potvrdit",
-  "copy": "Zkopírovat",
-  "copied": "Zkopírováno do schránky",
   "load_more": "Načíst více",
   "read_more": "Číst dále",
   "next": "Další",
@@ -115,11 +111,9 @@
   "sign_up": "Zaregistrovat se",
   "create": "Vytvořit",
   "back": "Zpět",
-  "created": "Vytvořeno",
   "update": "Aktualizovat",
   "change_time": "Změnit čas",
   "accept": "Přijmout",
-  "error_loading_invite_codes": "Nepodařilo se získat podrobnosti o kódu pozvánky",
   "verification_score": "Ověřovací skóre",
   "verification_score_description": "Vypočítáno na základě doporučení od ostatních uživatelů",
   "mod": "Moderování",
@@ -168,7 +162,6 @@
     "default_title": "Couchers.org",
     "title_suffix": " | Couchers.org"
   },
-  "invited_you": "{{name}} tě pozval(a), abys ses přidal(a) ke Couchers!",
   "components": {
     "edit_location_map": {
       "location_accuracy": "Přesnost polohy",
@@ -176,7 +169,6 @@
       "display_location_label": "Zobrazit polohu",
       "search_location_label": "Vyhledat místo",
       "map_is_blank": "Chybějící souřadnice, začni hledáním místa pomocí mapy výše",
-      "radius_text": "{{radius}} metrů",
       "no_location_results_text": "Žádné výsledky. Zkus vyhledat pouze město.",
       "press_enter_to_search": "Stiskni Enter pro vyhledávání",
       "invalid_coordinate": "Chybí souřadnice, prosím vyber na mapě výše dané místo",
@@ -200,12 +192,7 @@
   },
   "invites": {
     "title": "Pozvat členy",
-    "create": "Vytvořit pozvánku",
-    "disable": "Vypnout",
-    "share_link": "Kopírovat odkaz ke sdílení",
-    "uses_suffix": "dokončené registrace",
     "banner": {
-      "inviter_fallback": "{{username}} tě pozval(a), abys ses přidal(a) ke Couchers!",
       "invited_you": "{{name}} tě pozval(a), abys ses přidal(a) ke Couchers!"
     },
     "instructions": "Vytvoř odkaz na pozvánku, který můžeš sdílet s přáteli a komunitou. Deaktivuj kódy, které už nepoužíváš.",
@@ -213,29 +200,10 @@
       "fetch_invite_info": "Nepodařilo se získat podrobnosti o kódu pozvánky"
     }
   },
-  "no_invite_codes": "Zatím žádné pozvánky",
   "community_standing": "Postavení v komunitě",
   "relative_time": {
     "less_than_a_minute_ago": "před méně než minutou",
-    "less_than_one_hour_ago": "Před méně než hodinou",
-    "n_minutes_ago_one": "Před {{count}} minutou",
-    "n_minutes_ago_few": "Před {{count}} minuty",
-    "n_minutes_ago_other": "Před {{count}} minutami",
-    "n_weeks_ago_one": "Před {{count}} týdnem",
-    "n_weeks_ago_few": "Před {{count}} týdny",
-    "n_weeks_ago_other": "Před {{count}} týdny",
-    "n_months_ago_one": "Před {{count}} měsícem",
-    "n_months_ago_few": "Před {{count}} měsíci",
-    "n_months_ago_other": "Před {{count}} měsíci",
-    "n_years_ago_one": "Před {{count}} rokem",
-    "n_years_ago_few": "Před {{count}} lety",
-    "n_years_ago_other": "Před {{count}} lety",
-    "n_hours_ago_one": "Před {{count}} hodinou",
-    "n_hours_ago_few": "Před {{count}} hodinami",
-    "n_hours_ago_other": "Před {{count}} hodinami",
-    "n_days_ago_one": "Před {{count}} dnem",
-    "n_days_ago_few": "Před {{count}} dny",
-    "n_days_ago_other": "Před {{count}} dny"
+    "less_than_one_hour_ago": "Před méně než hodinou"
   },
   "join_us": "Přidej se k nám",
   "ok": "Dobře",
@@ -381,7 +349,6 @@
     }
   },
   "error_loading_languages": "Nepodařilo se načíst jazykové možnosti",
-  "uses": "Použití",
   "retract": "Stáhnout",
   "not_found_text_2": "Chceš prostě <1>jít domů?</1>",
   "contribute_title": "Zaregistruj se a zapoj se"

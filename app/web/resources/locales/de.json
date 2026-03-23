@@ -33,7 +33,10 @@
     "landing_page": "Homepage",
     "newsletter": "Newsletter",
     "invite_members": "Mitglieder einladen",
-    "merch_shop": "Merch-Shop"
+    "merch_shop": "Merch-Shop",
+    "home": "Startseite",
+    "switch_to_dark_mode": "Zum Dark-Mode wechseln",
+    "switch_to_light_mode": "Zum hellen Modus wechseln"
   },
   "footer": {
     "non_profit_note": "Couchers.org ist ein Projekt von Couchers, Inc., einer in den USA als 501(c)(3) anerkannten gemeinnützigen, steuerbefreiten Organisation.",
@@ -117,7 +120,9 @@
       "just_started": "Gerade angefangen"
     },
     "error_loading_languages": "Das Laden der Sprachoptionen ist fehlgeschlagen. Bitte versuche es später erneut.",
-    "current_preferred_language": "Deine bevorzugte Sprache ist derzeit <lang>{{language}}</lang>."
+    "current_preferred_language": "Deine bevorzugte Sprache ist derzeit <lang>{{language}}</lang>.",
+    "show_all_languages_description": "Wenn aktiviert, zeigt die Sprachauswahl alle Sprachen unabhängig vom Übersetzungsfortschritt an. Dies wird nur in der Staging-Umgebung angezeigt, um Sprachen zu testen, die sich noch in Bearbeitung befinden.",
+    "show_all_languages": "Zeige alle Sprachen in der Sprachauswahl an"
   },
   "meetup_status": {
     "wants_to_meetup": "Möchte sich treffen",
@@ -135,7 +140,8 @@
       "expect_label": "Was ist passiert? Was hätte passieren sollen?",
       "expect_helper": "Kurze Beschreibung, was du stattdessen erwartest hast",
       "button_label": "Ein technisches Problem melden",
-      "warning_message": "Bitte beachte, dass diese Informationen sowie diagnostische Daten, einschließlich der Seite, auf der du dich befindest, des von dir verwendeten Browsers und deines Benutzernamens, in einer öffentlichen Fehlerliste gespeichert werden."
+      "warning_message": "Bitte beachte, dass diese Informationen sowie diagnostische Daten, einschließlich der Seite, auf der du dich befindest, des von dir verwendeten Browsers und deines Benutzernamens, in einer öffentlichen Fehlerliste gespeichert werden.",
+      "success_message2": "Vielen Dank, dass du diesen Fehler gemeldet und Couchers verbessert hast. Ein Bericht wurde an die Entwickler gesendet! Die Fehler-ID ist <id/>."
     },
     "content": {
       "button_label": "Unangemessene Inhalte oder Verhaltensweisen melden",
@@ -203,7 +209,6 @@
       "location_publicly_visible": "Dies wird öffentlich sichtbar sein",
       "location_warn": "Klicke und ziehe den Kreis auf der Karte unten, um den ungefähren Ort deines Zuhauses zu zeigen. Achte darauf, dass dein Zuhause nicht im Mittelpunkt des Kreises liegt, damit niemand den genauen Ort kennt.",
       "map_is_blank": "Fehlende Koordinaten, beginne mit der Suche nach einem Ort auf der obigen Karte",
-      "radius_text": "{{radius}} Meter",
       "no_location_results_text": "Keine Ergebnisse. Versuche, nur nach der Stadt zu suchen.",
       "no_map_support": "Dein Gerät unterstützt die Karte nicht. Bitte stelle sicher, dass WebGL2 aktiviert ist, oder versuche es mit einem anderen Gerät oder Browser. Entschuldige die Unannehmlichkeiten!",
       "press_enter_to_search": "Drücke die Eingabetaste, um zu suchen",
@@ -216,19 +221,7 @@
   "ok": "OK",
   "relative_time": {
     "less_than_one_hour_ago": "Vor weniger als einer Stunde",
-    "less_than_a_minute_ago": "vor weniger als 1 Minute",
-    "n_minutes_ago_one": "vor {{count}} Minute",
-    "n_minutes_ago_other": "vor {{count}} Minuten",
-    "n_months_ago_one": "vor {{count}} Monat",
-    "n_months_ago_other": "vor {{count}} Monaten",
-    "n_years_ago_one": "vor {{count}} Jahr",
-    "n_years_ago_other": "vor {{count}} Jahren",
-    "n_weeks_ago_one": "vor {{count}} Woche",
-    "n_weeks_ago_other": "vor {{count}} Wochen",
-    "n_hours_ago_one": "vor {{count}} Stunde",
-    "n_hours_ago_other": "vor {{count}} Stunden",
-    "n_days_ago_one": "vor {{count}} Tag",
-    "n_days_ago_other": "vor {{count}} Tagen"
+    "less_than_a_minute_ago": "vor weniger als 1 Minute"
   },
   "location_autocomplete": {
     "more_specific": "Bitte wähle einen genaueren Ort aus",
@@ -286,30 +279,22 @@
   },
   "back": "Zurück",
   "save_changes": "Änderungen speichern",
-  "created": "Erstellt",
-  "invited_you": "{{name}} hat dich eingeladen, Couchers beizutreten!",
-  "disable": "Deaktivieren",
   "invites": {
-    "create": "Einladung erstellen",
     "instructions": "Erstelle einen Einladungslink, um ihn mit Freunden und der Community zu teilen. Deaktiviere Codes, die du nicht mehr verwendest.",
     "title": "Mitglieder einladen",
-    "disable": "Deaktivieren",
-    "share_link": "Link kopieren",
-    "uses_suffix": "abgeschlossene Anmeldungen",
     "banner": {
-      "invited_you": "{{name}} hat dich eingeladen, Couchers beizutreten!",
-      "inviter_fallback": "{{username}} hat dich eingeladen, Couchers beizutreten!"
+      "invited_you": "{{name}} hat dich eingeladen, Couchers beizutreten!"
     },
     "error": {
       "fetch_invite_info": "Details des Einladungscodes konnten nicht abgerufen werden"
-    }
+    },
+    "no_codes_message": "Noch keine Einladungscodes",
+    "created_datetime": "Erstellt: {{datetime}}",
+    "disabled_datetime": "Deaktiviert: {{datetime}}",
+    "number_of_uses_one": "Verwendet: {{count}} abgeschlossene Anmeldung",
+    "number_of_uses_other": "Verwendet: {{count}} abgeschlossene Anmeldungen",
+    "disable_link": "Deaktivieren"
   },
-  "no_invite_codes": "Noch keine Einladungscodes",
-  "disabled": "Deaktiviert",
-  "uses": "Verwendungen",
-  "error_loading_invite_codes": "Details des Einladungscodes konnten nicht abgerufen werden",
-  "copy": "Kopieren",
-  "copied": "In die Zwischenablage kopiert",
   "what_is_cs": {
     "get_involved_title": "Was kann ich auf Couchers.org machen?",
     "title": "Was ist Couchsurfing?",
@@ -376,5 +361,19 @@
     "message": "Couchers.org basiert auf Güte — genau wie Couchsurfing selbst. Hilf uns in dieser Weihnachtszeit, dass es so bleibt. Wir sammeln {{goal}}, um die Betriebskosten von Couchers.org zu decken.",
     "button": "Jetzt spenden",
     "progress_label": "Spendenfortschritt"
+  },
+  "blog": {
+    "cta_message": "Möchtest du bei unserem Blog mitschreiben oder dich ehrenamtlich engagieren? <1>Melde dich an</1> und lass es uns wissen. Freiwillige und <3>Spenden</3> machen Couchers.org erst möglich!",
+    "byline_with_author": "Geschrieben von <1/>. Veröffentlicht am {{date}}.",
+    "byline_without_author": "Veröffentlicht am {{date}}."
+  },
+  "image_input": {
+    "select_button_a11y": "Wähle ein Bild aus",
+    "replace_image_tooltip": "Klicke um das Bild zu ändern",
+    "read_file_error_message": "Die Datei konnte nicht gelesen werden"
+  },
+  "copy_button": {
+    "a11y": "Kopieren",
+    "copied_tooltip": "In die Zwischenablage kopiert"
   }
 }

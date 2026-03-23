@@ -1,51 +1,33 @@
 {
-    "notification_settings": {
-        "title": "Nastavení upozornění",
-        "edit_in_console": "Nastavení oznámení můžeš změnit <2>na této stránce</2>. Brzy ho přesuneme sem.",
-        "go_to_button": "Spravovat nastavení oznámení",
-        "edit_preferences": {
-            "title": "Nastavení oznámení",
-            "description": "Veškeré změny, které zde provedeš, se ukládají automaticky. Upozorňujeme, že i nadále můžeš dostávat důležitá oznámení týkající se tvého účtu a obsahu mimo tvé preferovaná nastavení oznámení.",
-            "list_heading": "Oznámení, která můžeš obdržet",
-            "error_loading": "Chyba při načítání nastavení oznámení",
-            "list_items": {
-                "account_security": "Zabezpečení účtu",
-                "account_settings": "Nastavení účtu",
-                "other_notifications": "Další oznámení",
-                "chat": "Zprávy",
-                "event": "Události",
-                "friend_request": "Žádosti o přátelství",
-                "reference": "Reference",
-                "discussion": "Diskuze",
-                "reply": "Odpovědi"
-            },
-            "item_descriptions": {
-                "host_request": {
-                    "cancel": "Někdo zruší žádost o ubytování",
-                    "reject": "Někdo odmítne tvou žádost o ubytování",
-                    "confirm": "Někdo potvrdí žádost o ubytování",
-                    "accept": "Někdo přijme tvou žádost o ubytování",
-                    "message": "Někdo ti pošle zprávu v žádosti o ubytování",
-                    "create": "Někdo ti zašle žádost o ubytování",
-                    "missed_messages": "Utekla ti zpráva v žádosti o ubytování"
-                },
-                "chat": {
-                    "missed_messages": "Utekly ti zprávy v chatu",
-                    "message": "Někdo ti pošle zprávu"
-                },
-                "general": {
-                    "new_blog_post": "Byl zveřejněn nový blogový příspěvek"
-                }
-            },
-            "collapse_all": "Sbalit vše",
-            "expand_all": "Rozbalit vše"
-        }
-    },
-    "all": "Vše",
-    "error_loading": "Chyba při načítání oznámení",
-    "mark_unread": "Označit jako nepřečtené",
-    "mark_all_read": "Označit vše jako přečtené",
-    "no_new_notifications": "Žádná nová oznámení",
-    "error_updating_notifications": "Chyba při aktualizaci oznámení",
-    "unread": "Nepřečteno"
+  "notification_settings": {
+    "title": "Nastavení upozornění",
+    "edit_in_console": "Nastavení oznámení můžeš změnit <2>na této stránce</2>. Brzy ho přesuneme sem.",
+    "go_to_button": "Spravovat nastavení oznámení",
+    "edit_preferences": {
+      "title": "Nastavení oznámení",
+      "description": "Veškeré změny, které zde provedeš, se ukládají automaticky. Upozorňujeme, že i nadále můžeš dostávat důležitá oznámení týkající se tvého účtu a obsahu mimo tvé preferovaná nastavení oznámení.",
+      "list_heading": "Oznámení, která můžeš obdržet",
+      "error_loading": "Chyba při načítání nastavení oznámení",
+      "list_items": {
+        "account_security": "Zabezpečení účtu",
+        "account_settings": "Nastavení účtu",
+        "other_notifications": "Další oznámení",
+        "chat": "Zprávy",
+        "event": "Události",
+        "friend_request": "Žádosti o přátelství",
+        "reference": "Reference",
+        "discussion": "Diskuze",
+        "reply": "Odpovědi"
+      },
+      "collapse_all": "Sbalit vše",
+      "expand_all": "Rozbalit vše"
+    }
+  },
+  "all": "Vše",
+  "error_loading": "Chyba při načítání oznámení",
+  "mark_unread": "Označit jako nepřečtené",
+  "mark_all_read": "Označit vše jako přečtené",
+  "no_new_notifications": "Žádná nová oznámení",
+  "error_updating_notifications": "Chyba při aktualizaci oznámení",
+  "unread": "Nepřečteno"
 }

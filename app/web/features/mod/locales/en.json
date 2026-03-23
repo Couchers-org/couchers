@@ -23,7 +23,6 @@
     "gender_verification_status": "Gender verification",
     "has_passport_sex_gender_exception": "Passport sex/gender exc.?",
     "pending_mod_notes_count": "Pending mod notes",
-    "acknowledged_mod_notes_count": "Acknowledged mod notes",
-    "admin_note": "Admin note"
+    "acknowledged_mod_notes_count": "Acknowledged mod notes"
   }
 }

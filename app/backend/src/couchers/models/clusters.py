@@ -31,6 +31,7 @@ from couchers.utils import get_coordinates
 
 if TYPE_CHECKING:
     from couchers.models import Discussion, Event, Thread, Upload, User
+    from couchers.models.public_trips import PublicTrip
 
 
 class NodeType(enum.Enum):
@@ -79,6 +80,7 @@ class Node(Base, kw_only=True):
         uselist=False,
         viewonly=True,
     )
+    public_trips: Mapped[list[PublicTrip]] = relationship(init=False, back_populates="node")
 
 
 class Cluster(Base, kw_only=True):

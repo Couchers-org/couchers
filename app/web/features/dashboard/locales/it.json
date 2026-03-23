@@ -1,1 +1,17 @@
-{}
+{
+  "dashboard": "Pannello di controllo",
+  "please_complete_profile": "Completa il tuo profilo in modo da comparire nei risultati di ricerca:",
+  "fill_in_who_i_am": "1. Completa la sezione \"Chi sono\" con alcune frasi su di te",
+  "upload_photo": "2. Carica una foto (cliccando sull'avatar nella pagina di modifica)",
+  "complete_profile_dialog": {
+    "title": "Quasi ci siamo: completa il tuo profilo per continuare!",
+    "description_2": "Questo aiuta a costruire una comunità affidabile e riduce lo spam. Per ulteriori informazioni <2>consulta questa pagina di aiuto</2>. Grazie per il tuo aiuto!"
+  },
+  "your_communities_heading": "Le tue comunità",
+  "all_communities_heading": "Tutte le comunità",
+  "load_more": "Carica altro",
+  "welcome": "Benvenuto in Couchers.org!",
+  "new_pill": "Nuovo",
+  "landing_text": "Stiamo sviluppando nuove <1>funzionalità</1> come eventi, guide locali, moderazione e ritrovi. Apprezziamo la tua pazienza ed il tuo <3>supporto</3> durante lo sviluppo.",
+  "your_communities_helper_text": "Sei stato aggiunto a tutte le comunità in base alla tua posizione. Sentiti libero di <1>esplorare le comunità</1> anche in altre località."
+}

@@ -20,6 +20,7 @@ import React, {
   useState,
 } from "react";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 import { AccessibleDialogProps } from "../Dialog";
 import { CloseIcon, MenuIcon } from "../Icons";
@@ -43,37 +44,47 @@ type LoggedInMenuDialogItem = {
 
 export type LoggedInMenuItem = LoggedInMenuLinkItem | LoggedInMenuDialogItem;
 
-const StyledMenu = styled(Menu)(({ theme }) => ({
-  "& .MuiPaper-root": {
-    boxShadow: theme.shadows[1],
-    minWidth: "12rem",
-    maxHeight: "calc(100vh - 156px)", // Leave space for header, margins, and menu padding
+const StyledMenu = styled(Menu, {
+  shouldForwardProp: (prop) => prop !== "$isNativeEmbed",
+})<{ $isNativeEmbed?: boolean }>(({ theme, $isNativeEmbed }) => {
+  // Native embed: full height (native tabs handle safe area)
+  // Mobile web: subtract bottom nav + safe area
+  const menuHeight = $isNativeEmbed
+    ? "100vh"
+    : "calc(100vh - 56px - env(safe-area-inset-bottom, 0px))";
 
-    [theme.breakpoints.down("md")]: {
-      width: "100vw",
-      height: "calc(100vh - 56px - env(safe-area-inset-bottom, 0px))", // Leave space for bottom nav
-      maxWidth: "100vw",
-      maxHeight: "calc(100vh - 56px - env(safe-area-inset-bottom, 0px))",
-      borderRadius: 0,
-      margin: 0,
-      padding: 0,
-      top: 0,
-      left: 0,
-      position: "fixed",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      zIndex: 1300,
-    },
-  },
+  return {
+    "& .MuiPaper-root": {
+      boxShadow: theme.shadows[1],
+      minWidth: "12rem",
+      maxHeight: "calc(100vh - 156px)", // Leave space for header, margins, and menu padding
 
-  "& .MuiPopover-paper": {
-    [theme.breakpoints.down("md")]: {
-      transform: "none !important",
-      inset: "0 !important",
+      [theme.breakpoints.down("md")]: {
+        width: "100vw",
+        height: menuHeight,
+        maxWidth: "100vw",
+        maxHeight: menuHeight,
+        borderRadius: 0,
+        margin: 0,
+        padding: 0,
+        top: 0,
+        left: 0,
+        position: "fixed",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        zIndex: 1300,
+      },
     },
-  },
-}));
+
+    "& .MuiPopover-paper": {
+      [theme.breakpoints.down("md")]: {
+        transform: "none !important",
+        inset: "0 !important",
+      },
+    },
+  };
+});
 
 const StyledMenuButton = styled(Button)(({ theme }) => ({
   display: "flex",
@@ -82,7 +93,6 @@ const StyledMenuButton = styled(Button)(({ theme }) => ({
   border: `1px solid var(--mui-palette-grey-300)`,
   borderRadius: 999,
   backgroundColor: "var(--mui-palette-grey-200)",
-  // padding: theme.spacing(1),
   transition: `${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`,
   "&:hover": {
     opacity: 0.8,
@@ -255,6 +265,7 @@ export default function LoggedInMenu({
   const menuRef = React.useRef<HTMLButtonElement>(null);
   const { data: user } = useCurrentUser();
   const { t } = useTranslation([GLOBAL]);
+  const isNativeEmbed = useIsNativeEmbed();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [notificationsAnchorEl, setNotificationsAnchorEl] =
@@ -335,6 +346,8 @@ export default function LoggedInMenu({
         open={menuOpen}
         anchorEl={isMobile ? undefined : menuRef.current}
         onClose={() => setMenuOpen(false)}
+        onBlur={() => setMenuOpen(false)}
+        $isNativeEmbed={isNativeEmbed}
         anchorOrigin={
           isMobile ? undefined : { vertical: "bottom", horizontal: "right" }
         }

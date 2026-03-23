@@ -734,8 +734,8 @@ class API(api_pb2_grpc.APIServicer):
         ):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
-                "friend_request_rate_limit",
-                substitutions={"hours": str(RATE_LIMIT_HOURS)},
+                "friend_request_rate_limit2",
+                substitutions={"count": RATE_LIMIT_HOURS},
             )
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table
@@ -1012,8 +1012,8 @@ def user_model_to_pb(
                 user_id=db_user.id,
                 is_ghost=True,
                 username=GHOST_USERNAME,
-                name=context.get_localized_string("ghost_users.display_name"),
-                about_me=context.get_localized_string("ghost_users.about_me"),
+                name=context.localization.localize_string("ghost_users.display_name"),
+                about_me=context.localization.localize_string("ghost_users.about_me"),
             )
         raise GhostUserSerializationError(
             f"Tried to serialize ghost profile in user_model_to_pb without appropriate flags. "
@@ -1213,7 +1213,7 @@ def lite_user_to_pb(
                 user_id=lite_user.id,
                 is_ghost=True,
                 username=GHOST_USERNAME,
-                name=context.get_localized_string("ghost_users.display_name"),
+                name=context.localization.localize_string("ghost_users.display_name"),
             )
         raise GhostUserSerializationError(
             f"Tried to serialize ghost profile in lite_user_to_pb without appropriate flags. "

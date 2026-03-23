@@ -74,6 +74,7 @@ message HostRequest {
   double hosting_lng = 12;
   double hosting_radius = 13;
   bool need_host_request_feedback = 14;
+  bool is_archived = 15;
 }
 
 message GetHostRequestReq {

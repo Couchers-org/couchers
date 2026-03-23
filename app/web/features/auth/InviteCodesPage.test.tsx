@@ -67,7 +67,7 @@ describe("InviteCodesPage", () => {
 
     // Active codes have Disable action, disabled does not
     expect(
-      screen.getAllByRole("button", { name: t("global:disable") }),
+      screen.getAllByRole("button", { name: t("global:invites.disable_link") }),
     ).toHaveLength(2);
   });
 
@@ -107,10 +107,14 @@ describe("InviteCodesPage", () => {
     render(<InviteCodesPage />, { wrapper });
     const user = userEvent.setup();
 
-    await user.click(await screen.findByLabelText(t("global:copy")));
+    await user.click(
+      await screen.findByLabelText(t("global:copy_button.a11y")),
+    );
 
     // Feedback tooltip appears
-    expect(await screen.findByText(t("global:copied"))).toBeVisible();
+    expect(
+      await screen.findByText(t("global:copy_button.copied_tooltip")),
+    ).toBeVisible();
   });
 
   it("disables an active code when clicking Disable", async () => {
@@ -133,7 +137,9 @@ describe("InviteCodesPage", () => {
     const user = userEvent.setup();
 
     await user.click(
-      await screen.findByRole("button", { name: t("global:disable") }),
+      await screen.findByRole("button", {
+        name: t("global:invites.disable_link"),
+      }),
     );
 
     await waitFor(() => {

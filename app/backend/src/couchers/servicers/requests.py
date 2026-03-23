@@ -149,6 +149,11 @@ def host_request_to_pb(
         hosting_lng=lng,
         hosting_radius=host_request.hosting_radius,
         need_host_request_feedback=need_feedback,
+        is_archived=(
+            host_request.is_host_archived
+            if context.user_id == host_request.host_user_id
+            else host_request.is_surfer_archived
+        ),
     )
 
 
@@ -226,8 +231,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if not _is_host_request_long_enough(request.text):
             context.abort_with_error_code(
                 grpc.StatusCode.INVALID_ARGUMENT,
-                "host_request_too_short",
-                substitutions={"chars": str(HOST_REQUEST_MIN_LENGTH_UTF16)},
+                "host_request_too_short2",
+                substitutions={"count": HOST_REQUEST_MIN_LENGTH_UTF16},
             )
 
         # Check if user has been sending host requests excessively
@@ -236,8 +241,8 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         ):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
-                "host_request_rate_limit",
-                substitutions={"hours": str(RATE_LIMIT_HOURS)},
+                "host_request_rate_limit2",
+                substitutions={"count": RATE_LIMIT_HOURS},
             )
 
         conversation = Conversation()

@@ -42,6 +42,7 @@ import {
   useSafeState,
   useUnsavedChangesWarning,
 } from "utils/hooks";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 import {
   ABOUT_ME_MIN_LENGTH,
@@ -161,21 +162,38 @@ const AvatarTextWrapper = styled(Box)(({ theme }) => ({
   },
 }));
 
-const StickySaveBar = styled(Box)(({ theme }) => ({
-  position: "fixed",
-  bottom: 0,
-  left: 0,
-  right: 0,
-  backgroundColor: "var(--mui-palette-background-paper)",
-  borderTop: `1px solid var(--mui-palette-grey-200)`,
-  boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
-  padding: theme.spacing(1.5, 3),
-  zIndex: 1000,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: theme.spacing(2),
-}));
+const StickySaveBar = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "$isNativeEmbed",
+})<{ $isNativeEmbed?: boolean }>(({ theme, $isNativeEmbed }) => {
+  // Mobile web has bottom nav (55px), native embed doesn't
+  const bottomNavHeight = $isNativeEmbed ? 0 : 55;
+  // Native tabs handle safe area, mobile web needs extra padding
+  const safePadding = $isNativeEmbed
+    ? theme.spacing(1)
+    : `calc(${theme.spacing(1)} + env(safe-area-inset-bottom, 0px))`;
+
+  return {
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "var(--mui-palette-background-paper)",
+    borderTop: `1px solid var(--mui-palette-grey-200)`,
+    boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
+    padding: theme.spacing(1.5, 3),
+    zIndex: 1200,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: theme.spacing(2),
+
+    [theme.breakpoints.down("md")]: {
+      bottom: bottomNavHeight,
+      padding: theme.spacing(1),
+      paddingBottom: safePadding,
+    },
+  };
+});
 
 const SaveButton = styled(Button)(({ theme }) => ({
   minWidth: 200,
@@ -189,11 +207,20 @@ const SaveButton = styled(Button)(({ theme }) => ({
     boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
     transform: "translateY(-1px)",
   },
+
+  [theme.breakpoints.down("md")]: {
+    minWidth: 150,
+    fontSize: "0.9rem",
+    padding: theme.spacing(1, 2),
+  },
 }));
 
 const BottomSpacer = styled(Box)(({ theme }) => ({
   height: 80,
   marginBottom: theme.spacing(2),
+  [theme.breakpoints.down("md")]: {
+    height: 140,
+  },
 }));
 
 const styledField = <C extends React.ComponentType<React.ComponentProps<C>>>(
@@ -226,6 +253,7 @@ const StyledRadioGroup = styled(RadioGroup)(() => ({
 export default function EditProfileForm() {
   const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
   const router = useRouter();
+  const isNativeEmbed = useIsNativeEmbed();
   const {
     updateUserProfile,
     reset: resetUpdate,
@@ -1018,7 +1046,7 @@ export default function EditProfileForm() {
 
           {/* Sticky Save Bar */}
           {user && isDirty && (
-            <StickySaveBar>
+            <StickySaveBar $isNativeEmbed={isNativeEmbed}>
               <SaveButton
                 type="submit"
                 variant="contained"

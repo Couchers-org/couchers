@@ -9,7 +9,6 @@
   "community_first": "Önce topluluk",
   "introduction_subtitle": "Kendi dünyanı paylaş, onlarınkini keşfet. Gerçek kanepe sörfü deneyimleri, güven ve gerçek bağlantı üzerine kurulu—harcamalara değil.",
   "introduction_title": "Yabancı olarak tanışın, arkadaş olarak ayrılın",
-  "signup_description": "Seyahat et, ev sahipliği yap ve {{ user_count }} kadar üyemizle bağlan. <2>Bizim hakkımızda daha fazla öğren<2>.",
   "what_couchsurfing_description": "Couchers.org yolcular ve yerliler arasında gerçek etkileşim oluşturmak için yapılan bir topluluk ve platformdur, kanepe sörfü üzerine kurulmuş—ücretsiz, paraya dayalı olmayan konaklamalar ve buluşmalar için—aynı anda da güveni ve güvenliği öne koyuyoruz.",
   "couchers_mission_title": "Ne için mücadele ediyoruz",
   "nonprofit_title": "Kâr amacı gütmeyen",
@@ -20,7 +19,6 @@
   "open_source_title": "Açık kaynak",
   "map_section_title": "Küresel topluluğumuzu keşfedin",
   "community_led_title": "Topluluk tarafından yönetilen",
-  "num_users": "{{numUsers}} üye",
   "open_source_description": "Kurduğumuz platform ve aletlerin kullanımı,modifikasyonu ve dağıtımı vakfımızın bunlar üzerinde hakkı olmamakla beraber ücretsizdir. Biz açık kaynak topluluğuna katkıda bulunmaya çalışıyoruz.",
   "open_source_why": "Diğer kişilerin de oluşturduğumuz araçları en üst düzeyde kullanarak faydalanmalarını istiyoruz. Bunları ücretsiz bir şekilde dağıtmak topluluğumuza daha kullanabileceğimiz bir gelecek inşa ettiğimizin daha kuvvetli olan bir garantisini veriyor.",
   "community_first_description": "Seyahatin gerçek bağlantılar hakkında olduğunu düşünüyoruz. Biz üyeler tarafından yönlendiriliyoruz—yatırımcılar tarafından değil. Sesiniz önemli.",
@@ -31,14 +29,12 @@
   "safer_stronger": "Daha güvenli, daha kuvvetli bağlantılar",
   "why": "Neden?",
   "built_by_travelers_description": "Ev sahipliği yapan, keşfeden ve inşa eden adanmış gönüllülerden oluşan bir ekiple, kâr amacı gütmeyen, gerçek deneyimlerle şekillenen istikrarlı ve modern bir platform oluşturuyoruz.",
-  "nonprofit_why": "Koltuk sörfü, insanlar arasındaki gerçek bağlantılara dayandığı için parasal değil, sosyal ve toplumsal bir değer sağlar. Bu değerden kar elde etmek organizasyon ile topluluk arasında çıkar çatışmasına yol açmadan mümkün değildir. Misyonumuzu sürdürülebilir şekilde yerine getirmek için kar amacı gütmeyen bir yapıda olmalıyız.",
+  "nonprofit_why": "Kanepe sörfü, insanlar arasındaki gerçek bağlantılara dayandığı için parasal değil, sosyal ve toplumsal bir değer sağlar. Bu değerden kar elde etmek organizasyon ile topluluk arasında çıkar çatışmasına yol açmadan mümkün değildir. Misyonumuzu sürdürülebilir şekilde yerine getirmek için kar amacı gütmeyen bir yapıda olmalıyız.",
   "community_led_description": "Karar vericiler ve gönüllüler topluluğun bir parçası olmalı ve topluluktan seçilmelidir; kararlar şeffaf bir şekilde ve topluluğa danışarak alınmalıdır; ayrıca organizasyon aktif olarak geri bildirim istemelidir. Platformun sürdürülmesi sorumluluğu topluluk tarafından üstlenilmelidir.",
   "nonprofit_description": "Hiçbir birey veya kuruluş, organizasyonumuzdan, platformumuzdan veya topluluğumuzdan kâr elde edilmeyecektir. Tüm fonlar, çabalar ve kararlar misyona yönlendirilecektir.",
   "authentic_description": "Gerçek dünyada samimi deneyimler yaşamanıza yardımcı olmak için, dijital dünyada onları arayarak geçirdiğiniz zamanı en aza indirecek etkili araçlar geliştirmeye çalışıyoruz. Boş etkileşimi artırmak için çalışmıyoruz.",
   "authentic_why": "İnsan deneyiminin dijital dünyaya indirgenmesi ve gerçek insan bağlantısından koparılması sağlıksız ve zararlı diye düşünüyoruz. Tersine ilerleyen bir dünyada gerçek bir topluluk ve aidiyet duygusu için aktif olarak çaba gösteriyoruz.",
   "community_led_why": "Sağlıklı bir organizasyon ve platformu sürdürmek, hizmet ettiğimiz topluluğun aktif katılımını gerektirir ve topluluğu projenin geri kalanından ayrılmak, gerçekten halkımız için bir şeyler inşa etmemizi engeller. Topluluk ancak organizasyona dair şeffaflığa sahip olursa katılım gösterebilir.",
   "non_transactional_title": "İşlem bazlı olmayan",
-  "num_countries": "{{numCountries}}+ ülke",
-  "last_signup": "Son kayıt {{timeAgo}}",
-  "signup_description_no_link": "{{ user_count }} üye ile ev sahipliği yap, gez ve bağlantı kur."
+  "last_signup": "Son kayıt {{timeAgo}}"
 }

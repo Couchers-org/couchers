@@ -3,7 +3,10 @@
     "try_again": "Inténtalo de nuevo",
     "failed_to_load": "Error al cargar",
     "check_connection": "Comprueba tu conexión a internet y vuélvelo a intentar.",
-    "camera_permission_denied": "Se requiere el permiso de cámara para hacer fotos."
+    "camera_permission_denied": "Se requiere el permiso de cámara para hacer fotos.",
+    "camera_permission_required": "Permiso de Cámara Requerido",
+    "camera_permission_explanation": "Esta aplicación necesita acceso a la cámara para poder hacer fotos. Por favor concede el permiso cuando se te solicite.",
+    "camera_permission_denied_permanently": "Se denegó el acceso a la cámara. Para hacer fotos necesitas habilitar el permiso de la cámara en los Ajustes de tu dispositivo."
   },
   "not_found": {
     "title": "¡Ups!",
@@ -22,6 +25,7 @@
     "add_photo": "Añadir Foto",
     "choose_photo_source": "Elige de dónde obtener tu foto",
     "take_photo": "Hacer Foto",
-    "choose_from_library": "Elegir de la Biblioteca"
+    "choose_from_library": "Elegir de la Biblioteca",
+    "open_settings": "Abrir Configuración"
   }
 }

@@ -47,15 +47,14 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
   // Custom hooks for image picking and navigation
   const { pickImage } = useImagePicker();
-  const { handleNavigationStateChange, canGoBackRef, currentWebPathRef } =
-    useWebNavigation({
-      webBaseUrl: WEB_BASE_URL,
-      currentPath: path,
-      syncTargetPathRef,
-      onRetryCountReset: () => {
-        retryCountRef.current = 0;
-      },
-    });
+  const { handleNavigationStateChange, canGoBackRef } = useWebNavigation({
+    webBaseUrl: WEB_BASE_URL,
+    currentPath: path,
+    syncTargetPathRef,
+    onRetryCountReset: () => {
+      retryCountRef.current = 0;
+    },
+  });
 
   // Handle Android hardware back button - go back in WebView if possible
   useFocusEffect(
@@ -104,19 +103,10 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       return;
     }
 
-    // Read the current WebView path from the ref (always up-to-date)
-    const currentWebPath = currentWebPathRef.current;
-
-    // Strip locales from both paths for comparison
-    const currentRoute = stripLocale(currentWebPath);
+    // Strip locale for comparison
     const targetRoute = stripLocale(path);
 
-    if (currentRoute === targetRoute) {
-      // Same route, just different locale or already synced
-      return;
-    }
-
-    // Routes differ - sync WebView, using mobile i18n language as source of truth
+    // Sync WebView, using mobile i18n language as source of truth
     // This ensures language selection persists across tab switches
     const currentLocale = i18n.language !== "en" ? i18n.language : null;
     const targetPath = currentLocale
@@ -125,34 +115,33 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
     syncTargetPathRef.current = targetPath;
     // Use postMessage to trigger client-side Next.js navigation
-    // This avoids middleware redirects based on stale cookies
+    // This is faster (no page reload) and avoids server-side middleware redirects
     webviewRef.current?.injectJavaScript(`
       window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
       true;
     `);
-  }, [path, WEB_BASE_URL, stripLocale, i18n.language, currentWebPathRef]);
+  }, [path, stripLocale, i18n.language]);
 
   // Sync WebView when screen comes back into focus (tab switch)
   useFocusEffect(
     useCallback(() => {
+      // Blur cleanup: when leaving this tab, blur the active element so web-side menus close via onBlur
+      const cleanup = () => {
+        webviewRef.current?.injectJavaScript(`
+          document.activeElement?.blur();
+          true;
+        `);
+      };
+
       // If there's already a sync in progress, skip this one to avoid conflicts
       if (syncTargetPathRef.current !== null) {
-        return;
+        return cleanup;
       }
 
-      // Read the current WebView path from the ref (always up-to-date)
-      const currentWebPath = currentWebPathRef.current;
-
-      // Strip locales from both paths for comparison
-      const currentRoute = stripLocale(currentWebPath);
+      // Strip locale for comparison
       const targetRoute = stripLocale(path);
 
-      if (currentRoute === targetRoute) {
-        // Same route, just different locale or already synced
-        return;
-      }
-
-      // Routes differ - sync WebView, using mobile i18n language as source of truth
+      // Sync WebView, using mobile i18n language as source of truth
       // This ensures language selection persists across tab switches
       const currentLocale = i18n.language !== "en" ? i18n.language : null;
       const targetPath = currentLocale
@@ -166,7 +155,9 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
         true;
       `);
-    }, [path, stripLocale, i18n.language, currentWebPathRef]),
+
+      return cleanup;
+    }, [path, stripLocale, i18n.language]),
   );
 
   // Send result back to web app
@@ -289,8 +280,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         source={{ uri: WEB_BASE_URL + path }}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled
-        cacheEnabled
-        cacheMode="LOAD_CACHE_ELSE_NETWORK"
+        cacheEnabled={true}
+        cacheMode="LOAD_DEFAULT" // Revalidates on normal loads (prevents stale content), uses cache for back nav (maintains cookies)
         startInLoadingState
         javaScriptEnabled={true}
         domStorageEnabled={true}

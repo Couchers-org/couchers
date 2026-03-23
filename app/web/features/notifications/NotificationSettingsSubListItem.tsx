@@ -22,6 +22,8 @@ import useUpdateNotificationSettings from "./useUpdateNotificationSettings";
 interface NotificationSettingsSubListItemProps {
   topic: string;
   action: string;
+  /// The localized description string.
+  description: string;
   email: boolean;
   push: boolean;
 }
@@ -49,13 +51,11 @@ const StyledListItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
 export default function NotificationSettingsSubListItem({
   topic,
   action,
+  description,
   email,
   push,
 }: NotificationSettingsSubListItemProps) {
-  const { t } = useTranslation([GLOBAL, NOTIFICATIONS], {
-    keyPrefix:
-      "notifications:notification_settings.edit_preferences.item_descriptions",
-  });
+  const { t } = useTranslation([GLOBAL, NOTIFICATIONS]);
 
   const { updateNotificationSettings, status } =
     useUpdateNotificationSettings();
@@ -120,14 +120,11 @@ export default function NotificationSettingsSubListItem({
           {mutationError || t("global:error.unknown")}
         </Alert>
       )}
-      <StyledDescriptionText>
-        {/** @ts-ignore - I spent hours on this type with no luck*/}
-        {t(`${topic}.${action}`)}
-      </StyledDescriptionText>
+      <StyledDescriptionText>{description}</StyledDescriptionText>
       <List component="div" disablePadding>
         <StyledListItem component="button">
           <ListItemIcon>
-            <NotificationNewIcon fontSize="medium" />
+            <NotificationNewIcon />
           </ListItemIcon>
           <ListItemText primary="Push" />
           <CustomColorSwitch

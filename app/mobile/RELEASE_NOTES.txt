@@ -1,3 +1,1 @@
-- Fix native app detection on Samsung devices
-- Add bottom navigation bar for mobile browser view
-- Hide donation CTAs in native app (menu, banner, footer)
+- Fix menu staying open after switching tabs

@@ -12,7 +12,8 @@
       "aria_label": "Tabs für verschiedene Nachrichten-Typen",
       "chats": "Chats",
       "hosting": "Hosten",
-      "surfing": "Surfen"
+      "surfing": "Surfen",
+      "archived": "Archiviert"
     },
     "title": "Nachrichten"
   },
@@ -56,7 +57,10 @@
     "no_friends_found_message": "Es konnte keine Freunde gefunden werden",
     "user_load_error_message": "(Benutzerladefehler)",
     "friends_input_label": "Freunde",
-    "title_label": "Titel"
+    "title_label": "Titel",
+    "create_button": "Chat erstellen",
+    "back_button": "Zurück",
+    "hosting_request_hint": "Möchtest du eine Host-Anfrage senden? Gehe <back>Zurück</back> und benutze stattdessen den <request>Anfragen</request>-Button."
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {
@@ -92,7 +96,13 @@
     "created_chat_text": "{{user}} hat den Chat erstellt",
     "edited_chat_text": "{{user}} hat den Chat bearbeitet",
     "admin_removal_text": "{{user}} hat {{target_user}} als Administrator entfernt",
-    "unknown_message_text": "Unbekannte Kontrollmeldung"
+    "unknown_message_text": "Unbekannte Kontrollmeldung",
+    "host_request_status_changed": {
+      "accepted": "{{user}} hat die Anfrage akzeptiert",
+      "rejected": "{{user}} hat die Anfrage abgelehnt",
+      "confirmed": "{{user}} hat die Anfrage bestätigt",
+      "cancelled": "{{user}} hat die Anfrage storniert"
+    }
   },
   "host_request_status": {
     "confirmed": "Bestätigt",
@@ -154,5 +164,22 @@
   "unknown_user": "Unbekannte Person",
   "mark_all_read_button_text_chats": "Alle Chats als gelesen markieren",
   "mark_all_read_button_text_hosting": "Alle Host-Anfragen als gelesen markieren",
-  "mark_all_read_button_text_surfing": "Alle Surf-Anfragen als gelesen markieren"
+  "mark_all_read_button_text_surfing": "Alle Surf-Anfragen als gelesen markieren",
+  "archive": {
+    "archived": "Archiviert",
+    "archive_button": "Archiv",
+    "unarchive_button": "Dearchivieren",
+    "show_archived": "Archivierte anzeigen",
+    "show_active": "Aktive anzeigen",
+    "no_archived_chats": "Keine archivierten Chats",
+    "no_archived_requests": "Keine archivierten Anfragen",
+    "no_archived_messages": "Keine archivierten Nachrichten"
+  },
+  "all_messages_tab": {
+    "no_messages": "Noch keine Nachrichten",
+    "load_more": "Weitere laden",
+    "filter": {
+      "all": "Alle"
+    }
+  }
 }

@@ -1,153 +1,67 @@
 {
-    "notification_settings": {
-        "title": "Configuración de notificaciones",
-        "edit_in_console": "Puedes cambiar tu configuración de notificaciones <2>en esta página</2>. Pronto se moverá a aquí.",
-        "go_to_button": "Gestionar notificaciones",
-        "edit_preferences": {
-            "title": "Configuración de notificaciones",
-            "description": "Cualquier cambio que hagas abajo se guarda automáticamente. Ten en cuenta que puede que aún recibas notificaciones importantes sobre tu cuenta y su contenido a pesar de la configuración de notificaciones.",
-            "list_heading": "Notificaciones que puedes recibir",
-            "error_loading": "Error al cargar la página",
-            "list_items": {
-                "account_security": "Seguridad de la cuenta",
-                "account_settings": "Configuración de la cuenta",
-                "chat": "Mensajes",
-                "event": "Eventos",
-                "friend_request": "Solicitudes de amistad",
-                "host_request": "Solicitudes de alojamiento",
-                "reference": "Recomendaciones",
-                "discussion": "Discusiones",
-                "reply": "Respuestas",
-                "other_notifications": "Otras notificaciones"
-            },
-            "item_descriptions": {
-                "host_request": {
-                    "create": "Alguien te envía una solicitud de alojamiento",
-                    "accept": "Alguien acepta tu solicitud de alojamiento",
-                    "confirm": "Alguien confirma su solicitud de alojamiento",
-                    "reject": "Alguien rechaza tu solicitud de alojamiento",
-                    "cancel": "Alguien cancela su solicitud de alojamiento",
-                    "message": "Alguien envía un mensaje en una solicitud de alojamiento",
-                    "missed_messages": "Mensajes pendientes en una solicitud de alojamiento",
-                    "reminder": "No has respondido a una solicitud de alojamiento pendiente"
-                },
-                "chat": {
-                    "message": "Alguien te envía un mensaje",
-                    "missed_messages": "Mensajes pendientes en un chat"
-                },
-                "reference": {
-                    "receive_hosted": "Recibes una recomendación de alguien que te alojó",
-                    "receive_surfed": "Recibes una recomendación de alguien a quien alojaste",
-                    "receive_friend": "Recibes una recomendación de un amigo",
-                    "reminder_hosted": "Recordatorio para escribir una recomendación a alguien a quien alojaste",
-                    "reminder_surfed": "Recordatorio para escribir una recomendación a alguien con quien surfeaste"
-                },
-                "friend_request": {
-                    "create": "Alguien te envía una solicitud de amistad",
-                    "accept": "Alguien acepta tu solicitud de amistad"
-                },
-                "event": {
-                    "create_approved": "Un evento aprobado por los moderadores se crea en tu comunidad",
-                    "create_any": "Un evento se crea en tu comunidad (sin ser revisado por un moderador)",
-                    "update": "Se actualiza un evento en el que participas",
-                    "cancel": "Se cancela un evento en el que participas",
-                    "delete": "Se elimina un evento en el que participas",
-                    "invite_organizer": "Alguien te invita a coorganizar un evento",
-                    "reminder": "Recordatorio de que un evento al que asistirás tendrá lugar pronto",
-                    "comment": " Un usuario comenta en un evento al que asistirás"
-                },
-                "onboarding": {
-                    "reminder": "Recordatorio para completar tu perfil después de registrarte"
-                },
-                "badge": {
-                    "add": "Se añade una insignia en tu cuenta",
-                    "remove": "Se elimina una insignia de tu cuenta"
-                },
-                "donation": {
-                    "received": "Tu donación ha sido recibida"
-                },
-                "password": {
-                    "change": "Tu contraseña ha sido cambiada"
-                },
-                "password_reset": {
-                    "start": "Se inicia el restablecimiento de la contraseña",
-                    "complete": "El restablecimiento de la contraseña se ha completado"
-                },
-                "email_address": {
-                    "change": "Se inicia el cambio de correo electrónico",
-                    "verify": "Tu nuevo correo electrónico ha sido verificado"
-                },
-                "account_deletion": {
-                    "start": "Inicias la eliminación de la cuenta",
-                    "complete": "Tu cuenta ha sido eliminada",
-                    "recovered": "Tu cuenta ha sido recuperada (sin ser eliminada)"
-                },
-                "api_key": {
-                    "create": "Se crea una clave API para tu cuenta"
-                },
-                "phone_number": {
-                    "change": "Tu número de teléfono ha sido cambiado",
-                    "verify": "Tu número de teléfono ha sido verificado"
-                },
-                "birthdate": {
-                    "change": "Tu fecha de nacimiento ha sido cambiada"
-                },
-                "gender": {
-                    "change": "El género mostrado en tu perfil ha sido cambiado"
-                },
-                "general": {
-                    "new_blog_post": "Se ha publicado un nuevo artículo en el blog"
-                },
-                "discussion": {
-                    "create": "Alguien crea una discusión en una comunidad a la que perteneces",
-                    "comment": "Alguien comenta en una discusión que estás siguiendo"
-                },
-                "thread": {
-                    "reply": "Alguien responde a tu comentario"
-                }
-            },
-            "expand_all": "Expandir todo",
-            "collapse_all": "Contraer todo"
+  "notification_settings": {
+    "title": "Configuración de notificaciones",
+    "edit_in_console": "Puedes cambiar tu configuración de notificaciones <2>en esta página</2>. Pronto se moverá a aquí.",
+    "go_to_button": "Gestionar notificaciones",
+    "edit_preferences": {
+      "title": "Configuración de notificaciones",
+      "description": "Cualquier cambio que hagas abajo se guarda automáticamente. Ten en cuenta que puede que aún recibas notificaciones importantes sobre tu cuenta y su contenido a pesar de la configuración de notificaciones.",
+      "list_heading": "Notificaciones que puedes recibir",
+      "error_loading": "Error al cargar la página",
+      "list_items": {
+        "account_security": "Seguridad de la cuenta",
+        "account_settings": "Configuración de la cuenta",
+        "chat": "Mensajes",
+        "event": "Eventos",
+        "friend_request": "Solicitudes de amistad",
+        "host_request": "Solicitudes de alojamiento",
+        "reference": "Recomendaciones",
+        "discussion": "Discusiones",
+        "reply": "Respuestas",
+        "other_notifications": "Otras notificaciones"
+      },
+      "expand_all": "Expandir todo",
+      "collapse_all": "Contraer todo"
+    },
+    "push_notifications": {
+      "description": "Puedes habilitar las notificaciones push para Couchers.org en tu dispositivo. Estamos trabajando en expandir esta característica.",
+      "permission_denied": {
+        "instructions": {
+          "firefox": "Has bloqueado las notificaciones. Por favor, habilita las notificaciones en tu navegador para continuar. En Firefox, ve a Preferencias > Privacidad y Seguridad > Permisos > Notificaciones, y modifica los permisos del sitio web.",
+          "linux": {
+            "gnome": "En GNOME, ve a Preferencias > Notificaciones y ajusta los permisos de la aplicación.",
+            "kde": "En KDE, ve a Ajustes de Sistema > Notificaciones y modifica los permisos."
+          },
+          "chrome": "Has bloqueado las notificaciones. Por favor, habilita las notificaciones en tu navegador para continuar. En Chrome, haz clic en el icono del candado en la barra de dirección, y allí ajusta las \"Notificaciones\".",
+          "safari": "Has bloqueado las notificaciones. Por favor, habilita las notificaciones en tu navegador para continuar. En Safari, ve a Preferencias > Sitios web > Notificaciones y modifica los permisos.",
+          "generic": "Has bloqueado las notificaciones. Por favor, habilita las notificaciones en tu navegador para continuar.",
+          "macos": "En macOS, ve a Ajustes de sistema > Notificaciones, y modifica los permisos de la aplicación.",
+          "windows": "En Windows, ve a Ajustes > Sistema > Notificaciones y acciones, y ajusta los permisos de la aplicación o el sitio web.",
+          "mobile": {
+            "browser": "En los ajustes de tu navegador móvil, ajusta los permisos de notificaciones para este sitio web.",
+            "os": "En los ajustes de tu dispositivo móvil, ajusta los permisos para permitir notificaciones."
+          }
         },
-        "push_notifications": {
-            "description": "Puedes habilitar las notificaciones push para Couchers.org en tu dispositivo. Estamos trabajando en expandir esta característica.",
-            "permission_denied": {
-                "instructions": {
-                    "firefox": "Has bloqueado las notificaciones. Por favor, habilita las notificaciones en tu navegador para continuar. En Firefox, ve a Preferencias > Privacidad y Seguridad > Permisos > Notificaciones, y modifica los permisos del sitio web.",
-                    "linux": {
-                        "gnome": "En GNOME, ve a Preferencias > Notificaciones y ajusta los permisos de la aplicación.",
-                        "kde": "En KDE, ve a Ajustes de Sistema > Notificaciones y modifica los permisos."
-                    },
-                    "chrome": "Has bloqueado las notificaciones. Por favor, habilita las notificaciones en tu navegador para continuar. En Chrome, haz clic en el icono del candado en la barra de dirección, y allí ajusta las \"Notificaciones\".",
-                    "safari": "Has bloqueado las notificaciones. Por favor, habilita las notificaciones en tu navegador para continuar. En Safari, ve a Preferencias > Sitios web > Notificaciones y modifica los permisos.",
-                    "generic": "Has bloqueado las notificaciones. Por favor, habilita las notificaciones en tu navegador para continuar.",
-                    "macos": "En macOS, ve a Ajustes de sistema > Notificaciones, y modifica los permisos de la aplicación.",
-                    "windows": "En Windows, ve a Ajustes > Sistema > Notificaciones y acciones, y ajusta los permisos de la aplicación o el sitio web.",
-                    "mobile": {
-                        "browser": "En los ajustes de tu navegador móvil, ajusta los permisos de notificaciones para este sitio web.",
-                        "os": "En los ajustes de tu dispositivo móvil, ajusta los permisos para permitir notificaciones."
-                    }
-                },
-                "platform_settings_description": "¿Todavía tienes problemas tras habilitar las notificaciones push en tu navegador? Puede que necesites modificar los ajustes de tu sistema."
-            },
-            "error_unsupported": "Este navegador no soporta notificaciones push o service workers.",
-            "title": "Notificaciones Push",
-            "allow_push": "Haz clic en el botón 'Permitir' en tu navegador para habilitar las notificaciones push.",
-            "enabled_message": "Actualmente tienes las notificaciones push <1>habilitadas</1>.",
-            "disabled_message": "Actualmente tienes las notificaciones push <1>deshabilitadas</1>.",
-            "error_generic": "Error al suscribirse a las notificaciones push",
-            "error_not_granted": "No has dado permiso para enviar notificaciones push."
-        }
-    },
-    "all": "Todas",
-    "unread": "No leídas",
-    "error_loading": "Error al cargar las notificaciones",
-    "push_notification_banner": {
-        "message": "No te pierdas solicitudes, respuestas o mensajes; ¿podemos enviarte notificaciones?",
-        "confirm": "¡Sí, por favor!"
-    },
-    "mark_unread": "Marcar como no leído",
-    "mark_all_read": "Marcar todo como leído",
-    "no_new_notifications": "Sin nuevas notificaciones",
-    "error_updating_notifications": "Error al actualizar las notificaciones"
+        "platform_settings_description": "¿Todavía tienes problemas tras habilitar las notificaciones push en tu navegador? Puede que necesites modificar los ajustes de tu sistema."
+      },
+      "error_unsupported": "Este navegador no soporta notificaciones push o service workers.",
+      "title": "Notificaciones Push",
+      "allow_push": "Haz clic en el botón 'Permitir' en tu navegador para habilitar las notificaciones push.",
+      "enabled_message": "Actualmente tienes las notificaciones push <1>habilitadas</1>.",
+      "disabled_message": "Actualmente tienes las notificaciones push <1>deshabilitadas</1>.",
+      "error_generic": "Error al suscribirse a las notificaciones push",
+      "error_not_granted": "No has dado permiso para enviar notificaciones push."
+    }
+  },
+  "all": "Todas",
+  "unread": "No leídas",
+  "error_loading": "Error al cargar las notificaciones",
+  "push_notification_banner": {
+    "message": "No te pierdas solicitudes, respuestas o mensajes; ¿podemos enviarte notificaciones?",
+    "confirm": "¡Sí, por favor!"
+  },
+  "mark_unread": "Marcar como no leído",
+  "mark_all_read": "Marcar todo como leído",
+  "no_new_notifications": "Sin nuevas notificaciones",
+  "error_updating_notifications": "Error al actualizar las notificaciones"
 }

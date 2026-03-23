@@ -9,7 +9,7 @@ import {
 import ImageInput from "components/ImageInput";
 import TextField from "components/TextField";
 import { useTranslation } from "i18n";
-import { GLOBAL } from "i18n/namespaces";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { ImageInputValues } from "service/api";
@@ -31,7 +31,7 @@ export default function UploadImage({
   open,
   onClose,
 }: UploadImageProps) {
-  const { t } = useTranslation(GLOBAL);
+  const { t } = useTranslation([GLOBAL, PROFILE]);
   const alt = useRef("");
   const { control } = useForm();
   const handleSuccess = async (data: ImageInputValues) => {

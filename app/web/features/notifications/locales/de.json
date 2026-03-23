@@ -1,153 +1,67 @@
 {
-    "notification_settings": {
-        "title": "Benachrichtigungseinstellungen",
-        "edit_in_console": "Du kannst deine Benachrichtigungseinstellungen <2>auf dieser Seite</2> ändern. Wir werden dies bald hierhin verlegen.",
-        "go_to_button": "Benachrichtigungseinstellungen verwalten",
-        "edit_preferences": {
-            "title": "Benachrichtigungseinstellungen",
-            "description": "Alle Änderungen, die du unten vornimmst, werden automatisch gespeichert. Bitte beachte, dass du möglicherweise weiterhin wichtige Benachrichtigungen über dein Konto und Inhalte außerhalb deiner bevorzugten Benachrichtigungseinstellungen erhältst.",
-            "list_heading": "Benachrichtigungen, die du erhalten kannst",
-            "error_loading": "Fehler beim Laden der Benachrichtigungseinstellungen",
-            "list_items": {
-                "account_security": "Kontosicherheit",
-                "account_settings": "Kontoeinstellungen",
-                "chat": "Nachrichten",
-                "event": "Events",
-                "friend_request": "Freundschaftsanfragen",
-                "host_request": "Host-Anfragen",
-                "reference": "Referenzen",
-                "discussion": "Beiträge",
-                "reply": "Antworten",
-                "other_notifications": "Weitere Benachrichtigungen"
-            },
-            "item_descriptions": {
-                "host_request": {
-                    "create": "Jemand sendet dir eine Host-Anfrage",
-                    "accept": "Jemand akzeptiert deine Host-anfrage",
-                    "confirm": "Jemand bestätigt seine Host-Anfrage",
-                    "reject": "Jemand lehnt deine Host-anfrage ab",
-                    "cancel": "Jemand storniert seine Host-Anfrage",
-                    "message": "Jemand sendet eine Nachricht in einer Host-Anfrage",
-                    "missed_messages": "Du verpasst Nachrichten in einer Host-Anfrage",
-                    "reminder": "Du antwortest nicht auf eine ausstehende Host-Anfrage"
-                },
-                "chat": {
-                    "message": "Jemand sendet dir eine Nachricht",
-                    "missed_messages": "Du verpasst Nachrichten in einem Chat"
-                },
-                "reference": {
-                    "receive_hosted": "Du erhältst eine Referenz von jemandem, der dich gehostet hat",
-                    "receive_surfed": "Du erhältst eine Referenz von jemandem, den du gehostet hast",
-                    "receive_friend": "Du erhältst eine Referenz von einem Freund",
-                    "reminder_hosted": "Erinnerung, eine Referenz für jemanden zu schreiben, der dich gehostet hat",
-                    "reminder_surfed": "Erinnerung, eine Referenz für jemanden zu schreiben, mit dem du gesurft hast"
-                },
-                "friend_request": {
-                    "create": "Jemand sendet dir eine Freundschaftsanfrage",
-                    "accept": "Jemand akzeptiert deine Freundschaftsanfrage"
-                },
-                "event": {
-                    "create_approved": "Eine von den Moderatoren genehmigtes event wird in deiner Community erstellt",
-                    "create_any": "Ein Benutzer erstellt ein Event in deiner Community (nicht von einem Administrator überprüft)",
-                    "update": "Ein Event, an dem du teilnimmst, wurde aktualisiert",
-                    "cancel": "Ein Event, an dem du teilnimmst, wurde abgesagt",
-                    "delete": "Ein Event, an dem du teilnimmst, wurde gelöscht",
-                    "invite_organizer": "Jemand lädt dich ein, ein Event mit zu organisieren",
-                    "comment": " Ein Mitglied kommentiert ein Event, das du besuchst",
-                    "reminder": "Erinnerung: Ein Event, zu dem du gehst, findet bald statt"
-                },
-                "onboarding": {
-                    "reminder": "Erinnerung, dein Profil nach der Anmeldung zu vervollständigen"
-                },
-                "badge": {
-                    "add": "Ein Abzeichen wird deinem Konto hinzugefügt",
-                    "remove": "Ein Abzeichen wird von deinem Konto entfernt"
-                },
-                "donation": {
-                    "received": "Deine Spende wurde erhalten"
-                },
-                "password": {
-                    "change": "Dein Passwort wurde geändert"
-                },
-                "password_reset": {
-                    "start": "Passwortzurücksetzung wurde eingeleitet",
-                    "complete": "Passwortzurücksetzung wurde abgeschlossen"
-                },
-                "email_address": {
-                    "change": "E-Mail-Änderung wurde eingeleitet",
-                    "verify": "Deine neue E-Mail wurde verifiziert"
-                },
-                "account_deletion": {
-                    "start": "Du hast die Kontolöschung eingeleitet",
-                    "complete": "Dein Konto wurde gelöscht",
-                    "recovered": "Dein Konto wurde wiederhergestellt (un-gelöscht)"
-                },
-                "api_key": {
-                    "create": "Ein API-Schlüssel wurde für dein Konto erstellt"
-                },
-                "phone_number": {
-                    "change": "Deine Telefonnummer wurde geändert",
-                    "verify": "Deine Telefonnummer wurde verifiziert"
-                },
-                "birthdate": {
-                    "change": "Dein Geburtsdatum wurde geändert"
-                },
-                "gender": {
-                    "change": "Das auf deinem Profil angezeigte Geschlecht wurde geändert"
-                },
-                "discussion": {
-                    "create": "Jemand schreibt einen Beitrag in einer Community, in der du Mitglied bist",
-                    "comment": "Jemand kommentiert einen Beitrag, den du verfolgst"
-                },
-                "thread": {
-                    "reply": "Jemand antwortet auf deinen Kommentar"
-                },
-                "general": {
-                    "new_blog_post": "Ein neuer Blogbeitrag wurde veröffentlicht"
-                }
-            },
-            "expand_all": "Alle aufklappen",
-            "collapse_all": "Alle einklappen"
-        },
-        "push_notifications": {
-            "permission_denied": {
-                "platform_settings_description": "Hast du immernoch Probleme, nachdem du Benachrichtigungen in deinem Browser aktiviert hast? Möglicherweise musst du dein Plattformeinstellungen anpassen.",
-                "instructions": {
-                    "chrome": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren. Klicke im Chrome-Browser auf das Vorhängeschloss-Symbol in der URL-Leiste und passe dann die Einstellung „Benachrichtigungen“ an.",
-                    "firefox": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren. Gehe im Firefox-Browser zu „Einstellungen“ > „Datenschutz und Sicherheit“ > „Berechtigungen“ > „Benachrichtigungen“ und ändere die Berechtigung der Website.",
-                    "safari": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren. Gehe in Safari zu „Einstellungen“ > „Websites“ > „Benachrichtigungen“, um Berechtigungen zu ändern.",
-                    "generic": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren.",
-                    "macos": "Gehe in macOS zu Systemeinstellungen > Benachrichtigungen und ändere die Berechtigung der App.",
-                    "windows": "Gehe in Windows zu Einstellungen > System > Benachrichtigungen und Aktionen und passe die Berechtigung der App oder Website an.",
-                    "linux": {
-                        "gnome": "Gehe in GNOME zu Einstellungen > Benachrichtigungen, um die Berechtigung der App anzupassen.",
-                        "kde": "Gehe in KDE zu Systemeinstellungen > Benachrichtigungen, um Berechtigungen zu ändern."
-                    },
-                    "mobile": {
-                        "browser": "Passe in den Einstellungen deines Browsers die Benachrichtigungsberechtigung für diese Website an.",
-                        "os": "Passe in den Benachrichtigungseinstellungen deines Mobilgeräts die Berechtigungen an, um Benachrichtigungen zuzulassen."
-                    }
-                }
-            },
-            "title": "Push-Benachrichtigungen",
-            "description": "Du kannst Push-Benachrichtigungen für Couchers.org auf deinem Gerät aktivieren. Wir arbeiten daran, diese Funktion zu erweitern.",
-            "allow_push": "Klick im Browser-Popup auf die Schaltfläche „Zulassen“, um Push-Benachrichtigungen zu aktivieren.",
-            "enabled_message": "Du hast Push-Benachrichtigungen aktuell <1>aktiviert</1>.",
-            "disabled_message": "Du hast Push-Benachrichtigungen aktuell <1>deaktiviert</1>.",
-            "error_generic": "Fehler beim Abonnieren von Push-Benachrichtigungen",
-            "error_unsupported": "Push-Benachrichtigungen oder Service Worker werden in diesem Browser nicht unterstützt.",
-            "error_not_granted": "Du hast keine Erlaubnis erteilt, Push-Benachrichtigungen zu senden."
-        }
+  "notification_settings": {
+    "title": "Benachrichtigungseinstellungen",
+    "edit_in_console": "Du kannst deine Benachrichtigungseinstellungen <2>auf dieser Seite</2> ändern. Wir werden dies bald hierhin verlegen.",
+    "go_to_button": "Benachrichtigungseinstellungen verwalten",
+    "edit_preferences": {
+      "title": "Benachrichtigungseinstellungen",
+      "description": "Alle Änderungen, die du unten vornimmst, werden automatisch gespeichert. Bitte beachte, dass du möglicherweise weiterhin wichtige Benachrichtigungen über dein Konto und Inhalte außerhalb deiner bevorzugten Benachrichtigungseinstellungen erhältst.",
+      "list_heading": "Benachrichtigungen, die du erhalten kannst",
+      "error_loading": "Fehler beim Laden der Benachrichtigungseinstellungen",
+      "list_items": {
+        "account_security": "Kontosicherheit",
+        "account_settings": "Kontoeinstellungen",
+        "chat": "Nachrichten",
+        "event": "Events",
+        "friend_request": "Freundschaftsanfragen",
+        "host_request": "Host-Anfragen",
+        "reference": "Referenzen",
+        "discussion": "Beiträge",
+        "reply": "Antworten",
+        "other_notifications": "Weitere Benachrichtigungen"
+      },
+      "expand_all": "Alle aufklappen",
+      "collapse_all": "Alle einklappen"
     },
-    "error_updating_notifications": "Fehler beim Aktualisieren der Benachrichtigungen",
-    "all": "Alle",
-    "unread": "Ungelesen",
-    "error_loading": "Fehler beim Laden der Benachrichtigungen",
-    "mark_unread": "Als ungelesen markieren",
-    "mark_all_read": "Alle als gelesen markieren",
-    "no_new_notifications": "Keine neuen Benachrichtigungen",
-    "push_notification_banner": {
-        "message": "Verpasse keine Anfragen, Antworten oder Nachrichten; dürfen wir dir Push-Benachrichtigungen senden?",
-        "confirm": "Ja, bitte!"
+    "push_notifications": {
+      "permission_denied": {
+        "platform_settings_description": "Hast du immernoch Probleme, nachdem du Benachrichtigungen in deinem Browser aktiviert hast? Möglicherweise musst du dein Plattformeinstellungen anpassen.",
+        "instructions": {
+          "chrome": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren. Klicke im Chrome-Browser auf das Vorhängeschloss-Symbol in der URL-Leiste und passe dann die Einstellung „Benachrichtigungen“ an.",
+          "firefox": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren. Gehe im Firefox-Browser zu „Einstellungen“ > „Datenschutz und Sicherheit“ > „Berechtigungen“ > „Benachrichtigungen“ und ändere die Berechtigung der Website.",
+          "safari": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren. Gehe in Safari zu „Einstellungen“ > „Websites“ > „Benachrichtigungen“, um Berechtigungen zu ändern.",
+          "generic": "Du hast Benachrichtigungen blockiert. Bitte aktiviere Benachrichtigungen in deinen Browsereinstellungen, um fortzufahren.",
+          "macos": "Gehe in macOS zu Systemeinstellungen > Benachrichtigungen und ändere die Berechtigung der App.",
+          "windows": "Gehe in Windows zu Einstellungen > System > Benachrichtigungen und Aktionen und passe die Berechtigung der App oder Website an.",
+          "linux": {
+            "gnome": "Gehe in GNOME zu Einstellungen > Benachrichtigungen, um die Berechtigung der App anzupassen.",
+            "kde": "Gehe in KDE zu Systemeinstellungen > Benachrichtigungen, um Berechtigungen zu ändern."
+          },
+          "mobile": {
+            "browser": "Passe in den Einstellungen deines Browsers die Benachrichtigungsberechtigung für diese Website an.",
+            "os": "Passe in den Benachrichtigungseinstellungen deines Mobilgeräts die Berechtigungen an, um Benachrichtigungen zuzulassen."
+          }
+        }
+      },
+      "title": "Push-Benachrichtigungen",
+      "description": "Du kannst Push-Benachrichtigungen für Couchers.org auf deinem Gerät aktivieren. Wir arbeiten daran, diese Funktion zu erweitern.",
+      "allow_push": "Klick im Browser-Popup auf die Schaltfläche „Zulassen“, um Push-Benachrichtigungen zu aktivieren.",
+      "enabled_message": "Du hast Push-Benachrichtigungen aktuell <1>aktiviert</1>.",
+      "disabled_message": "Du hast Push-Benachrichtigungen aktuell <1>deaktiviert</1>.",
+      "error_generic": "Fehler beim Abonnieren von Push-Benachrichtigungen",
+      "error_unsupported": "Push-Benachrichtigungen oder Service Worker werden in diesem Browser nicht unterstützt.",
+      "error_not_granted": "Du hast keine Erlaubnis erteilt, Push-Benachrichtigungen zu senden."
     }
+  },
+  "error_updating_notifications": "Fehler beim Aktualisieren der Benachrichtigungen",
+  "all": "Alle",
+  "unread": "Ungelesen",
+  "error_loading": "Fehler beim Laden der Benachrichtigungen",
+  "mark_unread": "Als ungelesen markieren",
+  "mark_all_read": "Alle als gelesen markieren",
+  "no_new_notifications": "Keine neuen Benachrichtigungen",
+  "push_notification_banner": {
+    "message": "Verpasse keine Anfragen, Antworten oder Nachrichten; dürfen wir dir Push-Benachrichtigungen senden?",
+    "confirm": "Ja, bitte!"
+  }
 }

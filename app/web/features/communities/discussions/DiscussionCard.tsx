@@ -12,7 +12,7 @@ import { useMemo } from "react";
 import { routeToDiscussion } from "routes";
 import { theme } from "theme";
 import { timestamp2Date } from "utils/date";
-import { timeAgoI18n } from "utils/timeAgo";
+import { timeAgo } from "utils/timeAgo";
 
 import getContentSummary from "../getContentSummary";
 
@@ -64,13 +64,16 @@ export default function DiscussionCard({
   discussion: Discussion.AsObject;
   className?: string;
 }) {
-  const { t } = useTranslation([GLOBAL, COMMUNITIES]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([GLOBAL, COMMUNITIES]);
   const { data: creator } = useLiteUser(discussion.creatorUserId);
 
   const date = discussion.created
     ? timestamp2Date(discussion.created)
     : undefined;
-  const postedTime = date ? timeAgoI18n({ input: date, t: t }) : null;
+  const postedTime = date ? timeAgo({ since: date, t, locale }) : null;
   const truncatedContent = useMemo(
     () =>
       getContentSummary({

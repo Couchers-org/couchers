@@ -1,4 +1,4 @@
-import { List, styled } from "@mui/material";
+import { Chip, List, styled } from "@mui/material";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -12,7 +12,7 @@ import { useTranslation } from "i18n";
 import { MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { ListGroupChatsRes } from "proto/conversations_pb";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { routeToGroupChat } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -37,7 +37,15 @@ const StyledGroupChatListItem = styled(GroupChatListItem)(() => ({
   paddingInline: `${theme.spacing(2)}`,
 }));
 
+const StyledToggleContainer = styled("div")(() => ({
+  display: "flex",
+  gap: theme.spacing(1),
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+}));
+
 export default function GroupChatsTab() {
+  const [showArchived, setShowArchived] = useState(false);
   const { t } = useTranslation(MESSAGES);
   const { data: notifications } = useNotifications();
   const unseenMessageCount = notifications?.unseenMessageCount;
@@ -57,9 +65,13 @@ export default function GroupChatsTab() {
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<ListGroupChatsRes.AsObject, RpcError>({
-    queryKey: [groupChatsListKey],
+    queryKey: [groupChatsListKey({ onlyArchived: showArchived })],
     queryFn: ({ pageParam: lastMessageId }) =>
-      service.conversations.listGroupChats(lastMessageId as number | undefined),
+      service.conversations.listGroupChats(
+        lastMessageId as number | undefined,
+        10,
+        showArchived,
+      ),
     getNextPageParam: (lastPage) =>
       lastPage.noMore ? undefined : lastPage.lastMessageId,
     initialPageParam: undefined,
@@ -69,17 +81,27 @@ export default function GroupChatsTab() {
 
   return (
     <StyledWrapper>
+      <StyledToggleContainer>
+        <Chip
+          label={t("archive.archived")}
+          onClick={() => setShowArchived(!showArchived)}
+          color={showArchived ? "primary" : "default"}
+          variant={showArchived ? "filled" : "outlined"}
+        />
+      </StyledToggleContainer>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
       ) : (
         data && (
           <StyledList>
-            <StyledCreateGroupChatListItem />
+            {!showArchived && <StyledCreateGroupChatListItem />}
             {data.pages.map((groupChatsRes, pageNumber) =>
               pageNumber === 0 && groupChatsRes.groupChatsList.length === 0 ? (
                 <TextBody key="no-chats-text">
-                  {t("group_chats_tab.no_chats_message")}
+                  {showArchived
+                    ? t("archive.no_archived_chats")
+                    : t("group_chats_tab.no_chats_message")}
                 </TextBody>
               ) : (
                 <React.Fragment key={`group-chats-page-${pageNumber}`}>
@@ -88,7 +110,10 @@ export default function GroupChatsTab() {
                       key={groupChat.groupChatId}
                       href={routeToGroupChat(groupChat.groupChatId)}
                     >
-                      <StyledGroupChatListItem groupChat={groupChat} />
+                      <StyledGroupChatListItem
+                        groupChat={groupChat}
+                        isArchived={showArchived}
+                      />
                     </Link>
                   ))}
                 </React.Fragment>

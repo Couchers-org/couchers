@@ -8,7 +8,6 @@ from markupsafe import Markup
 
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import I18Next
-from couchers.i18n.plurals import PluralRules
 from couchers.templating import Jinja2Template
 
 
@@ -48,12 +47,12 @@ def test_date_formatting() -> None:
     the_date = date(1970, 1, 1)
     template = Jinja2Template(source="Date: {{ date }}", html=False)
     rendered = _render_en_utc(template, {"date": the_date})
-    assert rendered == "Date: Thursday 1 January 1970"
+    assert rendered == "Date: Jan 1, 1970"
 
 
 def _greeting_i18next(value: str) -> I18Next:
     i18next = I18Next()
-    language = i18next.add_language("en", PluralRules.en)
+    language = i18next.add_translation("en")
     language.add_string("greeting", value)
     return i18next
 
@@ -61,7 +60,7 @@ def _greeting_i18next(value: str) -> I18Next:
 def _i18next_from_dict(value: dict[str, dict[str, str]]) -> I18Next:
     i18next = I18Next()
     for lang_code, strings in value.items():
-        language = i18next.add_language(lang_code, PluralRules.en)
+        language = i18next.add_translation(lang_code)
         language.load_json_dict(strings)
     return i18next
 
@@ -76,8 +75,8 @@ def test_translate_no_substitutions() -> None:
 def test_translate_multiple_languages() -> None:
     template = Jinja2Template(source='{{ "greeting"|translate }}', html=False)
     i18next = I18Next()
-    i18next.add_language("en", PluralRules.en).add_string("greeting", "Hello!")
-    i18next.add_language("fr", PluralRules.en).add_string("greeting", "Bonjour!")
+    i18next.add_translation("en").add_string("greeting", "Hello!")
+    i18next.add_translation("fr").add_string("greeting", "Bonjour!")
     fr_loc_context = LocalizationContext(locale="fr", timezone=ZoneInfo("Etc/UTC"))
     rendered = template.render({}, fr_loc_context, i18next)
     assert rendered == "Bonjour!"

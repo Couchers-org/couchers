@@ -310,7 +310,7 @@
   },
   "sign_up_resend_verification_email_help": "Keine E-Mail erhalten? Klick <2>hier, um den Bestätigungslink erneut zu senden</2>.",
   "sign_up_resend_verification_done": "Erledigt! Wir haben dir eine weitere E-Mail gesendet.",
-  "sign_up_need_verification_title": "Fast geschafft, noch eine letzte Sache!",
+  "sign_up_need_verification_title": "Eine letzte Sache: Bestätige deine E-Mail.",
   "profile_visibility": {
     "title": "Profil-Sichtbarkeit",
     "choose": "Wähle aus, welche Informationen für abgemeldete Nutzer sichtbar sind",
@@ -368,5 +368,18 @@
       "link_text_linkedin_helper": "Der Benutzername aus deiner Profil-URL (z. B. linkedin.com/in/jane-doe-a1b2c3)",
       "link_url_invalid": "Bitte gib eine gültige URL ein, die mit http:// oder https:// beginnt"
     }
+  },
+  "motivations_form": {
+    "header": "Was führt dich zu Couchers?",
+    "surfing": "Surfen",
+    "events": "Events",
+    "something_else": "Etwas anderes",
+    "community_organizing_description": "Ich möchte Events und Aktivitäten auf der Plattform organisieren",
+    "hosting": "Hosten",
+    "events_description": "Ich würde gerne an Events teilnehmen und die Community kennenlernen",
+    "community_organizing": "Community organisieren",
+    "surfing_description": "Ich plane eine Reise und suche einen Host",
+    "hosting_description": "Ich würde gerne Reisende in meiner Stadt hosten und willkommen heißen",
+    "something_else_description": "Ich schaue mich nur um oder habe mich noch nicht entschieden"
   }
 }

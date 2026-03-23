@@ -66,6 +66,7 @@ export default function NotificationSettingsListItem({
           key={`${item.topic}:${item.action}`}
           topic={item.topic}
           action={item.action}
+          description={item.description}
           push={item.push}
           email={item.email}
         />

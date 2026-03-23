@@ -1,5 +1,7 @@
 from datetime import timedelta
+from typing import cast
 
+import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import select
@@ -8,6 +10,7 @@ from couchers.context import make_interactive_context
 from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.event_log import log_event
+from couchers.i18n import LocalizationContext
 from couchers.models.logging import EventLog
 from couchers.proto import (
     api_pb2,
@@ -57,11 +60,11 @@ def test_log_event_authenticated_context(db):
 
     with session_scope() as session:
         context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
+            grpc_context=cast(grpc.ServicerContext, MockGrpcContext()),
             user_id=user.id,
             is_api_key=False,
             token=token,
-            ui_language_preference=None,
+            localization=LocalizationContext.en_utc(),
             sofa="test-sofa-123",
         )
         log_event(context, session, "test.event", {"key": "value"})
@@ -82,11 +85,11 @@ def test_log_event_with_override_user_id(db):
 
     with session_scope() as session:
         context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
+            grpc_context=cast(grpc.ServicerContext, MockGrpcContext()),
             user_id=None,
             is_api_key=False,
             token=None,
-            ui_language_preference=None,
+            localization=LocalizationContext.en_utc(),
             sofa="sofa-456",
         )
         log_event(context, session, "account.signup_completed", {"gender": "Woman"}, _override_user_id=user.id)
@@ -103,11 +106,11 @@ def test_log_event_anonymous(db):
     """log_event stores event with user_id=None when context has no user."""
     with session_scope() as session:
         context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
+            grpc_context=cast(grpc.ServicerContext, MockGrpcContext()),
             user_id=None,
             is_api_key=False,
             token=None,
-            ui_language_preference=None,
+            localization=LocalizationContext.en_utc(),
         )
         log_event(context, session, "account.signup_initiated", {"has_invite_code": False})
 
@@ -134,11 +137,11 @@ def test_log_event_complex_properties(db):
 
     with session_scope() as session:
         context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
+            grpc_context=cast(grpc.ServicerContext, MockGrpcContext()),
             user_id=user.id,
             is_api_key=False,
             token=token,
-            ui_language_preference=None,
+            localization=LocalizationContext.en_utc(),
         )
         log_event(context, session, "test.complex", props)
 
@@ -154,11 +157,11 @@ def test_log_event_empty_properties(db):
 
     with session_scope() as session:
         context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
+            grpc_context=cast(grpc.ServicerContext, MockGrpcContext()),
             user_id=user.id,
             is_api_key=False,
             token=token,
-            ui_language_preference=None,
+            localization=LocalizationContext.en_utc(),
         )
         log_event(context, session, "account.logout", {})
 
@@ -174,11 +177,11 @@ def test_log_event_multiple_events(db):
 
     with session_scope() as session:
         context = make_interactive_context(
-            grpc_context=MockGrpcContext(),
+            grpc_context=cast(grpc.ServicerContext, MockGrpcContext()),
             user_id=user.id,
             is_api_key=False,
             token=token,
-            ui_language_preference=None,
+            localization=LocalizationContext.en_utc(),
         )
         log_event(context, session, "test.first", {"n": 1})
         log_event(context, session, "test.second", {"n": 2})

@@ -2,7 +2,6 @@
   "introduction_title": "Queda con desconocidos, despedíos como amigos",
   "introduction_subtitle": "Comparte tu mundo, descubre el de los demás. Auténticas experiencias de couch surfing, construidas en la confianza y en conexiones genuinas, no en transacciones.",
   "signup_header": "Únete a la comunidad de Couchers.org",
-  "signup_description": "Viaja, aloja, y conecta con {{ user_count }} miembros. <2>Aprende más acerca de nosotros</2>.",
   "create_an_account": "Crear una cuenta",
   "signup_continue": "Finalizar registro",
   "why_couchers_title": "¿Por qué Couchers.org?",
@@ -35,10 +34,7 @@
   "non_transactional_description": "Las personas no se pagan entre ellas con dinero o en especies para participar en actividades de la comunidad. Ser invitada no te obliga a ser anfitriona en el futuro.",
   "non_transactional_why": "Las transacciones monetarias son incompatibles con tener interacciones genuinas. Es perfectamente sano solo dar o solo recibir, y deberíamos aprender a sentirnos cómodo con ello.",
   "map_section_title": "Explora nuestra comunidad global",
-  "num_users": "{{numUsers}} miembros",
-  "num_countries": "{{numCountries}}+ países",
   "last_signup": "Última sesión {{timeAgo}}",
   "community_led_title": "Dirigido por la comunidad",
-  "why": "¿Por qué?",
-  "signup_description_no_link": "Viaja, hospeda y conecta con {{ user_count }} miembros."
+  "why": "¿Por qué?"
 }

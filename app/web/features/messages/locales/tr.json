@@ -16,7 +16,8 @@
       "aria_label": "Farklı mesaj türleri için sekmeler",
       "chats": "Sohbetler",
       "hosting": "Ev Sahipliği",
-      "surfing": "Sörfler"
+      "surfing": "Sörfler",
+      "archived": "Arşiv"
     }
   },
   "chat_view": {
@@ -66,5 +67,55 @@
   },
   "mark_all_read_button_text_chats": "Tüm sohbetleri okundu olarak işaretle",
   "mark_all_read_button_text_hosting": "Tüm ev sahipliği isteklerini okunmuş olarak işaretle",
-  "mark_all_read_button_text_surfing": "Tüm sörf isteklerini okunmuş olarak işaretle"
+  "mark_all_read_button_text_surfing": "Tüm sörf isteklerini okunmuş olarak işaretle",
+  "host_request_view": {
+    "request_duration_one": "{{count}} gece",
+    "request_duration_other": "{{count}} gece"
+  },
+  "group_chats_tab": {
+    "no_chats_message": "Henüz grup sohbeti yok",
+    "load_more_button_label": "Daha fazla yükle"
+  },
+  "requests_tab": {
+    "no_requests_message": "Henüz istek yok",
+    "load_more_button_label": "Daha fazla yükle"
+  },
+  "unknown_user": "Bilinmeyen kullanıcı",
+  "all_messages_tab": {
+    "no_messages": "Henüz mesaj yok",
+    "load_more": "Daha fazla yükle",
+    "filter": {
+      "all": "Tümü"
+    }
+  },
+  "invite_dialog": {
+    "title": "Sohbete davet et",
+    "selected": {
+      "field_label": "Arkadaşlar",
+      "no_options_text": "Davet edecek kimse yok",
+      "option_load_error_text": "(Kullanıcı yükleme hatası)"
+    },
+    "invite_button_label": "Davet Et"
+  },
+  "leave_chat_dialog": {
+    "title": "Sohbetten ayrıl?",
+    "message": "Bu sohbetten ayrılmak istediğine emin misin?"
+  },
+  "members_dialog": {
+    "title": "Sohbet Üyeleri"
+  },
+  "control_message": {
+    "created_chat_text": "{{user}} sohbeti oluşturdu",
+    "unknown_message_text": "Bilinmeyen kontrol mesajı"
+  },
+  "archive": {
+    "no_archived_chats": "Arşivlenmiş sohbet yok"
+  },
+  "host_request_status": {
+    "rejected": "Reddedildi"
+  },
+  "host_request_item": {
+    "expired": "Bu isteğin süresi doldu",
+    "pending": "Bu istek hala bekliyor"
+  }
 }

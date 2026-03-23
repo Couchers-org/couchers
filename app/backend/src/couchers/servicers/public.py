@@ -193,7 +193,9 @@ class Public(public_pb2_grpc.PublicServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         if user.public_visibility == ProfilePublicVisibility.full:
-            return public_pb2.GetPublicUserRes(full_user=user_model_to_pb(user, session, make_logged_out_context()))
+            return public_pb2.GetPublicUserRes(
+                full_user=user_model_to_pb(user, session, make_logged_out_context(localization=context.localization))
+            )
 
         num_references = session.execute(
             select(func.count())

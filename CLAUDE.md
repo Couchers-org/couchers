@@ -4,6 +4,10 @@
 
 This is a monorepo for Couchers.org, a non-profit couch surfing platform. Users sign up and can be hosts (offering their couch/spare room to travelers), surfers (requesting to stay with hosts), community members (attending events, joining discussions, and building local communities), or any combination. Core features include user profiles with hosting preferences, sending and responding to couch requests, messaging between users, community features like events and discussions organized by local communities, and a reference system for building trust. The platform emphasizes safety, community building, and keeping the service free and community-owned.
 
+## Git
+
+- The main branch is `develop` (not `main`)
+
 ## Repository Structure
 
 - `/app/backend` - Python backend (gRPC, SQLAlchemy, PostgreSQL/PostGIS)
@@ -60,6 +64,7 @@ make mypy
 - Import aliases: use `components/` not `../../../components/`
 - No `any` types
 - Use StyledLink or next/link for routing
+- Type definitions should always go at the top of the file below the imports.
 - **IMPORTANT**: When using Material-UI components (Button, Chip, MenuItem, etc.) with the `href` prop for internal navigation, ALWAYS use `component={Link}` instead of `component="a"` to preserve locale prefixes. Import Link from `next/link`
 
 ### Proto Files
@@ -113,4 +118,10 @@ uv run --project .claude/tools ci-job-log <job-id> --full
 
 - PostgreSQL with PostGIS extension
 - Migrations in `/app/backend/src/couchers/migrations/versions/`
+- Migrations use ordinal numbering (`0001_`, `0002_`, ...) and must be linear (no branches). New migrations automatically get the next ordinal as their revision ID via `env.py`
+- When creating migrations manually, always use a real source of randomness for any hex values (e.g. `secrets.token_hex()`) and the real current time for timestamps - never fabricate or hardcode these values
 - Models in `/app/backend/src/couchers/models/`
+
+## Pull Requests
+
+- Use the PR template in `.github/pull_request_template.md` when creating PRs

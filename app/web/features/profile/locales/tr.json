@@ -31,7 +31,7 @@
     "age_verification_verified": "Bu kullanıcı doğum tarihini doğruladı",
     "hometown": "Büyüdüğü yer",
     "hosting_status": "Ev sahipliği durumu",
-    "joined": "Koltuk sörfüne başlama tarihi",
+    "joined": "Kanepe sörfüne başlama tarihi",
     "languages_conversational": "Dillerde konuşabiliyor",
     "gender_verification_mismatch": "Doğrulanan cinsiyet ile kullanıcının verdiği cinsiyet uyuşmamakta"
   },
@@ -86,7 +86,8 @@
     "pet_details": "Evcil hayvan detayları",
     "about_home_subtitle": "Misafirlere ev hakkında ve evde neler bekleyebileceği hakkında birşeyler de",
     "has_housemates": "Ev arkadaşları var",
-    "home_facilities": "Ev Olanakları"
+    "home_facilities": "Ev Olanakları",
+    "hosting_preferences_subtitle": "Misafirlere hangi konuların uygun olduğunu söyleyin"
   },
   "edit_profile_headings": {
     "regions_visited": "Ziyaret Ettiğim Bölgeler",
@@ -102,5 +103,13 @@
     "basic_information": "Temel Bilgiler",
     "name": "İsim"
   },
-  "edit_profile_helper_text": "Nereden başlayağına karar vermek için ilham mı arıyorsun? <2>Harika bir profil yaratmak üzerine olan rehberimize bak</2>."
+  "edit_profile_helper_text": "Nereden başlayağına karar vermek için ilham mı arıyorsun? <2>Harika bir profil yaratmak üzerine olan rehberimize bak</2>.",
+  "smoking_location": {
+    "yes": "Evet"
+  },
+  "edit_profile_name_required": "İsim gerekli",
+  "edit_home_questions": {
+    "accept_drinking": "İnsanların içki içmesiyle sorunum yok",
+    "accept_pets": "Evcil hayvanı olan kişilere ev sahipliği yapar"
+  }
 }

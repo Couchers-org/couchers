@@ -10,7 +10,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL, LANDING } from "i18n/namespaces";
 import { useEffect, useState } from "react";
 import { theme } from "theme";
-import { timeAgoI18n } from "utils/timeAgo";
+import { timeAgo } from "utils/timeAgo";
 
 interface SignupInfo {
   userCount: string;
@@ -19,7 +19,10 @@ interface SignupInfo {
 }
 
 const SocialProof = () => {
-  const { t } = useTranslation([GLOBAL, LANDING]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([GLOBAL, LANDING]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [signupInfo, setSignupInfo] = useState<SignupInfo | null>(null);
@@ -112,10 +115,9 @@ const SocialProof = () => {
             </Box>
           ) : (
             <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-              {t("landing:num_users", {
-                numUsers: signupInfo?.userCount
-                  ? Number(signupInfo.userCount).toLocaleString()
-                  : "56k+",
+              {t("landing:num_users2", {
+                // Number(...) returns NaN on bad input, and || treats it as false
+                count: Number(signupInfo?.userCount) || 56000,
               })}
             </Typography>
           )}
@@ -129,7 +131,7 @@ const SocialProof = () => {
             }}
           />
           <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-            {t("landing:num_countries", { numCountries: 180 })}
+            {t("landing:num_countries2", { count: 180 })}
           </Typography>
         </Box>
         <Box display="flex" alignItems={isMobile ? "flex-start" : "center"}>
@@ -161,9 +163,10 @@ const SocialProof = () => {
                 }}
               >
                 {t("landing:last_signup", {
-                  timeAgo: timeAgoI18n({
-                    input: signupInfo.lastSignup,
-                    t: t,
+                  timeAgo: timeAgo({
+                    since: new Date(signupInfo.lastSignup),
+                    t,
+                    locale,
                   }),
                 })}
               </Typography>

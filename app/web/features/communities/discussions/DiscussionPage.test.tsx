@@ -137,7 +137,9 @@ describe("Discussion page", () => {
       }),
     ).toBeVisible();
     expect(creatorContainer.getByText("Funny Cat current User")).toBeVisible();
-    expect(creatorContainer.getByText("Created on Jan 01, 2020")).toBeVisible();
+    expect(
+      creatorContainer.getByText("Created on January 1, 2020"),
+    ).toBeVisible();
   });
 
   it("renders a loading skeleton if the user info is still loading", async () => {
@@ -199,7 +201,7 @@ describe("Discussion page", () => {
       commentCards[0].getByText(
         `${t("communities:by_creator", {
           name: commentUser.name,
-        })} • 1 year ago`,
+        })} • last year`,
       ),
     ).toBeVisible();
     expect(
@@ -221,7 +223,7 @@ describe("Discussion page", () => {
     ).toBeVisible();
     expect(
       commentCards[1].getByText(
-        `${t("communities:by_creator", { name: replyUser.name })} • 1 year ago`,
+        `${t("communities:by_creator", { name: replyUser.name })} • last year`,
       ),
     ).toBeVisible();
     expect(commentCards[1].getByText("+6")).toBeVisible();
