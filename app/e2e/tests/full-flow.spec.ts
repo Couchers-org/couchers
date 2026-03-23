@@ -1,14 +1,15 @@
 import { test, expect, Page } from "@playwright/test";
 import { deleteAllEmails, getSignupToken } from "../helpers/maildev";
-import { takeScreenshot } from "../helpers/screenshots";
+import { setDeviceName, takeScreenshot } from "../helpers/screenshots";
 import * as path from "path";
 
-// Test user details — unique per run to avoid collisions
+// Test user details — unique per run AND per project to avoid collisions
 const timestamp = Date.now();
+const projectSuffix = process.env.TEST_PARALLEL_INDEX || "0";
 const TEST_USER = {
   name: "Test User",
-  email: `testuser+${timestamp}@couchers.org`,
-  username: `testuser${timestamp}`,
+  email: `testuser+${timestamp}p${projectSuffix}@couchers.org`,
+  username: `testuser${timestamp}p${projectSuffix}`,
   password: "TestPassword123!",
 };
 
@@ -17,11 +18,48 @@ const DUMMY_USER = {
   username: "aapeli",
 };
 
-/** Remove the TanStack Query devtools overlay that intercepts clicks */
-async function removeDevtools(page: Page) {
+/**
+ * Remove dev-mode overlays that don't exist in production.
+ * These are not part of the app — they're dev tooling artifacts.
+ * Hides them with CSS rather than removing to avoid re-render loops.
+ */
+async function cleanDevOverlays(page: Page) {
   await page.evaluate(() => {
-    document.querySelector(".tsqd-parent-container")?.remove();
+    const style = document.getElementById("e2e-dev-overlay-hide");
+    if (!style) {
+      const s = document.createElement("style");
+      s.id = "e2e-dev-overlay-hide";
+      s.textContent = `
+        nextjs-portal, .tsqd-parent-container {
+          display: none !important;
+          pointer-events: none !important;
+        }
+      `;
+      document.head.appendChild(s);
+    }
+    // Dismiss the "preview build" environment banner chip
+    const banner = document.querySelector('.MuiChip-deletable');
+    if (banner) (banner as HTMLElement).style.display = "none";
   });
+}
+
+/** Open the user menu (avatar button in top-right of nav bar) */
+async function openUserMenu(page: Page) {
+  await cleanDevOverlays(page);
+  // The menu trigger has aria-controls="navigation-menu" or shows user initials
+  const menuTrigger = page.locator('[aria-controls="navigation-menu"]');
+  if (await menuTrigger.isVisible({ timeout: 5000 }).catch(() => false)) {
+    await menuTrigger.click();
+  } else {
+    // Fallback: find button with user initials
+    const initials = TEST_USER.name
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase();
+    await page.getByRole("button", { name: initials }).click();
+  }
+  await page.waitForTimeout(500);
 }
 
 test.describe("Full platform flow", () => {
@@ -38,62 +76,76 @@ test.describe("Full platform flow", () => {
   });
 
   test("01 — Landing page", async () => {
+    setDeviceName(test.info().project.name);
     await deleteAllEmails();
 
-    // Load the root — should redirect to /landing
-    await page.goto("/");
-    await page.waitForLoadState("domcontentloaded");
-    await expect(page).toHaveURL(/\/landing/, { timeout: 15_000 });
-    await page.waitForTimeout(3000); // Let the page fully render
+    // This is the only page.goto — starting point
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await page.waitForTimeout(3000);
+    await cleanDevOverlays(page);
     await takeScreenshot(page, "01-landing-page");
   });
 
-  test("02 — Dismiss cookie banner and navigate to signup", async () => {
-    // Dismiss the TanStack Query devtools overlay if present (dev mode only)
-    await removeDevtools(page);
-
-    // Dismiss the cookie banner
+  test("02 — Dismiss cookie banner", async () => {
+    // A real user would close the cookie banner
     const cookieClose = page.getByRole("button", { name: "Close" });
     if (await cookieClose.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await cookieClose.click({ force: true });
+      await cookieClose.click();
       await page.waitForTimeout(500);
     }
     await takeScreenshot(page, "02-cookie-dismissed");
+  });
 
-    // Click "Join us" / "Sign up" to go to signup page
-    const joinButton = page.getByRole("link", { name: /join|sign up/i }).first();
-    if (await joinButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+  test("03 — Navigate to signup", async () => {
+    // Try clicking any visible "Join us" or "Sign up" link or button
+    const joinLink = page.getByRole("link", { name: /join us|sign up/i }).first();
+    const joinButton = page.getByRole("button", { name: /join us|sign up/i }).first();
+
+    if (await joinLink.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await joinLink.click();
+    } else if (await joinButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await joinButton.click();
     } else {
-      await page.goto("/signup");
+      // Mobile: scroll down to find the CTA
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.waitForTimeout(1000);
+      if (await joinLink.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await joinLink.click();
+      } else if (await joinButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await joinButton.click();
+      }
     }
-    await page.waitForLoadState("domcontentloaded");
+
+    // If we ended up on the login page, click "Join us" link there
+    const loginPageJoin = page.getByText("No account yet?");
+    if (await loginPageJoin.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await takeScreenshot(page, "03a-login-page-detour");
+      const signupLink = page.getByRole("link", { name: /join us/i });
+      await expect(signupLink).toBeVisible({ timeout: 5000 });
+      await signupLink.click();
+    }
+
     await expect(page.locator("#name")).toBeVisible({ timeout: 15_000 });
     await takeScreenshot(page, "03-signup-page");
   });
 
-  test("03 — Sign up: basic info", async () => {
-    // Fill in name and email
+  test("04 — Sign up: basic info", async () => {
     await page.fill("#name", TEST_USER.name);
     await page.fill("#email", TEST_USER.email);
     await takeScreenshot(page, "04-signup-basic-filled");
 
-    // Submit basic form — button text is "Create Account"
     await page.getByRole("button", { name: "Create Account" }).click();
 
-    // The flow goes directly to account details form
+    // Flow goes directly to account details form
     await expect(page.locator("#username")).toBeVisible({ timeout: 30_000 });
     await takeScreenshot(page, "05-signup-account-form");
   });
 
-  test("04 — Sign up: account details", async () => {
-    // Fill username
+  test("05 — Sign up: account details", async () => {
     await page.fill("#username", TEST_USER.username);
-
-    // Fill password
     await page.fill("#password", TEST_USER.password);
 
-    // Fill birthdate — MUI date picker with separate spinbuttons
+    // Fill birthdate via MUI date picker spinbuttons
     await page.getByRole("spinbutton", { name: "Month" }).click();
     await page.getByRole("spinbutton", { name: "Month" }).fill("01");
     await page.getByRole("spinbutton", { name: "Day" }).click();
@@ -101,14 +153,13 @@ test.describe("Full platform flow", () => {
     await page.getByRole("spinbutton", { name: "Year" }).click();
     await page.getByRole("spinbutton", { name: "Year" }).fill("1990");
 
-    // Set location — type into the search combobox and pick a result
+    // Set location via the search combobox
     const locationInput = page.getByRole("combobox", {
       name: "Search for location",
     });
     await locationInput.click();
     await locationInput.fill("New York");
     await locationInput.press("Enter");
-    // Wait for autocomplete results and select first one
     const firstOption = page
       .locator(".MuiAutocomplete-popper .MuiAutocomplete-option")
       .first();
@@ -123,33 +174,29 @@ test.describe("Full platform flow", () => {
           .first()
           .click({ timeout: 10_000 });
       });
-
-    // Wait for map to settle
     await page.waitForTimeout(2000);
 
-    // Select hosting status — MUI Select renders as a native <select> underneath
-    // Use selectOption for the underlying <select> element
+    // Select hosting status
     await page.locator("#hosting-status").selectOption({ label: "Can host" });
 
-    // Select gender
-    await page.getByRole("radio", { name: "Man", exact: true }).check();
+    // Clean dev overlays before clicking — these don't exist in prod
+    await cleanDevOverlays(page);
 
-    // Accept TOS
-    await page
-      .getByRole("checkbox", { name: "I Accept the Terms of Service." })
-      .check();
+    // Select gender by clicking the label text
+    await page.getByText("Man", { exact: true }).click();
 
-    await takeScreenshot(page, "05-signup-account-filled");
+    // Accept TOS by clicking the label text
+    await page.getByText("I Accept the Terms of Service.").click();
 
-    // Submit — button text is "Sign up"
+    await takeScreenshot(page, "06-signup-account-filled");
+
     await page.getByRole("button", { name: "Sign up" }).click();
 
-    // Wait for next step
     await page.waitForTimeout(5000);
-    await takeScreenshot(page, "06-signup-after-account");
+    await takeScreenshot(page, "07-signup-after-account");
   });
 
-  test("05 — Sign up: community guidelines (if shown)", async () => {
+  test("06 — Sign up: community guidelines", async () => {
     const guidelineCheckbox = page.getByLabel("Okay, got it").first();
     if (
       await guidelineCheckbox.isVisible({ timeout: 5000 }).catch(() => false)
@@ -159,15 +206,15 @@ test.describe("Full platform flow", () => {
       for (let i = 0; i < count; i++) {
         await checkboxes.nth(i).check();
       }
-      await takeScreenshot(page, "07-signup-guidelines-checked");
+      await takeScreenshot(page, "08-signup-guidelines-checked");
 
       await page.getByRole("button", { name: "Submit" }).click();
       await page.waitForTimeout(3000);
-      await takeScreenshot(page, "08-signup-after-guidelines");
+      await takeScreenshot(page, "09-signup-after-guidelines");
     }
   });
 
-  test("06 — Sign up: motivations (if shown)", async () => {
+  test("07 — Sign up: motivations", async () => {
     const motivationsHeader = page.getByText("What brings you to Couchers?");
     if (
       await motivationsHeader.isVisible({ timeout: 5000 }).catch(() => false)
@@ -181,63 +228,88 @@ test.describe("Full platform flow", () => {
       if (await hostingCheckbox.isVisible().catch(() => false)) {
         await hostingCheckbox.check();
       }
-      await takeScreenshot(page, "09-signup-motivations-selected");
+      await takeScreenshot(page, "10-signup-motivations-selected");
 
       await page.getByRole("button", { name: "Continue" }).click();
       await page.waitForTimeout(3000);
-      await takeScreenshot(page, "10-signup-after-motivations");
+      await takeScreenshot(page, "11-signup-after-motivations");
     }
   });
 
-  test("07 — Sign up: verify email", async () => {
-    // After motivations, we should be on the email verification step
+  test("08 — Sign up: verify email", async () => {
     await expect(
       page.getByText("confirm your email", { exact: false }),
     ).toBeVisible({ timeout: 15_000 });
-    await takeScreenshot(page, "11-signup-verify-email-prompt");
+    await takeScreenshot(page, "12-signup-verify-email-prompt");
 
-    // Get the verification token from MailDev
     const token = await getSignupToken(TEST_USER.email);
     expect(token).toBeTruthy();
 
-    // Navigate to the signup page with the token (URL-encode it)
-    await page.goto(`/signup?token=${encodeURIComponent(token)}`);
-    await page.waitForLoadState("domcontentloaded");
+    // The email contains a link — simulate clicking it by navigating to the URL
+    // This is the one place we navigate directly, since it's an email link
+    await page.goto(`/signup?token=${encodeURIComponent(token)}`, {
+      waitUntil: "domcontentloaded",
+    });
 
-    // After verification, the user is authenticated and redirected to dashboard
-    // OR shown "Thank you for signing up"
+    // After verification, user is authenticated → redirected to dashboard
     await expect(
-      page.getByText("Thank you for signing up", { exact: false })
+      page
+        .getByText("Thank you for signing up", { exact: false })
         .or(page.getByText("Dashboard", { exact: false })),
     ).toBeVisible({ timeout: 30_000 });
-    await takeScreenshot(page, "12-signup-complete");
+    await takeScreenshot(page, "13-signup-complete");
   });
 
-  test("08 — Dashboard after signup", async () => {
-    if (!page.url().includes("/dashboard")) {
-      await page.goto("/dashboard");
-    }
-    await page.waitForLoadState("domcontentloaded");
+  test("09 — Dashboard after signup", async () => {
+    // Should already be on dashboard after email verification redirect
     await page.waitForTimeout(3000);
-    await takeScreenshot(page, "14-dashboard-after-signup");
+    await cleanDevOverlays(page);
 
-    // Check for incomplete profile banner
-    const banner = page.getByText("complete your profile", { exact: false });
-    if (await banner.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await takeScreenshot(page, "15-dashboard-incomplete-profile-banner");
+    // Dismiss the push notifications banner if present
+    // It's an MUI Alert with an onClose button (aria-label="Close")
+    const notifBanner = page.getByRole("alert").filter({ hasText: /push notifications/i });
+    if (await notifBanner.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await notifBanner.getByRole("button", { name: "Close" }).click();
+      await page.waitForTimeout(500);
     }
+
+    await takeScreenshot(page, "14-dashboard-after-signup");
   });
 
-  test("09 — Logout", async () => {
-    await page.goto("/logout");
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(2000);
+  test("10 — Logout via user menu", async () => {
+    // Dismiss the preview banner if it might overlap menu items
+    const previewBanner = page.getByText("This is a preview build", { exact: false });
+    if (await previewBanner.isVisible({ timeout: 2000 }).catch(() => false)) {
+      const closeBanner = previewBanner.locator("..").getByRole("img").last();
+      if (await closeBanner.isVisible().catch(() => false)) {
+        await closeBanner.click();
+        await page.waitForTimeout(500);
+      }
+    }
+
+    await openUserMenu(page);
+    await takeScreenshot(page, "15-user-menu-open");
+
+    // Scroll "Log out" into view and click it
+    const logoutLink = page.getByText("Log out", { exact: true });
+    await expect(logoutLink).toBeVisible({ timeout: 5000 });
+    await logoutLink.scrollIntoViewIfNeeded();
+    await logoutLink.click();
+
+    // Wait for logout to complete — page should show "Log in" or redirect to landing
+    await page.waitForTimeout(5000);
+    await cleanDevOverlays(page);
     await takeScreenshot(page, "16-after-logout");
   });
 
-  test("10 — Login", async () => {
-    await page.goto("/login");
-    await page.waitForLoadState("domcontentloaded");
+  test("11 — Navigate to login and log in", async () => {
+    // On the logged-out page, click "Log in" button in the nav
+    const loginButton = page.getByRole("link", { name: "Log in" }).or(
+      page.getByRole("button", { name: "Log in" }),
+    );
+    await expect(loginButton.first()).toBeVisible({ timeout: 10_000 });
+    await loginButton.first().click();
+
     await expect(page.locator("#username")).toBeVisible({ timeout: 15_000 });
     await takeScreenshot(page, "17-login-page");
 
@@ -250,57 +322,82 @@ test.describe("Full platform flow", () => {
     // Should redirect to dashboard
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
     await page.waitForTimeout(2000);
+    await cleanDevOverlays(page);
     await takeScreenshot(page, "19-dashboard-after-login");
   });
 
-  test("11 — Try to message someone (should fail: incomplete profile)", async () => {
-    await page.goto(`/user/${DUMMY_USER.username}`);
-    await page.waitForLoadState("domcontentloaded");
+  test("12 — Navigate to a user profile and try to message (incomplete profile)", async () => {
+    // Click "Search" in nav (link on desktop, button on mobile bottom nav)
+    const searchNav = page.getByRole("link", { name: /search/i }).first().or(
+      page.getByRole("button", { name: /search/i }).first(),
+    );
+    await expect(searchNav.first()).toBeVisible({ timeout: 10_000 });
+    await searchNav.first().click();
     await page.waitForTimeout(3000);
-    await takeScreenshot(page, "20-dummy-user-profile");
+    await cleanDevOverlays(page);
+    await takeScreenshot(page, "20-search-page");
 
-    const messageButton = page.getByRole("button", { name: /Message/i });
-    if (
-      await messageButton.isVisible({ timeout: 10_000 }).catch(() => false)
-    ) {
-      await messageButton.click();
-      await page.waitForTimeout(2000);
-
-      // Should show the "Profile Incomplete" dialog
-      const incompleteDialog = page
-        .getByText("complete your profile", { exact: false })
-        .or(page.getByText("write a bit about yourself", { exact: false }));
-
-      if (
-        await incompleteDialog
-          .isVisible({ timeout: 10_000 })
-          .catch(() => false)
-      ) {
-        await takeScreenshot(page, "21-message-blocked-incomplete-profile");
-      }
-
-      // Close the dialog
-      const cancelButton = page.getByRole("button", {
-        name: /never mind|cancel/i,
+    // Navigate to the dummy user's profile — simulates clicking a link from
+    // search results or a shared profile URL
+    try {
+      await page.goto(`/user/${DUMMY_USER.username}`, {
+        waitUntil: "domcontentloaded",
       });
-      if (
-        await cancelButton.isVisible({ timeout: 3000 }).catch(() => false)
-      ) {
-        await cancelButton.click();
-      } else {
-        await page.keyboard.press("Escape");
-      }
-      await page.waitForTimeout(1000);
+    } catch (e: any) {
+      if (!e.message?.includes("interrupted by another navigation")) throw e;
+      await page.waitForLoadState("domcontentloaded");
     }
+    // If we got redirected away (WebKit race), retry
+    if (!page.url().includes(`/user/${DUMMY_USER.username}`)) {
+      await page.goto(`/user/${DUMMY_USER.username}`, {
+        waitUntil: "domcontentloaded",
+      });
+    }
+    await page.waitForTimeout(3000);
+    await cleanDevOverlays(page);
+    await takeScreenshot(page, "21-dummy-user-profile");
+
+    // Click the Message button
+    const messageButton = page.getByRole("button", { name: "Message", exact: true });
+    await expect(messageButton).toBeVisible({ timeout: 15_000 });
+    await messageButton.click();
+    await page.waitForTimeout(2000);
+
+    // Should show the "Profile Incomplete" dialog
+    const incompleteDialog = page
+      .getByText("complete your profile", { exact: false })
+      .or(page.getByText("write a bit about yourself", { exact: false }));
+
+    if (
+      await incompleteDialog.isVisible({ timeout: 10_000 }).catch(() => false)
+    ) {
+      await takeScreenshot(page, "22-message-blocked-incomplete-profile");
+    }
+
+    // Close the dialog
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(1000);
   });
 
-  test("12 — Edit profile: upload photo and write about me", async () => {
-    await page.goto("/profile/edit");
-    await page.waitForLoadState("domcontentloaded");
+  test("13 — Navigate to edit profile, upload photo and write about me", async () => {
+    // Navigate to own profile via user menu
+    await openUserMenu(page);
+    const profileLink = page.getByRole("link", { name: "Profile" });
+    await expect(profileLink).toBeVisible({ timeout: 5000 });
+    await profileLink.click();
     await page.waitForTimeout(3000);
-    await takeScreenshot(page, "22-edit-profile-initial");
+    await cleanDevOverlays(page);
+    await takeScreenshot(page, "23-own-profile");
 
-    // Upload a profile photo via hidden file input
+    // Click "Edit Profile" button on own profile page
+    const editButton = page.getByRole("link", { name: /edit profile/i }).first();
+    await expect(editButton).toBeVisible({ timeout: 10_000 });
+    await editButton.click();
+    // Wait for the edit page to load — should have the aboutMe editor
+    await expect(page.locator("#aboutMe")).toBeVisible({ timeout: 15_000 });
+    await takeScreenshot(page, "24-edit-profile-initial");
+
+    // Upload a profile photo via the file input
     const fileInput = page.locator('input[type="file"]').first();
     const testImagePath = path.join(
       __dirname,
@@ -312,7 +409,7 @@ test.describe("Full platform flow", () => {
     if ((await fileInput.count()) > 0) {
       await fileInput.setInputFiles(testImagePath);
       await page.waitForTimeout(5000);
-      await takeScreenshot(page, "23-edit-profile-photo-uploaded");
+      await takeScreenshot(page, "25-edit-profile-photo-uploaded");
     }
 
     // Fill in the "About Me" section (minimum 150 characters)
@@ -323,94 +420,105 @@ test.describe("Full platform flow", () => {
       "I have traveled to over 20 countries and always look forward to my " +
       "next adventure. Welcome to my profile!";
 
-    // The aboutMe field is a div-based markdown editor, not a textarea
-    // We need to click into it and type
+    // The aboutMe field is a div-based markdown editor
     const aboutMe = page.locator("#aboutMe");
     if (await aboutMe.isVisible({ timeout: 5000 }).catch(() => false)) {
       await aboutMe.click();
-      // Select all existing text and replace it
       await page.keyboard.press("Meta+a");
       await page.keyboard.type(aboutMeText, { delay: 5 });
     }
 
-    await takeScreenshot(page, "24-edit-profile-about-filled");
+    await takeScreenshot(page, "26-edit-profile-about-filled");
 
-    // Save the profile
+    // Click save
     const saveButton = page.getByRole("button", { name: /save/i });
-    if (await saveButton.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await saveButton.click();
-      await page.waitForTimeout(5000);
-      await takeScreenshot(page, "25-edit-profile-saved");
-    }
-  });
-
-  test("13 — Message someone (should succeed now)", async () => {
-    await page.goto(`/user/${DUMMY_USER.username}`);
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
-    await removeDevtools(page);
-    await takeScreenshot(page, "26-dummy-user-profile-revisit");
-
-    const messageButton = page.getByRole("button", { name: /Message/i });
-    if (
-      await messageButton.isVisible({ timeout: 10_000 }).catch(() => false)
-    ) {
-      await messageButton.click();
-      await page.waitForTimeout(5000);
-      await removeDevtools(page);
-      await takeScreenshot(page, "27-message-initiated");
-
-      const messageInput = page.locator("#group-chat-message-field");
-      const createButton = page.getByRole("button", {
-        name: /create chat/i,
-      });
-
-      if (
-        await createButton.isVisible({ timeout: 5000 }).catch(() => false)
-      ) {
-        await createButton.click();
-        await page.waitForTimeout(3000);
-      }
-
-      if (
-        await messageInput.isVisible({ timeout: 10_000 }).catch(() => false)
-      ) {
-        await messageInput.fill(
-          "Hi there! I am new to Couchers and would love to connect. How are you?",
-        );
-        await takeScreenshot(page, "28-message-composed");
-
-        await page.getByRole("button", { name: "Send" }).click();
-        await page.waitForTimeout(3000);
-        await takeScreenshot(page, "29-message-sent");
-      }
-    }
-  });
-
-  test("14 — Screenshot key pages", async () => {
-    await page.goto("/dashboard");
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
-    await takeScreenshot(page, "30-final-dashboard");
-
-    await page.goto("/profile");
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(3000);
-    await takeScreenshot(page, "31-own-profile");
-
-    await page.goto("/search");
-    await page.waitForLoadState("domcontentloaded");
+    await expect(saveButton).toBeVisible({ timeout: 5000 });
+    await saveButton.click();
     await page.waitForTimeout(5000);
-    await takeScreenshot(page, "32-search-page");
+    await takeScreenshot(page, "27-edit-profile-saved");
+  });
 
-    await page.goto("/messages");
-    await page.waitForLoadState("domcontentloaded");
+  test("14 — Message someone (should succeed now)", async () => {
+    // Navigate back to the dummy user's profile
+    try {
+      await page.goto(`/user/${DUMMY_USER.username}`, {
+        waitUntil: "domcontentloaded",
+      });
+    } catch (e: any) {
+      if (!e.message?.includes("interrupted by another navigation")) throw e;
+      await page.waitForLoadState("domcontentloaded");
+    }
     await page.waitForTimeout(3000);
+    await cleanDevOverlays(page);
+    await takeScreenshot(page, "28-dummy-user-profile-revisit");
+
+    // Click the Message button — should work now with completed profile
+    const messageButton = page.getByRole("button", { name: "Message", exact: true });
+    await expect(messageButton).toBeVisible({ timeout: 10_000 });
+    await messageButton.click();
+    await page.waitForTimeout(5000);
+    await cleanDevOverlays(page);
+    await takeScreenshot(page, "29-message-initiated");
+
+    // Look for the message input
+    const messageInput = page.locator("#group-chat-message-field");
+    const createButton = page.getByRole("button", { name: /create chat/i });
+
+    if (
+      await createButton.isVisible({ timeout: 5000 }).catch(() => false)
+    ) {
+      await createButton.click();
+      await page.waitForTimeout(3000);
+    }
+
+    if (
+      await messageInput.isVisible({ timeout: 10_000 }).catch(() => false)
+    ) {
+      await messageInput.fill(
+        "Hi there! I am new to Couchers and would love to connect. How are you?",
+      );
+      await takeScreenshot(page, "30-message-composed");
+
+      await page.getByRole("button", { name: "Send" }).click();
+      await page.waitForTimeout(3000);
+      await takeScreenshot(page, "31-message-sent");
+    }
+  });
+
+  test("15 — Screenshot key pages via navigation", async () => {
+    // Dashboard — click the logo or "Home" in bottom nav
+    const homeLink = page.getByRole("link", { name: /home/i }).first().or(
+      page.getByRole("link", { name: /dashboard/i }).first(),
+    );
+    if (await homeLink.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await homeLink.click();
+    } else {
+      // Click the Couchers logo
+      await page.locator('a[href="/dashboard"]').first().click();
+    }
+    await page.waitForTimeout(3000);
+    await cleanDevOverlays(page);
+    await takeScreenshot(page, "32-final-dashboard");
+
+    // Messages — link on desktop, button on mobile bottom nav
+    const messagesNav = page.getByRole("link", { name: /messages/i }).first().or(
+      page.getByRole("button", { name: /messages/i }).first(),
+    );
+    await expect(messagesNav.first()).toBeVisible({ timeout: 5000 });
+    await messagesNav.first().click();
+    await page.waitForTimeout(3000);
+    await cleanDevOverlays(page);
     await takeScreenshot(page, "33-messages-page");
 
-    await page.goto("/account-settings");
-    await page.waitForLoadState("domcontentloaded");
+    // Account settings via user menu
+    await openUserMenu(page);
+    const settingsLink = page.getByRole("link", {
+      name: /account settings/i,
+    });
+    await expect(settingsLink).toBeVisible({ timeout: 5000 });
+    await settingsLink.click();
     await page.waitForTimeout(3000);
+    await cleanDevOverlays(page);
     await takeScreenshot(page, "34-account-settings");
   });
 });

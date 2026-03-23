@@ -2,6 +2,12 @@ import { defineConfig, devices } from "@playwright/test";
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 
+const swiftshaderArgs = [
+  "--enable-webgl",
+  "--use-gl=swiftshader",
+  "--enable-unsafe-swiftshader",
+];
+
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: false,
@@ -16,7 +22,7 @@ export default defineConfig({
   use: {
     baseURL: BASE_URL,
     trace: "on-first-retry",
-    screenshot: "off", // we take screenshots manually
+    screenshot: "off",
     video: "on-first-retry",
     actionTimeout: 15_000,
     navigationTimeout: 30_000,
@@ -24,16 +30,30 @@ export default defineConfig({
   outputDir: "./test-results",
   projects: [
     {
-      name: "chromium",
+      name: "iphone-15",
+      use: {
+        ...devices["iPhone 15"],
+      },
+    },
+    {
+      name: "android-small",
+      use: {
+        ...devices["Pixel 5"],
+        launchOptions: { args: swiftshaderArgs },
+      },
+    },
+    {
+      name: "desktop-chrome",
       use: {
         ...devices["Desktop Chrome"],
-        launchOptions: {
-          args: [
-            "--enable-webgl",
-            "--use-gl=swiftshader",
-            "--enable-unsafe-swiftshader",
-          ],
-        },
+        launchOptions: { args: swiftshaderArgs },
+      },
+    },
+    {
+      name: "desktop-firefox-4k",
+      use: {
+        ...devices["Desktop Firefox"],
+        viewport: { width: 2560, height: 1440 },
       },
     },
   ],
