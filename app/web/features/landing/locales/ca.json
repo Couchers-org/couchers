@@ -6,7 +6,6 @@
   "introduction_subtitle": "Comparteix el teu món, descobreix el seu. Experiències autèntiques de couchsurfing, basades en la confiança i la connexió genuïna, no en les transaccions.",
   "introduction_subtitle2": "Gratuït per sempre. Gestionat per la comunitat. Sense ànim de lucre.",
   "signup_header": "Uneix-te a la comunitat de Couchers.org",
-  "signup_description": "Viatja, acull i connecta amb {{ user_count }} membres. <2>Més informació sobre nosaltres</2>.",
   "signup_continue": "Acaba de registrar-te",
   "what_couchsurfing_title": "Couchers.org: una manera diferent de viatjar",
   "sign_up_ready": "Registra't i estaràs llest per començar!",
@@ -37,7 +36,5 @@
   "non_transactional_description": "La gent no es paga entre si amb diners ni en espècie per participar en activitats o en la comunitat. Ser hoste no t'obliga a allotjar ningú en el futur.",
   "why": "Per què?",
   "map_section_title": "Explora la nostra comunitat global",
-  "num_users": "{{numUsers}} membres",
-  "num_countries": "{{numCountries}}+ països",
   "last_signup": "Última sessió {{timeAgo}}"
 }

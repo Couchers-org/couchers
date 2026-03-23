@@ -736,8 +736,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
         ):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
-                "chat_initiation_rate_limit",
-                substitutions={"hours": str(RATE_LIMIT_HOURS)},
+                "chat_initiation_rate_limit2",
+                substitutions={"count": RATE_LIMIT_HOURS},
             )
 
         group_chat = _create_chat(

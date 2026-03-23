@@ -1,7 +1,7 @@
 import type { GetServerSideProps } from "next";
 
 const startTime = Date.now();
-const STABLE_THRESHOLD_MS = 15 * 60 * 1000;
+const STABLE_THRESHOLD_MS = 5 * 60 * 1000;
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   res.setHeader("Content-Type", "application/json");
@@ -9,6 +9,8 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     JSON.stringify({
       version: process.env.NEXT_PUBLIC_VERSION || "unknown",
       display_version: process.env.NEXT_PUBLIC_DISPLAY_VERSION || "dev",
+      commit_sha: process.env.NEXT_PUBLIC_COMMIT_SHA || "unknown",
+      pipeline_id: process.env.PIPELINE_ID || "unknown",
       stable: Date.now() - startTime >= STABLE_THRESHOLD_MS,
     }),
   );

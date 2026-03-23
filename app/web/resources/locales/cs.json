@@ -169,7 +169,6 @@
       "display_location_label": "Zobrazit polohu",
       "search_location_label": "Vyhledat místo",
       "map_is_blank": "Chybějící souřadnice, začni hledáním místa pomocí mapy výše",
-      "radius_text": "{{radius}} metrů",
       "no_location_results_text": "Žádné výsledky. Zkus vyhledat pouze město.",
       "press_enter_to_search": "Stiskni Enter pro vyhledávání",
       "invalid_coordinate": "Chybí souřadnice, prosím vyber na mapě výše dané místo",

@@ -115,10 +115,9 @@ const SocialProof = () => {
             </Box>
           ) : (
             <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-              {t("landing:num_users", {
-                numUsers: signupInfo?.userCount
-                  ? Number(signupInfo.userCount).toLocaleString()
-                  : "56k+",
+              {t("landing:num_users2", {
+                // Number(...) returns NaN on bad input, and || treats it as false
+                count: Number(signupInfo?.userCount) || 56000,
               })}
             </Typography>
           )}
@@ -132,7 +131,7 @@ const SocialProof = () => {
             }}
           />
           <Typography sx={{ fontSize: "1.5rem", fontWeight: 500 }}>
-            {t("landing:num_countries", { numCountries: 180 })}
+            {t("landing:num_countries2", { count: 180 })}
           </Typography>
         </Box>
         <Box display="flex" alignItems={isMobile ? "flex-start" : "center"}>
