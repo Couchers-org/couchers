@@ -42,7 +42,7 @@ class TestAuthenticate:
             status_code=200,
             json=lambda: {"error": "invalid credentials"},
         )
-        with pytest.raises(Exception, match="auth failed"):
+        with pytest.raises(KeyError):
             _authenticate()
 
     @patch("couchers.postal.my_postcard.requests.post")
@@ -67,19 +67,20 @@ class TestPlaceOrder:
             "countryiso": "DE",
             "zip": "10717",
         }
-        result = _place_order("auth-token", recipient, b"fake-image-data")
+        result = _place_order("auth-token", recipient, b"fake-front-image", b"fake-back-image")
         assert result["job_id"] == "12345"
 
         call_kwargs = mock_post.call_args
         assert call_kwargs.kwargs["data"]["auth_token"] == "auth-token"
         assert call_kwargs.kwargs["files"]["photo"][0] == "postcard.png"
+        assert call_kwargs.kwargs["files"]["logo_addon"][0] == "logo.png"
 
     @patch("couchers.postal.my_postcard.requests.post")
     def test_raises_on_http_error(self, mock_post):
         mock_post.return_value = MagicMock()
         mock_post.return_value.raise_for_status.side_effect = RequestException("Bad Request")
         with pytest.raises(RequestException):
-            _place_order("auth-token", {}, b"fake-image-data")
+            _place_order("auth-token", {}, b"fake-front-image", b"fake-back-image")
 
 
 class TestSendPostcard:

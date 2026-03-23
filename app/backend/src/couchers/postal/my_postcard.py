@@ -41,7 +41,7 @@ def _generate_back_left_side(verification_code: str, qr_code_url: str) -> bytes:
 
     # Size the QR code to fit inside the box minus padding
     qr_content_size = min(qr_box_w, qr_box_h) - 2 * qr_padding
-    qr_img = qr_img.resize((qr_content_size, qr_content_size), Image.NEAREST)
+    qr_img = qr_img.resize((qr_content_size, qr_content_size), Image.Resampling.NEAREST)
 
     # Create white background for the full QR box area
     qr_bg = Image.new("RGBA", (qr_box_w, qr_box_h), (255, 255, 255, 255))
