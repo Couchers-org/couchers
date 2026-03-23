@@ -1,7 +1,6 @@
 {
   "introduction_subtitle2": "Grátis para sempre. Administrado pela comunidade. Sem fins lucrativos.",
   "signup_header": "Junte-se à comunidade Counchers.org",
-  "signup_description": "Viaje, hospede e conecte-se com {{ user_count }} membros. <2>Saiba mais sobre nós</2>.",
   "create_an_account": "Crie uma conta",
   "signup_continue": "Finalize seu cadastro",
   "what_couchsurfing_title": "Couchers.org: um jeito diferente de viajar",
@@ -36,9 +35,6 @@
   "non_transactional_description": "Não há pagamentos em dinheiro nem de qualquer tipo para participar de atividades ou da comunidade. Quando você se hospeda na casa de alguém, não é obrigado a hospedar no futuro.",
   "why": "Por quê?",
   "map_section_title": "Explore nossa comunidade global",
-  "num_users": "{{numUsers}} membros",
-  "num_countries": "{{numCountries}}+ países",
   "last_signup": "Último login {{timeAgo}}",
-  "non_transactional_why": "Isso é fundamentalmente incompatível com interações genuínas. É saudável apenas dar ou apenas receber e deveríamos aprender a ficar mais confortáveis com isso.",
-  "signup_description_no_link": "Viaje, hospede e conecte-se com {{ user_count }} membros."
+  "non_transactional_why": "Isso é fundamentalmente incompatível com interações genuínas. É saudável apenas dar ou apenas receber e deveríamos aprender a ficar mais confortáveis com isso."
 }
