@@ -16,7 +16,7 @@
       "required_error": "Por favor, selecciona tu género",
       "field_label": "Me identifico como…",
       "man": "Hombre",
-      "non_binary": "No-Binario",
+      "non_binary": "No-binario",
       "woman": "Mujer"
     },
     "tos_prompt": "Para continuar, por favor lee y acepta el <1></1>.",
