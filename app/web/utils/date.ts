@@ -16,16 +16,15 @@ const numNights = (date1: string, date2: string) => {
   return diffDays;
 };
 
-/// Explicitly identifies the browser's timezone (clearer than "undefined").
+/// Allow call sites to explicitly reference the browser's timezone (clearer than "undefined").
 export const BROWSER_TIMEZONE: unique symbol = Symbol("browser-timezone");
 export const UTC_TIMEZONE: string = "Etc/UTC";
 
 interface LocalizeDateTimeParams {
-  /// The timezone to be used to figure the date components.
-  /// This is a required parameter to avoid unexpected results.
-  timezone: string | typeof BROWSER_TIMEZONE;
   /// The locale to localize in.
   locale: string;
+  /// The timezone to be used to figure the date components (defaults to the browser's).
+  timezone?: string | typeof BROWSER_TIMEZONE;
   /// Whether to include the date (defaults to true).
   includeDate?: boolean;
   /// If including the date, whether to include the day of week (defaults to false).
@@ -106,7 +105,7 @@ function createIntlDateTimeFormat(
       options.second = "numeric";
     }
   }
-  if (args.timezone !== BROWSER_TIMEZONE) {
+  if (args.timezone && args.timezone !== BROWSER_TIMEZONE) {
     options.timeZone = args.timezone;
   }
   return Intl.DateTimeFormat(args.locale, options);
