@@ -24,7 +24,7 @@ const StyledBadgesContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   marginInlineEnd: theme.spacing(2),
-  minWidth: theme.spacing(9),
+  flexShrink: 0,
 }));
 
 const StyledListItem = styled(ListItem)(({ theme }) => ({
