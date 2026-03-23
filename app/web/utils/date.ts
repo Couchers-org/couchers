@@ -16,16 +16,15 @@ const numNights = (date1: string, date2: string) => {
   return diffDays;
 };
 
-/// Explicitly identifies the browser's timezone (clearer than "undefined").
+/// Allow call sites to explicitly reference the browser's timezone (clearer than "undefined").
 export const BROWSER_TIMEZONE: unique symbol = Symbol("browser-timezone");
 export const UTC_TIMEZONE: string = "Etc/UTC";
 
 interface LocalizeDateTimeParams {
-  /// The timezone to be used to figure the date components.
-  /// This is a required parameter to avoid unexpected results.
-  timezone: string | typeof BROWSER_TIMEZONE;
   /// The locale to localize in.
   locale: string;
+  /// The timezone to be used to figure the date components (defaults to the browser's).
+  timezone?: string | typeof BROWSER_TIMEZONE;
   /// Whether to include the date (defaults to true).
   includeDate?: boolean;
   /// If including the date, whether to include the day of week (defaults to false).
@@ -66,8 +65,28 @@ export function localizeDateTimeRange(
   return format.formatRange(start, end);
 }
 
-/// gets in an Intl.DateTimeFormat based on params.
+// Creating Intl.DateTimeFormat every time is 40x slower.
+const intlDateTimeFormatCache = new Map<string, Intl.DateTimeFormat>();
+
+/// Gets an Intl.DateTimeFormat based on params.
 function getIntlDateTimeFormat(
+  args: LocalizeDateTimeParams,
+): Intl.DateTimeFormat {
+  // We can't use args as the Map key as it uses reference equality.
+  // Convert it to a json string. The Symbol type requires special handling.
+  const cacheKey = JSON.stringify(args, (_, v) =>
+    typeof v === "symbol" ? v.toString() : v,
+  );
+  const cached = intlDateTimeFormatCache.get(cacheKey);
+  if (cached) return cached;
+
+  const format = createIntlDateTimeFormat(args);
+  intlDateTimeFormatCache.set(cacheKey, format);
+  return format;
+}
+
+/// Creates a new Intl.DateTimeFormat object based on params.
+function createIntlDateTimeFormat(
   args: LocalizeDateTimeParams,
 ): Intl.DateTimeFormat {
   const options: Intl.DateTimeFormatOptions = {};
@@ -86,7 +105,7 @@ function getIntlDateTimeFormat(
       options.second = "numeric";
     }
   }
-  if (args.timezone !== BROWSER_TIMEZONE) {
+  if (args.timezone && args.timezone !== BROWSER_TIMEZONE) {
     options.timeZone = args.timezone;
   }
   return Intl.DateTimeFormat(args.locale, options);

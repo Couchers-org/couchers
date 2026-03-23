@@ -734,8 +734,8 @@ class API(api_pb2_grpc.APIServicer):
         ):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
-                "friend_request_rate_limit",
-                substitutions={"hours": str(RATE_LIMIT_HOURS)},
+                "friend_request_rate_limit2",
+                substitutions={"count": RATE_LIMIT_HOURS},
             )
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table

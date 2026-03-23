@@ -2,6 +2,17 @@
 
 React Native mobile app built with [Expo](https://expo.dev). We maintain two separate apps (staging and production) that can coexist on the same device with different bundle IDs and API endpoints.
 
+## Table of Contents
+
+1. [First Time Setup](#1-first-time-setup)
+2. [Testing on Local Device](#2-testing-on-local-device)
+3. [Testing on Emulators](#3-testing-on-emulators)
+4. [Releasing Staging Build](#4-releasing-staging-build)
+5. [Releasing Production Build](#5-releasing-production-build)
+6. [App Variants](#app-variants)
+7. [Updating Dependencies](#updating-dependencies)
+8. [Learn More](#learn-more)
+
 ## 1. First Time Setup
 
 ### Prerequisites
@@ -167,6 +178,20 @@ We maintain **two separate apps** that can coexist on the same device:
 **Benefits:** Both apps can be installed simultaneously, separate push notification channels, test staging changes without affecting production users.
 
 **How it works:** Build profiles in `eas.json` set an `APP_VARIANT` environment variable, which `app.config.js` reads to configure bundle IDs, app names, and API endpoints dynamically.
+
+## Updating Dependencies
+
+Mobile dependencies are **not** managed by Dependabot. Expo requires specific compatible versions of packages tied to each SDK version, so dependencies should be updated through Expo's tooling:
+
+```bash
+# Check for outdated or incompatible packages
+npx expo install --check
+
+# Auto-fix to Expo-compatible versions
+npx expo install --fix
+```
+
+When upgrading the Expo SDK itself, follow the [Expo upgrade guide](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/).
 
 ## Learn More
 

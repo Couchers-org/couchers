@@ -364,7 +364,7 @@ interface RadiusSliderProps {
   commit(updates: Partial<ApproximateLocation>, shouldUpdate?: boolean): void;
   initialRadius: number;
   redrawMap(): void;
-  t: (key: string, options?: { radius?: number }) => string;
+  t: (key: string, options?: { count?: number }) => string;
 }
 
 function RadiusSlider({
@@ -384,8 +384,8 @@ function RadiusSlider({
       </Typography>
       <Slider
         aria-labelledby="location-radius"
-        aria-valuetext={t("components.edit_location_map.radius_text", {
-          radius,
+        aria-valuetext={t("components.edit_location_map.radius_text2", {
+          count: radius,
         })}
         value={radius}
         step={5}

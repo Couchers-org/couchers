@@ -2,9 +2,9 @@
 
 /scripts/get-certs.sh
 
-# start cron to automatically renew certs every 5 days
+# start cron to automatically renew certs every 2 hours
 touch /var/log/get-certs.log
-echo "47 5 */5 * * root /scripts/get-certs.sh >> /var/log/get-certs.log 2>&1" > /etc/cron.d/get-certs
+echo "47 */2 * * * root /scripts/get-certs.sh >> /var/log/get-certs.log 2>&1" > /etc/cron.d/get-certs
 cron -f &
 # get output here
 tail -f /var/log/get-certs.log &

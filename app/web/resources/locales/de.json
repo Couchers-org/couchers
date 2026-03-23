@@ -209,7 +209,6 @@
       "location_publicly_visible": "Dies wird öffentlich sichtbar sein",
       "location_warn": "Klicke und ziehe den Kreis auf der Karte unten, um den ungefähren Ort deines Zuhauses zu zeigen. Achte darauf, dass dein Zuhause nicht im Mittelpunkt des Kreises liegt, damit niemand den genauen Ort kennt.",
       "map_is_blank": "Fehlende Koordinaten, beginne mit der Suche nach einem Ort auf der obigen Karte",
-      "radius_text": "{{radius}} Meter",
       "no_location_results_text": "Keine Ergebnisse. Versuche, nur nach der Stadt zu suchen.",
       "no_map_support": "Dein Gerät unterstützt die Karte nicht. Bitte stelle sicher, dass WebGL2 aktiviert ist, oder versuche es mit einem anderen Gerät oder Browser. Entschuldige die Unannehmlichkeiten!",
       "press_enter_to_search": "Drücke die Eingabetaste, um zu suchen",

@@ -1,7 +1,6 @@
 {
   "introduction_subtitle2": "Gratuit pour toujours. Dirigé par la communauté. À but non lucratif.",
   "signup_header": "Rejoignez la communauté Couchers.org",
-  "signup_description": "Voyagez, hébergez et connectez-vous avec {{ user_count }} membres. <2>En savoir plus sur nous</2>.",
   "create_an_account": "Créer un compte",
   "signup_continue": "Terminer l'inscription",
   "what_couchsurfing_title": "Couchers.org : un autre moyen de voyager",
@@ -26,7 +25,6 @@
   "community_led_why": "Maintenir une organisation et une plateforme saine nécessite la participation active de la communauté que nous servons. Séparer la communauté du reste du projet nous empêche de construire pour nos collaborateurs. La communauté ne peut participer que si elle a une visibilité sur l'organisation.",
   "open_source_title": "Code open source",
   "open_source_description": "La plateforme et les outils que nous développons sont librement utilisables, modifiables et distribués, la fondation n'en détenant aucun droit exclusif. Nous nous efforçons de contribuer à la communauté open source.",
-  "num_users": "{{numUsers}} membres",
   "non_transactional_why": "Il est fondamentalement incompatible avec des interactions authentiques et véritables. Il est bien pour l'esprit de ne donner ou de ne recevoir que ce que l'on veut et nous devrions apprendre à être plus à l'aise avec cela.",
   "open_source_why": "Nous souhaitons que chacun puisse bénéficier au maximum des outils que nous développons. Leur distribution gratuite offre à notre communauté une garantie plus solide que ce que nous créons ensemble sera utilisable dans l'avenir.",
   "non_transactional_title": "Non transactionnel",
@@ -34,11 +32,9 @@
   "why": "Pourquoi ?",
   "map_section_title": "Explorez notre communauté mondiale",
   "authentic_title": "Authentique et véritable",
-  "num_countries": "{{numCountries}}+ pays",
   "free_forever_title": "Grauit pour toujours",
   "free_forever_description": "Personne ne devrait payer pour s’inscrire et/ou pour utiliser Couchers.org.",
   "free_forever_why": "Exiger un frais pour l'utilisation constitue un obstacle intenable à l'entrée. En impliquant de l'argent dans le couchsurfing, les gens peuvent avoir des fausses attentes.",
   "authentic_description": "Nous nous efforçons de créer des outils efficaces pour vous aider à vivre des expériences authentiques dans le monde réel, en minimisant le temps passé à les rechercher dans le monde numérique. Notre objectif n'est pas de susciter un engagement vide de sens.",
-  "last_signup": "Dernière inscription {{timeAgo}}",
-  "signup_description_no_link": "Voyagez, accueillez et connectez-vous avec {{ user_count }} membres."
+  "last_signup": "Dernière inscription {{timeAgo}}"
 }
