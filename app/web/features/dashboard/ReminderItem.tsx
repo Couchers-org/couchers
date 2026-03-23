@@ -3,9 +3,16 @@ import { Box, Typography } from "@mui/material";
 import Button from "components/Button";
 import IconButton from "components/IconButton";
 import Link from "next/link";
+import { GetRemindersRes } from "proto/account_pb";
 import { useState } from "react";
 
-export default function ReminderItem({}) {
+type Reminder = GetRemindersRes.AsObject["remindersList"][number];
+
+type ReminderItemProps = {
+  data: Reminder;
+};
+
+export default function ReminderItem({ data }: ReminderItemProps) {
   const [isVisible, setIsVisible] = useState(true);
 
   const handleClose = () => {
