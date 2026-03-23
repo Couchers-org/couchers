@@ -76,6 +76,8 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
       <Stack.Protected guard={!authenticated}>
         <Stack.Screen name="login" />
       </Stack.Protected>
+      {/* Unprotected routes — accessible regardless of auth state */}
+      <Stack.Screen name="confirm-email" />
     </Stack>
   );
 }

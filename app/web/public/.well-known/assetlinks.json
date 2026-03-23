@@ -8,5 +8,15 @@
         "C3:A9:5A:E9:63:38:3B:19:75:24:86:A8:20:86:89:C6:6E:BD:65:4B:A8:C7:D2:80:B2:03:8D:CE:47:64:FD:6E"
       ]
     }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "org.couchers.staging.android",
+      "sha256_cert_fingerprints": [
+        "7E:10:C7:86:B5:89:49:02:50:4D:39:F7:74:25:BA:5A:F6:EF:A1:A8:F3:FB:20:24:F7:40:BE:5C:C3:BB:B2:87"
+      ]
+    }
   }
 ]
