@@ -393,10 +393,10 @@ export default function LoggedInMenu({
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: { xs: 1.5, md: 3 },
-            textAlign: "center",
+            alignItems: { xs: "center", md: "stretch" },
+            justifyContent: { xs: "center", md: "flex-start" },
+            gap: { xs: 1.5, md: 0 },
+            textAlign: { xs: "center", md: "left" },
           }}
         >
           {items.map((item) => (
