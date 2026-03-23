@@ -34,8 +34,8 @@
     "cant_remove_last_admin": "No puedes eliminar el último administrador.",
     "cant_remove_self": "No puedes eliminarte a ti mismo.",
     "cant_request_self": "No puedes solicitar alojamiento a ti mismo.",
-    "cant_unaccept_community_guidelines": "No puedes revocar la aceptación de las Normas de la Comunidad.",
-    "cant_unaccept_tos": "No puedes revocar la aceptación de los Términos del Servicio.",
+    "cant_unaccept_community_guidelines": "No puedes revocar la aceptación de las normas de la comunidad.",
+    "cant_unaccept_tos": "No puedes revocar la aceptación de los términos del servicio.",
     "cant_unsee_messages": "No puedes desvisualizar los mensajes.",
     "cant_unsub_topic": "Lo sentimos, no puedes desuscribirte de este tema ahora mismo.",
     "cant_write_reference_for_request": "No puedes escribir una reseña para esa solicitud de alojamiento, o no fue encontrada.",
@@ -89,8 +89,8 @@
     "missing_page_location": "Falta la geolocalización de la página.",
     "missing_page_title": "Falta el título de la página.",
     "moderation_user_list_not_found": "Lista de usuarios de moderación no encontrada.",
-    "must_accept_community_guidelines": "Debes aceptar las Normas de la Comunidad.",
-    "must_accept_tos": "Debes aceptar los Términos de Servicio.",
+    "must_accept_community_guidelines": "Debes aceptar las normas de la comunidad.",
+    "must_accept_tos": "Debes aceptar los términos de servicio.",
     "need_strong_verification": "Necesitas una verificación sólida para usar esa función.",
     "need_to_specify_at_least_one_user": "Debes especificar al menos un usuario.",
     "host_request_rate_limit": "Has enviado muchas solicitudes de alojamiento en las últimas {{hours}} horas. Para evitar el spam, no puedes enviar más de momento..",
@@ -134,7 +134,7 @@
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",
-    "board_member_name": "Miembro de la Junta",
-    "past_board_member_name": "Anterior Miembro de la Junta"
+    "board_member_name": "Miembro de la junta",
+    "past_board_member_name": "Anterior miembro de la junta"
   }
 }
