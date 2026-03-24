@@ -36,5 +36,17 @@
   "why": "Por quê?",
   "map_section_title": "Explore nossa comunidade global",
   "last_signup": "Último login {{timeAgo}}",
-  "non_transactional_why": "Isso é fundamentalmente incompatível com interações genuínas. É saudável apenas dar ou apenas receber e deveríamos aprender a ficar mais confortáveis com isso."
+  "non_transactional_why": "Isso é fundamentalmente incompatível com interações genuínas. É saudável apenas dar ou apenas receber e deveríamos aprender a ficar mais confortáveis com isso.",
+  "signup_description2_one": "Viaje, hospede e conecte-se com {{count}} membro. <2>Saiba mais sobre nós<2>.",
+  "signup_description2_many": "Viaje, hospede e conecte-se com {{count}} membros. <2>Saiba mais sobre nós<2>.",
+  "signup_description2_other": "Viaje, hospede e conecte-se com {{count}} membros. <2>Saiba mais sobre nós<2>.",
+  "signup_description_no_link2_one": "Viaje, hospede e conecte-se com {{count}} membro.",
+  "signup_description_no_link2_many": "Viaje, hospede e conecte-se com {{count}} membros.",
+  "signup_description_no_link2_other": "Viaje, hospede e conecte-se com {{count}} membros.",
+  "num_users2_one": "{{count}} membro",
+  "num_users2_many": "{{count}} membros",
+  "num_users2_other": "{{count}} membros",
+  "num_countries2_one": "Mais de {{count}} país",
+  "num_countries2_many": "Mais de {{count}} países",
+  "num_countries2_other": "Mais de {{count}} países"
 }

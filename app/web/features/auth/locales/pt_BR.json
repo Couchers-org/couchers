@@ -94,7 +94,10 @@
     "name": {
       "empty_error": "Digite seu nome",
       "field_label": "Nome",
-      "required_error": "Este campo não pode estar em branco."
+      "required_error": "Este campo não pode estar em branco",
+      "invalid_characters_error": "O nome pode conter apenas letras, espaços, hífens e apóstrofes",
+      "min_length_error": "O nome deve ter pelo menos 2 caracteres",
+      "max_length_error": "O nome não deve ter mais que 100 caracteres"
     },
     "email": {
       "field_label": "E-mail",
