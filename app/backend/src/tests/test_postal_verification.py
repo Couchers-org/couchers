@@ -115,7 +115,7 @@ def test_postal_verification_happy_path(db, monkeypatch):
 
     # Process background job to send postcard
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = "test-job-id"
+        mock_send.return_value = 12345
         while process_job():
             pass
 
@@ -175,7 +175,7 @@ def test_postal_verification_wrong_code(db, monkeypatch):
 
     # Process background job
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = "test-job-id"
+        mock_send.return_value = 12345
         while process_job():
             pass
 
@@ -223,7 +223,7 @@ def test_postal_verification_code_expiry(db, monkeypatch):
 
     # Process background job
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = "test-job-id"
+        mock_send.return_value = 12345
         while process_job():
             pass
 
@@ -380,7 +380,7 @@ def test_postal_verification_can_cancel_after_postcard_sent(db, monkeypatch):
 
     # Process background job
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = "test-job-id"
+        mock_send.return_value = 12345
         while process_job():
             pass
 
@@ -562,7 +562,7 @@ def test_postal_verification_code_case_insensitive(db, monkeypatch):
 
     # Process background job
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = "test-job-id"
+        mock_send.return_value = 12345
         while process_job():
             pass
 
@@ -669,7 +669,7 @@ def test_has_postal_verification_helper(db, monkeypatch):
         )
 
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = "test-job-id"
+        mock_send.return_value = 12345
         while process_job():
             pass
 

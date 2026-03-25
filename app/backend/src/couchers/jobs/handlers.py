@@ -10,6 +10,7 @@ from random import sample
 from typing import Any
 
 import requests
+from couchers.sentry import report_message
 from google.protobuf import empty_pb2
 from sqlalchemy import ColumnElement, Float, Function, Integer, select
 from sqlalchemy.orm import aliased
@@ -104,7 +105,7 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
-from couchers.postal.my_postcard import send_postcard
+from couchers.postal.my_postcard import get_orders, send_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
@@ -1251,25 +1252,24 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             qr_code_url=urls.postal_verification_link(code=not_none(attempt.verification_code)),
         )
 
-        if True:
-            attempt.mypostcard_job_id = job_id
-            attempt.status = PostalVerificationStatus.awaiting_verification
-            attempt.postcard_sent_at = func.now()
+        attempt.mypostcard_job_id = job_id
+        attempt.status = PostalVerificationStatus.awaiting_verification
+        attempt.postcard_sent_at = func.now()
 
-            postcards_sent_counter.labels(country=attempt.country).inc()
+        postcards_sent_counter.labels(country=attempt.country).inc()
 
-            context = make_background_user_context(attempt.user_id)
-            log_event(
-                context,
-                session,
-                "postcard.sent",
-                {
-                    "attempt_id": attempt.id,
-                    "country": attempt.country,
-                    "city": attempt.city,
-                    "mypostcard_job_id": job_id,
-                },
-            )
+        context = make_background_user_context(attempt.user_id)
+        log_event(
+            context,
+            session,
+            "postcard.sent",
+            {
+                "attempt_id": attempt.id,
+                "country": attempt.country,
+                "city": attempt.city,
+                "mypostcard_job_id": job_id,
+            },
+        )
 
             notify(
                 session,
@@ -1287,20 +1287,18 @@ def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
     """
     Checks that all MyPostcard jobs from the last week are tied to a postal verification attempt.
     """
-    from couchers.postal.my_postcard import get_orders
-
     with session_scope() as session:
-        week_ago = now() - timedelta(days=7)
-        date_from = week_ago.strftime("%Y-%m-%d")
-        date_to = now().strftime("%Y-%m-%d")
-
-        orders = get_orders(date_from, date_to)
-        mypostcard_job_ids = {str(order["job_id"]) for order in orders.get("orders", [])}
+        orders = get_orders(
+            date_from=(now() - timedelta(days=7)).date(),
+            date_to=now().date(),
+        )
+        mypostcard_job_ids = {int(order["job_id"]) for order in orders.get("orders", [])}
 
         known_job_ids = set(
             session.execute(
                 select(PostalVerificationAttempt.mypostcard_job_id).where(
-                    PostalVerificationAttempt.mypostcard_job_id.isnot(None)
+                    PostalVerificationAttempt.mypostcard_job_id.isnot(None),
+                    PostalVerificationAttempt.created >= now() - timedelta(days=14),
                 )
             )
             .scalars()
@@ -1309,7 +1307,7 @@ def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
 
         orphaned = mypostcard_job_ids - known_job_ids
         if orphaned:
-            logger.error(
+            report_message(
                 f"Found {len(orphaned)} orphaned MyPostcard jobs not tied to any verification attempt: {orphaned}"
             )
 

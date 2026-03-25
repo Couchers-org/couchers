@@ -2,7 +2,7 @@ import json
 import logging
 
 import grpc
-import sentry_sdk
+from couchers.sentry import report_error
 import stripe
 from google.protobuf import empty_pb2
 from sqlalchemy import select
@@ -165,7 +165,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                         f"Merch purchase: ${amount} from {customer_info}",
                     )
                 except Exception as e:
-                    sentry_sdk.capture_exception(e)
+                    report_error(e)
             else:
                 customer_id = data_object["customer"]
                 user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
@@ -206,7 +206,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                         f"Donation received: ${amount} ({donation_type}) from <{user_link}|{user.name}>",
                     )
                 except Exception as e:
-                    sentry_sdk.capture_exception(e)
+                    report_error(e)
         else:
             logger.info(f"Unhandled event from Stripe: {event_type}")
 

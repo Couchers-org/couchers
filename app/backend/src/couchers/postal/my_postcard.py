@@ -1,6 +1,7 @@
 import io
 import json
 import logging
+from datetime import date
 from typing import Any
 
 import qrcode
@@ -151,7 +152,7 @@ def send_postcard(
     country: str,
     verification_code: str,
     qr_code_url: str,
-) -> str:
+) -> int:
     """
     Sends a physical postcard with verification code via MyPostcard API.
 
@@ -169,6 +170,7 @@ def send_postcard(
     Returns:
         The MyPostcard job ID
     """
+
     front_page = get_postcard_front_image()
     back_left_side = _generate_back_left_side(verification_code, qr_code_url)
 
@@ -189,23 +191,19 @@ def send_postcard(
 
     result = _place_order(auth_token, recipient, front_page, back_left_side)
     logger.info(f"MyPostcard order placed successfully: {result}")
-    return str(result["job_id"])
+    return int(result["job_id"])
 
 
-def get_orders(date_from: str, date_to: str) -> Any:
+def get_orders(date_from: date, date_to: date) -> Any:
     """
     Fetch all orders in a given time frame.
-
-    Args:
-        date_from: Start date (YYYY-MM-DD)
-        date_to: End date (YYYY-MM-DD)
     """
     response = requests.post(
         f"{API_BASE}/request_orders",
         data={
             **_credentials(),
-            "date_from": date_from,
-            "date_to": date_to,
+            "date_from": date_from.strftime("%Y-%m-%d"),
+            "date_to": date_to.strftime("%Y-%m-%d"),
         },
         timeout=30,
     )
@@ -213,7 +211,7 @@ def get_orders(date_from: str, date_to: str) -> Any:
     return response.json()
 
 
-def download_pdf(job_id: str) -> bytes:
+def download_pdf(job_id: int) -> bytes:
     """
     Download the PDF for a given job ID.
 

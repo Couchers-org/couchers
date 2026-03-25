@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column("postal_verification_attempts", sa.Column("mypostcard_job_id", sa.String(), nullable=True))
+    op.add_column("postal_verification_attempts", sa.Column("mypostcard_job_id", sa.Integer(), nullable=True))
 
 
 def downgrade() -> None:

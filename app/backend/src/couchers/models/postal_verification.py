@@ -79,7 +79,7 @@ class PostalVerificationAttempt(Base, kw_only=True):
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     # MyPostcard job ID (returned by place_order)
-    mypostcard_job_id: Mapped[str | None] = mapped_column(String, default=None)
+    mypostcard_job_id: Mapped[int | None] = mapped_column(Integer, default=None)
 
     # Code entry attempts
     code_attempts: Mapped[int] = mapped_column(Integer, server_default=text("0"), init=False)

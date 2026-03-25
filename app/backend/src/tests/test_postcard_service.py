@@ -27,7 +27,7 @@ def test_send_postcard_success():
     ):
         mock_image.return_value = b"fake-image"
         mock_auth.return_value = "auth-token"
-        mock_order.return_value = {"job_id": "12345"}
+        mock_order.return_value = {"job_id": 12345}
 
         job_id = send_postcard(
             recipient_name="Test User",
@@ -41,7 +41,7 @@ def test_send_postcard_success():
             qr_code_url="https://example.com/verify?code=ABC123",
         )
 
-        assert job_id == "12345"
+        assert job_id == 12345
         mock_auth.assert_called_once()
         mock_order.assert_called_once()
 
@@ -54,7 +54,7 @@ def test_send_postcard_builds_recipient_correctly():
     ):
         mock_image.return_value = b"fake-image"
         mock_auth.return_value = "auth-token"
-        mock_order.return_value = {"job_id": "123"}
+        mock_order.return_value = {"job_id": 123}
 
         send_postcard(
             recipient_name="Test User",
@@ -85,7 +85,7 @@ def test_send_postcard_excludes_none_optional_fields():
     ):
         mock_image.return_value = b"fake-image"
         mock_auth.return_value = "auth-token"
-        mock_order.return_value = {"job_id": "123"}
+        mock_order.return_value = {"job_id": 123}
 
         send_postcard(
             recipient_name="Test User",
