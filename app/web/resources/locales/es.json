@@ -50,7 +50,7 @@
   "community_standing": "Prestigio comunitario",
   "accept": "Aceptar",
   "cancel": "Cancelar",
-  "cookie_message": "Utilizamos cookies para asegurarnos de brindarte la mejor experiencia en nuestro sitio web. Si continúas usando este sitio asumiremos que estás de acuerdo con ello. Puedes leer más sobre nuestros <1>términos del servicio</1>.",
+  "cookie_message": "Utilizamos cookies para asegurarnos de brindarte la mejor experiencia en nuestro sitio web. Si continúas usando este sitio asumiremos que estás de acuerdo con ello. Puedes leer más sobre nuestros <1>Términos del Servicio</1>.",
   "meetup_status": {
     "does_not_want_to_meetup": "No puedo quedar",
     "open_to_meetup": "Abierto a quedar",
@@ -87,7 +87,7 @@
         "other": "Otro (Por favor especifique abajo)"
       },
       "profile_title": "Denunciar o bloquear",
-      "explainer": "Envia confidencialmente una denuncia al equipo de Seguridad y confianza.",
+      "explainer": "Envia confidencialmente una denuncia al equipo de Seguridad y Confianza.",
       "profile_button_aria_label": "Denunciar contenido o bloquear a un usuario",
       "reason_label": "Motivo de la denuncia",
       "reason_helper": "¿Por qué estás denunciando este contenido?",
@@ -230,8 +230,8 @@
     "is_it_safe": {
       "title": "¿Qué tan seguro es el couch surfing?",
       "description_1": "Si bien todos los viajes e interacciones con desconocidos tienen algún riesgo, el couch surfing es mucho más seguro de lo que mucha gente imagina al principio.",
-      "description_2": "Nuestra comunidad se basa en la confianza entre los miembros, establecida mediante referencias después de las estancias. Nuestro activo equipo de moderación se toma cada informe en serio y combate diligentemente a los malos actores que no cumplen con nuestras <guidelines>normas comunitarias</guidelines>.",
-      "description_3": "Además, la plataforma Couchers incluye herramientas como diversas formas de verificación (como la Verificación fuerte con pasaporte biométrico) que añaden un nivel adicional de seguridad. Es importante tener siempre un plan alternativo listo en caso de que las cosas no salgan como se espera, ¡y confiar en tus instintos!"
+      "description_2": "Nuestra comunidad se basa en la confianza entre los miembros, establecida mediante referencias después de las estancias. Nuestro activo equipo de moderación se toma cada informe en serio y combate diligentemente a los malos actores que no cumplen con nuestras <guidelines>Normas Comunitarias</guidelines>.",
+      "description_3": "Además, la plataforma Couchers incluye herramientas como diversas formas de verificación (como la Verificación Fuerte con pasaporte biométrico) que añaden un nivel adicional de seguridad. Es importante tener siempre un plan alternativo listo en caso de que las cosas no salgan como se espera, ¡y confiar en tus instintos!"
     }
   },
   "location_autocomplete": {

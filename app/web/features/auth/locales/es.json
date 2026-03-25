@@ -41,7 +41,7 @@
       "cant_host": "No puedo alojar",
       "any": "En cualquier momento"
     },
-    "tos_accept_label": "Acepto los términos y condiciones..",
+    "tos_accept_label": "Acepto los Términos y condiciones..",
     "password": {
       "validation_error": "La contraseña debe tener entre 8 y 256 caracteres y no ser extremadamente común.",
       "required_error": "Introduce una contraseña",
@@ -95,7 +95,7 @@
   "basic_sign_up_form": {
     "header": "¡Empecemos!",
     "existing_user_prompt": "¿Ya tienes una cuenta? <2>Iniciar sesión</2>",
-    "sign_up_agreement_explainer": "Al continuar, aceptas nuestros <2>términos y condiciones</2>, incluyendo nuestras políticas de gestión de cookies, de correo electrónico y de datos."
+    "sign_up_agreement_explainer": "Al continuar, aceptas nuestros <2>Términos y condiciones</2>, incluyendo nuestras políticas de gestión de cookies, de correo electrónico y de datos."
   },
   "location": {
     "field_label": "Tu ubicación",
@@ -113,7 +113,7 @@
       "explanation": "Parece que tus coordenadas no eran correctas. Por favor actualiza tu ubicación para continuar."
     },
     "terms_of_service_section": {
-      "description": "Hemos actualizado nuestros términos y condiciones. Para continuar, por favor lea y acepte los nuevos <1></1>."
+      "description": "Hemos actualizado nuestros Términos y Condiciones. Para continuar, por favor lea y acepte los nuevos <1></1>."
     },
     "description": "Por favor, comprueba lo siguiente para continuar.",
     "mod_note_section": {
@@ -249,7 +249,7 @@
     },
     "start_button": "Empezar la verificación robusta",
     "information_text2": "Al hacer clic en el botón de abajo, se te dirigirá a la web de Iris ID para completar el proceso de verificación de pasaporte.",
-    "information_text3": "Puedes obtener más información sobre cómo nosotros e Iris ID procesamos y almacenamos tus datos en nuestros <2>términos de servicio</2>. Según la <5>política de privacidad</5> de Iris ID, eliminarán tu información personal en un plazo de 24 horas. Puedes solicitar que estos datos de verificación robusta (excepto el país emisor, la fecha de vencimiento y los últimos tres dígitos del número del documento) se eliminen de nuestros servidores en cualquier momento con solo el clic de un botón.",
+    "information_text3": "Puedes obtener más información sobre cómo nosotros e Iris ID procesamos y almacenamos tus datos en nuestros <2>Términos de servicio</2>. Según la <5>Política de privacidad</5> de Iris ID, eliminarán tu información personal en un plazo de 24 horas. Puedes solicitar que estos datos de verificación robusta (excepto el país emisor, la fecha de vencimiento y los últimos tres dígitos del número del documento) se eliminen de nuestros servidores en cualquier momento con solo el clic de un botón.",
     "complete_title": "Estamos procesando su intento de Verificación robusta",
     "complete_message1": "Tu pasaporte está siendo validado. Recibirás un correo electrónico con los resultados en unos minutos.",
     "complete_message2": "La verificación robusta expira cuando vence tu pasaporte, y deberás completar la verificación nuevamente con el nuevo pasaporte.",
