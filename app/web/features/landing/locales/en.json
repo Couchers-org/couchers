@@ -42,7 +42,7 @@
   "map_section_title": "Explore our global community",
   "num_users2_one": "{{count}} member",
   "num_users2_other": "{{count}} members",
-  "num_countries2_one": "{{count}}+ countries",
+  "num_countries2_one": "{{count}}+ country",
   "num_countries2_other": "{{count}}+ countries",
   "last_signup": "Last signup {{timeAgo}}"
 }
