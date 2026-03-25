@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from requests import RequestException
@@ -20,15 +20,14 @@ def test_get_postcard_front_image_returns_png():
 
 
 def test_send_postcard_success():
-    with patch("couchers.postal.my_postcard.requests.post") as mock_post:
-        mock_post.return_value = MagicMock(
-            status_code=200,
-            json=lambda: {"auth_token": "test-token-123"},
-        )
-        # second call is place_order
-        mock_post.return_value.json = MagicMock(
-            side_effect=[{"auth_token": "test-token-123"}, {"job_id": "12345", "status": "ok"}]
-        )
+    with (
+        patch("couchers.postal.my_postcard._place_order") as mock_order,
+        patch("couchers.postal.my_postcard._authenticate") as mock_auth,
+        patch("couchers.postal.my_postcard.get_postcard_front_image") as mock_image,
+    ):
+        mock_image.return_value = b"fake-image"
+        mock_auth.return_value = "auth-token"
+        mock_order.return_value = {"job_id": "12345"}
 
         job_id = send_postcard(
             recipient_name="Test User",
@@ -43,7 +42,8 @@ def test_send_postcard_success():
         )
 
         assert job_id == "12345"
-        assert mock_post.call_count == 2
+        mock_auth.assert_called_once()
+        mock_order.assert_called_once()
 
 
 def test_send_postcard_builds_recipient_correctly():

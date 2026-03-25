@@ -527,8 +527,8 @@ def test_postal_verification_postcard_send_failure(db, monkeypatch):
     # Simulate postcard send failure
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
         mock_send.side_effect = Exception("API error")
-        while process_job():
-            pass
+        with pytest.raises(Exception, match="API error"):
+            process_job()
 
     # Attempt should still be in_progress (job failed, not the attempt)
     with postal_verification_session(token) as pv:
