@@ -34,7 +34,9 @@ class HostRequestQuality(enum.Enum):
 
 class HostRequest(Base, kw_only=True):
     """
-    A request to stay with a host
+    A request to stay with a host.
+
+    In a normal host request, initiator = surfer and recipient = host.
     """
 
     __tablename__ = "host_requests"
@@ -85,12 +87,12 @@ class HostRequest(Base, kw_only=True):
     recipient_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, default=None)
     initiator_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, default=None)
 
-    initiator: Mapped[User] = relationship(
-        init=False, backref="host_requests_initiated", foreign_keys="HostRequest.initiator_user_id"
-    )
     # Optional link to public trip if this request originated from one
     public_trip_id: Mapped[int | None] = mapped_column(ForeignKey("public_trips.id"), index=True, default=None)
 
+    initiator: Mapped[User] = relationship(
+        init=False, backref="host_requests_initiated", foreign_keys="HostRequest.initiator_user_id"
+    )
     recipient: Mapped[User] = relationship(
         init=False, backref="host_requests_received", foreign_keys="HostRequest.recipient_user_id"
     )

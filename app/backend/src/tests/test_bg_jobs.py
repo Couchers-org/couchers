@@ -985,84 +985,84 @@ def test_send_host_request_reminders(db, moderator):
         # case 1: pending, future, interval elapsed => notify
         hr1 = create_host_request_by_date(
             session=session,
-            initiator_user_id=user1.id,
-            recipient_user_id=user2.id,
+            surfer_user_id=user1.id,
+            host_user_id=user2.id,
             from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
             to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
             status=HostRequestStatus.pending,
-            recipient_sent_request_reminders=0,
+            host_sent_request_reminders=0,
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
         # case 2: max reminders reached => do not notify
         hr2 = create_host_request_by_date(
             session=session,
-            initiator_user_id=user3.id,
-            recipient_user_id=user4.id,
+            surfer_user_id=user3.id,
+            host_user_id=user4.id,
             from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
             to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
             status=HostRequestStatus.pending,
-            recipient_sent_request_reminders=HOST_REQUEST_MAX_REMINDERS,
+            host_sent_request_reminders=HOST_REQUEST_MAX_REMINDERS,
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
         # case 3: interval not yet elapsed => do not notify
         hr3 = create_host_request_by_date(
             session=session,
-            initiator_user_id=user5.id,
-            recipient_user_id=user6.id,
+            surfer_user_id=user5.id,
+            host_user_id=user6.id,
             from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
             to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
             status=HostRequestStatus.pending,
-            recipient_sent_request_reminders=0,
+            host_sent_request_reminders=0,
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL + timedelta(hours=1),
         )
 
         # case 4: start date is today => do not notify
         hr4 = create_host_request_by_date(
             session=session,
-            initiator_user_id=user7.id,
-            recipient_user_id=user8.id,
+            surfer_user_id=user7.id,
+            host_user_id=user8.id,
             from_date=today(),
             to_date=today() + timedelta(days=2),
             status=HostRequestStatus.pending,
-            recipient_sent_request_reminders=0,
+            host_sent_request_reminders=0,
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
         # case 5: from_date in the past => do not notify
         hr5 = create_host_request_by_date(
             session=session,
-            initiator_user_id=user9.id,
-            recipient_user_id=user10.id,
+            surfer_user_id=user9.id,
+            host_user_id=user10.id,
             from_date=today() - timedelta(days=1),
             to_date=today() + timedelta(days=1),
             status=HostRequestStatus.pending,
-            recipient_sent_request_reminders=0,
+            host_sent_request_reminders=0,
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
         # case 6: non-pending status => do not notify
         hr6 = create_host_request_by_date(
             session=session,
-            initiator_user_id=user11.id,
-            recipient_user_id=user12.id,
+            surfer_user_id=user11.id,
+            host_user_id=user12.id,
             from_date=today() + timedelta(days=3),
             to_date=today() + timedelta(days=4),
             status=HostRequestStatus.accepted,
-            recipient_sent_request_reminders=0,
+            host_sent_request_reminders=0,
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
         # case 7: host already sent a message => do not notify
         hr7 = create_host_request_by_date(
             session=session,
-            initiator_user_id=user13.id,
-            recipient_user_id=user14.id,
+            surfer_user_id=user13.id,
+            host_user_id=user14.id,
             from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
             to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
             status=HostRequestStatus.pending,
-            recipient_sent_request_reminders=0,
+            host_sent_request_reminders=0,
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 
@@ -1333,12 +1333,12 @@ def test_send_host_request_reminders_blocked_users_no_notification(db, moderator
         # Create a pending host request where the host has not replied
         hr = create_host_request_by_date(
             session=session,
-            initiator_user_id=user1.id,
-            recipient_user_id=user2.id,
+            surfer_user_id=user1.id,
+            host_user_id=user2.id,
             from_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=1),
             to_date=today() + HOST_REQUEST_REMINDER_INTERVAL + timedelta(days=2),
             status=HostRequestStatus.pending,
-            recipient_sent_request_reminders=0,
+            host_sent_request_reminders=0,
             last_sent_request_reminder_time=now() - HOST_REQUEST_REMINDER_INTERVAL,
         )
 

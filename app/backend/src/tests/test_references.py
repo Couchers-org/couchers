@@ -102,12 +102,12 @@ def create_host_request(
 
 def create_host_request_by_date(
     session: Session,
-    initiator_user_id: int,
-    recipient_user_id: int,
+    surfer_user_id: int,
+    host_user_id: int,
     from_date: date,
     to_date: date,
     status: HostRequestStatus,
-    recipient_sent_request_reminders: int,
+    host_sent_request_reminders: int,
     last_sent_request_reminder_time: datetime,
 ) -> int:
     conversation = Conversation()
@@ -116,7 +116,7 @@ def create_host_request_by_date(
 
     msg1 = Message(
         conversation_id=conversation.id,
-        author_id=initiator_user_id,
+        author_id=surfer_user_id,
         message_type=MessageType.chat_created,
     )
     msg1.time = from_date + timedelta(seconds=1)  # type: ignore[assignment]
@@ -125,7 +125,7 @@ def create_host_request_by_date(
     # Unused for now, but every host request must have a message.
     msg2 = Message(
         conversation_id=conversation.id,
-        author_id=initiator_user_id,
+        author_id=surfer_user_id,
         text="Hi, I'm requesting to be hosted.",
         message_type=MessageType.text,
     )
@@ -137,13 +137,13 @@ def create_host_request_by_date(
         session,
         ModerationObjectType.host_request,
         conversation.id,
-        initiator_user_id,
+        surfer_user_id,
     )
 
     host_request = HostRequest(
         conversation_id=conversation.id,
-        initiator_user_id=initiator_user_id,
-        recipient_user_id=recipient_user_id,
+        initiator_user_id=surfer_user_id,
+        recipient_user_id=host_user_id,
         from_date=from_date,
         to_date=to_date,
         status=status,
@@ -152,7 +152,7 @@ def create_host_request_by_date(
         hosting_radius=10,
         moderation_state_id=moderation_state.id,
     )
-    host_request.recipient_sent_request_reminders = recipient_sent_request_reminders
+    host_request.recipient_sent_request_reminders = host_sent_request_reminders
     host_request.last_sent_request_reminder_time = last_sent_request_reminder_time
 
     session.add(host_request)
