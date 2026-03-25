@@ -1029,6 +1029,8 @@ release:nginx-next:
 deploy:deploy-info:
   needs:
     - job: build:deploy-manifest
+    - job: preview:backend
+      artifacts: true
     - job: release:proxy
       artifacts: false
     - job: release:nginx
@@ -1053,6 +1055,11 @@ deploy:deploy-info:
     # no docker login
     default: false
   script:
+    - |
+      if [ -f "artifacts/schema_dumps/schema.sql" ]; then
+        mkdir -p artifacts/deploy-info/schema
+        cp artifacts/schema_dumps/schema.sql "artifacts/deploy-info/schema/${SLUG}.sql"
+      fi
     - aws s3 cp artifacts/deploy-info/ "s3://$AWS_DEPLOY_BUCKET/" --recursive
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
