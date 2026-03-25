@@ -127,7 +127,7 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
     # Get the author user ID and content based on object type
     if object_type == ModerationObjectType.host_request:
         author_user_id = session.execute(
-            select(HostRequest.surfer_user_id).where(HostRequest.conversation_id == object_id)
+            select(HostRequest.initiator_user_id).where(HostRequest.conversation_id == object_id)
         ).scalar_one()
         # Get the first text message for this conversation
         content = session.execute(

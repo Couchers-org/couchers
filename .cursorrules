@@ -86,3 +86,4 @@ To run the app locally in development, use `yarn start` (not Docker)
 
 - Run tests with `make test file=<test_name>` in the backend folder
 - See `/app/backend/readme.md` for more details
+- Always add a downgrade to migrations when possible and relevant.
