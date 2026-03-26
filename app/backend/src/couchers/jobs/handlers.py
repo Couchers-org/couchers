@@ -1247,7 +1247,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             city=attempt.city,
             state=attempt.state,
             postal_code=attempt.postal_code,
-            country=attempt.country,
+            country=attempt.country_code,
             verification_code=not_none(attempt.verification_code),
             qr_code_url=urls.postal_verification_link(code=not_none(attempt.verification_code)),
         )
@@ -1256,7 +1256,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
         attempt.status = PostalVerificationStatus.awaiting_verification
         attempt.postcard_sent_at = func.now()
 
-        postcards_sent_counter.labels(country=attempt.country).inc()
+        postcards_sent_counter.labels(country=attempt.country_code).inc()
 
         context = make_background_user_context(attempt.user_id)
         log_event(
@@ -1265,7 +1265,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             "postcard.sent",
             {
                 "attempt_id": attempt.id,
-                "country": attempt.country,
+                "country": attempt.country_code,
                 "city": attempt.city,
                 "mypostcard_job_id": job_id,
             },
@@ -1278,7 +1278,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             key="",
             data=notification_data_pb2.PostalVerificationPostcardSent(
                 city=attempt.city,
-                country=attempt.country,
+                country=attempt.country_code,
             ),
         )
 

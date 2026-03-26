@@ -65,7 +65,7 @@ class PostalVerificationAttempt(Base, kw_only=True):
     city: Mapped[str] = mapped_column(String)
     state: Mapped[str | None] = mapped_column(String, default=None)
     postal_code: Mapped[str | None] = mapped_column(String, default=None)
-    country: Mapped[str] = mapped_column(String)  # ISO 3166-1 alpha-2
+    country_code: Mapped[str] = mapped_column(String)  # ISO 3166-1 alpha-2
 
     # The original address as entered by user (for audit), stored as JSON
     original_address_json: Mapped[str | None] = mapped_column(String, default=None)

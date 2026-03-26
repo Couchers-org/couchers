@@ -44,7 +44,7 @@ def _attempt_to_address_pb(attempt: PostalVerificationAttempt) -> postal_verific
         city=attempt.city,
         state=attempt.state or "",
         postal_code=attempt.postal_code or "",
-        country=attempt.country,
+        country=attempt.country_code,
     )
 
 
@@ -132,7 +132,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             city=validated.city,
             state=validated.state,
             postal_code=validated.postal_code,
-            country=validated.country,
+            country_code=validated.country_code,
             original_address_json=json.dumps(
                 {
                     "address_line_1": request.address.address_line_1,
@@ -155,7 +155,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                 city=validated.city,
                 state=validated.state or "",
                 postal_code=validated.postal_code or "",
-                country=validated.country,
+                country=validated.country_code,
             ),
             address_was_corrected=validated.was_corrected,
         )

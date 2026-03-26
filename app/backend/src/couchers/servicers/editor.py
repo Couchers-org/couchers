@@ -348,7 +348,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
                     city=attempt.city,
                     state=attempt.state or "",
                     postal_code=attempt.postal_code or "",
-                    country=attempt.country,
+                    country=attempt.country_code,
                 ),
                 created=Timestamp_from_datetime(attempt.created),
                 postcard_sent_at=Timestamp_from_datetime(attempt.postcard_sent_at)
