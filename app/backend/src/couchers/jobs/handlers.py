@@ -10,7 +10,6 @@ from random import sample
 from typing import Any
 
 import requests
-from couchers.sentry import report_message
 from google.protobuf import empty_pb2
 from sqlalchemy import ColumnElement, Float, Function, Integer, select
 from sqlalchemy.orm import aliased
@@ -109,6 +108,7 @@ from couchers.postal.my_postcard import get_orders, send_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
+from couchers.sentry import report_message
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.events import (
     event_to_pb,
@@ -1271,16 +1271,16 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             },
         )
 
-            notify(
-                session,
-                user_id=attempt.user_id,
-                topic_action=NotificationTopicAction.postal_verification__postcard_sent,
-                key="",
-                data=notification_data_pb2.PostalVerificationPostcardSent(
-                    city=attempt.city,
-                    country=attempt.country,
-                ),
-            )
+        notify(
+            session,
+            user_id=attempt.user_id,
+            topic_action=NotificationTopicAction.postal_verification__postcard_sent,
+            key="",
+            data=notification_data_pb2.PostalVerificationPostcardSent(
+                city=attempt.city,
+                country=attempt.country,
+            ),
+        )
 
 
 def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
