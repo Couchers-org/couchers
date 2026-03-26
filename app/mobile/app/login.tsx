@@ -10,9 +10,16 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import { loginRoute } from "@/routes";
 import { theme } from "@/theme";
 // Auth-related paths that should be forwarded to the WebView when opened via deep link
-const AUTH_DEEP_LINK_PATHS = ["/signup", "/confirm-email", "/complete-password-reset"];
+const AUTH_DEEP_LINK_PATHS = [
+  "/signup",
+  "/confirm-email",
+  "/complete-password-reset",
+];
 
-function getWebViewRoute(deepLinkUrl: string | null, webBaseUrl: string): string | null {
+function getWebViewRoute(
+  deepLinkUrl: string | null,
+  webBaseUrl: string,
+): string | null {
   if (!deepLinkUrl) return null;
   try {
     const url = new URL(deepLinkUrl);
