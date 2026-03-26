@@ -1,7 +1,10 @@
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import {
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+} from "@mui/icons-material";
 import { Box } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
+import { remindersKey } from "app/web/features/queryKeys";
 import Alert from "components/Alert";
 import IconButton from "components/IconButton";
 import { RpcError } from "grpc-web";
@@ -13,7 +16,7 @@ import ReminderItem from "./ReminderItem";
 
 export default function ReminderCarousel() {
   const { data, error } = useQuery<GetRemindersRes.AsObject, RpcError>({
-    queryKey: ["reminders"],
+    queryKey: [remindersKey],
     queryFn: () => service.account.getReminders(),
   });
 
@@ -32,9 +35,6 @@ export default function ReminderCarousel() {
   const canGoLeft = currentIndex > 0;
   const canGoRight = currentIndex < reminders.length - 1;
 
-  console.log("reminders data:", data);
-  console.log("reminders error:", error);
-
   return (
     <>
       {error && <Alert severity="error">{error?.message}</Alert>}
@@ -52,8 +52,8 @@ export default function ReminderCarousel() {
               backgroundColor: "primary.dark",
             },
             "&:disabled": {
-              backgroundColor: "grey.300",
-              color: "grey.600",
+              backgroundColor: "var(--mui-palette-grey-300)",
+              color: "var(--mui-palette-grey-600)",
             },
           }}
         >
@@ -88,8 +88,8 @@ export default function ReminderCarousel() {
               backgroundColor: "primary.dark",
             },
             "&:disabled": {
-              backgroundColor: "grey.300",
-              color: "grey.600",
+              backgroundColor: "var(--mui-palette-grey-300)",
+              color: "var(--mui-palette-grey-600)",
             },
           }}
         >

@@ -3,16 +3,10 @@ import { Box, Typography } from "@mui/material";
 import Button from "components/Button";
 import IconButton from "components/IconButton";
 import Link from "next/link";
-import { GetRemindersRes } from "proto/account_pb";
 import { useState } from "react";
+import { theme } from "theme";
 
-type Reminder = GetRemindersRes.AsObject["remindersList"][number];
-
-type ReminderItemProps = {
-  data: Reminder;
-};
-
-export default function ReminderItem({ data }: ReminderItemProps) {
+export default function ReminderItem() {
   const [isVisible, setIsVisible] = useState(true);
 
   const handleClose = () => {
@@ -29,12 +23,9 @@ export default function ReminderItem({ data }: ReminderItemProps) {
         overflow: "auto",
       }}
     >
-      {/* {getReminders.map((reminder) =>
-        closedReminders.has(reminder.id) ? null : ( */}
       <Box
-        // key={reminder.id}
         sx={{
-          backgroundColor: "#FFF4E6",
+          backgroundColor: theme.palette.warning.light,
           padding: "24px",
           position: "relative",
           minHeight: "100px",
@@ -47,12 +38,11 @@ export default function ReminderItem({ data }: ReminderItemProps) {
       >
         <IconButton
           aria-label="close"
-          // onClick={() => handleClose(reminder.id)}
           sx={{
             position: "absolute",
             top: 8,
             right: 8,
-            color: "#A68966",
+            color: "var(--mui-palette-grey-400)",
           }}
         >
           <CloseIcon fontSize="small" />
@@ -63,25 +53,23 @@ export default function ReminderItem({ data }: ReminderItemProps) {
             variant="h2"
             sx={{
               fontWeight: 800,
-              color: "#333",
+              color: "var(--mui-palette-text-primary)",
               lineHeight: 1.2,
               marginBottom: "16px",
               fontSize: "1.5rem",
             }}
           >
-            {/* {reminder.title} */}
             Complete Your Profile
           </Typography>
 
           <Typography
             variant="body1"
             sx={{
-              color: "#444",
+              color: "var(--mui-palette-grey-400)",
               lineHeight: 1.5,
               marginBottom: "24px",
             }}
           >
-            {/* {reminder.description} */}
             Fill in your "Who I am" section and upload a profile photo.
           </Typography>
         </Box>
@@ -96,17 +84,16 @@ export default function ReminderItem({ data }: ReminderItemProps) {
             fontWeight: 700,
             borderRadius: "8px",
             padding: "10px 0",
-            color: "text.primary",
+            color: "var(--mui-palette-text-primary)",
           }}
         >
-          {/* {reminder.buttonText} */}
           Edit Your Profile
         </Button>
       </Box>
 
       <Box
         sx={{
-          backgroundColor: "#FFF4E6",
+          backgroundColor: theme.palette.warning.light,
           padding: "24px",
           position: "relative",
           minHeight: "100px",
@@ -124,7 +111,7 @@ export default function ReminderItem({ data }: ReminderItemProps) {
             position: "absolute",
             top: 8,
             right: 8,
-            color: "#A68966",
+            color: theme.palette.grey[500],
           }}
         >
           <CloseIcon fontSize="small" />
@@ -135,7 +122,7 @@ export default function ReminderItem({ data }: ReminderItemProps) {
             variant="h2"
             sx={{
               fontWeight: 800,
-              color: "#333",
+              color: "var(--mui-palette-text-primary)",
               lineHeight: 1.2,
               marginBottom: "16px",
               fontSize: "1.5rem",
@@ -147,7 +134,7 @@ export default function ReminderItem({ data }: ReminderItemProps) {
           <Typography
             variant="body1"
             sx={{
-              color: "#444",
+              color: "var(--mui-palette-text-primary)",
               lineHeight: 1.5,
               marginBottom: "24px",
             }}
@@ -158,7 +145,6 @@ export default function ReminderItem({ data }: ReminderItemProps) {
 
         <Button
           component={Link}
-          href={"href"}
           fullWidth
           variant="contained"
           color="primary"
@@ -166,7 +152,7 @@ export default function ReminderItem({ data }: ReminderItemProps) {
             fontWeight: 700,
             borderRadius: "8px",
             padding: "10px 0",
-            color: "text.primary",
+            color: "var(--mui-palette-text-primary)",
           }}
         >
           Verify your account
@@ -175,7 +161,7 @@ export default function ReminderItem({ data }: ReminderItemProps) {
 
       <Box
         sx={{
-          backgroundColor: "#FFF4E6",
+          backgroundColor: theme.palette.warning.light,
           padding: "24px",
           position: "relative",
           minHeight: "100px",
@@ -193,7 +179,7 @@ export default function ReminderItem({ data }: ReminderItemProps) {
             position: "absolute",
             top: 8,
             right: 8,
-            color: "#A68966",
+            color: theme.palette.grey[500],
           }}
         >
           <CloseIcon fontSize="small" />
@@ -204,7 +190,7 @@ export default function ReminderItem({ data }: ReminderItemProps) {
             variant="h2"
             sx={{
               fontWeight: 800,
-              color: "#333",
+              color: "var(--mui-palette-text-primary)",
               lineHeight: 1.2,
               marginBottom: "16px",
               fontSize: "1.5rem",
@@ -216,7 +202,7 @@ export default function ReminderItem({ data }: ReminderItemProps) {
           <Typography
             variant="body1"
             sx={{
-              color: "#444",
+              color: "var(--mui-palette-text-primary)",
               lineHeight: 1.5,
               marginBottom: "24px",
             }}
@@ -235,7 +221,7 @@ export default function ReminderItem({ data }: ReminderItemProps) {
             fontWeight: 700,
             borderRadius: "8px",
             padding: "10px 0",
-            color: "text.primary",
+            color: "var(--mui-palette-text-primary)",
           }}
         >
           Verify your account
