@@ -22,6 +22,7 @@ import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
 import errorGraphic from "@/resources/404graphic.png";
 import { theme } from "@/theme";
+import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
 type WebEmbedProps = {
@@ -278,6 +279,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         ref={webviewRef}
         style={[styles.webview, { backgroundColor }]}
         source={{ uri: WEB_BASE_URL + path }}
+        applicationNameForUserAgent={applicationNameForUserAgent}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled
         cacheEnabled={true}

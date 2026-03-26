@@ -6,6 +6,18 @@ jest.useFakeTimers();
 // Common environment variables
 process.env.EXPO_PUBLIC_WEB_BASE_URL = "https://couchers.org";
 
+// Mock expo-constants globally
+jest.mock("expo-constants", () => ({
+  expoConfig: {
+    version: "1.0.0-test",
+    extra: {
+      eas: { projectId: "test-project-id" },
+      gitHash: "abc12345",
+    },
+  },
+  nativeBuildVersion: "42",
+}));
+
 // Mock react-i18next globally - returns translation key for easy assertions
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({

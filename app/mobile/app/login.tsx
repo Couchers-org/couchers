@@ -8,6 +8,7 @@ import { WebView } from "react-native-webview";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { loginRoute } from "@/routes";
 import { theme } from "@/theme";
+import { applicationNameForUserAgent } from "@/utils/userAgent";
 
 export default function LoginScreen() {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
@@ -78,6 +79,7 @@ export default function LoginScreen() {
       <WebView
         key={webViewKey}
         source={{ uri: WEB_BASE_URL + loginRoute }}
+        applicationNameForUserAgent={applicationNameForUserAgent}
         sharedCookiesEnabled
         onMessage={handleMessage}
       />
