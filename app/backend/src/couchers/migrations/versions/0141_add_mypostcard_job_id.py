@@ -1,7 +1,7 @@
 """Add mypostcard_job_id to postal_verification_attempts
 
-Revision ID: 0140
-Revises: 0139
+Revision ID: 0141
+Revises: 0140
 Create Date: 2026-03-18 12:00:00.000000
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0140"
-down_revision = "0139"
+revision = "0141"
+down_revision = "0140"
 branch_labels = None
 depends_on = None
 
