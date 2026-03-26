@@ -155,5 +155,14 @@
   "unknown_user": "Неизвестный пользователь",
   "mark_all_read_button_text_chats": "Отметить все чаты как прочитанные",
   "mark_all_read_button_text_hosting": "Отметить все запросы хостов как прочитанные",
-  "mark_all_read_button_text_surfing": "Отметить все запросы гостей как прочитанные"
+  "mark_all_read_button_text_surfing": "Отметить все запросы гостей как прочитанные",
+  "archive": {
+    "archive_button": "Архив",
+    "unarchive_button": "Разархивировать",
+    "show_archived": "Показать архивные",
+    "show_active": "Показать активные",
+    "no_archived_chats": "Нет архивированных чатов",
+    "no_archived_requests": "Нет архивных запросов",
+    "no_archived_messages": "Нет архивных сообщений"
+  }
 }

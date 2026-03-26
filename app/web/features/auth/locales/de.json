@@ -61,8 +61,11 @@
   "basic_form": {
     "name": {
       "empty_error": "Bitte gib deinen Namen an",
-      "required_error": "Dieses Feld darf nicht leer sein.",
-      "field_label": "Name"
+      "required_error": "Dieses Feld darf nicht leer sein",
+      "field_label": "Name",
+      "invalid_characters_error": "Der Name darf nur Buchstaben, Leerzeichen, Bindestriche und Apostrophe enthalten",
+      "min_length_error": "Der Name muss mindestens 2 Zeichen lang sein",
+      "max_length_error": "Der Name darf nicht mehr als 100 Zeichen lang sein"
     },
     "email": {
       "field_label": "E-Mail-Adresse",
