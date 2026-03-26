@@ -1,6 +1,7 @@
 import { useFocusEffect } from "@react-navigation/native";
+import * as Linking from "expo-linking";
 import { Href, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Appearance, BackHandler, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
@@ -8,6 +9,21 @@ import { WebView } from "react-native-webview";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { loginRoute } from "@/routes";
 import { theme } from "@/theme";
+// Auth-related paths that should be forwarded to the WebView when opened via deep link
+const AUTH_DEEP_LINK_PATHS = ["/signup", "/confirm-email", "/complete-password-reset"];
+
+function getWebViewRoute(deepLinkUrl: string | null, webBaseUrl: string): string | null {
+  if (!deepLinkUrl) return null;
+  try {
+    const url = new URL(deepLinkUrl);
+    if (AUTH_DEEP_LINK_PATHS.some((path) => url.pathname.startsWith(path))) {
+      return url.pathname + url.search;
+    }
+  } catch {
+    // Invalid URL, fall through to default
+  }
+  return null;
+}
 
 export default function LoginScreen() {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
@@ -16,6 +32,31 @@ export default function LoginScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const [webViewKey, setWebViewKey] = useState<number>(0);
+  const [initialRoute, setInitialRoute] = useState<string | null>(null);
+  const [checkedDeepLink, setCheckedDeepLink] = useState(false);
+
+  // Check if the app was opened via a deep link (e.g. email confirmation)
+  useEffect(() => {
+    Linking.getInitialURL().then((url) => {
+      const route = getWebViewRoute(url, WEB_BASE_URL);
+      if (route) {
+        setInitialRoute(route);
+      }
+      setCheckedDeepLink(true);
+    });
+  }, [WEB_BASE_URL]);
+
+  // Listen for deep links while the login screen is mounted
+  useEffect(() => {
+    const subscription = Linking.addEventListener("url", (event) => {
+      const route = getWebViewRoute(event.url, WEB_BASE_URL);
+      if (route) {
+        setInitialRoute(route);
+        setWebViewKey((k) => k + 1);
+      }
+    });
+    return () => subscription.remove();
+  }, [WEB_BASE_URL]);
 
   // Prevent Android back button from navigating away from login screen
   // This fixes security bypass where users could press back to access authenticated screens
@@ -73,11 +114,15 @@ export default function LoginScreen() {
     }
   };
 
+  if (!checkedDeepLink) {
+    return <SafeAreaView style={{ flex: 1, backgroundColor }} />;
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor }}>
       <WebView
         key={webViewKey}
-        source={{ uri: WEB_BASE_URL + loginRoute }}
+        source={{ uri: WEB_BASE_URL + (initialRoute ?? loginRoute) }}
         sharedCookiesEnabled
         onMessage={handleMessage}
       />
