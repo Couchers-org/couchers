@@ -3,7 +3,9 @@ const { execSync } = require("child_process");
 // Capture git hash at build time (8 chars)
 const getGitHash = () => {
   try {
-    return execSync("git rev-parse --short=8 HEAD", { encoding: "utf-8" }).trim();
+    return execSync("git rev-parse --short=8 HEAD", {
+      encoding: "utf-8",
+    }).trim();
   } catch {
     return "unknown";
   }
