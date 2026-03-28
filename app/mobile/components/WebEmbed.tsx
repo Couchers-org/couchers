@@ -1,4 +1,4 @@
-import { Href, useFocusEffect, useRouter } from "expo-router";
+import { Href, useFocusEffect, useRouter, useSegments } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -35,6 +35,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const colorScheme = useColorScheme();
   const webviewRef = useRef<WebView>(null);
   const router = useRouter();
+  const segments = useSegments();
   const { t, i18n } = useTranslation();
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
@@ -179,10 +180,20 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       const payload = JSON.parse(event.nativeEvent.data);
 
       if (payload?.type === "LOGIN_SUCCESS") {
-        // Web app says user logged in - update mobile state
-        setUserId(payload.userId);
-        setJailed(payload.jailed || false);
-        markAuthenticated();
+        const currentSegment = segments[0];
+        if (currentSegment !== "(tabs)") {
+          // On unprotected screens (signup, confirm-email, etc.), don't mark
+          // authenticated here — navigate to login instead. The login WebView
+          // will detect the valid session cookie and handle the full auth flow,
+          // navigating to /(tabs)/dashboard with proper tab navigation.
+          // This avoids iOS cookie sync issues between WebView instances.
+          router.replace("/login" as Href);
+        } else {
+          // Inside tabs — update mobile auth state directly
+          setUserId(payload.userId);
+          setJailed(payload.jailed || false);
+          markAuthenticated();
+        }
       } else if (payload?.type === "LOGOUT") {
         // Web app says user logged out - clear mobile state and navigate to login
         markLoggedOut();
