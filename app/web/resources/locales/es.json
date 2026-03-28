@@ -257,7 +257,14 @@
     "error": {
       "fetch_invite_info": "No se han podido obtener los detalles del código de invitación"
     },
-    "title": "Invitar a miembros"
+    "title": "Invitar a miembros",
+    "no_codes_message": "Aún no hay códigos de invitación",
+    "created_datetime": "Creado: {{datetime}}",
+    "disabled_datetime": "Desactivado: {{datetime}}",
+    "number_of_uses_one": "Usos: {{count}} registro completado",
+    "number_of_uses_many": "Usos: {{count}} de registros completados",
+    "number_of_uses_other": "Usos: {{count}} registros completados",
+    "disable_link": "Desactivar"
   },
   "contribute_title": "Regístrate para contribuir",
   "reply": "Responder",
@@ -333,7 +340,10 @@
       "no_location_results_text": "Sin resultados. Intenta buscar solo la ciudad.",
       "display_location_not_empty": "Por favor introduce una dirección para mostrar",
       "no_map_support": "Tu dispositivo no soporta el mapa. Por favor asegúrate de que WebGL2 está habilitado o prueba otro dispositivo/navegador. ¡Sentimos las molestias!",
-      "press_enter_to_search": "Pulsa enter para buscar"
+      "press_enter_to_search": "Pulsa enter para buscar",
+      "radius_text2_one": "{{count}} metro",
+      "radius_text2_many": "{{count}} de metros",
+      "radius_text2_other": "{{count}} metros"
     },
     "datepicker": {
       "change_date": "Cambiar fecha"
@@ -365,5 +375,9 @@
     "byline_with_author": "Escrito por <1/>. Publicado el {{date}}.",
     "byline_without_author": "Publicado el {{date}}.",
     "cta_message": "¿Quieres ayudar a escribir nuestro blog o ser voluntario? <1>Regístrate</1> y cuéntanos. ¡Los voluntarios y las <3>donaciones</3> son lo que hacen posible Couchers.org!"
+  },
+  "copy_button": {
+    "a11y": "Copiar",
+    "copied_tooltip": "Copiado al portapapeles"
   }
 }

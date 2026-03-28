@@ -124,7 +124,7 @@ export default function NotificationSettingsSubListItem({
       <List component="div" disablePadding>
         <StyledListItem component="button">
           <ListItemIcon>
-            <NotificationNewIcon fontSize="medium" />
+            <NotificationNewIcon />
           </ListItemIcon>
           <ListItemText primary="Push" />
           <CustomColorSwitch

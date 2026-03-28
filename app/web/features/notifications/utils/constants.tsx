@@ -34,8 +34,8 @@ const mapNotificationSettingsTypeToIcon: { [key: string]: JSX.Element } = {
     <NotificationsActiveIcon fontSize="large" color="action" />
   ),
   chat: <ChatBubbleIcon fontSize="large" color="action" />,
-  event: <EventIcon fontSize="large" color="action" />,
-  reference: <PenIcon fontSize="large" color="action" />,
+  event: <EventIcon />,
+  reference: <PenIcon />,
   friend_request: <SinglePersonIcon fontSize="large" color="action" />,
   host_request: <CouchFilledIcon fontSize="large" color="action" />,
   discussion: <CommentIcon fontSize="large" color="action" />,
