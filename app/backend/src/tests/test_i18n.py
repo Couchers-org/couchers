@@ -44,7 +44,7 @@ def test_babel_locales():
     i18next = get_main_i18next()
     for locale in i18next.translations_by_locale.keys():
         try:
-            Locale(locale.replace('-', '_'))
+            Locale(locale.replace("-", "_"))
         except UnknownLocaleError:
             unknown_locales.add(locale)
     assert unknown_locales == {"en_CORP"}

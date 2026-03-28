@@ -105,7 +105,7 @@ class Translation:
                 if isinstance(count, int):
                     try:
                         # Babel resolves the locale name into a filename that uses underscores
-                        babel_locale_name = self.locale.replace('-', '_')
+                        babel_locale_name = self.locale.replace("-", "_")
                         plural_form = Locale(babel_locale_name).plural_form(count)
                     except UnknownLocaleError:
                         # Fallback to English-style plural rule.
