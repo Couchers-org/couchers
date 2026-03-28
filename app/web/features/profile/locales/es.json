@@ -12,7 +12,7 @@
     "edit": "Editar",
     "edit_profile": "Editar perfil",
     "education": "Educación",
-    "home": "Mi Hogar",
+    "home": "Mi hogar",
     "hometown": "Crecí en",
     "hosting_status": "Disponibilidad para alojar",
     "joined": "Coucher desde",
@@ -136,8 +136,8 @@
       "confirm_hosted": "Confirmar que no alojé",
       "confirm_surfed": "Confirmar que no me alojé"
     },
-    "text_explanation_hosted_surfed": "La referencia que escribes abajo se compartirá con {{name}} después de que te escriba una referencia, o después de 14 días. También será visible para el resto de la Comunidad de Couchers.org.",
-    "by_writing_thoughtful": "¿No sabes bien qué escribir? Lee nuestra guía <1>aquí</1>. Al escribir sobre tu experiencia con esta persona con honestidad y detalle, ayudas directamente a otros miembros y contribuyes a la seguridad y confianza de la Comunidad de Couchers.",
+    "text_explanation_hosted_surfed": "La referencia que escribes abajo se compartirá con {{name}} después de que te escriba una referencia, o después de 14 días. También será visible para el resto de la comunidad de Couchers.org.",
+    "by_writing_thoughtful": "¿No sabes bien qué escribir? Lee nuestra guía <1>aquí</1>. Al escribir sobre tu experiencia con esta persona con honestidad y detalle, ayudas directamente a otros miembros y contribuyes a la seguridad y confianza de la comunidad de Couchers.",
     "cant_write_reference_didnt_stay": "No puedes escribir una referencia si indicas que no te alojaste con este usuario.",
     "text_explanation": "Deja una referencia y comparte cómo fue tu experiencia con esta persona. Esto ayudará a otros a saber qué espera de esta persona en el futuro.",
     "thank_you_donation_prompt": "¡Considera <2>hacer una donación</2>! Couchers.org es una organización sin ánimo de lucro 501(c)(3) y necesitamos donaciones para mantener nuestros servidores en funcionamiento.",
@@ -151,7 +151,7 @@
     "previous_step": "Paso anterior",
     "private_answer": "Tus respuestas en esta página son privadas, y solo serán vistas el Equipo de Seguridad de Couchers.org.",
     "private_text_label": "También enviarás las siguientes respuestas privadas:",
-    "public_answer": "Esto aparecerá públicamente en la sección de Referencias de su perfil.",
+    "public_answer": "Esto aparecerá públicamente en la sección de referencias de su perfil.",
     "public_text_label": "Estás dejando la siguiente referencia pública que aparecerá en el perfil de {{name}}:",
     "rating_label": "Tu experiencia te hizo sentir ",
     "rating_how": "¿Cómo fue tu experiencia en general con {{name}}?",
@@ -328,7 +328,7 @@
     "move_photo_error": "No se pudieron reordenar las fotos. Por favor inténtalo de nuevo.",
     "reorder_success": "¡Fotos reordenadas satisfactoriamente!",
     "upload_success": "¡Foto subida satisfactoriamente!",
-    "profile_photos_title": "Fotos de Perfil",
+    "profile_photos_title": "Fotos de perfil",
     "profile_photos_description": "Añade fotos tuyas para ayudar a otros a conocerte. Arrastra y suelta para reordenar.",
     "verification_required_for_more_photos": "Has alcanzado tu límite de fotos. Completa la verificación robusta para añadir más fotos.",
     "get_verified": "Obten la verificación",
@@ -338,7 +338,7 @@
     "close_viewer": "Cerrar el visor de fotos",
     "report_photo": "Denunciar foto",
     "photo": "Foto",
-    "profile_photo": "Foto de Perfil"
+    "profile_photo": "Foto de perfil"
   },
   "click_to_add_photo": "Haz clic para añadir una foto",
   "avatar_placeholder_info": "<bold>Haz clic en el avatar del marcador de posición para ir a la sección de carga de fotos.</bold> Se requiere una foto tuya para interactuar con la comunidad. Una foto clara y amigable que muestre tu rostro genera confianza y ayuda a que otros se sientan cómodos."

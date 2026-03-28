@@ -7,7 +7,7 @@
     },
     "account_deletion__complete": {
       "title": "Cuenta eliminada",
-      "ios_title": "Cuenta Eliminada"
+      "ios_title": "Cuenta eliminada"
     },
     "adhoc__push_enabled": {
       "ios_title": "Notificaciones push habilitadas",

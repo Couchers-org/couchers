@@ -45,7 +45,7 @@
         "platform_settings_description": "¿Todavía tienes problemas tras habilitar las notificaciones push en tu navegador? Puede que necesites modificar los ajustes de tu sistema."
       },
       "error_unsupported": "Este navegador no soporta notificaciones push o service workers.",
-      "title": "Notificaciones Push",
+      "title": "Notificaciones push",
       "allow_push": "Haz clic en el botón 'Permitir' en tu navegador para habilitar las notificaciones push.",
       "enabled_message": "Actualmente tienes las notificaciones push <1>habilitadas</1>.",
       "disabled_message": "Actualmente tienes las notificaciones push <1>deshabilitadas</1>.",
