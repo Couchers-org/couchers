@@ -16,3 +16,6 @@ src/proto
 # coverage reports
 .coverage
 htmlcov/
+
+# test artifacts
+test_artifacts/

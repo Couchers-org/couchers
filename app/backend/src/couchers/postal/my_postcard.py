@@ -27,27 +27,20 @@ def _generate_back_left_side(verification_code: str, qr_code_url: str) -> bytes:
     img = Image.open(io.BytesIO(template_bytes)).convert("RGBA")
     draw = ImageDraw.Draw(img)
 
-    # QR code box position/size from template, inset 5px on each side
-    qr_box_x = 227 + 5
-    qr_box_y = 419 + 5
-    qr_box_w = 312 - 10
-    qr_box_h = 312 - 10
+    # QR code box position/size from template, extended to cover border
+    qr_l, qr_t, qr_r, qr_b = 227, 419, 227 + 312, 419 + 312
+    qr_extend = 5
 
-    # Generate QR code with white background and padding
-    qr_padding = 8
+    # Generate QR code
     qr = qrcode.QRCode(version=1, box_size=10, border=0)
     qr.add_data(qr_code_url)
     qr.make(fit=True)
     qr_img: Image.Image = qr.make_image(fill_color="black", back_color="white").get_image().convert("RGBA")
 
-    # Size the QR code to fit inside the box minus padding
-    qr_content_size = min(qr_box_w, qr_box_h) - 2 * qr_padding
-    qr_img = qr_img.resize((qr_content_size, qr_content_size), Image.Resampling.NEAREST)
-
-    # Create white background for the full QR box area
-    qr_bg = Image.new("RGBA", (qr_box_w, qr_box_h), (255, 255, 255, 255))
-    qr_bg.paste(qr_img, (qr_padding, qr_padding))
-    img.paste(qr_bg, (qr_box_x, qr_box_y))
+    # Size and paste the QR code into the extended box area
+    qr_size = min(qr_r - qr_l, qr_b - qr_t) + 2 * qr_extend
+    qr_img = qr_img.resize((qr_size, qr_size), Image.Resampling.NEAREST)
+    img.paste(qr_img, (qr_l - qr_extend, qr_t - qr_extend))
 
     # Verification code box position/size from template
     code_box_x = 251

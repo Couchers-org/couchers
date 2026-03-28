@@ -1,4 +1,5 @@
 from datetime import timedelta
+from pathlib import Path
 from unittest.mock import patch
 
 import grpc
@@ -6,6 +7,7 @@ import pytest
 from sqlalchemy import select
 
 import couchers.servicers.postal_verification
+from couchers import urls
 from couchers.config import config
 from couchers.constants import (
     POSTAL_VERIFICATION_CODE_LIFETIME,
@@ -17,7 +19,9 @@ from couchers.helpers.postal_verification import generate_postal_verification_co
 from couchers.jobs.worker import process_job
 from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt
+from couchers.postal.my_postcard import _generate_back_left_side
 from couchers.proto import postal_verification_pb2
+from couchers.resources import get_postcard_front_image
 from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import postal_verification_session
@@ -686,3 +690,22 @@ def test_has_postal_verification_helper(db, monkeypatch):
     with session_scope() as session:
         db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert has_postal_verification(session, db_user)
+
+
+def test_generate_postcard_images():
+    """
+    Generates sample postcard front and back images for visual inspection.
+
+    Output is written to test_artifacts/ (gitignored) and picked up by CI.
+    """
+    code = "ABC123"
+    front = get_postcard_front_image()
+    back = _generate_back_left_side(code, urls.postal_verification_link(code=code))
+
+    assert len(front) > 0
+    assert len(back) > 0
+
+    output_path = Path(__file__).resolve().parents[2] / "test_artifacts"
+    output_path.mkdir(parents=True, exist_ok=True)
+    (output_path / "postcard_front.png").write_bytes(front)
+    (output_path / "postcard_back.png").write_bytes(back)
