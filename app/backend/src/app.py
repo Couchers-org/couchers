@@ -14,7 +14,7 @@ if __name__ == "__main__":
 # ruff: noqa: E402
 
 import sentry_sdk
-from sentry_sdk.integrations import excepthook
+from sentry_sdk.integrations import  excepthook
 from sqlalchemy.sql import text
 
 from couchers.config import check_config, config
