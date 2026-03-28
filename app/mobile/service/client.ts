@@ -13,7 +13,7 @@ const IS_PROD =
     process.env.EXPO_PUBLIC_COUCHERS_ENV)! === "prod";
 
 // Debug: Log the API URL being used
-if (!IS_PROD)  {
+if (!IS_PROD) {
   console.log("🔧 Mobile API URL:", URL);
   console.log("🔧 Environment:", process.env.EXPO_PUBLIC_COUCHERS_ENV);
 }
