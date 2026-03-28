@@ -1,4 +1,4 @@
-"""Add mypostcard_job_id to postal_verification_attempts
+"""Add mypostcard_job_id and rename country to country_code in postal_verification_attempts
 
 Revision ID: 0141
 Revises: 0140
@@ -18,7 +18,9 @@ depends_on = None
 
 def upgrade() -> None:
     op.add_column("postal_verification_attempts", sa.Column("mypostcard_job_id", sa.Integer(), nullable=True))
+    op.alter_column("postal_verification_attempts", "country", new_column_name="country_code")
 
 
 def downgrade() -> None:
+    op.alter_column("postal_verification_attempts", "country_code", new_column_name="country")
     op.drop_column("postal_verification_attempts", "mypostcard_job_id")

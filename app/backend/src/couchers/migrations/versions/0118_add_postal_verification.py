@@ -44,7 +44,7 @@ def upgrade() -> None:
         sa.Column("city", sa.String(), nullable=False),
         sa.Column("state", sa.String(), nullable=True),
         sa.Column("postal_code", sa.String(), nullable=True),
-        sa.Column("country_code", sa.String(), nullable=False),
+        sa.Column("country", sa.String(), nullable=False),
         sa.Column("original_address_json", sa.String(), nullable=True),
         sa.Column("verification_code", sa.String(), nullable=True),
         sa.Column("address_confirmed_at", sa.DateTime(timezone=True), nullable=True),
