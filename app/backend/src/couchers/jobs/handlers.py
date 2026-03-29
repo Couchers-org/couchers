@@ -29,7 +29,6 @@ from sqlalchemy.sql import (
     update,
 )
 
-from couchers import urls
 from couchers.config import config
 from couchers.constants import (
     ACTIVENESS_PROBE_EXPIRY_TIME,
@@ -1249,7 +1248,6 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
             postal_code=attempt.postal_code,
             country=attempt.country_code,
             verification_code=not_none(attempt.verification_code),
-            qr_code_url=urls.postal_verification_link(code=not_none(attempt.verification_code)),
         )
 
         attempt.mypostcard_job_id = job_id

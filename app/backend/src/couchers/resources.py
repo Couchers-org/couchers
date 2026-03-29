@@ -104,6 +104,7 @@ def language_is_allowed(code: str) -> bool:
     return code in get_language_dict()
 
 
+@functools.cache
 def get_postcard_front_image() -> bytes:
     """
     Returns the front image of the postcard as PNG bytes.
@@ -111,13 +112,7 @@ def get_postcard_front_image() -> bytes:
     return (resources_folder / "postcard-front.png").read_bytes()
 
 
-def get_postcard_logo() -> bytes:
-    """
-    Returns the logo image for the postcard as PNG bytes.
-    """
-    return (resources_folder / "postcard-logo.png").read_bytes()
-
-
+@functools.cache
 def get_postcard_font() -> bytes:
     """
     Returns the font file for postcard text rendering.
@@ -125,6 +120,7 @@ def get_postcard_font() -> bytes:
     return (resources_folder / "hack-bold.ttf").read_bytes()
 
 
+@functools.cache
 def get_postcard_back_template() -> bytes:
     """
     Returns the back side template image for the postcard as PNG bytes.

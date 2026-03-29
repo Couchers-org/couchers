@@ -8,6 +8,7 @@ import qrcode
 import requests
 from PIL import Image, ImageDraw, ImageFont
 
+from couchers import urls
 from couchers.config import config
 from couchers.resources import get_postcard_back_template, get_postcard_font, get_postcard_front_image
 
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 API_BASE = "https://www.mypostcard.com/api/v1"
 
 
-def _generate_back_left_side(verification_code: str, qr_code_url: str) -> bytes:
+def _generate_back_left_side(verification_code: str) -> bytes:
     """
     Generates the back left side image (780x1016 px PNG at 300 DPI).
 
@@ -28,12 +29,12 @@ def _generate_back_left_side(verification_code: str, qr_code_url: str) -> bytes:
     draw = ImageDraw.Draw(img)
 
     # QR code box position/size from template, extended to cover border
-    qr_l, qr_t, qr_r, qr_b = 227, 419, 227 + 312, 419 + 312
+    qr_l, qr_t, qr_r, qr_b = 227, 419, 539, 731
     qr_extend = 5
 
     # Generate QR code
     qr = qrcode.QRCode(box_size=10, border=0)
-    qr.add_data(qr_code_url)
+    qr.add_data(urls.postal_verification_link(code=verification_code))
     qr.make(fit=True)
     qr_img: Image.Image = qr.make_image(fill_color="black", back_color="white").get_image().convert("RGBA")
 
@@ -43,25 +44,11 @@ def _generate_back_left_side(verification_code: str, qr_code_url: str) -> bytes:
     img.paste(qr_img, (qr_l - qr_extend, qr_t - qr_extend))
 
     # Verification code box position/size from template
-    code_box_x = 251
-    code_box_y = 761
-    code_box_w = 264
-    code_box_h = 80
+    code_box_x, code_box_y, code_box_w, code_box_h = 251, 761, 264, 80
     code_cx = code_box_x + code_box_w // 2
     code_cy = code_box_y + code_box_h // 2
 
-    # Pick font size to fill ~80% of the box width
-    font_bytes = io.BytesIO(get_postcard_font())
-    target_w = int(code_box_w * 0.8)
-    font_size = 100
-    while font_size > 8:
-        font_bytes.seek(0)
-        font = ImageFont.truetype(font_bytes, font_size)
-        bbox = draw.textbbox((0, 0), verification_code, font=font)
-        tw = bbox[2] - bbox[0]
-        if tw <= target_w:
-            break
-        font_size -= 1
+    font = ImageFont.truetype(io.BytesIO(get_postcard_font()), 58)
 
     draw.text((code_cx, code_cy), verification_code, fill=(255, 255, 255), font=font, anchor="mm")
 
@@ -127,12 +114,8 @@ def _place_order(
         },
         timeout=60,
     )
-    logger.info(response.text)
-    logger.info(response.json())
-    logger.info(response.status_code)
     response.raise_for_status()
-    result: dict[str, Any] = response.json()
-    return result
+    return response.json()
 
 
 def send_postcard(
@@ -144,7 +127,6 @@ def send_postcard(
     postal_code: str | None,
     country: str,
     verification_code: str,
-    qr_code_url: str,
 ) -> int:
     """
     Sends a physical postcard with verification code via MyPostcard API.
@@ -158,14 +140,10 @@ def send_postcard(
         postal_code: Postal code (optional)
         country: ISO 3166-1 alpha-2 country code
         verification_code: The 6-character code to print
-        qr_code_url: URL to encode in QR code
 
     Returns:
         The MyPostcard job ID
     """
-
-    front_page = get_postcard_front_image()
-    back_left_side = _generate_back_left_side(verification_code, qr_code_url)
 
     recipient = {
         "recipientName": recipient_name,
@@ -180,9 +158,9 @@ def send_postcard(
     if state:
         recipient["state"] = state
 
-    auth_token = _authenticate()
-
-    result = _place_order(auth_token, recipient, front_page, back_left_side)
+    result = _place_order(
+        _authenticate(), recipient, get_postcard_front_image(), _generate_back_left_side(verification_code)
+    )
     logger.info(f"MyPostcard order placed successfully: {result}")
     return int(result["job_id"])
 

@@ -38,7 +38,6 @@ def test_send_postcard_success():
             postal_code="10717",
             country="DE",
             verification_code="ABC123",
-            qr_code_url="https://example.com/verify?code=ABC123",
         )
 
         assert job_id == 12345
@@ -65,7 +64,6 @@ def test_send_postcard_builds_recipient_correctly():
             postal_code="10717",
             country="DE",
             verification_code="ABC123",
-            qr_code_url="https://example.com/verify?code=ABC123",
         )
 
         recipient_arg = mock_order.call_args[0][1]
@@ -96,7 +94,6 @@ def test_send_postcard_excludes_none_optional_fields():
             postal_code=None,
             country="DE",
             verification_code="ABC123",
-            qr_code_url="https://example.com/verify?code=ABC123",
         )
 
         recipient_arg = mock_order.call_args[0][1]
@@ -123,7 +120,6 @@ def test_send_postcard_auth_failure():
                 postal_code=None,
                 country="DE",
                 verification_code="ABC123",
-                qr_code_url="https://example.com/verify?code=ABC123",
             )
 
 
@@ -147,5 +143,4 @@ def test_send_postcard_order_failure():
                 postal_code=None,
                 country="DE",
                 verification_code="ABC123",
-                qr_code_url="https://example.com/verify?code=ABC123",
             )

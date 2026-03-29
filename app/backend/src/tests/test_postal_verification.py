@@ -7,7 +7,6 @@ import pytest
 from sqlalchemy import select
 
 import couchers.servicers.postal_verification
-from couchers import urls
 from couchers.config import config
 from couchers.constants import (
     POSTAL_VERIFICATION_CODE_LIFETIME,
@@ -700,7 +699,7 @@ def test_generate_postcard_images():
     """
     code = "ABC123"
     front = get_postcard_front_image()
-    back = _generate_back_left_side(code, urls.postal_verification_link(code=code))
+    back = _generate_back_left_side(code)
 
     assert len(front) > 0
     assert len(back) > 0
