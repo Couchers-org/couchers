@@ -106,7 +106,7 @@ class User(Base, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 
     username: Mapped[str] = mapped_column(String, unique=True)
-    email: Mapped[str] = mapped_column(String, unique=True)
+    email: Mapped[str] = mapped_column(String)
     # stored in libsodium hash format, can be null for email login
     hashed_password: Mapped[bytes] = mapped_column(Binary)
     # phone number in E.164 format with leading +, for example "+46701740605"
@@ -359,6 +359,13 @@ class User(Base, kw_only=True):
     public_trips: Mapped[list[PublicTrip]] = relationship(init=False, back_populates="user")
 
     __table_args__ = (
+        # Email must be unique among active (non-deleted, non-banned) users
+        Index(
+            "ix_users_unique_email_active",
+            email,
+            unique=True,
+            postgresql_where=and_(banned_at.is_(None), deleted_at.is_(None)),
+        ),
         # Verified phone numbers should be unique
         Index(
             "ix_users_unique_phone",
@@ -578,3 +585,20 @@ class RegionLived(Base, kw_only=True):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     region_code: Mapped[str] = mapped_column(ForeignKey("regions.code", deferrable=True))
+
+
+class UserEmailHistory(Base, kw_only=True):
+    """
+    Tracks the history of email addresses associated with a user account.
+    Each row records a period during which a user had a particular email address.
+    """
+
+    __tablename__ = "user_email_history"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    email: Mapped[str] = mapped_column(String)
+    set_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+
+    user: Mapped[User] = relationship(init=False)

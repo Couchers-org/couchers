@@ -19,6 +19,7 @@ from couchers.models import (
     PhotoGalleryItem,
     Upload,
     User,
+    UserEmailHistory,
 )
 from couchers.proto import account_pb2, api_pb2, auth_pb2, conversations_pb2, requests_pb2
 from couchers.utils import now, today
@@ -576,6 +577,45 @@ def test_ChangeEmailV2(db, fast_passwords, push_collector: PushCollector):
     push = push_collector.pop_for_user(user_id, last=True)
     assert push.content.title == "Email verified"
     assert push.content.body == "Your new email address has been verified."
+
+
+def test_ChangeEmailV2_records_email_history(db, fast_passwords, push_collector: PushCollector):
+    password = random_hex()
+    new_email = f"{random_hex()}@couchers.org.invalid"
+    user, token = generate_user(hashed_password=hash_password(password))
+    user_id = user.id
+    old_email = user.email
+
+    with account_session(token) as account:
+        account.ChangeEmailV2(
+            account_pb2.ChangeEmailV2Req(
+                password=password,
+                new_email=new_email,
+            )
+        )
+
+    with session_scope() as session:
+        user_updated = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        change_token = user_updated.new_email_token
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.ConfirmChangeEmailV2(
+            auth_pb2.ConfirmChangeEmailV2Req(
+                change_email_token=change_token,
+            )
+        )
+
+    with session_scope() as session:
+        user_updated = session.execute(select(User).where(User.id == user_id)).scalar_one()
+        assert user_updated.email == new_email
+
+        # New email should be in history without removed_at
+        new_history = session.execute(
+            select(UserEmailHistory)
+            .where(UserEmailHistory.user_id == user_id)
+            .where(UserEmailHistory.email == new_email)
+        ).scalar_one()
+        assert new_history.removed_at is None
 
 
 def test_ChangeEmailV2_sends_proper_emails(db, fast_passwords, push_collector: PushCollector):

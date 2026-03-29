@@ -17,6 +17,7 @@ from couchers.models import (
     PasswordResetToken,
     SignupFlow,
     User,
+    UserEmailHistory,
     UserSession,
 )
 from couchers.proto import account_pb2, api_pb2, auth_pb2
@@ -712,14 +713,50 @@ def test_signup_banned_user_email(db):
 
 
 def test_signup_deleted_user_email(db):
+    """A deleted (non-banned) user's email can be reused for signup."""
     user, _ = generate_user()
+    old_email = user.email
 
     with session_scope() as session:
         session.execute(update(User).where(User.id == user.id).values(deleted_at=func.now()))
 
     with auth_api_session() as (auth_api, _):
+        # Should succeed - deleted user's email can be reused
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=old_email)))
+        assert res.flow_token
+
+
+def test_signup_deleted_and_banned_user_email(db):
+    """A deleted AND banned user's email cannot be reused for signup."""
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == user.id).values(deleted_at=func.now(), banned_at=func.now()))
+
+    with auth_api_session() as (auth_api, _):
         with pytest.raises(grpc.RpcError) as e:
             auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=user.email)))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You cannot sign up with that email address."
+
+
+def test_signup_banned_user_old_email(db):
+    """An email that a banned user previously had (but changed away from) cannot be reused."""
+    user, _ = generate_user()
+    old_email = user.email
+
+    with session_scope() as session:
+        # Record old email in history and change user's email
+        session.add(UserEmailHistory(user_id=user.id, email=old_email, removed_at=func.now()))
+        session.execute(
+            update(User)
+            .where(User.id == user.id)
+            .values(email=f"changed-{random_hex(12)}@couchers.org.invalid", banned_at=func.now())
+        )
+
+    with auth_api_session() as (auth_api, _):
+        with pytest.raises(grpc.RpcError) as e:
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="NewName", email=old_email)))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
         assert e.value.details() == "You cannot sign up with that email address."
 

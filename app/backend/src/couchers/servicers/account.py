@@ -53,6 +53,7 @@ from couchers.models import (
     StrongVerificationAttemptStatus,
     StrongVerificationCallbackEvent,
     User,
+    UserEmailHistory,
     UserSession,
     Volunteer,
 )
@@ -244,8 +245,25 @@ class Account(account_pb2_grpc.AccountServicer):
         if not is_valid_email(request.new_email):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
 
-        # email already in use (possibly by this user)
-        if session.execute(select(User).where(User.email == request.new_email)).scalar_one_or_none():
+        # email already in use by an active user (possibly by this user)
+        if session.execute(
+            select(User).where(User.email == request.new_email).where(User.is_visible)
+        ).scalar_one_or_none():
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
+
+        # email was used by a banned user
+        if session.execute(
+            select(User).where(User.email == request.new_email).where(User.banned_at != None)
+        ).scalar_one_or_none():
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
+
+        # email was ever used by a banned user (check history)
+        if session.execute(
+            select(UserEmailHistory)
+            .join(User, User.id == UserEmailHistory.user_id)
+            .where(UserEmailHistory.email == request.new_email)
+            .where(User.banned_at != None)
+        ).first():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
 
         user.new_email = request.new_email

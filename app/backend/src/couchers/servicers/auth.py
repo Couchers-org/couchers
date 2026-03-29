@@ -36,6 +36,7 @@ from couchers.models import (
     PhotoGallery,
     SignupFlow,
     User,
+    UserEmailHistory,
     UserSession,
 )
 from couchers.models.notifications import NotificationTopicAction
@@ -202,15 +203,25 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if not request.HasField("basic"):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_basic_needed")
                 # TODO: unique across both tables
-                existing_user = session.execute(
-                    select(User).where(User.email == request.basic.email)
+                # Check if an active user already has this email
+                existing_active_user = session.execute(
+                    select(User).where(User.email == request.basic.email).where(User.is_visible)
                 ).scalar_one_or_none()
-                if existing_user:
-                    if not existing_user.is_visible:
-                        context.abort_with_error_code(
-                            grpc.StatusCode.FAILED_PRECONDITION, "signup_email_cannot_be_used"
-                        )
+                if existing_active_user:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_taken")
+
+                # Check if a banned user currently has or ever had this email
+                banned_user_has_email = session.execute(
+                    select(User).where(User.email == request.basic.email).where(User.banned_at != None)
+                ).scalar_one_or_none()
+                banned_user_had_email = session.execute(
+                    select(UserEmailHistory)
+                    .join(User, User.id == UserEmailHistory.user_id)
+                    .where(UserEmailHistory.email == request.basic.email)
+                    .where(User.banned_at != None)
+                ).first()
+                if banned_user_has_email or banned_user_had_email:
+                    context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_email_cannot_be_used")
                 existing_flow = session.execute(
                     select(SignupFlow).where(SignupFlow.email == request.basic.email)
                 ).scalar_one_or_none()
@@ -360,6 +371,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
             session.add(user)
             session.flush()
+
+            # Record initial email in history
+            session.add(UserEmailHistory(user_id=user.id, email=user.email))
 
             # Create a profile gallery for the user
             profile_gallery = PhotoGallery(owner_user_id=user.id)
@@ -602,11 +616,26 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
+        old_email = user.email
+
+        # Close the old email history record
+        old_history = session.execute(
+            select(UserEmailHistory)
+            .where(UserEmailHistory.user_id == user.id)
+            .where(UserEmailHistory.email == old_email)
+            .where(UserEmailHistory.removed_at.is_(None))
+        ).scalar_one_or_none()
+        if old_history:
+            old_history.removed_at = now()
+
         user.email = not_none(user.new_email)
         user.new_email = None
         user.new_email_token = None
         user.new_email_token_created = None
         user.new_email_token_expiry = None
+
+        # Record the new email in history
+        session.add(UserEmailHistory(user_id=user.id, email=user.email))
 
         notify(
             session,
