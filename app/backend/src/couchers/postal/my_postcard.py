@@ -32,7 +32,7 @@ def _generate_back_left_side(verification_code: str, qr_code_url: str) -> bytes:
     qr_extend = 5
 
     # Generate QR code
-    qr = qrcode.QRCode(version=1, box_size=10, border=0)
+    qr = qrcode.QRCode(box_size=10, border=0)
     qr.add_data(qr_code_url)
     qr.make(fit=True)
     qr_img: Image.Image = qr.make_image(fill_color="black", back_color="white").get_image().convert("RGBA")
