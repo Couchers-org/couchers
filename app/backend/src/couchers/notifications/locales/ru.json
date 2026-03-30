@@ -152,7 +152,10 @@
     "host_request__create": {
       "title": "Новый запрос на хостинг от {{user}}",
       "ios_title": "{{user}}",
-      "ios_subtitle": "Новый запрос на хостинг"
+      "ios_subtitle": "Новый запрос на хостинг",
+      "body_one": "{{user}} планирует остаться с {{start_date}} на {{count}} день.",
+      "body_few": "{{user}} планирует остаться с {{start_date}} на {{count}} дня.",
+      "body_many": "{{user}} планирует остаться с {{start_date}} на {{count}} дней."
     },
     "host_request__reminder": {
       "title": "Запрос от {{user}} ожидает ответа",
@@ -213,6 +216,12 @@
     "phone_number__change": {
       "title": "Начата верификация телефона",
       "ios_title": "Начата верификация телефона"
+    },
+    "host_request__missed_messages": {
+      "title": "Новые сообщения от {{user}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Пропущенные сообщения",
+      "body": "У вас новые непрочитанные сообщения от {{user}}."
     }
   },
   "topic_action_descriptions": {
