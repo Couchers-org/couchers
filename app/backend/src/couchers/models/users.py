@@ -393,7 +393,7 @@ class User(Base, kw_only=True):
             postgresql_where=and_(banned_at.is_(None), deleted_at.is_(None)),
         ),
         Index(
-            "ix_users_completed_profile",
+            "ix_users_visible_with_about_me",
             id,
             postgresql_where=and_(
                 banned_at.is_(None),

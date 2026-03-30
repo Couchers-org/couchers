@@ -17,7 +17,7 @@ depends_on = None
 
 def upgrade() -> None:
     op.execute("""
-        CREATE INDEX ix_users_completed_profile ON users (id)
+        CREATE INDEX ix_users_visible_with_about_me ON users (id)
         WHERE banned_at IS NULL
           AND deleted_at IS NULL
           AND profile_gallery_id IS NOT NULL
@@ -144,4 +144,4 @@ def downgrade() -> None:
     op.execute("CREATE INDEX idx_lite_users_geom ON lite_users USING gist (geom)")
 
     op.drop_index("ix_moderation_states_type_visibility", table_name="moderation_states")
-    op.drop_index("ix_users_completed_profile")
+    op.drop_index("ix_users_visible_with_about_me")
