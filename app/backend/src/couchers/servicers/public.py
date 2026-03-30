@@ -5,7 +5,7 @@ import grpc
 from cachetools import TTLCache, cached
 from google.protobuf import empty_pb2
 from sqlalchemy import null, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import func, union_all
 
 from couchers import urls
@@ -186,6 +186,12 @@ class Public(public_pb2_grpc.PublicServicer):
                 User.public_visibility.in_(
                     [ProfilePublicVisibility.limited, ProfilePublicVisibility.most, ProfilePublicVisibility.full]
                 )
+            )
+            .options(
+                selectinload(User.badges),
+                selectinload(User.regions_visited),
+                selectinload(User.regions_lived),
+                selectinload(User.language_abilities),
             )
         ).scalar_one_or_none()
 

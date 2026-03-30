@@ -7,7 +7,7 @@ import google.protobuf.message
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import and_, delete, exists, func, intersect, or_, union
 
 from couchers import urls
@@ -170,7 +170,15 @@ fluency2api = {
 class API(api_pb2_grpc.APIServicer):
     def Ping(self, request: api_pb2.PingReq, context: CouchersContext, session: Session) -> api_pb2.PingRes:
         # auth ought to make sure the user exists
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = session.execute(
+            select(User)
+            .where(User.id == context.user_id)
+            .options(
+                selectinload(User.regions_visited),
+                selectinload(User.regions_lived),
+                selectinload(User.language_abilities),
+            )
+        ).scalar_one()
 
         sent_reqs_query = select(HostRequest.conversation_id, HostRequest.initiator_last_seen_message_id).where(
             HostRequest.initiator_user_id == context.user_id
@@ -264,7 +272,15 @@ class API(api_pb2_grpc.APIServicer):
         )
 
     def GetUser(self, request: api_pb2.GetUserReq, context: CouchersContext, session: Session) -> api_pb2.User:
-        user = session.execute(select(User).where(username_or_id(request.user))).scalar_one_or_none()
+        user = session.execute(
+            select(User)
+            .where(username_or_id(request.user))
+            .options(
+                selectinload(User.regions_visited),
+                selectinload(User.regions_lived),
+                selectinload(User.language_abilities),
+            )
+        ).scalar_one_or_none()
 
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")

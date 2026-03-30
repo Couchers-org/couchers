@@ -4,7 +4,7 @@ from datetime import timedelta
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
 
@@ -252,7 +252,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
                     )
                 )
         users = (
-            session.execute(statement.where(User.id >= next_user_id).order_by(User.id).limit(page_size + 1))
+            session.execute(
+                statement.where(User.id >= next_user_id)
+                .order_by(User.id)
+                .limit(page_size + 1)
+                .options(selectinload(User.badges))
+            )
             .scalars()
             .all()
         )

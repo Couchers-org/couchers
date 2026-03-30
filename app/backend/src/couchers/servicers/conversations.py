@@ -394,7 +394,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         # Batch: unseen message counts in one query instead of N individual queries
         subscription_ids = [r.GroupChatSubscription.id for r in results[:page_size]]
-        unseen_counts = dict(
+        unseen_counts: dict[int, int] = dict(
             session.execute(
                 select(GroupChatSubscription.id, func.count(Message.id))
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
@@ -437,6 +437,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 select(GroupChat, GroupChatSubscription, Message)
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+                .join(Conversation, Conversation.id == GroupChat.conversation_id)
+                .options(contains_eager(GroupChat.conversation))
                 .where(GroupChatSubscription.user_id == context.user_id)
                 .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
                 .where(Message.time >= GroupChatSubscription.joined)
@@ -493,6 +495,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 select(subquery, GroupChat, GroupChatSubscription, Message)
                 .join(subquery, subquery.c.group_chat_id == GroupChat.conversation_id)
                 .join(Message, Message.conversation_id == GroupChat.conversation_id)
+                .join(Conversation, Conversation.id == GroupChat.conversation_id)
+                .options(contains_eager(GroupChat.conversation))
                 .where(GroupChatSubscription.user_id == context.user_id)
                 .where(GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
                 .where(Message.time >= GroupChatSubscription.joined)
