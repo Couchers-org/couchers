@@ -60,7 +60,7 @@ def test_postal_verification_disabled(db):
                     address=postal_verification_pb2.PostalAddress(
                         address_line_1="123 Main St",
                         city="Test City",
-                        country="US",
+                        country_code="US",
                     )
                 )
             )
@@ -90,7 +90,7 @@ def test_postal_verification_happy_path(db, monkeypatch):
                     city="Test City",
                     state="CA",
                     postal_code="12345",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -165,7 +165,7 @@ def test_postal_verification_wrong_code(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -213,7 +213,7 @@ def test_postal_verification_code_expiry(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -259,7 +259,7 @@ def test_postal_verification_rate_limit(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -279,7 +279,7 @@ def test_postal_verification_rate_limit(db, monkeypatch):
                     address=postal_verification_pb2.PostalAddress(
                         address_line_1="456 Other St",
                         city="Test City",
-                        country="US",
+                        country_code="US",
                     )
                 )
             )
@@ -305,7 +305,7 @@ def test_postal_verification_already_in_progress(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -318,7 +318,7 @@ def test_postal_verification_already_in_progress(db, monkeypatch):
                     address=postal_verification_pb2.PostalAddress(
                         address_line_1="456 Other St",
                         city="Test City",
-                        country="US",
+                        country_code="US",
                     )
                 )
             )
@@ -338,7 +338,7 @@ def test_postal_verification_cancel(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -370,7 +370,7 @@ def test_postal_verification_can_cancel_after_postcard_sent(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -418,7 +418,7 @@ def test_postal_verification_list_attempts(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -443,7 +443,7 @@ def test_postal_verification_list_attempts(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="456 Other St",
                     city="Other City",
-                    country="CA",
+                    country_code="CA",
                 )
             )
         )
@@ -472,7 +472,7 @@ def test_postal_verification_address_validation(db, monkeypatch):
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
                         city="Test City",
-                        country="US",
+                        country_code="US",
                     )
                 )
             )
@@ -484,7 +484,7 @@ def test_postal_verification_address_validation(db, monkeypatch):
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
                         address_line_1="123 Main St",
-                        country="US",
+                        country_code="US",
                     )
                 )
             )
@@ -516,7 +516,7 @@ def test_postal_verification_postcard_send_failure(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -552,7 +552,7 @@ def test_postal_verification_code_case_insensitive(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -619,7 +619,7 @@ def test_postal_verification_other_user_attempt(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -660,7 +660,7 @@ def test_has_postal_verification_helper(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )

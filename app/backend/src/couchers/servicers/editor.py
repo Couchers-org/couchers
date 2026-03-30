@@ -322,8 +322,8 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         query = (
             select(PostalVerificationAttempt)
-            .join(LiteUser, LiteUser.id == PostalVerificationAttempt.user_id)
-            .where(LiteUser.is_visible)
+            .join(User, User.id == PostalVerificationAttempt.user_id)
+            .where(User.is_visible)
             .order_by(PostalVerificationAttempt.id.desc())
             .limit(page_size + 1)
         )
@@ -333,22 +333,22 @@ class Editor(editor_pb2_grpc.EditorServicer):
         attempts = session.execute(query).scalars().all()
 
         def _attempt_to_pb(attempt: PostalVerificationAttempt) -> editor_pb2.PostcardInfo:
-            lite_user = session.execute(select(LiteUser).where(LiteUser.id == attempt.user_id)).scalar_one()
+            user = session.execute(select(User).where(User.id == attempt.user_id)).scalar_one()
             return editor_pb2.PostcardInfo(
                 postal_verification_attempt_id=attempt.id,
                 user_id=attempt.user_id,
-                username=lite_user.username,
-                name=lite_user.name,
+                username=user.username,
+                name=user.name,
                 status=postalverificationstatus2pb.get(
                     attempt.status, postal_verification_pb2.POSTAL_VERIFICATION_STATUS_UNKNOWN
                 ),
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1=attempt.address_line_1,
-                    address_line_2=attempt.address_line_2 or "",
+                    address_line_2=attempt.address_line_2,
                     city=attempt.city,
-                    state=attempt.state or "",
-                    postal_code=attempt.postal_code or "",
-                    country=attempt.country_code,
+                    state=attempt.state,
+                    postal_code=attempt.postal_code,
+                    country_code=attempt.country_code,
                 ),
                 created=Timestamp_from_datetime(attempt.created),
                 postcard_sent_at=Timestamp_from_datetime(attempt.postcard_sent_at)

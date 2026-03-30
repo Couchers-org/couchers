@@ -44,7 +44,7 @@ def _attempt_to_address_pb(attempt: PostalVerificationAttempt) -> postal_verific
         city=attempt.city,
         state=attempt.state or "",
         postal_code=attempt.postal_code or "",
-        country=attempt.country_code,
+        country_code=attempt.country_code,
     )
 
 
@@ -104,7 +104,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "address_line_1_required")
         if not request.address.city:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "city_required")
-        if not request.address.country:
+        if not request.address.country_code:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "country_required")
 
         # Validate address
@@ -115,7 +115,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                 city=request.address.city,
                 state=request.address.state or None,
                 postal_code=request.address.postal_code or None,
-                country=request.address.country,
+                country=request.address.country_code,
             )
         except AddressValidationError:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "postal_address_invalid")
@@ -140,7 +140,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                     "city": request.address.city,
                     "state": request.address.state,
                     "postal_code": request.address.postal_code,
-                    "country": request.address.country,
+                    "country_code": request.address.country_code,
                 }
             ),
         )
@@ -155,7 +155,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                 city=validated.city,
                 state=validated.state or "",
                 postal_code=validated.postal_code or "",
-                country=validated.country_code,
+                country_code=validated.country_code,
             ),
             address_was_corrected=validated.was_corrected,
         )
