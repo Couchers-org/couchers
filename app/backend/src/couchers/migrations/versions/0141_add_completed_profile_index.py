@@ -1,4 +1,4 @@
-"""Add index for completed profile queries
+"""Add indexes for completed profile and moderation state queries
 
 Revision ID: 0141
 Revises: 0140
@@ -23,7 +23,13 @@ def upgrade() -> None:
           AND profile_gallery_id IS NOT NULL
           AND COALESCE(character_length((about_me)::text), 0) >= 150;
     """)
+    op.create_index(
+        "ix_moderation_states_type_visibility",
+        "moderation_states",
+        ["object_type", "visibility"],
+    )
 
 
 def downgrade() -> None:
+    op.drop_index("ix_moderation_states_type_visibility", table_name="moderation_states")
     op.drop_index("ix_users_completed_profile")
