@@ -90,6 +90,12 @@ def upgrade() -> None:
     op.execute("CREATE INDEX ix_lite_users_username_visible ON lite_users USING hash (username) WHERE is_visible")
     op.execute("CREATE INDEX idx_lite_users_geom ON lite_users USING gist (geom)")
 
+    op.execute("""
+        CREATE INDEX ix_messages_conversation_id_id_text_only
+        ON messages (conversation_id, id)
+        WHERE message_type = 'text'
+    """)
+
 
 def downgrade() -> None:
     # Recreate lite_users without geojson column
@@ -144,5 +150,6 @@ def downgrade() -> None:
     op.execute("CREATE INDEX ix_lite_users_username_visible ON lite_users USING hash (username) WHERE is_visible")
     op.execute("CREATE INDEX idx_lite_users_geom ON lite_users USING gist (geom)")
 
+    op.drop_index("ix_messages_conversation_id_id_text_only", table_name="messages")
     op.drop_index("ix_moderation_states_type_visibility", table_name="moderation_states")
     op.drop_index("ix_users_visible_with_about_me")
