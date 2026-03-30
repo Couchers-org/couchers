@@ -394,7 +394,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
 
         # Batch: unseen message counts in one query instead of N individual queries
         subscription_ids = [r.GroupChatSubscription.id for r in results[:page_size]]
-        unseen_counts = dict(
+        unseen_counts: dict[int, int] = dict(
             session.execute(  # type: ignore[arg-type]
                 select(GroupChatSubscription.id, func.count(Message.id))
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
