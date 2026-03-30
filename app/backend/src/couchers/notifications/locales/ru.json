@@ -82,7 +82,9 @@
     },
     "friend_request__accept": {
       "ios_title": "{{friend}}",
-      "body": "Теперь вы друзья с {{friend}}."
+      "body": "Теперь вы друзья с {{friend}}.",
+      "title": "{{friend}} принял(а) ваш запрос в друзья",
+      "ios_subtitle": "Ваш запрос в друзья принят"
     },
     "email_address__verify": {
       "title": "Email подтвержден",
@@ -91,7 +93,126 @@
     },
     "event__create_any": {
       "title": "Новое мероприятие: {{title}}",
-      "ios_title": "Новое мероприятие"
+      "ios_title": "Новое мероприятие",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} создал(а) мероприятие {{date_and_time}}."
+    },
+    "event__create_approved": {
+      "title": "Новое мероприятие: {{title}}",
+      "ios_title": "Новое мероприятие",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} пригласил(а) вас на мероприятие {{date_and_time}}."
+    },
+    "event__update": {
+      "title": "Мероприятие обновлено: {{title}}",
+      "ios_title": "Мероприятие обновлено",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} обновил(а) мероприятие."
+    },
+    "event__invite_organizer": {
+      "title": "Мероприятие обновлено: {{title}}",
+      "ios_title": "Мероприятие обновлено",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} добавил вас в качестве соорганизатора мероприятия."
+    },
+    "event__comment": {
+      "title": "{{user}} • {{title}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Добавлен комментарий к {{title}}"
+    },
+    "event__reminder": {
+      "title": "Предстоящее мероприятие: {{title}}",
+      "ios_title": "Предстоящее мероприятие",
+      "ios_subtitle": "{{title}}",
+      "body": "Мероприятие начнётся {{date_and_time}}."
+    },
+    "event__cancel": {
+      "title": "Мероприятие отменено: {{title}}",
+      "ios_title": "Мероприятие отменено",
+      "ios_subtitle": "{{title}}",
+      "body": "{{user}} отменил мероприятие."
+    },
+    "event__delete": {
+      "title": "Мероприятие удалено: {{title}}",
+      "ios_title": "Мероприятие удалено",
+      "ios_subtitle": "{{title}}",
+      "body": "Модератор удалил мероприятие."
+    },
+    "friend_request__create": {
+      "title": "Запрос в друзья от {{from_user}}",
+      "ios_title": "{{from_user}}",
+      "ios_subtitle": "Запрос в друзья",
+      "body": "{{from_user}} хочет стать вашим другом."
+    },
+    "general__new_blog_post": {
+      "title": "Новая публикация в блоге: {{title}}",
+      "ios_title": "Новая публикация в блоге",
+      "ios_subtitle": "{{title}}"
+    },
+    "host_request__create": {
+      "title": "Новый запрос на хостинг от {{user}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Новый запрос на хостинг"
+    },
+    "host_request__reminder": {
+      "title": "Запрос от {{user}} ожидает ответа",
+      "ios_subtitle": "{{user}}",
+      "body": "{{user}} ожидает вашего ответа, пожалуйста, примите или отклоните запрос."
+    },
+    "host_request__accept": {
+      "ios_title": "{{user}}"
+    },
+    "host_request__reject": {
+      "ios_title": "{{user}}"
+    },
+    "host_request__cancel": {
+      "ios_title": "{{user}}"
+    },
+    "host_request__confirm": {
+      "ios_title": "{{user}}"
+    },
+    "postal_verification__postcard_sent": {
+      "title": "Проверка почтового адреса начата",
+      "ios_title": "Проверка почтового адреса начата",
+      "body": "Ваша открытка отправлена в {{city}}, {{country}}. Ожидайте её в течение 1-3 недель."
+    },
+    "postal_verification__success": {
+      "title": "Проверка почтового адреса завершена",
+      "ios_title": "Проверка почтового адреса завершена",
+      "body": "Ваш адрес теперь подтверждён."
+    },
+    "postal_verification__failed": {
+      "title": "Проверка почтового адреса не удалась",
+      "ios_title": "Проверка почтового адреса не удалась",
+      "body_code_expired": "Срок действия вашего кода подтверждения истёк. Коды действительны в течение 90 дней после отправки открытки. Вы можете запросить новую открытку.",
+      "body_too_many_attempts": "Слишком много неверных попыток ввода кода. Вы можете запросить новую открытку.",
+      "body_generic": "Ваша попытка подтверждения по почте не удалась. Вы можете запросить новую открытку."
+    },
+    "reference__receive_friend": {
+      "title": "Новый отзыв от {{user}}",
+      "ios_title": "{{user}}"
+    },
+    "reference__receive": {
+      "title": "Новый отзыв от {{user}}",
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Новый отзыв"
+    },
+    "reference__reminder": {
+      "body_one": "У вас ещё есть {{count}} день, чтобы написать отзыв для {{user}}.",
+      "body_few": "У вас ещё есть {{count}} дня, чтобы написать отзыв для {{user}}.",
+      "body_many": "У вас ещё есть {{count}} дней, чтобы написать отзыв для {{user}}."
+    },
+    "password_reset__start": {
+      "body": "Используйте ссылку, которую мы отправили вам по электронной почте, чтобы завершить это."
+    },
+    "password_reset__complete": {
+      "title": "Сброс пароля",
+      "ios_title": "Сброс пароля",
+      "body": "Ваш пароль был успешно сброшен."
+    },
+    "phone_number__change": {
+      "title": "Начата верификация телефона",
+      "ios_title": "Начата верификация телефона"
     }
   },
   "topic_action_descriptions": {
@@ -109,7 +230,7 @@
       "reminder": "Напоминание: мероприятие, на которое вы собираетесь, скоро начнётся",
       "create_any": "Пользователь создал мероприятие в вашем сообществе (ещё не проверено администратором)",
       "invite_organizer": "Кто-то приглашает вас совместно организовать мероприятие",
-      "comment": " Пользователь комментирует мероприятие, на которое вы собираетесь",
+      "comment": "Пользователь комментирует мероприятие, на которое вы собираетесь",
       "create_approved": "Модераторы одобрили и создали новое мероприятие в вашем сообществе",
       "update": "Мероприятие, в котором вы участвуете, обновлено",
       "cancel": "Мероприятие, на которое вы записаны, отменено",
@@ -189,6 +310,9 @@
       "postcard_sent": "Ваша верификационная открытка отправлена",
       "success": "Ваша почтовая проверка прошла успешно",
       "failed": "Ваша почтовая верификация не пройдена"
+    },
+    "verification": {
+      "sv_success": "Ваша надёжная проверка успешно завершена"
     }
   }
 }
