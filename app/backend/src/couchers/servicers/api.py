@@ -8,7 +8,7 @@ import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
+from sqlalchemy.sql import and_, delete, exists, func, intersect, or_, union
 
 from couchers import urls
 from couchers.config import config
@@ -180,13 +180,15 @@ class API(api_pb2_grpc.APIServicer):
         sent_reqs_last_seen_message_ids = sent_reqs_query.subquery()
 
         unseen_sent_host_request_count = session.execute(
-            select(func.count(distinct(sent_reqs_last_seen_message_ids.c.conversation_id)))
-            .join(
-                Message,
-                Message.conversation_id == sent_reqs_last_seen_message_ids.c.conversation_id,
+            select(func.count())
+            .select_from(sent_reqs_last_seen_message_ids)
+            .where(
+                exists(
+                    select(1)
+                    .where(Message.conversation_id == sent_reqs_last_seen_message_ids.c.conversation_id)
+                    .where(Message.id > sent_reqs_last_seen_message_ids.c.initiator_last_seen_message_id)
+                )
             )
-            .where(sent_reqs_last_seen_message_ids.c.initiator_last_seen_message_id < Message.id)
-            .where(Message.id != None)
         ).scalar_one()
 
         received_reqs_query = select(HostRequest.conversation_id, HostRequest.recipient_last_seen_message_id).where(
@@ -199,13 +201,15 @@ class API(api_pb2_grpc.APIServicer):
         received_reqs_last_seen_message_ids = received_reqs_query.subquery()
 
         unseen_received_host_request_count = session.execute(
-            select(func.count(distinct(received_reqs_last_seen_message_ids.c.conversation_id)))
-            .join(
-                Message,
-                Message.conversation_id == received_reqs_last_seen_message_ids.c.conversation_id,
+            select(func.count())
+            .select_from(received_reqs_last_seen_message_ids)
+            .where(
+                exists(
+                    select(1)
+                    .where(Message.conversation_id == received_reqs_last_seen_message_ids.c.conversation_id)
+                    .where(Message.id > received_reqs_last_seen_message_ids.c.recipient_last_seen_message_id)
+                )
             )
-            .where(received_reqs_last_seen_message_ids.c.recipient_last_seen_message_id < Message.id)
-            .where(Message.id != None)
         ).scalar_one()
 
         unseen_message_query = (
