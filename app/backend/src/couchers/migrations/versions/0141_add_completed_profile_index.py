@@ -16,6 +16,7 @@ depends_on = None
 
 
 def upgrade() -> None:
+    op.execute("CREATE EXTENSION IF NOT EXISTS pg_stat_statements")
     op.execute("""
         CREATE INDEX ix_users_visible_with_about_me ON users (id)
         WHERE banned_at IS NULL
