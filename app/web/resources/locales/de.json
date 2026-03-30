@@ -212,7 +212,9 @@
       "no_location_results_text": "Keine Ergebnisse. Versuche, nur nach der Stadt zu suchen.",
       "no_map_support": "Dein Gerät unterstützt die Karte nicht. Bitte stelle sicher, dass WebGL2 aktiviert ist, oder versuche es mit einem anderen Gerät oder Browser. Entschuldige die Unannehmlichkeiten!",
       "press_enter_to_search": "Drücke die Eingabetaste, um zu suchen",
-      "display_location_not_empty": "Bitte gib eine Anzeigeadresse ein"
+      "display_location_not_empty": "Bitte gib eine Anzeigeadresse ein",
+      "radius_text2_one": "{{count}} Meter",
+      "radius_text2_other": "{{count}} Meter"
     }
   },
   "reply": "Antwort",
