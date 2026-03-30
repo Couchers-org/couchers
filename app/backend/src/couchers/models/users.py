@@ -31,6 +31,7 @@ from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.constants import (
+    COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
     EMAIL_REGEX,
     GUIDELINES_VERSION,
     PHONE_VERIFICATION_LIFETIME,
@@ -390,6 +391,16 @@ class User(Base, kw_only=True):
             username,
             postgresql_using="hash",
             postgresql_where=and_(banned_at.is_(None), deleted_at.is_(None)),
+        ),
+        Index(
+            "ix_users_completed_profile",
+            id,
+            postgresql_where=and_(
+                banned_at.is_(None),
+                deleted_at.is_(None),
+                profile_gallery_id.isnot(None),
+                func.coalesce(func.character_length(about_me), 0) >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
+            ),
         ),
         # There are two possible states for new_email_token, new_email_token_created, and new_email_token_expiry
         CheckConstraint(
