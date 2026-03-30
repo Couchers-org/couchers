@@ -39,5 +39,8 @@
   "non_transactional_description": "Люди не платят друг другу ни деньгами, ни услугами за участие в мероприятиях или сообществе. Гостя у кого-либо, вы не обязаны принимать гостей в будущем.",
   "num_users2_one": "{{count}} участник",
   "num_users2_few": "{{count}} участника",
-  "num_users2_many": "{{count}} участников"
+  "num_users2_many": "{{count}} участников",
+  "num_countries2_one": "{{count}}+ страна",
+  "num_countries2_few": "{{count}}+ страны",
+  "num_countries2_many": "{{count}}+ стран"
 }
