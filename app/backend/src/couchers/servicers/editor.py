@@ -321,19 +321,17 @@ class Editor(editor_pb2_grpc.EditorServicer):
         next_id = int(request.page_token) if request.page_token else None
 
         query = (
-            select(PostalVerificationAttempt)
+            select(PostalVerificationAttempt, User)
             .join(User, User.id == PostalVerificationAttempt.user_id)
-            .where(User.is_visible)
             .order_by(PostalVerificationAttempt.id.desc())
             .limit(page_size + 1)
         )
         if next_id is not None:
             query = query.where(PostalVerificationAttempt.id <= next_id)
 
-        attempts = session.execute(query).scalars().all()
+        results = session.execute(query).all()
 
-        def _attempt_to_pb(attempt: PostalVerificationAttempt) -> editor_pb2.PostcardInfo:
-            user = session.execute(select(User).where(User.id == attempt.user_id)).scalar_one()
+        def _attempt_to_pb(attempt: PostalVerificationAttempt, user: User) -> editor_pb2.PostcardInfo:
             return editor_pb2.PostcardInfo(
                 postal_verification_attempt_id=attempt.id,
                 user_id=attempt.user_id,
@@ -358,8 +356,8 @@ class Editor(editor_pb2_grpc.EditorServicer):
             )
 
         return editor_pb2.ListPostcardsRes(
-            postcards=[_attempt_to_pb(attempt) for attempt in attempts[:page_size]],
-            next_page_token=str(attempts[-1].id) if len(attempts) > page_size else None,
+            postcards=[_attempt_to_pb(attempt, user) for attempt, user in results[:page_size]],
+            next_page_token=str(results[-1][0].id) if len(results) > page_size else None,
         )
 
     def DownloadPostcardPdf(

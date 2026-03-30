@@ -537,7 +537,7 @@ def observe_moderation_queue_resolution_time(
 postcards_sent_counter: Counter = Counter(
     "couchers_postcards_sent_total",
     "Number of postcards sent via MyPostcard",
-    labelnames=["country"],
+    labelnames=["country_code"],
 )
 
 

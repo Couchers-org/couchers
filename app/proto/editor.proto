@@ -3,9 +3,8 @@ syntax = "proto3";
 package org.couchers.editor;
 
 import "google/protobuf/empty.proto";
-import "google/protobuf/wrappers.proto";
-
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "communities.proto";

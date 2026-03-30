@@ -115,7 +115,8 @@ def _place_order(
         timeout=60,
     )
     response.raise_for_status()
-    return response.json()
+    result: dict[str, Any] = response.json()
+    return result
 
 
 def send_postcard(

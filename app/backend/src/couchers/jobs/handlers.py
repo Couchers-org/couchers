@@ -1254,7 +1254,7 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
         attempt.status = PostalVerificationStatus.awaiting_verification
         attempt.postcard_sent_at = func.now()
 
-        postcards_sent_counter.labels(country=attempt.country_code).inc()
+        postcards_sent_counter.labels(country_code=attempt.country_code).inc()
 
         context = make_background_user_context(attempt.user_id)
         log_event(
