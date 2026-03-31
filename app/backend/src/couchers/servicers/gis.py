@@ -43,10 +43,21 @@ def _statement_to_geojson_response(session: Session, statement: GenerativeSelect
 
 class GIS(gis_pb2_grpc.GISServicer):
     def GetUsers(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> httpbody_pb2.HttpBody:
-        statement = select(LiteUser.id, LiteUser.geom, LiteUser.has_completed_profile).where(
-            users_visible(context, table=LiteUser)
+        # Build FeatureCollection from precomputed per-row GeoJSON in the materialized view,
+        # assembling with string_agg in Postgres
+        result = session.execute(
+            select(
+                func.concat(
+                    '{"type":"FeatureCollection","features":[',
+                    func.coalesce(func.string_agg(LiteUser.geojson, ","), ""),
+                    "]}",
+                )
+            ).where(users_visible(context, table=LiteUser))
+        ).scalar_one()
+        return httpbody_pb2.HttpBody(
+            content_type="application/json",
+            data=result.encode("ascii"),
         )
-        return _statement_to_geojson_response(session, statement)
 
     def GetClusteredUsers(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
