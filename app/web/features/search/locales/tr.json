@@ -32,16 +32,13 @@
       "guests_field_label": "Misafir sayısı",
       "sleeping_arrangement_filters": {
         "private": {
-          "label": "Özel alan",
-          "description": ""
+          "label": "Özel alan"
         },
         "shared_room": {
-          "label": "Paylaşılan oda",
-          "description": ""
+          "label": "Paylaşılan oda"
         },
         "common": {
-          "label": "Ortak oda",
-          "description": ""
+          "label": "Ortak oda"
         }
       },
       "title": "Konaklama filtreleri",
@@ -52,46 +49,21 @@
     },
     "general_filters": {
       "accepts_last_minute_requests": "Son dakika isteklerini kabul ediyor",
-      "has_strong_verification": "Kuvvetli doğrulamaya sahip",
-      "has_references": "",
-      "same_gender_only": "",
-      "same_gender_only_helper_text": "",
-      "get_strong_verification": ""
+      "has_strong_verification": "Kuvvetli doğrulamaya sahip"
     },
     "rules": {
       "title": "Kurallar",
       "alcohol_allowed": "Alkole izin var",
       "kids_allowed": "Çocuklara izin var",
-      "pets_allowed": "Evcil hayvanlara izin var",
-      "smokes_at_home": ""
+      "pets_allowed": "Evcil hayvanlara izin var"
     },
     "keywords": {
       "field_label": "İsim, anahtar kelimeler, veya kullanıcı adı",
       "clear_field_action_a11y_label": "Aramayı temizle",
       "search_this_keyword_a11y_label": "Bu anahtar kelimeyi ara"
     },
-    "by_location_filter_label": "Konuma göre",
-    "submit_button_label": "",
-    "search_filters": "",
-    "clear_filters": ""
+    "by_location_filter_label": "Konuma göre"
   },
   "choose_search_criteria": "Aramaya bir konum yaz veya bir filtre uygula.",
-  "location": "Konum",
-  "search_result": {
-    "show_user_button_label": "",
-    "no_user_result_message": "",
-    "include_empty_profiles_button": "",
-    "people_range_message_one": "",
-    "people_range_message_other": "",
-    "missing_about_description": "",
-    "few_results_suggestion": ""
-  },
-  "views": {
-    "map_and_list": "",
-    "choose_map_view": "",
-    "list": ""
-  },
-  "keyword": "",
-  "search_this_area": "",
-  "zoom_in_to_select_user": ""
+  "location": "Konum"
 }

@@ -19,8 +19,7 @@
     },
     "activeness__probe": {
       "title": "Stále máš zájem o hostování?",
-      "ios_title": "Stále máš zájem o hostování?",
-      "body": ""
+      "ios_title": "Stále máš zájem o hostování?"
     },
     "adhoc__push_enabled": {
       "title": "Push notifikace povoleny",
@@ -57,236 +56,7 @@
       "body": "Máš nové nepřečtené zprávy."
     },
     "donation__received": {
-      "title": "Dar přijat",
-      "ios_title": "",
-      "body": ""
-    },
-    "host_request__create": {
-      "body_one": "",
-      "body_few": "",
-      "body_other": "",
-      "title": "",
-      "ios_title": "",
-      "ios_subtitle": ""
-    },
-    "event__delete": {
-      "title": "",
-      "ios_title": "",
-      "body": "",
-      "ios_subtitle": ""
-    },
-    "event__comment": {
-      "ios_subtitle": "",
-      "title": "",
-      "ios_title": ""
-    },
-    "event__reminder": {
-      "title": "",
-      "ios_title": "",
-      "body": "",
-      "ios_subtitle": ""
-    },
-    "event__cancel": {
-      "title": "",
-      "ios_title": "",
-      "ios_subtitle": "",
-      "body": ""
-    },
-    "friend_request__create": {
-      "title": "",
-      "ios_title": "",
-      "ios_subtitle": "",
-      "body": ""
-    },
-    "friend_request__accept": {
-      "title": "",
-      "ios_title": "",
-      "body": "",
-      "ios_subtitle": ""
-    },
-    "gender__change": {
-      "title": "",
-      "ios_title": "",
-      "body": ""
-    },
-    "host_request__reminder": {
-      "ios_title": "",
-      "ios_subtitle": "",
-      "title": "",
-      "body": ""
-    },
-    "phone_number__verify": {
-      "ios_title": "",
-      "title": "",
-      "body": ""
-    },
-    "host_request__accept": {
-      "ios_subtitle": "",
-      "body": "",
-      "ios_title": "",
-      "title": ""
-    },
-    "host_request__missed_messages": {
-      "body": "",
-      "ios_title": "",
-      "ios_subtitle": "",
-      "title": ""
-    },
-    "host_request__reject": {
-      "ios_title": "",
-      "ios_subtitle": "",
-      "body": "",
-      "title": ""
-    },
-    "modnote__create": {
-      "ios_title": "",
-      "title": "",
-      "body": ""
-    },
-    "discussion__create": {
-      "body": "",
-      "ios_title": "",
-      "ios_subtitle": "",
-      "title": ""
-    },
-    "email_address__change": {
-      "title": "",
-      "ios_title": "",
-      "body": ""
-    },
-    "host_request__cancel": {
-      "body": "",
-      "ios_subtitle": "",
-      "title": "",
-      "ios_title": ""
-    },
-    "onboarding__reminder": {
-      "subsequent": {
-        "body": "",
-        "ios_title": "",
-        "title": ""
-      },
-      "first": {
-        "title": "",
-        "ios_title": "",
-        "body": ""
-      }
-    },
-    "reference__reminder": {
-      "ios_title": "",
-      "ios_subtitle": "",
-      "title": "",
-      "body_one": "",
-      "body_few": "",
-      "body_other": ""
-    },
-    "thread__reply": {
-      "ios_title": "",
-      "title": "",
-      "ios_subtitle": ""
-    },
-    "verification__sv_fail": {
-      "body_not_a_passport": "",
-      "title": "",
-      "ios_title": "",
-      "body_wrong_birthdate_gender": "",
-      "body_duplicate": ""
-    },
-    "event__create_any": {
-      "ios_title": "",
-      "ios_subtitle": "",
-      "title": "",
-      "body": ""
-    },
-    "event__invite_organizer": {
-      "title": "",
-      "ios_title": "",
-      "ios_subtitle": "",
-      "body": ""
-    },
-    "event__update": {
-      "ios_title": "",
-      "ios_subtitle": "",
-      "body": "",
-      "title": ""
-    },
-    "email_address__verify": {
-      "title": "",
-      "body": "",
-      "ios_title": ""
-    },
-    "host_request__confirm": {
-      "title": "",
-      "body": "",
-      "ios_title": "",
-      "ios_subtitle": ""
-    },
-    "event__create_approved": {
-      "body": "",
-      "title": "",
-      "ios_title": "",
-      "ios_subtitle": ""
-    },
-    "password_reset__start": {
-      "title": "",
-      "ios_title": "",
-      "body": ""
-    },
-    "password_reset__complete": {
-      "title": "",
-      "ios_title": "",
-      "body": ""
-    },
-    "phone_number__change": {
-      "title": "",
-      "ios_title": "",
-      "body": ""
-    },
-    "discussion__comment": {
-      "title": ""
-    },
-    "general__new_blog_post": {
-      "ios_title": "",
-      "ios_subtitle": "",
-      "title": ""
-    },
-    "postal_verification__success": {
-      "title": "",
-      "ios_title": "",
-      "body": ""
-    },
-    "reference__receive_friend": {
-      "ios_title": "",
-      "ios_subtitle": "",
-      "title": ""
-    },
-    "password__change": {
-      "title": "",
-      "ios_title": "",
-      "body": ""
-    },
-    "postal_verification__postcard_sent": {
-      "title": "",
-      "ios_title": "",
-      "body": ""
-    },
-    "postal_verification__failed": {
-      "title": "",
-      "ios_title": "",
-      "body_code_expired": "",
-      "body_too_many_attempts": "",
-      "body_generic": ""
-    },
-    "reference__receive": {
-      "title": "",
-      "ios_title": "",
-      "ios_subtitle": "",
-      "body_must_write_yours": ""
-    },
-    "verification__sv_success": {
-      "title": "",
-      "ios_title": "",
-      "body": ""
+      "title": "Dar přijat"
     }
   },
   "topic_action_descriptions": {
@@ -297,8 +67,7 @@
       "accept": "Někdo přijme tvou žádost o ubytování",
       "message": "Někdo ti pošle zprávu v žádosti o ubytování",
       "create": "Někdo ti zašle žádost o ubytování",
-      "missed_messages": "Utekla ti zpráva v žádosti o ubytování",
-      "reminder": ""
+      "missed_messages": "Utekla ti zpráva v žádosti o ubytování"
     },
     "chat": {
       "missed_messages": "Utekly ti zprávy v chatu",
@@ -308,86 +77,10 @@
       "new_blog_post": "Byl zveřejněn nový blogový příspěvek"
     },
     "phone_number": {
-      "verify": "Tvé telefonní číslo je ověřeno",
-      "change": ""
+      "verify": "Tvé telefonní číslo je ověřeno"
     },
     "reference": {
-      "receive_friend": "Přišla ti reference od přítele",
-      "receive_hosted": "",
-      "receive_surfed": "",
-      "reminder_hosted": "",
-      "reminder_surfed": ""
-    },
-    "account_deletion": {
-      "recovered": "",
-      "start": "",
-      "complete": ""
-    },
-    "activeness": {
-      "probe": ""
-    },
-    "api_key": {
-      "create": ""
-    },
-    "badge": {
-      "add": "",
-      "remove": ""
-    },
-    "birthdate": {
-      "change": ""
-    },
-    "discussion": {
-      "create": "",
-      "comment": ""
-    },
-    "event": {
-      "create_any": "",
-      "update": "",
-      "cancel": "",
-      "delete": "",
-      "invite_organizer": "",
-      "create_approved": "",
-      "comment": "",
-      "reminder": ""
-    },
-    "gender": {
-      "change": ""
-    },
-    "modnote": {
-      "create": ""
-    },
-    "onboarding": {
-      "reminder": ""
-    },
-    "password": {
-      "change": ""
-    },
-    "password_reset": {
-      "start": "",
-      "complete": ""
-    },
-    "postal_verification": {
-      "failed": "",
-      "postcard_sent": "",
-      "success": ""
-    },
-    "thread": {
-      "reply": ""
-    },
-    "verification": {
-      "sv_fail": "",
-      "sv_success": ""
-    },
-    "donation": {
-      "received": ""
-    },
-    "email_address": {
-      "change": "",
-      "verify": ""
-    },
-    "friend_request": {
-      "create": "",
-      "accept": ""
+      "receive_friend": "Přišla ti reference od přítele"
     }
   }
 }

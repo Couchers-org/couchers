@@ -53,9 +53,7 @@
       "password_field_label": "密码",
       "no_password_login_prompt": "请检查您的邮箱，获取登录链接！:)",
       "remember_me": "记住我",
-      "forgot_password": "忘记密码？",
-      "hide_password": "",
-      "show_password": ""
+      "forgot_password": "忘记密码？"
     }
   },
   "basic_sign_up_form": {
@@ -69,8 +67,7 @@
       "field_label": "用户名",
       "required_error": "输入您的用户名",
       "username_taken_error": "用户名已被占用。",
-      "validation_error": "用户名只可以用英文字母开头，之后跟随英文字母、数字或下划线_。",
-      "helper_text": ""
+      "validation_error": "用户名只可以用英文字母开头，之后跟随英文字母、数字或下划线_。"
     },
     "password": {
       "field_label": "密码",
@@ -106,10 +103,7 @@
     "name": {
       "field_label": "您的名字",
       "empty_error": "请输入您的名字",
-      "required_error": "此文本框不能为空。",
-      "invalid_characters_error": "",
-      "min_length_error": "",
-      "max_length_error": ""
+      "required_error": "此文本框不能为空。"
     },
     "email": {
       "field_label": "邮箱",
@@ -187,17 +181,6 @@
       "title": "用户名",
       "description": "您的用户名是<1>{{username}}</1>。",
       "explanation": "您在创建账户时设置的用户名。"
-    },
-    "appearance_section": {
-      "change_mode": "",
-      "modes": {
-        "light": "",
-        "system": "",
-        "dark": ""
-      },
-      "title": "",
-      "current_mode": "",
-      "click_to_change": ""
     }
   },
   "feature_preview": {
@@ -330,59 +313,5 @@
     },
     "title": "个人资料可见性",
     "choose": "选择哪些信息对未登录用户可见"
-  },
-  "volunteer_management": {
-    "form": {
-      "link_text_email_placeholder": "",
-      "link_text_linkedin_helper": "",
-      "link_type_couchers": "",
-      "link_type_label": "",
-      "override_location_label": "",
-      "display_location_label": "",
-      "title": "",
-      "override_name_label": "",
-      "display_name_label": "",
-      "show_on_team_page_label": "",
-      "link_type_email": "",
-      "link_type_linkedin": "",
-      "link_type_website": "",
-      "link_text_label": "",
-      "link_text_linkedin_placeholder": "",
-      "link_text_website_placeholder": "",
-      "link_text_email_helper": "",
-      "link_text_website_helper": "",
-      "link_text_required": "",
-      "link_text_email_invalid": "",
-      "link_text_linkedin_invalid": "",
-      "link_url_label": "",
-      "link_url_placeholder": "",
-      "link_url_required": "",
-      "link_url_invalid": "",
-      "save_button": "",
-      "link_url_helper": ""
-    },
-    "card_preview_label": "",
-    "description": "",
-    "title": "",
-    "not_a_volunteer_message": "",
-    "current_volunteer": "",
-    "past_volunteer": "",
-    "shown_on_team_page_current": "",
-    "shown_on_team_page_past": "",
-    "not_shown_on_team_page": "",
-    "update_success": ""
-  },
-  "motivations_form": {
-    "something_else_description": "",
-    "surfing_description": "",
-    "hosting": "",
-    "hosting_description": "",
-    "events_description": "",
-    "header": "",
-    "community_organizing": "",
-    "community_organizing_description": "",
-    "something_else": "",
-    "surfing": "",
-    "events": ""
   }
 }

@@ -18,18 +18,7 @@
       "explanation": "Os administradores terão todo o gosto em alterar a tua data de nascimento. Por favor contacta support@couchers.org!",
       "title": "Alterar data de nascimento"
     },
-    "title": "Definições da conta",
-    "appearance_section": {
-      "change_mode": "",
-      "title": "",
-      "current_mode": "",
-      "modes": {
-        "light": "",
-        "dark": "",
-        "system": ""
-      },
-      "click_to_change": ""
-    }
+    "title": "Definições da conta"
   },
   "sign_up_completed_prompt": "Enviámos um e-mail com um link de verificação para o teu endereço de e-mail. Clica no link para ativar a tua conta.",
   "feature_preview": {
@@ -49,8 +38,7 @@
       "validation_error": "O utilizador apenas pode conter números ou _, devendo começar com uma letra.",
       "required_error": "Introduz o teu nome de utilizador",
       "field_label": "Nome de utilizador",
-      "username_taken_error": "Este nome de utilizador já existe.",
-      "helper_text": ""
+      "username_taken_error": "Este nome de utilizador já existe."
     },
     "tos_prompt": "Para continuar, por favor lê e aceita o <1></1>.",
     "header": "Detalhes da tua conta",
@@ -62,9 +50,7 @@
     "birthday": {
       "required_error": "Introduz a tua data de nascimento",
       "field_label": "Data de nascimento",
-      "validation_error": "Deve ser uma data válida no passado.",
-      "not_real_date_error": "",
-      "too_young_error": ""
+      "validation_error": "Deve ser uma data válida no passado."
     },
     "gender": {
       "required_error": "Por favor, seleciona a tua identidade de género",
@@ -78,10 +64,8 @@
       "field_label": "Estado de anfitrião",
       "can_host": "Pode hospedar",
       "maybe": "Talvez possa hospedar",
-      "cant_host": "Não pode hospedar",
-      "any": ""
-    },
-    "opt_in_newsletter": ""
+      "cant_host": "Não pode hospedar"
+    }
   },
   "change_email_form": {
     "current_password": "Palavra-passe atual",
@@ -101,12 +85,7 @@
     "confirm_password": "Confirmar palavra-passe",
     "title": "Alterar palavra-passe",
     "password_changed_success": "A tua nova palavra-passe foi definida e uma notificação enviada para o teu e-mail.",
-    "password_mismatch_error": "A palavra-passe não condiz com a que foi introduzida em cima.",
-    "subtitle": "",
-    "user_logged_error": "",
-    "reset_password_success": "",
-    "reset_password_error": "",
-    "token_error": ""
+    "password_mismatch_error": "A palavra-passe não condiz com a que foi introduzida em cima."
   },
   "reset_password_form": {
     "enter_email": "Introduz o teu nome de utilizador/e-mail",
@@ -118,9 +97,7 @@
       "remember_me": "Lembra-me",
       "forgot_password": "Esqueceste-te da palavra-passe?",
       "username_field_label": "E-mail/Nome de utilizador",
-      "no_password_login_prompt": "Encontra no teu email o link para iniciar a sessão! :)",
-      "hide_password": "",
-      "show_password": ""
+      "no_password_login_prompt": "Encontra no teu email o link para iniciar a sessão! :)"
     },
     "title": "Iniciar sessão",
     "header": "Bem-vindo de volta!",
@@ -130,10 +107,7 @@
     "name": {
       "field_label": "O teu nome",
       "empty_error": "Por favor, introduz o teu nome",
-      "required_error": "Este campo não pode estar vazio.",
-      "invalid_characters_error": "",
-      "min_length_error": "",
-      "max_length_error": ""
+      "required_error": "Este campo não pode estar vazio."
     },
     "email": {
       "empty_error": "Por favor introduz um endereço de e-mail válido",
@@ -201,8 +175,7 @@
     "wrong_code": "O código está errado.",
     "remove_button_text": "Remover número de telefone atual",
     "no_phone_description": "Não adicionaste um número de telefone à tua conta. Para adicionar, introduz um em baixo. Iremos verificá-lo com uma mensagem de texto.",
-    "add_success": "Número de telefone adicionado.",
-    "need_to_donate": ""
+    "add_success": "Número de telefone adicionado."
   },
   "jail": {
     "description": "Para continuar, por favor verifica o seguinte para continuar.",
@@ -215,174 +188,12 @@
         "active_text": "Guardar",
         "inactive_text": "Obrigado!"
       },
-      "resubmit_button_text": "Submeter de novo",
-      "explanation": ""
+      "resubmit_button_text": "Submeter de novo"
     },
-    "title": "É necessária mais informação",
-    "mod_note_section": {
-      "description": "",
-      "note_title": "",
-      "title": "",
-      "acknowledge": ""
-    },
-    "activeness_probe": {
-      "title": "",
-      "description": "",
-      "still_hosting": "",
-      "not_hosting": "",
-      "note": ""
-    }
+    "title": "É necessária mais informação"
   },
   "login_prompt": "Clica aqui para entrar",
   "reset_password": "Redefinir palavra-passe",
   "about_us": "Sobre nós",
-  "unhandled_sign_up_state": "Erro: unhandled signup flow state.",
-  "sign_up_need_verification_title": "",
-  "motivations_form": {
-    "events": "",
-    "events_description": "",
-    "surfing": "",
-    "hosting": "",
-    "something_else_description": "",
-    "something_else": "",
-    "surfing_description": "",
-    "community_organizing_description": "",
-    "community_organizing": "",
-    "header": "",
-    "hosting_description": ""
-  },
-  "quick_links": {
-    "button_text": "",
-    "title": "",
-    "error_message": "",
-    "missing_payload_or_sig": ""
-  },
-  "profile_visibility": {
-    "title": "",
-    "choose": "",
-    "visiblility_options": {
-      "nothing": "",
-      "map_only": "",
-      "most": "",
-      "full_profile": "",
-      "limited": ""
-    }
-  },
-  "active_logins": {
-    "login_header": "",
-    "settings_page_text": "",
-    "expiry": "",
-    "heading": "",
-    "settings_page_link": "",
-    "description": "",
-    "location": "",
-    "last_activity": "",
-    "current_session": "",
-    "log_out_of_session": "",
-    "log_out_of_all_session": ""
-  },
-  "do_not_email": {
-    "caveat": "",
-    "title": "",
-    "status": {
-      "no_emails_disabled_message": "",
-      "no_emails_enabled_message": ""
-    },
-    "action_button": {
-      "no_emails_disable_text": "",
-      "no_emails_enable_text": ""
-    }
-  },
-  "volunteer_management": {
-    "form": {
-      "display_location_label": "",
-      "link_url_label": "",
-      "title": "",
-      "display_name_label": "",
-      "override_location_label": "",
-      "show_on_team_page_label": "",
-      "link_type_label": "",
-      "link_type_couchers": "",
-      "link_type_email": "",
-      "link_type_linkedin": "",
-      "link_type_website": "",
-      "link_text_label": "",
-      "link_text_linkedin_placeholder": "",
-      "link_text_email_placeholder": "",
-      "link_text_website_placeholder": "",
-      "link_text_linkedin_helper": "",
-      "link_text_email_helper": "",
-      "link_text_website_helper": "",
-      "link_text_required": "",
-      "link_text_email_invalid": "",
-      "link_text_linkedin_invalid": "",
-      "link_url_placeholder": "",
-      "link_url_helper": "",
-      "link_url_required": "",
-      "link_url_invalid": "",
-      "save_button": "",
-      "override_name_label": ""
-    },
-    "title": "",
-    "card_preview_label": "",
-    "not_a_volunteer_message": "",
-    "current_volunteer": "",
-    "past_volunteer": "",
-    "shown_on_team_page_current": "",
-    "shown_on_team_page_past": "",
-    "not_shown_on_team_page": "",
-    "description": "",
-    "update_success": ""
-  },
-  "strong_verification": {
-    "title": "",
-    "donation_title": "",
-    "donation_message1": "",
-    "donate_button": "",
-    "instructions": {
-      "title": "",
-      "warning": "",
-      "step1": "",
-      "step1_apple_note": "",
-      "step2": "",
-      "step3": "",
-      "step4": "",
-      "step5": "",
-      "step6": "",
-      "step7": "",
-      "step8": "",
-      "download_app_store": "",
-      "download_google_play": "",
-      "chip_location": {
-        "heading": "",
-        "description": "",
-        "us_germany_mexico": "",
-        "finland_germany_new": "",
-        "australia": ""
-      }
-    },
-    "information_text1": "",
-    "delete_data_title": "",
-    "information_text2": "",
-    "delete_success": "",
-    "status": {
-      "disabled_message": "",
-      "enabled_message": ""
-    },
-    "delete_button": "",
-    "learn_more": "",
-    "subtitle": "",
-    "start_button": "",
-    "begin_button": "",
-    "information_text3": "",
-    "complete_title": "",
-    "complete_message1": "",
-    "complete_message2": "",
-    "delete_information": "",
-    "delete_information_text2": "",
-    "delete_my_data_button": "",
-    "donation_message2": ""
-  },
-  "sign_up_resend_verification_email_help": "",
-  "sign_up_resend_verification_done": ""
+  "unhandled_sign_up_state": "Erro: unhandled signup flow state."
 }

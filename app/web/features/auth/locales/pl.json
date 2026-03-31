@@ -12,12 +12,7 @@
     "title": "Zmień hasło",
     "confirm_password": "Potwierdź hasło",
     "old_password": "Stare hasło",
-    "password_changed_success": "Twoje nowe hasło zostało ustawione, a powiadomienie wysłane na adres e-mail.",
-    "reset_password_success": "",
-    "subtitle": "",
-    "reset_password_error": "",
-    "user_logged_error": "",
-    "token_error": ""
+    "password_changed_success": "Twoje nowe hasło zostało ustawione, a powiadomienie wysłane na adres e-mail."
   },
   "login_page": {
     "header": "Witaj z powrotem!",
@@ -25,52 +20,24 @@
       "remember_me": "Zapamiętaj mnie",
       "password_field_label": "Hasło",
       "forgot_password": "Nie pamiętasz hasła?",
-      "no_password_login_prompt": "Sprawdź swoją skrzynkę e-mail, aby odebrać link do zalogowania się! :)",
-      "hide_password": "",
-      "show_password": "",
-      "username_field_label": ""
+      "no_password_login_prompt": "Sprawdź swoją skrzynkę e-mail, aby odebrać link do zalogowania się! :)"
     },
-    "title": "Zaloguj się",
-    "no_account_prompt": ""
+    "title": "Zaloguj się"
   },
   "account_form": {
     "password": {
       "required_error": "Wpisz hasło",
-      "field_label": "Hasło",
-      "validation_error": ""
+      "field_label": "Hasło"
     },
     "birthday": {
       "field_label": "Data urodzenia",
-      "required_error": "Wpisz swoją datę urodzenia",
-      "not_real_date_error": "",
-      "too_young_error": "",
-      "validation_error": ""
+      "required_error": "Wpisz swoją datę urodzenia"
     },
     "gender": {
       "man": "Meżczyzna",
       "non_binary": "Osoba niebinarna",
-      "woman": "Kobieta",
-      "required_error": "",
-      "field_label": ""
-    },
-    "tos_accept_label": "",
-    "username": {
-      "field_label": "",
-      "required_error": "",
-      "username_taken_error": "",
-      "validation_error": "",
-      "helper_text": ""
-    },
-    "tos_prompt": "",
-    "hosting_status": {
-      "any": "",
-      "field_label": "",
-      "can_host": "",
-      "maybe": "",
-      "cant_host": ""
-    },
-    "opt_in_newsletter": "",
-    "header": ""
+      "woman": "Kobieta"
+    }
   },
   "change_phone": {
     "add_success": "Dodano numer telefonu.",
@@ -86,23 +53,17 @@
     "remove_button_text": "Usuń obecny numer telefonu",
     "remove_phone_description": "Twój obecny numer telefonu to <2>{{phone}}</2>. Możesz usunąć swój numer poniżej.",
     "phone_not_verified_description": "Wysłaliśmy kod pod numer <2>{{phone}}</2>. Aby potwierdzić swój numer telefonu, wpisz kod poniżej:",
-    "change_to_different_description": "Aby zmienić numer telefonu, wpisz nowy poniżej.",
-    "need_to_donate": "",
-    "no_phone_description": ""
+    "change_to_different_description": "Aby zmienić numer telefonu, wpisz nowy poniżej."
   },
   "basic_form": {
     "name": {
       "required_error": "Pole z imieniem nie może zostać puste.",
       "field_label": "Twoje imię",
-      "empty_error": "Wpisz swoje imię",
-      "invalid_characters_error": "",
-      "min_length_error": "",
-      "max_length_error": ""
+      "empty_error": "Wpisz swoje imię"
     },
     "email": {
       "field_label": "Adres e-mail",
-      "required_error": "Pole adresu e-mail nie może być puste.",
-      "empty_error": ""
+      "required_error": "Pole adresu e-mail nie może być puste."
     }
   },
   "jail": {
@@ -111,35 +72,13 @@
         "inactive_text": "Dzięki!",
         "active_text": "Zapisz"
       },
-      "resubmit_button_text": "Wyślij ponownie",
-      "title": "",
-      "explanation": ""
-    },
-    "mod_note_section": {
-      "description": "",
-      "note_title": "",
-      "acknowledge": "",
-      "title": ""
-    },
-    "activeness_probe": {
-      "title": "",
-      "still_hosting": "",
-      "not_hosting": "",
-      "description": "",
-      "note": ""
-    },
-    "title": "",
-    "description": "",
-    "terms_of_service_section": {
-      "description": ""
+      "resubmit_button_text": "Wyślij ponownie"
     }
   },
   "community_guidelines_form": {
     "guideline": {
-      "checkbox_label": "Ok, wszystko jasne",
-      "required_error": ""
-    },
-    "header": ""
+      "checkbox_label": "Ok, wszystko jasne"
+    }
   },
   "unhandled_sign_up_state": "Błąd: unhandled signup flow state.",
   "change_email_confirmation": {
@@ -149,240 +88,14 @@
   },
   "account_settings_page": {
     "birth_date_section": {
-      "title": "Zmień datę urodzenia",
-      "explanation": ""
-    },
-    "appearance_section": {
-      "title": "",
-      "current_mode": "",
-      "modes": {
-        "system": "",
-        "light": "",
-        "dark": ""
-      },
-      "click_to_change": "",
-      "change_mode": ""
-    },
-    "username_section": {
-      "explanation": "",
-      "title": "",
-      "description": ""
-    },
-    "gender_section": {
-      "title": "",
-      "explanation": ""
-    },
-    "timezone_section": {
-      "title": "",
-      "description": "",
-      "explanation": ""
-    },
-    "title": ""
+      "title": "Zmień datę urodzenia"
+    }
   },
   "jail_set_password_form": {
-    "title": "Ustaw hasło",
-    "explanation": ""
+    "title": "Ustaw hasło"
   },
   "reset_password": "Zresetuj hasło",
   "reset_password_form": {
-    "success_message": "Sprawdź swoją skrzynkę e-mail, aby odebrać link do zresetowania hasła!",
-    "enter_email": ""
-  },
-  "active_logins": {
-    "log_out_of_all_session": "",
-    "login_header": "",
-    "heading": "",
-    "settings_page_text": "",
-    "settings_page_link": "",
-    "description": "",
-    "location": "",
-    "last_activity": "",
-    "expiry": "",
-    "current_session": "",
-    "log_out_of_session": ""
-  },
-  "volunteer_management": {
-    "current_volunteer": "",
-    "form": {
-      "link_text_email_helper": "",
-      "link_text_website_helper": "",
-      "link_text_required": "",
-      "override_name_label": "",
-      "link_text_email_placeholder": "",
-      "save_button": "",
-      "link_url_required": "",
-      "display_location_label": "",
-      "link_type_website": "",
-      "link_text_label": "",
-      "link_url_label": "",
-      "link_url_placeholder": "",
-      "link_url_invalid": "",
-      "show_on_team_page_label": "",
-      "link_type_linkedin": "",
-      "override_location_label": "",
-      "title": "",
-      "display_name_label": "",
-      "link_type_email": "",
-      "link_text_linkedin_helper": "",
-      "link_text_email_invalid": "",
-      "link_text_linkedin_invalid": "",
-      "link_url_helper": "",
-      "link_type_couchers": "",
-      "link_text_linkedin_placeholder": "",
-      "link_text_website_placeholder": "",
-      "link_type_label": ""
-    },
-    "card_preview_label": "",
-    "past_volunteer": "",
-    "shown_on_team_page_current": "",
-    "shown_on_team_page_past": "",
-    "not_shown_on_team_page": "",
-    "update_success": "",
-    "description": "",
-    "title": "",
-    "not_a_volunteer_message": ""
-  },
-  "strong_verification": {
-    "complete_title": "",
-    "start_button": "",
-    "complete_message1": "",
-    "delete_button": "",
-    "instructions": {
-      "step2": "",
-      "step3": "",
-      "download_app_store": "",
-      "download_google_play": "",
-      "chip_location": {
-        "heading": "",
-        "description": "",
-        "us_germany_mexico": "",
-        "finland_germany_new": "",
-        "australia": ""
-      },
-      "warning": "",
-      "step1_apple_note": "",
-      "step4": "",
-      "step6": "",
-      "title": "",
-      "step5": "",
-      "step7": "",
-      "step8": "",
-      "step1": ""
-    },
-    "donate_button": "",
-    "delete_information_text2": "",
-    "begin_button": "",
-    "information_text2": "",
-    "information_text3": "",
-    "donation_message2": "",
-    "title": "",
-    "delete_information": "",
-    "complete_message2": "",
-    "delete_data_title": "",
-    "donation_message1": "",
-    "learn_more": "",
-    "subtitle": "",
-    "status": {
-      "enabled_message": "",
-      "disabled_message": ""
-    },
-    "information_text1": "",
-    "delete_my_data_button": "",
-    "delete_success": "",
-    "donation_title": ""
-  },
-  "quick_links": {
-    "button_text": "",
-    "error_message": "",
-    "title": "",
-    "missing_payload_or_sig": ""
-  },
-  "delete_account": {
-    "confirm": {
-      "error_message": "",
-      "button_text": "",
-      "title": "",
-      "account_deleted": ""
-    },
-    "request": {
-      "description": "",
-      "confirm_username_explanation": "",
-      "title": "",
-      "confirm_username_label": "",
-      "username_mismatch": "",
-      "reason_explanation": "",
-      "reason_label": "",
-      "success_message": ""
-    },
-    "recover": {
-      "error_message": "",
-      "title": "",
-      "button_text": "",
-      "success": ""
-    },
-    "missing_token": ""
-  },
-  "location": {
-    "validation_error": "",
-    "field_label": ""
-  },
-  "motivations_form": {
-    "hosting_description": "",
-    "events": "",
-    "events_description": "",
-    "community_organizing": "",
-    "surfing_description": "",
-    "hosting": "",
-    "header": "",
-    "surfing": "",
-    "something_else": "",
-    "something_else_description": "",
-    "community_organizing_description": ""
-  },
-  "sign_up_completed_prompt": "",
-  "feature_preview": {
-    "disclaimer": "",
-    "no_previews": {
-      "title": "",
-      "explanation": ""
-    },
-    "title": "",
-    "explanation": ""
-  },
-  "profile_visibility": {
-    "visiblility_options": {
-      "nothing": "",
-      "map_only": "",
-      "limited": "",
-      "most": "",
-      "full_profile": ""
-    },
-    "choose": "",
-    "title": ""
-  },
-  "sign_up_resend_verification_email_help": "",
-  "sign_up_resend_verification_done": "",
-  "basic_sign_up_form": {
-    "header": "",
-    "sign_up_agreement_explainer": "",
-    "existing_user_prompt": ""
-  },
-  "sign_up_confirmed_prompt": "",
-  "do_not_email": {
-    "action_button": {
-      "no_emails_enable_text": "",
-      "no_emails_disable_text": ""
-    },
-    "title": "",
-    "status": {
-      "no_emails_enabled_message": "",
-      "no_emails_disabled_message": ""
-    },
-    "caveat": ""
-  },
-  "about_us": "",
-  "login_prompt": "",
-  "sign_up_need_verification_title": "",
-  "logged_out_message": "",
-  "sign_up_completed_title": ""
+    "success_message": "Sprawdź swoją skrzynkę e-mail, aby odebrać link do zresetowania hasła!"
+  }
 }

@@ -1,31 +1,5 @@
 {
   "errors": {
-    "failed_to_load": "Erreur de chargement",
-    "camera_permission_required": "",
-    "camera_permission_denied": "",
-    "check_connection": "",
-    "try_again": "",
-    "camera_permission_explanation": "",
-    "camera_permission_denied_permanently": ""
-  },
-  "tabs": {
-    "messages": "",
-    "events": "",
-    "communities": "",
-    "home": "",
-    "search": ""
-  },
-  "common": {
-    "open_settings": "",
-    "cancel": "",
-    "add_photo": "",
-    "choose_from_library": "",
-    "take_photo": "",
-    "choose_photo_source": ""
-  },
-  "not_found": {
-    "message": "",
-    "go_home": "",
-    "title": ""
+    "failed_to_load": "Erreur de chargement"
   }
 }

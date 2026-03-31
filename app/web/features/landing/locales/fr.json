@@ -36,17 +36,5 @@
   "free_forever_description": "Personne ne devrait payer pour s’inscrire et/ou pour utiliser Couchers.org.",
   "free_forever_why": "Exiger un frais pour l'utilisation constitue un obstacle intenable à l'entrée. En impliquant de l'argent dans le couchsurfing, les gens peuvent avoir des fausses attentes.",
   "authentic_description": "Nous nous efforçons de créer des outils efficaces pour vous aider à vivre des expériences authentiques dans le monde réel, en minimisant le temps passé à les rechercher dans le monde numérique. Notre objectif n'est pas de susciter un engagement vide de sens.",
-  "last_signup": "Dernière inscription {{timeAgo}}",
-  "signup_description2_one": "",
-  "signup_description2_many": "",
-  "signup_description2_other": "",
-  "signup_description_no_link2_one": "",
-  "signup_description_no_link2_many": "",
-  "signup_description_no_link2_other": "",
-  "num_users2_one": "",
-  "num_users2_many": "",
-  "num_users2_other": "",
-  "num_countries2_one": "",
-  "num_countries2_many": "",
-  "num_countries2_other": ""
+  "last_signup": "Dernière inscription {{timeAgo}}"
 }

@@ -36,17 +36,5 @@
   "non_transactional_description": "La gent no es paga entre si amb diners ni en espècie per participar en activitats o en la comunitat. Ser hoste no t'obliga a allotjar ningú en el futur.",
   "why": "Per què?",
   "map_section_title": "Explora la nostra comunitat global",
-  "last_signup": "Última sessió {{timeAgo}}",
-  "signup_description2_one": "",
-  "signup_description2_many": "",
-  "signup_description2_other": "",
-  "signup_description_no_link2_one": "",
-  "signup_description_no_link2_many": "",
-  "signup_description_no_link2_other": "",
-  "num_users2_one": "",
-  "num_users2_many": "",
-  "num_users2_other": "",
-  "num_countries2_one": "",
-  "num_countries2_many": "",
-  "num_countries2_other": ""
+  "last_signup": "Última sessió {{timeAgo}}"
 }

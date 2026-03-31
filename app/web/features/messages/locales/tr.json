@@ -54,40 +54,23 @@
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {
-      "message": "Bu sohbetin yöneticisi olmaktan vazgeçmek istediğine emin misin? Başka bir yönetici seni tekrardan yönetici olarak eklemediği sürece tekrardan bu sohbetin yöneticisi olamayacaksın.",
-      "title": ""
+      "message": "Bu sohbetin yöneticisi olmaktan vazgeçmek istediğine emin misin? Başka bir yönetici seni tekrardan yönetici olarak eklemediği sürece tekrardan bu sohbetin yöneticisi olamayacaksın."
     },
     "remove_admin": {
-      "title": "Yönetici çıkar",
-      "action_a11y_label": ""
-    },
-    "add_admin": {
-      "title": "",
-      "action_a11y_label": ""
+      "title": "Yönetici çıkar"
     }
   },
   "create_chat": {
     "group_title_field_label": "Başlık",
     "dm_title": "Yeni bir sohbet oluştur",
-    "group_title": "Grup sohbeti oluştur",
-    "create_button": "",
-    "back_button": "",
-    "hosting_request_hint": "",
-    "no_friends_found_message": "",
-    "user_load_error_message": "",
-    "friends_input_label": "",
-    "title_label": ""
+    "group_title": "Grup sohbeti oluştur"
   },
   "mark_all_read_button_text_chats": "Tüm sohbetleri okundu olarak işaretle",
   "mark_all_read_button_text_hosting": "Tüm ev sahipliği isteklerini okunmuş olarak işaretle",
   "mark_all_read_button_text_surfing": "Tüm sörf isteklerini okunmuş olarak işaretle",
   "host_request_view": {
     "request_duration_one": "{{count}} gece",
-    "request_duration_other": "{{count}} gece",
-    "error_message": "",
-    "back_button_a11y_label": "",
-    "title_for_host": "",
-    "title_for_surfer": ""
+    "request_duration_other": "{{count}} gece"
   },
   "group_chats_tab": {
     "no_chats_message": "Henüz grup sohbeti yok",
@@ -123,63 +106,16 @@
   },
   "control_message": {
     "created_chat_text": "{{user}} sohbeti oluşturdu",
-    "unknown_message_text": "Bilinmeyen kontrol mesajı",
-    "edited_chat_text": "",
-    "invite_user_text": "",
-    "host_request_status_changed": {
-      "accepted": "",
-      "cancelled": "",
-      "confirmed": "",
-      "rejected": ""
-    },
-    "user_left_chat_text": "",
-    "admin_assignment_text": "",
-    "admin_removal_text": ""
+    "unknown_message_text": "Bilinmeyen kontrol mesajı"
   },
   "archive": {
-    "no_archived_chats": "Arşivlenmiş sohbet yok",
-    "archived": "",
-    "archive_button": "",
-    "unarchive_button": "",
-    "show_archived": "",
-    "show_active": "",
-    "no_archived_requests": "",
-    "no_archived_messages": ""
+    "no_archived_chats": "Arşivlenmiş sohbet yok"
   },
   "host_request_status": {
-    "rejected": "Reddedildi",
-    "confirmed": "",
-    "pending": "",
-    "past": "",
-    "cancelled": "",
-    "accepted": ""
+    "rejected": "Reddedildi"
   },
   "host_request_item": {
     "expired": "Bu isteğin süresi doldu",
-    "pending": "Bu istek hala bekliyor",
-    "surfer_status": {
-      "rejected": "",
-      "confirmed": "",
-      "accepted": "",
-      "cancelled": ""
-    },
-    "host_status": {
-      "cancelled": "",
-      "confirmed": "",
-      "rejected": "",
-      "accepted": ""
-    }
-  },
-  "chat_input": {
-    "label": ""
-  },
-  "group_chat_settings_dialog": {
-    "only_admins_invite": {
-      "field_label": ""
-    },
-    "title": "",
-    "chat_title": {
-      "field_label": ""
-    }
+    "pending": "Bu istek hala bekliyor"
   }
 }

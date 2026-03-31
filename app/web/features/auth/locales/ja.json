@@ -17,12 +17,7 @@
     "old_password": "以前のパスワード",
     "new_password": "新たなパスワード",
     "password_mismatch_error": "上記の新たなパスワードと一致しません。",
-    "password_changed_success": "新たなパスワードが設定され、通知がメールアドレスに送信されました。",
-    "reset_password_success": "",
-    "reset_password_error": "",
-    "subtitle": "",
-    "user_logged_error": "",
-    "token_error": ""
+    "password_changed_success": "新たなパスワードが設定され、通知がメールアドレスに送信されました。"
   },
   "reset_password_form": {
     "enter_email": "ユーザーネームまたはメールアドレスを入力してください",
@@ -31,16 +26,7 @@
   "login_page": {
     "title": "ログイン",
     "header": "おかえりなさい！",
-    "no_account_prompt": "まだアカウントを持っていませんか？<2>Join us</2>",
-    "form": {
-      "username_field_label": "",
-      "password_field_label": "",
-      "no_password_login_prompt": "",
-      "forgot_password": "",
-      "show_password": "",
-      "remember_me": "",
-      "hide_password": ""
-    }
+    "no_account_prompt": "まだアカウントを持っていませんか？<2>Join us</2>"
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "すでにアカウントを持っていますか？<2>Log in</2>",
@@ -53,22 +39,18 @@
       "field_label": "ユーザーネーム",
       "required_error": "ユーザーネームを入力してください",
       "username_taken_error": "このユーザーネームはすでに使用されています。",
-      "validation_error": "ユーザーネームには数字、_、または文字のみが利用可能です。",
-      "helper_text": ""
+      "validation_error": "ユーザーネームには数字、_、または文字のみが利用可能です。"
     },
     "birthday": {
       "field_label": "誕生日",
       "required_error": "誕生日を入力してください",
-      "validation_error": "過去の有効な日付である必要があります。",
-      "too_young_error": "",
-      "not_real_date_error": ""
+      "validation_error": "過去の有効な日付である必要があります。"
     },
     "hosting_status": {
       "field_label": "受け入れステータス",
       "can_host": "受け入れ可能",
       "maybe": "受け入れ可否不明",
-      "cant_host": "受け入れ不可",
-      "any": ""
+      "cant_host": "受け入れ不可"
     },
     "gender": {
       "required_error": "性別を選択してください",
@@ -78,13 +60,7 @@
       "field_label": "私は..."
     },
     "tos_prompt": "続行するためには、<1></1>を読み受け入れてください。",
-    "tos_accept_label": "$t(global:terms_of_service)を受け入れます。",
-    "password": {
-      "field_label": "",
-      "validation_error": "",
-      "required_error": ""
-    },
-    "opt_in_newsletter": ""
+    "tos_accept_label": "$t(global:terms_of_service)を受け入れます。"
   },
   "basic_form": {
     "email": {
@@ -95,10 +71,7 @@
     "name": {
       "field_label": "氏名",
       "empty_error": "氏名を入力してください",
-      "required_error": "氏名は空欄不可です。",
-      "invalid_characters_error": "",
-      "min_length_error": "",
-      "max_length_error": ""
+      "required_error": "氏名は空欄不可です。"
     }
   },
   "community_guidelines_form": {
@@ -125,264 +98,6 @@
     "no_previews": {
       "title": "現在プレビューできる機能はありません",
       "explanation": "現在プレビューに利用可能な機能はありません。後ほどまたご確認ください！"
-    },
-    "disclaimer": ""
-  },
-  "account_settings_page": {
-    "birth_date_section": {
-      "title": "",
-      "explanation": ""
-    },
-    "title": "",
-    "timezone_section": {
-      "title": "",
-      "description": "",
-      "explanation": ""
-    },
-    "appearance_section": {
-      "title": "",
-      "current_mode": "",
-      "modes": {
-        "system": "",
-        "light": "",
-        "dark": ""
-      },
-      "click_to_change": "",
-      "change_mode": ""
-    },
-    "gender_section": {
-      "explanation": "",
-      "title": ""
-    },
-    "username_section": {
-      "description": "",
-      "title": "",
-      "explanation": ""
     }
-  },
-  "sign_up_resend_verification_done": "",
-  "strong_verification": {
-    "delete_data_title": "",
-    "title": "",
-    "information_text1": "",
-    "information_text2": "",
-    "information_text3": "",
-    "complete_title": "",
-    "complete_message2": "",
-    "delete_information_text2": "",
-    "donation_message2": "",
-    "donate_button": "",
-    "instructions": {
-      "step1": "",
-      "step1_apple_note": "",
-      "step2": "",
-      "step6": "",
-      "chip_location": {
-        "description": "",
-        "us_germany_mexico": "",
-        "finland_germany_new": "",
-        "australia": "",
-        "heading": ""
-      },
-      "step5": "",
-      "warning": "",
-      "step7": "",
-      "step3": "",
-      "title": "",
-      "step4": "",
-      "step8": "",
-      "download_app_store": "",
-      "download_google_play": ""
-    },
-    "learn_more": "",
-    "subtitle": "",
-    "status": {
-      "enabled_message": "",
-      "disabled_message": ""
-    },
-    "start_button": "",
-    "begin_button": "",
-    "delete_information": "",
-    "delete_my_data_button": "",
-    "delete_button": "",
-    "delete_success": "",
-    "donation_title": "",
-    "donation_message1": "",
-    "complete_message1": ""
-  },
-  "delete_account": {
-    "request": {
-      "username_mismatch": "",
-      "title": "",
-      "description": "",
-      "confirm_username_label": "",
-      "reason_explanation": "",
-      "reason_label": "",
-      "success_message": "",
-      "confirm_username_explanation": ""
-    },
-    "recover": {
-      "button_text": "",
-      "title": "",
-      "error_message": "",
-      "success": ""
-    },
-    "confirm": {
-      "title": "",
-      "error_message": "",
-      "button_text": "",
-      "account_deleted": ""
-    },
-    "missing_token": ""
-  },
-  "profile_visibility": {
-    "visiblility_options": {
-      "map_only": "",
-      "most": "",
-      "nothing": "",
-      "limited": "",
-      "full_profile": ""
-    },
-    "choose": "",
-    "title": ""
-  },
-  "volunteer_management": {
-    "form": {
-      "override_location_label": "",
-      "show_on_team_page_label": "",
-      "link_url_invalid": "",
-      "link_url_placeholder": "",
-      "link_type_website": "",
-      "title": "",
-      "display_name_label": "",
-      "link_type_label": "",
-      "link_text_label": "",
-      "link_text_linkedin_placeholder": "",
-      "link_text_email_placeholder": "",
-      "link_text_website_placeholder": "",
-      "link_text_required": "",
-      "link_text_email_invalid": "",
-      "link_text_linkedin_invalid": "",
-      "link_url_label": "",
-      "link_url_required": "",
-      "link_text_linkedin_helper": "",
-      "link_text_email_helper": "",
-      "save_button": "",
-      "display_location_label": "",
-      "link_text_website_helper": "",
-      "override_name_label": "",
-      "link_type_linkedin": "",
-      "link_url_helper": "",
-      "link_type_couchers": "",
-      "link_type_email": ""
-    },
-    "shown_on_team_page_current": "",
-    "title": "",
-    "description": "",
-    "card_preview_label": "",
-    "current_volunteer": "",
-    "past_volunteer": "",
-    "update_success": "",
-    "not_a_volunteer_message": "",
-    "shown_on_team_page_past": "",
-    "not_shown_on_team_page": ""
-  },
-  "active_logins": {
-    "current_session": "",
-    "description": "",
-    "login_header": "",
-    "location": "",
-    "last_activity": "",
-    "expiry": "",
-    "log_out_of_session": "",
-    "log_out_of_all_session": "",
-    "settings_page_text": "",
-    "settings_page_link": "",
-    "heading": ""
-  },
-  "jail": {
-    "mod_note_section": {
-      "note_title": "",
-      "acknowledge": "",
-      "title": "",
-      "description": ""
-    },
-    "location_section": {
-      "title": "",
-      "explanation": "",
-      "submit_button": {
-        "active_text": "",
-        "inactive_text": ""
-      },
-      "resubmit_button_text": ""
-    },
-    "description": "",
-    "activeness_probe": {
-      "still_hosting": "",
-      "title": "",
-      "description": "",
-      "not_hosting": "",
-      "note": ""
-    },
-    "title": "",
-    "terms_of_service_section": {
-      "description": ""
-    }
-  },
-  "do_not_email": {
-    "title": "",
-    "status": {
-      "no_emails_disabled_message": "",
-      "no_emails_enabled_message": ""
-    },
-    "action_button": {
-      "no_emails_enable_text": "",
-      "no_emails_disable_text": ""
-    },
-    "caveat": ""
-  },
-  "motivations_form": {
-    "community_organizing": "",
-    "surfing_description": "",
-    "hosting_description": "",
-    "events": "",
-    "community_organizing_description": "",
-    "something_else": "",
-    "something_else_description": "",
-    "events_description": "",
-    "hosting": "",
-    "header": "",
-    "surfing": ""
-  },
-  "sign_up_need_verification_title": "",
-  "quick_links": {
-    "error_message": "",
-    "missing_payload_or_sig": "",
-    "button_text": "",
-    "title": ""
-  },
-  "change_phone": {
-    "title": "",
-    "phone_label": "",
-    "add_success": "",
-    "verify_button_text": "",
-    "verify_success": "",
-    "remove_button_text": "",
-    "remove_success": "",
-    "change_button_text": "",
-    "wrong_code": "",
-    "add_button_text": "",
-    "change_to_different_description": "",
-    "need_to_donate": "",
-    "no_phone_description": "",
-    "phone_not_verified_description": "",
-    "code_label": "",
-    "remove_phone_description": ""
-  },
-  "logged_out_message": "",
-  "sign_up_resend_verification_email_help": "",
-  "jail_set_password_form": {
-    "explanation": "",
-    "title": ""
   }
 }

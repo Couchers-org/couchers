@@ -15,10 +15,7 @@
     "name": {
       "field_label": "Nom",
       "empty_error": "Si us plau, introdueix el teu nom",
-      "required_error": "Aquest camp no pot estar buit.",
-      "invalid_characters_error": "",
-      "min_length_error": "",
-      "max_length_error": ""
+      "required_error": "Aquest camp no pot estar buit."
     }
   },
   "location": {
@@ -169,17 +166,6 @@
       "title": "Nom d'usuari",
       "description": "El teu nom d'usuari és <1>{{username}}</1>.",
       "explanation": "El teu nom d'usuari es defineix quan crees el teu compte."
-    },
-    "appearance_section": {
-      "click_to_change": "",
-      "current_mode": "",
-      "title": "",
-      "change_mode": "",
-      "modes": {
-        "light": "",
-        "dark": "",
-        "system": ""
-      }
     }
   },
   "strong_verification": {
@@ -371,18 +357,5 @@
     "past_volunteer": "Voluntari de {{startDate}} a {{endDate}}.",
     "not_a_volunteer_message": "Segons els nostres registres, no ets un voluntari actual ni passat. Si això és incorrecte, fes-nos-ho saber omplint <1>aquest formulari</1>.",
     "update_success": "La teva informació de voluntari s'ha actualitzat."
-  },
-  "motivations_form": {
-    "surfing": "",
-    "community_organizing_description": "",
-    "something_else": "",
-    "something_else_description": "",
-    "header": "",
-    "hosting_description": "",
-    "community_organizing": "",
-    "surfing_description": "",
-    "hosting": "",
-    "events": "",
-    "events_description": ""
   }
 }

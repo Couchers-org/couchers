@@ -3,8 +3,7 @@
   "blocked_list_title": "Utenti bloccati",
   "block_user_confirmation_dialog": {
     "title": "Sei sicura di voler bloccare {{name}}?",
-    "message": "Messaggi e richieste da questa persona saranno bloccate ed il tuo profilo, eventi e commenti non saranno visibile a questa persona. Loro non saranno informati che tu li hai bloccati.",
-    "confirm": ""
+    "message": "Messaggi e richieste da questa persona saranno bloccate ed il tuo profilo, eventi e commenti non saranno visibile a questa persona. Loro non saranno informati che tu li hai bloccati."
   },
   "my_connections": "I miei contatti",
   "friends": "Amici",
@@ -16,19 +15,6 @@
   "pending": "In attesa",
   "unblock_user_confirmation_dialog": {
     "title": "Sei sicuro di voler sbloccare {{name}}?",
-    "message": "Sbloccando permetterai loro di vedere il tuo profilo ed inviarti richieste. Se eravate amici, loro rientreranno nella tua lista di amici. Non saranno avvertiti.",
-    "confirm": ""
-  },
-  "no_blocked_users": "",
-  "decline": "",
-  "block_user": "",
-  "remove_friend": "",
-  "remove_friend_confirmation_dialog": {
-    "title": "",
-    "message": "",
-    "confirm": ""
-  },
-  "unblock_user": "",
-  "accept": "",
-  "no_friend_requests_sent": ""
+    "message": "Sbloccando permetterai loro di vedere il tuo profilo ed inviarti richieste. Se eravate amici, loro rientreranno nella tua lista di amici. Non saranno avvertiti."
+  }
 }

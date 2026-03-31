@@ -25,8 +25,7 @@
       "field_label": "Nombre de usuario",
       "required_error": "Introduce tu nombre de usuario",
       "username_taken_error": "Este nombre de usuario ya existe.",
-      "validation_error": "El nombre usuario sólo puede contener números o _, y debe comenzar con una letra.",
-      "helper_text": ""
+      "validation_error": "El nombre usuario sólo puede contener números o _, y debe comenzar con una letra."
     },
     "birthday": {
       "field_label": "Cumpleaños",
@@ -59,10 +58,7 @@
     "name": {
       "field_label": "Nombre",
       "empty_error": "Por favor introduce tu nombre",
-      "required_error": "El nombre no puede ser sólo espacio en blanco.",
-      "invalid_characters_error": "",
-      "min_length_error": "",
-      "max_length_error": ""
+      "required_error": "El nombre no puede ser sólo espacio en blanco."
     }
   },
   "change_password_form": {
@@ -163,17 +159,6 @@
       "title": "Nombre de usuario",
       "description": "Tu nombre de usuario es <1>{{username}}</1>.",
       "explanation": "El nombre de usuario se elige cuando creas tu cuenta."
-    },
-    "appearance_section": {
-      "title": "",
-      "click_to_change": "",
-      "change_mode": "",
-      "modes": {
-        "system": "",
-        "light": "",
-        "dark": ""
-      },
-      "current_mode": ""
     }
   },
   "login_prompt": "Haz clic aquí para iniciar sesión",
@@ -233,8 +218,7 @@
     "title": "Número de teléfono",
     "no_phone_description": "No has añadido un número de teléfono a tu cuenta. Para añadir uno, escríbelo abajo. Verificaremos tu número mediante un mensaje de texto.",
     "phone_not_verified_description": "Te hemos enviado un código a <2>{{phone}}</2>. Para verificar tu teléfono, introduce el código a continuación:",
-    "remove_phone_description": "Tu número de teléfono actual es <2>{{phone}}</2>. Puedes eliminar tú número de teléfono abajo.",
-    "need_to_donate": ""
+    "remove_phone_description": "Tu número de teléfono actual es <2>{{phone}}</2>. Puedes eliminar tú número de teléfono abajo."
   },
   "unhandled_sign_up_state": "Error: unhandled signup flow state.",
   "do_not_email": {
@@ -251,45 +235,7 @@
   },
   "sign_up_need_verification_title": "¡Cási hemos terminado, una última cosa!",
   "volunteer_management": {
-    "shown_on_team_page_current": "Mostrado en la página del equipo como miembro actual del equipo.",
-    "form": {
-      "title": "",
-      "override_name_label": "",
-      "override_location_label": "",
-      "display_location_label": "",
-      "show_on_team_page_label": "",
-      "link_type_email": "",
-      "link_type_linkedin": "",
-      "link_type_website": "",
-      "link_text_label": "",
-      "link_text_linkedin_placeholder": "",
-      "link_text_email_placeholder": "",
-      "link_text_website_placeholder": "",
-      "link_text_linkedin_helper": "",
-      "link_text_email_helper": "",
-      "link_text_website_helper": "",
-      "link_text_required": "",
-      "link_text_email_invalid": "",
-      "link_text_linkedin_invalid": "",
-      "link_url_label": "",
-      "link_url_helper": "",
-      "link_url_required": "",
-      "link_url_invalid": "",
-      "save_button": "",
-      "display_name_label": "",
-      "link_type_label": "",
-      "link_type_couchers": "",
-      "link_url_placeholder": ""
-    },
-    "title": "",
-    "description": "",
-    "card_preview_label": "",
-    "not_a_volunteer_message": "",
-    "past_volunteer": "",
-    "shown_on_team_page_past": "",
-    "not_shown_on_team_page": "",
-    "update_success": "",
-    "current_volunteer": ""
+    "shown_on_team_page_current": "Mostrado en la página del equipo como miembro actual del equipo."
   },
   "strong_verification": {
     "begin_button": "Completar la verificación robusta mediante Iris ID",
@@ -307,38 +253,7 @@
     "complete_title": "Estamos procesando su intento de Verificación robusta",
     "complete_message1": "Tu pasaporte está siendo validado. Recibirás un correo electrónico con los resultados en unos minutos.",
     "complete_message2": "La verificación robusta expira cuando vence tu pasaporte, y deberás completar la verificación nuevamente con el nuevo pasaporte.",
-    "delete_data_title": "Eliminar los datos del pasaporte de tu verificación robusta",
-    "donate_button": "",
-    "delete_information": "",
-    "delete_information_text2": "",
-    "delete_my_data_button": "",
-    "delete_success": "",
-    "donation_message1": "",
-    "donation_message2": "",
-    "instructions": {
-      "step1": "",
-      "step1_apple_note": "",
-      "step2": "",
-      "step3": "",
-      "step4": "",
-      "step5": "",
-      "step6": "",
-      "step7": "",
-      "step8": "",
-      "download_app_store": "",
-      "download_google_play": "",
-      "chip_location": {
-        "us_germany_mexico": "",
-        "finland_germany_new": "",
-        "australia": "",
-        "heading": "",
-        "description": ""
-      },
-      "title": "",
-      "warning": ""
-    },
-    "delete_button": "",
-    "donation_title": ""
+    "delete_data_title": "Eliminar los datos del pasaporte de tu verificación robusta"
   },
   "active_logins": {
     "description": "Esta página muestra sesiones activas; puedes cerrar cualquier sesión haciendo clic en el botón junto a la misma, o desplazándote hasta el final y haciendo clic en el botón para todas las sesiones excepto la actual.",
@@ -354,35 +269,5 @@
     "heading": "Sesiones actuales"
   },
   "sign_up_resend_verification_email_help": "¿No has recibido el correo eletrónico? Haz clic <2>aquí para reenviar el enlace de verificación</2>.",
-  "sign_up_resend_verification_done": "¡Hecho! Te hemos enviado otro correo electrónico.",
-  "profile_visibility": {
-    "choose": "",
-    "title": "",
-    "visiblility_options": {
-      "nothing": "",
-      "map_only": "",
-      "limited": "",
-      "most": "",
-      "full_profile": ""
-    }
-  },
-  "motivations_form": {
-    "community_organizing_description": "",
-    "something_else_description": "",
-    "header": "",
-    "surfing_description": "",
-    "hosting": "",
-    "hosting_description": "",
-    "events": "",
-    "events_description": "",
-    "community_organizing": "",
-    "something_else": "",
-    "surfing": ""
-  },
-  "quick_links": {
-    "title": "",
-    "button_text": "",
-    "error_message": "",
-    "missing_payload_or_sig": ""
-  }
+  "sign_up_resend_verification_done": "¡Hecho! Te hemos enviado otro correo electrónico."
 }

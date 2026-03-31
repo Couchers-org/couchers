@@ -63,8 +63,7 @@
   },
   "donation_banner": {
     "progress_label": "Bağış ilerlemesi",
-    "button": "Şimdi bağış yap",
-    "message": ""
+    "button": "Şimdi bağış yap"
   },
   "hosting_status": {
     "any": "Herhangi biri",
@@ -117,8 +116,7 @@
     },
     "content": {
       "button_label": "Uygunsuz içerik veya davranışı bildir",
-      "success_message": "Raporunuz ile Couchers'ı herkes için daha iyi bir platform yaptığın için teşekkürler!",
-      "dialog_message": ""
+      "success_message": "Raporunuz ile Couchers'ı herkes için daha iyi bir platform yaptığın için teşekkürler!"
     }
   },
   "meetup_status": {
@@ -143,9 +141,7 @@
       "press_enter_to_search": "Aramak için enter tuşuna bas",
       "display_location_label": "Gösterilen konum",
       "search_location_label": "Konum ara",
-      "display_location_not_empty": "Lütfen gösterilen konum alanını doldurun",
-      "radius_text2_one": "",
-      "radius_text2_other": ""
+      "display_location_not_empty": "Lütfen gösterilen konum alanını doldurun"
     },
     "datepicker": {
       "change_date": "Tarihi değiştir"
@@ -196,10 +192,7 @@
       "2010s_year": "2010'lar",
       "2020_year": "2020",
       "today_year": "Bugün",
-      "early_2000s_text": "Çevrimiçi kanepe sörfü hareketi doğdu: yerel halkla birlikte kalın, kültür paylaşın.",
-      "today_text": "",
-      "2010s_text": "",
-      "2020_text": ""
+      "early_2000s_text": "Çevrimiçi kanepe sörfü hareketi doğdu: yerel halkla birlikte kalın, kültür paylaşın."
     },
     "actions": {
       "host": "Şehrini ziyaret eden bir gezgine ev sahipliği yap",
@@ -211,8 +204,7 @@
     "why_people_title": "İnsanlar neden kanepe sörfünü seviyor",
     "why_people_points": {
       "travelers": "<bold>Yolcular için</bold>: Turistik yolların ötesine geçen daha derin, daha insancıl deneyimler",
-      "hosts": "<bold>Ev sahipleri için</bold>: dünya genelinden insanlarla tanış ve onlarla şehrini paylaş",
-      "everyone": ""
+      "hosts": "<bold>Ev sahipleri için</bold>: dünya genelinden insanlarla tanış ve onlarla şehrini paylaş"
     },
     "title": "Kanepe sörfü nedir?",
     "description_1": "Kanepe sörfü bazı üyelerin(ev sahipleri) platformda paylaşım yaparak şehirlerini ziyaret eden diğer üyeleri(sörfçüler) konaklamaya açık olduklarını paylaşmalarını sağlayan bir konsepttir.",
@@ -224,31 +216,14 @@
       "no_investor_pressure": "Yatırımcı baskısı yok",
       "social_expectation": "Ev sahibiyle vakit geçirmeyi teşvik eder",
       "cultural_exchange": "Kültürel değişim odağı",
-      "non_transactional": "Ödemesiz topluluk modeli",
-      "professionally_managed": "",
-      "cost_to_stay": "",
-      "header_hostel": "",
-      "people_first": "",
-      "header_couchers": "",
-      "free_to_stay": "",
-      "dollar": "",
-      "dollars_range": "",
-      "stay_with_locals": "",
-      "header_hotel": "",
-      "meetups_communities": ""
+      "non_transactional": "Ödemesiz topluluk modeli"
     },
     "bottom_cta_subtitle": "Couchers.org'a katılın ve misafirperverlik ve bağlantı üzerine kurulu küresel bir topluluğun parçası olun.",
     "join_couchers": "Couchers.org'a Katılın",
     "is_it_safe": {
-      "title": "Kanepe sörfü ne kadar güvenli?",
-      "description_1": "",
-      "description_2": "",
-      "description_3": ""
+      "title": "Kanepe sörfü ne kadar güvenli?"
     },
-    "tip_label": "İpucu",
-    "tip_text": "",
-    "compare_title": "",
-    "bottom_cta_title": ""
+    "tip_label": "İpucu"
   },
   "beta": "Beta",
   "relative_time": {
@@ -258,8 +233,7 @@
   "location_autocomplete": {
     "more_specific": "Lütfen daha belirli bir yer seçin",
     "search_location_hint": "Bir konum seçmek için Enter tuşuna basın veya arama simgesine tıklayın",
-    "search_location_button": "Konum ara",
-    "select_location_hint": ""
+    "search_location_button": "Konum ara"
   },
   "invites": {
     "title": "Üye davet et",
@@ -272,17 +246,13 @@
     },
     "error": {
       "fetch_invite_info": "Davet kodu detayları alınamadı"
-    },
-    "instructions": "",
-    "number_of_uses_one": "",
-    "number_of_uses_other": ""
+    }
   },
   "strong_verification": {
     "helper_text": "Bu kullanıcı kimliğini biyometrik pasaport kullanarak doğrulamıştır"
   },
   "footer": {
-    "non_profit_note": "Couchers.org, ABD'de 501(c)(3) statüsünde kar amacı gütmeyen, vergiden muaf bir kuruluş olan Couchers, Inc.'in bir projesidir.",
-    "version_info": ""
+    "non_profit_note": "Couchers.org, ABD'de 501(c)(3) statüsünde kar amacı gütmeyen, vergiden muaf bir kuruluş olan Couchers, Inc.'in bir projesidir."
   },
   "team": {
     "title": "Takım",
@@ -302,19 +272,9 @@
     "translations_lead": "Çeviri Lideri",
     "volunteer_settings": {
       "show_on_team_page": {
-        "title": "Gönüllü profilimi takım sayfasında göster",
-        "enabled_message": "",
-        "disabled_message": ""
+        "title": "Gönüllü profilimi takım sayfasında göster"
       }
-    },
-    "lead_frontend_developer": "",
-    "full_stack_backend_developer": "",
-    "frontend_developer": "",
-    "backend_developer": "",
-    "lead_backend_developer": "",
-    "description": "",
-    "fill_form_description": "",
-    "tap_press_to_flip": ""
+    }
   },
   "language_names": {
     "es-419": "İspanyolca",
@@ -335,13 +295,7 @@
     "uk": "Ukraynaca",
     "zh-Hans": "Basitleştirilmiş Çince",
     "zh-Hant": "Geleneksel Çince",
-    "hu": "Macarca",
-    "en": "",
-    "cs": "",
-    "de": "",
-    "en-CORP": "",
-    "ca": "",
-    "es": ""
+    "hu": "Macarca"
   },
   "copy_button": {
     "a11y": "Kopyala",
@@ -371,11 +325,5 @@
   "reply": "Cevap Ver",
   "yes": "Evet",
   "no": "Hayır",
-  "ok": "Tamam",
-  "blog": {
-    "byline_without_author": "",
-    "cta_message": "",
-    "byline_with_author": ""
-  },
-  "error_loading_languages": ""
+  "ok": "Tamam"
 }

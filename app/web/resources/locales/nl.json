@@ -44,8 +44,7 @@
     "show_all_events": "Alle events weergeven",
     "the_team": "Het team",
     "volunteer": "Helpen",
-    "legal_more": "Juridisch & meer",
-    "home": ""
+    "legal_more": "Juridisch & meer"
   },
   "components": {
     "edit_location_map": {
@@ -59,9 +58,7 @@
       "location_warn": "Klik en sleep de cirkel hieronder om mensen de globale locatie van je huis te laten zien. Zorg ervoor dat je huis niet in het midden van de cirkel staat, zodat mensen de exacte locatie niet weten.",
       "map_is_blank": "Coördinaten ontbreken, begin met het zoeken naar een locatie op bovenstaande kaart",
       "invalid_coordinate": "Coördinaten ontbreken, selecteer een locatie op bovenstaande kaart",
-      "no_map_support": "Je apparaat ondersteunt onze kaart niet. Zorg ervoor dat WebGL2 is ingeschakeld, of probeer een ander apparaat of een andere browser. Sorry voor het ongemak!",
-      "radius_text2_one": "",
-      "radius_text2_other": ""
+      "no_map_support": "Je apparaat ondersteunt onze kaart niet. Zorg ervoor dat WebGL2 is ingeschakeld, of probeer een ander apparaat of een andere browser. Sorry voor het ongemak!"
     },
     "datepicker": {
       "change_date": "Datum aanpassen"
@@ -213,13 +210,7 @@
     "title": "Leden uitnodigen",
     "error": {
       "fetch_invite_info": "Kon details van de invite code niet laden"
-    },
-    "disable_link": "",
-    "no_codes_message": "",
-    "created_datetime": "",
-    "disabled_datetime": "",
-    "number_of_uses_one": "",
-    "number_of_uses_other": ""
+    }
   },
   "contribute_title": "Meld je aan om mee te doen",
   "reply": "Beantwoorden",
@@ -298,84 +289,7 @@
     "bottom_cta_subtitle": "Word gratis lid van Couchers.org en maak deel uit van een wereldwijde community gebouwd op gastvrijheid en verbinding.",
     "join_couchers": "Word lid van Couchers.org",
     "is_it_safe": {
-      "title": "Hoe veilig is couchsurfen?",
-      "description_1": "",
-      "description_2": "",
-      "description_3": ""
+      "title": "Hoe veilig is couchsurfen?"
     }
-  },
-  "team": {
-    "board_member": "",
-    "co_founder_president": "",
-    "translations_lead": "",
-    "lead_frontend_developer": "",
-    "backend_developer": "",
-    "full_stack_backend_developer": "",
-    "frontend_developer": "",
-    "description": "",
-    "join_the_team": "",
-    "have_skills_contribute": "",
-    "fill_form_description": "",
-    "current_members": "",
-    "past_members": "",
-    "co_founder": "",
-    "secretary": "",
-    "treasurer": "",
-    "community_coordinator": "",
-    "developer": "",
-    "volunteer_settings": {
-      "show_on_team_page": {
-        "disabled_message": "",
-        "title": "",
-        "enabled_message": ""
-      }
-    },
-    "title": "",
-    "ui_ux_designer": "",
-    "lead_backend_developer": "",
-    "join_our_team": "",
-    "tap_press_to_flip": ""
-  },
-  "language_names": {
-    "tr": "",
-    "uk": "",
-    "zh-Hans": "",
-    "zh-Hant": "",
-    "hu": "",
-    "en-CORP": "",
-    "es": "",
-    "cs": "",
-    "de": "",
-    "en": "",
-    "fr": "",
-    "fr-CA": "",
-    "he": "",
-    "hi": "",
-    "it": "",
-    "ja": "",
-    "nb-NO": "",
-    "pl": "",
-    "pt": "",
-    "pt-BR": "",
-    "nl": "",
-    "ca": "",
-    "ru": "",
-    "sv": "",
-    "es-419": ""
-  },
-  "image_input": {
-    "select_button_a11y": "",
-    "replace_image_tooltip": "",
-    "read_file_error_message": ""
-  },
-  "copy_button": {
-    "a11y": "",
-    "copied_tooltip": ""
-  },
-  "blog": {
-    "byline_with_author": "",
-    "byline_without_author": "",
-    "cta_message": ""
-  },
-  "error_loading_languages": ""
+  }
 }

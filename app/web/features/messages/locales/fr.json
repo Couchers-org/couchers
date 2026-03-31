@@ -9,8 +9,7 @@
       "chats": "Discussions",
       "hosting": "Hébergement",
       "aria_label": "Onglets pour différents types de message",
-      "surfing": "Demandes de surfer",
-      "archived": ""
+      "surfing": "Demandes de surfer"
     }
   },
   "chat_view": {
@@ -107,10 +106,7 @@
     "group_title_field_label": "Titre",
     "user_load_error_message": "(Erreur de chargement)",
     "friends_input_label": "Ami.e.s",
-    "title_label": "Sujet",
-    "create_button": "",
-    "back_button": "",
-    "hosting_request_hint": ""
+    "title_label": "Sujet"
   },
   "leave_chat_dialog": {
     "message": "Êtes-vous sûr.e de vouloir quitter cette discussion ?",
@@ -123,13 +119,7 @@
     "invite_user_text": "{{user}} a invité {{target_user}}",
     "user_left_chat_text": "{{user}} a quitté la discussion",
     "admin_removal_text": "{{user}} a retiré {{target_user}} en tant qu'administrateur.trice",
-    "unknown_message_text": "Message de contrôle inconnu",
-    "host_request_status_changed": {
-      "rejected": "",
-      "confirmed": "",
-      "accepted": "",
-      "cancelled": ""
-    }
+    "unknown_message_text": "Message de contrôle inconnu"
   },
   "host_request_status": {
     "rejected": "Refusé",
@@ -165,22 +155,5 @@
   "unknown_user": "Utilisateur.trice inconnu.e",
   "mark_all_read_button_text_chats": "Marquez toutes les discussions comme lues",
   "mark_all_read_button_text_hosting": "Marquer toutes les demandes d'hébergement comme lues",
-  "mark_all_read_button_text_surfing": "Marquer toutes les demandes de surf comme lues",
-  "archive": {
-    "archived": "",
-    "archive_button": "",
-    "unarchive_button": "",
-    "show_archived": "",
-    "show_active": "",
-    "no_archived_chats": "",
-    "no_archived_requests": "",
-    "no_archived_messages": ""
-  },
-  "all_messages_tab": {
-    "filter": {
-      "all": ""
-    },
-    "no_messages": "",
-    "load_more": ""
-  }
+  "mark_all_read_button_text_surfing": "Marquer toutes les demandes de surf comme lues"
 }

@@ -7,10 +7,7 @@
     "group_title_field_label": "Títol",
     "no_friends_found_message": "No s'han pogut trobar amics",
     "user_load_error_message": "(Error de càrrega de l'usuari)",
-    "friends_input_label": "Amics",
-    "create_button": "",
-    "back_button": "",
-    "hosting_request_hint": ""
+    "friends_input_label": "Amics"
   },
   "chat_input": {
     "label": "Missatge"
@@ -55,13 +52,7 @@
     "admin_assignment_text": "{{user}} ha fet {{target_user}} administrador",
     "admin_removal_text": "{{user}} ha eliminat {{target_user}} com a administrador",
     "unknown_message_text": "Missatge de control desconegut",
-    "invite_user_text": "{{user}} ha convidat {{target_user}}",
-    "host_request_status_changed": {
-      "accepted": "",
-      "cancelled": "",
-      "confirmed": "",
-      "rejected": ""
-    }
+    "invite_user_text": "{{user}} ha convidat {{target_user}}"
   },
   "host_request_status": {
     "accepted": "Acceptat",
@@ -110,8 +101,7 @@
       "aria_label": "Pestanyes per a diferents tipus de missatges",
       "chats": "Xats",
       "hosting": "Allotjament",
-      "surfing": "Surfing",
-      "archived": ""
+      "surfing": "Surfing"
     }
   },
   "chat_view": {
@@ -162,25 +152,5 @@
   },
   "mark_all_read_button_text": "Marca-ho tot com a llegit",
   "request_closed_message": "Aquesta sol·licitud d'allotjament està tancada. Per continuar xatejant, envia un missatge normal a l'altra persona.",
-  "surfer_declined_request_help_text": "<0>Llegeix la nostra guia</0> sobre com escriure una sol·licitud que sigui acceptada.",
-  "all_messages_tab": {
-    "no_messages": "",
-    "load_more": "",
-    "filter": {
-      "all": ""
-    }
-  },
-  "archive": {
-    "archived": "",
-    "archive_button": "",
-    "unarchive_button": "",
-    "show_archived": "",
-    "show_active": "",
-    "no_archived_chats": "",
-    "no_archived_requests": "",
-    "no_archived_messages": ""
-  },
-  "mark_all_read_button_text_chats": "",
-  "mark_all_read_button_text_surfing": "",
-  "mark_all_read_button_text_hosting": ""
+  "surfer_declined_request_help_text": "<0>Llegeix la nostra guia</0> sobre com escriure una sol·licitud que sigui acceptada."
 }

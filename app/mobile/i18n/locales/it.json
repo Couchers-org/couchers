@@ -1,31 +1,6 @@
 {
   "errors": {
     "check_connection": "Controlla la tua connessione Internet e riprova.",
-    "try_again": "Riprova",
-    "camera_permission_denied": "",
-    "camera_permission_required": "",
-    "camera_permission_denied_permanently": "",
-    "camera_permission_explanation": "",
-    "failed_to_load": ""
-  },
-  "common": {
-    "choose_photo_source": "",
-    "cancel": "",
-    "choose_from_library": "",
-    "open_settings": "",
-    "take_photo": "",
-    "add_photo": ""
-  },
-  "tabs": {
-    "communities": "",
-    "search": "",
-    "home": "",
-    "messages": "",
-    "events": ""
-  },
-  "not_found": {
-    "message": "",
-    "go_home": "",
-    "title": ""
+    "try_again": "Riprova"
   }
 }

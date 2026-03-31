@@ -102,53 +102,5 @@
   "start_date": "Data de início",
   "start_time": "Hora de início",
   "going_to_event": "Vou participar",
-  "not_going_to_event": "Não vou",
-  "time_required": "",
-  "members_label": "",
-  "cancel_event_dialog": {
-    "title": "",
-    "message": ""
-  },
-  "invite_community_dialog": {
-    "link": "",
-    "title": "",
-    "message": "",
-    "toast_success": ""
-  },
-  "invite_community_dialog_buttons": {
-    "open": "",
-    "confirm": "",
-    "close": ""
-  },
-  "end_date_error": "",
-  "cancelled": "",
-  "event_title_label": "",
-  "search_communities": "",
-  "search_communities_helper": "",
-  "create_new_event": "",
-  "fill_out_comment": "",
-  "notify_attendees": "",
-  "make_co_organizer": {
-    "title": "",
-    "dialog_title": "",
-    "dialog_text": ""
-  },
-  "remove_as_co_organizer": {
-    "title": "",
-    "dialog_title": "",
-    "dialog_text": ""
-  },
-  "members_empty_state": "",
-  "members_title": "",
-  "created_by_me": "",
-  "no_results_found_with_link": "",
-  "total_members": "",
-  "duplicate_event": "",
-  "my_communities": "",
-  "cancel_event_success_message": "",
-  "show_cancelled_events": "",
-  "your_events": "",
-  "search_communities_placeholder": "",
-  "discussion_creation_date": "",
-  "cancel_event": ""
+  "not_going_to_event": "Não vou"
 }
