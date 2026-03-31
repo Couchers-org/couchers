@@ -231,7 +231,8 @@
       "error_message": "",
       "button_text": "",
       "account_deleted": ""
-    }
+    },
+    "missing_token": ""
   },
   "profile_visibility": {
     "visiblility_options": {
@@ -322,7 +323,10 @@
       "not_hosting": "",
       "note": ""
     },
-    "title": ""
+    "title": "",
+    "terms_of_service_section": {
+      "description": ""
+    }
   },
   "do_not_email": {
     "title": "",
@@ -371,7 +375,8 @@
     "need_to_donate": "",
     "no_phone_description": "",
     "phone_not_verified_description": "",
-    "code_label": ""
+    "code_label": "",
+    "remove_phone_description": ""
   },
   "logged_out_message": "",
   "sign_up_resend_verification_email_help": "",

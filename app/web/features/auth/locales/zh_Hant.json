@@ -132,7 +132,8 @@
     "phone_not_verified_description": "",
     "need_to_donate": "",
     "no_phone_description": "",
-    "change_to_different_description": ""
+    "change_to_different_description": "",
+    "remove_phone_description": ""
   },
   "delete_account": {
     "confirm": {
@@ -156,7 +157,8 @@
       "title": "刪除帳戶",
       "description": "",
       "success_message": ""
-    }
+    },
+    "missing_token": ""
   },
   "jail_set_password_form": {
     "explanation": "您之前沒有為帳號設定過密碼。請現在設定一個密碼再繼續操作。",

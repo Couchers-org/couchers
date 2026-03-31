@@ -161,7 +161,10 @@
       "acknowledge": ""
     },
     "title": "",
-    "description": ""
+    "description": "",
+    "terms_of_service_section": {
+      "description": ""
+    }
   },
   "strong_verification": {
     "status": {
