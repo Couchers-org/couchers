@@ -142,7 +142,8 @@
       "title": "",
       "description": "",
       "still_hosting": "",
-      "not_hosting": ""
+      "not_hosting": "",
+      "note": ""
     },
     "location_section": {
       "submit_button": {
@@ -340,7 +341,8 @@
     "old_password": "",
     "password_mismatch_error": "",
     "subtitle": "",
-    "reset_password_error": ""
+    "reset_password_error": "",
+    "token_error": ""
   },
   "login_page": {
     "header": "",
@@ -353,7 +355,8 @@
       "password_field_label": "",
       "forgot_password": ""
     },
-    "title": ""
+    "title": "",
+    "no_account_prompt": ""
   },
   "community_guidelines_form": {
     "guideline": {

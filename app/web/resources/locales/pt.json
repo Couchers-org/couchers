@@ -125,7 +125,8 @@
     "full_stack_backend_developer": "",
     "title": "",
     "frontend_developer": "",
-    "co_founder_president": ""
+    "co_founder_president": "",
+    "tap_press_to_flip": ""
   },
   "language_names": {
     "en": "",
@@ -266,7 +267,8 @@
       "complete_percent": "",
       "info_text": "",
       "view_progress": "",
-      "loading": ""
+      "loading": "",
+      "help_translate": ""
     },
     "select_language": "",
     "success_message": "",
@@ -274,11 +276,13 @@
     "current_preferred_language": "",
     "form_title": "",
     "error_loading_languages": "",
-    "show_all_languages_description": ""
+    "show_all_languages_description": "",
+    "help_translate": ""
   },
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "save_changes": "",
   "meetup_status": {

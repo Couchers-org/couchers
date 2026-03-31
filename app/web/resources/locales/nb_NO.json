@@ -88,7 +88,8 @@
     "backend_developer": "",
     "secretary": "",
     "current_members": "",
-    "co_founder": ""
+    "co_founder": "",
+    "tap_press_to_flip": ""
   },
   "error_loading_languages": "",
   "language_names": {
@@ -192,14 +193,16 @@
       "info_text": "",
       "complete": "",
       "just_started": "",
-      "complete_percent": ""
+      "complete_percent": "",
+      "help_translate": ""
     },
     "current_preferred_language": "",
     "form_title": "",
     "select_language": "",
     "success_message": "",
     "error_loading_languages": "",
-    "show_all_languages": ""
+    "show_all_languages": "",
+    "help_translate": ""
   },
   "legal_name": "",
   "login": "",
@@ -309,7 +312,8 @@
   "load_more": "",
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "image_input": {
     "select_button_a11y": "",
@@ -372,5 +376,6 @@
   "sign_up": "",
   "required": "",
   "beta": "",
-  "create": ""
+  "create": "",
+  "update": ""
 }

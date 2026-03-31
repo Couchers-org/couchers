@@ -110,7 +110,8 @@
     "description": "",
     "treasurer": "",
     "community_coordinator": "",
-    "join_our_team": ""
+    "join_our_team": "",
+    "tap_press_to_flip": ""
   },
   "language_names": {
     "ca": "",
@@ -163,7 +164,8 @@
       "error_loading": "",
       "no_data": "",
       "complete": "",
-      "info_text": ""
+      "info_text": "",
+      "help_translate": ""
     },
     "form_title": "",
     "select_language": "",
@@ -171,7 +173,8 @@
     "show_all_languages_description": "",
     "show_all_languages": "",
     "error_loading_languages": "",
-    "current_preferred_language": ""
+    "current_preferred_language": "",
+    "help_translate": ""
   },
   "report": {
     "flag": {
@@ -366,7 +369,8 @@
   },
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "edit": "",
   "save": "",
@@ -374,5 +378,6 @@
   "previous": "",
   "mod": "",
   "community_standing": "",
-  "community_standing_description": ""
+  "community_standing_description": "",
+  "update": ""
 }

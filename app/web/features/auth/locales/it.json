@@ -21,7 +21,8 @@
     "reset_password_success": "La tua password è stata modificata con successo!",
     "reset_password_error": "",
     "user_logged_error": "",
-    "subtitle": ""
+    "subtitle": "",
+    "token_error": ""
   },
   "reset_password_form": {
     "enter_email": "Inserisci il tuo nome utente/e-mail",

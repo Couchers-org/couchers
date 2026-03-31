@@ -93,7 +93,8 @@
     "frontend_developer": "",
     "lead_frontend_developer": "",
     "backend_developer": "",
-    "past_members": ""
+    "past_members": "",
+    "tap_press_to_flip": ""
   },
   "blog": {
     "byline_without_author": "",
@@ -203,7 +204,8 @@
       "loading": "",
       "error_loading": "",
       "complete_percent": "",
-      "view_progress": ""
+      "view_progress": "",
+      "help_translate": ""
     },
     "show_all_languages_description": "",
     "current_preferred_language": "",
@@ -211,7 +213,8 @@
     "select_language": "",
     "show_all_languages": "",
     "form_title": "",
-    "success_message": ""
+    "success_message": "",
+    "help_translate": ""
   },
   "report": {
     "flag": {
@@ -271,7 +274,8 @@
   },
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "load_more": "",
   "read_more": "",
@@ -372,5 +376,6 @@
   "create": "",
   "contribute_title": "",
   "terms_of_service": "",
-  "save_changes": ""
+  "save_changes": "",
+  "update": ""
 }

@@ -328,7 +328,9 @@
     "hundred_or_more_references": ""
   },
   "meetup_status": {
-    "open_to_meetup_description": ""
+    "open_to_meetup_description": "",
+    "wants_to_meetup_description": "",
+    "does_not_want_to_meetup_description": ""
   },
   "avatar_placeholder_info": "",
   "click_to_add_photo": "",

@@ -88,7 +88,8 @@
     "secretary": "",
     "co_founder": "",
     "lead_backend_developer": "",
-    "full_stack_backend_developer": ""
+    "full_stack_backend_developer": "",
+    "tap_press_to_flip": ""
   },
   "language_names": {
     "es": "",
@@ -213,14 +214,16 @@
       "error_loading": "",
       "complete": "",
       "almost_there": "",
-      "midway": ""
+      "midway": "",
+      "help_translate": ""
     },
     "show_all_languages": "",
     "show_all_languages_description": "",
     "current_preferred_language": "",
     "form_title": "",
     "error_loading_languages": "",
-    "success_message": ""
+    "success_message": "",
+    "help_translate": ""
   },
   "meetup_status": {
     "unspecified_info": "",
@@ -352,7 +355,8 @@
   "beta": "",
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "edit": "",
   "mod": "",
@@ -374,5 +378,6 @@
   "thanks": "",
   "save_changes": "",
   "send": "",
-  "confirm": ""
+  "confirm": "",
+  "update": ""
 }

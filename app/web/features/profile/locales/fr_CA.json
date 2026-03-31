@@ -279,7 +279,9 @@
   "connection_pending": "",
   "unspecified_info": "",
   "meetup_status": {
-    "open_to_meetup_description": ""
+    "open_to_meetup_description": "",
+    "wants_to_meetup_description": "",
+    "does_not_want_to_meetup_description": ""
   },
   "click_to_add_photo": "",
   "response_time_text_some": "",

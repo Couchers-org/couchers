@@ -29,5 +29,6 @@
   "friend_requests_sent": "",
   "no_blocked_users": "",
   "remove_friend": "",
-  "no_friends": ""
+  "no_friends": "",
+  "my_connections": ""
 }

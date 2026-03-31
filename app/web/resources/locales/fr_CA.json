@@ -88,7 +88,8 @@
     "current_members": "",
     "join_our_team": "",
     "board_member": "",
-    "treasurer": ""
+    "treasurer": "",
+    "tap_press_to_flip": ""
   },
   "error_loading_languages": "",
   "language_names": {
@@ -136,7 +137,8 @@
       "complete_percent": "",
       "info_text": "",
       "view_progress": "",
-      "in_progress": ""
+      "in_progress": "",
+      "help_translate": ""
     },
     "current_preferred_language": "",
     "form_title": "",
@@ -144,7 +146,8 @@
     "success_message": "",
     "error_loading_languages": "",
     "show_all_languages": "",
-    "show_all_languages_description": ""
+    "show_all_languages_description": "",
+    "help_translate": ""
   },
   "couchers": "",
   "report": {
@@ -277,7 +280,8 @@
   },
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "community_standing": "",
   "community_standing_description": "",
@@ -374,5 +378,6 @@
   },
   "strong_verification": {
     "helper_text": ""
-  }
+  },
+  "update": ""
 }

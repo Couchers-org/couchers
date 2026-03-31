@@ -9,7 +9,9 @@
     "not_found": ""
   },
   "meetup_status": {
-    "open_to_meetup_description": ""
+    "open_to_meetup_description": "",
+    "wants_to_meetup_description": "",
+    "does_not_want_to_meetup_description": ""
   },
   "hosting_preferences_success_message": "",
   "request_form": {
