@@ -93,7 +93,8 @@
       "empty_error": "कृपया अपना नाम दर्ज करें",
       "invalid_characters_error": "",
       "min_length_error": "",
-      "max_length_error": ""
+      "max_length_error": "",
+      "required_error": ""
     },
     "email": {
       "field_label": "ईमेल",
