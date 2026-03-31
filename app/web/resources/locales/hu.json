@@ -88,7 +88,8 @@
     "ui_ux_designer": "",
     "translations_lead": "",
     "co_founder": "",
-    "developer": ""
+    "developer": "",
+    "tap_press_to_flip": ""
   },
   "blog": {
     "byline_with_author": "",
@@ -213,7 +214,8 @@
       "no_data": "",
       "in_progress": "",
       "complete_percent": "",
-      "info_text": ""
+      "info_text": "",
+      "help_translate": ""
     },
     "current_preferred_language": "",
     "select_language": "",
@@ -282,7 +284,8 @@
   "thanks": "",
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "send": "",
   "confirm": "",

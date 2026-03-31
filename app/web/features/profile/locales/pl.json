@@ -304,7 +304,9 @@
   "response_time_text_some": "",
   "response_time_text_most": "",
   "meetup_status": {
-    "open_to_meetup_description": ""
+    "open_to_meetup_description": "",
+    "wants_to_meetup_description": "",
+    "does_not_want_to_meetup_description": ""
   },
   "profile_changes_saved_message": "",
   "last_active_false": "",

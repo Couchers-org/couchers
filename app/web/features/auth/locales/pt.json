@@ -105,7 +105,8 @@
     "subtitle": "",
     "user_logged_error": "",
     "reset_password_success": "",
-    "reset_password_error": ""
+    "reset_password_error": "",
+    "token_error": ""
   },
   "reset_password_form": {
     "enter_email": "Introduz o teu nome de utilizador/e-mail",
@@ -228,7 +229,8 @@
       "title": "",
       "description": "",
       "still_hosting": "",
-      "not_hosting": ""
+      "not_hosting": "",
+      "note": ""
     }
   },
   "login_prompt": "Clica aqui para entrar",

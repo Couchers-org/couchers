@@ -111,7 +111,8 @@
     "lead_frontend_developer": "",
     "title": "",
     "join_our_team": "",
-    "treasurer": ""
+    "treasurer": "",
+    "tap_press_to_flip": ""
   },
   "blog": {
     "byline_with_author": "",
@@ -187,7 +188,8 @@
   "contribute_title": "",
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "image_input": {
     "select_button_a11y": "",
@@ -273,11 +275,13 @@
       "just_started": "",
       "complete_percent": "",
       "info_text": "",
-      "view_progress": ""
+      "view_progress": "",
+      "help_translate": ""
     },
     "form_title": "",
     "show_all_languages": "",
-    "show_all_languages_description": ""
+    "show_all_languages_description": "",
+    "help_translate": ""
   },
   "not_found_text_1": "",
   "not_found_text_2": "",
@@ -373,5 +377,6 @@
   "relative_time": {
     "less_than_a_minute_ago": "",
     "less_than_one_hour_ago": ""
-  }
+  },
+  "update": ""
 }

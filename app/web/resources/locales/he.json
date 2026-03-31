@@ -89,7 +89,8 @@
     "join_the_team": "",
     "current_members": "",
     "join_our_team": "",
-    "secretary": ""
+    "secretary": "",
+    "tap_press_to_flip": ""
   },
   "language_names": {
     "de": "",
@@ -299,7 +300,8 @@
       "in_progress": "",
       "early_stage": "",
       "just_started": "",
-      "view_progress": ""
+      "view_progress": "",
+      "help_translate": ""
     },
     "current_preferred_language": "",
     "show_all_languages": "",
@@ -327,7 +329,8 @@
   "create": "",
   "donation_banner": {
     "button": "",
-    "progress_label": ""
+    "progress_label": "",
+    "message": ""
   },
   "community_standing_description": "",
   "terms_of_service": "",

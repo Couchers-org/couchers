@@ -61,7 +61,8 @@
       "title": "",
       "still_hosting": "",
       "not_hosting": "",
-      "description": ""
+      "description": "",
+      "note": ""
     },
     "description": "",
     "title": "",
@@ -313,7 +314,8 @@
       "hide_password": ""
     },
     "title": "",
-    "header": ""
+    "header": "",
+    "no_account_prompt": ""
   },
   "change_email_confirmation": {
     "error_message": "",
@@ -330,7 +332,8 @@
     "password_mismatch_error": "",
     "user_logged_error": "",
     "reset_password_success": "",
-    "reset_password_error": ""
+    "reset_password_error": "",
+    "token_error": ""
   },
   "change_email_form": {
     "current_email_message": "",

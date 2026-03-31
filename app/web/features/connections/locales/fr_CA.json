@@ -29,5 +29,6 @@
   "add_friend": "",
   "no_friends": "",
   "friends": "",
-  "block_user": ""
+  "block_user": "",
+  "my_connections": ""
 }
