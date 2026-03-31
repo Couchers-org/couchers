@@ -29,5 +29,6 @@
   },
   "donations_title": "",
   "donations_info": "",
-  "donate": ""
+  "donate": "",
+  "donations_recurrence_explainer": ""
 }
