@@ -247,7 +247,8 @@
     "no_previews": {
       "title": "",
       "explanation": ""
-    }
+    },
+    "disclaimer": ""
   },
   "sign_up_resend_verification_done": "Hotovo! Poslali jsme ti další e-mail.",
   "volunteer_management": {
