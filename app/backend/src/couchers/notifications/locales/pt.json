@@ -23,7 +23,8 @@
     "friend_request__accept": {
       "ios_title": "",
       "title": "",
-      "body": ""
+      "body": "",
+      "ios_subtitle": ""
     },
     "gender__change": {
       "title": "",

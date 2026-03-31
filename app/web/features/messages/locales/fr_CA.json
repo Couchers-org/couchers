@@ -181,5 +181,6 @@
   "leave_chat_dialog": {
     "title": "",
     "message": ""
-  }
+  },
+  "close_request_dialog_title": ""
 }

@@ -181,5 +181,6 @@
   },
   "members_dialog": {
     "title": ""
-  }
+  },
+  "close_request_dialog_title": ""
 }

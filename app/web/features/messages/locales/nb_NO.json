@@ -180,5 +180,6 @@
     "label": ""
   },
   "surfer_declined_request_help_text": "",
-  "past_request_help_text": ""
+  "past_request_help_text": "",
+  "close_request_dialog_title": ""
 }

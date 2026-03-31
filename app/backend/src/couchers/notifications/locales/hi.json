@@ -141,7 +141,8 @@
     "friend_request__accept": {
       "body": "",
       "ios_title": "",
-      "title": ""
+      "title": "",
+      "ios_subtitle": ""
     },
     "general__new_blog_post": {
       "title": "",

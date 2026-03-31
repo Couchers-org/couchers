@@ -157,7 +157,8 @@
     "friend_request__accept": {
       "body": "",
       "title": "",
-      "ios_title": ""
+      "ios_title": "",
+      "ios_subtitle": ""
     },
     "gender__change": {
       "title": "",

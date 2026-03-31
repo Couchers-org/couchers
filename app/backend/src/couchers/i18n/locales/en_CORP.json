@@ -227,7 +227,8 @@
     "invalid_email": "",
     "missing_discussion_content": "",
     "reference_invalid_rating": "",
-    "reference_no_text": ""
+    "reference_no_text": "",
+    "after_item_not_found": ""
   },
   "quick_links": {
     "chat_unsub": "",

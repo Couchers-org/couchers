@@ -181,5 +181,6 @@
   "mark_all_read_button_text_chats": "",
   "chat_input": {
     "label": ""
-  }
+  },
+  "close_request_dialog_title": ""
 }

@@ -227,7 +227,8 @@
     "invalid_recipients": "",
     "invalid_region": "",
     "user_not_in_the_moderation_user_list": "",
-    "cant_add_self": ""
+    "cant_add_self": "",
+    "after_item_not_found": ""
   },
   "quick_links": {
     "host_request_quick_decline": "",

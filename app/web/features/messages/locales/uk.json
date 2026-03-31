@@ -181,5 +181,6 @@
     "label": ""
   },
   "unknown_user": "",
-  "close_request_dialog_host": ""
+  "close_request_dialog_host": "",
+  "close_request_dialog_title": ""
 }

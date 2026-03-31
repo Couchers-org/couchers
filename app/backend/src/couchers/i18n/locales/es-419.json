@@ -231,7 +231,8 @@
     "date_from_after_one_year": "",
     "date_from_after_to": "",
     "event_cant_update_all_times": "",
-    "cant_remove_last_admin": ""
+    "cant_remove_last_admin": "",
+    "after_item_not_found": ""
   },
   "quick_links": {
     "chat_unsub": "",

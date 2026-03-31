@@ -181,5 +181,6 @@
     }
   },
   "host_pending_request_help_text": "",
-  "surfer_declined_request_help_text": ""
+  "surfer_declined_request_help_text": "",
+  "close_request_dialog_title": ""
 }

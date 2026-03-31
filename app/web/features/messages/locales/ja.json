@@ -179,5 +179,6 @@
   "requests_tab": {
     "no_requests_message": "",
     "load_more_button_label": ""
-  }
+  },
+  "close_request_dialog_title": ""
 }

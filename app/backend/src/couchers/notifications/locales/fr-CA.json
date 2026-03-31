@@ -211,7 +211,8 @@
     "friend_request__accept": {
       "ios_title": "",
       "body": "",
-      "title": ""
+      "title": "",
+      "ios_subtitle": ""
     },
     "host_request__missed_messages": {
       "ios_title": "",
