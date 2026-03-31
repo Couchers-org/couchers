@@ -203,7 +203,8 @@
     "reference__reminder": {
       "body_one": "У вас ещё есть {{count}} день, чтобы написать отзыв для {{user}}.",
       "body_few": "У вас ещё есть {{count}} дня, чтобы написать отзыв для {{user}}.",
-      "body_many": "У вас ещё есть {{count}} дней, чтобы написать отзыв для {{user}}."
+      "body_many": "У вас ещё есть {{count}} дней, чтобы написать отзыв для {{user}}.",
+      "ios_subtitle": "{{user}}"
     },
     "password_reset__start": {
       "body": "Используйте ссылку, которую мы отправили вам по электронной почте, чтобы завершить это."
@@ -222,6 +223,10 @@
       "ios_title": "{{user}}",
       "ios_subtitle": "Пропущенные сообщения",
       "body": "У вас новые непрочитанные сообщения от {{user}}."
+    },
+    "thread__reply": {
+      "title": "{{user}} • {{title}}",
+      "ios_title": "{{user}}"
     }
   },
   "topic_action_descriptions": {
