@@ -50,7 +50,8 @@
     "subtitle": "",
     "user_logged_error": "",
     "reset_password_success": "",
-    "token_error": ""
+    "token_error": "",
+    "password_mismatch_error": ""
   },
   "account_form": {
     "hosting_status": {
@@ -278,7 +279,8 @@
       "min_length_error": "",
       "max_length_error": "",
       "field_label": "",
-      "empty_error": ""
+      "empty_error": "",
+      "required_error": ""
     },
     "email": {
       "empty_error": "",
