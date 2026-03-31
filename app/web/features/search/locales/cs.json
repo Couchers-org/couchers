@@ -27,10 +27,13 @@
     "host_filters": {
       "age": {
         "min_age": "Minimální věk",
-        "max_age": "Maximální věk"
+        "max_age": "Maximální věk",
+        "field_label": ""
       },
       "last_active_field_label": "Naposledy aktivní",
-      "complete_profiles_label": "Kompletní profily"
+      "complete_profiles_label": "Kompletní profily",
+      "hosting_status_field_label": "",
+      "meetup_status_field_label": ""
     },
     "accommodation_filters": {
       "title": "Filtry ubytování",
@@ -90,5 +93,6 @@
   },
   "location": "Poloha",
   "keyword": "Klíčové slovo",
-  "search_this_area": "Hledat v této oblasti"
+  "search_this_area": "Hledat v této oblasti",
+  "zoom_in_to_select_user": ""
 }

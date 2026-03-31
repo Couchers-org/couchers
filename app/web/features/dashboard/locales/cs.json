@@ -45,5 +45,19 @@
   "community_missing": "Chybí tvá země nebo město? Použij <1>tento formulář</1> k jeho přidání!",
   "profile_mobile_summary_view": "Přejít na profil",
   "find_a_host": "Najdi hostitele",
-  "become_a_host": "Staň se hostitelem"
+  "become_a_host": "Staň se hostitelem",
+  "member_count_one": "",
+  "member_count_few": "",
+  "member_count_other": "",
+  "search_input_placeholder": "",
+  "new_pill": "",
+  "hero_image_attribution": "",
+  "hero_image_alt": "",
+  "events_empty_state": "",
+  "search_input_label": "",
+  "attendees_count_one": "",
+  "attendees_count_few": "",
+  "attendees_count_other": "",
+  "complete_profile_explanation": "",
+  "no_sub_communities": ""
 }

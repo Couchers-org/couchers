@@ -9,11 +9,23 @@
   "errors": {
     "failed_to_load": "No s'ha pogut carregar",
     "check_connection": "Comprova la teva connexió a internet i torna-ho a intentar.",
-    "try_again": "Torna-ho a provar"
+    "try_again": "Torna-ho a provar",
+    "camera_permission_required": "",
+    "camera_permission_explanation": "",
+    "camera_permission_denied_permanently": "",
+    "camera_permission_denied": ""
   },
   "not_found": {
     "title": "Vaja!",
     "message": "Aquesta pantalla no existeix.",
     "go_home": "Ves a la pantalla d'inici!"
+  },
+  "common": {
+    "open_settings": "",
+    "choose_from_library": "",
+    "add_photo": "",
+    "choose_photo_source": "",
+    "take_photo": "",
+    "cancel": ""
   }
 }

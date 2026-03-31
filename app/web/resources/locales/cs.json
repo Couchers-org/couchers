@@ -8,7 +8,8 @@
       "problem_helper": "Stručný popis problému a jak ho reprodukovat",
       "expect_label": "Co se stalo? Co se mělo stát?",
       "expect_helper": "Stručný popis toho, co jste očekávali, že se stane místo toho",
-      "warning_message": "Vezmi prosím na vědomí, že tyto informace, stejně jako diagnostické údaje, včetně toho na které stránce se nacházíš, jaký používáš prohlížeč a tvé uživatelské jméno, budou uloženy do veřejného seznamu chyb."
+      "warning_message": "Vezmi prosím na vědomí, že tyto informace, stejně jako diagnostické údaje, včetně toho na které stránce se nacházíš, jaký používáš prohlížeč a tvé uživatelské jméno, budou uloženy do veřejného seznamu chyb.",
+      "success_message2": ""
     },
     "flag": {
       "reason_required": "Důvod je vyžadován.",
@@ -76,7 +77,8 @@
   "meetup_status": {
     "wants_to_meetup": "Chci se setkat",
     "open_to_meetup": "Otevřený k setkání",
-    "does_not_want_to_meetup": "Nemohu/nechci se setkat"
+    "does_not_want_to_meetup": "Nemohu/nechci se setkat",
+    "unspecified_info": ""
   },
   "learn_more": "Zjistit více",
   "terms_of_service": "Podmínky služby",
@@ -100,7 +102,8 @@
     "can_host": "Mohu ubytovat",
     "maybe": "Občas mohu ubytovat",
     "cant_host": "Nemohu ubytovat",
-    "any": "Jakýkoli"
+    "any": "Jakýkoli",
+    "unspecified_info": ""
   },
   "close": "Zavřít",
   "create_account": "Vytvořit účet",
@@ -155,7 +158,8 @@
     "about": "O aplikaci",
     "merch_shop": "Obchod s merchem",
     "switch_to_light_mode": "Přepnout na světlý režim",
-    "switch_to_dark_mode": "Přepnout do tmavého režimu"
+    "switch_to_dark_mode": "Přepnout do tmavého režimu",
+    "home": ""
   },
   "html_meta": {
     "default_description": "Sdílej svůj svět a objevuj ten jejich. Autentické místní zážitky postavené na důvěře a skutečném spojení — ne na transakcích.",
@@ -201,7 +205,14 @@
     "instructions": "Vytvoř odkaz na pozvánku, který můžeš sdílet s přáteli a komunitou. Deaktivuj kódy, které už nepoužíváš.",
     "error": {
       "fetch_invite_info": "Nepodařilo se získat podrobnosti o kódu pozvánky"
-    }
+    },
+    "disable_link": "",
+    "number_of_uses_one": "",
+    "number_of_uses_few": "",
+    "number_of_uses_other": "",
+    "no_codes_message": "",
+    "created_datetime": "",
+    "disabled_datetime": ""
   },
   "community_standing": "Postavení v komunitě",
   "relative_time": {
@@ -354,5 +365,19 @@
   "error_loading_languages": "Nepodařilo se načíst jazykové možnosti",
   "retract": "Stáhnout",
   "not_found_text_2": "Chceš prostě <1>jít domů?</1>",
-  "contribute_title": "Zaregistruj se a zapoj se"
+  "contribute_title": "Zaregistruj se a zapoj se",
+  "blog": {
+    "byline_with_author": "",
+    "cta_message": "",
+    "byline_without_author": ""
+  },
+  "image_input": {
+    "select_button_a11y": "",
+    "replace_image_tooltip": "",
+    "read_file_error_message": ""
+  },
+  "copy_button": {
+    "a11y": "",
+    "copied_tooltip": ""
+  }
 }

@@ -13,7 +13,8 @@
       "chats": "Chats",
       "hosting": "Hosten",
       "surfing": "Surfen",
-      "aria_label": "Tabbladen voor verschillende berichttypen"
+      "aria_label": "Tabbladen voor verschillende berichttypen",
+      "archived": ""
     },
     "title": "Berichten"
   },
@@ -72,7 +73,10 @@
     "no_friends_found_message": "Kon geen vrienden vinden",
     "user_load_error_message": "(Fout bij het laden van gebruikers)",
     "friends_input_label": "Vrienden",
-    "title_label": "Titel"
+    "title_label": "Titel",
+    "create_button": "",
+    "back_button": "",
+    "hosting_request_hint": ""
   },
   "chat_input": {
     "label": "Bericht"
@@ -160,5 +164,22 @@
   "unknown_user": "Onbekende gebruiker",
   "mark_all_read_button_text_surfing": "Markeer alle surfverzoeken als gelezen",
   "mark_all_read_button_text_chats": "Markeer alle chats als gelezen",
-  "mark_all_read_button_text_hosting": "Markeer alle hostverzoeken als gelezen"
+  "mark_all_read_button_text_hosting": "Markeer alle hostverzoeken als gelezen",
+  "archive": {
+    "archived": "",
+    "archive_button": "",
+    "unarchive_button": "",
+    "show_archived": "",
+    "show_active": "",
+    "no_archived_chats": "",
+    "no_archived_requests": "",
+    "no_archived_messages": ""
+  },
+  "all_messages_tab": {
+    "no_messages": "",
+    "load_more": "",
+    "filter": {
+      "all": ""
+    }
+  }
 }

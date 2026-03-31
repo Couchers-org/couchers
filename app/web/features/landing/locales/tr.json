@@ -36,5 +36,13 @@
   "authentic_why": "İnsan deneyiminin dijital dünyaya indirgenmesi ve gerçek insan bağlantısından koparılması sağlıksız ve zararlı diye düşünüyoruz. Tersine ilerleyen bir dünyada gerçek bir topluluk ve aidiyet duygusu için aktif olarak çaba gösteriyoruz.",
   "community_led_why": "Sağlıklı bir organizasyon ve platformu sürdürmek, hizmet ettiğimiz topluluğun aktif katılımını gerektirir ve topluluğu projenin geri kalanından ayrılmak, gerçekten halkımız için bir şeyler inşa etmemizi engeller. Topluluk ancak organizasyona dair şeffaflığa sahip olursa katılım gösterebilir.",
   "non_transactional_title": "İşlem bazlı olmayan",
-  "last_signup": "Son kayıt {{timeAgo}}"
+  "last_signup": "Son kayıt {{timeAgo}}",
+  "signup_description2_one": "",
+  "signup_description2_other": "",
+  "signup_description_no_link2_one": "",
+  "signup_description_no_link2_other": "",
+  "num_users2_one": "",
+  "num_users2_other": "",
+  "num_countries2_one": "",
+  "num_countries2_other": ""
 }

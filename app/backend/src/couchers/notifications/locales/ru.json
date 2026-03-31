@@ -160,19 +160,32 @@
     "host_request__reminder": {
       "title": "Запрос от {{user}} ожидает ответа",
       "ios_subtitle": "{{user}}",
-      "body": "{{user}} ожидает вашего ответа, пожалуйста, примите или отклоните запрос."
+      "body": "{{user}} ожидает вашего ответа, пожалуйста, примите или отклоните запрос.",
+      "ios_title": ""
     },
     "host_request__accept": {
-      "ios_title": "{{user}}"
+      "ios_title": "{{user}}",
+      "title": "",
+      "ios_subtitle": "",
+      "body": ""
     },
     "host_request__reject": {
-      "ios_title": "{{user}}"
+      "ios_title": "{{user}}",
+      "body": "",
+      "title": "",
+      "ios_subtitle": ""
     },
     "host_request__cancel": {
-      "ios_title": "{{user}}"
+      "ios_title": "{{user}}",
+      "title": "",
+      "ios_subtitle": "",
+      "body": ""
     },
     "host_request__confirm": {
-      "ios_title": "{{user}}"
+      "ios_title": "{{user}}",
+      "body": "",
+      "title": "",
+      "ios_subtitle": ""
     },
     "postal_verification__postcard_sent": {
       "title": "Проверка почтового адреса начата",
@@ -193,20 +206,27 @@
     },
     "reference__receive_friend": {
       "title": "Новый отзыв от {{user}}",
-      "ios_title": "{{user}}"
+      "ios_title": "{{user}}",
+      "ios_subtitle": ""
     },
     "reference__receive": {
       "title": "Новый отзыв от {{user}}",
       "ios_title": "{{user}}",
-      "ios_subtitle": "Новый отзыв"
+      "ios_subtitle": "Новый отзыв",
+      "body_must_write_yours": ""
     },
     "reference__reminder": {
       "body_one": "У вас ещё есть {{count}} день, чтобы написать отзыв для {{user}}.",
       "body_few": "У вас ещё есть {{count}} дня, чтобы написать отзыв для {{user}}.",
-      "body_many": "У вас ещё есть {{count}} дней, чтобы написать отзыв для {{user}}."
+      "body_many": "У вас ещё есть {{count}} дней, чтобы написать отзыв для {{user}}.",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "title": ""
     },
     "password_reset__start": {
-      "body": "Используйте ссылку, которую мы отправили вам по электронной почте, чтобы завершить это."
+      "body": "Используйте ссылку, которую мы отправили вам по электронной почте, чтобы завершить это.",
+      "title": "",
+      "ios_title": ""
     },
     "password_reset__complete": {
       "title": "Сброс пароля",
@@ -215,13 +235,58 @@
     },
     "phone_number__change": {
       "title": "Начата верификация телефона",
-      "ios_title": "Начата верификация телефона"
+      "ios_title": "Начата верификация телефона",
+      "body": ""
     },
     "host_request__missed_messages": {
       "title": "Новые сообщения от {{user}}",
       "ios_title": "{{user}}",
       "ios_subtitle": "Пропущенные сообщения",
       "body": "У вас новые непрочитанные сообщения от {{user}}."
+    },
+    "password__change": {
+      "ios_title": "",
+      "title": "",
+      "body": ""
+    },
+    "thread__reply": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "verification__sv_success": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "phone_number__verify": {
+      "ios_title": "",
+      "title": "",
+      "body": ""
+    },
+    "verification__sv_fail": {
+      "body_duplicate": "",
+      "title": "",
+      "ios_title": "",
+      "body_wrong_birthdate_gender": "",
+      "body_not_a_passport": ""
+    },
+    "modnote__create": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "onboarding__reminder": {
+      "first": {
+        "title": "",
+        "ios_title": "",
+        "body": ""
+      },
+      "subsequent": {
+        "title": "",
+        "ios_title": "",
+        "body": ""
+      }
     }
   },
   "topic_action_descriptions": {
@@ -321,7 +386,8 @@
       "failed": "Ваша почтовая верификация не пройдена"
     },
     "verification": {
-      "sv_success": "Ваша надёжная проверка успешно завершена"
+      "sv_success": "Ваша надёжная проверка успешно завершена",
+      "sv_fail": ""
     }
   }
 }

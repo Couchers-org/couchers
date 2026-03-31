@@ -22,7 +22,9 @@
       "ios_title": "Hâlâ ev sahipliği yapmaya açık mısın?"
     },
     "api_key__create": {
-      "body": "Detaylar size e-mail ile gönderildi."
+      "body": "Detaylar size e-mail ile gönderildi.",
+      "title": "",
+      "ios_title": ""
     },
     "badge__add": {
       "title": "Yeni profil rozeti: {{badge_name}}",
@@ -38,30 +40,37 @@
       "title_one": "{{count}} cevapsız mesaj",
       "title_other": "{{count}} cevapsız mesaj",
       "ios_title_one": "{{count}} Cevapsız Mesaj",
-      "ios_title_other": "{{count}} Cevapsız Mesaj"
+      "ios_title_other": "{{count}} Cevapsız Mesaj",
+      "body": ""
     },
     "event__reminder": {
       "ios_title": "Yaklaşan Etkinlik",
       "body": "Etkinlik {{date_and_time}} tarihinde başlayacak.",
-      "ios_subtitle": "{{title}}"
+      "ios_subtitle": "{{title}}",
+      "title": ""
     },
     "event__cancel": {
       "title": "{{title}} Etkinliği iptal edildi",
       "ios_title": "Etkinlik İptal Edildi",
-      "body": "{{user}} etkinliği iptal etti."
+      "body": "{{user}} etkinliği iptal etti.",
+      "ios_subtitle": ""
     },
     "event__delete": {
       "title": "Silinen etkinlik: {{title}}",
       "ios_title": "Etkinlik Silindi",
-      "body": "Bir moderatör bu etkinliği sildi."
+      "body": "Bir moderatör bu etkinliği sildi.",
+      "ios_subtitle": ""
     },
     "friend_request__create": {
       "title": "{{from_user}}'dan arkadaşlık isteği",
       "ios_subtitle": "Arkadaşlık İsteği",
-      "body": "{{from_user}} arkadaşın olmak istiyor."
+      "body": "{{from_user}} arkadaşın olmak istiyor.",
+      "ios_title": ""
     },
     "friend_request__accept": {
-      "title": "{{friend}} arkadaşlık isteğini kabul etti"
+      "title": "{{friend}} arkadaşlık isteğini kabul etti",
+      "ios_title": "",
+      "body": ""
     },
     "adhoc__push_enabled": {
       "title": "Anlık bildirimler etkinleştirildi",
@@ -69,17 +78,209 @@
       "body": "Bu cihazda artık bildirim alacaksınız."
     },
     "birthdate__change": {
-      "ios_title": "Doğum Tarihi Değiştirildi"
+      "ios_title": "Doğum Tarihi Değiştirildi",
+      "title": "",
+      "body": ""
     },
     "email_address__change": {
-      "body": "Yeni adresinizi onaylamak için {{email}} adresine gönderdiğimiz bağlantıyı kullanın."
+      "body": "Yeni adresinizi onaylamak için {{email}} adresine gönderdiğimiz bağlantıyı kullanın.",
+      "title": "",
+      "ios_title": ""
     },
     "event__create_any": {
       "ios_subtitle": "{{title}}",
-      "body": "{{user}} etkinliği {{date_and_time}} tarihinde oluşturdu."
+      "body": "{{user}} etkinliği {{date_and_time}} tarihinde oluşturdu.",
+      "ios_title": "",
+      "title": ""
     },
     "event__create_approved": {
-      "title": "Yeni etkinlik: {{title}}"
+      "title": "Yeni etkinlik: {{title}}",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "host_request__create": {
+      "body_one": "",
+      "body_other": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "reference__reminder": {
+      "body_one": "",
+      "body_other": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "donation__received": {
+      "ios_title": "",
+      "title": "",
+      "body": ""
+    },
+    "host_request__missed_messages": {
+      "body": "",
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "general__new_blog_post": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "email_address__verify": {
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "event__update": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "onboarding__reminder": {
+      "subsequent": {
+        "body": "",
+        "title": "",
+        "ios_title": ""
+      },
+      "first": {
+        "body": "",
+        "title": "",
+        "ios_title": ""
+      }
+    },
+    "postal_verification__success": {
+      "ios_title": "",
+      "title": "",
+      "body": ""
+    },
+    "postal_verification__failed": {
+      "body_generic": "",
+      "title": "",
+      "ios_title": "",
+      "body_code_expired": "",
+      "body_too_many_attempts": ""
+    },
+    "reference__receive": {
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body_must_write_yours": "",
+      "title": ""
+    },
+    "verification__sv_fail": {
+      "title": "",
+      "ios_title": "",
+      "body_wrong_birthdate_gender": "",
+      "body_not_a_passport": "",
+      "body_duplicate": ""
+    },
+    "password__change": {
+      "body": "",
+      "title": "",
+      "ios_title": ""
+    },
+    "password_reset__start": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "phone_number__verify": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "discussion__create": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "discussion__comment": {
+      "title": ""
+    },
+    "event__invite_organizer": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "event__comment": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "gender__change": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "host_request__reminder": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "host_request__accept": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "host_request__reject": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "host_request__cancel": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "host_request__confirm": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": "",
+      "body": ""
+    },
+    "modnote__create": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "password_reset__complete": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "phone_number__change": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "postal_verification__postcard_sent": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
+    },
+    "reference__receive_friend": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "thread__reply": {
+      "title": "",
+      "ios_title": "",
+      "ios_subtitle": ""
+    },
+    "verification__sv_success": {
+      "title": "",
+      "ios_title": "",
+      "body": ""
     }
   },
   "topic_action_descriptions": {
@@ -90,12 +291,15 @@
       "confirm": "Birisi ev sahipliği isteğini onayladığında",
       "reject": "Birisi ev sahipliği isteğini reddettiğinde",
       "missed_messages": "Bir ev sahipliği isteğinde mesaj kaçırdığında",
-      "message": "Birisi ev sahipliği isteğinde mesaj yolladığında"
+      "message": "Birisi ev sahipliği isteğinde mesaj yolladığında",
+      "cancel": ""
     },
     "reference": {
       "receive_hosted": "Sana ev sahipliği yapmış birisi tarafından referans aldığında",
       "receive_surfed": "Ev sahipliği yaptığın birinden referans aldığında",
-      "receive_friend": "Bir arkadaştan referans aldığında"
+      "receive_friend": "Bir arkadaştan referans aldığında",
+      "reminder_hosted": "",
+      "reminder_surfed": ""
     },
     "chat": {
       "message": "Birisi sana bir mesaj gönderdiğinde",
@@ -121,6 +325,63 @@
     },
     "thread": {
       "reply": "Birisi yorumuna cevap verdiğinde"
+    },
+    "account_deletion": {
+      "start": "",
+      "complete": "",
+      "recovered": ""
+    },
+    "activeness": {
+      "probe": ""
+    },
+    "api_key": {
+      "create": ""
+    },
+    "badge": {
+      "add": "",
+      "remove": ""
+    },
+    "donation": {
+      "received": ""
+    },
+    "email_address": {
+      "change": "",
+      "verify": ""
+    },
+    "event": {
+      "create_approved": "",
+      "create_any": "",
+      "update": "",
+      "cancel": "",
+      "delete": "",
+      "invite_organizer": "",
+      "comment": "",
+      "reminder": ""
+    },
+    "general": {
+      "new_blog_post": ""
+    },
+    "modnote": {
+      "create": ""
+    },
+    "onboarding": {
+      "reminder": ""
+    },
+    "password": {
+      "change": ""
+    },
+    "password_reset": {
+      "start": "",
+      "complete": ""
+    },
+    "postal_verification": {
+      "postcard_sent": "",
+      "success": "",
+      "failed": ""
+    },
+    "verification": {
+      "sv_fail": "",
+      "sv_success": ""
     }
   }
 }

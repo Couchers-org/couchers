@@ -1,1 +1,183 @@
-{}
+{
+  "create_chat": {
+    "create_button": "",
+    "back_button": "",
+    "hosting_request_hint": "",
+    "dm_title": "",
+    "group_title": "",
+    "group_title_field_label": "",
+    "no_friends_found_message": "",
+    "user_load_error_message": "",
+    "friends_input_label": "",
+    "title_label": ""
+  },
+  "all_messages_tab": {
+    "load_more": "",
+    "no_messages": "",
+    "filter": {
+      "all": ""
+    }
+  },
+  "invite_dialog": {
+    "selected": {
+      "option_load_error_text": "",
+      "field_label": "",
+      "no_options_text": ""
+    },
+    "invite_button_label": "",
+    "title": ""
+  },
+  "control_message": {
+    "host_request_status_changed": {
+      "cancelled": "",
+      "confirmed": "",
+      "accepted": "",
+      "rejected": ""
+    },
+    "unknown_message_text": "",
+    "created_chat_text": "",
+    "edited_chat_text": "",
+    "invite_user_text": "",
+    "user_left_chat_text": "",
+    "admin_assignment_text": "",
+    "admin_removal_text": ""
+  },
+  "host_request_status": {
+    "rejected": "",
+    "past": "",
+    "cancelled": "",
+    "confirmed": "",
+    "pending": "",
+    "accepted": ""
+  },
+  "host_request_view": {
+    "back_button_a11y_label": "",
+    "title_for_host": "",
+    "title_for_surfer": "",
+    "error_message": "",
+    "request_duration_other": ""
+  },
+  "unknown_user": "",
+  "chat_view": {
+    "mute": {
+      "dialog_title": "",
+      "1_week_label": "",
+      "unmute_button_label": "",
+      "1_hour_label": "",
+      "8_hours_label": "",
+      "1_day_label": "",
+      "forever_label": "",
+      "1_month_label": "",
+      "button_label": ""
+    },
+    "actions_menu": {
+      "items": {
+        "invite_members": "",
+        "manage_admins": "",
+        "show_all_members": "",
+        "chat_settings": "",
+        "leave_chat": ""
+      },
+      "a11y_label": ""
+    },
+    "no_messages_state_text": "",
+    "back_button": {
+      "a11y_label": ""
+    },
+    "muted_icon": {
+      "a11y_label": ""
+    },
+    "cannot_message_text": "",
+    "invalid_id_error": ""
+  },
+  "host_request_item": {
+    "expired": "",
+    "surfer_status": {
+      "rejected": "",
+      "accepted": "",
+      "cancelled": "",
+      "confirmed": ""
+    },
+    "host_status": {
+      "confirmed": "",
+      "rejected": "",
+      "accepted": "",
+      "cancelled": ""
+    },
+    "pending": ""
+  },
+  "write_reference_button_text": "",
+  "group_chat_settings_dialog": {
+    "chat_title": {
+      "field_label": ""
+    },
+    "only_admins_invite": {
+      "field_label": ""
+    },
+    "title": ""
+  },
+  "leave_chat_dialog": {
+    "message": "",
+    "title": ""
+  },
+  "members_dialog": {
+    "title": ""
+  },
+  "close_request_dialog_host": "",
+  "close_request_button_text": "",
+  "mark_all_read_button_text": "",
+  "request_closed_message": "",
+  "confirm_request_button_text": "",
+  "host_pending_request_help_text": "",
+  "surfer_declined_request_help_text": "",
+  "past_request_help_text": "",
+  "mark_all_read_button_text_chats": "",
+  "close_request_dialog_surfer": "",
+  "messages_page": {
+    "tabs": {
+      "chats": "",
+      "hosting": "",
+      "surfing": "",
+      "aria_label": "",
+      "archived": ""
+    },
+    "title": ""
+  },
+  "mark_all_read_button_text_hosting": "",
+  "mark_all_read_button_text_surfing": "",
+  "admins_dialog": {
+    "remove_admin": {
+      "title": "",
+      "action_a11y_label": ""
+    },
+    "add_admin": {
+      "action_a11y_label": "",
+      "title": ""
+    },
+    "step_down_confirmation_dialog": {
+      "title": "",
+      "message": ""
+    }
+  },
+  "archive": {
+    "archived": "",
+    "archive_button": "",
+    "unarchive_button": "",
+    "show_archived": "",
+    "show_active": "",
+    "no_archived_chats": "",
+    "no_archived_requests": "",
+    "no_archived_messages": ""
+  },
+  "chat_input": {
+    "label": ""
+  },
+  "group_chats_tab": {
+    "no_chats_message": "",
+    "load_more_button_label": ""
+  },
+  "requests_tab": {
+    "no_requests_message": "",
+    "load_more_button_label": ""
+  }
+}

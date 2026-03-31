@@ -7,7 +7,11 @@
     "dm_title": "Criar nova conversa",
     "group_title": "Criar nova conversa de grupo",
     "user_load_error_message": "(Erro ao carregar utilizador)",
-    "friends_input_label": "Amigos"
+    "friends_input_label": "Amigos",
+    "create_button": "",
+    "back_button": "",
+    "hosting_request_hint": "",
+    "title_label": ""
   },
   "host_request_item": {
     "surfer_status": {
@@ -55,7 +59,8 @@
     "no_messages_state_text": "Sem mensagens",
     "back_button": {
       "a11y_label": "Voltar"
-    }
+    },
+    "cannot_message_text": ""
   },
   "chat_input": {
     "label": "Mensagem"
@@ -90,7 +95,13 @@
     "created_chat_text": "{{user}} iniciou a conversa",
     "edited_chat_text": "{{user}} editou a conversa",
     "invite_user_text": "{{user}} convidou {{target_user}}",
-    "unknown_message_text": "Mensagem de controlo desconhecida"
+    "unknown_message_text": "Mensagem de controlo desconhecida",
+    "host_request_status_changed": {
+      "cancelled": "",
+      "accepted": "",
+      "rejected": "",
+      "confirmed": ""
+    }
   },
   "group_chats_tab": {
     "no_chats_message": "Sem conversas de grupo",
@@ -141,7 +152,8 @@
       "aria_label": "Separadores para diferentes tipos de mensagens",
       "chats": "Conversas",
       "hosting": "A hospedar",
-      "surfing": "A surfar"
+      "surfing": "A surfar",
+      "archived": ""
     }
   },
   "members_dialog": {
@@ -150,5 +162,25 @@
   "host_pending_request_help_text": "<0>Coisas a considerar</0> antes de responder.",
   "surfer_declined_request_help_text": "<0>Leia nosso guia</0> sobre como escrever um pedido que será aceito.",
   "past_request_help_text": "Esta solicitação está no passado, você ainda pode enviar mensagens, mas não pode modificá-la de outra forma.",
-  "unknown_user": "Utilizador desconhecido"
+  "unknown_user": "Utilizador desconhecido",
+  "mark_all_read_button_text_chats": "",
+  "mark_all_read_button_text_hosting": "",
+  "all_messages_tab": {
+    "no_messages": "",
+    "load_more": "",
+    "filter": {
+      "all": ""
+    }
+  },
+  "mark_all_read_button_text_surfing": "",
+  "archive": {
+    "archived": "",
+    "archive_button": "",
+    "unarchive_button": "",
+    "show_archived": "",
+    "show_active": "",
+    "no_archived_chats": "",
+    "no_archived_requests": "",
+    "no_archived_messages": ""
+  }
 }

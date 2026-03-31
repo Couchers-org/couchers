@@ -1,3 +1,98 @@
 {
-  "location": "Localização"
+  "location": "Localização",
+  "views": {
+    "choose_map_view": "",
+    "list": "",
+    "map_and_list": ""
+  },
+  "search_result": {
+    "people_range_message_one": "",
+    "people_range_message_many": "",
+    "people_range_message_other": "",
+    "missing_about_description": "",
+    "no_user_result_message": "",
+    "show_user_button_label": "",
+    "include_empty_profiles_button": "",
+    "few_results_suggestion": ""
+  },
+  "form": {
+    "rules": {
+      "title": "",
+      "kids_allowed": "",
+      "smokes_at_home": "",
+      "alcohol_allowed": "",
+      "pets_allowed": ""
+    },
+    "empty_profile_filters": {
+      "title": ""
+    },
+    "host_filters": {
+      "meetup_status_field_label": "",
+      "hosting_status_field_label": "",
+      "age": {
+        "field_label": "",
+        "min_age": "",
+        "max_age": ""
+      },
+      "complete_profiles_label": "",
+      "last_active_field_label": ""
+    },
+    "accommodation_filters": {
+      "title": "",
+      "guests_field_label": "",
+      "sleeping_arrangement_label": "",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "label": "",
+          "description": ""
+        },
+        "common": {
+          "label": "",
+          "description": ""
+        },
+        "private": {
+          "label": "",
+          "description": ""
+        }
+      }
+    },
+    "general_filters": {
+      "accepts_last_minute_requests": "",
+      "has_references": "",
+      "has_strong_verification": "",
+      "same_gender_only": "",
+      "same_gender_only_helper_text": "",
+      "get_strong_verification": ""
+    },
+    "keywords": {
+      "search_this_keyword_a11y_label": "",
+      "clear_field_action_a11y_label": "",
+      "field_label": ""
+    },
+    "submit_button_label": "",
+    "search_filters": "",
+    "clear_filters": "",
+    "by_location_filter_label": "",
+    "by_keyword_filter_label": "",
+    "location_field_label": "",
+    "missing_location_validation_error": ""
+  },
+  "zoom_in_to_select_user": "",
+  "last_active_options": {
+    "last_6_months": "",
+    "last_month": "",
+    "last_week": "",
+    "last_3_months": "",
+    "last_year": ""
+  },
+  "error_loading_users": "",
+  "any": "",
+  "keyword": "",
+  "search_this_area": "",
+  "filter_dialog": {
+    "desktop_title": "",
+    "search_here_button": "",
+    "mobile_title": ""
+  },
+  "choose_search_criteria": ""
 }

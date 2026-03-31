@@ -1,1 +1,97 @@
-{}
+{
+  "keyword": "",
+  "form": {
+    "accommodation_filters": {
+      "title": "",
+      "guests_field_label": "",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "label": "",
+          "description": ""
+        },
+        "private": {
+          "description": "",
+          "label": ""
+        },
+        "common": {
+          "description": "",
+          "label": ""
+        }
+      },
+      "sleeping_arrangement_label": ""
+    },
+    "general_filters": {
+      "has_strong_verification": "",
+      "same_gender_only": "",
+      "accepts_last_minute_requests": "",
+      "same_gender_only_helper_text": "",
+      "get_strong_verification": "",
+      "has_references": ""
+    },
+    "keywords": {
+      "field_label": "",
+      "search_this_keyword_a11y_label": "",
+      "clear_field_action_a11y_label": ""
+    },
+    "by_keyword_filter_label": "",
+    "host_filters": {
+      "age": {
+        "field_label": "",
+        "max_age": "",
+        "min_age": ""
+      },
+      "last_active_field_label": "",
+      "hosting_status_field_label": "",
+      "complete_profiles_label": "",
+      "meetup_status_field_label": ""
+    },
+    "empty_profile_filters": {
+      "title": ""
+    },
+    "clear_filters": "",
+    "location_field_label": "",
+    "missing_location_validation_error": "",
+    "rules": {
+      "smokes_at_home": "",
+      "title": "",
+      "alcohol_allowed": "",
+      "kids_allowed": "",
+      "pets_allowed": ""
+    },
+    "submit_button_label": "",
+    "search_filters": "",
+    "by_location_filter_label": ""
+  },
+  "filter_dialog": {
+    "desktop_title": "",
+    "mobile_title": "",
+    "search_here_button": ""
+  },
+  "views": {
+    "choose_map_view": "",
+    "list": "",
+    "map_and_list": ""
+  },
+  "last_active_options": {
+    "last_month": "",
+    "last_year": "",
+    "last_week": "",
+    "last_6_months": "",
+    "last_3_months": ""
+  },
+  "search_result": {
+    "missing_about_description": "",
+    "show_user_button_label": "",
+    "few_results_suggestion": "",
+    "people_range_message_one": "",
+    "people_range_message_other": "",
+    "no_user_result_message": "",
+    "include_empty_profiles_button": ""
+  },
+  "location": "",
+  "search_this_area": "",
+  "choose_search_criteria": "",
+  "error_loading_users": "",
+  "zoom_in_to_select_user": "",
+  "any": ""
+}
