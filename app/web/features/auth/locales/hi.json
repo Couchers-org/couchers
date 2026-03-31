@@ -12,7 +12,11 @@
     "title": "पासवर्ड बदलें",
     "confirm_password": "पासवर्ड की पुष्टि कीजिये",
     "password_mismatch_error": "यह आपके द्वारा ऊपर लिखे गए नए पासवर्ड से मेल नहीं खाता।",
-    "password_changed_success": "आपका नया पासवर्ड सेट कर दिया गया है और आपके ईमेल पर एक सूचना भेज दी गई है।"
+    "password_changed_success": "आपका नया पासवर्ड सेट कर दिया गया है और आपके ईमेल पर एक सूचना भेज दी गई है।",
+    "subtitle": "",
+    "user_logged_error": "",
+    "reset_password_success": "",
+    "reset_password_error": ""
   },
   "change_email_confirmation": {
     "success_message": "आपका ईमेल सफलतापूर्वक बदल दिया गया है!",
@@ -28,13 +32,15 @@
       "man": "पुरुष",
       "non_binary": "नॉन-बाइनरी",
       "required_error": "कृपया अपनी लिंग पहचान चुनें",
-      "woman": "स्री"
+      "woman": "स्री",
+      "field_label": ""
     },
     "username": {
       "field_label": "उपयोगकर्ता नाम",
       "required_error": "अपना उपयोगकर्ता नाम दर्ज करें",
       "validation_error": "उपयोगकर्ता नाम में केवल अंक या _ हो सकते हैं, जो एक अक्षर से शुरू होता है।",
-      "username_taken_error": "यह उपयोगकर्ता नाम ले लिया गया है।"
+      "username_taken_error": "यह उपयोगकर्ता नाम ले लिया गया है।",
+      "helper_text": ""
     },
     "header": "आपके खाते का विवरण",
     "password": {
@@ -45,15 +51,20 @@
     "birthday": {
       "field_label": "जन्मदिन",
       "required_error": "अपना जन्मदिन दर्ज करें",
-      "validation_error": "अतीत में एक वैध तिथि होनी चाहिए."
+      "validation_error": "अतीत में एक वैध तिथि होनी चाहिए.",
+      "too_young_error": "",
+      "not_real_date_error": ""
     },
     "hosting_status": {
       "field_label": "मेजबानी स्थिति",
       "can_host": "मेजबानी कर सकते हैं",
       "cant_host": "मेजबानी नहीं कर सकते हैं",
-      "maybe": "शायद मेजबानी कर सकते हैं"
+      "maybe": "शायद मेजबानी कर सकते हैं",
+      "any": ""
     },
-    "tos_accept_label": "मुझे सर्विस की शर्तें स्वीकार हैं।"
+    "tos_accept_label": "मुझे सर्विस की शर्तें स्वीकार हैं।",
+    "opt_in_newsletter": "",
+    "tos_prompt": ""
   },
   "reset_password": "पासवर्ड रीसेट करें",
   "login_page": {
@@ -64,18 +75,24 @@
       "forgot_password": "पासवर्ड भूल गए?",
       "remember_me": "मुझे याद रखना",
       "username_field_label": "ईमेल/उपयोगकर्ता नाम",
-      "password_field_label": "पासवर्ड"
+      "password_field_label": "पासवर्ड",
+      "show_password": "",
+      "hide_password": ""
     },
     "no_account_prompt": "अभी तक कोई खाता नहीं है? <2>साइन अप करें</2>"
   },
   "basic_sign_up_form": {
     "header": "आएँ शुरू करें!",
-    "existing_user_prompt": "क्या आपके पास पहले से एक खाता मौजूद है? <2>लॉग इन करें</2>"
+    "existing_user_prompt": "क्या आपके पास पहले से एक खाता मौजूद है? <2>लॉग इन करें</2>",
+    "sign_up_agreement_explainer": ""
   },
   "basic_form": {
     "name": {
       "field_label": "आपका नाम",
-      "empty_error": "कृपया अपना नाम दर्ज करें"
+      "empty_error": "कृपया अपना नाम दर्ज करें",
+      "invalid_characters_error": "",
+      "min_length_error": "",
+      "max_length_error": ""
     },
     "email": {
       "field_label": "ईमेल",
@@ -86,7 +103,11 @@
   "login_prompt": "लॉग इन करने के लिए यहां क्लिक करें",
   "about_us": "हमारे बारे में",
   "community_guidelines_form": {
-    "header": "समुदाय दिशानिर्देश"
+    "header": "समुदाय दिशानिर्देश",
+    "guideline": {
+      "checkbox_label": "",
+      "required_error": ""
+    }
   },
   "location": {
     "field_label": "आपकी स्थान",
@@ -98,7 +119,8 @@
   },
   "account_settings_page": {
     "birth_date_section": {
-      "title": "जन्मतिथि बदलें"
+      "title": "जन्मतिथि बदलें",
+      "explanation": ""
     },
     "username_section": {
       "explanation": "जब आप अपना खाता बनाते हैं तो आपका उपयोगकर्ता नाम सेट हो जाता है।",
@@ -106,12 +128,251 @@
       "description": "आपका उपयोगकर्ता नाम <1>{{username}}</1> है।"
     },
     "gender_section": {
-      "title": "लिंग बदलें"
+      "title": "लिंग बदलें",
+      "explanation": ""
     },
-    "title": "खाता सेटिंग"
+    "title": "खाता सेटिंग",
+    "timezone_section": {
+      "title": "",
+      "description": "",
+      "explanation": ""
+    },
+    "appearance_section": {
+      "modes": {
+        "dark": "",
+        "light": "",
+        "system": ""
+      },
+      "click_to_change": "",
+      "title": "",
+      "current_mode": "",
+      "change_mode": ""
+    }
   },
   "jail": {
-    "title": "अधिक जानकारी की आवश्यकता है"
+    "title": "अधिक जानकारी की आवश्यकता है",
+    "mod_note_section": {
+      "acknowledge": "",
+      "title": "",
+      "description": "",
+      "note_title": ""
+    },
+    "location_section": {
+      "submit_button": {
+        "active_text": "",
+        "inactive_text": ""
+      },
+      "explanation": "",
+      "resubmit_button_text": "",
+      "title": ""
+    },
+    "activeness_probe": {
+      "not_hosting": "",
+      "title": "",
+      "description": "",
+      "still_hosting": ""
+    },
+    "description": ""
   },
-  "sign_up_completed_prompt": "हमने आपके ईमेल पर एक सत्यापन लिंक के साथ एक ईमेल भेजा है। कृपया अपने खाते को सक्रिय करने के लिए लिंक पर क्लिक करें।"
+  "sign_up_completed_prompt": "हमने आपके ईमेल पर एक सत्यापन लिंक के साथ एक ईमेल भेजा है। कृपया अपने खाते को सक्रिय करने के लिए लिंक पर क्लिक करें।",
+  "delete_account": {
+    "request": {
+      "confirm_username_label": "",
+      "success_message": "",
+      "title": "",
+      "description": "",
+      "confirm_username_explanation": "",
+      "username_mismatch": "",
+      "reason_explanation": "",
+      "reason_label": ""
+    },
+    "confirm": {
+      "account_deleted": "",
+      "title": "",
+      "error_message": "",
+      "button_text": ""
+    },
+    "recover": {
+      "title": "",
+      "error_message": "",
+      "success": "",
+      "button_text": ""
+    }
+  },
+  "strong_verification": {
+    "instructions": {
+      "step4": "",
+      "step5": "",
+      "chip_location": {
+        "australia": "",
+        "us_germany_mexico": "",
+        "heading": "",
+        "description": "",
+        "finland_germany_new": ""
+      },
+      "warning": "",
+      "step1_apple_note": "",
+      "step7": "",
+      "title": "",
+      "step1": "",
+      "step2": "",
+      "step3": "",
+      "step6": "",
+      "step8": "",
+      "download_app_store": "",
+      "download_google_play": ""
+    },
+    "status": {
+      "enabled_message": "",
+      "disabled_message": ""
+    },
+    "begin_button": "",
+    "complete_message2": "",
+    "complete_title": "",
+    "delete_my_data_button": "",
+    "learn_more": "",
+    "title": "",
+    "subtitle": "",
+    "start_button": "",
+    "information_text1": "",
+    "information_text2": "",
+    "information_text3": "",
+    "complete_message1": "",
+    "delete_data_title": "",
+    "delete_information": "",
+    "delete_information_text2": "",
+    "delete_button": "",
+    "delete_success": "",
+    "donation_title": "",
+    "donation_message1": "",
+    "donation_message2": "",
+    "donate_button": ""
+  },
+  "active_logins": {
+    "login_header": "",
+    "current_session": "",
+    "expiry": "",
+    "heading": "",
+    "settings_page_text": "",
+    "description": "",
+    "location": "",
+    "last_activity": "",
+    "log_out_of_all_session": "",
+    "settings_page_link": "",
+    "log_out_of_session": ""
+  },
+  "profile_visibility": {
+    "visiblility_options": {
+      "map_only": "",
+      "limited": "",
+      "most": "",
+      "full_profile": "",
+      "nothing": ""
+    },
+    "title": "",
+    "choose": ""
+  },
+  "volunteer_management": {
+    "past_volunteer": "",
+    "form": {
+      "display_name_label": "",
+      "override_location_label": "",
+      "link_text_required": "",
+      "link_url_label": "",
+      "title": "",
+      "override_name_label": "",
+      "display_location_label": "",
+      "show_on_team_page_label": "",
+      "link_type_label": "",
+      "link_type_couchers": "",
+      "link_type_website": "",
+      "link_text_label": "",
+      "link_text_linkedin_placeholder": "",
+      "link_text_email_placeholder": "",
+      "link_text_website_placeholder": "",
+      "link_text_linkedin_helper": "",
+      "link_text_email_helper": "",
+      "link_text_website_helper": "",
+      "link_text_email_invalid": "",
+      "link_text_linkedin_invalid": "",
+      "link_url_placeholder": "",
+      "link_url_helper": "",
+      "link_url_required": "",
+      "link_url_invalid": "",
+      "save_button": "",
+      "link_type_email": "",
+      "link_type_linkedin": ""
+    },
+    "shown_on_team_page_current": "",
+    "title": "",
+    "description": "",
+    "card_preview_label": "",
+    "not_a_volunteer_message": "",
+    "current_volunteer": "",
+    "shown_on_team_page_past": "",
+    "not_shown_on_team_page": "",
+    "update_success": ""
+  },
+  "sign_up_need_verification_title": "",
+  "do_not_email": {
+    "caveat": "",
+    "title": "",
+    "action_button": {
+      "no_emails_enable_text": "",
+      "no_emails_disable_text": ""
+    },
+    "status": {
+      "no_emails_enabled_message": "",
+      "no_emails_disabled_message": ""
+    }
+  },
+  "feature_preview": {
+    "title": "",
+    "explanation": "",
+    "no_previews": {
+      "title": "",
+      "explanation": ""
+    }
+  },
+  "change_phone": {
+    "title": "",
+    "need_to_donate": "",
+    "remove_success": "",
+    "phone_label": "",
+    "no_phone_description": "",
+    "phone_not_verified_description": "",
+    "code_label": "",
+    "verify_success": "",
+    "remove_button_text": "",
+    "change_to_different_description": "",
+    "change_button_text": "",
+    "add_button_text": "",
+    "add_success": "",
+    "wrong_code": "",
+    "verify_button_text": ""
+  },
+  "motivations_form": {
+    "hosting_description": "",
+    "something_else_description": "",
+    "events_description": "",
+    "header": "",
+    "surfing": "",
+    "surfing_description": "",
+    "hosting": "",
+    "events": "",
+    "community_organizing": "",
+    "community_organizing_description": "",
+    "something_else": ""
+  },
+  "sign_up_confirmed_prompt": "",
+  "sign_up_completed_title": "",
+  "quick_links": {
+    "title": "",
+    "button_text": "",
+    "error_message": "",
+    "missing_payload_or_sig": ""
+  },
+  "logged_out_message": "",
+  "sign_up_resend_verification_email_help": "",
+  "sign_up_resend_verification_done": ""
 }

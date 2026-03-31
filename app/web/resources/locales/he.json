@@ -1,1 +1,379 @@
-{}
+{
+  "contribute_title": "",
+  "what_is_cs": {
+    "timeline": {
+      "2010s_year": "",
+      "today_text": "",
+      "today_year": "",
+      "2010s_text": "",
+      "2020_text": "",
+      "early_2000s_year": "",
+      "2020_year": "",
+      "early_2000s_text": ""
+    },
+    "tip_label": "",
+    "tip_text": "",
+    "table": {
+      "header_couchers": "",
+      "header_hotel": "",
+      "people_first": "",
+      "cost_to_stay": "",
+      "free_to_stay": "",
+      "stay_with_locals": "",
+      "professionally_managed": "",
+      "cultural_exchange": "",
+      "non_transactional": "",
+      "dollar": "",
+      "dollars_range": "",
+      "meetups_communities": "",
+      "no_investor_pressure": "",
+      "social_expectation": "",
+      "header_hostel": ""
+    },
+    "is_it_safe": {
+      "description_3": "",
+      "title": "",
+      "description_1": "",
+      "description_2": ""
+    },
+    "description_2": "",
+    "bottom_cta_subtitle": "",
+    "join_couchers": "",
+    "title": "",
+    "description_1": "",
+    "get_involved_title": "",
+    "bottom_cta_title": "",
+    "actions": {
+      "surf": "",
+      "find_people": "",
+      "join_discussions": "",
+      "host": "",
+      "attend_events": ""
+    },
+    "why_people_points": {
+      "everyone": "",
+      "travelers": "",
+      "hosts": ""
+    },
+    "get_started": "",
+    "compare_title": "",
+    "timeline_title": "",
+    "why_people_title": ""
+  },
+  "team": {
+    "description": "",
+    "co_founder_president": "",
+    "treasurer": "",
+    "community_coordinator": "",
+    "have_skills_contribute": "",
+    "volunteer_settings": {
+      "show_on_team_page": {
+        "enabled_message": "",
+        "disabled_message": "",
+        "title": ""
+      }
+    },
+    "board_member": "",
+    "lead_backend_developer": "",
+    "full_stack_backend_developer": "",
+    "fill_form_description": "",
+    "co_founder": "",
+    "frontend_developer": "",
+    "lead_frontend_developer": "",
+    "backend_developer": "",
+    "ui_ux_designer": "",
+    "translations_lead": "",
+    "title": "",
+    "developer": "",
+    "past_members": "",
+    "join_the_team": "",
+    "current_members": "",
+    "join_our_team": "",
+    "secretary": ""
+  },
+  "language_names": {
+    "de": "",
+    "fr-CA": "",
+    "pt": "",
+    "ru": "",
+    "sv": "",
+    "tr": "",
+    "uk": "",
+    "fr": "",
+    "hu": "",
+    "nb-NO": "",
+    "nl": "",
+    "pl": "",
+    "pt-BR": "",
+    "zh-Hant": "",
+    "en-CORP": "",
+    "hi": "",
+    "es": "",
+    "he": "",
+    "ja": "",
+    "es-419": "",
+    "ca": "",
+    "cs": "",
+    "en": "",
+    "zh-Hans": "",
+    "it": ""
+  },
+  "footer": {
+    "non_profit_note": "",
+    "version_info": ""
+  },
+  "blog": {
+    "byline_without_author": "",
+    "byline_with_author": "",
+    "cta_message": ""
+  },
+  "error_loading_languages": "",
+  "change_time": "",
+  "copy_button": {
+    "a11y": "",
+    "copied_tooltip": ""
+  },
+  "meetup_status": {
+    "does_not_want_to_meetup": "",
+    "unspecified_info": "",
+    "wants_to_meetup": "",
+    "open_to_meetup": ""
+  },
+  "report": {
+    "bug": {
+      "warning_message": "",
+      "title_label": "",
+      "problem_label": "",
+      "problem_helper": "",
+      "title_helper": "",
+      "success_message2": "",
+      "expect_label": "",
+      "button_label": "",
+      "expect_helper": ""
+    },
+    "content": {
+      "dialog_message": "",
+      "button_label": "",
+      "success_message": ""
+    },
+    "flag": {
+      "block_user": "",
+      "button_aria_label": "",
+      "explainer": "",
+      "profile_reason_required": "",
+      "description_label": "",
+      "description_helper": "",
+      "reason": {
+        "dating": "",
+        "external": "",
+        "harassment": "",
+        "guidelines_breach": "",
+        "safety": "",
+        "other": "",
+        "scam": "",
+        "spam": "",
+        "sexualized": ""
+      },
+      "success": "",
+      "title": "",
+      "profile_title": "",
+      "reason_label": "",
+      "reason_helper": "",
+      "reason_required": "",
+      "description_required": "",
+      "profile_button_aria_label": "",
+      "block_user_explainer": ""
+    },
+    "title": "",
+    "label": ""
+  },
+  "error": {
+    "unknown": "",
+    "fallback": {
+      "refresh_page_button_label": "",
+      "home_page_link_label": "",
+      "subtitle": "",
+      "title": ""
+    },
+    "fatal_message": ""
+  },
+  "components": {
+    "datepicker": {
+      "change_date": ""
+    },
+    "edit_location_map": {
+      "display_location_not_empty": "",
+      "invalid_coordinate": "",
+      "location_accuracy": "",
+      "location_publicly_visible": "",
+      "location_warn": "",
+      "no_location_results_text": "",
+      "no_map_support": "",
+      "display_location_label": "",
+      "search_location_label": "",
+      "map_is_blank": "",
+      "press_enter_to_search": "",
+      "radius_text2_one": "",
+      "radius_text2_two": "",
+      "radius_text2_other": ""
+    }
+  },
+  "nav": {
+    "blog": "",
+    "community": "",
+    "communities": "",
+    "roadmap_updates": "",
+    "log_out": "",
+    "mission": "",
+    "messages": "",
+    "newsletter": "",
+    "our_team": "",
+    "profile": "",
+    "show_all_events": "",
+    "legal_more": "",
+    "switch_to_light_mode": "",
+    "switch_to_dark_mode": "",
+    "events": "",
+    "our_plan": "",
+    "contact_us": "",
+    "built_with": "",
+    "invite_members": "",
+    "the_team": "",
+    "about": "",
+    "dashboard": "",
+    "donate": "",
+    "faq": "",
+    "feature_preview": "",
+    "forum": "",
+    "github": "",
+    "help_center": "",
+    "help": "",
+    "landing_page": "",
+    "account_settings": "",
+    "notifications": "",
+    "merch_shop": "",
+    "map_search": "",
+    "home": "",
+    "badges": ""
+  },
+  "invites": {
+    "no_codes_message": "",
+    "created_datetime": "",
+    "disabled_datetime": "",
+    "number_of_uses_one": "",
+    "number_of_uses_two": "",
+    "number_of_uses_other": "",
+    "disable_link": "",
+    "banner": {
+      "invited_you": ""
+    },
+    "instructions": "",
+    "error": {
+      "fetch_invite_info": ""
+    },
+    "title": ""
+  },
+  "relative_time": {
+    "less_than_one_hour_ago": "",
+    "less_than_a_minute_ago": ""
+  },
+  "image_input": {
+    "select_button_a11y": "",
+    "replace_image_tooltip": "",
+    "read_file_error_message": ""
+  },
+  "cookie_message": "",
+  "language_preference": {
+    "success_message": "",
+    "translation_progress": {
+      "description": "",
+      "loading": "",
+      "complete_percent": "",
+      "error_loading": "",
+      "no_data": "",
+      "complete": "",
+      "almost_there": "",
+      "title": "",
+      "info_text": "",
+      "midway": "",
+      "in_progress": "",
+      "early_stage": "",
+      "just_started": "",
+      "view_progress": ""
+    },
+    "current_preferred_language": "",
+    "show_all_languages": "",
+    "show_all_languages_description": "",
+    "error_loading_languages": "",
+    "form_title": "",
+    "help_translate": "",
+    "select_language": ""
+  },
+  "location_autocomplete": {
+    "more_specific": "",
+    "search_location_hint": "",
+    "select_location_hint": "",
+    "search_location_button": ""
+  },
+  "strong_verification": {
+    "helper_text": ""
+  },
+  "not_found_alt": "",
+  "beta": "",
+  "load_more": "",
+  "send": "",
+  "create_account": "",
+  "update": "",
+  "create": "",
+  "donation_banner": {
+    "button": "",
+    "progress_label": ""
+  },
+  "community_standing_description": "",
+  "terms_of_service": "",
+  "accept": "",
+  "continue": "",
+  "cancel": "",
+  "next": "",
+  "previous": "",
+  "save": "",
+  "expand": "",
+  "read_more": "",
+  "hosting_status": {
+    "cant_host": "",
+    "unspecified_info": "",
+    "maybe": "",
+    "any": "",
+    "can_host": ""
+  },
+  "mod": "",
+  "verification_score": "",
+  "verification_score_description": "",
+  "edit": "",
+  "save_changes": "",
+  "not_found_text_1": "",
+  "not_found_text_2": "",
+  "close": "",
+  "ok": "",
+  "back": "",
+  "sign_up": "",
+  "join_us": "",
+  "required": "",
+  "html_meta": {
+    "title_suffix": "",
+    "default_title": "",
+    "default_description": ""
+  },
+  "reply": "",
+  "yes": "",
+  "no": "",
+  "thanks": "",
+  "community_standing": "",
+  "submit": "",
+  "confirm": "",
+  "retract": "",
+  "couchers": "",
+  "learn_more": "",
+  "legal_name": "",
+  "login": ""
+}

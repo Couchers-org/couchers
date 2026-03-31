@@ -236,7 +236,10 @@
     "stay_type_a11y_text": "type de séjour",
     "success": "Votre demande d'hébergement a été envoyée !",
     "guest_count": "Nombre d'invités",
-    "arrival_date_empty": "Veuillez spécifier une date d'arrivée prévue"
+    "arrival_date_empty": "Veuillez spécifier une date d'arrivée prévue",
+    "request_chars_remaining_one": "",
+    "request_chars_remaining_many": "",
+    "request_chars_remaining_other": ""
   },
   "reference_badge_label": {
     "friend": "Ami(e)",
@@ -333,6 +336,10 @@
     "select_photo": "Sélectionner une photo",
     "add_photo_error": "Échec de l'ajout de la photo. Veuillez réessayer.",
     "profile_photos_description": "Ajouter des photos de vous pour aider les autres à mieux vous connaître. Faites glisser et déposez pour réorganiser.",
-    "report_photo": "Signaler cette photo"
-  }
+    "report_photo": "Signaler cette photo",
+    "photo": "",
+    "profile_photo": ""
+  },
+  "click_to_add_photo": "",
+  "avatar_placeholder_info": ""
 }

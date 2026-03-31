@@ -53,5 +53,7 @@
   "hide_all_communities": "隐藏所有社区",
   "all_communities_intro": "以下是目前已存在的所有社区页面。<strong>点击社区名称可查看其下的其他社区。</strong>",
   "community_missing": "您的国家或城市不在列表中吗？请使用<1>此表格</1>进行申请！",
-  "browse_communities_text": "点击区域名称可在下方查看该区域内的其他社区。点击链接可进入该城市或区域的社区页面。"
+  "browse_communities_text": "点击区域名称可在下方查看该区域内的其他社区。点击链接可进入该城市或区域的社区页面。",
+  "member_count_other": "",
+  "attendees_count_other": ""
 }
