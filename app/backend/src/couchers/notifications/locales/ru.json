@@ -226,7 +226,11 @@
     },
     "thread__reply": {
       "title": "{{user}} • {{title}}",
-      "ios_title": "{{user}}"
+      "ios_title": "{{user}}",
+      "ios_subtitle": "{{title}}"
+    },
+    "verification__sv_fail": {
+      "body_duplicate": "Этот паспорт уже использовался для верификации. Пожалуйста, используйте другой паспорт."
     }
   },
   "topic_action_descriptions": {
