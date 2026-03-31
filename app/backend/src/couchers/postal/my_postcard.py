@@ -28,9 +28,8 @@ def _generate_back_left_side(verification_code: str) -> bytes:
     img = Image.open(io.BytesIO(template_bytes)).convert("RGBA")
     draw = ImageDraw.Draw(img)
 
-    # QR code box position/size from template, extended to cover border
-    qr_l, qr_t, qr_r, qr_b = 227, 419, 539, 731
-    qr_extend = 5
+    # QR code position: exact coordinates in image are (227, 419, 539, 731), extended by 5px in each direction
+    qr_left, qr_top, qr_size = 222, 414, 322
 
     # Generate QR code
     qr = qrcode.QRCode(box_size=10, border=0)
@@ -38,19 +37,16 @@ def _generate_back_left_side(verification_code: str) -> bytes:
     qr.make(fit=True)
     qr_img: Image.Image = qr.make_image(fill_color="black", back_color="white").get_image().convert("RGBA")
 
-    # Size and paste the QR code into the extended box area
-    qr_size = min(qr_r - qr_l, qr_b - qr_t) + 2 * qr_extend
+    # Size and paste the QR code
     qr_img = qr_img.resize((qr_size, qr_size), Image.Resampling.NEAREST)
-    img.paste(qr_img, (qr_l - qr_extend, qr_t - qr_extend))
+    img.paste(qr_img, (qr_left, qr_top))
 
-    # Verification code box position/size from template
-    code_box_x, code_box_y, code_box_w, code_box_h = 251, 761, 264, 80
-    code_cx = code_box_x + code_box_w // 2
-    code_cy = code_box_y + code_box_h // 2
+    # Verification code text center: box in image is (x=251, y=761, w=264, h=80), center is (383, 801)
+    code_center_x, code_center_y = 383, 801
 
     font = ImageFont.truetype(io.BytesIO(get_postcard_font()), 58)
 
-    draw.text((code_cx, code_cy), verification_code, fill=(255, 255, 255), font=font, anchor="mm")
+    draw.text((code_center_x, code_center_y), verification_code, fill=(255, 255, 255), font=font, anchor="mm")
 
     buf = io.BytesIO()
     img.save(buf, format="PNG")
@@ -166,9 +162,9 @@ def send_postcard(
     return int(result["job_id"])
 
 
-def get_orders(date_from: date, date_to: date) -> Any:
+def get_order_ids(date_from: date, date_to: date) -> list[int]:
     """
-    Fetch all orders in a given time frame.
+    Fetch all order job IDs in a given time frame.
     """
     response = requests.post(
         f"{API_BASE}/request_orders",
@@ -180,7 +176,7 @@ def get_orders(date_from: date, date_to: date) -> Any:
         timeout=30,
     )
     response.raise_for_status()
-    return response.json()
+    return [int(order["job_id"]) for order in response.json()["orders"]]
 
 
 def download_pdf(job_id: int) -> bytes:

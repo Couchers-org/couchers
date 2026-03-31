@@ -103,7 +103,7 @@ from couchers.models import (
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.expo_api import get_expo_push_receipts
 from couchers.notifications.notify import notify
-from couchers.postal.my_postcard import get_orders, send_postcard
+from couchers.postal.my_postcard import get_order_ids, send_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
 from couchers.resources import get_badge_dict, get_static_badge_dict
@@ -1286,11 +1286,12 @@ def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
     Checks that all MyPostcard jobs from the last week are tied to a postal verification attempt.
     """
     with session_scope() as session:
-        orders = get_orders(
-            date_from=(now() - timedelta(days=7)).date(),
-            date_to=now().date(),
+        mypostcard_job_ids = set(
+            get_order_ids(
+                date_from=(now() - timedelta(days=7)).date(),
+                date_to=now().date(),
+            )
         )
-        mypostcard_job_ids = {int(order["job_id"]) for order in orders.get("orders", [])}
 
         known_job_ids = set(
             session.execute(
