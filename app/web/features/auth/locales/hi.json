@@ -174,7 +174,10 @@
       "still_hosting": "",
       "note": ""
     },
-    "description": ""
+    "description": "",
+    "terms_of_service_section": {
+      "description": ""
+    }
   },
   "sign_up_completed_prompt": "हमने आपके ईमेल पर एक सत्यापन लिंक के साथ एक ईमेल भेजा है। कृपया अपने खाते को सक्रिय करने के लिए लिंक पर क्लिक करें।",
   "delete_account": {
@@ -199,7 +202,8 @@
       "error_message": "",
       "success": "",
       "button_text": ""
-    }
+    },
+    "missing_token": ""
   },
   "strong_verification": {
     "instructions": {
@@ -351,7 +355,8 @@
     "add_button_text": "",
     "add_success": "",
     "wrong_code": "",
-    "verify_button_text": ""
+    "verify_button_text": "",
+    "remove_phone_description": ""
   },
   "motivations_form": {
     "hosting_description": "",
@@ -376,5 +381,6 @@
   },
   "logged_out_message": "",
   "sign_up_resend_verification_email_help": "",
-  "sign_up_resend_verification_done": ""
+  "sign_up_resend_verification_done": "",
+  "unhandled_sign_up_state": ""
 }

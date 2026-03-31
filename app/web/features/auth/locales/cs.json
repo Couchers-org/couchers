@@ -186,7 +186,8 @@
     "add_button_text": "",
     "phone_not_verified_description": "",
     "change_to_different_description": "",
-    "no_phone_description": ""
+    "no_phone_description": "",
+    "remove_phone_description": ""
   },
   "jail": {
     "location_section": {

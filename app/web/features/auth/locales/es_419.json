@@ -161,7 +161,8 @@
     "verify_button_text": "",
     "need_to_donate": "",
     "no_phone_description": "",
-    "add_success": ""
+    "add_success": "",
+    "remove_phone_description": ""
   },
   "location": {
     "field_label": "",
@@ -257,7 +258,8 @@
       "button_text": "",
       "success": "",
       "error_message": ""
-    }
+    },
+    "missing_token": ""
   },
   "sign_up_completed_title": "",
   "change_email_confirmation": {
@@ -326,6 +328,9 @@
       "title": "",
       "still_hosting": "",
       "not_hosting": ""
+    },
+    "terms_of_service_section": {
+      "description": ""
     }
   },
   "sign_up_resend_verification_done": "",
@@ -373,5 +378,6 @@
       "no_emails_disable_text": ""
     },
     "caveat": ""
-  }
+  },
+  "unhandled_sign_up_state": ""
 }
