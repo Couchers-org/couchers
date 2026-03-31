@@ -320,7 +320,9 @@
     "can_host_description": ""
   },
   "meetup_status": {
-    "open_to_meetup_description": ""
+    "open_to_meetup_description": "",
+    "does_not_want_to_meetup_description": "",
+    "wants_to_meetup_description": ""
   },
   "avatar_placeholder_info": "",
   "profile_changes_saved_message": "",

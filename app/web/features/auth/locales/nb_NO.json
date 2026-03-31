@@ -21,7 +21,8 @@
     "reset_password_error": "",
     "user_logged_error": "",
     "subtitle": "",
-    "reset_password_success": ""
+    "reset_password_success": "",
+    "token_error": ""
   },
   "reset_password_form": {
     "enter_email": "Skriv inn ditt brukernavn/e-postadresse",
@@ -174,7 +175,8 @@
       "title": "",
       "description": "",
       "not_hosting": "",
-      "still_hosting": ""
+      "still_hosting": "",
+      "note": ""
     }
   },
   "logged_out_message": "Du ble logget ut.",

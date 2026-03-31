@@ -104,7 +104,8 @@
     "past_members": "",
     "title": "",
     "developer": "",
-    "join_the_team": ""
+    "join_the_team": "",
+    "tap_press_to_flip": ""
   },
   "language_names": {
     "en-CORP": "",
@@ -149,14 +150,16 @@
       "early_stage": "",
       "view_progress": "",
       "complete_percent": "",
-      "info_text": ""
+      "info_text": "",
+      "help_translate": ""
     },
     "success_message": "",
     "current_preferred_language": "",
     "error_loading_languages": "",
     "show_all_languages": "",
     "show_all_languages_description": "",
-    "select_language": ""
+    "select_language": "",
+    "help_translate": ""
   },
   "not_found_text_1": "",
   "report": {
@@ -296,7 +299,8 @@
   "login": "",
   "donation_banner": {
     "progress_label": "",
-    "button": ""
+    "button": "",
+    "message": ""
   },
   "cancel": "",
   "html_meta": {
@@ -370,5 +374,6 @@
   "back": "",
   "legal_name": "",
   "sign_up": "",
-  "no": ""
+  "no": "",
+  "update": ""
 }

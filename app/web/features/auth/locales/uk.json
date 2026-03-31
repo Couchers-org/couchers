@@ -284,7 +284,8 @@
       "title": "",
       "description": "",
       "still_hosting": "",
-      "not_hosting": ""
+      "not_hosting": "",
+      "note": ""
     }
   },
   "do_not_email": {
@@ -311,7 +312,8 @@
     "user_logged_error": "",
     "old_password": "",
     "reset_password_success": "",
-    "title": ""
+    "title": "",
+    "token_error": ""
   },
   "change_email_confirmation": {
     "success_message": "",
@@ -333,7 +335,8 @@
       "remember_me": "",
       "forgot_password": "",
       "show_password": ""
-    }
+    },
+    "no_account_prompt": ""
   },
   "basic_form": {
     "name": {

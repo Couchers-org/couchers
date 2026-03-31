@@ -322,7 +322,9 @@
   "report_reason": "",
   "report_user": "",
   "meetup_status": {
-    "open_to_meetup_description": ""
+    "open_to_meetup_description": "",
+    "wants_to_meetup_description": "",
+    "does_not_want_to_meetup_description": ""
   },
   "response_time_text_almost_all": "",
   "click_to_add_photo": "",
