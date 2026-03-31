@@ -325,7 +325,8 @@
     "friend_request__accept": {
       "title": "",
       "ios_title": "",
-      "body": ""
+      "body": "",
+      "ios_subtitle": ""
     },
     "host_request__accept": {
       "ios_subtitle": "",

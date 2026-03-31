@@ -180,5 +180,6 @@
     "no_archived_chats": "",
     "no_archived_requests": "",
     "no_archived_messages": ""
-  }
+  },
+  "close_request_dialog_title": ""
 }

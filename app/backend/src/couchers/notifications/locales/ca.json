@@ -284,7 +284,8 @@
     "friend_request__accept": {
       "title": "",
       "ios_title": "",
-      "body": ""
+      "body": "",
+      "ios_subtitle": ""
     },
     "adhoc__push_enabled": {
       "ios_title": "",

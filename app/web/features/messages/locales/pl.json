@@ -181,5 +181,6 @@
   "host_pending_request_help_text": "",
   "mark_all_read_button_text": "",
   "request_closed_message": "",
-  "unknown_user": ""
+  "unknown_user": "",
+  "close_request_dialog_title": ""
 }

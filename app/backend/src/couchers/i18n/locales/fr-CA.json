@@ -241,7 +241,8 @@
     "user_already_blocked": "",
     "user_already_has_badge": "",
     "already_left_host_request_feedback": "",
-    "node_moderate_permission_denied": ""
+    "node_moderate_permission_denied": "",
+    "after_item_not_found": ""
   },
   "quick_links": {
     "do_not_email": "",

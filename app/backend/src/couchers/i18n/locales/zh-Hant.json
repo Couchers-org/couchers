@@ -223,7 +223,8 @@
     "signup_flow_email_taken": "",
     "strong_verification_disabled": "",
     "too_many_sms_code_attempts": "",
-    "user_already_blocked": ""
+    "user_already_blocked": "",
+    "after_item_not_found": ""
   },
   "badges": {
     "volunteer_description": "",

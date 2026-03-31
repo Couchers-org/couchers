@@ -227,7 +227,8 @@
     "admin_blog_blurb_too_long": "",
     "country_required": "",
     "invalid_delivery_method": "",
-    "must_confirm_logout_other_sessions": ""
+    "must_confirm_logout_other_sessions": "",
+    "after_item_not_found": ""
   },
   "quick_links": {
     "do_not_email": "",
