@@ -22,11 +22,36 @@ interface EventAttendeesProps {
   event: Event.AsObject;
 }
 
+const PAGE_SIZE = 9;
+
 export default function EventAttendees({ event }: EventAttendeesProps) {
-  const { attendeesIds, error, hasNextPage } = useEventAttendees({
-    eventId: event.eventId,
-    type: "summary",
-  });
+  const { data, error, hasNextPage, fetchNextPage, isLoading } =
+    useEventAttendees({
+      eventId: event.eventId,
+      type: "summary",
+      pageSize: PAGE_SIZE,
+    });
+
+  const [pageNumber, setPageNumber] = useState(1);
+  const currentPage = data?.pages && data.pages[pageNumber - 1];
+
+  const pagesLength = data?.pages.length ?? 0;
+
+  const handelPreviousPageClick = () => {
+    setPageNumber((current) => Math.max(current - 1, 1));
+  };
+
+  const handleNextPageClick = async () => {
+    if (pageNumber < pagesLength) {
+      setPageNumber((current) => current + 1);
+      return;
+    }
+
+    if (hasNextPage) {
+      await fetchNextPage();
+      setPageNumber((current) => current + 1);
+    }
+  };
 
   const { organizerIds } = useEventOrganizers({
     eventId: event.eventId,
@@ -107,8 +132,16 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         error={error}
         hasNextPage={hasNextPage}
         onSeeAllClick={() => setIsDialogOpen(true)}
-        userIds={attendeesIds}
+        userIds={currentPage?.attendeeUserIdsList}
         title={t("communities:attendees")}
+        layout="grid"
+        isLoading={isLoading}
+        pagination={{
+          pageNumber: pageNumber,
+          currentPage: currentPage,
+          handelPreviousPageClick: handelPreviousPageClick,
+          handleNextPageClick: handleNextPageClick,
+        }}
         getUserMenuItems={
           isCoOrganizedByCurrentUser ? getUserMenuItems : undefined
         }

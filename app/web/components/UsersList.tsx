@@ -12,10 +12,16 @@ const ContainingDiv = styled("div")(({ theme }) => ({
   padding: theme.spacing(2),
 }));
 
-const StyledUsersDiv = styled("div")(({ theme }) => ({
-  display: "grid",
+const StyledUsersDiv = styled("div", {
+  shouldForwardProp: (prop) => prop !== "layout",
+})<{ layout?: "list" | "grid" }>(({ theme, layout = "list" }) => ({
   marginBlockStart: theme.spacing(2),
-  rowGap: theme.spacing(1),
+  display: "grid",
+  gap: theme.spacing(1),
+  ...(layout === "grid" && {
+    gridTemplateColumns: "repeat(auto-fit, minmax(19.5rem, 1fr))",
+    gridAutoRows: "5.5rem",
+  }),
 }));
 
 interface UsersListProps {
@@ -24,6 +30,7 @@ interface UsersListProps {
   endChildren?: ReactNode;
   error?: RpcError | null;
   titleIsLink?: boolean;
+  layout?: "list" | "grid";
   getUserMenuItems?: (
     user: LiteUser.AsObject,
   ) => EllipsisMenuItem[] | undefined;
@@ -44,6 +51,7 @@ export default function UsersList({
   endChildren,
   error,
   titleIsLink = false,
+  layout = "list",
   getUserMenuItems,
 }: UsersListProps) {
   const {
@@ -68,7 +76,7 @@ export default function UsersList({
       return <CircularProgress />;
     } else if (isLoadingLiteUsers) {
       return (
-        <StyledUsersDiv>
+        <StyledUsersDiv layout={layout}>
           {userIds.map((userId) => (
             <UserSummary headlineComponent="h3" key={userId} user={undefined} />
           ))}
@@ -76,7 +84,7 @@ export default function UsersList({
       );
     } else if (foundUsers && foundUsers.length > 0) {
       return (
-        <StyledUsersDiv>
+        <StyledUsersDiv layout={layout}>
           {foundUsers.map((user) => {
             return (
               <UserSummary
