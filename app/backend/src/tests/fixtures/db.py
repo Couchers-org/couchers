@@ -145,6 +145,7 @@ def drop_database() -> None:
                 "CREATE EXTENSION postgis;"
                 "CREATE EXTENSION pg_trgm;"
                 "CREATE EXTENSION btree_gist;"
+                "CREATE EXTENSION pg_stat_statements;"
             )
         )
 

@@ -14,7 +14,9 @@ permissions:
 
 jobs:
   detect-changes:
+    name: Detect changes
     runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
@@ -22,10 +24,9 @@ jobs:
       models: ${{ steps.filter.outputs.models }}
       migrations: ${{ steps.filter.outputs.migrations }}
       templates: ${{ steps.filter.outputs.templates }}
+      any: ${{ steps.filter.outputs.changes != '[]' }}
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
@@ -42,11 +43,15 @@ jobs:
             templates:
               - 'app/backend/templates/v2/**'
 
-  format-backend:
+  # Formatting work should happen in a single job so that we push all commits at once,
+  # because pushing a commit will cause the currently running workflow to abort.
+  autoformat:
+    name: Auto-format
     needs: detect-changes
-    if: needs.detect-changes.outputs.backend == 'true' && github.actor != 'dependabot[bot]'
+    if: needs.detect-changes.outputs.any == 'true'
     runs-on: ubuntu-latest
     steps:
+      # Log in as the bot and checkout the PR branch
       - uses: actions/create-github-app-token@v2
         id: app-token
         with:
@@ -69,109 +74,89 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ steps.app-token.outputs.token }}
 
+      # Format backend
       - name: Install uv
+        if: needs.detect-changes.outputs.backend == 'true'
         uses: astral-sh/setup-uv@v4
         with:
           version: "0.9.6"
 
       - name: Format backend
+        if: needs.detect-changes.outputs.backend == 'true'
+        continue-on-error: true
         working-directory: app/backend
         run: make format
 
-      - name: Commit and push backend formatting changes
+      - name: Commit frontend formatting changes
+        if: needs.detect-changes.outputs.backend == 'true'
         run: |
           git add "app/backend/**/*.py"
-          git diff --staged --quiet || (git commit -m "Format backend" && git push)
+          git diff --staged --quiet || git commit -m "Format backend"
 
-  format-frontend:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true' && github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/create-github-app-token@v2
-        id: app-token
-        with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
-
-      - name: Get GitHub App User ID
-        id: get-user-id
-        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-
-      - name: Configure git for GitHub App
-        run: |
-          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
-          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
-
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          token: ${{ steps.app-token.outputs.token }}
-
+      # Format frontend
       - name: Setup Node.js
+        if: needs.detect-changes.outputs.frontend == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "22"
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
+        if: needs.detect-changes.outputs.frontend == 'true'
         working-directory: app/web
         run: yarn install --frozen-lockfile
 
       - name: Format frontend
+        if: needs.detect-changes.outputs.frontend == 'true'
+        continue-on-error: true
         working-directory: app/web
         run: yarn format
 
-      - name: Commit and push frontend formatting changes
+      - name: Commit frontend formatting changes
+        if: needs.detect-changes.outputs.frontend == 'true'
         run: |
           git add app/web/
-          git diff --staged --quiet || (git commit -m "Format frontend" && git push)
+          git diff --staged --quiet || git commit -m "Format frontend"
 
-  format-mobile:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.mobile == 'true' && github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/create-github-app-token@v2
-        id: app-token
-        with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
-
-      - name: Get GitHub App User ID
-        id: get-user-id
-        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-
-      - name: Configure git for GitHub App
-        run: |
-          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
-          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
-
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          token: ${{ steps.app-token.outputs.token }}
-
+      # Format mobile
       - name: Setup Node.js
+        if: needs.detect-changes.outputs.mobile == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "22"
 
-      - name: Install dependencies
+      - name: Install mobile dependencies
+        if: needs.detect-changes.outputs.mobile == 'true'
+        continue-on-error: true
         working-directory: app/mobile
         run: npm ci
 
       - name: Format mobile
+        if: needs.detect-changes.outputs.mobile == 'true'
         working-directory: app/mobile
         run: npm run format
 
-      - name: Commit and push mobile formatting changes
+      - name: Commit mobile formatting changes
+        if: needs.detect-changes.outputs.mobile == 'true'
         run: |
           git add app/mobile/
-          git diff --staged --quiet || (git commit -m "Format mobile" && git push)
+          git diff --staged --quiet || git commit -m "Format mobile"
+
+      # Generate email HTML templates
+      - name: Regenerate HTML from MJML templates
+        if: needs.detect-changes.outputs.templates == 'true'
+        continue-on-error: true
+        working-directory: app/backend/templates/v2
+        run: bash _build.sh
+
+      - name: Commit and push HTML template changes
+        if: needs.detect-changes.outputs.templates == 'true'
+        run: |
+          git add "app/backend/templates/v2/generated_html/*.html"
+          git diff --staged --quiet || git commit -m "Regenerate HTML templates"
+
+      # Push any commits at once, so we only invalidate the workflow once
+      - name: Push changes
+        run: git push
 
   generate-migration:
     needs: detect-changes
@@ -264,39 +249,3 @@ jobs:
         run: |
           git add "app/backend/src/couchers/migrations/versions/*.py"
           git diff --staged --quiet || (git commit -m "Generate migrations" && git push)
-
-  regenerate-html-templates:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.templates == 'true' && github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/create-github-app-token@v2
-        id: app-token
-        with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
-
-      - name: Get GitHub App User ID
-        id: get-user-id
-        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-
-      - name: Configure git for GitHub App
-        run: |
-          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
-          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
-
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          token: ${{ steps.app-token.outputs.token }}
-
-      - name: Regenerate HTML from MJML templates
-        working-directory: app/backend/templates/v2
-        run: bash _build.sh
-
-      - name: Commit and push HTML template changes
-        run: |
-          git add "app/backend/templates/v2/generated_html/*.html"
-          git diff --staged --quiet || (git commit -m "Regenerate HTML templates" && git push)

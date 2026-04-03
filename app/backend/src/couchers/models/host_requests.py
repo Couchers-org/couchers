@@ -34,15 +34,17 @@ class HostRequestQuality(enum.Enum):
 
 class HostRequest(Base, kw_only=True):
     """
-    A request to stay with a host
+    A request to stay with a host.
+
+    In a normal host request, initiator = surfer and recipient = host.
     """
 
     __tablename__ = "host_requests"
-    __moderation_author_column__ = "surfer_user_id"
+    __moderation_author_column__ = "initiator_user_id"
 
     conversation_id: Mapped[int] = mapped_column("id", ForeignKey("conversations.id"), primary_key=True)
-    surfer_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
-    host_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    initiator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    recipient_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     # Unified Moderation System
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
@@ -66,33 +68,33 @@ class HostRequest(Base, kw_only=True):
     end_time_to_write_reference = column_property(date_in_timezone(to_date, timezone) + text("interval '15 days'"))
 
     status: Mapped[HostRequestStatus] = mapped_column(Enum(HostRequestStatus))
-    is_host_archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
-    is_surfer_archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
+    is_recipient_archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
+    is_initiator_archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
 
-    host_last_seen_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
-    surfer_last_seen_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
+    recipient_last_seen_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
+    initiator_last_seen_message_id: Mapped[int] = mapped_column(BigInteger, default=0)
 
     # number of reference reminders sent out
-    host_sent_reference_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"), init=False)
-    surfer_sent_reference_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"), init=False)
-    host_sent_request_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"), init=False)
+    recipient_sent_reference_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"), init=False)
+    initiator_sent_reference_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"), init=False)
+    recipient_sent_request_reminders: Mapped[int] = mapped_column(BigInteger, server_default=text("0"), init=False)
     last_sent_request_reminder_time: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), init=False
     )
 
-    # reason why the host/surfer marked that they didn't meet up
+    # reason why the initiator/recipient marked that they didn't meet up
     # if null then they haven't marked it such
-    host_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, default=None)
-    surfer_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, default=None)
+    recipient_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, default=None)
+    initiator_reason_didnt_meetup: Mapped[str | None] = mapped_column(String, default=None)
 
     # Optional link to public trip if this request originated from one
     public_trip_id: Mapped[int | None] = mapped_column(ForeignKey("public_trips.id"), index=True, default=None)
 
-    surfer: Mapped[User] = relationship(
-        init=False, backref="host_requests_sent", foreign_keys="HostRequest.surfer_user_id"
+    initiator: Mapped[User] = relationship(
+        init=False, backref="host_requests_initiated", foreign_keys="HostRequest.initiator_user_id"
     )
-    host: Mapped[User] = relationship(
-        init=False, backref="host_requests_received", foreign_keys="HostRequest.host_user_id"
+    recipient: Mapped[User] = relationship(
+        init=False, backref="host_requests_received", foreign_keys="HostRequest.recipient_user_id"
     )
     conversation: Mapped[Conversation] = relationship(init=False)
     moderation_state: Mapped[ModerationState] = relationship(init=False)
@@ -101,18 +103,18 @@ class HostRequest(Base, kw_only=True):
     __table_args__ = (
         # allows fast lookup as to whether they didn't meet up
         Index(
-            "ix_host_requests_host_didnt_meetup",
-            host_reason_didnt_meetup != None,
+            "ix_host_requests_recipient_didnt_meetup",
+            recipient_reason_didnt_meetup != None,
         ),
         Index(
-            "ix_host_requests_surfer_didnt_meetup",
-            surfer_reason_didnt_meetup != None,
+            "ix_host_requests_initiator_didnt_meetup",
+            initiator_reason_didnt_meetup != None,
         ),
         # Used for figuring out who needs a reminder to respond
         Index(
             "ix_host_requests_status_reminder_counts",
             status,
-            host_sent_request_reminders,
+            recipient_sent_request_reminders,
             last_sent_request_reminder_time,
             from_date,
         ),
@@ -135,7 +137,7 @@ class HostRequest(Base, kw_only=True):
         )
 
     def __repr__(self) -> str:
-        return f"HostRequest(id={self.conversation_id}, surfer_user_id={self.surfer_user_id}, host_user_id={self.host_user_id}...)"
+        return f"HostRequest(id={self.conversation_id}, initiator_user_id={self.initiator_user_id}, recipient_user_id={self.recipient_user_id}...)"
 
 
 class HostRequestFeedback(Base, kw_only=True):

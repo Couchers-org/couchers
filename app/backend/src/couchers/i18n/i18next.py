@@ -104,7 +104,9 @@ class Translation:
             if count := substitutions.get(PLURALIZABLE_VARIABLE_NAME):
                 if isinstance(count, int):
                     try:
-                        plural_form = Locale(self.locale).plural_form(count)
+                        # Babel resolves the locale name into a filename that uses underscores
+                        babel_locale_name = self.locale.replace("-", "_")
+                        plural_form = Locale(babel_locale_name).plural_form(count)
                     except UnknownLocaleError:
                         # Fallback to English-style plural rule.
                         plural_form = "one" if 1 else "other"

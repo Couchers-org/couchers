@@ -10,7 +10,12 @@ import {
   User,
 } from "proto/api_pb";
 import { theme } from "theme";
-import { localizeDateTime, monthFormatter, timestamp2Date } from "utils/date";
+import {
+  localizeDateTime,
+  localizeYearMonth,
+  timestamp2Date,
+  UTC_TIMEZONE,
+} from "utils/date";
 import dayjs from "utils/dayjs";
 import { timeAgo, TimeUnit } from "utils/timeAgo";
 
@@ -264,14 +269,17 @@ export const RemainingAboutLabels = ({ user }: Props) => {
         label={t("profile:heading.joined")}
         text={
           user.joined
-            ? monthFormatter(locale).format(timestamp2Date(user.joined))
+            ? localizeYearMonth(timestamp2Date(user.joined), {
+                locale,
+                abbreviate: true,
+              })
             : ""
         }
       />
       <LabelAndText
         label={t("profile:heading.local_time")}
         text={localizeDateTime(dayjs(), {
-          timezone: user.timezone || "Etc/UTC",
+          timezone: user.timezone || UTC_TIMEZONE,
           locale,
           includeDate: false,
         })}

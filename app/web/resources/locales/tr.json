@@ -228,7 +228,7 @@
   "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "< 1 dakika önce",
-    "less_than_one_hour_ago": "Bir saatten kısa süre önce"
+    "less_than_one_hour_ago": "Bir saatten daha kısa bir süre önce"
   },
   "location_autocomplete": {
     "more_specific": "Lütfen daha belirli bir yer seçin",

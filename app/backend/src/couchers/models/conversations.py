@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, String, func
+from sqlalchemy import BigInteger, Boolean, DateTime, Enum, ForeignKey, Index, String, func, text
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import DynamicMapped, Mapped, mapped_column, relationship
 from sqlalchemy.sql import expression
@@ -139,6 +139,14 @@ class Message(Base, kw_only=True):
     """
 
     __tablename__ = "messages"
+    __table_args__ = (
+        Index(
+            "ix_messages_conversation_id_id_text_only",
+            "conversation_id",
+            "id",
+            postgresql_where=text("message_type = 'text'"),
+        ),
+    )
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
 

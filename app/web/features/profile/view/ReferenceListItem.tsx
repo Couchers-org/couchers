@@ -7,7 +7,7 @@ import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { LiteUser } from "proto/api_pb";
 import { Reference } from "proto/references_pb";
-import { monthFormatter, timestamp2Date } from "utils/date";
+import { localizeYearMonth, timestamp2Date } from "utils/date";
 
 export const REFERENCE_LIST_ITEM_TEST_ID = "reference-list-item";
 
@@ -63,9 +63,10 @@ export default function ReferenceListItem({
           )}
           {reference.writtenTime && (
             <Pill variant="rounded">
-              {monthFormatter(locale).format(
-                timestamp2Date(reference.writtenTime),
-              )}
+              {localizeYearMonth(timestamp2Date(reference.writtenTime), {
+                locale,
+                abbreviate: true,
+              })}
             </Pill>
           )}
         </StyledBadgesContainer>
