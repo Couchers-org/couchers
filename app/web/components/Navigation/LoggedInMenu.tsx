@@ -345,8 +345,15 @@ export default function LoggedInMenu({
         id="navigation-menu"
         open={menuOpen}
         anchorEl={isMobile ? undefined : menuRef.current}
-        onClose={() => setMenuOpen(false)}
-        onBlur={() => setMenuOpen(false)}
+        onClose={(_event: object, reason: string) => {
+          // Don't close on backdrop click on mobile — the Select dropdown
+          // opens in a portal which triggers a backdrop click on the menu
+          if (isMobile && reason === "backdropClick") return;
+          setMenuOpen(false);
+        }}
+        onBlur={() => {
+          if (!isMobile) setMenuOpen(false);
+        }}
         $isNativeEmbed={isNativeEmbed}
         anchorOrigin={
           isMobile ? undefined : { vertical: "bottom", horizontal: "right" }
