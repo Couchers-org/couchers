@@ -5,7 +5,7 @@ from datetime import timedelta
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import delete, func, or_
 
 from couchers.constants import COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD
@@ -137,7 +137,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
     def GetCommunity(
         self, request: communities_pb2.GetCommunityReq, context: CouchersContext, session: Session
     ) -> communities_pb2.Community:
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = session.execute(
+            select(Node).where(Node.id == request.community_id).options(selectinload(Node.official_cluster))
+        ).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
@@ -157,6 +159,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .order_by(Cluster.name)
                 .limit(page_size + 1)
                 .offset(offset)
+                .options(selectinload(Node.official_cluster))
             )
             .scalars()
             .all()
@@ -186,7 +189,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .limit(page_size)
         )
 
-        rows = session.execute(query).scalars().all()
+        rows = session.execute(query.options(selectinload(Node.official_cluster))).scalars().all()
 
         return communities_pb2.SearchCommunitiesRes(communities=communities_to_pb(session, rows, context))
 
@@ -529,6 +532,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .where(Node.id >= next_node_id)
                 .order_by(Node.id)
                 .limit(page_size + 1)
+                .options(selectinload(Node.official_cluster))
             )
             .scalars()
             .all()

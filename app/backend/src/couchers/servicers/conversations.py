@@ -6,7 +6,7 @@ from typing import Any, cast
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, contains_eager
 from sqlalchemy.sql import func, not_, or_
 
 from couchers.constants import DATETIME_INFINITY, DATETIME_MINUS_INFINITY
@@ -381,6 +381,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 .join(Message, Message.id == t.c.message_id)
                 .join(GroupChatSubscription, GroupChatSubscription.id == t.c.group_chat_subscriptions_id)
                 .join(GroupChat, GroupChat.conversation_id == t.c.group_chat_id)
+                .join(Conversation, Conversation.id == GroupChat.conversation_id)
+                .options(contains_eager(GroupChat.conversation))
                 .where(or_(t.c.message_id < request.last_message_id, to_bool(request.last_message_id == 0)))
                 .order_by(t.c.message_id.desc())
                 .limit(page_size + 1),
@@ -389,6 +391,18 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 is_list_operation=True,
             )
         ).all()
+
+        # Batch: unseen message counts in one query instead of N individual queries
+        subscription_ids = [r.GroupChatSubscription.id for r in results[:page_size]]
+        unseen_counts: dict[int, int] = dict(
+            session.execute(  # type: ignore[arg-type]
+                select(GroupChatSubscription.id, func.count(Message.id))
+                .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
+                .where(GroupChatSubscription.id.in_(subscription_ids))
+                .where(Message.id > GroupChatSubscription.last_seen_message_id)
+                .group_by(GroupChatSubscription.id)
+            ).all()
+        )
 
         return conversations_pb2.ListGroupChatsRes(
             group_chats=[
@@ -400,7 +414,7 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                     only_admins_invite=result.GroupChat.only_admins_invite,
                     is_dm=result.GroupChat.is_dm,
                     created=Timestamp_from_datetime(result.GroupChat.conversation.created),
-                    unseen_message_count=_unseen_message_count(session, result.GroupChatSubscription.id),
+                    unseen_message_count=unseen_counts.get(result.GroupChatSubscription.id, 0),
                     last_seen_message_id=result.GroupChatSubscription.last_seen_message_id,
                     latest_message=_message_to_pb(result.Message) if result.Message else None,
                     mute_info=_mute_info(result.GroupChatSubscription),
@@ -423,6 +437,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 select(GroupChat, GroupChatSubscription, Message)
                 .join(Message, Message.conversation_id == GroupChatSubscription.group_chat_id)
                 .join(GroupChat, GroupChat.conversation_id == GroupChatSubscription.group_chat_id)
+                .join(Conversation, Conversation.id == GroupChat.conversation_id)
+                .options(contains_eager(GroupChat.conversation))
                 .where(GroupChatSubscription.user_id == context.user_id)
                 .where(GroupChatSubscription.group_chat_id == request.group_chat_id)
                 .where(Message.time >= GroupChatSubscription.joined)
@@ -479,6 +495,8 @@ class Conversations(conversations_pb2_grpc.ConversationsServicer):
                 select(subquery, GroupChat, GroupChatSubscription, Message)
                 .join(subquery, subquery.c.group_chat_id == GroupChat.conversation_id)
                 .join(Message, Message.conversation_id == GroupChat.conversation_id)
+                .join(Conversation, Conversation.id == GroupChat.conversation_id)
+                .options(contains_eager(GroupChat.conversation))
                 .where(GroupChatSubscription.user_id == context.user_id)
                 .where(GroupChatSubscription.group_chat_id == GroupChat.conversation_id)
                 .where(Message.time >= GroupChatSubscription.joined)

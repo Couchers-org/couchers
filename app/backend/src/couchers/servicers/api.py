@@ -7,8 +7,8 @@ import google.protobuf.message
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
+from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.sql import and_, delete, exists, func, intersect, or_, union
 
 from couchers import urls
 from couchers.config import config
@@ -170,7 +170,15 @@ fluency2api = {
 class API(api_pb2_grpc.APIServicer):
     def Ping(self, request: api_pb2.PingReq, context: CouchersContext, session: Session) -> api_pb2.PingRes:
         # auth ought to make sure the user exists
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = session.execute(
+            select(User)
+            .where(User.id == context.user_id)
+            .options(
+                selectinload(User.regions_visited),
+                selectinload(User.regions_lived),
+                selectinload(User.language_abilities),
+            )
+        ).scalar_one()
 
         sent_reqs_query = select(HostRequest.conversation_id, HostRequest.initiator_last_seen_message_id).where(
             HostRequest.initiator_user_id == context.user_id
@@ -180,13 +188,15 @@ class API(api_pb2_grpc.APIServicer):
         sent_reqs_last_seen_message_ids = sent_reqs_query.subquery()
 
         unseen_sent_host_request_count = session.execute(
-            select(func.count(distinct(sent_reqs_last_seen_message_ids.c.conversation_id)))
-            .join(
-                Message,
-                Message.conversation_id == sent_reqs_last_seen_message_ids.c.conversation_id,
+            select(func.count())
+            .select_from(sent_reqs_last_seen_message_ids)
+            .where(
+                exists(
+                    select(1)
+                    .where(Message.conversation_id == sent_reqs_last_seen_message_ids.c.conversation_id)
+                    .where(Message.id > sent_reqs_last_seen_message_ids.c.initiator_last_seen_message_id)
+                )
             )
-            .where(sent_reqs_last_seen_message_ids.c.initiator_last_seen_message_id < Message.id)
-            .where(Message.id != None)
         ).scalar_one()
 
         received_reqs_query = select(HostRequest.conversation_id, HostRequest.recipient_last_seen_message_id).where(
@@ -199,13 +209,15 @@ class API(api_pb2_grpc.APIServicer):
         received_reqs_last_seen_message_ids = received_reqs_query.subquery()
 
         unseen_received_host_request_count = session.execute(
-            select(func.count(distinct(received_reqs_last_seen_message_ids.c.conversation_id)))
-            .join(
-                Message,
-                Message.conversation_id == received_reqs_last_seen_message_ids.c.conversation_id,
+            select(func.count())
+            .select_from(received_reqs_last_seen_message_ids)
+            .where(
+                exists(
+                    select(1)
+                    .where(Message.conversation_id == received_reqs_last_seen_message_ids.c.conversation_id)
+                    .where(Message.id > received_reqs_last_seen_message_ids.c.recipient_last_seen_message_id)
+                )
             )
-            .where(received_reqs_last_seen_message_ids.c.recipient_last_seen_message_id < Message.id)
-            .where(Message.id != None)
         ).scalar_one()
 
         unseen_message_query = (
@@ -260,7 +272,15 @@ class API(api_pb2_grpc.APIServicer):
         )
 
     def GetUser(self, request: api_pb2.GetUserReq, context: CouchersContext, session: Session) -> api_pb2.User:
-        user = session.execute(select(User).where(username_or_id(request.user))).scalar_one_or_none()
+        user = session.execute(
+            select(User)
+            .where(username_or_id(request.user))
+            .options(
+                selectinload(User.regions_visited),
+                selectinload(User.regions_lived),
+                selectinload(User.language_abilities),
+            )
+        ).scalar_one_or_none()
 
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")

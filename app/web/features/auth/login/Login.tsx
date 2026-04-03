@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, signupRoute } from "routes";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
@@ -39,6 +40,7 @@ const StyledFormWrapper = styled("div")(({ theme }) => ({
 export default function Login() {
   const { t } = useTranslation([AUTH, GLOBAL, LANDING]);
   const { authState } = useAuthContext();
+  const isNativeEmbed = useIsNativeEmbed();
   const authenticated = authState.authenticated;
   const error = authState.error;
 
@@ -48,7 +50,8 @@ export default function Login() {
   const redirectTo = from === "/" || from === "%2F" ? dashboardRoute : from;
 
   useEffect(() => {
-    if (authenticated) {
+    // In native embed, the mobile app handles navigation via LOGIN_SUCCESS message
+    if (authenticated && !isNativeEmbed) {
       // Get the NEXT_LOCALE cookie to use the user's preferred language
       const nextLocale =
         typeof document !== "undefined"
@@ -63,7 +66,7 @@ export default function Login() {
       // Navigate to destination with user's preferred locale
       router.push(redirectTo, undefined, { locale: targetLocale });
     }
-  }, [authenticated, router, redirectTo]);
+  }, [authenticated, isNativeEmbed, router, redirectTo]);
 
   return (
     <>

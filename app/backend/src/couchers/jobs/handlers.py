@@ -293,41 +293,29 @@ def send_request_notifications(payload: empty_pb2.Empty) -> None:
     logger.info("Sending out email notifications for unseen messages in host requests")
 
     with session_scope() as session:
-        # Get all candidate users who might have unseen request messages
-        candidate_user_ids = (
-            session.execute(
-                select(User.id)
-                .where(User.is_visible)
-                .where(
-                    or_(
-                        # Users with unseen messages as surfer
-                        exists(
-                            select(1)
-                            .select_from(HostRequest)
-                            .join(Message, Message.conversation_id == HostRequest.conversation_id)
-                            .where(HostRequest.initiator_user_id == User.id)
-                            .where(Message.id > HostRequest.initiator_last_seen_message_id)
-                            .where(Message.id > User.last_notified_request_message_id)
-                            .where(Message.time < now() - timedelta(minutes=5))
-                            .where(Message.message_type == MessageType.text)
-                        ),
-                        # Users with unseen messages as host
-                        exists(
-                            select(1)
-                            .select_from(HostRequest)
-                            .join(Message, Message.conversation_id == HostRequest.conversation_id)
-                            .where(HostRequest.recipient_user_id == User.id)
-                            .where(Message.id > HostRequest.recipient_last_seen_message_id)
-                            .where(Message.id > User.last_notified_request_message_id)
-                            .where(Message.time < now() - timedelta(minutes=5))
-                            .where(Message.message_type == MessageType.text)
-                        ),
-                    )
-                )
-            )
-            .scalars()
-            .all()
+        # Get all candidate users who might have unseen request messages.
+        # Drive from host_requests/messages (selective) rather than scanning all users (expensive).
+        surfer_ids = (
+            select(User.id)
+            .join(HostRequest, HostRequest.initiator_user_id == User.id)
+            .join(Message, Message.conversation_id == HostRequest.conversation_id)
+            .where(User.is_visible)
+            .where(Message.id > HostRequest.initiator_last_seen_message_id)
+            .where(Message.id > User.last_notified_request_message_id)
+            .where(Message.time < now() - timedelta(minutes=5))
+            .where(Message.message_type == MessageType.text)
         )
+        host_ids = (
+            select(User.id)
+            .join(HostRequest, HostRequest.recipient_user_id == User.id)
+            .join(Message, Message.conversation_id == HostRequest.conversation_id)
+            .where(User.is_visible)
+            .where(Message.id > HostRequest.recipient_last_seen_message_id)
+            .where(Message.id > User.last_notified_request_message_id)
+            .where(Message.time < now() - timedelta(minutes=5))
+            .where(Message.message_type == MessageType.text)
+        )
+        candidate_user_ids = session.execute(union_all(surfer_ids, host_ids)).scalars().unique().all()
 
         for user_id in candidate_user_ids:
             context = make_background_user_context(user_id=user_id)

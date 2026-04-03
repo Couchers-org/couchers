@@ -1,6 +1,6 @@
 import grpc
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from couchers.context import CouchersContext
 from couchers.db import can_moderate_at, can_moderate_node, get_parent_node_at_location
@@ -207,7 +207,11 @@ class Pages(pages_pb2_grpc.PagesServicer):
         return page_to_pb(session, page, context)
 
     def GetPage(self, request: pages_pb2.GetPageReq, context: CouchersContext, session: Session) -> pages_pb2.Page:
-        page = session.execute(select(Page).where(Page.id == request.page_id)).scalar_one_or_none()
+        page = session.execute(
+            select(Page)
+            .where(Page.id == request.page_id)
+            .options(selectinload(Page.versions), selectinload(Page.owner_cluster))
+        ).scalar_one_or_none()
         if not page:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "page_not_found")
 
@@ -317,6 +321,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 .where(Page.id >= next_page_id)
                 .order_by(Page.id)
                 .limit(page_size + 1)
+                .options(selectinload(Page.versions), selectinload(Page.owner_cluster))
             )
             .scalars()
             .all()
@@ -340,6 +345,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
                 .where(Page.id >= next_page_id)
                 .order_by(Page.id)
                 .limit(page_size + 1)
+                .options(selectinload(Page.versions), selectinload(Page.owner_cluster))
             )
             .scalars()
             .all()
