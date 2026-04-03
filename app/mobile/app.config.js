@@ -1,3 +1,16 @@
+const { execSync } = require("child_process");
+
+// Capture git hash at build time (8 chars)
+const getGitHash = () => {
+  try {
+    return execSync("git rev-parse --short=8 HEAD", {
+      encoding: "utf-8",
+    }).trim();
+  } catch {
+    return "unknown";
+  }
+};
+
 // Determine app variant from environment variable
 const APP_VARIANT = process.env.APP_VARIANT || "production";
 const IS_STAGING = APP_VARIANT === "staging";
@@ -162,6 +175,7 @@ export default {
     eas: {
       projectId: "fb4fc9aa-d8b2-45a5-82aa-be05e99b0413",
     },
+    gitHash: getGitHash(),
   },
   owner: "couchers-org",
 };
