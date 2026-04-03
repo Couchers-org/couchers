@@ -180,19 +180,15 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       const payload = JSON.parse(event.nativeEvent.data);
 
       if (payload?.type === "LOGIN_SUCCESS") {
-        const currentSegment = segments[0];
-        if (currentSegment !== "(tabs)") {
-          // On unprotected screens (signup, confirm-email, etc.), don't mark
-          // authenticated here — navigate to login instead. The login WebView
-          // will detect the valid session cookie and handle the full auth flow,
-          // navigating to /(tabs)/dashboard with proper tab navigation.
-          // This avoids iOS cookie sync issues between WebView instances.
-          router.replace("/login" as Href);
-        } else {
-          // Inside tabs — update mobile auth state directly
-          setUserId(payload.userId);
-          setJailed(payload.jailed || false);
-          markAuthenticated();
+        // Web app says user logged in - update mobile state
+        setUserId(payload.userId);
+        setJailed(payload.jailed || false);
+        markAuthenticated();
+        // If on an unprotected screen (signup, confirm-email, etc.),
+        // navigate to dashboard with tabs. The web-side redirect is
+        // suppressed via isNativeEmbed so this is the only navigation.
+        if (segments[0] !== "(tabs)") {
+          router.replace("/(tabs)/dashboard" as Href);
         }
       } else if (payload?.type === "LOGOUT") {
         // Web app says user logged out - clear mobile state and navigate to login
