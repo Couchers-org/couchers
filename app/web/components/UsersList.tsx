@@ -19,8 +19,11 @@ const StyledUsersDiv = styled("div", {
   display: "grid",
   gap: theme.spacing(1),
   ...(layout === "grid" && {
-    gridTemplateColumns: "repeat(auto-fit, minmax(19.5rem, 1fr))",
-    gridAutoRows: "5.5rem",
+    gridAutoRows: "6rem",
+    [theme.breakpoints.up("sm")]: {
+      gridAutoRows: "5.5rem",
+      gridTemplateColumns: "repeat(auto-fit, minmax(19.5rem, 1fr))",
+    },
   }),
 }));
 
