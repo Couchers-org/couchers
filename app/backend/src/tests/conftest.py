@@ -96,6 +96,7 @@ def setup_testdb(postgres_conn: Connection, testdb_engine: Engine) -> None:
                 "CREATE EXTENSION IF NOT EXISTS postgis;"
                 "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
                 "CREATE EXTENSION IF NOT EXISTS btree_gist;"
+                "CREATE EXTENSION IF NOT EXISTS pg_stat_statements;"
             )
         )
 
