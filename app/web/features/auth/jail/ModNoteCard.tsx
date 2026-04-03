@@ -7,7 +7,7 @@ import { ModNote } from "proto/account_pb";
 import { useState } from "react";
 import { service } from "service";
 import { theme } from "theme";
-import { dateFormatter, timestamp2Date } from "utils/date";
+import { localizeDateTime, timestamp2Date } from "utils/date";
 
 const StyledNoteContainer = styled("div")(() => ({
   marginBottom: theme.spacing(4),
@@ -33,9 +33,10 @@ export default function ModNoteCard({ note, updateJailed }: ModNoteCardProps) {
   const [acknowledged, setAcknowledged] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const formattedTime = dateFormatter(locale).format(
-    timestamp2Date(note.created!),
-  );
+  const formattedTime = localizeDateTime(timestamp2Date(note.created!), {
+    locale,
+    abbreviate: true,
+  });
 
   const acknowledge = async () => {
     setLoading(true);

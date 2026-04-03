@@ -4,7 +4,7 @@ from datetime import timedelta
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
 
@@ -252,7 +252,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
                     )
                 )
         users = (
-            session.execute(statement.where(User.id >= next_user_id).order_by(User.id).limit(page_size + 1))
+            session.execute(
+                statement.where(User.id >= next_user_id)
+                .order_by(User.id)
+                .limit(page_size + 1)
+                .options(selectinload(User.badges))
+            )
             .scalars()
             .all()
         )
@@ -562,8 +567,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
         def get_host_request_pb(host_request: HostRequest) -> admin_pb2.AdminHostRequest:
             return admin_pb2.AdminHostRequest(
                 host_request_id=host_request.conversation_id,
-                surfer=get_chat_user_info(host_request.surfer_user_id),
-                host=get_chat_user_info(host_request.host_user_id),
+                surfer=get_chat_user_info(host_request.initiator_user_id),
+                host=get_chat_user_info(host_request.recipient_user_id),
                 status=host_request.status.name if host_request.status else "",
                 from_date=date_to_api(host_request.from_date),
                 to_date=date_to_api(host_request.to_date),
@@ -603,7 +608,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         host_requests = (
             session.execute(
                 select(HostRequest)
-                .where(or_(HostRequest.host_user_id == user.id, HostRequest.surfer_user_id == user.id))
+                .where(or_(HostRequest.recipient_user_id == user.id, HostRequest.initiator_user_id == user.id))
                 .order_by(HostRequest.conversation_id.desc())
             )
             .scalars()

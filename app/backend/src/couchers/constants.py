@@ -113,4 +113,4 @@ GALLERY_MAX_PHOTOS_VERIFIED = 4
 COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH = 150
 
 # How long a container must run uninterrupted before /status reports stable=true
-STABLE_THRESHOLD_SECONDS = 15 * 60
+STABLE_THRESHOLD_SECONDS = 5 * 60

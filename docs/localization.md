@@ -45,7 +45,7 @@ Placeholders allow inserting values known at runtime into the string. They are a
 - ✅ **DO** use descriptive placeholder names that allow translators to anticipate the format of the substituted string. It's okay to be verbose!
   - **Good** 👍: `{{full_name}}`, `{{date_and_time_with_day}}`, `{{amount_and_currency}}`.
   - **Bad** 👎: `{{when}}`, `{{value}}`, `{{x}}`.
-- ✅ **DO** allow for pluralization of integer values. i18next requires the placeholder to be named `{{count}}` and Weblate requires `en.json` to define both `***_one` and `***_other` string variants.
+- ✅ **DO** allow for pluralization of integer values, even if they will never be 1. i18next requires the placeholder to be named `{{count}}` and Weblate requires `en.json` to define both `***_one` and `***_other` string variants.
   - **Good** 👍: `member_count_one` = `{{count}} member` and `member_count_other` = `{{count}} members`.
   - **Bad** 👎: `member_count` = `{{members}} members`, `member_count_plural` = `{{count}} members`.
 - ✅ **DO** change the string key if the format or name of a placeholder changes, to force retranslation. If necessary, add a version suffix like "mystring2".

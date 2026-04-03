@@ -1,9 +1,128 @@
-import { isSameOrFutureDate } from "utils/date";
+import { isSameOrFutureDate, localizeDateTime, UTC_TIMEZONE } from "utils/date";
 import dayjs from "utils/dayjs";
 
-const FUTURE = dayjs("02-15-2025");
-const PAST = dayjs("10-05-1991");
-const TODAY = dayjs("03-25-2021");
+const FUTURE = dayjs("2025-02-15");
+const PAST = dayjs("1991-10-05");
+const TODAY = dayjs("2021-03-25");
+
+describe("localizeDateTime", () => {
+  it("excludes dates when specified", () => {
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en",
+      }),
+    ).toContain("2000");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en",
+        includeDate: false,
+      }),
+    ).not.toContain("2000");
+  });
+
+  it("honors abbreviated month names", () => {
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en",
+      }),
+    ).toContain("January");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en",
+        abbreviate: true,
+      }),
+    ).not.toContain("uary");
+  });
+
+  it("includes the day of week when specified", () => {
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en",
+        includeDayOfWeek: false,
+      }),
+    ).not.toContain("Sat");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en",
+        includeDayOfWeek: true,
+      }),
+    ).toContain("Saturday");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en",
+        includeDayOfWeek: true,
+        abbreviate: true,
+      }),
+    ).toContain("Sat");
+  });
+
+  it("excludes times when specified", () => {
+    expect(
+      localizeDateTime(dayjs("2000-01-01").add(11, "hours"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en",
+      }),
+    ).toContain("11");
+    expect(
+      localizeDateTime(dayjs("2000-01-01").add(11, "hours"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en",
+        includeTime: false,
+      }),
+    ).not.toContain("11");
+  });
+
+  it("includes seconds when specified", () => {
+    expect(
+      localizeDateTime(dayjs("2000-01-01").add(42, "seconds"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en",
+        includeSeconds: false,
+      }),
+    ).not.toContain("42");
+    expect(
+      localizeDateTime(dayjs("2000-01-01").add(42, "seconds"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en",
+        includeSeconds: true,
+      }),
+    ).toContain("42");
+  });
+
+  it("honors the locale", () => {
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en",
+      }),
+    ).toContain("January");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "en-US",
+      }),
+    ).toContain("January");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "es",
+      }),
+    ).toContain("enero");
+    expect(
+      localizeDateTime(dayjs("2000-01-01"), {
+        timezone: UTC_TIMEZONE,
+        locale: "de",
+      }),
+    ).toContain("Januar");
+  });
+});
 
 describe("isSameOrFutureDate", () => {
   it("returns true when is same date", () => {

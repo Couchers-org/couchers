@@ -5,7 +5,8 @@ from datetime import timedelta
 from typing import Any
 
 from google.protobuf import empty_pb2
-from sqlalchemy import CompoundSelect, Connection, Float, Index, Integer, MetaData, Select, Table, event
+from sqlalchemy import CompoundSelect, Connection, Float, Index, Integer, MetaData, Select, Table, Text, event
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import Mapped
 from sqlalchemy.sql import (
     and_,
@@ -159,6 +160,19 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
 
     avatar_photo_subquery = get_avatar_photo_subquery(name="avatar_photo")
 
+    # Pre-compute GeoJSON Feature for each user (used by GIS.GetUsers)
+    geojson_feature = cast(
+        func.json_build_object(
+            "type",
+            "Feature",
+            "geometry",
+            cast(func.ST_AsGeoJSON(geom_column, 5), JSON),
+            "properties",
+            func.json_build_object("id", User.id, "has_completed_profile", has_completed_profile_expression()),
+        ),
+        Text,
+    )
+
     # Be sure to modify the LiteUser type if you add/remove columns!
     return (
         sa_select(
@@ -174,6 +188,7 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
             has_completed_profile_expression().label("has_completed_profile"),
             User.has_completed_my_home.label("has_completed_my_home"),
             func.coalesce(strong_verification_subquery.c.true, False).label("has_strong_verification"),
+            geojson_feature.label("geojson"),
         )
         .select_from(User)
         .outerjoin(
@@ -230,6 +245,7 @@ class LiteUser(MatViewBase):
     has_completed_profile: Mapped[bool]
     has_completed_my_home: Mapped[bool]
     has_strong_verification: Mapped[bool]
+    geojson: Mapped[str]
 
 
 def make_clustered_users_selectable(create: bool = False) -> CompoundSelect[Any]:
@@ -306,11 +322,13 @@ s = (
 all_responses = union_all(
     # host request responses
     sa_select(
-        HostRequest.host_user_id.label("user_id"),
+        HostRequest.recipient_user_id.label("user_id"),
         (s.c.time - t.c.time).label("response_time"),
     )
     .join(t, t.c.conversation_id == HostRequest.conversation_id)
-    .outerjoin(s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.host_user_id)),
+    .outerjoin(
+        s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.recipient_user_id)
+    ),
     # activeness probes
     sa_select(
         ActivenessProbe.user_id,

@@ -44,10 +44,9 @@ type LoggedInMenuDialogItem = {
 
 export type LoggedInMenuItem = LoggedInMenuLinkItem | LoggedInMenuDialogItem;
 
-const StyledMenu = styled(Menu)<{ $isNativeEmbed?: boolean }>(({
-  theme,
-  $isNativeEmbed,
-}) => {
+const StyledMenu = styled(Menu, {
+  shouldForwardProp: (prop) => prop !== "$isNativeEmbed",
+})<{ $isNativeEmbed?: boolean }>(({ theme, $isNativeEmbed }) => {
   // Native embed: full height (native tabs handle safe area)
   // Mobile web: subtract bottom nav + safe area
   const menuHeight = $isNativeEmbed
@@ -346,7 +345,15 @@ export default function LoggedInMenu({
         id="navigation-menu"
         open={menuOpen}
         anchorEl={isMobile ? undefined : menuRef.current}
-        onClose={() => setMenuOpen(false)}
+        onClose={(_event: object, reason: string) => {
+          // Don't close on backdrop click on mobile — the Select dropdown
+          // opens in a portal which triggers a backdrop click on the menu
+          if (isMobile && reason === "backdropClick") return;
+          setMenuOpen(false);
+        }}
+        onBlur={() => {
+          if (!isMobile) setMenuOpen(false);
+        }}
         $isNativeEmbed={isNativeEmbed}
         anchorOrigin={
           isMobile ? undefined : { vertical: "bottom", horizontal: "right" }
@@ -393,10 +400,10 @@ export default function LoggedInMenu({
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: { xs: 1.5, md: 3 },
-            textAlign: "center",
+            alignItems: { xs: "center", md: "stretch" },
+            justifyContent: { xs: "center", md: "flex-start" },
+            gap: { xs: 1.5, md: 0 },
+            textAlign: { xs: "center", md: "left" },
           }}
         >
           {items.map((item) => (

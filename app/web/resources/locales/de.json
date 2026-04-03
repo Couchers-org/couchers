@@ -209,11 +209,12 @@
       "location_publicly_visible": "Dies wird öffentlich sichtbar sein",
       "location_warn": "Klicke und ziehe den Kreis auf der Karte unten, um den ungefähren Ort deines Zuhauses zu zeigen. Achte darauf, dass dein Zuhause nicht im Mittelpunkt des Kreises liegt, damit niemand den genauen Ort kennt.",
       "map_is_blank": "Fehlende Koordinaten, beginne mit der Suche nach einem Ort auf der obigen Karte",
-      "radius_text": "{{radius}} Meter",
       "no_location_results_text": "Keine Ergebnisse. Versuche, nur nach der Stadt zu suchen.",
       "no_map_support": "Dein Gerät unterstützt die Karte nicht. Bitte stelle sicher, dass WebGL2 aktiviert ist, oder versuche es mit einem anderen Gerät oder Browser. Entschuldige die Unannehmlichkeiten!",
       "press_enter_to_search": "Drücke die Eingabetaste, um zu suchen",
-      "display_location_not_empty": "Bitte gib eine Anzeigeadresse ein"
+      "display_location_not_empty": "Bitte gib eine Anzeigeadresse ein",
+      "radius_text2_one": "{{count}} Meter",
+      "radius_text2_other": "{{count}} Meter"
     }
   },
   "reply": "Antwort",
@@ -288,7 +289,13 @@
     },
     "error": {
       "fetch_invite_info": "Details des Einladungscodes konnten nicht abgerufen werden"
-    }
+    },
+    "no_codes_message": "Noch keine Einladungscodes",
+    "created_datetime": "Erstellt: {{datetime}}",
+    "disabled_datetime": "Deaktiviert: {{datetime}}",
+    "number_of_uses_one": "Verwendet: {{count}} abgeschlossene Anmeldung",
+    "number_of_uses_other": "Verwendet: {{count}} abgeschlossene Anmeldungen",
+    "disable_link": "Deaktivieren"
   },
   "what_is_cs": {
     "get_involved_title": "Was kann ich auf Couchers.org machen?",
@@ -366,5 +373,9 @@
     "select_button_a11y": "Wähle ein Bild aus",
     "replace_image_tooltip": "Klicke um das Bild zu ändern",
     "read_file_error_message": "Die Datei konnte nicht gelesen werden"
+  },
+  "copy_button": {
+    "a11y": "Kopieren",
+    "copied_tooltip": "In die Zwischenablage kopiert"
   }
 }

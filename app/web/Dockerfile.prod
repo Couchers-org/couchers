@@ -54,4 +54,7 @@ EXPOSE 3000
 
 ENV HOSTNAME="::"
 
+ARG pipeline_id
+ENV PIPELINE_ID=$pipeline_id
+
 CMD ["node", "server.js"]

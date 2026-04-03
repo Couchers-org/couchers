@@ -8,7 +8,6 @@
     "cannot_create_discussion": "No puedes crear una discusión en este grupo o comunidad.",
     "cant_invite_to_dm": "No puedes invitar a otros usuarios a un mensaje directo.",
     "cant_write_reference_indicated_didnt_meetup": "No puedes escribir una referencia para esa solicitud de alojamiento porque indicaste que no os encontrasteis.",
-    "chat_initiation_rate_limit": "Has enviado mensajes a muchos usuarios en las últimas {{hours}} horas. Para evitar el spam, no puedes contactar a más usuarios por ahora.",
     "account_not_found": "No se encontró una cuenta con ese nombre o correo electrónico.",
     "account_suspended": "Tu cuenta está suspendida.",
     "admin_blog_blurb_too_long": "Este resumen de la entrada del blog es demasiado largo.",
@@ -49,7 +48,6 @@
     "address_line_1_required": "La línea 1 de la dirección es obligatoria.",
     "can_only_refer_friends": "Solo puedes escribir referencias de amigos para amigos confirmados.",
     "incomplete_profile_send_request": "Debes completar tu perfil antes de poder enviar una solicitud.",
-    "host_request_too_short": "La solicitud de hospedaje no puede tener menos de {{chars}} caracteres.",
     "incomplete_profile_create_event": "Debes completar tu perfil antes de poder crear un evento.",
     "incomplete_profile_send_message": "Debes completar tu perfil antes de poder enviar un mensaje.",
     "invite_code_not_found": "Código de invitación no encontrado.",
@@ -93,10 +91,8 @@
     "must_accept_tos": "Debes aceptar los Términos de Servicio.",
     "need_strong_verification": "Necesitas una verificación sólida para usar esa función.",
     "need_to_specify_at_least_one_user": "Debes especificar al menos un usuario.",
-    "host_request_rate_limit": "Has enviado muchas solicitudes de alojamiento en las últimas {{hours}} horas. Para evitar el spam, no puedes enviar más de momento..",
     "invalid_coordinate": "Coordenadas inválidas.",
     "event_cant_update_cancelled_event": "No puedes modificar, suscribirte o asistir a un evento que se ha cancelado.",
-    "friend_request_rate_limit": "Has enviado muchas solicitudes de amistad en las últimas {{hours}} horas. Para evitar el spam, no puedes enviar más de momento.",
     "event_community_invite_already_decided": "Esa invitación al evento de la comunidad ya fue aprobada/denegada.",
     "invalid_invite_code": "El código de invitación es inválido o ha caducado.",
     "must_confirm_account_delete": "Por favor, confirma la eliminación de tu cuenta.",
@@ -134,7 +130,7 @@
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",
-    "board_member_name": "Miembro de la Junta",
-    "past_board_member_name": "Anterior Miembro de la Junta"
+    "board_member_name": "Miembro de la junta",
+    "past_board_member_name": "Anterior miembro de la junta"
   }
 }

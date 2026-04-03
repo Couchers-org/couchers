@@ -169,13 +169,15 @@
       "display_location_label": "Zobrazit polohu",
       "search_location_label": "Vyhledat místo",
       "map_is_blank": "Chybějící souřadnice, začni hledáním místa pomocí mapy výše",
-      "radius_text": "{{radius}} metrů",
       "no_location_results_text": "Žádné výsledky. Zkus vyhledat pouze město.",
       "press_enter_to_search": "Stiskni Enter pro vyhledávání",
       "invalid_coordinate": "Chybí souřadnice, prosím vyber na mapě výše dané místo",
       "location_warn": "Klikni a přetáhni kruh níže, abys ukázal(a) lidem přibližnou polohu svého domova. Ujisti se, že tvůj domov není ve středu kruhu, aby lidé nepoznali přesnou polohu.",
       "no_map_support": "Tvé zařízení nepodporuje zobrazení mapy. Zkontroluj, že máš zapnutý WebGL2, nebo zkus jiné zařízení/prohlížeč. Omlouváme se za komplikace!",
-      "display_location_not_empty": "Vyplň prosím zobrazovanou adresu"
+      "display_location_not_empty": "Vyplň prosím zobrazovanou adresu",
+      "radius_text2_one": "{{count}} metr",
+      "radius_text2_few": "{{count}} metry",
+      "radius_text2_other": "{{count}} metrů"
     },
     "datepicker": {
       "change_date": "Změnit datum"

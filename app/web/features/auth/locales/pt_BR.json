@@ -94,7 +94,10 @@
     "name": {
       "empty_error": "Digite seu nome",
       "field_label": "Nome",
-      "required_error": "Este campo não pode estar em branco."
+      "required_error": "Este campo não pode estar em branco",
+      "invalid_characters_error": "O nome pode conter apenas letras, espaços, hífens e apóstrofes",
+      "min_length_error": "O nome deve ter pelo menos 2 caracteres",
+      "max_length_error": "O nome não deve ter mais que 100 caracteres"
     },
     "email": {
       "field_label": "E-mail",
@@ -183,7 +186,7 @@
       "checkbox_label": "OK, entendi",
       "required_error": "Todas as caixas de verificação são obrigatórias"
     },
-    "header": "Orientações da Comunidade"
+    "header": "Diretrizes da Comunidade"
   },
   "unhandled_sign_up_state": "Erro: estado de fluxo de registo não tratado.",
   "login_prompt": "Clique aqui para entrar",

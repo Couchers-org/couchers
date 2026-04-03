@@ -131,14 +131,14 @@
   "not_found_text_1": "No pudimos encontrar la URL o el recurso que ha solicitado",
   "not_found_alt": "Error 404: Recurso no encontrado",
   "nav": {
-    "mission": "Misión y Valores",
+    "mission": "Misión y valores",
     "badges": "Insignias",
     "faq": "Preguntas frecuentes",
     "feature_preview": "Previsualización de características",
     "forum": "Foro",
     "github": "GitHub",
     "help_center": "Centro de ayuda",
-    "roadmap_updates": "Hoja de ruta y Actualizaciones",
+    "roadmap_updates": "Hoja de ruta y actualizaciones",
     "help": "Ayuda",
     "log_out": "Cerrar sesión",
     "map_search": "Buscar",
@@ -151,13 +151,13 @@
     "messages": "Mensajes",
     "newsletter": "Boletín",
     "notifications": "Notificaciones",
-    "our_plan": "Nuestro Plan",
+    "our_plan": "Nuestro plan",
     "blog": "Blog",
     "account_settings": "Ajustes de la cuenta",
-    "our_team": "Nuestro Equipo",
+    "our_team": "Nuestro equipo",
     "profile": "Perfil",
     "show_all_events": "Mostrar todos los eventos",
-    "the_team": "El Equipo",
+    "the_team": "El equipo",
     "volunteer": "Voluntariado",
     "legal_more": "Legal y más",
     "contact_us": "Contáctanos",
@@ -257,7 +257,14 @@
     "error": {
       "fetch_invite_info": "No se han podido obtener los detalles del código de invitación"
     },
-    "title": "Invitar a miembros"
+    "title": "Invitar a miembros",
+    "no_codes_message": "Aún no hay códigos de invitación",
+    "created_datetime": "Creado: {{datetime}}",
+    "disabled_datetime": "Desactivado: {{datetime}}",
+    "number_of_uses_one": "Usos: {{count}} registro completado",
+    "number_of_uses_many": "Usos: {{count}} de registros completados",
+    "number_of_uses_other": "Usos: {{count}} registros completados",
+    "disable_link": "Desactivar"
   },
   "contribute_title": "Regístrate para contribuir",
   "reply": "Responder",
@@ -267,12 +274,12 @@
     "translations_lead": "Líder de traducciones",
     "current_members": "Miembros actuales",
     "past_members": "Miembros anteriores",
-    "board_member": "Miembro de la Junta",
-    "co_founder_president": "Co-fundador, Presidente y Presidente del Consejo",
+    "board_member": "Miembro de la junta",
+    "co_founder_president": "Co-fundador, presidente y presidente del consejo",
     "co_founder": "Co-fundador",
     "secretary": "Secretario",
     "treasurer": "Tesorero",
-    "community_coordinator": "Coordinador de la Comunidad",
+    "community_coordinator": "Coordinador de la comunidad",
     "volunteer_settings": {
       "show_on_team_page": {
         "disabled_message": "Actualmente tu perfil está oculto en la página del equipo",
@@ -283,14 +290,14 @@
     "have_skills_contribute": "¿Tienes habilidades que quieras aportar?",
     "fill_form_description": "Couchers.org es un proyecto impulsado por la comunidad, desarrollado por personas como tú para el beneficio de la comunidad global de couch surfing. Si estás interesado en unirte a esta emocionante iniciativa, haz clic en el botón inferior y completa el breve formulario.",
     "developer": "Desarrollador",
-    "frontend_developer": "Desarrollador Frontend",
-    "lead_frontend_developer": "Desarrollador Frontend Principal",
-    "backend_developer": "Desarrollador Backend",
-    "lead_backend_developer": "Desarrollador Backend Principal",
-    "full_stack_backend_developer": "Desarrollador Full Stack",
+    "frontend_developer": "Desarrollador frontend",
+    "lead_frontend_developer": "Desarrollador frontend principal",
+    "backend_developer": "Desarrollador backend",
+    "lead_backend_developer": "Desarrollador backend principal",
+    "full_stack_backend_developer": "Desarrollador full stack",
     "description": "Somos couch surfers apasionados y profesionales capacitados comprometidos con la creación de una plataforma mejorada, más segura e inclusiva. Estamos construyendo esta plataforma para apoyar y hacer crecer de manera sostenible la comunidad de couch surfing, compartiendo sus valores con el mundo. Si compartes el sentimiento y quieres contribuir, nos encataría saber de ti.",
     "tap_press_to_flip": "Toca / pulsa para girar",
-    "title": "El Equipo",
+    "title": "El equipo",
     "join_the_team": "Únete al equipo",
     "join_our_team": "Únete a nuestro equipo"
   },
@@ -310,8 +317,8 @@
     "pt-BR": "Portugués (Brasil)",
     "ru": "Ruso",
     "tr": "Turco",
-    "zh-Hans": "Chino (Simplificado)",
-    "zh-Hant": "Chino (Tradicional)",
+    "zh-Hans": "Chino (simplificado)",
+    "zh-Hant": "Chino (tradicional)",
     "hu": "Húngaro",
     "ca": "Catalán",
     "cs": "Checo",
@@ -330,11 +337,13 @@
       "invalid_coordinate": "Faltan las coordenadas, por favor selecciona una ubicación en el mapa de arriba",
       "location_accuracy": "Precisión de la ubicación",
       "map_is_blank": "Faltan las coordenadas, comienza buscando una ubicación con el mapa de arriba",
-      "radius_text": "{{radius}} metros",
       "no_location_results_text": "Sin resultados. Intenta buscar solo la ciudad.",
       "display_location_not_empty": "Por favor introduce una dirección para mostrar",
       "no_map_support": "Tu dispositivo no soporta el mapa. Por favor asegúrate de que WebGL2 está habilitado o prueba otro dispositivo/navegador. ¡Sentimos las molestias!",
-      "press_enter_to_search": "Pulsa enter para buscar"
+      "press_enter_to_search": "Pulsa enter para buscar",
+      "radius_text2_one": "{{count}} metro",
+      "radius_text2_many": "{{count}} de metros",
+      "radius_text2_other": "{{count}} metros"
     },
     "datepicker": {
       "change_date": "Cambiar fecha"
@@ -366,5 +375,9 @@
     "byline_with_author": "Escrito por <1/>. Publicado el {{date}}.",
     "byline_without_author": "Publicado el {{date}}.",
     "cta_message": "¿Quieres ayudar a escribir nuestro blog o ser voluntario? <1>Regístrate</1> y cuéntanos. ¡Los voluntarios y las <3>donaciones</3> son lo que hacen posible Couchers.org!"
+  },
+  "copy_button": {
+    "a11y": "Copiar",
+    "copied_tooltip": "Copiado al portapapeles"
   }
 }

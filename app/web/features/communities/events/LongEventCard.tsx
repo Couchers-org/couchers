@@ -14,7 +14,11 @@ import { COMMUNITIES } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
-import { localizeDateTimeRange, timestamp2Date } from "utils/date";
+import {
+  BROWSER_TIMEZONE,
+  localizeDateTimeRange,
+  timestamp2Date,
+} from "utils/date";
 import dayjs from "utils/dayjs";
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -134,10 +138,12 @@ const LongEventCard = ({
   const dateTimeRangeText = localizeDateTimeRange(
     dayjs(timestamp2Date(event.startTime!)),
     dayjs(timestamp2Date(event.endTime!)),
-    locale,
     {
+      // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
+      timezone: BROWSER_TIMEZONE,
+      locale,
       includeDayOfWeek: true,
-      long: true,
+      includeTime: true,
     },
   );
 

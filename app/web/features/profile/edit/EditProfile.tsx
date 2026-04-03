@@ -162,10 +162,9 @@ const AvatarTextWrapper = styled(Box)(({ theme }) => ({
   },
 }));
 
-const StickySaveBar = styled(Box)<{ $isNativeEmbed?: boolean }>(({
-  theme,
-  $isNativeEmbed,
-}) => {
+const StickySaveBar = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "$isNativeEmbed",
+})<{ $isNativeEmbed?: boolean }>(({ theme, $isNativeEmbed }) => {
   // Mobile web has bottom nav (55px), native embed doesn't
   const bottomNavHeight = $isNativeEmbed ? 0 : 55;
   // Native tabs handle safe area, mobile web needs extra padding

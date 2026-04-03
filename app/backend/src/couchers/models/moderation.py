@@ -96,6 +96,8 @@ class ModerationState(Base, kw_only=True):
         Index("ix_moderation_states_object", object_type, object_id, unique=True),
         # Covering index for visibility filtering - enables index-only scans in where_moderated_content_visible
         Index("ix_moderation_states_id_visibility", id, visibility),
+        # Fast filtering by object type and visibility
+        Index("ix_moderation_states_type_visibility", object_type, visibility),
     )
 
     def __repr__(self) -> str:

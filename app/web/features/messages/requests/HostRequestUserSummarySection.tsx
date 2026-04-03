@@ -12,7 +12,7 @@ import { MESSAGES } from "i18n/namespaces";
 import { LiteUser } from "proto/api_pb";
 import { HostRequest } from "proto/requests_pb";
 import { theme } from "theme";
-import { numNights } from "utils/date";
+import { localizeDateTimeRange, numNights, UTC_TIMEZONE } from "utils/date";
 import dayjs from "utils/dayjs";
 import truncateTextEllipsis from "utils/truncateTextEllipsis";
 
@@ -56,7 +56,10 @@ const HostRequestUserSummarySection = ({
   hostRequest: HostRequest.AsObject | undefined;
   otherUser: LiteUser.AsObject | undefined;
 }) => {
-  const { t } = useTranslation(MESSAGES);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(MESSAGES);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const smallUserSummarySection = (
@@ -92,9 +95,18 @@ const HostRequestUserSummarySection = ({
             variant="h3"
             sx={{ paddingRight: theme.spacing(1) }}
           >
-            {`${dayjs(hostRequest.fromDate).format("ll")} - ${dayjs(
-              hostRequest.toDate,
-            ).format("ll")}`}
+            {localizeDateTimeRange(
+              dayjs(hostRequest.fromDate),
+              dayjs(hostRequest.toDate),
+              {
+                // Host request dates are plain dates (no time),
+                // so it they can only be interpreted in UTC.
+                timezone: UTC_TIMEZONE,
+                locale,
+                includeTime: false,
+                abbreviate: true,
+              },
+            )}
           </Typography>
         )}
       </StyledShortUserInfo>
@@ -111,9 +123,17 @@ const HostRequestUserSummarySection = ({
               variant="h3"
               sx={{ paddingRight: theme.spacing(1) }}
             >
-              {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
-                hostRequest.toDate,
-              ).format("LL")}`}
+              {localizeDateTimeRange(
+                dayjs(hostRequest.fromDate),
+                dayjs(hostRequest.toDate),
+                {
+                  // Host request dates are plain dates (no time),
+                  // so it they can only be interpreted in UTC.
+                  timezone: UTC_TIMEZONE,
+                  locale,
+                  includeTime: false,
+                },
+              )}
             </Typography>
             <Typography
               component="p"

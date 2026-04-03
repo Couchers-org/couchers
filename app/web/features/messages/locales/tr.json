@@ -105,12 +105,17 @@
     "title": "Sohbet Üyeleri"
   },
   "control_message": {
-    "created_chat_text": "{{user}} sohbeti oluşturdu"
+    "created_chat_text": "{{user}} sohbeti oluşturdu",
+    "unknown_message_text": "Bilinmeyen kontrol mesajı"
   },
   "archive": {
     "no_archived_chats": "Arşivlenmiş sohbet yok"
   },
   "host_request_status": {
     "rejected": "Reddedildi"
+  },
+  "host_request_item": {
+    "expired": "Bu isteğin süresi doldu",
+    "pending": "Bu istek hala bekliyor"
   }
 }

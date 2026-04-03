@@ -12,7 +12,6 @@ import {
   Typography,
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import dayjs from "dayjs";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
@@ -20,11 +19,15 @@ import { ListInviteCodesRes } from "proto/account_pb";
 import React from "react";
 import { inviteRoute } from "routes";
 import { service } from "service";
+import { localizeDateTime } from "utils/date";
 
 import { inviteCodesKey } from "../queryKeys";
 
 export default function InviteCodesPage() {
-  const { t } = useTranslation(GLOBAL);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(GLOBAL);
   const queryClient = useQueryClient();
 
   const { data, error, isLoading } = useQuery<
@@ -160,9 +163,13 @@ export default function InviteCodesPage() {
                       {c.created?.seconds && (
                         <>
                           {t("global:invites.created_datetime", {
-                            datetime: dayjs(
+                            datetime: localizeDateTime(
                               new Date(c.created.seconds * 1000),
-                            ).format("YYYY-MM-DD HH:mm"),
+                              {
+                                locale: locale,
+                                abbreviate: true,
+                              },
+                            ),
                           })}
                         </>
                       )}
@@ -170,9 +177,13 @@ export default function InviteCodesPage() {
                         <>
                           {" • "}
                           {t("global:invites.disabled_datetime", {
-                            datetime: dayjs(
+                            datetime: localizeDateTime(
                               new Date(c.disabled.seconds * 1000),
-                            ).format("YYYY-MM-DD HH:mm"),
+                              {
+                                locale,
+                                abbreviate: true,
+                              },
+                            ),
                           })}
                         </>
                       )}

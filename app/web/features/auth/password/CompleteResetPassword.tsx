@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { dashboardRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 const StyledContainer = styled(Container)(() => ({
@@ -42,6 +43,7 @@ const StyledTextField = styled(TextField)(() => ({
 
 export default function CompleteResetPassword() {
   const { authState, authActions } = useAuthContext();
+  const isNativeEmbed = useIsNativeEmbed();
   const { t } = useTranslation([AUTH, GLOBAL]);
   const { handleSubmit, register } = useForm<{
     newPassword: string;
@@ -67,7 +69,10 @@ export default function CompleteResetPassword() {
     },
     onSuccess: (authRes) => {
       authActions.firstLogin(authRes.toObject());
-      router.push(dashboardRoute);
+      // In native embed, the mobile app handles navigation via LOGIN_SUCCESS message
+      if (!isNativeEmbed) {
+        router.push(dashboardRoute);
+      }
     },
   });
 
