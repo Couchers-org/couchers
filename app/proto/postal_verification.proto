@@ -74,7 +74,7 @@ message PostalAddress {
   // Optional: postal/ZIP code. Empty string if country doesn't use postal codes.
   string postal_code = 5;
   // Required: ISO 3166-1 alpha-2 country code (e.g., "US", "DE", "JP")
-  string country = 6;
+  string country_code = 6;
 }
 
 // Step 1: Submit address for validation
