@@ -18,7 +18,7 @@ from couchers.helpers.postal_verification import generate_postal_verification_co
 from couchers.jobs.worker import process_job
 from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt
-from couchers.postal.my_postcard import _generate_back_left_side
+from couchers.postal.my_postcard import _generate_back_left_side_png
 from couchers.proto import postal_verification_pb2
 from couchers.resources import get_postcard_front_image
 from couchers.utils import now
@@ -699,7 +699,7 @@ def test_generate_postcard_images():
     """
     code = "ABC123"
     front = get_postcard_front_image()
-    back = _generate_back_left_side(code)
+    back = _generate_back_left_side_png(code)
 
     assert len(front) > 0
     assert len(back) > 0

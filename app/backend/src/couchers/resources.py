@@ -121,11 +121,19 @@ def get_postcard_font() -> bytes:
 
 
 @functools.cache
-def get_postcard_back_template() -> bytes:
+def get_postcard_metadata() -> dict[str, Any]:
     """
-    Returns the back side template image for the postcard as PNG bytes.
+    Returns the postcard metadata (coordinates, sizes, etc.) from postcard-metadata.json.
     """
-    return (resources_folder / "postcard-back.png").read_bytes()
+    return cast(dict[str, Any], json.loads((resources_folder / "postcard-metadata.json").read_text()))
+
+
+@functools.cache
+def get_postcard_back_left_template() -> bytes:
+    """
+    Returns the back left side template image for the postcard as PNG bytes.
+    """
+    return (resources_folder / "postcard-back-left.png").read_bytes()
 
 
 def copy_resources_to_database(session: Session) -> None:

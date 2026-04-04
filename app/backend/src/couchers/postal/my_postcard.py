@@ -10,26 +10,30 @@ from PIL import Image, ImageDraw, ImageFont
 
 from couchers import urls
 from couchers.config import config
-from couchers.resources import get_postcard_back_template, get_postcard_font, get_postcard_front_image
+from couchers.resources import (
+    get_postcard_back_left_template,
+    get_postcard_font,
+    get_postcard_front_image,
+    get_postcard_metadata,
+)
 
 logger = logging.getLogger(__name__)
 
 API_BASE = "https://www.mypostcard.com/api/v1"
 
 
-def _generate_back_left_side(verification_code: str) -> bytes:
+def _generate_back_left_side_png(verification_code: str) -> bytes:
     """
     Generates the back left side image (780x1016 px PNG at 300 DPI).
 
-    Overlays a QR code and verification code onto the postcard-back.png template.
+    Overlays a QR code and verification code onto the postcard-back-left.png template.
     """
+    metadata = get_postcard_metadata()["back_left"]
+
     # Load template
-    template_bytes = get_postcard_back_template()
+    template_bytes = get_postcard_back_left_template()
     img = Image.open(io.BytesIO(template_bytes)).convert("RGBA")
     draw = ImageDraw.Draw(img)
-
-    # QR code position: exact coordinates in image are (227, 419, 539, 731), extended by 5px in each direction
-    qr_left, qr_top, qr_size = 222, 414, 322
 
     # Generate QR code
     qr = qrcode.QRCode(box_size=10, border=0)
@@ -38,15 +42,21 @@ def _generate_back_left_side(verification_code: str) -> bytes:
     qr_img: Image.Image = qr.make_image(fill_color="black", back_color="white").get_image().convert("RGBA")
 
     # Size and paste the QR code
+    # QR code position: exact coordinates in image are (227, 419, 539, 731), extended by 5px in each direction
+    qr_size = metadata["qr_size"]
     qr_img = qr_img.resize((qr_size, qr_size), Image.Resampling.NEAREST)
-    img.paste(qr_img, (qr_left, qr_top))
+    img.paste(qr_img, (metadata["qr_left"], metadata["qr_top"]))
 
     # Verification code text center: box in image is (x=251, y=761, w=264, h=80), center is (383, 801)
-    code_center_x, code_center_y = 383, 801
+    font = ImageFont.truetype(io.BytesIO(get_postcard_font()), metadata["code_font_size"])
 
-    font = ImageFont.truetype(io.BytesIO(get_postcard_font()), 58)
-
-    draw.text((code_center_x, code_center_y), verification_code, fill=(255, 255, 255), font=font, anchor="mm")
+    draw.text(
+        (metadata["code_center_x"], metadata["code_center_y"]),
+        verification_code,
+        fill=(255, 255, 255),
+        font=font,
+        anchor="mm",
+    )
 
     buf = io.BytesIO()
     img.save(buf, format="PNG")
@@ -156,7 +166,7 @@ def send_postcard(
         recipient["state"] = state
 
     result = _place_order(
-        _authenticate(), recipient, get_postcard_front_image(), _generate_back_left_side(verification_code)
+        _authenticate(), recipient, get_postcard_front_image(), _generate_back_left_side_png(verification_code)
     )
     logger.info(f"MyPostcard order placed successfully: {result}")
     return int(result["job_id"])
