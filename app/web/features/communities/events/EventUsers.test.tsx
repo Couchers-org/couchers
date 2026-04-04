@@ -87,7 +87,6 @@ describe("Event users", () => {
     renderEventUsers({
       hasNextPage: true,
       userIds: [1, 2],
-      pagination: undefined,
     });
 
     await waitForElementToBeRemoved(
