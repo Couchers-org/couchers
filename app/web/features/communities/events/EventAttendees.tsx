@@ -37,7 +37,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
 
   const pagesLength = data?.pages.length ?? 0;
 
-  const handelPreviousPageClick = () => {
+  const handlePreviousPageClick = () => {
     setPageNumber((current) => Math.max(current - 1, 1));
   };
 
@@ -139,7 +139,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         pagination={{
           pageNumber: pageNumber,
           currentPage: currentPage,
-          handelPreviousPageClick: handelPreviousPageClick,
+          handlePreviousPageClick: handlePreviousPageClick,
           handleNextPageClick: handleNextPageClick,
         }}
         getUserMenuItems={

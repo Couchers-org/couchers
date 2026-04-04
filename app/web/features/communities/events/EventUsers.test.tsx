@@ -109,7 +109,7 @@ describe("Event users", () => {
           attendeeUserIdsList: [1, 2],
           nextPageToken: "next-token",
         },
-        handelPreviousPageClick: jest.fn(),
+        handlePreviousPageClick: jest.fn(),
         handleNextPageClick: jest.fn(),
       },
     });
@@ -134,7 +134,7 @@ describe("Event users", () => {
           attendeeUserIdsList: [1, 2],
           nextPageToken: "",
         },
-        handelPreviousPageClick: jest.fn(),
+        handlePreviousPageClick: jest.fn(),
         handleNextPageClick: jest.fn(),
       },
     });
@@ -155,7 +155,7 @@ describe("Event users", () => {
           attendeeUserIdsList: [1, 2],
           nextPageToken: "next-token",
         },
-        handelPreviousPageClick: jest.fn(),
+        handlePreviousPageClick: jest.fn(),
         handleNextPageClick: jest.fn(),
       },
     });
@@ -176,7 +176,7 @@ describe("Event users", () => {
           attendeeUserIdsList: [1, 2],
           nextPageToken: "next-token",
         },
-        handelPreviousPageClick: jest.fn(),
+        handlePreviousPageClick: jest.fn(),
         handleNextPageClick: jest.fn(),
       },
     });
@@ -197,7 +197,7 @@ describe("Event users", () => {
           attendeeUserIdsList: [1, 2],
           nextPageToken: "",
         },
-        handelPreviousPageClick: jest.fn(),
+        handlePreviousPageClick: jest.fn(),
         handleNextPageClick: jest.fn(),
       },
     });
@@ -211,7 +211,7 @@ describe("Event users", () => {
 
   it("calls the pagination handlers when next and previous are clicked", async () => {
     const handleNextPageClick = jest.fn();
-    const handelPreviousPageClick = jest.fn();
+    const handlePreviousPageClick = jest.fn();
 
     renderEventUsers({
       userIds: [1, 2],
@@ -221,7 +221,7 @@ describe("Event users", () => {
           attendeeUserIdsList: [1, 2],
           nextPageToken: "next-token",
         },
-        handelPreviousPageClick,
+        handlePreviousPageClick,
         handleNextPageClick,
       },
     });
@@ -235,7 +235,7 @@ describe("Event users", () => {
     await user.click(screen.getByRole("button", { name: t("previous") }));
     await user.click(screen.getByRole("button", { name: t("next") }));
 
-    expect(handelPreviousPageClick).toHaveBeenCalledTimes(1);
+    expect(handlePreviousPageClick).toHaveBeenCalledTimes(1);
     expect(handleNextPageClick).toHaveBeenCalledTimes(1);
   });
 

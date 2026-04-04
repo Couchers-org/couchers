@@ -38,7 +38,7 @@ export interface EventUsersProps {
   pagination?: {
     pageNumber: number;
     currentPage: ListEventAttendeesRes.AsObject | undefined;
-    handelPreviousPageClick: () => void;
+    handlePreviousPageClick: () => void;
     handleNextPageClick: () => void;
   };
   getUserMenuItems?: (
@@ -85,7 +85,7 @@ export default function EventUsers({
             hasNextPage={Boolean(pagination.currentPage?.nextPageToken)}
             onNext={pagination.handleNextPageClick}
             hasPreviousPage={pagination.pageNumber > 1}
-            onPrevious={pagination.handelPreviousPageClick}
+            onPrevious={pagination.handlePreviousPageClick}
             isLoading={isLoading}
           />
         </PaginationWrapper>
