@@ -32,24 +32,24 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
       pageSize: PAGE_SIZE,
     });
 
-  const [pageNumber, setPageNumber] = useState(1);
-  const currentPage = data?.pages && data.pages[pageNumber - 1];
+  const [pageIndex, setPageIndex] = useState(0);
+  const currentPage = data?.pages?.[pageIndex];
 
   const pagesLength = data?.pages.length ?? 0;
 
   const handlePreviousPageClick = () => {
-    setPageNumber((current) => Math.max(current - 1, 1));
+    setPageIndex((current) => Math.max(current - 1, 0));
   };
 
   const handleNextPageClick = async () => {
-    if (pageNumber < pagesLength) {
-      setPageNumber((current) => current + 1);
+    if (pageIndex < pagesLength - 1) {
+      setPageIndex((current) => current + 1);
       return;
     }
 
     if (hasNextPage) {
       await fetchNextPage();
-      setPageNumber((current) => current + 1);
+      setPageIndex((current) => current + 1);
     }
   };
 
@@ -137,7 +137,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         layout="grid"
         isLoading={isLoading}
         pagination={{
-          pageNumber: pageNumber,
+          pageIndex: pageIndex,
           currentPage: currentPage,
           handlePreviousPageClick: handlePreviousPageClick,
           handleNextPageClick: handleNextPageClick,

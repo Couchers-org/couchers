@@ -98,12 +98,12 @@ describe("Event users", () => {
     ).toBeVisible();
   });
 
-  it("shows the cursor pagination if the pagination prop is passed", async () => {
+  it("shows the pagination controls if the pagination prop is passed", async () => {
     renderEventUsers({
       hasNextPage: true,
       userIds: [1, 2],
       pagination: {
-        pageNumber: 1,
+        pageIndex: 0,
         currentPage: {
           attendeeUserIdsList: [1, 2],
           nextPageToken: "next-token",
@@ -128,7 +128,7 @@ describe("Event users", () => {
     renderEventUsers({
       userIds: [1, 2],
       pagination: {
-        pageNumber: 1,
+        pageIndex: 0,
         currentPage: {
           attendeeUserIdsList: [1, 2],
           nextPageToken: "",
@@ -149,7 +149,7 @@ describe("Event users", () => {
     renderEventUsers({
       userIds: [1, 2],
       pagination: {
-        pageNumber: 1,
+        pageIndex: 0,
         currentPage: {
           attendeeUserIdsList: [1, 2],
           nextPageToken: "next-token",
@@ -170,7 +170,7 @@ describe("Event users", () => {
     renderEventUsers({
       userIds: [1, 2],
       pagination: {
-        pageNumber: 1,
+        pageIndex: 0,
         currentPage: {
           attendeeUserIdsList: [1, 2],
           nextPageToken: "next-token",
@@ -187,11 +187,11 @@ describe("Event users", () => {
     expect(screen.getByRole("button", { name: t("previous") })).toBeDisabled();
   });
 
-  it("enables the previous button when pageNumber is greater than 1", async () => {
+  it("enables the previous button when pageIndex is greater than 0", async () => {
     renderEventUsers({
       userIds: [1, 2],
       pagination: {
-        pageNumber: 2,
+        pageIndex: 1,
         currentPage: {
           attendeeUserIdsList: [1, 2],
           nextPageToken: "",
@@ -215,7 +215,7 @@ describe("Event users", () => {
     renderEventUsers({
       userIds: [1, 2],
       pagination: {
-        pageNumber: 2,
+        pageIndex: 1,
         currentPage: {
           attendeeUserIdsList: [1, 2],
           nextPageToken: "next-token",

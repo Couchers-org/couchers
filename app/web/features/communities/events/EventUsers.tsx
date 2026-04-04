@@ -36,7 +36,7 @@ export interface EventUsersProps {
   layout?: "list" | "grid";
   isLoading?: boolean;
   pagination?: {
-    pageNumber: number;
+    pageIndex: number;
     currentPage: ListEventAttendeesRes.AsObject | undefined;
     handlePreviousPageClick: () => void;
     handleNextPageClick: () => void;
@@ -84,7 +84,7 @@ export default function EventUsers({
           <CursorPagination
             hasNextPage={Boolean(pagination.currentPage?.nextPageToken)}
             onNext={pagination.handleNextPageClick}
-            hasPreviousPage={pagination.pageNumber > 1}
+            hasPreviousPage={pagination.pageIndex > 0}
             onPrevious={pagination.handlePreviousPageClick}
             isLoading={isLoading}
           />
