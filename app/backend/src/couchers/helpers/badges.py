@@ -1,3 +1,4 @@
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete
 
@@ -11,6 +12,11 @@ from couchers.resources import get_badge_dict
 
 def user_add_badge(session: Session, user_id: int, badge_id: str, do_notify: bool = True) -> None:
     badge = get_badge_dict()[badge_id]
+    already_has_badge = session.execute(
+        select(exists().where(UserBadge.user_id == user_id, UserBadge.badge_id == badge_id))
+    ).scalar()
+    if already_has_badge:
+        return
     session.add(UserBadge(user_id=user_id, badge_id=badge_id))
     session.flush()
     if do_notify:
