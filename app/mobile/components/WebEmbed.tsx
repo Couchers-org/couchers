@@ -1,4 +1,4 @@
-import { Href, useFocusEffect, useRouter, useSegments } from "expo-router";
+import { Href, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -36,7 +36,6 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const colorScheme = useColorScheme();
   const webviewRef = useRef<WebView>(null);
   const router = useRouter();
-  const segments = useSegments();
   const { t, i18n } = useTranslation();
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
@@ -181,18 +180,12 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       const payload = JSON.parse(event.nativeEvent.data);
 
       if (payload?.type === "LOGIN_SUCCESS") {
-        // Web app says user logged in - update mobile state
+        // Web app says user logged in - update mobile state.
+        // On auth-guarded screens (signup, password-reset), Stack.Protected
+        // automatically transitions to (tabs) when authenticated becomes true.
         setUserId(payload.userId);
         setJailed(payload.jailed || false);
         markAuthenticated();
-        if (segments[0] !== "(tabs)") {
-          // On unprotected screens (signup, confirm-email, etc.), navigate
-          // to dashboard with tabs. The web app also redirects to /dashboard
-          // inside this WebView (keeping the session cookie alive for the new
-          // WebView). Suppress useWebNavigation so it doesn't double-navigate.
-          syncTargetPathRef.current = "/dashboard";
-          router.replace("/(tabs)/dashboard" as Href);
-        }
       } else if (payload?.type === "LOGOUT") {
         // Web app says user logged out - clear mobile state and navigate to login
         markLoggedOut();
