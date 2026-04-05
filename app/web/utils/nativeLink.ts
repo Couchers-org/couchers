@@ -6,7 +6,7 @@ function getReactNativeWebView(): typeof window.ReactNativeWebView {
   }
 }
 
-export function isNativeEmbed(): boolean {
+function isNativeEmbed(): boolean {
   const webview = getReactNativeWebView();
   if (!webview) return false;
 

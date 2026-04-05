@@ -112,7 +112,7 @@ function AppRoute({
   useEffect(() => setIsMounted(true), []);
 
   useEffect(() => {
-    if (!isAuthenticated && isPrivate && !isNativeEmbed) {
+    if (!isAuthenticated && isPrivate) {
       authActions.authError("Please log in.");
       router.push({ pathname: loginRoute, query: { from: location.pathname } });
     }
