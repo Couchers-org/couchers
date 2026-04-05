@@ -40,7 +40,11 @@ export default function MyDocument(
             src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
           ></script>
         )}
-        <script async src="https://twdl.couchers.org/script.js"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var s=document.createElement('script');s.async=true;s.src='https://twdl.couchers.org/script.js';document.head.appendChild(s)})()`,
+          }}
+        />
       </Head>
       <body>
         <InitColorSchemeScript
