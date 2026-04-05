@@ -103,7 +103,7 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
         for info in request.infos:
             try:
                 properties = json.loads(info.properties_json)
-            except (json.JSONDecodeError, ValueError):
+            except json.JSONDecodeError, ValueError:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_diagnostics_json")
 
             occurred = info.occurred.ToDatetime(tzinfo=UTC) if info.HasField("occurred") else datetime.now(UTC)
