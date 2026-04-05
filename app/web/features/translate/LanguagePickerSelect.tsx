@@ -66,7 +66,7 @@ type LanguagePickerSelectProps = {
 export default function LanguagePickerSelect({
   displayMode = "round",
   onSelect,
-}: LanguagePickerSelectProps & { onSelect?: () => void }) {
+}: LanguagePickerSelectProps) {
   const router = useRouter();
   const { asPath, locale, pathname, query } = router;
   const { authState } = useAuthContext();
