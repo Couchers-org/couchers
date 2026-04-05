@@ -185,6 +185,10 @@ def get_order_ids(date_from: date, date_to: date) -> list[int]:
         },
         timeout=30,
     )
+    # todo: remove this fix when upstream fixes API
+    # MyPostcard API returns 500 with empty body when there are no orders in the date range
+    if response.status_code == 500 and not response.content:
+        return []
     response.raise_for_status()
     return [int(order["job_id"]) for order in response.json()["orders"]]
 
