@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import HtmlMeta from "components/HtmlMeta";
+import Redirect from "components/Redirect";
 import TextField from "components/TextField";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { RpcError } from "grpc-web";
@@ -67,7 +68,6 @@ export default function CompleteResetPassword() {
     },
     onSuccess: (authRes) => {
       authActions.firstLogin(authRes.toObject());
-      router.push(dashboardRoute);
     },
   });
 
@@ -92,6 +92,7 @@ export default function CompleteResetPassword() {
 
   return (
     <StyledContainer>
+      {authState.authenticated && <Redirect to={dashboardRoute} />}
       <HtmlMeta title={t("auth:change_password_form.title")} />
 
       {!isResetTokenOk && (
