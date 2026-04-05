@@ -119,15 +119,7 @@ function AppRoute({
     if (isAuthenticated && isJailed && isPrivate && pathname !== jailRoute) {
       router.push(jailRoute);
     }
-  }, [
-    isAuthenticated,
-    isJailed,
-    isPrivate,
-    authActions,
-    router,
-    pathname,
-    isNativeEmbed,
-  ]);
+  }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
 
   return (
     <ErrorBoundary>
