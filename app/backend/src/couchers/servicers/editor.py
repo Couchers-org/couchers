@@ -18,14 +18,17 @@ from couchers.jobs.enqueue import queue_job
 from couchers.materialized_views import LiteUser
 from couchers.models import EventCommunityInviteRequest, Node, User, Volunteer
 from couchers.models.notifications import NotificationTopicAction
+from couchers.models.postal_verification import PostalVerificationAttempt
 from couchers.notifications.notify import notify
-from couchers.proto import communities_pb2, editor_pb2, editor_pb2_grpc, notification_data_pb2
+from couchers.postal.my_postcard import download_pdf
+from couchers.proto import communities_pb2, editor_pb2, editor_pb2_grpc, notification_data_pb2, postal_verification_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_static_badge_dict
 from couchers.servicers.communities import community_to_pb
 from couchers.servicers.events import generate_event_create_notifications, get_users_to_notify_for_new_event
+from couchers.servicers.postal_verification import postalverificationstatus2pb
 from couchers.servicers.public import format_volunteer_link
-from couchers.utils import date_to_api, now, parse_date
+from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
 
 logger = logging.getLogger(__name__)
 
@@ -310,3 +313,67 @@ class Editor(editor_pb2_grpc.EditorServicer):
         return editor_pb2.ListVolunteersRes(
             volunteers=[volunteer_to_pb(session, volunteer) for volunteer in volunteers]
         )
+
+    def ListPostcards(
+        self, request: editor_pb2.ListPostcardsReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.ListPostcardsRes:
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        next_id = int(request.page_token) if request.page_token else None
+
+        query = (
+            select(PostalVerificationAttempt, User)
+            .join(User, User.id == PostalVerificationAttempt.user_id)
+            .order_by(PostalVerificationAttempt.id.desc())
+            .limit(page_size + 1)
+        )
+        if next_id is not None:
+            query = query.where(PostalVerificationAttempt.id <= next_id)
+
+        results = session.execute(query).all()
+
+        def _attempt_to_pb(attempt: PostalVerificationAttempt, user: User) -> editor_pb2.PostcardInfo:
+            return editor_pb2.PostcardInfo(
+                postal_verification_attempt_id=attempt.id,
+                user_id=attempt.user_id,
+                username=user.username,
+                name=user.name,
+                status=postalverificationstatus2pb.get(
+                    attempt.status, postal_verification_pb2.POSTAL_VERIFICATION_STATUS_UNKNOWN
+                ),
+                address=postal_verification_pb2.PostalAddress(
+                    address_line_1=attempt.address_line_1,
+                    address_line_2=attempt.address_line_2,
+                    city=attempt.city,
+                    state=attempt.state,
+                    postal_code=attempt.postal_code,
+                    country_code=attempt.country_code,
+                ),
+                created=Timestamp_from_datetime(attempt.created),
+                postcard_sent_at=Timestamp_from_datetime(attempt.postcard_sent_at)
+                if attempt.postcard_sent_at
+                else None,
+                verified_at=Timestamp_from_datetime(attempt.verified_at) if attempt.verified_at else None,
+            )
+
+        return editor_pb2.ListPostcardsRes(
+            postcards=[_attempt_to_pb(attempt, user) for attempt, user in results[:page_size]],
+            next_page_token=str(results[-1][0].id) if len(results) > page_size else None,
+        )
+
+    def DownloadPostcardPdf(
+        self, request: editor_pb2.DownloadPostcardPdfReq, context: CouchersContext, session: Session
+    ) -> editor_pb2.DownloadPostcardPdfRes:
+        attempt = session.execute(
+            select(PostalVerificationAttempt).where(
+                PostalVerificationAttempt.id == request.postal_verification_attempt_id
+            )
+        ).scalar_one_or_none()
+
+        if not attempt:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "postal_verification_attempt_not_found")
+
+        if not attempt.mypostcard_job_id:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postcard_not_sent")
+
+        pdf_data = download_pdf(attempt.mypostcard_job_id)
+        return editor_pb2.DownloadPostcardPdfRes(pdf=pdf_data)

@@ -22,12 +22,14 @@ dependencies = [
     "opentelemetry-instrumentation-sqlalchemy>=0.50b0",
     "opentelemetry-instrumentation-threading>=0.50b0",
     "opentelemetry-sdk>=1.29.0",
+    "Pillow>=11.0.0",
     "phonenumbers>=9.0.4",
     "prometheus-client>=0.23.1",
     "protobuf>=6.33.1",
     "psycopg2-binary>=2.9.10",
     "py-vapid>=1.9.2",
     "pynacl>=1.5.0",
+    "qrcode>=8.0",
     "python-dateutil>=2.9.0.post0",
     "pytz>=2025.2",
     "pyyaml>=6.0.3",
@@ -63,6 +65,7 @@ dev = [
     "types-psycopg2",
     "types-python-dateutil>=2.9.0.20251115",
     "pytest-split>=0.11.0",
+    "types-qrcode>=8.2.0.20250914",
 ]
 
 
