@@ -42,7 +42,7 @@ export default function MyDocument(
         )}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var s=document.createElement('script');s.async=true;s.src='https://twdl.couchers.org/script.js';document.head.appendChild(s)})()`,
+            __html: `window.addEventListener('load',function(){var s=document.createElement('script');s.async=true;s.src='https://twdl.couchers.org/script.js';document.head.appendChild(s)})`,
           }}
         />
       </Head>
