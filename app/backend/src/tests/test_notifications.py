@@ -498,6 +498,28 @@ def test_RegisterPushNotificationSubscription(db):
         )
 
 
+def test_RegisterPushNotificationSubscription_invalid_endpoint(db):
+    _, token = generate_user()
+
+    subscription_info = {
+        "endpoint": "https://permanently-removed.invalid/some-id",
+        "expirationTime": None,
+        "keys": {
+            "auth": "TnuEJ1OdfEkf6HKcUovl0Q",
+            "p256dh": "BK7Rp8og3eFJPqm0ofR8F-l2mtNCCCWYo6f_5kSs8jPEFiKetnZHNOglvC6IrgU9vHmgFHlG7gHGtB1HM599sy0",
+        },
+    }
+
+    with notifications_session(token) as notifications:
+        with pytest.raises(grpc.RpcError) as e:
+            notifications.RegisterPushNotificationSubscription(
+                notifications_pb2.RegisterPushNotificationSubscriptionReq(
+                    full_subscription_json=json.dumps(subscription_info),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
 def test_SendTestPushNotification(db, push_collector: PushCollector):
     user, token = generate_user()
 

@@ -53,6 +53,11 @@ def generate_do_not_email(user: User) -> str:
 
 
 def generate_unsub_topic_key(notification: Notification) -> str:
+    if not notification.key:
+        raise ValueError(
+            f"Cannot generate topic_key unsubscribe link for notification with empty key "
+            f"(topic_action={notification.topic_action})"
+        )
     return _generate_quick_link(
         unsubscribe_pb2.UnsubscribePayload(
             user_id=notification.user_id,
