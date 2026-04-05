@@ -107,6 +107,7 @@
     "invalid_started_volunteering_date": "Invalid start date for volunteering.",
     "invalid_stopped_volunteering_date": "Invalid end date for volunteering.",
     "invalid_email": "Invalid email.",
+    "invalid_endpoint": "Invalid push notification endpoint.",
     "invalid_guide_location": "You need to either supply an address and location or neither for a guide.",
     "invalid_host_request_status": "You can't set the host request status to that.",
     "invalid_invite_code": "Invite code is invalid or expired.",
