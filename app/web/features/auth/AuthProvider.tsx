@@ -40,8 +40,15 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           // if the user is jailed, redirect them to the jail route
           push(jailRoute);
         }
-      } else if (!isNativeEmbed()) {
-        // completely logged out — in native embed, the mobile app handles auth
+      } else if (isNativeEmbed()) {
+        // In native embed, don't call logout() — it would invalidate the
+        // session on the backend before the cookie has synced to this WebView.
+        // Just notify the mobile app to redirect to login.
+        window.ReactNativeWebView?.postMessage(
+          JSON.stringify({ type: "LOGOUT" }),
+        );
+      } else {
+        // completely logged out
         await store.authActions.logout();
         push(loginRoute);
       }
