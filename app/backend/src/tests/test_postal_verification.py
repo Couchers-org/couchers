@@ -1,4 +1,5 @@
 from datetime import timedelta
+from pathlib import Path
 from unittest.mock import patch
 
 import grpc
@@ -17,7 +18,9 @@ from couchers.helpers.postal_verification import generate_postal_verification_co
 from couchers.jobs.worker import process_job
 from couchers.models import User
 from couchers.models.postal_verification import PostalVerificationAttempt
+from couchers.postal.my_postcard import _generate_back_left_side_png
 from couchers.proto import postal_verification_pb2
+from couchers.resources import get_postcard_front_image
 from couchers.utils import now
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import postal_verification_session
@@ -57,7 +60,7 @@ def test_postal_verification_disabled(db):
                     address=postal_verification_pb2.PostalAddress(
                         address_line_1="123 Main St",
                         city="Test City",
-                        country="US",
+                        country_code="US",
                     )
                 )
             )
@@ -87,7 +90,7 @@ def test_postal_verification_happy_path(db, monkeypatch):
                     city="Test City",
                     state="CA",
                     postal_code="12345",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -115,7 +118,7 @@ def test_postal_verification_happy_path(db, monkeypatch):
 
     # Process background job to send postcard
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = type("PostcardResult", (), {"success": True, "error_message": None})()
+        mock_send.return_value = 12345
         while process_job():
             pass
 
@@ -162,7 +165,7 @@ def test_postal_verification_wrong_code(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -175,7 +178,7 @@ def test_postal_verification_wrong_code(db, monkeypatch):
 
     # Process background job
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = type("PostcardResult", (), {"success": True, "error_message": None})()
+        mock_send.return_value = 12345
         while process_job():
             pass
 
@@ -210,7 +213,7 @@ def test_postal_verification_code_expiry(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -223,7 +226,7 @@ def test_postal_verification_code_expiry(db, monkeypatch):
 
     # Process background job
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = type("PostcardResult", (), {"success": True, "error_message": None})()
+        mock_send.return_value = 12345
         while process_job():
             pass
 
@@ -256,7 +259,7 @@ def test_postal_verification_rate_limit(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -276,7 +279,7 @@ def test_postal_verification_rate_limit(db, monkeypatch):
                     address=postal_verification_pb2.PostalAddress(
                         address_line_1="456 Other St",
                         city="Test City",
-                        country="US",
+                        country_code="US",
                     )
                 )
             )
@@ -302,7 +305,7 @@ def test_postal_verification_already_in_progress(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -315,7 +318,7 @@ def test_postal_verification_already_in_progress(db, monkeypatch):
                     address=postal_verification_pb2.PostalAddress(
                         address_line_1="456 Other St",
                         city="Test City",
-                        country="US",
+                        country_code="US",
                     )
                 )
             )
@@ -335,7 +338,7 @@ def test_postal_verification_cancel(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -367,7 +370,7 @@ def test_postal_verification_can_cancel_after_postcard_sent(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -380,7 +383,7 @@ def test_postal_verification_can_cancel_after_postcard_sent(db, monkeypatch):
 
     # Process background job
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = type("PostcardResult", (), {"success": True, "error_message": None})()
+        mock_send.return_value = 12345
         while process_job():
             pass
 
@@ -415,7 +418,7 @@ def test_postal_verification_list_attempts(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -440,7 +443,7 @@ def test_postal_verification_list_attempts(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="456 Other St",
                     city="Other City",
-                    country="CA",
+                    country_code="CA",
                 )
             )
         )
@@ -469,7 +472,7 @@ def test_postal_verification_address_validation(db, monkeypatch):
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
                         city="Test City",
-                        country="US",
+                        country_code="US",
                     )
                 )
             )
@@ -481,7 +484,7 @@ def test_postal_verification_address_validation(db, monkeypatch):
                 postal_verification_pb2.InitiatePostalVerificationReq(
                     address=postal_verification_pb2.PostalAddress(
                         address_line_1="123 Main St",
-                        country="US",
+                        country_code="US",
                     )
                 )
             )
@@ -513,7 +516,7 @@ def test_postal_verification_postcard_send_failure(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -526,14 +529,14 @@ def test_postal_verification_postcard_send_failure(db, monkeypatch):
 
     # Simulate postcard send failure
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = type("PostcardResult", (), {"success": False, "error_message": "API error"})()
-        while process_job():
-            pass
+        mock_send.side_effect = Exception("API error")
+        with pytest.raises(Exception, match="API error"):
+            process_job()
 
-    # Check status is failed
+    # Attempt should still be in_progress (job failed, not the attempt)
     with postal_verification_session(token) as pv:
         status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
-        assert status.status == postal_verification_pb2.POSTAL_VERIFICATION_STATUS_FAILED
+        assert status.status == postal_verification_pb2.POSTAL_VERIFICATION_STATUS_IN_PROGRESS
 
 
 def test_postal_verification_code_case_insensitive(db, monkeypatch):
@@ -549,7 +552,7 @@ def test_postal_verification_code_case_insensitive(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -562,7 +565,7 @@ def test_postal_verification_code_case_insensitive(db, monkeypatch):
 
     # Process background job
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = type("PostcardResult", (), {"success": True, "error_message": None})()
+        mock_send.return_value = 12345
         while process_job():
             pass
 
@@ -616,7 +619,7 @@ def test_postal_verification_other_user_attempt(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -657,7 +660,7 @@ def test_has_postal_verification_helper(db, monkeypatch):
                 address=postal_verification_pb2.PostalAddress(
                     address_line_1="123 Main St",
                     city="Test City",
-                    country="US",
+                    country_code="US",
                 )
             )
         )
@@ -669,7 +672,7 @@ def test_has_postal_verification_helper(db, monkeypatch):
         )
 
     with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.return_value = type("PostcardResult", (), {"success": True, "error_message": None})()
+        mock_send.return_value = 12345
         while process_job():
             pass
 
@@ -686,3 +689,22 @@ def test_has_postal_verification_helper(db, monkeypatch):
     with session_scope() as session:
         db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert has_postal_verification(session, db_user)
+
+
+def test_generate_postcard_images():
+    """
+    Generates sample postcard front and back images for visual inspection.
+
+    Output is written to test_artifacts/ (gitignored) and picked up by CI.
+    """
+    code = "ABC123"
+    front = get_postcard_front_image()
+    back = _generate_back_left_side_png(code)
+
+    assert len(front) > 0
+    assert len(back) > 0
+
+    output_path = Path(__file__).resolve().parents[2] / "test_artifacts"
+    output_path.mkdir(parents=True, exist_ok=True)
+    (output_path / "postcard_front.png").write_bytes(front)
+    (output_path / "postcard_back.png").write_bytes(back)

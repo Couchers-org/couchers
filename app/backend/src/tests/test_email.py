@@ -1,5 +1,6 @@
 from datetime import timedelta
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 from sqlalchemy import func, select, update
@@ -7,7 +8,7 @@ from sqlalchemy import func, select, update
 import couchers.email
 import couchers.jobs.handlers
 from couchers.config import config
-from couchers.crypto import random_hex, urlsafe_secure_token
+from couchers.crypto import b64decode, random_hex, urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
     ContentReport,
@@ -19,7 +20,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
-from couchers.proto import api_pb2, editor_pb2, events_pb2, notification_data_pb2, notifications_pb2
+from couchers.proto import api_pb2, auth_pb2, editor_pb2, events_pb2, notification_data_pb2, notifications_pb2
 from couchers.tasks import (
     enforce_community_memberships,
     maybe_send_reference_report_email,
@@ -30,7 +31,13 @@ from couchers.tasks import (
 from couchers.utils import Timestamp_from_datetime, now
 from tests.fixtures.db import generate_user, get_friend_relationship, make_friends
 from tests.fixtures.misc import Moderator, email_fields, mock_notification_email, process_jobs
-from tests.fixtures.sessions import api_session, events_session, notifications_session, real_editor_session
+from tests.fixtures.sessions import (
+    api_session,
+    auth_api_session,
+    events_session,
+    notifications_session,
+    real_editor_session,
+)
 from tests.test_communities import create_community
 
 
@@ -419,6 +426,54 @@ This is a security email, you cannot unsubscribe from it.
         assert "https://example.com/receipt/12345" in email.html
         assert not email.list_unsubscribe_header
         assert email.source_data == "testing_version/donation_received"
+
+
+def test_chat_missed_messages_list_unsubscribe_header(db):
+    """
+    Regression test: chat__missed_messages has key="" (it's a summary, not tied to a single chat).
+    The List-Unsubscribe header must not generate a topic_key unsubscribe link (which would try
+    int("") and crash), but should fall back to a topic_action unsubscribe link.
+    """
+    user, _ = generate_user()
+
+    with mock_notification_email() as mock:
+        with session_scope() as session:
+            notify(
+                session,
+                user_id=user.id,
+                topic_action=NotificationTopicAction.chat__missed_messages,
+                key="",
+                data=notification_data_pb2.ChatMissedMessages(
+                    messages=[
+                        notification_data_pb2.ChatMessage(
+                            author=api_pb2.User(name="Test User", user_id=2, username="testuser"),
+                            message="You missed 1 message(s) from Test User",
+                            text="Hello!",
+                            group_chat_id=99,
+                        ),
+                    ],
+                ),
+            )
+
+    assert mock.call_count == 1
+    e = email_fields(mock)
+
+    assert e.list_unsubscribe_header
+
+    # Extract the List-Unsubscribe URL and call the Unsubscribe endpoint.
+    # Before the fix, this crashed with: ValueError: invalid literal for int() with base 10: ''
+    url = e.list_unsubscribe_header.strip("<>")
+    url_parts = urlparse(url)
+    params = parse_qs(url_parts.query)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.Unsubscribe(
+            auth_pb2.UnsubscribeReq(
+                payload=b64decode(params["payload"][0]),
+                sig=b64decode(params["sig"][0]),
+            )
+        )
+        assert res.response
 
 
 def test_email_deleted_users_regression(db, moderator: Moderator):
