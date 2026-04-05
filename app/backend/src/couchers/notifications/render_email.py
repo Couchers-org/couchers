@@ -750,7 +750,7 @@ def get_list_unsubscribe_header(notification: Notification) -> str | None:
     # We can only have one List-Unsubscribe header.
     # Prefer topic-key unsubscription as it is more specific than topic-action (e.g. current chat, not all chats).
     list_unsubscribe_url: str
-    if can_unsubscribe_topic_key(notification.topic):
+    if can_unsubscribe_topic_key(notification.topic_action):
         list_unsubscribe_url = generate_unsub_topic_key(notification)
     else:
         list_unsubscribe_url = generate_unsub_topic_action(notification)
