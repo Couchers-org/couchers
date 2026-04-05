@@ -25,12 +25,6 @@ import { theme } from "@/theme";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
-// Module-level timestamp shared across all WebEmbed instances.
-// After LOGIN_SUCCESS, LOGOUT is suppressed briefly to allow the iOS shared
-// cookie store to sync the session cookie to new WebView instances.
-let lastAuthTimestamp = 0;
-const AUTH_GRACE_PERIOD_MS = 10000;
-
 type WebEmbedProps = {
   path: string;
 };
@@ -191,14 +185,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         // automatically transitions to (tabs) when authenticated becomes true.
         setUserId(payload.userId);
         setJailed(payload.jailed || false);
-        lastAuthTimestamp = Date.now();
         markAuthenticated();
       } else if (payload?.type === "LOGOUT") {
-        // Suppress LOGOUT during cookie sync grace period — iOS shared cookie
-        // store is async, so new WebViews may not have the session cookie yet
-        if (Date.now() - lastAuthTimestamp < AUTH_GRACE_PERIOD_MS) {
-          return;
-        }
         // Web app says user logged out - clear mobile state and navigate to login
         markLoggedOut();
         router.replace("/login" as Href);
