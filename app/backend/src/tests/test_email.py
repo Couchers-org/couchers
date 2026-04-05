@@ -431,8 +431,7 @@ This is a security email, you cannot unsubscribe from it.
 def test_chat_missed_messages_list_unsubscribe_header(db):
     """
     Regression test: chat__missed_messages has key="" (it's a summary, not tied to a single chat).
-    The List-Unsubscribe header must not generate a topic_key unsubscribe link (which would try
-    int("") and crash), but should fall back to a topic_action unsubscribe link.
+    The List-Unsubscribe header must use a topic_action unsubscribe link, not a topic_key link.
     """
     user, _ = generate_user()
 
@@ -460,8 +459,7 @@ def test_chat_missed_messages_list_unsubscribe_header(db):
 
     assert e.list_unsubscribe_header
 
-    # Extract the List-Unsubscribe URL and call the Unsubscribe endpoint.
-    # Before the fix, this crashed with: ValueError: invalid literal for int() with base 10: ''
+    # Extract the List-Unsubscribe URL and call the Unsubscribe endpoint
     url = e.list_unsubscribe_header.strip("<>")
     url_parts = urlparse(url)
     params = parse_qs(url_parts.query)
