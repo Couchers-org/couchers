@@ -185,10 +185,12 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         setUserId(payload.userId);
         setJailed(payload.jailed || false);
         markAuthenticated();
-        // If on an unprotected screen (signup, confirm-email, etc.),
-        // navigate to dashboard with tabs. The web-side redirect is
-        // suppressed via isNativeEmbed so this is the only navigation.
         if (segments[0] !== "(tabs)") {
+          // On unprotected screens (signup, confirm-email, etc.), navigate
+          // to dashboard with tabs. The web app also redirects to /dashboard
+          // inside this WebView (keeping the session cookie alive for the new
+          // WebView). Suppress useWebNavigation so it doesn't double-navigate.
+          syncTargetPathRef.current = "/dashboard";
           router.replace("/(tabs)/dashboard" as Href);
         }
       } else if (payload?.type === "LOGOUT") {
