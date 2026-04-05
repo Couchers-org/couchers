@@ -88,6 +88,7 @@ select = [
     "I",   # isort
 ]
 ignore = [
+    "A003",   # SQLAlchemy model columns like `id` and `type` legitimately shadow builtins
     "A005",   # Our `email` module shadows stdlib email
     "B007",   # Loop control variable not used within loop body
     "B905",   # `zip()` without an explicit `strict=` parameter
