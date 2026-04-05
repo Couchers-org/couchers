@@ -44,7 +44,7 @@ make mypy
 - gRPC for API (defined in `/app/proto`)
 - Background jobs in `couchers/jobs/handlers.py`
 - Notifications system in `couchers/notifications/`
-- Always run `make format` after changes
+- Always run `make format` and `make mypy` after modifying backend code
 - NEVER try-catch an exception and silently throw it away or just log it. By and large you don't need to wrap code in try-catch blocks, we already handle exceptions
 - Use `enum.auto()` for all enums (except in the rare case that they are inherently ordinal and we use that order in business logic)
 - Put relationships and constraints at the end of models

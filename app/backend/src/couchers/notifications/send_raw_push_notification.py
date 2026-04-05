@@ -77,7 +77,7 @@ def _send_web_push(
     sub: PushNotificationSubscription, payload: jobs_pb2.SendRawPushNotificationPayloadV2
 ) -> PushDeliveryResult:
     """Send via Web Push API. Raises appropriate exceptions on failure."""
-    if is_known_invalid_endpoint(sub.endpoint):
+    if is_known_invalid_endpoint(not_none(sub.endpoint)):
         raise PermanentSubscriptionFailure("Endpoint is https://permanently-removed.invalid/")
 
     data = json.dumps(
