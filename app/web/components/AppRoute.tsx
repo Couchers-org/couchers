@@ -112,14 +112,22 @@ function AppRoute({
   useEffect(() => setIsMounted(true), []);
 
   useEffect(() => {
-    if (!isAuthenticated && isPrivate) {
+    if (!isAuthenticated && isPrivate && !isNativeEmbed) {
       authActions.authError("Please log in.");
       router.push({ pathname: loginRoute, query: { from: location.pathname } });
     }
     if (isAuthenticated && isJailed && isPrivate && pathname !== jailRoute) {
       router.push(jailRoute);
     }
-  }, [isAuthenticated, isJailed, isPrivate, authActions, router, pathname]);
+  }, [
+    isAuthenticated,
+    isJailed,
+    isPrivate,
+    authActions,
+    router,
+    pathname,
+    isNativeEmbed,
+  ]);
 
   return (
     <ErrorBoundary>

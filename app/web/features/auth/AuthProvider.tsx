@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import React, { Context, ReactNode, useContext, useEffect } from "react";
 import { jailRoute, loginRoute } from "routes";
 import { setUnauthenticatedErrorHandler } from "service/client";
+import { isNativeEmbed } from "utils/nativeLink";
 import useStablePush from "utils/useStablePush";
 
 import { JAILED_ERROR_MESSAGE } from "./constants";
@@ -39,8 +40,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           // if the user is jailed, redirect them to the jail route
           push(jailRoute);
         }
-      } else {
-        // completely logged out
+      } else if (!isNativeEmbed()) {
+        // completely logged out — in native embed, the mobile app handles auth
         await store.authActions.logout();
         push(loginRoute);
       }
