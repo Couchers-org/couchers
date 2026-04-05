@@ -65,8 +65,7 @@ type LanguagePickerSelectProps = {
 
 export default function LanguagePickerSelect({
   displayMode = "round",
-  onSelect,
-}: LanguagePickerSelectProps & { onSelect?: () => void }) {
+}: LanguagePickerSelectProps) {
   const router = useRouter();
   const { asPath, locale, pathname, query } = router;
   const { authState } = useAuthContext();
@@ -105,8 +104,6 @@ export default function LanguagePickerSelect({
       changeLanguageMutation(newLocale);
     }
 
-    onSelect?.();
-
     router.push({ pathname, query }, asPath, { locale: newLocale });
 
     setIsChangingLanguage(false);
@@ -117,7 +114,6 @@ export default function LanguagePickerSelect({
 
     setIsOpen(false);
     router.push(translateRoute);
-    onSelect?.();
   };
 
   const renderFlag = (flagCode: string, percent?: number) => {
