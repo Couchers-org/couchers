@@ -1,11 +1,10 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { Href, useRouter } from "expo-router";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useCallback, useState } from "react";
 import { Appearance, BackHandler, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
-
-import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { loginRoute } from "@/routes";
@@ -55,8 +54,6 @@ export default function LoginScreen() {
         // Verify auth via the native HTTP client before navigating.
         // The native client uses the shared cookie store — a successful
         // call confirms the cookie has synced and new WebViews will have it.
-        const { Empty } =
-          await import("google-protobuf/google/protobuf/empty_pb");
         const response = await client.auth.getAuthState(new Empty());
         const authState = response.toObject();
         if (authState.loggedIn && authState.authRes) {
