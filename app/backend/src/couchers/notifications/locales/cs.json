@@ -81,6 +81,13 @@
     },
     "reference": {
       "receive_friend": "Přišla ti reference od přítele"
+    },
+    "account_deletion": {
+      "complete": "Tvůj účet byl smazán",
+      "recovered": "Tvůj účet byl obnoven (smazání zrušeno)"
+    },
+    "api_key": {
+      "create": "Pro tvůj účet byl vytvořen API klíč"
     }
   }
 }
