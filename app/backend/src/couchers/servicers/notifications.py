@@ -5,7 +5,6 @@ import logging
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select, update
-from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_
 
 from couchers.config import config
@@ -34,6 +33,7 @@ from couchers.notifications.settings import (
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.notifications.web_push_api import decode_key, get_vapid_public_key_from_private_key
 from couchers.proto import notifications_pb2, notifications_pb2_grpc
+from couchers.repositories import DB
 from couchers.sql import moderation_state_column_visible, to_bool
 from couchers.utils import Timestamp_from_datetime, now
 
@@ -64,18 +64,18 @@ def notification_to_pb(user: User, notification: Notification) -> notifications_
 
 class Notifications(notifications_pb2_grpc.NotificationsServicer):
     def GetNotificationSettings(
-        self, request: notifications_pb2.GetNotificationSettingsReq, context: CouchersContext, session: Session
+        self, request: notifications_pb2.GetNotificationSettingsReq, context: CouchersContext, db: DB
     ) -> notifications_pb2.GetNotificationSettingsRes:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
         return notifications_pb2.GetNotificationSettingsRes(
             do_not_email_enabled=user.do_not_email,
             groups=get_user_setting_groups(user.id, context.localization),
         )
 
     def SetNotificationSettings(
-        self, request: notifications_pb2.SetNotificationSettingsReq, context: CouchersContext, session: Session
+        self, request: notifications_pb2.SetNotificationSettingsReq, context: CouchersContext, db: DB
     ) -> notifications_pb2.GetNotificationSettingsRes:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
         user.do_not_email = request.enable_do_not_email
         if request.enable_do_not_email:
             user.hosting_status = HostingStatus.cant_host
@@ -89,7 +89,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_delivery_method")
             delivery_type = NotificationDeliveryType[preference.delivery_method]
             try:
-                set_preference(session, user.id, topic_action, delivery_type, preference.enabled)
+                set_preference(db.session, user.id, topic_action, delivery_type, preference.enabled)
             except PreferenceNotUserEditableError:
                 context.abort_with_error_code(
                     grpc.StatusCode.FAILED_PRECONDITION, "cannot_edit_that_notification_preference"
@@ -100,20 +100,20 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         )
 
     def ListNotifications(
-        self, request: notifications_pb2.ListNotificationsReq, context: CouchersContext, session: Session
+        self, request: notifications_pb2.ListNotificationsReq, context: CouchersContext, db: DB
     ) -> notifications_pb2.ListNotificationsRes:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_notification_id = int(request.page_token) if request.page_token else 2**50
         notifications = (
-            session.execute(
+            db.session.execute(
                 select(Notification)
                 .where(Notification.user_id == context.user_id)
                 .where(Notification.id <= next_notification_id)
                 .where(or_(to_bool(request.only_unread == False), Notification.is_seen == False))
                 .where(
                     Notification.topic_action.in_(
-                        get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
+                        get_topic_actions_by_delivery_type(db.session, user.id, NotificationDeliveryType.push)
                     )
                 )
                 .where(moderation_state_column_visible(context, Notification.moderation_state_id))
@@ -129,10 +129,10 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         )
 
     def MarkNotificationSeen(
-        self, request: notifications_pb2.MarkNotificationSeenReq, context: CouchersContext, session: Session
+        self, request: notifications_pb2.MarkNotificationSeenReq, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
         notification = (
-            session.execute(
+            db.session.execute(
                 select(Notification)
                 .where(Notification.user_id == context.user_id)
                 .where(Notification.id == request.notification_id)
@@ -146,9 +146,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         return empty_pb2.Empty()
 
     def MarkAllNotificationsSeen(
-        self, request: notifications_pb2.MarkAllNotificationsSeenReq, context: CouchersContext, session: Session
+        self, request: notifications_pb2.MarkAllNotificationsSeenReq, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
-        session.execute(
+        db.session.execute(
             update(Notification)
             .values(is_seen=True)
             .where(Notification.user_id == context.user_id)
@@ -157,7 +157,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         return empty_pb2.Empty()
 
     def GetVapidPublicKey(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> notifications_pb2.GetVapidPublicKeyRes:
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
@@ -168,7 +168,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         self,
         request: notifications_pb2.RegisterPushNotificationSubscriptionReq,
         context: CouchersContext,
-        session: Session,
+        db: DB,
     ) -> empty_pb2.Empty:
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
@@ -186,10 +186,10 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             full_subscription_info=request.full_subscription_json,
             user_agent=request.user_agent,
         )
-        session.add(subscription)
-        session.flush()
+        db.session.add(subscription)
+        db.session.flush()
         push_to_subscription(
-            session,
+            db.session,
             push_notification_subscription_id=subscription.id,
             user_id=context.user_id,
             topic_action="adhoc:setup",
@@ -202,14 +202,12 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
 
         return empty_pb2.Empty()
 
-    def SendTestPushNotification(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
+    def SendTestPushNotification(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> empty_pb2.Empty:
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         push_to_user(
-            session,
+            db.session,
             user_id=context.user_id,
             topic_action="adhoc:testing",
             content=PushNotificationContent(
@@ -225,13 +223,13 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         self,
         request: notifications_pb2.RegisterMobilePushNotificationSubscriptionReq,
         context: CouchersContext,
-        session: Session,
+        db: DB,
     ) -> empty_pb2.Empty:
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         # Check for existing subscription with this token
-        existing = session.execute(
+        existing = db.session.execute(
             select(PushNotificationSubscription).where(PushNotificationSubscription.token == request.token)
         ).scalar_one_or_none()
 
@@ -255,12 +253,12 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             device_name=request.device_name if request.device_name else None,
             device_type=device_type,
         )
-        session.add(subscription)
-        session.flush()
+        db.session.add(subscription)
+        db.session.flush()
 
         push_content = render_adhoc_push_notification("push_enabled", context.localization)
         push_to_subscription(
-            session,
+            db.session,
             push_notification_subscription_id=subscription.id,
             user_id=context.user_id,
             topic_action="adhoc:push_enabled",
@@ -270,13 +268,13 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         return empty_pb2.Empty()
 
     def SendTestMobilePushNotification(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         push_to_user(
-            session,
+            db.session,
             user_id=context.user_id,
             topic_action="adhoc:testing",
             content=PushNotificationContent(
@@ -289,7 +287,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         return empty_pb2.Empty()
 
     def SendDevPushNotification(
-        self, request: notifications_pb2.SendDevPushNotificationReq, context: CouchersContext, session: Session
+        self, request: notifications_pb2.SendDevPushNotificationReq, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
         if not config["ENABLE_DEV_APIS"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "dev_apis_disabled")
@@ -298,7 +296,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         push_to_user(
-            session,
+            db.session,
             user_id=context.user_id,
             topic_action="adhoc:testing",
             content=PushNotificationContent(
@@ -318,7 +316,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         self,
         request: notifications_pb2.DebugRedeliverPushNotificationReq,
         context: CouchersContext,
-        session: Session,
+        db: DB,
     ) -> empty_pb2.Empty:
         if not config["ENABLE_DEV_APIS"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "dev_apis_disabled")
@@ -326,9 +324,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         if not config["PUSH_NOTIFICATIONS_ENABLED"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
-        notification = session.execute(
+        notification = db.session.execute(
             select(Notification)
             .where(Notification.id == request.notification_id)
             .where(Notification.user_id == context.user_id)
@@ -338,7 +336,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "notification_not_found")
 
         push_to_user(
-            session,
+            db.session,
             user_id=context.user_id,
             topic_action=notification.topic_action.display,
             content=render_push_notification(notification, LocalizationContext.from_user(user)),

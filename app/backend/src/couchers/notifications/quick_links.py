@@ -29,6 +29,7 @@ from couchers.notifications import settings
 from couchers.notifications.utils import enum_from_topic_action
 from couchers.proto import auth_pb2, conversations_pb2, requests_pb2
 from couchers.proto.internal import unsubscribe_pb2
+from couchers.repositories import DB
 from couchers.servicers.requests import Requests
 from couchers.sql import where_moderated_content_visible
 from couchers.utils import now
@@ -158,7 +159,7 @@ def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContex
                 status=conversations_pb2.HOST_REQUEST_STATUS_REJECTED,
             ),
             context=make_one_off_interactive_user_context(couchers_context=context, user_id=payload.user_id),
-            session=session,
+            db=DB(session),
         )
         return context.localization.localize_string("quick_links.host_request_quick_decline")
     raise Exception("Unhandled quick link type")

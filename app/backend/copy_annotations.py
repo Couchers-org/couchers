@@ -156,7 +156,7 @@ def normalize_annotation(annotation: cst.BaseExpression) -> cst.BaseExpression:
     """
     Normalize type annotations:
     - google.X.*_pb2.Y -> *_pb2.Y (remove google.X prefix)
-    - orm.Session -> Session
+    - repositories.DB -> DB
     """
     # Handle google.X.something_pb2.Something -> something_pb2.Something
     if isinstance(annotation, cst.Attribute):
@@ -173,9 +173,9 @@ def normalize_annotation(annotation: cst.BaseExpression) -> cst.BaseExpression:
                         # Return *_pb2.Y
                         return cst.Attribute(value=cst.Name(pb2_module), attr=annotation.attr)
 
-    # Replace orm.Session with Session
-    if m.matches(annotation, m.Attribute(value=m.Name("orm"), attr=m.Name("Session"))):
-        return cst.Name("Session")
+    # Replace repositories.DB with DB
+    if m.matches(annotation, m.Attribute(value=m.Name("repositories"), attr=m.Name("DB"))):
+        return cst.Name("DB")
 
     return annotation
 
@@ -315,7 +315,7 @@ def ensure_imports(tree: cst.Module) -> cst.Module:
 
     # Map of type name to import statement
     import_map = {
-        "Session": "from sqlalchemy.orm import Session",
+        "DB": "from couchers.repositories import DB",
         "CouchersContext": "from couchers.context import CouchersContext",
         "Awaitable": "from collections.abc import Awaitable",
         "List": "from typing import List",

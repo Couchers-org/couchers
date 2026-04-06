@@ -34,6 +34,7 @@ from couchers.models import (
 )
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
+from couchers.repositories import DB
 from couchers.utils import Timestamp_from_datetime, now
 
 if TYPE_CHECKING:
@@ -181,10 +182,9 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
 
 class Moderation(moderation_pb2_grpc.ModerationServicer):
     def GetModerationQueue(
-        self, request: moderation_pb2.GetModerationQueueReq, context: CouchersContext, session: Session
+        self, request: moderation_pb2.GetModerationQueueReq, context: CouchersContext, db: DB
     ) -> moderation_pb2.GetModerationQueueRes:
         """Get moderation queue items with optional filtering"""
-
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
 
         # Build query
@@ -244,13 +244,13 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         else:
             statement = statement.order_by(ModerationQueueItem.time_created.asc(), ModerationQueueItem.id.asc())
 
-        queue_items = session.execute(statement.limit(page_size + 1)).scalars().all()
+        queue_items = db.session.execute(statement.limit(page_size + 1)).scalars().all()
 
         # Convert to proto
         queue_items_pb = []
         for item in queue_items[:page_size]:
             # Fetch the moderation state for this queue item
-            mod_state = session.execute(
+            mod_state = db.session.execute(
                 select(ModerationState).where(ModerationState.id == item.moderation_state_id)
             ).scalar_one()
 
@@ -262,7 +262,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 reason=item.reason,
                 is_resolved=item.resolved_by_log_id is not None,
                 resolved_by_log_id=item.resolved_by_log_id or 0,
-                moderation_state=moderation_state_to_pb(mod_state, session),
+                moderation_state=moderation_state_to_pb(mod_state, db.session),
             )
 
             queue_items_pb.append(queue_item_pb)
@@ -274,14 +274,14 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         )
 
     def GetModerationState(
-        self, request: moderation_pb2.GetModerationStateReq, context: CouchersContext, session: Session
+        self, request: moderation_pb2.GetModerationStateReq, context: CouchersContext, db: DB
     ) -> moderation_pb2.GetModerationStateRes:
         """Get moderation state by object type and object ID"""
         object_type = moderationobjecttype2sql[request.object_type]
         if object_type is None:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "Object type must be specified.")
 
-        moderation_state = session.execute(
+        moderation_state = db.session.execute(
             select(ModerationState)
             .where(ModerationState.object_type == object_type)
             .where(ModerationState.object_id == request.object_id)
@@ -290,15 +290,15 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             context.abort(grpc.StatusCode.NOT_FOUND, "Moderation state not found.")
 
         return moderation_pb2.GetModerationStateRes(
-            moderation_state=moderation_state_to_pb(moderation_state, session),
+            moderation_state=moderation_state_to_pb(moderation_state, db.session),
         )
 
     def GetModerationLog(
-        self, request: moderation_pb2.GetModerationLogReq, context: CouchersContext, session: Session
+        self, request: moderation_pb2.GetModerationLogReq, context: CouchersContext, db: DB
     ) -> moderation_pb2.GetModerationLogRes:
         """Get moderation log for a specific moderation state"""
         # Get the moderation state
-        moderation_state = session.execute(
+        moderation_state = db.session.execute(
             select(ModerationState).where(ModerationState.id == request.moderation_state_id)
         ).scalar_one_or_none()
         if moderation_state is None:
@@ -306,7 +306,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
         # Get all log entries for this state, ordered by time (most recent first)
         log_entries = (
-            session.execute(
+            db.session.execute(
                 select(ModerationLog)
                 .where(ModerationLog.moderation_state_id == request.moderation_state_id)
                 .order_by(ModerationLog.time.desc(), ModerationLog.id.desc())
@@ -316,7 +316,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         )
 
         # Convert moderation state to proto first (while still in session)
-        moderation_state_pb = moderation_state_to_pb(moderation_state, session)
+        moderation_state_pb = moderation_state_to_pb(moderation_state, db.session)
 
         # Convert to proto
         log_entries_pb = []
@@ -342,11 +342,10 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         )
 
     def ModerateContent(
-        self, request: moderation_pb2.ModerateContentReq, context: CouchersContext, session: Session
+        self, request: moderation_pb2.ModerateContentReq, context: CouchersContext, db: DB
     ) -> moderation_pb2.ModerateContentRes:
         """Unified moderation action - takes both action and visibility explicitly"""
-
-        moderation_state = session.execute(
+        moderation_state = db.session.execute(
             select(ModerationState).where(ModerationState.id == request.moderation_state_id)
         ).scalar_one_or_none()
         if moderation_state is None:
@@ -378,11 +377,11 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             new_visibility=new_visibility,
             reason=reason,
         )
-        session.add(log_entry)
-        session.flush()
+        db.session.add(log_entry)
+        db.session.flush()
 
         # Resolve any pending queue items
-        queue_item = session.execute(
+        queue_item = db.session.execute(
             select(ModerationQueueItem)
             .where(ModerationQueueItem.moderation_state_id == moderation_state.id)
             .where(ModerationQueueItem.resolved_by_log_id.is_(None))
@@ -391,7 +390,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
         if queue_item:
             queue_item.resolved_by_log_id = log_entry.id
-            session.flush()
+            db.session.flush()
             observe_moderation_queue_item_resolved(queue_item.trigger, action, moderation_state.object_type)
             observe_moderation_queue_resolution_time(
                 queue_item.trigger,
@@ -406,7 +405,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         # If visibility becomes VISIBLE or UNLISTED, trigger pending notifications
         if new_visibility in (ModerationVisibility.visible, ModerationVisibility.unlisted):
             pending_notifications = (
-                session.execute(
+                db.session.execute(
                     select(Notification)
                     .where(Notification.moderation_state_id == moderation_state.id)
                     .where(not_(exists().where(NotificationDelivery.notification_id == Notification.id)))
@@ -420,21 +419,20 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
             for notification in pending_notifications:
                 queue_job(
-                    session,
+                    db.session,
                     job=handle_notification,
                     payload=jobs_pb2.HandleNotificationPayload(notification_id=notification.id),
                 )
 
         return moderation_pb2.ModerateContentRes(
-            moderation_state=moderation_state_to_pb(moderation_state, session),
+            moderation_state=moderation_state_to_pb(moderation_state, db.session),
         )
 
     def FlagContentForReview(
-        self, request: moderation_pb2.FlagContentForReviewReq, context: CouchersContext, session: Session
+        self, request: moderation_pb2.FlagContentForReviewReq, context: CouchersContext, db: DB
     ) -> moderation_pb2.FlagContentForReviewRes:
         """Flag content for review by adding it to the moderation queue"""
-
-        moderation_state = session.execute(
+        moderation_state = db.session.execute(
             select(ModerationState).where(ModerationState.id == request.moderation_state_id)
         ).scalar_one_or_none()
         if not moderation_state:
@@ -449,8 +447,8 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             trigger=trigger,
             reason=reason,
         )
-        session.add(queue_item)
-        session.flush()
+        db.session.add(queue_item)
+        db.session.flush()
 
         observe_moderation_action(ModerationAction.flag, moderation_state.object_type)
         observe_moderation_queue_item_created(trigger, moderation_state.object_type)
@@ -463,17 +461,16 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             reason=queue_item.reason,
             is_resolved=False,
             resolved_by_log_id=0,
-            moderation_state=moderation_state_to_pb(moderation_state, session),
+            moderation_state=moderation_state_to_pb(moderation_state, db.session),
         )
 
         return moderation_pb2.FlagContentForReviewRes(queue_item=queue_item_pb)
 
     def UnflagContent(
-        self, request: moderation_pb2.UnflagContentReq, context: CouchersContext, session: Session
+        self, request: moderation_pb2.UnflagContentReq, context: CouchersContext, db: DB
     ) -> moderation_pb2.UnflagContentRes:
         """Unflag content by resolving pending queue items"""
-
-        moderation_state = session.execute(
+        moderation_state = db.session.execute(
             select(ModerationState).where(ModerationState.id == request.moderation_state_id)
         ).scalar_one_or_none()
         if not moderation_state:
@@ -492,11 +489,11 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             new_visibility=None,
             reason=reason,
         )
-        session.add(log_entry)
-        session.flush()
+        db.session.add(log_entry)
+        db.session.flush()
 
         # Resolve any pending queue items (inline resolve_queue_item logic)
-        queue_item = session.execute(
+        queue_item = db.session.execute(
             select(ModerationQueueItem)
             .where(ModerationQueueItem.moderation_state_id == moderation_state.id)
             .where(ModerationQueueItem.resolved_by_log_id.is_(None))
@@ -505,7 +502,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
         if queue_item:
             queue_item.resolved_by_log_id = log_entry.id
-            session.flush()
+            db.session.flush()
             observe_moderation_queue_item_resolved(
                 queue_item.trigger, ModerationAction.unflag, moderation_state.object_type
             )
@@ -519,5 +516,5 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         observe_moderation_action(ModerationAction.unflag, moderation_state.object_type)
 
         return moderation_pb2.UnflagContentRes(
-            moderation_state=moderation_state_to_pb(moderation_state, session),
+            moderation_state=moderation_state_to_pb(moderation_state, db.session),
         )

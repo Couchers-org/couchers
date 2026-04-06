@@ -17,6 +17,7 @@ from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import donations_pb2, donations_pb2_grpc, notification_data_pb2, stripe_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
+from couchers.repositories import DB
 from couchers.sentry import report_error
 from couchers.slack import send_slack_message
 from couchers.utils import not_none
@@ -39,19 +40,19 @@ def _create_stripe_customer(session: Session, user: User) -> None:
 
 class Donations(donations_pb2_grpc.DonationsServicer):
     def InitiateDonation(
-        self, request: donations_pb2.InitiateDonationReq, context: CouchersContext, session: Session
+        self, request: donations_pb2.InitiateDonationReq, context: CouchersContext, db: DB
     ) -> donations_pb2.InitiateDonationRes:
         if not config["ENABLE_DONATIONS"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
         if request.amount < 2:
             # we don't want to waste *all* of the donation on processing fees
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "donation_too_small")
 
         if not user.stripe_customer_id:
-            _create_stripe_customer(session, user)
+            _create_stripe_customer(db.session, user)
 
         if request.recurring:
             item = {
@@ -84,7 +85,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             api_key=config["STRIPE_API_KEY"],
         )
 
-        session.add(
+        db.session.add(
             DonationInitiation(
                 user_id=user.id,
                 amount=request.amount,
@@ -96,7 +97,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
         log_event(
             context,
-            session,
+            db.session,
             "donation.initiated",
             {"amount": request.amount, "recurring": request.recurring, "source": request.source or None},
         )
@@ -106,15 +107,15 @@ class Donations(donations_pb2_grpc.DonationsServicer):
         )
 
     def GetDonationPortalLink(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> donations_pb2.GetDonationPortalLinkRes:
         if not config["ENABLE_DONATIONS"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
         if not user.stripe_customer_id:
-            _create_stripe_customer(session, user)
+            _create_stripe_customer(db.session, user)
 
         stripe_session = stripe.billing_portal.Session.create(
             customer=not_none(user.stripe_customer_id),
@@ -126,9 +127,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
 
 class Stripe(stripe_pb2_grpc.StripeServicer):
-    def Webhook(
-        self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
-    ) -> httpbody_pb2.HttpBody:
+    def Webhook(self, request: httpbody_pb2.HttpBody, context: CouchersContext, db: DB) -> httpbody_pb2.HttpBody:
         # We're set up to receive the following webhook events (with explanations from stripe docs):
         # For both recurring and one-off donations, we get a `charge.succeeded` event and we then send the user an
         # invoice. There are other events too, but we don't handle them right now.
@@ -152,9 +151,9 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 # merch shop. look up this email and give them the swagster badge
                 customer_email = metadata["customer_email"]
                 amount = int(data_object["amount"]) // 100
-                user = session.execute(select(User).where(User.email == customer_email)).scalar_one_or_none()
+                user = db.session.execute(select(User).where(User.email == customer_email)).scalar_one_or_none()
                 if user:
-                    user_add_badge(session, user.id, "swagster")
+                    user_add_badge(db.session, user.id, "swagster")
                     user_link = urls.user_link(username=user.username)
                     customer_info = f"<{user_link}|{user.name}>"
                 else:
@@ -168,7 +167,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                     report_error(e)
             else:
                 customer_id = data_object["customer"]
-                user = session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
+                user = db.session.execute(select(User).where(User.stripe_customer_id == customer_id)).scalar_one()
                 # amount comes in cents
                 amount = int(data_object["amount"]) // 100
                 receipt_url = data_object["receipt_url"]
@@ -181,12 +180,12 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                     stripe_receipt_url=receipt_url,
                     invoice_type=InvoiceType.on_platform,
                 )
-                session.add(invoice)
-                session.flush()
+                db.session.add(invoice)
+                db.session.flush()
                 user.last_donated = invoice.created
 
                 notify(
-                    session,
+                    db.session,
                     user_id=user.id,
                     topic_action=NotificationTopicAction.donation__received,
                     key="",

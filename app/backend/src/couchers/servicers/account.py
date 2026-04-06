@@ -7,7 +7,6 @@ import grpc
 import requests
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 from sqlalchemy.sql import func, update
 from user_agents import parse as user_agents_parse
 
@@ -63,6 +62,7 @@ from couchers.phone.check import is_e164_format, is_known_operator
 from couchers.proto import account_pb2, account_pb2_grpc, auth_pb2, iris_pb2_grpc, notification_data_pb2
 from couchers.proto.google.api import httpbody_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
+from couchers.repositories import DB
 from couchers.servicers.api import lite_user_to_pb
 from couchers.servicers.public import format_volunteer_link
 from couchers.servicers.references import get_pending_references_to_write, reftype2api
@@ -160,9 +160,9 @@ def _volunteer_info_to_pb(volunteer: Volunteer, username: str) -> account_pb2.Ge
 
 class Account(account_pb2_grpc.AccountServicer):
     def GetAccountInfo(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> account_pb2.GetAccountInfoRes:
-        user, volunteer = session.execute(
+        user, volunteer = db.session.execute(
             select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
         ).one()
 
@@ -181,7 +181,7 @@ class Account(account_pb2_grpc.AccountServicer):
             phone=user.phone if (user.phone_is_verified or not user.phone_code_expired) else None,
             has_donated=user.last_donated is not None,
             phone_verified=user.phone_is_verified,
-            profile_complete=has_completed_profile(session, user),
+            profile_complete=has_completed_profile(db.session, user),
             my_home_complete=user.has_completed_my_home,
             timezone=user.timezone,
             is_superuser=user.is_superuser,
@@ -189,18 +189,18 @@ class Account(account_pb2_grpc.AccountServicer):
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
             is_volunteer=volunteer is not None,
             should_show_donation_banner=should_show_donation_banner,
-            **get_strong_verification_fields(session, user),
+            **get_strong_verification_fields(db.session, user),
         )
 
     def ChangePasswordV2(
-        self, request: account_pb2.ChangePasswordV2Req, context: CouchersContext, session: Session
+        self, request: account_pb2.ChangePasswordV2Req, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
         """
         Changes the user's password. They have to confirm their old password just in case.
 
         If they didn't have an old password previously, then we don't check that.
         """
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
         if not verify_password(user.hashed_password, request.old_password):
             # wrong password
@@ -209,21 +209,19 @@ class Account(account_pb2_grpc.AccountServicer):
         abort_on_invalid_password(request.new_password, context)
         user.hashed_password = hash_password(request.new_password)
 
-        session.commit()
+        db.session.commit()
 
         notify(
-            session,
+            db.session,
             user_id=user.id,
             topic_action=NotificationTopicAction.password__change,
             key="",
         )
-        log_event(context, session, "account.password_changed", {})
+        log_event(context, db.session, "account.password_changed", {})
 
         return empty_pb2.Empty()
 
-    def ChangeEmailV2(
-        self, request: account_pb2.ChangeEmailV2Req, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
+    def ChangeEmailV2(self, request: account_pb2.ChangeEmailV2Req, context: CouchersContext, db: DB) -> empty_pb2.Empty:
         """
         Change the user's email address.
 
@@ -233,7 +231,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         In all confirmation emails, the user must click on the confirmation link.
         """
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
         # check password first
         if not verify_password(user.hashed_password, request.password):
@@ -245,7 +243,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
 
         # email already in use (possibly by this user)
-        if session.execute(select(User).where(User.email == request.new_email)).scalar_one_or_none():
+        if db.session.execute(select(User).where(User.email == request.new_email)).scalar_one_or_none():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_email")
 
         user.new_email = request.new_email
@@ -253,11 +251,11 @@ class Account(account_pb2_grpc.AccountServicer):
         user.new_email_token_created = now()
         user.new_email_token_expiry = now() + timedelta(hours=2)
 
-        send_email_changed_confirmation_to_new_email(session, user)
+        send_email_changed_confirmation_to_new_email(db.session, user)
 
         # will still go into old email
         notify(
-            session,
+            db.session,
             user_id=user.id,
             topic_action=NotificationTopicAction.email_address__change,
             key="",
@@ -266,16 +264,15 @@ class Account(account_pb2_grpc.AccountServicer):
             ),
         )
 
-        log_event(context, session, "account.email_change_initiated", {})
+        log_event(context, db.session, "account.email_change_initiated", {})
 
         # session autocommit
         return empty_pb2.Empty()
 
     def ChangeLanguagePreference(
-        self, request: account_pb2.ChangeLanguagePreferenceReq, context: CouchersContext, session: Session
+        self, request: account_pb2.ChangeLanguagePreferenceReq, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
-        # select the user from the db
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
         # update the user's preference
         user.ui_language_preference = request.ui_language_preference
@@ -284,9 +281,9 @@ class Account(account_pb2_grpc.AccountServicer):
         return empty_pb2.Empty()
 
     def FillContributorForm(
-        self, request: account_pb2.FillContributorFormReq, context: CouchersContext, session: Session
+        self, request: account_pb2.FillContributorFormReq, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
         form = request.contributor_form
 
@@ -300,33 +297,31 @@ class Account(account_pb2_grpc.AccountServicer):
             expertise=form.expertise or None,
         )
 
-        session.add(form)
-        session.flush()
-        maybe_send_contributor_form_email(session, form)
+        db.session.add(form)
+        db.session.flush()
+        maybe_send_contributor_form_email(db.session, form)
 
         user.filled_contributor_form = True
-        log_event(context, session, "contributor.form_submitted", {"is_filled": form.is_filled})
+        log_event(context, db.session, "contributor.form_submitted", {"is_filled": form.is_filled})
 
         return empty_pb2.Empty()
 
     def GetContributorFormInfo(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> account_pb2.GetContributorFormInfoRes:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
         return account_pb2.GetContributorFormInfoRes(
             filled_contributor_form=user.filled_contributor_form,
         )
 
-    def ChangePhone(
-        self, request: account_pb2.ChangePhoneReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
+    def ChangePhone(self, request: account_pb2.ChangePhoneReq, context: CouchersContext, db: DB) -> empty_pb2.Empty:
         phone = request.phone
         # early quick validation
         if phone and not is_e164_format(phone):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_phone")
 
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
         if user.last_donated is None:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_donated")
 
@@ -354,7 +349,7 @@ class Account(account_pb2_grpc.AccountServicer):
             user.phone_verification_attempts = 0
 
             notify(
-                session,
+                db.session,
                 user_id=user.id,
                 topic_action=NotificationTopicAction.phone_number__change,
                 key="",
@@ -367,13 +362,11 @@ class Account(account_pb2_grpc.AccountServicer):
 
         context.abort(grpc.StatusCode.UNIMPLEMENTED, result)
 
-    def VerifyPhone(
-        self, request: account_pb2.VerifyPhoneReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
+    def VerifyPhone(self, request: account_pb2.VerifyPhoneReq, context: CouchersContext, db: DB) -> empty_pb2.Empty:
         if not sms.looks_like_a_code(request.token):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "wrong_sms_code")
 
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
         if user.phone_verification_token is None:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "no_pending_verification")
 
@@ -385,11 +378,11 @@ class Account(account_pb2_grpc.AccountServicer):
 
         if not verify_token(request.token, user.phone_verification_token):
             user.phone_verification_attempts += 1
-            session.commit()
+            db.session.commit()
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "wrong_sms_code")
 
         # Delete verifications from everyone else that has this number
-        session.execute(
+        db.session.execute(
             update(User)
             .where(User.phone == user.phone)
             .where(User.id != context.user_id)
@@ -409,7 +402,7 @@ class Account(account_pb2_grpc.AccountServicer):
         user.phone_verification_attempts = 0
 
         notify(
-            session,
+            db.session,
             user_id=user.id,
             topic_action=NotificationTopicAction.phone_number__verify,
             key="",
@@ -421,13 +414,13 @@ class Account(account_pb2_grpc.AccountServicer):
         return empty_pb2.Empty()
 
     def InitiateStrongVerification(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> account_pb2.InitiateStrongVerificationRes:
         if not config["ENABLE_STRONG_VERIFICATION"]:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "strong_verification_disabled")
 
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-        existing_verification = session.execute(
+        user = db.users.by_id(context.user_id)
+        existing_verification = db.session.execute(
             select(StrongVerificationAttempt)
             .where(StrongVerificationAttempt.user_id == user.id)
             .where(StrongVerificationAttempt.is_valid)
@@ -436,7 +429,7 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "strong_verification_already_verified")
 
         strong_verification_initiations_counter.labels(user.gender).inc()
-        log_event(context, session, "verification.strong_initiated", {"gender": user.gender})
+        log_event(context, db.session, "verification.strong_initiated", {"gender": user.gender})
 
         verification_attempt_token = urlsafe_secure_token()
         # this is the iris reference data, they will return this on every callback, it also doubles as webhook auth given lack of it otherwise
@@ -467,7 +460,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         iris_session_id = response.json()["id"]
         token = response.json()["token"]
-        session.add(
+        db.session.add(
             StrongVerificationAttempt(
                 user_id=user.id,
                 verification_attempt_token=verification_attempt_token,
@@ -490,9 +483,9 @@ class Account(account_pb2_grpc.AccountServicer):
         )
 
     def GetStrongVerificationAttemptStatus(
-        self, request: account_pb2.GetStrongVerificationAttemptStatusReq, context: CouchersContext, session: Session
+        self, request: account_pb2.GetStrongVerificationAttemptStatusReq, context: CouchersContext, db: DB
     ) -> account_pb2.GetStrongVerificationAttemptStatusRes:
-        verification_attempt = session.execute(
+        verification_attempt = db.session.execute(
             select(StrongVerificationAttempt)
             .where(StrongVerificationAttempt.user_id == context.user_id)
             .where(StrongVerificationAttempt.is_visible)
@@ -514,10 +507,10 @@ class Account(account_pb2_grpc.AccountServicer):
         )
 
     def DeleteStrongVerificationData(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
         verification_attempts = (
-            session.execute(
+            db.session.execute(
                 select(StrongVerificationAttempt)
                 .where(StrongVerificationAttempt.user_id == context.user_id)
                 .where(StrongVerificationAttempt.has_full_data)
@@ -531,10 +524,10 @@ class Account(account_pb2_grpc.AccountServicer):
             verification_attempt.passport_encrypted_data = None
             verification_attempt.passport_date_of_birth = None
             verification_attempt.passport_sex = None
-        session.flush()
+        db.session.flush()
         # double check:
         verification_attempts = (
-            session.execute(
+            db.session.execute(
                 select(StrongVerificationAttempt)
                 .where(StrongVerificationAttempt.user_id == context.user_id)
                 .where(StrongVerificationAttempt.has_full_data)
@@ -544,15 +537,13 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         assert len(verification_attempts) == 0
 
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
         strong_verification_data_deletions_counter.labels(user.gender).inc()
-        log_event(context, session, "verification.strong_data_deleted", {"gender": user.gender})
+        log_event(context, db.session, "verification.strong_data_deleted", {"gender": user.gender})
 
         return empty_pb2.Empty()
 
-    def DeleteAccount(
-        self, request: account_pb2.DeleteAccountReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
+    def DeleteAccount(self, request: account_pb2.DeleteAccountReq, context: CouchersContext, db: DB) -> empty_pb2.Empty:
         """
         Triggers email with token to confirm deletion
 
@@ -561,19 +552,19 @@ class Account(account_pb2_grpc.AccountServicer):
         if not request.confirm:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "must_confirm_account_delete")
 
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
         reason = request.reason.strip()
         if reason:
             deletion_reason = AccountDeletionReason(user_id=user.id, reason=reason)
-            session.add(deletion_reason)
-            session.flush()
-            send_account_deletion_report_email(session, deletion_reason)
+            db.session.add(deletion_reason)
+            db.session.flush()
+            send_account_deletion_report_email(db.session, deletion_reason)
 
         token = AccountDeletionToken(token=urlsafe_secure_token(), user_id=user.id, expiry=now() + timedelta(hours=2))
 
         notify(
-            session,
+            db.session,
             user_id=user.id,
             topic_action=NotificationTopicAction.account_deletion__start,
             key="",
@@ -581,20 +572,20 @@ class Account(account_pb2_grpc.AccountServicer):
                 deletion_token=token.token,
             ),
         )
-        session.add(token)
+        db.session.add(token)
 
         account_deletion_initiations_counter.labels(user.gender).inc()
-        log_event(context, session, "account.deletion_initiated", {"gender": user.gender, "has_reason": bool(reason)})
+        log_event(
+            context, db.session, "account.deletion_initiated", {"gender": user.gender, "has_reason": bool(reason)}
+        )
 
         return empty_pb2.Empty()
 
-    def ListModNotes(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
-    ) -> account_pb2.ListModNotesRes:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+    def ListModNotes(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> account_pb2.ListModNotesRes:
+        user = db.users.by_id(context.user_id)
 
         notes = (
-            session.execute(select(ModNote).where(ModNote.user_id == user.id).order_by(ModNote.created.asc()))
+            db.session.execute(select(ModNote).where(ModNote.user_id == user.id).order_by(ModNote.created.asc()))
             .scalars()
             .all()
         )
@@ -602,13 +593,13 @@ class Account(account_pb2_grpc.AccountServicer):
         return account_pb2.ListModNotesRes(mod_notes=[mod_note_to_pb(note) for note in notes])
 
     def ListActiveSessions(
-        self, request: account_pb2.ListActiveSessionsReq, context: CouchersContext, session: Session
+        self, request: account_pb2.ListActiveSessionsReq, context: CouchersContext, db: DB
     ) -> account_pb2.ListActiveSessionsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         page_token = dt_from_page_token(request.page_token) if request.page_token else now()
 
         user_sessions = (
-            session.execute(
+            db.session.execute(
                 select(UserSession)
                 .where(UserSession.user_id == context.user_id)
                 .where(UserSession.is_valid)
@@ -639,10 +630,8 @@ class Account(account_pb2_grpc.AccountServicer):
             next_page_token=dt_to_page_token(user_sessions[-1].last_seen) if len(user_sessions) > page_size else None,
         )
 
-    def LogOutSession(
-        self, request: account_pb2.LogOutSessionReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
-        session.execute(
+    def LogOutSession(self, request: account_pb2.LogOutSessionReq, context: CouchersContext, db: DB) -> empty_pb2.Empty:
+        db.session.execute(
             update(UserSession)
             .where(UserSession.token != context.token)
             .where(UserSession.user_id == context.user_id)
@@ -655,12 +644,12 @@ class Account(account_pb2_grpc.AccountServicer):
         return empty_pb2.Empty()
 
     def LogOutOtherSessions(
-        self, request: account_pb2.LogOutOtherSessionsReq, context: CouchersContext, session: Session
+        self, request: account_pb2.LogOutOtherSessionsReq, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
         if not request.confirm:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "must_confirm_logout_other_sessions")
 
-        session.execute(
+        db.session.execute(
             update(UserSession)
             .where(UserSession.token != context.token)
             .where(UserSession.user_id == context.user_id)
@@ -672,18 +661,18 @@ class Account(account_pb2_grpc.AccountServicer):
         return empty_pb2.Empty()
 
     def SetProfilePublicVisibility(
-        self, request: account_pb2.SetProfilePublicVisibilityReq, context: CouchersContext, session: Session
+        self, request: account_pb2.SetProfilePublicVisibilityReq, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
         user.public_visibility = profilepublicitysetting2sql[request.profile_public_visibility]  # type: ignore[assignment]
         user.has_modified_public_visibility = True
         return empty_pb2.Empty()
 
     def CreateInviteCode(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> account_pb2.CreateInviteCodeRes:
         code = generate_invite_code()
-        session.add(InviteCode(id=code, creator_user_id=context.user_id))
+        db.session.add(InviteCode(id=code, creator_user_id=context.user_id))
 
         return account_pb2.CreateInviteCodeRes(
             code=code,
@@ -691,9 +680,9 @@ class Account(account_pb2_grpc.AccountServicer):
         )
 
     def DisableInviteCode(
-        self, request: account_pb2.DisableInviteCodeReq, context: CouchersContext, session: Session
+        self, request: account_pb2.DisableInviteCodeReq, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
-        invite = session.execute(
+        invite = db.session.execute(
             select(InviteCode).where(InviteCode.id == request.code, InviteCode.creator_user_id == context.user_id)
         ).scalar_one_or_none()
 
@@ -701,14 +690,14 @@ class Account(account_pb2_grpc.AccountServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "not_found")
 
         invite.disabled = func.now()
-        session.commit()
+        db.session.commit()
 
         return empty_pb2.Empty()
 
     def ListInviteCodes(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> account_pb2.ListInviteCodesRes:
-        results = session.execute(
+        results = db.session.execute(
             select(
                 InviteCode.id,
                 InviteCode.created,
@@ -734,10 +723,8 @@ class Account(account_pb2_grpc.AccountServicer):
             ]
         )
 
-    def GetReminders(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
-    ) -> account_pb2.GetRemindersRes:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+    def GetReminders(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> account_pb2.GetRemindersRes:
+        user = db.users.by_id(context.user_id)
 
         # responding to reqs comes first in desc order of when they were received
         query = select(HostRequest.conversation_id, LiteUser).join(
@@ -745,7 +732,7 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         query = where_users_column_visible(query, context, HostRequest.initiator_user_id)
         query = where_moderated_content_visible(query, context, HostRequest, is_list_operation=True)
-        pending_host_requests = session.execute(
+        pending_host_requests = db.session.execute(
             query.where(HostRequest.recipient_user_id == context.user_id)
             .where(HostRequest.status == HostRequestStatus.pending)
             .where(HostRequest.start_time > func.now())
@@ -755,7 +742,7 @@ class Account(account_pb2_grpc.AccountServicer):
             account_pb2.Reminder(
                 respond_to_host_request_reminder=account_pb2.RespondToHostRequestReminder(
                     host_request_id=host_request_id,
-                    surfer_user=lite_user_to_pb(session, lite_user, context),
+                    surfer_user=lite_user_to_pb(db.session, lite_user, context),
                 )
             )
             for host_request_id, lite_user in pending_host_requests
@@ -767,16 +754,16 @@ class Account(account_pb2_grpc.AccountServicer):
                 write_reference_reminder=account_pb2.WriteReferenceReminder(
                     host_request_id=host_request_id,
                     reference_type=reftype2api[reference_type],
-                    other_user=lite_user_to_pb(session, lite_user, context),
+                    other_user=lite_user_to_pb(db.session, lite_user, context),
                 )
             )
-            for host_request_id, reference_type, _, lite_user in get_pending_references_to_write(session, context)
+            for host_request_id, reference_type, _, lite_user in get_pending_references_to_write(db.session, context)
         ]
 
-        if not has_completed_profile(session, user):
+        if not has_completed_profile(db.session, user):
             reminders.append(account_pb2.Reminder(complete_profile_reminder=account_pb2.CompleteProfileReminder()))
 
-        if not has_strong_verification(session, user):
+        if not has_strong_verification(db.session, user):
             reminders.append(
                 account_pb2.Reminder(complete_verification_reminder=account_pb2.CompleteVerificationReminder())
             )
@@ -784,9 +771,9 @@ class Account(account_pb2_grpc.AccountServicer):
         return account_pb2.GetRemindersRes(reminders=reminders)
 
     def GetMyVolunteerInfo(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> account_pb2.GetMyVolunteerInfoRes:
-        user, volunteer = session.execute(
+        user, volunteer = db.session.execute(
             select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
         ).one()
         if not volunteer:
@@ -794,9 +781,9 @@ class Account(account_pb2_grpc.AccountServicer):
         return _volunteer_info_to_pb(volunteer, user.username)
 
     def UpdateMyVolunteerInfo(
-        self, request: account_pb2.UpdateMyVolunteerInfoReq, context: CouchersContext, session: Session
+        self, request: account_pb2.UpdateMyVolunteerInfoReq, context: CouchersContext, db: DB
     ) -> account_pb2.GetMyVolunteerInfoRes:
-        user, volunteer = session.execute(
+        user, volunteer = db.session.execute(
             select(User, Volunteer).outerjoin(Volunteer, Volunteer.user_id == User.id).where(User.id == context.user_id)
         ).one()
         if not volunteer:
@@ -837,15 +824,13 @@ class Account(account_pb2_grpc.AccountServicer):
             volunteer.link_text = link_text
             volunteer.link_url = link_url
 
-        session.flush()
+        db.session.flush()
 
         return _volunteer_info_to_pb(volunteer, user.username)
 
 
 class Iris(iris_pb2_grpc.IrisServicer):
-    def Webhook(
-        self, request: httpbody_pb2.HttpBody, context: CouchersContext, session: Session
-    ) -> httpbody_pb2.HttpBody:
+    def Webhook(self, request: httpbody_pb2.HttpBody, context: CouchersContext, db: DB) -> httpbody_pb2.HttpBody:
         json_data = json.loads(request.data)
         reference_payload = internal_pb2.VerificationReferencePayload.FromString(
             simple_decrypt("iris_callback", b64decode(json_data["session_reference"]))
@@ -854,14 +839,14 @@ class Iris(iris_pb2_grpc.IrisServicer):
         verification_attempt_token = reference_payload.verification_attempt_token
         user_id = reference_payload.user_id
 
-        verification_attempt = session.execute(
+        verification_attempt = db.session.execute(
             select(StrongVerificationAttempt)
             .where(StrongVerificationAttempt.user_id == reference_payload.user_id)
             .where(StrongVerificationAttempt.verification_attempt_token == reference_payload.verification_attempt_token)
             .where(StrongVerificationAttempt.iris_session_id == json_data["session_id"])
         ).scalar_one()
         iris_status = json_data["session_state"]
-        session.add(
+        db.session.add(
             StrongVerificationCallbackEvent(
                 verification_attempt_id=verification_attempt.id,
                 iris_status=iris_status,
@@ -874,10 +859,10 @@ class Iris(iris_pb2_grpc.IrisServicer):
             verification_attempt.status = StrongVerificationAttemptStatus.in_progress_waiting_on_backend
         elif iris_status == "APPROVED":
             verification_attempt.status = StrongVerificationAttemptStatus.in_progress_waiting_on_backend
-            session.commit()
+            db.session.commit()
             # background worker will go and sort this one out
             queue_job(
-                session,
+                db.session,
                 job=finalize_strong_verification,
                 payload=jobs_pb2.FinalizeStrongVerificationPayload(verification_attempt_id=verification_attempt.id),
                 priority=8,

@@ -4,7 +4,6 @@ import logging
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import exists, select
-from sqlalchemy.orm import Session
 
 from couchers.config import config
 from couchers.constants import (
@@ -16,13 +15,13 @@ from couchers.context import CouchersContext
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import send_postal_verification_postcard
-from couchers.models import User
 from couchers.models.notifications import NotificationTopicAction
 from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
 from couchers.notifications.notify import notify
 from couchers.postal.address_validation import AddressValidationError, validate_address
 from couchers.proto import notification_data_pb2, postal_verification_pb2, postal_verification_pb2_grpc
 from couchers.proto.internal import jobs_pb2
+from couchers.repositories import DB
 from couchers.utils import Timestamp_from_datetime, now
 
 logger = logging.getLogger(__name__)
@@ -53,7 +52,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         self,
         request: postal_verification_pb2.InitiatePostalVerificationReq,
         context: CouchersContext,
-        session: Session,
+        db: DB,
     ) -> postal_verification_pb2.InitiatePostalVerificationRes:
         """
         Step 1: User submits address for validation.
@@ -62,7 +61,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "postal_verification_disabled")
 
         # Check if there's an active attempt
-        has_active_attempt = session.execute(
+        has_active_attempt = db.session.execute(
             select(
                 exists(
                     select(PostalVerificationAttempt)
@@ -86,7 +85,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             )
 
         # Check rate limit: one initiation per 30 days
-        has_recent_attempt = session.execute(
+        has_recent_attempt = db.session.execute(
             select(
                 exists(
                     select(PostalVerificationAttempt)
@@ -144,8 +143,8 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                 }
             ),
         )
-        session.add(attempt)
-        session.flush()
+        db.session.add(attempt)
+        db.session.flush()
 
         return postal_verification_pb2.InitiatePostalVerificationRes(
             postal_verification_attempt_id=attempt.id,
@@ -164,12 +163,12 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         self,
         request: postal_verification_pb2.ConfirmPostalAddressReq,
         context: CouchersContext,
-        session: Session,
+        db: DB,
     ) -> postal_verification_pb2.ConfirmPostalAddressRes:
         """
         Step 2: User confirms address, we generate code and send postcard.
         """
-        attempt = session.execute(
+        attempt = db.session.execute(
             select(PostalVerificationAttempt)
             .where(PostalVerificationAttempt.id == request.postal_verification_attempt_id)
             .where(PostalVerificationAttempt.user_id == context.user_id)
@@ -187,7 +186,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
 
         # Queue background job to send postcard
         queue_job(
-            session,
+            db.session,
             job=send_postal_verification_postcard,
             payload=jobs_pb2.SendPostalVerificationPostcardPayload(
                 postal_verification_attempt_id=attempt.id,
@@ -200,17 +199,17 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         self,
         request: postal_verification_pb2.GetPostalVerificationStatusReq,
         context: CouchersContext,
-        session: Session,
+        db: DB,
     ) -> postal_verification_pb2.GetPostalVerificationStatusRes:
         """
         Returns the user's postal verification status and current/latest attempt details.
         """
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
-        has_verification = has_postal_verification(session, user)
+        has_verification = has_postal_verification(db.session, user)
 
         # Always get the latest attempt for determining can_initiate and has_active_attempt
-        latest_attempt = session.execute(
+        latest_attempt = db.session.execute(
             select(PostalVerificationAttempt)
             .where(PostalVerificationAttempt.user_id == user.id)
             .order_by(PostalVerificationAttempt.created.desc())
@@ -249,7 +248,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
 
         # Get specific attempt if requested, otherwise use latest
         if request.postal_verification_attempt_id:
-            attempt = session.execute(
+            attempt = db.session.execute(
                 select(PostalVerificationAttempt)
                 .where(PostalVerificationAttempt.id == request.postal_verification_attempt_id)
                 .where(PostalVerificationAttempt.user_id == context.user_id)
@@ -273,13 +272,13 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         self,
         request: postal_verification_pb2.VerifyPostalCodeReq,
         context: CouchersContext,
-        session: Session,
+        db: DB,
     ) -> postal_verification_pb2.VerifyPostalCodeRes:
         """
         User submits the code from the postcard.
         Looks up the user's active attempt (awaiting_verification status).
         """
-        attempt = session.execute(
+        attempt = db.session.execute(
             select(PostalVerificationAttempt)
             .where(PostalVerificationAttempt.user_id == context.user_id)
             .where(PostalVerificationAttempt.status == PostalVerificationStatus.awaiting_verification)
@@ -292,7 +291,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         if attempt.postcard_sent_at and (now() - attempt.postcard_sent_at) > POSTAL_VERIFICATION_CODE_LIFETIME:
             attempt.status = PostalVerificationStatus.failed
             notify(
-                session,
+                db.session,
                 user_id=context.user_id,
                 topic_action=NotificationTopicAction.postal_verification__failed,
                 key="",
@@ -300,7 +299,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                     reason=notification_data_pb2.POSTAL_VERIFICATION_FAIL_REASON_CODE_EXPIRED
                 ),
             )
-            session.commit()
+            db.session.commit()
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_code_expired")
 
         # Normalize submitted code
@@ -313,7 +312,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             if remaining <= 0:
                 attempt.status = PostalVerificationStatus.failed
                 notify(
-                    session,
+                    db.session,
                     user_id=context.user_id,
                     topic_action=NotificationTopicAction.postal_verification__failed,
                     key="",
@@ -336,7 +335,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         attempt.verified_at = now()
 
         notify(
-            session,
+            db.session,
             user_id=context.user_id,
             topic_action=NotificationTopicAction.postal_verification__success,
             key="",
@@ -351,12 +350,12 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         self,
         request: postal_verification_pb2.CancelPostalVerificationReq,
         context: CouchersContext,
-        session: Session,
+        db: DB,
     ) -> empty_pb2.Empty:
         """
         Cancels an active postal verification attempt.
         """
-        attempt = session.execute(
+        attempt = db.session.execute(
             select(PostalVerificationAttempt)
             .where(PostalVerificationAttempt.id == request.postal_verification_attempt_id)
             .where(PostalVerificationAttempt.user_id == context.user_id)
@@ -383,12 +382,12 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         self,
         request: postal_verification_pb2.ListPostalVerificationAttemptsReq,
         context: CouchersContext,
-        session: Session,
+        db: DB,
     ) -> postal_verification_pb2.ListPostalVerificationAttemptsRes:
         """
         Returns all postal verification attempts for the user.
         """
-        attempts = session.execute(
+        attempts = db.session.execute(
             select(PostalVerificationAttempt)
             .where(PostalVerificationAttempt.user_id == context.user_id)
             .order_by(PostalVerificationAttempt.created.desc())

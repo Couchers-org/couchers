@@ -3,12 +3,12 @@ import logging
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from couchers.constants import GUIDELINES_VERSION, TOS_VERSION
 from couchers.context import CouchersContext
 from couchers.models import ActivenessProbe, ActivenessProbeStatus, HostingStatus, ModNote, User
 from couchers.proto import jail_pb2, jail_pb2_grpc
+from couchers.repositories import DB
 from couchers.servicers.account import mod_note_to_pb
 from couchers.utils import create_coordinate, now
 
@@ -46,14 +46,14 @@ class Jail(jail_pb2_grpc.JailServicer):
     fully active
     """
 
-    def JailInfo(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> jail_pb2.JailInfoRes:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+    def JailInfo(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> jail_pb2.JailInfoRes:
+
+        user = db.users.by_id(context.user_id)
         return _get_jail_info(user)
 
-    def AcceptTOS(
-        self, request: jail_pb2.AcceptTOSReq, context: CouchersContext, session: Session
-    ) -> jail_pb2.JailInfoRes:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+    def AcceptTOS(self, request: jail_pb2.AcceptTOSReq, context: CouchersContext, db: DB) -> jail_pb2.JailInfoRes:
+
+        user = db.users.by_id(context.user_id)
 
         if not request.accept:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unaccept_tos")
@@ -62,10 +62,9 @@ class Jail(jail_pb2_grpc.JailServicer):
 
         return _get_jail_info(user)
 
-    def SetLocation(
-        self, request: jail_pb2.SetLocationReq, context: CouchersContext, session: Session
-    ) -> jail_pb2.JailInfoRes:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+    def SetLocation(self, request: jail_pb2.SetLocationReq, context: CouchersContext, db: DB) -> jail_pb2.JailInfoRes:
+
+        user = db.users.by_id(context.user_id)
 
         if request.lat == 0 and request.lng == 0:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_coordinate")
@@ -79,9 +78,9 @@ class Jail(jail_pb2_grpc.JailServicer):
         return _get_jail_info(user)
 
     def AcceptCommunityGuidelines(
-        self, request: jail_pb2.AcceptCommunityGuidelinesReq, context: CouchersContext, session: Session
+        self, request: jail_pb2.AcceptCommunityGuidelinesReq, context: CouchersContext, db: DB
     ) -> jail_pb2.JailInfoRes:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
         if not request.accept:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_unaccept_community_guidelines")
@@ -91,11 +90,11 @@ class Jail(jail_pb2_grpc.JailServicer):
         return _get_jail_info(user)
 
     def AcknowledgePendingModNote(
-        self, request: jail_pb2.AcknowledgePendingModNoteReq, context: CouchersContext, session: Session
+        self, request: jail_pb2.AcknowledgePendingModNoteReq, context: CouchersContext, db: DB
     ) -> jail_pb2.JailInfoRes:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
-        note = session.execute(
+        note = db.session.execute(
             select(ModNote)
             .where(ModNote.user_id == user.id)
             .where(ModNote.is_pending)
@@ -113,11 +112,11 @@ class Jail(jail_pb2_grpc.JailServicer):
         return _get_jail_info(user)
 
     def RespondToActivenessProbe(
-        self, request: jail_pb2.RespondToActivenessProbeReq, context: CouchersContext, session: Session
+        self, request: jail_pb2.RespondToActivenessProbeReq, context: CouchersContext, db: DB
     ) -> jail_pb2.JailInfoRes:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
-        probe = session.execute(
+        probe = db.session.execute(
             select(ActivenessProbe).where(ActivenessProbe.user_id == user.id).where(ActivenessProbe.is_pending)
         ).scalar_one_or_none()
 

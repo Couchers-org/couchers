@@ -28,6 +28,7 @@ from couchers.models import (
     User,
 )
 from couchers.proto import communities_pb2, communities_pb2_grpc, groups_pb2
+from couchers.repositories import DB
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.groups import group_to_pb
@@ -135,23 +136,23 @@ def community_to_pb(session: Session, node: Node, context: CouchersContext) -> c
 
 class Communities(communities_pb2_grpc.CommunitiesServicer):
     def GetCommunity(
-        self, request: communities_pb2.GetCommunityReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.GetCommunityReq, context: CouchersContext, db: DB
     ) -> communities_pb2.Community:
-        node = session.execute(
+        node = db.session.execute(
             select(Node).where(Node.id == request.community_id).options(selectinload(Node.official_cluster))
         ).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
-        return community_to_pb(session, node, context)
+        return community_to_pb(db.session, node, context)
 
     def ListCommunities(
-        self, request: communities_pb2.ListCommunitiesReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.ListCommunitiesReq, context: CouchersContext, db: DB
     ) -> communities_pb2.ListCommunitiesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         offset = int(decrypt_page_token(request.page_token)) if request.page_token else 0
         nodes = (
-            session.execute(
+            db.session.execute(
                 select(Node)
                 .join(Cluster, Cluster.parent_node_id == Node.id)
                 .where(or_(Node.parent_node_id == request.community_id, to_bool(request.community_id == 0)))
@@ -165,12 +166,12 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .all()
         )
         return communities_pb2.ListCommunitiesRes(
-            communities=communities_to_pb(session, nodes[:page_size], context),
+            communities=communities_to_pb(db.session, nodes[:page_size], context),
             next_page_token=encrypt_page_token(str(offset + page_size)) if len(nodes) > page_size else None,
         )
 
     def SearchCommunities(
-        self, request: communities_pb2.SearchCommunitiesReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.SearchCommunitiesReq, context: CouchersContext, db: DB
     ) -> communities_pb2.SearchCommunitiesRes:
         raw_query = request.query.strip()
         if len(raw_query) < 3:
@@ -189,17 +190,17 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .limit(page_size)
         )
 
-        rows = session.execute(query.options(selectinload(Node.official_cluster))).scalars().all()
+        rows = db.session.execute(query.options(selectinload(Node.official_cluster))).scalars().all()
 
-        return communities_pb2.SearchCommunitiesRes(communities=communities_to_pb(session, rows, context))
+        return communities_pb2.SearchCommunitiesRes(communities=communities_to_pb(db.session, rows, context))
 
     def ListGroups(
-        self, request: communities_pb2.ListGroupsReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.ListGroupsReq, context: CouchersContext, db: DB
     ) -> communities_pb2.ListGroupsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_cluster_id = int(request.page_token) if request.page_token else 0
         clusters = (
-            session.execute(
+            db.session.execute(
                 select(Cluster)
                 .where(~Cluster.is_official_cluster)  # not an official group
                 .where(Cluster.parent_node_id == request.community_id)
@@ -211,20 +212,20 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .all()
         )
         return communities_pb2.ListGroupsRes(
-            groups=[group_to_pb(session, cluster, context) for cluster in clusters[:page_size]],
+            groups=[group_to_pb(db.session, cluster, context) for cluster in clusters[:page_size]],
             next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
         )
 
     def ListAdmins(
-        self, request: communities_pb2.ListAdminsReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.ListAdminsReq, context: CouchersContext, db: DB
     ) -> communities_pb2.ListAdminsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_admin_id = int(request.page_token) if request.page_token else 0
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = db.nodes.get_by_id(request.community_id)
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         admins = (
-            session.execute(
+            db.session.execute(
                 select(User)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
                 .where(users_visible(context))
@@ -242,22 +243,20 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             next_page_token=str(admins[-1].id) if len(admins) > page_size else None,
         )
 
-    def AddAdmin(
-        self, request: communities_pb2.AddAdminReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+    def AddAdmin(self, request: communities_pb2.AddAdminReq, context: CouchersContext, db: DB) -> empty_pb2.Empty:
+        node = db.nodes.get_by_id(request.community_id)
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
-        if not can_moderate_node(session, context.user_id, node.id):
+        if not can_moderate_node(db.session, context.user_id, node.id):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "node_moderate_permission_denied")
 
-        user = session.execute(
+        user = db.session.execute(
             select(User).where(users_visible(context)).where(User.id == request.user_id)
         ).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        subscription = session.execute(
+        subscription = db.session.execute(
             select(ClusterSubscription)
             .where(ClusterSubscription.user_id == user.id)
             .where(ClusterSubscription.cluster_id == node.official_cluster.id)
@@ -272,22 +271,20 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         return empty_pb2.Empty()
 
-    def RemoveAdmin(
-        self, request: communities_pb2.RemoveAdminReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+    def RemoveAdmin(self, request: communities_pb2.RemoveAdminReq, context: CouchersContext, db: DB) -> empty_pb2.Empty:
+        node = db.nodes.get_by_id(request.community_id)
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
-        if not can_moderate_node(session, context.user_id, node.id):
+        if not can_moderate_node(db.session, context.user_id, node.id):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "node_moderate_permission_denied")
 
-        user = session.execute(
+        user = db.session.execute(
             select(User).where(users_visible(context)).where(User.id == request.user_id)
         ).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        subscription = session.execute(
+        subscription = db.session.execute(
             select(ClusterSubscription)
             .where(ClusterSubscription.user_id == user.id)
             .where(ClusterSubscription.cluster_id == node.official_cluster.id)
@@ -302,12 +299,12 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         return empty_pb2.Empty()
 
     def ListMembers(
-        self, request: communities_pb2.ListMembersReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.ListMembersReq, context: CouchersContext, db: DB
     ) -> communities_pb2.ListMembersRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_member_id = int(request.page_token) if request.page_token else None
 
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = db.nodes.get_by_id(request.community_id)
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
@@ -319,7 +316,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         )
         if next_member_id is not None:
             query = query.where(User.id <= next_member_id)
-        members = session.execute(query.order_by(User.id.desc()).limit(page_size + 1)).scalars().all()
+        members = db.session.execute(query.order_by(User.id.desc()).limit(page_size + 1)).scalars().all()
 
         return communities_pb2.ListMembersRes(
             member_user_ids=[member.id for member in members[:page_size]],
@@ -327,15 +324,15 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         )
 
     def ListNearbyUsers(
-        self, request: communities_pb2.ListNearbyUsersReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.ListNearbyUsersReq, context: CouchersContext, db: DB
     ) -> communities_pb2.ListNearbyUsersRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_nearby_id = int(request.page_token) if request.page_token else 0
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = db.nodes.get_by_id(request.community_id)
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         nearbys = (
-            session.execute(
+            db.session.execute(
                 select(User)
                 .where(users_visible(context))
                 .where(func.ST_Contains(node.geom, User.geom))
@@ -352,11 +349,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         )
 
     def ListPlaces(
-        self, request: communities_pb2.ListPlacesReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.ListPlacesReq, context: CouchersContext, db: DB
     ) -> communities_pb2.ListPlacesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = db.nodes.get_by_id(request.community_id)
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         places = (
@@ -367,16 +364,16 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .all()
         )
         return communities_pb2.ListPlacesRes(
-            places=[page_to_pb(session, page, context) for page in places[:page_size]],
+            places=[page_to_pb(db.session, page, context) for page in places[:page_size]],
             next_page_token=str(places[-1].id) if len(places) > page_size else None,
         )
 
     def ListGuides(
-        self, request: communities_pb2.ListGuidesReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.ListGuidesReq, context: CouchersContext, db: DB
     ) -> communities_pb2.ListGuidesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = db.nodes.get_by_id(request.community_id)
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         guides = (
@@ -387,18 +384,18 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .all()
         )
         return communities_pb2.ListGuidesRes(
-            guides=[page_to_pb(session, page, context) for page in guides[:page_size]],
+            guides=[page_to_pb(db.session, page, context) for page in guides[:page_size]],
             next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
         )
 
     def ListEvents(
-        self, request: communities_pb2.ListEventsReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.ListEventsReq, context: CouchersContext, db: DB
     ) -> communities_pb2.ListEventsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
         page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = db.nodes.get_by_id(request.community_id)
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         if not node.official_cluster.events_enabled:
@@ -409,7 +406,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         else:
             # the first value is the node_id, the last is the cluster (object)
             nodes_clusters_to_search = [
-                (parent[0], parent[3]) for parent in get_node_parents_recursively(session, node.id)
+                (parent[0], parent[3]) for parent in get_node_parents_recursively(db.session, node.id)
             ]
 
         membership_clauses = []
@@ -431,19 +428,19 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             query = query.where(EventOccurrence.end_time > cutoff).order_by(EventOccurrence.start_time.asc())
 
         query = query.limit(page_size + 1)
-        occurrences = session.execute(query).scalars().all()
+        occurrences = db.session.execute(query).scalars().all()
 
         return communities_pb2.ListEventsRes(
-            events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
+            events=[event_to_pb(db.session, occurrence, context) for occurrence in occurrences[:page_size]],
             next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
         )
 
     def ListDiscussions(
-        self, request: communities_pb2.ListDiscussionsReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.ListDiscussionsReq, context: CouchersContext, db: DB
     ) -> communities_pb2.ListDiscussionsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = db.nodes.get_by_id(request.community_id)
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         if not node.official_cluster.discussions_enabled:
@@ -457,14 +454,14 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .all()
         )
         return communities_pb2.ListDiscussionsRes(
-            discussions=[discussion_to_pb(session, discussion, context) for discussion in discussions[:page_size]],
+            discussions=[discussion_to_pb(db.session, discussion, context) for discussion in discussions[:page_size]],
             next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
         )
 
     def JoinCommunity(
-        self, request: communities_pb2.JoinCommunityReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.JoinCommunityReq, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = db.nodes.get_by_id(request.community_id)
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
@@ -482,7 +479,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         log_event(
             context,
-            session,
+            db.session,
             "community.joined",
             {"community_id": node.id, "community_name": node.official_cluster.name},
         )
@@ -490,9 +487,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         return empty_pb2.Empty()
 
     def LeaveCommunity(
-        self, request: communities_pb2.LeaveCommunityReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.LeaveCommunityReq, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = db.nodes.get_by_id(request.community_id)
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
@@ -501,29 +498,32 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         if not current_membership:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_in_community")
 
-        if is_user_in_node_geography(session, context.user_id, node.id):
+        if is_user_in_node_geography(db.session, context.user_id, node.id):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cannot_leave_containing_community")
 
-        session.execute(
+        db.session.execute(
             delete(ClusterSubscription)
             .where(ClusterSubscription.cluster_id == node.official_cluster.id)
             .where(ClusterSubscription.user_id == context.user_id)
         )
 
         log_event(
-            context, session, "community.left", {"community_id": node.id, "community_name": node.official_cluster.name}
+            context,
+            db.session,
+            "community.left",
+            {"community_id": node.id, "community_name": node.official_cluster.name},
         )
 
         return empty_pb2.Empty()
 
     def ListUserCommunities(
-        self, request: communities_pb2.ListUserCommunitiesReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.ListUserCommunitiesReq, context: CouchersContext, db: DB
     ) -> communities_pb2.ListUserCommunitiesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_node_id = int(request.page_token) if request.page_token else 0
         user_id = request.user_id or context.user_id
         nodes = (
-            session.execute(
+            db.session.execute(
                 select(Node)
                 .join(Cluster, Cluster.parent_node_id == Node.id)
                 .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
@@ -539,16 +539,16 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         )
 
         return communities_pb2.ListUserCommunitiesRes(
-            communities=communities_to_pb(session, nodes[:page_size], context),
+            communities=communities_to_pb(db.session, nodes[:page_size], context),
             next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
         )
 
     def ListAllCommunities(
-        self, request: communities_pb2.ListAllCommunitiesReq, context: CouchersContext, session: Session
+        self, request: communities_pb2.ListAllCommunitiesReq, context: CouchersContext, db: DB
     ) -> communities_pb2.ListAllCommunitiesRes:
         """List all communities ordered hierarchically by parent-child relationships"""
         # Get all nodes with their clusters, member counts, and user membership in a single query
-        results = session.execute(
+        results = db.session.execute(
             select(
                 Node,
                 Cluster,
@@ -576,7 +576,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                     slug=cluster.slug,
                     member=user_subscription is not None,
                     member_count=member_count or 1,
-                    parents=_parents_to_pb(session, node.id),
+                    parents=_parents_to_pb(db.session, node.id),
                     created=Timestamp_from_datetime(node.created),
                     node_type=nodetype2api[node.node_type],
                 )

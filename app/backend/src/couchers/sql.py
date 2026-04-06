@@ -57,13 +57,14 @@ def username_or_email_or_id(value: str) -> ColumnElement[bool]:
     return false()
 
 
-def users_visible(context: CouchersContext, table: _User = User) -> ColumnElement[bool]:
+def users_visible(context: CouchersContext | int, table: _User = User) -> ColumnElement[bool]:
     """
     Filters out users that should not be visible: blocked, deleted, or banned
 
     Filters the given table, assuming it's already joined/selected from
     """
-    hidden_users = _relevant_user_blocks(context.user_id)
+    user_id = context if isinstance(context, int) else context.user_id
+    hidden_users = _relevant_user_blocks(user_id)
     return and_(table.is_visible, ~table.id.in_(hidden_users))
 
 

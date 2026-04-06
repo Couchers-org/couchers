@@ -1,10 +1,10 @@
 import logging
 
 from google.protobuf import empty_pb2
-from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext
 from couchers.proto import resources_pb2, resources_pb2_grpc
+from couchers.repositories import DB
 from couchers.resources import (
     get_badge_dict,
     get_icon,
@@ -25,13 +25,15 @@ COMMUNITY_GUIDELINES = [
 
 class Resources(resources_pb2_grpc.ResourcesServicer):
     def GetTermsOfService(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> resources_pb2.GetTermsOfServiceRes:
+
         return resources_pb2.GetTermsOfServiceRes(terms_of_service=get_terms_of_service())
 
     def GetCommunityGuidelines(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> resources_pb2.GetCommunityGuidelinesRes:
+
         return resources_pb2.GetCommunityGuidelinesRes(
             community_guidelines=[
                 resources_pb2.CommunityGuideline(
@@ -43,27 +45,24 @@ class Resources(resources_pb2_grpc.ResourcesServicer):
             ]
         )
 
-    def GetRegions(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
-    ) -> resources_pb2.GetRegionsRes:
+    def GetRegions(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> resources_pb2.GetRegionsRes:
+
         return resources_pb2.GetRegionsRes(
             regions=[
                 resources_pb2.Region(alpha3=alpha3, name=name) for alpha3, name in sorted(get_region_dict().items())
             ]
         )
 
-    def GetLanguages(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
-    ) -> resources_pb2.GetLanguagesRes:
+    def GetLanguages(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> resources_pb2.GetLanguagesRes:
+
         return resources_pb2.GetLanguagesRes(
             languages=[
                 resources_pb2.Language(code=code, name=name) for code, name in sorted(get_language_dict().items())
             ]
         )
 
-    def GetBadges(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
-    ) -> resources_pb2.GetBadgesRes:
+    def GetBadges(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> resources_pb2.GetBadgesRes:
+
         return resources_pb2.GetBadgesRes(
             badges=[
                 resources_pb2.Badge(

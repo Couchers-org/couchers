@@ -50,6 +50,7 @@ from couchers.proto import (
     stripe_pb2_grpc,
     threads_pb2_grpc,
 )
+from couchers.repositories import DB
 from couchers.servicers.account import Account, Iris
 from couchers.servicers.admin import Admin
 from couchers.servicers.api import API
@@ -172,6 +173,7 @@ class FakeChannel:
             request = handler.request_deserializer(request_serializer(request))
 
             with session_scope() as session:
+                db = DB(session)
                 context = make_interactive_context(
                     grpc_context=MockGrpcContext(),
                     user_id=auth_info.user_id if auth_info else None,
@@ -183,7 +185,7 @@ class FakeChannel:
                     ),
                 )
 
-                response = handler.unary_unary(request, context, session)
+                response = handler.unary_unary(request, context, db)
 
             return response_deserializer(handler.response_serializer(response))
 

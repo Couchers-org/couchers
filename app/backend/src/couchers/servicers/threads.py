@@ -14,6 +14,7 @@ from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import notification_data_pb2, threads_pb2, threads_pb2_grpc
 from couchers.proto.internal import jobs_pb2
+from couchers.repositories import DB
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.sql import where_users_column_visible
@@ -210,17 +211,17 @@ def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPay
 
 class Threads(threads_pb2_grpc.ThreadsServicer):
     def GetThread(
-        self, request: threads_pb2.GetThreadReq, context: CouchersContext, session: Session
+        self, request: threads_pb2.GetThreadReq, context: CouchersContext, db: DB
     ) -> threads_pb2.GetThreadRes:
         database_id, depth = unpack_thread_id(request.thread_id)
         page_size = request.page_size if 0 < request.page_size < 100000 else 1000
         page_start = unpack_thread_id(int(request.page_token))[0] if request.page_token else 2**50
 
         if depth == 0:
-            if not session.execute(select(Thread).where(Thread.id == database_id)).scalar_one_or_none():
+            if not db.threads.get_by_id(database_id):
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
-            res = session.execute(
+            res = db.session.execute(
                 select(Comment, func.count(Reply.id))
                 .outerjoin(Reply, Reply.comment_id == Comment.id)
                 .where(Comment.thread_id == database_id)
@@ -241,11 +242,11 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             ]
 
         elif depth == 1:
-            if not session.execute(select(Comment).where(Comment.id == database_id)).scalar_one_or_none():
+            if not db.comments.get_by_id(database_id):
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
             res = (
-                session.execute(  # type: ignore[assignment]
+                db.session.execute(  # type: ignore[assignment]
                     select(Reply)
                     .where(Reply.comment_id == database_id)
                     .where(Reply.id < page_start)
@@ -278,7 +279,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         return threads_pb2.GetThreadRes(replies=replies, next_page_token=next_page_token)
 
     def PostReply(
-        self, request: threads_pb2.PostReplyReq, context: CouchersContext, session: Session
+        self, request: threads_pb2.PostReplyReq, context: CouchersContext, db: DB
     ) -> threads_pb2.PostReplyRes:
         content = request.content.strip()
 
@@ -294,16 +295,16 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             object_to_add = Reply(comment_id=database_id, author_user_id=context.user_id, content=content)
         else:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
-        session.add(object_to_add)
+        db.session.add(object_to_add)
         try:
-            session.flush()
+            db.session.flush()
         except sqlalchemy.exc.IntegrityError:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
         thread_id = pack_thread_id(object_to_add.id, depth + 1)
 
         queue_job(
-            session,
+            db.session,
             job=generate_reply_notifications,
             payload=jobs_pb2.GenerateReplyNotificationsPayload(
                 thread_id=thread_id,

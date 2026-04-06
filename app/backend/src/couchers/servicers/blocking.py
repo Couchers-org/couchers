@@ -9,6 +9,7 @@ from couchers.context import CouchersContext
 from couchers.models import Upload, User, UserBlock
 from couchers.models.uploads import get_avatar_photo_subquery
 from couchers.proto import blocking_pb2, blocking_pb2_grpc
+from couchers.repositories import DB
 
 
 def is_not_visible(session: Session, user1_id: int | None, user2_id: int | None) -> bool:
@@ -39,10 +40,8 @@ def is_not_visible(session: Session, user1_id: int | None, user2_id: int | None)
 
 
 class Blocking(blocking_pb2_grpc.BlockingServicer):
-    def BlockUser(
-        self, request: blocking_pb2.BlockUserReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
-        blockee = session.execute(
+    def BlockUser(self, request: blocking_pb2.BlockUserReq, context: CouchersContext, db: DB) -> empty_pb2.Empty:
+        blockee = db.session.execute(
             select(User).where(User.is_visible).where(User.username == request.username)
         ).scalar_one_or_none()
 
@@ -52,7 +51,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
         if context.user_id == blockee.id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_block_self")
 
-        if session.execute(
+        if db.session.execute(
             select(
                 exists()
                 .where(UserBlock.blocking_user_id == context.user_id)
@@ -65,22 +64,20 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
                 blocking_user_id=context.user_id,
                 blocked_user_id=blockee.id,
             )
-            session.add(user_block)
-            session.commit()
+            db.session.add(user_block)
+            db.session.commit()
 
         return empty_pb2.Empty()
 
-    def UnblockUser(
-        self, request: blocking_pb2.UnblockUserReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
-        blockee = session.execute(
+    def UnblockUser(self, request: blocking_pb2.UnblockUserReq, context: CouchersContext, db: DB) -> empty_pb2.Empty:
+        blockee = db.session.execute(
             select(User).where(User.is_visible).where(User.username == request.username)
         ).scalar_one_or_none()
 
         if not blockee:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        user_block = session.execute(
+        user_block = db.session.execute(
             select(UserBlock)
             .where(UserBlock.blocking_user_id == context.user_id)
             .where(UserBlock.blocked_user_id == blockee.id)
@@ -88,17 +85,17 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
         if not user_block:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "user_not_blocked")
 
-        session.delete(user_block)
-        session.commit()
+        db.session.delete(user_block)
+        db.session.commit()
 
         return empty_pb2.Empty()
 
     def GetBlockedUsers(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> blocking_pb2.GetBlockedUsersRes:
         avatar_photo_subquery = get_avatar_photo_subquery()
 
-        blocked_users = session.execute(
+        blocked_users = db.session.execute(
             select(User.username, User.name, Upload.filename)
             .join(UserBlock, UserBlock.blocked_user_id == User.id)
             .outerjoin(

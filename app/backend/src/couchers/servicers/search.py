@@ -35,6 +35,7 @@ from couchers.models import (
     User,
 )
 from couchers.proto import search_pb2, search_pb2_grpc
+from couchers.repositories import DB
 from couchers.reranker import reranker
 from couchers.servicers.api import (
     fluency2sql,
@@ -597,14 +598,14 @@ def _user_search_inner(
 
 
 class Search(search_pb2_grpc.SearchServicer):
-    def Search(self, request: search_pb2.SearchReq, context: CouchersContext, session: Session) -> search_pb2.SearchRes:
+    def Search(self, request: search_pb2.SearchReq, context: CouchersContext, db: DB) -> search_pb2.SearchRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # this is not an ideal page token, some results have equal rank (unlikely)
         next_rank = float(request.page_token) if request.page_token else None
 
         all_results = (
             _search_users(
-                session,
+                db.session,
                 request.query,
                 request.title_only,
                 next_rank,
@@ -613,7 +614,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 request.include_users,
             )
             + _search_pages(
-                session,
+                db.session,
                 request.query,
                 request.title_only,
                 next_rank,
@@ -623,7 +624,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 request.include_guides,
             )
             + _search_events(
-                session,
+                db.session,
                 request.query,
                 request.title_only,
                 next_rank,
@@ -631,7 +632,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 context,
             )
             + _search_clusters(
-                session,
+                db.session,
                 request.query,
                 request.title_only,
                 next_rank,
@@ -648,13 +649,13 @@ class Search(search_pb2_grpc.SearchServicer):
         )
 
     def UserSearch(
-        self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
+        self, request: search_pb2.UserSearchReq, context: CouchersContext, db: DB
     ) -> search_pb2.UserSearchRes:
-        user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
+        user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, db.session)
 
         log_event(
             context,
-            session,
+            db.session,
             "search.performed",
             {
                 "search_in": request.WhichOneof("search_in"),
@@ -674,7 +675,7 @@ class Search(search_pb2_grpc.SearchServicer):
         )
 
         user_ids_to_users: dict[int, User] = dict(
-            session.execute(  # type: ignore[arg-type]
+            db.session.execute(  # type: ignore[arg-type]
                 select(User.id, User).where(User.id.in_(user_ids_to_return))
             ).all()
         )
@@ -683,7 +684,7 @@ class Search(search_pb2_grpc.SearchServicer):
             results=[
                 search_pb2.Result(
                     rank=1,
-                    user=user_model_to_pb(user_ids_to_users[user_id], session, context),
+                    user=user_model_to_pb(user_ids_to_users[user_id], db.session, context),
                 )
                 for user_id in user_ids_to_return
             ],
@@ -692,20 +693,20 @@ class Search(search_pb2_grpc.SearchServicer):
         )
 
     def UserSearchV2(
-        self, request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
+        self, request: search_pb2.UserSearchReq, context: CouchersContext, db: DB
     ) -> search_pb2.UserSearchV2Res:
-        user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
+        user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, db.session)
 
         LiteUser_by_id = {
             lite_user.id: lite_user
-            for lite_user in session.execute(select(LiteUser).where(LiteUser.id.in_(user_ids_to_return)))
+            for lite_user in db.session.execute(select(LiteUser).where(LiteUser.id.in_(user_ids_to_return)))
             .scalars()
             .all()
         }
 
         response_rate_by_id = {
             resp_rate.user_id: resp_rate
-            for resp_rate in session.execute(
+            for resp_rate in db.session.execute(
                 select(UserResponseRate).where(UserResponseRate.user_id.in_(user_ids_to_return))
             )
             .scalars()
@@ -714,7 +715,7 @@ class Search(search_pb2_grpc.SearchServicer):
 
         db_user_data_by_id = {
             user_id: (about_me, gender, last_active, hosting_status, meetup_status, joined)
-            for user_id, about_me, gender, last_active, hosting_status, meetup_status, joined in session.execute(
+            for user_id, about_me, gender, last_active, hosting_status, meetup_status, joined in db.session.execute(
                 select(
                     User.id,
                     User.about_me,
@@ -727,7 +728,7 @@ class Search(search_pb2_grpc.SearchServicer):
             ).all()
         }
 
-        ref_counts_by_user_id = get_num_references(session, user_ids_to_return)
+        ref_counts_by_user_id = get_num_references(db.session, user_ids_to_return)
 
         def _user_to_search_user(user_id: int) -> search_pb2.SearchUser:
             lite_user = LiteUser_by_id[user_id]
@@ -771,7 +772,7 @@ class Search(search_pb2_grpc.SearchServicer):
         )
 
     def EventSearch(
-        self, request: search_pb2.EventSearchReq, context: CouchersContext, session: Session
+        self, request: search_pb2.EventSearchReq, context: CouchersContext, db: DB
     ) -> search_pb2.EventSearchRes:
         statement = (
             select(EventOccurrence).join(Event, Event.id == EventOccurrence.event_id).where(~EventOccurrence.is_deleted)
@@ -821,7 +822,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 where_.append(EventOccurrenceAttendee.user_id != None)
             if request.my_communities:
                 my_communities = (
-                    session.execute(
+                    db.session.execute(
                         select(Node.id)
                         .join(Cluster, Cluster.parent_node_id == Node.id)
                         .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
@@ -870,7 +871,7 @@ class Search(search_pb2_grpc.SearchServicer):
             )
         if request.HasField("search_in_community_id"):
             # could do a join here as well, but this is just simpler
-            node = session.execute(select(Node).where(Node.id == request.search_in_community_id)).scalar_one_or_none()
+            node = db.nodes.get_by_id(request.search_in_community_id)
             if not node:
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
             statement = statement.where(func.ST_Contains(node.geom, EventOccurrence.geom))
@@ -898,13 +899,13 @@ class Search(search_pb2_grpc.SearchServicer):
             cutoff = page_token + timedelta(seconds=1)
             statement = statement.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
 
-        total_items = session.execute(select(func.count()).select_from(statement.subquery())).scalar()
+        total_items = db.session.execute(select(func.count()).select_from(statement.subquery())).scalar()
         # Apply pagination by page number
         statement = statement.offset(offset).limit(page_size) if request.page_number else statement.limit(page_size + 1)
-        occurrences = session.execute(statement).scalars().all()
+        occurrences = db.session.execute(statement).scalars().all()
 
         return search_pb2.EventSearchRes(
-            events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
+            events=[event_to_pb(db.session, occurrence, context) for occurrence in occurrences[:page_size]],
             next_page_token=(str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None),
             total_items=total_items,
         )

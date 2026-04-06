@@ -37,6 +37,7 @@ from couchers.metrics import observe_in_servicer_duration_histogram
 from couchers.models import APICall, User, UserActivity, UserSession
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
+from couchers.repositories import DB
 from couchers.utils import (
     create_lang_cookie,
     create_session_cookies,
@@ -313,8 +314,9 @@ class CouchersMiddlewareInterceptor(grpc.ServerInterceptor):
             )
 
             with session_scope() as session:
+                db = DB(session)
                 try:
-                    _res = prev_function(req, couchers_context, session)  # type: ignore[call-arg, arg-type]
+                    _res = prev_function(req, couchers_context, db)  # type: ignore[call-arg, arg-type]
                     res = cast(Message, _res)
                     finished = perf_counter_ns()
                     duration = (finished - start) / 1e6  # ms
@@ -531,7 +533,8 @@ class MediaInterceptor(grpc.ServerInterceptor):
 
         def function_without_session(request: T, grpc_context: grpc.ServicerContext) -> R:
             with session_scope() as session:
-                return prev_func(request, make_media_context(grpc_context), session)  # type: ignore[call-arg, arg-type]
+                db = DB(session)
+                return prev_func(request, make_media_context(grpc_context), db)  # type: ignore[call-arg, arg-type]
 
         return grpc.unary_unary_rpc_method_handler(
             function_without_session,

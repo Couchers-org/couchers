@@ -25,6 +25,7 @@ from couchers.models import (
 from couchers.models.uploads import get_avatar_upload
 from couchers.proto import api_pb2, public_pb2, public_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
+from couchers.repositories import DB
 from couchers.resources import get_static_badge_dict
 from couchers.servicers.api import fluency2api, hostingstatus2api, meetupstatus2api, user_model_to_pb
 from couchers.servicers.gis import _statement_to_geojson_response
@@ -170,15 +171,13 @@ class Public(public_pb2_grpc.PublicServicer):
     Public (logged-out) APIs for getting public info
     """
 
-    def GetPublicUsers(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
-    ) -> httpbody_pb2.HttpBody:
-        return _get_public_users(session)
+    def GetPublicUsers(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> httpbody_pb2.HttpBody:
+        return _get_public_users(db.session)
 
     def GetPublicUser(
-        self, request: public_pb2.GetPublicUserReq, context: CouchersContext, session: Session
+        self, request: public_pb2.GetPublicUserReq, context: CouchersContext, db: DB
     ) -> public_pb2.GetPublicUserRes:
-        user = session.execute(
+        user = db.session.execute(
             select(User)
             .where(User.is_visible)
             .where(User.username == request.user)
@@ -200,10 +199,10 @@ class Public(public_pb2_grpc.PublicServicer):
 
         if user.public_visibility == ProfilePublicVisibility.full:
             return public_pb2.GetPublicUserRes(
-                full_user=user_model_to_pb(user, session, make_logged_out_context(localization=context.localization))
+                full_user=user_model_to_pb(user, db.session, make_logged_out_context(localization=context.localization))
             )
 
-        num_references = session.execute(
+        num_references = db.session.execute(
             select(func.count())
             .select_from(Reference)
             .join(User, User.id == Reference.from_user_id)
@@ -227,7 +226,7 @@ class Public(public_pb2_grpc.PublicServicer):
             )
 
         if user.public_visibility == ProfilePublicVisibility.most:
-            avatar_upload = get_avatar_upload(session, user)
+            avatar_upload = get_avatar_upload(db.session, user)
 
             return public_pb2.GetPublicUserRes(
                 most_user=public_pb2.MostUser(
@@ -262,16 +261,14 @@ class Public(public_pb2_grpc.PublicServicer):
         raise RuntimeError(user.public_visibility)
 
     def GetSignupPageInfo(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> public_pb2.GetSignupPageInfoRes:
-        return _get_signup_page_info(session)
+        return _get_signup_page_info(db.session)
 
-    def GetVolunteers(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
-    ) -> public_pb2.GetVolunteersRes:
-        return _get_volunteers(session)
+    def GetVolunteers(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> public_pb2.GetVolunteersRes:
+        return _get_volunteers(db.session)
 
     def GetDonationStats(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> public_pb2.GetDonationStatsRes:
-        return _get_donation_stats(session)
+        return _get_donation_stats(db.session)

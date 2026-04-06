@@ -43,6 +43,7 @@ from couchers.models.uploads import get_avatar_upload
 from couchers.notifications.notify import notify
 from couchers.notifications.quick_links import respond_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
+from couchers.repositories import DB
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
 from couchers.sql import username_or_email
@@ -171,12 +172,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
     This class services the Auth service/API.
     """
 
-    def SignupFlow(
-        self, request: auth_pb2.SignupFlowReq, context: CouchersContext, session: Session
-    ) -> auth_pb2.SignupFlowRes:
+    def SignupFlow(self, request: auth_pb2.SignupFlowReq, context: CouchersContext, db: DB) -> auth_pb2.SignupFlowRes:
         if request.email_token:
             # the email token can either be for verification or just to find an existing signup
-            flow = session.execute(
+            flow = db.session.execute(
                 select(SignupFlow)
                 .where(SignupFlow.email_verified == False)
                 .where(SignupFlow.email_token == request.email_token)
@@ -188,10 +187,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.email_token = None
                 flow.email_token_expiry = None
 
-                session.flush()
+                db.session.flush()
             else:
                 # just try to find the flow by flow token, no verification is done
-                flow = session.execute(
+                flow = db.session.execute(
                     select(SignupFlow).where(SignupFlow.flow_token == request.email_token)
                 ).scalar_one_or_none()
                 if not flow:
@@ -202,7 +201,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if not request.HasField("basic"):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "signup_flow_basic_needed")
                 # TODO: unique across both tables
-                existing_user = session.execute(
+                existing_user = db.session.execute(
                     select(User).where(User.email == request.basic.email)
                 ).scalar_one_or_none()
                 if existing_user:
@@ -211,12 +210,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
                             grpc.StatusCode.FAILED_PRECONDITION, "signup_email_cannot_be_used"
                         )
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_taken")
-                existing_flow = session.execute(
+                existing_flow = db.session.execute(
                     select(SignupFlow).where(SignupFlow.email == request.basic.email)
                 ).scalar_one_or_none()
                 if existing_flow:
-                    send_signup_email(session, existing_flow)
-                    session.commit()
+                    send_signup_email(db.session, existing_flow)
+                    db.session.commit()
                     context.abort_with_error_code(
                         grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_started_signup"
                     )
@@ -230,7 +229,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
                 invite_id = None
                 if request.basic.invite_code:
-                    invite_id = session.execute(
+                    invite_id = db.session.execute(
                         select(InviteCode.id).where(
                             InviteCode.id == request.basic.invite_code,
                             or_(InviteCode.disabled == None, InviteCode.disabled > func.now()),
@@ -245,13 +244,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     email=request.basic.email,
                     invite_code_id=invite_id,
                 )
-                session.add(flow)
-                session.flush()
+                db.session.add(flow)
+                db.session.flush()
                 signup_initiations_counter.inc()
-                log_event(context, session, "account.signup_initiated", {"has_invite_code": invite_id is not None})
+                log_event(context, db.session, "account.signup_initiated", {"has_invite_code": invite_id is not None})
             else:
                 # not fresh signup
-                flow = session.execute(
+                flow = db.session.execute(
                     select(SignupFlow).where(SignupFlow.flow_token == request.flow_token)
                 ).scalar_one_or_none()
                 if not flow:
@@ -268,7 +267,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 if not is_valid_username(request.account.username):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_username")
 
-                if not _username_available(session, request.account.username):
+                if not _username_available(db.session, request.account.username):
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "username_not_available")
 
                 abort_on_invalid_password(request.account.password, context)
@@ -297,7 +296,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.geom_radius = request.account.radius
                 flow.accepted_tos = TOS_VERSION
                 flow.opt_out_of_newsletter = request.account.opt_out_of_newsletter
-                session.flush()
+                db.session.flush()
 
             if request.HasField("feedback"):
                 if flow.filled_feedback:
@@ -311,7 +310,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.contribute = contributeoption2sql[form.contribute]
                 flow.contribute_ways = form.contribute_ways  # type: ignore[assignment]
                 flow.expertise = form.expertise
-                session.flush()
+                db.session.flush()
 
             if request.HasField("motivations"):
                 if flow.filled_motivations:
@@ -320,19 +319,19 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 flow.filled_motivations = True
                 flow.heard_about_couchers = request.motivations.heard_about_couchers or None
                 flow.signup_motivations = list(request.motivations.motivations)
-                session.flush()
+                db.session.flush()
 
             if request.HasField("accept_community_guidelines"):
                 if not request.accept_community_guidelines.value:
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "must_accept_community_guidelines")
                 flow.accepted_community_guidelines = GUIDELINES_VERSION
-                session.flush()
+                db.session.flush()
 
             # send verification email if needed
             if not flow.email_sent or request.resend_verification_email:
-                send_signup_email(session, flow)
+                send_signup_email(db.session, flow)
 
-            session.flush()
+            db.session.flush()
 
         # finish the signup if done
         if flow.is_completed:
@@ -358,13 +357,13 @@ class Auth(auth_pb2_grpc.AuthServicer):
             user.onboarding_emails_sent = 1
             user.opt_out_of_newsletter = not_none(flow.opt_out_of_newsletter)
 
-            session.add(user)
-            session.flush()
+            db.session.add(user)
+            db.session.flush()
 
             # Create a profile gallery for the user
             profile_gallery = PhotoGallery(owner_user_id=user.id)
-            session.add(profile_gallery)
-            session.flush()
+            db.session.add(profile_gallery)
+            db.session.flush()
             user.profile_gallery_id = profile_gallery.id
 
             if flow.filled_feedback:
@@ -378,22 +377,22 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     expertise=flow.expertise or None,
                 )
 
-                session.add(form_)
+                db.session.add(form_)
 
                 user.filled_contributor_form = form_.is_filled
 
-                maybe_send_contributor_form_email(session, form_)
+                maybe_send_contributor_form_email(db.session, form_)
 
             signup_duration_s = (now() - flow.created).total_seconds()
 
-            session.delete(flow)
-            session.commit()
+            db.session.delete(flow)
+            db.session.commit()
 
-            enforce_community_memberships_for_user(session, user)
+            enforce_community_memberships_for_user(db.session, user)
 
             # sends onboarding email
             notify(
-                session,
+                db.session,
                 user_id=user.id,
                 topic_action=NotificationTopicAction.onboarding__reminder,
                 key="1",
@@ -403,7 +402,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             signup_time_histogram.labels(flow.gender).observe(signup_duration_s)
             log_event(
                 context,
-                session,
+                db.session,
                 "account.signup_completed",
                 {
                     "gender": flow.gender,
@@ -416,7 +415,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 _override_user_id=user.id,
             )
 
-            create_session(context, session, user, False)
+            create_session(context, db.session, user, False)
             return auth_pb2.SignupFlowRes(
                 auth_res=_auth_res(user),
             )
@@ -431,21 +430,21 @@ class Auth(auth_pb2_grpc.AuthServicer):
             )
 
     def UsernameValid(
-        self, request: auth_pb2.UsernameValidReq, context: CouchersContext, session: Session
+        self, request: auth_pb2.UsernameValidReq, context: CouchersContext, db: DB
     ) -> auth_pb2.UsernameValidRes:
         """
         Runs a username availability and validity check.
         """
-        return auth_pb2.UsernameValidRes(valid=_username_available(session, request.username.lower()))
+        return auth_pb2.UsernameValidRes(valid=_username_available(db.session, request.username.lower()))
 
-    def Authenticate(self, request: auth_pb2.AuthReq, context: CouchersContext, session: Session) -> auth_pb2.AuthRes:
+    def Authenticate(self, request: auth_pb2.AuthReq, context: CouchersContext, db: DB) -> auth_pb2.AuthRes:
         """
         Authenticates a classic password-based login request.
 
         request.user can be any of id/username/email
         """
         logger.debug(f"Logging in with {request.user=}, password=*******")
-        user = session.execute(
+        user = db.session.execute(
             select(User).where(username_or_email(request.user)).where(User.deleted_at.is_(None))
         ).scalar_one_or_none()
         if user:
@@ -453,10 +452,10 @@ class Auth(auth_pb2_grpc.AuthServicer):
             if verify_password(user.hashed_password, request.password):
                 logger.debug("Right password")
                 # correct password
-                create_session(context, session, user, request.remember_device)
+                create_session(context, db.session, user, request.remember_device)
                 log_event(
                     context,
-                    session,
+                    db.session,
                     "account.login",
                     {"gender": user.gender, "remember_device": request.remember_device},
                     _override_user_id=user.id,
@@ -468,26 +467,24 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_password")
         else:  # user not found
             # check if this is an email and they tried to sign up but didn't complete
-            signup_flow = session.execute(
+            signup_flow = db.session.execute(
                 select(SignupFlow).where(username_or_email(request.user, table=SignupFlow))
             ).scalar_one_or_none()
             if signup_flow:
-                send_signup_email(session, signup_flow)
-                session.commit()
+                send_signup_email(db.session, signup_flow)
+                db.session.commit()
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "signup_flow_email_started_signup")
             logger.debug("Didn't find user")
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "account_not_found")
 
-    def GetAuthState(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
-    ) -> auth_pb2.GetAuthStateRes:
+    def GetAuthState(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> auth_pb2.GetAuthStateRes:
         if not context.is_logged_in():
             return auth_pb2.GetAuthStateRes(logged_in=False)
         else:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            user = db.users.by_id(context.user_id)
             return auth_pb2.GetAuthStateRes(logged_in=True, auth_res=_auth_res(user))
 
-    def Deauthenticate(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> empty_pb2.Empty:
+    def Deauthenticate(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> empty_pb2.Empty:
         """
         Removes an active cookie session.
         """
@@ -496,18 +493,16 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         # if we had a token, try to remove the session
         if token:
-            delete_session(session, token)
+            delete_session(db.session, token)
 
-        log_event(context, session, "account.logout", {})
+        log_event(context, db.session, "account.logout", {})
 
         # set the cookie to an empty string and expire immediately, should remove it from the browser
         context.set_cookies(create_session_cookies("", "", now()))
 
         return empty_pb2.Empty()
 
-    def ResetPassword(
-        self, request: auth_pb2.ResetPasswordReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
+    def ResetPassword(self, request: auth_pb2.ResetPasswordReq, context: CouchersContext, db: DB) -> empty_pb2.Empty:
         """
         If the user does not exist, do nothing.
 
@@ -516,18 +511,18 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         Note that as long as emails are send synchronously, this is far from constant time regardless of output.
         """
-        user = session.execute(
+        user = db.session.execute(
             select(User).where(username_or_email(request.user)).where(User.deleted_at.is_(None))
         ).scalar_one_or_none()
         if user:
             password_reset_token = PasswordResetToken(
                 token=urlsafe_secure_token(), user_id=user.id, expiry=now() + timedelta(hours=2)
             )
-            session.add(password_reset_token)
-            session.flush()
+            db.session.add(password_reset_token)
+            db.session.flush()
 
             notify(
-                session,
+                db.session,
                 user_id=user.id,
                 topic_action=NotificationTopicAction.password_reset__start,
                 key="",
@@ -539,7 +534,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
             password_reset_initiations_counter.inc()
             log_event(
                 context,
-                session,
+                db.session,
                 "account.password_reset_initiated",
                 {},
                 _override_user_id=user.id,
@@ -550,12 +545,12 @@ class Auth(auth_pb2_grpc.AuthServicer):
         return empty_pb2.Empty()
 
     def CompletePasswordResetV2(
-        self, request: auth_pb2.CompletePasswordResetV2Req, context: CouchersContext, session: Session
+        self, request: auth_pb2.CompletePasswordResetV2Req, context: CouchersContext, db: DB
     ) -> auth_pb2.AuthRes:
         """
         Completes the password reset: just clears the user's password
         """
-        res = session.execute(
+        res = db.session.execute(
             select(PasswordResetToken, User)
             .join(User, User.id == PasswordResetToken.user_id)
             .where(PasswordResetToken.token == request.password_reset_token)
@@ -565,22 +560,22 @@ class Auth(auth_pb2_grpc.AuthServicer):
             password_reset_token, user = res
             abort_on_invalid_password(request.new_password, context)
             user.hashed_password = hash_password(request.new_password)
-            session.delete(password_reset_token)
+            db.session.delete(password_reset_token)
 
-            session.flush()
+            db.session.flush()
 
             notify(
-                session,
+                db.session,
                 user_id=user.id,
                 topic_action=NotificationTopicAction.password_reset__complete,
                 key="",
             )
 
-            create_session(context, session, user, False)
+            create_session(context, db.session, user, False)
             password_reset_completions_counter.inc()
             log_event(
                 context,
-                session,
+                db.session,
                 "account.password_reset_completed",
                 {},
                 _override_user_id=user.id,
@@ -590,9 +585,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
 
     def ConfirmChangeEmailV2(
-        self, request: auth_pb2.ConfirmChangeEmailV2Req, context: CouchersContext, session: Session
+        self, request: auth_pb2.ConfirmChangeEmailV2Req, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
-        user = session.execute(
+        user = db.session.execute(
             select(User)
             .where(User.new_email_token == request.change_email_token)
             .where(User.new_email_token_created <= now())
@@ -609,23 +604,23 @@ class Auth(auth_pb2_grpc.AuthServicer):
         user.new_email_token_expiry = None
 
         notify(
-            session,
+            db.session,
             user_id=user.id,
             topic_action=NotificationTopicAction.email_address__verify,
             key="",
         )
 
-        log_event(context, session, "account.email_confirmed", {}, _override_user_id=user.id)
+        log_event(context, db.session, "account.email_confirmed", {}, _override_user_id=user.id)
 
         return empty_pb2.Empty()
 
     def ConfirmDeleteAccount(
-        self, request: auth_pb2.ConfirmDeleteAccountReq, context: CouchersContext, session: Session
+        self, request: auth_pb2.ConfirmDeleteAccountReq, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
         """
         Confirm account deletion using account delete token
         """
-        res = session.execute(
+        res = db.session.execute(
             select(User, AccountDeletionToken)
             .join(AccountDeletionToken, AccountDeletionToken.user_id == User.id)
             .where(AccountDeletionToken.token == request.token)
@@ -637,16 +632,16 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         user, account_deletion_token = res
 
-        session.execute(delete(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id))
+        db.session.execute(delete(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id))
 
         user.deleted_at = now()
         user.undelete_until = now() + timedelta(days=UNDELETE_DAYS)
         user.undelete_token = urlsafe_secure_token()
 
-        session.flush()
+        db.session.flush()
 
         notify(
-            session,
+            db.session,
             user_id=user.id,
             topic_action=NotificationTopicAction.account_deletion__complete,
             key="",
@@ -659,7 +654,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         account_deletion_completions_counter.labels(user.gender).inc()
         log_event(
             context,
-            session,
+            db.session,
             "account.deletion_completed",
             {"gender": user.gender},
             _override_user_id=user.id,
@@ -667,13 +662,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
 
         return empty_pb2.Empty()
 
-    def RecoverAccount(
-        self, request: auth_pb2.RecoverAccountReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
+    def RecoverAccount(self, request: auth_pb2.RecoverAccountReq, context: CouchersContext, db: DB) -> empty_pb2.Empty:
         """
         Recovers a recently deleted account
         """
-        user = session.execute(
+        user = db.session.execute(
             select(User).where(User.undelete_token == request.token).where(User.undelete_until > now())
         ).scalar_one_or_none()
 
@@ -685,7 +678,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         user.undelete_until = None
 
         notify(
-            session,
+            db.session,
             user_id=user.id,
             topic_action=NotificationTopicAction.account_deletion__recovered,
             key="",
@@ -694,7 +687,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         account_recoveries_counter.labels(user.gender).inc()
         log_event(
             context,
-            session,
+            db.session,
             "account.recovered",
             {"gender": user.gender},
             _override_user_id=user.id,
@@ -703,11 +696,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
         return empty_pb2.Empty()
 
     def Unsubscribe(
-        self, request: auth_pb2.UnsubscribeReq, context: CouchersContext, session: Session
+        self, request: auth_pb2.UnsubscribeReq, context: CouchersContext, db: DB
     ) -> auth_pb2.UnsubscribeRes:
-        return auth_pb2.UnsubscribeRes(response=respond_quick_link(request, context, session))
+        return auth_pb2.UnsubscribeRes(response=respond_quick_link(request, context, db.session))
 
-    def AntiBot(self, request: auth_pb2.AntiBotReq, context: CouchersContext, session: Session) -> auth_pb2.AntiBotRes:
+    def AntiBot(self, request: auth_pb2.AntiBotReq, context: CouchersContext, db: DB) -> auth_pb2.AntiBotRes:
         if not config["RECAPTHCA_ENABLED"]:
             return auth_pb2.AntiBotRes()
 
@@ -741,33 +734,33 @@ class Auth(auth_pb2_grpc.AuthServicer):
             provider_data=resp.json(),
         )
 
-        session.add(log)
-        session.flush()
+        db.session.add(log)
+        db.session.flush()
 
         recaptchas_assessed_counter.labels(log.action).inc()
         recaptcha_score_histogram.labels(log.action).observe(log.score)
 
         if context.is_logged_in():
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            user = db.session.execute(select(User).where(User.id == context.user_id)).scalar_one()
             user.last_antibot = now()
 
         return auth_pb2.AntiBotRes()
 
     def AntiBotPolicy(
-        self, request: auth_pb2.AntiBotPolicyReq, context: CouchersContext, session: Session
+        self, request: auth_pb2.AntiBotPolicyReq, context: CouchersContext, db: DB
     ) -> auth_pb2.AntiBotPolicyRes:
         if config["RECAPTHCA_ENABLED"]:
             if context.is_logged_in():
-                user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+                user = db.session.execute(select(User).where(User.id == context.user_id)).scalar_one()
                 if now() - user.last_antibot > ANTIBOT_FREQ:
                     return auth_pb2.AntiBotPolicyRes(should_antibot=True)
 
         return auth_pb2.AntiBotPolicyRes(should_antibot=False)
 
     def GetInviteCodeInfo(
-        self, request: auth_pb2.GetInviteCodeInfoReq, context: CouchersContext, session: Session
+        self, request: auth_pb2.GetInviteCodeInfoReq, context: CouchersContext, db: DB
     ) -> auth_pb2.GetInviteCodeInfoRes:
-        invite = session.execute(
+        invite = db.session.execute(
             select(InviteCode).where(
                 InviteCode.id == request.code, or_(InviteCode.disabled == None, InviteCode.disabled > func.now())
             )
@@ -776,9 +769,9 @@ class Auth(auth_pb2_grpc.AuthServicer):
         if not invite:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invite_code_not_found")
 
-        user = session.execute(select(User).where(User.id == invite.creator_user_id)).scalar_one()
+        user = db.users.by_id(invite.creator_user_id)
 
-        avatar_upload = get_avatar_upload(session, user)
+        avatar_upload = get_avatar_upload(db.session, user)
 
         return auth_pb2.GetInviteCodeInfoRes(
             name=user.name,

@@ -14,6 +14,7 @@ from couchers.materialized_views import ClusteredUser, LiteUser
 from couchers.models import Node, Page, PageType, PageVersion
 from couchers.proto import gis_pb2_grpc
 from couchers.proto.google.api import httpbody_pb2
+from couchers.repositories import DB
 from couchers.sql import users_visible
 
 logger = logging.getLogger(__name__)
@@ -42,10 +43,10 @@ def _statement_to_geojson_response(session: Session, statement: GenerativeSelect
 
 
 class GIS(gis_pb2_grpc.GISServicer):
-    def GetUsers(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> httpbody_pb2.HttpBody:
+    def GetUsers(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> httpbody_pb2.HttpBody:
         # Build FeatureCollection from precomputed per-row GeoJSON in the materialized view,
         # assembling with string_agg in Postgres
-        result = session.execute(
+        result = db.session.execute(
             select(
                 func.concat(
                     '{"type":"FeatureCollection","features":[',
@@ -59,17 +60,13 @@ class GIS(gis_pb2_grpc.GISServicer):
             data=result.encode("ascii"),
         )
 
-    def GetClusteredUsers(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
-    ) -> httpbody_pb2.HttpBody:
-        return _statement_to_geojson_response(session, select(ClusteredUser.geom, ClusteredUser.count))
+    def GetClusteredUsers(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> httpbody_pb2.HttpBody:
+        return _statement_to_geojson_response(db.session, select(ClusteredUser.geom, ClusteredUser.count))
 
-    def GetCommunities(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
-    ) -> httpbody_pb2.HttpBody:
-        return _statement_to_geojson_response(session, select(Node).where(Node.geom != None))
+    def GetCommunities(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> httpbody_pb2.HttpBody:
+        return _statement_to_geojson_response(db.session, select(Node).where(Node.geom != None))
 
-    def GetPlaces(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> httpbody_pb2.HttpBody:
+    def GetPlaces(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> httpbody_pb2.HttpBody:
         # need to do a subquery here so we get pages without a geom, not just versions without geom
         latest_pages = (
             select(func.max(PageVersion.id).label("id"))
@@ -85,9 +82,9 @@ class GIS(gis_pb2_grpc.GISServicer):
             .where(PageVersion.geom != None)
         )
 
-        return _statement_to_geojson_response(session, statement)
+        return _statement_to_geojson_response(db.session, statement)
 
-    def GetGuides(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> httpbody_pb2.HttpBody:
+    def GetGuides(self, request: empty_pb2.Empty, context: CouchersContext, db: DB) -> httpbody_pb2.HttpBody:
         latest_pages = (
             select(func.max(PageVersion.id).label("id"))
             .join(Page, Page.id == PageVersion.page_id)
@@ -102,4 +99,4 @@ class GIS(gis_pb2_grpc.GISServicer):
             .where(PageVersion.geom != None)
         )
 
-        return _statement_to_geojson_response(session, statement)
+        return _statement_to_geojson_response(db.session, statement)

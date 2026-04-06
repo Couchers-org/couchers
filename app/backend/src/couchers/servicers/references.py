@@ -21,8 +21,9 @@ from couchers.models import HostRequest, Reference, ReferenceType, User
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import notification_data_pb2, references_pb2, references_pb2_grpc
+from couchers.repositories import DB
 from couchers.servicers.api import user_model_to_pb
-from couchers.sql import users_visible, where_moderated_content_visible, where_users_column_visible
+from couchers.sql import where_moderated_content_visible, where_users_column_visible
 from couchers.tasks import maybe_send_reference_report_email
 from couchers.utils import Timestamp_from_datetime, now
 
@@ -168,7 +169,7 @@ def get_pending_references_to_write(
 
 class References(references_pb2_grpc.ReferencesServicer):
     def ListReferences(
-        self, request: references_pb2.ListReferencesReq, context: CouchersContext, session: Session
+        self, request: references_pb2.ListReferencesReq, context: CouchersContext, db: DB
     ) -> references_pb2.ListReferencesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_reference_id = int(request.page_token) if request.page_token else 0
@@ -234,7 +235,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         )
 
         statement = statement.order_by(Reference.id.desc()).limit(page_size + 1)
-        references = session.execute(statement).scalars().all()
+        references = db.session.execute(statement).scalars().all()
 
         return references_pb2.ListReferencesRes(
             references=[reference_to_pb(reference, context) for reference in references[:page_size]],
@@ -242,24 +243,22 @@ class References(references_pb2_grpc.ReferencesServicer):
         )
 
     def WriteFriendReference(
-        self, request: references_pb2.WriteFriendReferenceReq, context: CouchersContext, session: Session
+        self, request: references_pb2.WriteFriendReferenceReq, context: CouchersContext, db: DB
     ) -> references_pb2.Reference:
         if context.user_id == request.to_user_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_refer_self")
 
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
         check_valid_reference(request, context)
 
-        if not session.execute(
-            select(User).where(users_visible(context)).where(User.id == request.to_user_id)
-        ).scalar_one_or_none():
+        if not db.users.get_by_id_if_visible(request.to_user_id, visible_to=context.user_id):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        if not are_friends(session, context, request.to_user_id):
+        if not are_friends(db.session, context, request.to_user_id):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "can_only_refer_friends")
 
-        if session.execute(
+        if db.session.execute(
             select(Reference)
             .where(Reference.from_user_id == context.user_id)
             .where(Reference.to_user_id == request.to_user_id)
@@ -278,27 +277,27 @@ class References(references_pb2_grpc.ReferencesServicer):
             rating=request.rating,
             was_appropriate=request.was_appropriate,
         )
-        session.add(reference)
-        session.commit()
+        db.session.add(reference)
+        db.session.commit()
 
         # send the recipient of the reference a reminder
         notify(
-            session,
+            db.session,
             user_id=request.to_user_id,
             topic_action=NotificationTopicAction.reference__receive_friend,
             key=str(reference.id),
             data=notification_data_pb2.ReferenceReceiveFriend(
-                from_user=user_model_to_pb(user, session, make_background_user_context(user_id=request.to_user_id)),
+                from_user=user_model_to_pb(user, db.session, make_background_user_context(user_id=request.to_user_id)),
                 text=reference_text,
             ),
         )
 
         # possibly send out an alert to the mod team if the reference was bad
-        maybe_send_reference_report_email(session, reference)
+        maybe_send_reference_report_email(db.session, reference)
 
         log_event(
             context,
-            session,
+            db.session,
             "reference.friend_written",
             {
                 "to_user_id": request.to_user_id,
@@ -310,13 +309,13 @@ class References(references_pb2_grpc.ReferencesServicer):
         return reference_to_pb(reference, context)
 
     def WriteHostRequestReference(
-        self, request: references_pb2.WriteHostRequestReferenceReq, context: CouchersContext, session: Session
+        self, request: references_pb2.WriteHostRequestReferenceReq, context: CouchersContext, db: DB
     ) -> references_pb2.Reference:
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = db.users.by_id(context.user_id)
 
         check_valid_reference(request, context)
 
-        host_request, surfed = get_host_req_and_check_can_write_ref(session, context, request.host_request_id)
+        host_request, surfed = get_host_req_and_check_can_write_ref(db.session, context, request.host_request_id)
 
         reference_text = request.text.strip()
 
@@ -342,10 +341,10 @@ class References(references_pb2_grpc.ReferencesServicer):
             reference_type=reference_type,
         )
 
-        session.add(reference)
-        session.commit()
+        db.session.add(reference)
+        db.session.commit()
 
-        other_reference = session.execute(
+        other_reference = db.session.execute(
             select(Reference)
             .where(Reference.host_request_id == host_request.conversation_id)
             .where(Reference.to_user_id == context.user_id)
@@ -358,23 +357,25 @@ class References(references_pb2_grpc.ReferencesServicer):
             else NotificationTopicAction.reference__receive_hosted
         )
         notify(
-            session,
+            db.session,
             user_id=reference.to_user_id,
             topic_action=topic_action,
             key=str(host_request.conversation_id),
             data=notification_data_pb2.ReferenceReceiveHostRequest(
                 host_request_id=host_request.conversation_id,
-                from_user=user_model_to_pb(user, session, make_background_user_context(user_id=reference.to_user_id)),
+                from_user=user_model_to_pb(
+                    user, db.session, make_background_user_context(user_id=reference.to_user_id)
+                ),
                 text=reference_text if other_reference is not None else None,
             ),
         )
 
         # possibly send out an alert to the mod team if the reference was bad
-        maybe_send_reference_report_email(session, reference)
+        maybe_send_reference_report_email(db.session, reference)
 
         log_event(
             context,
-            session,
+            db.session,
             "reference.host_request_written",
             {
                 "to_user_id": to_user_id,
@@ -388,9 +389,9 @@ class References(references_pb2_grpc.ReferencesServicer):
         return reference_to_pb(reference, context)
 
     def HostRequestIndicateDidntMeetup(
-        self, request: references_pb2.HostRequestIndicateDidntMeetupReq, context: CouchersContext, session: Session
+        self, request: references_pb2.HostRequestIndicateDidntMeetupReq, context: CouchersContext, db: DB
     ) -> empty_pb2.Empty:
-        host_request, surfed = get_host_req_and_check_can_write_ref(session, context, request.host_request_id)
+        host_request, surfed = get_host_req_and_check_can_write_ref(db.session, context, request.host_request_id)
 
         reason = request.reason_didnt_meetup.strip()
 
@@ -402,19 +403,17 @@ class References(references_pb2_grpc.ReferencesServicer):
         return empty_pb2.Empty()
 
     def AvailableWriteReferences(
-        self, request: references_pb2.AvailableWriteReferencesReq, context: CouchersContext, session: Session
+        self, request: references_pb2.AvailableWriteReferencesReq, context: CouchersContext, db: DB
     ) -> references_pb2.AvailableWriteReferencesRes:
         # can't write anything for ourselves, but let's return empty so this can be used generically on profile page
         if request.to_user_id == context.user_id:
             return references_pb2.AvailableWriteReferencesRes()
 
-        if not session.execute(
-            select(User).where(users_visible(context)).where(User.id == request.to_user_id)
-        ).scalar_one_or_none():
+        if not db.users.get_by_id_if_visible(request.to_user_id, visible_to=context.user_id):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         can_write_friend_reference = (
-            session.execute(
+            db.session.execute(
                 select(Reference)
                 .where(Reference.from_user_id == context.user_id)
                 .where(Reference.to_user_id == request.to_user_id)
@@ -456,7 +455,7 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
         query = select(union.c[0].label("surfed"), aliased(HostRequest, union))
-        host_request_references = session.execute(query).all()
+        host_request_references = db.session.execute(query).all()
 
         return references_pb2.AvailableWriteReferencesRes(
             can_write_friend_reference=can_write_friend_reference,
@@ -471,7 +470,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         )
 
     def ListPendingReferencesToWrite(
-        self, request: empty_pb2.Empty, context: CouchersContext, session: Session
+        self, request: empty_pb2.Empty, context: CouchersContext, db: DB
     ) -> references_pb2.ListPendingReferencesToWriteRes:
         return references_pb2.ListPendingReferencesToWriteRes(
             pending_references=[
@@ -481,17 +480,17 @@ class References(references_pb2_grpc.ReferencesServicer):
                     time_expires=Timestamp_from_datetime(end_time_to_write_reference),
                 )
                 for host_request_id, reference_type, end_time_to_write_reference, other_user in get_pending_references_to_write(
-                    session, context
+                    db.session, context
                 )
             ],
         )
 
     def GetHostRequestReferenceStatus(
-        self, request: references_pb2.GetHostRequestReferenceStatusReq, context: CouchersContext, session: Session
+        self, request: references_pb2.GetHostRequestReferenceStatusReq, context: CouchersContext, db: DB
     ) -> references_pb2.GetHostRequestReferenceStatusRes:
         # Compute has_given (whether current user already wrote a reference for this host request)
         has_given = (
-            session.execute(
+            db.session.execute(
                 select(Reference)
                 .where(Reference.host_request_id == request.host_request_id)
                 .where(Reference.from_user_id == context.user_id)
@@ -505,7 +504,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         query = query.where(
             or_(HostRequest.initiator_user_id == context.user_id, HostRequest.recipient_user_id == context.user_id)
         )
-        host_request = session.execute(query).scalar_one_or_none()
+        host_request = db.session.execute(query).scalar_one_or_none()
 
         can_write = False
         is_expired = False

@@ -13,6 +13,7 @@ from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.notify import notify
 from couchers.proto import discussions_pb2, discussions_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
+from couchers.repositories import DB
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
@@ -73,7 +74,7 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
 
 class Discussions(discussions_pb2_grpc.DiscussionsServicer):
     def CreateDiscussion(
-        self, request: discussions_pb2.CreateDiscussionReq, context: CouchersContext, session: Session
+        self, request: discussions_pb2.CreateDiscussionReq, context: CouchersContext, db: DB
     ) -> discussions_pb2.Discussion:
         if not request.title:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_title")
@@ -83,11 +84,11 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "group_or_community_not_found")
 
         if request.WhichOneof("owner") == "owner_group_id":
-            cluster = session.execute(
+            cluster = db.session.execute(
                 select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.owner_group_id)
             ).scalar_one_or_none()
         elif request.WhichOneof("owner") == "owner_community_id":
-            cluster = session.execute(
+            cluster = db.session.execute(
                 select(Cluster)
                 .where(Cluster.parent_node_id == request.owner_community_id)
                 .where(Cluster.is_official_cluster)
@@ -100,8 +101,8 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cannot_create_discussion")
 
         thread = Thread()
-        session.add(thread)
-        session.flush()
+        db.session.add(thread)
+        db.session.flush()
 
         discussion = Discussion(
             title=request.title,
@@ -110,12 +111,12 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
             owner_cluster_id=cluster.id,
             thread_id=thread.id,
         )
-        session.add(discussion)
-        session.flush()
+        db.session.add(discussion)
+        db.session.flush()
 
         log_event(
             context,
-            session,
+            db.session,
             "discussion.created",
             {
                 "discussion_id": discussion.id,
@@ -126,22 +127,19 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         )
 
         queue_job(
-            session,
+            db.session,
             job=generate_create_discussion_notifications,
             payload=jobs_pb2.GenerateCreateDiscussionNotificationsPayload(
                 discussion_id=discussion.id,
             ),
         )
 
-        return discussion_to_pb(session, discussion, context)
+        return discussion_to_pb(db.session, discussion, context)
 
     def GetDiscussion(
-        self, request: discussions_pb2.GetDiscussionReq, context: CouchersContext, session: Session
+        self, request: discussions_pb2.GetDiscussionReq, context: CouchersContext, db: DB
     ) -> discussions_pb2.Discussion:
-        discussion = session.execute(
-            select(Discussion).where(Discussion.id == request.discussion_id)
-        ).scalar_one_or_none()
-        if not discussion:
+        if not (discussion := db.discussions.get_by_id(request.discussion_id)):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
 
-        return discussion_to_pb(session, discussion, context)
+        return discussion_to_pb(db.session, discussion, context)

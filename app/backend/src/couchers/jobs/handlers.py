@@ -106,6 +106,7 @@ from couchers.notifications.notify import notify
 from couchers.postal.my_postcard import get_order_ids, send_postcard
 from couchers.proto import moderation_pb2, notification_data_pb2
 from couchers.proto.internal import internal_pb2, jobs_pb2
+from couchers.repositories import DB
 from couchers.resources import get_badge_dict, get_static_badge_dict
 from couchers.sentry import report_message
 from couchers.servicers.api import user_model_to_pb
@@ -1513,7 +1514,7 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
                     created_before=Timestamp_from_datetime(now() - timedelta(seconds=deadline_seconds)),
                 ),
                 context=ctx,
-                session=session,
+                db=DB(session),
             )
             .queue_items
         )
@@ -1531,6 +1532,6 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
                     reason=f"Auto-approved: moderation deadline of {deadline_seconds} seconds exceeded.",
                 ),
                 context=ctx,
-                session=session,
+                db=DB(session),
             )
         moderation_auto_approved_counter.inc(len(items))

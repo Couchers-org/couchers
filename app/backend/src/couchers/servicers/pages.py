@@ -4,8 +4,9 @@ from sqlalchemy.orm import Session, selectinload
 
 from couchers.context import CouchersContext
 from couchers.db import can_moderate_at, can_moderate_node, get_parent_node_at_location
-from couchers.models import Cluster, Node, Page, PageType, PageVersion, Thread, Upload, User
+from couchers.models import Cluster, Page, PageType, PageVersion, Thread, User
 from couchers.proto import pages_pb2, pages_pb2_grpc
+from couchers.repositories import DB
 from couchers.servicers.threads import thread_to_pb
 from couchers.utils import Timestamp_from_datetime, create_coordinate, not_none, remove_duplicates_retain_order
 
@@ -98,9 +99,7 @@ def page_to_pb(session: Session, page: Page, context: CouchersContext) -> pages_
 
 
 class Pages(pages_pb2_grpc.PagesServicer):
-    def CreatePlace(
-        self, request: pages_pb2.CreatePlaceReq, context: CouchersContext, session: Session
-    ) -> pages_pb2.Page:
+    def CreatePlace(self, request: pages_pb2.CreatePlaceReq, context: CouchersContext, db: DB) -> pages_pb2.Page:
         if not request.title:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_title")
         if not request.content:
@@ -114,18 +113,15 @@ class Pages(pages_pb2_grpc.PagesServicer):
 
         geom = create_coordinate(request.location.lat, request.location.lng)
 
-        if (
-            request.photo_key
-            and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
-        ):
+        if request.photo_key and not db.uploads.get_by_key(request.photo_key):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
-        parent_node = get_parent_node_at_location(session, geom)
+        parent_node = get_parent_node_at_location(db.session, geom)
         if not parent_node:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "location_not_in_any_community")
         thread = Thread()
-        session.add(thread)
-        session.flush()
+        db.session.add(thread)
+        db.session.flush()
         page = Page(
             parent_node_id=parent_node.id,
             type=PageType.place,
@@ -133,8 +129,8 @@ class Pages(pages_pb2_grpc.PagesServicer):
             owner_user_id=context.user_id,
             thread_id=thread.id,
         )
-        session.add(page)
-        session.flush()
+        db.session.add(page)
+        db.session.flush()
         page_version = PageVersion(
             page_id=page.id,
             editor_user_id=context.user_id,
@@ -144,13 +140,11 @@ class Pages(pages_pb2_grpc.PagesServicer):
             address=request.address,
             geom=geom,
         )
-        session.add(page_version)
-        session.commit()
-        return page_to_pb(session, page, context)
+        db.session.add(page_version)
+        db.session.commit()
+        return page_to_pb(db.session, page, context)
 
-    def CreateGuide(
-        self, request: pages_pb2.CreateGuideReq, context: CouchersContext, session: Session
-    ) -> pages_pb2.Page:
+    def CreateGuide(self, request: pages_pb2.CreateGuideReq, context: CouchersContext, db: DB) -> pages_pb2.Page:
         if not request.title:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_title")
         if not request.content:
@@ -170,20 +164,17 @@ class Pages(pages_pb2_grpc.PagesServicer):
         if not request.parent_community_id:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_page_parent")
 
-        parent_node = session.execute(select(Node).where(Node.id == request.parent_community_id)).scalar_one_or_none()
+        parent_node = db.nodes.get_by_id(request.parent_community_id)
 
         if not parent_node:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "community_not_found")
 
-        if (
-            request.photo_key
-            and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
-        ):
+        if request.photo_key and not db.uploads.get_by_key(request.photo_key):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
         thread = Thread()
-        session.add(thread)
-        session.flush()
+        db.session.add(thread)
+        db.session.flush()
         page = Page(
             parent_node_id=parent_node.id,
             type=PageType.guide,
@@ -191,8 +182,8 @@ class Pages(pages_pb2_grpc.PagesServicer):
             owner_user_id=context.user_id,
             thread_id=thread.id,
         )
-        session.add(page)
-        session.flush()
+        db.session.add(page)
+        db.session.flush()
         page_version = PageVersion(
             page_id=page.id,
             editor_user_id=context.user_id,
@@ -202,29 +193,25 @@ class Pages(pages_pb2_grpc.PagesServicer):
             address=address,
             geom=geom,
         )
-        session.add(page_version)
-        session.commit()
-        return page_to_pb(session, page, context)
+        db.session.add(page_version)
+        db.session.commit()
+        return page_to_pb(db.session, page, context)
 
-    def GetPage(self, request: pages_pb2.GetPageReq, context: CouchersContext, session: Session) -> pages_pb2.Page:
-        page = session.execute(
-            select(Page)
-            .where(Page.id == request.page_id)
-            .options(selectinload(Page.versions), selectinload(Page.owner_cluster))
-        ).scalar_one_or_none()
+    def GetPage(self, request: pages_pb2.GetPageReq, context: CouchersContext, db: DB) -> pages_pb2.Page:
+        page = db.pages.get_by_id(
+            request.page_id,
+            options=[selectinload(Page.versions), selectinload(Page.owner_cluster)],
+        )
         if not page:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "page_not_found")
 
-        return page_to_pb(session, page, context)
+        return page_to_pb(db.session, page, context)
 
-    def UpdatePage(
-        self, request: pages_pb2.UpdatePageReq, context: CouchersContext, session: Session
-    ) -> pages_pb2.Page:
-        page = session.execute(select(Page).where(Page.id == request.page_id)).scalar_one_or_none()
-        if not page:
+    def UpdatePage(self, request: pages_pb2.UpdatePageReq, context: CouchersContext, db: DB) -> pages_pb2.Page:
+        if not (page := db.pages.get_by_id(request.page_id)):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "page_not_found")
 
-        if not _is_page_owner(page, context.user_id) and not _can_moderate_page(session, page, context.user_id):
+        if not _is_page_owner(page, context.user_id) and not _can_moderate_page(db.session, page, context.user_id):
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "page_update_permission_denied")
 
         current_version = page.versions[-1]
@@ -253,9 +240,7 @@ class Pages(pages_pb2_grpc.PagesServicer):
             if not request.photo_key.value:
                 page_version.photo_key = None
             else:
-                if not session.execute(
-                    select(Upload).where(Upload.key == request.photo_key.value)
-                ).scalar_one_or_none():
+                if not db.uploads.get_by_key(request.photo_key.value):
                     context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
                 page_version.photo_key = request.photo_key.value
 
@@ -267,35 +252,33 @@ class Pages(pages_pb2_grpc.PagesServicer):
         if request.HasField("location"):
             page_version.geom = create_coordinate(request.location.lat, request.location.lng)
 
-        session.add(page_version)
-        session.commit()
-        return page_to_pb(session, page, context)
+        db.session.add(page_version)
+        db.session.commit()
+        return page_to_pb(db.session, page, context)
 
-    def TransferPage(
-        self, request: pages_pb2.TransferPageReq, context: CouchersContext, session: Session
-    ) -> pages_pb2.Page:
-        page = session.execute(
+    def TransferPage(self, request: pages_pb2.TransferPageReq, context: CouchersContext, db: DB) -> pages_pb2.Page:
+        page = db.session.execute(
             select(Page).where(Page.id == request.page_id).where(Page.type != PageType.main_page)
         ).scalar_one_or_none()
 
         if not page:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "page_not_found")
 
-        if not _is_page_owner(page, context.user_id) and not _can_moderate_page(session, page, context.user_id):
+        if not _is_page_owner(page, context.user_id) and not _can_moderate_page(db.session, page, context.user_id):
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "page_transfer_permission_denied")
 
         if request.WhichOneof("new_owner") == "new_owner_group_id":
-            cluster = session.execute(
+            cluster = db.session.execute(
                 select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.new_owner_group_id)
             ).scalar_one_or_none()
         elif request.WhichOneof("new_owner") == "new_owner_community_id":
-            cluster = session.execute(
+            cluster = db.session.execute(
                 select(Cluster)
                 .where(Cluster.parent_node_id == request.new_owner_community_id)
                 .where(Cluster.is_official_cluster)
             ).scalar_one_or_none()
         else:
-            # i'm not sure if this needs to be checked
+            # I'm not sure if this needs to be checked
             context.abort_with_error_code(grpc.StatusCode.UNKNOWN, "unknown_error")
 
         if not cluster:
@@ -304,17 +287,17 @@ class Pages(pages_pb2_grpc.PagesServicer):
         page.owner_user = None
         page.owner_cluster = cluster
 
-        session.commit()
-        return page_to_pb(session, page, context)
+        db.session.commit()
+        return page_to_pb(db.session, page, context)
 
     def ListUserPlaces(
-        self, request: pages_pb2.ListUserPlacesReq, context: CouchersContext, session: Session
+        self, request: pages_pb2.ListUserPlacesReq, context: CouchersContext, db: DB
     ) -> pages_pb2.ListUserPlacesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
         user_id = request.user_id or context.user_id
         places = (
-            session.execute(
+            db.session.execute(
                 select(Page)
                 .where(Page.owner_user_id == user_id)
                 .where(Page.type == PageType.place)
@@ -327,18 +310,18 @@ class Pages(pages_pb2_grpc.PagesServicer):
             .all()
         )
         return pages_pb2.ListUserPlacesRes(
-            places=[page_to_pb(session, page, context) for page in places[:page_size]],
+            places=[page_to_pb(db.session, page, context) for page in places[:page_size]],
             next_page_token=str(places[-1].id) if len(places) > page_size else None,
         )
 
     def ListUserGuides(
-        self, request: pages_pb2.ListUserGuidesReq, context: CouchersContext, session: Session
+        self, request: pages_pb2.ListUserGuidesReq, context: CouchersContext, db: DB
     ) -> pages_pb2.ListUserGuidesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
         user_id = request.user_id or context.user_id
         guides = (
-            session.execute(
+            db.session.execute(
                 select(Page)
                 .where(Page.owner_user_id == user_id)
                 .where(Page.type == PageType.guide)
@@ -351,6 +334,6 @@ class Pages(pages_pb2_grpc.PagesServicer):
             .all()
         )
         return pages_pb2.ListUserGuidesRes(
-            guides=[page_to_pb(session, page, context) for page in guides[:page_size]],
+            guides=[page_to_pb(db.session, page, context) for page in guides[:page_size]],
             next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
         )

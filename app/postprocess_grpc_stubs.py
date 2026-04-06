@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Modifies method arguments in GRPC stubs: we change them in our middleware. ServicerContext becomes
-CouchersContext, and a third parameter, "session: sqlalchemy.orm.Session", is added.
+CouchersContext, and a third parameter, "db: DB", is added.
 """
 
 import sys
@@ -21,12 +21,12 @@ def add_imports(lines: list[str]) -> list[str]:
 
     # Check if imports already exist
     imports_text = ''.join(lines)
-    has_orm_import = 'from sqlalchemy import orm' in imports_text
+    has_db_import = 'from couchers.repositories import DB' in imports_text
     has_context_import = 'from couchers.context import CouchersContext' in imports_text
 
     new_imports = []
-    if not has_orm_import:
-        new_imports.append('from sqlalchemy import orm\n')
+    if not has_db_import:
+        new_imports.append('from couchers.repositories import DB\n')
     if not has_context_import:
         new_imports.append('from couchers.context import CouchersContext\n')
 
@@ -37,7 +37,7 @@ def add_imports(lines: list[str]) -> list[str]:
 
 
 def replace_context_parameter(lines: list[str]) -> list[str]:
-    """Replace 'context: grpc.ServicerContext,' with 'context: CouchersContext,\nsession: orm.Session'."""
+    """Replace 'context: grpc.ServicerContext,' with 'context: CouchersContext,\ndb: DB'."""
     new_lines = []
     for line in lines:
         if 'context: grpc.ServicerContext,' in line:
@@ -45,7 +45,7 @@ def replace_context_parameter(lines: list[str]) -> list[str]:
             indent = len(line) - len(line.lstrip())
             # Replace the line
             new_lines.append(' ' * indent + 'context: CouchersContext,\n')
-            new_lines.append(' ' * indent + 'session: orm.Session,\n')
+            new_lines.append(' ' * indent + 'db: DB,\n')
         else:
             new_lines.append(line)
     return new_lines

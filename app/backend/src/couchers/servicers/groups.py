@@ -22,6 +22,7 @@ from couchers.models import (
     User,
 )
 from couchers.proto import groups_pb2, groups_pb2_grpc
+from couchers.repositories import DB
 from couchers.servicers.discussions import discussion_to_pb
 from couchers.servicers.events import event_to_pb
 from couchers.servicers.pages import page_to_pb
@@ -113,8 +114,8 @@ def group_to_pb(session: Session, cluster: Cluster, context: CouchersContext) ->
 
 
 class Groups(groups_pb2_grpc.GroupsServicer):
-    def GetGroup(self, request: groups_pb2.GetGroupReq, context: CouchersContext, session: Session) -> groups_pb2.Group:
-        cluster = session.execute(
+    def GetGroup(self, request: groups_pb2.GetGroupReq, context: CouchersContext, db: DB) -> groups_pb2.Group:
+        cluster = db.session.execute(
             select(Cluster)
             .where(~Cluster.is_official_cluster)  # not an official group
             .where(Cluster.id == request.group_id)
@@ -122,21 +123,21 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         if not cluster:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
 
-        return group_to_pb(session, cluster, context)
+        return group_to_pb(db.session, cluster, context)
 
     def ListAdmins(
-        self, request: groups_pb2.ListAdminsReq, context: CouchersContext, session: Session
+        self, request: groups_pb2.ListAdminsReq, context: CouchersContext, db: DB
     ) -> groups_pb2.ListAdminsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_admin_id = int(request.page_token) if request.page_token else 0
-        cluster = session.execute(
+        cluster = db.session.execute(
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
 
         admins = (
-            session.execute(
+            db.session.execute(
                 select(User)
                 .where(users_visible(context))
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
@@ -155,18 +156,18 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         )
 
     def ListMembers(
-        self, request: groups_pb2.ListMembersReq, context: CouchersContext, session: Session
+        self, request: groups_pb2.ListMembersReq, context: CouchersContext, db: DB
     ) -> groups_pb2.ListMembersRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_member_id = int(request.page_token) if request.page_token else 0
-        cluster = session.execute(
+        cluster = db.session.execute(
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_not_found")
 
         members = (
-            session.execute(
+            db.session.execute(
                 select(User)
                 .join(ClusterSubscription, ClusterSubscription.user_id == User.id)
                 .where(users_visible(context))
@@ -184,11 +185,11 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         )
 
     def ListPlaces(
-        self, request: groups_pb2.ListPlacesReq, context: CouchersContext, session: Session
+        self, request: groups_pb2.ListPlacesReq, context: CouchersContext, db: DB
     ) -> groups_pb2.ListPlacesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
-        cluster = session.execute(
+        cluster = db.session.execute(
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
@@ -201,16 +202,16 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             .all()
         )
         return groups_pb2.ListPlacesRes(
-            places=[page_to_pb(session, page, context) for page in places[:page_size]],
+            places=[page_to_pb(db.session, page, context) for page in places[:page_size]],
             next_page_token=str(places[-1].id) if len(places) > page_size else None,
         )
 
     def ListGuides(
-        self, request: groups_pb2.ListGuidesReq, context: CouchersContext, session: Session
+        self, request: groups_pb2.ListGuidesReq, context: CouchersContext, db: DB
     ) -> groups_pb2.ListGuidesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
-        cluster = session.execute(
+        cluster = db.session.execute(
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
@@ -223,18 +224,18 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             .all()
         )
         return groups_pb2.ListGuidesRes(
-            guides=[page_to_pb(session, page, context) for page in guides[:page_size]],
+            guides=[page_to_pb(db.session, page, context) for page in guides[:page_size]],
             next_page_token=str(guides[-1].id) if len(guides) > page_size else None,
         )
 
     def ListEvents(
-        self, request: groups_pb2.ListEventsReq, context: CouchersContext, session: Session
+        self, request: groups_pb2.ListEventsReq, context: CouchersContext, db: DB
     ) -> groups_pb2.ListEventsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         # the page token is a unix timestamp of where we left off
         page_token = dt_from_millis(int(request.page_token)) if request.page_token else now()
 
-        cluster = session.execute(
+        cluster = db.session.execute(
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
@@ -255,19 +256,19 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             query = query.where(EventOccurrence.end_time < cutoff).order_by(EventOccurrence.start_time.desc())
 
         query = query.limit(page_size + 1)
-        occurrences = session.execute(query).scalars().all()
+        occurrences = db.session.execute(query).scalars().all()
 
         return groups_pb2.ListEventsRes(
-            events=[event_to_pb(session, occurrence, context) for occurrence in occurrences[:page_size]],
+            events=[event_to_pb(db.session, occurrence, context) for occurrence in occurrences[:page_size]],
             next_page_token=str(millis_from_dt(occurrences[-1].end_time)) if len(occurrences) > page_size else None,
         )
 
     def ListDiscussions(
-        self, request: groups_pb2.ListDiscussionsReq, context: CouchersContext, session: Session
+        self, request: groups_pb2.ListDiscussionsReq, context: CouchersContext, db: DB
     ) -> groups_pb2.ListDiscussionsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
-        cluster = session.execute(
+        cluster = db.session.execute(
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
@@ -279,14 +280,12 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             .all()
         )
         return groups_pb2.ListDiscussionsRes(
-            discussions=[discussion_to_pb(session, discussion, context) for discussion in discussions[:page_size]],
+            discussions=[discussion_to_pb(db.session, discussion, context) for discussion in discussions[:page_size]],
             next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
         )
 
-    def JoinGroup(
-        self, request: groups_pb2.JoinGroupReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
-        cluster = session.execute(
+    def JoinGroup(self, request: groups_pb2.JoinGroupReq, context: CouchersContext, db: DB) -> empty_pb2.Empty:
+        cluster = db.session.execute(
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
@@ -304,14 +303,12 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             )
         )
 
-        log_event(context, session, "group.joined", {"group_id": cluster.id, "group_name": cluster.name})
+        log_event(context, db.session, "group.joined", {"group_id": cluster.id, "group_name": cluster.name})
 
         return empty_pb2.Empty()
 
-    def LeaveGroup(
-        self, request: groups_pb2.LeaveGroupReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
-        cluster = session.execute(
+    def LeaveGroup(self, request: groups_pb2.LeaveGroupReq, context: CouchersContext, db: DB) -> empty_pb2.Empty:
+        cluster = db.session.execute(
             select(Cluster).where(~Cluster.is_official_cluster).where(Cluster.id == request.group_id)
         ).scalar_one_or_none()
         if not cluster:
@@ -321,24 +318,24 @@ class Groups(groups_pb2_grpc.GroupsServicer):
         if not user_in_group:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "not_in_group")
 
-        session.execute(
+        db.session.execute(
             delete(ClusterSubscription)
             .where(ClusterSubscription.cluster_id == request.group_id)
             .where(ClusterSubscription.user_id == context.user_id)
         )
 
-        log_event(context, session, "group.left", {"group_id": cluster.id, "group_name": cluster.name})
+        log_event(context, db.session, "group.left", {"group_id": cluster.id, "group_name": cluster.name})
 
         return empty_pb2.Empty()
 
     def ListUserGroups(
-        self, request: groups_pb2.ListUserGroupsReq, context: CouchersContext, session: Session
+        self, request: groups_pb2.ListUserGroupsReq, context: CouchersContext, db: DB
     ) -> groups_pb2.ListUserGroupsRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_cluster_id = int(request.page_token) if request.page_token else 0
         user_id = request.user_id or context.user_id
         clusters = (
-            session.execute(
+            db.session.execute(
                 select(Cluster)
                 .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
                 .where(ClusterSubscription.user_id == user_id)
@@ -351,6 +348,6 @@ class Groups(groups_pb2_grpc.GroupsServicer):
             .all()
         )
         return groups_pb2.ListUserGroupsRes(
-            groups=[group_to_pb(session, cluster, context) for cluster in clusters[:page_size]],
+            groups=[group_to_pb(db.session, cluster, context) for cluster in clusters[:page_size]],
             next_page_token=str(clusters[-1].id) if len(clusters) > page_size else None,
         )
