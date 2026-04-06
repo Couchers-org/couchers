@@ -79,16 +79,6 @@ export default function useAuthStore() {
         setLoading(true);
         try {
           await service.user.logout();
-          setAuthenticated(false);
-          setUserId(null);
-          Sentry.setUser({ id: undefined });
-
-          // Notify mobile app if running in embed
-          if (window.ReactNativeWebView) {
-            window.ReactNativeWebView.postMessage(
-              JSON.stringify({ type: "LOGOUT" }),
-            );
-          }
         } catch (e) {
           Sentry.captureException(e, {
             tags: {
@@ -97,6 +87,16 @@ export default function useAuthStore() {
             },
           });
           setError(isGrpcError(e) ? e.message : fatalErrorMessage.current);
+        }
+        // Always clear local auth state even if the backend call failed
+        // (e.g. session cookie not yet available in a new WebView context)
+        setAuthenticated(false);
+        setUserId(null);
+        Sentry.setUser({ id: undefined });
+        if (window.ReactNativeWebView) {
+          window.ReactNativeWebView.postMessage(
+            JSON.stringify({ type: "LOGOUT" }),
+          );
         }
         clearStorage();
         setLoading(false);
