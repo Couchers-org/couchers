@@ -346,13 +346,16 @@ export default function LoggedInMenu({
         open={menuOpen}
         anchorEl={isMobile ? undefined : menuRef.current}
         onClose={(_event: object, reason: string) => {
-          // Don't close on backdrop click on mobile — the Select dropdown
-          // opens in a portal which triggers a backdrop click on the menu
           if (isMobile && reason === "backdropClick") return;
           setMenuOpen(false);
         }}
-        onBlur={() => {
-          if (!isMobile) setMenuOpen(false);
+        onBlur={(e) => {
+          const target = e.relatedTarget as HTMLElement | null;
+          // Don't close if focus moves within the menu or to a Select dropdown portal
+          if (target?.closest("[role='listbox'], [role='presentation']"))
+            return;
+          if (e.currentTarget.contains(target)) return;
+          setMenuOpen(false);
         }}
         $isNativeEmbed={isNativeEmbed}
         anchorOrigin={

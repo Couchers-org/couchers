@@ -320,12 +320,15 @@ test:backend:
     - cp /app/junit.xml $CI_PROJECT_DIR/junit-$CI_NODE_INDEX.xml
     - cp /app/.coverage.$CI_NODE_INDEX $CI_PROJECT_DIR/
     - cp /app/.test_durations.$CI_NODE_INDEX $CI_PROJECT_DIR/
+    - mkdir -p $CI_PROJECT_DIR/artifacts/test_artifacts
+    - cp /app/test_artifacts/* $CI_PROJECT_DIR/artifacts/test_artifacts/ 2>/dev/null || true
   artifacts:
     reports:
       junit: junit-$CI_NODE_INDEX.xml
     paths:
       - .coverage.$CI_NODE_INDEX
       - .test_durations.$CI_NODE_INDEX
+      - artifacts/test_artifacts
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
@@ -680,6 +683,8 @@ preview:backend-coverage:
 
 preview:backend:
   needs:
+    - job: test:backend
+      artifacts: true
     - job: test:backend-migrations
       artifacts: true
     - job: preview:backend-coverage
@@ -716,9 +721,16 @@ preview:backend:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/schema_dumps s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, schema dumps available at https://$CI_COMMIT_SHORT_SHA--schema.$PREVIEW_DOMAIN/schema.sql and https://$CI_COMMIT_REF_SLUG--schema.$PREVIEW_DOMAIN/schema.sql"
+    # Upload postcard samples
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/test_artifacts s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_SHORT_SHA/ --recursive 2>/dev/null || true
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp artifacts/test_artifacts s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_REF_SLUG/ --recursive 2>/dev/null || true
+    - echo "Done, test artifacts available at https://$CI_COMMIT_SHORT_SHA--test-artifacts.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--test-artifacts.$PREVIEW_DOMAIN/"
   artifacts:
     paths:
       - artifacts/schema_dumps
+      - artifacts/test_artifacts
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)

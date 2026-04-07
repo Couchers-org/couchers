@@ -4,7 +4,8 @@
     "details": [
       {
         "appIDs": [
-          "S79633Q27Z.org.couchers.ios"
+          "S79633Q27Z.org.couchers.ios",
+          "S79633Q27Z.org.couchers.staging.ios"
         ],
         "components": [
           {
@@ -16,7 +17,8 @@
   },
   "webcredentials": {
     "apps": [
-      "S79633Q27Z.org.couchers.ios"
+      "S79633Q27Z.org.couchers.ios",
+      "S79633Q27Z.org.couchers.staging.ios"
     ]
   }
 }

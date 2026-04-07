@@ -3,5 +3,13 @@
     "confirm": "Potvrdit",
     "close": "Zrušit"
   },
-  "location": "Poloha"
+  "location": "Poloha",
+  "attendees_count_one": "{{count}} účastník",
+  "attendees_count_few": "{{count}} účastníci",
+  "attendees_count_other": "{{count}} účastníků",
+  "by_creator": "Od {{name}}",
+  "cancelled": "Zrušeno",
+  "cancel_event": "Zrušit událost",
+  "show_cancelled_events": "Zobrazit zrušené události",
+  "cancel_event_success_message": "Událost byla úspěšně zrušena."
 }

@@ -27,7 +27,6 @@ import { dashboardRoute, loginRoute, signupRoute } from "routes";
 import { service } from "service";
 import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
-import { useIsNativeEmbed } from "utils/nativeLink";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../AuthProvider";
@@ -49,7 +48,6 @@ export default function Signup() {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { authState, authActions } = useAuthContext();
-  const isNativeEmbed = useIsNativeEmbed();
   const authenticated = authState.authenticated;
   const error = authState.error;
 
@@ -119,7 +117,7 @@ export default function Signup() {
 
   return (
     <>
-      {authenticated && !isNativeEmbed && <Redirect to={dashboardRoute} />}
+      {authenticated && <Redirect to={dashboardRoute} />}
       <HtmlMeta title={t("global:sign_up")} />
       <Container
         component="section"
