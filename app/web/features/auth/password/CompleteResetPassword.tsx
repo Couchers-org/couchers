@@ -11,7 +11,7 @@ import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { AuthRes } from "proto/auth_pb";
 import { useForm } from "react-hook-form";
-import { dashboardRoute } from "routes";
+import { dashboardRoute, loginRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 import { useIsNativeEmbed } from "utils/nativeLink";
@@ -68,9 +68,12 @@ export default function CompleteResetPassword() {
       return res;
     },
     onSuccess: (authRes) => {
-      authActions.firstLogin(authRes.toObject());
-      // In native embed, the mobile app handles navigation via LOGIN_SUCCESS message
-      if (!isNativeEmbed) {
+      if (isNativeEmbed) {
+        // On mobile, redirect to login instead of auto-login to avoid
+        // iOS cookie sync issues between WebView instances
+        router.push(loginRoute);
+      } else {
+        authActions.firstLogin(authRes.toObject());
         router.push(dashboardRoute);
       }
     },

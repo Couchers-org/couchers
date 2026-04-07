@@ -44,7 +44,7 @@ make mypy
 - gRPC for API (defined in `/app/proto`)
 - Background jobs in `couchers/jobs/handlers.py`
 - Notifications system in `couchers/notifications/`
-- Always run `make format` after changes
+- Always run `make format` and `make mypy` after modifying backend code
 - NEVER try-catch an exception and silently throw it away or just log it. By and large you don't need to wrap code in try-catch blocks, we already handle exceptions
 - Use `enum.auto()` for all enums (except in the rare case that they are inherently ordinal and we use that order in business logic)
 - Put relationships and constraints at the end of models
@@ -54,7 +54,6 @@ make mypy
 - Imports always occur at the top of the file. The two exceptions are when this is required during type checking or in tests that really require inline imports
 - Do not use `session.get(...)`. Use `session.execute(select(...))` instead
 - For URLs, use `from couchers import urls` and then `urls.whatever()`
-- Always import `from couchers.sql import couchers_select as select` instead of something else
 - Avoid inline imports whenever possible
 - To filter out invisible users (deleted/banned/blocked), use the helper functions from `couchers.sql`: `where(users_visible(context))` when User is already joined, `where(users_column_visible(context, column))` when you have a user_id column, or `where(users_visible_to_each_other(user1, user2))` for mutual visibility. Never use `User.is_visible` directly in queries
 

@@ -53,6 +53,11 @@ def generate_do_not_email(user: User) -> str:
 
 
 def generate_unsub_topic_key(notification: Notification) -> str:
+    if not notification.key:
+        raise ValueError(
+            f"Cannot generate topic_key unsubscribe link for notification with empty key "
+            f"(topic_action={notification.topic_action})"
+        )
     return _generate_quick_link(
         unsubscribe_pb2.UnsubscribePayload(
             user_id=notification.user_id,
@@ -87,15 +92,13 @@ def generate_quick_decline_link(host_request: requests_pb2.HostRequest) -> str:
     )
 
 
-def can_unsubscribe_topic_key(topic: str | NotificationTopicAction) -> bool:
+def can_unsubscribe_topic_key(topic_action: NotificationTopicAction) -> bool:
     """
-    Determines whether a user can unsubscribe from all notification actions
-    concerning a given topic.
+    Determines whether a user can unsubscribe from a specific topic key
+    (e.g. muting a specific chat).
     """
-    if isinstance(topic, NotificationTopicAction):
-        topic = topic.topic
-    # We currently only support unsubscribing from chat topics
-    return topic == NotificationTopicAction.chat__message.topic
+    # Only chat__message has a meaningful key (the chat ID); chat__missed_messages is a summary with no specific chat
+    return topic_action == NotificationTopicAction.chat__message
 
 
 def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContext, session: Session) -> str:

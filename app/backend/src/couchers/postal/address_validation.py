@@ -8,7 +8,7 @@ class ValidatedAddress:
     city: str
     state: str | None
     postal_code: str | None
-    country: str  # ISO 3166-1 alpha-2
+    country_code: str  # ISO 3166-1 alpha-2
     was_corrected: bool
     is_deliverable: bool
 
@@ -57,7 +57,7 @@ def validate_address(
         city=city.strip(),
         state=state.strip() if state else None,
         postal_code=postal_code.strip() if postal_code else None,
-        country=country.strip().upper(),
+        country_code=country.strip().upper(),
         was_corrected=False,  # Stub always returns false
         is_deliverable=True,  # Stub always returns true
     )
