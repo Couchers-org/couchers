@@ -1285,6 +1285,9 @@ def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
     """
     Checks that all MyPostcard jobs from the last week are tied to a postal verification attempt.
     """
+    if not config["ENABLE_POSTAL_VERIFICATION"]:
+        return
+
     with session_scope() as session:
         mypostcard_job_ids = set(
             get_order_ids(
