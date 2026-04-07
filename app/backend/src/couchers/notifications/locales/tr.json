@@ -121,6 +121,37 @@
     },
     "thread": {
       "reply": "Birisi yorumuna cevap verdiğinde"
+    },
+    "account_deletion": {
+      "start": "Hesap silinmesini başlattığında",
+      "complete": "Hesabınız silindi",
+      "recovered": "Hesabınız kurtarıldı (silme işlemi geri alındı)"
+    },
+    "activeness": {
+      "probe": "Misafir kabul ediyorsunuz ancak uzun süredir giriş yapmadınız"
+    },
+    "api_key": {
+      "create": "Hesabınız için bir API anahtarı oluşturuldu"
+    },
+    "badge": {
+      "add": "Hesabınıza bir rozet eklendi",
+      "remove": "Hesabınızdan bir rozet kaldırıldı"
+    },
+    "donation": {
+      "received": "Bağışınız alındı"
+    },
+    "email_address": {
+      "change": "E-posta değişikliği başlatıldı",
+      "verify": "Yeni e-postanız doğrulandı"
+    },
+    "event": {
+      "create_approved": "Moderatörler tarafından onaylanan bir etkinlik topluluğunuzda oluşturuldu",
+      "update": "Katıldığınız bir etkinlik güncellendi",
+      "cancel": "Katıldığınız bir etkinlik iptal edildi",
+      "delete": "Katıldığınız bir etkinlik silindi",
+      "invite_organizer": "Birisi sizi bir etkinliği birlikte düzenlemeye davet ediyor",
+      "comment": "Katılacağınız bir etkinliğe bir kullanıcı yorum yapıyor",
+      "reminder": "Katılacağınız bir etkinlik yakında başlayacak"
     }
   }
 }
