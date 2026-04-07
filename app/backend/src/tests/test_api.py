@@ -17,6 +17,7 @@ from couchers.models import (
     ModerationVisibility,
     RateLimitAction,
     User,
+    UserBadge,
 )
 from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
@@ -1553,6 +1554,47 @@ def test_badges(db):
             api_pb2.ListBadgeUsersReq(badge_id=board_member_badge.id, page_token=res.next_page_token)
         )
         assert res2.user_ids == [2]
+
+
+def test_user_add_badge_is_idempotent(db):
+    """Test that adding a badge a user already has is a no-op and doesn't send a duplicate notification."""
+    from couchers.helpers.badges import user_add_badge
+    from couchers.models.notifications import Notification
+
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        user_add_badge(session, user.id, "volunteer")
+
+    # one badge row, one notification
+    with session_scope() as session:
+        badge_count = session.execute(
+            select(func.count())
+            .select_from(UserBadge)
+            .where(UserBadge.user_id == user.id, UserBadge.badge_id == "volunteer")
+        ).scalar()
+        assert badge_count == 1
+        notification_count = session.execute(
+            select(func.count()).select_from(Notification).where(Notification.user_id == user.id)
+        ).scalar()
+        assert notification_count == 1
+
+    # add the same badge again
+    with session_scope() as session:
+        user_add_badge(session, user.id, "volunteer")
+
+    # still one badge row, no new notification
+    with session_scope() as session:
+        badge_count = session.execute(
+            select(func.count())
+            .select_from(UserBadge)
+            .where(UserBadge.user_id == user.id, UserBadge.badge_id == "volunteer")
+        ).scalar()
+        assert badge_count == 1
+        notification_count = session.execute(
+            select(func.count()).select_from(Notification).where(Notification.user_id == user.id)
+        ).scalar()
+        assert notification_count == 1
 
 
 @pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
