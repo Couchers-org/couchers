@@ -1,10 +1,4 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { USER_TITLE_SKELETON_TEST_ID } from "components/UserSummary";
 import useCurrentUser from "features/userQueries/useCurrentUser";
@@ -80,51 +74,37 @@ describe("Event attendees", () => {
     beforeEach(() => {
       listEventAttendeesMock.mockImplementation(async ({ pageToken }) => {
         if (pageToken) {
-          return getEventAttendees();
+          return {
+            attendeeUserIdsList: [1, 3],
+            nextPageToken: "",
+          };
         }
         return {
-          attendeeUserIdsList: [2, 3],
-          nextPageToken: "3",
+          attendeeUserIdsList: [2, 4],
+          nextPageToken: "4",
         };
       });
     });
 
-    it("should show dialog for seeing all attendees when the 'See all' button is clicked", async () => {
+    it("shows page 1 first, then page 2 on next, then page 1 again on previous", async () => {
       render(<EventAttendees event={event} />, { wrapper });
 
       const user = userEvent.setup();
 
-      await user.click(
-        await screen.findByRole("button", { name: t("communities:see_all") }),
-      );
-      expect(
-        await screen.findByRole("dialog", { name: t("communities:attendees") }),
-      ).toBeVisible();
       expect(
         await screen.findByRole("heading", { name: "Funny Dog" }),
       ).toBeVisible();
       expect(
-        await screen.findByRole("heading", { name: "Funny Kid" }),
+        await screen.findByRole("heading", { name: "Funny Chicken" }),
       ).toBeVisible();
-    });
+      expect(
+        screen.queryByRole("heading", { name: "Funny Cat current User" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("heading", { name: "Funny Kid" }),
+      ).not.toBeInTheDocument();
 
-    it("should load the next page of attendees when the 'Load more attendees' button is clicked", async () => {
-      render(<EventAttendees event={event} />, { wrapper });
-
-      const user = userEvent.setup();
-
-      await user.click(
-        await screen.findByRole("button", { name: t("communities:see_all") }),
-      );
-      const dialog = within(
-        await screen.findByRole("dialog", { name: t("communities:attendees") }),
-      );
-
-      await user.click(
-        dialog.getByRole("button", {
-          name: t("communities:load_more_attendees"),
-        }),
-      );
+      await user.click(await screen.findByRole("button", { name: t("next") }));
 
       expect(
         await screen.findByRole("heading", {
@@ -132,11 +112,32 @@ describe("Event attendees", () => {
         }),
       ).toBeVisible();
       expect(
+        await screen.findByRole("heading", { name: "Funny Kid" }),
+      ).toBeVisible();
+      expect(
+        screen.queryByRole("heading", { name: "Funny Dog" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("heading", { name: "Funny Chicken" }),
+      ).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: t("previous") }));
+
+      expect(
+        await screen.findByRole("heading", { name: "Funny Dog" }),
+      ).toBeVisible();
+      expect(
         await screen.findByRole("heading", { name: "Funny Chicken" }),
       ).toBeVisible();
+      expect(
+        screen.queryByRole("heading", { name: "Funny Cat current User" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("heading", { name: "Funny Kid" }),
+      ).not.toBeInTheDocument();
     });
 
-    it("should hide unknown users in the dialog", async () => {
+    it("does not render unknown users on page 2 and clears skeletons after loading", async () => {
       listEventAttendeesMock.mockImplementation(async ({ pageToken }) => {
         if (pageToken) {
           return {
@@ -146,6 +147,42 @@ describe("Event attendees", () => {
         }
         return {
           attendeeUserIdsList: [4, 5],
+          nextPageToken: "5",
+        };
+      });
+      render(<EventAttendees event={event} />, { wrapper });
+
+      const user = userEvent.setup();
+
+      expect(
+        await screen.findByRole("heading", { name: "Funny Chicken" }),
+      ).toBeVisible();
+
+      await user.click(await screen.findByRole("button", { name: t("next") }));
+
+      await waitFor(() =>
+        expect(
+          screen.queryAllByTestId(USER_TITLE_SKELETON_TEST_ID),
+        ).toHaveLength(0),
+      );
+
+      expect(
+        screen.queryByRole("heading", { name: "Funny Kid" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("heading", { name: "Funny Cat current User" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows an error alert when the second page fetch fails", async () => {
+      mockConsoleError();
+      const errorMessage = "Error listing attendees";
+      listEventAttendeesMock.mockImplementation(async ({ pageToken }) => {
+        if (pageToken) {
+          throw new Error(errorMessage);
+        }
+        return {
+          attendeeUserIdsList: [2, 4],
           nextPageToken: "4",
         };
       });
@@ -153,64 +190,16 @@ describe("Event attendees", () => {
 
       const user = userEvent.setup();
 
-      await user.click(
-        await screen.findByRole("button", { name: t("communities:see_all") }),
-      );
-
-      const dialog = within(
-        await screen.findByRole("dialog", { name: t("communities:attendees") }),
-      );
-
-      await user.click(
-        await dialog.findByRole("button", {
-          name: t("communities:load_more_attendees"),
-        }),
-      );
-
-      await waitFor(() =>
-        expect(
-          dialog.queryByTestId(USER_TITLE_SKELETON_TEST_ID),
-        ).not.toBeInTheDocument(),
-      );
-    });
-
-    it("should show an error alert in the dialog if getting attendees failed", async () => {
-      mockConsoleError();
-      render(<EventAttendees event={event} />, { wrapper });
-      const errorMessage = "Error listing attendees";
-      listEventAttendeesMock.mockRejectedValue(new Error(errorMessage));
-
-      const user = userEvent.setup();
-
-      await user.click(
-        await screen.findByRole("button", { name: t("communities:see_all") }),
-      );
-
-      await screen.findByRole("dialog", { name: t("communities:attendees") });
-      await assertErrorAlert(errorMessage);
-    });
-
-    it("closes the dialog when the backdrop is clicked", async () => {
-      render(<EventAttendees event={event} />, { wrapper });
-
-      const user = userEvent.setup();
-
-      await user.click(
-        await screen.findByRole("button", { name: t("communities:see_all") }),
-      );
-      await screen.findByRole("dialog", { name: t("communities:attendees") });
-
-      await user.click(document.querySelector(".MuiBackdrop-root")!);
-
-      await waitForElementToBeRemoved(
-        screen.getByRole("dialog", { name: t("communities:attendees") }),
-      );
-
       expect(
-        screen.queryByRole("button", {
-          name: t("communities:load_more_attendees"),
-        }),
-      ).not.toBeInTheDocument();
+        await screen.findByRole("heading", { name: "Funny Dog" }),
+      ).toBeVisible();
+      expect(
+        await screen.findByRole("heading", { name: "Funny Chicken" }),
+      ).toBeVisible();
+
+      await user.click(await screen.findByRole("button", { name: t("next") }));
+
+      await assertErrorAlert(errorMessage);
     });
 
     it("should make attendee an organizer on menu option click", async () => {
