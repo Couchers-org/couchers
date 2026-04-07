@@ -180,7 +180,7 @@ def _run_forever(func: Callable[[], None]) -> None:
 
     while True:
         try:
-            logger.critical("Background worker starting")
+            logger.info("Background worker starting")
             func()
         except Exception as e:
             logger.critical("Unhandled exception in background worker", exc_info=e)
