@@ -4,5 +4,9 @@
   "introduction_title": "Sejděte se jako cizinci, odejděte jako přátelé",
   "introduction_subtitle2": "Navždy zdarma. Vedené komunitou. Neziskově.",
   "signup_header": "Přidej se ke komunitě Couchers.org",
-  "signup_continue": "Dokonči registraci"
+  "signup_continue": "Dokonči registraci",
+  "introduction_subtitle": "Sdílej svůj svět, objevuj jejich. Autentické couchsurfingové zážitky postavené na důvěře a opravdovém spojení – ne na transakcích.",
+  "signup_description2_one": "Cestuj, hostuj a spoj se s {{count}} členem. <2>Zjisti více o nás</2>.",
+  "signup_description2_few": "Cestuj, hostuj a spoj se se {{count}} členy. <2>Zjisti více o nás</2>.",
+  "signup_description2_other": "Cestuj, hostuj a spoj se s {{count}} členy. <2>Zjisti více o nás</2>."
 }
