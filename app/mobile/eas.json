@@ -25,6 +25,7 @@
     "production": {
       "autoIncrement": true,
       "channel": "production",
+      "environment": "production",
       "env": {
         "APP_VARIANT": "production",
         "EXPO_PUBLIC_API_BASE_URL": "https://api.couchers.org",
@@ -40,7 +41,7 @@
       },
       "android": {
         "track": "internal",
-        "releaseStatus": "completed",
+        "releaseStatus": "draft",
         "changesNotSentForReview": true
       }
     },
