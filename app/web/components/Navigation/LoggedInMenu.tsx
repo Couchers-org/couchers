@@ -429,7 +429,7 @@ export default function LoggedInMenu({
                 justifyContent: "center",
               }}
             >
-              <LanguagePickerSelect />
+              <LanguagePickerSelect onNavigate={() => setMenuOpen(false)} />
             </Box>
           )}
         </Box>
