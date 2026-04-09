@@ -1,5 +1,6 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { Href, useRouter } from "expo-router";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useCallback, useState } from "react";
 import { Appearance, BackHandler, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,7 +8,9 @@ import { WebView } from "react-native-webview";
 
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { loginRoute } from "@/routes";
+import client from "@/service/client";
 import { theme } from "@/theme";
+import { applicationNameForUserAgent } from "@/utils/userAgent";
 
 export default function LoginScreen() {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
@@ -48,11 +51,17 @@ export default function LoginScreen() {
       const data = JSON.parse(event.nativeEvent.data);
 
       if (data.type === "LOGIN_SUCCESS") {
-        // Update mobile auth state from web login
-        setUserId(data.userId);
-        setJailed(data.jailed || false);
-        markAuthenticated();
-        router.replace("/(tabs)/dashboard" as Href);
+        // Verify auth via the native HTTP client before navigating.
+        // The native client uses the shared cookie store — a successful
+        // call confirms the cookie has synced and new WebViews will have it.
+        const response = await client.auth.getAuthState(new Empty());
+        const authState = response.toObject();
+        if (authState.loggedIn && authState.authRes) {
+          setUserId(authState.authRes.userId);
+          setJailed(authState.authRes.jailed);
+          markAuthenticated();
+          router.replace("/(tabs)/dashboard" as Href);
+        }
       } else if (data.type === "LOGOUT") {
         // Clear mobile auth state and reset the WebView to drop history
         await markLoggedOut();
@@ -78,6 +87,7 @@ export default function LoginScreen() {
       <WebView
         key={webViewKey}
         source={{ uri: WEB_BASE_URL + loginRoute }}
+        applicationNameForUserAgent={applicationNameForUserAgent}
         sharedCookiesEnabled
         onMessage={handleMessage}
       />

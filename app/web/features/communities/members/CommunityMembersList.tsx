@@ -40,7 +40,7 @@ export default function CommunityMembersList({
 
   const currentPage = data?.pages && data.pages[pageNumber - 1];
 
-  const handelPreviousPageClick = () => {
+  const handlePreviousPageClick = () => {
     setPageNumber(pageNumber - 1);
   };
 
@@ -71,7 +71,7 @@ export default function CommunityMembersList({
           hasNextPage={currentPage?.nextPageToken !== ""}
           onNext={handleNextPageClick}
           hasPreviousPage={pageNumber > 1}
-          onPrevious={handelPreviousPageClick}
+          onPrevious={handlePreviousPageClick}
           isLoading={isLoading}
         />
       </PaginationWrapper>

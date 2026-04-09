@@ -21,6 +21,20 @@ jest.mock("@/features/auth/AuthContext", () => ({
   useAuthContext: jest.fn(),
 }));
 
+jest.mock("@/service/client", () => ({
+  __esModule: true,
+  default: {
+    auth: {
+      getAuthState: jest.fn().mockResolvedValue({
+        toObject: () => ({
+          loggedIn: true,
+          authRes: { userId: 123, jailed: false },
+        }),
+      }),
+    },
+  },
+}));
+
 let capturedWebViewProps: {
   source?: { uri: string };
   onMessage?: (event: { nativeEvent: { data: string } }) => void;
@@ -49,6 +63,8 @@ describe("LoginScreen", () => {
         nativeEvent: { data: JSON.stringify(data) },
       });
     });
+    // Flush the getAuthState promise in the LOGIN_SUCCESS handler
+    await act(async () => {});
   };
 
   beforeEach(() => {
@@ -79,6 +95,14 @@ describe("LoginScreen", () => {
     });
 
     it("handles jailed user correctly", async () => {
+      const mockClient = jest.requireMock("@/service/client").default;
+      mockClient.auth.getAuthState.mockResolvedValueOnce({
+        toObject: () => ({
+          loggedIn: true,
+          authRes: { userId: 456, jailed: true },
+        }),
+      });
+
       render(<LoginScreen />);
 
       await sendMessage({ type: "LOGIN_SUCCESS", userId: 456, jailed: true });

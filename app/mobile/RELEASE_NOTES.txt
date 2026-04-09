@@ -1,1 +1,4 @@
-- Fix menu staying open after switching tabs
+- Fix signup and password reset email confirmation redirects
+- Fix language picker closing the menu before selection
+- Add user agent string for bug reports
+- Fix notification menu not closing on navigation

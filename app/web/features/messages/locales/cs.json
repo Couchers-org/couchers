@@ -37,5 +37,8 @@
   },
   "create_chat": {
     "back_button": "Zpět"
-  }
+  },
+  "mark_all_read_button_text": "Označit vše jako přečtené",
+  "mark_all_read_button_text_chats": "Označit všechny chaty jako přečtené",
+  "mark_all_read_button_text_hosting": "Označit všechny žádosti o ubytování jako přečtené"
 }

@@ -45,5 +45,8 @@
   "community_missing": "Chybí tvá země nebo město? Použij <1>tento formulář</1> k jeho přidání!",
   "profile_mobile_summary_view": "Přejít na profil",
   "find_a_host": "Najdi hostitele",
-  "become_a_host": "Staň se hostitelem"
+  "become_a_host": "Staň se hostitelem",
+  "attendees_count_one": "{{count}} účastník",
+  "attendees_count_few": "{{count}} účastníci",
+  "attendees_count_other": "{{count}} účastníků"
 }
