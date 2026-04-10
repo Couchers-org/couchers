@@ -4,7 +4,6 @@ import Button from "components/Button";
 import IconButton from "components/IconButton";
 import Link from "next/link";
 import { useState } from "react";
-import { theme } from "theme";
 
 export default function ReminderItem() {
   const [isVisible, setIsVisible] = useState(true);
@@ -25,7 +24,7 @@ export default function ReminderItem() {
     >
       <Box
         sx={{
-          backgroundColor: theme.palette.warning.light,
+          backgroundColor: "var(--mui-palette-warning-light)",
           padding: "24px",
           position: "relative",
           minHeight: "100px",
@@ -93,7 +92,7 @@ export default function ReminderItem() {
 
       <Box
         sx={{
-          backgroundColor: theme.palette.warning.light,
+          backgroundColor: "var(--mui-palette-warning-light)",
           padding: "24px",
           position: "relative",
           minHeight: "100px",
@@ -111,7 +110,7 @@ export default function ReminderItem() {
             position: "absolute",
             top: 8,
             right: 8,
-            color: theme.palette.grey[500],
+            color: "var(--mui-palette-grey-500)",
           }}
         >
           <CloseIcon fontSize="small" />
@@ -161,7 +160,7 @@ export default function ReminderItem() {
 
       <Box
         sx={{
-          backgroundColor: theme.palette.warning.light,
+          backgroundColor: "var(--mui-palette-warning-light)",
           padding: "24px",
           position: "relative",
           minHeight: "100px",
@@ -179,7 +178,7 @@ export default function ReminderItem() {
             position: "absolute",
             top: 8,
             right: 8,
-            color: theme.palette.grey[500],
+            color: "var(--mui-palette-grey-500)",
           }}
         >
           <CloseIcon fontSize="small" />

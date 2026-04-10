@@ -45,11 +45,11 @@ export default function ReminderCarousel() {
           onClick={handlePrev}
           disabled={!canGoLeft}
           sx={{
-            backgroundColor: "primary.main",
-            color: "text.primary",
+            backgroundColor: "var(--mui-palette-background-paper)",
+            color: "var(--mui-palette-text-primary)",
             borderRadius: "50%",
             "&:hover": {
-              backgroundColor: "primary.dark",
+              backgroundColor: "var(--mui-palette-primary-dark)",
             },
             "&:disabled": {
               backgroundColor: "var(--mui-palette-grey-300)",
@@ -81,11 +81,11 @@ export default function ReminderCarousel() {
           onClick={handleNext}
           disabled={!canGoRight}
           sx={{
-            backgroundColor: "primary.main",
-            color: "text.primary",
+            backgroundColor: "var(--mui-palette-background-paper)",
+            color: "var(--mui-palette-text-primary)",
             borderRadius: "50%",
             "&:hover": {
-              backgroundColor: "primary.dark",
+              backgroundColor: "var(--mui-palette-primary-dark)",
             },
             "&:disabled": {
               backgroundColor: "var(--mui-palette-grey-300)",
