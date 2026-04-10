@@ -1,11 +1,11 @@
-import { styled } from "@mui/material";
+import { MenuItem, Select, SelectChangeEvent, styled } from "@mui/material";
 import Datepicker from "components/Datepicker";
 import Timepicker from "components/Timepicker";
 import { Timestamp } from "google-protobuf/google/protobuf/timestamp_pb";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Event } from "proto/events_pb";
-import { UseFormReturn } from "react-hook-form";
+import { Controller, UseFormReturn } from "react-hook-form";
 import { theme } from "theme";
 import { isSameOrFutureDate, timestamp2Date } from "utils/date";
 import dayjs, { Dayjs } from "utils/dayjs";
@@ -60,6 +60,9 @@ export default function EventTimeChanger({
     splitTimestampToDateAndTime(event?.startTime);
   const { date: eventEndDate, time: eventEndTime } =
     splitTimestampToDateAndTime(event?.endTime);
+  const timezone =
+    event?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const timezones = Intl.supportedValuesOf("timeZone");
 
   const handleStartDateChange = (newStartDate: Dayjs) => {
     setValue("startDate", newStartDate, {
@@ -84,6 +87,13 @@ export default function EventTimeChanger({
 
   const handleEndTimeChange = (newEndTime: Dayjs) => {
     setValue("endTime", newEndTime, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
+  const handleTimezoneChange = (event: SelectChangeEvent<string>) => {
+    setValue("timezone", event.target.value, {
       shouldDirty: true,
       shouldValidate: true,
     });
@@ -244,6 +254,20 @@ export default function EventTimeChanger({
           testId="endTime"
         />
       </StyledContainer>
+      <Select
+        id="timezone"
+        aria-label="Timezone"
+        variant="outlined"
+        label="Timezone"
+        value={timezone}
+        onChange={handleTimezoneChange}
+      >
+        {timezones.map((tz) => (
+          <MenuItem key={tz} value={tz}>
+            {tz}
+          </MenuItem>
+        ))}
+      </Select>
     </>
   );
 }

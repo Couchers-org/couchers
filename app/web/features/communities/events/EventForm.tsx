@@ -64,6 +64,7 @@ interface BaseEventData {
   endDate: Dayjs;
   startTime: Dayjs;
   endTime: Dayjs;
+  timezone?: string;
   isOnline: boolean;
   shouldNotify: boolean;
   eventImage?: string;
