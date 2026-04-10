@@ -60,7 +60,7 @@
     "admin_removal_text": "{{user}} удалил {{target_user}} из администраторов",
     "user_left_chat_text": "{{user}} вышел из чата",
     "admin_assignment_text": "{{user}} назначил(а) {{target_user}} администратором",
-    "unknown_message_text": "Неизвестное управляющее сообщение",
+    "unknown_message_text": "Неизвестное системное сообщение",
     "created_chat_text": "{{user}} создал(а) чат",
     "edited_chat_text": "{{user}} отредактировал(а) чат",
     "invite_user_text": "{{user}} пригласил(а) {{target_user}}",
