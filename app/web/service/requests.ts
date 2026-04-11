@@ -97,6 +97,9 @@ export type CreateHostRequestWrapper = Omit<
 export async function createHostRequest(data: CreateHostRequestWrapper) {
   const req = new CreateHostRequestReq();
   req.setHostUserId(data.hostUserId);
+  // Dayjs.format() uses the browser timezone,
+  // which matches the timezone we used to create the
+  // Dayjs object from the year/month/date input fields.
   req.setFromDate(data.fromDate.format().split("T")[0]);
   req.setToDate(data.toDate.format().split("T")[0]);
   req.setText(data.text);
