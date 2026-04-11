@@ -629,10 +629,17 @@ class Admin(admin_pb2_grpc.AdminServicer):
             session.execute(select(GroupChat).where(GroupChat.conversation_id.in_(group_chat_ids))).scalars().all()
         )
 
+        # Build protobuf objects, then sort by latest message time (most recent first)
+        host_request_pbs = [get_host_request_pb(hr) for hr in host_requests]
+        host_request_pbs.sort(key=lambda hr: hr.messages[-1].time.seconds if hr.messages else 0, reverse=True)
+
+        group_chat_pbs = [get_group_chat_pb(gc) for gc in group_chats]
+        group_chat_pbs.sort(key=lambda gc: gc.messages[-1].time.seconds if gc.messages else 0, reverse=True)
+
         return admin_pb2.GetChatsRes(
             user=get_chat_user_info(user.id),
-            host_requests=[get_host_request_pb(hr) for hr in host_requests],
-            group_chats=[get_group_chat_pb(gc) for gc in group_chats],
+            host_requests=host_request_pbs,
+            group_chats=group_chat_pbs,
         )
 
     def DeleteEvent(
