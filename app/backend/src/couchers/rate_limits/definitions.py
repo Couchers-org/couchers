@@ -42,6 +42,7 @@ def _get_user_host_requests_in_past_time_interval(session: Session, user_id: int
                 HostRequest.recipient_user_id.label("host ID"),
                 User.username.label("host username"),
                 User.city.label("host city"),
+                User.gender.label("host gender"),
             )
             .join(Conversation, HostRequest.conversation_id == Conversation.id)
             .join(User, HostRequest.recipient_user_id == User.id)
@@ -62,6 +63,7 @@ def _get_user_friend_requests_in_past_time_interval(session: Session, user_id: i
                 User.username.label("recipient username"),
                 FriendRelationship.status,
                 User.city.label("recipient city"),
+                User.gender.label("recipient gender"),
             )
             .join(User, FriendRelationship.to_user_id == User.id)
             .where(FriendRelationship.from_user_id == user_id)
@@ -82,6 +84,7 @@ def _get_user_initiated_chats_in_past_time_interval(session: Session, user_id: i
                 GroupChat.is_dm,
                 func.array_agg(User.username).label("participants"),
                 func.array_agg(User.city).label("participants cities"),
+                func.array_agg(User.gender).label("participants genders"),
             )
             .join(Conversation, GroupChat.conversation_id == Conversation.id)
             .join(GroupChatSubscription, Conversation.id == GroupChatSubscription.group_chat_id)
