@@ -273,8 +273,11 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        old_gender = user.gender
         user.gender = request.gender
-        log_admin_action(session, context, user, "change_gender", note=f"Changed to {request.gender}")
+        log_admin_action(
+            session, context, user, "change_gender", note=f"Changed from '{old_gender}' to '{request.gender}'"
+        )
         session.commit()
 
         notify(
@@ -298,8 +301,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not (birthdate := parse_date(request.birthdate)):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_birthdate")
 
+        old_birthdate = date_to_api(user.birthdate)
         user.birthdate = birthdate
-        log_admin_action(session, context, user, "change_birthdate", note=f"Changed to {request.birthdate}")
+        log_admin_action(
+            session,
+            context,
+            user,
+            "change_birthdate",
+            note=f"Changed from {old_birthdate} to {request.birthdate}",
+        )
         session.commit()
 
         notify(
@@ -367,8 +377,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        old_value = user.has_passport_sex_gender_exception
         user.has_passport_sex_gender_exception = request.passport_sex_gender_exception
-        log_admin_action(session, context, user, "set_passport_sex_gender_exception")
+        log_admin_action(
+            session,
+            context,
+            user,
+            "set_passport_sex_gender_exception",
+            note=f"Changed from {old_value} to {request.passport_sex_gender_exception}",
+        )
         return _user_to_details(session, user)
 
     def BanUser(

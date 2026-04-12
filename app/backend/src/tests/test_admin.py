@@ -928,13 +928,28 @@ def test_admin_actions_on_mutations(db, push_collector: PushCollector):
     with real_admin_session(super_token) as api:
         # ChangeUserGender
         res = api.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=normal_user.username, gender="Machine"))
-        assert any(a.action_type == "change_gender" for a in res.admin_actions)
+        assert any(
+            a.action_type == "change_gender" and a.note == "Changed from 'Woman' to 'Machine'"
+            for a in res.admin_actions
+        )
 
         # ChangeUserBirthdate
         res = api.ChangeUserBirthdate(
             admin_pb2.ChangeUserBirthdateReq(user=normal_user.username, birthdate="1990-01-01")
         )
-        assert any(a.action_type == "change_birthdate" for a in res.admin_actions)
+        assert any(
+            a.action_type == "change_birthdate" and a.note == "Changed from 2000-01-01 to 1990-01-01"
+            for a in res.admin_actions
+        )
+
+        # SetPassportSexGenderException
+        res = api.SetPassportSexGenderException(
+            admin_pb2.SetPassportSexGenderExceptionReq(user=normal_user.username, passport_sex_gender_exception=True)
+        )
+        assert any(
+            a.action_type == "set_passport_sex_gender_exception" and a.note == "Changed from False to True"
+            for a in res.admin_actions
+        )
 
         # DeleteUser
         res = api.DeleteUser(admin_pb2.DeleteUserReq(user=normal_user.username))
