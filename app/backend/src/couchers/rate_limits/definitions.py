@@ -42,6 +42,7 @@ def _get_user_host_requests_in_past_time_interval(session: Session, user_id: int
                 HostRequest.recipient_user_id.label("host ID"),
                 User.gender.label("host gender"),
                 User.username.label("host username"),
+                HostRequest.status,
                 User.city.label("host city"),
             )
             .join(Conversation, HostRequest.conversation_id == Conversation.id)
