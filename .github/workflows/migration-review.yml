@@ -37,6 +37,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           allowed_bots: "couchersbot[bot]"
           track_progress: true
+          use_sticky_comment: true
           additional_permissions: |
             pull-requests: write
           prompt: |
