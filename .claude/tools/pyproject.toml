@@ -9,6 +9,7 @@ dependencies = [
 [project.scripts]
 ci-status = "ci_status:main"
 ci-job-log = "ci_job_log:main"
+migration-review-comment = "migration_review_comment:main"
 
 [tool.uv]
 package = true

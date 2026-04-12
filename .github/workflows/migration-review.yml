@@ -29,6 +29,33 @@ jobs:
       - name: Download current schema
         run: curl -fsSL https://develop--schema.preview.couchershq.org/schema.sql -o schema.sql
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install claude tools
+        run: uv pip install --system -e .claude/tools
+
+      - name: Minimise previous comments
+        run: |
+          # Get PR comments from claude[bot] and hide them as outdated
+          REPO="${{ github.repository }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+
+          # Get review comments (PR review comments)
+          gh api "repos/$REPO/pulls/$PR_NUMBER/comments" --jq '.[] | select(.user.login == "couchersbot[bot]" and (.body | contains("Migration Review"))) | .node_id' | while read -r comment_node_id; do
+            if [ -n "$comment_node_id" ]; then
+              echo "Hiding review comment: $comment_node_id"
+              gh api graphql -f query='
+                mutation($id: ID!) {
+                  minimizeComment(input: {subjectId: $id, classifier: OUTDATED}) {
+                    minimizedComment {
+                      isMinimized
+                    }
+                  }
+                }' -f id="$comment_node_id"
+            fi
+          done
+
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1
@@ -37,7 +64,6 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           allowed_bots: "couchersbot[bot]"
           track_progress: true
-          use_sticky_comment: true
           additional_permissions: |
             pull-requests: write
           prompt: |
@@ -84,14 +110,17 @@ jobs:
                for additional context (e.g., to verify the revision chain or understand
                recent changes to the same tables).
             7. Evaluate the migration against the review checklist below.
-            8. Post (or update) a summary comment on the PR. To avoid spamming
-               multiple comments on repeated pushes:
-               a. First, check for an existing migration review comment:
-                  `gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments --jq '.[] | select(.body | contains("<!-- migration-review -->")) | .id' | head -1`
-               b. If a comment ID is found, edit it:
-                  `gh api repos/${{ github.repository }}/issues/comments/COMMENT_ID -X PATCH -f body="COMMENT_BODY"`
-               c. If no existing comment is found, create a new one:
-                  `gh pr comment ${{ github.event.pull_request.number }} --body "COMMENT_BODY"`
+            8. Post (or update) a summary comment on the PR using the migration-review-comment
+               tool. Pass your review data as JSON to stdin:
+               ```bash
+               echo '{"risk_level": "SAFE", "files_reviewed": [{"filename": "0001_example.py", "description": "adds a column"}], "findings": [], "summary": "Migration is safe."}' | migration-review-comment --repo ${{ github.repository }} --pr ${{ github.event.pull_request.number }}
+               ```
+
+               You MUST follow the JSON structure:
+               - `risk_level`: One of "SAFE", "LOW RISK", "MEDIUM RISK", "HIGH RISK"
+               - `files_reviewed`: Array of objects with `filename` and `description`
+               - `findings`: Array of objects with `category`, `severity`, `description`, and optional `details` array
+               - `summary`: 1-2 sentence summary of the assessment
             9. Post inline comments on specific problematic lines using the
                mcp__github_inline_comment__create_inline_comment tool.
 
@@ -210,38 +239,9 @@ jobs:
 
             ## Output Format
 
-            Post a single summary comment on the PR with this format (the HTML
-            comment on the first line is a marker used to find and update this
-            comment on subsequent pushes — always include it):
-
-            ```
-            <!-- migration-review -->
-            ## Migration Review
-
-            One of our most common issues is migrations that don't work with existing
-            data in production. This is very hard to catch with CI, so we have this bot
-            to check for potential problems.
-
-            **Overall Risk: [SAFE / LOW RISK / MEDIUM RISK / HIGH RISK]**
-
-            ### Files Reviewed
-            - `filename1.py` - brief description of what it does
-            - `filename2.py` - brief description of what it does
-
-            ### Findings
-
-            [Only list actual problems or risks relevant to THIS migration. Do not
-            list checklist items that passed or are not applicable. Keep it brief.]
-
-            - **[Category]** [LOW/MEDIUM/HIGH]: Description of the issue
-              - What could go wrong with existing data
-              - Suggested fix (if applicable)
-
-            [If there are no findings, just write "No issues found."]
-
-            ### Summary
-            [1-2 sentence summary of the overall assessment]
-            ```
+            Use the migration-review-comment tool as described in step 8. The tool
+            automatically formats the comment with the correct structure and handles
+            creating or updating the comment.
 
             If there are specific lines with issues, also post inline comments on those lines
             with actionable suggestions.
@@ -252,4 +252,4 @@ jobs:
             migration is safe, say so briefly and don't pad the review with non-issues.
           claude_args: |
             --model opus
-            --allowedTools "Read,Glob,Grep,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),Bash(gh api:*),mcp__github_inline_comment__create_inline_comment"
+            --allowedTools "Read,Glob,Grep,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(echo*|migration-review-comment:*),mcp__github_inline_comment__create_inline_comment"
