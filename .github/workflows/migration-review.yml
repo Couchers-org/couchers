@@ -234,4 +234,4 @@ jobs:
             with actionable suggestions using the mcp__github_inline_comment__create_inline_comment tool.
           claude_args: |
             --model opus
-            --allowedTools "Read,Glob,Grep,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(uv run --project .claude/tools migration-review-comment:*),mcp__github_inline_comment__create_inline_comment"
+            --allowedTools "Read,Glob,Grep,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git restore:*),Bash(uv run --project .claude/tools migration-review-comment:*),mcp__github_inline_comment__create_inline_comment"
