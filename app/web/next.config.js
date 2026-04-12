@@ -34,6 +34,16 @@ const nextConfig = {
     return config;
   },
   redirects: async () => redirects,
+  rewrites: async () => [
+    {
+      source: "/.well-known/apple-app-site-association",
+      destination: "/well-known/apple-app-site-association",
+    },
+    {
+      source: "/.well-known/assetlinks.json",
+      destination: "/well-known/assetlinks.json",
+    },
+  ],
   headers: async () => [
     {
       source: "/:path*",
