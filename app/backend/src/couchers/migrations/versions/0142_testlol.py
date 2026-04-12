@@ -17,6 +17,7 @@ depends_on = None
 
 
 def upgrade() -> None:
+    # doglog
     op.add_column("postal_verification_attemptsasdf", sa.Column("mypostcard_job_id", sa.Integer(), nullable=True))
     op.add_column("postal_verification_attemptsasdf", sa.Column("mypostcard_job_id", sa.Integer(), nullable=True))
     op.alter_column("postal_verification_attemptsasdf", "country", new_column_name="country_code")
