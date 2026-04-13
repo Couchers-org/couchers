@@ -127,22 +127,20 @@ function createIntlDateTimeFormat(
   return Intl.DateTimeFormat(args.locale, options);
 }
 
-let isoDateFormatYMD = "YYYY-MM-DD";
+let isoMuiDateFormat = "YYYY-MM-DD";
 
-/// Gets the date format for a locale using YYYY, MM and DD placeholders.
-export function getDateFormatYMD(locale: string): string {
+/// Gets the date format for a locale using Material UI placeholders.
+export function getMuiDateFormat(locale: string): string {
   if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
-    return isoDateFormatYMD;
+    return isoMuiDateFormat;
   }
 
   // Format dummy 3333-11-22 date to figure out how it gets laid out.
-  let intlFormat = new Intl.DateTimeFormat(locale, {
+  let referenceDate = new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "numeric",
     year: "numeric",
-  });
-
-  let referenceDate = intlFormat.format(new Date(3333, 10, 22));
+  }).format(new Date(3333, 10, 22));
 
   let format = referenceDate
     .replace("3333", "YYYY")
@@ -151,7 +149,48 @@ export function getDateFormatYMD(locale: string): string {
     .replace("22", "DD");
 
   // Sanity check: There should be no digits left
-  if (/[0-9]/.test(format)) return isoDateFormatYMD;
+  if (/[0-9]/.test(format)) return isoMuiDateFormat;
+  return format;
+}
+
+let defaultMuiTimeFormat = "HH:mm";
+
+/// Gets a localized time format string compatible with Material UI time pickers.
+export function getMuiTimeFormat(locale: string): string {
+  if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
+    return defaultMuiTimeFormat;
+  }
+
+  let intlFormat = new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: undefined,
+  });
+
+  // Sniff the format using example dates.
+  // Assume formats only vary by hour-minute separator, 12h vs 24h, and leading zeroes.
+  let hourMinuteSeparatorMatch = /10(\W+)10/.exec(
+    intlFormat.format(new Date(1970, 0, 1, 10, 10)),
+  );
+  let hourMinuteSeparator = hourMinuteSeparatorMatch
+    ? hourMinuteSeparatorMatch[1]
+    : ":";
+  let uses24h = intlFormat.format(new Date(1970, 0, 1, 23, 0)).includes("23");
+  let usesLeadingZeroes = intlFormat
+    .format(new Date(1970, 0, 1, 3, 0))
+    .includes("03");
+
+  var format = "";
+  if (uses24h) {
+    format += usesLeadingZeroes ? "HH" : "H";
+  } else {
+    format += usesLeadingZeroes ? "hh" : "h";
+  }
+  format += hourMinuteSeparator;
+  format += "mm";
+  if (!uses24h) {
+    format += " a";
+  }
   return format;
 }
 

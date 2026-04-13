@@ -1,5 +1,6 @@
 import {
-  getDateFormatYMD,
+  getMuiDateFormat,
+  getMuiTimeFormat,
   isSameOrFutureDate,
   localizeDateTime,
   UTC_TIMEZONE,
@@ -129,21 +130,38 @@ describe("localizeDateTime", () => {
   });
 });
 
-describe("getDateFormatYMD", () => {
+describe("getMuiDateFormat", () => {
   it("works for common locales", () => {
-    expect(getDateFormatYMD("en")).toEqual("MM/DD/YYYY");
-    expect(getDateFormatYMD("de")).toEqual("DD.MM.YYYY");
-    expect(getDateFormatYMD("ja-JP")).toEqual("YYYY/MM/DD");
-    expect(getDateFormatYMD("fr-CA")).toEqual("YYYY-MM-DD");
+    expect(getMuiDateFormat("en")).toEqual("MM/DD/YYYY");
+    expect(getMuiDateFormat("de")).toEqual("DD.MM.YYYY");
+    expect(getMuiDateFormat("ja-JP")).toEqual("YYYY/MM/DD");
+    expect(getMuiDateFormat("fr-CA")).toEqual("YYYY-MM-DD");
   });
 
   it("works for generic and specific locales", () => {
-    expect(getDateFormatYMD("ja")).toEqual("YYYY/MM/DD");
-    expect(getDateFormatYMD("ja-JP")).toEqual("YYYY/MM/DD");
+    expect(getMuiDateFormat("ja")).toEqual("YYYY/MM/DD");
+    expect(getMuiDateFormat("ja-JP")).toEqual("YYYY/MM/DD");
   });
 
   it("returns a default value for unsupported locales", () => {
-    expect(getDateFormatYMD("xx")).toEqual("YYYY-MM-DD");
+    expect(getMuiDateFormat("xx")).toEqual("YYYY-MM-DD");
+  });
+});
+
+describe("getMuiTimeFormat", () => {
+  it("works for common locales", () => {
+    expect(getMuiTimeFormat("en")).toEqual("h:mm a");
+    expect(getMuiTimeFormat("de")).toEqual("HH:mm");
+    expect(getMuiTimeFormat("ja-JP")).toEqual("H:mm");
+  });
+
+  it("works for generic and specific locales", () => {
+    expect(getMuiTimeFormat("ja")).toEqual("H:mm");
+    expect(getMuiTimeFormat("ja-JP")).toEqual("H:mm");
+  });
+
+  it("returns a default value for unsupported locales", () => {
+    expect(getMuiTimeFormat("xx")).toEqual("HH:mm");
   });
 });
 

@@ -2,7 +2,7 @@ import { InputProps } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useTranslation } from "i18n";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
-import { getDateFormatYMD } from "utils/date";
+import { getMuiDateFormat } from "utils/date";
 import dayjs, { Dayjs } from "utils/dayjs";
 
 interface DatepickerProps {
@@ -64,7 +64,7 @@ const Datepicker = ({
           }}
           openTo={openTo}
           views={["year", "month", "day"]}
-          format={getDateFormatYMD(i18n.language)}
+          format={getMuiDateFormat(i18n.language)}
           slotProps={{
             textField: {
               fullWidth: true,

@@ -3,7 +3,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import React, { useMemo } from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
-import { uses24HourClock } from "utils/date";
+import { getMuiTimeFormat } from "utils/date";
 import { Dayjs } from "utils/dayjs";
 
 interface TimepickerProps {
@@ -35,11 +35,10 @@ const Timepicker = ({
   testId,
 }: TimepickerProps) => {
   const { t, i18n } = useTranslation([GLOBAL]);
-  const is24HourClock = useMemo(
-    () => uses24HourClock(i18n.language),
+  const format = useMemo(
+    () => getMuiTimeFormat(i18n.language),
     [i18n.language],
   );
-  const format = is24HourClock ? "HH:mm" : "h:mm a";
 
   return (
     <Controller
