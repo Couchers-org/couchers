@@ -194,14 +194,6 @@ export function getMuiTimeFormat(locale: string): string {
   return format;
 }
 
-export function uses24HourClock(locale: string): boolean {
-  const formatted = new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    hour12: undefined,
-  }).format(new Date(2020, 0, 1, 23, 0));
-  return formatted.includes("23");
-}
-
 function timestamp2Date(timestamp: Timestamp.AsObject): Date {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
 }
