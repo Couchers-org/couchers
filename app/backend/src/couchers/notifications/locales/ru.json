@@ -267,6 +267,9 @@
       "title": "Пароль изменён",
       "ios_title": "Пароль изменён",
       "body": "Ваш пароль был изменён."
+    },
+    "verification__sv_success": {
+      "title": "Выполнена усиленная верификация"
     }
   },
   "topic_action_descriptions": {
