@@ -1,4 +1,9 @@
-import { isSameOrFutureDate, localizeDateTime, UTC_TIMEZONE } from "utils/date";
+import {
+  getDateFormatYMD,
+  isSameOrFutureDate,
+  localizeDateTime,
+  UTC_TIMEZONE,
+} from "utils/date";
 import dayjs from "utils/dayjs";
 
 const FUTURE = dayjs("2025-02-15");
@@ -121,6 +126,24 @@ describe("localizeDateTime", () => {
         locale: "de",
       }),
     ).toContain("Januar");
+  });
+});
+
+describe("getDateFormatYMD", () => {
+  it("works for common locales", () => {
+    expect(getDateFormatYMD("en")).toEqual("MM/DD/YYYY");
+    expect(getDateFormatYMD("de")).toEqual("DD.MM.YYYY");
+    expect(getDateFormatYMD("ja-JP")).toEqual("YYYY/MM/DD");
+    expect(getDateFormatYMD("fr-CA")).toEqual("YYYY-MM-DD");
+  });
+
+  it("works for generic and specific locales", () => {
+    expect(getDateFormatYMD("ja")).toEqual("YYYY/MM/DD");
+    expect(getDateFormatYMD("ja-JP")).toEqual("YYYY/MM/DD");
+  });
+
+  it("returns a default value for unsupported locales", () => {
+    expect(getDateFormatYMD("xx")).toEqual("YYYY-MM-DD");
   });
 });
 

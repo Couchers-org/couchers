@@ -127,6 +127,42 @@ function createIntlDateTimeFormat(
   return Intl.DateTimeFormat(args.locale, options);
 }
 
+let isoDateFormatYMD = "YYYY-MM-DD";
+
+/// Gets the date format for a locale using YYYY, MM and DD placeholders.
+export function getDateFormatYMD(locale: string): string {
+  if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
+    return isoDateFormatYMD;
+  }
+
+  // Format dummy 3333-11-22 date to figure out how it gets laid out.
+  let intlFormat = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  });
+
+  let referenceDate = intlFormat.format(new Date(3333, 10, 22));
+
+  let format = referenceDate
+    .replace("3333", "YYYY")
+    .replace("33", "YY")
+    .replace("11", "MM")
+    .replace("22", "DD");
+
+  // Sanity check: There should be no digits left
+  if (/[0-9]/.test(format)) return isoDateFormatYMD;
+  return format;
+}
+
+export function uses24HourClock(locale: string): boolean {
+  const formatted = new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    hour12: undefined,
+  }).format(new Date(2020, 0, 1, 23, 0));
+  return formatted.includes("23");
+}
+
 function timestamp2Date(timestamp: Timestamp.AsObject): Date {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
 }
