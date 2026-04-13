@@ -127,7 +127,7 @@ function createIntlDateTimeFormat(
   return Intl.DateTimeFormat(args.locale, options);
 }
 
-let isoMuiDateFormat = "YYYY-MM-DD";
+const isoMuiDateFormat = "YYYY-MM-DD";
 
 /// Gets the date format for a locale using Material UI placeholders.
 export function getMuiDateFormat(locale: string): string {
@@ -136,13 +136,13 @@ export function getMuiDateFormat(locale: string): string {
   }
 
   // Format dummy 3333-11-22 date to figure out how it gets laid out.
-  let referenceDate = new Intl.DateTimeFormat(locale, {
+  const referenceDate = new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "numeric",
     year: "numeric",
   }).format(new Date(3333, 10, 22));
 
-  let format = referenceDate
+  const format = referenceDate
     .replace("3333", "YYYY")
     .replace("33", "YY")
     .replace("11", "MM")
@@ -153,7 +153,7 @@ export function getMuiDateFormat(locale: string): string {
   return format;
 }
 
-let defaultMuiTimeFormat = "HH:mm";
+const defaultMuiTimeFormat = "HH:mm";
 
 /// Gets a localized time format string compatible with Material UI time pickers.
 export function getMuiTimeFormat(locale: string): string {
@@ -161,7 +161,7 @@ export function getMuiTimeFormat(locale: string): string {
     return defaultMuiTimeFormat;
   }
 
-  let intlFormat = new Intl.DateTimeFormat(locale, {
+  const intlFormat = new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     minute: "numeric",
     hour12: undefined,
@@ -169,18 +169,18 @@ export function getMuiTimeFormat(locale: string): string {
 
   // Sniff the format using example dates.
   // Assume formats only vary by hour-minute separator, 12h vs 24h, and leading zeroes.
-  let hourMinuteSeparatorMatch = /10(\W+)10/.exec(
+  const hourMinuteSeparatorMatch = /10(\W+)10/.exec(
     intlFormat.format(new Date(1970, 0, 1, 10, 10)),
   );
-  let hourMinuteSeparator = hourMinuteSeparatorMatch
+  const hourMinuteSeparator = hourMinuteSeparatorMatch
     ? hourMinuteSeparatorMatch[1]
     : ":";
-  let uses24h = intlFormat.format(new Date(1970, 0, 1, 23, 0)).includes("23");
-  let usesLeadingZeroes = intlFormat
+  const uses24h = intlFormat.format(new Date(1970, 0, 1, 23, 0)).includes("23");
+  const usesLeadingZeroes = intlFormat
     .format(new Date(1970, 0, 1, 3, 0))
     .includes("03");
 
-  var format = "";
+  let format = "";
   if (uses24h) {
     format += usesLeadingZeroes ? "HH" : "H";
   } else {
