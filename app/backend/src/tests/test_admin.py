@@ -925,16 +925,58 @@ def test_admin_actions_on_mutations(db, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, _ = generate_user()
 
+    original_gender = normal_user.gender
+    original_birthdate = normal_user.birthdate
+
     with real_admin_session(super_token) as api:
         # ChangeUserGender
         res = api.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=normal_user.username, gender="Machine"))
-        assert any(a.action_type == "change_gender" for a in res.admin_actions)
+        assert any(
+            a.action_type == "change_gender" and a.note == f"Changed from '{original_gender}' to 'Machine'"
+            for a in res.admin_actions
+        )
 
         # ChangeUserBirthdate
         res = api.ChangeUserBirthdate(
             admin_pb2.ChangeUserBirthdateReq(user=normal_user.username, birthdate="1990-01-01")
         )
-        assert any(a.action_type == "change_birthdate" for a in res.admin_actions)
+        assert any(
+            a.action_type == "change_birthdate" and a.note == f"Changed from {original_birthdate} to 1990-01-01"
+            for a in res.admin_actions
+        )
+
+        # SetPassportSexGenderException
+        res = api.SetPassportSexGenderException(
+            admin_pb2.SetPassportSexGenderExceptionReq(user=normal_user.username, passport_sex_gender_exception=True)
+        )
+        assert any(
+            a.action_type == "set_passport_sex_gender_exception" and a.note == "Changed from False to True"
+            for a in res.admin_actions
+        )
+
+        # SendModNote with notify
+        res = api.SendModNote(
+            admin_pb2.SendModNoteReq(
+                user=normal_user.username, content="Please update your profile", internal_id="test1"
+            )
+        )
+        assert any(
+            a.action_type == "send_mod_note" and a.note == "Notify user: Yes\n\nPlease update your profile"
+            for a in res.admin_actions
+        )
+
+        # SendModNote with do_not_notify
+        res = api.SendModNote(
+            admin_pb2.SendModNoteReq(
+                user=normal_user.username,
+                content="Silent note",
+                internal_id="test2",
+                do_not_notify=True,
+            )
+        )
+        assert any(
+            a.action_type == "send_mod_note" and a.note == "Notify user: No\n\nSilent note" for a in res.admin_actions
+        )
 
         # DeleteUser
         res = api.DeleteUser(admin_pb2.DeleteUserReq(user=normal_user.username))
@@ -949,7 +991,10 @@ def test_admin_actions_on_mutations(db, push_collector: PushCollector):
 
         # MarkUserNeedsLocationUpdate
         res = api.MarkUserNeedsLocationUpdate(admin_pb2.MarkUserNeedsLocationUpdateReq(user=normal_user.username))
-        assert any(a.action_type == "mark_needs_location_update" for a in res.admin_actions)
+        assert any(
+            a.action_type == "mark_needs_location_update" and a.note == "Marked user as needing location update"
+            for a in res.admin_actions
+        )
 
         # SetLastDonated
         res = api.SetLastDonated(

@@ -273,8 +273,11 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        old_gender = user.gender
         user.gender = request.gender
-        log_admin_action(session, context, user, "change_gender", note=f"Changed to {request.gender}")
+        log_admin_action(
+            session, context, user, "change_gender", note=f"Changed from '{old_gender}' to '{request.gender}'"
+        )
         session.commit()
 
         notify(
@@ -298,8 +301,11 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not (birthdate := parse_date(request.birthdate)):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_birthdate")
 
+        old_birthdate = user.birthdate
         user.birthdate = birthdate
-        log_admin_action(session, context, user, "change_birthdate", note=f"Changed to {request.birthdate}")
+        log_admin_action(
+            session, context, user, "change_birthdate", note=f"Changed from {old_birthdate} to {request.birthdate}"
+        )
         session.commit()
 
         notify(
@@ -367,8 +373,15 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        old_exception = user.has_passport_sex_gender_exception
         user.has_passport_sex_gender_exception = request.passport_sex_gender_exception
-        log_admin_action(session, context, user, "set_passport_sex_gender_exception")
+        log_admin_action(
+            session,
+            context,
+            user,
+            "set_passport_sex_gender_exception",
+            note=f"Changed from {old_exception} to {request.passport_sex_gender_exception}",
+        )
         return _user_to_details(session, user)
 
     def BanUser(
@@ -451,7 +464,14 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
         )
         session.flush()
-        log_admin_action(session, context, user, "send_mod_note", note=request.content)
+        notify_user = "No" if request.do_not_notify else "Yes"
+        log_admin_action(
+            session,
+            context,
+            user,
+            "send_mod_note",
+            note=f"Notify user: {notify_user}\n\n{request.content}",
+        )
 
         if not request.do_not_notify:
             notify(
@@ -470,7 +490,9 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         user.needs_to_update_location = True
-        log_admin_action(session, context, user, "mark_needs_location_update")
+        log_admin_action(
+            session, context, user, "mark_needs_location_update", note="Marked user as needing location update"
+        )
         return _user_to_details(session, user)
 
     def DeleteUser(
@@ -629,10 +651,17 @@ class Admin(admin_pb2_grpc.AdminServicer):
             session.execute(select(GroupChat).where(GroupChat.conversation_id.in_(group_chat_ids))).scalars().all()
         )
 
+        # Build protobuf objects, then sort by latest message time (most recent first)
+        host_request_pbs = [get_host_request_pb(hr) for hr in host_requests]
+        host_request_pbs.sort(key=lambda hr: hr.messages[-1].time.seconds if hr.messages else 0, reverse=True)
+
+        group_chat_pbs = [get_group_chat_pb(gc) for gc in group_chats]
+        group_chat_pbs.sort(key=lambda gc: gc.messages[-1].time.seconds if gc.messages else 0, reverse=True)
+
         return admin_pb2.GetChatsRes(
             user=get_chat_user_info(user.id),
-            host_requests=[get_host_request_pb(hr) for hr in host_requests],
-            group_chats=[get_group_chat_pb(gc) for gc in group_chats],
+            host_requests=host_request_pbs,
+            group_chats=group_chat_pbs,
         )
 
     def DeleteEvent(
