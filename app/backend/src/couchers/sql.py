@@ -10,6 +10,7 @@ from couchers.models import (
     FriendRelationship,
     GroupChat,
     HostRequest,
+    ModerationObjectType,
     ModerationState,
     ModerationVisibility,
     SignupFlow,
@@ -203,35 +204,72 @@ def moderation_state_column_visible(
 
     The condition evaluates to True when:
     - The column is NULL (non-moderated content), OR
-    - The linked content (HostRequest/GroupChat) is visible per where_moderated_content_visible
-
-    TODO: if you use this with a non-null column, check what's going on
+    - The linked moderation state has visibility 'visible' or 'unlisted', OR
+    - The linked moderation state has visibility 'shadowed' and the current user is the author
     """
-    hr_visible = exists(
-        where_moderated_content_visible(
-            select(HostRequest).where(HostRequest.moderation_state_id == column), context, HostRequest
-        )
+    aliased_mod_state = aliased(ModerationState)
+
+    # For 'shadowed' content, check if the user is the author by looking up the content table
+    # using object_type and object_id on the moderation_state row
+    shadowed_conditions: list[ColumnElement[bool]] = []
+    if context.is_logged_in():
+        shadowed_conditions = [
+            and_(
+                aliased_mod_state.visibility == ModerationVisibility.shadowed,
+                or_(
+                    and_(
+                        aliased_mod_state.object_type == ModerationObjectType.host_request,
+                        exists(
+                            select(HostRequest.conversation_id).where(
+                                HostRequest.conversation_id == aliased_mod_state.object_id,
+                                HostRequest.initiator_user_id == context.user_id,
+                            )
+                        ),
+                    ),
+                    and_(
+                        aliased_mod_state.object_type == ModerationObjectType.group_chat,
+                        exists(
+                            select(GroupChat.conversation_id).where(
+                                GroupChat.conversation_id == aliased_mod_state.object_id,
+                                GroupChat.creator_id == context.user_id,
+                            )
+                        ),
+                    ),
+                    and_(
+                        aliased_mod_state.object_type == ModerationObjectType.friend_request,
+                        exists(
+                            select(FriendRelationship.id).where(
+                                FriendRelationship.id == aliased_mod_state.object_id,
+                                FriendRelationship.from_user_id == context.user_id,
+                            )
+                        ),
+                    ),
+                    and_(
+                        aliased_mod_state.object_type == ModerationObjectType.event_occurrence,
+                        exists(
+                            select(EventOccurrence.id).where(
+                                EventOccurrence.id == aliased_mod_state.object_id,
+                                EventOccurrence.creator_user_id == context.user_id,
+                            )
+                        ),
+                    ),
+                ),
+            )
+        ]
+
+    return or_(
+        column.is_(None),
+        exists(
+            select(aliased_mod_state.id).where(
+                aliased_mod_state.id == column,
+                or_(
+                    aliased_mod_state.visibility == ModerationVisibility.visible,
+                    aliased_mod_state.visibility == ModerationVisibility.unlisted,
+                    *shadowed_conditions,
+                ),
+            )
+        ),
     )
-    gc_visible = exists(
-        where_moderated_content_visible(
-            select(GroupChat).where(GroupChat.moderation_state_id == column), context, GroupChat
-        )
-    )
-    fr_visible = exists(
-        where_moderated_content_visible(
-            select(FriendRelationship).where(FriendRelationship.moderation_state_id == column),
-            context,
-            FriendRelationship,
-        )
-    )
-    eo_visible = exists(
-        where_moderated_content_visible(
-            select(EventOccurrence).where(EventOccurrence.moderation_state_id == column),
-            context,
-            EventOccurrence,
-        )
-    )
-    return or_(column.is_(None), hr_visible, gc_visible, fr_visible, eo_visible)
 
 
 def _relevant_user_blocks(user_id: int) -> Select[tuple[int]]:

@@ -172,8 +172,8 @@ sent_request_gauge: Gauge = _make_gauge_from_query(
     "couchers_users_sent_request",
     "Total number of users who have sent a host request",
     (
-        select(func.count(distinct(HostRequest.surfer_user_id)))
-        .join(User, User.id == HostRequest.surfer_user_id)
+        select(func.count(distinct(HostRequest.initiator_user_id)))
+        .join(User, User.id == HostRequest.initiator_user_id)
         .where(User.is_visible)
     ),
 )
@@ -532,6 +532,13 @@ def observe_moderation_queue_resolution_time(
     trigger: ModerationTrigger, action: ModerationAction, object_type: ModerationObjectType, duration_s: float
 ) -> None:
     moderation_queue_resolution_time_histogram.labels(trigger.name, action.name, object_type.name).observe(duration_s)
+
+
+postcards_sent_counter: Counter = Counter(
+    "couchers_postcards_sent_total",
+    "Number of postcards sent via MyPostcard",
+    labelnames=["country_code"],
+)
 
 
 def create_prometheus_server(port: int) -> Any:

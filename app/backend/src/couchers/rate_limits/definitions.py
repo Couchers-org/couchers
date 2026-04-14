@@ -39,13 +39,15 @@ def _get_user_host_requests_in_past_time_interval(session: Session, user_id: int
         session.execute(
             select(
                 Conversation.created.label("created"),
-                HostRequest.host_user_id.label("host ID"),
+                HostRequest.recipient_user_id.label("host ID"),
+                User.gender.label("host gender"),
                 User.username.label("host username"),
+                HostRequest.status,
                 User.city.label("host city"),
             )
             .join(Conversation, HostRequest.conversation_id == Conversation.id)
-            .join(User, HostRequest.host_user_id == User.id)
-            .where(HostRequest.surfer_user_id == user_id)
+            .join(User, HostRequest.recipient_user_id == User.id)
+            .where(HostRequest.initiator_user_id == user_id)
             .where(Conversation.created >= now() - RATE_LIMIT_INTERVAL)
         )
         .mappings()
@@ -59,6 +61,7 @@ def _get_user_friend_requests_in_past_time_interval(session: Session, user_id: i
             select(
                 FriendRelationship.time_sent,
                 User.id.label("recipient ID"),
+                User.gender.label("recipient gender"),
                 User.username.label("recipient username"),
                 FriendRelationship.status,
                 User.city.label("recipient city"),
@@ -81,6 +84,7 @@ def _get_user_initiated_chats_in_past_time_interval(session: Session, user_id: i
                 GroupChat.title,
                 GroupChat.is_dm,
                 func.array_agg(User.username).label("participants"),
+                func.array_agg(User.gender).label("participants genders"),
                 func.array_agg(User.city).label("participants cities"),
             )
             .join(Conversation, GroupChat.conversation_id == Conversation.id)
@@ -105,7 +109,7 @@ RATE_LIMIT_DEFINITIONS = {
             select(func.count())
             .select_from(HostRequest)
             .join(Conversation, HostRequest.conversation_id == Conversation.id)
-            .where(HostRequest.surfer_user_id == user_id)
+            .where(HostRequest.initiator_user_id == user_id)
             .where(Conversation.created >= now() - RATE_LIMIT_INTERVAL)
         ).scalar_one(),
         mod_email_information_query=_get_user_host_requests_in_past_time_interval,

@@ -225,11 +225,11 @@ export default function HostRequestListItem({
               <StyledDateAndBadgeContainer>
                 <Typography component="div" display="inline" variant="h3">
                   {localizeDateTimeRange(
-                    dayjs(hostRequest.fromDate),
-                    dayjs(hostRequest.toDate),
+                    // Host request are plain dates (no time),
+                    // just make sure to parse and format them in the same timezone.
+                    dayjs.tz(hostRequest.fromDate, UTC_TIMEZONE),
+                    dayjs.tz(hostRequest.toDate, UTC_TIMEZONE),
                     {
-                      // Host request dates are plain dates (no time),
-                      // so it they can only be interpreted in UTC.
                       timezone: UTC_TIMEZONE,
                       locale,
                       includeTime: false,

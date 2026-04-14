@@ -22,6 +22,7 @@ import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
 import errorGraphic from "@/resources/404graphic.png";
 import { theme } from "@/theme";
+import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
 type WebEmbedProps = {
@@ -179,7 +180,9 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       const payload = JSON.parse(event.nativeEvent.data);
 
       if (payload?.type === "LOGIN_SUCCESS") {
-        // Web app says user logged in - update mobile state
+        // Web app says user logged in - update mobile state.
+        // On auth-guarded screens (signup, password-reset), Stack.Protected
+        // automatically transitions to (tabs) when authenticated becomes true.
         setUserId(payload.userId);
         setJailed(payload.jailed || false);
         markAuthenticated();
@@ -278,6 +281,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         ref={webviewRef}
         style={[styles.webview, { backgroundColor }]}
         source={{ uri: WEB_BASE_URL + path }}
+        applicationNameForUserAgent={applicationNameForUserAgent}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled
         cacheEnabled={true}

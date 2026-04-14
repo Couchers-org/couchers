@@ -52,15 +52,20 @@ ssh couchers2
 
 ### Deploying
 
-Once set up, deploy by running:
+We have a dashboard for deploying at `https://ops.couchershq.org/`.
 
-```sh
-git checkout develop
-git pull
-cd app/deployment
-./deploy.sh
-```
+To deploy:
 
+- Click around `https://next.couchershq.org/` to make sure nothing obvious was broken by recent merges, especially map search.
+- Go to `https://ops.couchershq.org/`
+- Find the "Deploy" button on the latest commit and click it.
+- Refresh the page, the status at the top should update
+- It will take about a minute
+- Once it's done, click around prod, make sure everything is working.
+
+It's essential to be able to be around for another 30 minutes after deploying if something breaks.
+
+For deployments that don't update a migration, the immediate rollback plan is to go back to the last good known version. For deployments that do update a migration, it should only be done when someone knowledgeable is around and able to help if something happens.
 
 ## Server setup
 

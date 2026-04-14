@@ -122,11 +122,11 @@
     "link": "Más información sobre esta característica"
   },
   "fill_out_comment": "¡Necesitas escribir algo primero!",
-  "my_communities": "Mis Comunidades",
+  "my_communities": "Mis comunidades",
   "time_required": "Por favor, indica una hora.",
   "end_date_error": "La fecha de finalización del evento debe ser posterior a la de inicio.",
   "members_empty_state": "Sin miembros por ahora.",
-  "members_title": "Miembros de la Comunidad",
+  "members_title": "Miembros de la comunidad",
   "your_events": "Tus eventos",
   "created_by_me": "Creado por mí",
   "notify_attendees": "Notificar a los asistentes del evento de este cambio",
@@ -141,7 +141,7 @@
     "dialog_text": "¿De verdad deseas quitar a {{name}} como co-organizador de {{event}}?"
   },
   "create_new_event": "Crear un nuevo evento",
-  "no_results_found_with_link": "No se ha encontrado Comunidades. <0>¡Solicita esta comunidad!</0>",
+  "no_results_found_with_link": "No se ha encontrado comunidades. <0>¡Solicita esta comunidad!</0>",
   "all_events_page_tabs_a11y_label": "Pestañas para los listados de eventos",
   "end_time_error": "La hora de finalización del evento debe ser posterior a la de inicio.",
   "total_members": "miembros totales",

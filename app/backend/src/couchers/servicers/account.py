@@ -740,11 +740,13 @@ class Account(account_pb2_grpc.AccountServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         # responding to reqs comes first in desc order of when they were received
-        query = select(HostRequest.conversation_id, LiteUser).join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
-        query = where_users_column_visible(query, context, HostRequest.surfer_user_id)
+        query = select(HostRequest.conversation_id, LiteUser).join(
+            LiteUser, LiteUser.id == HostRequest.initiator_user_id
+        )
+        query = where_users_column_visible(query, context, HostRequest.initiator_user_id)
         query = where_moderated_content_visible(query, context, HostRequest, is_list_operation=True)
         pending_host_requests = session.execute(
-            query.where(HostRequest.host_user_id == context.user_id)
+            query.where(HostRequest.recipient_user_id == context.user_id)
             .where(HostRequest.status == HostRequestStatus.pending)
             .where(HostRequest.start_time > func.now())
             .order_by(HostRequest.conversation_id.asc())

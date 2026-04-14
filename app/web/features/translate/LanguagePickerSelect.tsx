@@ -61,12 +61,13 @@ const StyledSelect = styled(Select, {
 
 type LanguagePickerSelectProps = {
   displayMode?: "round" | "rect";
+  onNavigate?: () => void;
 };
 
 export default function LanguagePickerSelect({
   displayMode = "round",
-  onSelect,
-}: LanguagePickerSelectProps & { onSelect?: () => void }) {
+  onNavigate,
+}: LanguagePickerSelectProps) {
   const router = useRouter();
   const { asPath, locale, pathname, query } = router;
   const { authState } = useAuthContext();
@@ -105,8 +106,6 @@ export default function LanguagePickerSelect({
       changeLanguageMutation(newLocale);
     }
 
-    onSelect?.();
-
     router.push({ pathname, query }, asPath, { locale: newLocale });
 
     setIsChangingLanguage(false);
@@ -116,8 +115,8 @@ export default function LanguagePickerSelect({
     e.stopPropagation();
 
     setIsOpen(false);
+    onNavigate?.();
     router.push(translateRoute);
-    onSelect?.();
   };
 
   const renderFlag = (flagCode: string, percent?: number) => {

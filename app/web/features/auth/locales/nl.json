@@ -15,7 +15,8 @@
       "no_emails_enable_text": "Stuur mij geen e-mails",
       "no_emails_disable_text": "E-mails weer aanzetten"
     },
-    "title": "Stuur mij geen e-mails"
+    "title": "Stuur mij geen e-mails",
+    "caveat": "Door deze instelling in te schakelen, wordt je account zo ingesteld dat je geen hostverzoeken meer accepteert. Je krijgt nog wel beveiligingsmails, zoals bijvoorbeeld een mail als je je wachtwoord opnieuw wilt instellen. Afmelden voor de nieuwsbrief gaat op een andere manier: klik daarvoor in de link onderaan in de nieuwsbrief."
   },
   "change_email_confirmation": {
     "error_message": "Foutmelding bij het veranderen van je e-mailadres: {{message}}",

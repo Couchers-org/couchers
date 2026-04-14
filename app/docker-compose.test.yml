@@ -3,6 +3,7 @@ services:
     image: postgis/postgis:17-3.5
     env_file: postgres.test.env
     command: postgres
+      -c shared_preload_libraries=pg_stat_statements
       -c bgwriter_lru_maxpages=0
       -c jit=off
       -c fsync=off

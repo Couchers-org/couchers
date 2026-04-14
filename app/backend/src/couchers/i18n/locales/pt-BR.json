@@ -220,7 +220,20 @@
     "admin_tag_not_found": "Tag de administrador não localizada.",
     "too_many_diagnostic_infos": "Muitos eventos de diagnóstico em um único lote.",
     "user_already_has_admin_tag": "O usuário já tem essa tag de administrador.",
-    "user_does_not_have_admin_tag": "O usuário não tem essa tag de administrador."
+    "user_does_not_have_admin_tag": "O usuário não tem essa tag de administrador.",
+    "chat_initiation_rate_limit2_one": "Você enviou mensagens para muitos usuários na última hora. Para evitar spam, não é possível contatar mais nenhum usuário agora.",
+    "chat_initiation_rate_limit2_many": "Você enviou mensagens para muitos usuários nas últimas {{count}} horas. Para evitar spam, não é possível contatar mais nenhum usuário agora.",
+    "chat_initiation_rate_limit2_other": "Você enviou mensagens para muitos usuários nas últimas {{count}} horas. Para evitar spam, não é possível contatar mais nenhum usuário agora.",
+    "friend_request_rate_limit2_one": "Você enviou muitas solicitações de amizade na última hora. Para evitar spam, não é possível enviar mais nenhuma agora.",
+    "friend_request_rate_limit2_many": "Você enviou muitas solicitações de amizade nas últimas {{count}} horas. Para evitar spam, não é possível enviar mais nenhuma agora.",
+    "friend_request_rate_limit2_other": "Você enviou muitas solicitações de amizade nas últimas {{count}} horas. Para evitar spam, não é possível enviar mais nenhuma agora.",
+    "host_request_rate_limit2_one": "Você enviou muitas solicitações de hospedagem na última hora. Para evitar spam, não é possível enviar mais nenhuma agora.",
+    "host_request_rate_limit2_many": "Você enviou muitas solicitações de hospedagem nas últimas {{count}} horas. Para evitar spam, não é possível enviar mais nenhuma agora.",
+    "host_request_rate_limit2_other": "Você enviou muitas solicitações de hospedagem nas últimas {{count}} horas. Para evitar spam, não é possível enviar mais nenhuma agora.",
+    "host_request_too_short2_one": "A solicitação de hospedagem não pode ter menos de {{count}} caracter.",
+    "host_request_too_short2_many": "A solicitação de hospedagem não pode ter menos de {{count}} caracteres.",
+    "host_request_too_short2_other": "A solicitação de hospedagem não pode ter menos de {{count}} caracteres.",
+    "invalid_endpoint": "Endpoint de notificação por push inválido."
   },
   "quick_links": {
     "do_not_email": "Você não receberá nenhum e-mail não relacionado a segurança, e seu status de hospedagem foi desabilitado. Você ainda pode receber a newsletter e precisa cancelar sua inscrição nela separadamente.",

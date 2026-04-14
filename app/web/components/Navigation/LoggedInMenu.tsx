@@ -345,8 +345,18 @@ export default function LoggedInMenu({
         id="navigation-menu"
         open={menuOpen}
         anchorEl={isMobile ? undefined : menuRef.current}
-        onClose={() => setMenuOpen(false)}
-        onBlur={() => setMenuOpen(false)}
+        onClose={(_event: object, reason: string) => {
+          if (isMobile && reason === "backdropClick") return;
+          setMenuOpen(false);
+        }}
+        onBlur={(e) => {
+          const target = e.relatedTarget as HTMLElement | null;
+          // Don't close if focus moves within the menu or to a Select dropdown portal
+          if (target?.closest("[role='listbox'], [role='presentation']"))
+            return;
+          if (e.currentTarget.contains(target)) return;
+          setMenuOpen(false);
+        }}
         $isNativeEmbed={isNativeEmbed}
         anchorOrigin={
           isMobile ? undefined : { vertical: "bottom", horizontal: "right" }
@@ -393,10 +403,10 @@ export default function LoggedInMenu({
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: { xs: 1.5, md: 3 },
-            textAlign: "center",
+            alignItems: { xs: "center", md: "stretch" },
+            justifyContent: { xs: "center", md: "flex-start" },
+            gap: { xs: 1.5, md: 0 },
+            textAlign: { xs: "center", md: "left" },
           }}
         >
           {items.map((item) => (
@@ -419,7 +429,7 @@ export default function LoggedInMenu({
                 justifyContent: "center",
               }}
             >
-              <LanguagePickerSelect />
+              <LanguagePickerSelect onNavigate={() => setMenuOpen(false)} />
             </Box>
           )}
         </Box>

@@ -13,7 +13,8 @@
       "chats": "Chats",
       "hosting": "Hosten",
       "surfing": "Surfen",
-      "aria_label": "Tabbladen voor verschillende berichttypen"
+      "aria_label": "Tabbladen voor verschillende berichttypen",
+      "archived": "Gearchiveerd"
     },
     "title": "Berichten"
   },
@@ -72,7 +73,10 @@
     "no_friends_found_message": "Kon geen vrienden vinden",
     "user_load_error_message": "(Fout bij het laden van gebruikers)",
     "friends_input_label": "Vrienden",
-    "title_label": "Titel"
+    "title_label": "Titel",
+    "create_button": "Chat aanmaken",
+    "back_button": "Terug",
+    "hosting_request_hint": "Een hosting-verzoek doen? Ga <back>terug</back> en gebruik in plaats daarvan de <request>Verzoek</request> knop."
   },
   "chat_input": {
     "label": "Bericht"
@@ -160,5 +164,22 @@
   "unknown_user": "Onbekende gebruiker",
   "mark_all_read_button_text_surfing": "Markeer alle surfverzoeken als gelezen",
   "mark_all_read_button_text_chats": "Markeer alle chats als gelezen",
-  "mark_all_read_button_text_hosting": "Markeer alle hostverzoeken als gelezen"
+  "mark_all_read_button_text_hosting": "Markeer alle hostverzoeken als gelezen",
+  "archive": {
+    "archived": "Gearchiveerd",
+    "archive_button": "Archief",
+    "unarchive_button": "Dearchiveren",
+    "show_archived": "Gearchiveerde weergeven",
+    "show_active": "Actieve weergeven",
+    "no_archived_chats": "Geen gearchiveerde chats",
+    "no_archived_requests": "Geen gearchiveerde verzoeken",
+    "no_archived_messages": "Geen gearchiveerde berichten"
+  },
+  "all_messages_tab": {
+    "no_messages": "Nog geen berichten",
+    "load_more": "Meer laden",
+    "filter": {
+      "all": "Alle"
+    }
+  }
 }

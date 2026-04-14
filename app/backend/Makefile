@@ -55,7 +55,8 @@ setup-db:
 	docker compose $(COMPOSE_FILES) exec postgres_tests psql -U postgres -c \
 		"CREATE EXTENSION IF NOT EXISTS postgis; \
 		 CREATE EXTENSION IF NOT EXISTS pg_trgm; \
-		 CREATE EXTENSION IF NOT EXISTS btree_gist"
+		 CREATE EXTENSION IF NOT EXISTS btree_gist; \
+		 CREATE EXTENSION IF NOT EXISTS pg_stat_statements"
 
 teardown-db:
 	docker compose -f ../docker-compose.test.yml down

@@ -14,6 +14,7 @@ Username: {{ user.username }}
 User ID: {{ user.id }}
 Joined: {{ user.joined }}
 City: {{ user.city }}
+Gender: {{ user.gender }}
 
 {% for action, entries in events.items() -%}
 **{{ action.value }}s (past {{ hours }} hours):**

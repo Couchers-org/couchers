@@ -89,7 +89,10 @@
     "name": {
       "field_label": "Jméno",
       "empty_error": "Prosím, zadej své jméno",
-      "required_error": "Jméno nemůže být prázdné."
+      "required_error": "Jméno nemůže být prázdné",
+      "min_length_error": "Jméno musí mít alespoň 2 znaky",
+      "max_length_error": "Jméno nesmí mít více než 100 znaků",
+      "invalid_characters_error": "Jméno může obsahovat pouze písmena, mezery, pomlčky a apostrofy"
     },
     "email": {
       "field_label": "E-mailová adresa",

@@ -656,7 +656,6 @@ def test_send_request_notifications_host_request(db, moderator):
     with session_scope() as session:
         assert session.execute(select(func.count()).select_from(BackgroundJob)).scalar_one() == 0
 
-    # first test that sending host request creates email
     with requests_session(token1) as requests:
         host_request_id = requests.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
@@ -666,27 +665,13 @@ def test_send_request_notifications_host_request(db, moderator):
     moderator.approve_host_request(host_request_id)
 
     with session_scope() as session:
-        # delete send_email BackgroundJob created by CreateHostRequest
         session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
 
-        # check send_request_notifications successfully creates background job
+        # the only unseen message is the creation message, which the host was already
+        # notified about via host_request__create — no missed_messages email
         with patch("couchers.jobs.handlers.now", now_5_min_in_future):
             send_request_notifications(empty_pb2.Empty())
             process_jobs()
-        assert (
-            session.execute(
-                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
-            ).scalar_one()
-            == 1
-        )
-
-        # delete all BackgroundJobs
-        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
-
-        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
-            send_request_notifications(empty_pb2.Empty())
-            process_jobs()
-        # should find no messages since host has already been notified
         assert (
             session.execute(
                 select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
@@ -694,7 +679,7 @@ def test_send_request_notifications_host_request(db, moderator):
             == 0
         )
 
-    # then test that responding to host request creates email
+    # test that responding to host request creates email
     with requests_session(token2) as requests:
         requests.RespondHostRequest(
             requests_pb2.RespondHostRequestReq(
@@ -731,6 +716,102 @@ def test_send_request_notifications_host_request(db, moderator):
                 select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
             ).scalar_one()
             == 0
+        )
+
+
+def test_send_request_notifications_host_request_with_followup(db, moderator):
+    """
+    When the surfer sends a follow-up message after creating the host request,
+    the host should get a missed_messages notification (even though the initial
+    creation message alone would be skipped).
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(token1) as requests:
+        host_request_id = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
+            )
+        ).host_request_id
+    moderator.approve_host_request(host_request_id)
+
+    # surfer sends a follow-up message
+    with requests_session(token1) as requests:
+        requests.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_id, text="Following up on my request!")
+        )
+
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+        # now there are two unseen text messages for the host, so missed_messages should fire
+        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+            send_request_notifications(empty_pb2.Empty())
+            process_jobs()
+        assert (
+            session.execute(
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+            ).scalar_one()
+            == 1
+        )
+
+
+def test_send_request_notifications_two_requests_one_with_followup(db, moderator):
+    """
+    A host (user2) receives two requests: first from user1 (with a follow-up message),
+    then from user3 (creation only). Because request B is created after request A's
+    follow-up, it has a higher message ID. If the background job processes B first and
+    advances last_notified_request_message_id past A's messages, one might expect A's
+    notification to be lost — but it isn't, because the query results are already
+    materialized before the loop begins.
+    """
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+    user3, token3 = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    # request A: user1 -> user2, with a follow-up
+    with requests_session(token1) as requests:
+        host_request_a = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
+            )
+        ).host_request_id
+    moderator.approve_host_request(host_request_a)
+
+    with requests_session(token1) as requests:
+        requests.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request_a, text="Sorry, meant Tuesday night!")
+        )
+
+    # request B: user3 -> user2, creation only (higher message IDs than A's follow-up)
+    with requests_session(token3) as requests:
+        host_request_b = requests.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=user2.id, from_date=today_plus_2, to_date=today_plus_3, text=valid_request_text()
+            )
+        ).host_request_id
+    moderator.approve_host_request(host_request_b)
+
+    with session_scope() as session:
+        session.execute(delete(BackgroundJob).execution_options(synchronize_session=False))
+
+        # should get exactly 1 missed_messages email: for request A (has follow-up),
+        # not request B (creation only, skipped)
+        with patch("couchers.jobs.handlers.now", now_5_min_in_future):
+            send_request_notifications(empty_pb2.Empty())
+            process_jobs()
+        assert (
+            session.execute(
+                select(func.count()).select_from(BackgroundJob).where(BackgroundJob.job_type == "send_email")
+            ).scalar_one()
+            == 1
         )
 
 
@@ -1361,7 +1442,7 @@ def test_send_host_request_reminders_blocked_users_no_notification(db, moderator
 
         # Reset the reminder counter so we can test again
         host_request = session.execute(select(HostRequest).where(HostRequest.conversation_id == hr)).scalar_one()
-        host_request.host_sent_request_reminders = 0
+        host_request.recipient_sent_request_reminders = 0
         host_request.last_sent_request_reminder_time = now() - HOST_REQUEST_REMINDER_INTERVAL
 
     # Now have the host block the surfer

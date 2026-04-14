@@ -22,6 +22,7 @@ interface UseEventUsersInput {
   eventId: number;
   type: QueryType;
   enabled?: boolean;
+  pageSize?: number;
 }
 
 const SUMMARY_QUERY_PAGE_SIZE = 5;
@@ -54,13 +55,16 @@ export function useEventAttendees({
   enabled = true,
   eventId,
   type,
+  pageSize,
 }: UseEventUsersInput) {
   const query = useInfiniteQuery<ListEventAttendeesRes.AsObject, RpcError>({
-    queryKey: eventAttendeesKey({ eventId, type }),
+    queryKey: [...eventAttendeesKey({ eventId, type }), pageSize],
     queryFn: ({ pageParam }) =>
       service.events.listEventAttendees({
         eventId,
-        pageSize: type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined,
+        pageSize:
+          pageSize ??
+          (type === "summary" ? SUMMARY_QUERY_PAGE_SIZE : undefined),
         pageToken: pageParam as string | undefined,
       }),
     getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,

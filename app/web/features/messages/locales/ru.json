@@ -12,7 +12,8 @@
       "chats": "Чаты",
       "hosting": "Гости",
       "surfing": "Хосты",
-      "aria_label": "Вкладки для разных типов сообщений"
+      "aria_label": "Вкладки для разных типов сообщений",
+      "archived": "Архив"
     }
   },
   "chat_view": {
@@ -59,10 +60,16 @@
     "admin_removal_text": "{{user}} удалил {{target_user}} из администраторов",
     "user_left_chat_text": "{{user}} вышел из чата",
     "admin_assignment_text": "{{user}} назначил(а) {{target_user}} администратором",
-    "unknown_message_text": "Неизвестное управляющее сообщение",
+    "unknown_message_text": "Неизвестное системное сообщение",
     "created_chat_text": "{{user}} создал(а) чат",
     "edited_chat_text": "{{user}} отредактировал(а) чат",
-    "invite_user_text": "{{user}} пригласил(а) {{target_user}}"
+    "invite_user_text": "{{user}} пригласил(а) {{target_user}}",
+    "host_request_status_changed": {
+      "accepted": "{{user}} принял(а) запрос",
+      "cancelled": "{{user}} отменил(а) запрос",
+      "confirmed": "{{user}} подтвердил(а) запрос",
+      "rejected": "{{user}} отклонил(а) запрос"
+    }
   },
   "host_request_status": {
     "cancelled": "Отменено",
@@ -118,7 +125,10 @@
     "group_title_field_label": "Заголовок",
     "no_friends_found_message": "Не удалось найти друзей",
     "friends_input_label": "Друзья",
-    "title_label": "Заголовок"
+    "title_label": "Заголовок",
+    "create_button": "Создать чат",
+    "back_button": "Назад",
+    "hosting_request_hint": "Отправляете запрос на хостинг? Вернитесь <back>Назад</back> и используйте кнопку <request>Запрос</request>."
   },
   "leave_chat_dialog": {
     "message": "Вы уверены, что хотите покинуть этот чат?",
@@ -155,5 +165,22 @@
   "unknown_user": "Неизвестный пользователь",
   "mark_all_read_button_text_chats": "Отметить все чаты как прочитанные",
   "mark_all_read_button_text_hosting": "Отметить все запросы хостов как прочитанные",
-  "mark_all_read_button_text_surfing": "Отметить все запросы гостей как прочитанные"
+  "mark_all_read_button_text_surfing": "Отметить все запросы гостей как прочитанные",
+  "archive": {
+    "archive_button": "Архив",
+    "unarchive_button": "Разархивировать",
+    "show_archived": "Показать архивные",
+    "show_active": "Показать активные",
+    "no_archived_chats": "Нет архивированных чатов",
+    "no_archived_requests": "Нет архивных запросов",
+    "no_archived_messages": "Нет архивных сообщений",
+    "archived": "Архив"
+  },
+  "all_messages_tab": {
+    "no_messages": "Пока нет сообщений",
+    "load_more": "Загрузить еще",
+    "filter": {
+      "all": "Все"
+    }
+  }
 }
