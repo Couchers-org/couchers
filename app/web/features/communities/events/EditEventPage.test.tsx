@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import { routeToEditEvent, routeToEvent } from "routes";
@@ -44,8 +44,9 @@ describe("Edit event page", () => {
     jest.setSystemTime(new Date("2021-06-01 00:00"));
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     jest.useRealTimers();
+    await act(() => i18n.changeLanguage("en"));
   });
 
   it("renders with the existing event and updates it successfully", async () => {
@@ -145,7 +146,7 @@ describe("Edit event page", () => {
   });
 
   it("should submit only the start time if the start time field is touched", async () => {
-    jest.spyOn(navigator, "language", "get").mockReturnValue("en-GB");
+    i18n.changeLanguage("de"); // HH:mm format
 
     renderPage();
 
