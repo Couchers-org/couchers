@@ -1,14 +1,20 @@
 import { Box, Card, CardContent, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
-import { CalendarIcon, CouchIcon, LocationIcon } from "components/Icons";
+import {
+  CalendarIcon,
+  CouchIcon,
+  ExpandLessIcon,
+  ExpandMoreIcon,
+  LocationIcon,
+} from "components/Icons";
 import Pill from "components/Pill";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import StyledLink from "components/StyledLink";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { routeToUser } from "routes";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
@@ -84,13 +90,17 @@ const MetaItem = styled("div")(({ theme }) => ({
   },
 }));
 
-const Description = styled(Typography)({
-  display: "-webkit-box",
-  WebkitLineClamp: 3,
-  WebkitBoxOrient: "vertical",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-});
+const Description = styled(Typography)<{ $expanded: boolean }>(
+  ({ $expanded }) => ({
+    ...(!$expanded && {
+      display: "-webkit-box",
+      WebkitLineClamp: 3,
+      WebkitBoxOrient: "vertical" as const,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    }),
+  }),
+);
 
 function formatDateRange(fromDate: string, toDate: string): string {
   const from = new Date(fromDate + "T00:00:00");
@@ -116,6 +126,13 @@ function getDurationNights(fromDate: string, toDate: string): number {
 export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
   const { t } = useTranslation([COMMUNITIES]);
   const nights = getDurationNights(trip.fromDate, trip.toDate);
+  const [expanded, setExpanded] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const descriptionRef = useCallback((node: HTMLElement | null) => {
+    if (node) {
+      setIsOverflowing(node.scrollHeight > node.clientHeight);
+    }
+  }, []);
   const [showIncompleteDialog, setShowIncompleteDialog] = useState(false);
   const { data: accountInfo } = useAccountInfo();
   const isNativeEmbed = useIsNativeEmbed();
@@ -162,7 +179,38 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
                 </MetaItem>
               )}
             </MetaRow>
-            <Description variant="body1">{trip.description}</Description>
+            <Description
+              variant="body1"
+              ref={descriptionRef}
+              $expanded={expanded}
+              onClick={
+                isOverflowing || expanded
+                  ? () => setExpanded((e) => !e)
+                  : undefined
+              }
+              sx={{ cursor: isOverflowing || expanded ? "pointer" : "default" }}
+            >
+              {trip.description}
+            </Description>
+            {(isOverflowing || expanded) && (
+              <Typography
+                variant="body2"
+                onClick={() => setExpanded((e) => !e)}
+                sx={{
+                  cursor: "pointer",
+                  color: "var(--mui-palette-primary-main)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.25,
+                  mt: 0.5,
+                }}
+              >
+                {expanded
+                  ? t("communities:public_trips_show_less")
+                  : t("communities:public_trips_show_more")}
+                {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              </Typography>
+            )}
             <Box
               sx={{
                 mt: 1.5,

@@ -35,7 +35,7 @@ export interface ListPublicTripsRes {
   totalPages: number;
 }
 
-const PAGE_SIZE = 3;
+const PAGE_SIZE = 3; // Change to 10 before final implementation, set low for easier testing of pagination in UI
 
 // TODO: Replace with real gRPC service call once backend PR is merged
 async function listPublicTrips(

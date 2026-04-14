@@ -118,6 +118,8 @@
   "public_trips_empty_state": "No public trips at the moment.",
   "public_trips_nights_one": "{{count}} night",
   "public_trips_nights_other": "{{count}} nights",
+  "public_trips_show_more": "Show more",
+  "public_trips_show_less": "Show less",
   "public_trips_view_profile": "View profile",
   "public_trips_offer_to_host": "Offer to host",
   "public_trips_page_indicator": "Page {{current}} of {{total}}",
