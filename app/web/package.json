@@ -67,7 +67,7 @@
     "react-i18next": "^16.6.5",
     "react-intersection-observer": "^10.0.3",
     "react-lines-ellipsis": "^0.16.1",
-    "react-map-gl": "^8.1.0",
+    "react-map-gl": "^8.1.1",
     "react-phone-number-input": "^3.4.16",
     "react-simple-maps": "^3.0.0",
     "seamless-scroll-polyfill": "^2.1.8",
