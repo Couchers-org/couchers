@@ -37,7 +37,7 @@ class PublicTrip(Base, kw_only=True):
     to_date: Mapped[date] = mapped_column(Date)
 
     # Number of travelers
-    num_travelers: Mapped[int] = mapped_column(Integer, default=1)
+    num_travelers: Mapped[int] = mapped_column(Integer, server_default="1", default=1)
 
     # User's message about their trip
     description: Mapped[str] = mapped_column(String)
