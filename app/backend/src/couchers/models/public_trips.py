@@ -2,7 +2,7 @@ import enum
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, CheckConstraint, Date, DateTime, Enum, ForeignKey, Index, String, func
+from sqlalchemy import BigInteger, CheckConstraint, Date, DateTime, Enum, ForeignKey, Index, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base
@@ -35,6 +35,9 @@ class PublicTrip(Base, kw_only=True):
     # Trip dates
     from_date: Mapped[date] = mapped_column(Date)
     to_date: Mapped[date] = mapped_column(Date)
+
+    # Number of travelers
+    num_travelers: Mapped[int] = mapped_column(Integer, default=1)
 
     # User's message about their trip
     description: Mapped[str] = mapped_column(String)
