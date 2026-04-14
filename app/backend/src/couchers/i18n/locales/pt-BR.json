@@ -232,7 +232,8 @@
     "host_request_rate_limit2_other": "Você enviou muitas solicitações de hospedagem nas últimas {{count}} horas. Para evitar spam, não é possível enviar mais nenhuma agora.",
     "host_request_too_short2_one": "A solicitação de hospedagem não pode ter menos de {{count}} caracter.",
     "host_request_too_short2_many": "A solicitação de hospedagem não pode ter menos de {{count}} caracteres.",
-    "host_request_too_short2_other": "A solicitação de hospedagem não pode ter menos de {{count}} caracteres."
+    "host_request_too_short2_other": "A solicitação de hospedagem não pode ter menos de {{count}} caracteres.",
+    "invalid_endpoint": "Endpoint de notificação por push inválido."
   },
   "quick_links": {
     "do_not_email": "Você não receberá nenhum e-mail não relacionado a segurança, e seu status de hospedagem foi desabilitado. Você ainda pode receber a newsletter e precisa cancelar sua inscrição nela separadamente.",

@@ -61,10 +61,12 @@ const StyledSelect = styled(Select, {
 
 type LanguagePickerSelectProps = {
   displayMode?: "round" | "rect";
+  onNavigate?: () => void;
 };
 
 export default function LanguagePickerSelect({
   displayMode = "round",
+  onNavigate,
 }: LanguagePickerSelectProps) {
   const router = useRouter();
   const { asPath, locale, pathname, query } = router;
@@ -113,6 +115,7 @@ export default function LanguagePickerSelect({
     e.stopPropagation();
 
     setIsOpen(false);
+    onNavigate?.();
     router.push(translateRoute);
   };
 
