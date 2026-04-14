@@ -4,8 +4,9 @@ import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { AddIcon, CouchIcon } from "components/Icons";
+import { AddIcon, CouchIcon, PenIcon } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
+import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, DASHBOARD } from "i18n/namespaces";
@@ -38,9 +39,15 @@ export default function PublicTripsSection({
   const [page, setPage] = useState(0);
   const [showIncompleteDialog, setShowIncompleteDialog] = useState(false);
   const { data: accountInfo } = useAccountInfo();
+  const { authState } = useAuthContext();
   const { data, error, isLoading } = useListPublicTrips(
     community.communityId,
     page,
+  );
+
+  // TODO: Replace with real ListMyPublicTrips query once backend is ready
+  const hasOwnTrip = data?.publicTripsList.some(
+    (trip) => trip.user.userId === authState.userId,
   );
 
   const handleCreateClick = () => {
@@ -63,13 +70,25 @@ export default function PublicTripsSection({
       <SectionTitle icon={<CouchIcon />}>
         {t("communities:public_trips_label")}
       </SectionTitle>
-      <Button
-        sx={{ my: 2 }}
-        startIcon={<AddIcon />}
-        onClick={handleCreateClick}
-      >
-        {t("communities:create_public_trip")}
-      </Button>
+      {hasOwnTrip ? (
+        <Button
+          sx={{ my: 2 }}
+          startIcon={<PenIcon />}
+          onClick={() => {
+            // TODO: navigate to edit my public trips page
+          }}
+        >
+          {t("communities:edit_my_public_trips")}
+        </Button>
+      ) : (
+        <Button
+          sx={{ my: 2 }}
+          startIcon={<AddIcon />}
+          onClick={handleCreateClick}
+        >
+          {t("communities:create_public_trip")}
+        </Button>
+      )}
       <Typography variant="body1" sx={{ mb: 2 }}>
         {t("communities:public_trips_description")}
       </Typography>

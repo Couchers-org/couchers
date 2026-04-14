@@ -6,7 +6,8 @@ import {
   CouchIcon,
   ExpandLessIcon,
   ExpandMoreIcon,
-  LocationIcon,
+  HomeIcon,
+  PersonIcon,
 } from "components/Icons";
 import Pill from "components/Pill";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
@@ -90,17 +91,17 @@ const MetaItem = styled("div")(({ theme }) => ({
   },
 }));
 
-const Description = styled(Typography)<{ $expanded: boolean }>(
-  ({ $expanded }) => ({
-    ...(!$expanded && {
-      display: "-webkit-box",
-      WebkitLineClamp: 3,
-      WebkitBoxOrient: "vertical" as const,
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    }),
+const Description = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== "expanded",
+})<{ expanded: boolean }>(({ expanded }) => ({
+  ...(!expanded && {
+    display: "-webkit-box",
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: "vertical" as const,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   }),
-);
+}));
 
 function formatDateRange(fromDate: string, toDate: string): string {
   const from = new Date(fromDate + "T00:00:00");
@@ -172,9 +173,15 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
               <Pill variant="rounded">
                 {t("communities:public_trips_nights", { count: nights })}
               </Pill>
+              <MetaItem>
+                <PersonIcon />
+                {t("communities:public_trips_travelers", {
+                  count: trip.numTravelers,
+                })}
+              </MetaItem>
               {trip.user.city && (
                 <MetaItem>
-                  <LocationIcon />
+                  <HomeIcon />
                   {trip.user.city}
                 </MetaItem>
               )}
@@ -182,7 +189,7 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
             <Description
               variant="body1"
               ref={descriptionRef}
-              $expanded={expanded}
+              expanded={expanded}
               onClick={
                 isOverflowing || expanded
                   ? () => setExpanded((e) => !e)
