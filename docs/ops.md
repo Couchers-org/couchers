@@ -60,10 +60,12 @@ To deploy:
 - Go to `https://ops.couchershq.org/`
 - Find the "Deploy" button on the latest commit and click it.
 - Refresh the page, the status at the top should update
-- It will take 20ish minutes
+- It will take about a minute
 - Once it's done, click around prod, make sure everything is working.
 
-It's good to only deploy if you have a bit of time or know someone else is online and free in case something breaks.
+It's essential to be able to be around for another 30 minutes after deploying if something breaks.
+
+For deployments that don't update a migration, the immediate rollback plan is to go back to the last good known version. For deployments that do update a migration, it should only be done when someone knowledgeable is around and able to help if something happens.
 
 ## Server setup
 
