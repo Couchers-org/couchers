@@ -1,0 +1,117 @@
+[
+  {
+    "tripId": 1,
+    "user": {
+      "userId": 2,
+      "isGhost": false,
+      "username": "funnydog",
+      "name": "Funny Dog",
+      "city": "Helsinki, Finland",
+      "age": 35,
+      "avatarUrl": "https://loremflickr.com/200/200?user2",
+      "avatarThumbnailUrl": "https://loremflickr.com/50/50?user2",
+      "lat": 60.16,
+      "lng": 24.94,
+      "radius": 200,
+      "hasStrongVerification": true
+    },
+    "nodeId": 16,
+    "fromDate": "2026-04-20",
+    "toDate": "2026-04-27",
+    "description": "Visiting NYC for the first time! I'm a photographer from Helsinki and would love to stay with a local who can show me around. I'm easygoing, tidy, and happy to cook Finnish food for my host.",
+    "status": "PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST",
+    "created": "2026-04-10T12:00:00Z"
+  },
+  {
+    "tripId": 2,
+    "user": {
+      "userId": 3,
+      "isGhost": false,
+      "username": "funnykid",
+      "name": "Funny Kid",
+      "city": "London, UK",
+      "age": 28,
+      "avatarUrl": "https://loremflickr.com/200/200?user3",
+      "avatarThumbnailUrl": "https://loremflickr.com/50/50?user3",
+      "lat": 51.5,
+      "lng": -0.11,
+      "radius": 200,
+      "hasStrongVerification": true
+    },
+    "nodeId": 16,
+    "fromDate": "2026-05-01",
+    "toDate": "2026-05-10",
+    "description": "Passing through on a cross-country road trip. Looking for a couch for a few nights. I'm into live music and street food — if you know good spots, even better!",
+    "status": "PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST",
+    "created": "2026-04-08T09:30:00Z"
+  },
+  {
+    "tripId": 3,
+    "user": {
+      "userId": 4,
+      "isGhost": false,
+      "username": "funnyChicken",
+      "name": "Funny Chicken",
+      "city": "Melbourne, Australia",
+      "age": 28,
+      "avatarUrl": "https://loremflickr.com/200/200?user4",
+      "avatarThumbnailUrl": "https://loremflickr.com/50/50?user4",
+      "lat": -37.8,
+      "lng": 144.9,
+      "radius": 200,
+      "hasStrongVerification": false
+    },
+    "nodeId": 16,
+    "fromDate": "2026-04-15",
+    "toDate": "2026-04-18",
+    "description": "Quick weekend visit for a friend's wedding. Would love to meet locals and explore the neighborhood a bit. I'm quiet, respectful, and an early riser.",
+    "status": "PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST",
+    "created": "2026-04-05T15:45:00Z"
+  },
+  {
+    "tripId": 4,
+    "user": {
+      "userId": 5,
+      "isGhost": false,
+      "username": "friendlyCow",
+      "name": "Friendly Cow",
+      "city": "Melbourne, Australia",
+      "age": 25,
+      "avatarUrl": "https://loremflickr.com/200/200?user5",
+      "avatarThumbnailUrl": "https://loremflickr.com/50/50?user5",
+      "lat": -37.8,
+      "lng": 144.9,
+      "radius": 200,
+      "hasStrongVerification": false
+    },
+    "nodeId": 16,
+    "fromDate": "2026-05-15",
+    "toDate": "2026-05-25",
+    "description": "Backpacking through the US for a month. I've been traveling for 6 months now and love meeting new people. I can share stories from Southeast Asia and South America!",
+    "status": "PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST",
+    "created": "2026-04-02T08:00:00Z"
+  },
+  {
+    "tripId": 5,
+    "user": {
+      "userId": 2,
+      "isGhost": false,
+      "username": "funnydog",
+      "name": "Funny Dog",
+      "city": "Helsinki, Finland",
+      "age": 35,
+      "avatarUrl": "https://loremflickr.com/200/200?user2",
+      "avatarThumbnailUrl": "https://loremflickr.com/50/50?user2",
+      "lat": 60.16,
+      "lng": 24.94,
+      "radius": 200,
+      "hasStrongVerification": true
+    },
+    "nodeId": 16,
+    "fromDate": "2026-06-01",
+    "toDate": "2026-06-07",
+    "description": "Coming back to NYC for a photography exhibition. Last time I had an amazing host — hoping to find another great connection this time around.",
+    "status": "PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST",
+    "created": "2026-04-01T10:00:00Z"
+  }
+]

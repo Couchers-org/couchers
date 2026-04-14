@@ -12,7 +12,8 @@
     "actions": {
       "send_request": "send a request",
       "send_message": "send a message",
-      "create_event": "create an event"
+      "create_event": "create an event",
+      "create_public_trip": "create a public trip"
     },
     "edit_profile_button": "Edit your profile now",
     "cancel_button": "Never mind"
