@@ -44,7 +44,8 @@
     "show_all_events": "Alle events weergeven",
     "the_team": "Het team",
     "volunteer": "Helpen",
-    "legal_more": "Juridisch & meer"
+    "legal_more": "Juridisch & meer",
+    "home": "Home"
   },
   "components": {
     "edit_location_map": {
@@ -58,7 +59,9 @@
       "location_warn": "Klik en sleep de cirkel hieronder om mensen de globale locatie van je huis te laten zien. Zorg ervoor dat je huis niet in het midden van de cirkel staat, zodat mensen de exacte locatie niet weten.",
       "map_is_blank": "Coördinaten ontbreken, begin met het zoeken naar een locatie op bovenstaande kaart",
       "invalid_coordinate": "Coördinaten ontbreken, selecteer een locatie op bovenstaande kaart",
-      "no_map_support": "Je apparaat ondersteunt onze kaart niet. Zorg ervoor dat WebGL2 is ingeschakeld, of probeer een ander apparaat of een andere browser. Sorry voor het ongemak!"
+      "no_map_support": "Je apparaat ondersteunt onze kaart niet. Zorg ervoor dat WebGL2 is ingeschakeld, of probeer een ander apparaat of een andere browser. Sorry voor het ongemak!",
+      "radius_text2_one": "{{count}} meter",
+      "radius_text2_other": "{{count}} meter"
     },
     "datepicker": {
       "change_date": "Datum aanpassen"
@@ -102,7 +105,7 @@
     },
     "current_preferred_language": "De taal van jouw voorkeur is op dit moment <lang>{{language}}</lang>.",
     "show_all_languages": "Alle talen laten zien in de taalkiezer",
-    "show_all_languages_description": "Als je dit inschakelt, laat de de taalkiezer alle talen zien, ook als ze nog niet helemaal klaar zijn. Dit kan alleen op onze staging website, om te helpen bij het testen van talen die nog in ontwikkeling zijn."
+    "show_all_languages_description": "Als je dit inschakelt, laat de taalkiezer alle talen zien, ook als ze nog niet helemaal klaar zijn. Dit kan alleen op onze staging website, om te helpen bij het testen van talen die nog in ontwikkeling zijn."
   },
   "create": "maken",
   "terms_of_service": "Servicevoorwaarden",
@@ -210,7 +213,13 @@
     "title": "Leden uitnodigen",
     "error": {
       "fetch_invite_info": "Kon details van de invite code niet laden"
-    }
+    },
+    "number_of_uses_one": "Gebruikt: {{count}} volledige aanmelding",
+    "number_of_uses_other": "Gebruikt: {{count}} volledige aanmeldingen",
+    "no_codes_message": "Nog geen invite codes",
+    "created_datetime": "Aangemaakt: {{datetime}}",
+    "disabled_datetime": "Uitgeschakeld: {{datetime}}",
+    "disable_link": "Uitzetten"
   },
   "contribute_title": "Meld je aan om mee te doen",
   "reply": "Beantwoorden",
@@ -289,7 +298,43 @@
     "bottom_cta_subtitle": "Word gratis lid van Couchers.org en maak deel uit van een wereldwijde community gebouwd op gastvrijheid en verbinding.",
     "join_couchers": "Word lid van Couchers.org",
     "is_it_safe": {
-      "title": "Hoe veilig is couchsurfen?"
+      "title": "Hoe veilig is couchsurfen?",
+      "description_1": "Contact hebben en reizen met mensen die je eigenlijk niet kent is nooit helemaal zonder risico, maar couchsurfen is een stuk veiliger dan veel mensen denken.",
+      "description_2": "Onze community is gebaseerd op vertrouwen tussen leden, en opgebouwd door referenties na het hosten of couchsurfen. Ons actieve moderatieteam neemt elke melding serieus en treed hard op tegen mensen die zich niet aan onze <guidelines>Communityrichtlijnen</guidelines> houden.",
+      "description_3": "Daarnaast bevat het Couchers-platform tools, zoals verschillende vormen van verificatie (zoals sterke verificatie met een biometrisch paspoort), die voor nog meer veiligheid zorgen. Het is belangrijk om altijd een alternatief plan te hebben, voor het geval iets niet gaat zoals verwacht, en om op je onderbuikgevoel te vertrouwen!"
     }
+  },
+  "copy_button": {
+    "a11y": "Kopiëren",
+    "copied_tooltip": "Gekopieerd naar klembord"
+  },
+  "image_input": {
+    "select_button_a11y": "Kies een afbeelding",
+    "replace_image_tooltip": "Klik om afbeelding te vervangen",
+    "read_file_error_message": "Kon bestand niet lezen"
+  },
+  "team": {
+    "title": "Het team",
+    "description": "Wij zijn enthousiaste couchsurfers en ervaren professionals die zich inzetten voor het creëren van een verbeterd, veiliger en inclusiever platform. We maken dit platform om de couchsurfing-community te ondersteunen en duurzaam te laten groeien, terwijl we onze waarden met de wereld delen. Als je onze visie deelt en mee wilt doen, dan horen we dat graag.",
+    "join_the_team": "Kom in ons team",
+    "join_our_team": "Sluit je bij ons aan",
+    "have_skills_contribute": "Heb je vaardigheden die je wilt inzetten?",
+    "fill_form_description": "Couchers.org is een door de community gedreven project, ontwikkeld door mensen zoals jij, speciaal voor de wereldwijde couchsurfing-community. Als je interesse hebt om mee te doen aan ons spannende project, klik dan op onderstaande knop en vul het korte formulier in.",
+    "current_members": "Huidige leden",
+    "past_members": "Oude leden",
+    "board_member": "Bestuurslid",
+    "co_founder_president": "Mede-oprichter, president & voorzitter",
+    "co_founder": "Mede-oprichter",
+    "secretary": "Secretaris",
+    "treasurer": "Penningmeester",
+    "community_coordinator": "Coördinator community",
+    "developer": "Developer",
+    "frontend_developer": "Frontend developer",
+    "lead_frontend_developer": "Lead frontend developer",
+    "backend_developer": "Backend developer",
+    "lead_backend_developer": "Lead backend developer",
+    "full_stack_backend_developer": "Full stack developer",
+    "ui_ux_designer": "UI/UX designer",
+    "translations_lead": "Lead vertalingen"
   }
 }
