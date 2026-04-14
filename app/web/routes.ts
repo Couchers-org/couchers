@@ -168,6 +168,7 @@ const communityBaseRoute = "/community";
 export const communityTabs = [
   "overview",
   "info",
+  "public-trips",
   "discussions",
   "events",
   "members",

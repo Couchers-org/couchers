@@ -5,11 +5,13 @@ import TabBar from "components/TabBar";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { Community } from "proto/communities_pb";
+import { Community, NodeType } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
 import { CommunityTab, routeToCommunity } from "routes";
 
 import JoinCommunityButton from "./JoinCommunityButton";
+
+const isPublicTripsEnabled = process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod";
 
 const StyledBreadcrumbsContainer = styled("div")(() => ({
   display: "flex",
@@ -36,6 +38,10 @@ export default function CommunityPageSubHeader({
   const communityTabBarLabels: Partial<Record<CommunityTab, string>> = {
     overview: t("communities:overview_label"),
     info: t("communities:local_info_label"),
+    ...(isPublicTripsEnabled &&
+      community.nodeType >= NodeType.NODE_TYPE_REGION && {
+        "public-trips": t("communities:public_trips_label"),
+      }),
     ...(community.discussionsEnabled && {
       discussions: t("communities:discussions_label"),
     }),

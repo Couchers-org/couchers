@@ -156,6 +156,12 @@ export const newUsersListKey = "newUsersList";
 
 // Public
 export const volunteersKey = "volunteers";
+
+// Public Trips
+export const publicTripsKey = (communityId: number) => [
+  "publicTrips",
+  communityId,
+];
 export const donationStatsKey = "donationStats";
 
 // Translate

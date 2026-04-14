@@ -13,6 +13,7 @@ import CommunityEventsList from "../events/CommunityEventsList";
 import EventsSection from "../events/EventsSection";
 import CommunityMembersList from "../members/CommunityMembersList";
 import PageHeader from "../PageHeader";
+import PublicTripsSection from "../publicTrips/PublicTripsSection";
 import CommunityPageSubHeader from "./CommunityPageSubHeader";
 import InfoPageSection from "./InfoPageSection";
 
@@ -53,6 +54,8 @@ export default function CommunityPage({
                   <DiscussionsSection community={community} />
                 )}
               </>
+            ) : tab === "public-trips" ? (
+              <PublicTripsSection community={community} />
             ) : tab === "info" ? (
               edit ? (
                 <EditCommunityPage communityId={community.communityId} />
