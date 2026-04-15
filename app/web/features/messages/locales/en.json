@@ -27,8 +27,6 @@
     "archived": "Archived",
     "archive_button": "Archive",
     "unarchive_button": "Unarchive",
-    "show_archived": "Show archived",
-    "show_active": "Show active",
     "no_archived_chats": "No archived chats",
     "no_archived_requests": "No archived requests",
     "no_archived_messages": "No archived messages"
