@@ -34,7 +34,8 @@
     "age_verification_mismatch": "De doorgegeven geboortedatum komt niet overeen met de geverifieerde geboortedatum",
     "gender_verification_verified": "Deze gebruiker heeft zijn gender geverifieerd",
     "lived_section": "Gewoond in",
-    "gender_verification_mismatch": "De doorgegeven gender komt niet overeen met de geverifieerde gender"
+    "gender_verification_mismatch": "De doorgegeven gender komt niet overeen met de geverifieerde gender",
+    "photos_section": "Foto's"
   },
   "incomplete_dialog": {
     "about_me_message": "Schrijf minstens 150 tekens voor jouw \"Wie ik ben\" tekst.",
@@ -127,5 +128,6 @@
   "reference_amounts": {
     "count_references_one": "{{count}} referentie",
     "count_references_other": "{{count}} referenties"
-  }
+  },
+  "active": "Actief"
 }
