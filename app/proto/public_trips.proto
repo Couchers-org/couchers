@@ -49,16 +49,13 @@ message PublicTrip {
   string description = 6;
   PublicTripStatus status = 7;
   google.protobuf.Timestamp created = 8;
-  // Number of travelers
-  uint32 num_travelers = 9;
 }
 
 message CreatePublicTripReq {
   int64 node_id = 1;
   string from_date = 2; // YYYY-MM-DD
   string to_date = 3; // YYYY-MM-DD
-  uint32 num_travelers = 4;
-  string description = 5;
+  string description = 4;
 }
 
 message GetPublicTripReq {
