@@ -168,13 +168,19 @@
       "ios_subtitle": "Запрос хосту принят"
     },
     "host_request__reject": {
-      "ios_title": "{{user}}"
+      "ios_title": "{{user}}",
+      "title": "{{user}} отклонил(а) ваш запрос",
+      "ios_subtitle": "Запрос хосту отклонён",
+      "body": "{{user}} отклонил(а) ваш запрос на {{date}}."
     },
     "host_request__cancel": {
-      "ios_title": "{{user}}"
+      "ios_title": "{{user}}",
+      "title": "{{user}} отменил(а) свой запрос",
+      "body": "{{user}} отменил(а) свой запрос на {{date}}."
     },
     "host_request__confirm": {
-      "ios_title": "{{user}}"
+      "ios_title": "{{user}}",
+      "title": "{{user}} подтвердил(а) запрос"
     },
     "postal_verification__postcard_sent": {
       "title": "Проверка почтового адреса начата",
@@ -195,7 +201,8 @@
     },
     "reference__receive_friend": {
       "title": "Новый отзыв от {{user}}",
-      "ios_title": "{{user}}"
+      "ios_title": "{{user}}",
+      "ios_subtitle": "Новый отзыв от друга"
     },
     "reference__receive": {
       "title": "Новый отзыв от {{user}}",
