@@ -40,7 +40,7 @@ enum PublicTripStatus {
 
 message PublicTrip {
   int64 trip_id = 1;
-  org.couchers.api.core.LiteUser user = 2;
+  org.couchers.api.core.User user = 2;
   int64 node_id = 3;
   // Trip date range
   string from_date = 4; // YYYY-MM-DD
