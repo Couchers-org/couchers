@@ -117,8 +117,6 @@
   "edit_my_public_trips": "Edit my public trips",
   "public_trips_description": "Travelers post their upcoming trips here so local hosts can browse and offer to host them. If you see a trip that interests you, reach out and offer your couch!",
   "public_trips_empty_state": "No public trips at the moment.",
-  "public_trips_travelers_one": "{{count}} traveler",
-  "public_trips_travelers_other": "{{count}} travelers",
   "public_trips_references_one": "{{count}} reference",
   "public_trips_references_other": "{{count}} references",
   "public_trips_show_more": "Show more",

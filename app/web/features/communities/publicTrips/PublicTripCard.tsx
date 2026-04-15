@@ -7,7 +7,6 @@ import {
   ExpandLessIcon,
   ExpandMoreIcon,
   HomeIcon,
-  PersonIcon,
 } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import StyledLink from "components/StyledLink";
@@ -17,6 +16,7 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useCallback, useState } from "react";
 import { routeToUser } from "routes";
+import { localizeDateTimeRange } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 import { PublicTrip } from "./useListPublicTrips";
@@ -108,23 +108,11 @@ const Description = styled(Typography, {
   }),
 }));
 
-function formatDateRange(fromDate: string, toDate: string): string {
-  const from = new Date(fromDate + "T00:00:00");
-  const to = new Date(toDate + "T00:00:00");
-  const options: Intl.DateTimeFormatOptions = {
-    month: "short",
-    day: "numeric",
-  };
-  const fromStr = from.toLocaleDateString(undefined, options);
-  const toStr = to.toLocaleDateString(undefined, {
-    ...options,
-    year: "numeric",
-  });
-  return `${fromStr} – ${toStr}`;
-}
-
 export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation([COMMUNITIES]);
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const descriptionRef = useCallback((node: HTMLElement | null) => {
@@ -175,13 +163,15 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
             <MetaRow>
               <MetaItem>
                 <CalendarIcon />
-                {formatDateRange(trip.fromDate, trip.toDate)}
-              </MetaItem>
-              <MetaItem>
-                <PersonIcon />
-                {t("communities:public_trips_travelers", {
-                  count: trip.numTravelers,
-                })}
+                {localizeDateTimeRange(
+                  new Date(trip.fromDate + "T00:00:00"),
+                  new Date(trip.toDate + "T00:00:00"),
+                  {
+                    locale,
+                    includeTime: false,
+                    abbreviate: true,
+                  },
+                )}
               </MetaItem>
               {trip.user.city && (
                 <MetaItem>

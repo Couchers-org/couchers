@@ -28,7 +28,6 @@ export interface PublicTrip {
   nodeId: number;
   fromDate: string;
   toDate: string;
-  numTravelers: number;
   description: string;
   status: string;
   created: string;
