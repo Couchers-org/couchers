@@ -81,7 +81,7 @@ export default function EventOrganizers({ event }: EventOrganizersProps) {
                     setOrganizerToRemove(user);
                     setIsCoOrganizerDialogOpen(true);
                   },
-                  label: t("communities:remove_as_co_organizer:title"),
+                  label: t("communities:remove_as_co_organizer.title"),
                 },
               ]
             : undefined
