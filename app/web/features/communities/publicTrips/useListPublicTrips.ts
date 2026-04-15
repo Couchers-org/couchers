@@ -2,7 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { publicTripsKey } from "features/queryKeys";
 import publicTripsFixture from "test/fixtures/publicTrips.json";
 
-// TODO: Replace with real types from proto once public_trips.proto is generated
+// TODO: Replace with real types from proto once public_trips.proto is generated.
+// Note: this should likely use the full User proto (or an extended LiteUser) so
+// we can show gender and numReferences on the card.
 export interface PublicTripUser {
   userId: number;
   isGhost: boolean;
@@ -10,6 +12,8 @@ export interface PublicTripUser {
   name: string;
   city: string;
   age: number;
+  gender: string;
+  numReferences: number;
   avatarUrl: string;
   avatarThumbnailUrl: string;
   lat: number;

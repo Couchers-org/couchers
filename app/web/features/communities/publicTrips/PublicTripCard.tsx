@@ -9,10 +9,10 @@ import {
   HomeIcon,
   PersonIcon,
 } from "components/Icons";
-import Pill from "components/Pill";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import StyledLink from "components/StyledLink";
 import useAccountInfo from "features/auth/useAccountInfo";
+import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useCallback, useState } from "react";
@@ -56,10 +56,15 @@ const UserSection = styled("div")(({ theme }) => ({
 
 const UserName = styled(Typography)({
   maxWidth: "100%",
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
   textAlign: "center",
+  overflowWrap: "break-word",
+});
+
+const UserDetails = styled(Typography)({
+  color: "var(--mui-palette-text-secondary)",
+  textAlign: "center",
+  maxWidth: "100%",
+  overflowWrap: "break-word",
 });
 
 const ContentSection = styled("div")({
@@ -118,15 +123,8 @@ function formatDateRange(fromDate: string, toDate: string): string {
   return `${fromStr} – ${toStr}`;
 }
 
-function getDurationNights(fromDate: string, toDate: string): number {
-  const from = new Date(fromDate);
-  const to = new Date(toDate);
-  return Math.round((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
-}
-
 export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
   const { t } = useTranslation([COMMUNITIES]);
-  const nights = getDurationNights(trip.fromDate, trip.toDate);
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const descriptionRef = useCallback((node: HTMLElement | null) => {
@@ -162,6 +160,15 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
             <StyledLink href={routeToUser(trip.user.username)}>
               <UserName variant="h3">{trip.user.name}</UserName>
             </StyledLink>
+            <UserDetails variant="body2">
+              {trip.user.age}
+              {trip.user.gender ? `, ${trip.user.gender}` : ""}
+            </UserDetails>
+            <UserDetails variant="body2">
+              {t("communities:public_trips_references", {
+                count: trip.user.numReferences,
+              })}
+            </UserDetails>
           </UserSection>
 
           <ContentSection>
@@ -170,9 +177,6 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
                 <CalendarIcon />
                 {formatDateRange(trip.fromDate, trip.toDate)}
               </MetaItem>
-              <Pill variant="rounded">
-                {t("communities:public_trips_nights", { count: nights })}
-              </Pill>
               <MetaItem>
                 <PersonIcon />
                 {t("communities:public_trips_travelers", {
@@ -232,9 +236,15 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
               >
                 {t("communities:public_trips_view_profile")}
               </StyledLink>
-              <Button startIcon={<CouchIcon />} onClick={handleOfferToHost}>
-                {t("communities:public_trips_offer_to_host")}
-              </Button>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <FlagButton
+                  contentRef={`public_trip/${trip.tripId}`}
+                  authorUser={trip.user.userId}
+                />
+                <Button startIcon={<CouchIcon />} onClick={handleOfferToHost}>
+                  {t("communities:public_trips_offer_to_host")}
+                </Button>
+              </Box>
             </Box>
           </ContentSection>
         </StyledCardContent>
