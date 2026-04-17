@@ -22,4 +22,3 @@ def test_all_notifications_appear_in_settings() -> None:
             f"Expected {actions} == {actions_by_topic_check[topic]} for {topic}"
         )
     assert sorted(actions_by_topic.keys()) == sorted(actions_by_topic_check.keys())
-

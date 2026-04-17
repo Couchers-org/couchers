@@ -1,5 +1,4 @@
 from couchers.i18n import LocalizationContext
-from couchers.i18n.i18next import LocalizationError
 from couchers.models import NotificationTopicAction
 from couchers.notifications.locales import get_notifs_i18next
 
@@ -33,9 +32,7 @@ def get_topic_action_setting_description(topic_action: NotificationTopicAction, 
     return get_notifs_i18next().localize(description_key, locale)
 
 
-def get_topic_action_unsubscribe_text(
-    topic_action: NotificationTopicAction, loc_context: LocalizationContext
-) -> str:
+def get_topic_action_unsubscribe_text(topic_action: NotificationTopicAction, loc_context: LocalizationContext) -> str:
     if topic_action.is_critical:
         raise ValueError(f"Cannot get unsubscribe text for critical notification {topic_action}")
     return get_notifs_i18next().localize(
@@ -43,11 +40,7 @@ def get_topic_action_unsubscribe_text(
     )
 
 
-def get_topic_key_unsubscribe_text(
-    topic_action: NotificationTopicAction, loc_context: LocalizationContext
-) -> str:
+def get_topic_key_unsubscribe_text(topic_action: NotificationTopicAction, loc_context: LocalizationContext) -> str:
     if not can_unsubscribe_topic_key(topic_action.topic):
         raise ValueError(f"Cannot get topic key unsubscribe text for topic {topic_action.topic}")
-    return get_notifs_i18next().localize(
-        f"{topic_action.topic}._topic_key_short_description", loc_context.locale
-    )
+    return get_notifs_i18next().localize(f"{topic_action.topic}._topic_key_short_description", loc_context.locale)

@@ -22,7 +22,6 @@ from couchers.models import (
     MeetupStatus,
     Notification,
     NotificationDeliveryType,
-    NotificationTopicAction,
     User,
 )
 from couchers.notifications import settings
