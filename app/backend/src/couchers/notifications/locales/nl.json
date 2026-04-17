@@ -1,88 +1,178 @@
 {
-  "topic_action_descriptions": {
-    "host_request": {
-      "reminder": "Je hebt nog niet gereageerd op een hostingverzoek",
-      "create": "Iemand heeft je een hostingverzoek gestuurd",
-      "missed_messages": "Je hebt berichten gemist bij een hostingverzoek",
-      "accept": "Iemand heeft je hostingverzoek geaccepteerd",
-      "confirm": "Iemand heeft zijn hostingverzoek bevestigd",
-      "reject": "Iemand heeft je hostingverzoek afgewezen",
-      "cancel": "Iemand heeft zijn hostingverzoek geannuleerd",
-      "message": "Iemand heeft een bericht gestuurd bij een hostingverzoek"
+  "account_deletion": {
+    "complete": {
+      "event_description": "Je account is verwijderd"
     },
-    "chat": {
-      "message": "Iemand heeft je een bericht gestuurd",
-      "missed_messages": "Je hebt berichten in een chat gemist"
+    "recovered": {
+      "event_description": "Je account is hersteld (en niet meer verwijderd)"
     },
-    "general": {
-      "new_blog_post": "Er is een nieuwe blog"
+    "start": {
+      "event_description": "Je bent begonnen met het verwijderen van je account"
+    }
+  },
+  "api_key": {
+    "create": {
+      "event_description": "Er is een API-sleutel aangemaakt voor je account"
+    }
+  },
+  "badge": {
+    "add": {
+      "event_description": "Er is een badge aan je account toegevoegd"
     },
-    "reference": {
-      "reminder_surfed": "Herinnering om een referentie te schrijven over iemand die jou gehost heeft",
-      "receive_hosted": "Je krijgt een referentie van iemand die je gehost heeft",
-      "receive_surfed": "Je krijgt een referentie van iemand die jij gehost hebt",
-      "receive_friend": "Je hebt een referentie gekregen van een vriend",
-      "reminder_hosted": "Herinnering om een referentie te schrijven van iemand die jij gehost hebt"
+    "remove": {
+      "event_description": "Een badge is van je account verwijderd"
+    }
+  },
+  "birthdate": {
+    "change": {
+      "event_description": "Je geboortedatum is gewijzigd"
+    }
+  },
+  "chat": {
+    "message": {
+      "event_description": "Iemand heeft je een bericht gestuurd"
     },
-    "event": {
-      "delete": "Een event waar jij heen zou gaan is verwijderd",
-      "reminder": "Herinnering: een event waar je naartoe gaat, gaat bijna beginnen",
-      "create_approved": "Een event dat is goedgekeurd door de moderators is aangemaakt in jouw community",
-      "create_any": "Een gebruiker maakt een event aan in jouw community (niet gecontroleerd door een admin)",
-      "update": "Een event waar jij heen gaat is bijgewerkt",
-      "cancel": "Een event waar jij heen zou gaan is geannuleerd",
-      "invite_organizer": "Iemand nodigt je uit om samen een event te organiseren",
-      "comment": "Een gebruiker reageert op een event waar je naartoe gaat"
+    "missed_messages": {
+      "event_description": "Je hebt berichten in een chat gemist"
+    }
+  },
+  "discussion": {
+    "comment": {
+      "event_description": "Iemand reageert op een discussie die je volgt"
     },
-    "onboarding": {
-      "reminder": "Vergeet niet na het aanmelden om je profiel verder in te vullen"
+    "create": {
+      "event_description": "Iemand heeft een discussie gestart in een community waar je lid van bent"
+    }
+  },
+  "donation": {
+    "received": {
+      "event_description": "Je donatie is ontvangen"
+    }
+  },
+  "email_address": {
+    "change": {
+      "event_description": "E-mailwijziging is gestart"
     },
-    "friend_request": {
-      "create": "Iemand heeft je een vriendschapsverzoek gestuurd",
-      "accept": "Iemand heeft je vriendschapsverzoek geaccepteerd"
+    "verify": {
+      "event_description": "Je nieuwe e-mailadres is geverifieerd"
+    }
+  },
+  "event": {
+    "cancel": {
+      "event_description": "Een event waar jij heen zou gaan is geannuleerd"
     },
-    "badge": {
-      "add": "Er is een badge aan je account toegevoegd",
-      "remove": "Een badge is van je account verwijderd"
+    "comment": {
+      "event_description": "Een gebruiker reageert op een event waar je naartoe gaat"
     },
-    "donation": {
-      "received": "Je donatie is ontvangen"
+    "create_any": {
+      "event_description": "Een gebruiker maakt een event aan in jouw community (niet gecontroleerd door een admin)"
     },
-    "password": {
-      "change": "Je wachtwoord is aangepast"
+    "create_approved": {
+      "event_description": "Een event dat is goedgekeurd door de moderators is aangemaakt in jouw community"
     },
-    "password_reset": {
-      "start": "Wachtwoordreset is begonnen",
-      "complete": "Wachtwoord is gereset"
+    "delete": {
+      "event_description": "Een event waar jij heen zou gaan is verwijderd"
     },
-    "email_address": {
-      "change": "E-mailwijziging is gestart",
-      "verify": "Je nieuwe e-mailadres is geverifieerd"
+    "invite_organizer": {
+      "event_description": "Iemand nodigt je uit om samen een event te organiseren"
     },
-    "account_deletion": {
-      "start": "Je bent begonnen met het verwijderen van je account",
-      "complete": "Je account is verwijderd",
-      "recovered": "Je account is hersteld (en niet meer verwijderd)"
+    "reminder": {
+      "event_description": "Herinnering: een event waar je naartoe gaat, gaat bijna beginnen"
     },
-    "api_key": {
-      "create": "Er is een API-sleutel aangemaakt voor je account"
+    "update": {
+      "event_description": "Een event waar jij heen gaat is bijgewerkt"
+    }
+  },
+  "friend_request": {
+    "accept": {
+      "event_description": "Iemand heeft je vriendschapsverzoek geaccepteerd"
     },
-    "phone_number": {
-      "change": "Je telefoonnummer is gewijzigd",
-      "verify": "Je telefoonnummer is geverifieerd"
+    "create": {
+      "event_description": "Iemand heeft je een vriendschapsverzoek gestuurd"
+    }
+  },
+  "gender": {
+    "change": {
+      "event_description": "Je gender op je profiel is aangepast"
+    }
+  },
+  "general": {
+    "new_blog_post": {
+      "event_description": "Er is een nieuwe blog"
+    }
+  },
+  "host_request": {
+    "accept": {
+      "event_description": "Iemand heeft je hostingverzoek geaccepteerd"
     },
-    "birthdate": {
-      "change": "Je geboortedatum is gewijzigd"
+    "cancel": {
+      "event_description": "Iemand heeft zijn hostingverzoek geannuleerd"
     },
-    "gender": {
-      "change": "Je gender op je profiel is aangepast"
+    "confirm": {
+      "event_description": "Iemand heeft zijn hostingverzoek bevestigd"
     },
-    "discussion": {
-      "comment": "Iemand reageert op een discussie die je volgt",
-      "create": "Iemand heeft een discussie gestart in een community waar je lid van bent"
+    "create": {
+      "event_description": "Iemand heeft je een hostingverzoek gestuurd"
     },
-    "thread": {
-      "reply": "Iemand reageert op jouw comment"
+    "message": {
+      "event_description": "Iemand heeft een bericht gestuurd bij een hostingverzoek"
+    },
+    "missed_messages": {
+      "event_description": "Je hebt berichten gemist bij een hostingverzoek"
+    },
+    "reject": {
+      "event_description": "Iemand heeft je hostingverzoek afgewezen"
+    },
+    "reminder": {
+      "event_description": "Je hebt nog niet gereageerd op een hostingverzoek"
+    }
+  },
+  "onboarding": {
+    "reminder": {
+      "event_description": "Vergeet niet na het aanmelden om je profiel verder in te vullen"
+    }
+  },
+  "password": {
+    "change": {
+      "event_description": "Je wachtwoord is aangepast"
+    }
+  },
+  "password_reset": {
+    "complete": {
+      "event_description": "Wachtwoord is gereset"
+    },
+    "start": {
+      "event_description": "Wachtwoordreset is begonnen"
+    }
+  },
+  "phone_number": {
+    "change": {
+      "event_description": "Je telefoonnummer is gewijzigd"
+    },
+    "verify": {
+      "event_description": "Je telefoonnummer is geverifieerd"
+    }
+  },
+  "reference": {
+    "receive_friend": {
+      "event_description": "Je hebt een referentie gekregen van een vriend"
+    },
+    "receive_hosted": {
+      "event_description": "Je krijgt een referentie van iemand die je gehost heeft"
+    },
+    "receive_surfed": {
+      "event_description": "Je krijgt een referentie van iemand die jij gehost hebt"
+    },
+    "reminder_hosted": {
+      "event_description": "Herinnering om een referentie te schrijven van iemand die jij gehost hebt"
+    },
+    "reminder_surfed": {
+      "event_description": "Herinnering om een referentie te schrijven over iemand die jou gehost heeft"
+    }
+  },
+  "thread": {
+    "reply": {
+      "event_description": "Iemand reageert op jouw comment"
     }
   }
 }
