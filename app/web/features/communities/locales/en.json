@@ -136,6 +136,8 @@
   "public_trips_description_label": "About your trip",
   "public_trips_description_placeholder": "What are you hoping to do? How long are you staying? Anything hosts should know.",
   "public_trips_description_required": "Please add a short description.",
+  "public_trips_description_chars_remaining_one": "{{count}} character remaining.",
+  "public_trips_description_chars_remaining_other": "{{count}} characters remaining.",
   "no_attendees": "There isn't anyone attending this event yet!",
   "no_organizers": "There are no organizers for the event.",
   "organizers": "Organizers",

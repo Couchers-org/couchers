@@ -11,12 +11,13 @@ import {
 import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import dayjs, { Dayjs } from "utils/dayjs";
 
 import { useCreatePublicTrip } from "./useListPublicTrips";
 
 const DATE_FIELD_ID = "public-trip-dates";
+const DESCRIPTION_MIN_LENGTH = 150; // Must match backend (PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16)
 
 const FieldStack = styled("div")(({ theme }) => ({
   display: "flex",
@@ -58,12 +59,16 @@ export default function CreatePublicTripDialog({
     handleSubmit,
     register,
     reset,
-    watch,
     formState: { errors },
   } = useForm<FormValues>({
     mode: "onBlur",
     defaultValues: { fromDate: null, toDate: null, description: "" },
   });
+
+  const watchFromDate = useWatch({ control, name: "fromDate" });
+  const watchDescription = useWatch({ control, name: "description" }) ?? "";
+  const descriptionCharsRemaining =
+    DESCRIPTION_MIN_LENGTH - watchDescription.length;
 
   const {
     mutate,
@@ -90,8 +95,6 @@ export default function CreatePublicTripDialog({
       description: description.trim(),
     });
   });
-
-  const watchFromDate = watch("fromDate");
 
   return (
     <Dialog
@@ -147,9 +150,18 @@ export default function CreatePublicTripDialog({
               id="public-trip-description"
               {...register("description", {
                 required: t("communities:public_trips_description_required"),
-                validate: (value) =>
-                  value.trim().length > 0 ||
-                  t("communities:public_trips_description_required"),
+                validate: (value) => {
+                  if (value.trim().length === 0) {
+                    return t("communities:public_trips_description_required");
+                  }
+                  if (value.length < DESCRIPTION_MIN_LENGTH) {
+                    return t(
+                      "communities:public_trips_description_chars_remaining",
+                      { count: DESCRIPTION_MIN_LENGTH - value.length },
+                    );
+                  }
+                  return true;
+                },
               })}
               label={t("communities:public_trips_description_label")}
               placeholder={t(
@@ -159,7 +171,16 @@ export default function CreatePublicTripDialog({
               minRows={4}
               fullWidth
               error={!!errors.description}
-              helperText={errors.description?.message}
+              helperText={
+                errors.description?.message
+                  ? errors.description.message
+                  : descriptionCharsRemaining > 0
+                    ? t(
+                        "communities:public_trips_description_chars_remaining",
+                        { count: descriptionCharsRemaining },
+                      )
+                    : ""
+              }
             />
           </FieldStack>
         </form>
