@@ -2,10 +2,10 @@ import logging
 from datetime import timedelta
 
 import grpc
-from google.protobuf import empty_pb2
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
+from couchers.constants import PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
@@ -30,6 +30,13 @@ publictripstatus2sql = {
     public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST: PublicTripStatus.searching_for_host,
     public_trips_pb2.PUBLIC_TRIP_STATUS_CLOSED: PublicTripStatus.closed,
 }
+
+
+def _is_description_long_enough(text: str) -> bool:
+    # Match Javascript's string.length (utf16 code units) rather than Python's len()
+    # so the backend check aligns with the frontend character counter.
+    text_length_utf16 = len(text.encode("utf-16-le")) // 2
+    return text_length_utf16 >= PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 
 
 def public_trip_to_pb(
@@ -59,8 +66,9 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
-        # Only allow city-level and neighborhood-level communities
-        if node.node_type not in (NodeType.locality, NodeType.sublocality):
+        # Disallow world- and macroregion-level communities (too broad for a trip).
+        # Region/subregion/locality/sublocality are all acceptable.
+        if node.node_type.value < NodeType.region.value:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "community_too_broad_for_public_trip")
 
         from_date = parse_date(request.from_date)
@@ -85,6 +93,13 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
 
         if not request.description.strip():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_public_trip_description")
+
+        if not _is_description_long_enough(request.description):
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "public_trip_description_too_short",
+                substitutions={"count": PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16},
+            )
 
         if len(request.description) > PUBLIC_TRIP_DESCRIPTION_MAX_LENGTH:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_description_too_long")
@@ -194,32 +209,85 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             next_page_token=str(public_trips[-1].id) if len(public_trips) > page_size else None,
         )
 
-    def UpdatePublicTripStatus(
-        self, request: public_trips_pb2.UpdatePublicTripStatusReq, context: CouchersContext, session: Session
-    ) -> empty_pb2.Empty:
+    def UpdatePublicTrip(
+        self, request: public_trips_pb2.UpdatePublicTripReq, context: CouchersContext, session: Session
+    ) -> public_trips_pb2.PublicTrip:
         public_trip = session.execute(select(PublicTrip).where(PublicTrip.id == request.trip_id)).scalar_one_or_none()
 
         if not public_trip or public_trip.user_id != context.user_id:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "public_trip_not_found")
 
-        new_status = publictripstatus2sql.get(request.status)
-        if new_status is None:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_public_trip_status")
+        editing_content = (
+            request.HasField("from_date") or request.HasField("to_date") or request.HasField("description")
+        )
 
-        # Only allow closing a trip (can't re-open a closed trip)
-        if new_status != PublicTripStatus.closed:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_public_trip_status")
+        if editing_content:
+            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+            today_local = today_in_timezone(user.timezone)
 
-        public_trip.status = new_status
+            if public_trip.to_date < today_local:
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_in_past")
+
+            new_from_date = public_trip.from_date
+            new_to_date = public_trip.to_date
+
+            if request.HasField("from_date"):
+                parsed = parse_date(request.from_date)
+                if not parsed:
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
+                new_from_date = parsed
+
+            if request.HasField("to_date"):
+                parsed = parse_date(request.to_date)
+                if not parsed:
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
+                new_to_date = parsed
+
+            if new_from_date < today_local:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
+
+            if new_from_date > new_to_date:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_to")
+
+            if new_from_date - today_local > timedelta(days=365):
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_one_year")
+
+            if new_to_date - new_from_date > timedelta(days=365):
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
+
+            if request.HasField("description"):
+                if not request.description.strip():
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_public_trip_description")
+                if not _is_description_long_enough(request.description):
+                    context.abort_with_error_code(
+                        grpc.StatusCode.INVALID_ARGUMENT,
+                        "public_trip_description_too_short",
+                        substitutions={"count": PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16},
+                    )
+                if len(request.description) > PUBLIC_TRIP_DESCRIPTION_MAX_LENGTH:
+                    context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_description_too_long")
+                public_trip.description = request.description
+
+            public_trip.from_date = new_from_date
+            public_trip.to_date = new_to_date
+
+        if request.HasField("status"):
+            new_status = publictripstatus2sql.get(request.status)
+            # Only closing is permitted (can't reopen a closed trip).
+            if new_status != PublicTripStatus.closed:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_public_trip_status")
+            public_trip.status = new_status
 
         log_event(
             context,
             session,
-            "public_trip.status_updated",
+            "public_trip.updated",
             {
                 "public_trip_id": public_trip.id,
-                "new_status": new_status.name,
+                "from_date": str(public_trip.from_date),
+                "to_date": str(public_trip.to_date),
+                "status": public_trip.status.name,
             },
         )
 
-        return empty_pb2.Empty()
+        return public_trip_to_pb(public_trip, session, context)
