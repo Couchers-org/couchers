@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package org.couchers.api.public_trips;
 
-import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 import "annotations.proto";
@@ -30,8 +29,10 @@ service PublicTrips {
     // - Otherwise only active, upcoming trips are returned.
   }
 
-  rpc UpdatePublicTripStatus(UpdatePublicTripStatusReq) returns (google.protobuf.Empty) {
-    // Update trip status (e.g. mark as found host or deactivate)
+  rpc UpdatePublicTrip(UpdatePublicTripReq) returns (PublicTrip) {
+    // Edit a public trip. Owner-only. Content edits (dates, description)
+    // require the trip's end date to be today or later; status can be
+    // updated at any time but only to CLOSED.
   }
 }
 
@@ -91,7 +92,12 @@ message ListPublicTripsByUserRes {
   string next_page_token = 2;
 }
 
-message UpdatePublicTripStatusReq {
+message UpdatePublicTripReq {
   int64 trip_id = 1;
-  PublicTripStatus status = 2;
+
+  // Only supplied fields are updated.
+  optional string from_date = 2; // YYYY-MM-DD
+  optional string to_date = 3; // YYYY-MM-DD
+  optional string description = 4;
+  optional PublicTripStatus status = 5;
 }
