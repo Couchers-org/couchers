@@ -30,6 +30,11 @@ service PublicTrips {
     // - Otherwise only active, upcoming trips are returned.
   }
 
+  rpc UpdatePublicTrip(UpdatePublicTripReq) returns (PublicTrip) {
+    // Edit a public trip's dates and/or description. Owner-only, and
+    // only allowed while the trip's end date is today or later.
+  }
+
   rpc UpdatePublicTripStatus(UpdatePublicTripStatusReq) returns (google.protobuf.Empty) {
     // Update trip status (e.g. mark as found host or deactivate)
   }
@@ -89,6 +94,15 @@ message ListPublicTripsByUserRes {
   repeated PublicTrip public_trips = 1;
 
   string next_page_token = 2;
+}
+
+message UpdatePublicTripReq {
+  int64 trip_id = 1;
+
+  // Only supplied fields are updated.
+  optional string from_date = 2; // YYYY-MM-DD
+  optional string to_date = 3; // YYYY-MM-DD
+  optional string description = 4;
 }
 
 message UpdatePublicTripStatusReq {

@@ -115,7 +115,7 @@ def test_create_public_trip_community_not_found(db):
 
 def test_create_public_trip_community_too_broad(db):
     _, token = generate_user()
-    node_id = _make_node(node_type=NodeType.region)
+    node_id = _make_node(node_type=NodeType.macroregion)
 
     with public_trips_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -128,12 +128,16 @@ def test_create_public_trip_community_too_broad(db):
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert "city-level" in (e.value.details() or "")
+        assert "too broad" in (e.value.details() or "")
 
 
-def test_create_public_trip_allows_sublocality(db):
+@pytest.mark.parametrize(
+    "node_type",
+    [NodeType.region, NodeType.subregion, NodeType.locality, NodeType.sublocality],
+)
+def test_create_public_trip_allows_region_and_narrower(db, node_type):
     _, token = generate_user()
-    node_id = _make_node(node_type=NodeType.sublocality)
+    node_id = _make_node(node_type=node_type)
 
     with public_trips_session(token) as api:
         res = api.CreatePublicTrip(
@@ -141,7 +145,7 @@ def test_create_public_trip_allows_sublocality(db):
                 node_id=node_id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
-                description="Visiting neighborhood!",
+                description="Visiting!",
             )
         )
         assert res.trip_id > 0
@@ -484,6 +488,115 @@ def test_update_public_trip_cant_reopen(db):
                 public_trips_pb2.UpdatePublicTripStatusReq(
                     trip_id=trip_id,
                     status=public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_update_public_trip_description_only(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(
+        user.id,
+        node_id,
+        today() + timedelta(days=5),
+        today() + timedelta(days=10),
+        description="Original description",
+    )
+
+    with public_trips_session(token) as api:
+        res = api.UpdatePublicTrip(
+            public_trips_pb2.UpdatePublicTripReq(
+                trip_id=trip_id,
+                description="Updated plans!",
+            )
+        )
+        assert res.trip_id == trip_id
+        assert res.description == "Updated plans!"
+        # dates should be unchanged
+        assert res.from_date == (today() + timedelta(days=5)).isoformat()
+        assert res.to_date == (today() + timedelta(days=10)).isoformat()
+
+    with session_scope() as session:
+        trip = session.execute(select(PublicTrip).where(PublicTrip.id == trip_id)).scalar_one()
+        assert trip.description == "Updated plans!"
+
+
+def test_update_public_trip_dates(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    new_from = today() + timedelta(days=7)
+    new_to = today() + timedelta(days=14)
+
+    with public_trips_session(token) as api:
+        res = api.UpdatePublicTrip(
+            public_trips_pb2.UpdatePublicTripReq(
+                trip_id=trip_id,
+                from_date=new_from.isoformat(),
+                to_date=new_to.isoformat(),
+            )
+        )
+        assert res.from_date == new_from.isoformat()
+        assert res.to_date == new_to.isoformat()
+
+
+def test_update_public_trip_not_owner(db):
+    user, _ = generate_user()
+    _, other_token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    with public_trips_session(other_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdatePublicTrip(
+                public_trips_pb2.UpdatePublicTripReq(
+                    trip_id=trip_id,
+                    description="I don't own this!",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_update_public_trip_in_past(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(user.id, node_id, today() - timedelta(days=10), today() - timedelta(days=1))
+
+    with public_trips_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdatePublicTrip(
+                public_trips_pb2.UpdatePublicTripReq(
+                    trip_id=trip_id,
+                    description="Too late!",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_update_public_trip_date_validation(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    with public_trips_session(token) as api:
+        # from_date after to_date (using the stored to_date of today+10)
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdatePublicTrip(
+                public_trips_pb2.UpdatePublicTripReq(
+                    trip_id=trip_id,
+                    from_date=(today() + timedelta(days=20)).isoformat(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+        # Empty description
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdatePublicTrip(
+                public_trips_pb2.UpdatePublicTripReq(
+                    trip_id=trip_id,
+                    description="   ",
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT

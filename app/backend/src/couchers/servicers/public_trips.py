@@ -59,8 +59,9 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
-        # Only allow city-level and neighborhood-level communities
-        if node.node_type not in (NodeType.locality, NodeType.sublocality):
+        # Disallow world- and macroregion-level communities (too broad for a trip).
+        # Region/subregion/locality/sublocality are all acceptable.
+        if node.node_type.value < NodeType.region.value:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "community_too_broad_for_public_trip")
 
         from_date = parse_date(request.from_date)
@@ -193,6 +194,73 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],
             next_page_token=str(public_trips[-1].id) if len(public_trips) > page_size else None,
         )
+
+    def UpdatePublicTrip(
+        self, request: public_trips_pb2.UpdatePublicTripReq, context: CouchersContext, session: Session
+    ) -> public_trips_pb2.PublicTrip:
+        public_trip = session.execute(select(PublicTrip).where(PublicTrip.id == request.trip_id)).scalar_one_or_none()
+
+        if not public_trip or public_trip.user_id != context.user_id:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "public_trip_not_found")
+
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        today_local = today_in_timezone(user.timezone)
+
+        # Trip must not already be in the past
+        if public_trip.to_date < today_local:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_in_past")
+
+        new_from_date = public_trip.from_date
+        new_to_date = public_trip.to_date
+
+        if request.HasField("from_date"):
+            parsed = parse_date(request.from_date)
+            if not parsed:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
+            new_from_date = parsed
+
+        if request.HasField("to_date"):
+            parsed = parse_date(request.to_date)
+            if not parsed:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
+            new_to_date = parsed
+
+        if new_from_date < today_local:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
+
+        if new_from_date > new_to_date:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_to")
+
+        if new_from_date - today_local > timedelta(days=365):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_one_year")
+
+        if new_to_date - new_from_date > timedelta(days=365):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_to_after_one_year")
+
+        new_description = public_trip.description
+        if request.HasField("description"):
+            if not request.description.strip():
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_public_trip_description")
+            if len(request.description) > PUBLIC_TRIP_DESCRIPTION_MAX_LENGTH:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_description_too_long")
+            new_description = request.description
+
+        public_trip.from_date = new_from_date
+        public_trip.to_date = new_to_date
+        public_trip.description = new_description
+
+        log_event(
+            context,
+            session,
+            "public_trip.updated",
+            {
+                "public_trip_id": public_trip.id,
+                "from_date": str(new_from_date),
+                "to_date": str(new_to_date),
+            },
+        )
+
+        return public_trip_to_pb(public_trip, session, context)
 
     def UpdatePublicTripStatus(
         self, request: public_trips_pb2.UpdatePublicTripStatusReq, context: CouchersContext, session: Session
