@@ -423,7 +423,7 @@ def test_update_public_trip_status_not_owner(db):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
-def test_update_public_trip_status_reject_searching(db):
+def test_update_public_trip_cant_reopen(db):
     user, token = generate_user()
     node_id = _make_node()
     trip_id = _create_trip_directly(
