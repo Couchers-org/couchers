@@ -271,7 +271,7 @@
       "step4": "If prompted, open the app and scan the QR code again",
       "step5": "Select <strong>Passport</strong> (ID cards not supported)",
       "step6": "Take a clear photo of the passport page with numbers at the bottom",
-      "step7": "Hold your phone against the passport page with the NFC chip (see tips below)",
+      "step7": "Hold your phone against the passport page with the NFC chip and <strong>keep completely still for at least 5 seconds</strong> — moving too early is the most common cause of failure",
       "step8": "You'll know it's successful when you see increasing percentages and a loader",
       "download_app_store": "Download on the App Store",
       "download_google_play": "Get it on Google Play",
@@ -281,6 +281,31 @@
         "us_germany_mexico": "<strong>Brazil, US, Germany (2016), Indonesia, Mexico:</strong> Back page",
         "finland_germany_new": "<strong>Finland, Germany (2017+), Russia:</strong> Picture page",
         "australia": "<strong>Australia:</strong> Middle page (marked with symbol + \"chip name\")"
+      },
+      "scanning_tips": {
+        "heading": "Tips for Successful NFC Scanning",
+        "description": "The NFC scan is the trickiest part. These tips significantly improve your chances:",
+        "remove_case": "<strong>Remove your phone case</strong> — even thin cases can block the NFC signal",
+        "hold_still": "<strong>Hold your phone completely still</strong> for at least 5 seconds — moving too early is the most common cause of failure",
+        "flat_surface": "<strong>Place your passport on a flat surface</strong> — don't hold it in your hand",
+        "nfc_location": "<strong>Find your phone's NFC antenna</strong> — it's usually near the top-center on the back of the phone. Try different positions if it doesn't connect",
+        "no_metal": "<strong>Avoid metal surfaces</strong> — don't place your passport on a metal table or laptop",
+        "retry": "If the scan fails, try again — it often takes 2-3 attempts to get the positioning right"
+      },
+      "before_you_start": {
+        "heading": "Before You Start",
+        "nfc_check": "Your phone must have <strong>NFC capability</strong> — most modern phones do. NFC is usually on by default, but on some older phones, you may need to enable it in your phone's settings.",
+        "passport_check": "Your passport must be a <strong>biometric passport</strong> — look for the gold chip symbol on the cover. Older passports without this symbol won't work.",
+        "remove_case": "<strong>Remove your phone case before starting</strong> — even thin cases can block the NFC signal and cause the scan to fail.",
+        "passport_symbol_alt": "Biometric passport symbol"
+      },
+      "didnt_work": {
+        "heading": "Having Trouble?",
+        "tip1": "On older Android phones, make sure NFC is enabled in your phone's settings (most modern phones have it on by default)",
+        "tip2": "Try a different page of your passport — the chip location varies by country",
+        "tip3": "If using Android, make sure you have the IRIS ID app installed (not the browser version)",
+        "tip4": "Some older passports or passport cards don't have NFC chips and won't work",
+        "contact": "If you're still having trouble, <1>let us know</1> and we'll help."
       }
     }
   },
