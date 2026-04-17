@@ -166,22 +166,30 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             next_page_token=str(public_trips[-1].id) if len(public_trips) > page_size else None,
         )
 
-    def ListMyPublicTrips(
-        self, request: public_trips_pb2.ListMyPublicTripsReq, context: CouchersContext, session: Session
-    ) -> public_trips_pb2.ListMyPublicTripsRes:
+    def ListPublicTripsByUser(
+        self, request: public_trips_pb2.ListPublicTripsByUserReq, context: CouchersContext, session: Session
+    ) -> public_trips_pb2.ListPublicTripsByUserRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         next_page_id = int(request.page_token) if request.page_token else 0
 
+        is_self = request.user_id == context.user_id
+
+        statement = where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id).where(
+            PublicTrip.user_id == request.user_id
+        )
+        if not is_self:
+            # On other users' profiles show only active, upcoming trips
+            statement = statement.where(PublicTrip.status == PublicTripStatus.searching_for_host).where(
+                PublicTrip.to_date >= today()
+            )
         statement = (
-            select(PublicTrip)
-            .where(PublicTrip.user_id == context.user_id)
-            .where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
+            statement.where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
             .order_by(PublicTrip.id.desc())
             .limit(page_size + 1)
         )
         public_trips = session.execute(statement).scalars().all()
 
-        return public_trips_pb2.ListMyPublicTripsRes(
+        return public_trips_pb2.ListPublicTripsByUserRes(
             public_trips=[public_trip_to_pb(trip, session, context) for trip in public_trips[:page_size]],
             next_page_token=str(public_trips[-1].id) if len(public_trips) > page_size else None,
         )

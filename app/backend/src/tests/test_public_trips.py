@@ -367,7 +367,7 @@ def test_list_public_trips_pagination(db):
         assert not res3.next_page_token
 
 
-def test_list_my_public_trips(db):
+def test_list_public_trips_by_user_self_sees_all(db):
     user, token = generate_user()
     other, _ = generate_user()
     node_id = _make_node()
@@ -380,12 +380,55 @@ def test_list_my_public_trips(db):
         today() + timedelta(days=20),
         status=PublicTripStatus.closed,
     )
+    mine_past = _create_trip_directly(user.id, node_id, today() - timedelta(days=10), today() - timedelta(days=1))
     # other user's trip should not be returned
     _create_trip_directly(other.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
 
     with public_trips_session(token) as api:
-        res = api.ListMyPublicTrips(public_trips_pb2.ListMyPublicTripsReq())
-        assert {t.trip_id for t in res.public_trips} == {mine_active, mine_closed}
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=user.id))
+        assert {t.trip_id for t in res.public_trips} == {mine_active, mine_closed, mine_past}
+
+
+def test_list_public_trips_by_user_other_filters_inactive_and_past(db):
+    traveler, _ = generate_user()
+    _, viewer_token = generate_user()
+    node_id = _make_node()
+
+    active = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+    # closed trip - hidden from others
+    _create_trip_directly(
+        traveler.id,
+        node_id,
+        today() + timedelta(days=15),
+        today() + timedelta(days=20),
+        status=PublicTripStatus.closed,
+    )
+    # past trip - hidden from others
+    _create_trip_directly(traveler.id, node_id, today() - timedelta(days=10), today() - timedelta(days=1))
+
+    with public_trips_session(viewer_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert [t.trip_id for t in res.public_trips] == [active]
+
+
+def test_list_public_trips_by_user_invisible_user(db):
+    traveler, _ = generate_user()
+    _, viewer_token = generate_user()
+    node_id = _make_node()
+
+    _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    # soft-delete the traveler
+    with session_scope() as session:
+        from couchers.models import User
+        from couchers.utils import now
+
+        t = session.execute(select(User).where(User.id == traveler.id)).scalar_one()
+        t.deleted_at = now()
+
+    with public_trips_session(viewer_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert len(res.public_trips) == 0
 
 
 def test_update_public_trip_status_close(db):
