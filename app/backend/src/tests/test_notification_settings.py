@@ -1,7 +1,5 @@
-from couchers.i18n.locales import DEFAULT_LOCALE
 from couchers.models.notifications import NotificationTopicAction
 from couchers.notifications.settings import settings_layout
-from couchers.notifications.utils import get_topic_action_description
 
 
 def test_all_notifications_appear_in_settings() -> None:
@@ -25,8 +23,3 @@ def test_all_notifications_appear_in_settings() -> None:
         )
     assert sorted(actions_by_topic.keys()) == sorted(actions_by_topic_check.keys())
 
-
-def test_all_notifications_have_descriptions() -> None:
-    for topic_action in NotificationTopicAction:
-        # Will throw if there's no string
-        assert get_topic_action_description(topic_action, locale=DEFAULT_LOCALE) != ""

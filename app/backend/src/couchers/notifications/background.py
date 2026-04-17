@@ -27,7 +27,12 @@ from couchers.notifications.quick_links import (
 from couchers.notifications.render_email import get_list_unsubscribe_header, render_email_notification
 from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
-from couchers.notifications.utils import can_notify_deleted_user
+from couchers.notifications.utils import (
+    can_notify_deleted_user,
+    can_unsubscribe_topic_key,
+    get_topic_action_unsubscribe_text,
+    get_topic_key_unsubscribe_text,
+)
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import moderation_state_column_visible
 from couchers.templating import Jinja2Template, template_folder
@@ -72,13 +77,15 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         template_args["footer_manage_notifications_link"] = urls.notification_settings_link()
         template_args["footer_do_not_email_link"] = generate_do_not_email(user)
 
-        if rendered.topic_action_unsubscribe_text:
-            template_args["footer_notification_topic_action"] = rendered.topic_action_unsubscribe_text
-            template_args["footer_notification_topic_action_link"] = generate_unsub_topic_action(notification)
+        topic_action_unsub_text = get_topic_action_unsubscribe_text(notification.topic_action, loc_context)
+        template_args["footer_notification_topic_action"] = topic_action_unsub_text
+        template_args["footer_notification_topic_action_link"] = generate_unsub_topic_action(notification)
 
-        if rendered.topic_key_unsubscribe_text:
-            template_args["footer_notification_topic_key"] = rendered.topic_key_unsubscribe_text
-            template_args["footer_notification_topic_key_link"] = generate_unsub_topic_key(notification)
+        if can_unsubscribe_topic_key(notification.topic_action):
+            topic_key_unsub_text = get_topic_key_unsubscribe_text(notification.topic_action, loc_context)
+            if topic_key_unsub_text:
+                template_args["footer_notification_topic_key"] = topic_key_unsub_text
+                template_args["footer_notification_topic_key_link"] = generate_unsub_topic_key(notification)
 
     # Format plaintext template
     plain_tmplt_body = (template_folder / f"{rendered.template_name}.txt").read_text()

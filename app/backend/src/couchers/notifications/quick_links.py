@@ -92,15 +92,6 @@ def generate_quick_decline_link(host_request: requests_pb2.HostRequest) -> str:
     )
 
 
-def can_unsubscribe_topic_key(topic_action: NotificationTopicAction) -> bool:
-    """
-    Determines whether a user can unsubscribe from a specific topic key
-    (e.g. muting a specific chat).
-    """
-    # Only chat__message has a meaningful key (the chat ID); chat__missed_messages is a summary with no specific chat
-    return topic_action == NotificationTopicAction.chat__message
-
-
 def respond_quick_link(request: auth_pb2.UnsubscribeReq, context: CouchersContext, session: Session) -> str:
     """
     Returns a response string or uses context.abort upon error

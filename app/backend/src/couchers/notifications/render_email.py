@@ -7,13 +7,12 @@ from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
 from couchers.models import Notification, NotificationTopicAction
 from couchers.notifications.quick_links import (
-    can_unsubscribe_topic_key,
     generate_quick_decline_link,
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
 from couchers.proto import api_pb2, notification_data_pb2
-from couchers.utils import now, to_aware_datetime
+from couchers.utils import can_unsubscribe_topic_key, now, to_aware_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -28,10 +27,6 @@ class RenderedEmailNotification:
     template_name: str
     # other template args
     template_args: dict[str, Any]
-    # the link label on the topic_action unsubscribe link
-    topic_action_unsubscribe_text: str | None = None
-    # the link label on the topic_key unsubscribe link
-    topic_key_unsubscribe_text: str | None = None
 
 
 def render_email_notification(
@@ -55,7 +50,6 @@ def render_email_notification(
                     "message": message,
                     "other": UserTemplateArgs.from_protobuf_user(other),
                 },
-                topic_action_unsubscribe_text="missed messages in host requests",
             )
         elif notification.action == "create":
             other = data.surfer
@@ -72,7 +66,6 @@ def render_email_notification(
                     "other": UserTemplateArgs.from_protobuf_user(other),
                     "text": data.text,
                 },
-                topic_action_unsubscribe_text="new host requests",
             )
         elif notification.action == "message":
             other = data.user
@@ -80,7 +73,6 @@ def render_email_notification(
                 message = f"{other.name} sent you a message in their host request"
             else:
                 message = f"{other.name} sent you a message in your host request"
-            topic_action_unsub_text = "messages in host request"
             return RenderedEmailNotification(
                 subject=message,
                 preview=message,
@@ -92,7 +84,6 @@ def render_email_notification(
                     "other": UserTemplateArgs.from_protobuf_user(other),
                     "text": data.text,
                 },
-                topic_action_unsubscribe_text=topic_action_unsub_text,
             )
         elif notification.action in ["accept", "reject", "confirm", "cancel"]:
             if notification.action in ["accept", "reject"]:
@@ -119,7 +110,6 @@ def render_email_notification(
                     "message": message,
                     "other": UserTemplateArgs.from_protobuf_user(other),
                 },
-                topic_action_unsubscribe_text=f"{actioned} host requests",
             )
         elif notification.action == "reminder":
             message = f"You have a pending host request from {data.surfer.name}!"
@@ -134,7 +124,6 @@ def render_email_notification(
                     "message": description,
                     "other": UserTemplateArgs.from_protobuf_user(data.surfer),
                 },
-                topic_action_unsubscribe_text="Pending host request reminders",
             )
     elif notification.topic_action == NotificationTopicAction.password__change:
         title = "Your password was changed"
@@ -268,7 +257,6 @@ def render_email_notification(
                 "actioned": actioned,
                 "unsub_type": "badge additions" if notification.action == "add" else "badge removals",
             },
-            topic_action_unsubscribe_text="badge additions" if notification.action == "add" else "badge removals",
         )
     elif notification.topic_action == NotificationTopicAction.donation__received:
         title = loc_context.localize_string("notifications.donation_received.title")
@@ -286,7 +274,6 @@ def render_email_notification(
                 "amount": data.amount,
                 "receipt_url": data.receipt_url,
             },
-            topic_action_unsubscribe_text="donations received",
         )
     elif notification.topic_action == NotificationTopicAction.friend_request__create:
         other = data.other_user
@@ -299,7 +286,6 @@ def render_email_notification(
                 "friend_requests_link": urls.friend_requests_link(),
                 "other": UserTemplateArgs.from_protobuf_user(other),
             },
-            topic_action_unsubscribe_text="new friend requests",
         )
     elif notification.topic_action == NotificationTopicAction.friend_request__accept:
         other = data.other_user
@@ -312,7 +298,6 @@ def render_email_notification(
             template_args={
                 "other": UserTemplateArgs.from_protobuf_user(other),
             },
-            topic_action_unsubscribe_text="accepted friend requests",
         )
     elif notification.topic_action == NotificationTopicAction.account_deletion__start:
         return RenderedEmailNotification(
@@ -356,8 +341,6 @@ def render_email_notification(
                 "text": data.text,
                 "view_link": urls.chat_link(chat_id=data.group_chat_id),
             },
-            topic_action_unsubscribe_text="new chat messages",
-            topic_key_unsubscribe_text="this chat (mute)",
         )
     elif notification.topic_action == NotificationTopicAction.chat__missed_messages:
         return RenderedEmailNotification(
@@ -375,7 +358,6 @@ def render_email_notification(
                     for item in data.messages
                 ]
             },
-            topic_action_unsubscribe_text="unseen chat messages",
         )
     elif notification.topic == "event":
         event = data.event
@@ -411,11 +393,6 @@ def render_email_notification(
                     "event": event,
                     "view_link": event_link,
                 },
-                topic_action_unsubscribe_text=(
-                    "new events by community members"
-                    if notification.action == "create_any"
-                    else "invitations to events (approved by moderators)"
-                ),
             )
         elif notification.action == "update":
             updated_text = ", ".join(data.updated_items)
@@ -430,7 +407,6 @@ def render_email_notification(
                     "updated_text": updated_text,
                     "view_link": event_link,
                 },
-                topic_action_unsubscribe_text="event updates",
             )
         elif notification.action == "cancel":
             return RenderedEmailNotification(
@@ -443,7 +419,6 @@ def render_email_notification(
                     "event": event,
                     "view_link": event_link,
                 },
-                topic_action_unsubscribe_text="event cancellations",
             )
         elif notification.action == "delete":
             return RenderedEmailNotification(
@@ -454,7 +429,6 @@ def render_email_notification(
                     "time_display": time_display,
                     "event": event,
                 },
-                topic_action_unsubscribe_text="event deletions",
             )
         elif notification.action == "invite_organizer":
             return RenderedEmailNotification(
@@ -467,7 +441,6 @@ def render_email_notification(
                     "event": event,
                     "view_link": event_link,
                 },
-                topic_action_unsubscribe_text="invitations to co-organize events",
             )
         elif notification.action == "comment":
             return RenderedEmailNotification(
@@ -481,7 +454,6 @@ def render_email_notification(
                     "content": data.reply.content,
                     "view_link": event_link,
                 },
-                topic_action_unsubscribe_text="event comments",
             )
         elif notification.action == "reminder":
             return RenderedEmailNotification(
@@ -493,7 +465,6 @@ def render_email_notification(
                     "event": event,
                     "view_link": event_link,
                 },
-                topic_action_unsubscribe_text="event reminders",
             )
     elif notification.topic == "discussion":
         discussion = data.discussion
@@ -508,7 +479,6 @@ def render_email_notification(
                     "discussion": discussion,
                     "view_link": discussion_link,
                 },
-                topic_action_unsubscribe_text="new discussions",
             )
         elif notification.action == "comment":
             return RenderedEmailNotification(
@@ -521,7 +491,6 @@ def render_email_notification(
                     "reply": data.reply,
                     "view_link": discussion_link,
                 },
-                topic_action_unsubscribe_text="discussion comments",
             )
     elif notification.topic_action == NotificationTopicAction.thread__reply:
         parent = data.WhichOneof("reply_parent")
@@ -544,7 +513,6 @@ def render_email_notification(
                 "reply": data.reply,
                 "view_link": view_link,
             },
-            topic_action_unsubscribe_text="comment replies",
         )
     elif notification.topic == "reference":
         if notification.action == "receive_friend":
@@ -558,7 +526,6 @@ def render_email_notification(
                     "profile_references_link": urls.profile_references_link(),
                     "text": data.text,
                 },
-                topic_action_unsubscribe_text="new references from friends",
             )
         elif notification.action in ["receive_hosted", "receive_surfed"]:
             title = f"You've received a reference from {data.from_user.name}!"
@@ -586,7 +553,6 @@ def render_email_notification(
                     "both_written": True if data.text else False,
                     "surfed": surfed,
                 },
-                topic_action_unsubscribe_text="new references from " + ("hosts" if surfed else "surfers"),
             )
         elif notification.action in ["reminder_hosted", "reminder_surfed"]:
             # what was my type? i surfed with them if i get a surfed reminder
@@ -608,7 +574,6 @@ def render_email_notification(
                     "days_left": str(data.days_left),
                     "surfed": surfed,
                 },
-                topic_action_unsubscribe_text=("surfed" if surfed else "hosted") + " reference reminders",
             )
     elif notification.topic_action == NotificationTopicAction.onboarding__reminder:
         if notification.key == "1":
@@ -620,7 +585,6 @@ def render_email_notification(
                     "app_link": urls.app_link(),
                     "edit_profile_link": urls.edit_profile_link(),
                 },
-                topic_action_unsubscribe_text="onboarding emails",
             )
         elif notification.key == "2":
             return RenderedEmailNotification(
@@ -630,7 +594,6 @@ def render_email_notification(
                 template_args={
                     "edit_profile_link": urls.edit_profile_link(),
                 },
-                topic_action_unsubscribe_text="onboarding emails",
             )
     elif notification.topic_action == NotificationTopicAction.modnote__create:
         title = "You have received a mod note"
@@ -737,7 +700,6 @@ def render_email_notification(
                 "blurb": data.blurb,
                 "url": data.url,
             },
-            topic_action_unsubscribe_text="new blog post alerts",
         )
 
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")

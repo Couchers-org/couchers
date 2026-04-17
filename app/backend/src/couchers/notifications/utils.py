@@ -1,3 +1,5 @@
+from couchers.i18n import LocalizationContext
+from couchers.i18n.i18next import LocalizationError
 from couchers.models import NotificationTopicAction
 from couchers.notifications.locales import get_notifs_i18next
 
@@ -13,10 +15,39 @@ _DELETED_USER_NOTIFICATIONS = {
 }
 
 
+def can_unsubscribe_topic_key(topic_action: NotificationTopicAction) -> bool:
+    """
+    Determines whether a user can unsubscribe from a specific topic key
+    (e.g. muting a specific chat).
+    """
+    # Only chat__message has a meaningful key (the chat ID); chat__missed_messages is a summary with no specific chat
+    return topic_action == NotificationTopicAction.chat__message
+
+
 def can_notify_deleted_user(topic_action: NotificationTopicAction) -> bool:
     return topic_action in _DELETED_USER_NOTIFICATIONS
 
 
-def get_topic_action_description(topic_action: NotificationTopicAction, locale: str) -> str:
+def get_topic_action_setting_description(topic_action: NotificationTopicAction, locale: str) -> str:
     description_key = f"{topic_action.topic}.{topic_action.action}.event_description"
     return get_notifs_i18next().localize(description_key, locale)
+
+
+def get_topic_action_unsubscribe_text(
+    topic_action: NotificationTopicAction, loc_context: LocalizationContext
+) -> str:
+    if topic_action.is_critical:
+        raise ValueError(f"Cannot get unsubscribe text for critical notification {topic_action}")
+    return get_notifs_i18next().localize(
+        f"{topic_action.topic}.{topic_action.action}.short_description_noun", loc_context.locale
+    )
+
+
+def get_topic_key_unsubscribe_text(
+    topic_action: NotificationTopicAction, loc_context: LocalizationContext
+) -> str:
+    if not can_unsubscribe_topic_key(topic_action.topic):
+        raise ValueError(f"Cannot get topic key unsubscribe text for topic {topic_action.topic}")
+    return get_notifs_i18next().localize(
+        f"{topic_action.topic}._topic_key_short_description", loc_context.locale
+    )
