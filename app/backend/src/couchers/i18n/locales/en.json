@@ -182,6 +182,8 @@
     "probe_response_invalid": "You can't respond to an activeness probe like that.",
     "public_trip_dates_out_of_range": "The offered dates must fall within the public trip's dates.",
     "public_trip_description_too_long": "Your public trip description is too long.",
+    "public_trip_description_too_short_one": "Public trip description cannot be shorter than {{count}} character.",
+    "public_trip_description_too_short_other": "Public trip description cannot be shorter than {{count}} characters.",
     "public_trip_in_past": "You can't edit a public trip that has already ended.",
     "public_trip_not_active": "This public trip is no longer accepting offers.",
     "public_trip_not_found": "Couldn't find that public trip.",
