@@ -112,9 +112,7 @@
     "no_archived_chats": "Arşivlenmiş sohbet yok",
     "archived": "Arşiv",
     "archive_button": "Arşivle",
-    "unarchive_button": "Arşivden Çıkar",
-    "show_archived": "Arşivi göster",
-    "show_active": "Aktif olanları göster"
+    "unarchive_button": "Arşivden Çıkar"
   },
   "host_request_status": {
     "rejected": "Reddedildi"
