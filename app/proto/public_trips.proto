@@ -23,8 +23,11 @@ service PublicTrips {
     // List public trips in a community (for hosts browsing)
   }
 
-  rpc ListMyPublicTrips(ListMyPublicTripsReq) returns (ListMyPublicTripsRes) {
-    // List the current user's public trips
+  rpc ListPublicTripsByUser(ListPublicTripsByUserReq) returns (ListPublicTripsByUserRes) {
+    // List a user's public trips. Used for both the user's own dashboard and
+    // for showing upcoming trips on another user's profile.
+    // - If user_id matches the caller, all trips (including closed/past) are returned.
+    // - Otherwise only active, upcoming trips are returned.
   }
 
   rpc UpdatePublicTripStatus(UpdatePublicTripStatusReq) returns (google.protobuf.Empty) {
@@ -75,12 +78,14 @@ message ListPublicTripsRes {
   string next_page_token = 2;
 }
 
-message ListMyPublicTripsReq {
-  uint32 page_size = 1;
-  string page_token = 2;
+message ListPublicTripsByUserReq {
+  int64 user_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
 }
 
-message ListMyPublicTripsRes {
+message ListPublicTripsByUserRes {
   repeated PublicTrip public_trips = 1;
 
   string next_page_token = 2;
