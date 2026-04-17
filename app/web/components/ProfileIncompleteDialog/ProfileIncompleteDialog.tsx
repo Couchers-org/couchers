@@ -63,11 +63,11 @@ export default function ProfileIncompleteDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button component={Link} href={routeToEditProfile()}>
-          {t("dashboard:complete_profile_dialog.edit_profile_button")}
-        </Button>
         <Button onClick={onClose}>
           {t("dashboard:complete_profile_dialog.cancel_button")}
+        </Button>
+        <Button component={Link} href={routeToEditProfile()}>
+          {t("dashboard:complete_profile_dialog.edit_profile_button")}
         </Button>
       </DialogActions>
     </Dialog>

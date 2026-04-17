@@ -132,6 +132,10 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
     }
   };
 
+  // The backend always populates user, but the proto type is optional.
+  const { user } = trip;
+  if (!user) return null;
+
   return (
     <>
       {showIncompleteDialog && (
@@ -144,17 +148,17 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
       <StyledCard elevation={0}>
         <StyledCardContent>
           <UserSection>
-            <Avatar user={trip.user} isProfileLink />
-            <StyledLink href={routeToUser(trip.user.username)}>
-              <UserName variant="h3">{trip.user.name}</UserName>
+            <Avatar user={user} isProfileLink />
+            <StyledLink href={routeToUser(user.username)}>
+              <UserName variant="h3">{user.name}</UserName>
             </StyledLink>
             <UserDetails variant="body2">
-              {trip.user.age}
-              {trip.user.gender ? `, ${trip.user.gender}` : ""}
+              {user.age}
+              {user.gender ? `, ${user.gender}` : ""}
             </UserDetails>
             <UserDetails variant="body2">
               {t("communities:public_trips_references", {
-                count: trip.user.numReferences,
+                count: user.numReferences,
               })}
             </UserDetails>
           </UserSection>
@@ -173,10 +177,10 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
                   },
                 )}
               </MetaItem>
-              {trip.user.city && (
+              {user.city && (
                 <MetaItem>
                   <HomeIcon />
-                  {trip.user.city}
+                  {user.city}
                 </MetaItem>
               )}
             </MetaRow>
@@ -221,7 +225,7 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
               }}
             >
               <StyledLink
-                href={routeToUser(trip.user.username)}
+                href={routeToUser(user.username)}
                 target={isNativeEmbed ? undefined : "_blank"}
               >
                 {t("communities:public_trips_view_profile")}
@@ -229,7 +233,7 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <FlagButton
                   contentRef={`public_trip/${trip.tripId}`}
-                  authorUser={trip.user.userId}
+                  authorUser={user.userId}
                 />
                 <Button startIcon={<CouchIcon />} onClick={handleOfferToHost}>
                   {t("communities:public_trips_offer_to_host")}

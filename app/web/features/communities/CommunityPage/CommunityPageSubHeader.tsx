@@ -1,5 +1,6 @@
 import { TabContext } from "@mui/lab";
 import { Breadcrumbs, styled, Typography } from "@mui/material";
+import BetaFlag from "components/BetaFlag";
 import StyledLink from "components/StyledLink";
 import TabBar from "components/TabBar";
 import { useTranslation } from "i18n";
@@ -35,19 +36,27 @@ export default function CommunityPageSubHeader({
   const { t } = useTranslation([COMMUNITIES]);
 
   const router = useRouter();
-  const communityTabBarLabels: Partial<Record<CommunityTab, string>> = {
-    overview: t("communities:overview_label"),
-    info: t("communities:local_info_label"),
-    ...(isPublicTripsEnabled &&
-      community.nodeType >= NodeType.NODE_TYPE_REGION && {
-        "public-trips": t("communities:public_trips_label"),
+  const communityTabBarLabels: Partial<Record<CommunityTab, React.ReactNode>> =
+    {
+      overview: t("communities:overview_label"),
+      info: t("communities:local_info_label"),
+      ...(isPublicTripsEnabled &&
+        community.nodeType >= NodeType.NODE_TYPE_REGION && {
+          "public-trips": (
+            <span style={{ display: "inline-flex", alignItems: "center" }}>
+              {t("communities:public_trips_label")}
+              <BetaFlag />
+            </span>
+          ),
+        }),
+      ...(community.discussionsEnabled && {
+        discussions: t("communities:discussions_label"),
       }),
-    ...(community.discussionsEnabled && {
-      discussions: t("communities:discussions_label"),
-    }),
-    ...(community.eventsEnabled && { events: t("communities:events_label") }),
-    members: t("communities:members_label"),
-  };
+      ...(community.eventsEnabled && {
+        events: t("communities:events_label"),
+      }),
+      members: t("communities:members_label"),
+    };
 
   return (
     <>

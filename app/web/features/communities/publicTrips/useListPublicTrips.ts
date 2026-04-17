@@ -1,67 +1,45 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { publicTripsKey } from "features/queryKeys";
-import publicTripsFixture from "test/fixtures/publicTrips.json";
+import { RpcError } from "grpc-web";
+import {
+  ListPublicTripsRes,
+  PublicTrip as PublicTripPb,
+} from "proto/public_trips_pb";
+import { service } from "service";
 
-// TODO: Replace with real types from proto once public_trips.proto is generated.
-// Note: this should likely use the full User proto (or an extended LiteUser) so
-// we can show gender and numReferences on the card.
-export interface PublicTripUser {
-  userId: number;
-  isGhost: boolean;
-  username: string;
-  name: string;
-  city: string;
-  age: number;
-  gender: string;
-  numReferences: number;
-  avatarUrl: string;
-  avatarThumbnailUrl: string;
-  lat: number;
-  lng: number;
-  radius: number;
-  hasStrongVerification: boolean;
-}
+export type PublicTrip = PublicTripPb.AsObject;
 
-export interface PublicTrip {
-  tripId: number;
-  user: PublicTripUser;
-  nodeId: number;
-  fromDate: string;
-  toDate: string;
-  description: string;
-  status: string;
-  created: string;
-}
+const PAGE_SIZE = 10;
 
-export interface ListPublicTripsRes {
-  publicTripsList: PublicTrip[];
-  nextPageToken: string;
-  totalPages: number;
-}
-
-const PAGE_SIZE = 3; // Change to 10 before final implementation, set low for easier testing of pagination in UI
-
-// TODO: Replace with real gRPC service call once backend PR is merged
-async function listPublicTrips(
-  communityId: number,
-  page: number,
-): Promise<ListPublicTripsRes> {
-  const allTrips = publicTripsFixture as PublicTrip[];
-  const totalPages = Math.ceil(allTrips.length / PAGE_SIZE);
-  const start = page * PAGE_SIZE;
-  const pageTrips = allTrips.slice(start, start + PAGE_SIZE);
-  const hasMore = start + PAGE_SIZE < allTrips.length;
-  return {
-    publicTripsList: pageTrips,
-    nextPageToken: hasMore ? String(page + 1) : "",
-    totalPages,
-  };
-}
-
-export function useListPublicTrips(communityId: number, page: number = 0) {
-  return useQuery<ListPublicTripsRes>({
-    queryKey: [...publicTripsKey(communityId), page],
-    queryFn: () => listPublicTrips(communityId, page),
+export function useListPublicTrips(communityId: number, pageToken: string) {
+  return useQuery<ListPublicTripsRes.AsObject, RpcError>({
+    queryKey: [...publicTripsKey(communityId), pageToken],
+    queryFn: () =>
+      service.publicTrips.listPublicTrips({
+        communityId,
+        pageToken: pageToken || undefined,
+        pageSize: PAGE_SIZE,
+      }),
     enabled: !!communityId,
+  });
+}
+
+export function useCreatePublicTrip(
+  communityId: number,
+  onSuccess?: () => void,
+) {
+  const queryClient = useQueryClient();
+  return useMutation<
+    PublicTripPb.AsObject,
+    RpcError,
+    { nodeId: number; fromDate: string; toDate: string; description: string }
+  >({
+    mutationFn: (input) => service.publicTrips.createPublicTrip(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: publicTripsKey(communityId),
+      });
+      onSuccess?.();
+    },
   });
 }

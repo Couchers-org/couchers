@@ -14,6 +14,7 @@ import { Community } from "proto/communities_pb";
 import { useState } from "react";
 
 import { SectionTitle } from "../CommunityPage";
+import CreatePublicTripDialog from "./CreatePublicTripDialog";
 import PublicTripCard from "./PublicTripCard";
 import { useListPublicTrips } from "./useListPublicTrips";
 
@@ -36,27 +37,48 @@ export default function PublicTripsSection({
   community: Community.AsObject;
 }) {
   const { t } = useTranslation([COMMUNITIES, DASHBOARD]);
-  const [page, setPage] = useState(0);
+  // Stack of page tokens visited so far. First entry is "" (the initial page).
+  const [tokens, setTokens] = useState<string[]>([""]);
   const [showIncompleteDialog, setShowIncompleteDialog] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const { data: accountInfo } = useAccountInfo();
   const { authState } = useAuthContext();
+
+  const pageIndex = tokens.length - 1;
+  const currentToken = tokens[pageIndex];
   const { data, error, isLoading } = useListPublicTrips(
     community.communityId,
-    page,
+    currentToken,
   );
 
-  // TODO: Replace with real ListMyPublicTrips query once backend is ready
+  // TODO: Replace with real ListPublicTripsByUser query once we wire it up for
+  // the user's dashboard; for now we infer "has own trip" from the page we're on.
   const hasOwnTrip = data?.publicTripsList.some(
-    (trip) => trip.user.userId === authState.userId,
+    (trip) => trip.user?.userId === authState.userId,
   );
 
   const handleCreateClick = () => {
     if (!accountInfo?.profileComplete) {
       setShowIncompleteDialog(true);
     } else {
-      // TODO: navigate to create public trip form
+      setShowCreateDialog(true);
     }
   };
+
+  const goNext = () => {
+    if (data?.nextPageToken) {
+      setTokens([...tokens, data.nextPageToken]);
+    }
+  };
+
+  const goPrev = () => {
+    if (pageIndex > 0) {
+      setTokens(tokens.slice(0, -1));
+    }
+  };
+
+  const trips = data?.publicTripsList ?? [];
+  const hasResults = trips.length > 0;
 
   return (
     <>
@@ -67,6 +89,12 @@ export default function PublicTripsSection({
           attempted_action="create_public_trip"
         />
       )}
+      <CreatePublicTripDialog
+        open={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+        communityId={community.communityId}
+        communityName={community.name}
+      />
       <SectionTitle icon={<CouchIcon />}>
         {t("communities:public_trips_label")}
       </SectionTitle>
@@ -95,33 +123,32 @@ export default function PublicTripsSection({
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
-      ) : data?.publicTripsList.length === 0 && page === 0 ? (
+      ) : !hasResults && pageIndex === 0 ? (
         <Typography variant="body1">
           {t("communities:public_trips_empty_state")}
         </Typography>
       ) : (
         <>
           <TripsList>
-            {data?.publicTripsList.map((trip) => (
+            {trips.map((trip) => (
               <PublicTripCard key={trip.tripId} trip={trip} />
             ))}
           </TripsList>
           <PaginationRow>
             <Button
-              onClick={() => setPage((p) => p - 1)}
-              disabled={page === 0}
+              onClick={goPrev}
+              disabled={pageIndex === 0}
               startIcon={<ChevronLeftIcon />}
             >
               {t("communities:public_trips_previous")}
             </Button>
             <Typography variant="body2">
               {t("communities:public_trips_page_indicator", {
-                current: page + 1,
-                total: data?.totalPages ?? 1,
+                current: pageIndex + 1,
               })}
             </Typography>
             <Button
-              onClick={() => setPage((p) => p + 1)}
+              onClick={goNext}
               disabled={!data?.nextPageToken}
               endIcon={<ChevronRightIcon />}
             >
