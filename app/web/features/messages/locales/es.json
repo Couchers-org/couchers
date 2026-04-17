@@ -170,8 +170,6 @@
     "archived": "Archivado",
     "archive_button": "Archivar",
     "unarchive_button": "Desarchivar",
-    "show_archived": "Mostrar archivados",
-    "show_active": "Mostrar activos",
     "no_archived_chats": "No hay chats archivados",
     "no_archived_requests": "No hay solicitudes archivadas",
     "no_archived_messages": "No hay mensajes archivados"
