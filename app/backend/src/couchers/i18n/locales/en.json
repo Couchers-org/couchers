@@ -20,6 +20,7 @@
     "cannot_create_discussion": "You cannot create a discussion in this group or community.",
     "cannot_edit_that_notification_preference": "That notification preference is not user editable.",
     "cannot_leave_containing_community": "Your location on your profile is within this community, so you cannot leave it. However, you can adjust your notifications in your account settings.",
+    "cannot_reinstate_and_set_stopped_date": "Cannot reinstate a volunteer and set a stopped date at the same time.",
     "cant_add_self": "You can't add yourself to a group chat.",
     "cant_block_self": "You can't block yourself.",
     "cant_friend_self": "You can't befriend yourself!",
