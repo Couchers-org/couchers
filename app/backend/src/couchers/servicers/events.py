@@ -452,7 +452,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 select(Node).where(Node.id == request.parent_community_id)
             ).scalar_one_or_none()
 
-            if not parent_node or not parent_node.official_cluster.events_enabled:
+            if not parent_node or not parent_node.official_cluster.small_community_features_enabled:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "events_not_enabled")
         else:
             if online:
