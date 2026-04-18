@@ -566,6 +566,100 @@ def test_UpdateVolunteer_invalid_stopped_date(db):
         assert e.value.details() == "Invalid end date for volunteering."
 
 
+def test_UpdateVolunteer_reinstate(db):
+    """UpdateVolunteer should clear stopped_volunteering when reinstate_volunteer=True"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with real_editor_session(editor_token) as api:
+        api.MakeUserVolunteer(
+            editor_pb2.MakeUserVolunteerReq(
+                user_id=normal_user.id,
+                role="Test Volunteer",
+            )
+        )
+
+        # Set a stopped date first (make them a former volunteer)
+        api.UpdateVolunteer(
+            editor_pb2.UpdateVolunteerReq(
+                user_id=normal_user.id,
+                stopped_volunteering=StringValue(value="2024-12-31"),
+            )
+        )
+        with session_scope() as session:
+            volunteer_before = session.execute(
+                select(Volunteer).where(Volunteer.user_id == normal_user.id)
+            ).scalar_one()
+            assert volunteer_before.stopped_volunteering is not None
+
+        # Reinstate them
+        res = api.UpdateVolunteer(
+            editor_pb2.UpdateVolunteerReq(
+                user_id=normal_user.id,
+                reinstate_volunteer=True,
+            )
+        )
+        assert not res.HasField("stopped_volunteering")
+
+        with session_scope() as session:
+            volunteer_after = session.execute(select(Volunteer).where(Volunteer.user_id == normal_user.id)).scalar_one()
+            assert volunteer_after.stopped_volunteering is None
+
+
+def test_UpdateVolunteer_reinstate_already_current(db):
+    """UpdateVolunteer with reinstate_volunteer=True on a current volunteer is a no-op"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with real_editor_session(editor_token) as api:
+        api.MakeUserVolunteer(
+            editor_pb2.MakeUserVolunteerReq(
+                user_id=normal_user.id,
+                role="Test Volunteer",
+            )
+        )
+
+        res = api.UpdateVolunteer(
+            editor_pb2.UpdateVolunteerReq(
+                user_id=normal_user.id,
+                reinstate_volunteer=True,
+            )
+        )
+        assert not res.HasField("stopped_volunteering")
+
+        with session_scope() as session:
+            volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == normal_user.id)).scalar_one()
+            assert volunteer.stopped_volunteering is None
+
+
+def test_UpdateVolunteer_reinstate_conflict_with_stopped(db):
+    """UpdateVolunteer should fail if reinstate_volunteer=True and stopped_volunteering is also set"""
+    editor_user, editor_token = generate_user(is_editor=True)
+    normal_user, normal_token = generate_user()
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with real_editor_session(editor_token) as api:
+        api.MakeUserVolunteer(
+            editor_pb2.MakeUserVolunteerReq(
+                user_id=normal_user.id,
+                role="Test Volunteer",
+            )
+        )
+
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdateVolunteer(
+                editor_pb2.UpdateVolunteerReq(
+                    user_id=normal_user.id,
+                    reinstate_volunteer=True,
+                    stopped_volunteering=StringValue(value="2024-12-31"),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Cannot reinstate a volunteer and set a stopped date at the same time."
+
+
 def test_ListVolunteers(db):
     """ListVolunteers should return all current volunteers"""
     editor_user, editor_token = generate_user(is_editor=True)

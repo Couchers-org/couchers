@@ -276,8 +276,12 @@ class Editor(editor_pb2_grpc.EditorServicer):
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_started_volunteering_date")
             volunteer.started_volunteering = started_volunteering
 
-        # Update stopped_volunteering if provided
-        if request.HasField("stopped_volunteering"):
+        # Reinstate (clear stopped_volunteering) or update stopped_volunteering
+        if request.reinstate_volunteer and request.HasField("stopped_volunteering"):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cannot_reinstate_and_set_stopped_date")
+        if request.reinstate_volunteer:
+            volunteer.stopped_volunteering = None
+        elif request.HasField("stopped_volunteering"):
             stopped_volunteering = parse_date(request.stopped_volunteering.value)
             if not stopped_volunteering:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_stopped_volunteering_date")
