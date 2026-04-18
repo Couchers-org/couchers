@@ -224,7 +224,7 @@ describe("Event organizers", () => {
       await user.click(menuButton);
 
       const menuItem = await screen.findByText(
-        t("communities:remove_as_co_organizer:title"),
+        t("communities:remove_as_co_organizer.title"),
       );
 
       await user.click(menuItem);

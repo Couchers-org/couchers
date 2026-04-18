@@ -16,11 +16,9 @@
   "messages_page": {
     "title": "Messages",
     "tabs": {
-      "aria_label": "Tabs for different message types",
       "chats": "Chats",
       "hosting": "Hosting",
-      "surfing": "Surfing",
-      "archived": "Archived"
+      "surfing": "Surfing"
     }
   },
   "archive": {
@@ -80,7 +78,6 @@
   "create_chat": {
     "dm_title": "Create a new chat",
     "group_title": "Create group chat",
-    "group_title_field_label": "Title",
     "no_friends_found_message": "Couldn't find any friends",
     "user_load_error_message": "(User load error)",
     "friends_input_label": "Friends",
