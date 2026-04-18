@@ -572,37 +572,37 @@ def test_UpdateVolunteer_reinstate(db):
     normal_user, normal_token = generate_user()
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
-    with session_scope() as session:
-        with real_editor_session(editor_token) as api:
-            api.MakeUserVolunteer(
-                editor_pb2.MakeUserVolunteerReq(
-                    user_id=normal_user.id,
-                    role="Test Volunteer",
-                )
+    with real_editor_session(editor_token) as api:
+        api.MakeUserVolunteer(
+            editor_pb2.MakeUserVolunteerReq(
+                user_id=normal_user.id,
+                role="Test Volunteer",
             )
+        )
 
-            # Set a stopped date first (make them a former volunteer)
-            api.UpdateVolunteer(
-                editor_pb2.UpdateVolunteerReq(
-                    user_id=normal_user.id,
-                    stopped_volunteering=StringValue(value="2024-12-31"),
-                )
+        # Set a stopped date first (make them a former volunteer)
+        api.UpdateVolunteer(
+            editor_pb2.UpdateVolunteerReq(
+                user_id=normal_user.id,
+                stopped_volunteering=StringValue(value="2024-12-31"),
             )
+        )
+        with session_scope() as session:
             volunteer_before = session.execute(
                 select(Volunteer).where(Volunteer.user_id == normal_user.id)
             ).scalar_one()
             assert volunteer_before.stopped_volunteering is not None
 
-            # Reinstate them
-            res = api.UpdateVolunteer(
-                editor_pb2.UpdateVolunteerReq(
-                    user_id=normal_user.id,
-                    reinstate_volunteer=True,
-                )
+        # Reinstate them
+        res = api.UpdateVolunteer(
+            editor_pb2.UpdateVolunteerReq(
+                user_id=normal_user.id,
+                reinstate_volunteer=True,
             )
-            assert not res.HasField("stopped_volunteering")
+        )
+        assert not res.HasField("stopped_volunteering")
 
-            session.expire_all()
+        with session_scope() as session:
             volunteer_after = session.execute(select(Volunteer).where(Volunteer.user_id == normal_user.id)).scalar_one()
             assert volunteer_after.stopped_volunteering is None
 
@@ -613,23 +613,23 @@ def test_UpdateVolunteer_reinstate_already_current(db):
     normal_user, normal_token = generate_user()
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
-    with session_scope() as session:
-        with real_editor_session(editor_token) as api:
-            api.MakeUserVolunteer(
-                editor_pb2.MakeUserVolunteerReq(
-                    user_id=normal_user.id,
-                    role="Test Volunteer",
-                )
+    with real_editor_session(editor_token) as api:
+        api.MakeUserVolunteer(
+            editor_pb2.MakeUserVolunteerReq(
+                user_id=normal_user.id,
+                role="Test Volunteer",
             )
+        )
 
-            res = api.UpdateVolunteer(
-                editor_pb2.UpdateVolunteerReq(
-                    user_id=normal_user.id,
-                    reinstate_volunteer=True,
-                )
+        res = api.UpdateVolunteer(
+            editor_pb2.UpdateVolunteerReq(
+                user_id=normal_user.id,
+                reinstate_volunteer=True,
             )
-            assert not res.HasField("stopped_volunteering")
+        )
+        assert not res.HasField("stopped_volunteering")
 
+        with session_scope() as session:
             volunteer = session.execute(select(Volunteer).where(Volunteer.user_id == normal_user.id)).scalar_one()
             assert volunteer.stopped_volunteering is None
 
