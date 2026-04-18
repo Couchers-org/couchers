@@ -39,6 +39,12 @@ jobs:
       - name: Install Python 3.13
         run: uv python install 3.13
 
+      - name: Generate protos
+        working-directory: app
+        run: |
+          docker pull -q registry.gitlab.com/couchers/grpc:latest
+          docker run --rm -w /app -v "$PWD":/app registry.gitlab.com/couchers/grpc:latest ./generate_protos.sh
+
       - name: Build
         working-directory: app/client
         run: uv build
