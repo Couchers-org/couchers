@@ -13,6 +13,8 @@ from couchers.models import (
     BackgroundJob,
     BackgroundJobState,
     EventOccurrence,
+    ModerationState,
+    ModerationVisibility,
     Notification,
     NotificationDelivery,
     Upload,
@@ -2609,8 +2611,6 @@ def test_event_photo_key(db):
 
 def test_event_created_with_shadowed_visibility(db):
     """Events start in SHADOWED state when created."""
-    from couchers.models import ModerationState, ModerationVisibility
-
     user, token = generate_user()
 
     with session_scope() as session:

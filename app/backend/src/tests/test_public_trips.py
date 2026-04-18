@@ -5,10 +5,10 @@ import pytest
 from sqlalchemy import select
 
 from couchers.db import session_scope
-from couchers.models import Node, NodeType
+from couchers.models import Node, NodeType, User
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2
-from couchers.utils import create_polygon_lat_lng, to_multi, today
+from couchers.utils import create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import public_trips_session
 
@@ -337,9 +337,6 @@ def test_list_public_trips_hides_invisible_user(db):
 
     # soft-delete the traveler
     with session_scope() as session:
-        from couchers.models import User
-        from couchers.utils import now
-
         t = session.execute(select(User).where(User.id == traveler.id)).scalar_one()
         t.deleted_at = now()
 
@@ -431,9 +428,6 @@ def test_list_public_trips_by_user_invisible_user(db):
 
     # soft-delete the traveler
     with session_scope() as session:
-        from couchers.models import User
-        from couchers.utils import now
-
         t = session.execute(select(User).where(User.id == traveler.id)).scalar_one()
         t.deleted_at = now()
 

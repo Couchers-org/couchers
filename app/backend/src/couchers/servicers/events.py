@@ -290,7 +290,8 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
     """
     Background job to generated/fan out event notifications
     """
-    from couchers.servicers.communities import community_to_pb
+    # Import here to avoid circular dependency
+    from couchers.servicers.communities import community_to_pb  # noqa: PLC0415
 
     logger.info(f"Fanning out notifications for event occurrence id = {payload.occurrence_id}")
 

@@ -79,13 +79,14 @@ exclude = [
 
 [tool.ruff.lint]
 select = [
-    "E",   # pycodestyle
-    "F",   # pyflakes
-    "UP",  # pyupgrade
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "A",   # flake8-builtins
-    "I",   # isort
+    "E",       # pycodestyle
+    "F",       # pyflakes
+    "UP",      # pyupgrade
+    "B",       # flake8-bugbear
+    "C4",      # flake8-comprehensions
+    "A",       # flake8-builtins
+    "I",       # isort
+    "PLC0415", # import-outside-toplevel
 ]
 ignore = [
     "A003",   # SQLAlchemy model columns like `id` and `type` legitimately shadow builtins
@@ -162,6 +163,8 @@ branch = true
 [tool.coverage.report]
 exclude_also = [
     "def __repr__",
+    "pass",
+    "...",
     "raise AssertionError",
     "raise NotImplementedError",
     "if __name__ == .__main__.:",

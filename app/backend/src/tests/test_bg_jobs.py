@@ -47,6 +47,7 @@ from couchers.models import (
     Message,
     MessageType,
     PasswordResetToken,
+    User,
     UserBadge,
     UserBlock,
     Volunteer,
@@ -1500,8 +1501,6 @@ def test_send_message_notifications_blocked_users_no_notification(db, moderator)
 
     # Reset the notification state so user2 will receive notifications for old messages again
     with session_scope() as session:
-        from couchers.models import User
-
         u2 = session.execute(select(User).where(User.id == user2.id)).scalar_one()
         u2.last_notified_message_id = 0
 

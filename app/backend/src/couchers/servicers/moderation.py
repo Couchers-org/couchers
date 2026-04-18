@@ -416,7 +416,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             )
 
             # Import here to avoid circular dependency
-            from couchers.notifications.background import handle_notification
+            from couchers.notifications.background import handle_notification  # noqa: PLC0415
 
             for notification in pending_notifications:
                 queue_job(
