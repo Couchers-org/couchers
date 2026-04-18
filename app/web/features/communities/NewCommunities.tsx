@@ -44,7 +44,10 @@ export default function NewCommunities() {
   const { t } = useTranslation(DASHBOARD);
   const router = useRouter();
 
-  const { data, isLoading } = useQuery<ListRecentCommunitiesRes.AsObject, RpcError>({
+  const { data, isLoading } = useQuery<
+    ListRecentCommunitiesRes.AsObject,
+    RpcError
+  >({
     queryKey: ["recentCommunities", NEW_COMMUNITIES_LIMIT],
     queryFn: () => listRecentCommunities(NEW_COMMUNITIES_LIMIT),
   });
