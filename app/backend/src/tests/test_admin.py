@@ -736,8 +736,8 @@ def test_AddUsersToModerationUserList(db):
             listRes = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user2.username))
             assert len(listRes.moderation_lists) == 1
             assert listRes.moderation_lists[0].moderation_list_id == res.moderation_list_id
-            assert len(listRes.moderation_lists[0].member_ids) == 3
-            assert {user1.id, user2.id, user3.id}.issubset(listRes.moderation_lists[0].member_ids)
+            assert len(listRes.moderation_lists[0].members) == 3
+            assert {user1.id, user2.id, user3.id}.issubset({m.user_id for m in listRes.moderation_lists[0].members})
 
             # Test user can be in multiple moderation lists
             listRes3 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user1.username))
@@ -759,8 +759,8 @@ def test_AddUsersToModerationUserList(db):
             listRes2 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user5.username))
             assert len(listRes2.moderation_lists) == 1
             assert listRes2.moderation_lists[0].moderation_list_id == moderation_list_id
-            assert len(listRes2.moderation_lists[0].member_ids) == 3
-            assert {user1.id, user4.id, user5.id}.issubset(listRes2.moderation_lists[0].member_ids)
+            assert len(listRes2.moderation_lists[0].members) == 3
+            assert {user1.id, user4.id, user5.id}.issubset({m.user_id for m in listRes2.moderation_lists[0].members})
 
 
 def test_RemoveUserFromModerationUserList(db):
