@@ -1057,6 +1057,55 @@ class TestCommunities:
             global_community = next(c for c in res.communities if c.community_id == w_id)
             assert global_community.member  # user6 is a member
 
+    @staticmethod
+    def test_ListRecentCommunities(testing_communities):
+        """
+        ListRecentCommunities returns newest-first communities across the whole tree,
+        honouring page_size.
+        """
+        with session_scope() as session:
+            _, token = get_user_id_and_token(session, "user1")
+            # communities are created in this order in the fixture, so creation
+            # time ascends down the list
+            w_id = get_community_id(session, "Global")
+            c2_id = get_community_id(session, "Country 2")
+            c2r1_id = get_community_id(session, "Country 2, Region 1")
+            c2r1c1_id = get_community_id(session, "Country 2, Region 1, City 1")
+            c1_id = get_community_id(session, "Country 1")
+            c1r1_id = get_community_id(session, "Country 1, Region 1")
+            c1r1c1_id = get_community_id(session, "Country 1, Region 1, City 1")
+            c1r1c2_id = get_community_id(session, "Country 1, Region 1, City 2")
+            c1r2_id = get_community_id(session, "Country 1, Region 2")
+            c1r2c1_id = get_community_id(session, "Country 1, Region 2, City 1")
+
+        newest_first = [
+            c1r2c1_id,
+            c1r2_id,
+            c1r1c2_id,
+            c1r1c1_id,
+            c1r1_id,
+            c1_id,
+            c2r1c1_id,
+            c2r1_id,
+            c2_id,
+            w_id,
+        ]
+
+        with communities_session(token) as api:
+            res = api.ListRecentCommunities(communities_pb2.ListRecentCommunitiesReq(page_size=3))
+            assert [c.community_id for c in res.communities] == newest_first[:3]
+            for community in res.communities:
+                assert community.HasField("created")
+                assert community.created.seconds > 0
+
+            # default page size returns all 10 for this fixture
+            res = api.ListRecentCommunities(communities_pb2.ListRecentCommunitiesReq())
+            assert [c.community_id for c in res.communities] == newest_first
+
+            # page_size is clamped to MAX_PAGINATION_LENGTH (25)
+            res = api.ListRecentCommunities(communities_pb2.ListRecentCommunitiesReq(page_size=1000))
+            assert len(res.communities) == 10
+
 
 def test_JoinCommunity_and_LeaveCommunity(testing_communities):
     # these are separate as they mutate the database

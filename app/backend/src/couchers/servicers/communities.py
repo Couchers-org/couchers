@@ -193,6 +193,24 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
 
         return communities_pb2.SearchCommunitiesRes(communities=communities_to_pb(session, rows, context))
 
+    def ListRecentCommunities(
+        self, request: communities_pb2.ListRecentCommunitiesReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListRecentCommunitiesRes:
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        nodes = (
+            session.execute(
+                select(Node)
+                .join(Cluster, Cluster.parent_node_id == Node.id)
+                .where(Cluster.is_official_cluster)
+                .order_by(Node.created.desc(), Node.id.desc())
+                .limit(page_size)
+                .options(selectinload(Node.official_cluster))
+            )
+            .scalars()
+            .all()
+        )
+        return communities_pb2.ListRecentCommunitiesRes(communities=communities_to_pb(session, nodes, context))
+
     def ListGroups(
         self, request: communities_pb2.ListGroupsReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListGroupsRes:
