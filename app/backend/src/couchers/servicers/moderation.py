@@ -15,7 +15,6 @@ from couchers.metrics import (
     observe_moderation_visibility_transition,
 )
 from couchers.models import (
-    AdminAction,
     AdminActionLevel,
     Event,
     EventOccurrence,
@@ -545,7 +544,6 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         reason = request.reason or f"Bulk visibility update for user {user.id} to {new_visibility.name}"
-        action = ModerationAction.bulk_set_visibility
 
         author_exists_clauses = []
         for model in moderationobjecttype2model.values():
@@ -567,7 +565,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
             log_entry = ModerationLog(
                 moderation_state_id=moderation_state.id,
-                action=action,
+                action=ModerationAction.bulk_set_visibility,
                 moderator_user_id=context.user_id,
                 new_visibility=new_visibility,
                 reason=reason,
@@ -585,7 +583,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 queue_item.resolved_by_log_id = log_entry.id
                 session.flush()
 
-            observe_moderation_action(action, moderation_state.object_type)
+            observe_moderation_action(ModerationAction.bulk_set_visibility, moderation_state.object_type)
             observe_moderation_visibility_transition(old_visibility, new_visibility, moderation_state.object_type)
 
             if new_visibility in (ModerationVisibility.visible, ModerationVisibility.unlisted):
@@ -593,15 +591,17 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
             updated_count += 1
 
-        session.add(
-            AdminAction(
-                admin_user_id=context.user_id,
-                target_user_id=user.id,
-                action_type="set_user_content_visibility",
-                level=AdminActionLevel.high,
-                note=request.reason or None,
-                tag=new_visibility.name,
-            )
+        # Import here to avoid circular dependency
+        from couchers.servicers.admin import log_admin_action  # noqa: PLC0415
+
+        log_admin_action(
+            session,
+            context,
+            user,
+            "set_user_content_visibility",
+            note=request.reason or None,
+            tag=new_visibility.name,
+            level=AdminActionLevel.high,
         )
 
         return moderation_pb2.SetUserContentVisibilityRes(updated_count=updated_count)
