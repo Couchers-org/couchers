@@ -1,93 +1,143 @@
 {
-  "push": {
-    "account_deletion__start": {
-      "title": "Žádost o smazání účtu byla odeslána",
-      "ios_title": "Žádost o smazání účtu byla odeslána",
-      "body": "Použij odkaz, který jsme ti poslali e-mailem k potvrzení."
-    },
-    "account_deletion__recovered": {
-      "ios_title": "Účet obnoven",
-      "body": "Vítej zpět!",
-      "title": "Účet obnoven"
-    },
-    "account_deletion__complete": {
-      "title": "Účet smazán",
-      "ios_title": "Účet smazán",
-      "body_one": "Můžeš jej obnovit do {{count}} dne pomocí odkazu, který jsme ti zaslali e-mailem.",
-      "body_few": "Můžeš jej obnovit do {{count}} dní pomocí odkazu, který jsme ti zaslali e-mailem.",
-      "body_other": "Můžeš jej obnovit do {{count}} dnů pomocí odkazu, který jsme ti zaslali e-mailem."
-    },
-    "activeness__probe": {
-      "title": "Stále máš zájem o hostování?",
-      "ios_title": "Stále máš zájem o hostování?"
-    },
-    "adhoc__push_enabled": {
-      "title": "Push notifikace povoleny",
-      "ios_title": "Push notifikace povoleny",
-      "body": "Nyní budeš dostávat oznámení na tomto zařízení."
-    },
-    "api_key__create": {
-      "title": "API klíč vytvořen",
-      "ios_title": "API klíč vytvořen",
-      "body": "Podrobnosti ti byly zaslány e-mailem."
-    },
-    "badge__add": {
-      "title": "Nový odznak profilu: {{badge_name}}",
-      "ios_title": "Nový profilový odznak",
-      "body": "Odznak {{badge_name}} byl přidán do tvého profilu."
-    },
-    "badge__remove": {
-      "title": "Odznak profilu odstraněn",
-      "ios_title": "Odznak profilu odstraněn",
-      "body": "Odznak {{badge_name}} byl odstraněn z tvého profilu."
-    },
-    "birthdate__change": {
-      "title": "Datum narození změněno",
-      "ios_title": "Datum narození změněno",
-      "body": "Administrátor změnil tvé datum narození na {{birthdate}}."
-    },
-    "chat__missed_messages": {
-      "title_one": "{{count}} zmeškaná zpráva",
-      "title_few": "{{count}} zmeškané zprávy",
-      "title_other": "{{count}} zmeškaných zpráv",
-      "ios_title_one": "{{count}} zmeškaná zpráva",
-      "ios_title_few": "{{count}} zmeškané zprávy",
-      "ios_title_other": "{{count}} zmeškaných zpráv",
-      "body": "Máš nové nepřečtené zprávy."
-    },
-    "donation__received": {
-      "title": "Dar přijat"
+  "_adhoc": {
+    "push_enabled": {
+      "push": {
+        "title": "Push notifikace povoleny",
+        "ios_title": "Push notifikace povoleny",
+        "body": "Nyní budeš dostávat oznámení na tomto zařízení."
+      }
     }
   },
-  "topic_action_descriptions": {
-    "host_request": {
-      "cancel": "Někdo zruší žádost o ubytování",
-      "reject": "Někdo odmítne tvou žádost o ubytování",
-      "confirm": "Někdo potvrdí žádost o ubytování",
-      "accept": "Někdo přijme tvou žádost o ubytování",
-      "message": "Někdo ti pošle zprávu v žádosti o ubytování",
-      "create": "Někdo ti zašle žádost o ubytování",
-      "missed_messages": "Utekla ti zpráva v žádosti o ubytování"
+  "account_deletion": {
+    "complete": {
+      "event_description": "Tvůj účet byl smazán",
+      "push": {
+        "title": "Účet smazán",
+        "ios_title": "Účet smazán",
+        "body_one": "Můžeš jej obnovit do {{count}} dne pomocí odkazu, který jsme ti zaslali e-mailem.",
+        "body_few": "Můžeš jej obnovit do {{count}} dní pomocí odkazu, který jsme ti zaslali e-mailem.",
+        "body_other": "Můžeš jej obnovit do {{count}} dnů pomocí odkazu, který jsme ti zaslali e-mailem."
+      }
     },
-    "chat": {
-      "missed_messages": "Utekly ti zprávy v chatu",
-      "message": "Někdo ti pošle zprávu"
+    "recovered": {
+      "event_description": "Tvůj účet byl obnoven (smazání zrušeno)",
+      "push": {
+        "ios_title": "Účet obnoven",
+        "body": "Vítej zpět!",
+        "title": "Účet obnoven"
+      }
     },
-    "general": {
-      "new_blog_post": "Byl zveřejněn nový blogový příspěvek"
+    "start": {
+      "push": {
+        "title": "Žádost o smazání účtu byla odeslána",
+        "ios_title": "Žádost o smazání účtu byla odeslána",
+        "body": "Použij odkaz, který jsme ti poslali e-mailem k potvrzení."
+      }
+    }
+  },
+  "activeness": {
+    "probe": {
+      "push": {
+        "title": "Stále máš zájem o hostování?",
+        "ios_title": "Stále máš zájem o hostování?"
+      }
+    }
+  },
+  "api_key": {
+    "create": {
+      "event_description": "Pro tvůj účet byl vytvořen API klíč",
+      "push": {
+        "title": "API klíč vytvořen",
+        "ios_title": "API klíč vytvořen",
+        "body": "Podrobnosti ti byly zaslány e-mailem."
+      }
+    }
+  },
+  "badge": {
+    "add": {
+      "push": {
+        "title": "Nový odznak profilu: {{badge_name}}",
+        "ios_title": "Nový profilový odznak",
+        "body": "Odznak {{badge_name}} byl přidán do tvého profilu."
+      }
     },
-    "phone_number": {
-      "verify": "Tvé telefonní číslo je ověřeno"
+    "remove": {
+      "push": {
+        "title": "Odznak profilu odstraněn",
+        "ios_title": "Odznak profilu odstraněn",
+        "body": "Odznak {{badge_name}} byl odstraněn z tvého profilu."
+      }
+    }
+  },
+  "birthdate": {
+    "change": {
+      "push": {
+        "title": "Datum narození změněno",
+        "ios_title": "Datum narození změněno",
+        "body": "Administrátor změnil tvé datum narození na {{birthdate}}."
+      }
+    }
+  },
+  "chat": {
+    "message": {
+      "event_description": "Někdo ti pošle zprávu"
     },
-    "reference": {
-      "receive_friend": "Přišla ti reference od přítele"
+    "missed_messages": {
+      "event_description": "Utekly ti zprávy v chatu",
+      "push": {
+        "title_one": "{{count}} zmeškaná zpráva",
+        "title_few": "{{count}} zmeškané zprávy",
+        "title_other": "{{count}} zmeškaných zpráv",
+        "ios_title_one": "{{count}} zmeškaná zpráva",
+        "ios_title_few": "{{count}} zmeškané zprávy",
+        "ios_title_other": "{{count}} zmeškaných zpráv",
+        "body": "Máš nové nepřečtené zprávy."
+      }
+    }
+  },
+  "donation": {
+    "received": {
+      "push": {
+        "title": "Dar přijat"
+      }
+    }
+  },
+  "general": {
+    "new_blog_post": {
+      "event_description": "Byl zveřejněn nový blogový příspěvek"
+    }
+  },
+  "host_request": {
+    "accept": {
+      "event_description": "Někdo přijme tvou žádost o ubytování"
     },
-    "account_deletion": {
-      "complete": "Tvůj účet byl smazán",
-      "recovered": "Tvůj účet byl obnoven (smazání zrušeno)"
+    "cancel": {
+      "event_description": "Někdo zruší žádost o ubytování"
     },
-    "api_key": {
-      "create": "Pro tvůj účet byl vytvořen API klíč"
+    "confirm": {
+      "event_description": "Někdo potvrdí žádost o ubytování"
+    },
+    "create": {
+      "event_description": "Někdo ti zašle žádost o ubytování"
+    },
+    "message": {
+      "event_description": "Někdo ti pošle zprávu v žádosti o ubytování"
+    },
+    "missed_messages": {
+      "event_description": "Utekla ti zpráva v žádosti o ubytování"
+    },
+    "reject": {
+      "event_description": "Někdo odmítne tvou žádost o ubytování"
+    }
+  },
+  "phone_number": {
+    "verify": {
+      "event_description": "Tvé telefonní číslo je ověřeno"
+    }
+  },
+  "reference": {
+    "receive_friend": {
+      "event_description": "Přišla ti reference od přítele"
     }
   }
 }
