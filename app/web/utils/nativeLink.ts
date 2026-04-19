@@ -36,7 +36,11 @@ export function useIsNativeEmbed(): boolean {
   );
 }
 
-type MessageType = "sendState" | "clearState" | "REQUEST_IMAGE_PICK";
+type MessageType =
+  | "sendState"
+  | "clearState"
+  | "REQUEST_IMAGE_PICK"
+  | "REQUEST_SHARE";
 
 function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;
@@ -98,6 +102,62 @@ export function useNativeImagePicker() {
   }, []);
 
   return { isNative, pickImage };
+}
+
+// Share bridge: native sheet (mobile app) → Web Share API → clipboard fallback.
+export type ShareContent = {
+  title?: string;
+  text?: string;
+  url: string;
+};
+
+export type ShareOutcome = "native" | "web" | "clipboard" | "failed";
+
+export async function share(content: ShareContent): Promise<ShareOutcome> {
+  if (isNativeEmbed()) {
+    sendToNative("REQUEST_SHARE", {
+      title: content.title,
+      message: content.text,
+      url: content.url,
+    });
+    return "native";
+  }
+
+  if (
+    typeof navigator !== "undefined" &&
+    typeof navigator.share === "function"
+  ) {
+    try {
+      await navigator.share({
+        title: content.title,
+        text: content.text,
+        url: content.url,
+      });
+      return "web";
+    } catch (err) {
+      // User dismissed the share sheet — treat as no-op, don't fall through to
+      // clipboard (they clearly didn't want to share).
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return "web";
+      }
+      // Any other failure: fall through to clipboard.
+    }
+  }
+
+  if (
+    typeof navigator !== "undefined" &&
+    navigator.clipboard &&
+    typeof navigator.clipboard.writeText === "function"
+  ) {
+    try {
+      await navigator.clipboard.writeText(content.url);
+      return "clipboard";
+    } catch {
+      return "failed";
+    }
+  }
+
+  return "failed";
 }
 
 // Helper to convert base64 to File object

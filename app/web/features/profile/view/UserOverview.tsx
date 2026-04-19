@@ -1,3 +1,4 @@
+import { ShareOutlined } from "@mui/icons-material";
 import { Card, CardActions, styled, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
@@ -16,6 +17,7 @@ import Link from "next/link";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React from "react";
 import { routeToEditProfile, routeToUser } from "routes";
+import { useShare } from "utils/useShare";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";
@@ -101,8 +103,22 @@ export default function UserOverview({
 }: UserOverviewProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
+  const { share, shareStatus } = useShare();
 
   const shouldMakeAvatarClickable = isOwnProfile && !user.avatarUrl;
+
+  const handleShareUsername = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    const path = routeToUser(user.username);
+    share({
+      title: user.name,
+      text: t("profile:share_profile_text", { name: user.name }),
+      url:
+        typeof window !== "undefined"
+          ? `${window.location.origin}${path}`
+          : path,
+    });
+  };
 
   return (
     <StyledCard>
@@ -127,13 +143,18 @@ export default function UserOverview({
         </StyledIntro>
         <StyledLink
           href={routeToUser(user.username)}
+          onClick={handleShareUsername}
+          aria-label={t("profile:share_profile")}
           sx={{
-            display: "flex",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
             justifyContent: "center",
+            width: "100%",
             marginBottom: 1,
           }}
         >
-          @{user.username}
+          <ShareOutlined fontSize="small" />@{user.username}
         </StyledLink>
         <StyledIntro>{user.city}</StyledIntro>
         <Badges user={user} />
@@ -186,6 +207,7 @@ export default function UserOverview({
         <ReferencesLastActiveLabels user={user} />
         <ResponseRateLabel user={user} />
       </StyledInfo>
+      {shareStatus}
     </StyledCard>
   );
 }

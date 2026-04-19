@@ -1,4 +1,8 @@
-import { ContentCopyOutlined, EditOutlined } from "@mui/icons-material";
+import {
+  ContentCopyOutlined,
+  EditOutlined,
+  ShareOutlined,
+} from "@mui/icons-material";
 import {
   Card,
   Chip,
@@ -41,6 +45,7 @@ import {
   timestamp2Date,
 } from "utils/date";
 import dayjs from "utils/dayjs";
+import { useShare } from "utils/useShare";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
@@ -219,6 +224,8 @@ export default function EventPage({
     },
   });
 
+  const { share, shareStatus } = useShare();
+
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
   const [showInviteCommunitySuccess, setShowInviteCommunitySuccess] =
     useState(false);
@@ -262,6 +269,7 @@ export default function EventPage({
           {t("communities:invite_community_dialog.toast_success")}
         </Snackbar>
       )}
+      {shareStatus}
       {isLoading ? (
         <CenteredSpinner />
       ) : (
@@ -408,6 +416,30 @@ export default function EventPage({
                   id="event-page-attendance"
                   disabled={event.isCancelled || isPastEvent}
                 />
+                <Button
+                  variant="outlined"
+                  startIcon={<ShareOutlined />}
+                  onClick={() => {
+                    share({
+                      title: event.title,
+                      text: t("communities:event_share_text", {
+                        title: event.title,
+                      }),
+                      url:
+                        typeof window !== "undefined"
+                          ? `${window.location.origin}${routeToEvent(event.eventId, event.slug)}`
+                          : routeToEvent(event.eventId, event.slug),
+                    });
+                  }}
+                  aria-label={t("communities:share_event")}
+                  sx={{
+                    [theme.breakpoints.down("md")]: {
+                      ...ActionButtonSx,
+                    },
+                  }}
+                >
+                  {t("communities:share_event")}
+                </Button>
               </StyledActionButtonsContainer>
 
               <StyledEventTimeContainer>

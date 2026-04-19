@@ -20,6 +20,10 @@
     "a11y": "Copy",
     "copied_tooltip": "Copied to clipboard"
   },
+  "share": {
+    "link_copied": "Link copied to clipboard",
+    "failed": "Couldn't share this link"
+  },
   "thanks": "Thanks!",
   "donation_banner": {
     "message": "Couchers.org runs on kindness — just like couch surfing itself. This holiday season, help us keep it that way. We are raising {{goal}} to cover the cost of running Couchers.org.",

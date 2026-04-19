@@ -58,11 +58,17 @@ describe("JoinCommunityButton", () => {
 
     await user.click(joinButton);
 
-    const leaveButton = await screen.findByRole("button", {
+    // After joining, the join button is replaced by a gear menu.
+    const menuButton = await screen.findByRole("button", {
+      name: t("communities:community_options_menu"),
+    });
+    expect(menuButton).toBeVisible();
+    await user.click(menuButton);
+
+    const leaveMenuItem = await screen.findByRole("menuitem", {
       name: t("communities:leave_community"),
     });
-    expect(leaveButton).toBeVisible();
-    await user.click(leaveButton);
+    await user.click(leaveMenuItem);
     expect(
       await screen.findByRole("button", {
         name: t("communities:join_community"),
