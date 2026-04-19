@@ -9,6 +9,8 @@
 
 <{{ receipt_url }}>
 
+{{ "notifications.donation_received.tax_acknowledgment"|translate }}
+
 {{ "notifications.donation_received.questions_contact"|translate }}
 
 {{ "notifications.donation_received.generosity_helps"|translate }}
