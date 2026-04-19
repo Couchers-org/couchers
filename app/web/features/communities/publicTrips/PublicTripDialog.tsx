@@ -9,15 +9,22 @@ import {
   DialogTitle,
 } from "components/Dialog";
 import TextField from "components/TextField";
+import { useCommunity } from "features/communities/hooks";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
+import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import dayjs, { Dayjs } from "utils/dayjs";
 
-import { useCreatePublicTrip } from "./useListPublicTrips";
+import {
+  PublicTrip,
+  useCreatePublicTrip,
+  useUpdatePublicTrip,
+} from "./useListPublicTrips";
 
 const DATE_FIELD_ID = "public-trip-dates";
-const DESCRIPTION_MIN_LENGTH = 150; // Must match backend (PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16)
+// Must match backend (PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16)
+const DESCRIPTION_MIN_LENGTH = 150;
 
 const FieldStack = styled("div")(({ theme }) => ({
   display: "flex",
@@ -39,20 +46,27 @@ interface FormValues {
   description: string;
 }
 
-interface CreatePublicTripDialogProps {
-  communityId: number;
-  communityName: string;
+type PublicTripDialogProps = {
   open: boolean;
   onClose: () => void;
-}
+} & (
+  | { mode: "create"; communityId: number; communityName: string }
+  | { mode: "edit"; trip: PublicTrip }
+);
 
-export default function CreatePublicTripDialog({
-  communityId,
-  communityName,
-  open,
-  onClose,
-}: CreatePublicTripDialogProps) {
+export default function PublicTripDialog(props: PublicTripDialogProps) {
+  const { open, onClose } = props;
   const { t } = useTranslation([COMMUNITIES, GLOBAL]);
+  const isEdit = props.mode === "edit";
+
+  const getDefaults = (): FormValues =>
+    props.mode === "edit"
+      ? {
+          fromDate: props.trip.fromDate ? dayjs(props.trip.fromDate) : null,
+          toDate: props.trip.toDate ? dayjs(props.trip.toDate) : null,
+          description: props.trip.description,
+        }
+      : { fromDate: null, toDate: null, description: "" };
 
   const {
     control,
@@ -62,48 +76,83 @@ export default function CreatePublicTripDialog({
     formState: { errors },
   } = useForm<FormValues>({
     mode: "onBlur",
-    defaultValues: { fromDate: null, toDate: null, description: "" },
+    defaultValues: getDefaults(),
   });
+
+  const tripKey = props.mode === "edit" ? props.trip.tripId : null;
+  const tripFromDate = props.mode === "edit" ? props.trip.fromDate : null;
+  const tripToDate = props.mode === "edit" ? props.trip.toDate : null;
+  const tripDescription = props.mode === "edit" ? props.trip.description : null;
+
+  useEffect(() => {
+    if (open) {
+      reset(getDefaults());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, tripKey, tripFromDate, tripToDate, tripDescription]);
 
   const watchFromDate = useWatch({ control, name: "fromDate" });
   const watchDescription = useWatch({ control, name: "description" }) ?? "";
   const descriptionCharsRemaining =
     DESCRIPTION_MIN_LENGTH - watchDescription.length;
 
+  // PublicTrip proto only carries node_id, so fetch the community name in edit
+  // mode. Hook is no-op when id is 0 (create mode already has the name).
+  const { data: editCommunity } = useCommunity(
+    props.mode === "edit" ? props.trip.nodeId : 0,
+  );
+  const communityName =
+    props.mode === "create" ? props.communityName : editCommunity?.name;
+
+  const handleSuccess = () => {
+    if (!isEdit) reset();
+    onClose();
+  };
+
+  // Both hooks are always called (rules of hooks); only the active one fires.
+  const createMutation = useCreatePublicTrip(
+    props.mode === "create" ? props.communityId : 0,
+    handleSuccess,
+  );
+  const updateMutation = useUpdatePublicTrip(handleSuccess);
+
   const {
-    mutate,
     isPending,
     error,
     reset: resetMutation,
-  } = useCreatePublicTrip(communityId, () => {
-    reset();
-    onClose();
-  });
+  } = isEdit ? updateMutation : createMutation;
 
   const handleClose = () => {
-    reset();
+    if (!isEdit) reset();
     resetMutation();
     onClose();
   };
 
   const onSubmit = handleSubmit(({ fromDate, toDate, description }) => {
     if (!fromDate || !toDate) return;
-    mutate({
-      nodeId: communityId,
+    const payload = {
       fromDate: fromDate.format("YYYY-MM-DD"),
       toDate: toDate.format("YYYY-MM-DD"),
       description: description.trim(),
-    });
+    };
+    if (props.mode === "edit") {
+      updateMutation.mutate({ tripId: props.trip.tripId, ...payload });
+    } else {
+      createMutation.mutate({ nodeId: props.communityId, ...payload });
+    }
   });
 
+  const formId = isEdit ? "edit-public-trip-form" : "create-public-trip-form";
+  const titleId = isEdit
+    ? "edit-public-trip-dialog-title"
+    : "create-public-trip-dialog-title";
+
   return (
-    <Dialog
-      aria-labelledby="create-public-trip-dialog-title"
-      open={open}
-      onClose={handleClose}
-    >
-      <DialogTitle id="create-public-trip-dialog-title" onClose={handleClose}>
-        {t("communities:public_trips_create_dialog_title")}
+    <Dialog aria-labelledby={titleId} open={open} onClose={handleClose}>
+      <DialogTitle id={titleId} onClose={handleClose}>
+        {isEdit
+          ? t("communities:public_trips_edit_dialog_title")
+          : t("communities:public_trips_create_dialog_title")}
       </DialogTitle>
       <DialogContent>
         {error && (
@@ -111,7 +160,7 @@ export default function CreatePublicTripDialog({
             {error.message}
           </Alert>
         )}
-        <form id="create-public-trip-form" onSubmit={onSubmit} noValidate>
+        <form id={formId} onSubmit={onSubmit} noValidate>
           <FieldStack>
             <DateRow>
               <Datepicker
@@ -140,12 +189,14 @@ export default function CreatePublicTripDialog({
                 }}
               />
             </DateRow>
-            <Typography variant="body2">
-              <Typography component="span" fontWeight={600}>
-                {t("communities:public_trips_location_label")}
-              </Typography>{" "}
-              {communityName}
-            </Typography>
+            {communityName && (
+              <Typography variant="body2">
+                <Typography component="span" fontWeight={600}>
+                  {t("communities:public_trips_location_label")}
+                </Typography>{" "}
+                {communityName}
+              </Typography>
+            )}
             <TextField
               id="public-trip-description"
               {...register("description", {
@@ -189,12 +240,10 @@ export default function CreatePublicTripDialog({
         <Button variant="outlined" onClick={handleClose}>
           {t("global:cancel")}
         </Button>
-        <Button
-          type="submit"
-          form="create-public-trip-form"
-          loading={isPending}
-        >
-          {t("communities:public_trips_create_dialog_submit")}
+        <Button type="submit" form={formId} loading={isPending}>
+          {isEdit
+            ? t("communities:public_trips_edit_dialog_submit")
+            : t("communities:public_trips_create_dialog_submit")}
         </Button>
       </DialogActions>
     </Dialog>

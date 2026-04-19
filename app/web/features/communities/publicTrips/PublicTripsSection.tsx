@@ -4,18 +4,20 @@ import { styled, Typography } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { AddIcon, CouchIcon, PenIcon } from "components/Icons";
+import { AddIcon, CouchIcon, EditIcon } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, DASHBOARD } from "i18n/namespaces";
+import Link from "next/link";
 import { Community } from "proto/communities_pb";
 import { useState } from "react";
+import { myPublicTripsRoute } from "routes";
 
 import { SectionTitle } from "../CommunityPage";
-import CreatePublicTripDialog from "./CreatePublicTripDialog";
 import PublicTripCard from "./PublicTripCard";
+import PublicTripDialog from "./PublicTripDialog";
 import { useListPublicTrips } from "./useListPublicTrips";
 
 const TripsList = styled("div")(({ theme }) => ({
@@ -89,7 +91,8 @@ export default function PublicTripsSection({
           attempted_action="create_public_trip"
         />
       )}
-      <CreatePublicTripDialog
+      <PublicTripDialog
+        mode="create"
         open={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
         communityId={community.communityId}
@@ -101,10 +104,9 @@ export default function PublicTripsSection({
       {hasOwnTrip ? (
         <Button
           sx={{ my: 2 }}
-          startIcon={<PenIcon />}
-          onClick={() => {
-            // TODO: navigate to edit my public trips page
-          }}
+          startIcon={<EditIcon />}
+          component={Link}
+          href={myPublicTripsRoute}
         >
           {t("communities:edit_my_public_trips")}
         </Button>

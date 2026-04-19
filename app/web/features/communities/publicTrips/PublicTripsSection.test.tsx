@@ -23,11 +23,12 @@ jest.mock("@mui/x-date-pickers", () => ({
   DatePicker: jest.requireActual("@mui/x-date-pickers").DesktopDatePicker,
 }));
 
-const listPublicTripsMock = service.publicTrips.listPublicTrips as MockedService<
-  typeof service.publicTrips.listPublicTrips
->;
+const listPublicTripsMock = service.publicTrips
+  .listPublicTrips as MockedService<typeof service.publicTrips.listPublicTrips>;
 const createPublicTripMock = service.publicTrips
-  .createPublicTrip as MockedService<typeof service.publicTrips.createPublicTrip>;
+  .createPublicTrip as MockedService<
+  typeof service.publicTrips.createPublicTrip
+>;
 const getAccountInfoMock = service.account.getAccountInfo as MockedService<
   typeof service.account.getAccountInfo
 >;
@@ -155,7 +156,9 @@ describe("PublicTripsSection", () => {
       // unique to it, unlike the "Create public trip" text which also labels
       // the button that triggered this flow).
       expect(
-        screen.queryByLabelText(t("communities:public_trips_description_label")),
+        screen.queryByLabelText(
+          t("communities:public_trips_description_label"),
+        ),
       ).not.toBeInTheDocument();
     });
 

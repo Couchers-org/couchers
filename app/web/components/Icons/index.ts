@@ -26,6 +26,7 @@ export { default as CouchFilledIcon } from "@mui/icons-material/Weekend";
 export { default as CouchIcon } from "@mui/icons-material/HotelOutlined";
 export { default as DissatisfiedIcon } from "@mui/icons-material/SentimentDissatisfiedOutlined";
 export { default as DoneAllIcon } from "@mui/icons-material/DoneAllOutlined";
+export { default as EditIcon } from "@mui/icons-material/EditOutlined";
 export { default as EmailIcon } from "@mui/icons-material/EmailOutlined";
 export { default as ErrorIcon } from "@mui/icons-material/Error";
 export { default as ExpandLessIcon } from "@mui/icons-material/ExpandLessOutlined";

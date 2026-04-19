@@ -1,9 +1,21 @@
-import { Box, Card, CardContent, styled, Typography } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  IconButton,
+  styled,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
+import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
 import {
   CalendarIcon,
+  CloseIcon,
   CouchIcon,
+  EditIcon,
   ExpandLessIcon,
   ExpandMoreIcon,
   HomeIcon,
@@ -14,11 +26,13 @@ import useAccountInfo from "features/auth/useAccountInfo";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
+import { PublicTripStatus } from "proto/public_trips_pb";
 import { useCallback, useState } from "react";
 import { routeToUser } from "routes";
 import { localizeDateTimeRange } from "utils/date";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
+import PublicTripDialog from "./PublicTripDialog";
 import { PublicTrip } from "./useListPublicTrips";
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -108,7 +122,18 @@ const Description = styled(Typography, {
   }),
 }));
 
-export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
+interface PublicTripCardProps {
+  trip: PublicTrip;
+  // When true, renders the owner's view: hides Offer-to-host / View profile /
+  // Flag, shows Edit / Close actions and a status chip for closed trips.
+  ownerView?: boolean;
+}
+
+// @TODO(NA): I don't like the close public trip button, come up with something else.
+export default function PublicTripCard({
+  trip,
+  ownerView = false,
+}: PublicTripCardProps) {
   const {
     t,
     i18n: { language: locale },
@@ -121,6 +146,7 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
     }
   }, []);
   const [showIncompleteDialog, setShowIncompleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const { data: accountInfo } = useAccountInfo();
   const isNativeEmbed = useIsNativeEmbed();
 
@@ -143,6 +169,14 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
           open
           onClose={() => setShowIncompleteDialog(false)}
           attempted_action="send_request"
+        />
+      )}
+      {ownerView && (
+        <PublicTripDialog
+          mode="edit"
+          trip={trip}
+          open={showEditDialog}
+          onClose={() => setShowEditDialog(false)}
         />
       )}
       <StyledCard elevation={0}>
@@ -222,23 +256,84 @@ export default function PublicTripCard({ trip }: { trip: PublicTrip }) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
+                gap: 1,
               }}
             >
-              <StyledLink
-                href={routeToUser(user.username)}
-                target={isNativeEmbed ? undefined : "_blank"}
-              >
-                {t("communities:public_trips_view_profile")}
-              </StyledLink>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <FlagButton
-                  contentRef={`public_trip/${trip.tripId}`}
-                  authorUser={user.userId}
-                />
-                <Button startIcon={<CouchIcon />} onClick={handleOfferToHost}>
-                  {t("communities:public_trips_offer_to_host")}
-                </Button>
-              </Box>
+              {ownerView ? (
+                <>
+                  {trip.status ===
+                  PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED ? (
+                    <Chip
+                      label={t("communities:public_trips_status_closed")}
+                      size="small"
+                    />
+                  ) : (
+                    <Chip
+                      label={t("communities:public_trips_status_active")}
+                      size="small"
+                      color="primary"
+                      variant="outlined"
+                    />
+                  )}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Tooltip title={t("communities:public_trips_edit")}>
+                      <IconButton
+                        size="small"
+                        aria-label={t("communities:public_trips_edit")}
+                        onClick={() => setShowEditDialog(true)}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    {trip.status !==
+                      PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED && (
+                      <ConfirmationDialogWrapper
+                        title={t("communities:public_trips_close_dialog_title")}
+                        message={t(
+                          "communities:public_trips_close_dialog_message",
+                        )}
+                        confirmButtonLabel={t(
+                          "communities:public_trips_close_dialog_confirm",
+                        )}
+                        onConfirm={() => {
+                          // TODO: call UpdatePublicTrip with status=CLOSED
+                        }}
+                      >
+                        {(setIsOpen) => (
+                          <Button
+                            variant="outlined"
+                            startIcon={<CloseIcon />}
+                            onClick={() => setIsOpen(true)}
+                          >
+                            {t("communities:public_trips_close")}
+                          </Button>
+                        )}
+                      </ConfirmationDialogWrapper>
+                    )}
+                  </Box>
+                </>
+              ) : (
+                <>
+                  <StyledLink
+                    href={routeToUser(user.username)}
+                    target={isNativeEmbed ? undefined : "_blank"}
+                  >
+                    {t("communities:public_trips_view_profile")}
+                  </StyledLink>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <FlagButton
+                      contentRef={`public_trip/${trip.tripId}`}
+                      authorUser={user.userId}
+                    />
+                    <Button
+                      startIcon={<CouchIcon />}
+                      onClick={handleOfferToHost}
+                    >
+                      {t("communities:public_trips_offer_to_host")}
+                    </Button>
+                  </Box>
+                </>
+              )}
             </Box>
           </ContentSection>
         </StyledCardContent>

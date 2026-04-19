@@ -2,6 +2,8 @@ import {
   CreatePublicTripReq,
   ListPublicTripsByUserReq,
   ListPublicTripsReq,
+  PublicTripStatus,
+  UpdatePublicTripReq,
 } from "proto/public_trips_pb";
 
 import client from "./client";
@@ -65,5 +67,28 @@ export async function createPublicTrip({
   req.setToDate(toDate);
   req.setDescription(description);
   const res = await client.publicTrips.createPublicTrip(req);
+  return res.toObject();
+}
+
+export async function updatePublicTrip({
+  tripId,
+  fromDate,
+  toDate,
+  description,
+  status,
+}: {
+  tripId: number;
+  fromDate?: string;
+  toDate?: string;
+  description?: string;
+  status?: PublicTripStatus;
+}) {
+  const req = new UpdatePublicTripReq();
+  req.setTripId(tripId);
+  if (fromDate !== undefined) req.setFromDate(fromDate);
+  if (toDate !== undefined) req.setToDate(toDate);
+  if (description !== undefined) req.setDescription(description);
+  if (status !== undefined) req.setStatus(status);
+  const res = await client.publicTrips.updatePublicTrip(req);
   return res.toObject();
 }
