@@ -26,6 +26,10 @@ from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from alembic.script import Script
 from sqlalchemy import create_engine
+from sqlalchemy.dialects import registry
+
+# Register psycopg (psycopg3) as the default driver for postgresql:// URLs
+registry.register("postgresql", "sqlalchemy.dialects.postgresql.psycopg", "PGDialect_psycopg")
 
 # Configuration
 CONTAINER_NAME = "alembic_test_db"
@@ -36,7 +40,7 @@ POSTGRES_PORT = 5432
 HOST_PORT = 25432
 
 # Database URL for Alembic (using psycopg driver)
-DATABASE_URL = f"postgresql+psycopg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@localhost:{HOST_PORT}/{POSTGRES_DB}"
+DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@localhost:{HOST_PORT}/{POSTGRES_DB}"
 
 # PostGIS image configuration
 POSTGIS_IMAGE_NAME = "couchers-postgis"

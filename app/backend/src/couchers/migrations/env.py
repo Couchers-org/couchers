@@ -6,10 +6,14 @@ from typing import Any
 from alembic import context
 from alembic.config import Config
 from sqlalchemy import engine_from_config, pool
+from sqlalchemy.dialects import registry
 from sqlalchemy.schema import MetaData
 
 from couchers import models
 from couchers.config import config as couchers_config
+
+# Register psycopg (psycopg3) as the default driver for postgresql:// URLs
+registry.register("postgresql", "sqlalchemy.dialects.postgresql.psycopg", "PGDialect_psycopg")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

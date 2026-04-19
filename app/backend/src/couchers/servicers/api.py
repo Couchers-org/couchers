@@ -306,7 +306,7 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "requested_too_many_users")
 
         usernames = {u for u in request.users if is_valid_username(u)}
-        ids = {u for u in request.users if is_valid_user_id(u)}
+        ids = {int(u) for u in request.users if is_valid_user_id(u)}
 
         # decomposed where_username_or_id...
         users = (
