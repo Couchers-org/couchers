@@ -468,6 +468,26 @@ def test_notifications_seen(db, push_collector: PushCollector, moderator):
         assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 1
 
 
+def test_unseen_notification_count_excludes_ums_hidden(db, moderator):
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with api_session(token2) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+        res = api.ListFriendRequests(empty_pb2.Empty())
+        fr_id = res.sent[0].friend_request_id
+
+    # Before moderation the friend request is shadowed, so the resulting notification
+    # is not visible to the recipient and must not contribute to their unseen count.
+    with api_session(token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 0
+
+    moderator.approve_friend_request(fr_id)
+
+    with api_session(token1) as api:
+        assert api.Ping(api_pb2.PingReq()).unseen_notification_count == 1
+
+
 def test_GetVapidPublicKey(db):
     _, token = generate_user()
 
