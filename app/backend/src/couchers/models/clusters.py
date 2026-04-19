@@ -14,9 +14,9 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
     func,
+    select,
     text,
 )
-from sqlalchemy import select as sa_select
 from sqlalchemy.orm import (
     DynamicMapped,
     Mapped,
@@ -71,7 +71,7 @@ class Node(Base, kw_only=True):
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     timezone = column_property(
-        sa_select(TimezoneArea.tzid)
+        select(TimezoneArea.tzid)
         .where(func.ST_Contains(TimezoneArea.geom, func.ST_PointOnSurface(geom)))
         .limit(1)
         .scalar_subquery(),

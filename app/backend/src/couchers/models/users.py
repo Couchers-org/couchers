@@ -21,10 +21,10 @@ from sqlalchemy import (
     and_,
     func,
     or_,
+    select,
     text,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import select as sa_select
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import DynamicMapped, Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
@@ -135,7 +135,7 @@ class User(Base, kw_only=True):
     regions_lived: Mapped[list[Region]] = relationship(init=False, secondary="regions_lived", order_by="Region.name")
 
     timezone = column_property(
-        sa_select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom)).limit(1).scalar_subquery(),
+        select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom)).limit(1).scalar_subquery(),
         deferred=True,
     )
 
