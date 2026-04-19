@@ -29,11 +29,11 @@ If there are no meaningful changes to commit, tell the user and stop.
 Branch names in this repo follow the pattern: `<area>/<type>/<short-description>`
 
 Where:
-- `<area>` is one of: `backend`, `web`, `frontend`, `mobile`, or a username/handle for cross-cutting changes
+- `<area>` is one of: `backend`, `web`, `frontend`, `mobile`, `devops`, `docs`, or another area that matches the changed files. For cross-cutting changes spanning multiple areas, pick the one that best describes the change.
 - `<type>` is one of: `feature`, `bugfix`, `fix`, `refactor`, or similar
 - `<short-description>` is a short kebab-case description
 
-Infer area and type from the changed files and the nature of the changes. If you can't determine the area, use the user's GitHub username from `git config user.name` (lowercased).
+Infer area and type from the changed files and the nature of the changes. Never use a username as the area.
 
 ### 3. Run linters and formatters
 
