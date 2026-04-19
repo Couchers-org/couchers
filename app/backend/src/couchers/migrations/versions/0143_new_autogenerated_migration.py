@@ -5,14 +5,10 @@ Revises: 0142
 Create Date: 2026-04-19 22:16:50.624000
 
 """
-from alembic import op
-import sqlalchemy as sa
-import geoalchemy2
-
 
 # revision identifiers, used by Alembic.
-revision = '0143'
-down_revision = '0142'
+revision = "0143"
+down_revision = "0142"
 branch_labels = None
 depends_on = None
 
