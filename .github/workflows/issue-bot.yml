@@ -4,7 +4,6 @@ on:
   issues:
     types: [labeled]
 
-# doglog
 jobs:
   process-issue:
     runs-on: ubuntu-latest
