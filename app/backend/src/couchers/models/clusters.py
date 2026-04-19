@@ -16,6 +16,7 @@ from sqlalchemy import (
     func,
     text,
 )
+from sqlalchemy import select as sa_select
 from sqlalchemy.orm import (
     DynamicMapped,
     Mapped,
@@ -27,6 +28,7 @@ from sqlalchemy.orm import (
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base, Geom, communities_seq
+from couchers.models.static import TimezoneArea
 from couchers.utils import get_coordinates
 
 if TYPE_CHECKING:
@@ -67,6 +69,14 @@ class Node(Base, kw_only=True):
     parent_node_id: Mapped[int | None] = mapped_column(ForeignKey("nodes.id"), default=None, index=True)
     geom: Mapped[Geom] = deferred(mapped_column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False))
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    timezone = column_property(
+        sa_select(TimezoneArea.tzid)
+        .where(func.ST_Contains(TimezoneArea.geom, func.ST_PointOnSurface(geom)))
+        .limit(1)
+        .scalar_subquery(),
+        deferred=True,
+    )
 
     parent_node: Mapped[Node] = relationship(init=False, back_populates="child_nodes", remote_side="Node.id")
     child_nodes: Mapped[list[Node]] = relationship(init=False)
