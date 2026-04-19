@@ -197,19 +197,25 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         self, request: communities_pb2.ListRecentCommunitiesReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListRecentCommunitiesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        nodes = (
-            session.execute(
-                select(Node)
-                .join(Cluster, Cluster.parent_node_id == Node.id)
-                .where(Cluster.is_official_cluster)
-                .order_by(Node.created.desc(), Node.id.desc())
-                .limit(page_size)
-                .options(selectinload(Node.official_cluster))
-            )
-            .scalars()
-            .all()
+        rows = session.execute(
+            select(Node, Cluster)
+            .join(Cluster, Cluster.parent_node_id == Node.id)
+            .where(Cluster.is_official_cluster)
+            .order_by(Node.created.desc(), Node.id.desc())
+            .limit(page_size)
+        ).all()
+        return communities_pb2.ListRecentCommunitiesRes(
+            communities=[
+                communities_pb2.CommunitySummary(
+                    community_id=node.id,
+                    name=cluster.name,
+                    slug=cluster.slug,
+                    created=Timestamp_from_datetime(node.created),
+                    node_type=nodetype2api[node.node_type],
+                )
+                for node, cluster in rows
+            ],
         )
-        return communities_pb2.ListRecentCommunitiesRes(communities=communities_to_pb(session, nodes, context))
 
     def ListGroups(
         self, request: communities_pb2.ListGroupsReq, context: CouchersContext, session: Session

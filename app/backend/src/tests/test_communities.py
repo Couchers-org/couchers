@@ -1058,7 +1058,7 @@ class TestCommunities:
             assert global_community.member  # user6 is a member
 
     @staticmethod
-    def test_ListRecentCommunities(testing_communities):
+    def test_ListRecentCommunities(testing_communities, monkeypatch):
         """
         ListRecentCommunities returns newest-first communities across the whole tree,
         honouring page_size.
@@ -1098,13 +1098,17 @@ class TestCommunities:
                 assert community.HasField("created")
                 assert community.created.seconds > 0
 
-            # default page size returns all 10 for this fixture
+            # default page size returns all communities for this fixture
             res = api.ListRecentCommunities(communities_pb2.ListRecentCommunitiesReq())
             assert [c.community_id for c in res.communities] == newest_first
 
-            # page_size is clamped to MAX_PAGINATION_LENGTH (25)
+            # page_size is clamped to MAX_PAGINATION_LENGTH on the server
+            monkeypatch.setattr("couchers.servicers.communities.MAX_PAGINATION_LENGTH", 4)
             res = api.ListRecentCommunities(communities_pb2.ListRecentCommunitiesReq(page_size=1000))
-            assert len(res.communities) == 10
+            assert [c.community_id for c in res.communities] == newest_first[:4]
+            # and also applies to the default when the request omits page_size
+            res = api.ListRecentCommunities(communities_pb2.ListRecentCommunitiesReq())
+            assert [c.community_id for c in res.communities] == newest_first[:4]
 
 
 def test_JoinCommunity_and_LeaveCommunity(testing_communities):

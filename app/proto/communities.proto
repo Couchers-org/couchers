@@ -327,5 +327,5 @@ message ListRecentCommunitiesReq {
 }
 
 message ListRecentCommunitiesRes {
-  repeated Community communities = 1;
+  repeated CommunitySummary communities = 1;
 }
