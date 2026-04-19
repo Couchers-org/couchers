@@ -1,5 +1,5 @@
 FROM node:22
 
-RUN npm i -g mjml
+RUN npm i -g 'mjml@^4'
 
 WORKDIR /app
