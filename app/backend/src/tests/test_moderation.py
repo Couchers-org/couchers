@@ -12,6 +12,7 @@ from sqlalchemy.sql import select
 from couchers.config import config
 from couchers.db import session_scope
 from couchers.jobs.handlers import auto_approve_moderation_queue
+from couchers.jobs.worker import process_job
 from couchers.models import (
     EventOccurrence,
     GroupChat,
@@ -2311,9 +2312,6 @@ def test_group_chat_message_notifications_suppressed_before_approval(db, push_co
     Test that notifications are NOT sent for messages in group chats
     that haven't been approved yet.
     """
-    from couchers.jobs.worker import process_job
-    from couchers.models import GroupChat
-
     user1, token1 = generate_user(complete_profile=True)
     user2, token2 = generate_user(complete_profile=True)
 

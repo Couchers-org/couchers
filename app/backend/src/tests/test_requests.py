@@ -15,8 +15,11 @@ from couchers.i18n import LocalizationContext
 from couchers.models import (
     Message,
     MessageType,
+    Node,
+    NodeType,
     RateLimitAction,
 )
+from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import (
     api_pb2,
     auth_pb2,
@@ -25,7 +28,7 @@ from couchers.proto import (
 )
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
-from couchers.utils import create_coordinate, now, today
+from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
@@ -1571,10 +1574,6 @@ def test_host_req_feedback(db, moderator):
 
 
 def _create_public_trip(user_id: int, from_date, to_date, status=None):
-    from couchers.models import Node, NodeType
-    from couchers.models.public_trips import PublicTrip, PublicTripStatus
-    from couchers.utils import create_polygon_lat_lng, to_multi
-
     with session_scope() as session:
         node = session.execute(select(Node).limit(1)).scalar_one_or_none()
         if node is None:
@@ -1689,8 +1688,6 @@ def test_create_request_with_public_trip_user_mismatch(db):
 
 def test_create_request_with_closed_public_trip(db):
     """Cannot offer to host a trip that's been closed."""
-    from couchers.models.public_trips import PublicTripStatus
-
     surfer, _ = generate_user()
     host, host_token = generate_user()
 
