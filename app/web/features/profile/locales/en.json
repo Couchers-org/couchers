@@ -299,6 +299,8 @@
   "avatar_photo_info": "<bold>A photo of yourself is required to interact with the community.</bold> A clear, friendly photo showing your face builds trust, helps others feel comfortable, and greatly improves your chances of receiving a response.",
   "avatar_placeholder_info": "<bold>Click the placeholder avatar to jump to the photo upload section.</bold> A photo of yourself is required to interact with the community. A clear, friendly photo showing your face builds trust and helps others feel comfortable.",
   "click_to_add_photo": "Click to add a photo",
+  "share_profile": "Share profile",
+  "share_profile_text": "Check out {{name}} on Couchers.org",
   "profile_changes_saved_message": "Profile changes saved!",
   "hosting_preferences_success_message": "Hosting preferences saved!",
   "gallery": {

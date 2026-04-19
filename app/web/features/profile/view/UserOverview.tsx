@@ -5,7 +5,6 @@ import Divider from "components/Divider";
 import { CouchIcon, LocationIcon } from "components/Icons";
 import IconText from "components/IconText";
 import StrongVerificationBadge from "components/StrongVerificationBadge";
-import StyledLink from "components/StyledLink";
 import {
   hostingStatusLabels,
   meetupStatusLabels,
@@ -16,6 +15,7 @@ import Link from "next/link";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React from "react";
 import { routeToEditProfile, routeToUser } from "routes";
+import { useShare } from "utils/useShare";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";
@@ -68,6 +68,31 @@ const StyledIntro = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
+const StyledUsernameButton = styled("button")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: theme.spacing(0.5),
+  width: "100%",
+  margin: 0,
+  marginBottom: theme.spacing(1),
+  padding: 0,
+  background: "transparent",
+  border: "none",
+  cursor: "pointer",
+  color: "var(--mui-palette-primary-main)",
+  font: "inherit",
+  textAlign: "center",
+  "&:hover": {
+    textDecoration: "underline",
+  },
+  "&:focus-visible": {
+    outline: `2px solid var(--mui-palette-primary-main)`,
+    outlineOffset: 2,
+    borderRadius: 4,
+  },
+}));
+
 const StyledCardActions = styled(CardActions)(({ theme }) => ({
   flexDirection: "column",
   justifyContent: "center",
@@ -101,8 +126,18 @@ export default function UserOverview({
 }: UserOverviewProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
+  const { share: triggerShare, shareStatus } = useShare();
 
   const shouldMakeAvatarClickable = isOwnProfile && !user.avatarUrl;
+
+  const handleShareProfile = () => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    triggerShare({
+      url: `${origin}${routeToUser(user.username)}`,
+      title: user.name,
+      text: t("profile:share_profile_text", { name: user.name }),
+    });
+  };
 
   return (
     <StyledCard>
@@ -125,16 +160,14 @@ export default function UserOverview({
             {user.hasStrongVerification ? <StrongVerificationBadge /> : null}
           </span>
         </StyledIntro>
-        <StyledLink
-          href={routeToUser(user.username)}
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: 1,
-          }}
+        <StyledUsernameButton
+          type="button"
+          onClick={handleShareProfile}
+          aria-label={t("profile:share_profile")}
         >
           @{user.username}
-        </StyledLink>
+        </StyledUsernameButton>
+        {shareStatus}
         <StyledIntro>{user.city}</StyledIntro>
         <Badges user={user} />
       </StyledWrapper>

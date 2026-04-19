@@ -36,7 +36,11 @@ export function useIsNativeEmbed(): boolean {
   );
 }
 
-type MessageType = "sendState" | "clearState" | "REQUEST_IMAGE_PICK";
+type MessageType =
+  | "sendState"
+  | "clearState"
+  | "REQUEST_IMAGE_PICK"
+  | "REQUEST_SHARE";
 
 function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;
@@ -98,6 +102,76 @@ export function useNativeImagePicker() {
   }, []);
 
   return { isNative, pickImage };
+}
+
+// Share bridge: uses native share sheet on mobile app, Web Share API on
+// supporting browsers, and falls back to copying the URL to the clipboard.
+export type ShareContent = {
+  url: string;
+  title?: string;
+  text?: string;
+};
+
+export type ShareResult =
+  | { method: "native" }
+  | { method: "webShare" }
+  | { method: "clipboard" }
+  | { method: "unsupported" };
+
+async function copyToClipboard(text: string): Promise<boolean> {
+  if (typeof navigator === "undefined") return false;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // Fall through to legacy fallback
+  }
+  if (typeof document !== "undefined") {
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+export async function share(content: ShareContent): Promise<ShareResult> {
+  if (isNativeEmbed()) {
+    sendToNative("REQUEST_SHARE", content);
+    return { method: "native" };
+  }
+  if (
+    typeof navigator !== "undefined" &&
+    typeof navigator.share === "function"
+  ) {
+    try {
+      await navigator.share({
+        url: content.url,
+        title: content.title,
+        text: content.text,
+      });
+      return { method: "webShare" };
+    } catch (err) {
+      // AbortError means the user cancelled - don't fall through to clipboard
+      if ((err as DOMException)?.name === "AbortError") {
+        return { method: "webShare" };
+      }
+      // Any other error: fall through to clipboard fallback
+    }
+  }
+  const copied = await copyToClipboard(content.url);
+  return { method: copied ? "clipboard" : "unsupported" };
 }
 
 // Helper to convert base64 to File object

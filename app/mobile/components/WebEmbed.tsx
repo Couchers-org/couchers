@@ -9,6 +9,7 @@ import {
   Linking,
   Platform,
   Pressable,
+  Share,
   StyleSheet,
   Text,
   useColorScheme,
@@ -201,6 +202,22 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       } else if (payload?.type === "REQUEST_IMAGE_PICK") {
         // Web app requests native image picker (WebView file input crashes on mobile)
         pickImage(sendImagePickResult);
+      } else if (payload?.type === "REQUEST_SHARE") {
+        // Web app requests native share sheet
+        const { url, title, text } = payload.data ?? {};
+        if (typeof url === "string" && url.length > 0) {
+          // iOS uses `url`; Android uses `message`. Including both is safe.
+          const message = [text, url].filter(Boolean).join("\n\n");
+          Share.share(
+            Platform.OS === "ios"
+              ? { url, message: text || undefined, title }
+              : { message, title },
+          ).catch((err) => {
+            if (__DEV__) {
+              console.error("Share failed:", err);
+            }
+          });
+        }
       }
     } catch (error) {
       // Silently ignore non-JSON messages (expected from browser/WebView internals)

@@ -1,4 +1,8 @@
-import { ContentCopyOutlined, EditOutlined } from "@mui/icons-material";
+import {
+  ContentCopyOutlined,
+  EditOutlined,
+  IosShareOutlined,
+} from "@mui/icons-material";
 import {
   Card,
   Chip,
@@ -41,6 +45,7 @@ import {
   timestamp2Date,
 } from "utils/date";
 import dayjs from "utils/dayjs";
+import { useShare } from "utils/useShare";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
@@ -224,6 +229,17 @@ export default function EventPage({
     useState(false);
   const [inviteCommunityDialogIsOpen, setInviteCommunityDialogIsOpen] =
     useState(false);
+  const { share: triggerShare, shareStatus } = useShare();
+
+  const handleShareEvent = () => {
+    if (!event) return;
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    triggerShare({
+      url: `${origin}${routeToEvent(event.eventId, event.slug)}`,
+      title: event.title,
+      text: t("communities:event_share_text", { title: event.title }),
+    });
+  };
 
   const isPastEvent = event?.endTime
     ? dayjs().isAfter(timestamp2Date(event.endTime))
@@ -262,6 +278,7 @@ export default function EventPage({
           {t("communities:invite_community_dialog.toast_success")}
         </Snackbar>
       )}
+      {shareStatus}
       {isLoading ? (
         <CenteredSpinner />
       ) : (
@@ -398,6 +415,21 @@ export default function EventPage({
                     />
                   </>
                 )}
+
+                <Button
+                  onClick={handleShareEvent}
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<IosShareOutlined />}
+                  aria-label={t("communities:share_event")}
+                  sx={{
+                    [theme.breakpoints.down("md")]: {
+                      ...ActionButtonSx,
+                    },
+                  }}
+                >
+                  {t("communities:share_event")}
+                </Button>
 
                 <AttendanceMenu
                   loading={isSetEventAttendanceLoading}
