@@ -23,10 +23,8 @@
         "max_age": "Максимальный возраст",
         "field_label": "Возраст хоста"
       },
-      "complete_profiles_label": "Полные профили",
       "meetup_status_field_label": "Статус для встреч"
     },
-    "missing_location_validation_error": "Укажите местоположение для использования этого фильтра",
     "by_location_filter_label": "По местоположению",
     "accommodation_filters": {
       "sleeping_arrangement_label": "Спальные места",
@@ -63,7 +61,6 @@
     }
   },
   "search_result": {
-    "show_user_button_label": "Показать {{name}} на карте",
     "few_results_suggestion": "По умолчанию пустые профили и профили с отметкой «не могу принимать гостей» скрыты.",
     "no_user_result_message": "Пользователи не найдены. Попробуйте убрать некоторые фильтры, чтобы увидеть больше результатов.",
     "missing_about_description": "{{name}} ещё ничего не рассказал(a) о себе",
@@ -74,8 +71,7 @@
   },
   "filter_dialog": {
     "desktop_title": "Фильтры",
-    "mobile_title": "Поиск",
-    "search_here_button": "Искать в этом районе"
+    "mobile_title": "Поиск"
   },
   "last_active_options": {
     "last_month": "В прошлом месяце",

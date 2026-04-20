@@ -8,9 +8,7 @@
     "tabs": {
       "chats": "Conversaciones",
       "hosting": "Hospedar",
-      "surfing": "Ser hospedado",
-      "aria_label": "Pestañas para diferentes tipos de mensaje",
-      "archived": "Archivado"
+      "surfing": "Ser hospedado"
     }
   },
   "chat_view": {
@@ -48,7 +46,6 @@
   "create_chat": {
     "dm_title": "Crear una nueva conversación",
     "group_title": "Crear una conversación grupal",
-    "group_title_field_label": "Título",
     "friends_input_label": "Amigos",
     "no_friends_found_message": "No se encontraron amigos",
     "user_load_error_message": "(Error de carga de usuario)",

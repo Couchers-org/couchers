@@ -4,7 +4,6 @@
     "title_label": "Títol",
     "dm_title": "Crea un xat nou",
     "group_title": "Crea un xat de grup",
-    "group_title_field_label": "Títol",
     "no_friends_found_message": "No s'ha trobat cap amic",
     "user_load_error_message": "(Error en carregar l'usuari)",
     "friends_input_label": "Amics",
@@ -107,11 +106,9 @@
   "messages_page": {
     "title": "Missatges",
     "tabs": {
-      "aria_label": "Pestanyes per a diferents tipus de missatge",
       "chats": "Xats",
       "hosting": "Allotjament",
-      "surfing": "Surfing",
-      "archived": "Arxivats"
+      "surfing": "Surfing"
     }
   },
   "chat_view": {
