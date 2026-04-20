@@ -25,7 +25,8 @@
       "field_label": "Nombre de usuario",
       "required_error": "Introduce tu nombre de usuario",
       "username_taken_error": "Este nombre de usuario ya existe.",
-      "validation_error": "El nombre usuario sólo puede contener números o _, y debe comenzar con una letra."
+      "validation_error": "El nombre usuario sólo puede contener números o _, y debe comenzar con una letra.",
+      "helper_text": "Este es tu ID de inicio de sesión único, no tu nombre visible."
     },
     "birthday": {
       "field_label": "Cumpleaños",
@@ -56,7 +57,10 @@
     },
     "name": {
       "field_label": "Nombre",
-      "required_error": "El nombre no puede ser sólo espacio en blanco."
+      "required_error": "Este campo no puede estar vacío.",
+      "invalid_characters_error": "El nombre solo puede contener letras, espacios, guiones y apóstrofos",
+      "min_length_error": "El nombre debe tener al menos 2 caracteres",
+      "max_length_error": "El nombre no debe tener más de 100 caracteres"
     }
   },
   "change_password_form": {
@@ -151,6 +155,17 @@
       "title": "Nombre de usuario",
       "description": "Tu nombre de usuario es <1>{{username}}</1>.",
       "explanation": "El nombre de usuario se elige cuando creas tu cuenta."
+    },
+    "appearance_section": {
+      "title": "Apariencia",
+      "current_mode": "Tu modo actual:",
+      "click_to_change": "Haz clic en el botón de abajo para alternar entre los modos Claro, Oscuro, y del Sistema.",
+      "change_mode": "Cambiar modo de apariencia",
+      "modes": {
+        "light": "Modo claro",
+        "dark": "Modo oscuro",
+        "system": "Modo del sistema (sigue el de tu dispositivo)"
+      }
     }
   },
   "login_prompt": "Haz clic aquí para iniciar sesión",
@@ -224,7 +239,7 @@
       "no_emails_disable_text": "Reactivar correos electrónicos"
     }
   },
-  "sign_up_need_verification_title": "¡Cási hemos terminado, una última cosa!",
+  "sign_up_need_verification_title": "Una última cosa: confirma tu correo electrónico.",
   "volunteer_management": {
     "shown_on_team_page_current": "Mostrado en la página del equipo como miembro actual del equipo."
   },
@@ -239,7 +254,25 @@
     "complete_title": "Estamos procesando su intento de Verificación robusta",
     "complete_message1": "Tu pasaporte está siendo validado. Recibirás un correo electrónico con los resultados en unos minutos.",
     "complete_message2": "La verificación robusta expira cuando vence tu pasaporte, y deberás completar la verificación nuevamente con el nuevo pasaporte.",
-    "delete_data_title": "Eliminar los datos del pasaporte de tu verificación robusta"
+    "delete_data_title": "Eliminar los datos del pasaporte de tu verificación robusta",
+    "delete_information": "Puedes eliminar tus datos de Verificación Robusta (excepto el país emisor, la fecha de caducidad y los tres últimos dígitos del número del documento) de nuestros servidores en cualquier momento.",
+    "delete_information_text2": "Si eliminas tus datos, no podrás volver a usar el mismo pasaporte para la Verificación Robusta.",
+    "delete_my_data_button": "Eliminar mis datos",
+    "delete_button": "Eliminar mis datos de Verificación Robusta",
+    "delete_success": "Los datos de tu pasaporte han sido eliminados.",
+    "donation_title": "Gracias por verificar: estás ayudando a hacer que Couchers.org sea más seguro para todos.",
+    "donation_message1": "La verificación es gratuita para ti, pero tiene un coste para nosotros. Como organización sin ánimo de lucro gestionada por voluntarios, dependemos de las donaciones para cubrir gastos como el mantenimiento de nuestros servidores, la verificación, y las herramientas para voluntarios e impulsores de la comunidad.",
+    "donation_message2": "Si puedes, considera hacer una donación para ayudar a mantener Couchers.org y que siga creciendo.",
+    "donate_button": "Dona para apoyar a Couchers.org",
+    "instructions": {
+      "title": "Cómo completar la Verificación Robusta",
+      "warning": "Importante: El paso de escaneo del chip del pasaporte puede ser complicado - ¡lee todas las instrucciones primero!",
+      "step1": "Descarga la aplicación <strong>Iris ID</strong>",
+      "step1_apple_note": "<strong>Usuarios de Apple:</strong> Puedes omitir la descarga y usar tu navegador. Solo haz clic en \"Abrir\" cuando se te solicite.",
+      "step2": "Haz clic en <strong>\"Iniciar Verificación Robusta\"</strong> a continuación (se abre en una nueva pestaña)",
+      "step3": "Escanea el código QR con tu teléfono",
+      "step4": "Si se te solicita, abre la aplicación y escanea el código QR de nuevo"
+    }
   },
   "active_logins": {
     "description": "Esta página muestra sesiones activas; puedes cerrar cualquier sesión haciendo clic en el botón junto a la misma, o desplazándote hasta el final y haciendo clic en el botón para todas las sesiones excepto la actual.",
@@ -255,5 +288,18 @@
     "heading": "Sesiones actuales"
   },
   "sign_up_resend_verification_email_help": "¿No has recibido el correo eletrónico? Haz clic <2>aquí para reenviar el enlace de verificación</2>.",
-  "sign_up_resend_verification_done": "¡Hecho! Te hemos enviado otro correo electrónico."
+  "sign_up_resend_verification_done": "¡Hecho! Te hemos enviado otro correo electrónico.",
+  "motivations_form": {
+    "header": "¿Qué te trae a Couchers?",
+    "surfing": "Ser hospedado",
+    "surfing_description": "Estoy planeando un viaje y busco un anfitrión",
+    "hosting": "Hospedar",
+    "hosting_description": "Me gustaría hospedar y dar la bienvenida a viajeros en mi ciudad",
+    "events": "Eventos",
+    "events_description": "Me gustaría unirme a eventos y conocer a la comunidad",
+    "community_organizing": "Organización comunitaria",
+    "community_organizing_description": "Quiero organizar eventos y actividades en la plataforma",
+    "something_else": "Otra cosa",
+    "something_else_description": "Solo estoy explorando o aún no lo he decidido"
+  }
 }
