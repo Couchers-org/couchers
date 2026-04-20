@@ -4,7 +4,7 @@
       "push": {
         "title": "Push notifikace povoleny",
         "ios_title": "Push notifikace povoleny",
-        "body": "Nyní budeš dostávat oznámení na tomto zařízení."
+        "body": "Od této chvíle budeš dostávat oznámení na tomto zařízení."
       }
     }
   },
@@ -29,10 +29,11 @@
     },
     "start": {
       "push": {
-        "title": "Žádost o smazání účtu byla odeslána",
+        "title": "Žádost o smazání účtu podána",
         "ios_title": "Žádost o smazání účtu byla odeslána",
         "body": "Použij odkaz, který jsme ti poslali e-mailem k potvrzení."
-      }
+      },
+      "event_description": "Zahájili jste smazání účtu"
     }
   },
   "activeness": {
