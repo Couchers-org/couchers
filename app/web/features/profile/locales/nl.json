@@ -142,7 +142,9 @@
   "edit_profile_name_required": "Naam verplicht",
   "reference_amounts": {
     "count_references_one": "{{count}} referentie",
-    "count_references_other": "{{count}} referenties"
+    "count_references_other": "{{count}} referenties",
+    "no_references": "Geen referenties",
+    "hundred_or_more_references": "100+ referenties"
   },
   "active": "Actief",
   "section_tabs_a11y_label": "tabs voor gebruikersgegevens",
@@ -249,5 +251,38 @@
   },
   "accept_friend_label": "Vriendschapsverzoek accepteren",
   "decline_friend_label": "Vriendschapsverzoek afwijzen",
-  "no_references": "Je hebt nog niet van dit soort referenties!"
+  "no_references": "Je hebt nog niet van dit soort referenties!",
+  "references_filter_a11y_label": "Referenties laten zien: ",
+  "see_more_references": "Meer referenties bekijken",
+  "write_reference": "Schrijf referentie",
+  "have_pending_reference_text": "Je kan nog een referentie schrijven voor deze gebruiker",
+  "write_friend_reference": "Schrijf vriendenreferentie",
+  "last_active_false": "Onbekend",
+  "languages_fluent_false": "Niks ingevuld",
+  "regions_empty_state": "Nergens",
+  "response_rate_label": "Aantal reacties",
+  "response_rate_text_insufficient": "Nog niet zeker",
+  "response_rate_text_low": "Zelden",
+  "response_rate_text_some": "Soms",
+  "response_rate_text_most": "Meestal",
+  "response_rate_text_almost_all": "Bijna altijd",
+  "response_time_label": "Antwoordsnelheid",
+  "response_time_text_some": "Misschien in {{p33}}",
+  "response_time_text_most": "Meestal in {{p33}} tot {{p66}}",
+  "response_time_text_almost_all": "Meestal in {{p33}} tot {{p66}}",
+  "unsaved_changes_warning": "Je hebt je wijzigingen niet opgeslagen. Weet je zeker dat je deze pagina wilt verlaten?",
+  "profile_tag_input": {
+    "header_text": "Druk op 'Enter' om ons\n<support_link>een e-mail</support_link> te sturen om iets toe te voegen",
+    "remove_button_a11y_text": "{{tag}} weghalen"
+  },
+  "badges": {
+    "title": "Ontdek de badges van Couchers.org",
+    "subtitle": "Lees meer over gebruikersbadges, zie wie ze heeft en ontdek hoe jij ze ook kunt krijgen.",
+    "click_on_left": "Kies een badge aan de linkerkant om meer te leren.",
+    "no_people": "Er zijn nog geen mensen met die badge!",
+    "not_found": "Badge niet gevonden"
+  },
+  "open_profile_new_tab": "Profiel openen in nieuw tabblad",
+  "view_in_admin_console": "Gebruiker bekijken in admin-omgeving",
+  "search_indicator": "Het begin van dit gedeelte is zichtbaar in zoekresultaten wanneer andere leden naar je zoeken"
 }
