@@ -9,7 +9,6 @@
       "smokes_at_home": "Fuma en casa"
     },
     "location_field_label": "Ubicación cercana",
-    "missing_location_validation_error": "Especifica una ubicación para usar este filtro",
     "keywords": {
       "field_label": "Nombre, palabras clave, o usuario",
       "clear_field_action_a11y_label": "Borrar búsqueda",
@@ -25,7 +24,6 @@
         "min_age": "Edad mínima",
         "max_age": "Edad máxima"
       },
-      "complete_profiles_label": "Perfiles completos",
       "meetup_status_field_label": "Disponibilidad para quedar"
     },
     "accommodation_filters": {
@@ -63,8 +61,7 @@
   },
   "filter_dialog": {
     "mobile_title": "Buscar",
-    "desktop_title": "Filtros",
-    "search_here_button": "Buscar es esta zona"
+    "desktop_title": "Filtros"
   },
   "views": {
     "list": "Lista",
@@ -75,7 +72,6 @@
   "keyword": "Palabra clave",
   "search_result": {
     "no_user_result_message": "No se han encontrado usuarios. Intenta quitar algunos filtros para ver más resultados.",
-    "show_user_button_label": "Mostrar {{name}} en el mapa",
     "missing_about_description": "{{name}} no ha dicho nada sobre sí todavía",
     "few_results_suggestion": "Por defecto, se ocultan los perfiles vacíos o que \"no pueden alojar\".",
     "include_empty_profiles_button": "Mostrar todos los perfiles",

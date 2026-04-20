@@ -8,7 +8,6 @@
     "tabs": {
       "chats": "Discussions",
       "hosting": "Hébergement",
-      "aria_label": "Onglets pour différents types de message",
       "surfing": "Demandes de surfer"
     }
   },
@@ -103,7 +102,6 @@
     "no_friends_found_message": "Impossible de trouver des ami.e.s",
     "dm_title": "Créer une nouvelle discussion",
     "group_title": "Créer une discussion de groupe",
-    "group_title_field_label": "Titre",
     "user_load_error_message": "(Erreur de chargement)",
     "friends_input_label": "Ami.e.s",
     "title_label": "Sujet"

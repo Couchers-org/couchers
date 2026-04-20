@@ -97,10 +97,7 @@
   "basic_form": {
     "name": {
       "field_label": "您的名字",
-      "required_error": "此文本框不能为空。",
-      "invalid_characters_error": "姓名只能包含字母、空格、连字符和撇号",
-      "min_length_error": "姓名至少需要 2 个字符",
-      "max_length_error": "姓名最多不能超过 100 个字符"
+      "required_error": "此文本框不能为空。"
     },
     "email": {
       "field_label": "邮箱",
@@ -234,16 +231,16 @@
       "disabled_message": "您<1>尚未完成</1>强身份验证。"
     },
     "start_button": "开始强身份验证",
-    "complete_title": "我们正在处理您的强身份验证请求",
-    "complete_message1": "您的护照正在验证中, 结果将在几分钟内通过邮件发送给您。",
-    "complete_message2": "强身份验证将在您的护照到期时失效，您需要在获得新护照后重新完成验证。",
-    "delete_data_title": "删除您的强身份验证护照数据",
     "delete_information": "您可以随时从我们的服务器中删除您的强身份验证数据（除签发国家、到期日期和证件号码后三位外）。",
     "delete_information_text2": "如果您删除了您的数据，您将无法再次使用同一本护照进行强身份验证。",
     "delete_my_data_button": "删除我的数据",
     "delete_button": "删除我的强身份验证数据",
+    "complete_message1": "您的护照正在验证中, 结果将在几分钟内通过邮件发送给您。",
+    "complete_message2": "强身份验证将在您的护照到期时失效，您需要在获得新护照后重新完成验证。",
     "delete_success": "您的护照信息已被删除。",
     "donation_title": "感谢验证！感谢您让Couchers.org变得更安全。",
+    "complete_title": "我们正在处理您的强身份验证请求",
+    "delete_data_title": "删除您的强身份验证护照数据",
     "donation_message1": "对你来说，验证是免费的，但对我们来说却是有成本的。作为一个由志愿者运营的非营利组织，我们依靠捐款来支付诸如服务器运行、验证以及为志愿者和社区建设者提供工具等开支。",
     "donation_message2": "如果您有能力，请考虑捐款以帮助Couchers.org持续运营和发展。",
     "donate_button": "捐款支持Couchers.org",

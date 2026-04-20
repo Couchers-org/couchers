@@ -19,8 +19,7 @@
     "form": {
       "remember_me": "Zapamiętaj mnie",
       "password_field_label": "Hasło",
-      "forgot_password": "Nie pamiętasz hasła?",
-      "no_password_login_prompt": "Sprawdź swoją skrzynkę e-mail, aby odebrać link do zalogowania się! :)"
+      "forgot_password": "Nie pamiętasz hasła?"
     },
     "title": "Zaloguj się"
   },
@@ -58,8 +57,7 @@
   "basic_form": {
     "name": {
       "required_error": "Pole z imieniem nie może zostać puste.",
-      "field_label": "Twoje imię",
-      "empty_error": "Wpisz swoje imię"
+      "field_label": "Twoje imię"
     },
     "email": {
       "field_label": "Adres e-mail",
@@ -90,9 +88,6 @@
     "birth_date_section": {
       "title": "Zmień datę urodzenia"
     }
-  },
-  "jail_set_password_form": {
-    "title": "Ustaw hasło"
   },
   "reset_password": "Zresetuj hasło",
   "reset_password_form": {

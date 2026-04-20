@@ -11,9 +11,7 @@
     "tabs": {
       "chats": "Чаты",
       "hosting": "Гости",
-      "surfing": "Хосты",
-      "aria_label": "Вкладки для разных типов сообщений",
-      "archived": "Архив"
+      "surfing": "Хосты"
     }
   },
   "chat_view": {
@@ -122,7 +120,6 @@
     "user_load_error_message": "(Ошибка загрузки пользователя)",
     "dm_title": "Создать новый чат",
     "group_title": "Создать групповой чат",
-    "group_title_field_label": "Заголовок",
     "no_friends_found_message": "Не удалось найти друзей",
     "friends_input_label": "Друзья",
     "title_label": "Заголовок",

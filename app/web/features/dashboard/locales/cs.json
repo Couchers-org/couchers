@@ -48,5 +48,6 @@
   "become_a_host": "Staň se hostitelem",
   "attendees_count_one": "{{count}} účastník",
   "attendees_count_few": "{{count}} účastníci",
-  "attendees_count_other": "{{count}} účastníků"
+  "attendees_count_other": "{{count}} účastníků",
+  "complete_profile_explanation": "Taky tě štve, jak mají jiné platformy prázdné „duchařské\" profily bez jakýchkoliv informací? Prosím, nedělej z nás duchy! 👻👻👻"
 }

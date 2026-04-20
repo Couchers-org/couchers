@@ -30,7 +30,6 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "すでにアカウントを持っていますか？<2>Log in</2>",
-    "header": "始めましょう！",
     "sign_up_agreement_explainer": "続行するには、クッキー、メールアドレス、データ処理に関する規約<2>Terms of Service</2>に同意してください。"
   },
   "account_form": {
@@ -70,7 +69,6 @@
     },
     "name": {
       "field_label": "氏名",
-      "empty_error": "氏名を入力してください",
       "required_error": "氏名は空欄不可です。"
     }
   },

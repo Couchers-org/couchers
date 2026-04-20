@@ -92,7 +92,6 @@
     "title_label": "Título",
     "dm_title": "Criar uma nova conversa",
     "group_title": "Criar conversa em grupo",
-    "group_title_field_label": "Título",
     "no_friends_found_message": "Não foi possível encontrar nenhum amigo",
     "user_load_error_message": "(Erro de carregamento de usuário)",
     "friends_input_label": "Amigos",
@@ -152,11 +151,9 @@
   "messages_page": {
     "title": "Mensagens",
     "tabs": {
-      "aria_label": "Abas para diferentes tipos de mensagens",
       "chats": "Conversas",
       "hosting": "Hospedando",
-      "surfing": "Como hóspede",
-      "archived": "Arquivadas"
+      "surfing": "Como hóspede"
     }
   },
   "mark_all_read_button_text_chats": "Marcar todas as conversas como lidas",
