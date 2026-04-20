@@ -55,6 +55,8 @@ class ModerationAction(enum.Enum):
     flag = enum.auto()
     # Remove flag
     unflag = enum.auto()
+    # Bulk visibility change applied to every item authored by a user
+    bulk_set_visibility = enum.auto()
 
 
 class ModerationObjectType(enum.Enum):
