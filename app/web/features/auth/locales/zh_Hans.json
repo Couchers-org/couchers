@@ -15,8 +15,7 @@
     "action_button": {
       "no_emails_enable_text": "禁用邮件通知",
       "no_emails_disable_text": "重新启用邮件通知"
-    },
-    "caveat": "启用此设置后，您的账号将不会接收接待请求，但您仍会收到安全相关邮件（如重置密码的邮件）。您可能仍会收到简报邮件，可通过简报页脚中的链接取消订阅。"
+    }
   },
   "change_email_confirmation": {
     "change_in_progress": "邮箱更改中……",
@@ -36,10 +35,6 @@
     "reset_password_success": "您的密码已成功更改！",
     "reset_password_error": "重置密码时出错：{{message}}"
   },
-  "jail_set_password_form": {
-    "title": "设置密码",
-    "explanation": "您之前没有为账户设置过密码。请现在创建一个密码再继续操作。"
-  },
   "reset_password_form": {
     "enter_email": "输入您的用户名或邮箱地址",
     "success_message": "检查您的邮箱，里面有重置密码的链接！"
@@ -51,13 +46,11 @@
     "form": {
       "username_field_label": "电子邮件/用户名",
       "password_field_label": "密码",
-      "no_password_login_prompt": "请检查您的邮箱，获取登录链接！:)",
       "remember_me": "记住我",
       "forgot_password": "忘记密码？"
     }
   },
   "basic_sign_up_form": {
-    "header": "开始旅程吧！",
     "existing_user_prompt": "已经有账号了吗？<2>登录</2>",
     "sign_up_agreement_explainer": "如果继续，将表示您已确认我们的 <2>服务条款</2>，其中也包括我们关于cookie、邮箱、数据信息的处理方法。"
   },
@@ -82,7 +75,6 @@
       "not_real_date_error": "请输入真实的出生日期"
     },
     "hosting_status": {
-      "any": "任意",
       "field_label": "接待状态",
       "can_host": "可以接待",
       "maybe": "可能可以接待",
@@ -102,7 +94,6 @@
   "basic_form": {
     "name": {
       "field_label": "您的名字",
-      "empty_error": "请输入您的名字",
       "required_error": "此文本框不能为空。"
     },
     "email": {
@@ -207,25 +198,20 @@
   },
   "strong_verification": {
     "title": "强身份验证",
-    "subtitle": "强身份验证是一项额外的安全功能，允许您通过生物护照验证出生日期和性别。",
     "status": {
       "enabled_message": "您<1>当前已完成</1>强身份验证。",
       "disabled_message": "您<1>尚未完成</1>强身份验证。"
     },
     "learn_more": "了解强身份验证，点击<a>此处</a>。",
     "start_button": "开始强身份验证",
-    "begin_button": "使用Iris ID完成强身份验证",
-    "information_text2": "点击下方按钮后，您将被带到Iris ID网站完成护照验证流程。",
     "delete_information": "您可以随时从我们的服务器中删除您的强身份验证数据（除签发国家、到期日期和证件号码后三位外）。",
     "delete_information_text2": "如果您删除了您的数据，您将无法再次使用同一本护照进行强身份验证。",
     "delete_my_data_button": "删除我的数据",
     "delete_button": "删除我的强身份验证数据",
-    "information_text1": "您需要一份<strong>生物识别护照</strong>（其他类型的身份证明无效）以及一部支持NFC功能的苹果iPhone或安卓手机。",
     "complete_message1": "您的护照正在验证中, 结果将在几分钟内通过邮件发送给您。",
     "complete_message2": "强身份验证将在您的护照到期时失效，您需要在获得新护照后重新完成验证。",
     "delete_success": "您的护照信息已被删除。",
     "donation_title": "感谢验证！感谢您让Couchers.org变得更安全。",
-    "information_text3": "您可以在我们的<2>服务条款</2>中了解更多关于我们和Iris ID如何处理和存储您的数据。根据Iris ID的<5>隐私政策</5>，他们将在24小时内删除您的个人信息。您可以随时通过点击按钮，要求我们从服务器中删除这些强验证数据（除签发国家、到期日期和证件号码后三位外）。",
     "complete_title": "我们正在处理您的强身份验证请求",
     "delete_data_title": "删除您的强身份验证护照数据",
     "donation_message1": "对你来说，验证是免费的，但对我们来说却是有成本的。作为一个由志愿者运营的非营利组织，我们依靠捐款来支付诸如服务器运行、验证以及为志愿者和社区建设者提供工具等开支。",

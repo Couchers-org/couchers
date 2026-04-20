@@ -31,13 +31,11 @@
     "form": {
       "username_field_label": "E-mail/Nome utente",
       "password_field_label": "Password",
-      "no_password_login_prompt": "Cerca nella tua casella e-mail un collegamento per accedere! :)",
       "remember_me": "Ricordami",
       "forgot_password": "Password dimenticata?"
     }
   },
   "basic_sign_up_form": {
-    "header": "Cominciamo!",
     "existing_user_prompt": "Hai già un'utenza? <2>Accedi</2>",
     "sign_up_agreement_explainer": "Continuando, accetti i nostri <2>Termini di Servizio</2>, incluse le nostre politiche sui cookie, e-mail e gestione dati."
   },
@@ -49,7 +47,6 @@
     },
     "name": {
       "field_label": "Nome",
-      "empty_error": "Per favore, inserisci il tuo nome",
       "required_error": "Questo campo non può essere vuoto."
     }
   },
@@ -70,8 +67,7 @@
       "field_label": "Stato ospitalità",
       "maybe": "Potrebbe ospitare",
       "cant_host": "Non può ospitare",
-      "can_host": "Può ospitare",
-      "any": "Indifferente"
+      "can_host": "Può ospitare"
     },
     "gender": {
       "required_error": "Per favore, seleziona la tua identità di genere",
@@ -115,10 +111,6 @@
       "explanation": "Non ci sono al momento caratteristiche attive in anteprima, per favore torna a ricontrollare più tardi!"
     },
     "disclaimer": "Per favore, ricorda che queste caratteristiche sono sperimentali. Potrebbero non funzionare come voluto e potrebbero cambiare rapidamente mentre le sviluppiamo. Facci conoscere la tua opinione nel nostro forum. Per favore, segnala ogni errore!"
-  },
-  "jail_set_password_form": {
-    "title": "Indica una password",
-    "explanation": "Non hai ancora indicato una password per il tuo conto. Per favore, creane una ora per continuare."
   },
   "jail": {
     "title": "Sono necessarie più informazioni",
@@ -229,7 +221,6 @@
   "strong_verification": {
     "donation_message1": "La verifica è gratis per te, ma ha un costo per noi. Come non-profit gestita da volontari, ci affidiamo alle donazioni per coprire spese come tenere in piedi l'associazione, la verifica e gli strumenti per volontari e community builders.",
     "donation_message2": "Se puoi, per favore prendi in considerazione l'idea di donare per aiutare Couchers.org nel rimanere aperto e a crescere.",
-    "information_text2": "Cliccando sul pulsante qui sotto, verrai indirizzato al sito web di Iris ID per completare la procedura di verifica del passaporto.",
     "complete_message1": "Il tuo passaporto sta per essere validato. Riceverai una email con il risultato entro pochi minuti.",
     "delete_my_data_button": "Elimina i miei dati",
     "delete_success": "I dati del tuo passaporto sono stati eliminati.",

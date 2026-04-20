@@ -8,7 +8,6 @@
   },
   "basic_form": {
     "name": {
-      "empty_error": "Veuillez entrer votre nom",
       "field_label": "Votre prénom",
       "required_error": "Ce champ ne peut pas être vide."
     },
@@ -45,7 +44,6 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Déjà inscrit·e ? <2>Se connecter</2>",
-    "header": "Lancer l'inscription !",
     "sign_up_agreement_explainer": "En continuant, vous acceptez nos <2>conditions d'utilisations</2>, incluant l'emploi de cookies, de votre mail, et la conservation de vos données."
   },
   "login_page": {
@@ -56,7 +54,6 @@
       "forgot_password": "Mot de passe oublié ?",
       "remember_me": "Se souvenir de moi",
       "username_field_label": "Mail/Nom d'utilisateur",
-      "no_password_login_prompt": "Vérifiez vos mails pour obtenir le lien de connexion ! :)",
       "hide_password": "Masquer le mot de passe",
       "show_password": "Montrer le mot de passe"
     },
@@ -71,8 +68,7 @@
       "no_emails_enable_text": "Veuillez ne pas m'envoyer de mail",
       "no_emails_disable_text": "Réactiver les mails"
     },
-    "title": "Veuillez ne pas m'envoyer de mail",
-    "caveat": "En activant cette option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
+    "title": "Veuillez ne pas m'envoyer de mail"
   },
   "reset_password_form": {
     "success_message": "Un lien de réinitialiser votre mot de passe a été envoyé à votre adresse mail à ce compte, si elle existe et est active. Veuillez noter que ce mail peut parfois se retrouver dans vos courriers indésirables.",
@@ -113,8 +109,7 @@
       "maybe": "Probable d'héberger",
       "can_host": "Possible d'héberger",
       "cant_host": "Pas possible d'héberger",
-      "field_label": "Statut d’hébergement",
-      "any": "Tous"
+      "field_label": "Statut d’hébergement"
     },
     "gender": {
       "field_label": "Je m’identifie en tant que…",
@@ -178,14 +173,9 @@
       "description": "Les modérateurs vous ont envoyé la note suivante. Veuillez la lire attentivement et confirmer que vous l'avez lue et comprise avant de continuer."
     }
   },
-  "jail_set_password_form": {
-    "explanation": "Vous n'avez pas encore défini le mot de passe pour votre compte. Veuillez en créer un maintenant pour continuer.",
-    "title": "Définir un mot de passe"
-  },
   "strong_verification": {
     "learn_more": "En savoir plus sur la vérification rigoureuse <a>ici</a>.",
     "title": "Vérification Rigoureuse",
-    "subtitle": "La Vérification Rigoureuse est une fonctionnalité de sécurité supplémentaire qui vous permet de vérifier votre date de naissance et votre genre à l'aide de votre passeport biométrique.",
     "instructions": {
       "title": "Comment effectuer une vérification rigoureuse",
       "warning": "Important : L'étape de la numérisation de la puce du passeport peut être délicate—lisez d'abord toutes les instructions !",
@@ -212,10 +202,6 @@
       "disabled_message": "Vous <1>n'êtes pas actuellement</1> vérifié.e avec la vérification rigoureuse."
     },
     "start_button": "Activer la vérification rigoureuse",
-    "begin_button": "Terminez la vérification rigoureuse avec l'identification par iris (Iris ID)",
-    "information_text1": "Vous aurez besoin d'un <strong>passeport biométrique</strong> (les autres types de pièces d'identité ne fonctionneront pas) et d'un iPhone Apple ou d'un portable Android compatible avec la technologie NFC.",
-    "information_text2": "En cliquant sur le bouton ci-dessous, vous serez redirigé.e vers le site-web d'Iris ID pour compléter le processus de vérification du passeport.",
-    "information_text3": "Vous pouvez en savoir plus sur la façon dont nous et Iris ID traitons et stockons vos données personelles dans nos <2>Conditions d'utilisation</2>. Conformément à la <5>Politique de confidentialité</5> d'Iris ID, vos informations personnelles seront supprimées dans les 24 heures. Vous pouvez demander à tout moment la suppression de ces données de Vérification Rigoureuse (à l'exception du pays émetteur, de la date d'expiration et des trois derniers chiffres du numéro du document) de nos serveurs en un simple clic.",
     "complete_title": "Nous traitons votre tentative de vérification rigoureuse",
     "complete_message1": "Votre passeport est en cours de validation. Vous recevrez un mail avec les résultats dans quelques minutes.",
     "complete_message2": "La vérification rigoureuse expire lorsque votre passeport expire et vous devrez effectuer à nouveau la vérification avec votre nouveau passeport.",

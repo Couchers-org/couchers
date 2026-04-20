@@ -26,7 +26,6 @@
       "collapse_all": "Réduisez tout",
       "description": "Toute modification apportée ci-dessous est enregistrée automatiquement. Veuillez noter que vous pouvez toujours recevoir des notifications importantes concernant votre compte et votre contenu, en dehors de vos paramètres de notification préférés."
     },
-    "edit_in_console": "Vous pouvez modifier vos paramètres de notification <2>sur cette page</2>. Nous les déplacerons bientôt ici.",
     "push_notifications": {
       "title": "Les notifications poussées",
       "description": "Vous pouvez activer les notifications poussées pour Couchers.org sur votre appareil. Nous travaillons à étendre cette fonctionnalité.",
@@ -40,8 +39,7 @@
           "macos": "Sur macOS, naviguez aux Réglages Système > Notifications, puis modifiez l’autorisation de l’application.",
           "windows": "Dans Windows, naviguez aux Paramètres > Système > Notifications et actions, puis ajustez l'autorisation de l'application ou du site-web.",
           "linux": {
-            "gnome": "Dans GNOME, naviguez aux Paramètres > Notifications pour ajuster l'autorisation de l'application.",
-            "kde": "Dans KDE, naviguez dans Paramètres système > Notifications pour modifier les autorisations."
+            "gnome": "Dans GNOME, naviguez aux Paramètres > Notifications pour ajuster l'autorisation de l'application."
           },
           "mobile": {
             "browser": "Dans les paramètres de votre navigateur mobile, ajustez l'autorisation de notifications pour ce site-web.",

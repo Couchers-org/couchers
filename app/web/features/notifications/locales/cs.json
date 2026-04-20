@@ -1,7 +1,6 @@
 {
   "notification_settings": {
     "title": "Nastavení upozornění",
-    "edit_in_console": "Nastavení oznámení můžeš změnit <2>na této stránce</2>. Brzy ho přesuneme sem.",
     "go_to_button": "Spravovat nastavení oznámení",
     "edit_preferences": {
       "title": "Nastavení oznámení",

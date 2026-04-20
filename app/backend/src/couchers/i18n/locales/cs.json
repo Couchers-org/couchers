@@ -81,6 +81,15 @@
     "gallery_not_found": "Galerie nebyla nalezena.",
     "group_not_found": "Skupina nebyla nalezena.",
     "group_or_community_not_found": "Skupina nebo komunita nebyla nalezena.",
-    "host_request_in_past": "Tento požadavek na ubytování je v minulosti."
+    "host_request_in_past": "Tento požadavek na ubytování je v minulosti.",
+    "chat_initiation_rate_limit2_one": "Za poslední {{count}} hodinu jste zaslali zprávy velkému počtu uživatelů. Abychom předešli spamu, nemůžete nyní kontaktovat další uživatele.",
+    "chat_initiation_rate_limit2_few": "Za poslední {{count}} hodiny jste zaslali zprávy velkému počtu uživatelů. Abychom předešli spamu, nemůžete nyní kontaktovat další uživatele.",
+    "chat_initiation_rate_limit2_other": "Za posledních {{count}} hodin jste zaslali zprávy velkému počtu uživatelů. Abychom předešli spamu, nemůžete nyní kontaktovat další uživatele.",
+    "community_too_broad_for_public_trip": "Tato komunita je pro veřejný výlet příliš obecná - zveřejni to prosím v konkrétnější komunitě.",
+    "friend_request_rate_limit2_one": "V uplynulé {{count}} hodině jste odeslali mnoho žádostí o přátelství. Abychom zabránili spamu, nyní už nemůžeš žádné další posílat.",
+    "friend_request_rate_limit2_few": "V uplynulých {{count}} hodinách jste odeslali mnoho žádostí o přátelství. Abychom zabránili spamu, nyní už nemůžeš žádné další posílat.",
+    "friend_request_rate_limit2_other": "V uplynulých {{count}} hodinách jste odeslali mnoho žádostí o přátelství. Abychom zabránili spamu, nyní už nemůžeš žádné další posílat.",
+    "incomplete_profile_create_event": "Než můžeš vytvořit událost, musíš mít vyplněný profil.",
+    "incomplete_profile_create_public_trip": "Než můžeš vytvořit veřejný výlet, musíš mít vyplněný profil."
   }
 }

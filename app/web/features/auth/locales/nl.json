@@ -15,8 +15,7 @@
       "no_emails_enable_text": "Stuur mij geen e-mails",
       "no_emails_disable_text": "E-mails weer aanzetten"
     },
-    "title": "Stuur mij geen e-mails",
-    "caveat": "Door deze instelling in te schakelen, wordt je account zo ingesteld dat je geen hostverzoeken meer accepteert. Je krijgt nog wel beveiligingsmails, zoals bijvoorbeeld een mail als je je wachtwoord opnieuw wilt instellen. Afmelden voor de nieuwsbrief gaat op een andere manier: klik daarvoor in de link onderaan in de nieuwsbrief."
+    "title": "Stuur mij geen e-mails"
   },
   "change_email_confirmation": {
     "error_message": "Foutmelding bij het veranderen van je e-mailadres: {{message}}",
@@ -39,8 +38,7 @@
       "remember_me": "Aangemeld blijven",
       "forgot_password": "Wachtwoord vergeten?",
       "username_field_label": "E-mail/gebruikersnaam",
-      "password_field_label": "wachtwoord",
-      "no_password_login_prompt": "Check je e-mail voor een link om in te loggen! :)"
+      "password_field_label": "wachtwoord"
     },
     "title": "Inloggen",
     "header": "Welkom terug!",
@@ -48,8 +46,7 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Heb je al een account? <2>Inloggen</2>",
-    "sign_up_agreement_explainer": "Door verder te gaan, ga je akkoord met onze <2>Servicevoorwaarden</2>, inclusief ons beleid voor cookies, e-mail en gegevensverwerking.",
-    "header": "Laten we beginnen!"
+    "sign_up_agreement_explainer": "Door verder te gaan, ga je akkoord met onze <2>Servicevoorwaarden</2>, inclusief ons beleid voor cookies, e-mail en gegevensverwerking."
   },
   "account_form": {
     "header": "Jouw account details",
@@ -87,10 +84,6 @@
     "tos_accept_label": "Ik accepteer de servicevoorwaarden.",
     "tos_prompt": "Lees en accepteer de <1></1> om door te gaan."
   },
-  "jail_set_password_form": {
-    "title": "Bedenk een wachtwoord",
-    "explanation": "Je hebt nog geen wachtwoord ingesteld voor je account. Bedenk er nu een om door te gaan."
-  },
   "reset_password_form": {
     "enter_email": "Gebruikersnaam of e-mailadres invullen",
     "success_message": "We hebben je een e-mail gestuurd met een link om je wachtwoord te kunnen resetten. De e-mail is gestuurd naar het adres dat is gekoppeld aan dit account. Check dus of dit adres bestaat en actief is. Let op: onze mail kan ook in de spam terecht zijn gekomen."
@@ -98,7 +91,6 @@
   "basic_form": {
     "name": {
       "field_label": "Naam",
-      "empty_error": "Vul je naam in",
       "required_error": "Dit veld kan niet leeg zijn."
     },
     "email": {
