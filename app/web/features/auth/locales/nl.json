@@ -91,7 +91,7 @@
   "basic_form": {
     "name": {
       "field_label": "Naam",
-      "required_error": "Dit veld kan niet leeg zijn."
+      "required_error": "Dit veld mag niet leeg zijn"
     },
     "email": {
       "field_label": "E-mailadres",

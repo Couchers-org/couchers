@@ -281,7 +281,7 @@
       "step3": "Scanne den QR-Code mit deinem Handy",
       "step4": "Wenn du dazu aufgefordert wirst, öffne die App und scanne den QR-Code erneut",
       "step5": "Wähle <strong>Reisepass</strong> aus (Personalausweise werden nicht unterstützt)",
-      "step7": "Halte dein Telefon an die Passseite mit dem NFC-Chip (siehe Tipps unten)",
+      "step7": "Halte dein Telefon an die Passseite mit dem NFC-Chip und <strong>halte es mindestens 5 Sekunden lang völlig still</strong> — zu frühes Bewegen ist die häufigste Fehlerursache",
       "step8": "Du wirst wissen, dass es erfolgreich ist, wenn du steigende Prozentsätze und einen Ladebalken siehst",
       "download_app_store": "Im App Store herunterladen",
       "download_google_play": "Bei Google Play herunterladen",
@@ -294,7 +294,32 @@
       },
       "title": "Wie man die starke Verifizierung abschließt",
       "step1_apple_note": "<strong>Apple-Nutzer:</strong> Du kannst den Download überspringen und stattdessen deinen Browser verwenden. Klicke einfach auf „Öffnen“, wenn du dazu aufgefordert werden.",
-      "step6": "Mache ein klares Foto der Passseite mit den Zahlen am unteren Rand"
+      "step6": "Mache ein klares Foto der Passseite mit den Zahlen am unteren Rand",
+      "scanning_tips": {
+        "heading": "Tipps für erfolgreiches NFC-Scannen",
+        "description": "Der NFC-Scan ist der kniffligste Teil. Diese Tipps erhöhen deine Chancen erheblich:",
+        "remove_case": "<strong>Entferne deine Handyhülle</strong> – selbst dünne Hüllen können das NFC-Signal blockieren",
+        "hold_still": "<strong>Halte dein Telefon vollkommen ruhig</strong> für mindestens 5 Sekunden – zu frühes Bewegen ist die häufigste Fehlerursache",
+        "flat_surface": "<strong>Legen deinen Reisepass auf eine ebene Fläche</strong> – halte ihn nicht in der Hand",
+        "nfc_location": "<strong>Finde die NFC-Antenne deines Handys</strong> – sie befindet sich normalerweise oben in der Mitte auf der Rückseite des Handys. Probiere verschiedene Positionen aus, falls keine Verbindung zustande kommt",
+        "no_metal": "<strong>Vermeide Metalloberflächen</strong> – lege deinen Reisepass nicht auf einen Metalltisch oder Laptop",
+        "retry": "Wenn der Scan fehlschlägt, versuche es erneut – oft sind 2-3 Versuche nötig, um die richtige Position zu finden"
+      },
+      "before_you_start": {
+        "heading": "Bevor du beginst",
+        "nfc_check": "Dein Telefon muss über <strong>NFC-Funktionalität</strong> verfügen – die meisten modernen Telefone tun dies. NFC ist normalerweise standardmäßig aktiviert, bei einigen älteren Telefonen muss es jedoch möglicherweise in den Einstellungen deines Telefons aktiviert werden.",
+        "passport_check": "Dein Reisepass muss ein <strong>biometrischer Reisepass</strong> sein — achte auf das goldene Chip-Symbol auf dem Umschlag. Ältere Reisepässe ohne dieses Symbol funktionieren nicht.",
+        "remove_case": "<strong>Entferne deine Handyhülle vor dem Start</strong> – selbst dünne Hüllen können das NFC-Signal blockieren und zum Scheitern des Scans führen.",
+        "passport_symbol_alt": "Biometrischer Reisepass Symbol"
+      },
+      "didnt_work": {
+        "heading": "Hast du Probleme?",
+        "tip1": "Stelle bei älteren Android-Handys sicher, dass NFC in den Einstellungen deines Handys aktiviert ist (bei den meisten modernen Handys ist es standardmäßig aktiviert)",
+        "tip2": "Probiere eine andere Seite deines Reisepasses – die Position des Chips variiert je nach Land",
+        "tip3": "Stelle bei Android sicher, dass du die IRIS-ID-App installiert hast (nicht die Browser-Version)",
+        "tip4": "Einige ältere Reisepässe oder Passkarten verfügen nicht über NFC-Chips und funktionieren nicht",
+        "contact": "Falls du weiterhin Probleme hast, <1>lass es uns wissen</1> und wir helfen dir."
+      }
     }
   },
   "sign_up_resend_verification_email_help": "Keine E-Mail erhalten? Klick <2>hier, um den Bestätigungslink erneut zu senden</2>.",

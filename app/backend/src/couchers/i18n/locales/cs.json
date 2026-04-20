@@ -90,6 +90,8 @@
     "friend_request_rate_limit2_few": "V uplynulých {{count}} hodinách jste odeslali mnoho žádostí o přátelství. Abychom zabránili spamu, nyní už nemůžeš žádné další posílat.",
     "friend_request_rate_limit2_other": "V uplynulých {{count}} hodinách jste odeslali mnoho žádostí o přátelství. Abychom zabránili spamu, nyní už nemůžeš žádné další posílat.",
     "incomplete_profile_create_event": "Než můžeš vytvořit událost, musíš mít vyplněný profil.",
-    "incomplete_profile_create_public_trip": "Než můžeš vytvořit veřejný výlet, musíš mít vyplněný profil."
+    "incomplete_profile_create_public_trip": "Než můžeš vytvořit veřejný výlet, musíš mít vyplněný profil.",
+    "public_trip_in_past": "Veřejnou cesta, která již skončila, nelze upravovat.",
+    "public_trip_not_active": "Tato veřejná cesta již nepřijímá nabídky."
   }
 }
