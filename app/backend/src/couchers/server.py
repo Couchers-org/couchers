@@ -33,6 +33,7 @@ from couchers.proto import (
     pages_pb2_grpc,
     postal_verification_pb2_grpc,
     public_pb2_grpc,
+    public_trips_pb2_grpc,
     references_pb2_grpc,
     reporting_pb2_grpc,
     requests_pb2_grpc,
@@ -63,6 +64,7 @@ from couchers.servicers.notifications import Notifications
 from couchers.servicers.pages import Pages
 from couchers.servicers.postal_verification import PostalVerification
 from couchers.servicers.public import Public
+from couchers.servicers.public_trips import PublicTrips
 from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
 from couchers.servicers.requests import Requests
@@ -104,6 +106,7 @@ def create_main_server(port: int) -> grpc.Server:
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), server)
     postal_verification_pb2_grpc.add_PostalVerificationServicer_to_server(PostalVerification(), server)
     public_pb2_grpc.add_PublicServicer_to_server(Public(), server)
+    public_trips_pb2_grpc.add_PublicTripsServicer_to_server(PublicTrips(), server)
     references_pb2_grpc.add_ReferencesServicer_to_server(References(), server)
     reporting_pb2_grpc.add_ReportingServicer_to_server(Reporting(), server)
     requests_pb2_grpc.add_RequestsServicer_to_server(Requests(), server)

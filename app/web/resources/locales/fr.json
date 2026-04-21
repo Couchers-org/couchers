@@ -46,14 +46,11 @@
     "can_host": "Peut héberger",
     "maybe": "Peut peut-être héberger",
     "cant_host": "Ne peut pas héberger",
-    "unspecified_info": "Non précisé",
-    "any": "Tous"
+    "unspecified_info": "Non précisé"
   },
   "language_preference": {
     "form_title": "Langue",
     "help_translate": "Aidez à traduire Couchers dans votre langue.",
-    "select_language": "Sélectionnez une langue",
-    "success_message": "Votre modification a été sauvegardée.",
     "error_loading_languages": "Échec de chargement des options de langues. Veuillez réessayer plus tard.",
     "translation_progress": {
       "description": "Découvrez l'étendue de nos traductions dans diverses langues. Aidez-nous à rendre Couchers accessible à davantage de personnes à travers le monde !",
@@ -65,9 +62,7 @@
       "midway": "À mi-chemin",
       "complete": "Complet",
       "almost_there": "Presque là",
-      "in_progress": "En cours",
       "just_started": "Elle vient de commencer",
-      "complete_percent": "{{percent}}% complète",
       "info_text": "💡 Les langues avec 50-80% d'achèvement apparaissent en gris dans la sélection des langues. Les langues avec moins de 50% d'achèvement sont cachées de la sélection des langues. Pour encourager les contributeurs, les langues avec moins de 20% sont montrées sur cette page.",
       "view_progress": "Voir l'avancement de la traduction",
       "early_stage": "Étape préliminaire"
@@ -98,10 +93,8 @@
       "title": "Signaler du contenu ou un utilisateur",
       "profile_title": "Signaler ou bloquer",
       "reason_label": "Raison du signalement",
-      "reason_helper": "Pour quelle raison signalez-vous ce contenu ?",
       "reason_required": "La raison est obligatoire.",
       "description_required": "Une description est obligatoire.",
-      "profile_reason_required": "Veuillez remplir la description ou bloquer la personne",
       "profile_button_aria_label": "Signaler un contenu ou bloquer un utilisateur",
       "explainer": "Signaler de manière confidentielle à l'équipe Sécurité et confiance"
     },
@@ -110,17 +103,14 @@
       "button_label": "Signaler un problème technique",
       "warning_message": "Veuillez noter que cette information, ainsi que les données du diagnostic incluant sur quelle page vous vous trouvez, quel navigateur vous utilisez et le nom d'utilisateur.trice seront conservés dans une liste publique de bogues.",
       "title_label": "Titre du rapport",
-      "title_helper": "Brève description du bogue",
       "problem_helper": "Brève description du problème et de la façon de le reproduire",
       "problem_label": "Qu'avez-vous fait pour déclencher le bogue ?",
       "expect_helper": "Brève description de ce qui était censé se produire à la place",
       "success_message2": "Merci d'avoir signalé ce bogue et d'avoir rendu Couchers meilleur. Un rapport a été envoyé aux développeurs. Le numéro du bogue est <id/>."
     },
     "label": "Signaler un problème",
-    "title": "Signaler un problème",
     "content": {
       "button_label": "Signaler des contenus ou comportements inappropriés",
-      "dialog_message": "Nous travaillons actuellement à la mise en place d'outils de signalement et de modération efficaces. En attendant, veuillez nous envoyer un mail à l'adresse ci-dessous. Veuillez inclure des détails tels que le nom d'utilisateur.trice concerné.e, le contenu inapproprié et où vous l'avez vu.",
       "success_message": "Nous vous remercions pour votre signalement et pour rendre Couchers une meilleure plateforme pour tous et pour toutes !"
     }
   },
@@ -142,7 +132,6 @@
     "title": "Inviter des membres"
   },
   "what_is_cs": {
-    "get_started": "Commencer",
     "title": "Qu'est-ce que le couch surfing ?",
     "description_2": "C'est comme avoir un ami dans une autre ville et aller lui rendre visite, mais vous le rencontrerez pour la première fois lorsque vous serez là-bas !",
     "get_involved_title": "Que puis-je faire sur Couchers.org ?",
@@ -256,8 +245,6 @@
     "dashboard": "Tableau de bord",
     "events": "Événements",
     "faq": "FAQ",
-    "forum": "Forum",
-    "github": "GitHub",
     "help_center": "Centre d'aide",
     "help": "Aide",
     "mission": "Mission et valeurs",
@@ -266,7 +253,6 @@
     "notifications": "Notifications",
     "our_team": "Notre équipe",
     "profile": "Profil",
-    "the_team": "L'équipe",
     "contact_us": "Contactez-nous",
     "home": "Accueil",
     "switch_to_light_mode": "Passer au mode clair",
@@ -278,7 +264,6 @@
   },
   "image_input": {
     "select_button_a11y": "Sélectionner une image",
-    "replace_image_tooltip": "Cliquer pour remplacer l'image",
     "read_file_error_message": "Fichier non lisible"
   },
   "contribute_title": "S'enregistrer pour contribuer",

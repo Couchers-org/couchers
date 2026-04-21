@@ -7,7 +7,6 @@
   "no_new_notifications": "Yeni bildirim yok",
   "notification_settings": {
     "title": "Bildirim ayarları",
-    "edit_in_console": "Bildirim ayarlarını <2>bu sayfada</2> değiştirebilirsin. Yakında buraya taşınacak.",
     "go_to_button": "Bildirim ayarlarını yönet",
     "edit_preferences": {
       "title": "Bildirim Ayarları",

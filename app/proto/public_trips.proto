@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package org.couchers.api.public_trips;
+
+import "google/protobuf/timestamp.proto";
+
+import "annotations.proto";
+import "api.proto";
+
+service PublicTrips {
+  option (auth_level) = AUTH_LEVEL_SECURE;
+
+  rpc CreatePublicTrip(CreatePublicTripReq) returns (PublicTrip) {
+    // Create a new public trip in a community
+  }
+
+  rpc GetPublicTrip(GetPublicTripReq) returns (PublicTrip) {
+    // Get details of a public trip
+  }
+
+  rpc ListPublicTrips(ListPublicTripsReq) returns (ListPublicTripsRes) {
+    // List public trips in a community (for hosts browsing)
+  }
+
+  rpc ListPublicTripsByUser(ListPublicTripsByUserReq) returns (ListPublicTripsByUserRes) {
+    // List a user's public trips. Used for both the user's own dashboard and
+    // for showing upcoming trips on another user's profile.
+    // - If user_id matches the caller, all trips (including closed/past) are returned.
+    // - Otherwise only active, upcoming trips are returned.
+  }
+
+  rpc UpdatePublicTrip(UpdatePublicTripReq) returns (PublicTrip) {
+    // Edit a public trip. Owner-only. Content edits (dates, description)
+    // require the trip's end date to be today or later; status can be
+    // updated at any time but only to CLOSED.
+  }
+}
+
+enum PublicTripStatus {
+  PUBLIC_TRIP_STATUS_UNSPECIFIED = 0;
+  PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST = 1;
+  PUBLIC_TRIP_STATUS_CLOSED = 2;
+}
+
+message PublicTrip {
+  int64 trip_id = 1;
+  org.couchers.api.core.User user = 2;
+  int64 node_id = 3;
+  // Trip date range
+  string from_date = 4; // YYYY-MM-DD
+  string to_date = 5; // YYYY-MM-DD
+  // User's description of their trip
+  string description = 6;
+  PublicTripStatus status = 7;
+  google.protobuf.Timestamp created = 8;
+}
+
+message CreatePublicTripReq {
+  int64 node_id = 1;
+  string from_date = 2; // YYYY-MM-DD
+  string to_date = 3; // YYYY-MM-DD
+  string description = 4;
+}
+
+message GetPublicTripReq {
+  int64 trip_id = 1;
+}
+
+message ListPublicTripsReq {
+  int64 community_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListPublicTripsRes {
+  repeated PublicTrip public_trips = 1;
+
+  string next_page_token = 2;
+}
+
+message ListPublicTripsByUserReq {
+  int64 user_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListPublicTripsByUserRes {
+  repeated PublicTrip public_trips = 1;
+
+  string next_page_token = 2;
+}
+
+message UpdatePublicTripReq {
+  int64 trip_id = 1;
+
+  // Only supplied fields are updated.
+  optional string from_date = 2; // YYYY-MM-DD
+  optional string to_date = 3; // YYYY-MM-DD
+  optional string description = 4;
+  optional PublicTripStatus status = 5;
+}

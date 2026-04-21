@@ -4,7 +4,6 @@
       "problem_label": "Při jaké činnosti došlo k chybě?",
       "button_label": "Nahlásit technický problém",
       "title_label": "Předmět zprávy",
-      "title_helper": "Stručný popis chyby",
       "problem_helper": "Stručný popis problému a jak ho reprodukovat",
       "expect_label": "Co se stalo? Co se mělo stát?",
       "expect_helper": "Stručný popis toho, co jste očekávali, že se stane místo toho",
@@ -34,21 +33,16 @@
       "explainer": "Důvěrně poslat zprávu našemu týmu pro bezpečí a důvěru.",
       "title": "Nahlásit obsah nebo uživatele",
       "description_helper": "Prosím, řekni nám, proč to nahlašuješ.",
-      "profile_reason_required": "Vyplň prosím popis nebo blok",
-      "success": "Děkujeme ti za tvou zprávu a za to, že pomáháš dělat Couchers lepší platformou pro všechny!",
-      "reason_helper": "Proč tento obsah nahlašuješ?"
+      "success": "Děkujeme ti za tvou zprávu a za to, že pomáháš dělat Couchers lepší platformou pro všechny!"
     },
     "content": {
       "button_label": "Nahlásit nevhodný obsah nebo chování",
-      "success_message": "Děkujeme ti za tvou zprávu a za to, že pomáháš dělat Couchers lepší platformou pro všechny!",
-      "dialog_message": "Pracujeme na robustních nástrojích pro hlášení a moderaci uživatelů. Mezitím nám můžeš poslat e-mail na níže uvedenou adresu. Uveď podrobnosti, jako je patřičný uživatel, co bylo nevhodné a kde jsi to viděl/a."
+      "success_message": "Děkujeme ti za tvou zprávu a za to, že pomáháš dělat Couchers lepší platformou pro všechny!"
     },
-    "label": "Nahlásit problém",
-    "title": "Nahlásit problém"
+    "label": "Nahlásit problém"
   },
   "language_preference": {
     "translation_progress": {
-      "complete_percent": "{{percent}}% hotovo",
       "view_progress": "Zobrazit stav překladů",
       "title": "Průběh Překladu",
       "help_translate": "Pomoc s překladem Couchers do tvého jazyka",
@@ -56,7 +50,6 @@
       "loading": "Načítám stav překladů...",
       "no_data": "Data překladů nejsou k dispozici",
       "almost_there": "Téměř Hotovo",
-      "in_progress": "Probíhá",
       "early_stage": "Raná Fáze",
       "error_loading": "Nepodařilo se načíst stav překladů",
       "midway": "V polovině",
@@ -66,8 +59,6 @@
     },
     "help_translate": "Pomoc s překladem Couchers do tvého jazyka.",
     "form_title": "Jazyk",
-    "select_language": "Vyber jazyk",
-    "success_message": "Tvé změny byly uloženy.",
     "error_loading_languages": "Nepodařilo se načíst výběr jazyka. Zkus to prosím později.",
     "show_all_languages": "Zobrazit všechny jazyky ve výběru jazyka",
     "show_all_languages_description": "Když je tato možnost povolena, zobrazí se ti všechny jazyky k výběru bez ohledu na procento dokončení překladu. Toto se zobrazuje pouze na testovacím prostředí, aby bylo možné testovat jazyky, které jsou stále ještě ve vývoji.",
@@ -99,8 +90,7 @@
   "hosting_status": {
     "can_host": "Mohu ubytovat",
     "maybe": "Občas mohu ubytovat",
-    "cant_host": "Nemohu ubytovat",
-    "any": "Jakýkoli"
+    "cant_host": "Nemohu ubytovat"
   },
   "close": "Zavřít",
   "create_account": "Vytvořit účet",
@@ -120,10 +110,6 @@
   "not_found_text_1": "Nepodařilo se nám najít požadovanou URL nebo zdroj",
   "not_found_alt": "404 Error: Zdroj nebyl nalezen",
   "nav": {
-    "feature_preview": "Náhled funkce",
-    "forum": "Fórum",
-    "the_team": "Tým",
-    "github": "GitHub",
     "help_center": "Centrum nápovědy",
     "roadmap_updates": "Plán vývoje a novinky",
     "help": "Pomoc",
@@ -173,7 +159,6 @@
       "press_enter_to_search": "Stiskni Enter pro vyhledávání",
       "invalid_coordinate": "Chybí souřadnice, prosím vyber na mapě výše dané místo",
       "location_warn": "Klikni a přetáhni kruh níže, abys ukázal(a) lidem přibližnou polohu svého domova. Ujisti se, že tvůj domov není ve středu kruhu, aby lidé nepoznali přesnou polohu.",
-      "no_map_support": "Tvé zařízení nepodporuje zobrazení mapy. Zkontroluj, že máš zapnutý WebGL2, nebo zkus jiné zařízení/prohlížeč. Omlouváme se za komplikace!",
       "display_location_not_empty": "Vyplň prosím zobrazovanou adresu",
       "radius_text2_one": "{{count}} metr",
       "radius_text2_few": "{{count}} metry",
@@ -227,7 +212,6 @@
   },
   "what_is_cs": {
     "get_involved_title": "Co mohu dělat na Couchers.org?",
-    "get_started": "Začít",
     "table": {
       "people_first": "Nezisková organizace zaměřená na lidi",
       "cost_to_stay": "Cena za pobyt",
@@ -321,35 +305,13 @@
   },
   "team": {
     "description": "Jsme nadšení couchsurfaři a zkušení profesionálové, kteří se zavázali vytvářet lepší, bezpečnější a inkluzivnější platformu. Tuto platformu budujeme s cílem podpořit a udržitelně rozvíjet komunitu couchsurfingu a zároveň sdílet její hodnoty se světem. Pokud sdílíte naše nadšení a chceš přispět, rádi o tobě uslyšíme.",
-    "tap_press_to_flip": "Klikni / stiskni pro otočení",
     "fill_form_description": "Couchers.org je komunitně řízený projekt, vyvíjený lidmi jako jsi ty, pro dobro celosvětové komunity couchsurfingu. Pokud máš zájem se k této vzrušující iniciativě připojit, klikni prosím na tlačítko níže a vyplň krátký formulář.",
-    "current_members": "Současní členové",
     "past_members": "Bývalí členové",
     "board_member": "Člen představenstva",
-    "co_founder_president": "Spoluzakladatel, prezident a předseda",
-    "co_founder": "Spoluzakladatel",
     "join_our_team": "Přidej se k našemu týmu",
     "title": "Tým",
     "join_the_team": "Přidej se k týmu",
-    "have_skills_contribute": "Máš dovednosti, kterými chceš přispět?",
-    "secretary": "Tajemník",
-    "treasurer": "Pokladník",
-    "community_coordinator": "Koordinátor komunity",
-    "developer": "Vývojář",
-    "frontend_developer": "Frontendový vývojář",
-    "lead_frontend_developer": "Vedoucí frontendový vývojář",
-    "backend_developer": "Backendový vývojář",
-    "lead_backend_developer": "Vedoucí backendový vývojář",
-    "full_stack_backend_developer": "Full Stack vývojář",
-    "ui_ux_designer": "UI/UX designér",
-    "translations_lead": "Vedoucí překladů",
-    "volunteer_settings": {
-      "show_on_team_page": {
-        "title": "Zobrazit můj dobrovolnický profil na stránce týmu",
-        "enabled_message": "Tvůj profil je momentálně viditelný na stránce týmu",
-        "disabled_message": "Tvůj profil je momentálně skrytý na stránce týmu"
-      }
-    }
+    "have_skills_contribute": "Máš dovednosti, kterými chceš přispět?"
   },
   "error_loading_languages": "Nepodařilo se načíst jazykové možnosti",
   "retract": "Stáhnout",

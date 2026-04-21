@@ -29,7 +29,7 @@ def _queue_email(
     """
 
     # Import here to avoid circular dependency
-    from couchers.jobs.handlers import send_email
+    from couchers.jobs.handlers import send_email  # noqa: PLC0415
 
     payload = jobs_pb2.SendEmailPayload(
         sender_name=sender_name,

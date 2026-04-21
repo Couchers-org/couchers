@@ -1,198 +1,290 @@
 {
-  "push": {
-    "account_deletion__start": {
-      "title": "Demande de suppression de compte",
-      "ios_title": "Demande de suppression de compte",
-      "body": "Utilisez le lien que nous vous avons envoyé par mail pour confirmer."
+  "account_deletion": {
+    "complete": {
+      "event_description": "Votre compte est supprimé",
+      "push": {
+        "ios_title": "Compte supprimé",
+        "body_one": "Vous pouvez le restaurer durant {{count}} jour en utilisant le lien que nous vous avons envoyé par mail.",
+        "body_many": "Vous pouvez le restaurer durant {{count}} de jours en utilisant le lien que nous vous avons envoyé par mail.",
+        "body_other": "Vous pouvez le restaurer durant {{count}} jours en utilisant le lien que nous vous avons envoyé par mail.",
+        "title": "Compte supprimé"
+      }
     },
-    "account_deletion__complete": {
-      "ios_title": "Compte supprimé",
-      "body_one": "Vous pouvez le restaurer durant {{count}} jour en utilisant le lien que nous vous avons envoyé par mail.",
-      "body_many": "Vous pouvez le restaurer durant {{count}} de jours en utilisant le lien que nous vous avons envoyé par mail.",
-      "body_other": "Vous pouvez le restaurer durant {{count}} jours en utilisant le lien que nous vous avons envoyé par mail.",
-      "title": "Compte supprimé"
+    "recovered": {
+      "event_description": "Votre compte a été récupéré (restauré)",
+      "push": {
+        "title": "Compte restauré",
+        "ios_title": "Compte restauré"
+      }
     },
-    "account_deletion__recovered": {
-      "title": "Compte restauré",
-      "ios_title": "Compte restauré"
-    },
-    "activeness__probe": {
-      "title": "Toujours disposé.e à héberger ?",
-      "ios_title": "Toujours disposé.e à héberger ?"
-    },
-    "api_key__create": {
-      "title": "Clé d'API créée",
-      "ios_title": "Clé d'API créée",
-      "body": "Les détails vous ont été envoyés par mail."
-    },
-    "badge__add": {
-      "title": "Nouveau badge : {{badge_name}}",
-      "ios_title": "Nouveau badge de profil",
-      "body": "Le badge {{badge_name}} a été ajouté à votre profil."
-    },
-    "discussion__create": {
-      "title": "Nouvelle discussion : {{title}}",
-      "ios_title": "Nouvelle discussion",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} a commencé la discussion dans {{group_or_community}}."
-    },
-    "discussion__comment": {
-      "title": "{{user}} • {{title}}"
-    },
-    "email_address__change": {
-      "title": "Demande de changement de mail",
-      "ios_title": "Demande de changement de mail",
-      "body": "Utilisez le lien que nous avons envoyé à {{email}} pour confirmer votre nouvelle adresse."
-    },
-    "email_address__verify": {
-      "title": "Adresse de mail vérifiée",
-      "ios_title": "Adresse de mail vérifiée",
-      "body": "Votre nouvelle adresse mail a été vérifiée."
-    },
-    "birthdate__change": {
-      "body": "L'administrateur.trice a changé votre date de naissance au {{birthdate}}.",
-      "title": "Date de naissance modifiée",
-      "ios_title": "Date de naissance modifiée"
-    },
-    "badge__remove": {
-      "title": "Badge de profil supprimé",
-      "ios_title": "Badge de profil supprimé",
-      "body": "Le badge {{badge_name}} a été supprimé de votre profil."
-    },
-    "chat__missed_messages": {
-      "title_one": "{{count}} discussion manqué",
-      "title_many": "{{count}} de discussions manqués",
-      "title_other": "{{count}} discussions manqués",
-      "ios_title_one": "{{count}} discussion manqué",
-      "ios_title_many": "{{count}} de discionssions manqués",
-      "ios_title_other": "{{count}} discussions manqués",
-      "body": "Vous avez de nouvelles discussions non lues."
-    },
-    "donation__received": {
-      "title": "Don reçu",
-      "ios_title": "Don reçu",
-      "body": "Nous vous remercions énormément pour votre don de {{amount_with_currency}} !"
-    },
-    "event__create_any": {
-      "title": "Nouvel événement : {{title}}",
-      "ios_title": "Nouvel événement",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} a créé l'événement le {{date_and_time}}."
-    },
-    "event__create_approved": {
-      "title": "Nouvel événement : {{title}}",
-      "ios_title": "Nouvel événement",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} vous a invité à l'événement le {{date_and_time}}."
-    },
-    "event__update": {
-      "title": "Événement mis à jour : {{title}}",
-      "ios_title": "Événement mis à jour",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} a mis à jour l'événement."
-    },
-    "event__invite_organizer": {
-      "title": "Événement mis à jour : {{title}}",
-      "ios_title": "Événement mis à jour",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} vous a ajouté comme coorganisateur.trice de l'événement."
-    },
-    "event__comment": {
-      "title": "{{user}} • {{title}}",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "A commenté sur {{title}}"
-    },
-    "event__reminder": {
-      "title": "Événement à venir : {{title}}",
-      "ios_title": "Événement à venir",
-      "ios_subtitle": "{{title}}",
-      "body": "L'événement commence le {{date_and_time}}."
+    "start": {
+      "event_description": "Vous initiez la suppression de votre compte",
+      "push": {
+        "title": "Demande de suppression de compte",
+        "ios_title": "Demande de suppression de compte",
+        "body": "Utilisez le lien que nous vous avons envoyé par mail pour confirmer."
+      }
     }
   },
-  "topic_action_descriptions": {
-    "host_request": {
-      "accept": "Quelqu'un.e accepte votre demande d'hébergement",
-      "confirm": "Quelqu'un.e confirme sa demande d'hébergement",
-      "reject": "Quelqu'un.e refuse votre demande d'hébergement",
-      "cancel": "Quelqu'un.e annule sa demande d'hébergement",
-      "message": "Quelqu’un.e envoie un message dans une demande d’hébergement",
-      "create": "Quelqu’un.e vous envoie une demande d’hébergement",
-      "missed_messages": "Vous manquez des messages dans une demande d'hébergement",
-      "reminder": "Vous n'avez pas répondu à une demande d'hébergement en attente"
+  "activeness": {
+    "probe": {
+      "push": {
+        "title": "Toujours disposé.e à héberger ?",
+        "ios_title": "Toujours disposé.e à héberger ?"
+      }
+    }
+  },
+  "api_key": {
+    "create": {
+      "event_description": "Une clé API a été créée pour votre compte",
+      "push": {
+        "title": "Clé d'API créée",
+        "ios_title": "Clé d'API créée",
+        "body": "Les détails vous ont été envoyés par mail."
+      }
+    }
+  },
+  "badge": {
+    "add": {
+      "event_description": "Un badge a été ajouté à votre compte",
+      "push": {
+        "title": "Nouveau badge : {{badge_name}}",
+        "ios_title": "Nouveau badge de profil",
+        "body": "Le badge {{badge_name}} a été ajouté à votre profil."
+      }
     },
-    "chat": {
-      "message": "Quelqu’un.e vous envoie un message",
-      "missed_messages": "Vous manquez des messages dans une discussion"
+    "remove": {
+      "event_description": "Un badge a été retiré de votre compte",
+      "push": {
+        "title": "Badge de profil supprimé",
+        "ios_title": "Badge de profil supprimé",
+        "body": "Le badge {{badge_name}} a été supprimé de votre profil."
+      }
+    }
+  },
+  "birthdate": {
+    "change": {
+      "event_description": "Votre date de naissance a été modifiée",
+      "push": {
+        "body": "L'administrateur.trice a changé votre date de naissance au {{birthdate}}.",
+        "title": "Date de naissance modifiée",
+        "ios_title": "Date de naissance modifiée"
+      }
+    }
+  },
+  "chat": {
+    "message": {
+      "event_description": "Quelqu’un.e vous envoie un message"
     },
-    "general": {
-      "new_blog_post": "Un nouvel article de blog est publié"
+    "missed_messages": {
+      "event_description": "Vous manquez des messages dans une discussion",
+      "push": {
+        "title_one": "{{count}} discussion manqué",
+        "title_many": "{{count}} de discussions manqués",
+        "title_other": "{{count}} discussions manqués",
+        "ios_title_one": "{{count}} discussion manqué",
+        "ios_title_many": "{{count}} de discionssions manqués",
+        "ios_title_other": "{{count}} discussions manqués",
+        "body": "Vous avez de nouvelles discussions non lues."
+      }
+    }
+  },
+  "discussion": {
+    "comment": {
+      "event_description": "Quelqu’un a commenté une discussion que vous suivez",
+      "push": {
+        "title": "{{user}} • {{title}}"
+      }
     },
-    "reference": {
-      "receive_hosted": "Vous recevez une référence de la part de quelqu’un.e qui vous a hébergé.e.",
-      "receive_friend": "Vous avez reçu une référence d’un ami",
-      "reminder_hosted": "Rappel d'écrire une référence pour quelqu'un.e que vous avez hébergé.e",
-      "reminder_surfed": "Attention : Rappel d'écrire une référence pour quelqu'un.e avec qui vous avez surfé",
-      "receive_surfed": "Vous recevez une référence de la part de quelqu’un.e que vous avez hébergé.e"
+    "create": {
+      "event_description": "Quelqu’un autre a crée une discussion dans une communauté dont vous faites partie",
+      "push": {
+        "title": "Nouvelle discussion : {{title}}",
+        "ios_title": "Nouvelle discussion",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} a commencé la discussion dans {{group_or_community}}."
+      }
+    }
+  },
+  "donation": {
+    "received": {
+      "event_description": "Votre don a été reçu",
+      "push": {
+        "title": "Don reçu",
+        "ios_title": "Don reçu",
+        "body": "Nous vous remercions énormément pour votre don de {{amount_with_currency}} !"
+      }
+    }
+  },
+  "email_address": {
+    "change": {
+      "event_description": "Le changement de votre adresse mail est lancé",
+      "push": {
+        "title": "Demande de changement de mail",
+        "ios_title": "Demande de changement de mail",
+        "body": "Utilisez le lien que nous avons envoyé à {{email}} pour confirmer votre nouvelle adresse."
+      }
     },
-    "friend_request": {
-      "create": "Quelqu’un.e vous envoie une demande d’ami",
-      "accept": "Quelqu'un.e accepte votre demande d'ami"
+    "verify": {
+      "event_description": "Votre nouvelle adresse mail est vérifiée",
+      "push": {
+        "title": "Adresse de mail vérifiée",
+        "ios_title": "Adresse de mail vérifiée",
+        "body": "Votre nouvelle adresse mail a été vérifiée."
+      }
+    }
+  },
+  "event": {
+    "cancel": {
+      "event_description": "Un événement auquel vous participez a été annulé"
     },
-    "event": {
-      "update": "Un événement auquel vous participez a été mis à jour",
-      "cancel": "Un événement auquel vous participez a été annulé",
-      "delete": "Un événement auquel vous participez a été supprimé",
-      "invite_organizer": "Quelqu'un.e vous invite à coorganiser un événement",
-      "comment": " Un utilisateur commente un événement auquel vous participez",
-      "reminder": "Rappel : un événement auquel vous participez aura lieu bientôt",
-      "create_approved": "Un événement approuvé par les modérateurs a été créé dans votre communauté",
-      "create_any": "Un utilisateur crée un événement dans votre communauté (non vérifié par un administrateur)"
+    "comment": {
+      "event_description": " Un utilisateur commente un événement auquel vous participez",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "A commenté sur {{title}}"
+      }
     },
-    "badge": {
-      "add": "Un badge a été ajouté à votre compte",
-      "remove": "Un badge a été retiré de votre compte"
+    "create_any": {
+      "event_description": "Un utilisateur crée un événement dans votre communauté (non vérifié par un administrateur)",
+      "push": {
+        "title": "Nouvel événement : {{title}}",
+        "ios_title": "Nouvel événement",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} a créé l'événement le {{date_and_time}}."
+      }
     },
-    "donation": {
-      "received": "Votre don a été reçu"
+    "create_approved": {
+      "event_description": "Un événement approuvé par les modérateurs a été créé dans votre communauté",
+      "push": {
+        "title": "Nouvel événement : {{title}}",
+        "ios_title": "Nouvel événement",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} vous a invité à l'événement le {{date_and_time}}."
+      }
     },
-    "password": {
-      "change": "Votre mot de passe a été modifié"
+    "delete": {
+      "event_description": "Un événement auquel vous participez a été supprimé"
     },
-    "password_reset": {
-      "start": "La réinitialisation de votre mot de passe est lancée",
-      "complete": "La réinitialisation de votre mot de passe est achevée"
+    "invite_organizer": {
+      "event_description": "Quelqu'un.e vous invite à coorganiser un événement",
+      "push": {
+        "title": "Événement mis à jour : {{title}}",
+        "ios_title": "Événement mis à jour",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} vous a ajouté comme coorganisateur.trice de l'événement."
+      }
     },
-    "email_address": {
-      "verify": "Votre nouvelle adresse mail est vérifiée",
-      "change": "Le changement de votre adresse mail est lancé"
+    "reminder": {
+      "event_description": "Rappel : un événement auquel vous participez aura lieu bientôt",
+      "push": {
+        "title": "Événement à venir : {{title}}",
+        "ios_title": "Événement à venir",
+        "ios_subtitle": "{{title}}",
+        "body": "L'événement commence le {{date_and_time}}."
+      }
     },
-    "account_deletion": {
-      "start": "Vous initiez la suppression de votre compte",
-      "complete": "Votre compte est supprimé",
-      "recovered": "Votre compte a été récupéré (restauré)"
+    "update": {
+      "event_description": "Un événement auquel vous participez a été mis à jour",
+      "push": {
+        "title": "Événement mis à jour : {{title}}",
+        "ios_title": "Événement mis à jour",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} a mis à jour l'événement."
+      }
+    }
+  },
+  "friend_request": {
+    "accept": {
+      "event_description": "Quelqu'un.e accepte votre demande d'ami"
     },
-    "api_key": {
-      "create": "Une clé API a été créée pour votre compte"
+    "create": {
+      "event_description": "Quelqu’un.e vous envoie une demande d’ami"
+    }
+  },
+  "gender": {
+    "change": {
+      "event_description": "Le genre affiché sur votre profil a été modifié"
+    }
+  },
+  "general": {
+    "new_blog_post": {
+      "event_description": "Un nouvel article de blog est publié"
+    }
+  },
+  "host_request": {
+    "accept": {
+      "event_description": "Quelqu'un.e accepte votre demande d'hébergement"
     },
-    "onboarding": {
-      "reminder": "Rappel de compléter votre profil après votre inscription récente"
+    "cancel": {
+      "event_description": "Quelqu'un.e annule sa demande d'hébergement"
     },
-    "phone_number": {
-      "change": "Votre numéro de téléphone a été changé",
-      "verify": "Votre numéro de téléphone est vérifié"
+    "confirm": {
+      "event_description": "Quelqu'un.e confirme sa demande d'hébergement"
     },
-    "birthdate": {
-      "change": "Votre date de naissance a été modifiée"
+    "create": {
+      "event_description": "Quelqu’un.e vous envoie une demande d’hébergement"
     },
-    "gender": {
-      "change": "Le genre affiché sur votre profil a été modifié"
+    "message": {
+      "event_description": "Quelqu’un.e envoie un message dans une demande d’hébergement"
     },
-    "discussion": {
-      "create": "Quelqu’un autre a crée une discussion dans une communauté dont vous faites partie",
-      "comment": "Quelqu’un a commenté une discussion que vous suivez"
+    "missed_messages": {
+      "event_description": "Vous manquez des messages dans une demande d'hébergement"
     },
-    "thread": {
-      "reply": "Quelqu’un a répondu à votre commentaire"
+    "reject": {
+      "event_description": "Quelqu'un.e refuse votre demande d'hébergement"
+    },
+    "reminder": {
+      "event_description": "Vous n'avez pas répondu à une demande d'hébergement en attente"
+    }
+  },
+  "onboarding": {
+    "reminder": {
+      "event_description": "Rappel de compléter votre profil après votre inscription récente"
+    }
+  },
+  "password": {
+    "change": {
+      "event_description": "Votre mot de passe a été modifié"
+    }
+  },
+  "password_reset": {
+    "complete": {
+      "event_description": "La réinitialisation de votre mot de passe est achevée"
+    },
+    "start": {
+      "event_description": "La réinitialisation de votre mot de passe est lancée"
+    }
+  },
+  "phone_number": {
+    "change": {
+      "event_description": "Votre numéro de téléphone a été changé"
+    },
+    "verify": {
+      "event_description": "Votre numéro de téléphone est vérifié"
+    }
+  },
+  "reference": {
+    "receive_friend": {
+      "event_description": "Vous avez reçu une référence d’un ami"
+    },
+    "receive_hosted": {
+      "event_description": "Vous recevez une référence de la part de quelqu’un.e qui vous a hébergé.e."
+    },
+    "receive_surfed": {
+      "event_description": "Vous recevez une référence de la part de quelqu’un.e que vous avez hébergé.e"
+    },
+    "reminder_hosted": {
+      "event_description": "Rappel d'écrire une référence pour quelqu'un.e que vous avez hébergé.e"
+    },
+    "reminder_surfed": {
+      "event_description": "Attention : Rappel d'écrire une référence pour quelqu'un.e avec qui vous avez surfé"
+    }
+  },
+  "thread": {
+    "reply": {
+      "event_description": "Quelqu’un a répondu à votre commentaire"
     }
   }
 }

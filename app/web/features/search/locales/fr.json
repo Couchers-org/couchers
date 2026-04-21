@@ -2,8 +2,7 @@
   "any": "Tous",
   "filter_dialog": {
     "desktop_title": "Filtres",
-    "mobile_title": "Rechercher",
-    "search_here_button": "Rechercher dans cet endroit"
+    "mobile_title": "Rechercher"
   },
   "last_active_options": {
     "last_week": "La semaine dernière",
@@ -13,7 +12,6 @@
     "last_year": "L'année dernière"
   },
   "form": {
-    "missing_location_validation_error": "Spécifiez un endroit pour utiliser ce filtre",
     "location_field_label": "Proche de",
     "keywords": {
       "field_label": "Nom, mots clés, ou nom d'utilisateur",
@@ -29,8 +27,7 @@
         "max_age": "Âge maximum"
       },
       "hosting_status_field_label": "Disponibilité pour héberger",
-      "meetup_status_field_label": "Disponibilité pour rencontres",
-      "complete_profiles_label": "Profils complets"
+      "meetup_status_field_label": "Disponibilité pour rencontres"
     },
     "accommodation_filters": {
       "title": "Filtres d'hébergement",
@@ -78,7 +75,6 @@
   "error_loading_users": "Erreur lors du chargement des utilisateurs.trices",
   "search_result": {
     "no_user_result_message": "Aucun membre trouvé. Essayez d'enlever des filtres pour plus de résultats.",
-    "show_user_button_label": "Montrer {{name}} sur la carte",
     "few_results_suggestion": "Par défaut, les profils vides ou qui n'hébergent pas sont cachés.",
     "include_empty_profiles_button": "Afficher tous les profils",
     "missing_about_description": "{{name}} n'a pas encore rempli son profil",

@@ -1,114 +1,210 @@
 {
-  "push": {
-    "account_deletion__start": {
-      "title": "Eliminación de cuenta solicitada",
-      "ios_title": "Eliminación de cuenta solicitada",
-      "body": "Utiliza el enlace que te hemos enviado para confirmar."
-    },
-    "account_deletion__complete": {
-      "title": "Cuenta eliminada",
-      "ios_title": "Cuenta eliminada"
-    },
-    "adhoc__push_enabled": {
-      "ios_title": "Notificaciones push habilitadas",
-      "body": "Ahora recibirás notificaciones en este dispositivo.",
-      "title": "Notificaciones push habilitadas"
-    },
-    "account_deletion__recovered": {
-      "title": "Cuenta restaurada",
-      "ios_title": "Cuenta restaurada",
-      "body": "¡Bienvenido de nuevo!"
-    },
-    "activeness__probe": {
-      "title": "¿Sigues dispuesto a hospedar?",
-      "ios_title": "¿Sigues dispuesto a hospedar?",
-      "body": "Inicia sesión para confirmar tu estado como anfitrión."
+  "_adhoc": {
+    "push_enabled": {
+      "push": {
+        "ios_title": "Notificaciones push habilitadas",
+        "body": "Ahora recibirás notificaciones en este dispositivo.",
+        "title": "Notificaciones push habilitadas"
+      }
     }
   },
-  "topic_action_descriptions": {
-    "host_request": {
-      "create": "Alguien te envía una solicitud de alojamiento",
-      "accept": "Alguien acepta tu solicitud de alojamiento",
-      "confirm": "Alguien confirma su solicitud de alojamiento",
-      "reject": "Alguien rechaza tu solicitud de alojamiento",
-      "cancel": "Alguien cancela su solicitud de alojamiento",
-      "message": "Alguien envía un mensaje en una solicitud de alojamiento",
-      "missed_messages": "Mensajes pendientes en una solicitud de alojamiento",
-      "reminder": "No has respondido a una solicitud de alojamiento pendiente"
+  "account_deletion": {
+    "complete": {
+      "event_description": "Tu cuenta ha sido eliminada",
+      "push": {
+        "title": "Cuenta eliminada",
+        "ios_title": "Cuenta eliminada"
+      }
     },
-    "chat": {
-      "message": "Alguien te envía un mensaje",
-      "missed_messages": "Mensajes pendientes en un chat"
+    "recovered": {
+      "event_description": "Tu cuenta ha sido recuperada (sin ser eliminada)",
+      "push": {
+        "title": "Cuenta restaurada",
+        "ios_title": "Cuenta restaurada",
+        "body": "¡Bienvenido de nuevo!"
+      }
     },
-    "reference": {
-      "receive_hosted": "Recibes una recomendación de alguien que te alojó",
-      "receive_surfed": "Recibes una recomendación de alguien a quien alojaste",
-      "receive_friend": "Recibes una recomendación de un amigo",
-      "reminder_hosted": "Recordatorio para escribir una recomendación a alguien a quien alojaste",
-      "reminder_surfed": "Recordatorio para escribir una recomendación a alguien con quien surfeaste"
+    "start": {
+      "event_description": "Inicias la eliminación de la cuenta",
+      "push": {
+        "title": "Eliminación de cuenta solicitada",
+        "ios_title": "Eliminación de cuenta solicitada",
+        "body": "Utiliza el enlace que te hemos enviado para confirmar."
+      }
+    }
+  },
+  "activeness": {
+    "probe": {
+      "push": {
+        "title": "¿Sigues dispuesto a hospedar?",
+        "ios_title": "¿Sigues dispuesto a hospedar?",
+        "body": "Inicia sesión para confirmar tu estado como anfitrión."
+      }
+    }
+  },
+  "api_key": {
+    "create": {
+      "event_description": "Se crea una clave API para tu cuenta"
+    }
+  },
+  "badge": {
+    "add": {
+      "event_description": "Se añade una insignia en tu cuenta"
     },
-    "friend_request": {
-      "create": "Alguien te envía una solicitud de amistad",
-      "accept": "Alguien acepta tu solicitud de amistad"
+    "remove": {
+      "event_description": "Se elimina una insignia de tu cuenta"
+    }
+  },
+  "birthdate": {
+    "change": {
+      "event_description": "Tu fecha de nacimiento ha sido cambiada"
+    }
+  },
+  "chat": {
+    "message": {
+      "event_description": "Alguien te envía un mensaje"
     },
-    "event": {
-      "create_approved": "Un evento aprobado por los moderadores se crea en tu comunidad",
-      "create_any": "Un evento se crea en tu comunidad (sin ser revisado por un moderador)",
-      "update": "Se actualiza un evento en el que participas",
-      "cancel": "Se cancela un evento en el que participas",
-      "delete": "Se elimina un evento en el que participas",
-      "invite_organizer": "Alguien te invita a coorganizar un evento",
-      "reminder": "Recordatorio de que un evento al que asistirás tendrá lugar pronto",
-      "comment": " Un usuario comenta en un evento al que asistirás"
+    "missed_messages": {
+      "event_description": "Mensajes pendientes en un chat"
+    }
+  },
+  "discussion": {
+    "comment": {
+      "event_description": "Alguien comenta en una discusión que estás siguiendo"
     },
-    "onboarding": {
-      "reminder": "Recordatorio para completar tu perfil después de registrarte"
+    "create": {
+      "event_description": "Alguien crea una discusión en una comunidad a la que perteneces"
+    }
+  },
+  "donation": {
+    "received": {
+      "event_description": "Tu donación ha sido recibida"
+    }
+  },
+  "email_address": {
+    "change": {
+      "event_description": "Se inicia el cambio de correo electrónico"
     },
-    "badge": {
-      "add": "Se añade una insignia en tu cuenta",
-      "remove": "Se elimina una insignia de tu cuenta"
+    "verify": {
+      "event_description": "Tu nuevo correo electrónico ha sido verificado"
+    }
+  },
+  "event": {
+    "cancel": {
+      "event_description": "Se cancela un evento en el que participas"
     },
-    "donation": {
-      "received": "Tu donación ha sido recibida"
+    "comment": {
+      "event_description": " Un usuario comenta en un evento al que asistirás"
     },
-    "password": {
-      "change": "Tu contraseña ha sido cambiada"
+    "create_any": {
+      "event_description": "Un evento se crea en tu comunidad (sin ser revisado por un moderador)"
     },
-    "password_reset": {
-      "start": "Se inicia el restablecimiento de la contraseña",
-      "complete": "El restablecimiento de la contraseña se ha completado"
+    "create_approved": {
+      "event_description": "Un evento aprobado por los moderadores se crea en tu comunidad"
     },
-    "email_address": {
-      "change": "Se inicia el cambio de correo electrónico",
-      "verify": "Tu nuevo correo electrónico ha sido verificado"
+    "delete": {
+      "event_description": "Se elimina un evento en el que participas"
     },
-    "account_deletion": {
-      "start": "Inicias la eliminación de la cuenta",
-      "complete": "Tu cuenta ha sido eliminada",
-      "recovered": "Tu cuenta ha sido recuperada (sin ser eliminada)"
+    "invite_organizer": {
+      "event_description": "Alguien te invita a coorganizar un evento"
     },
-    "api_key": {
-      "create": "Se crea una clave API para tu cuenta"
+    "reminder": {
+      "event_description": "Recordatorio de que un evento al que asistirás tendrá lugar pronto"
     },
-    "phone_number": {
-      "change": "Tu número de teléfono ha sido cambiado",
-      "verify": "Tu número de teléfono ha sido verificado"
+    "update": {
+      "event_description": "Se actualiza un evento en el que participas"
+    }
+  },
+  "friend_request": {
+    "accept": {
+      "event_description": "Alguien acepta tu solicitud de amistad"
     },
-    "birthdate": {
-      "change": "Tu fecha de nacimiento ha sido cambiada"
+    "create": {
+      "event_description": "Alguien te envía una solicitud de amistad"
+    }
+  },
+  "gender": {
+    "change": {
+      "event_description": "El género mostrado en tu perfil ha sido cambiado"
+    }
+  },
+  "general": {
+    "new_blog_post": {
+      "event_description": "Se ha publicado un nuevo artículo en el blog"
+    }
+  },
+  "host_request": {
+    "accept": {
+      "event_description": "Alguien acepta tu solicitud de alojamiento"
     },
-    "gender": {
-      "change": "El género mostrado en tu perfil ha sido cambiado"
+    "cancel": {
+      "event_description": "Alguien cancela su solicitud de alojamiento"
     },
-    "general": {
-      "new_blog_post": "Se ha publicado un nuevo artículo en el blog"
+    "confirm": {
+      "event_description": "Alguien confirma su solicitud de alojamiento"
     },
-    "discussion": {
-      "create": "Alguien crea una discusión en una comunidad a la que perteneces",
-      "comment": "Alguien comenta en una discusión que estás siguiendo"
+    "create": {
+      "event_description": "Alguien te envía una solicitud de alojamiento"
     },
-    "thread": {
-      "reply": "Alguien responde a tu comentario"
+    "message": {
+      "event_description": "Alguien envía un mensaje en una solicitud de alojamiento"
+    },
+    "missed_messages": {
+      "event_description": "Mensajes pendientes en una solicitud de alojamiento"
+    },
+    "reject": {
+      "event_description": "Alguien rechaza tu solicitud de alojamiento"
+    },
+    "reminder": {
+      "event_description": "No has respondido a una solicitud de alojamiento pendiente"
+    }
+  },
+  "onboarding": {
+    "reminder": {
+      "event_description": "Recordatorio para completar tu perfil después de registrarte"
+    }
+  },
+  "password": {
+    "change": {
+      "event_description": "Tu contraseña ha sido cambiada"
+    }
+  },
+  "password_reset": {
+    "complete": {
+      "event_description": "El restablecimiento de la contraseña se ha completado"
+    },
+    "start": {
+      "event_description": "Se inicia el restablecimiento de la contraseña"
+    }
+  },
+  "phone_number": {
+    "change": {
+      "event_description": "Tu número de teléfono ha sido cambiado"
+    },
+    "verify": {
+      "event_description": "Tu número de teléfono ha sido verificado"
+    }
+  },
+  "reference": {
+    "receive_friend": {
+      "event_description": "Recibes una recomendación de un amigo"
+    },
+    "receive_hosted": {
+      "event_description": "Recibes una recomendación de alguien que te alojó"
+    },
+    "receive_surfed": {
+      "event_description": "Recibes una recomendación de alguien a quien alojaste"
+    },
+    "reminder_hosted": {
+      "event_description": "Recordatorio para escribir una recomendación a alguien a quien alojaste"
+    },
+    "reminder_surfed": {
+      "event_description": "Recordatorio para escribir una recomendación a alguien con quien surfeaste"
+    }
+  },
+  "thread": {
+    "reply": {
+      "event_description": "Alguien responde a tu comentario"
     }
   }
 }

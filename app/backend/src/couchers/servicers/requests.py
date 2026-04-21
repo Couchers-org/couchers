@@ -32,6 +32,7 @@ from couchers.models import (
     User,
 )
 from couchers.models.notifications import NotificationTopicAction
+from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import conversations_pb2, notification_data_pb2, requests_pb2, requests_pb2_grpc
@@ -154,6 +155,7 @@ def host_request_to_pb(
             if context.user_id == host_request.recipient_user_id
             else host_request.is_initiator_archived
         ),
+        public_trip_id=host_request.public_trip_id,
     )
 
 
@@ -247,6 +249,24 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 substitutions={"count": RATE_LIMIT_HOURS},
             )
 
+        # If this is an offer in response to a public trip, validate it
+        public_trip_id = request.public_trip_id if request.HasField("public_trip_id") else None
+        if public_trip_id is not None:
+            public_trip = session.execute(
+                select(PublicTrip).where(PublicTrip.id == public_trip_id)
+            ).scalar_one_or_none()
+            if not public_trip:
+                context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "public_trip_not_found")
+            # The trip's traveler must be the recipient of this host request (role reversal)
+            if public_trip.user_id != recipient.id:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_user_mismatch")
+            # Trip must still be active
+            if public_trip.status != PublicTripStatus.searching_for_host:
+                context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_not_active")
+            # Offered dates must fall within the trip's window (host can shorten, not extend)
+            if from_date < public_trip.from_date or to_date > public_trip.to_date:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_dates_out_of_range")
+
         conversation = Conversation()
         session.add(conversation)
         session.flush()
@@ -290,6 +310,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             hosting_city=recipient.city,
             hosting_location=recipient.geom,
             hosting_radius=recipient.geom_radius,
+            public_trip_id=public_trip_id,
         )
         session.add(host_request)
         session.flush()

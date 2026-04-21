@@ -1,7 +1,8 @@
 {
   "invite_community_dialog_buttons": {
     "confirm": "Potvrdit",
-    "close": "Zrušit"
+    "close": "Zrušit",
+    "open": "Pozvat komunitu"
   },
   "location": "Poloha",
   "attendees_count_one": "{{count}} účastník",
@@ -11,5 +12,23 @@
   "cancelled": "Zrušeno",
   "cancel_event": "Zrušit událost",
   "show_cancelled_events": "Zobrazit zrušené události",
-  "cancel_event_success_message": "Událost byla úspěšně zrušena."
+  "cancel_event_success_message": "Událost byla úspěšně zrušena.",
+  "cancel_event_dialog": {
+    "title": "Zrušit událost?",
+    "message": "Opravdu chceš zrušit tuto událost?"
+  },
+  "invite_community_dialog": {
+    "title": "Požádej o pozvánku do komunity pro tuto událost",
+    "toast_success": "Díky, požadavek byl odeslán",
+    "link": "Více informací o této funkci",
+    "message": "Použij tento formulář k žádosti, aby moderátoři odeslali oznámení o této události všem uživatelům v okolí."
+  },
+  "comment": "Komentář",
+  "comments": "Komentáře",
+  "comments_count": "Komentáře | {{count}}",
+  "fill_out_comment": "Nejprve musíš něco napsat!",
+  "community_header": "Vítej v {{name}}",
+  "upload_helper_text_replace": "Klikni pro změnu fotografie",
+  "community_moderators": "Budovatelé komunity",
+  "edit_info_page_success_message": "Stránka komunity byla úspěšně aktualizována."
 }

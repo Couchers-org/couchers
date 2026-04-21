@@ -11,9 +11,7 @@
     "tabs": {
       "chats": "Чаты",
       "hosting": "Гости",
-      "surfing": "Хосты",
-      "aria_label": "Вкладки для разных типов сообщений",
-      "archived": "Архив"
+      "surfing": "Хосты"
     }
   },
   "chat_view": {
@@ -122,7 +120,6 @@
     "user_load_error_message": "(Ошибка загрузки пользователя)",
     "dm_title": "Создать новый чат",
     "group_title": "Создать групповой чат",
-    "group_title_field_label": "Заголовок",
     "no_friends_found_message": "Не удалось найти друзей",
     "friends_input_label": "Друзья",
     "title_label": "Заголовок",
@@ -169,9 +166,7 @@
   "archive": {
     "archive_button": "Архив",
     "unarchive_button": "Разархивировать",
-    "show_archived": "Показать архивные",
-    "show_active": "Показать активные",
-    "no_archived_chats": "Нет архивированных чатов",
+    "no_archived_chats": "Нет архивных чатов",
     "no_archived_requests": "Нет архивных запросов",
     "no_archived_messages": "Нет архивных сообщений",
     "archived": "Архив"
