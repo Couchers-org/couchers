@@ -4,5 +4,14 @@
   "add_friend": "Přidat přítele",
   "decline": "Odmítnout",
   "blocked_list_title": "Zablokovaní uživatelé",
-  "block_user": "Zablokovat uživatele"
+  "block_user": "Zablokovat uživatele",
+  "block_user_confirmation_dialog": {
+    "title": "Opravdu chceš zablokovat uživatele {{name}}?",
+    "message": "Zprávy a žádosti od této osoby budou blokovány a tvůj profil, události i komentáře nebudou pro tohoto člověka viditelné. O zablokování se nedozví.",
+    "confirm": "Blokovat"
+  },
+  "friends": "Přátelé",
+  "friend_list_title": "Tvoji přátelé",
+  "friend_requests": "Žádosti o přátelství",
+  "friend_requests_sent": "Odeslané žádosti o přátelství"
 }

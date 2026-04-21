@@ -35,7 +35,6 @@
       "password_field_label": "Heslo",
       "username_field_label": "E-mail/Uživatelské jméno",
       "forgot_password": "Zapomenuté heslo?",
-      "no_password_login_prompt": "Zkontroluj svou e-mailovou schránku a klikni na odkaz pro přihlášení! :)",
       "remember_me": "Zamapatovat jméno a heslo",
       "show_password": "Zobrazit heslo",
       "hide_password": "Skrýt heslo"
@@ -43,8 +42,7 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Máš už vytvořený účet? <2>Log in</2>",
-    "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem.",
-    "header": "Pojďme začít!"
+    "sign_up_agreement_explainer": "Pokračováním udělujete souhlas s <2>Podmínkami použití</2>, zpracováním dat, použitím cookies a k zasílání upozornění e-mailem."
   },
   "account_form": {
     "header": "Podrobnosti o tvém účtu",
@@ -66,8 +64,7 @@
       "field_label": "Status hostitele",
       "cant_host": "Nepřijímám hosty",
       "maybe": "Možná přijímám hosty",
-      "can_host": "Přijímám hosty",
-      "any": "Jakékoli"
+      "can_host": "Přijímám hosty"
     },
     "gender": {
       "field_label": "Identifikuji se jako…",
@@ -88,7 +85,6 @@
   "basic_form": {
     "name": {
       "field_label": "Jméno",
-      "empty_error": "Prosím, zadej své jméno",
       "required_error": "Jméno nemůže být prázdné",
       "min_length_error": "Jméno musí mít alespoň 2 znaky",
       "max_length_error": "Jméno nesmí mít více než 100 znaků",
@@ -157,10 +153,6 @@
     },
     "missing_token": "Chyba: missing token"
   },
-  "jail_set_password_form": {
-    "title": "Nastavit heslo",
-    "explanation": "Pro svůj účet sis dříve nenastavil/a heslo. Chceš-li pokračovat, vytvoř si ho nyní."
-  },
   "about_us": "O nás",
   "reset_password": "Resetovat heslo",
   "change_phone": {
@@ -214,8 +206,7 @@
     "action_button": {
       "no_emails_enable_text": "Neposílejte mi e-maily",
       "no_emails_disable_text": "Znovu povolit e-maily"
-    },
-    "caveat": "Povolením tohoto nastavení bude tvůj účet nastaven tak, aby nepřijímal žádosti o hostování. Stále budeš dostávat bezpečnostní e-maily (například pro resetování hesla). Můžeš také nadále dostávat newsletter, ze kterého se můžeš odhlásit pomocí odkazu v patičce newsletteru."
+    }
   },
   "location": {
     "field_label": "Tvá poloha",

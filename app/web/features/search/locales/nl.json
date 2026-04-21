@@ -11,8 +11,7 @@
   },
   "filter_dialog": {
     "mobile_title": "Zoeken",
-    "desktop_title": "Filters",
-    "search_here_button": "In dit gebied zoeken"
+    "desktop_title": "Filters"
   },
   "form": {
     "location_field_label": "In de buurt van",
@@ -44,7 +43,6 @@
       },
       "hosting_status_field_label": "Hosting status",
       "last_active_field_label": "Laatst actief",
-      "complete_profiles_label": "Complete profielen",
       "meetup_status_field_label": "Meetup status"
     },
     "by_location_filter_label": "Op locatie",
@@ -73,11 +71,9 @@
     },
     "search_filters": "Zoekfilters",
     "clear_filters": "Alle filters verwijderen",
-    "missing_location_validation_error": "Kies een locatie om dit filter te gebruiken",
     "submit_button_label": "Toepassen"
   },
   "search_result": {
-    "show_user_button_label": "Laat {{name}} op de kaart zien",
     "missing_about_description": "{{name}} heeft nog niks over zichzelf geschreven",
     "no_user_result_message": "Geen gebruikers gevonden. Probeer wat filters te verwijderen om meer resultaten te zien.",
     "few_results_suggestion": "Standaard worden lege profielen en profielen met \"kan niet hosten\" verborgen.",

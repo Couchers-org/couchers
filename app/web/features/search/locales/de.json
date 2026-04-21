@@ -9,11 +9,9 @@
   },
   "filter_dialog": {
     "mobile_title": "Suchen",
-    "desktop_title": "Filter",
-    "search_here_button": "In diesem Bereich suchen"
+    "desktop_title": "Filter"
   },
   "form": {
-    "missing_location_validation_error": "Gib einen Ort an, um diesen Filter zu verwenden",
     "accommodation_filters": {
       "guests_field_label": "Anzahl der Gäste",
       "title": "Unterkunftsfilter",
@@ -43,7 +41,6 @@
     "host_filters": {
       "last_active_field_label": "Zuletzt aktiv",
       "hosting_status_field_label": "Hosting-Status",
-      "complete_profiles_label": "Vollständige Profile",
       "age": {
         "field_label": "Host Alter",
         "max_age": "Höchstalter",
@@ -76,7 +73,6 @@
   },
   "search_result": {
     "no_user_result_message": "Keine Benutzer gefunden. Versuche, einige Filter zu entfernen, um mehr Ergebnisse zu sehen.",
-    "show_user_button_label": "{{name}} auf der Karte anzeigen",
     "missing_about_description": "{{name}} hat noch nichts über sich gesagt",
     "few_results_suggestion": "Standardmäßig werden leere Profile und Profile mit \"kann nicht hosten\" ausgeblendet.",
     "include_empty_profiles_button": "Alle Profile anzeigen",

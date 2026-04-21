@@ -19,10 +19,6 @@
     "change_in_progress": "ईमेल बदलना जारी है...",
     "error_message": "ईमेल बदलने में एरर: {{message}}"
   },
-  "jail_set_password_form": {
-    "title": "पासवर्ड सेट करें",
-    "explanation": "आपने पहले अपने खाते के लिए पासवर्ड सेट नहीं किया है। कृपया जारी रखने के लिए अभी एक बनाएं।"
-  },
   "account_form": {
     "gender": {
       "man": "पुरुष",
@@ -60,7 +56,6 @@
     "title": "लॉग इन करें",
     "header": "वापसी पर स्वागत है!",
     "form": {
-      "no_password_login_prompt": "लॉग इन करने की लिंक के लिए अपना ईमेल देखें! :)",
       "forgot_password": "पासवर्ड भूल गए?",
       "remember_me": "मुझे याद रखना",
       "username_field_label": "ईमेल/उपयोगकर्ता नाम",
@@ -69,13 +64,11 @@
     "no_account_prompt": "अभी तक कोई खाता नहीं है? <2>साइन अप करें</2>"
   },
   "basic_sign_up_form": {
-    "header": "आएँ शुरू करें!",
     "existing_user_prompt": "क्या आपके पास पहले से एक खाता मौजूद है? <2>लॉग इन करें</2>"
   },
   "basic_form": {
     "name": {
-      "field_label": "आपका नाम",
-      "empty_error": "कृपया अपना नाम दर्ज करें"
+      "field_label": "आपका नाम"
     },
     "email": {
       "field_label": "ईमेल",

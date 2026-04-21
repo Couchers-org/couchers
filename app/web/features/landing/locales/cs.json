@@ -8,5 +8,11 @@
   "introduction_subtitle": "Sdílej svůj svět, objevuj jejich. Autentické couchsurfingové zážitky postavené na důvěře a opravdovém spojení – ne na transakcích.",
   "signup_description2_one": "Cestuj, hostuj a spoj se s {{count}} členem. <2>Zjisti více o nás</2>.",
   "signup_description2_few": "Cestuj, hostuj a spoj se se {{count}} členy. <2>Zjisti více o nás</2>.",
-  "signup_description2_other": "Cestuj, hostuj a spoj se s {{count}} členy. <2>Zjisti více o nás</2>."
+  "signup_description2_other": "Cestuj, hostuj a spoj se s {{count}} členy. <2>Zjisti více o nás</2>.",
+  "signup_description_no_link2_one": "Cestuj, hostuj a spoj se s {{count}} členem.",
+  "signup_description_no_link2_few": "Cestuj, hostuj a spoj se s {{count}} členy.",
+  "signup_description_no_link2_other": "Cestuj, hostuj a spoj se s {{count}} členy.",
+  "sign_up_ready": "Zaregistruj se a můžete začít!",
+  "why_couchers_title": "Proč Couchers.org?",
+  "community_first": "Komunita na prvním místě"
 }

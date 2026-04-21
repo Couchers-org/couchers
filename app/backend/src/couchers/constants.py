@@ -12,6 +12,11 @@ EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0
 
 BANNED_USERNAME_PHRASES = [
     "admin",
+    "bot",
+    "safety",
+    "security",
+    "secure",
+    "trust",
     "couchers",
     "help",
     "moderation",
@@ -23,6 +28,7 @@ BANNED_USERNAME_PHRASES = [
     "support",
     "system",
     "team",
+    "verify",
 ]
 
 # expiry time for a verified phone number
