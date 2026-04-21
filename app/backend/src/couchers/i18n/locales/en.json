@@ -45,7 +45,7 @@
     "chat_not_found": "Couldn't find that chat.",
     "city_required": "City is required.",
     "community_not_found": "Community not found.",
-    "community_too_broad_for_public_trip": "This community is too broad for a public trip — please post in a more specific community.",
+    "community_too_broad_for_public_trip": "This community is too broad for a public trip. Please post in a more local community.",
     "content_report_not_found": "Content report not found.",
     "country_required": "Country is required.",
     "date_from_after_one_year": "The start date must be within one year from today.",
