@@ -4,7 +4,7 @@ from typing import Any, cast
 
 import grpc
 from google.protobuf import empty_pb2
-from psycopg2.extras import DateTimeTZRange
+from psycopg.types.range import TimestamptzRange
 from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_, update
@@ -495,7 +495,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 link=link,
                 photo_key=request.photo_key if request.photo_key != "" else None,
                 # timezone=timezone,
-                during=DateTimeTZRange(start_time, end_time),
+                during=TimestamptzRange(start_time, end_time),
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
             )
@@ -609,7 +609,7 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
-        during = DateTimeTZRange(start_time, end_time)
+        during = TimestamptzRange(start_time, end_time)
 
         # && is the overlap operator for ranges
         if (
@@ -733,7 +733,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             _check_occurrence_time_validity(start_time, end_time, context)
 
-            during = DateTimeTZRange(start_time, end_time)
+            during = TimestamptzRange(start_time, end_time)
 
             # && is the overlap operator for ranges
             if (
