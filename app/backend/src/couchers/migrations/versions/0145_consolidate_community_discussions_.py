@@ -1,7 +1,7 @@
 """Consolidate community discussions/events flags into one
 
-Revision ID: 0143
-Revises: 0142
+Revision ID: 0145
+Revises: 0144
 Create Date: 2026-04-18 19:32:11.555092
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0143"
-down_revision = "0142"
+revision = "0145"
+down_revision = "0144"
 branch_labels = None
 depends_on = None
 
