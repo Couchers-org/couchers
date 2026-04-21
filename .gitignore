@@ -13,3 +13,5 @@ pyrightconfig.json
 **/.claude/*
 !/.claude/tools/
 !/.claude/tools/**
+!/.claude/skills/
+!/.claude/skills/**

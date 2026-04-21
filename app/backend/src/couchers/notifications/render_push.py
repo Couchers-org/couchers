@@ -141,7 +141,7 @@ def render_push_notification(notification: Notification, loc_context: Localizati
 
 def render_adhoc_push_notification(name: str, loc_context: LocalizationContext) -> PushNotificationContent:
     """Renders a push notification that doesn't have an assigned topic-action."""
-    return _get_content(string_group=f"adhoc__{name}", loc_context=loc_context)
+    return _get_content(string_group=f"_adhoc.{name}.push", loc_context=loc_context)
 
 
 def _get_content(
@@ -190,9 +190,10 @@ def _get_string(
     substitutions: dict[str, str | int] | None = None,
 ) -> str:
     if isinstance(string_group, NotificationTopicAction):
-        string_group = string_group.display.replace(":", "__")
-    key = f"push.{string_group}.{key}"
-    return get_notifs_i18next().localize(key, loc_context.locale, substitutions)
+        full_key = f"{string_group.topic}.{string_group.action}.push.{key}"
+    else:
+        full_key = f"{string_group}.{key}"
+    return get_notifs_i18next().localize(full_key, loc_context.locale, substitutions)
 
 
 def _avatar_url_or_default(user: api_pb2.User) -> str:
@@ -624,11 +625,9 @@ def _render_modnote__create(loc_context: LocalizationContext) -> PushNotificatio
 
 
 def _render_onboarding__reminder(key: str, loc_context: LocalizationContext) -> PushNotificationContent:
-    string_group = NotificationTopicAction.onboarding__reminder.display.replace(":", "__")
-    string_group += "."
-    string_group += "first" if key == "1" else "subsequent"
+    variant = "first" if key == "1" else "subsequent"
     return _get_content(
-        string_group,
+        f"onboarding.reminder.push.{variant}",
         loc_context,
         action_url=urls.edit_profile_link(),
     )
@@ -739,7 +738,7 @@ def _render_reference__receive(
         action_url = urls.profile_references_link()
     else:
         body = _get_string(
-            "reference__receive",
+            "reference._receive_any.push",
             "body_must_write_yours",
             loc_context,
             substitutions={"user": data.from_user.name},
@@ -750,7 +749,7 @@ def _render_reference__receive(
             host_request_id=str(data.host_request_id),
         )
     return _get_content(
-        string_group="reference__receive",
+        string_group="reference._receive_any.push",
         loc_context=loc_context,
         body=body,
         substitutions={"user": data.from_user.name},
@@ -781,7 +780,7 @@ def _render_reference__reminder(
         host_request_id=str(data.host_request_id),
     )
     return _get_content(
-        string_group="reference__reminder",
+        string_group="reference._reminder_any.push",
         loc_context=loc_context,
         substitutions={"count": data.days_left, "user": data.other_user.name},
         icon_user=data.other_user,

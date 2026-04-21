@@ -26,7 +26,6 @@
   "next": "Seguinte",
   "mod": "Moderação",
   "hosting_status": {
-    "any": "Qualquer",
     "can_host": "Pode hospedar",
     "maybe": "Talvez possa hospedar",
     "cant_host": "Não pode hospedar",

@@ -1,6 +1,5 @@
 # Server Operations cheat sheet
 
-
 ## Setting up your machine for deployment
 
 Before you can deploy, you need to set up AWS credentials and SSH access. These instructions work on Linux and macOS.

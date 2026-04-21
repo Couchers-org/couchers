@@ -229,7 +229,22 @@
     "host_request_rate_limit2_other": "Du hast in den letzten {{count}} Stunden viele Host-anfragen gesendet. Um Spam zu vermeiden, kannst du vorerst keine weiteren senden.",
     "host_request_too_short2_one": "Die Host-anfrage darf nicht kürzer als {{count}} Zeichen sein.",
     "host_request_too_short2_other": "Die Host-anfrage darf nicht kürzer als {{count}} Zeichen sein.",
-    "invalid_endpoint": "Ungültiger Push-Benachrichtigungsendpunkt."
+    "invalid_endpoint": "Ungültiger Push-Benachrichtigungsendpunkt.",
+    "cannot_reinstate_and_set_stopped_date": "Ein Freiwilliger kann nicht gleichzeitig wieder aufgenommen und mit einem Beendigungsdatum versehen werden.",
+    "community_too_broad_for_public_trip": "Diese Community ist zu allgemein für einen öffentlichen Trip – bitte poste in einer spezifischeren Community.",
+    "incomplete_profile_create_public_trip": "Du musst dein Profil vervollständigen, bevor du einen öffentlichen Trip erstellen kannst.",
+    "invalid_public_trip_status": "Du kannst den öffentlichen Trip-Status nicht darauf setzen.",
+    "missing_public_trip_description": "Fehlende öffentliche Trip-Beschreibung.",
+    "overlapping_public_trip_exists": "Du hast in dieser Community bereits einen aktiven öffentlichen Trip mit überschneidenden Daten.",
+    "public_trip_dates_out_of_range": "Die angebotenen Termine müssen innerhalb der Daten des öffentlichen Trips liegen.",
+    "public_trip_description_too_long": "Deine öffentliche Trip-Beschreibung ist zu lang.",
+    "public_trip_description_too_short_one": "Die öffentliche Trip-Beschreibung darf nicht kürzer als {{count}} Zeichen sein.",
+    "public_trip_description_too_short_other": "Die öffentliche Trip-Beschreibung darf nicht kürzer als {{count}} Zeichen sein.",
+    "public_trip_in_past": "Ein öffentlicher Trip, der bereits beendet ist, kann nicht bearbeitet werden.",
+    "public_trip_not_active": "Dieser öffentliche Trip nimmt keine Angebote mehr an.",
+    "public_trip_not_found": "Dieser öffentliche Trip konnte nicht gefunden werden.",
+    "visibility_must_be_specified": "Die Sichtbarkeit muss angegeben werden.",
+    "public_trip_user_mismatch": "Der Empfänger der Host-Anfrage stimmt nicht mit dem Reisenden des öffentlichen Trips überein."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",

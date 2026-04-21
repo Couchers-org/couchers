@@ -28,7 +28,6 @@
     "header": "歡迎回來！",
     "no_account_prompt": "還沒有帳號嗎？<2>現在註冊</2>",
     "form": {
-      "no_password_login_prompt": "請檢查您的墊子郵件信箱以取得登入連結！：）",
       "remember_me": "記住我",
       "forgot_password": "忘記密碼？",
       "username_field_label": "電子郵件／用戶名稱",
@@ -36,7 +35,6 @@
     }
   },
   "basic_sign_up_form": {
-    "header": "開始旅程吧！",
     "sign_up_agreement_explainer": "如果繼續，將表示您已確認我們的 <2>服務條款</2>，其中也包括我們關於cookie、電子信箱、個人數據的處理方法。",
     "existing_user_prompt": "已經有帳號了嗎?<2>登入</2>"
   },
@@ -75,8 +73,7 @@
   "basic_form": {
     "name": {
       "required_error": "此欄位不能為空白。",
-      "field_label": "您的名字",
-      "empty_error": "請輸入您的名字"
+      "field_label": "您的名字"
     },
     "email": {
       "field_label": "電子郵件",
@@ -134,10 +131,6 @@
       "confirm_username_label": "用戶名稱確認",
       "title": "刪除帳戶"
     }
-  },
-  "jail_set_password_form": {
-    "explanation": "您之前沒有為帳號設定過密碼。請現在設定一個密碼再繼續操作。",
-    "title": "設定密碼"
   },
   "jail": {
     "title": "需要更多訊息",

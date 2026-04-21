@@ -120,7 +120,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
           setUserToPromote(user);
           setIsCoOrganizerDialogOpen(true);
         },
-        label: t("communities:make_co_organizer:title"),
+        label: t("communities:make_co_organizer.title"),
       },
     ];
   };

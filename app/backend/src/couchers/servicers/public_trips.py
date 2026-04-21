@@ -77,7 +77,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if not from_date or not to_date:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
 
-        today = today_in_timezone(user.timezone)
+        today = today_in_timezone(node.timezone)
 
         if from_date < today:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
@@ -222,8 +222,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         )
 
         if editing_content:
-            user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
-            today_local = today_in_timezone(user.timezone)
+            today_local = today_in_timezone(public_trip.node.timezone)
 
             if public_trip.to_date < today_local:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_in_past")

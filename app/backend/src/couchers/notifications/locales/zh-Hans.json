@@ -1,88 +1,178 @@
 {
-  "topic_action_descriptions": {
-    "host_request": {
-      "create": "有人向您发送接待请求",
-      "accept": "有人接受了您的接待请求",
-      "confirm": "有人确认了他们的接待请求",
-      "reject": "有人拒绝了您的接待请求",
-      "cancel": "有人取消了他们的接待请求",
-      "message": "有人在接待请求中发送了消息",
-      "missed_messages": "您错过了接待请求中的消息",
-      "reminder": "您还没有回复待处理的接待请求"
+  "account_deletion": {
+    "complete": {
+      "event_description": "您的账户已删除"
     },
-    "chat": {
-      "message": "有人向您发送了消息",
-      "missed_messages": "您错过了聊天中的消息"
+    "recovered": {
+      "event_description": "您的账户已恢复（未删除）"
     },
-    "reference": {
-      "receive_hosted": "您收到了一位接待您的人的评语",
-      "receive_surfed": "您收到了一位您接待过的人的评语",
-      "receive_friend": "您收到了一位朋友的评语",
-      "reminder_hosted": "提醒您给曾接待过您的人成写评语",
-      "reminder_surfed": "提醒您给曾与您共同旅行过的人写评语"
+    "start": {
+      "event_description": "您已启动账户删除"
+    }
+  },
+  "api_key": {
+    "create": {
+      "event_description": "为您的账户创建了API密钥"
+    }
+  },
+  "badge": {
+    "add": {
+      "event_description": "您的账户添加了一个徽章"
     },
-    "friend_request": {
-      "create": "有人向您发送了好友请求",
-      "accept": "有人接受了您的好友请求"
+    "remove": {
+      "event_description": "您的账户移除了一个徽章"
+    }
+  },
+  "birthdate": {
+    "change": {
+      "event_description": "您的出生日期已更改"
+    }
+  },
+  "chat": {
+    "message": {
+      "event_description": "有人向您发送了消息"
     },
-    "event": {
-      "create_approved": "您的社区中创建了一个管理员批准的活动",
-      "create_any": "用户在您的社区中创建了任何活动（未经管理员审核）",
-      "update": "您参加的活动已更新",
-      "cancel": "您参加的活动已取消",
-      "delete": "您参加的活动已删除",
-      "invite_organizer": "有人邀请您共同组织一个活动",
-      "reminder": "提醒: 您参加的活动即将开始",
-      "comment": " 一位用户对你即将参加的活动进行了评论"
+    "missed_messages": {
+      "event_description": "您错过了聊天中的消息"
+    }
+  },
+  "discussion": {
+    "comment": {
+      "event_description": "有人在你关注的讨论中发表评论"
     },
-    "onboarding": {
-      "reminder": "注册后提醒您完善个人资料"
+    "create": {
+      "event_description": "有人在您所在的社区发起了新讨论"
+    }
+  },
+  "donation": {
+    "received": {
+      "event_description": "您的捐赠已收到"
+    }
+  },
+  "email_address": {
+    "change": {
+      "event_description": "电子邮件更改已启动"
     },
-    "badge": {
-      "add": "您的账户添加了一个徽章",
-      "remove": "您的账户移除了一个徽章"
+    "verify": {
+      "event_description": "您的新电子邮件已验证"
+    }
+  },
+  "event": {
+    "cancel": {
+      "event_description": "您参加的活动已取消"
     },
-    "donation": {
-      "received": "您的捐赠已收到"
+    "comment": {
+      "event_description": " 一位用户对你即将参加的活动进行了评论"
     },
-    "password": {
-      "change": "您的密码已更改"
+    "create_any": {
+      "event_description": "用户在您的社区中创建了任何活动（未经管理员审核）"
     },
-    "password_reset": {
-      "start": "密码重置已启动",
-      "complete": "密码重置已完成"
+    "create_approved": {
+      "event_description": "您的社区中创建了一个管理员批准的活动"
     },
-    "email_address": {
-      "change": "电子邮件更改已启动",
-      "verify": "您的新电子邮件已验证"
+    "delete": {
+      "event_description": "您参加的活动已删除"
     },
-    "account_deletion": {
-      "start": "您已启动账户删除",
-      "complete": "您的账户已删除",
-      "recovered": "您的账户已恢复（未删除）"
+    "invite_organizer": {
+      "event_description": "有人邀请您共同组织一个活动"
     },
-    "api_key": {
-      "create": "为您的账户创建了API密钥"
+    "reminder": {
+      "event_description": "提醒: 您参加的活动即将开始"
     },
-    "phone_number": {
-      "change": "您的电话号码已更改",
-      "verify": "您的电话号码已验证"
+    "update": {
+      "event_description": "您参加的活动已更新"
+    }
+  },
+  "friend_request": {
+    "accept": {
+      "event_description": "有人接受了您的好友请求"
     },
-    "birthdate": {
-      "change": "您的出生日期已更改"
+    "create": {
+      "event_description": "有人向您发送了好友请求"
+    }
+  },
+  "gender": {
+    "change": {
+      "event_description": "您的个人资料中显示的性别已更改"
+    }
+  },
+  "general": {
+    "new_blog_post": {
+      "event_description": "一篇新博客文章已发布"
+    }
+  },
+  "host_request": {
+    "accept": {
+      "event_description": "有人接受了您的接待请求"
     },
-    "gender": {
-      "change": "您的个人资料中显示的性别已更改"
+    "cancel": {
+      "event_description": "有人取消了他们的接待请求"
     },
-    "discussion": {
-      "comment": "有人在你关注的讨论中发表评论",
-      "create": "有人在您所在的社区发起了新讨论"
+    "confirm": {
+      "event_description": "有人确认了他们的接待请求"
     },
-    "thread": {
-      "reply": "有人回复了你的评论"
+    "create": {
+      "event_description": "有人向您发送接待请求"
     },
-    "general": {
-      "new_blog_post": "一篇新博客文章已发布"
+    "message": {
+      "event_description": "有人在接待请求中发送了消息"
+    },
+    "missed_messages": {
+      "event_description": "您错过了接待请求中的消息"
+    },
+    "reject": {
+      "event_description": "有人拒绝了您的接待请求"
+    },
+    "reminder": {
+      "event_description": "您还没有回复待处理的接待请求"
+    }
+  },
+  "onboarding": {
+    "reminder": {
+      "event_description": "注册后提醒您完善个人资料"
+    }
+  },
+  "password": {
+    "change": {
+      "event_description": "您的密码已更改"
+    }
+  },
+  "password_reset": {
+    "complete": {
+      "event_description": "密码重置已完成"
+    },
+    "start": {
+      "event_description": "密码重置已启动"
+    }
+  },
+  "phone_number": {
+    "change": {
+      "event_description": "您的电话号码已更改"
+    },
+    "verify": {
+      "event_description": "您的电话号码已验证"
+    }
+  },
+  "reference": {
+    "receive_friend": {
+      "event_description": "您收到了一位朋友的评语"
+    },
+    "receive_hosted": {
+      "event_description": "您收到了一位接待您的人的评语"
+    },
+    "receive_surfed": {
+      "event_description": "您收到了一位您接待过的人的评语"
+    },
+    "reminder_hosted": {
+      "event_description": "提醒您给曾接待过您的人成写评语"
+    },
+    "reminder_surfed": {
+      "event_description": "提醒您给曾与您共同旅行过的人写评语"
+    }
+  },
+  "thread": {
+    "reply": {
+      "event_description": "有人回复了你的评论"
     }
   }
 }

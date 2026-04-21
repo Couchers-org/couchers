@@ -5,9 +5,10 @@ from sqlalchemy.exc import IntegrityError
 
 from couchers.db import session_scope
 from couchers.models import PhotoGallery, PhotoGalleryItem, Upload, User
-from couchers.proto import galleries_pb2
+from couchers.models.uploads import get_avatar_upload, has_avatar_photo_expression
+from couchers.proto import api_pb2, galleries_pb2
 from tests.fixtures.db import generate_user
-from tests.fixtures.sessions import galleries_session
+from tests.fixtures.sessions import api_session, galleries_session
 
 
 @pytest.fixture(autouse=True)
@@ -718,8 +719,6 @@ def test_database_constraints_upload_uniqueness(db):
 
 def test_get_avatar_upload_returns_first_by_position(db):
     """get_avatar_upload should return the upload with the lowest position value"""
-    from couchers.models.uploads import get_avatar_upload
-
     user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
@@ -754,8 +753,6 @@ def test_get_avatar_upload_returns_first_by_position(db):
 
 def test_get_avatar_upload_no_photos(db):
     """get_avatar_upload should return None when user has no photos"""
-    from couchers.models.uploads import get_avatar_upload
-
     user1, token1 = generate_user(complete_profile=False)
 
     with session_scope() as session:
@@ -767,8 +764,6 @@ def test_get_avatar_upload_no_photos(db):
 
 def test_has_avatar_photo_expression_with_photos(db):
     """has_avatar_photo_expression should return True when user has photos"""
-    from couchers.models.uploads import has_avatar_photo_expression
-
     user1, token1 = generate_user(complete_profile=False)
 
     with session_scope() as session:
@@ -794,8 +789,6 @@ def test_has_avatar_photo_expression_with_photos(db):
 
 def test_has_avatar_photo_expression_no_photos(db):
     """has_avatar_photo_expression should return False when user has no photos"""
-    from couchers.models.uploads import has_avatar_photo_expression
-
     user1, token1 = generate_user(complete_profile=False)
 
     with session_scope() as session:
@@ -813,9 +806,6 @@ def test_has_avatar_photo_expression_no_photos(db):
 
 def test_avatar_url_via_api_reflects_first_photo(db):
     """GetUser should return avatar URL matching the first photo by position"""
-    from couchers.proto import api_pb2
-    from tests.fixtures.sessions import api_session
-
     user1, token1 = generate_user(complete_profile=False, strong_verification=True)
     user2, token2 = generate_user()
 
@@ -848,9 +838,6 @@ def test_avatar_url_via_api_reflects_first_photo(db):
 
 def test_avatar_changes_after_reordering(db):
     """Moving a photo to first position should make it the new avatar"""
-    from couchers.proto import api_pb2
-    from tests.fixtures.sessions import api_session
-
     user1, token1 = generate_user(complete_profile=False, strong_verification=True)
     user2, token2 = generate_user()
 
@@ -889,8 +876,6 @@ def test_avatar_changes_after_reordering(db):
 
 def test_avatar_with_negative_positions(db):
     """Avatar selection should work correctly with negative position values"""
-    from couchers.models.uploads import get_avatar_upload
-
     user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:
@@ -923,8 +908,6 @@ def test_avatar_with_negative_positions(db):
 
 def test_avatar_with_fractional_positions(db):
     """Avatar selection should work correctly with fractional position values"""
-    from couchers.models.uploads import get_avatar_upload
-
     user1, token1 = generate_user(complete_profile=False, strong_verification=True)
 
     with session_scope() as session:

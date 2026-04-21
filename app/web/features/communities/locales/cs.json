@@ -20,7 +20,8 @@
   "invite_community_dialog": {
     "title": "Požádej o pozvánku do komunity pro tuto událost",
     "toast_success": "Díky, požadavek byl odeslán",
-    "link": "Více informací o této funkci"
+    "link": "Více informací o této funkci",
+    "message": "Použij tento formulář k žádosti, aby moderátoři odeslali oznámení o této události všem uživatelům v okolí."
   },
   "comment": "Komentář",
   "comments": "Komentáře",
