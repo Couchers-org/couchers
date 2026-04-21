@@ -1,4 +1,5 @@
-from datetime import timedelta
+from datetime import date, timedelta
+from unittest.mock import patch
 
 import grpc
 import pytest
@@ -26,9 +27,10 @@ VALID_DESCRIPTION = (
 
 
 def _make_node(node_type: NodeType = NodeType.locality) -> int:
+    # Polygon inside the fake Europe/Helsinki timezone area so node.timezone resolves.
     with session_scope() as session:
         node = Node(
-            geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])),
+            geom=to_multi(create_polygon_lat_lng([[60, 24], [60, 26], [62, 26], [62, 24], [60, 24]])),
             node_type=node_type,
         )
         session.add(node)
@@ -158,6 +160,33 @@ def test_create_public_trip_allows_region_and_narrower(db, node_type):
         assert res.trip_id > 0
 
 
+def test_create_public_trip_in_past_uses_node_timezone(db):
+    # Default user geom resolves to America/New_York; the node's geom is in Europe/Helsinki.
+    # Simulate a moment where Helsinki has already rolled into the next day (2026-01-16)
+    # while NYC is still on 2026-01-15. A from_date of 2026-01-15 is "today" in NYC but
+    # "yesterday" in Helsinki, and must be rejected because the check uses the node's tz.
+    _, token = generate_user()
+    node_id = _make_node()
+
+    fake_today_by_tz = {"America/New_York": date(2026, 1, 15), "Europe/Helsinki": date(2026, 1, 16)}
+
+    with patch(
+        "couchers.servicers.public_trips.today_in_timezone",
+        side_effect=lambda tz: fake_today_by_tz[tz],
+    ):
+        with public_trips_session(token) as api:
+            with pytest.raises(grpc.RpcError) as e:
+                api.CreatePublicTrip(
+                    public_trips_pb2.CreatePublicTripReq(
+                        node_id=node_id,
+                        from_date="2026-01-15",
+                        to_date="2026-01-20",
+                        description=VALID_DESCRIPTION,
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
 def test_create_public_trip_date_errors(db):
     _, token = generate_user()
     node_id = _make_node()
@@ -168,7 +197,7 @@ def test_create_public_trip_date_errors(db):
             api.CreatePublicTrip(
                 public_trips_pb2.CreatePublicTripReq(
                     node_id=node_id,
-                    from_date=(today() - timedelta(days=1)).isoformat(),
+                    from_date=(today() - timedelta(days=2)).isoformat(),
                     to_date=(today() + timedelta(days=1)).isoformat(),
                     description="Visiting town!",
                 )
@@ -564,7 +593,7 @@ def test_update_public_trip_not_owner(db):
 def test_update_public_trip_in_past(db):
     user, token = generate_user()
     node_id = _make_node()
-    trip_id = _create_trip_directly(user.id, node_id, today() - timedelta(days=10), today() - timedelta(days=1))
+    trip_id = _create_trip_directly(user.id, node_id, today() - timedelta(days=10), today() - timedelta(days=2))
 
     with public_trips_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
