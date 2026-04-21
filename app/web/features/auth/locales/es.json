@@ -271,7 +271,23 @@
       "step1_apple_note": "<strong>Usuarios de Apple:</strong> Puedes omitir la descarga y usar tu navegador. Solo haz clic en \"Abrir\" cuando se te solicite.",
       "step2": "Haz clic en <strong>\"Iniciar Verificación Robusta\"</strong> a continuación (se abre en una nueva pestaña)",
       "step3": "Escanea el código QR con tu teléfono",
-      "step4": "Si se te solicita, abre la aplicación y escanea el código QR de nuevo"
+      "step4": "Si se te solicita, abre la aplicación y escanea el código QR de nuevo",
+      "step5": "Selecciona <strong>Pasaporte</strong> (no se admite DNI)",
+      "step6": "Haz una foto clara de la página del pasaporte con los números en la parte inferior",
+      "step7": "Sujeta tu teléfono contra la página del pasaporte que contiene el chip NFC y <strong>mantenlo totalmente quieto durante al menos 5 segundos</strong> — moverse demasiado pronto es la causa de fallo más común",
+      "step8": "Sabrás que ha tenido éxito cuando veas porcentajes que aumentan y un indicador de carga",
+      "download_app_store": "Descargalo en la App Store",
+      "download_google_play": "Consíguelo en Google Play",
+      "chip_location": {
+        "heading": "Encuentra el chip NFC de tu pasaporte",
+        "description": "La ubicación del chip varía según el país. Es posible que debas probar diferentes páginas. Aquí tienes algunos ejemplos de sus ubicaciones:",
+        "us_germany_mexico": "<strong>Brasil, EE.UU., Alemania (2016), Indonesia, México:</strong> Última página",
+        "finland_germany_new": "<strong>Finlandia, Alemania (2017+), Rusia:</strong> Página de la foto",
+        "australia": "<strong>Australia:</strong> Página central (marcada con el símbolo + \"nombre del chip\")"
+      },
+      "scanning_tips": {
+        "heading": "Trucos para un escaneo NFC satisfactorio"
+      }
     }
   },
   "active_logins": {
