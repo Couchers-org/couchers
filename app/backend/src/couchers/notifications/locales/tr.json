@@ -4,7 +4,7 @@
       "push": {
         "title": "Anlık bildirimler etkinleştirildi",
         "ios_title": "Anlık Bildirimler Etkinleştirildi",
-        "body": "Bu cihazda artık bildirim alacaksınız."
+        "body": "Artık bu cihazda bildirim alacaksınız."
       }
     }
   },
@@ -31,7 +31,7 @@
       "push": {
         "title": "Hesap silinmesi istendi",
         "ios_title": "Hesap Silinmesi İstendi",
-        "body": "Doğrulamak için size yolladığımız linki kullanın."
+        "body": "Onaylamak için size e-posta ile gönderdiğimiz bağlantıyı kullanın."
       }
     }
   },
@@ -49,7 +49,9 @@
     "create": {
       "event_description": "Hesabınız için bir API anahtarı oluşturuldu",
       "push": {
-        "body": "Detaylar size e-mail ile gönderildi."
+        "body": "Detaylar size e-mail ile gönderildi.",
+        "title": "API anahtarı oluşturuldu",
+        "ios_title": "API Anahtarı Oluşturuldu"
       }
     }
   },
@@ -75,7 +77,9 @@
     "change": {
       "event_description": "Doğum tarihiniz değiştirildi",
       "push": {
-        "ios_title": "Doğum Tarihi Değiştirildi"
+        "ios_title": "Doğum Tarihi Değiştirildi",
+        "title": "Doğum tarihi değiştirildi",
+        "body": "Bir yönetici doğum tarihinizi {{birthdate}} olarak değiştirdi."
       }
     }
   },
@@ -89,7 +93,8 @@
         "title_one": "{{count}} cevapsız mesaj",
         "title_other": "{{count}} cevapsız mesaj",
         "ios_title_one": "{{count}} Cevapsız Mesaj",
-        "ios_title_other": "{{count}} Cevapsız Mesaj"
+        "ios_title_other": "{{count}} Cevapsız Mesaj",
+        "body": "Yeni görülmemiş mesajlarınız var."
       }
     }
   },
