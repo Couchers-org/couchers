@@ -231,7 +231,6 @@
     "host_request_too_short2_other": "Die Host-anfrage darf nicht kürzer als {{count}} Zeichen sein.",
     "invalid_endpoint": "Ungültiger Push-Benachrichtigungsendpunkt.",
     "cannot_reinstate_and_set_stopped_date": "Ein Freiwilliger kann nicht gleichzeitig wieder aufgenommen und mit einem Beendigungsdatum versehen werden.",
-    "community_too_broad_for_public_trip": "Diese Community ist zu allgemein für einen öffentlichen Trip – bitte poste in einer spezifischeren Community.",
     "incomplete_profile_create_public_trip": "Du musst dein Profil vervollständigen, bevor du einen öffentlichen Trip erstellen kannst.",
     "invalid_public_trip_status": "Du kannst den öffentlichen Trip-Status nicht darauf setzen.",
     "missing_public_trip_description": "Fehlende öffentliche Trip-Beschreibung.",
