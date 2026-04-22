@@ -56,7 +56,7 @@
     "general_filters": {
       "accepts_last_minute_requests": "接受临时请求",
       "has_strong_verification": "强身份验证成功",
-      "has_references": "有用户推荐",
+      "has_references": "有用户评语",
       "same_gender_only_helper_text": "此筛选功能仅对已完成强身份验证的用户开放。",
       "same_gender_only": "仅显示同性",
       "get_strong_verification": "点此完成强身份验证(免费)。"
