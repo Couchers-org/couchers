@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy import select
 
 from couchers.db import session_scope
-from couchers.models import Node, NodeType, User
+from couchers.models import Cluster, Node, NodeType, User
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_multi, today
@@ -26,7 +26,7 @@ VALID_DESCRIPTION = (
 )
 
 
-def _make_node(node_type: NodeType = NodeType.locality) -> int:
+def _make_node(node_type: NodeType = NodeType.locality, small_community_features_enabled: bool = True) -> int:
     # Polygon inside the fake Europe/Helsinki timezone area so node.timezone resolves.
     with session_scope() as session:
         node = Node(
@@ -34,6 +34,15 @@ def _make_node(node_type: NodeType = NodeType.locality) -> int:
             node_type=node_type,
         )
         session.add(node)
+        session.flush()
+        cluster = Cluster(
+            name="Test community",
+            description="Test",
+            parent_node_id=node.id,
+            is_official_cluster=True,
+            small_community_features_enabled=small_community_features_enabled,
+        )
+        session.add(cluster)
         session.flush()
         return node.id
 
@@ -122,9 +131,9 @@ def test_create_public_trip_community_not_found(db):
         assert e.value.details() == "Community not found."
 
 
-def test_create_public_trip_community_too_broad(db):
+def test_create_public_trip_not_enabled(db):
     _, token = generate_user()
-    node_id = _make_node(node_type=NodeType.macroregion)
+    node_id = _make_node(small_community_features_enabled=False)
 
     with public_trips_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -136,8 +145,8 @@ def test_create_public_trip_community_too_broad(db):
                     description="Visiting town!",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert "too broad" in (e.value.details() or "")
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "Public trips are not enabled in this community."
 
 
 @pytest.mark.parametrize(

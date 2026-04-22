@@ -121,8 +121,7 @@ def communities_to_pb(
             admin_count=admin_counts.get(official_cluster.id, 1),
             main_page=page_to_pb(session, official_cluster.main_page, context),
             can_moderate=can_moderate,
-            discussions_enabled=official_cluster.discussions_enabled,
-            events_enabled=official_cluster.events_enabled,
+            small_community_features_enabled=official_cluster.small_community_features_enabled,
             node_type=nodetype2api[node.node_type],
         )
         for node, official_cluster, can_moderate in zip(nodes, official_clusters, can_moderates)
@@ -401,7 +400,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
-        if not node.official_cluster.events_enabled:
+        if not node.official_cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "events_not_enabled")
 
         if not request.include_parents:
@@ -446,7 +445,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
-        if not node.official_cluster.discussions_enabled:
+        if not node.official_cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussions_not_enabled")
         discussions = (
             node.official_cluster.owned_discussions.where(

@@ -6,8 +6,9 @@ import TabBar from "components/TabBar";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { Community, NodeType } from "proto/communities_pb";
+import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
+import { ReactNode } from "react";
 import { CommunityTab, routeToCommunity } from "routes";
 
 import JoinCommunityButton from "./JoinCommunityButton";
@@ -36,27 +37,25 @@ export default function CommunityPageSubHeader({
   const { t } = useTranslation([COMMUNITIES]);
 
   const router = useRouter();
-  const communityTabBarLabels: Partial<Record<CommunityTab, React.ReactNode>> =
-    {
-      overview: t("communities:overview_label"),
-      info: t("communities:local_info_label"),
-      ...(isPublicTripsEnabled &&
-        community.nodeType >= NodeType.NODE_TYPE_REGION && {
-          "public-trips": (
-            <span style={{ display: "inline-flex", alignItems: "center" }}>
-              {t("communities:public_trips_label")}
-              <BetaFlag />
-            </span>
-          ),
-        }),
-      ...(community.discussionsEnabled && {
-        discussions: t("communities:discussions_label"),
+  const communityTabBarLabels: Partial<
+    Record<CommunityTab, string | ReactNode>
+  > = {
+    overview: t("communities:overview_label"),
+    info: t("communities:local_info_label"),
+    ...(community.smallCommunityFeaturesEnabled && {
+      ...(isPublicTripsEnabled && {
+        "public-trips": (
+          <span style={{ display: "inline-flex", alignItems: "center" }}>
+            {t("communities:public_trips_label")}
+            <BetaFlag />
+          </span>
+        ),
       }),
-      ...(community.eventsEnabled && {
-        events: t("communities:events_label"),
-      }),
-      members: t("communities:members_label"),
-    };
+      discussions: t("communities:discussions_label"),
+      events: t("communities:events_label"),
+    }),
+    members: t("communities:members_label"),
+  };
 
   return (
     <>

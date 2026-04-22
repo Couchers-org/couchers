@@ -115,8 +115,11 @@ class Cluster(Base, kw_only=True):
 
     is_official_cluster: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    discussions_enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default=expression.true())
-    events_enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default=expression.true())
+    # Toggles the "small community" feature set: discussions, events, and public trips. These are
+    # grouped into a single flag because they're disabled together on large communities.
+    small_community_features_enabled: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default=expression.true()
+    )
 
     slug: Mapped[str] = column_property(func.slugify(name))
 

@@ -96,7 +96,7 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         if not cluster:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "group_or_community_not_found")
 
-        if not cluster.discussions_enabled:
+        if not cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cannot_create_discussion")
 
         thread = Thread()

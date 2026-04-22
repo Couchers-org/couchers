@@ -126,8 +126,11 @@ message Community {
   uint32 admin_count = 11;
   uint32 nearby_user_count = 12;
   bool can_moderate = 13;
-  bool discussions_enabled = 14;
-  bool events_enabled = 15;
+  // Toggles the "small community" feature set: discussions, events, and public trips. These are
+  // grouped into a single flag because they're disabled together on large communities.
+  bool small_community_features_enabled = 14;
+  reserved 15;
+  reserved "events_enabled";
   NodeType node_type = 16;
 }
 

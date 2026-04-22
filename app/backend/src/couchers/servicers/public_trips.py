@@ -9,7 +9,7 @@ from couchers.constants import PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.models import Node, NodeType, User
+from couchers.models import Node, User
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
@@ -66,10 +66,8 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
-        # Disallow world- and macroregion-level communities (too broad for a trip).
-        # Region/subregion/locality/sublocality are all acceptable.
-        if node.node_type.value < NodeType.region.value:
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "community_too_broad_for_public_trip")
+        if not node.official_cluster.small_community_features_enabled:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trips_not_enabled")
 
         from_date = parse_date(request.from_date)
         to_date = parse_date(request.to_date)

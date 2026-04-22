@@ -45,7 +45,6 @@
     "chat_not_found": "Couldn't find that chat.",
     "city_required": "City is required.",
     "community_not_found": "Community not found.",
-    "community_too_broad_for_public_trip": "This community is too broad for a public trip — please post in a more specific community.",
     "content_report_not_found": "Content report not found.",
     "country_required": "Country is required.",
     "date_from_after_one_year": "The start date must be within one year from today.",
@@ -189,6 +188,7 @@
     "public_trip_not_active": "This public trip is no longer accepting offers.",
     "public_trip_not_found": "Couldn't find that public trip.",
     "public_trip_user_mismatch": "The host request recipient does not match the public trip's traveler.",
+    "public_trips_not_enabled": "Public trips are not enabled in this community.",
     "postal_address_invalid": "The address could not be validated.",
     "postal_address_undeliverable": "The address is not deliverable.",
     "postal_verification_already_in_progress": "You already have a postal verification attempt in progress.",
@@ -298,6 +298,7 @@
       "purpose": "Your contribution will go towards building and sustaining the Couchers.org platform and community, and is vital for our goal of a completely free and non-profit generation of couch surfing.",
       "invoice_receipt_info": "You can download an invoice and receipt for the donation here:",
       "download_invoice": "Download invoice",
+      "tax_acknowledgment": "Couchers, Inc. is a 501(c)(3) nonprofit (EIN: 87-1734577) registered in the United States. No goods or services were provided in exchange for this contribution.",
       "questions_contact": "If you have any questions about your donation, please email us at <a href=\"mailto:donations@couchers.org\">donations@couchers.org</a>.",
       "generosity_helps": "Your generosity will help deliver the platform for everyone."
     }
