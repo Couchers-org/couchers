@@ -13,6 +13,7 @@ from couchers.models import (
     ModerationUserList,
     Reference,
     User,
+    UserActivity,
     UserSession,
 )
 from couchers.proto import account_pb2, admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
@@ -848,6 +849,63 @@ def test_admin_delete_account_url(db, push_collector: PushCollector):
     assert push.content.body == "You can restore it within 7 days using the link we emailed you."
     mock.assert_called_once()
     e = email_fields(mock)
+
+
+def test_AccessStats(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+
+    # Insert UserActivity rows: a couple inside the default 90-day window, one well
+    # outside it, and one with NULL ip_address / user_agent. The INET column is
+    # returned by psycopg3 as an IPv4Address/IPv6Address object, which used to
+    # crash the proto string assignment.
+    in_window_1 = now() - timedelta(days=1)
+    in_window_2 = now() - timedelta(days=10)
+    out_of_window = now() - timedelta(days=200)
+    with session_scope() as session:
+        session.add(
+            UserActivity(
+                user_id=normal_user.id, period=in_window_1, ip_address="1.2.3.4", user_agent="ua-a", api_calls=5
+            )
+        )
+        session.add(
+            UserActivity(
+                user_id=normal_user.id, period=in_window_2, ip_address="2001:db8::1", user_agent="ua-b", api_calls=3
+            )
+        )
+        session.add(
+            UserActivity(
+                user_id=normal_user.id, period=out_of_window, ip_address="9.9.9.9", user_agent="ua-old", api_calls=99
+            )
+        )
+        session.add(UserActivity(user_id=normal_user.id, period=in_window_1, api_calls=1))
+
+    with real_admin_session(super_token) as api:
+        res = api.AccessStats(admin_pb2.AccessStatsReq(user=normal_user.username))
+
+    by_ip = {s.ip_address: s for s in res.stats}
+    assert "1.2.3.4" in by_ip
+    assert by_ip["1.2.3.4"].api_call_count == 5
+    assert by_ip["1.2.3.4"].user_agent == "ua-a"
+    assert "2001:db8::1" in by_ip
+    assert by_ip["2001:db8::1"].api_call_count == 3
+    # NULL ip_address row produces an empty-string ip_address in the proto
+    assert "" in by_ip
+    assert by_ip[""].api_call_count == 1
+    # out-of-window row is excluded by the 90-day default
+    assert "9.9.9.9" not in by_ip
+
+    # explicit end_time should bound the upper end of the window (regression: was >=)
+    with real_admin_session(super_token) as api:
+        res = api.AccessStats(
+            admin_pb2.AccessStatsReq(
+                user=normal_user.username,
+                start_time=Timestamp_from_datetime(now() - timedelta(days=5)),
+                end_time=Timestamp_from_datetime(now()),
+            )
+        )
+    ips = {s.ip_address for s in res.stats}
+    assert ips == {"1.2.3.4", ""}
 
 
 def test_SetLastDonated(db):

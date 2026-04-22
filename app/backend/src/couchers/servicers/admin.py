@@ -896,8 +896,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        start_time = to_aware_datetime(request.start_time) if request.start_time else now() - timedelta(days=90)
-        end_time = to_aware_datetime(request.end_time) if request.end_time else now()
+        start_time = (
+            to_aware_datetime(request.start_time) if request.HasField("start_time") else now() - timedelta(days=90)
+        )
+        end_time = to_aware_datetime(request.end_time) if request.HasField("end_time") else now()
 
         user_activity = session.execute(
             select(
