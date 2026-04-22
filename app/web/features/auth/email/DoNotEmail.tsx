@@ -72,6 +72,9 @@ export default function DoNotEmail() {
               account.
             </Trans>
           </Typography>
+          <Typography variant="body1" gutterBottom>
+            {t("do_not_email.caveat")}
+          </Typography>
           <Typography variant="body1">
             <Button
               onClick={() => toggleDoNotEmail()}

@@ -21,6 +21,9 @@ export default function StrongVerification({
   return (
     <div className={className} id="strong-verification">
       <Typography variant="h2">{t("strong_verification.title")}</Typography>
+      <Typography variant="body1" gutterBottom>
+        {t("strong_verification.subtitle")}
+      </Typography>
       <Typography variant="body1" sx={{ marginBottom: theme.spacing(2) }}>
         <Trans
           t={t}
