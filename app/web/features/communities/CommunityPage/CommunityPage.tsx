@@ -1,6 +1,7 @@
 import { styled, Typography } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import EditCommunityPage from "features/communities/EditCommunityInfoPage";
+import PublicTripsOverview from "features/publicTrips/PublicTripsOverview";
 import PublicTripsSection from "features/publicTrips/PublicTripsSection";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
@@ -16,6 +17,8 @@ import CommunityMembersList from "../members/CommunityMembersList";
 import PageHeader from "../PageHeader";
 import CommunityPageSubHeader from "./CommunityPageSubHeader";
 import InfoPageSection from "./InfoPageSection";
+
+const isPublicTripsEnabled = process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod";
 
 const StyledTitle = styled(Typography)(() => ({
   marginTop: theme.spacing(3),
@@ -49,6 +52,9 @@ export default function CommunityPage({
                 <InfoPageSection community={community} />
                 {community.smallCommunityFeaturesEnabled && (
                   <>
+                    {isPublicTripsEnabled && (
+                      <PublicTripsOverview community={community} />
+                    )}
                     <EventsSection community={community} />
                     <DiscussionsSection community={community} />
                   </>

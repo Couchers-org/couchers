@@ -129,7 +129,11 @@ export default function PublicTripsSection({
         <>
           <TripsList>
             {trips.map((trip) => (
-              <PublicTripCard key={trip.tripId} trip={trip} />
+              <PublicTripCard
+                key={trip.tripId}
+                id={`trip-${trip.tripId}`}
+                trip={trip}
+              />
             ))}
           </TripsList>
           <PaginationRow>

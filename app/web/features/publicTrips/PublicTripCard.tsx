@@ -21,6 +21,7 @@ import {
 } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import StyledLink from "components/StyledLink";
+import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
@@ -40,6 +41,7 @@ interface PublicTripCardProps {
   // When true, renders the owner's view: hides Offer-to-host / View profile /
   // Flag, shows Edit / Close actions and a status chip for closed trips.
   ownerView?: boolean;
+  id?: string;
 }
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -140,6 +142,7 @@ const Description = styled(Typography, {
 export default function PublicTripCard({
   trip,
   ownerView = false,
+  id,
 }: PublicTripCardProps) {
   const {
     t,
@@ -158,8 +161,10 @@ export default function PublicTripCard({
     null,
   );
   const { data: accountInfo } = useAccountInfo();
+  const { authState } = useAuthContext();
   const isNativeEmbed = useIsNativeEmbed();
   const { mutate: updateTrip } = useUpdatePublicTrip();
+  const isOwnTrip = trip.user?.userId === authState.userId;
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -200,7 +205,7 @@ export default function PublicTripCard({
           onClose={() => setShowEditDialog(false)}
         />
       )}
-      <StyledCard elevation={0} sx={{ opacity: isDimmed ? 0.65 : 1 }}>
+      <StyledCard id={id} elevation={0} sx={{ opacity: isDimmed ? 0.65 : 1 }}>
         {ownerView && (
           <ConfirmationDialogWrapper
             title={t("publicTrips:close_dialog_title")}
@@ -337,6 +342,13 @@ export default function PublicTripCard({
                     variant="outlined"
                   />
                 )
+              ) : isOwnTrip ? (
+                <Chip
+                  label={t("publicTrips:status_my_trip")}
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                />
               ) : (
                 <>
                   <StyledLink

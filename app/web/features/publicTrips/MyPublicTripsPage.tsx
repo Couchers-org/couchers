@@ -69,7 +69,6 @@ const StyledBackButton = styled(HeaderButton)({
 // @TODO(NA): Shouldn't be able to edit a public trip that's closed.
 // @TODO(NA): Also consider should a user be able to reopen a closed public trip if it's not in the past?
 // @TODO(NA): Add tests for edit flow.
-// @TODO(NA): Needs a Public Trips section on main communities page same as events, discussions etc.
 
 export default function MyPublicTripsPage() {
   const { t } = useTranslation([PUBLIC_TRIPS, COMMUNITIES]);
