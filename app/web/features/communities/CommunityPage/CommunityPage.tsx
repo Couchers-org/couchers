@@ -46,11 +46,11 @@ export default function CommunityPage({
                   {t("communities:community_header", { name: community.name })}
                 </StyledTitle>
                 <InfoPageSection community={community} />
-                {community.eventsEnabled && (
-                  <EventsSection community={community} />
-                )}
-                {community.discussionsEnabled && (
-                  <DiscussionsSection community={community} />
+                {community.smallCommunityFeaturesEnabled && (
+                  <>
+                    <EventsSection community={community} />
+                    <DiscussionsSection community={community} />
+                  </>
                 )}
               </>
             ) : tab === "info" ? (
