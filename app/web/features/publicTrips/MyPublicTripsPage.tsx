@@ -13,6 +13,7 @@ import { PublicTripStatus } from "proto/public_trips_pb";
 import { useMemo, useState } from "react";
 import dayjs from "utils/dayjs";
 
+import BetaFlag from "../../components/BetaFlag";
 import PublicTripCard from "./PublicTripCard";
 import { useListPublicTripsByUser } from "./useListPublicTrips";
 
@@ -141,6 +142,7 @@ export default function MyPublicTripsPage() {
           <BackIcon />
         </StyledBackButton>
         <Typography variant="h1">{t("publicTrips:my_title")}</Typography>
+        <BetaFlag />
       </TitleRow>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
