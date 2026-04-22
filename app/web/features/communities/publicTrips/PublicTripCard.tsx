@@ -3,17 +3,16 @@ import {
   Card,
   CardContent,
   Chip,
-  IconButton,
   styled,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import ConfirmationDialogWrapper from "components/ConfirmationDialogWrapper";
+import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import {
   CalendarIcon,
-  CloseIcon,
+  CheckCircleIcon,
   CouchIcon,
   EditIcon,
   ExpandLessIcon,
@@ -30,14 +29,30 @@ import { PublicTripStatus } from "proto/public_trips_pb";
 import { useCallback, useState } from "react";
 import { routeToUser } from "routes";
 import { localizeDateTimeRange } from "utils/date";
+import dayjs from "utils/dayjs";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
 import PublicTripDialog from "./PublicTripDialog";
-import { PublicTrip } from "./useListPublicTrips";
+import { PublicTrip, useUpdatePublicTrip } from "./useListPublicTrips";
+
+interface PublicTripCardProps {
+  trip: PublicTrip;
+  // When true, renders the owner's view: hides Offer-to-host / View profile /
+  // Flag, shows Edit / Close actions and a status chip for closed trips.
+  ownerView?: boolean;
+}
 
 const StyledCard = styled(Card)(({ theme }) => ({
   border: `1px solid var(--mui-palette-grey-300)`,
   borderRadius: theme.spacing(1),
+  position: "relative",
+}));
+
+const OwnerMenuContainer = styled("div")(({ theme }) => ({
+  position: "absolute",
+  top: theme.spacing(0.5),
+  right: theme.spacing(0.5),
+  zIndex: 1,
 }));
 
 const StyledCardContent = styled(CardContent)(({ theme }) => ({
@@ -122,14 +137,6 @@ const Description = styled(Typography, {
   }),
 }));
 
-interface PublicTripCardProps {
-  trip: PublicTrip;
-  // When true, renders the owner's view: hides Offer-to-host / View profile /
-  // Flag, shows Edit / Close actions and a status chip for closed trips.
-  ownerView?: boolean;
-}
-
-// @TODO(NA): I don't like the close public trip button, come up with something else.
 export default function PublicTripCard({
   trip,
   ownerView = false,
@@ -147,8 +154,22 @@ export default function PublicTripCard({
   }, []);
   const [showIncompleteDialog, setShowIncompleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement | null>(
+    null,
+  );
   const { data: accountInfo } = useAccountInfo();
   const isNativeEmbed = useIsNativeEmbed();
+  const { mutate: updateTrip } = useUpdatePublicTrip();
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    setMenuAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => setMenuAnchorEl(null);
+
+  const isClosed = trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED;
+  const isPast = dayjs(trip.toDate).isBefore(dayjs().startOf("day"));
+  const isDimmed = isClosed || isPast;
 
   const handleOfferToHost = () => {
     if (!accountInfo?.profileComplete) {
@@ -179,7 +200,53 @@ export default function PublicTripCard({
           onClose={() => setShowEditDialog(false)}
         />
       )}
-      <StyledCard elevation={0}>
+      <StyledCard elevation={0} sx={{ opacity: isDimmed ? 0.65 : 1 }}>
+        {ownerView && (
+          <ConfirmationDialogWrapper
+            title={t("communities:public_trips_close_dialog_title")}
+            message={t("communities:public_trips_close_dialog_message")}
+            confirmButtonLabel={t(
+              "communities:public_trips_close_dialog_confirm",
+            )}
+            onConfirm={() =>
+              updateTrip({
+                tripId: trip.tripId,
+                status: PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED,
+              })
+            }
+          >
+            {(setConfirmOpen) => {
+              const menuItems: EllipsisMenuItem[] = [
+                {
+                  icon: EditIcon,
+                  label: t("communities:public_trips_edit"),
+                  onClick: () => setShowEditDialog(true),
+                },
+                ...(!isClosed
+                  ? [
+                      {
+                        icon: CheckCircleIcon,
+                        label: t("communities:public_trips_close"),
+                        onClick: () => setConfirmOpen(true),
+                      },
+                    ]
+                  : []),
+              ];
+              return (
+                <OwnerMenuContainer>
+                  <EllipsisMenu
+                    idName={`public-trip-${trip.tripId}`}
+                    isMenuOpen={!!menuAnchorEl}
+                    menuAnchorEl={menuAnchorEl}
+                    onMenuOpen={handleMenuOpen}
+                    onMenuClose={handleMenuClose}
+                    items={menuItems}
+                  />
+                </OwnerMenuContainer>
+              );
+            }}
+          </ConfirmationDialogWrapper>
+        )}
         <StyledCardContent>
           <UserSection>
             <Avatar user={user} isProfileLink />
@@ -260,58 +327,24 @@ export default function PublicTripCard({
               }}
             >
               {ownerView ? (
-                <>
-                  {trip.status ===
-                  PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED ? (
-                    <Chip
-                      label={t("communities:public_trips_status_closed")}
-                      size="small"
-                    />
-                  ) : (
-                    <Chip
-                      label={t("communities:public_trips_status_active")}
-                      size="small"
-                      color="primary"
-                      variant="outlined"
-                    />
-                  )}
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Tooltip title={t("communities:public_trips_edit")}>
-                      <IconButton
-                        size="small"
-                        aria-label={t("communities:public_trips_edit")}
-                        onClick={() => setShowEditDialog(true)}
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    {trip.status !==
-                      PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED && (
-                      <ConfirmationDialogWrapper
-                        title={t("communities:public_trips_close_dialog_title")}
-                        message={t(
-                          "communities:public_trips_close_dialog_message",
-                        )}
-                        confirmButtonLabel={t(
-                          "communities:public_trips_close_dialog_confirm",
-                        )}
-                        onConfirm={() => {
-                          // TODO: call UpdatePublicTrip with status=CLOSED
-                        }}
-                      >
-                        {(setIsOpen) => (
-                          <Button
-                            variant="outlined"
-                            startIcon={<CloseIcon />}
-                            onClick={() => setIsOpen(true)}
-                          >
-                            {t("communities:public_trips_close")}
-                          </Button>
-                        )}
-                      </ConfirmationDialogWrapper>
-                    )}
-                  </Box>
-                </>
+                isClosed ? (
+                  <Chip
+                    label={t("communities:public_trips_status_closed")}
+                    size="small"
+                  />
+                ) : isPast ? (
+                  <Chip
+                    label={t("communities:public_trips_status_past")}
+                    size="small"
+                  />
+                ) : (
+                  <Chip
+                    label={t("communities:public_trips_status_active")}
+                    size="small"
+                    color="primary"
+                    variant="outlined"
+                  />
+                )
               ) : (
                 <>
                   <StyledLink
