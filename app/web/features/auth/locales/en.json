@@ -4,7 +4,9 @@
     "current_email_message": "Your email address is currently <1>{{email}}</1>.",
     "success_message": "Your email change has been received. Check your new email to complete the change.",
     "current_password": "Current password",
-    "new_email": "New email"
+    "new_email": "New email",
+    "hide_current_password": "Hide current password",
+    "show_current_password": "Show current password"
   },
   "do_not_email": {
     "title": "Do not email me",
@@ -34,7 +36,13 @@
     "user_logged_error": "You cannot reset your password if you are logged in. You can change your password in settings or log out to reset it.",
     "token_error": "There was an error processing the password reset token, please try opening the link from the email again.",
     "reset_password_success": "Your password has been changed successfully!",
-    "reset_password_error": "Error resetting password: {{message}}"
+    "reset_password_error": "Error resetting password: {{message}}",
+    "hide_old_password": "Hide old password",
+    "show_old_password": "Show old password",
+    "hide_new_password": "Hide new password",
+    "show_new_password": "Show new password",
+    "hide_password_confirmation": "Hide password confirmation",
+    "show_password_confirmation": "Show password confirmation"
   },
   "jail_set_password_form": {
     "title": "Set a password",
