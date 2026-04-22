@@ -13,7 +13,7 @@
       "event_description": "Your account is deleted",
       "push": {
         "title": "Account deleted",
-        "ios_title": "Acccount Deleted",
+        "ios_title": "Account Deleted",
         "body_one": "You can restore it within {{count}} day using the link we emailed you.",
         "body_other": "You can restore it within {{count}} days using the link we emailed you."
       }
