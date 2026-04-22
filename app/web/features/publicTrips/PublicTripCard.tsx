@@ -24,7 +24,7 @@ import StyledLink from "components/StyledLink";
 import useAccountInfo from "features/auth/useAccountInfo";
 import FlagButton from "features/FlagButton";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { PUBLIC_TRIPS } from "i18n/namespaces";
 import { PublicTripStatus } from "proto/public_trips_pb";
 import { useCallback, useState } from "react";
 import { routeToUser } from "routes";
@@ -144,7 +144,7 @@ export default function PublicTripCard({
   const {
     t,
     i18n: { language: locale },
-  } = useTranslation([COMMUNITIES]);
+  } = useTranslation([PUBLIC_TRIPS]);
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const descriptionRef = useCallback((node: HTMLElement | null) => {
@@ -203,11 +203,9 @@ export default function PublicTripCard({
       <StyledCard elevation={0} sx={{ opacity: isDimmed ? 0.65 : 1 }}>
         {ownerView && (
           <ConfirmationDialogWrapper
-            title={t("communities:public_trips_close_dialog_title")}
-            message={t("communities:public_trips_close_dialog_message")}
-            confirmButtonLabel={t(
-              "communities:public_trips_close_dialog_confirm",
-            )}
+            title={t("publicTrips:close_dialog_title")}
+            message={t("publicTrips:close_dialog_message")}
+            confirmButtonLabel={t("publicTrips:close_dialog_confirm")}
             onConfirm={() =>
               updateTrip({
                 tripId: trip.tripId,
@@ -219,14 +217,14 @@ export default function PublicTripCard({
               const menuItems: EllipsisMenuItem[] = [
                 {
                   icon: EditIcon,
-                  label: t("communities:public_trips_edit"),
+                  label: t("publicTrips:edit"),
                   onClick: () => setShowEditDialog(true),
                 },
                 ...(!isClosed
                   ? [
                       {
                         icon: CheckCircleIcon,
-                        label: t("communities:public_trips_close"),
+                        label: t("publicTrips:close"),
                         onClick: () => setConfirmOpen(true),
                       },
                     ]
@@ -258,7 +256,7 @@ export default function PublicTripCard({
               {user.gender ? `, ${user.gender}` : ""}
             </UserDetails>
             <UserDetails variant="body2">
-              {t("communities:public_trips_references", {
+              {t("publicTrips:references", {
                 count: user.numReferences,
               })}
             </UserDetails>
@@ -312,8 +310,8 @@ export default function PublicTripCard({
                 }}
               >
                 {expanded
-                  ? t("communities:public_trips_show_less")
-                  : t("communities:public_trips_show_more")}
+                  ? t("publicTrips:show_less")
+                  : t("publicTrips:show_more")}
                 {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
               </Typography>
             )}
@@ -328,18 +326,12 @@ export default function PublicTripCard({
             >
               {ownerView ? (
                 isClosed ? (
-                  <Chip
-                    label={t("communities:public_trips_status_closed")}
-                    size="small"
-                  />
+                  <Chip label={t("publicTrips:status_closed")} size="small" />
                 ) : isPast ? (
-                  <Chip
-                    label={t("communities:public_trips_status_past")}
-                    size="small"
-                  />
+                  <Chip label={t("publicTrips:status_past")} size="small" />
                 ) : (
                   <Chip
-                    label={t("communities:public_trips_status_active")}
+                    label={t("publicTrips:status_active")}
                     size="small"
                     color="primary"
                     variant="outlined"
@@ -351,7 +343,7 @@ export default function PublicTripCard({
                     href={routeToUser(user.username)}
                     target={isNativeEmbed ? undefined : "_blank"}
                   >
-                    {t("communities:public_trips_view_profile")}
+                    {t("publicTrips:view_profile")}
                   </StyledLink>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <FlagButton
@@ -362,7 +354,7 @@ export default function PublicTripCard({
                       startIcon={<CouchIcon />}
                       onClick={handleOfferToHost}
                     >
-                      {t("communities:public_trips_offer_to_host")}
+                      {t("publicTrips:offer_to_host")}
                     </Button>
                   </Box>
                 </>

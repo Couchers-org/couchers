@@ -87,7 +87,7 @@ describe("PublicTripsSection", () => {
       render(<PublicTripsSection community={community} />, { wrapper });
 
       expect(
-        await screen.findByText(t("communities:public_trips_empty_state")),
+        await screen.findByText(t("publicTrips:empty_state")),
       ).toBeVisible();
     });
   });
@@ -110,18 +110,14 @@ describe("PublicTripsSection", () => {
 
       await user.click(
         await screen.findByRole("button", {
-          name: t("communities:create_public_trip"),
+          name: t("publicTrips:create_trip"),
         }),
       );
 
       const dialog = await screen.findByRole("dialog");
-      expect(dialog).toHaveTextContent(
-        t("communities:public_trips_create_dialog_title"),
-      );
+      expect(dialog).toHaveTextContent(t("publicTrips:create_dialog_title"));
       // Location label + community name should both render inside the dialog
-      expect(dialog).toHaveTextContent(
-        t("communities:public_trips_location_label"),
-      );
+      expect(dialog).toHaveTextContent(t("publicTrips:location_label"));
       expect(dialog).toHaveTextContent(community.name);
     });
 
@@ -136,12 +132,12 @@ describe("PublicTripsSection", () => {
 
       // Wait for accountInfo to resolve so the handler picks it up
       await screen.findByRole("button", {
-        name: t("communities:create_public_trip"),
+        name: t("publicTrips:create_trip"),
       });
 
       await user.click(
         screen.getByRole("button", {
-          name: t("communities:create_public_trip"),
+          name: t("publicTrips:create_trip"),
         }),
       );
 
@@ -156,9 +152,7 @@ describe("PublicTripsSection", () => {
       // unique to it, unlike the "Create public trip" text which also labels
       // the button that triggered this flow).
       expect(
-        screen.queryByLabelText(
-          t("communities:public_trips_description_label"),
-        ),
+        screen.queryByLabelText(t("publicTrips:description_label")),
       ).not.toBeInTheDocument();
     });
 
@@ -168,18 +162,18 @@ describe("PublicTripsSection", () => {
 
       await user.click(
         await screen.findByRole("button", {
-          name: t("communities:create_public_trip"),
+          name: t("publicTrips:create_trip"),
         }),
       );
 
       const descriptionField = await screen.findByLabelText(
-        t("communities:public_trips_description_label"),
+        t("publicTrips:description_label"),
       );
       await user.type(descriptionField, "too short");
 
       await user.click(
         screen.getByRole("button", {
-          name: t("communities:public_trips_create_dialog_submit"),
+          name: t("publicTrips:create_dialog_submit"),
         }),
       );
 
@@ -193,7 +187,7 @@ describe("PublicTripsSection", () => {
 
       await user.click(
         await screen.findByRole("button", {
-          name: t("communities:create_public_trip"),
+          name: t("publicTrips:create_trip"),
         }),
       );
 
@@ -203,27 +197,27 @@ describe("PublicTripsSection", () => {
       const departure = dateOffset(10);
 
       const arrivalGroup = await screen.findByRole("group", {
-        name: t("communities:public_trips_from_date_label"),
+        name: t("publicTrips:from_date_label"),
       });
       await user.click(arrivalGroup);
       await user.keyboard("{Control>}a{/Control}");
       await user.keyboard(arrival.keystrokes);
 
       const departureGroup = await screen.findByRole("group", {
-        name: t("communities:public_trips_to_date_label"),
+        name: t("publicTrips:to_date_label"),
       });
       await user.click(departureGroup);
       await user.keyboard("{Control>}a{/Control}");
       await user.keyboard(departure.keystrokes);
 
       await user.type(
-        screen.getByLabelText(t("communities:public_trips_description_label")),
+        screen.getByLabelText(t("publicTrips:description_label")),
         VALID_DESCRIPTION,
       );
 
       await user.click(
         screen.getByRole("button", {
-          name: t("communities:public_trips_create_dialog_submit"),
+          name: t("publicTrips:create_dialog_submit"),
         }),
       );
 

@@ -1,6 +1,7 @@
 import { styled, Typography } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import EditCommunityPage from "features/communities/EditCommunityInfoPage";
+import PublicTripsSection from "features/publicTrips/PublicTripsSection";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { CommunityTab } from "routes";
@@ -13,7 +14,6 @@ import CommunityEventsList from "../events/CommunityEventsList";
 import EventsSection from "../events/EventsSection";
 import CommunityMembersList from "../members/CommunityMembersList";
 import PageHeader from "../PageHeader";
-import PublicTripsSection from "../publicTrips/PublicTripsSection";
 import CommunityPageSubHeader from "./CommunityPageSubHeader";
 import InfoPageSection from "./InfoPageSection";
 

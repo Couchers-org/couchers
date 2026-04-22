@@ -4,7 +4,7 @@ import BetaFlag from "components/BetaFlag";
 import StyledLink from "components/StyledLink";
 import TabBar from "components/TabBar";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Community } from "proto/communities_pb";
 import { CommunityParent } from "proto/groups_pb";
@@ -34,7 +34,7 @@ export default function CommunityPageSubHeader({
   community: Community.AsObject;
   tab: CommunityTab;
 }) {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([COMMUNITIES, PUBLIC_TRIPS]);
 
   const router = useRouter();
   const communityTabBarLabels: Partial<
@@ -46,7 +46,7 @@ export default function CommunityPageSubHeader({
       ...(isPublicTripsEnabled && {
         "public-trips": (
           <span style={{ display: "inline-flex", alignItems: "center" }}>
-            {t("communities:public_trips_label")}
+            {t("publicTrips:label")}
             <BetaFlag />
           </span>
         ),

@@ -8,14 +8,14 @@ import { AddIcon, CouchIcon, EditIcon } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
+import { SectionTitle } from "features/communities/CommunityPage";
 import { useTranslation } from "i18n";
-import { COMMUNITIES, DASHBOARD } from "i18n/namespaces";
+import { DASHBOARD, PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
 import { Community } from "proto/communities_pb";
 import { useState } from "react";
 import { myPublicTripsRoute } from "routes";
 
-import { SectionTitle } from "../CommunityPage";
 import PublicTripCard from "./PublicTripCard";
 import PublicTripDialog from "./PublicTripDialog";
 import { useListPublicTrips } from "./useListPublicTrips";
@@ -38,7 +38,7 @@ export default function PublicTripsSection({
 }: {
   community: Community.AsObject;
 }) {
-  const { t } = useTranslation([COMMUNITIES, DASHBOARD]);
+  const { t } = useTranslation([PUBLIC_TRIPS, DASHBOARD]);
   // Stack of page tokens visited so far. First entry is "" (the initial page).
   const [tokens, setTokens] = useState<string[]>([""]);
   const [showIncompleteDialog, setShowIncompleteDialog] = useState(false);
@@ -98,9 +98,7 @@ export default function PublicTripsSection({
         communityId={community.communityId}
         communityName={community.name}
       />
-      <SectionTitle icon={<CouchIcon />}>
-        {t("communities:public_trips_label")}
-      </SectionTitle>
+      <SectionTitle icon={<CouchIcon />}>{t("publicTrips:label")}</SectionTitle>
       {hasOwnTrip ? (
         <Button
           sx={{ my: 2 }}
@@ -108,7 +106,7 @@ export default function PublicTripsSection({
           component={Link}
           href={myPublicTripsRoute}
         >
-          {t("communities:edit_my_public_trips")}
+          {t("publicTrips:edit_my_trips")}
         </Button>
       ) : (
         <Button
@@ -116,19 +114,17 @@ export default function PublicTripsSection({
           startIcon={<AddIcon />}
           onClick={handleCreateClick}
         >
-          {t("communities:create_public_trip")}
+          {t("publicTrips:create_trip")}
         </Button>
       )}
       <Typography variant="body1" sx={{ mb: 2 }}>
-        {t("communities:public_trips_description")}
+        {t("publicTrips:section_intro")}
       </Typography>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
         <CenteredSpinner />
       ) : !hasResults && pageIndex === 0 ? (
-        <Typography variant="body1">
-          {t("communities:public_trips_empty_state")}
-        </Typography>
+        <Typography variant="body1">{t("publicTrips:empty_state")}</Typography>
       ) : (
         <>
           <TripsList>
@@ -142,10 +138,10 @@ export default function PublicTripsSection({
               disabled={pageIndex === 0}
               startIcon={<ChevronLeftIcon />}
             >
-              {t("communities:public_trips_previous")}
+              {t("publicTrips:previous")}
             </Button>
             <Typography variant="body2">
-              {t("communities:public_trips_page_indicator", {
+              {t("publicTrips:page_indicator", {
                 current: pageIndex + 1,
               })}
             </Typography>
@@ -154,7 +150,7 @@ export default function PublicTripsSection({
               disabled={!data?.nextPageToken}
               endIcon={<ChevronRightIcon />}
             >
-              {t("communities:public_trips_next")}
+              {t("publicTrips:next")}
             </Button>
           </PaginationRow>
         </>

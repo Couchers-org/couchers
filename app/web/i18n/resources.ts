@@ -8,6 +8,7 @@ import messages from "features/messages/locales/en.json";
 import mod from "features/mod/locales/en.json";
 import notifications from "features/notifications/locales/en.json";
 import profile from "features/profile/locales/en.json";
+import publicTrips from "features/publicTrips/locales/en.json";
 import search from "features/search/locales/en.json";
 import global from "resources/locales/en.json";
 
@@ -22,6 +23,7 @@ const resources = {
   mod,
   notifications,
   profile,
+  publicTrips,
   search,
   global,
 } as const;

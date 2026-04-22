@@ -7,7 +7,7 @@ import HtmlMeta from "components/HtmlMeta";
 import { BackIcon } from "components/Icons";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
-import { COMMUNITIES } from "i18n/namespaces";
+import { COMMUNITIES, PUBLIC_TRIPS } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { PublicTripStatus } from "proto/public_trips_pb";
 import { useMemo, useState } from "react";
@@ -66,8 +66,12 @@ const StyledBackButton = styled(HeaderButton)({
   height: "3.125rem",
 });
 
+// @TODO(NA): Shouldn't be able to edit a public trip that's closed.
+// @TODO(NA): Also consider should a user be able to reopen a closed public trip if it's not in the past?
+// @TODO(NA): Add tests for edit flow.
+
 export default function MyPublicTripsPage() {
-  const { t } = useTranslation([COMMUNITIES]);
+  const { t } = useTranslation([PUBLIC_TRIPS, COMMUNITIES]);
   const { authState } = useAuthContext();
   const userId = authState.userId;
   const router = useRouter();
@@ -120,15 +124,15 @@ export default function MyPublicTripsPage() {
   const hasResults = trips.length > 0;
 
   const filters: { value: TripFilter; label: string }[] = [
-    { value: "all", label: t("communities:public_trips_filter_all") },
-    { value: "active", label: t("communities:public_trips_filter_active") },
-    { value: "past", label: t("communities:public_trips_filter_past") },
-    { value: "closed", label: t("communities:public_trips_filter_closed") },
+    { value: "all", label: t("publicTrips:filter_all") },
+    { value: "active", label: t("publicTrips:filter_active") },
+    { value: "past", label: t("publicTrips:filter_past") },
+    { value: "closed", label: t("publicTrips:filter_closed") },
   ];
 
   return (
     <PageWrapper>
-      <HtmlMeta title={t("communities:my_public_trips_title")} />
+      <HtmlMeta title={t("publicTrips:my_title")} />
       <TitleRow>
         <StyledBackButton
           onClick={() => router.back()}
@@ -136,9 +140,7 @@ export default function MyPublicTripsPage() {
         >
           <BackIcon />
         </StyledBackButton>
-        <Typography variant="h1">
-          {t("communities:my_public_trips_title")}
-        </Typography>
+        <Typography variant="h1">{t("publicTrips:my_title")}</Typography>
       </TitleRow>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
@@ -171,13 +173,13 @@ export default function MyPublicTripsPage() {
             {!hasResults ? (
               <EmptyState>
                 <Typography variant="body1">
-                  {t("communities:my_public_trips_empty_state")}
+                  {t("publicTrips:my_empty_state")}
                 </Typography>
               </EmptyState>
             ) : filteredTrips.length === 0 ? (
               <EmptyState>
                 <Typography variant="body1">
-                  {t("communities:my_public_trips_filter_empty_state")}
+                  {t("publicTrips:my_filter_empty_state")}
                 </Typography>
               </EmptyState>
             ) : (
@@ -193,10 +195,10 @@ export default function MyPublicTripsPage() {
                 disabled={pageIndex === 0}
                 startIcon={<ChevronLeft />}
               >
-                {t("communities:public_trips_previous")}
+                {t("publicTrips:previous")}
               </Button>
               <Typography variant="body2">
-                {t("communities:public_trips_page_indicator", {
+                {t("publicTrips:page_indicator", {
                   current: pageIndex + 1,
                 })}
               </Typography>
@@ -205,7 +207,7 @@ export default function MyPublicTripsPage() {
                 disabled={!data?.nextPageToken}
                 endIcon={<ChevronRight />}
               >
-                {t("communities:public_trips_next")}
+                {t("publicTrips:next")}
               </Button>
             </PaginationRow>
           )}
