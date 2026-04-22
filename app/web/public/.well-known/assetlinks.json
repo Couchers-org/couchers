@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "org.couchers.staging.android",
+      "sha256_cert_fingerprints": [
+        "7E:10:C7:86:B5:89:49:02:50:4D:39:F7:74:25:BA:5A:F6:EF:A1:A8:F3:FB:20:24:F7:40:BE:5C:C3:BB:B2:87"
+      ]
+    }
+  }
+]

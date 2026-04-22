@@ -17,8 +17,5 @@ declare namespace NodeJS {
     NEXT_PUBLIC_GLOBAL_MESSAGE_URL: string;
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY?: string;
     SENTRY_RELEASE: string;
-    NEXT_PUBLIC_IOS_APP_ID: string;
-    NEXT_PUBLIC_ANDROID_PACKAGE_NAME: string;
-    NEXT_PUBLIC_ANDROID_CERT_FINGERPRINT: string;
   }
 }
