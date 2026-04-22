@@ -40,7 +40,7 @@ def username_or_id(value: str, table: _UserLike = User) -> ColumnElement[bool]:
     if is_valid_username(value):
         return table.username == value
     elif is_valid_user_id(value):
-        return table.id == value
+        return table.id == int(value)
     # no fields match, this will return no rows
     return false()
 
@@ -52,7 +52,7 @@ def username_or_email_or_id(value: str) -> ColumnElement[bool]:
     elif is_valid_email(value):
         return User.email == value
     elif is_valid_user_id(value):
-        return User.id == value
+        return User.id == int(value)
     # no fields match, this will return no rows
     return false()
 

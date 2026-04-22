@@ -3,7 +3,7 @@ from datetime import timedelta
 import grpc
 import pytest
 from google.protobuf import empty_pb2, wrappers_pb2
-from psycopg2.extras import DateTimeTZRange
+from psycopg.types.range import TimestamptzRange
 from sqlalchemy import select
 from sqlalchemy.sql.expression import update
 
@@ -13,6 +13,8 @@ from couchers.models import (
     BackgroundJob,
     BackgroundJobState,
     EventOccurrence,
+    ModerationState,
+    ModerationVisibility,
     Notification,
     NotificationDelivery,
     Upload,
@@ -2380,7 +2382,7 @@ def test_list_past_events_regression(db):
     with session_scope() as session:
         session.execute(
             update(EventOccurrence).values(
-                during=DateTimeTZRange(start + timedelta(hours=-5), start + timedelta(hours=-4))
+                during=TimestamptzRange(start + timedelta(hours=-5), start + timedelta(hours=-4))
             )
         )
 
@@ -2609,8 +2611,6 @@ def test_event_photo_key(db):
 
 def test_event_created_with_shadowed_visibility(db):
     """Events start in SHADOWED state when created."""
-    from couchers.models import ModerationState, ModerationVisibility
-
     user, token = generate_user()
 
     with session_scope() as session:

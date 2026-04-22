@@ -39,6 +39,10 @@ jobs:
       - name: Install Python 3.13
         run: uv python install 3.13
 
+      - name: Generate protos
+        working-directory: app/backend
+        run: make protos
+
       - name: Build
         working-directory: app/client
         run: uv build

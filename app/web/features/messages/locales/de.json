@@ -9,11 +9,9 @@
   "close_request_button_text": "Ablehnen",
   "messages_page": {
     "tabs": {
-      "aria_label": "Tabs für verschiedene Nachrichten-Typen",
       "chats": "Chats",
       "hosting": "Hosten",
-      "surfing": "Surfen",
-      "archived": "Archiviert"
+      "surfing": "Surfen"
     },
     "title": "Nachrichten"
   },
@@ -52,7 +50,6 @@
   },
   "create_chat": {
     "group_title": "Gruppenchat erstellen",
-    "group_title_field_label": "Titel",
     "dm_title": "Neuen Chat erstellen",
     "no_friends_found_message": "Es konnte keine Freunde gefunden werden",
     "user_load_error_message": "(Benutzerladefehler)",
@@ -169,8 +166,6 @@
     "archived": "Archiviert",
     "archive_button": "Archiv",
     "unarchive_button": "Dearchivieren",
-    "show_archived": "Archivierte anzeigen",
-    "show_active": "Aktive anzeigen",
     "no_archived_chats": "Keine archivierten Chats",
     "no_archived_requests": "Keine archivierten Anfragen",
     "no_archived_messages": "Keine archivierten Nachrichten"

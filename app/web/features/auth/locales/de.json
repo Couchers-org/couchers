@@ -27,8 +27,7 @@
       "can_host": "Kann hosten",
       "maybe": "Kann vielleicht hosten",
       "cant_host": "Kann nicht hosten",
-      "field_label": "Hosting-Status",
-      "any": "Alle"
+      "field_label": "Hosting-Status"
     },
     "gender": {
       "field_label": "Ich identifiziere mich als…",
@@ -60,7 +59,6 @@
   },
   "basic_form": {
     "name": {
-      "empty_error": "Bitte gib deinen Namen an",
       "required_error": "Dieses Feld darf nicht leer sein",
       "field_label": "Name",
       "invalid_characters_error": "Der Name darf nur Buchstaben, Leerzeichen, Bindestriche und Apostrophe enthalten",
@@ -101,7 +99,6 @@
     "form": {
       "username_field_label": "E-Mail-Adresse/Benutzername",
       "password_field_label": "Passwort",
-      "no_password_login_prompt": "Überprüfe dein E-Mail-Postfach nach einem Link, um dich einzuloggen! :)",
       "remember_me": "Angemeldet bleiben",
       "forgot_password": "Passwort vergessen?",
       "hide_password": "Passwort ausblenden",
@@ -109,7 +106,6 @@
     }
   },
   "basic_sign_up_form": {
-    "header": "Lass uns loslegen!",
     "existing_user_prompt": "Du hast bereits einen Account? <2>Einloggen</2>",
     "sign_up_agreement_explainer": "Beim Fortfahren stimmst du unseren <2>Nutzungsbedingungen</2> zu, inklusive unseren Bedingungen zur Verwendung von Cookies, E-Mail-Adresse und digitalen Informationen."
   },
@@ -189,10 +185,6 @@
     }
   },
   "logged_out_message": "Du wurdest ausgeloggt.",
-  "jail_set_password_form": {
-    "title": "Erstelle ein Passwort",
-    "explanation": "Du hast noch kein Passwort für deinen Account angegeben. Bitte erstelle eins, um fortzusetzen."
-  },
   "do_not_email": {
     "title": "Sendet mir keine E-Mails",
     "status": {
@@ -202,8 +194,7 @@
     "action_button": {
       "no_emails_enable_text": "Von E-Mails abmelden",
       "no_emails_disable_text": "E-Mails wieder aktivieren"
-    },
-    "caveat": "Wenn du diese Einstellung aktivierst, wird dein Konto so eingestellt, dass es keine Hostanfragen akzeptiert. Du erhälst jedoch weiterhin Sicherheits-E-Mails (z. B. zum Zurücksetzen deines Passworts). Den Newsletter kannst du separat über den Link in der Fußzeile des Newsletters abbestellen."
+    }
   },
   "unhandled_sign_up_state": "Fehler: unhandled signup flow state.",
   "change_phone": {
@@ -263,19 +254,14 @@
     "log_out_of_all_session": "Melde dich von allen anderen Sitzungen ab"
   },
   "strong_verification": {
-    "information_text3": "Weitere Informationen darüber, wie wir und Iris ID deine Daten verarbeiten und speichern, findest du in unseren <2>Nutzungsbedingungen</2>. Gemäß der <5>Datenschutzrichtlinie</5> von Iris ID werden deine persönlichen Daten innerhalb von 24 Stunden gelöscht. Du kannst jederzeit per Knopfdruck die Löschung dieser Daten zur starken Verifizierung (mit Ausnahme des ausstellenden Landes, des Ablaufdatums und der letzten drei Ziffern der Dokumentennummer) von unseren Servern beantragen.",
     "status": {
       "enabled_message": "Du <1>bist aktuell</1> mit der starken Verifizierung verifiziert.",
       "disabled_message": "Du <1>bist aktuell nicht</1> mit der starken Verifizierung verifiziert."
     },
     "title": "Starke Verifizierung",
-    "subtitle": "Die starke Verifizierung ist eine zusätzliche Sicherheitsfunktion, die es dir ermöglicht, dein Geburtsdatum und Geschlecht mithilfe deines biometrischen Reisepasses zu überprüfen.",
-    "begin_button": "Schließe die starke Verifizierung mit Iris-ID ab",
     "start_button": "Starke Verifizierung starten",
-    "information_text1": "Du benötigst einen <strong>biometrischen Reisepass</strong> (andere Ausweisdokumente funktionieren nicht) und ein NFC-fähiges Apple iPhone oder Android-Smartphone.",
     "complete_title": "Wir bearbeiten deinen starken Verifizierungsversuch",
     "complete_message1": "Dein Reisepass wird validiert. Du wirst innerhalb weniger Minuten eine E-Mail mit dem Ergebnis erhalten.",
-    "information_text2": "Durch Klicken auf die Schaltfläche unten wirst du zur Website von Iris ID weitergeleitet, um den Passüberprüfungsprozess abzuschließen.",
     "complete_message2": "Die starke Verifizierung erlischt, mit ablauf deines Reisepasses. Danach musst du die Verifizierung mit deinem neuen Reisepass erneut durchführen.",
     "delete_data_title": "Starke Verifizierungs Reisepassdaten löschen",
     "delete_information": "Du kannst deine Daten zur starken Verifizierung (mit Ausnahme des ausstellenden Landes, des Ablaufdatums und der letzten drei Ziffern der Dokumentnummer) jederzeit von unseren Servern löschen.",
@@ -295,7 +281,7 @@
       "step3": "Scanne den QR-Code mit deinem Handy",
       "step4": "Wenn du dazu aufgefordert wirst, öffne die App und scanne den QR-Code erneut",
       "step5": "Wähle <strong>Reisepass</strong> aus (Personalausweise werden nicht unterstützt)",
-      "step7": "Halte dein Telefon an die Passseite mit dem NFC-Chip (siehe Tipps unten)",
+      "step7": "Halte dein Telefon an die Passseite mit dem NFC-Chip und <strong>halte es mindestens 5 Sekunden lang völlig still</strong> — zu frühes Bewegen ist die häufigste Fehlerursache",
       "step8": "Du wirst wissen, dass es erfolgreich ist, wenn du steigende Prozentsätze und einen Ladebalken siehst",
       "download_app_store": "Im App Store herunterladen",
       "download_google_play": "Bei Google Play herunterladen",
@@ -308,7 +294,32 @@
       },
       "title": "Wie man die starke Verifizierung abschließt",
       "step1_apple_note": "<strong>Apple-Nutzer:</strong> Du kannst den Download überspringen und stattdessen deinen Browser verwenden. Klicke einfach auf „Öffnen“, wenn du dazu aufgefordert werden.",
-      "step6": "Mache ein klares Foto der Passseite mit den Zahlen am unteren Rand"
+      "step6": "Mache ein klares Foto der Passseite mit den Zahlen am unteren Rand",
+      "scanning_tips": {
+        "heading": "Tipps für erfolgreiches NFC-Scannen",
+        "description": "Der NFC-Scan ist der kniffligste Teil. Diese Tipps erhöhen deine Chancen erheblich:",
+        "remove_case": "<strong>Entferne deine Handyhülle</strong> – selbst dünne Hüllen können das NFC-Signal blockieren",
+        "hold_still": "<strong>Halte dein Telefon vollkommen ruhig</strong> für mindestens 5 Sekunden – zu frühes Bewegen ist die häufigste Fehlerursache",
+        "flat_surface": "<strong>Legen deinen Reisepass auf eine ebene Fläche</strong> – halte ihn nicht in der Hand",
+        "nfc_location": "<strong>Finde die NFC-Antenne deines Handys</strong> – sie befindet sich normalerweise oben in der Mitte auf der Rückseite des Handys. Probiere verschiedene Positionen aus, falls keine Verbindung zustande kommt",
+        "no_metal": "<strong>Vermeide Metalloberflächen</strong> – lege deinen Reisepass nicht auf einen Metalltisch oder Laptop",
+        "retry": "Wenn der Scan fehlschlägt, versuche es erneut – oft sind 2-3 Versuche nötig, um die richtige Position zu finden"
+      },
+      "before_you_start": {
+        "heading": "Bevor du beginst",
+        "nfc_check": "Dein Telefon muss über <strong>NFC-Funktionalität</strong> verfügen – die meisten modernen Telefone tun dies. NFC ist normalerweise standardmäßig aktiviert, bei einigen älteren Telefonen muss es jedoch möglicherweise in den Einstellungen deines Telefons aktiviert werden.",
+        "passport_check": "Dein Reisepass muss ein <strong>biometrischer Reisepass</strong> sein — achte auf das goldene Chip-Symbol auf dem Umschlag. Ältere Reisepässe ohne dieses Symbol funktionieren nicht.",
+        "remove_case": "<strong>Entferne deine Handyhülle vor dem Start</strong> – selbst dünne Hüllen können das NFC-Signal blockieren und zum Scheitern des Scans führen.",
+        "passport_symbol_alt": "Biometrischer Reisepass Symbol"
+      },
+      "didnt_work": {
+        "heading": "Hast du Probleme?",
+        "tip1": "Stelle bei älteren Android-Handys sicher, dass NFC in den Einstellungen deines Handys aktiviert ist (bei den meisten modernen Handys ist es standardmäßig aktiviert)",
+        "tip2": "Probiere eine andere Seite deines Reisepasses – die Position des Chips variiert je nach Land",
+        "tip3": "Stelle bei Android sicher, dass du die IRIS-ID-App installiert hast (nicht die Browser-Version)",
+        "tip4": "Einige ältere Reisepässe oder Passkarten verfügen nicht über NFC-Chips und funktionieren nicht",
+        "contact": "Falls du weiterhin Probleme hast, <1>lass es uns wissen</1> und wir helfen dir."
+      }
     }
   },
   "sign_up_resend_verification_email_help": "Keine E-Mail erhalten? Klick <2>hier, um den Bestätigungslink erneut zu senden</2>.",

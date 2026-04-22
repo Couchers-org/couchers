@@ -15,6 +15,7 @@
 </mj-section>
 <mj-section padding="0px">
   <mj-column>
+    <mj-text>{{ "notifications.donation_received.tax_acknowledgment"|translate }}</mj-text>
     <mj-text>{{ "notifications.donation_received.questions_contact"|translate }}</mj-text>
     <mj-text>{{ "notifications.donation_received.generosity_helps"|translate }}</mj-text>
     <mj-text><b>{{ "notifications.thank_you"|translate }}</b></mj-text>

@@ -3,7 +3,6 @@
   "choose_search_criteria": "Zadej místo nebo použij filtr pro vyhledávání.",
   "error_loading_users": "Chyba při načítání uživatelů",
   "filter_dialog": {
-    "search_here_button": "Hledat v této oblasti",
     "desktop_title": "Filtry",
     "mobile_title": "Hledat"
   },
@@ -16,7 +15,6 @@
   },
   "form": {
     "location_field_label": "Poblíž polohy",
-    "missing_location_validation_error": "Zadej místo, aby bylo možné tento filtr použít",
     "keywords": {
       "field_label": "Jméno, klíčová slova nebo uživatelské jméno",
       "clear_field_action_a11y_label": "Vymazat vyhledávání",
@@ -29,8 +27,7 @@
         "min_age": "Minimální věk",
         "max_age": "Maximální věk"
       },
-      "last_active_field_label": "Naposledy aktivní",
-      "complete_profiles_label": "Kompletní profily"
+      "last_active_field_label": "Naposledy aktivní"
     },
     "accommodation_filters": {
       "title": "Filtry ubytování",
@@ -75,7 +72,6 @@
   },
   "search_result": {
     "no_user_result_message": "Nebyl nalezen žádný uživatel. Zkus odebrat některé filtry, aby se zobrazilo více výsledků.",
-    "show_user_button_label": "Zobrazit {{name}} na mapě",
     "missing_about_description": "{{name}} nemá zatím vyplněn svůj profil",
     "people_range_message_one": "{{currentRange}} z {{count}} osoby",
     "people_range_message_few": "{{currentRange}} z {{count}} osob",

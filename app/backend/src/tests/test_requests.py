@@ -15,8 +15,11 @@ from couchers.i18n import LocalizationContext
 from couchers.models import (
     Message,
     MessageType,
+    Node,
+    NodeType,
     RateLimitAction,
 )
+from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import (
     api_pb2,
     auth_pb2,
@@ -25,7 +28,7 @@ from couchers.proto import (
 )
 from couchers.proto.internal import unsubscribe_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
-from couchers.utils import create_coordinate, now, today
+from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
 from tests.fixtures.sessions import api_session, auth_api_session, requests_session
@@ -1568,3 +1571,181 @@ def test_host_req_feedback(db, moderator):
         api.SendHostRequestFeedback(
             requests_pb2.SendHostRequestFeedbackReq(host_request_id=hr3_id, decline_reason="bad req")
         )
+
+
+def _create_public_trip(user_id: int, from_date, to_date, status=None):
+    with session_scope() as session:
+        node = session.execute(select(Node).limit(1)).scalar_one_or_none()
+        if node is None:
+            node = Node(
+                geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])),
+                node_type=NodeType.locality,
+            )
+            session.add(node)
+            session.flush()
+        trip = PublicTrip(
+            user_id=user_id,
+            node_id=node.id,
+            from_date=from_date,
+            to_date=to_date,
+            description="Looking for a host!",
+            status=status or PublicTripStatus.searching_for_host,
+        )
+        session.add(trip)
+        session.flush()
+        return trip.id
+
+
+def test_create_request_with_public_trip(db, moderator):
+    """Hosts can offer to host a public trip; offered dates must be within trip dates."""
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        # Happy path: dates within trip window
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=(trip_from + timedelta(days=1)).isoformat(),
+                to_date=(trip_to - timedelta(days=1)).isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        )
+        host_request_id = res.host_request_id
+
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(host_token) as api:
+        hr = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert hr.public_trip_id == trip_id
+
+
+def test_create_request_with_public_trip_dates_out_of_range(db):
+    """Offered dates outside the trip window are rejected."""
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        # from_date before trip starts
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=(trip_from - timedelta(days=1)).isoformat(),
+                    to_date=(trip_from + timedelta(days=1)).isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+        # to_date after trip ends
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=(trip_to - timedelta(days=1)).isoformat(),
+                    to_date=(trip_to + timedelta(days=1)).isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_create_request_with_public_trip_user_mismatch(db):
+    """The host_user_id must match the public trip's traveler."""
+    trip_owner, _ = generate_user()
+    other_user, _ = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(trip_owner.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=other_user.id,  # not the trip owner
+                    from_date=(trip_from + timedelta(days=1)).isoformat(),
+                    to_date=(trip_to - timedelta(days=1)).isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_create_request_with_closed_public_trip(db):
+    """Cannot offer to host a trip that's been closed."""
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, status=PublicTripStatus.closed)
+
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=(trip_from + timedelta(days=1)).isoformat(),
+                    to_date=(trip_to - timedelta(days=1)).isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_create_request_with_nonexistent_public_trip(db):
+    """Nonexistent public trip ID returns NOT_FOUND."""
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=(today() + timedelta(days=2)).isoformat(),
+                    to_date=(today() + timedelta(days=3)).isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=999999,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_create_request_without_public_trip_id_unchanged(db, moderator):
+    """Existing flow without public_trip_id still works (backwards compatibility)."""
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+
+    with requests_session(host_token) as api:
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=(today() + timedelta(days=2)).isoformat(),
+                to_date=(today() + timedelta(days=3)).isoformat(),
+                text=valid_request_text(),
+            )
+        )
+        host_request_id = res.host_request_id
+
+    moderator.approve_host_request(host_request_id)
+
+    with requests_session(host_token) as api:
+        hr = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert not hr.HasField("public_trip_id")

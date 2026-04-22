@@ -43,7 +43,7 @@ def notify(
     """
     logger.info(f"Generating notification of type {topic_action.display} for user {user_id}")
     # Import here to avoid circular dependency
-    from couchers.notifications.background import handle_notification
+    from couchers.notifications.background import handle_notification  # noqa: PLC0415
 
     notification = Notification(
         user_id=user_id,

@@ -16,7 +16,7 @@ from google.protobuf.descriptor import ServiceDescriptor
 from google.protobuf.descriptor_pool import DescriptorPool
 from google.protobuf.message import Message
 from opentelemetry import trace
-from sqlalchemy import Function, select
+from sqlalchemy import Function, literal_column, select
 from sqlalchemy.sql import and_, func
 
 from couchers.constants import (
@@ -68,7 +68,11 @@ class UserAuthInfo:
 
 
 def _binned_now() -> Function[Any]:
-    return func.date_bin("1 hour", func.now(), "2000-01-01")
+    return func.date_bin(
+        literal_column("interval '1 hour'"),
+        func.now(),
+        literal_column("'2000-01-01'::timestamptz"),
+    )
 
 
 def _try_get_and_update_user_details(

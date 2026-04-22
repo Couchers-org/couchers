@@ -2,7 +2,6 @@
   "any": "Em qualquer momento",
   "filter_dialog": {
     "desktop_title": "Filtros",
-    "search_here_button": "Buscar nesta região",
     "mobile_title": "Buscar"
   },
   "search_result": {
@@ -11,7 +10,6 @@
     "people_range_message_other": "{{currentRange}} de {{count}} pessoas",
     "include_empty_profiles_button": "Mostrar todos os perfis",
     "no_user_result_message": "Nenhum usuário encontrado. Tente remover alguns filtros para ver mais resultados.",
-    "show_user_button_label": "Mostrar {{name}} no mapa",
     "missing_about_description": "{{name}} ainda não disse nada sobre si mesmo",
     "few_results_suggestion": "Por padrão, perfis vazios e \"não pode hospedar\" estão ocultos."
   },
@@ -41,7 +39,6 @@
       },
       "last_active_field_label": "Última atividade",
       "meetup_status_field_label": "Disponibilidade para encontros",
-      "complete_profiles_label": "Perfis completos",
       "hosting_status_field_label": "Disponibilidade para hospedar"
     },
     "accommodation_filters": {
@@ -83,8 +80,7 @@
     },
     "submit_button_label": "Aplicar",
     "search_filters": "Filtros de busca",
-    "clear_filters": "Limpar todos os filtros",
-    "missing_location_validation_error": "Especifique uma localização para usar o filtro"
+    "clear_filters": "Limpar todos os filtros"
   },
   "views": {
     "map_and_list": "Mapa e Lista",

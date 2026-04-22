@@ -15,9 +15,9 @@ from sqlalchemy.sql import (
     func,
     literal,
     literal_column,
+    select,
     union_all,
 )
-from sqlalchemy.sql import select as sa_select
 from sqlalchemy.sql.functions import percentile_disc
 from sqlalchemy_utils.view import (
     CreateView,
@@ -78,7 +78,7 @@ def create_materialized_view_with_different_ddl(
 
 
 cluster_subscription_counts_selectable = (
-    sa_select(
+    select(
         ClusterSubscription.cluster_id.label("cluster_id"),
         func.count().label("count"),
     )
@@ -110,7 +110,7 @@ class ClusterSubscriptionCount(MatViewBase):
 
 
 cluster_admin_counts_selectable = (
-    sa_select(
+    select(
         ClusterSubscription.cluster_id.label("cluster_id"),
         func.count().label("count"),
     )
@@ -151,7 +151,7 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
         geom_column = User.geom
 
     strong_verification_subquery = (
-        sa_select(User.id, literal(True).label("true"))
+        select(User.id, literal(True).label("true"))
         .select_from(StrongVerificationAttempt)
         .where(StrongVerificationAttempt.has_strong_verification(User))
         .distinct()
@@ -175,7 +175,7 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
 
     # Be sure to modify the LiteUser type if you add/remove columns!
     return (
-        sa_select(
+        select(
             User.id.label("id"),
             User.username.label("username"),
             User.name.label("name"),
@@ -259,7 +259,7 @@ def make_clustered_users_selectable(create: bool = False) -> CompoundSelect[Any]
     # )
 
     cluster_cte = (
-        sa_select(
+        select(
             User.id,
             User.geom,
             # DBSCAN clustering with epsilon=.15 deg (~17 km), minpoints=5, cluster will be NULL for not in any cluster
@@ -277,14 +277,14 @@ def make_clustered_users_selectable(create: bool = False) -> CompoundSelect[Any]
         cluster_geom = cluster_cte.c.geom
 
     clustered_users = (
-        sa_select(centroid_geom.label("geom"), func.count().label("count"))
+        select(centroid_geom.label("geom"), func.count().label("count"))
         .select_from(cluster_cte)
         .where(cluster_cte.c.cluster_id != None)
         .group_by(cluster_cte.c.cluster_id)
     )
 
     isolated_users = (
-        sa_select(cluster_geom.label("geom"), literal(1, type_=Integer).label("count"))
+        select(cluster_geom.label("geom"), literal(1, type_=Integer).label("count"))
         .select_from(cluster_cte)
         .where(cluster_cte.c.cluster_id == None)
     )
@@ -312,16 +312,16 @@ def float_(stmt: Any) -> Any:
 
 
 # this subquery gets the time that the request was sent
-t = sa_select(Message.conversation_id, Message.time).where(Message.message_type == MessageType.chat_created).subquery()
+t = select(Message.conversation_id, Message.time).where(Message.message_type == MessageType.chat_created).subquery()
 # this subquery gets the time that the user responded to the request
 s = (
-    sa_select(Message.conversation_id, Message.author_id, func.min(Message.time).label("time"))
+    select(Message.conversation_id, Message.author_id, func.min(Message.time).label("time"))
     .group_by(Message.conversation_id, Message.author_id)
     .subquery()
 )
 all_responses = union_all(
     # host request responses
-    sa_select(
+    select(
         HostRequest.recipient_user_id.label("user_id"),
         (s.c.time - t.c.time).label("response_time"),
     )
@@ -330,7 +330,7 @@ all_responses = union_all(
         s, and_(s.c.conversation_id == HostRequest.conversation_id, s.c.author_id == HostRequest.recipient_user_id)
     ),
     # activeness probes
-    sa_select(
+    select(
         ActivenessProbe.user_id,
         (
             # expired probes have a responded time for when they were marked responded
@@ -345,7 +345,7 @@ all_responses = union_all(
     ),
 ).subquery()
 
-user_response_rates_selectable = sa_select(
+user_response_rates_selectable = select(
     all_responses.c.user_id.label("user_id"),
     # number of requests received
     func.count().label("requests"),

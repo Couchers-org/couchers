@@ -57,8 +57,9 @@ def thread_to_pb(session: Session, database_id: int) -> threads_pb2.Thread:
 
 
 def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPayload) -> None:
-    from couchers.servicers.discussions import discussion_to_pb
-    from couchers.servicers.events import event_to_pb
+    # Import here to avoid circular dependency
+    from couchers.servicers.discussions import discussion_to_pb  # noqa: PLC0415
+    from couchers.servicers.events import event_to_pb  # noqa: PLC0415
 
     with session_scope() as session:
         database_id, depth = unpack_thread_id(payload.thread_id)

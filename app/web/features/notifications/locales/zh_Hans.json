@@ -1,7 +1,6 @@
 {
   "notification_settings": {
     "title": "通知设置",
-    "edit_in_console": "您可以在<2>此页面</2>更改通知设置。我们将很快将此功能迁移至这里。",
     "go_to_button": "管理通知设置",
     "edit_preferences": {
       "title": "通知设置",
@@ -41,8 +40,7 @@
           "macos": "在 macOS 中，前往 系统设置 > 通知，并修改应用的权限。",
           "windows": "在 Windows 中，前往 设置 > 系统 > 通知和操作，调整应用或网站的权限。",
           "linux": {
-            "gnome": "在 GNOME 中，前往 设置 > 通知，调整应用的权限。",
-            "kde": "在 KDE 中，前往 系统设置 > 通知，修改权限。"
+            "gnome": "在 GNOME 中，前往 设置 > 通知，调整应用的权限。"
           },
           "mobile": {
             "browser": "在您的移动浏览器设置中，调整此网站的通知权限。",

@@ -12,9 +12,7 @@
     "tabs": {
       "chats": "Chats",
       "hosting": "Hosten",
-      "surfing": "Surfen",
-      "aria_label": "Tabbladen voor verschillende berichttypen",
-      "archived": "Gearchiveerd"
+      "surfing": "Surfen"
     },
     "title": "Berichten"
   },
@@ -69,7 +67,6 @@
   "create_chat": {
     "dm_title": "Nieuwe chat aanmaken",
     "group_title": "Groeps-chat aanmaken",
-    "group_title_field_label": "Titel",
     "no_friends_found_message": "Kon geen vrienden vinden",
     "user_load_error_message": "(Fout bij het laden van gebruikers)",
     "friends_input_label": "Vrienden",
@@ -169,8 +166,6 @@
     "archived": "Gearchiveerd",
     "archive_button": "Archief",
     "unarchive_button": "Dearchiveren",
-    "show_archived": "Gearchiveerde weergeven",
-    "show_active": "Actieve weergeven",
     "no_archived_chats": "Geen gearchiveerde chats",
     "no_archived_requests": "Geen gearchiveerde verzoeken",
     "no_archived_messages": "Geen gearchiveerde berichten"

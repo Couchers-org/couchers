@@ -11,8 +11,10 @@ from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.i18n import LocalizationContext
+from couchers.models import FriendRelationship, SignupFlow
 from couchers.models.logging import EventLog
 from couchers.proto import (
+    account_pb2,
     api_pb2,
     auth_pb2,
     conversations_pb2,
@@ -26,6 +28,7 @@ from couchers.utils import Timestamp_from_datetime, create_coordinate, now, toda
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.sessions import (
     MockGrpcContext,
+    account_session,
     api_session,
     auth_api_session,
     conversations_session,
@@ -221,8 +224,6 @@ def test_signup_flow_creates_events(db):
         assert events[0].properties["has_invite_code"] is False
 
     # complete signup: get email token, verify, fill account, etc.
-    from couchers.models import SignupFlow
-
     with session_scope() as session:
         flow = session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one()
         email_token = flow.email_token
@@ -633,8 +634,6 @@ def test_friendship_request_events(db, moderator):
         assert events[0].properties["to_user_id"] == user2.id
 
     # Approve and accept friend request
-    from couchers.models import FriendRelationship
-
     with session_scope() as session:
         fr = session.execute(select(FriendRelationship)).scalar_one()
         fr_id = fr.id
@@ -670,8 +669,6 @@ def test_friendship_cancel_event(db, moderator):
 
     with api_session(token1) as api:
         api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
-
-    from couchers.models import FriendRelationship
 
     with session_scope() as session:
         fr = session.execute(select(FriendRelationship)).scalar_one()
@@ -815,9 +812,6 @@ def test_event_created_event(db):
 def test_password_change_event(db):
     """Changing password creates account.password_changed event."""
     user, token = generate_user(hashed_password=hash_password("oldpassword"))
-
-    from couchers.proto import account_pb2
-    from tests.fixtures.sessions import account_session
 
     with account_session(token) as api:
         api.ChangePasswordV2(

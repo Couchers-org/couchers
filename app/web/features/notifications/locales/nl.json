@@ -8,7 +8,6 @@
   "no_new_notifications": "Geen nieuwe notificaties",
   "notification_settings": {
     "title": "Instellingen notificaties",
-    "edit_in_console": "Je kan je instellingen voor notificaties <2>op deze pagina</2> aanpassen. We zullen het binnenkort hierheen verplaatsen.",
     "go_to_button": "Notificatie-instellingen beheren",
     "edit_preferences": {
       "title": "Notificatie-instellingen",
@@ -46,8 +45,7 @@
           "macos": "In macOS ga je naar Systeeminstellingen > Meldingen om toestemming te geven.",
           "windows": "In Windows ga je naar Instellingen > Systeem > Meldingen om toestemming te geven.",
           "linux": {
-            "gnome": "In GNOME ga je naar Instellingen > Meldingen om toestemming te geven.",
-            "kde": "In KDE ga je naar Systeeminstellingen > Notificaties om toestemming te geven."
+            "gnome": "In GNOME ga je naar Instellingen > Meldingen om toestemming te geven."
           },
           "mobile": {
             "os": "Zet in de instellingen van je mobiel de notificaties aan.",
