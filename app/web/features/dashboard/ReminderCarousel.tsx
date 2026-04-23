@@ -2,7 +2,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
 } from "@mui/icons-material";
-import { Box, styled } from "@mui/material";
+import { Box, styled, useMediaQuery } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import IconButton from "components/IconButton";
@@ -11,10 +11,12 @@ import { GetRemindersRes } from "proto/account_pb";
 import { useEffect, useRef, useState } from "react";
 import { service } from "service";
 
+import { theme } from "../../theme";
 import { remindersKey } from "../queryKeys";
 import ReminderItem from "./ReminderItem";
 
-const CARD_WIDTH = 280;
+const CARD_WIDTH_DESKTOP = 280;
+const CARD_WIDTH_MOBILE = 240;
 const CARD_GAP = 16;
 
 const StyledContainer = styled(Box)(({ theme }) => ({
@@ -36,8 +38,12 @@ const StyledScroller = styled(Box)({
 });
 
 const StyledCardSlot = styled(Box)({
-  flex: `0 0 ${CARD_WIDTH}px`,
+  flex: `0 0 ${CARD_WIDTH_DESKTOP}px`,
   scrollSnapAlign: "start",
+
+  [theme.breakpoints.down("md")]: {
+    flex: `0 0 ${CARD_WIDTH_MOBILE}px`,
+  },
 });
 
 const StyledArrow = styled(IconButton)({
@@ -59,6 +65,8 @@ export default function ReminderCarousel() {
   });
 
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -77,7 +85,11 @@ export default function ReminderCarousel() {
 
   const scrollByCard = (direction: 1 | -1) => {
     scrollerRef.current?.scrollBy({
-      left: direction * (CARD_WIDTH + CARD_GAP),
+      left:
+        direction *
+        (isMobile
+          ? CARD_WIDTH_DESKTOP + CARD_GAP
+          : CARD_WIDTH_MOBILE + CARD_GAP),
       behavior: "smooth",
     });
   };

@@ -1,4 +1,5 @@
 import { Box, Typography, useColorScheme } from "@mui/material";
+import { useMediaQuery } from "@mui/system";
 import Button from "components/Button";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
@@ -12,6 +13,8 @@ import {
   strongVerificationRoute,
 } from "routes";
 
+import { theme } from "../../theme";
+
 export default function ReminderItem({
   reminder,
 }: {
@@ -19,6 +22,8 @@ export default function ReminderItem({
 }) {
   const { t } = useTranslation([DASHBOARD]);
   const { mode, systemMode } = useColorScheme();
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const resolvedMode = mode === "system" ? systemMode : mode;
   const isDark = resolvedMode === "dark";
@@ -67,31 +72,26 @@ export default function ReminderItem({
     <Box
       sx={(theme) => ({
         backgroundColor: isDark ? "#716317" : "#fff5e4",
-        padding: "24px",
-        minHeight: "100px",
+        padding: isMobile ? "20px" : "24px",
         display: "flex",
         flexDirection: "column",
-        width: "100%",
       })}
     >
       <Box sx={{ flexGrow: 1 }}>
         <Typography
-          variant="h2"
+          variant="h3"
           sx={{
             fontWeight: 800,
-            lineHeight: 1.2,
-            marginBottom: "16px",
-            fontSize: "1.5rem",
+            marginBottom: isMobile ? "12px" : "16px",
           }}
         >
           {title}
         </Typography>
 
         <Typography
-          variant="body1"
+          variant={isMobile ? "body2" : "body1"}
           sx={{
-            lineHeight: 1.5,
-            marginBottom: "24px",
+            marginBottom: isMobile ? "14px" : "18px",
           }}
         >
           {description}
@@ -103,10 +103,10 @@ export default function ReminderItem({
         href={href}
         fullWidth
         variant="contained"
+        size={isMobile ? "small" : "medium"}
         sx={{
           fontWeight: 700,
           borderRadius: "8px",
-          padding: "10px 0",
         }}
       >
         {buttonText}
