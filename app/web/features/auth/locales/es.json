@@ -237,7 +237,8 @@
     "action_button": {
       "no_emails_enable_text": "No quiero recibir correos electrónicos",
       "no_emails_disable_text": "Reactivar correos electrónicos"
-    }
+    },
+    "caveat": "Activando este ajuste, tu cuenta será configurada para no aceptar solicitudes de alojamiento. Seguirás recibiendo correos electrónicos de seguridad (como los de reestablecimiento de contraseña). Podrías seguir recibiendo la newsletter, puedes desuscribirte de ella utilizando el enlace al pie de la newsletter."
   },
   "sign_up_need_verification_title": "Una última cosa: confirma tu correo electrónico.",
   "volunteer_management": {
@@ -246,6 +247,7 @@
   "strong_verification": {
     "learn_more": "Aprende sobre la verificación robusta <a>aquí</a>.",
     "title": "Verificación robusta",
+    "subtitle": "La verificación robusta es una medida de seguridad adicional que te permite verificar tu fecha de nacimiento y tu género usando tu pasaporte biométrico.",
     "status": {
       "enabled_message": "Actualmente <1>estás verificado</1> mediante verificación robusta.",
       "disabled_message": "Actualmente <1>no estás verificado</1> mediante verificación robusta."

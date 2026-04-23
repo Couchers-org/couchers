@@ -68,7 +68,8 @@
       "no_emails_enable_text": "Veuillez ne pas m'envoyer de mail",
       "no_emails_disable_text": "Réactiver les mails"
     },
-    "title": "Veuillez ne pas m'envoyer de mail"
+    "title": "Veuillez ne pas m'envoyer de mail",
+    "caveat": "En activant cette option, votre compte sera configuré pour refuser les demandes d'hébergement. Vous continuerez de recevoir les mails de sécurité (comme ceux pour la réinitialisation de votre mot de passe). La newsletter continuera de vous être envoyée ; vous pouvez vous désabonner de celle-ci en utilisant le lien dans le pied de page de la newsletter."
   },
   "reset_password_form": {
     "success_message": "Un lien de réinitialiser votre mot de passe a été envoyé à votre adresse mail à ce compte, si elle existe et est active. Veuillez noter que ce mail peut parfois se retrouver dans vos courriers indésirables.",
@@ -176,6 +177,7 @@
   "strong_verification": {
     "learn_more": "En savoir plus sur la vérification rigoureuse <a>ici</a>.",
     "title": "Vérification Rigoureuse",
+    "subtitle": "La Vérification Rigoureuse est une fonctionnalité de sécurité supplémentaire qui vous permet de vérifier votre date de naissance et votre genre à l'aide de votre passeport biométrique.",
     "instructions": {
       "title": "Comment effectuer une vérification rigoureuse",
       "warning": "Important : L'étape de la numérisation de la puce du passeport peut être délicate—lisez d'abord toutes les instructions !",
