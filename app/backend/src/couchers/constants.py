@@ -1,6 +1,4 @@
-from datetime import datetime, timedelta
-
-import pytz
+from datetime import UTC, datetime, timedelta
 
 # terms of service version
 TOS_VERSION = 2
@@ -56,8 +54,8 @@ POSTAL_VERIFICATION_RATE_LIMIT = timedelta(days=30)
 
 SIGNUP_EMAIL_TOKEN_VALIDITY = timedelta(hours=48)
 
-DATETIME_MINUS_INFINITY = pytz.UTC.localize(datetime(1, 1, 1))
-DATETIME_INFINITY = pytz.UTC.localize(datetime(9876, 12, 31, hour=23, minute=59, second=59))
+DATETIME_MINUS_INFINITY = datetime(1, 1, 1, tzinfo=UTC)
+DATETIME_INFINITY = datetime(9876, 12, 31, hour=23, minute=59, second=59, tzinfo=UTC)
 
 SERVER_THREADS = 128
 

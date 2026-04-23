@@ -4,10 +4,9 @@ Most code should use the higher-level couchers.i18n.LocalizationContext object.
 """
 
 from collections.abc import Callable, Mapping
-from datetime import date, datetime, time
+from datetime import date, datetime, time, tzinfo
 from functools import lru_cache
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import phonenumbers
 from babel.dates import format_date, format_datetime, format_time, get_timezone_name
@@ -62,7 +61,7 @@ def localize_time(value: time, locale: str) -> str:
     )
 
 
-def localize_datetime(value: datetime | Timestamp, timezone: ZoneInfo | None, locale: str) -> str:
+def localize_datetime(value: datetime | Timestamp, timezone: tzinfo | None, locale: str) -> str:
     """
     Formats a date and time for the given locale.
 
@@ -90,7 +89,7 @@ def localize_datetime(value: datetime | Timestamp, timezone: ZoneInfo | None, lo
     )
 
 
-def localize_timezone(timezone: ZoneInfo, locale: str) -> str:
+def localize_timezone(timezone: tzinfo, locale: str) -> str:
     return _localize_with_fallbacks(
         locale,
         lambda candidate_locale: get_timezone_name(timezone, locale=candidate_locale),
