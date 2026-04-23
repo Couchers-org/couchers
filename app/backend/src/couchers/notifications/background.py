@@ -77,12 +77,14 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         template_args["footer_manage_notifications_link"] = urls.notification_settings_link()
         template_args["footer_do_not_email_link"] = generate_do_not_email(user)
 
-        topic_action_unsub_text = get_topic_action_unsubscribe_text(notification.topic_action, loc_context)
+        topic_action_unsub_text = get_topic_action_unsubscribe_text(
+            notification.topic_action, locale=loc_context.locale
+        )
         template_args["footer_notification_topic_action"] = topic_action_unsub_text
         template_args["footer_notification_topic_action_link"] = generate_unsub_topic_action(notification)
 
         if can_unsubscribe_topic_key(notification.topic_action):
-            topic_key_unsub_text = get_topic_key_unsubscribe_text(notification.topic_action, loc_context)
+            topic_key_unsub_text = get_topic_key_unsubscribe_text(notification.topic_action, locale=loc_context.locale)
             if topic_key_unsub_text:
                 template_args["footer_notification_topic_key"] = topic_key_unsub_text
                 template_args["footer_notification_topic_key_link"] = generate_unsub_topic_key(notification)
