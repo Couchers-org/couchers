@@ -57,5 +57,27 @@
   "hero_image_attribution": "Photo by <1>Mesut Kaya</1> on <3>Unsplash</3>",
   "events_empty_state": "No events at the moment. Why don't you <0>create</0> one ✨?",
   "attendees_count_one": "{{count}} attendee",
-  "attendees_count_other": "{{count}} attendees"
+  "attendees_count_other": "{{count}} attendees",
+  "reminder": {
+    "respond_to_host_request": {
+      "title": "Respond to host request",
+      "description": "{{name}} is waiting to hear back from you about their stay.",
+      "button": "View request"
+    },
+    "write_reference": {
+      "title": "Write a reference",
+      "description": "Share your experience with {{name}} to help build community trust.",
+      "button": "Write reference"
+    },
+    "complete_profile": {
+      "title": "Complete your profile",
+      "description": "Fill in your \"Who I Am\" section and upload a profile photo",
+      "button": "Edit profile"
+    },
+    "strong_verification": {
+      "title": "Strong verification",
+      "description": "Verify your identity for a safer community",
+      "button": "Verify now"
+    }
+  }
 }
