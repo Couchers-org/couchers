@@ -456,7 +456,7 @@
     }
   },
   "reference": {
-    "_receive": {
+    "_receive_any": {
       "push": {
         "title": "New reference from {{user}}",
         "ios_title": "{{user}}",
@@ -464,7 +464,7 @@
         "body_must_write_yours": "{{user}} left you a reference, now it's your turn to write theirs!"
       }
     },
-    "_reminder": {
+    "_reminder_any": {
       "push": {
         "title": "Write your reference for {{user}}",
         "ios_title": "Write Your Reference",
