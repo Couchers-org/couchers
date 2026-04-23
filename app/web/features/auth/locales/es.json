@@ -286,7 +286,29 @@
         "australia": "<strong>Australia:</strong> Página central (marcada con el símbolo + \"nombre del chip\")"
       },
       "scanning_tips": {
-        "heading": "Trucos para un escaneo NFC satisfactorio"
+        "heading": "Trucos para un escaneo NFC satisfactorio",
+        "description": "El escaneo NFC es la parte más complicada. Estos consejos mejoran significativamente tus posibilidades:",
+        "remove_case": "<strong>Retira la funda de tu teléfono</strong>: incluso las fundas finas pueden bloquear la señal NFC",
+        "hold_still": "<strong>Mantén el teléfono completamente quieto</strong> durante al menos 5 segundos: moverlo demasiado pronto es la causa de fallo más común",
+        "flat_surface": "<strong>Coloca tu pasaporte sobre una superficie plana</strong>: no lo sostengas en la mano",
+        "nfc_location": "<strong>Encuentra la antena NFC de tu teléfono</strong>: suele estar cerca de la parte superior central en la parte trasera del teléfono. Prueba diferentes posiciones si no se conecta",
+        "no_metal": "<strong>Evita las superficies metálicas</strong>: no coloques tu pasaporte sobre una mesa metálica o un portátil",
+        "retry": "Si el escaneo falla, inténtalo de nuevo: a menudo se necesitan 2-3 intentos para lograr la posición correcta"
+      },
+      "before_you_start": {
+        "heading": "Antes de empezar",
+        "nfc_check": "Tu teléfono debe tener <strong>capacidad NFC</strong>: la mayoría de los teléfonos modernos la tienen. La NFC suele estar activada de por defecto, pero en algunos teléfonos antiguos es posible que debas habilitarla en la configuración de tu teléfono.",
+        "passport_check": "Tu pasaporte debe ser un <strong>pasaporte biométrico</strong>: busca el símbolo del chip dorado en la portada. Los pasaportes antiguos sin este símbolo no funcionarán.",
+        "remove_case": "<strong>Retira la funda de tu teléfono antes de empezar</strong>: incluso las fundas finas pueden bloquear la señal NFC y provocar que el escaneo falle.",
+        "passport_symbol_alt": "Símbolo de pasaporte biométrico"
+      },
+      "didnt_work": {
+        "heading": "¿Tienes problemas?",
+        "tip1": "En teléfonos Android antiguos asegúrate de que NFC esté habilitado en la configuración de tu teléfono (la mayoría de los teléfonos modernos lo tienen activado por defecto)",
+        "tip2": "Prueba con otra página de tu pasaporte: la ubicación del chip varía según el país",
+        "tip3": "Si usas Android asegúrate de tener instalada la aplicación IRIS ID (no la versión del navegador)",
+        "tip4": "Algunos pasaportes o tarjetas de pasaporte más antiguos no tienen chips NFC y no funcionarán",
+        "contact": "Si sigues teniendo problemas, <1>háznoslo saber</1> y te ayudaremos."
       }
     }
   },
@@ -317,5 +339,10 @@
     "community_organizing_description": "Quiero organizar eventos y actividades en la plataforma",
     "something_else": "Otra cosa",
     "something_else_description": "Solo estoy explorando o aún no lo he decidido"
+  },
+  "quick_links": {
+    "title": "Acción rápida por correo electrónico",
+    "button_text": "Confirma la acción",
+    "error_message": "Error: {{message}}"
   }
 }
