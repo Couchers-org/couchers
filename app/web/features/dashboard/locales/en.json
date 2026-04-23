@@ -61,23 +61,23 @@
   "reminder": {
     "respond_to_host_request": {
       "title": "Respond to host request",
-      "description": "{{name}} is waiting to hear back from you about their stay.",
+      "description": "Don't forget to respond to {{name}} about their stay.",
       "button": "View request"
     },
     "write_reference": {
       "title": "Write a reference",
-      "description": "Share your experience with {{name}} to help build community trust.",
+      "description": "Leave a reference for {{name}}'s stay",
       "button": "Write reference"
     },
     "complete_profile": {
       "title": "Complete your profile",
       "description": "Fill in your \"Who I Am\" section and upload a profile photo",
-      "button": "Edit profile"
+      "button": "Edit your profile"
     },
     "strong_verification": {
       "title": "Strong verification",
       "description": "Verify your identity for a safer community",
-      "button": "Verify now"
+      "button": "Verify your account"
     }
   }
 }

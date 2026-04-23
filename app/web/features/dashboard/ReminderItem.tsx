@@ -75,6 +75,7 @@ export default function ReminderItem({
         padding: isMobile ? "20px" : "24px",
         display: "flex",
         flexDirection: "column",
+        height: "100%",
       })}
     >
       <Box sx={{ flexGrow: 1 }}>
@@ -89,9 +90,9 @@ export default function ReminderItem({
         </Typography>
 
         <Typography
-          variant={isMobile ? "body2" : "body1"}
           sx={{
             marginBottom: isMobile ? "14px" : "18px",
+            fontSize: ".85rem",
           }}
         >
           {description}
