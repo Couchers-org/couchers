@@ -15,7 +15,8 @@
     "action_button": {
       "no_emails_enable_text": "Do not email me",
       "no_emails_disable_text": "Re-enable emails"
-    }
+    },
+    "caveat": "By enabling this setting, your account will be set to not accept host requests. You will still receive security emails (such as those for resetting your password). You may still receive the newsletter, you can unsubscribe from it using the link in the newsletter footer."
   },
   "change_email_confirmation": {
     "change_in_progress": "Email change in progress…",
@@ -229,6 +230,7 @@
   "strong_verification": {
     "learn_more": "Learn about Strong Verification <a>here</a>.",
     "title": "Strong Verification",
+    "subtitle": "Strong Verification is an additional safety feature that allows you to verify your date of birth and gender using your biometric passport.",
     "status": {
       "enabled_message": "You <1>are currently</1> verified with Strong Verification.",
       "disabled_message": "You <1>are not currently</1> verified with Strong Verification."

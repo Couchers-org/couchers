@@ -206,7 +206,8 @@
     "action_button": {
       "no_emails_enable_text": "Neposílejte mi e-maily",
       "no_emails_disable_text": "Znovu povolit e-maily"
-    }
+    },
+    "caveat": "Povolením tohoto nastavení bude tvůj účet nastaven tak, aby nepřijímal žádosti o hostování. Stále budeš dostávat bezpečnostní e-maily (například pro resetování hesla). Můžeš také nadále dostávat newsletter, ze kterého se můžeš odhlásit pomocí odkazu v patičce newsletteru."
   },
   "location": {
     "field_label": "Tvá poloha",

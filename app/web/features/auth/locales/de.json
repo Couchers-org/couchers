@@ -194,7 +194,8 @@
     "action_button": {
       "no_emails_enable_text": "Von E-Mails abmelden",
       "no_emails_disable_text": "E-Mails wieder aktivieren"
-    }
+    },
+    "caveat": "Wenn du diese Einstellung aktivierst, wird dein Konto so eingestellt, dass es keine Hostanfragen akzeptiert. Du erhälst jedoch weiterhin Sicherheits-E-Mails (z. B. zum Zurücksetzen deines Passworts). Den Newsletter kannst du separat über den Link in der Fußzeile des Newsletters abbestellen."
   },
   "unhandled_sign_up_state": "Fehler: unhandled signup flow state.",
   "change_phone": {
@@ -259,6 +260,7 @@
       "disabled_message": "Du <1>bist aktuell nicht</1> mit der starken Verifizierung verifiziert."
     },
     "title": "Starke Verifizierung",
+    "subtitle": "Die starke Verifizierung ist eine zusätzliche Sicherheitsfunktion, die es dir ermöglicht, dein Geburtsdatum und Geschlecht mithilfe deines biometrischen Reisepasses zu überprüfen.",
     "start_button": "Starke Verifizierung starten",
     "complete_title": "Wir bearbeiten deinen starken Verifizierungsversuch",
     "complete_message1": "Dein Reisepass wird validiert. Du wirst innerhalb weniger Minuten eine E-Mail mit dem Ergebnis erhalten.",
