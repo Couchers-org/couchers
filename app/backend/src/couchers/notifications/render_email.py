@@ -11,8 +11,9 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_action,
     generate_unsub_topic_key,
 )
+from couchers.notifications.utils import can_unsubscribe_topic_key
 from couchers.proto import api_pb2, notification_data_pb2
-from couchers.utils import can_unsubscribe_topic_key, now, to_aware_datetime
+from couchers.utils import now, to_aware_datetime
 
 logger = logging.getLogger(__name__)
 

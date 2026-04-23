@@ -23,5 +23,5 @@ def test_topic_action_unsubscribe_texts() -> None:
 
 def test_topic_key_unsubscribe_texts() -> None:
     for topic_action in NotificationTopicAction:
-        if can_unsubscribe_topic_key(topic_action.topic):
+        if can_unsubscribe_topic_key(topic_action):
             assert get_topic_key_unsubscribe_text(topic_action, loc_context=LocalizationContext.en_utc()) is not None

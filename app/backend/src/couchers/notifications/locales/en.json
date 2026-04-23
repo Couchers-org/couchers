@@ -58,7 +58,7 @@
   "badge": {
     "add": {
       "event_description": "A badge is added to your account",
-      "short_description_noun": "badge additions",
+      "unsubscribe_from_description": "badge additions",
       "push": {
         "title": "New profile badge: {{badge_name}}",
         "ios_title": "New Profile Badge",
@@ -67,7 +67,7 @@
     },
     "remove": {
       "event_description": "A badge is removed from your account",
-      "short_description_noun": "badge removals",
+      "unsubscribe_from_description": "badge removals",
       "push": {
         "title": "Profile badge removed",
         "ios_title": "Profile Badge Removed",
@@ -86,14 +86,14 @@
     }
   },
   "chat": {
-    "_topic_key_short_description": "this chat (mute)",
+    "unsubscribe_from_description": "this chat (mute)",
     "message": {
       "event_description": "Someone sends you a message",
-      "short_description_noun": "new chat messages"
+      "unsubscribe_from_description": "new chat messages"
     },
     "missed_messages": {
       "event_description": "You miss messages in a chat",
-      "short_description_noun": "unseen chat messages",
+      "unsubscribe_from_description": "unseen chat messages",
       "push": {
         "title_one": "{{count}} missed message",
         "title_other": "{{count}} missed messages",
@@ -106,14 +106,14 @@
   "discussion": {
     "comment": {
       "event_description": "Someone comments on a discussion you are following",
-      "short_description_noun": "discussion comments",
+      "unsubscribe_from_description": "discussion comments",
       "push": {
         "title": "{{user}} • {{title}}"
       }
     },
     "create": {
       "event_description": "Someone creates a discussion in a community you are in",
-      "short_description_noun": "new discussions",
+      "unsubscribe_from_description": "new discussions",
       "push": {
         "title": "New discussion: {{title}}",
         "ios_title": "New Discussion",
@@ -125,7 +125,7 @@
   "donation": {
     "received": {
       "event_description": "Your donation is received",
-      "short_description_noun": "donations received",
+      "unsubscribe_from_description": "donations received",
       "push": {
         "title": "Donation received",
         "ios_title": "Donation Received",
@@ -154,7 +154,7 @@
   "event": {
     "cancel": {
       "event_description": "An event you are attending is cancelled",
-      "short_description_noun": "event cancellations",
+      "unsubscribe_from_description": "event cancellations",
       "push": {
         "title": "Event cancelled: {{title}}",
         "ios_title": "Event Cancelled",
@@ -164,7 +164,7 @@
     },
     "comment": {
       "event_description": "A user comments on an event you are going to",
-      "short_description_noun": "event comments",
+      "unsubscribe_from_description": "event comments",
       "push": {
         "title": "{{user}} • {{title}}",
         "ios_title": "{{user}}",
@@ -173,7 +173,7 @@
     },
     "create_any": {
       "event_description": "A user creates any event in your community (not checked by an admin)",
-      "short_description_noun": "new events by community members",
+      "unsubscribe_from_description": "new events by community members",
       "push": {
         "title": "New event: {{title}}",
         "ios_title": "New Event",
@@ -183,7 +183,7 @@
     },
     "create_approved": {
       "event_description": "An event that is approved by the moderators is created in your community",
-      "short_description_noun": "invitations to events (approved by moderators)",
+      "unsubscribe_from_description": "invitations to events (approved by moderators)",
       "push": {
         "title": "New event: {{title}}",
         "ios_title": "New Event",
@@ -193,7 +193,7 @@
     },
     "delete": {
       "event_description": "An event you are attending is deleted",
-      "short_description_noun": "event deletions",
+      "unsubscribe_from_description": "event deletions",
       "push": {
         "title": "Event deleted: {{title}}",
         "ios_title": "Event Deleted",
@@ -203,7 +203,7 @@
     },
     "invite_organizer": {
       "event_description": "Someone invites you to co-organize an event",
-      "short_description_noun": "invitations to co-organize events",
+      "unsubscribe_from_description": "invitations to co-organize events",
       "push": {
         "title": "Event updated: {{title}}",
         "ios_title": "Event Updated",
@@ -213,7 +213,7 @@
     },
     "reminder": {
       "event_description": "Reminder that an event you are going to is happening soon",
-      "short_description_noun": "event reminders",
+      "unsubscribe_from_description": "event reminders",
       "push": {
         "title": "Upcoming event: {{title}}",
         "ios_title": "Upcoming Event",
@@ -223,7 +223,7 @@
     },
     "update": {
       "event_description": "An event you are attending is updated",
-      "short_description_noun": "event updates",
+      "unsubscribe_from_description": "event updates",
       "push": {
         "title": "Event updated: {{title}}",
         "ios_title": "Event Updated",
@@ -235,7 +235,7 @@
   "friend_request": {
     "accept": {
       "event_description": "Someone accepts your friend request",
-      "short_description_noun": "accepted friend requests",
+      "unsubscribe_from_description": "accepted friend requests",
       "push": {
         "title": "{{friend}} accepted your friend request",
         "ios_title": "{{friend}}",
@@ -245,7 +245,7 @@
     },
     "create": {
       "event_description": "Someone sends you a friend request",
-      "short_description_noun": "new friend requests",
+      "unsubscribe_from_description": "new friend requests",
       "push": {
         "title": "Friend request from {{from_user}}",
         "ios_title": "{{from_user}}",
@@ -267,7 +267,7 @@
   "general": {
     "new_blog_post": {
       "event_description": "A new blog post is published",
-      "short_description_noun": "new blog post alerts",
+      "unsubscribe_from_description": "new blog post alerts",
       "push": {
         "title": "New blog post: {{title}}",
         "ios_title": "New Blog Post",
@@ -278,7 +278,7 @@
   "host_request": {
     "accept": {
       "event_description": "Someone accepts your host request",
-      "short_description_noun": "accepted host requests",
+      "unsubscribe_from_description": "accepted host requests",
       "push": {
         "title": "{{user}} accepted your host request",
         "ios_title": "{{user}}",
@@ -288,7 +288,7 @@
     },
     "cancel": {
       "event_description": "Someone cancels their host request",
-      "short_description_noun": "cancelled host requests",
+      "unsubscribe_from_description": "cancelled host requests",
       "push": {
         "title": "{{user}} cancelled their host request",
         "ios_title": "{{user}}",
@@ -298,7 +298,7 @@
     },
     "confirm": {
       "event_description": "Someone confirms their host request",
-      "short_description_noun": "confirmed host requests",
+      "unsubscribe_from_description": "confirmed host requests",
       "push": {
         "title": "{{user}} confirmed their host request",
         "ios_title": "{{user}}",
@@ -308,7 +308,7 @@
     },
     "create": {
       "event_description": "Someone sends you a host request",
-      "short_description_noun": "new host requests",
+      "unsubscribe_from_description": "new host requests",
       "push": {
         "title": "New host request from {{user}}",
         "ios_title": "{{user}}",
@@ -319,11 +319,11 @@
     },
     "message": {
       "event_description": "Someone sends a message in a host request",
-      "short_description_noun": "messages in host request"
+      "unsubscribe_from_description": "messages in host request"
     },
     "missed_messages": {
       "event_description": "You miss messages in a host request",
-      "short_description_noun": "missed messages in host requests",
+      "unsubscribe_from_description": "missed messages in host requests",
       "push": {
         "title": "New messages from {{user}}",
         "ios_title": "{{user}}",
@@ -333,7 +333,7 @@
     },
     "reject": {
       "event_description": "Someone declines your host request",
-      "short_description_noun": "declined host requests",
+      "unsubscribe_from_description": "declined host requests",
       "push": {
         "title": "{{user}} declined your host request",
         "ios_title": "{{user}}",
@@ -343,7 +343,7 @@
     },
     "reminder": {
       "event_description": "You haven't responded to a pending host request",
-      "short_description_noun": "pending host request reminders",
+      "unsubscribe_from_description": "pending host request reminders",
       "push": {
         "title": "Pending request by {{user}}",
         "ios_title": "Host Request Pending",
@@ -365,7 +365,7 @@
   "onboarding": {
     "reminder": {
       "event_description": "Reminder to complete your profile after signing up",
-      "short_description_noun": "onboarding emails",
+      "unsubscribe_from_description": "onboarding emails",
       "push": {
         "first": {
           "title": "Welcome to Couchers!",
@@ -439,7 +439,7 @@
     },
     "postcard_sent": {
       "event_description": "Your verification postcard is sent",
-      "short_description_noun": "postal verification updates",
+      "unsubscribe_from_description": "postal verification updates",
       "push": {
         "title": "Postal verification started",
         "ios_title": "Postal Verification Started",
@@ -475,7 +475,7 @@
     },
     "receive_friend": {
       "event_description": "You received a reference from a friend",
-      "short_description_noun": "new references from friends",
+      "unsubscribe_from_description": "new references from friends",
       "push": {
         "title": "New friend reference from {{user}}",
         "ios_title": "{{user}}",
@@ -484,25 +484,25 @@
     },
     "receive_hosted": {
       "event_description": "You receive a reference from someone who hosted you",
-      "short_description_noun": "new references from hosts"
+      "unsubscribe_from_description": "new references from hosts"
     },
     "receive_surfed": {
       "event_description": "You receive a reference from someone you hosted",
-      "short_description_noun": "new references from surfers"
+      "unsubscribe_from_description": "new references from surfers"
     },
     "reminder_hosted": {
       "event_description": "Reminder to write a reference to someone you hosted",
-      "short_description_noun": "hosted reference reminders"
+      "unsubscribe_from_description": "hosted reference reminders"
     },
     "reminder_surfed": {
       "event_description": "Reminder to write a reference to someone you surfed with",
-      "short_description_noun": "surfed reference reminders"
+      "unsubscribe_from_description": "surfed reference reminders"
     }
   },
   "thread": {
     "reply": {
       "event_description": "Someone responds to your comment",
-      "short_description_noun": "comment replies",
+      "unsubscribe_from_description": "comment replies",
       "push": {
         "title": "{{user}} • {{title}}",
         "ios_title": "{{user}}",

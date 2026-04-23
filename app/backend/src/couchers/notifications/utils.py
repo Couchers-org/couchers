@@ -36,11 +36,11 @@ def get_topic_action_unsubscribe_text(topic_action: NotificationTopicAction, loc
     if topic_action.is_critical:
         raise ValueError(f"Cannot get unsubscribe text for critical notification {topic_action}")
     return get_notifs_i18next().localize(
-        f"{topic_action.topic}.{topic_action.action}.short_description_noun", loc_context.locale
+        f"{topic_action.topic}.{topic_action.action}.unsubscribe_from_description", loc_context.locale
     )
 
 
 def get_topic_key_unsubscribe_text(topic_action: NotificationTopicAction, loc_context: LocalizationContext) -> str:
-    if not can_unsubscribe_topic_key(topic_action.topic):
+    if not can_unsubscribe_topic_key(topic_action):
         raise ValueError(f"Cannot get topic key unsubscribe text for topic {topic_action.topic}")
-    return get_notifs_i18next().localize(f"{topic_action.topic}._topic_key_short_description", loc_context.locale)
+    return get_notifs_i18next().localize(f"{topic_action.topic}.unsubscribe_from_description", loc_context.locale)
