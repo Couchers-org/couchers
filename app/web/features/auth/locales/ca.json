@@ -182,6 +182,7 @@
   "strong_verification": {
     "learn_more": "Més informació sobre la Verificació forta <a>aquí</a>.",
     "title": "Verificació forta",
+    "subtitle": "La Verificació forta és una funció de seguretat addicional que et permet verificar la teva data de naixement i gènere amb el teu passaport biomètric.",
     "status": {
       "disabled_message": "<1>No tens</1> la Verificació forta activa.",
       "enabled_message": "<1>Tens</1> la Verificació forta activa."
@@ -232,7 +233,8 @@
     "action_button": {
       "no_emails_enable_text": "No m'enviïs correus",
       "no_emails_disable_text": "Torna a activar els correus"
-    }
+    },
+    "caveat": "En activar aquest paràmetre, el teu compte es configurarà per no acceptar sol·licituds d'allotjament. Continuaràs rebent correus de seguretat (com els de restabliment de contrasenya). Podries continuar rebent el butlletí; pots donar-te de baixa fent servir l'enllaç al peu del butlletí."
   },
   "reset_password": "Restableix la contrasenya",
   "change_email_confirmation": {

@@ -20,7 +20,8 @@
     "status": {
       "no_emails_enabled_message": "Hesabın için emailler şu anda <1>kapalı</1>.",
       "no_emails_disabled_message": "Emailler şuanda hesabın için <1>açık</1>."
-    }
+    },
+    "caveat": "Bu ayarı açınca, hesabın ev sahipliği isteklerini kabul etmeyecek. Güvenlik emaillerini (Şifreni sıfırlamak gibi) almaya devam edeceksin. Zaten alıyorsan haber bültenimizi almaya devam edebilirsin, bülteni istemiyorsan bültenin altındaki abonelikten çıkmak için olan linke tıklayabilirsin."
   },
   "change_password_form": {
     "password_changed_success": "Yeni şifreniz konuldu ve emailinize bir bildirim yollandı.",
