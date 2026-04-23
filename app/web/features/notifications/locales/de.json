@@ -1,7 +1,6 @@
 {
   "notification_settings": {
     "title": "Benachrichtigungseinstellungen",
-    "edit_in_console": "Du kannst deine Benachrichtigungseinstellungen <2>auf dieser Seite</2> ändern. Wir werden dies bald hierhin verlegen.",
     "go_to_button": "Benachrichtigungseinstellungen verwalten",
     "edit_preferences": {
       "title": "Benachrichtigungseinstellungen",
@@ -34,8 +33,7 @@
           "macos": "Gehe in macOS zu Systemeinstellungen > Benachrichtigungen und ändere die Berechtigung der App.",
           "windows": "Gehe in Windows zu Einstellungen > System > Benachrichtigungen und Aktionen und passe die Berechtigung der App oder Website an.",
           "linux": {
-            "gnome": "Gehe in GNOME zu Einstellungen > Benachrichtigungen, um die Berechtigung der App anzupassen.",
-            "kde": "Gehe in KDE zu Systemeinstellungen > Benachrichtigungen, um Berechtigungen zu ändern."
+            "gnome": "Gehe in GNOME zu Einstellungen > Benachrichtigungen, um die Berechtigung der App anzupassen."
           },
           "mobile": {
             "browser": "Passe in den Einstellungen deines Browsers die Benachrichtigungsberechtigung für diese Website an.",

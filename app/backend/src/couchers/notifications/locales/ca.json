@@ -1,393 +1,503 @@
 {
-  "topic_action_descriptions": {
-    "host_request": {
-      "missed_messages": "T'has perdut missatges en una sol·licitud d'allotjament",
-      "create": "Algú t'ha enviat una sol·licitud d'allotjament",
-      "accept": "Algú ha acceptat la teva sol·licitud d'allotjament",
-      "reject": "Algú ha declinat la teva sol·licitud d'allotjament",
-      "message": "Algú ha enviat un missatge en una sol·licitud d'allotjament",
-      "confirm": "Algú ha confirmat la seva sol·licitud d'allotjament",
-      "cancel": "Algú ha cancel·lat la seva sol·licitud d'allotjament",
-      "reminder": "No has respost a una sol·licitud d'allotjament pendent"
-    },
-    "chat": {
-      "message": "Algú t'ha enviat un missatge",
-      "missed_messages": "T'has perdut missatges en un xat"
-    },
-    "general": {
-      "new_blog_post": "S'ha publicat una nova entrada al blog"
-    },
-    "reference": {
-      "receive_hosted": "Has rebut una referència d'algú que t'ha allotjat",
-      "receive_friend": "Has rebut una referència d'un amic",
-      "reminder_hosted": "Recordatori per escriure una referència a algú que has allotjat",
-      "reminder_surfed": "Recordatori per escriure una referència a algú amb qui t'has allotjat",
-      "receive_surfed": "Has rebut una referència d'algú que has allotjat"
-    },
-    "friend_request": {
-      "create": "Algú t'ha enviat una sol·licitud d'amistat",
-      "accept": "Algú ha acceptat la teva sol·licitud d'amistat"
-    },
-    "event": {
-      "create_any": "Un usuari ha creat un esdeveniment a la teva comunitat (no comprovat per un administrador)",
-      "update": "S'ha actualitzat un esdeveniment al qual assisteixes",
-      "cancel": "S'ha cancel·lat un esdeveniment al qual assisteixes",
-      "invite_organizer": "Algú t'ha convidat a coorganitzar un esdeveniment",
-      "comment": "Un usuari ha comentat en un esdeveniment al qual vas",
-      "reminder": "Recordatori: un esdeveniment al qual assistiràs és a punt de començar",
-      "create_approved": "S'ha creat un esdeveniment aprovat pels moderadors a la teva comunitat",
-      "delete": "S'ha eliminat un esdeveniment al qual assisteixes"
-    },
-    "onboarding": {
-      "reminder": "Recordatori per completar el teu perfil després de registrar-te"
-    },
-    "badge": {
-      "add": "S'ha afegit una insígnia al teu compte",
-      "remove": "S'ha eliminat una insígnia del teu compte"
-    },
-    "donation": {
-      "received": "S'ha rebut la teva donació"
-    },
-    "password": {
-      "change": "S'ha canviat la teva contrasenya"
-    },
-    "password_reset": {
-      "start": "S'ha iniciat el restabliment de la contrasenya",
-      "complete": "S'ha completat el restabliment de la contrasenya"
-    },
-    "account_deletion": {
-      "recovered": "S'ha recuperat el teu compte (s'ha anul·lat l'eliminació)",
-      "complete": "S'ha eliminat el teu compte",
-      "start": "Has iniciat l'eliminació del compte"
-    },
-    "api_key": {
-      "create": "S'ha creat una clau API per al teu compte"
-    },
-    "phone_number": {
-      "change": "S'ha canviat el teu número de telèfon",
-      "verify": "S'ha verificat el teu número de telèfon"
-    },
-    "birthdate": {
-      "change": "S'ha canviat la teva data de naixement"
-    },
-    "discussion": {
-      "create": "Algú ha creat un debat en una comunitat on ets",
-      "comment": "Algú ha comentat en un debat que segueixes"
-    },
-    "thread": {
-      "reply": "Algú ha respost al teu comentari"
-    },
-    "email_address": {
-      "change": "S'ha iniciat el canvi de correu electrònic",
-      "verify": "S'ha verificat el teu nou correu electrònic"
-    },
-    "gender": {
-      "change": "S'ha canviat el gènere que es mostra al teu perfil"
-    },
-    "activeness": {
-      "probe": "Acceptes convidats però fa temps que no inicies sessió"
-    },
-    "modnote": {
-      "create": "Un moderador t'ha enviat una nota"
-    },
-    "postal_verification": {
-      "postcard_sent": "S'ha enviat la teva postal de verificació",
-      "success": "La teva verificació postal ha tingut èxit",
-      "failed": "La teva verificació postal ha fallat"
-    },
-    "verification": {
-      "sv_fail": "La teva verificació forta ha fallat",
-      "sv_success": "La teva verificació forta ha tingut èxit"
+  "_adhoc": {
+    "push_enabled": {
+      "push": {
+        "title": "Notificacions push activades",
+        "ios_title": "Notificacions push activades",
+        "body": "Ara rebràs notificacions en aquest dispositiu."
+      }
     }
   },
-  "push": {
-    "account_deletion__start": {
-      "title": "S'ha sol·licitat l'eliminació del compte",
-      "ios_title": "S'ha sol·licitat l'eliminació del compte",
-      "body": "Fes servir l'enllaç que t'hem enviat per correu per confirmar-ho."
-    },
-    "account_deletion__complete": {
-      "title": "Compte eliminat",
-      "ios_title": "Compte eliminat",
-      "body_one": "Pots restaurar-lo en {{count}} dia fent servir l'enllaç que t'hem enviat per correu.",
-      "body_many": "Pots restaurar-lo en {{count}} de dies fent servir l'enllaç que t'hem enviat per correu.",
-      "body_other": "Pots restaurar-lo en {{count}} dies fent servir l'enllaç que t'hem enviat per correu."
-    },
-    "account_deletion__recovered": {
-      "title": "Compte restaurat",
-      "ios_title": "Compte restaurat",
-      "body": "Benvingut de nou!"
-    },
-    "activeness__probe": {
-      "title": "Encara estàs obert a allotjar?",
-      "ios_title": "Encara estàs obert a allotjar?",
-      "body": "Inicia sessió per confirmar el teu estat d'allotjament."
-    },
-    "adhoc__push_enabled": {
-      "title": "Notificacions push activades",
-      "ios_title": "Notificacions push activades",
-      "body": "Ara rebràs notificacions en aquest dispositiu."
-    },
-    "api_key__create": {
-      "title": "Clau API creada",
-      "ios_title": "Clau API creada",
-      "body": "Els detalls s'han enviat per correu electrònic."
-    },
-    "badge__add": {
-      "title": "Nova insígnia de perfil: {{badge_name}}",
-      "ios_title": "Nova insígnia de perfil",
-      "body": "La insígnia {{badge_name}} s'ha afegit al teu perfil."
-    },
-    "badge__remove": {
-      "title": "Insígnia de perfil eliminada",
-      "ios_title": "Insígnia de perfil eliminada",
-      "body": "La insígnia {{badge_name}} s'ha eliminat del teu perfil."
-    },
-    "birthdate__change": {
-      "title": "Data de naixement canviada",
-      "ios_title": "Data de naixement canviada",
-      "body": "Un administrador ha canviat la teva data de naixement a {{birthdate}}."
-    },
-    "chat__missed_messages": {
-      "title_one": "{{count}} missatge perdut",
-      "title_many": "{{count}} de missatges perduts",
-      "title_other": "{{count}} missatges perduts",
-      "ios_title_one": "{{count}} missatge perdut",
-      "ios_title_many": "{{count}} de missatges perduts",
-      "ios_title_other": "{{count}} missatges perduts",
-      "body": "Tens nous missatges no llegits."
-    },
-    "donation__received": {
-      "title": "Donació rebuda",
-      "ios_title": "Donació rebuda",
-      "body": "Moltes gràcies per la teva donació de {{amount_with_currency}}!"
-    },
-    "discussion__create": {
-      "title": "Nou debat: {{title}}",
-      "ios_title": "Nou debat",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} ha iniciat el debat a {{group_or_community}}."
-    },
-    "discussion__comment": {
-      "title": "{{user}} • {{title}}"
-    },
-    "email_address__change": {
-      "title": "Canvi de correu electrònic sol·licitat",
-      "ios_title": "Canvi de correu electrònic sol·licitat",
-      "body": "Fes servir l'enllaç que t'hem enviat a {{email}} per confirmar la teva nova adreça."
-    },
-    "email_address__verify": {
-      "title": "Correu electrònic verificat",
-      "ios_title": "Correu electrònic verificat",
-      "body": "La teva nova adreça de correu electrònic ha estat verificada."
-    },
-    "event__create_any": {
-      "title": "Nou esdeveniment: {{title}}",
-      "ios_title": "Nou esdeveniment",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} ha creat l'esdeveniment el {{date_and_time}}."
-    },
-    "event__create_approved": {
-      "title": "Nou esdeveniment: {{title}}",
-      "ios_title": "Nou esdeveniment",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} t'ha convidat a l'esdeveniment el {{date_and_time}}."
-    },
-    "event__update": {
-      "title": "Esdeveniment actualitzat: {{title}}",
-      "ios_title": "Esdeveniment actualitzat",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} ha actualitzat l'esdeveniment."
-    },
-    "event__invite_organizer": {
-      "title": "Esdeveniment actualitzat: {{title}}",
-      "ios_title": "Esdeveniment actualitzat",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} t'ha afegit com a coorganitzador de l'esdeveniment."
-    },
-    "event__comment": {
-      "title": "{{user}} • {{title}}",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Ha comentat a {{title}}"
-    },
-    "event__reminder": {
-      "title": "Pròxim esdeveniment: {{title}}",
-      "ios_title": "Pròxim esdeveniment",
-      "ios_subtitle": "{{title}}",
-      "body": "L'esdeveniment comença el {{date_and_time}}."
-    },
-    "event__cancel": {
-      "title": "Esdeveniment cancel·lat: {{title}}",
-      "ios_title": "Esdeveniment cancel·lat",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} ha cancel·lat l'esdeveniment."
-    },
-    "event__delete": {
-      "title": "Esdeveniment eliminat: {{title}}",
-      "ios_title": "Esdeveniment eliminat",
-      "ios_subtitle": "{{title}}",
-      "body": "Un moderador ha eliminat l'esdeveniment."
-    },
-    "friend_request__create": {
-      "title": "Sol·licitud d'amistat de {{from_user}}",
-      "ios_title": "{{from_user}}",
-      "ios_subtitle": "Sol·licitud d'amistat",
-      "body": "{{from_user}} vol fer-se amic teu."
-    },
-    "friend_request__accept": {
-      "title": "{{friend}} ha acceptat la teva sol·licitud d'amistat",
-      "ios_title": "{{friend}}",
-      "ios_subtitle": "Ha acceptat la teva sol·licitud d'amistat",
-      "body": "Ara ets amic de {{friend}}."
-    },
-    "gender__change": {
-      "title": "Gènere canviat",
-      "ios_title": "Gènere canviat",
-      "body": "Un administrador ha canviat el teu gènere a {{gender}}."
-    },
-    "general__new_blog_post": {
-      "title": "Nova entrada al blog: {{title}}",
-      "ios_title": "Nova entrada al blog",
-      "ios_subtitle": "{{title}}"
-    },
-    "host_request__create": {
-      "title": "Nova sol·licitud d'allotjament de {{user}}",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Nova sol·licitud d'allotjament",
-      "body_one": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} dia.",
-      "body_many": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} de dies.",
-      "body_other": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} dies."
-    },
-    "host_request__missed_messages": {
-      "title": "Nous missatges de {{user}}",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Missatges perduts",
-      "body": "Tens nous missatges no llegits de {{user}}."
-    },
-    "host_request__reminder": {
-      "title": "Sol·licitud pendent de {{user}}",
-      "ios_title": "Sol·licitud d'allotjament pendent",
-      "ios_subtitle": "{{user}}",
-      "body": "{{user}} espera la teva resposta; accepta o declina la sol·licitud."
-    },
-    "host_request__accept": {
-      "title": "{{user}} ha acceptat la teva sol·licitud d'allotjament",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Sol·licitud d'allotjament acceptada",
-      "body": "{{user}} ha acceptat la teva sol·licitud d'allotjament per al {{date}}."
-    },
-    "host_request__reject": {
-      "title": "{{user}} ha declinat la teva sol·licitud d'allotjament",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Sol·licitud d'allotjament declinada",
-      "body": "{{user}} ha declinat la teva sol·licitud d'allotjament per al {{date}}."
-    },
-    "host_request__cancel": {
-      "title": "{{user}} ha cancel·lat la seva sol·licitud d'allotjament",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Sol·licitud d'allotjament cancel·lada",
-      "body": "{{user}} ha cancel·lat la seva sol·licitud d'allotjament per al {{date}}."
-    },
-    "host_request__confirm": {
-      "title": "{{user}} ha confirmat la seva sol·licitud d'allotjament",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Sol·licitud d'allotjament confirmada",
-      "body": "{{user}} ha confirmat la seva sol·licitud d'allotjament per al {{date}}."
-    },
-    "modnote__create": {
-      "title": "Nova nota del moderador",
-      "ios_title": "Nova nota del moderador",
-      "body": "Has rebut una nota del moderador. Llegeix-la i confirma-la per continuar usant la plataforma."
-    },
-    "onboarding__reminder": {
-      "first": {
-        "title": "Benvingut a Couchers!",
-        "ios_title": "Benvingut a Couchers!",
-        "body": "Completa el teu perfil amb una foto i una mica de text sobre tu."
-      },
-      "subsequent": {
-        "title": "Recorda completar el teu perfil",
-        "ios_title": "Recordatori de perfil",
-        "body": "Completa el teu perfil amb una foto i una mica de text sobre tu."
+  "account_deletion": {
+    "complete": {
+      "event_description": "S'ha eliminat el teu compte",
+      "push": {
+        "title": "Compte eliminat",
+        "ios_title": "Compte eliminat",
+        "body_one": "Pots restaurar-lo en {{count}} dia fent servir l'enllaç que t'hem enviat per correu.",
+        "body_many": "Pots restaurar-lo en {{count}} de dies fent servir l'enllaç que t'hem enviat per correu.",
+        "body_other": "Pots restaurar-lo en {{count}} dies fent servir l'enllaç que t'hem enviat per correu."
       }
     },
-    "password__change": {
-      "title": "Contrasenya canviada",
-      "ios_title": "Contrasenya canviada",
-      "body": "La teva contrasenya ha estat canviada."
+    "recovered": {
+      "event_description": "S'ha recuperat el teu compte (s'ha anul·lat l'eliminació)",
+      "push": {
+        "title": "Compte restaurat",
+        "ios_title": "Compte restaurat",
+        "body": "Benvingut de nou!"
+      }
     },
-    "password_reset__start": {
-      "title": "Restabliment de contrasenya sol·licitat",
-      "ios_title": "Restabliment de contrasenya sol·licitat",
-      "body": "Fes servir l'enllaç que t'hem enviat per correu per completar-ho."
+    "start": {
+      "event_description": "Has iniciat l'eliminació del compte",
+      "push": {
+        "title": "S'ha sol·licitat l'eliminació del compte",
+        "ios_title": "S'ha sol·licitat l'eliminació del compte",
+        "body": "Fes servir l'enllaç que t'hem enviat per correu per confirmar-ho."
+      }
+    }
+  },
+  "activeness": {
+    "probe": {
+      "event_description": "Acceptes convidats però fa temps que no inicies sessió",
+      "push": {
+        "title": "Encara estàs obert a allotjar?",
+        "ios_title": "Encara estàs obert a allotjar?",
+        "body": "Inicia sessió per confirmar el teu estat d'allotjament."
+      }
+    }
+  },
+  "api_key": {
+    "create": {
+      "event_description": "S'ha creat una clau API per al teu compte",
+      "push": {
+        "title": "Clau API creada",
+        "ios_title": "Clau API creada",
+        "body": "Els detalls s'han enviat per correu electrònic."
+      }
+    }
+  },
+  "badge": {
+    "add": {
+      "event_description": "S'ha afegit una insígnia al teu compte",
+      "push": {
+        "title": "Nova insígnia de perfil: {{badge_name}}",
+        "ios_title": "Nova insígnia de perfil",
+        "body": "La insígnia {{badge_name}} s'ha afegit al teu perfil."
+      }
     },
-    "password_reset__complete": {
-      "title": "Contrasenya restablerta",
-      "ios_title": "Contrasenya restablerta",
-      "body": "La teva contrasenya s'ha restablert correctament."
+    "remove": {
+      "event_description": "S'ha eliminat una insígnia del teu compte",
+      "push": {
+        "title": "Insígnia de perfil eliminada",
+        "ios_title": "Insígnia de perfil eliminada",
+        "body": "La insígnia {{badge_name}} s'ha eliminat del teu perfil."
+      }
+    }
+  },
+  "birthdate": {
+    "change": {
+      "event_description": "S'ha canviat la teva data de naixement",
+      "push": {
+        "title": "Data de naixement canviada",
+        "ios_title": "Data de naixement canviada",
+        "body": "Un administrador ha canviat la teva data de naixement a {{birthdate}}."
+      }
+    }
+  },
+  "chat": {
+    "message": {
+      "event_description": "Algú t'ha enviat un missatge"
     },
-    "phone_number__change": {
-      "title": "Verificació telefònica iniciada",
-      "ios_title": "Verificació telefònica iniciada",
-      "body": "Has iniciat la verificació del número de telèfon amb el número {{phone_number}}."
+    "missed_messages": {
+      "event_description": "T'has perdut missatges en un xat",
+      "push": {
+        "title_one": "{{count}} missatge perdut",
+        "title_many": "{{count}} de missatges perduts",
+        "title_other": "{{count}} missatges perduts",
+        "ios_title_one": "{{count}} missatge perdut",
+        "ios_title_many": "{{count}} de missatges perduts",
+        "ios_title_other": "{{count}} missatges perduts",
+        "body": "Tens nous missatges no llegits."
+      }
+    }
+  },
+  "discussion": {
+    "comment": {
+      "event_description": "Algú ha comentat en un debat que segueixes",
+      "push": {
+        "title": "{{user}} • {{title}}"
+      }
     },
-    "phone_number__verify": {
-      "title": "Verificació telefònica completada",
-      "ios_title": "Verificació telefònica completada",
-      "body": "El teu número de telèfon s'ha verificat correctament com a {{phone_number}}."
+    "create": {
+      "event_description": "Algú ha creat un debat en una comunitat on ets",
+      "push": {
+        "title": "Nou debat: {{title}}",
+        "ios_title": "Nou debat",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ha iniciat el debat a {{group_or_community}}."
+      }
+    }
+  },
+  "donation": {
+    "received": {
+      "event_description": "S'ha rebut la teva donació",
+      "push": {
+        "title": "Donació rebuda",
+        "ios_title": "Donació rebuda",
+        "body": "Moltes gràcies per la teva donació de {{amount_with_currency}}!"
+      }
+    }
+  },
+  "email_address": {
+    "change": {
+      "event_description": "S'ha iniciat el canvi de correu electrònic",
+      "push": {
+        "title": "Canvi de correu electrònic sol·licitat",
+        "ios_title": "Canvi de correu electrònic sol·licitat",
+        "body": "Fes servir l'enllaç que t'hem enviat a {{email}} per confirmar la teva nova adreça."
+      }
     },
-    "postal_verification__postcard_sent": {
-      "title": "Verificació postal iniciada",
-      "ios_title": "Verificació postal iniciada",
-      "body": "La teva postal està en camí a {{city}}, {{country}}. Espera-la en 1-3 setmanes."
+    "verify": {
+      "event_description": "S'ha verificat el teu nou correu electrònic",
+      "push": {
+        "title": "Correu electrònic verificat",
+        "ios_title": "Correu electrònic verificat",
+        "body": "La teva nova adreça de correu electrònic ha estat verificada."
+      }
+    }
+  },
+  "event": {
+    "cancel": {
+      "event_description": "S'ha cancel·lat un esdeveniment al qual assisteixes",
+      "push": {
+        "title": "Esdeveniment cancel·lat: {{title}}",
+        "ios_title": "Esdeveniment cancel·lat",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ha cancel·lat l'esdeveniment."
+      }
     },
-    "postal_verification__success": {
-      "title": "Verificació postal completada",
-      "ios_title": "Verificació postal completada",
-      "body": "La teva adreça ara està verificada."
+    "comment": {
+      "event_description": "Un usuari ha comentat en un esdeveniment al qual vas",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Ha comentat a {{title}}"
+      }
     },
-    "postal_verification__failed": {
-      "title": "Verificació postal fallida",
-      "ios_title": "Verificació postal fallida",
-      "body_code_expired": "El teu codi de verificació ha caducat. Els codis són vàlids durant 90 dies des que s'envia la postal. Pots sol·licitar una postal nova.",
-      "body_too_many_attempts": "Massa intents de codi incorrectes. Pots sol·licitar una postal nova.",
-      "body_generic": "El teu intent de verificació postal ha fallat. Pots sol·licitar una postal nova."
+    "create_any": {
+      "event_description": "Un usuari ha creat un esdeveniment a la teva comunitat (no comprovat per un administrador)",
+      "push": {
+        "title": "Nou esdeveniment: {{title}}",
+        "ios_title": "Nou esdeveniment",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ha creat l'esdeveniment el {{date_and_time}}."
+      }
     },
-    "reference__receive_friend": {
-      "title": "Nova referència d'amic de {{user}}",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Nova referència d'amic"
+    "create_approved": {
+      "event_description": "S'ha creat un esdeveniment aprovat pels moderadors a la teva comunitat",
+      "push": {
+        "title": "Nou esdeveniment: {{title}}",
+        "ios_title": "Nou esdeveniment",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} t'ha convidat a l'esdeveniment el {{date_and_time}}."
+      }
     },
-    "reference__receive": {
-      "title": "Nova referència de {{user}}",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Nova referència",
-      "body_must_write_yours": "{{user}} t'ha deixat una referència; ara et toca escriure la seva!"
+    "delete": {
+      "event_description": "S'ha eliminat un esdeveniment al qual assisteixes",
+      "push": {
+        "title": "Esdeveniment eliminat: {{title}}",
+        "ios_title": "Esdeveniment eliminat",
+        "ios_subtitle": "{{title}}",
+        "body": "Un moderador ha eliminat l'esdeveniment."
+      }
     },
-    "reference__reminder": {
-      "title": "Escriu la teva referència per a {{user}}",
-      "ios_title": "Escriu la teva referència",
-      "ios_subtitle": "{{user}}",
-      "body_one": "Encara tens {{count}} dia per escriure una referència per a {{user}}.",
-      "body_many": "Encara tens {{count}} de dies per escriure una referència per a {{user}}.",
-      "body_other": "Encara tens {{count}} dies per escriure una referència per a {{user}}."
+    "invite_organizer": {
+      "event_description": "Algú t'ha convidat a coorganitzar un esdeveniment",
+      "push": {
+        "title": "Esdeveniment actualitzat: {{title}}",
+        "ios_title": "Esdeveniment actualitzat",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} t'ha afegit com a coorganitzador de l'esdeveniment."
+      }
     },
-    "thread__reply": {
-      "title": "{{user}} • {{title}}",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "{{title}}"
+    "reminder": {
+      "event_description": "Recordatori: un esdeveniment al qual assistiràs és a punt de començar",
+      "push": {
+        "title": "Pròxim esdeveniment: {{title}}",
+        "ios_title": "Pròxim esdeveniment",
+        "ios_subtitle": "{{title}}",
+        "body": "L'esdeveniment comença el {{date_and_time}}."
+      }
     },
-    "verification__sv_success": {
-      "title": "Verificació forta completada",
-      "ios_title": "Verificació forta completada",
-      "body": "Has estat verificat amb la Verificació forta."
+    "update": {
+      "event_description": "S'ha actualitzat un esdeveniment al qual assisteixes",
+      "push": {
+        "title": "Esdeveniment actualitzat: {{title}}",
+        "ios_title": "Esdeveniment actualitzat",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} ha actualitzat l'esdeveniment."
+      }
+    }
+  },
+  "friend_request": {
+    "accept": {
+      "event_description": "Algú ha acceptat la teva sol·licitud d'amistat",
+      "push": {
+        "title": "{{friend}} ha acceptat la teva sol·licitud d'amistat",
+        "ios_title": "{{friend}}",
+        "ios_subtitle": "Ha acceptat la teva sol·licitud d'amistat",
+        "body": "Ara ets amic de {{friend}}."
+      }
     },
-    "verification__sv_fail": {
-      "title": "Verificació forta fallida",
-      "ios_title": "Verificació forta fallida",
-      "body_wrong_birthdate_gender": "La data de naixement o el gènere del teu perfil no coincideix amb la data de naixement o el sexe del teu passaport. Posa't en contacte amb l'equip de suport per actualitzar la teva data de naixement o gènere, o si el sexe del teu passaport no coincideix amb la teva identitat de gènere.",
-      "body_not_a_passport": "Has fet servir un document que no és un passaport. Només pots usar un passaport per a la Verificació forta.",
-      "body_duplicate": "Has fet servir un passaport que ja s'ha usat per a la verificació. Fes servir un altre passaport."
+    "create": {
+      "event_description": "Algú t'ha enviat una sol·licitud d'amistat",
+      "push": {
+        "title": "Sol·licitud d'amistat de {{from_user}}",
+        "ios_title": "{{from_user}}",
+        "ios_subtitle": "Sol·licitud d'amistat",
+        "body": "{{from_user}} vol fer-se amic teu."
+      }
+    }
+  },
+  "gender": {
+    "change": {
+      "event_description": "S'ha canviat el gènere que es mostra al teu perfil",
+      "push": {
+        "title": "Gènere canviat",
+        "ios_title": "Gènere canviat",
+        "body": "Un administrador ha canviat el teu gènere a {{gender}}."
+      }
+    }
+  },
+  "general": {
+    "new_blog_post": {
+      "event_description": "S'ha publicat una nova entrada al blog",
+      "push": {
+        "title": "Nova entrada al blog: {{title}}",
+        "ios_title": "Nova entrada al blog",
+        "ios_subtitle": "{{title}}"
+      }
+    }
+  },
+  "host_request": {
+    "accept": {
+      "event_description": "Algú ha acceptat la teva sol·licitud d'allotjament",
+      "push": {
+        "title": "{{user}} ha acceptat la teva sol·licitud d'allotjament",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Sol·licitud d'allotjament acceptada",
+        "body": "{{user}} ha acceptat la teva sol·licitud d'allotjament per al {{date}}."
+      }
+    },
+    "cancel": {
+      "event_description": "Algú ha cancel·lat la seva sol·licitud d'allotjament",
+      "push": {
+        "title": "{{user}} ha cancel·lat la seva sol·licitud d'allotjament",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Sol·licitud d'allotjament cancel·lada",
+        "body": "{{user}} ha cancel·lat la seva sol·licitud d'allotjament per al {{date}}."
+      }
+    },
+    "confirm": {
+      "event_description": "Algú ha confirmat la seva sol·licitud d'allotjament",
+      "push": {
+        "title": "{{user}} ha confirmat la seva sol·licitud d'allotjament",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Sol·licitud d'allotjament confirmada",
+        "body": "{{user}} ha confirmat la seva sol·licitud d'allotjament per al {{date}}."
+      }
+    },
+    "create": {
+      "event_description": "Algú t'ha enviat una sol·licitud d'allotjament",
+      "push": {
+        "title": "Nova sol·licitud d'allotjament de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nova sol·licitud d'allotjament",
+        "body_one": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} dia.",
+        "body_many": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} de dies.",
+        "body_other": "{{user}} vol allotjar-se des de {{start_date}} durant {{count}} dies."
+      }
+    },
+    "message": {
+      "event_description": "Algú ha enviat un missatge en una sol·licitud d'allotjament"
+    },
+    "missed_messages": {
+      "event_description": "T'has perdut missatges en una sol·licitud d'allotjament",
+      "push": {
+        "title": "Nous missatges de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Missatges perduts",
+        "body": "Tens nous missatges no llegits de {{user}}."
+      }
+    },
+    "reject": {
+      "event_description": "Algú ha declinat la teva sol·licitud d'allotjament",
+      "push": {
+        "title": "{{user}} ha declinat la teva sol·licitud d'allotjament",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Sol·licitud d'allotjament declinada",
+        "body": "{{user}} ha declinat la teva sol·licitud d'allotjament per al {{date}}."
+      }
+    },
+    "reminder": {
+      "event_description": "No has respost a una sol·licitud d'allotjament pendent",
+      "push": {
+        "title": "Sol·licitud pendent de {{user}}",
+        "ios_title": "Sol·licitud d'allotjament pendent",
+        "ios_subtitle": "{{user}}",
+        "body": "{{user}} espera la teva resposta; accepta o declina la sol·licitud."
+      }
+    }
+  },
+  "modnote": {
+    "create": {
+      "event_description": "Un moderador t'ha enviat una nota",
+      "push": {
+        "title": "Nova nota del moderador",
+        "ios_title": "Nova nota del moderador",
+        "body": "Has rebut una nota del moderador. Llegeix-la i confirma-la per continuar usant la plataforma."
+      }
+    }
+  },
+  "onboarding": {
+    "reminder": {
+      "event_description": "Recordatori per completar el teu perfil després de registrar-te",
+      "push": {
+        "first": {
+          "title": "Benvingut a Couchers!",
+          "ios_title": "Benvingut a Couchers!",
+          "body": "Completa el teu perfil amb una foto i una mica de text sobre tu."
+        },
+        "subsequent": {
+          "title": "Recorda completar el teu perfil",
+          "ios_title": "Recordatori de perfil",
+          "body": "Completa el teu perfil amb una foto i una mica de text sobre tu."
+        }
+      }
+    }
+  },
+  "password": {
+    "change": {
+      "event_description": "S'ha canviat la teva contrasenya",
+      "push": {
+        "title": "Contrasenya canviada",
+        "ios_title": "Contrasenya canviada",
+        "body": "La teva contrasenya ha estat canviada."
+      }
+    }
+  },
+  "password_reset": {
+    "complete": {
+      "event_description": "S'ha completat el restabliment de la contrasenya",
+      "push": {
+        "title": "Contrasenya restablerta",
+        "ios_title": "Contrasenya restablerta",
+        "body": "La teva contrasenya s'ha restablert correctament."
+      }
+    },
+    "start": {
+      "event_description": "S'ha iniciat el restabliment de la contrasenya",
+      "push": {
+        "title": "Restabliment de contrasenya sol·licitat",
+        "ios_title": "Restabliment de contrasenya sol·licitat",
+        "body": "Fes servir l'enllaç que t'hem enviat per correu per completar-ho."
+      }
+    }
+  },
+  "phone_number": {
+    "change": {
+      "event_description": "S'ha canviat el teu número de telèfon",
+      "push": {
+        "title": "Verificació telefònica iniciada",
+        "ios_title": "Verificació telefònica iniciada",
+        "body": "Has iniciat la verificació del número de telèfon amb el número {{phone_number}}."
+      }
+    },
+    "verify": {
+      "event_description": "S'ha verificat el teu número de telèfon",
+      "push": {
+        "title": "Verificació telefònica completada",
+        "ios_title": "Verificació telefònica completada",
+        "body": "El teu número de telèfon s'ha verificat correctament com a {{phone_number}}."
+      }
+    }
+  },
+  "postal_verification": {
+    "failed": {
+      "event_description": "La teva verificació postal ha fallat",
+      "push": {
+        "title": "Verificació postal fallida",
+        "ios_title": "Verificació postal fallida",
+        "body_code_expired": "El teu codi de verificació ha caducat. Els codis són vàlids durant 90 dies des que s'envia la postal. Pots sol·licitar una postal nova.",
+        "body_too_many_attempts": "Massa intents de codi incorrectes. Pots sol·licitar una postal nova.",
+        "body_generic": "El teu intent de verificació postal ha fallat. Pots sol·licitar una postal nova."
+      }
+    },
+    "postcard_sent": {
+      "event_description": "S'ha enviat la teva postal de verificació",
+      "push": {
+        "title": "Verificació postal iniciada",
+        "ios_title": "Verificació postal iniciada",
+        "body": "La teva postal està en camí a {{city}}, {{country}}. Espera-la en 1-3 setmanes."
+      }
+    },
+    "success": {
+      "event_description": "La teva verificació postal ha tingut èxit",
+      "push": {
+        "title": "Verificació postal completada",
+        "ios_title": "Verificació postal completada",
+        "body": "La teva adreça ara està verificada."
+      }
+    }
+  },
+  "reference": {
+    "_receive_any": {
+      "push": {
+        "title": "Nova referència de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nova referència",
+        "body_must_write_yours": "{{user}} t'ha deixat una referència; ara et toca escriure la seva!"
+      }
+    },
+    "_reminder_any": {
+      "push": {
+        "title": "Escriu la teva referència per a {{user}}",
+        "ios_title": "Escriu la teva referència",
+        "ios_subtitle": "{{user}}",
+        "body_one": "Encara tens {{count}} dia per escriure una referència per a {{user}}.",
+        "body_many": "Encara tens {{count}} de dies per escriure una referència per a {{user}}.",
+        "body_other": "Encara tens {{count}} dies per escriure una referència per a {{user}}."
+      }
+    },
+    "receive_friend": {
+      "event_description": "Has rebut una referència d'un amic",
+      "push": {
+        "title": "Nova referència d'amic de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nova referència d'amic"
+      }
+    },
+    "receive_hosted": {
+      "event_description": "Has rebut una referència d'algú que t'ha allotjat"
+    },
+    "receive_surfed": {
+      "event_description": "Has rebut una referència d'algú que has allotjat"
+    },
+    "reminder_hosted": {
+      "event_description": "Recordatori per escriure una referència a algú que has allotjat"
+    },
+    "reminder_surfed": {
+      "event_description": "Recordatori per escriure una referència a algú amb qui t'has allotjat"
+    }
+  },
+  "thread": {
+    "reply": {
+      "event_description": "Algú ha respost al teu comentari",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{title}}"
+      }
+    }
+  },
+  "verification": {
+    "sv_fail": {
+      "event_description": "La teva verificació forta ha fallat",
+      "push": {
+        "title": "Verificació forta fallida",
+        "ios_title": "Verificació forta fallida",
+        "body_wrong_birthdate_gender": "La data de naixement o el gènere del teu perfil no coincideix amb la data de naixement o el sexe del teu passaport. Posa't en contacte amb l'equip de suport per actualitzar la teva data de naixement o gènere, o si el sexe del teu passaport no coincideix amb la teva identitat de gènere.",
+        "body_not_a_passport": "Has fet servir un document que no és un passaport. Només pots usar un passaport per a la Verificació forta.",
+        "body_duplicate": "Has fet servir un passaport que ja s'ha usat per a la verificació. Fes servir un altre passaport."
+      }
+    },
+    "sv_success": {
+      "event_description": "La teva verificació forta ha tingut èxit",
+      "push": {
+        "title": "Verificació forta completada",
+        "ios_title": "Verificació forta completada",
+        "body": "Has estat verificat amb la Verificació forta."
+      }
     }
   }
 }

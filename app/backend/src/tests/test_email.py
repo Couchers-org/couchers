@@ -402,6 +402,8 @@ You can download an invoice and receipt for the donation here:
 
 <https://example.com/receipt/12345>
 
+Couchers, Inc. is a 501(c)(3) nonprofit (EIN: 87-1734577) registered in the United States. No goods or services were provided in exchange for this contribution.
+
 If you have any questions about your donation, please email us at <donations@couchers.org>.
 
 Your generosity will help deliver the platform for everyone.

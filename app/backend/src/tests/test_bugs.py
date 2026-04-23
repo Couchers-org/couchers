@@ -1,4 +1,4 @@
-from datetime import UTC
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import grpc
@@ -272,8 +272,6 @@ def test_report_diagnostics_with_value(db):
 
 
 def test_report_diagnostics_with_occurred(db):
-    from datetime import datetime
-
     ts = timestamp_pb2.Timestamp()
     ts.FromDatetime(datetime(2026, 1, 15, 10, 30, 0, tzinfo=UTC))
 

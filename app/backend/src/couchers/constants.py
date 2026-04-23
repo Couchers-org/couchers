@@ -12,6 +12,11 @@ EMAIL_REGEX = r"^[0-9a-z]([0-9a-z\-\_\+]|(\.[0-9a-z\-\_\+]))*@([0-9a-z\-]+\.)*[0
 
 BANNED_USERNAME_PHRASES = [
     "admin",
+    "bot",
+    "safety",
+    "security",
+    "secure",
+    "trust",
     "couchers",
     "help",
     "moderation",
@@ -23,6 +28,7 @@ BANNED_USERNAME_PHRASES = [
     "support",
     "system",
     "team",
+    "verify",
 ]
 
 # expiry time for a verified phone number
@@ -77,6 +83,7 @@ HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)
 
 # Note: Javascript's string.length is in utf16 code units, Python's len(str) is in utf8 code units.
 HOST_REQUEST_MIN_LENGTH_UTF16 = 250  # Must match frontend
+PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16 = 150  # Must match frontend
 
 ANTIBOT_FREQ = timedelta(hours=48)
 

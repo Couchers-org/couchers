@@ -104,6 +104,8 @@ message UpdateVolunteerReq {
   google.protobuf.StringValue started_volunteering = 4;
   google.protobuf.StringValue stopped_volunteering = 5;
   google.protobuf.BoolValue show_on_team_page = 6;
+  // if true, clears stopped_volunteering (reinstates a former volunteer as current); cannot be combined with setting stopped_volunteering
+  bool reinstate_volunteer = 7;
 }
 
 message ListVolunteersReq {

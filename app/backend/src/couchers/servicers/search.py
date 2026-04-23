@@ -6,7 +6,7 @@ from datetime import timedelta
 from typing import Any, cast
 
 import grpc
-from sqlalchemy import select
+from sqlalchemy import literal_column, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_
 
@@ -90,18 +90,32 @@ def _build_tsv(A: list[Any], B: list[Any] | None = None, C: list[Any] | None = N
     B = B or []
     C = C or []
     D = D or []
-    tsv: Any = func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in A])), "A")
+    # Use literal_column for weight letters to avoid psycopg3 type binding issues
+    # PostgreSQL's setweight expects "char" type (internal single-byte type)
+    tsv: Any = func.setweight(
+        func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in A])),
+        literal_column("'A'"),
+    )
     if B:
         tsv = tsv.concat(
-            func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in B])), "B")
+            func.setweight(
+                func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in B])),
+                literal_column("'B'"),
+            )
         )
     if C:
         tsv = tsv.concat(
-            func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in C])), "C")
+            func.setweight(
+                func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in C])),
+                literal_column("'C'"),
+            )
         )
     if D:
         tsv = tsv.concat(
-            func.setweight(func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in D])), "D")
+            func.setweight(
+                func.to_tsvector(REGCONFIG, _join_with_space([func.coalesce(bit, "") for bit in D])),
+                literal_column("'D'"),
+            )
         )
     return tsv
 

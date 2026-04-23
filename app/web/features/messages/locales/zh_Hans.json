@@ -12,7 +12,6 @@
   "messages_page": {
     "title": "消息",
     "tabs": {
-      "aria_label": "不同消息类型标签",
       "chats": "聊天",
       "hosting": "留宿",
       "surfing": "找沙发主"
@@ -67,7 +66,6 @@
   "create_chat": {
     "dm_title": "创建新聊天",
     "group_title": "创建群聊",
-    "group_title_field_label": "标题",
     "no_friends_found_message": "无法找到任何好友",
     "user_load_error_message": "（用户加载错误）",
     "friends_input_label": "好友"

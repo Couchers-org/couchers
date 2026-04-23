@@ -40,7 +40,6 @@
   "confirm": "Confirma",
   "image_input": {
     "select_button_a11y": "Selecciona una imatge",
-    "replace_image_tooltip": "Fes clic per substituir la imatge",
     "read_file_error_message": "No s'ha pogut llegir el fitxer"
   },
   "read_more": "Llegeix-ne més",
@@ -49,7 +48,6 @@
   "mod": "Moderació",
   "cookie_message": "Fem servir galetes per garantir-te la millor experiència al nostre lloc web. Si continues usant aquest lloc, assumirem que n'estàs content. Pots llegir més a les nostres <1>Condicions del servei</1>.",
   "hosting_status": {
-    "any": "Qualsevol",
     "can_host": "Pot allotjar",
     "maybe": "Podria allotjar",
     "cant_host": "No pot allotjar",
@@ -59,8 +57,6 @@
     "current_preferred_language": "El teu idioma preferit és <lang>{{language}}</lang>.",
     "form_title": "Idioma",
     "help_translate": "Ajuda a traduir Couchers al teu idioma.",
-    "select_language": "Selecciona un idioma",
-    "success_message": "El canvi s'ha desat.",
     "error_loading_languages": "No s'han pogut carregar les opcions d'idioma. Torna-ho a provar més tard.",
     "translation_progress": {
       "title": "Progrés de la traducció",
@@ -72,10 +68,8 @@
       "complete": "Completa",
       "almost_there": "Gairebé acabada",
       "midway": "A mig camí",
-      "in_progress": "En curs",
       "early_stage": "Fase inicial",
       "just_started": "Acabada de començar",
-      "complete_percent": "{{percent}}% completada",
       "info_text": "💡 Els idiomes amb un 50-80% de completesa apareixen en gris al selector d'idiomes. Els idiomes amb menys del 50% estan amagats del selector. Per animar els col·laboradors, els idiomes per sota del 20% es mostren en aquest lloc.",
       "view_progress": "Visualitza el progrés de la traducció"
     },
@@ -90,12 +84,10 @@
   },
   "report": {
     "label": "Reporta un problema",
-    "title": "Reporta un problema",
     "bug": {
       "button_label": "Reporta un problema tècnic",
       "warning_message": "Tingues en compte que aquesta informació, juntament amb dades de diagnòstic com la pàgina en la qual ets, el navegador que fas servir i el teu nom d'usuari, es desarà en una llista pública d'errors.",
       "title_label": "Títol de l'informe",
-      "title_helper": "Breu descripció de l'error",
       "problem_label": "Què has fet per provocar l'error?",
       "problem_helper": "Breu descripció del problema i com reproduir-lo",
       "expect_label": "Què ha passat? Què hauria d'haver passat?",
@@ -104,7 +96,6 @@
     },
     "content": {
       "button_label": "Reporta contingut o comportament inapropiat",
-      "dialog_message": "Estem treballant en eines robustes de notificació i moderació. Mentrestant, envia'ns un correu electrònic a l'adreça de sota. Inclou detalls com l'usuari en qüestió, el que era inapropiat i on ho has vist.",
       "success_message": "Gràcies pel teu informe i per ajudar a fer de Couchers una plataforma millor per a tothom!"
     },
     "flag": {
@@ -116,10 +107,8 @@
       "title": "Reporta contingut o un usuari",
       "profile_title": "Reporta o bloqueja",
       "reason_label": "Motiu de la notificació",
-      "reason_helper": "Per què reportes aquest contingut?",
       "reason_required": "El motiu és obligatori.",
       "description_required": "La descripció és obligatòria.",
-      "profile_reason_required": "Omple la descripció o bloqueja",
       "description_label": "Descriu el problema",
       "description_helper": "Explica'ns per què reportes això.",
       "success": "Gràcies pel teu informe i per ajudar a fer de Couchers una plataforma millor per a tothom!",
@@ -172,7 +161,6 @@
       "radius_text2_many": "{{count}} de metres",
       "radius_text2_other": "{{count}} metres",
       "no_location_results_text": "Sense resultats. Prova de cercar només la ciutat.",
-      "no_map_support": "El teu dispositiu no és compatible amb el mapa. Assegura't que WebGL2 estigui activat o prova amb un dispositiu o navegador diferent. Disculpa les molèsties!",
       "press_enter_to_search": "Prem Retorn per cercar"
     }
   },
@@ -187,9 +175,6 @@
     "donate": "Dona",
     "events": "Esdeveniments",
     "faq": "PMF",
-    "feature_preview": "Previsualització de funcions",
-    "forum": "Fòrum",
-    "github": "GitHub",
     "help_center": "Centre d'ajuda",
     "roadmap_updates": "Full de ruta i novetats",
     "help": "Ajuda",
@@ -204,7 +189,6 @@
     "our_team": "El nostre equip",
     "profile": "Perfil",
     "show_all_events": "Mostra tots els esdeveniments",
-    "the_team": "L'equip",
     "volunteer": "Fes-te voluntari",
     "legal_more": "Legal i més",
     "contact_us": "Contacta'ns",
@@ -260,7 +244,6 @@
     "description_1": "El couch surfing és un concepte en el qual alguns membres (anomenats amfitrions) publiquen a la plataforma que estan disposats a allotjar altres membres (anomenats surfistes) que visiten la seva ciutat.",
     "description_2": "És com tenir un amic en una altra ciutat i anar a visitar-lo, però el coneixes per primera vegada quan hi arribes!",
     "get_involved_title": "Què puc fer a Couchers.org?",
-    "get_started": "Comença",
     "timeline_title": "Una breu història del couch surfing",
     "timeline": {
       "early_2000s_year": "Principis dels 2000",
@@ -322,30 +305,8 @@
     "join_our_team": "Uneix-te al nostre equip",
     "have_skills_contribute": "Tens habilitats que vols aportar?",
     "fill_form_description": "Couchers.org és un projecte impulsat per la comunitat, desenvolupat per persones com tu en benefici de la comunitat global de couch surfing. Si t'interessa unir-te a aquesta emocionant iniciativa, fes clic al botó de sota i omple el breu formulari.",
-    "current_members": "Membres actuals",
     "past_members": "Membres anteriors",
-    "board_member": "Membre del consell",
-    "co_founder_president": "Cofundador, President i President del consell",
-    "co_founder": "Cofundador",
-    "secretary": "Secretari",
-    "treasurer": "Tresorer",
-    "community_coordinator": "Coordinador de comunitat",
-    "developer": "Desenvolupador",
-    "frontend_developer": "Desenvolupador frontend",
-    "lead_frontend_developer": "Responsable de desenvolupament frontend",
-    "backend_developer": "Desenvolupador backend",
-    "lead_backend_developer": "Responsable de desenvolupament backend",
-    "full_stack_backend_developer": "Desenvolupador full stack",
-    "ui_ux_designer": "Dissenyador UI/UX",
-    "translations_lead": "Responsable de traduccions",
-    "volunteer_settings": {
-      "show_on_team_page": {
-        "title": "Mostra el meu perfil de voluntari a la pàgina de l'equip",
-        "enabled_message": "El teu perfil és visible a la pàgina de l'equip",
-        "disabled_message": "El teu perfil està ocult de la pàgina de l'equip"
-      }
-    },
-    "tap_press_to_flip": "Toca / prem per girar"
+    "board_member": "Membre del consell"
   },
   "blog": {
     "byline_with_author": "Escrit per <1/>. Publicat el {{date}}.",

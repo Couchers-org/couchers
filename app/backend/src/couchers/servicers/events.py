@@ -4,7 +4,7 @@ from typing import Any, cast
 
 import grpc
 from google.protobuf import empty_pb2
-from psycopg2.extras import DateTimeTZRange
+from psycopg.types.range import TimestamptzRange
 from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import and_, func, or_, update
@@ -290,7 +290,8 @@ def generate_event_create_notifications(payload: jobs_pb2.GenerateEventCreateNot
     """
     Background job to generated/fan out event notifications
     """
-    from couchers.servicers.communities import community_to_pb
+    # Import here to avoid circular dependency
+    from couchers.servicers.communities import community_to_pb  # noqa: PLC0415
 
     logger.info(f"Fanning out notifications for event occurrence id = {payload.occurrence_id}")
 
@@ -451,7 +452,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 select(Node).where(Node.id == request.parent_community_id)
             ).scalar_one_or_none()
 
-            if not parent_node or not parent_node.official_cluster.events_enabled:
+            if not parent_node or not parent_node.official_cluster.small_community_features_enabled:
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "events_not_enabled")
         else:
             if online:
@@ -494,7 +495,7 @@ class Events(events_pb2_grpc.EventsServicer):
                 link=link,
                 photo_key=request.photo_key if request.photo_key != "" else None,
                 # timezone=timezone,
-                during=DateTimeTZRange(start_time, end_time),
+                during=TimestamptzRange(start_time, end_time),
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
             )
@@ -608,7 +609,7 @@ class Events(events_pb2_grpc.EventsServicer):
         ):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
 
-        during = DateTimeTZRange(start_time, end_time)
+        during = TimestamptzRange(start_time, end_time)
 
         # && is the overlap operator for ranges
         if (
@@ -732,7 +733,7 @@ class Events(events_pb2_grpc.EventsServicer):
 
             _check_occurrence_time_validity(start_time, end_time, context)
 
-            during = DateTimeTZRange(start_time, end_time)
+            during = TimestamptzRange(start_time, end_time)
 
             # && is the overlap operator for ranges
             if (

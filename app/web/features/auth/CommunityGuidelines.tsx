@@ -36,14 +36,19 @@ const StyledGrid = styled("div")(({ theme }) => ({
   gap: theme.spacing(2, 2),
 }));
 
-const StyledAvatar = styled(Avatar)(() => ({
-  backgroundColor: "var(--mui-palette-primary-main)",
-  "& img": {
-    fill: "none",
-    width: "2rem",
-    objectFit: "unset",
+const StyledAvatar = styled(Avatar)(({ theme }) => [
+  {
+    backgroundColor: "var(--mui-palette-grey-300)",
+    "& img": {
+      fill: "none",
+      width: "2rem",
+      objectFit: "unset",
+    },
   },
-}));
+  theme.applyStyles("dark", {
+    backgroundColor: "var(--mui-palette-primary-main)",
+  }),
+]);
 
 const StyledButton = styled(Button)(({ theme }) => ({
   marginBlockStart: theme.spacing(2),

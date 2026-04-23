@@ -36,5 +36,13 @@
   "open_source_description": "Het platform en de tools die we bouwen, zijn vrij beschikbaar voor gebruik, aanpassing en distributie. Onze stichting heeft hier geen exclusieve rechten op. We streven ernaar om bij te dragen aan de open source community.",
   "open_source_why": "We willen dat anderen maximaal kunnen profiteren van de tools die we bouwen. Door ze vrij te verspreiden, garanderen we onze community dat wat we samen maken, in de toekomst bruikbaar is en blijft.",
   "non_transactional_description": "Deelnemers betalen elkaar nooit, niet in geld en ook niet in natura, om deel te nemen aan activiteiten of de community. Zelf surfen verplicht je niet om in de toekomst te hosten.",
-  "non_transactional_why": "Betalingen zijn fundamenteel onverenigbaar met het hebben van oprechte interacties. Het is juist gezond om alleen te geven, of alleen te ontvangen. Je daar okay bij voelen, is de echte uitdaging."
+  "non_transactional_why": "Betalingen zijn fundamenteel onverenigbaar met het hebben van oprechte interacties. Het is juist gezond om alleen te geven, of alleen te ontvangen. Je daar okay bij voelen, is de echte uitdaging.",
+  "signup_description2_one": "Reis, host en maak kennis met {{count}} lid. <2>Lees meer over ons</2>.",
+  "signup_description2_other": "Reis, host en maak kennis met {{count}} leden. <2>Lees meer over ons</2>.",
+  "signup_description_no_link2_one": "Reis, host en maak kennis met {{count}} lid.",
+  "signup_description_no_link2_other": "Reis, host en maak kennis met {{count}} leden.",
+  "num_users2_one": "{{count}} lid",
+  "num_users2_other": "{{count}} leden",
+  "num_countries2_one": "{{count}}+ land",
+  "num_countries2_other": "{{count}}+ landen"
 }

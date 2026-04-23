@@ -35,8 +35,7 @@
           },
           "windows": "No Windows, vá para Configurações > Sistema > Notificações e ações, e ajuste as permissões do aplicativo ou website.",
           "linux": {
-            "gnome": "No GNOME, vá para Configurações > Notificações para ajustar as permissões do aplicativo.",
-            "kde": "No KDE, vá para Configurações do Sistema > Notificações para modificar as permissões."
+            "gnome": "No GNOME, vá para Configurações > Notificações para ajustar as permissões do aplicativo."
           }
         },
         "platform_settings_description": "Ainda enfrentando problemas após habilitar as notificações em seu navegador? Pode ser necessário ajustar as configurações da sua plataforma."
@@ -50,7 +49,6 @@
       "disabled_message": "Atualmente as notificações por push estão <1>desabilitadas</1>.",
       "error_not_granted": "Você não deu permissão para envio de notificações por push."
     },
-    "edit_in_console": "Você pode alterar suas preferências de notificações <2>nesta página</2>. Em breve, elas serão movidas para cá.",
     "go_to_button": "Gerenciar preferências de notificações"
   },
   "push_notification_banner": {

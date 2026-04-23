@@ -13,11 +13,9 @@
   "messages_page": {
     "title": "Mesajlar",
     "tabs": {
-      "aria_label": "Farklı mesaj türleri için sekmeler",
       "chats": "Sohbetler",
       "hosting": "Ev Sahipliği",
-      "surfing": "Sörfler",
-      "archived": "Arşiv"
+      "surfing": "Sörfler"
     }
   },
   "chat_view": {
@@ -61,7 +59,6 @@
     }
   },
   "create_chat": {
-    "group_title_field_label": "Başlık",
     "dm_title": "Yeni bir sohbet oluştur",
     "group_title": "Grup sohbeti oluştur"
   },
@@ -112,9 +109,7 @@
     "no_archived_chats": "Arşivlenmiş sohbet yok",
     "archived": "Arşiv",
     "archive_button": "Arşivle",
-    "unarchive_button": "Arşivden Çıkar",
-    "show_archived": "Arşivi göster",
-    "show_active": "Aktif olanları göster"
+    "unarchive_button": "Arşivden Çıkar"
   },
   "host_request_status": {
     "rejected": "Reddedildi"

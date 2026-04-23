@@ -1,12 +1,12 @@
 services:
   postgres:
-    image: postgis/postgis:17-3.5
+    image: postgis/postgis:18-3.6
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
     restart: always
     stop_grace_period: 30s
     env_file: postgres.prod.env
     volumes:
-      - "./data/postgres/pgdata/:/var/lib/postgresql/data/"
+      - "./data/postgres/:/var/lib/postgresql/"
       - "./data/certs/:/certs/:ro"
       - "./postgis/postgresql.conf:/etc/postgresql/postgresql.conf:ro"
     ports:

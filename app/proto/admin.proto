@@ -418,7 +418,9 @@ message ListModerationUserListsReq {
 
 message ModerationList {
   int64 moderation_list_id = 1;
-  repeated int64 member_ids = 2;
+  reserved 2;
+  reserved "member_ids";
+  repeated UserDetails members = 3;
 }
 
 message ListModerationUserListsRes {

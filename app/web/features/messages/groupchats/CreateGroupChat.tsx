@@ -166,7 +166,7 @@ export default function CreateGroupChat({ className }: { className?: string }) {
               <StyledTextField
                 {...register("title")}
                 id="group-chat-title"
-                label={t("messages:title_label")}
+                label={t("messages:create_chat.title_label")}
               />
             )}
             {createMessageToUserQuery.error && (

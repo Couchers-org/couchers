@@ -53,7 +53,13 @@ from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.blocking import is_not_visible
-from couchers.sql import username_or_id, users_visible, where_moderated_content_visible, where_users_column_visible
+from couchers.sql import (
+    moderation_state_column_visible,
+    username_or_id,
+    users_visible,
+    where_moderated_content_visible,
+    where_users_column_visible,
+)
 from couchers.utils import (
     Duration_from_timedelta,
     Timestamp_from_datetime,
@@ -260,6 +266,7 @@ class API(api_pb2_grpc.APIServicer):
                     get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
                 )
             )
+            .where(moderation_state_column_visible(context, Notification.moderation_state_id))
         ).scalar_one()
 
         return api_pb2.PingRes(
@@ -306,7 +313,7 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "requested_too_many_users")
 
         usernames = {u for u in request.users if is_valid_username(u)}
-        ids = {u for u in request.users if is_valid_user_id(u)}
+        ids = {int(u) for u in request.users if is_valid_user_id(u)}
 
         # decomposed where_username_or_id...
         users = (

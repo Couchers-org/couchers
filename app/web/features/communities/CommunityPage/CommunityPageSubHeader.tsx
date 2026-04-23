@@ -36,10 +36,10 @@ export default function CommunityPageSubHeader({
   const communityTabBarLabels: Partial<Record<CommunityTab, string>> = {
     overview: t("communities:overview_label"),
     info: t("communities:local_info_label"),
-    ...(community.discussionsEnabled && {
+    ...(community.smallCommunityFeaturesEnabled && {
       discussions: t("communities:discussions_label"),
+      events: t("communities:events_label"),
     }),
-    ...(community.eventsEnabled && { events: t("communities:events_label") }),
     members: t("communities:members_label"),
   };
 
