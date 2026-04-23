@@ -51,6 +51,9 @@ export default function DoNotEmail() {
   return (
     <div>
       <Typography variant="h2">{t("do_not_email.title")}</Typography>
+      <Typography variant="body1" gutterBottom>
+        {t("do_not_email.caveat")}
+      </Typography>
       {mutation.error && (
         <Alert severity="error">{mutation.error.message}</Alert>
       )}
@@ -71,9 +74,6 @@ export default function DoNotEmail() {
               Emails are currently <strong>disabled/enabled</strong> for your
               account.
             </Trans>
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            {t("do_not_email.caveat")}
           </Typography>
           <Typography variant="body1">
             <Button
