@@ -1,6 +1,7 @@
-import { Card, CardActionArea, styled, Typography } from "@mui/material";
+import { Box, Card, CardActionArea, styled, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import { CalendarIcon } from "components/Icons";
+import { useAuthContext } from "features/auth/AuthProvider";
 import { useTranslation } from "i18n";
 import { PUBLIC_TRIPS } from "i18n/namespaces";
 import Link from "next/link";
@@ -59,11 +60,15 @@ export default function CompactPublicTripCard({
   className,
 }: Props) {
   const {
+    t,
     i18n: { language: locale },
   } = useTranslation([PUBLIC_TRIPS]);
+  const { authState } = useAuthContext();
 
   const { user } = trip;
   if (!user) return null;
+
+  const isOwnTrip = user.userId === authState.userId;
 
   const href = `${routeToCommunity(communityId, communitySlug, "public-trips")}#trip-${trip.tripId}`;
 
@@ -71,7 +76,42 @@ export default function CompactPublicTripCard({
     <StyledCard elevation={0} className={className}>
       <CardActionArea LinkComponent={Link} href={href}>
         <Content>
-          <Avatar user={user} isProfileLink={false} />
+          <Box
+            sx={{
+              position: "relative",
+              width: "3rem",
+              height: "3rem",
+              flexShrink: 0,
+            }}
+          >
+            <Avatar user={user} isProfileLink={false} />
+            {isOwnTrip && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: "50%",
+                  bgcolor: "rgba(0,0,0,0.55)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  pointerEvents: "none",
+                  zIndex: 1,
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: "white",
+                    fontWeight: 700,
+                    fontSize: "0.65rem",
+                    letterSpacing: "0.08em",
+                  }}
+                >
+                  {t("publicTrips:you_overlay")}
+                </Typography>
+              </Box>
+            )}
+          </Box>
           <Info>
             <Typography variant="h3" noWrap>
               {user.name}

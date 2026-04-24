@@ -14,7 +14,7 @@
   "edit": "Edit trip",
   "edit_dialog_submit": "Save changes",
   "edit_dialog_title": "Edit public trip",
-  "edit_my_trips": "Edit my public trips",
+  "edit_my_trips": "View my public trips",
   "empty_state": "No public trips at the moment.",
   "filter_active": "Active",
   "filter_all": "All",
@@ -38,10 +38,10 @@
   "show_less": "Show less",
   "show_more": "Show more",
   "status_active": "Searching for host",
-  "status_my_trip": "My trip",
   "status_closed": "Closed",
   "status_past": "Past",
   "to_date_label": "Departure",
   "to_date_required": "Please pick a departure date.",
-  "view_profile": "View profile"
+  "view_profile": "View profile",
+  "you_overlay": "YOU"
 }

@@ -2,7 +2,7 @@ import { styled } from "@mui/material";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import { CouchIcon, EditIcon } from "components/Icons";
+import { CouchIcon, PersonIcon } from "components/Icons";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
 import { SectionTitle } from "features/communities/CommunityPage";
@@ -65,7 +65,7 @@ export default function PublicTripsOverview({
       <EditButton
         component={Link}
         href={myPublicTripsRoute}
-        startIcon={<EditIcon />}
+        startIcon={<PersonIcon />}
       >
         {t("publicTrips:edit_my_trips")}
       </EditButton>

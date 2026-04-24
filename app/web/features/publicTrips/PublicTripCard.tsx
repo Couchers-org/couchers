@@ -175,6 +175,7 @@ export default function PublicTripCard({
   const isClosed = trip.status === PublicTripStatus.PUBLIC_TRIP_STATUS_CLOSED;
   const isPast = dayjs(trip.toDate).isBefore(dayjs().startOf("day"));
   const isDimmed = isClosed || isPast;
+  const showOwnMarker = isOwnTrip && !ownerView;
 
   const handleOfferToHost = () => {
     if (!accountInfo?.profileComplete) {
@@ -252,7 +253,42 @@ export default function PublicTripCard({
         )}
         <StyledCardContent>
           <UserSection>
-            <Avatar user={user} isProfileLink />
+            <Box
+              sx={{
+                position: "relative",
+                width: "3rem",
+                height: "3rem",
+                flexShrink: 0,
+              }}
+            >
+              <Avatar user={user} isProfileLink />
+              {showOwnMarker && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    borderRadius: "50%",
+                    bgcolor: "rgba(0,0,0,0.55)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    pointerEvents: "none",
+                    zIndex: 1,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: "white",
+                      fontWeight: 700,
+                      fontSize: "0.65rem",
+                      letterSpacing: "0.08em",
+                    }}
+                  >
+                    {t("publicTrips:you_overlay")}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
             <StyledLink href={routeToUser(user.username)}>
               <UserName variant="h3">{user.name}</UserName>
             </StyledLink>
@@ -320,58 +356,53 @@ export default function PublicTripCard({
                 {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
               </Typography>
             )}
-            <Box
-              sx={{
-                mt: 1.5,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 1,
-              }}
-            >
-              {ownerView ? (
-                isClosed ? (
-                  <Chip label={t("publicTrips:status_closed")} size="small" />
-                ) : isPast ? (
-                  <Chip label={t("publicTrips:status_past")} size="small" />
-                ) : (
-                  <Chip
-                    label={t("publicTrips:status_active")}
-                    size="small"
-                    color="primary"
-                    variant="outlined"
-                  />
-                )
-              ) : isOwnTrip ? (
-                <Chip
-                  label={t("publicTrips:status_my_trip")}
-                  size="small"
-                  color="primary"
-                  variant="outlined"
-                />
-              ) : (
-                <>
-                  <StyledLink
-                    href={routeToUser(user.username)}
-                    target={isNativeEmbed ? undefined : "_blank"}
-                  >
-                    {t("publicTrips:view_profile")}
-                  </StyledLink>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <FlagButton
-                      contentRef={`public_trip/${trip.tripId}`}
-                      authorUser={user.userId}
+            {!showOwnMarker && (
+              <Box
+                sx={{
+                  mt: 1.5,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 1,
+                }}
+              >
+                {ownerView ? (
+                  isClosed ? (
+                    <Chip label={t("publicTrips:status_closed")} size="small" />
+                  ) : isPast ? (
+                    <Chip label={t("publicTrips:status_past")} size="small" />
+                  ) : (
+                    <Chip
+                      label={t("publicTrips:status_active")}
+                      size="small"
+                      color="primary"
+                      variant="outlined"
                     />
-                    <Button
-                      startIcon={<CouchIcon />}
-                      onClick={handleOfferToHost}
+                  )
+                ) : (
+                  <>
+                    <StyledLink
+                      href={routeToUser(user.username)}
+                      target={isNativeEmbed ? undefined : "_blank"}
                     >
-                      {t("publicTrips:offer_to_host")}
-                    </Button>
-                  </Box>
-                </>
-              )}
-            </Box>
+                      {t("publicTrips:view_profile")}
+                    </StyledLink>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <FlagButton
+                        contentRef={`public_trip/${trip.tripId}`}
+                        authorUser={user.userId}
+                      />
+                      <Button
+                        startIcon={<CouchIcon />}
+                        onClick={handleOfferToHost}
+                      >
+                        {t("publicTrips:offer_to_host")}
+                      </Button>
+                    </Box>
+                  </>
+                )}
+              </Box>
+            )}
           </ContentSection>
         </StyledCardContent>
       </StyledCard>
