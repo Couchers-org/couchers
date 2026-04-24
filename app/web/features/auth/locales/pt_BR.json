@@ -238,7 +238,8 @@
     "action_button": {
       "no_emails_enable_text": "Não me envie e-mails",
       "no_emails_disable_text": "Habilitar e-mails novamente"
-    }
+    },
+    "caveat": "Ao habilitar esta configuração, sua conta será configurada para não aceitar solicitações de hospedagem. Você continuará recebendo e-mails de segurança (como redefinição de senha). Você ainda pode receber a newsletter. Para cancelar a assinatura, use o link no rodapé da newsletter."
   },
   "active_logins": {
     "settings_page_text": "Veja onde você está conectado ou desconectado de outras sessões",
@@ -256,6 +257,7 @@
   "strong_verification": {
     "delete_information": "Você pode excluir seus dados de Autenticação Forte (exceto país expedidor, data de validade e últimos três dígitos do número do documento) dos nossos servidores a qualquer momento.",
     "title": "Autenticação Forte",
+    "subtitle": "A Autenticação Forte é uma funcionalidade de segurança adicional que permite que você verifique sua data de nascimento e sexo usando seu passaporte biométrico.",
     "start_button": "Iniciar Autenticação Forte",
     "status": {
       "disabled_message": "Você <1>não foi</1> verificado com Autenticação Forte.",

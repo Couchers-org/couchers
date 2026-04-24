@@ -7,8 +7,8 @@ import re
 import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass
+from datetime import UTC
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import couchers.email.emails
 from couchers.email.emails import EmailBase
@@ -43,7 +43,7 @@ class CommandLineArgs:
 
 def main() -> None:
     args = CommandLineArgs.parse(sys.argv[1:])
-    loc_context = LocalizationContext(locale=args.locale, timezone=ZoneInfo("Etc/UTC"))
+    loc_context = LocalizationContext(locale=args.locale, timezone=UTC)
 
     footer = EmailFooter(
         unsubscribe_info=UnsubscribeInfo(

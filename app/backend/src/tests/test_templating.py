@@ -1,8 +1,7 @@
 # Tests jinja template rendering
 
-from datetime import date
+from datetime import UTC, date
 from typing import Any
-from zoneinfo import ZoneInfo
 
 from markupsafe import Markup
 
@@ -77,7 +76,7 @@ def test_translate_multiple_languages() -> None:
     i18next = I18Next()
     i18next.add_translation("en").add_string("greeting", "Hello!")
     i18next.add_translation("fr").add_string("greeting", "Bonjour!")
-    fr_loc_context = LocalizationContext(locale="fr", timezone=ZoneInfo("Etc/UTC"))
+    fr_loc_context = LocalizationContext(locale="fr", timezone=UTC)
     rendered = template.render({}, fr_loc_context, i18next)
     assert rendered == "Bonjour!"
 

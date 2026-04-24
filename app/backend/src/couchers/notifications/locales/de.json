@@ -393,35 +393,35 @@
       "event_description": "Deine Telefonnummer wurde verifiziert",
       "push": {
         "title": "Telefonnummernverifizierung abgeschlossen",
-        "ios_title": "Telefonnummernverifizierung abgeschlossen",
+        "ios_title": "Telefonnummern-Verifizierung abgeschlossen",
         "body": "Deine Telefonnummer wurde erfolgreich als {{phone_number}} verifiziert."
       }
     }
   },
   "postal_verification": {
     "failed": {
-      "event_description": "Deine Adress-verifizierung schlägt fehl",
+      "event_description": "Deine Adress-Verifizierung schlägt fehl",
       "push": {
-        "title": "Adressverifizierung fehlgeschlagen",
-        "ios_title": "Adressverifizierung fehlgeschlagen",
+        "title": "Adress-Verifizierung fehlgeschlagen",
+        "ios_title": "Adress-Verifizierung fehlgeschlagen",
         "body_code_expired": "Dein Bestätigungscode ist abgelaufen. Codes sind 90 Tage nach dem Versand der Postkarte gültig. Du kannst eine neue Postkarte anfordern.",
         "body_too_many_attempts": "Zu viele falsche Code-Versuche. Du kannst eine neue Postkarte anfordern.",
-        "body_generic": "Deine Adressverifizierung ist fehlgeschlagen. Du kannst eine neue Postkarte anfordern."
+        "body_generic": "Deine Adress-Verifizierung ist fehlgeschlagen. Du kannst eine neue Postkarte anfordern."
       }
     },
     "postcard_sent": {
-      "event_description": "Deine Verifizierungs-postkarte wurde versandt",
+      "event_description": "Deine Verifizierungs-Postkarte wurde versandt",
       "push": {
-        "title": "Adressverifizierung gestartet",
-        "ios_title": "Adressverifizierung gestartet",
+        "title": "Adress-Verifizierung gestartet",
+        "ios_title": "Adress-Verifizierung gestartet",
         "body": "Deine Postkarte ist auf dem Weg nach {{city}}, {{country}}. Erwarte sie innerhalb von 1-3 Wochen."
       }
     },
     "success": {
-      "event_description": "Deine Adress-verifizierung war erfolgreich",
+      "event_description": "Deine Adress-Verifizierung war erfolgreich",
       "push": {
-        "title": "Adressverifizierung abgeschlossen",
-        "ios_title": "Adressverifizierung abgeschlossen",
+        "title": "Adress-Verifizierung abgeschlossen",
+        "ios_title": "Adress-Verifizierung abgeschlossen",
         "body": "Deine Adresse ist jetzt verifiziert."
       }
     }

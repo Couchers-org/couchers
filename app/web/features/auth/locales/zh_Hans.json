@@ -15,7 +15,8 @@
     "action_button": {
       "no_emails_enable_text": "禁用邮件通知",
       "no_emails_disable_text": "重新启用邮件通知"
-    }
+    },
+    "caveat": "启用此设置后，您的账号将不会接收接待请求，但您仍会收到安全相关邮件（如重置密码的邮件）。您可能仍会收到简报邮件，可通过简报页脚中的链接取消订阅。"
   },
   "change_email_confirmation": {
     "change_in_progress": "邮箱更改中……",
@@ -198,6 +199,7 @@
   },
   "strong_verification": {
     "title": "强身份验证",
+    "subtitle": "强身份验证是一项额外的安全功能，允许您通过生物护照验证出生日期和性别。",
     "status": {
       "enabled_message": "您<1>当前已完成</1>强身份验证。",
       "disabled_message": "您<1>尚未完成</1>强身份验证。"
