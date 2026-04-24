@@ -135,8 +135,12 @@ export async function leaveCommunity(communityId: number) {
   await client.communities.leaveCommunity(req);
 }
 
-export async function listUserCommunities(pageToken?: string) {
+export async function listUserCommunities(
+  pageToken?: string,
+  pageSize?: number,
+) {
   const req = new ListUserCommunitiesReq();
+  if (pageSize) req.setPageSize(pageSize);
   if (pageToken) req.setPageToken(pageToken);
   return (await client.communities.listUserCommunities(req)).toObject();
 }

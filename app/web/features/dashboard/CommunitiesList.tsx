@@ -15,11 +15,8 @@ const GridContainer = styled("div")(({ theme }) => ({
   gridTemplateColumns: "repeat(3, 1fr)",
   gap: theme.spacing(1.5),
   marginBottom: theme.spacing(2),
-  [theme.breakpoints.down("md")]: {
-    gridTemplateColumns: "repeat(2, 1fr)",
-  },
   [theme.breakpoints.down("sm")]: {
-    gridTemplateColumns: "1fr",
+    gridTemplateColumns: "repeat(2, 1fr)",
   },
 }));
 
@@ -44,7 +41,7 @@ const SkeletonCard = styled("div")(({ theme }) => ({
 
 export default function CommunitiesList({ all = false }: { all?: boolean }) {
   const { t } = useTranslation([DASHBOARD]);
-  const userCommunities = useUserCommunities();
+  const userCommunities = useUserCommunities({ pageSize: 6 });
   const allCommunities = useListSubCommunities(0);
   const communities = all ? allCommunities : userCommunities;
 
