@@ -57,6 +57,7 @@ const Timepicker = ({
             onPostChange?.(time);
           }}
           format={format}
+          ampm={format.includes("a")} // Clock picker uses am/pm iff format also uses it
           slotProps={{
             textField: {
               fullWidth: true,
