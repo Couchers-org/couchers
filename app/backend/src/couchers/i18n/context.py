@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import date, datetime, time
+from datetime import UTC, date, datetime, time, tzinfo
 from zoneinfo import ZoneInfo
 
 from google.protobuf.timestamp_pb2 import Timestamp
@@ -29,7 +29,7 @@ class LocalizationContext:
     locale: str
 
     # The timezone to use when formatting date-times and instants.
-    timezone: ZoneInfo
+    timezone: tzinfo
 
     @property
     def localized_timezone(self) -> str:
@@ -59,11 +59,11 @@ class LocalizationContext:
 
     @staticmethod
     def en_utc() -> LocalizationContext:
-        return LocalizationContext(locale="en", timezone=ZoneInfo("Etc/UTC"))
+        return LocalizationContext(locale="en", timezone=UTC)
 
     @staticmethod
     def from_user(user: User) -> LocalizationContext:
         return LocalizationContext(
             locale=user.ui_language_preference or DEFAULT_LOCALE,
-            timezone=ZoneInfo(user.timezone or "Etc/UTC"),
+            timezone=ZoneInfo(user.timezone) if user.timezone else UTC,
         )

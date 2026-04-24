@@ -2,11 +2,11 @@ import http.cookies
 import re
 import typing
 from collections.abc import Mapping, Sequence
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
+from zoneinfo import ZoneInfo
 
-import pytz
 from geoalchemy2 import WKBElement, WKTElement
 from geoalchemy2.shape import from_shape, to_shape
 from google.protobuf.duration_pb2 import Duration
@@ -30,8 +30,6 @@ from couchers.proto.internal import internal_pb2
 
 if TYPE_CHECKING:
     from couchers.models import Geom
-
-utc = pytz.UTC
 
 
 # When a user logs in, they can basically input one of three things: user id, username, or email
@@ -98,11 +96,11 @@ def to_aware_datetime(ts: Timestamp) -> datetime:
     """
     Turns a protobuf Timestamp object into a timezone-aware datetime
     """
-    return ts.ToDatetime(tzinfo=utc)
+    return ts.ToDatetime(tzinfo=UTC)
 
 
 def now() -> datetime:
-    return datetime.now(utc)
+    return datetime.now(tz=UTC)
 
 
 def minimum_allowed_birthdate() -> date:
@@ -125,7 +123,7 @@ def now_in_timezone(tz: str) -> datetime:
     """
     tz should be tzdata identifier, e.g. America/New_York
     """
-    return datetime.now(pytz.timezone(tz))
+    return datetime.now(ZoneInfo(tz))
 
 
 def today_in_timezone(tz: str) -> date:
@@ -398,7 +396,7 @@ def millis_from_dt(dt: datetime) -> int:
 
 
 def dt_from_millis(millis: int) -> datetime:
-    return datetime.fromtimestamp(millis / 1000, tz=utc)
+    return datetime.fromtimestamp(millis / 1000, tz=UTC)
 
 
 def dt_to_page_token(dt: datetime) -> str:
@@ -413,7 +411,7 @@ def dt_to_page_token(dt: datetime) -> str:
 
 def dt_from_page_token(page_token: str) -> datetime:
     # see above comment
-    return datetime.fromtimestamp(int(decrypt_page_token(page_token)) / 1_000_000, tz=utc)
+    return datetime.fromtimestamp(int(decrypt_page_token(page_token)) / 1_000_000, tz=UTC)
 
 
 def last_active_coarsen(dt: datetime) -> datetime:
