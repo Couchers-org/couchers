@@ -16,6 +16,7 @@
   "messages_page": {
     "title": "Messages",
     "tabs": {
+      "unread": "Unread",
       "chats": "Chats",
       "hosting": "Hosting",
       "surfing": "Surfing"

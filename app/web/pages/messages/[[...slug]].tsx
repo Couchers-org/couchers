@@ -31,9 +31,10 @@ export default function LeaveReferencePage() {
 
   const tab = messageTypeStrings.find((valid) => valid === slugs?.[0]);
 
-  // Route: /messages, /messages/all, /messages/chats, /messages/hosting, /messages/surfing, /messages/archived (list views)
+  // Route: /messages, /messages/all, /messages/unread, /messages/chats, /messages/hosting, /messages/surfing, /messages/archived (list views)
   if (
     (slugs[0] === "all" ||
+      slugs[0] === "unread" ||
       slugs[0] === "chats" ||
       slugs[0] === "hosting" ||
       slugs[0] === "surfing" ||

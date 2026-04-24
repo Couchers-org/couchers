@@ -79,7 +79,13 @@ const StyledFilterContainer = styled("div")(() => ({
   flexWrap: "wrap",
 }));
 
-type FilterType = "all" | "chats" | "hosting" | "surfing" | "archived";
+type FilterType =
+  | "all"
+  | "unread"
+  | "chats"
+  | "hosting"
+  | "surfing"
+  | "archived";
 
 interface MessageItem {
   type: "chat" | "host-request";
@@ -106,9 +112,14 @@ export default function AllMessagesTab() {
         : router.query.slug;
 
   const filterFromPath = slugs[0] as FilterType;
-  const filter = ["all", "chats", "hosting", "surfing", "archived"].includes(
-    filterFromPath,
-  )
+  const filter = [
+    "all",
+    "unread",
+    "chats",
+    "hosting",
+    "surfing",
+    "archived",
+  ].includes(filterFromPath)
     ? filterFromPath
     : "all";
 
@@ -216,6 +227,13 @@ export default function AllMessagesTab() {
     if (filter === "all" || filter === "archived") {
       return allMessages;
     }
+    if (filter === "unread") {
+      // TODO: check this is working correctly also for host/surfing requests
+      return allMessages.filter(
+        (msg) =>
+          msg.data.lastSeenMessageId !== msg.data.latestMessage?.messageId,
+      );
+    }
     if (filter === "chats") {
       return allMessages.filter((msg) => msg.type === "chat");
     }
@@ -264,6 +282,14 @@ export default function AllMessagesTab() {
             onClick={() => handleFilterChange("all")}
             color={filter === "all" ? "primary" : "default"}
             variant={filter === "all" ? "filled" : "outlined"}
+          />
+        </NotificationBadge>
+        <NotificationBadge count={unseenAllCount}>
+          <Chip
+            label={t("messages_page.tabs.unread")}
+            onClick={() => handleFilterChange("unread")}
+            color={filter === "unread" ? "primary" : "default"}
+            variant={filter === "unread" ? "filled" : "outlined"}
           />
         </NotificationBadge>
         <NotificationBadge count={unseenChatsCount}>
