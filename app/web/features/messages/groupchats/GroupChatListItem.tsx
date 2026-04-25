@@ -16,6 +16,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import {
   controlMessage,
   groupChatTitleText,
+  hasUnreadMessages,
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
@@ -70,8 +71,7 @@ export default function GroupChatListItem({
   const currentUserId = useAuthContext().authState.userId!;
   const latestMessageAuthorId = groupChat.latestMessage?.authorUserId;
 
-  const isUnread =
-    groupChat.lastSeenMessageId !== groupChat.latestMessage?.messageId;
+  const isUnread = hasUnreadMessages(groupChat);
 
   //It is possible the last message is sent by someone who has left
   //so include it just in case

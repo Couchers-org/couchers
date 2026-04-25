@@ -17,6 +17,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
 import {
   controlMessage,
+  hasUnreadMessages,
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
@@ -110,8 +111,7 @@ export default function HostRequestListItem({
   const { data: otherUser, isLoading: isOtherUserLoading } = useLiteUser(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
   );
-  const isUnread =
-    hostRequest.lastSeenMessageId !== hostRequest.latestMessage?.messageId;
+  const isUnread = hasUnreadMessages(hostRequest);
   //define the latest message author's name and
   //control message target to use in short message preview
   const authorName =

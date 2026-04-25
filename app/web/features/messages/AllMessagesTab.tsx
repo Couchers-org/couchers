@@ -8,6 +8,7 @@ import TextBody from "components/TextBody";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
 import HostRequestListItem from "features/messages/requests/HostRequestListItem";
+import { hasUnreadMessages } from "features/messages/utils";
 import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { RpcError } from "grpc-web";
@@ -228,11 +229,7 @@ export default function AllMessagesTab() {
       return allMessages;
     }
     if (filter === "unread") {
-      // TODO: check this is working correctly also for host/surfing requests
-      return allMessages.filter(
-        (msg) =>
-          msg.data.lastSeenMessageId !== msg.data.latestMessage?.messageId,
-      );
+      return allMessages.filter((msg) => hasUnreadMessages(msg.data));
     }
     if (filter === "chats") {
       return allMessages.filter((msg) => msg.type === "chat");
@@ -276,7 +273,7 @@ export default function AllMessagesTab() {
     <StyledWrapper>
       {!showArchived && <StyledCreateGroupChatButton />}
       <StyledFilterContainer>
-        <NotificationBadge count={unseenAllCount}>
+        <NotificationBadge>
           <Chip
             label={t("all_messages_tab.filter.all")}
             onClick={() => handleFilterChange("all")}
