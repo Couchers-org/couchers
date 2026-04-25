@@ -17,6 +17,7 @@ from couchers.models import (
     ModerationVisibility,
     Notification,
     NotificationDelivery,
+    NotificationTopicAction,
     Upload,
 )
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
@@ -3056,7 +3057,7 @@ def test_event_reminder_not_sent_for_cancelled_event(db, push_collector: PushCol
     # Verify that no reminder notification was sent for user2
     with session_scope() as session:
         notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
-        reminder_notifs = [n for n in notifications if n.topic_action.action == "reminder"]
+        reminder_notifs = [n for n in notifications if n.topic_action == NotificationTopicAction.event__reminder]
         assert len(reminder_notifs) == 0
 
 
