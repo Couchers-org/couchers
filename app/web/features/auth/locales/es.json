@@ -225,7 +225,8 @@
     "title": "Número de teléfono",
     "no_phone_description": "No has añadido un número de teléfono a tu cuenta. Para añadir uno, escríbelo abajo. Verificaremos tu número mediante un mensaje de texto.",
     "phone_not_verified_description": "Te hemos enviado un código a <2>{{phone}}</2>. Para verificar tu teléfono, introduce el código a continuación:",
-    "remove_phone_description": "Tu número de teléfono actual es <2>{{phone}}</2>. Puedes eliminar tú número de teléfono abajo."
+    "remove_phone_description": "Tu número de teléfono actual es <2>{{phone}}</2>. Puedes eliminar tú número de teléfono abajo.",
+    "need_to_donate": "Necesitas <2>donar</2> antes de poder completar la verificación telefónica."
   },
   "unhandled_sign_up_state": "Error: unhandled signup flow state.",
   "do_not_email": {
@@ -242,7 +243,24 @@
   },
   "sign_up_need_verification_title": "Una última cosa: confirma tu correo electrónico.",
   "volunteer_management": {
-    "shown_on_team_page_current": "Mostrado en la página del equipo como miembro actual del equipo."
+    "shown_on_team_page_current": "Mostrado en la página del equipo como miembro actual del equipo.",
+    "title": "Gestión de voluntarios",
+    "description": "Si tu rol o las fechas son incorrectas, por favor avísanos.",
+    "card_preview_label": "Listado de la página de tu equipo",
+    "not_a_volunteer_message": "Según nuestros registros, no eres un voluntario actual ni pasado. Si esto es incorrecto por favor háznoslo saber completando <1>este formulario</1>.",
+    "current_volunteer": "Voluntariado desde {{startDate}}.",
+    "past_volunteer": "Voluntario desde {{startDate}} hasta {{endDate}}.",
+    "shown_on_team_page_past": "Aparece en la página del equipo como voluntario anterior.",
+    "not_shown_on_team_page": "Oculto de la página del equipo.",
+    "update_success": "Tu información de voluntario ha sido actualizada.",
+    "form": {
+      "title": "Actualiza tu información de voluntario",
+      "override_name_label": "Usar un nombre diferente en la página del equipo (en lugar de \"{{profileName}}\")",
+      "display_name_label": "Nombre para mostrar",
+      "override_location_label": "Usa una ubicación diferente en la página del equipo (en lugar de \"{{profileLocation}}\")",
+      "display_location_label": "Mostrar ubicación",
+      "show_on_team_page_label": "Muestrame en la página del equipo"
+    }
   },
   "strong_verification": {
     "learn_more": "Aprende sobre la verificación robusta <a>aquí</a>.",
@@ -345,6 +363,18 @@
   "quick_links": {
     "title": "Acción rápida por correo electrónico",
     "button_text": "Confirma la acción",
-    "error_message": "Error: {{message}}"
+    "error_message": "Error: {{message}}",
+    "missing_payload_or_sig": "URL inválida"
+  },
+  "profile_visibility": {
+    "title": "Visibilidad del perfil",
+    "choose": "Elige qué información será visible para los usuarios que no hayan iniciado sesión",
+    "visiblility_options": {
+      "nothing": "<1>Nada</1>: ocultarme completamente",
+      "map_only": "<1>Solo mapa</1>: muestra un marcador de mapa anónimo y aleatorio sin ninguna otra información",
+      "limited": "<1>Limitado</1>: muestra mi nombre, ubicación, estado de hospedaje/quedar, insignias, número de referencias y cuánto tiempo hace que estoy en Couchers",
+      "most": "<1>La mayoría</1>: muestra toda la sección \"Sobre mí\" excepto \"Información adicional\"",
+      "full_profile": "<1>Perfil completo</1>: muestra mi perfil completo (excepto las referencias)"
+    }
   }
 }
