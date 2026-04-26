@@ -146,7 +146,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         public_trip = session.execute(
             where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id)
             .where(PublicTrip.id == request.trip_id)
-            .options(selectinload(PublicTrip.node).selectinload(Node.official_cluster))
+            .options(selectinload(PublicTrip.node, Node.official_cluster))
         ).scalar_one_or_none()
 
         if not public_trip:
@@ -172,7 +172,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             .where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
             .order_by(PublicTrip.id.desc())
             .limit(page_size + 1)
-            .options(selectinload(PublicTrip.node).selectinload(Node.official_cluster))
+            .options(selectinload(PublicTrip.node, Node.official_cluster))
         )
         public_trips = session.execute(statement).scalars().all()
 
@@ -201,7 +201,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             statement.where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
             .order_by(PublicTrip.id.desc())
             .limit(page_size + 1)
-            .options(selectinload(PublicTrip.node).selectinload(Node.official_cluster))
+            .options(selectinload(PublicTrip.node, Node.official_cluster))
         )
         public_trips = session.execute(statement).scalars().all()
 
@@ -274,9 +274,9 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if request.HasField("status"):
             new_status = publictripstatus2sql.get(request.status)
             if new_status == PublicTripStatus.searching_for_host:
-                # Reopening is only allowed if the trip is not in the past.
+                # Reopening is only allowed if the trip hasn't started yet, matching creation logic.
                 today_local = today_in_timezone(public_trip.node.timezone)
-                if public_trip.to_date < today_local:
+                if public_trip.from_date < today_local:
                     context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_in_past")
             elif new_status != PublicTripStatus.closed:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_public_trip_status")
