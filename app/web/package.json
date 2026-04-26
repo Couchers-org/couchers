@@ -38,7 +38,7 @@
     "@sentry/nextjs": "^10.50.0",
     "@sentry/react": "^10.49.0",
     "@statsig/react-bindings": "^3.31.2",
-    "@statsig/session-replay": "^3.32.0",
+    "@statsig/session-replay": "^3.33.0",
     "@statsig/web-analytics": "^3.32.0",
     "@stripe/stripe-js": "^8.11.0",
     "@tanstack/query-async-storage-persister": "^5.95.1",
