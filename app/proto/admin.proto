@@ -72,6 +72,8 @@ service Admin {
 
   rpc GetUserReferences(GetUserReferencesReq) returns (GetUserReferencesRes) {}
 
+  rpc GetFriendRequests(GetFriendRequestsReq) returns (GetFriendRequestsRes) {}
+
   rpc EditDiscussion(EditDiscussionReq) returns (google.protobuf.Empty) {}
 
   rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
@@ -392,6 +394,28 @@ message GetUserReferencesRes {
   repeated AdminReference references_from = 1;
   // References written about the user
   repeated AdminReference references_to = 2;
+}
+
+message GetFriendRequestsReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message AdminFriendRequest {
+  int64 friend_request_id = 1;
+  ChatUserInfo from_user = 2;
+  ChatUserInfo to_user = 3;
+  string status = 4; // "pending", "accepted", "rejected", "cancelled"
+  google.protobuf.Timestamp time_sent = 5;
+  google.protobuf.Timestamp time_responded = 6;
+  string moderation_visibility = 7; // "hidden", "shadowed", "unlisted", "visible"
+}
+
+message GetFriendRequestsRes {
+  // Friend requests sent by the user
+  repeated AdminFriendRequest sent = 1;
+  // Friend requests received by the user
+  repeated AdminFriendRequest received = 2;
 }
 
 message EditDiscussionReq {

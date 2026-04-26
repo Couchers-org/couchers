@@ -10,7 +10,12 @@ from couchers.models import (
     AccountDeletionToken,
     ContentReport,
     EventOccurrence,
+    FriendRelationship,
+    FriendStatus,
+    ModerationObjectType,
+    ModerationState,
     ModerationUserList,
+    ModerationVisibility,
     Reference,
     User,
     UserActivity,
@@ -692,6 +697,75 @@ def test_GetUserReferences_not_found(db):
     with real_admin_session(super_token) as admin_api:
         with pytest.raises(grpc.RpcError) as e:
             admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user="nonexistent"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_GetFriendRequests(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user()
+
+    # Create a mix of friend requests directly so we control the state
+    def _add_friend_request(from_user_id, to_user_id, status, visibility, time_responded=None):
+        with session_scope() as session:
+            mod_state = ModerationState(
+                object_type=ModerationObjectType.friend_request,
+                object_id=0,
+                visibility=visibility,
+            )
+            session.add(mod_state)
+            session.flush()
+            rel = FriendRelationship(
+                from_user_id=from_user_id,
+                to_user_id=to_user_id,
+                status=status,
+                moderation_state_id=mod_state.id,
+                time_responded=time_responded,
+            )
+            session.add(rel)
+            session.flush()
+            mod_state.object_id = rel.id
+
+    # user1 -> user2: pending, shadowed
+    _add_friend_request(user1.id, user2.id, FriendStatus.pending, ModerationVisibility.shadowed)
+    # user1 -> user3: accepted, visible
+    _add_friend_request(user1.id, user3.id, FriendStatus.accepted, ModerationVisibility.visible, time_responded=now())
+    # user4 -> user1: rejected, visible
+    _add_friend_request(user4.id, user1.id, FriendStatus.rejected, ModerationVisibility.visible, time_responded=now())
+
+    with real_admin_session(super_token) as admin_api:
+        res = admin_api.GetFriendRequests(admin_pb2.GetFriendRequestsReq(user=user1.username))
+
+    # user1 sent two: to user2 (pending) and to user3 (accepted), ordered by id desc
+    assert len(res.sent) == 2
+    assert res.sent[0].from_user.user_id == user1.id
+    assert res.sent[0].to_user.user_id == user3.id
+    assert res.sent[0].status == "accepted"
+    assert res.sent[0].HasField("time_responded")
+    assert res.sent[0].moderation_visibility == "visible"
+
+    assert res.sent[1].from_user.user_id == user1.id
+    assert res.sent[1].to_user.user_id == user2.id
+    assert res.sent[1].status == "pending"
+    assert not res.sent[1].HasField("time_responded")
+    assert res.sent[1].moderation_visibility == "shadowed"
+
+    # user1 received one: from user4 (rejected)
+    assert len(res.received) == 1
+    assert res.received[0].from_user.user_id == user4.id
+    assert res.received[0].to_user.user_id == user1.id
+    assert res.received[0].status == "rejected"
+
+
+def test_GetFriendRequests_not_found(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as admin_api:
+        with pytest.raises(grpc.RpcError) as e:
+            admin_api.GetFriendRequests(admin_pb2.GetFriendRequestsReq(user="nonexistent"))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
