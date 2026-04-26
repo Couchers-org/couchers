@@ -90,7 +90,7 @@
     "@types/react-dom": "19.2.3",
     "@types/react-gtm-module": "^2.0.4",
     "@types/react-simple-maps": "^3.0.6",
-    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/eslint-plugin": "^8.58.2",
     "@typescript-eslint/parser": "^8.58.2",
     "babel-jest": "^30.3.0",
     "cross-env": "^10.1.0",
