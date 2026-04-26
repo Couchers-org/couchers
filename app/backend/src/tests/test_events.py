@@ -17,6 +17,7 @@ from couchers.models import (
     ModerationVisibility,
     Notification,
     NotificationDelivery,
+    NotificationTopicAction,
     Upload,
 )
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
@@ -3000,6 +3001,64 @@ def test_event_reminder_notification_has_moderation_state(db, push_collector: Pu
         reminder_notifs = [n for n in notifications if n.topic_action.action == "reminder"]
         assert len(reminder_notifs) == 1
         assert reminder_notifs[0].moderation_state_id == occurrence.moderation_state_id
+
+
+def test_event_reminder_not_sent_for_cancelled_event(db, push_collector: PushCollector, moderator: Moderator):
+    """Event reminders should not be sent for cancelled events."""
+    user1, token1 = generate_user()
+    user2, token2 = generate_user()
+
+    with session_scope() as session:
+        create_community(session, 0, 2, "Community", [user2], [], None)
+
+    # Create event starting 23 hours from now (within 24h reminder window)
+    start_time = now() + timedelta(hours=23)
+    end_time = start_time + timedelta(hours=1)
+
+    with events_session(token1) as api:
+        res = api.CreateEvent(
+            events_pb2.CreateEventReq(
+                title="Cancelled Reminder Test",
+                content="Content.",
+                offline_information=events_pb2.OfflineEventInformation(
+                    address="Near Null Island",
+                    lat=0.1,
+                    lng=0.2,
+                ),
+                start_time=Timestamp_from_datetime(start_time),
+                end_time=Timestamp_from_datetime(end_time),
+                timezone="UTC",
+            )
+        )
+        event_id = res.event_id
+
+    moderator.approve_event_occurrence(event_id)
+    process_jobs()
+
+    # User2 marks attendance
+    with events_session(token2) as api:
+        api.SetEventAttendance(
+            events_pb2.SetEventAttendanceReq(event_id=event_id, attendance_state=events_pb2.ATTENDANCE_STATE_GOING)
+        )
+
+    # User1 cancels the event
+    with events_session(token1) as api:
+        api.CancelEvent(events_pb2.CancelEventReq(event_id=event_id))
+
+    process_jobs()
+    # Drain any cancellation-related notifications so we can cleanly assert on reminders
+    while push_collector.count_for_user(user2.id):
+        push_collector.pop_for_user(user2.id)
+
+    # Run the event reminder handler
+    send_event_reminders(empty_pb2.Empty())
+    process_jobs()
+
+    # Verify that no reminder notification was sent for user2
+    with session_scope() as session:
+        notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
+        reminder_notifs = [n for n in notifications if n.topic_action == NotificationTopicAction.event__reminder]
+        assert len(reminder_notifs) == 0
 
 
 def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderator):
