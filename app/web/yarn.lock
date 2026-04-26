@@ -2229,6 +2229,11 @@
   resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.32.0.tgz#a75972ee9a09cdd5f94785b72bdbc91f568c1f66"
   integrity sha512-/cVPhFt4uvbhK9pI0ju8Ko4ZiJqc5paG9DoYZCtdy79ChA5LJ2gEo6L8qAvOfXQ9huYSSrwaFpv/29oJfXlEiw==
 
+"@statsig/client-core@3.33.0":
+  version "3.33.0"
+  resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.33.0.tgz#51e83e515de547dafabe158bedcbcab6c13b9e47"
+  integrity sha512-i0eiAtFkm7Ny38etC5rJ/fkWiAECgyfK23/KIFk8z8LvPW77QmUXJfNeTqFikEOKAsAGU/pxXmchpo8hn9nWBA==
+
 "@statsig/js-client@3.31.2":
   version "3.31.2"
   resolved "https://registry.yarnpkg.com/@statsig/js-client/-/js-client-3.31.2.tgz#1d7321aac86fe08de890422ad0236abf50253b99"
@@ -2251,13 +2256,13 @@
     "@statsig/client-core" "3.31.2"
     "@statsig/js-client" "3.31.2"
 
-"@statsig/session-replay@^3.32.0":
-  version "3.32.0"
-  resolved "https://registry.yarnpkg.com/@statsig/session-replay/-/session-replay-3.32.0.tgz#a8fb9b098e7de249ceb559790afcda6fc6769318"
-  integrity sha512-7F3C/6XiT+rPnqO5i+dUEPBVXHR5CSiqsacwteREzx7q3iTSY5jfqX5urJpr0q87cCY7jRRY1K+zM7o5a9kbCg==
+"@statsig/session-replay@^3.33.0":
+  version "3.33.0"
+  resolved "https://registry.yarnpkg.com/@statsig/session-replay/-/session-replay-3.33.0.tgz#82cceb01f8278688a6b2bdc37d4a957f540b9129"
+  integrity sha512-sHWFczZGnn9E0JzuB5QH02WGX61Q9ZsBEHD6Z0EHcldKMs33KanE1tTvraRlCMSy8hlbyVdtjwjc4KBAmtABxQ==
   dependencies:
     "@rrweb/record" "2.0.0-alpha.17"
-    "@statsig/client-core" "3.32.0"
+    "@statsig/client-core" "3.33.0"
     rrweb "2.0.0-alpha.17"
 
 "@statsig/web-analytics@^3.32.0":
