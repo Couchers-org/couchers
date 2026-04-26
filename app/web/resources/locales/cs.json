@@ -186,7 +186,10 @@
     "instructions": "Vytvoř odkaz na pozvánku, který můžeš sdílet s přáteli a komunitou. Deaktivuj kódy, které už nepoužíváš.",
     "error": {
       "fetch_invite_info": "Nepodařilo se získat podrobnosti o kódu pozvánky"
-    }
+    },
+    "number_of_uses_one": "Použití: {{count}} dokončená registrace",
+    "number_of_uses_few": "Použití: {{count}} dokončené registrace",
+    "number_of_uses_other": "Použití: {{count}} dokončených registrací"
   },
   "community_standing": "Postavení v komunitě",
   "relative_time": {

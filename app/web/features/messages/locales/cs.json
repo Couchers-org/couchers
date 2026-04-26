@@ -44,5 +44,10 @@
   "mark_all_read_button_text_surfing": "Označit všechny žádosti jako přečtené",
   "request_closed_message": "Tento požadavek na ubytování je již uzavřen. Chceš-li pokračovat v konverzaci, pošli druhé osobě normální zprávu.",
   "close_request_dialog_title": "Je konverzace již ukončena?",
-  "close_request_dialog_host": "Než odmítneš danou žádost, ujisti se, že jste dokončili vaší konverzaci."
+  "close_request_dialog_host": "Než odmítneš danou žádost, ujisti se, že jste dokončili vaší konverzaci.",
+  "host_request_view": {
+    "request_duration_one": "{{count}} noc",
+    "request_duration_few": "{{count}} noci",
+    "request_duration_other": "{{count}} nocí"
+  }
 }

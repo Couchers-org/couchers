@@ -30,5 +30,6 @@
   "community_header": "Vítej v {{name}}",
   "upload_helper_text_replace": "Klikni pro změnu fotografie",
   "community_moderators": "Budovatelé komunity",
-  "edit_info_page_success_message": "Stránka komunity byla úspěšně aktualizována."
+  "edit_info_page_success_message": "Stránka komunity byla úspěšně aktualizována.",
+  "events_empty_state": "Aktuálně žádné události. Proč nějakou <0>nevytvořit</0> ✨?"
 }

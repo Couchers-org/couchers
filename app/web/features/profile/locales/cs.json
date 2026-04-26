@@ -87,7 +87,10 @@
   "active": "Aktivní",
   "section_tabs_a11y_label": "záložky pro uživatelské údaje",
   "reference_amounts": {
-    "hundred_or_more_references": "Více než 100 referencí"
+    "hundred_or_more_references": "Více než 100 referencí",
+    "count_references_one": "{{count}} reference",
+    "count_references_few": "{{count}} reference",
+    "count_references_other": "{{count}} referencí"
   },
   "gallery": {
     "previous_photo": "Předchozí fotka",
@@ -160,5 +163,10 @@
   "info_unanswered": "Zeptej se mě",
   "my_connections": "Moje kontakty",
   "connection_pending": "Čeká na vyřízení",
-  "more_profile_actions": "..."
+  "more_profile_actions": "...",
+  "request_form": {
+    "request_chars_remaining_one": "Napiš ještě alespoň {{count}} znak, aby bylo možné odeslat žádost o ubytování.",
+    "request_chars_remaining_few": "Napiš ještě alespoň {{count}} znaky, aby bylo možné odeslat žádost o ubytování.",
+    "request_chars_remaining_other": "Napiš ještě alespoň {{count}} znaků, aby bylo možné odeslat žádost o ubytování."
+  }
 }
