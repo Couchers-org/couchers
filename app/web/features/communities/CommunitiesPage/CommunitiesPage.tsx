@@ -3,6 +3,7 @@ import { Button, Collapse, styled, Typography } from "@mui/material";
 import MuiLink from "@mui/material/Link";
 import PageTitle from "components/PageTitle";
 import useAccountInfo from "features/auth/useAccountInfo";
+import CommunitiesList from "features/dashboard/CommunitiesList";
 import CommunityBrowser from "features/dashboard/CommunityBrowser";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
@@ -102,6 +103,11 @@ const CommunitiesPage = () => {
           </MuiLink>
         </Trans>
       </StyledTypography>
+
+      <MainTitle variant="h1">
+        {t("dashboard:my_communities_heading")}
+      </MainTitle>
+      <CommunitiesList />
 
       <MainTitle variant="h1">{t("dashboard:find_your_community")}</MainTitle>
 

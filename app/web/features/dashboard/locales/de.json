@@ -51,11 +51,12 @@
   "attendees_count_one": "{{count}} Teilnehmende Person",
   "attendees_count_other": "{{count}} Teilnehmende",
   "events_empty_state": "Aktuell gibt es keine Events. Warum <0>erstellst</0> du nicht eins ✨?",
-  "find_your_community": "Finde deine Community",
+  "find_your_community": "Finde eine Community",
   "browse_all_communities": "Alle Communitys durchsuchen",
   "show_all_communities": "Alle Communitys anzeigen",
   "hide_all_communities": "Alle Communitys verstecken",
   "find_your_community_intro": "Unten kannst du alle Community-Seiten durchsuchen, die bisher existieren. Fehlt dein Land oder deine Stadt? <1>Nutze dieses Formular</1>, um die Community anzufordern!",
   "find_your_community_intro_simplified": "Suche nach deiner Community oder stöbere unten. <1>Deine ist nicht dabei? Fordere sie an!</1>",
-  "browse_communities_text": "Klicke auf einen Regionsnamen, um die anderen Communitys innerhalb dieser Region unten anzuzeigen. Klicke auf den Link, um zur Community-Seite dieser Stadt oder Region zu gelangen."
+  "browse_communities_text": "Klicke auf einen Regionsnamen, um die anderen Communitys innerhalb dieser Region unten anzuzeigen. Klicke auf den Link, um zur Community-Seite dieser Stadt oder Region zu gelangen.",
+  "my_communities_heading": "Meine Communitys"
 }
