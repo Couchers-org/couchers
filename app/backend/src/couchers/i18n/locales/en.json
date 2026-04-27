@@ -187,6 +187,7 @@
     "public_trip_in_past": "You can't edit a public trip that has already ended.",
     "duplicate_host_request_for_trip": "You have already offered to host this trip.",
     "public_trip_not_active": "This public trip is no longer accepting offers.",
+    "public_trip_same_gender_only": "This trip is only open to offers from people of the same gender.",
     "public_trip_not_found": "Couldn't find that public trip.",
     "public_trip_user_mismatch": "The host request recipient does not match the public trip's traveler.",
     "public_trips_not_enabled": "Public trips are not enabled in this community.",
