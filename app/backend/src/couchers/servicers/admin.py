@@ -844,7 +844,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
         moderation_lists = [
-            admin_pb2.ModerationList(moderation_list_id=ml.id, member_ids=[u.id for u in ml.users])
+            admin_pb2.ModerationList(
+                moderation_list_id=ml.id,
+                members=[_user_to_details(session, u) for u in ml.users],
+            )
             for ml in user.moderation_user_lists
         ]
         return admin_pb2.ListModerationUserListsRes(moderation_lists=moderation_lists)
@@ -893,8 +896,10 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
 
-        start_time = to_aware_datetime(request.start_time) if request.start_time else now() - timedelta(days=90)
-        end_time = to_aware_datetime(request.end_time) if request.end_time else now()
+        start_time = (
+            to_aware_datetime(request.start_time) if request.HasField("start_time") else now() - timedelta(days=90)
+        )
+        end_time = to_aware_datetime(request.end_time) if request.HasField("end_time") else now()
 
         user_activity = session.execute(
             select(
@@ -907,7 +912,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
             )
             .where(UserActivity.user_id == user.id)
             .where(UserActivity.period >= start_time)
-            .where(UserActivity.period >= end_time)
+            .where(UserActivity.period <= end_time)
             .order_by(func.max(UserActivity.period).desc())
             .group_by(UserActivity.ip_address, UserActivity.user_agent)
         ).all()
@@ -915,11 +920,12 @@ class Admin(admin_pb2_grpc.AdminServicer):
         out = admin_pb2.AccessStatsRes()
 
         for ip_address, user_agent, api_call_count, periods_count, first_seen, last_seen in user_activity:
+            ip_address_str = str(ip_address) if ip_address is not None else None
             user_agent_data = user_agents_parse(user_agent or "")
-            asn = geoip_asn(ip_address)
+            asn = geoip_asn(ip_address_str)
             out.stats.append(
                 admin_pb2.AccessStat(
-                    ip_address=ip_address,
+                    ip_address=ip_address_str,
                     asn=str(asn[0]) if asn else None,
                     asorg=str(asn[1]) if asn else None,
                     asnetwork=str(asn[2]) if asn else None,
@@ -927,7 +933,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                     operating_system=user_agent_data.os.family,
                     browser=user_agent_data.browser.family,
                     device=user_agent_data.device.family,
-                    approximate_location=geoip_approximate_location(ip_address) or "Unknown",
+                    approximate_location=geoip_approximate_location(ip_address_str) or "Unknown",
                     api_call_count=api_call_count,
                     periods_count=periods_count,
                     first_seen=Timestamp_from_datetime(first_seen),

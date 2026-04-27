@@ -9,7 +9,6 @@
     "load_more": "Load more"
   },
   "actions": {
-    "ban": "Ban user",
     "open_in_console": "Open in console"
   },
   "panel": {

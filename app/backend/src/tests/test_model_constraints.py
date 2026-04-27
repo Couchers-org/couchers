@@ -7,6 +7,11 @@ from couchers.models import (
     ActivenessProbe,
     ActivenessProbeStatus,
     Cluster,
+    FriendRelationship,
+    FriendStatus,
+    ModerationObjectType,
+    ModerationState,
+    ModerationVisibility,
     Node,
     NodeType,
     Page,
@@ -222,3 +227,59 @@ def test_activeness_probes_cant_have_multiple(db):
         with session_scope() as session:
             session.add(ActivenessProbe(user_id=user.id))
     assert "violates unique constraint" in str(e.value)
+
+
+def _add_friend_relationship(session, from_user_id, to_user_id, status):
+    moderation_state = ModerationState(
+        object_type=ModerationObjectType.friend_request,
+        object_id=0,
+        visibility=ModerationVisibility.visible,
+    )
+    session.add(moderation_state)
+    session.flush()
+    fr = FriendRelationship(
+        from_user_id=from_user_id,
+        to_user_id=to_user_id,
+        status=status,
+        moderation_state_id=moderation_state.id,
+    )
+    session.add(fr)
+    session.flush()
+    moderation_state.object_id = fr.id
+    return fr
+
+
+def test_friend_relationship_unique_active_pair(db):
+    # can't have two active (pending/accepted) FriendRelationship rows for the same user pair,
+    # regardless of direction
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+
+    # baseline: one pending relationship is fine
+    with session_scope() as session:
+        _add_friend_relationship(session, user1.id, user2.id, FriendStatus.pending)
+
+    # can't add a second active row in the same direction
+    with pytest.raises(IntegrityError) as e:
+        with session_scope() as session:
+            _add_friend_relationship(session, user1.id, user2.id, FriendStatus.pending)
+    assert "violates unique constraint" in str(e.value)
+    assert "uq_friend_relationships_active_pair" in str(e.value)
+
+    # can't add a second active row in the reverse direction either
+    with pytest.raises(IntegrityError) as e:
+        with session_scope() as session:
+            _add_friend_relationship(session, user2.id, user1.id, FriendStatus.accepted)
+    assert "violates unique constraint" in str(e.value)
+    assert "uq_friend_relationships_active_pair" in str(e.value)
+
+    # a cancelled or rejected row for the same pair is allowed alongside the active one
+    with session_scope() as session:
+        _add_friend_relationship(session, user1.id, user2.id, FriendStatus.cancelled)
+        _add_friend_relationship(session, user2.id, user1.id, FriendStatus.rejected)
+
+    # and active rows for different pairs are unaffected
+    with session_scope() as session:
+        _add_friend_relationship(session, user1.id, user3.id, FriendStatus.pending)
+        _add_friend_relationship(session, user3.id, user2.id, FriendStatus.accepted)

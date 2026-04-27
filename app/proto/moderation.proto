@@ -20,6 +20,8 @@ service Moderation {
   rpc FlagContentForReview(FlagContentForReviewReq) returns (FlagContentForReviewRes) {}
 
   rpc UnflagContent(UnflagContentReq) returns (UnflagContentRes) {}
+
+  rpc SetUserContentVisibility(SetUserContentVisibilityReq) returns (SetUserContentVisibilityRes) {}
 }
 
 
@@ -50,6 +52,7 @@ enum ModerationAction {
   MODERATION_ACTION_HIDE = 3;
   MODERATION_ACTION_FLAG = 4;
   MODERATION_ACTION_UNFLAG = 5;
+  MODERATION_ACTION_BULK_SET_VISIBILITY = 6;
 }
 
 enum ModerationObjectType {
@@ -166,4 +169,14 @@ message UnflagContentReq {
 
 message UnflagContentRes {
   ModerationStateInfo moderation_state = 1;
+}
+
+message SetUserContentVisibilityReq {
+  int64 user_id = 1;
+  ModerationVisibility visibility = 2;  // must be set
+  string reason = 3;  // optional; free-form admin note recorded in ModerationLog
+}
+
+message SetUserContentVisibilityRes {
+  int64 updated_count = 1;  // number of ModerationState rows whose visibility changed
 }

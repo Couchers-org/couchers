@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, cast
 
 from geoalchemy2 import Geometry
-from psycopg2.extras import DateTimeTZRange
+from psycopg.types.range import TimestamptzRange
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -138,7 +138,7 @@ class EventOccurrence(Base, kw_only=True):
 
     # time during which the event takes place; this is a range type (instead of separate start+end times) which
     # simplifies database constraints, etc
-    during: Mapped[DateTimeTZRange] = mapped_column(TSTZRANGE)
+    during: Mapped[TimestamptzRange] = mapped_column(TSTZRANGE)
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     last_edited: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)

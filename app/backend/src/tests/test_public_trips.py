@@ -1,14 +1,15 @@
-from datetime import timedelta
+from datetime import date, timedelta
+from unittest.mock import patch
 
 import grpc
 import pytest
 from sqlalchemy import select
 
 from couchers.db import session_scope
-from couchers.models import Node, NodeType
+from couchers.models import Cluster, Node, NodeType, User
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2
-from couchers.utils import create_polygon_lat_lng, to_multi, today
+from couchers.utils import create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
 from tests.fixtures.sessions import public_trips_session
 
@@ -18,13 +19,30 @@ def _(testconfig):
     pass
 
 
-def _make_node(node_type: NodeType = NodeType.locality) -> int:
+# 150+ utf-16 code units to satisfy PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16.
+VALID_DESCRIPTION = (
+    "Visiting the area for a week for a music festival. I love meeting new people "
+    "and would really appreciate local tips. Happy to help with tasks in exchange."
+)
+
+
+def _make_node(node_type: NodeType = NodeType.locality, small_community_features_enabled: bool = True) -> int:
+    # Polygon inside the fake Europe/Helsinki timezone area so node.timezone resolves.
     with session_scope() as session:
         node = Node(
-            geom=to_multi(create_polygon_lat_lng([[0, 0], [0, 2], [2, 2], [2, 0], [0, 0]])),
+            geom=to_multi(create_polygon_lat_lng([[60, 24], [60, 26], [62, 26], [62, 24], [60, 24]])),
             node_type=node_type,
         )
         session.add(node)
+        session.flush()
+        cluster = Cluster(
+            name="Test community",
+            description="Test",
+            parent_node_id=node.id,
+            is_official_cluster=True,
+            small_community_features_enabled=small_community_features_enabled,
+        )
+        session.add(cluster)
         session.flush()
         return node.id
 
@@ -59,7 +77,7 @@ def test_create_public_trip(db):
                 node_id=node_id,
                 from_date=from_date.isoformat(),
                 to_date=to_date.isoformat(),
-                description="Visiting town!",
+                description=VALID_DESCRIPTION,
             )
         )
 
@@ -68,7 +86,7 @@ def test_create_public_trip(db):
         assert res.node_id == node_id
         assert res.from_date == from_date.isoformat()
         assert res.to_date == to_date.isoformat()
-        assert res.description == "Visiting town!"
+        assert res.description == VALID_DESCRIPTION
         assert res.status == public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST
 
     with session_scope() as session:
@@ -113,9 +131,9 @@ def test_create_public_trip_community_not_found(db):
         assert e.value.details() == "Community not found."
 
 
-def test_create_public_trip_community_too_broad(db):
+def test_create_public_trip_not_enabled(db):
     _, token = generate_user()
-    node_id = _make_node(node_type=NodeType.region)
+    node_id = _make_node(small_community_features_enabled=False)
 
     with public_trips_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
@@ -127,13 +145,17 @@ def test_create_public_trip_community_too_broad(db):
                     description="Visiting town!",
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert "city-level" in (e.value.details() or "")
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "Public trips are not enabled in this community."
 
 
-def test_create_public_trip_allows_sublocality(db):
+@pytest.mark.parametrize(
+    "node_type",
+    [NodeType.region, NodeType.subregion, NodeType.locality, NodeType.sublocality],
+)
+def test_create_public_trip_allows_region_and_narrower(db, node_type):
     _, token = generate_user()
-    node_id = _make_node(node_type=NodeType.sublocality)
+    node_id = _make_node(node_type=node_type)
 
     with public_trips_session(token) as api:
         res = api.CreatePublicTrip(
@@ -141,10 +163,37 @@ def test_create_public_trip_allows_sublocality(db):
                 node_id=node_id,
                 from_date=(today() + timedelta(days=5)).isoformat(),
                 to_date=(today() + timedelta(days=10)).isoformat(),
-                description="Visiting neighborhood!",
+                description=VALID_DESCRIPTION,
             )
         )
         assert res.trip_id > 0
+
+
+def test_create_public_trip_in_past_uses_node_timezone(db):
+    # Default user geom resolves to America/New_York; the node's geom is in Europe/Helsinki.
+    # Simulate a moment where Helsinki has already rolled into the next day (2026-01-16)
+    # while NYC is still on 2026-01-15. A from_date of 2026-01-15 is "today" in NYC but
+    # "yesterday" in Helsinki, and must be rejected because the check uses the node's tz.
+    _, token = generate_user()
+    node_id = _make_node()
+
+    fake_today_by_tz = {"America/New_York": date(2026, 1, 15), "Europe/Helsinki": date(2026, 1, 16)}
+
+    with patch(
+        "couchers.servicers.public_trips.today_in_timezone",
+        side_effect=lambda tz: fake_today_by_tz[tz],
+    ):
+        with public_trips_session(token) as api:
+            with pytest.raises(grpc.RpcError) as e:
+                api.CreatePublicTrip(
+                    public_trips_pb2.CreatePublicTripReq(
+                        node_id=node_id,
+                        from_date="2026-01-15",
+                        to_date="2026-01-20",
+                        description=VALID_DESCRIPTION,
+                    )
+                )
+            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_create_public_trip_date_errors(db):
@@ -157,7 +206,7 @@ def test_create_public_trip_date_errors(db):
             api.CreatePublicTrip(
                 public_trips_pb2.CreatePublicTripReq(
                     node_id=node_id,
-                    from_date=(today() - timedelta(days=1)).isoformat(),
+                    from_date=(today() - timedelta(days=2)).isoformat(),
                     to_date=(today() + timedelta(days=1)).isoformat(),
                     description="Visiting town!",
                 )
@@ -220,7 +269,7 @@ def test_create_public_trip_overlap(db):
                     node_id=node_id,
                     from_date=(today() + timedelta(days=8)).isoformat(),
                     to_date=(today() + timedelta(days=12)).isoformat(),
-                    description="Another visit!",
+                    description=VALID_DESCRIPTION,
                 )
             )
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
@@ -231,7 +280,7 @@ def test_create_public_trip_overlap(db):
                 node_id=node_id,
                 from_date=(today() + timedelta(days=20)).isoformat(),
                 to_date=(today() + timedelta(days=25)).isoformat(),
-                description="Second visit!",
+                description=VALID_DESCRIPTION,
             )
         )
         assert res.trip_id > 0
@@ -256,7 +305,7 @@ def test_create_public_trip_closed_trip_allows_new_overlap(db):
                 node_id=node_id,
                 from_date=(today() + timedelta(days=7)).isoformat(),
                 to_date=(today() + timedelta(days=12)).isoformat(),
-                description="Trying again!",
+                description=VALID_DESCRIPTION,
             )
         )
         assert res.trip_id > 0
@@ -326,9 +375,6 @@ def test_list_public_trips_hides_invisible_user(db):
 
     # soft-delete the traveler
     with session_scope() as session:
-        from couchers.models import User
-        from couchers.utils import now
-
         t = session.execute(select(User).where(User.id == traveler.id)).scalar_one()
         t.deleted_at = now()
 
@@ -420,9 +466,6 @@ def test_list_public_trips_by_user_invisible_user(db):
 
     # soft-delete the traveler
     with session_scope() as session:
-        from couchers.models import User
-        from couchers.utils import now
-
         t = session.execute(select(User).where(User.id == traveler.id)).scalar_one()
         t.deleted_at = now()
 
@@ -431,39 +474,23 @@ def test_list_public_trips_by_user_invisible_user(db):
         assert len(res.public_trips) == 0
 
 
-def test_update_public_trip_status_close(db):
+def test_update_public_trip_close(db):
     user, token = generate_user()
     node_id = _make_node()
     trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
 
     with public_trips_session(token) as api:
-        api.UpdatePublicTripStatus(
-            public_trips_pb2.UpdatePublicTripStatusReq(
+        res = api.UpdatePublicTrip(
+            public_trips_pb2.UpdatePublicTripReq(
                 trip_id=trip_id,
                 status=public_trips_pb2.PUBLIC_TRIP_STATUS_CLOSED,
             )
         )
+        assert res.status == public_trips_pb2.PUBLIC_TRIP_STATUS_CLOSED
 
     with session_scope() as session:
         trip = session.execute(select(PublicTrip).where(PublicTrip.id == trip_id)).scalar_one()
         assert trip.status == PublicTripStatus.closed
-
-
-def test_update_public_trip_status_not_owner(db):
-    user, _ = generate_user()
-    _, other_token = generate_user()
-    node_id = _make_node()
-    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
-
-    with public_trips_session(other_token) as api:
-        with pytest.raises(grpc.RpcError) as e:
-            api.UpdatePublicTripStatus(
-                public_trips_pb2.UpdatePublicTripStatusReq(
-                    trip_id=trip_id,
-                    status=public_trips_pb2.PUBLIC_TRIP_STATUS_CLOSED,
-                )
-            )
-        assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
 def test_update_public_trip_cant_reopen(db):
@@ -478,12 +505,173 @@ def test_update_public_trip_cant_reopen(db):
     )
 
     with public_trips_session(token) as api:
-        # can't reopen a closed trip
         with pytest.raises(grpc.RpcError) as e:
-            api.UpdatePublicTripStatus(
-                public_trips_pb2.UpdatePublicTripStatusReq(
+            api.UpdatePublicTrip(
+                public_trips_pb2.UpdatePublicTripReq(
                     trip_id=trip_id,
                     status=public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_update_public_trip_close_past_trip_allowed(db):
+    # Closing a trip whose dates are in the past is allowed, even though content edits are not.
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(user.id, node_id, today() - timedelta(days=10), today() - timedelta(days=1))
+
+    with public_trips_session(token) as api:
+        res = api.UpdatePublicTrip(
+            public_trips_pb2.UpdatePublicTripReq(
+                trip_id=trip_id,
+                status=public_trips_pb2.PUBLIC_TRIP_STATUS_CLOSED,
+            )
+        )
+        assert res.status == public_trips_pb2.PUBLIC_TRIP_STATUS_CLOSED
+
+
+def test_update_public_trip_description_only(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(
+        user.id,
+        node_id,
+        today() + timedelta(days=5),
+        today() + timedelta(days=10),
+        description="Original description",
+    )
+
+    updated = VALID_DESCRIPTION + " Updated plans."
+
+    with public_trips_session(token) as api:
+        res = api.UpdatePublicTrip(
+            public_trips_pb2.UpdatePublicTripReq(
+                trip_id=trip_id,
+                description=updated,
+            )
+        )
+        assert res.trip_id == trip_id
+        assert res.description == updated
+        # dates should be unchanged
+        assert res.from_date == (today() + timedelta(days=5)).isoformat()
+        assert res.to_date == (today() + timedelta(days=10)).isoformat()
+
+    with session_scope() as session:
+        trip = session.execute(select(PublicTrip).where(PublicTrip.id == trip_id)).scalar_one()
+        assert trip.description == updated
+
+
+def test_update_public_trip_dates(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    new_from = today() + timedelta(days=7)
+    new_to = today() + timedelta(days=14)
+
+    with public_trips_session(token) as api:
+        res = api.UpdatePublicTrip(
+            public_trips_pb2.UpdatePublicTripReq(
+                trip_id=trip_id,
+                from_date=new_from.isoformat(),
+                to_date=new_to.isoformat(),
+            )
+        )
+        assert res.from_date == new_from.isoformat()
+        assert res.to_date == new_to.isoformat()
+
+
+def test_update_public_trip_not_owner(db):
+    user, _ = generate_user()
+    _, other_token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    with public_trips_session(other_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdatePublicTrip(
+                public_trips_pb2.UpdatePublicTripReq(
+                    trip_id=trip_id,
+                    description="I don't own this!",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_update_public_trip_in_past(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(user.id, node_id, today() - timedelta(days=10), today() - timedelta(days=2))
+
+    with public_trips_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdatePublicTrip(
+                public_trips_pb2.UpdatePublicTripReq(
+                    trip_id=trip_id,
+                    description="Too late!",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_update_public_trip_date_validation(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    with public_trips_session(token) as api:
+        # from_date after to_date (using the stored to_date of today+10)
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdatePublicTrip(
+                public_trips_pb2.UpdatePublicTripReq(
+                    trip_id=trip_id,
+                    from_date=(today() + timedelta(days=20)).isoformat(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+        # Empty description
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdatePublicTrip(
+                public_trips_pb2.UpdatePublicTripReq(
+                    trip_id=trip_id,
+                    description="   ",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_create_public_trip_description_too_short(db):
+    _, token = generate_user()
+    node_id = _make_node()
+
+    with public_trips_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreatePublicTrip(
+                public_trips_pb2.CreatePublicTripReq(
+                    node_id=node_id,
+                    from_date=(today() + timedelta(days=5)).isoformat(),
+                    to_date=(today() + timedelta(days=10)).isoformat(),
+                    description="Too short.",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert "150" in (e.value.details() or "")
+
+
+def test_update_public_trip_description_too_short(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
+
+    with public_trips_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.UpdatePublicTrip(
+                public_trips_pb2.UpdatePublicTripReq(
+                    trip_id=trip_id,
+                    description="Too short.",
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert "150" in (e.value.details() or "")

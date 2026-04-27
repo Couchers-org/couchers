@@ -12,9 +12,7 @@
     "tabs": {
       "chats": "Chats",
       "hosting": "Hosten",
-      "surfing": "Surfen",
-      "aria_label": "Tabbladen voor verschillende berichttypen",
-      "archived": "Gearchiveerd"
+      "surfing": "Surfen"
     },
     "title": "Berichten"
   },
@@ -69,7 +67,6 @@
   "create_chat": {
     "dm_title": "Nieuwe chat aanmaken",
     "group_title": "Groeps-chat aanmaken",
-    "group_title_field_label": "Titel",
     "no_friends_found_message": "Kon geen vrienden vinden",
     "user_load_error_message": "(Fout bij het laden van gebruikers)",
     "friends_input_label": "Vrienden",

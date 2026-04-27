@@ -31,7 +31,8 @@
   "communities_welcome_title": "Welcome to Communities",
   "communities_intro": "To help people around the world organize events, discussions, and meetups locally, we created community pages, which are listed below. <strong>You have automatically been added to some communities based on your location, but you can join any community!</strong> Your communities are listed on the dashboard.",
   "community_builder": "Want to be an ambassador for your community and help it grow? Become a <1>Community Builder!</1>",
-  "find_your_community": "Find your community",
+  "my_communities_heading": "My communities",
+  "find_your_community": "Find a community",
   "find_your_community_intro": "Below you can search or browse all community pages that exist so far. Is your country or city missing? <1>Use this form</1> to request it!",
   "find_your_community_intro_simplified": "Search for your community or browse below. <1>Don't see yours? Request it!</1>",
   "browse_communities": "Browse Communities",
@@ -57,5 +58,27 @@
   "hero_image_attribution": "Photo by <1>Mesut Kaya</1> on <3>Unsplash</3>",
   "events_empty_state": "No events at the moment. Why don't you <0>create</0> one ✨?",
   "attendees_count_one": "{{count}} attendee",
-  "attendees_count_other": "{{count}} attendees"
+  "attendees_count_other": "{{count}} attendees",
+  "reminder": {
+    "respond_to_host_request": {
+      "title": "Respond to host request",
+      "description": "Don't forget to respond to {{name}} about their stay.",
+      "button": "View request"
+    },
+    "write_reference": {
+      "title": "Write a reference",
+      "description": "Leave a reference for {{name}}'s stay",
+      "button": "Write reference"
+    },
+    "complete_profile": {
+      "title": "Complete your profile",
+      "description": "Fill in your \"Who I Am\" section and upload a profile photo",
+      "button": "Edit your profile"
+    },
+    "strong_verification": {
+      "title": "Strong verification",
+      "description": "Verify your identity for a safer community",
+      "button": "Verify your account"
+    }
+  }
 }

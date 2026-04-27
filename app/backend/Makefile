@@ -31,6 +31,13 @@ fmt: format
 mypy:
 	uv run mypy src
 
+# Generate a new database migration by comparing models to an empty database
+# Usage:
+# make revision                     → generates migration with default message
+# make revision m='Add users table' → generates migration with custom message
+revision:
+	uv run --with 'docker' python revision.py $(if $(m),-m '$(m)',)
+
 # Downgrade the local database to the previous migration. Good if you ran a migration on a branch and will run the backend on another branch after.
 # Usage:
 # make downgrade

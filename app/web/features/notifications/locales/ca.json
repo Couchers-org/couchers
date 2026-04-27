@@ -21,7 +21,6 @@
       }
     },
     "title": "Configuració de notificacions",
-    "edit_in_console": "Pots canviar la configuració de les notificacions <2>en aquesta pàgina</2>. Aviat la traslladarem aquí.",
     "go_to_button": "Gestiona la configuració de notificacions",
     "push_notifications": {
       "title": "Notificacions push",
@@ -38,8 +37,7 @@
           "macos": "A macOS, ves a Configuració del sistema > Notificacions i modifica els permisos de l'aplicació.",
           "windows": "A Windows, ves a Configuració > Sistema > Notificacions i accions, i ajusta els permisos de l'aplicació o del lloc web.",
           "linux": {
-            "gnome": "A GNOME, ves a Configuració > Notificacions per ajustar els permisos de l'aplicació.",
-            "kde": "A KDE, ves a Configuració del sistema > Notificacions per modificar els permisos."
+            "gnome": "A GNOME, ves a Configuració > Notificacions per ajustar els permisos de l'aplicació."
           },
           "mobile": {
             "os": "A la configuració de notificacions del teu dispositiu mòbil, ajusta els permisos per permetre les notificacions.",

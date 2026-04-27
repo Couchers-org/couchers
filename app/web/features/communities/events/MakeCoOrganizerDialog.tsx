@@ -29,11 +29,11 @@ export default function MakeCoOrganizerDialog({
   return (
     <Dialog aria-labelledby={MAKE_CO_ORGANIZER_DIALOG_LABEL_ID} open={open}>
       <DialogTitle id={MAKE_CO_ORGANIZER_DIALOG_LABEL_ID}>
-        {t("communities:make_co_organizer:dialog_title", { name: username })}
+        {t("communities:make_co_organizer.dialog_title", { name: username })}
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          {t("communities:make_co_organizer:dialog_text", {
+          {t("communities:make_co_organizer.dialog_text", {
             name: username,
             event: eventName,
           })}

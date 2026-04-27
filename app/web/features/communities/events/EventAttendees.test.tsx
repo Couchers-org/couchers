@@ -216,7 +216,7 @@ describe("Event attendees", () => {
       await user.click(menuButton);
 
       const menuItem = await screen.findByText(
-        t("communities:make_co_organizer:title"),
+        t("communities:make_co_organizer.title"),
       );
 
       await user.click(menuItem);

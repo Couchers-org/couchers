@@ -81,6 +81,25 @@
     "gallery_not_found": "Galerie nebyla nalezena.",
     "group_not_found": "Skupina nebyla nalezena.",
     "group_or_community_not_found": "Skupina nebo komunita nebyla nalezena.",
-    "host_request_in_past": "Tento požadavek na ubytování je v minulosti."
+    "host_request_in_past": "Tento požadavek na ubytování je v minulosti.",
+    "chat_initiation_rate_limit2_one": "Za poslední {{count}} hodinu jste zaslali zprávy velkému počtu uživatelů. Abychom předešli spamu, nemůžete nyní kontaktovat další uživatele.",
+    "chat_initiation_rate_limit2_few": "Za poslední {{count}} hodiny jste zaslali zprávy velkému počtu uživatelů. Abychom předešli spamu, nemůžete nyní kontaktovat další uživatele.",
+    "chat_initiation_rate_limit2_other": "Za posledních {{count}} hodin jste zaslali zprávy velkému počtu uživatelů. Abychom předešli spamu, nemůžete nyní kontaktovat další uživatele.",
+    "friend_request_rate_limit2_one": "V uplynulé {{count}} hodině jste odeslali mnoho žádostí o přátelství. Abychom zabránili spamu, nyní už nemůžeš žádné další posílat.",
+    "friend_request_rate_limit2_few": "V uplynulých {{count}} hodinách jste odeslali mnoho žádostí o přátelství. Abychom zabránili spamu, nyní už nemůžeš žádné další posílat.",
+    "friend_request_rate_limit2_other": "V uplynulých {{count}} hodinách jste odeslali mnoho žádostí o přátelství. Abychom zabránili spamu, nyní už nemůžeš žádné další posílat.",
+    "incomplete_profile_create_event": "Než můžeš vytvořit událost, musíš mít vyplněný profil.",
+    "incomplete_profile_create_public_trip": "Než můžeš vytvořit veřejný výlet, musíš mít vyplněný profil.",
+    "public_trip_in_past": "Veřejnou cesta, která již skončila, nelze upravovat.",
+    "public_trip_not_active": "Tato veřejná cesta již nepřijímá nabídky.",
+    "host_request_rate_limit2_one": "V poslední {{count}} hodině jste odeslali hodně žádostí o ubytování. Abychom předešli spamu, teď už žádné další posílat nemůžete.",
+    "host_request_rate_limit2_few": "V posledních {{count}} hodinách jste odeslali hodně žádostí o ubytování. Abychom předešli spamu, teď už žádné další posílat nemůžete.",
+    "host_request_rate_limit2_other": "V posledních {{count}} hodinách jste odeslali hodně žádostí o ubytování. Abychom předešli spamu, teď už žádné další posílat nemůžete.",
+    "host_request_too_short2_one": "Žádost o ubytování musí mít alespoň {{count}} znak.",
+    "host_request_too_short2_few": "Žádost o ubytování musí mít alespoň {{count}} znaky.",
+    "host_request_too_short2_other": "Žádost o ubytování musí mít alespoň {{count}} znaků.",
+    "public_trip_description_too_short_one": "Veřejný popis výletu nemůže být kratší než {{count}} znak.",
+    "public_trip_description_too_short_few": "Veřejný popis výletu nemůže být kratší než {{count}} znaky.",
+    "public_trip_description_too_short_other": "Veřejný popis výletu nemůže být kratší než {{count}} znaků."
   }
 }

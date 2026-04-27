@@ -3,6 +3,7 @@ import { useTranslation } from "i18n";
 import { GLOBAL } from "i18n/namespaces";
 import React, { useMemo } from "react";
 import { Control, Controller, UseControllerProps } from "react-hook-form";
+import { getMuiTimeFormat } from "utils/date";
 import { Dayjs } from "utils/dayjs";
 
 interface TimepickerProps {
@@ -20,14 +21,6 @@ interface TimepickerProps {
   testId?: string;
 }
 
-function uses24HourClock(locale: string = navigator.language): boolean {
-  const formatted = new Intl.DateTimeFormat(locale, {
-    hour: "numeric",
-    hour12: undefined,
-  }).format(new Date(2020, 0, 1, 23, 0));
-  return formatted.includes("23");
-}
-
 const Timepicker = ({
   className,
   control,
@@ -41,10 +34,11 @@ const Timepicker = ({
   onPostChange,
   testId,
 }: TimepickerProps) => {
-  const { t } = useTranslation([GLOBAL]);
-  const locale = navigator.language;
-  const is24HourClock = useMemo(() => uses24HourClock(locale), [locale]);
-  const format = is24HourClock ? "HH:mm" : "h:mm a";
+  const { t, i18n } = useTranslation([GLOBAL]);
+  const format = useMemo(
+    () => getMuiTimeFormat(i18n.language),
+    [i18n.language],
+  );
 
   return (
     <Controller
@@ -63,6 +57,7 @@ const Timepicker = ({
             onPostChange?.(time);
           }}
           format={format}
+          ampm={format.includes("a")} // Clock picker uses am/pm iff format also uses it
           slotProps={{
             textField: {
               fullWidth: true,

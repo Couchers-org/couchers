@@ -1141,6 +1141,8 @@ def send_event_reminders(payload: empty_pb2.Empty) -> None:
                 select(EventOccurrence)
                 .where(EventOccurrence.start_time <= now() + EVENT_REMINDER_TIMEDELTA)
                 .where(EventOccurrence.start_time >= now())
+                .where(~EventOccurrence.is_cancelled)
+                .where(~EventOccurrence.is_deleted)
             )
             .scalars()
             .all()

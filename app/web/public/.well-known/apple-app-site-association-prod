@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["S79633Q27Z.org.couchers.ios"],
+        "components": [{ "/": "/*" }]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["S79633Q27Z.org.couchers.ios"]
+  }
+}

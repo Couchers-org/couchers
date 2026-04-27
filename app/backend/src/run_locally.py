@@ -44,7 +44,7 @@ def main() -> None:
         os.environ["PROMETHEUS_MULTIPROC_DIR"] = prometheus_multiproc_dir.name
 
     # Only import it here because it has side effects.
-    import app
+    import app  # noqa: PLC0415
 
     if __name__ == "__main__":
         app.common_init()

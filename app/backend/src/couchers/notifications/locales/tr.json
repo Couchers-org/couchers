@@ -1,157 +1,240 @@
 {
-  "push": {
-    "account_deletion__start": {
-      "title": "Hesap silinmesi istendi",
-      "ios_title": "Hesap Silinmesi İstendi",
-      "body": "Doğrulamak için size yolladığımız linki kullanın."
-    },
-    "account_deletion__complete": {
-      "title": "Hesap silindi",
-      "ios_title": "Hesap Silindi",
-      "body_one": "Size yolladığımız link ile {{count}} gün içinde bu işlemi geri alabilirsiniz.",
-      "body_other": "Size yolladığımız link ile {{count}} gün içinde bu işlemi geri alabilirsiniz."
-    },
-    "account_deletion__recovered": {
-      "title": "Hesap eski haline getirildi",
-      "ios_title": "Hesap Eski Haline Getirildi",
-      "body": "Tekrardan hoşgeldin!"
-    },
-    "activeness__probe": {
-      "body": "Ev sahipliği yapma durumunu onaylamak için giriş yap.",
-      "title": "Hâlâ ev sahipliği yapmaya açık mısın?",
-      "ios_title": "Hâlâ ev sahipliği yapmaya açık mısın?"
-    },
-    "api_key__create": {
-      "body": "Detaylar size e-mail ile gönderildi."
-    },
-    "badge__add": {
-      "title": "Yeni profil rozeti: {{badge_name}}",
-      "ios_title": "Yeni Profil Rozeti",
-      "body": "{{badge_name}} rozeti profiline eklendi."
-    },
-    "badge__remove": {
-      "title": "Profil rozeti kaldırıldı",
-      "ios_title": "Profil Rozeti Kaldırıldı",
-      "body": "{{badge_name}} rozeti profilinizden kaldırıldı."
-    },
-    "chat__missed_messages": {
-      "title_one": "{{count}} cevapsız mesaj",
-      "title_other": "{{count}} cevapsız mesaj",
-      "ios_title_one": "{{count}} Cevapsız Mesaj",
-      "ios_title_other": "{{count}} Cevapsız Mesaj"
-    },
-    "event__reminder": {
-      "ios_title": "Yaklaşan Etkinlik",
-      "body": "Etkinlik {{date_and_time}} tarihinde başlayacak.",
-      "ios_subtitle": "{{title}}"
-    },
-    "event__cancel": {
-      "title": "{{title}} Etkinliği iptal edildi",
-      "ios_title": "Etkinlik İptal Edildi",
-      "body": "{{user}} etkinliği iptal etti."
-    },
-    "event__delete": {
-      "title": "Silinen etkinlik: {{title}}",
-      "ios_title": "Etkinlik Silindi",
-      "body": "Bir moderatör bu etkinliği sildi."
-    },
-    "friend_request__create": {
-      "title": "{{from_user}}'dan arkadaşlık isteği",
-      "ios_subtitle": "Arkadaşlık İsteği",
-      "body": "{{from_user}} arkadaşın olmak istiyor."
-    },
-    "friend_request__accept": {
-      "title": "{{friend}} arkadaşlık isteğini kabul etti"
-    },
-    "adhoc__push_enabled": {
-      "title": "Anlık bildirimler etkinleştirildi",
-      "ios_title": "Anlık Bildirimler Etkinleştirildi",
-      "body": "Bu cihazda artık bildirim alacaksınız."
-    },
-    "birthdate__change": {
-      "ios_title": "Doğum Tarihi Değiştirildi"
-    },
-    "email_address__change": {
-      "body": "Yeni adresinizi onaylamak için {{email}} adresine gönderdiğimiz bağlantıyı kullanın."
-    },
-    "event__create_any": {
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} etkinliği {{date_and_time}} tarihinde oluşturdu."
-    },
-    "event__create_approved": {
-      "title": "Yeni etkinlik: {{title}}"
+  "_adhoc": {
+    "push_enabled": {
+      "push": {
+        "title": "Anlık bildirimler etkinleştirildi",
+        "ios_title": "Anlık Bildirimler Etkinleştirildi",
+        "body": "Artık bu cihazda bildirim alacaksınız."
+      }
     }
   },
-  "topic_action_descriptions": {
-    "host_request": {
-      "reminder": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz",
-      "create": "Birisi sana bir ev sahipliği isteği yollayınca",
-      "accept": "Birisi ev sahipliği isteğini kabul edince",
-      "confirm": "Birisi ev sahipliği isteğini onayladığında",
-      "reject": "Birisi ev sahipliği isteğini reddettiğinde",
-      "missed_messages": "Bir ev sahipliği isteğinde mesaj kaçırdığında",
-      "message": "Birisi ev sahipliği isteğinde mesaj yolladığında"
+  "account_deletion": {
+    "complete": {
+      "event_description": "Hesabınız silindi",
+      "push": {
+        "title": "Hesap silindi",
+        "ios_title": "Hesap Silindi",
+        "body_one": "Size yolladığımız link ile {{count}} gün içinde bu işlemi geri alabilirsiniz.",
+        "body_other": "Size yolladığımız link ile {{count}} gün içinde bu işlemi geri alabilirsiniz."
+      }
     },
-    "reference": {
-      "receive_hosted": "Sana ev sahipliği yapmış birisi tarafından referans aldığında",
-      "receive_surfed": "Ev sahipliği yaptığın birinden referans aldığında",
-      "receive_friend": "Bir arkadaştan referans aldığında"
+    "recovered": {
+      "event_description": "Hesabınız kurtarıldı (silme işlemi geri alındı)",
+      "push": {
+        "title": "Hesap eski haline getirildi",
+        "ios_title": "Hesap Eski Haline Getirildi",
+        "body": "Tekrardan hoşgeldin!"
+      }
     },
-    "chat": {
-      "message": "Birisi sana bir mesaj gönderdiğinde",
-      "missed_messages": "Bir sohbette mesaj kaçırdığında"
+    "start": {
+      "event_description": "Hesap silinmesini başlattığında",
+      "push": {
+        "title": "Hesap silinmesi istendi",
+        "ios_title": "Hesap Silinmesi İstendi",
+        "body": "Onaylamak için size e-posta ile gönderdiğimiz bağlantıyı kullanın."
+      }
+    }
+  },
+  "activeness": {
+    "probe": {
+      "event_description": "Misafir kabul ediyorsunuz ancak uzun süredir giriş yapmadınız",
+      "push": {
+        "body": "Ev sahipliği yapma durumunu onaylamak için giriş yap.",
+        "title": "Hâlâ ev sahipliği yapmaya açık mısın?",
+        "ios_title": "Hâlâ ev sahipliği yapmaya açık mısın?"
+      }
+    }
+  },
+  "api_key": {
+    "create": {
+      "event_description": "Hesabınız için bir API anahtarı oluşturuldu",
+      "push": {
+        "body": "Detaylar size e-mail ile gönderildi.",
+        "title": "API anahtarı oluşturuldu",
+        "ios_title": "API Anahtarı Oluşturuldu"
+      }
+    }
+  },
+  "badge": {
+    "add": {
+      "event_description": "Hesabınıza bir rozet eklendi",
+      "push": {
+        "title": "Yeni profil rozeti: {{badge_name}}",
+        "ios_title": "Yeni Profil Rozeti",
+        "body": "{{badge_name}} rozeti profiline eklendi."
+      }
     },
-    "friend_request": {
-      "create": "Biri sana bir arkadaşlık isteği gönderdiğinde",
-      "accept": "Birisi senin arkadaşlık isteğini kabul ettiğinde"
+    "remove": {
+      "event_description": "Hesabınızdan bir rozet kaldırıldı",
+      "push": {
+        "title": "Profil rozeti kaldırıldı",
+        "ios_title": "Profil Rozeti Kaldırıldı",
+        "body": "{{badge_name}} rozeti profilinizden kaldırıldı."
+      }
+    }
+  },
+  "birthdate": {
+    "change": {
+      "event_description": "Doğum tarihiniz değiştirildi",
+      "push": {
+        "ios_title": "Doğum Tarihi Değiştirildi",
+        "title": "Doğum tarihi değiştirildi",
+        "body": "Bir yönetici doğum tarihinizi {{birthdate}} olarak değiştirdi."
+      }
+    }
+  },
+  "chat": {
+    "message": {
+      "event_description": "Birisi sana bir mesaj gönderdiğinde"
     },
-    "phone_number": {
-      "change": "Telefon numaranız değiştirildi",
-      "verify": "Telefon numaranız doğrulandı"
+    "missed_messages": {
+      "event_description": "Bir sohbette mesaj kaçırdığında",
+      "push": {
+        "title_one": "{{count}} cevapsız mesaj",
+        "title_other": "{{count}} cevapsız mesaj",
+        "ios_title_one": "{{count}} Cevapsız Mesaj",
+        "ios_title_other": "{{count}} Cevapsız Mesaj",
+        "body": "Yeni görülmemiş mesajlarınız var."
+      }
+    }
+  },
+  "discussion": {
+    "comment": {
+      "event_description": "Takip ettiğin bir tartışmada birisi yorum yapınca"
     },
-    "birthdate": {
-      "change": "Doğum tarihiniz değiştirildi"
+    "create": {
+      "event_description": "Birisi içinde bulunduğun toplulukta bir tartışma başlattığında"
+    }
+  },
+  "donation": {
+    "received": {
+      "event_description": "Bağışınız alındı"
+    }
+  },
+  "email_address": {
+    "change": {
+      "event_description": "E-posta değişikliği başlatıldı",
+      "push": {
+        "body": "Yeni adresinizi onaylamak için {{email}} adresine gönderdiğimiz bağlantıyı kullanın."
+      }
     },
-    "gender": {
-      "change": "Profilinizde gösterilen cinsiyet değiştirildi"
+    "verify": {
+      "event_description": "Yeni e-postanız doğrulandı"
+    }
+  },
+  "event": {
+    "cancel": {
+      "event_description": "Katıldığınız bir etkinlik iptal edildi",
+      "push": {
+        "title": "{{title}} Etkinliği iptal edildi",
+        "ios_title": "Etkinlik İptal Edildi",
+        "body": "{{user}} etkinliği iptal etti."
+      }
     },
-    "discussion": {
-      "create": "Birisi içinde bulunduğun toplulukta bir tartışma başlattığında",
-      "comment": "Takip ettiğin bir tartışmada birisi yorum yapınca"
+    "comment": {
+      "event_description": "Katılacağınız bir etkinliğe bir kullanıcı yorum yapıyor"
     },
-    "thread": {
-      "reply": "Birisi yorumuna cevap verdiğinde"
+    "create_any": {
+      "push": {
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} etkinliği {{date_and_time}} tarihinde oluşturdu."
+      }
     },
-    "account_deletion": {
-      "start": "Hesap silinmesini başlattığında",
-      "complete": "Hesabınız silindi",
-      "recovered": "Hesabınız kurtarıldı (silme işlemi geri alındı)"
+    "create_approved": {
+      "event_description": "Moderatörler tarafından onaylanan bir etkinlik topluluğunuzda oluşturuldu",
+      "push": {
+        "title": "Yeni etkinlik: {{title}}"
+      }
     },
-    "activeness": {
-      "probe": "Misafir kabul ediyorsunuz ancak uzun süredir giriş yapmadınız"
+    "delete": {
+      "event_description": "Katıldığınız bir etkinlik silindi",
+      "push": {
+        "title": "Silinen etkinlik: {{title}}",
+        "ios_title": "Etkinlik Silindi",
+        "body": "Bir moderatör bu etkinliği sildi."
+      }
     },
-    "api_key": {
-      "create": "Hesabınız için bir API anahtarı oluşturuldu"
+    "invite_organizer": {
+      "event_description": "Birisi sizi bir etkinliği birlikte düzenlemeye davet ediyor"
     },
-    "badge": {
-      "add": "Hesabınıza bir rozet eklendi",
-      "remove": "Hesabınızdan bir rozet kaldırıldı"
+    "reminder": {
+      "event_description": "Katılacağınız bir etkinlik yakında başlayacak",
+      "push": {
+        "ios_title": "Yaklaşan Etkinlik",
+        "body": "Etkinlik {{date_and_time}} tarihinde başlayacak.",
+        "ios_subtitle": "{{title}}"
+      }
     },
-    "donation": {
-      "received": "Bağışınız alındı"
+    "update": {
+      "event_description": "Katıldığınız bir etkinlik güncellendi"
+    }
+  },
+  "friend_request": {
+    "accept": {
+      "event_description": "Birisi senin arkadaşlık isteğini kabul ettiğinde",
+      "push": {
+        "title": "{{friend}} arkadaşlık isteğini kabul etti"
+      }
     },
-    "email_address": {
-      "change": "E-posta değişikliği başlatıldı",
-      "verify": "Yeni e-postanız doğrulandı"
+    "create": {
+      "event_description": "Biri sana bir arkadaşlık isteği gönderdiğinde",
+      "push": {
+        "title": "{{from_user}}'dan arkadaşlık isteği",
+        "ios_subtitle": "Arkadaşlık İsteği",
+        "body": "{{from_user}} arkadaşın olmak istiyor."
+      }
+    }
+  },
+  "gender": {
+    "change": {
+      "event_description": "Profilinizde gösterilen cinsiyet değiştirildi"
+    }
+  },
+  "host_request": {
+    "accept": {
+      "event_description": "Birisi ev sahipliği isteğini kabul edince"
     },
-    "event": {
-      "create_approved": "Moderatörler tarafından onaylanan bir etkinlik topluluğunuzda oluşturuldu",
-      "update": "Katıldığınız bir etkinlik güncellendi",
-      "cancel": "Katıldığınız bir etkinlik iptal edildi",
-      "delete": "Katıldığınız bir etkinlik silindi",
-      "invite_organizer": "Birisi sizi bir etkinliği birlikte düzenlemeye davet ediyor",
-      "comment": "Katılacağınız bir etkinliğe bir kullanıcı yorum yapıyor",
-      "reminder": "Katılacağınız bir etkinlik yakında başlayacak"
+    "confirm": {
+      "event_description": "Birisi ev sahipliği isteğini onayladığında"
+    },
+    "create": {
+      "event_description": "Birisi sana bir ev sahipliği isteği yollayınca"
+    },
+    "message": {
+      "event_description": "Birisi ev sahipliği isteğinde mesaj yolladığında"
+    },
+    "missed_messages": {
+      "event_description": "Bir ev sahipliği isteğinde mesaj kaçırdığında"
+    },
+    "reject": {
+      "event_description": "Birisi ev sahipliği isteğini reddettiğinde"
+    },
+    "reminder": {
+      "event_description": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz"
+    }
+  },
+  "phone_number": {
+    "change": {
+      "event_description": "Telefon numaranız değiştirildi"
+    },
+    "verify": {
+      "event_description": "Telefon numaranız doğrulandı"
+    }
+  },
+  "reference": {
+    "receive_friend": {
+      "event_description": "Bir arkadaştan referans aldığında"
+    },
+    "receive_hosted": {
+      "event_description": "Sana ev sahipliği yapmış birisi tarafından referans aldığında"
+    },
+    "receive_surfed": {
+      "event_description": "Ev sahipliği yaptığın birinden referans aldığında"
+    }
+  },
+  "thread": {
+    "reply": {
+      "event_description": "Birisi yorumuna cevap verdiğinde"
     }
   }
 }

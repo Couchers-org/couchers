@@ -127,6 +127,73 @@ function createIntlDateTimeFormat(
   return Intl.DateTimeFormat(args.locale, options);
 }
 
+const isoMuiDateFormat = "YYYY-MM-DD";
+
+/// Gets the date format for a locale using Material UI placeholders.
+export function getMuiDateFormat(locale: string): string {
+  if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
+    return isoMuiDateFormat;
+  }
+
+  // Format dummy 3333-11-22 date to figure out how it gets laid out.
+  const referenceDate = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  }).format(new Date(3333, 10, 22));
+
+  const format = referenceDate
+    .replace("3333", "YYYY")
+    .replace("33", "YY")
+    .replace("11", "MM")
+    .replace("22", "DD");
+
+  // Sanity check: There should be no digits left
+  if (/[0-9]/.test(format)) return isoMuiDateFormat;
+  return format;
+}
+
+const defaultMuiTimeFormat = "HH:mm";
+
+/// Gets a localized time format string compatible with Material UI time pickers.
+export function getMuiTimeFormat(locale: string): string {
+  if (Intl.DateTimeFormat.supportedLocalesOf(locale).length === 0) {
+    return defaultMuiTimeFormat;
+  }
+
+  const intlFormat = new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: undefined,
+  });
+
+  // Sniff the format using example dates.
+  // Assume formats only vary by hour-minute separator, 12h vs 24h, and leading zeroes.
+  const hourMinuteSeparatorMatch = /10(\W+)10/.exec(
+    intlFormat.format(new Date(1970, 0, 1, 10, 10)),
+  );
+  const hourMinuteSeparator = hourMinuteSeparatorMatch
+    ? hourMinuteSeparatorMatch[1]
+    : ":";
+  const uses24h = intlFormat.format(new Date(1970, 0, 1, 23, 0)).includes("23");
+  const usesLeadingZeroes = intlFormat
+    .format(new Date(1970, 0, 1, 3, 0))
+    .includes("03");
+
+  let format = "";
+  if (uses24h) {
+    format += usesLeadingZeroes ? "HH" : "H";
+  } else {
+    format += usesLeadingZeroes ? "hh" : "h";
+  }
+  format += hourMinuteSeparator;
+  format += "mm";
+  if (!uses24h) {
+    format += " a";
+  }
+  return format;
+}
+
 function timestamp2Date(timestamp: Timestamp.AsObject): Date {
   return new Date(Math.floor(timestamp.seconds * 1e3 + timestamp.nanos / 1e6));
 }

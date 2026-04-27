@@ -2,7 +2,6 @@
   "any": "Herhangi biri",
   "error_loading_users": "Kullanıcıları yüklemede hata oluştu",
   "filter_dialog": {
-    "search_here_button": "Bu bölgede arama yap",
     "desktop_title": "Filtreler",
     "mobile_title": "Ara"
   },
@@ -15,7 +14,6 @@
   },
   "form": {
     "location_field_label": "Yakın konum",
-    "missing_location_validation_error": "Bu filtreyi kullanmak için bir konum belirle",
     "by_keyword_filter_label": "Anahtar kelime veya isimle",
     "host_filters": {
       "age": {
@@ -25,7 +23,6 @@
       },
       "hosting_status_field_label": "Ev sahipliği durumu",
       "meetup_status_field_label": "Buluşma durumu",
-      "complete_profiles_label": "Profilleri tamamla",
       "last_active_field_label": "En son aktiflik"
     },
     "accommodation_filters": {

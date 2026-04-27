@@ -32,13 +32,13 @@ export default function RemoveAsCoOrganizerDialog({
       open={open}
     >
       <DialogTitle id={REMOVE_AS_CO_ORGANIZER_DIALOG_LABEL_ID}>
-        {t("communities:remove_as_co_organizer:dialog_title", {
+        {t("communities:remove_as_co_organizer.dialog_title", {
           name: username,
         })}
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          {t("communities:remove_as_co_organizer:dialog_text", {
+          {t("communities:remove_as_co_organizer.dialog_text", {
             name: username,
             event: eventName,
           })}
