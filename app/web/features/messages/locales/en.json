@@ -26,7 +26,6 @@
     "archived": "Archived",
     "archive_button": "Archive",
     "unarchive_button": "Unarchive",
-    "no_archived_chats": "No archived chats",
     "no_archived_requests": "No archived requests",
     "no_archived_messages": "No archived messages"
   },
@@ -100,7 +99,6 @@
     }
   },
   "group_chats_tab": {
-    "no_chats_message": "No group chats yet",
     "load_more_button_label": "Load more"
   },
   "requests_tab": {

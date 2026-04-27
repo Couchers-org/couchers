@@ -1,5 +1,5 @@
 import { Chip, List, styled } from "@mui/material";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
@@ -8,6 +8,7 @@ import TextBody from "components/TextBody";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
 import HostRequestListItem from "features/messages/requests/HostRequestListItem";
+import useMessageListsAutoRefetch from "features/messages/useMessageListsAutoRefetch";
 import { hasUnreadMessages } from "features/messages/utils";
 import { groupChatsListKey, hostRequestsListKey } from "features/queryKeys";
 import useCurrentUser from "features/userQueries/useCurrentUser";
@@ -18,7 +19,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { GroupChat, ListGroupChatsRes } from "proto/conversations_pb";
 import { HostRequest, ListHostRequestsRes } from "proto/requests_pb";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { routeToGroupChat, routeToHostRequest } from "routes";
 import { service } from "service";
 import { theme } from "theme";
@@ -105,7 +106,8 @@ export default function AllMessagesTab() {
   const unseenReceivedHostRequestCount =
     notifications?.unseenReceivedHostRequestCount;
   const unseenSentHostRequestCount = notifications?.unseenSentHostRequestCount;
-  const queryClient = useQueryClient();
+
+  useMessageListsAutoRefetch();
 
   // Get filter from URL path, default to "all"
   const slugs =
@@ -126,18 +128,6 @@ export default function AllMessagesTab() {
   ].includes(filterFromPath)
     ? filterFromPath
     : "all";
-
-  useEffect(() => {
-    queryClient.invalidateQueries({
-      queryKey: groupChatsListKey(),
-    });
-  }, [unseenMessageCount, queryClient]);
-
-  useEffect(() => {
-    queryClient.invalidateQueries({
-      queryKey: hostRequestsListKey(),
-    });
-  }, [unseenReceivedHostRequestCount, unseenSentHostRequestCount, queryClient]);
 
   const showArchived = filter === "archived";
 
