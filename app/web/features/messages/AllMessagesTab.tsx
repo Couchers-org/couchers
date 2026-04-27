@@ -104,8 +104,7 @@ export default function AllMessagesTab() {
   const unseenMessageCount = notifications?.unseenMessageCount;
   const unseenReceivedHostRequestCount =
     notifications?.unseenReceivedHostRequestCount;
-  const unseenSentHostRequestCount =
-    notifications?.unseenSentHostRequestCount;
+  const unseenSentHostRequestCount = notifications?.unseenSentHostRequestCount;
   const queryClient = useQueryClient();
 
   // Get filter from URL path, default to "all"
@@ -138,11 +137,7 @@ export default function AllMessagesTab() {
     queryClient.invalidateQueries({
       queryKey: hostRequestsListKey(),
     });
-  }, [
-    unseenReceivedHostRequestCount,
-    unseenSentHostRequestCount,
-    queryClient,
-  ]);
+  }, [unseenReceivedHostRequestCount, unseenSentHostRequestCount, queryClient]);
 
   const showArchived = filter === "archived";
 
