@@ -168,12 +168,8 @@ export default function ChangePassword({ className }: ChangePasswordProps) {
                   <IconButton
                     aria-label={
                       showConfirmPassword
-                        ? t(
-                            "auth:change_password_form.hide_password_confirmation",
-                          )
-                        : t(
-                            "auth:change_password_form.show_password_confirmation",
-                          )
+                        ? t("auth:change_password_form.hide_confirm_password")
+                        : t("auth:change_password_form.show_confirm_password")
                     }
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     edge="end"
