@@ -2,7 +2,7 @@ import enum
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, CheckConstraint, Date, DateTime, Enum, ForeignKey, Index, String, func
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, Date, DateTime, Enum, ForeignKey, Index, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from couchers.models.base import Base
@@ -43,6 +43,9 @@ class PublicTrip(Base, kw_only=True):
     status: Mapped[PublicTripStatus] = mapped_column(
         Enum(PublicTripStatus), default=PublicTripStatus.searching_for_host
     )
+
+    # If true, only users with the same gender as the poster can see this trip
+    same_gender_only: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Timestamps
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
