@@ -87,7 +87,7 @@ export const messageTypeStrings = [
   "hosting",
   "surfing",
   "archived",
-];
+] as const;
 export type MessageType = (typeof messageTypeStrings)[number];
 export const groupChatsRoute = `${messagesRoute}/chats`;
 export const routeToCreateMessage = (username: string) =>

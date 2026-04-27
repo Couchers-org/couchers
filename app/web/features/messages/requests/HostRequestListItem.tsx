@@ -204,7 +204,10 @@ export default function HostRequestListItem({
           sx={{ paddingRight: 5 }}
           disableTypography
           primary={
-            <Typography variant="h2">
+            <Typography
+              variant="h2"
+              sx={isPast && isUnread ? { color: "text.primary" } : undefined}
+            >
               {!otherUser ? <Skeleton width={100} /> : otherUser.name}
             </Typography>
           }
@@ -248,7 +251,10 @@ export default function HostRequestListItem({
               </StyledDateAndBadgeContainer>
               <TextBody
                 noWrap
-                sx={{ fontWeight: isUnread ? "bold" : "normal" }}
+                sx={{
+                  fontWeight: isUnread ? "bold" : "normal",
+                  ...(isPast && isUnread ? { color: "text.primary" } : {}),
+                }}
               >
                 {isOtherUserLoading ? (
                   <Skeleton width={100} />

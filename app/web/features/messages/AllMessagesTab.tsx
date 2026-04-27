@@ -102,6 +102,10 @@ export default function AllMessagesTab() {
   const { data: notifications } = useNotifications();
   const { data: currentUser } = useCurrentUser();
   const unseenMessageCount = notifications?.unseenMessageCount;
+  const unseenReceivedHostRequestCount =
+    notifications?.unseenReceivedHostRequestCount;
+  const unseenSentHostRequestCount =
+    notifications?.unseenSentHostRequestCount;
   const queryClient = useQueryClient();
 
   // Get filter from URL path, default to "all"
@@ -129,6 +133,16 @@ export default function AllMessagesTab() {
       queryKey: groupChatsListKey(),
     });
   }, [unseenMessageCount, queryClient]);
+
+  useEffect(() => {
+    queryClient.invalidateQueries({
+      queryKey: hostRequestsListKey(),
+    });
+  }, [
+    unseenReceivedHostRequestCount,
+    unseenSentHostRequestCount,
+    queryClient,
+  ]);
 
   const showArchived = filter === "archived";
 
@@ -263,9 +277,9 @@ export default function AllMessagesTab() {
   };
 
   // Calculate unread counts for each filter
-  const unseenChatsCount = notifications?.unseenMessageCount ?? 0;
-  const unseenHostingCount = notifications?.unseenReceivedHostRequestCount ?? 0;
-  const unseenSurfingCount = notifications?.unseenSentHostRequestCount ?? 0;
+  const unseenChatsCount = unseenMessageCount ?? 0;
+  const unseenHostingCount = unseenReceivedHostRequestCount ?? 0;
+  const unseenSurfingCount = unseenSentHostRequestCount ?? 0;
   const unseenAllCount =
     unseenChatsCount + unseenHostingCount + unseenSurfingCount;
 

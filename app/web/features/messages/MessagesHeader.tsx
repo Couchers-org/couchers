@@ -17,21 +17,29 @@ const StyledHeader = styled("div")(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 
+// Map tab to MarkAllReadButton type (excluding archived)
+const getMarkAllReadType = (
+  tab: MessageType | undefined,
+): "chats" | "hosting" | "surfing" | "all" | null => {
+  switch (tab) {
+    case "chats":
+    case "hosting":
+    case "surfing":
+      return tab;
+    case "all":
+    case "unread":
+      return "all";
+    default:
+      return null;
+  }
+};
+
 export default function MessagesHeader({
   tab,
 }: {
   tab: MessageType | undefined;
 }) {
   const { t } = useTranslation(MESSAGES);
-
-  // Map tab to MarkAllReadButton type (excluding archived)
-  const getMarkAllReadType = (
-    tab: MessageType | undefined,
-  ): "chats" | "hosting" | "surfing" | "all" | null => {
-    if (!tab || tab === "archived") return null;
-    return tab as "chats" | "hosting" | "surfing" | "all";
-  };
-
   const markAllReadType = getMarkAllReadType(tab);
 
   return (
