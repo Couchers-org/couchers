@@ -69,7 +69,6 @@ class FriendRelationship(Base, kw_only=True):
     Friendship relations between users
 
     TODO: make this better with sqlalchemy self-referential stuff
-    TODO: constraint on only one row per user pair where accepted or pending
     """
 
     __tablename__ = "friend_relationships"
@@ -102,6 +101,14 @@ class FriendRelationship(Base, kw_only=True):
             status,
             to_user_id,
             from_user_id,
+        ),
+        # At most one active (pending or accepted) relationship per unordered user pair
+        Index(
+            "uq_friend_relationships_active_pair",
+            func.least(from_user_id, to_user_id),
+            func.greatest(from_user_id, to_user_id),
+            unique=True,
+            postgresql_where=status.in_([FriendStatus.pending, FriendStatus.accepted]),
         ),
     )
 
