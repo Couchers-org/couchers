@@ -41,8 +41,8 @@
     "show_old_password": "Show old password",
     "hide_new_password": "Hide new password",
     "show_new_password": "Show new password",
-    "hide_password_confirmation": "Hide password confirmation",
-    "show_password_confirmation": "Show password confirmation"
+    "hide_confirm_password": "Hide password confirmation",
+    "show_confirm_password": "Show password confirmation"
   },
   "jail_set_password_form": {
     "title": "Set a password",

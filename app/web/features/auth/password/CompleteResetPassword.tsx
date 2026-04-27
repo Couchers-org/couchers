@@ -182,12 +182,8 @@ export default function CompleteResetPassword() {
                   <IconButton
                     aria-label={
                       showNewPasswordCheck
-                        ? t(
-                            "auth:change_password_form.hide_password_confirmation",
-                          )
-                        : t(
-                            "auth:change_password_form.show_password_confirmation",
-                          )
+                        ? t("auth:change_password_form.hide_confirm_password")
+                        : t("auth:change_password_form.show_confirm_password")
                     }
                     onClick={() =>
                       setShowNewPasswordCheck(!showNewPasswordCheck)
