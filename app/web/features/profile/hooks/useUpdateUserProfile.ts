@@ -20,6 +20,7 @@ export default function useUpdateUserProfile() {
     isPending,
     isError,
     status,
+    error,
   } = useMutation<Empty, Error, UpdateUserProfileVariables>({
     mutationFn: ({ profileData }) => service.user.updateProfile(profileData),
     onError: (error, { setMutationError }) => {
@@ -35,5 +36,5 @@ export default function useUpdateUserProfile() {
     },
   });
 
-  return { reset, updateUserProfile, isPending, isError, status };
+  return { reset, updateUserProfile, isPending, isError, status, error };
 }
