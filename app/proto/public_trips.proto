@@ -58,8 +58,6 @@ message PublicTrip {
   string node_slug = 9;
   // If true, only users with the same gender as the poster can see this trip
   bool same_gender_only = 10;
-  // True if the current viewer has already submitted a host offer for this trip
-  bool viewer_has_offered = 11;
 }
 
 message CreatePublicTripReq {
