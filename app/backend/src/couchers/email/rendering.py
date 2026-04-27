@@ -66,8 +66,19 @@ class ActionBlock(EmailBlock):
 
 @dataclass(kw_only=True)
 class EmailFooter:
+    timezone_name: str
     copyright_year: int = now().year
     unsubscribe_info: UnsubscribeInfo | None
+
+    def to_template_args(self) -> dict[str, Any]:
+        args: dict[str, Any] = {}
+        args["footer_timezone_name"] = self.timezone_name
+        args["footer_copyright_year"] = self.copyright_year
+
+        if unsubscribe_info := self.unsubscribe_info:
+            args.update(unsubscribe_info.to_template_args())
+
+        return args
 
 
 @dataclass(kw_only=True)
@@ -76,6 +87,19 @@ class UnsubscribeInfo:
     do_not_email_url: str
     topic_action_link: UnsubscribeLink
     topic_key_link: UnsubscribeLink | None = None
+
+    def to_template_args(self) -> dict[str, Any]:
+        args: dict[str, Any] = {}
+        args["footer_manage_notifications_link"] = self.manage_notifications_url
+        args["footer_do_not_email_link"] = self.do_not_email_url
+        args["footer_notification_topic_action"] = self.topic_action_link.text
+        args["footer_notification_topic_action_link"] = self.topic_action_link.url
+
+        if topic_key_link := self.topic_key_link:
+            args["footer_notification_topic_key"] = topic_key_link.text
+            args["footer_notification_topic_key_link"] = topic_key_link.url
+
+        return args
 
 
 @dataclass(kw_only=True)
@@ -146,7 +170,7 @@ def render_plaintext_body(*, blocks: list[EmailBlock], footer: EmailFooter, loc_
     footer_template = Jinja2Template(
         source=(template_folder / "_footer.txt").read_text(encoding="utf8").strip(), html=False
     )
-    footer_template_args = _get_footer_template_args(footer)
+    footer_template_args = footer.to_template_args()
     return "".join(concat) + footer_template.render(footer_template_args, loc_context)
 
 
@@ -173,23 +197,6 @@ def _to_plaintext(text: str | Markup) -> str:
 
     # We've handled tags but still have escapes like "&gt;", convert those to plaintext.
     return unescape(text)
-
-
-def _get_footer_template_args(footer: EmailFooter) -> dict[str, Any]:
-    args: dict[str, Any] = {}
-    args["footer_copyright_year"] = footer.copyright_year
-
-    if unsubscribe_info := footer.unsubscribe_info:
-        args["footer_manage_notifications_link"] = unsubscribe_info.manage_notifications_url
-        args["footer_do_not_email_link"] = unsubscribe_info.do_not_email_url
-        args["footer_notification_topic_action"] = unsubscribe_info.topic_action_link.text
-        args["footer_notification_topic_action_link"] = unsubscribe_info.topic_action_link.url
-
-        if topic_key_link := unsubscribe_info.topic_key_link:
-            args["footer_notification_topic_key"] = topic_key_link.text
-            args["footer_notification_topic_key_link"] = topic_key_link.url
-
-    return args
 
 
 @dataclass
@@ -251,7 +258,7 @@ class HTMLRenderer:
                     raise AssertionError(f"Unexpected email block type: {block.__class__}")
 
         # Render the footer
-        footer_template_args = _get_footer_template_args(footer)
+        footer_template_args = footer.to_template_args()
         concats.append(self.footer_template.render(footer_template_args, loc_context))
 
         return "\n".join(concats)
