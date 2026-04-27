@@ -75,6 +75,7 @@ class EmailFooter:
         args["footer_timezone_name"] = self.timezone_name
         args["footer_copyright_year"] = self.copyright_year
 
+        args["footer_email_is_critical"] = self.unsubscribe_info is None
         if unsubscribe_info := self.unsubscribe_info:
             args.update(unsubscribe_info.to_template_args())
 
