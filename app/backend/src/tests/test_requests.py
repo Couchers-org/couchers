@@ -1573,7 +1573,7 @@ def test_host_req_feedback(db, moderator):
         )
 
 
-def _create_public_trip(user_id: int, from_date, to_date, status=None):
+def _create_public_trip(user_id: int, from_date, to_date, *, status=None, same_gender_only: bool = False):
     with session_scope() as session:
         node = session.execute(select(Node).limit(1)).scalar_one_or_none()
         if node is None:
@@ -1590,6 +1590,7 @@ def _create_public_trip(user_id: int, from_date, to_date, status=None):
             to_date=to_date,
             description="Looking for a host!",
             status=status or PublicTripStatus.searching_for_host,
+            same_gender_only=same_gender_only,
         )
         session.add(trip)
         session.flush()
@@ -1749,3 +1750,98 @@ def test_create_request_without_public_trip_id_unchanged(db, moderator):
     with requests_session(host_token) as api:
         hr = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert not hr.HasField("public_trip_id")
+
+
+def test_create_request_same_gender_only_wrong_gender_rejected(db):
+    surfer, _ = generate_user(gender="Woman")
+    _, host_token = generate_user(gender="Man")
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
+
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_create_request_same_gender_only_same_gender_allowed(db, moderator):
+    surfer, _ = generate_user(gender="Woman")
+    _, host_token = generate_user(gender="Woman")
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
+
+    with requests_session(host_token) as api:
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        )
+        assert res.host_request_id > 0
+
+
+def test_create_request_same_gender_only_superuser_bypass(db, moderator):
+    surfer, _ = generate_user(gender="Woman")
+    _, host_token = generate_user(gender="Man", is_superuser=True)
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
+
+    with requests_session(host_token) as api:
+        res = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        )
+        assert res.host_request_id > 0
+
+
+def test_create_request_duplicate_offer_rejected(db):
+    surfer, _ = generate_user()
+    _, host_token = generate_user()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_public_trip(surfer.id, trip_from, trip_to)
+
+    with requests_session(host_token) as api:
+        api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=surfer.id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=valid_request_text(),
+                public_trip_id=trip_id,
+            )
+        )
+        with pytest.raises(grpc.RpcError) as e:
+            api.CreateHostRequest(
+                requests_pb2.CreateHostRequestReq(
+                    host_user_id=surfer.id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=valid_request_text(),
+                    public_trip_id=trip_id,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
