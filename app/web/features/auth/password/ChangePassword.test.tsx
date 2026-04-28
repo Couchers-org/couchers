@@ -155,4 +155,78 @@ describe("ChangePassword", () => {
       screen.queryByText(/Your password change has been processed/i),
     ).not.toBeInTheDocument();
   });
+
+  describe("password visibility toggle", () => {
+    beforeEach(() => {
+      render(<ChangePassword />, { wrapper });
+    });
+
+    it.each([["old_password"], ["new_password"], ["confirm_password"]])(
+      "toggles %s visibility when clicking the button",
+      async (fieldName) => {
+        const user = userEvent.setup();
+        const passwordField = await screen.findByLabelText(
+          t(`auth:change_password_form.${fieldName}`),
+        );
+
+        // Initially password should be hidden
+        expect(passwordField).toHaveAttribute("type", "password");
+
+        const showButton = screen.getByLabelText(
+          t(`auth:change_password_form.show_${fieldName}`),
+        );
+
+        expect(showButton).toHaveAttribute(
+          "aria-label",
+          t(`auth:change_password_form.show_${fieldName}`),
+        );
+
+        await user.click(showButton);
+
+        await waitFor(() => {
+          expect(passwordField).toHaveAttribute("type", "text");
+        });
+
+        expect(showButton).toHaveAttribute(
+          "aria-label",
+          t(`auth:change_password_form.hide_${fieldName}`),
+        );
+
+        const hideButton = screen.getByLabelText(
+          t(`auth:change_password_form.hide_${fieldName}`),
+        );
+        await user.click(hideButton);
+
+        // Password should be hidden again
+        await waitFor(() => {
+          expect(passwordField).toHaveAttribute("type", "password");
+        });
+      },
+    );
+
+    it.each([["old_password"], ["new_password"], ["confirm_password"]])(
+      "allows typing visible text in the password field when toggled",
+      async (fieldName) => {
+        const user = userEvent.setup();
+        const passwordField = await screen.findByLabelText(
+          t(`auth:change_password_form.${fieldName}`),
+        );
+
+        await user.type(passwordField, "mypassword");
+        expect(passwordField).toHaveValue("mypassword");
+        expect(passwordField).toHaveAttribute("type", "password");
+
+        const showButton = screen.getByLabelText(
+          t(`auth:change_password_form.show_${fieldName}`),
+        );
+        await user.click(showButton);
+
+        // Verify text is still there and type is now text
+        await waitFor(() => {
+          expect(passwordField).toHaveValue("mypassword");
+          expect(passwordField).toHaveAttribute("type", "text");
+        });
+      },
+    );
+  });
 });
