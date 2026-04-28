@@ -41,7 +41,7 @@ class PublicTrip(Base):
 - Dates must fall within the trip's window (host can shorten, not extend)
 - The trip must still be `searching_for_host`
 - The request recipient must match the trip's traveler
-- If the trip is `same_gender_only`, the host's gender must match the traveler's (superusers bypass)
+- If the trip is `same_gender_only`, the host's gender must match the traveler's (community moderators bypass)
 - Duplicate offers from the same host on the same trip are rejected
 
 ---
@@ -59,7 +59,7 @@ A user cannot create overlapping active trips (same node, overlapping dates, bot
 ### Same gender only
 
 - Trips with `same_gender_only = true` are hidden from users of a different gender in all list/get endpoints.
-- Superusers bypass the filter (for moderation purposes).
+- Community moderators bypass the filter (for moderation purposes).
 - The same restriction is enforced at write time: `CreateHostRequest` rejects offers from mismatched genders.
 - Users of the same gender see a "same gender only" indicator on the card.
 
