@@ -13,6 +13,9 @@ from couchers.crypto import b64decode
 from couchers.db import session_scope
 from couchers.i18n import LocalizationContext
 from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
     Message,
     MessageType,
     Node,
@@ -1573,6 +1576,24 @@ def test_host_req_feedback(db, moderator):
         )
 
 
+def _make_trip_node_admin(user_id: int, trip_id: int):
+    with session_scope() as session:
+        node_id = session.execute(select(PublicTrip.node_id).where(PublicTrip.id == trip_id)).scalar_one()
+        cluster = session.execute(
+            select(Cluster).where(Cluster.parent_node_id == node_id).where(Cluster.is_official_cluster)
+        ).scalar_one_or_none()
+        if cluster is None:
+            cluster = Cluster(
+                name="Test community",
+                description="Test",
+                parent_node_id=node_id,
+                is_official_cluster=True,
+            )
+            session.add(cluster)
+            session.flush()
+        session.add(ClusterSubscription(cluster_id=cluster.id, user_id=user_id, role=ClusterRole.admin))
+
+
 def _create_public_trip(user_id: int, from_date, to_date, *, status=None, same_gender_only: bool = False):
     with session_scope() as session:
         node = session.execute(select(Node).limit(1)).scalar_one_or_none()
@@ -1795,13 +1816,14 @@ def test_create_request_same_gender_only_same_gender_allowed(db, moderator):
         assert res.host_request_id > 0
 
 
-def test_create_request_same_gender_only_superuser_bypass(db, moderator):
+def test_create_request_same_gender_only_moderator_bypass(db, moderator):
     surfer, _ = generate_user(gender="Woman")
-    _, host_token = generate_user(gender="Man", is_superuser=True)
+    host, host_token = generate_user(gender="Man")
 
     trip_from = today() + timedelta(days=10)
     trip_to = today() + timedelta(days=20)
     trip_id = _create_public_trip(surfer.id, trip_from, trip_to, same_gender_only=True)
+    _make_trip_node_admin(host.id, trip_id)
 
     with requests_session(host_token) as api:
         res = api.CreateHostRequest(

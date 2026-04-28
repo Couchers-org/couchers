@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from couchers.constants import PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext
+from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.models import Node, User
@@ -40,14 +41,13 @@ def _is_description_long_enough(text: str) -> bool:
 
 
 def _same_gender_filter(context: CouchersContext) -> ColumnElement[bool]:
-    # Show the trip if same_gender_only is off, the viewer's gender matches the poster's gender,
-    # or the viewer is a moderator.
+    # Show the trip if same_gender_only is off or the viewer's gender matches the poster's gender.
+    # Moderator bypass is handled by callers via can_moderate_node before applying this filter.
     # Uses scalar subqueries rather than extra joins since where_users_column_visible
     # already joins User on PublicTrip.user_id.
-    viewer_is_moderator = select(User.is_superuser).where(User.id == context.user_id).scalar_subquery()
     viewer_gender = select(User.gender).where(User.id == context.user_id).scalar_subquery()
     poster_gender = select(User.gender).where(User.id == PublicTrip.user_id).scalar_subquery()
-    return or_(~PublicTrip.same_gender_only, poster_gender == viewer_gender, viewer_is_moderator)
+    return or_(~PublicTrip.same_gender_only, poster_gender == viewer_gender)
 
 
 def public_trip_to_pb(
@@ -156,12 +156,19 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
     def GetPublicTrip(
         self, request: public_trips_pb2.GetPublicTripReq, context: CouchersContext, session: Session
     ) -> public_trips_pb2.PublicTrip:
-        public_trip = session.execute(
+        trip_node_id = session.execute(
+            select(PublicTrip.node_id).where(PublicTrip.id == request.trip_id)
+        ).scalar_one_or_none()
+        viewer_is_moderator = trip_node_id is not None and can_moderate_node(session, context.user_id, trip_node_id)
+
+        statement = (
             where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id)
             .where(PublicTrip.id == request.trip_id)
-            .where(_same_gender_filter(context))
             .options(selectinload(PublicTrip.node, Node.official_cluster))
-        ).scalar_one_or_none()
+        )
+        if not viewer_is_moderator:
+            statement = statement.where(_same_gender_filter(context))
+        public_trip = session.execute(statement).scalar_one_or_none()
 
         if not public_trip:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "public_trip_not_found")
@@ -178,17 +185,20 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
+        viewer_is_moderator = can_moderate_node(session, context.user_id, node.id)
+
         statement = (
             where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id)
             .where(PublicTrip.node_id == node.id)
             .where(PublicTrip.status == PublicTripStatus.searching_for_host)
             .where(PublicTrip.to_date >= today())
-            .where(_same_gender_filter(context))
             .where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
             .order_by(PublicTrip.id.desc())
             .limit(page_size + 1)
             .options(selectinload(PublicTrip.node, Node.official_cluster))
         )
+        if not viewer_is_moderator:
+            statement = statement.where(_same_gender_filter(context))
         public_trips = session.execute(statement).scalars().all()
 
         return public_trips_pb2.ListPublicTripsRes(
@@ -208,12 +218,26 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             PublicTrip.user_id == request.user_id
         )
         if not is_self:
-            # On other users' profiles show only active, upcoming trips that the viewer is allowed to see
-            statement = (
-                statement.where(PublicTrip.status == PublicTripStatus.searching_for_host)
-                .where(PublicTrip.to_date >= today())
-                .where(_same_gender_filter(context))
+            # On other users' profiles show only active, upcoming trips that the viewer is allowed to see.
+            # Check moderation against each distinct node the user has active trips in.
+            active_node_ids = (
+                session.execute(
+                    select(PublicTrip.node_id)
+                    .where(PublicTrip.user_id == request.user_id)
+                    .where(PublicTrip.status == PublicTripStatus.searching_for_host)
+                    .where(PublicTrip.to_date >= today())
+                    .distinct()
+                )
+                .scalars()
+                .all()
             )
+            viewer_is_moderator = any(can_moderate_node(session, context.user_id, nid) for nid in active_node_ids)
+
+            statement = statement.where(PublicTrip.status == PublicTripStatus.searching_for_host).where(
+                PublicTrip.to_date >= today()
+            )
+            if not viewer_is_moderator:
+                statement = statement.where(_same_gender_filter(context))
         statement = (
             statement.where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
             .order_by(PublicTrip.id.desc())

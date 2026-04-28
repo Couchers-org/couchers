@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy import select
 
 from couchers.db import session_scope
-from couchers.models import Cluster, Node, NodeType, User
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, NodeType, User
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_multi, today
@@ -45,6 +45,14 @@ def _make_node(node_type: NodeType = NodeType.locality, small_community_features
         session.add(cluster)
         session.flush()
         return node.id
+
+
+def _make_node_admin(user_id: int, node_id: int):
+    with session_scope() as session:
+        cluster_id = session.execute(
+            select(Cluster.id).where(Cluster.parent_node_id == node_id).where(Cluster.is_official_cluster)
+        ).scalar_one()
+        session.add(ClusterSubscription(cluster_id=cluster_id, user_id=user_id, role=ClusterRole.admin))
 
 
 def _create_trip_directly(
@@ -776,8 +784,9 @@ def test_same_gender_only_visibility_list_and_get(db):
 
 def test_same_gender_only_moderator_bypass(db):
     traveler, _ = generate_user(gender="Woman")
-    _, mod_token = generate_user(gender="Man", is_superuser=True)
+    mod, mod_token = generate_user(gender="Man")
     node_id = _make_node()
+    _make_node_admin(mod.id, node_id)
 
     trip_id = _create_trip_directly(
         traveler.id,

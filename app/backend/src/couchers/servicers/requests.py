@@ -9,6 +9,7 @@ from sqlalchemy.sql import and_, func, or_
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext
+from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.materialized_views import UserResponseRate
@@ -266,8 +267,12 @@ class Requests(requests_pb2_grpc.RequestsServicer):
             # Offered dates must fall within the trip's window (host can shorten, not extend)
             if from_date < public_trip.from_date or to_date > public_trip.to_date:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_dates_out_of_range")
-            # Enforce same_gender_only restriction (superusers bypass)
-            if public_trip.same_gender_only and not user.is_superuser and user.gender != recipient.gender:
+            # Enforce same_gender_only restriction (community moderators bypass)
+            if (
+                public_trip.same_gender_only
+                and not can_moderate_node(session, context.user_id, public_trip.node_id)
+                and user.gender != recipient.gender
+            ):
                 context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_same_gender_only")
             # Prevent duplicate offers on the same trip
             existing_offer = session.execute(
