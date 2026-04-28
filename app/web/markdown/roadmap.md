@@ -22,15 +22,15 @@ hide_title: true
   <tbody>
     <tr>
       <td rowspan="5" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Key Milestone</td>
-      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Join The Community</td>
+      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Join The Community</td>
     </tr>
     <tr >
       <td colspan="1"</td>
-      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">App Ahoy</td>
+      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">App Ahoy</td>
     </tr>
     <tr>
       <td colspan="2"</td>
-      <td colspan="2" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Spread The Word</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Spread The Word</td>
     </tr>
     <tr >
 	  <td colspan="3"</td>
@@ -41,7 +41,7 @@ hide_title: true
       <td colspan="1" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">TBC</td>
     </tr>
     <tr>
-      <td rowspan="9" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
+      <td rowspan="10" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">New Features</td>
       <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Dark Mode</td>
     </tr>
     <tr>
@@ -58,15 +58,19 @@ hide_title: true
     </tr>
     <tr >
 	  <td colspan="1"</td>
-      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Android Beta-App</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Android Beta-App</td>
     </tr>
     <tr >
 	  <td colspan="1"</td>
-      <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> iPhone Beta-App</td>
+      <td colspan="4" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ iPhone Beta-App</td>
+    </tr>
+    <tr >
+	  <td colspan="1"</td>
+	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> CS Profile Import</td>
     </tr>
     <tr >
 	  <td colspan="2"</td>
-      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Public Trips</td>
+      <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Public Trips</td>
     </tr>
     <tr >
 	  <td colspan="2"</td>
@@ -74,17 +78,17 @@ hide_title: true
     </tr>
     <tr >
       <td rowspan="3" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Updates</td>
-	  <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Translations</td>
+	  <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Translations</td>
     </tr>
     <tr>
-      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Messages overhaul</td>
+      <td colspan="5" style="border: 0; padding: 8px; color: #FFF; background: linear-gradient(to right, #20686C, #00A398, #FCFCFC); border-radius: 5px;">✅ Messages Overhaul</td>
     </tr>
     <tr >
 	  <td colspan="1"</td>
-	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Dashboard 2.0</td>
+	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Dashboard 2.0</td>
     </tr>
     <tr >
-      <td rowspan="5" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Operations</td>
+      <td rowspan="6" style="border: 0; padding: 8px; word-wrap: break-word; text-align: center; background-color: #FDE9D4; font-weight: bold; border-radius: 5px;">Operations</td>
       <td colspan="5" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Grow Community to 100k Members</td>
     </tr>
     <tr>
@@ -92,11 +96,19 @@ hide_title: true
     </tr>
 	<tr >
 	  <td colspan="1"</td>
-	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Unified Moderation System</td>
+	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> Unified Moderation System</td>
     </tr>
     <tr >
 	  <td colspan="1"</td>
-	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">New Merch</td>
+	  <td colspan="4" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;"><span class="partial-check">✔️</span> New Merch</td>
+    </tr>
+    <tr>
+	  <td colspan="2"</td>
+	  <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">City Level Communities</td>
+    </tr>
+    <tr>
+	  <td colspan="2"</td>
+	  <td colspan="3" style="border: 0; padding: 8px; background: linear-gradient(to right, #FDE9D4, #FCFCFC); border-radius: 5px;">Onboarding Emails</td>
     </tr>
     </tr>
   </tbody>
