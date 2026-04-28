@@ -84,6 +84,7 @@ def test_create_public_trip(db):
         assert res.trip_id > 0
         assert res.user.user_id == user.id
         assert res.node_id == node_id
+        assert res.node_slug == "test-community"
         assert res.from_date == from_date.isoformat()
         assert res.to_date == to_date.isoformat()
         assert res.description == VALID_DESCRIPTION
@@ -320,6 +321,7 @@ def test_get_public_trip(db):
         res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
         assert res.trip_id == trip_id
         assert res.user.user_id == user.id
+        assert res.node_slug == "test-community"
 
 
 def test_get_public_trip_not_found(db):
@@ -342,6 +344,7 @@ def test_list_public_trips(db):
         res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
         returned_ids = {t.trip_id for t in res.public_trips}
         assert returned_ids == {trip1, trip2}
+        assert all(t.node_slug == "test-community" for t in res.public_trips)
 
 
 def test_list_public_trips_filters_closed_and_past(db):
@@ -493,7 +496,7 @@ def test_update_public_trip_close(db):
         assert trip.status == PublicTripStatus.closed
 
 
-def test_update_public_trip_cant_reopen(db):
+def test_update_public_trip_reopen(db):
     user, token = generate_user()
     node_id = _make_node()
     trip_id = _create_trip_directly(
@@ -505,6 +508,31 @@ def test_update_public_trip_cant_reopen(db):
     )
 
     with public_trips_session(token) as api:
+        res = api.UpdatePublicTrip(
+            public_trips_pb2.UpdatePublicTripReq(
+                trip_id=trip_id,
+                status=public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
+            )
+        )
+        assert res.status == public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST
+
+    with session_scope() as session:
+        trip = session.execute(select(PublicTrip).where(PublicTrip.id == trip_id)).scalar_one()
+        assert trip.status == PublicTripStatus.searching_for_host
+
+
+def test_update_public_trip_cant_reopen_past_trip(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(
+        user.id,
+        node_id,
+        today() - timedelta(days=10),
+        today() - timedelta(days=1),
+        status=PublicTripStatus.closed,
+    )
+
+    with public_trips_session(token) as api:
         with pytest.raises(grpc.RpcError) as e:
             api.UpdatePublicTrip(
                 public_trips_pb2.UpdatePublicTripReq(
@@ -512,7 +540,7 @@ def test_update_public_trip_cant_reopen(db):
                     status=public_trips_pb2.PUBLIC_TRIP_STATUS_SEARCHING_FOR_HOST,
                 )
             )
-        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
 
 def test_update_public_trip_close_past_trip_allowed(db):

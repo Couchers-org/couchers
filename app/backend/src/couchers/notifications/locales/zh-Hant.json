@@ -1,1 +1,498 @@
-{}
+{
+  "_adhoc": {
+    "push_enabled": {
+      "push": {
+        "title": "已啟用推送通知",
+        "ios_title": "已啟用推送通知",
+        "body": "您現在將在此裝置上接收通知。"
+      }
+    }
+  },
+  "account_deletion": {
+    "complete": {
+      "event_description": "您的帳戶已刪除",
+      "push": {
+        "title": "帳戶已刪除",
+        "ios_title": "帳戶已刪除",
+        "body_one": "您可以在 {{count}} 天內透過我們寄給您的連結恢復帳戶。",
+        "body_other": "您可以在 {{count}} 天內透過我們寄給您的連結恢復帳戶。"
+      }
+    },
+    "recovered": {
+      "event_description": "您的帳戶已恢復（取消刪除）",
+      "push": {
+        "title": "帳戶已恢復",
+        "ios_title": "帳戶已恢復",
+        "body": "歡迎回來！"
+      }
+    },
+    "start": {
+      "event_description": "您已發起帳戶刪除",
+      "push": {
+        "title": "已請求刪除帳戶",
+        "ios_title": "已請求刪除帳戶",
+        "body": "請使用我們寄給您的連結進行確認。"
+      }
+    }
+  },
+  "activeness": {
+    "probe": {
+      "event_description": "您接受接待，但已有一段時間未登入",
+      "push": {
+        "title": "仍然願意接待嗎？",
+        "ios_title": "仍然願意接待嗎？",
+        "body": "請登入以確認您的接待狀態。"
+      }
+    }
+  },
+  "api_key": {
+    "create": {
+      "event_description": "您的帳戶已建立 API 金鑰",
+      "push": {
+        "title": "API 金鑰已建立",
+        "ios_title": "API 金鑰已建立",
+        "body": "詳細資訊已透過電子郵件寄給您。"
+      }
+    }
+  },
+  "badge": {
+    "add": {
+      "event_description": "您的帳戶新增了一個徽章",
+      "push": {
+        "title": "新的個人檔案徽章：{{badge_name}}",
+        "ios_title": "新的個人檔案徽章",
+        "body": "{{badge_name}} 徽章已新增到您的個人檔案中。"
+      }
+    },
+    "remove": {
+      "event_description": "您的帳戶移除了一個徽章",
+      "push": {
+        "title": "個人檔案徽章已移除",
+        "ios_title": "個人檔案徽章已移除",
+        "body": "{{badge_name}} 徽章已從您的個人檔案中移除。"
+      }
+    }
+  },
+  "birthdate": {
+    "change": {
+      "event_description": "您的出生日期已變更",
+      "push": {
+        "title": "出生日期已變更",
+        "ios_title": "出生日期已變更",
+        "body": "管理員已將您的出生日期更改為 {{birthdate}}。"
+      }
+    }
+  },
+  "chat": {
+    "message": {
+      "event_description": "有人向您傳送了訊息"
+    },
+    "missed_messages": {
+      "event_description": "您錯過了聊天中的訊息",
+      "push": {
+        "title_one": "{{count}} 則未讀訊息",
+        "title_other": "{{count}} 則未讀訊息",
+        "ios_title_one": "{{count}} 則未讀訊息",
+        "ios_title_other": "{{count}} 則未讀訊息",
+        "body": "您有新的未讀訊息。"
+      }
+    }
+  },
+  "discussion": {
+    "comment": {
+      "event_description": "有人評論了您正在關注的討論",
+      "push": {
+        "title": "{{user}} - {{title}}"
+      }
+    },
+    "create": {
+      "event_description": "有人在您所在的社群中建立了討論",
+      "push": {
+        "title": "新討論：{{title}}",
+        "ios_title": "新討論",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} 在 {{group_or_community}} 中發起了討論。"
+      }
+    }
+  },
+  "donation": {
+    "received": {
+      "event_description": "您的捐款已收到",
+      "push": {
+        "title": "已收到捐款",
+        "ios_title": "已收到捐款",
+        "body": "非常感謝您捐款 {{amount_with_currency}}！"
+      }
+    }
+  },
+  "email_address": {
+    "change": {
+      "event_description": "已發起電子郵件變更",
+      "push": {
+        "title": "已請求變更電子郵件",
+        "ios_title": "已請求變更電子郵件",
+        "body": "請使用我們寄到 {{email}} 的連結確認您的新電子郵件地址。"
+      }
+    },
+    "verify": {
+      "event_description": "您的新電子郵件已驗證",
+      "push": {
+        "title": "電子郵件已驗證",
+        "ios_title": "電子郵件已驗證",
+        "body": "您的新電子郵件地址已驗證。"
+      }
+    }
+  },
+  "event": {
+    "cancel": {
+      "event_description": "您將參加的活動已取消",
+      "push": {
+        "title": "活動已取消：{{title}}",
+        "ios_title": "活動已取消",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} 取消了該活動。"
+      }
+    },
+    "comment": {
+      "event_description": "有使用者評論了您將參加的活動",
+      "push": {
+        "title": "{{user}} - {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "評論了 {{title}}"
+      }
+    },
+    "create_any": {
+      "event_description": "有使用者在您的社群中建立了活動（未經管理員審核）",
+      "push": {
+        "title": "新活動：{{title}}",
+        "ios_title": "新活動",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} 於 {{date_and_time}} 建立了該活動。"
+      }
+    },
+    "create_approved": {
+      "event_description": "您所在社群中有一個經版主核准的活動已建立",
+      "push": {
+        "title": "新活動：{{title}}",
+        "ios_title": "新活動",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} 邀請您參加 {{date_and_time}} 的活動。"
+      }
+    },
+    "delete": {
+      "event_description": "您將參加的活動已刪除",
+      "push": {
+        "title": "活動已刪除：{{title}}",
+        "ios_title": "活動已刪除",
+        "ios_subtitle": "{{title}}",
+        "body": "版主已刪除該活動。"
+      }
+    },
+    "invite_organizer": {
+      "event_description": "有人邀請您共同組織活動",
+      "push": {
+        "title": "活動已更新：{{title}}",
+        "ios_title": "活動已更新",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} 已將您新增為活動聯合組織者。"
+      }
+    },
+    "reminder": {
+      "event_description": "提醒您將參加的活動即將開始",
+      "push": {
+        "title": "即將開始的活動：{{title}}",
+        "ios_title": "即將開始的活動",
+        "ios_subtitle": "{{title}}",
+        "body": "活動將於 {{date_and_time}} 開始。"
+      }
+    },
+    "update": {
+      "event_description": "您將參加的活動已更新",
+      "push": {
+        "title": "活動已更新：{{title}}",
+        "ios_title": "活動已更新",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} 更新了該活動。"
+      }
+    }
+  },
+  "friend_request": {
+    "accept": {
+      "event_description": "有人接受了您的好友請求",
+      "push": {
+        "title": "{{friend}} 接受了您的好友請求",
+        "ios_title": "{{friend}}",
+        "ios_subtitle": "已接受您的好友請求",
+        "body": "您現在已與 {{friend}} 成為好友。"
+      }
+    },
+    "create": {
+      "event_description": "有人向您送出了好友請求",
+      "push": {
+        "title": "來自 {{from_user}} 的好友請求",
+        "ios_title": "{{from_user}}",
+        "ios_subtitle": "好友請求",
+        "body": "{{from_user}} 想與您成為好友。"
+      }
+    }
+  },
+  "gender": {
+    "change": {
+      "event_description": "您個人檔案中顯示的性別已變更",
+      "push": {
+        "title": "性別已變更",
+        "ios_title": "性別已變更",
+        "body": "管理員已將您的性別更改為 {{gender}}。"
+      }
+    }
+  },
+  "general": {
+    "new_blog_post": {
+      "event_description": "新的部落格文章已發佈",
+      "push": {
+        "title": "新部落格文章：{{title}}",
+        "ios_title": "新部落格文章",
+        "ios_subtitle": "{{title}}"
+      }
+    }
+  },
+  "host_request": {
+    "accept": {
+      "event_description": "有人接受了您的接待請求",
+      "push": {
+        "title": "{{user}} 接受了您的接待請求",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "接待請求已接受",
+        "body": "{{user}} 接受了您 {{date}} 的接待請求。"
+      }
+    },
+    "cancel": {
+      "event_description": "有人取消了其接待請求",
+      "push": {
+        "title": "{{user}} 取消了其接待請求",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "接待請求已取消",
+        "body": "{{user}} 取消了您 {{date}} 的接待請求。"
+      }
+    },
+    "confirm": {
+      "event_description": "有人確認了其接待請求",
+      "push": {
+        "title": "{{user}} 確認了其接待請求",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "接待請求已確認",
+        "body": "{{user}} 確認了您 {{date}} 的接待請求。"
+      }
+    },
+    "create": {
+      "event_description": "有人向您送出了接待請求",
+      "push": {
+        "title": "來自 {{user}} 的新接待請求",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "新接待請求",
+        "body_one": "{{user}} 想從 {{start_date}} 起住宿 {{count}} 天。",
+        "body_other": "{{user}} 想從 {{start_date}} 起住宿 {{count}} 天。"
+      }
+    },
+    "message": {
+      "event_description": "有人在接待請求中傳送了訊息"
+    },
+    "missed_messages": {
+      "event_description": "您錯過了接待請求中的訊息",
+      "push": {
+        "title": "來自 {{user}} 的新訊息",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "未讀訊息",
+        "body": "您收到了來自 {{user}} 的新未讀訊息。"
+      }
+    },
+    "reject": {
+      "event_description": "有人拒絕了您的接待請求",
+      "push": {
+        "title": "{{user}} 拒絕了您的接待請求",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "接待請求已拒絕",
+        "body": "{{user}} 拒絕了您 {{date}} 的接待請求。"
+      }
+    },
+    "reminder": {
+      "event_description": "您尚未回覆待處理的接待請求",
+      "push": {
+        "title": "來自 {{user}} 的待處理請求",
+        "ios_title": "接待請求待處理",
+        "ios_subtitle": "{{user}}",
+        "body": "{{user}} 正在等待您的回覆，請接受或拒絕該請求。"
+      }
+    }
+  },
+  "modnote": {
+    "create": {
+      "event_description": "版主傳送了一則備註給您",
+      "push": {
+        "title": "新版主備註",
+        "ios_title": "新版主備註",
+        "body": "您收到了一則版主備註。請閱讀並確認後繼續使用平台。"
+      }
+    }
+  },
+  "onboarding": {
+    "reminder": {
+      "event_description": "提醒您在註冊後完善個人檔案",
+      "push": {
+        "first": {
+          "title": "歡迎來到 Couchers！",
+          "ios_title": "歡迎來到 Couchers！",
+          "body": "請上傳一張照片，並填寫一些關於自己的簡介來完善個人檔案。"
+        },
+        "subsequent": {
+          "title": "記得完善您的個人檔案",
+          "ios_title": "個人檔案提醒",
+          "body": "請上傳一張照片，並填寫一些關於自己的簡介來完善個人檔案。"
+        }
+      }
+    }
+  },
+  "password": {
+    "change": {
+      "event_description": "您的密碼已變更",
+      "push": {
+        "title": "密碼已變更",
+        "ios_title": "密碼已變更",
+        "body": "您的密碼已變更。"
+      }
+    }
+  },
+  "password_reset": {
+    "complete": {
+      "event_description": "密碼重置已完成",
+      "push": {
+        "title": "密碼重置",
+        "ios_title": "密碼重置",
+        "body": "您的密碼已成功重置。"
+      }
+    },
+    "start": {
+      "event_description": "已發起密碼重置",
+      "push": {
+        "title": "已請求重置密碼",
+        "ios_title": "已請求重置密碼",
+        "body": "請使用我們透過電子郵件寄出的連結完成重置。"
+      }
+    }
+  },
+  "phone_number": {
+    "change": {
+      "event_description": "您的手機號碼已變更",
+      "push": {
+        "title": "已開始手機號碼驗證",
+        "ios_title": "已開始手機號碼驗證",
+        "body": "您已使用號碼 {{phone_number}} 開始手機號碼驗證。"
+      }
+    },
+    "verify": {
+      "event_description": "您的手機號碼已驗證",
+      "push": {
+        "title": "已完成手機號碼驗證",
+        "ios_title": "已完成手機號碼驗證",
+        "body": "您的手機號碼 {{phone_number}} 已成功驗證。"
+      }
+    }
+  },
+  "postal_verification": {
+    "failed": {
+      "event_description": "您的郵寄驗證失敗",
+      "push": {
+        "title": "郵寄驗證失敗",
+        "ios_title": "郵寄驗證失敗",
+        "body_code_expired": "您的驗證碼已過期。驗證碼在明信片寄出後 90 天內有效。您可以申請新的明信片。",
+        "body_too_many_attempts": "輸入錯誤驗證碼的次數過多。您可以申請新的明信片。",
+        "body_generic": "您的郵寄驗證嘗試失敗了。您可以申請新的明信片。"
+      }
+    },
+    "postcard_sent": {
+      "event_description": "您的驗證明信片已寄出",
+      "push": {
+        "title": "已開始郵寄驗證",
+        "ios_title": "已開始郵寄驗證",
+        "body": "您的明信片正在寄往 {{country}} {{city}}。預計 1 到 3 周內送達。"
+      }
+    },
+    "success": {
+      "event_description": "您的郵寄驗證成功",
+      "push": {
+        "title": "已完成郵寄驗證",
+        "ios_title": "已完成郵寄驗證",
+        "body": "您的地址現已驗證。"
+      }
+    }
+  },
+  "reference": {
+    "_receive_any": {
+      "push": {
+        "title": "來自 {{user}} 的新評語",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "新評語",
+        "body_must_write_yours": "{{user}} 給您留下了一則評語，現在輪到您為對方寫評語了！"
+      }
+    },
+    "_reminder_any": {
+      "push": {
+        "title": "為 {{user}} 撰寫您的評語",
+        "ios_title": "撰寫您的評語",
+        "ios_subtitle": "{{user}}",
+        "body_one": "您還有 {{count}} 天時間為 {{user}} 撰寫評語。",
+        "body_other": "您還有 {{count}} 天時間為 {{user}} 撰寫評語。"
+      }
+    },
+    "receive_friend": {
+      "event_description": "您收到了來自好友的評語",
+      "push": {
+        "title": "來自 {{user}} 的新好友評語",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "新好友評語"
+      }
+    },
+    "receive_hosted": {
+      "event_description": "您收到了曾接待過您的人的評語"
+    },
+    "receive_surfed": {
+      "event_description": "您收到了您曾接待過的人的評語"
+    },
+    "reminder_hosted": {
+      "event_description": "提醒您為您曾接待過的人撰寫評語"
+    },
+    "reminder_surfed": {
+      "event_description": "提醒您為您曾借宿過的人撰寫評語"
+    }
+  },
+  "thread": {
+    "reply": {
+      "event_description": "有人回覆了您的評論",
+      "push": {
+        "title": "{{user}} - {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{title}}"
+      }
+    }
+  },
+  "verification": {
+    "sv_fail": {
+      "event_description": "您的強驗證失敗",
+      "push": {
+        "title": "強驗證失敗",
+        "ios_title": "強驗證失敗",
+        "body_wrong_birthdate_gender": "您個人檔案中的出生日期或性別與護照上的出生日期或性別不符。請聯絡支援團隊更新您的出生日期或性別；如果護照上的性別與您的性別認同不符，也請聯絡我們。",
+        "body_not_a_passport": "您使用的不是護照。強驗證只能使用護照。",
+        "body_duplicate": "您使用的護照已被用於驗證。請改用其他護照。"
+      }
+    },
+    "sv_success": {
+      "event_description": "您的強驗證成功",
+      "push": {
+        "title": "強驗證已完成",
+        "ios_title": "強驗證已完成",
+        "body": "您已透過強驗證完成驗證。"
+      }
+    }
+  }
+}
