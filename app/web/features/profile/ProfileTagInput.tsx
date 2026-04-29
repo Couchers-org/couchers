@@ -234,25 +234,6 @@ export default function ProfileTagInput({
           anchorEl={anchorEl.current}
           placement="bottom-start"
         >
-          <StyledHeader>
-            <Typography>
-              <Trans
-                t={t}
-                i18nKey="profile_tag_input.header_text"
-                components={{
-                  support_link: (
-                    <Link
-                      href="mailto:support@couchers.org"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      underline="hover"
-                      onMouseDown={(e) => e.preventDefault()}
-                    />
-                  ),
-                }}
-              />
-            </Typography>
-          </StyledHeader>
           <Autocomplete
             {...inputFieldProps}
             open
