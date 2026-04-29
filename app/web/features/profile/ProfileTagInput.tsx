@@ -4,7 +4,6 @@ import {
   Checkbox,
   IconButton,
   InputBase,
-  Link,
   Paper,
   Popper,
   styled,
@@ -14,7 +13,7 @@ import Autocomplete, {
   AutocompleteCloseReason,
 } from "@mui/material/Autocomplete";
 import { CloseIcon, ExpandMoreIcon } from "components/Icons";
-import { Trans, useTranslation } from "i18n";
+import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
 import React, { useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
