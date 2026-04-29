@@ -91,17 +91,6 @@ const StyledPopper = styled(Popper)(() => ({
   zIndex: 101,
 }));
 
-const StyledHeader = styled("div")(() => ({
-  borderBottomColor: "var(--mui-palette-divider)",
-  borderBottomStyle: "solid",
-  borderBottomWidth: 1,
-  fontSize: theme.typography.body1.fontSize,
-  padding: theme.spacing(1, 2),
-  "& > p": {
-    whiteSpace: "pre-line",
-  },
-}));
-
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   "& input": {
     "&:focus": {
