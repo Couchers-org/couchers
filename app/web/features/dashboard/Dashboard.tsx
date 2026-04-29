@@ -9,6 +9,7 @@ import { theme } from "theme";
 
 import dashboardNews from "../../dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";
+import CommunityEvents from "./CommunityEvents";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
 import MyEvents from "./MyEvents";
@@ -54,6 +55,10 @@ export default function Dashboard() {
             <Divider spacing={3} />
 
             <MyEvents />
+
+            <Divider spacing={3} />
+
+            <CommunityEvents />
 
             <Divider spacing={3} />
 
