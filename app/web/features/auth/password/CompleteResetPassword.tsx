@@ -1,4 +1,11 @@
-import { Container, styled, Typography } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  Container,
+  IconButton,
+  InputAdornment,
+  styled,
+  Typography,
+} from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
@@ -10,6 +17,7 @@ import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { AuthRes } from "proto/auth_pb";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { dashboardRoute, loginRoute } from "routes";
 import { service } from "service";
@@ -49,6 +57,8 @@ export default function CompleteResetPassword() {
     newPassword: string;
     newPasswordCheck: string;
   }>();
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showNewPasswordCheck, setShowNewPasswordCheck] = useState(false);
 
   const router = useRouter();
   const resetToken = stringOrFirstString(router.query.token);
@@ -136,16 +146,56 @@ export default function CompleteResetPassword() {
           {...register("newPassword", { required: true })}
           label={t("auth:change_password_form.new_password")}
           name="newPassword"
-          type="password"
+          type={showNewPassword ? "text" : "password"}
           variant="outlined"
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end" sx={{ marginRight: 1 }}>
+                  <IconButton
+                    aria-label={
+                      showNewPassword
+                        ? t("auth:change_password_form.hide_new_password")
+                        : t("auth:change_password_form.show_new_password")
+                    }
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    edge="end"
+                  >
+                    {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
         />
 
         <StyledTextField
           id="newPasswordCheck"
           {...register("newPasswordCheck", { required: true })}
           label={t("auth:change_password_form.confirm_password")}
-          type="password"
+          type={showNewPasswordCheck ? "text" : "password"}
           variant="outlined"
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end" sx={{ marginRight: 1 }}>
+                  <IconButton
+                    aria-label={
+                      showNewPasswordCheck
+                        ? t("auth:change_password_form.hide_confirm_password")
+                        : t("auth:change_password_form.show_confirm_password")
+                    }
+                    onClick={() =>
+                      setShowNewPasswordCheck(!showNewPasswordCheck)
+                    }
+                    edge="end"
+                  >
+                    {showNewPasswordCheck ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
         />
 
         <Button

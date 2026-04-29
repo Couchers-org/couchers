@@ -1,10 +1,11 @@
 ---
 title: Open Source & Sponsors
+description: We want to give a huge shout out to the awesome open-source
+  projects & technologies we build on, as well as thank the companies that
+  sponsor us!
 crumb: Open Source & Sponsors
 type: general
-description: We want to give a huge shout out to the awesome open-source projects & technologies we build on, as well as thank the companies that sponsor us!
 ---
-
 The driving force of Couchers is the global [volunteer team](/team), and they are the stars of the show.
 
 That said, Couchers is an open-source project and we are very heavy users of open-source technologies ourselves. We want to give a huge shout out to the folks who have built the tools and technologies that make Couchers possible! We are also supported by some great companies that help us build and operate Couchers, whether it is because we are a non-profit or an open-source project.
@@ -27,6 +28,7 @@ We'd like to thank the amazing folks who built these core technologies, without 
 * The [Wiki.js](https://js.wiki/) project that powers our wiki
 * The [Chatwoot](https://www.chatwoot.com/) open source support platform project that powers all our Support systems
 * The [Listmonk](https://listmonk.app/) self-hosted newsletter and mailing list manager we use for our newsletters
+* T﻿he [WooCommerce](https://woocommerce.com/) ﻿self-hosted ecommerce platform that powers our merchandise shop
 
 ## Company Sponsorships
 
