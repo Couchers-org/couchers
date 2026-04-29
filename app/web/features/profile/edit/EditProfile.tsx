@@ -28,14 +28,16 @@ import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTagInput from "features/profile/ProfileTagInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { StatusCode } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { howToMakeGreatProfileUrl } from "routes";
+import { howToMakeGreatProfileUrl, settingsRoute } from "routes";
 import { UpdateUserProfileData } from "service/index";
+import isGrpcError from "service/utils/isGrpcError";
 import { theme } from "theme";
 import {
   useIsMounted,
@@ -259,6 +261,7 @@ export default function EditProfileForm() {
     reset: resetUpdate,
     isPending: updateIsLoading,
     isError: updateError,
+    error: updateMutationError,
   } = useUpdateUserProfile();
   const { data: user } = useCurrentUser();
   const isMounted = useIsMounted();
@@ -460,6 +463,15 @@ export default function EditProfileForm() {
       {updateError && (
         <Alert severity="error">
           {errorMessage || t("global:error.unknown")}
+          {isGrpcError(updateMutationError) &&
+            updateMutationError.code === StatusCode.FAILED_PRECONDITION && (
+              <>
+                {" "}
+                <StyledLink href={`${settingsRoute}#do-not-email`}>
+                  {t("profile:do_not_email_error_link")}
+                </StyledLink>
+              </>
+            )}
         </Alert>
       )}
       {!user?.avatarUrl && (

@@ -154,7 +154,7 @@ export default function Settings() {
           <MarginWrapper>
             <LanguagePickerSettings />
           </MarginWrapper>
-          <MarginWrapper>
+          <MarginWrapper id="do-not-email">
             <DoNotEmail />
           </MarginWrapper>
           <MarginWrapper>
