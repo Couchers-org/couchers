@@ -1,0 +1,19 @@
+[project]
+name = "couchers-play-store-updater"
+version = "0.1.0"
+description = "Update Google Play Store listing strings from locale JSON files"
+requires-python = "==3.14.*"
+dependencies = [
+    "google-api-python-client>=2.100.0",
+    "google-auth-oauthlib>=1.2.0",
+    "google-auth>=2.26.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.3",
+    "mypy>=1.18.2",
+]
+
+[project.scripts]
+update-play-store = "update_play_store:main"
