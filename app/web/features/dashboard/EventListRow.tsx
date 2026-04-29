@@ -5,8 +5,12 @@ import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
 import { Event } from "proto/events_pb";
 import { routeToEvent } from "routes";
-import { BROWSER_TIMEZONE, localizeDateTime, timestamp2Date } from "utils/date";
-import dayjs from "utils/dayjs";
+import {
+  BROWSER_TIMEZONE,
+  localizeDateTime,
+  localizeMonthAbbreviation,
+  timestamp2Date,
+} from "utils/date";
 
 export const EventListContainer = styled("div")({
   border: "1px solid var(--mui-palette-grey-300)",
@@ -159,8 +163,11 @@ export default function EventListRow({ event }: EventListRowProps) {
   } = useTranslation([DASHBOARD]);
 
   const startDate = timestamp2Date(event.startTime!);
-  const month = dayjs(startDate).format("MMM");
-  const day = dayjs(startDate).date();
+  const month = localizeMonthAbbreviation(startDate, {
+    locale,
+    timezone: BROWSER_TIMEZONE,
+  });
+  const day = startDate.getDate();
 
   const timeStr = localizeDateTime(startDate, {
     locale,

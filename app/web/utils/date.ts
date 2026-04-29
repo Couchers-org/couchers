@@ -127,6 +127,21 @@ function createIntlDateTimeFormat(
   return Intl.DateTimeFormat(args.locale, options);
 }
 
+/// Localizes just the abbreviated month name of a date (e.g. "Jan", "Mai" in German).
+export function localizeMonthAbbreviation(
+  date: Date | Dayjs,
+  args: { locale: string; timezone?: string | typeof BROWSER_TIMEZONE },
+): string {
+  if (daysjs.isDayjs(date)) {
+    date = date.toDate();
+  }
+  const options: Intl.DateTimeFormatOptions = { month: "short" };
+  if (args.timezone && args.timezone !== BROWSER_TIMEZONE) {
+    options.timeZone = args.timezone;
+  }
+  return Intl.DateTimeFormat(args.locale, options).format(date);
+}
+
 const isoMuiDateFormat = "YYYY-MM-DD";
 
 /// Gets the date format for a locale using Material UI placeholders.
