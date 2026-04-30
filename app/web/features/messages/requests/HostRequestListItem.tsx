@@ -195,7 +195,12 @@ export default function HostRequestListItem({
     <StyledListItemContainer>
       <ListItem
         className={className}
-        sx={{ color: isPast ? "grey.500" : "text.primary", paddingRight: 7 }}
+        sx={{
+          color: isPast
+            ? "var(--mui-palette-grey-500)"
+            : "var(--mui-palette-text-primary)",
+          paddingRight: 7,
+        }}
       >
         <ListItemAvatar>
           <Avatar user={otherUser} isProfileLink={false} />
@@ -206,7 +211,11 @@ export default function HostRequestListItem({
           primary={
             <Typography
               variant="h2"
-              sx={isPast && isUnread ? { color: "text.primary" } : undefined}
+              sx={
+                isPast && isUnread
+                  ? { color: "var(--mui-palette-text-primary)" }
+                  : undefined
+              }
             >
               {!otherUser ? <Skeleton width={100} /> : otherUser.name}
             </Typography>
@@ -253,7 +262,9 @@ export default function HostRequestListItem({
                 noWrap
                 sx={{
                   fontWeight: isUnread ? "bold" : "normal",
-                  ...(isPast && isUnread ? { color: "text.primary" } : {}),
+                  ...(isPast && isUnread
+                    ? { color: "var(--mui-palette-text-primary)" }
+                    : {}),
                 }}
               >
                 {isOtherUserLoading ? (
