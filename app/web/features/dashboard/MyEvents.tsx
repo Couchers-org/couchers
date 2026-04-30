@@ -1,134 +1,80 @@
-import { styled, Typography, useMediaQuery } from "@mui/material";
+import { styled, Typography } from "@mui/material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HorizontalScroller from "components/HorizontalScroller";
 import StyledLink from "components/StyledLink";
 import TextBody from "components/TextBody";
-import EventCard from "features/communities/events/EventCard";
 import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
-import { routeToNewEvent } from "routes";
-import { theme } from "theme";
+import { ListMyEventsRes } from "proto/events_pb";
+import { eventsRoute, routeToNewEvent } from "routes";
+import { service } from "service";
+import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
-import Button from "../../components/Button";
-import { ListMyEventsRes } from "../../proto/events_pb";
-import { service } from "../../service";
-import hasAtLeastOnePage from "../../utils/hasAtLeastOnePage";
 import { myEventsKey } from "../queryKeys";
+import EventListRow, {
+  EventListContainer,
+  EventListRowSkeleton,
+} from "./EventListRow";
 
-const StyledCardContainer = styled(HorizontalScroller)(() => ({
-  paddingLeft: theme.spacing(1),
-  paddingRight: theme.spacing(1),
-  [theme.breakpoints.down("sm")]: {
-    left: "50%",
-    marginLeft: "-50vw",
-    marginRight: "-50vw",
-    position: "relative",
-    right: "50%",
-    width: "100vw",
-  },
-  [theme.breakpoints.up("md")]: {
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: theme.spacing(3),
-  },
-  [theme.breakpoints.up("sm")]: {
-    display: "grid",
-    gap: theme.spacing(3),
-    gridTemplateColumns: "repeat(2, 1fr)",
-  },
-}));
-
-const StyledCard = styled(EventCard)(() => ({
-  width: "90%",
-  [theme.breakpoints.down("md")]: {
-    width: "100%",
-  },
-  [theme.breakpoints.up("sm")]: {
-    width: "100%",
-  },
-  [theme.breakpoints.down("sm")]: {
-    margin: theme.spacing(0, 2, 1, 0),
-  },
-  flexShrink: 0,
-  borderRadius: "var(--mui-shape-borderRadius) * 2",
-  scrollSnapAlign: "start",
-}));
-
-const StyledWrapper = styled("div")(() => ({
-  display: "grid",
-  rowGap: theme.spacing(2),
-  margin: theme.spacing(2, 0, 3),
-}));
-
-const StyledButtonContainer = styled("div")(() => ({
+const SectionHeader = styled("div")({
   display: "flex",
-  justifyContent: "center",
-  width: "100%",
-}));
+  alignItems: "baseline",
+  justifyContent: "space-between",
+  marginBottom: "8px",
+});
 
-const PAGE_SIZE = 2;
+const PAGE_SIZE = 3;
 
-export default function MyEvents() {
+export default function MyUpcomingEvents() {
   const { t } = useTranslation([DASHBOARD]);
-  const isBelowSm = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
-    useInfiniteQuery<ListMyEventsRes.AsObject, RpcError>({
-      queryKey: myEventsKey("upcoming"),
-      queryFn: ({ pageParam }) =>
-        service.events.listMyEvents({
-          pageToken: pageParam as string | undefined,
-          pageSize: PAGE_SIZE,
-          myCommunities: true,
-          myCommunitiesExcludeGlobal: true,
-        }),
-      getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
-      initialPageParam: undefined,
-    });
+  const { data, error, isLoading } = useInfiniteQuery<
+    ListMyEventsRes.AsObject,
+    RpcError
+  >({
+    queryKey: myEventsKey("upcoming"),
+    queryFn: ({ pageParam }) =>
+      service.events.listMyEvents({
+        pageToken: pageParam as string | undefined,
+        pageSize: PAGE_SIZE,
+      }),
+    getNextPageParam: (lastPage) => lastPage.nextPageToken || undefined,
+    initialPageParam: undefined,
+  });
 
   return (
-    <StyledWrapper>
-      <Typography variant="h2">{t("dashboard:upcoming_events")}</Typography>
+    <div>
+      <SectionHeader>
+        <Typography variant="h2">
+          {t("dashboard:events.your_upcoming_header")}
+        </Typography>
+        <StyledLink href={`${eventsRoute}#my-events`}>
+          {t("dashboard:events.see_all_link")}
+        </StyledLink>
+      </SectionHeader>
       {error && <Alert severity="error">{error.message}</Alert>}
       {isLoading ? (
-        <CenteredSpinner />
+        <EventListContainer>
+          {[0, 1, 2].map((i) => (
+            <EventListRowSkeleton key={i} />
+          ))}
+        </EventListContainer>
       ) : hasAtLeastOnePage(data, "eventsList") ? (
-        <>
-          <StyledCardContainer
-            fetchNext={isBelowSm ? fetchNextPage : undefined}
-            hasMore={hasNextPage}
-            isFetching={isFetching}
-          >
-            {data.pages
-              .flatMap((page) => page.eventsList)
-              .map((event) => {
-                return (
-                  <StyledCard
-                    key={event.eventId}
-                    event={event}
-                    attendeesCountFormatter={(count) =>
-                      t("dashboard:attendees_count", { count })
-                    }
-                  />
-                );
-              })}
-          </StyledCardContainer>
-          {hasNextPage && !isBelowSm && (
-            <StyledButtonContainer>
-              <Button onClick={() => fetchNextPage()}>
-                {t("dashboard:load_more")}
-              </Button>
-            </StyledButtonContainer>
-          )}
-        </>
+        <EventListContainer>
+          {data.pages
+            .flatMap((page) => page.eventsList)
+            .slice(0, PAGE_SIZE)
+            .map((event) => (
+              <EventListRow key={event.eventId} event={event} />
+            ))}
+        </EventListContainer>
       ) : (
         !error && (
           <TextBody>
             <Trans
               t={t}
-              i18nKey="dashboard:events_empty_state"
+              i18nKey="dashboard:events.your_upcoming_empty_message"
               components={[
                 <StyledLink key="create-link" href={routeToNewEvent()} />,
               ]}
@@ -136,6 +82,6 @@ export default function MyEvents() {
           </TextBody>
         )
       )}
-    </StyledWrapper>
+    </div>
   );
 }

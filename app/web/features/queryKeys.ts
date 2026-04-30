@@ -139,6 +139,10 @@ export const hostRequestMessagesKey = (id?: number) => [
 // User
 export const userCommunitiesKey = "userCommunities";
 export const myEventsKey = (type: EventsType) => ["myEvents", { type }];
+export const myCommunityEventsKey = (type: EventsType) => [
+  "myCommunityEvents",
+  { type },
+];
 export const activeLoginsKey = "activeLogins";
 export const inviteCodesKey = "inviteCodes";
 export const remindersKey = "reminders";

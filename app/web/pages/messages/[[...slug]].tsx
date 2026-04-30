@@ -29,17 +29,10 @@ export default function LeaveReferencePage() {
         ? [router.query.slug]
         : router.query.slug;
 
-  const tab = messageTypeStrings.find((valid) => valid === slugs?.[0]);
+  const tab = messageTypeStrings.find((valid) => valid === slugs[0]);
 
-  // Route: /messages, /messages/all, /messages/chats, /messages/hosting, /messages/surfing, /messages/archived (list views)
-  if (
-    (slugs[0] === "all" ||
-      slugs[0] === "chats" ||
-      slugs[0] === "hosting" ||
-      slugs[0] === "surfing" ||
-      slugs[0] === "archived") &&
-    !slugs[1]
-  ) {
+  // Route: /messages, /messages/all, /messages/unread, /messages/chats, /messages/hosting, /messages/surfing, /messages/archived (list views)
+  if (tab && !slugs[1]) {
     return (
       <>
         <MessagesHeader tab={tab} />

@@ -7,7 +7,7 @@ import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
 import { MockedService } from "test/utils";
 
-import CompletePasswordReset from "./CompleteResetPassword";
+import CompleteResetPassword from "./CompleteResetPassword";
 
 const { t } = i18n;
 
@@ -63,7 +63,7 @@ describe("CompletePasswordReset page", () => {
   });
 
   it("shows the set new password form correctly", async () => {
-    render(<CompletePasswordReset />, { wrapper });
+    render(<CompleteResetPassword />, { wrapper });
 
     expect(
       screen.getByRole("heading", {
@@ -81,13 +81,87 @@ describe("CompletePasswordReset page", () => {
     ).toBeVisible();
   });
 
+  describe("password visibility toggle", () => {
+    beforeEach(() => {
+      render(<CompleteResetPassword />, { wrapper });
+    });
+
+    it.each([["new_password"], ["confirm_password"]])(
+      "toggles %s visibility when clicking the button",
+      async (fieldName) => {
+        const user = userEvent.setup();
+        const passwordField = await screen.findByLabelText(
+          t(`auth:change_password_form.${fieldName}`),
+        );
+
+        // Initially password should be hidden
+        expect(passwordField).toHaveAttribute("type", "password");
+
+        const showButton = screen.getByLabelText(
+          t(`auth:change_password_form.show_${fieldName}`),
+        );
+
+        expect(showButton).toHaveAttribute(
+          "aria-label",
+          t(`auth:change_password_form.show_${fieldName}`),
+        );
+
+        await user.click(showButton);
+
+        await waitFor(() => {
+          expect(passwordField).toHaveAttribute("type", "text");
+        });
+
+        expect(showButton).toHaveAttribute(
+          "aria-label",
+          t(`auth:change_password_form.hide_${fieldName}`),
+        );
+
+        const hideButton = screen.getByLabelText(
+          t(`auth:change_password_form.hide_${fieldName}`),
+        );
+        await user.click(hideButton);
+
+        // Password should be hidden again
+        await waitFor(() => {
+          expect(passwordField).toHaveAttribute("type", "password");
+        });
+      },
+    );
+
+    it.each([["new_password"], ["confirm_password"]])(
+      "allows typing visible text in the password field when toggled",
+      async (fieldName) => {
+        const user = userEvent.setup();
+        const passwordField = await screen.findByLabelText(
+          t(`auth:change_password_form.${fieldName}`),
+        );
+
+        await user.type(passwordField, "mypassword");
+        expect(passwordField).toHaveValue("mypassword");
+        expect(passwordField).toHaveAttribute("type", "password");
+
+        const showButton = screen.getByLabelText(
+          t(`auth:change_password_form.show_${fieldName}`),
+        );
+        await user.click(showButton);
+
+        // Verify text is still there and type is now text
+        await waitFor(() => {
+          expect(passwordField).toHaveValue("mypassword");
+          expect(passwordField).toHaveAttribute("type", "text");
+        });
+      },
+    );
+  });
+
   it("shows a warning when empty token", () => {
     mockUseRouter.mockReturnValue({
       query: { token: "" },
       push: mockPush,
     });
 
-    render(<CompletePasswordReset />, { wrapper });
+    render(<CompleteResetPassword />, { wrapper });
 
     expect(
       screen.queryByText(t("auth:change_password_form.token_error")),
@@ -95,7 +169,7 @@ describe("CompletePasswordReset page", () => {
   });
 
   it("don't show a warning when valid token", () => {
-    render(<CompletePasswordReset />, { wrapper });
+    render(<CompleteResetPassword />, { wrapper });
 
     expect(
       screen.queryByText(t("auth:change_password_form.token_error")),
@@ -103,7 +177,7 @@ describe("CompletePasswordReset page", () => {
   });
 
   it("does not submit if empty form", async () => {
-    render(<CompletePasswordReset />, { wrapper });
+    render(<CompleteResetPassword />, { wrapper });
 
     const user = userEvent.setup();
 
@@ -115,7 +189,7 @@ describe("CompletePasswordReset page", () => {
   });
 
   it("does not submit if password don't match", async () => {
-    render(<CompletePasswordReset />, { wrapper });
+    render(<CompleteResetPassword />, { wrapper });
 
     const user = userEvent.setup();
 
@@ -142,7 +216,7 @@ describe("CompletePasswordReset page", () => {
       push: mockPush,
     });
 
-    render(<CompletePasswordReset />, { wrapper });
+    render(<CompleteResetPassword />, { wrapper });
 
     const user = userEvent.setup();
 
@@ -176,7 +250,7 @@ describe("CompletePasswordReset page", () => {
       push: mockPush,
     });
 
-    render(<CompletePasswordReset />, { wrapper });
+    render(<CompleteResetPassword />, { wrapper });
 
     const user = userEvent.setup();
 

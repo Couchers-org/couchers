@@ -17,5 +17,6 @@
   "muteInfo": {
     "muted": false
   },
-  "canMessage": true
+  "canMessage": true,
+  "isArchived": false
 }
