@@ -19,7 +19,7 @@
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx,.json --fix",
     "serve": "next start",
     "test-ci": "tsc && cross-env NEXT_PUBLIC_API_BASE_URL=http://localhost:8888 CI=true TZ=UTC jest --runInBand --coverageReporters=\"cobertura\" --coverageReporters=\"lcov\" --reporters=\"default\" --reporters=\"jest-junit\" --coverage",
-    "test": "cross-env NEXT_PUBLIC_API_BASE_URL=http://localhost:8888 TZ=UTC jest --watch",
+    "test": "cross-env NEXT_PUBLIC_API_BASE_URL=http://localhost:8888 TZ=UTC jest",
     "typecheck": "tsc --noEmit",
     "knip": "knip"
   },
