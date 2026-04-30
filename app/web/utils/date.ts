@@ -135,11 +135,19 @@ export function localizeMonthAbbreviation(
   if (daysjs.isDayjs(date)) {
     date = date.toDate();
   }
-  const options: Intl.DateTimeFormatOptions = { month: "short" };
-  if (args.timezone && args.timezone !== BROWSER_TIMEZONE) {
-    options.timeZone = args.timezone;
+  const cacheKey = JSON.stringify(args, (_, v) =>
+    typeof v === "symbol" ? v.toString() : v,
+  );
+  let format = intlDateTimeFormatCache.get(cacheKey);
+  if (!format) {
+    const options: Intl.DateTimeFormatOptions = { month: "short" };
+    if (args.timezone && args.timezone !== BROWSER_TIMEZONE) {
+      options.timeZone = args.timezone;
+    }
+    format = Intl.DateTimeFormat(args.locale, options);
+    intlDateTimeFormatCache.set(cacheKey, format);
   }
-  return Intl.DateTimeFormat(args.locale, options).format(date);
+  return format.format(date);
 }
 
 const isoMuiDateFormat = "YYYY-MM-DD";

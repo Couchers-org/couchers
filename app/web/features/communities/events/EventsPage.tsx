@@ -45,11 +45,13 @@ const EventsPage = () => {
           {t("communities:create_new_event")}
         </StyledButton>
       </StyledHeaderRow>
-      <StyledColumn>
+      <StyledColumn id="my-events">
         <Typography variant="h2">{t("communities:your_events")}</Typography>
         <MyEventsList />
       </StyledColumn>
-      <DiscoverEventsList />
+      <div id="discover">
+        <DiscoverEventsList />
+      </div>
     </div>
   );
 };

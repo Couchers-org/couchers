@@ -115,12 +115,9 @@ const AttendeeTag = styled("span")({
   display: "inline-flex",
   alignItems: "center",
   gap: "3px",
-  background:
-    "color-mix(in srgb, var(--mui-palette-primary-main) 15%, transparent)",
-  color: "var(--mui-palette-primary-dark)",
+  color: "var(--mui-palette-text-secondary)",
   fontSize: "11px",
   fontWeight: 600,
-  borderRadius: "999px",
   padding: "2px 8px",
   flexShrink: 0,
   whiteSpace: "nowrap",
@@ -178,7 +175,7 @@ export default function EventListRow({ event }: EventListRowProps) {
 
   const location = event.offlineInformation
     ? event.offlineInformation.address
-    : t("dashboard:online");
+    : t("dashboard:events.location_online_label");
 
   const attendeeCount = event.goingCount + event.maybeCount;
 
@@ -193,7 +190,9 @@ export default function EventListRow({ event }: EventListRowProps) {
           <RowTitle>{event.title}</RowTitle>
           <AttendeeTag>
             <Group sx={{ fontSize: "11px" }} />
-            {t("dashboard:attendees_count", { count: attendeeCount })}
+            {t("dashboard:events.attendees_count_label", {
+              count: attendeeCount,
+            })}
           </AttendeeTag>
           <ChevronRight
             sx={{

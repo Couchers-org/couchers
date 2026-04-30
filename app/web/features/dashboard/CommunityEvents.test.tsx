@@ -32,7 +32,7 @@ describe("Community events", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: t("dashboard:events_in_your_communities"),
+        name: t("dashboard:events.community_header"),
       }),
     ).toBeVisible();
     // 3 event rows + "Browse all →" link
@@ -54,7 +54,7 @@ describe("Community events", () => {
     render(<CommunityEvents />, { wrapper });
 
     expect(
-      await screen.findByText(t("dashboard:events_in_your_communities_empty")),
+      await screen.findByText(t("dashboard:events.community_empty_message")),
     ).toBeVisible();
   });
 

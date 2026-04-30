@@ -1,4 +1,4 @@
-import { Alert, Container, Grid, Typography } from "@mui/material";
+import { Alert, Box, Container, Grid, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
@@ -56,7 +56,7 @@ export default function Dashboard() {
 
             <MyEvents />
 
-            <Divider spacing={3} />
+            <Box sx={{ height: theme.spacing(3) }} />
 
             <CommunityEvents />
 

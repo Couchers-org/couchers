@@ -47,10 +47,10 @@ export default function MyUpcomingEvents() {
     <div>
       <SectionHeader>
         <Typography variant="h2">
-          {t("dashboard:your_upcoming_events")}
+          {t("dashboard:events.your_upcoming_header")}
         </Typography>
-        <StyledLink href={eventsRoute}>
-          {t("dashboard:see_all_events")}
+        <StyledLink href={`${eventsRoute}#my-events`}>
+          {t("dashboard:events.see_all_link")}
         </StyledLink>
       </SectionHeader>
       {error && <Alert severity="error">{error.message}</Alert>}
@@ -74,7 +74,7 @@ export default function MyUpcomingEvents() {
           <TextBody>
             <Trans
               t={t}
-              i18nKey="dashboard:events_empty_state"
+              i18nKey="dashboard:events.your_upcoming_empty_message"
               components={[
                 <StyledLink key="create-link" href={routeToNewEvent()} />,
               ]}

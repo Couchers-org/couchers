@@ -32,7 +32,7 @@ describe("My events", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: t("dashboard:your_upcoming_events"),
+        name: t("dashboard:events.your_upcoming_header"),
       }),
     ).toBeVisible();
     // 3 event rows + "See all →" link

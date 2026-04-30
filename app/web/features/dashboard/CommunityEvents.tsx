@@ -54,10 +54,10 @@ export default function CommunityEvents() {
     <div>
       <SectionHeader>
         <Typography variant="h2">
-          {t("dashboard:events_in_your_communities")}
+          {t("dashboard:events.community_header")}
         </Typography>
-        <StyledLink href={eventsRoute}>
-          {t("dashboard:browse_all_events")}
+        <StyledLink href={`${eventsRoute}#discover`}>
+          {t("dashboard:events.see_all_link")}
         </StyledLink>
       </SectionHeader>
       {error && <Alert severity="error">{error.message}</Alert>}
@@ -86,7 +86,7 @@ export default function CommunityEvents() {
         </>
       ) : (
         !error && (
-          <TextBody>{t("dashboard:events_in_your_communities_empty")}</TextBody>
+          <TextBody>{t("dashboard:events.community_empty_message")}</TextBody>
         )
       )}
     </div>
