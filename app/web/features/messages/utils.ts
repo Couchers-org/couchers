@@ -1,9 +1,21 @@
 import { useLiteUsers } from "features/userQueries/useLiteUsers";
 import { TFunction } from "i18next";
 import { GroupChat, Message } from "proto/conversations_pb";
+import { HostRequest } from "proto/requests_pb";
 import { firstName } from "utils/names";
 
 import { requestStatusChangedMessageToTransKey } from "./constants";
+
+type Conversation = GroupChat.AsObject | HostRequest.AsObject;
+
+export function hasUnreadMessages<T extends Conversation>(
+  conversation: T,
+): conversation is T & { latestMessage: Message.AsObject } {
+  return (
+    conversation.latestMessage !== undefined &&
+    conversation.lastSeenMessageId < conversation.latestMessage.messageId
+  );
+}
 
 export function isControlMessage(message: Message.AsObject) {
   return !message.text;

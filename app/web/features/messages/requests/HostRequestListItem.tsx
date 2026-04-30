@@ -17,6 +17,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
 import {
   controlMessage,
+  hasUnreadMessages,
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
@@ -110,8 +111,7 @@ export default function HostRequestListItem({
   const { data: otherUser, isLoading: isOtherUserLoading } = useLiteUser(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
   );
-  const isUnread =
-    hostRequest.lastSeenMessageId !== hostRequest.latestMessage?.messageId;
+  const isUnread = hasUnreadMessages(hostRequest);
   //define the latest message author's name and
   //control message target to use in short message preview
   const authorName =
@@ -195,7 +195,12 @@ export default function HostRequestListItem({
     <StyledListItemContainer>
       <ListItem
         className={className}
-        sx={{ color: isPast ? "grey.500" : "text.primary", paddingRight: 7 }}
+        sx={{
+          color: isPast
+            ? "var(--mui-palette-grey-500)"
+            : "var(--mui-palette-text-primary)",
+          paddingRight: 7,
+        }}
       >
         <ListItemAvatar>
           <Avatar user={otherUser} isProfileLink={false} />
@@ -204,7 +209,14 @@ export default function HostRequestListItem({
           sx={{ paddingRight: 5 }}
           disableTypography
           primary={
-            <Typography variant="h2">
+            <Typography
+              variant="h2"
+              sx={
+                isPast && isUnread
+                  ? { color: "var(--mui-palette-text-primary)" }
+                  : undefined
+              }
+            >
               {!otherUser ? <Skeleton width={100} /> : otherUser.name}
             </Typography>
           }
@@ -248,7 +260,12 @@ export default function HostRequestListItem({
               </StyledDateAndBadgeContainer>
               <TextBody
                 noWrap
-                sx={{ fontWeight: isUnread ? "bold" : "normal" }}
+                sx={{
+                  fontWeight: isUnread ? "bold" : "normal",
+                  ...(isPast && isUnread
+                    ? { color: "var(--mui-palette-text-primary)" }
+                    : {}),
+                }}
               >
                 {isOtherUserLoading ? (
                   <Skeleton width={100} />
