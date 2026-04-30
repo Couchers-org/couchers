@@ -2,11 +2,12 @@ import logging
 from datetime import timedelta
 
 import grpc
-from sqlalchemy import or_, select
+from sqlalchemy import ColumnElement, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from couchers.constants import PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext
+from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.models import Node, User
@@ -39,6 +40,16 @@ def _is_description_long_enough(text: str) -> bool:
     return text_length_utf16 >= PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 
 
+def _same_gender_filter(context: CouchersContext) -> ColumnElement[bool]:
+    # Show the trip if same_gender_only is off or the viewer's gender matches the poster's gender.
+    # Moderator bypass is handled by callers via can_moderate_node before applying this filter.
+    # Uses scalar subqueries rather than extra joins since where_users_column_visible
+    # already joins User on PublicTrip.user_id.
+    viewer_gender = select(User.gender).where(User.id == context.user_id).scalar_subquery()
+    poster_gender = select(User.gender).where(User.id == PublicTrip.user_id).scalar_subquery()
+    return or_(~PublicTrip.same_gender_only, poster_gender == viewer_gender)
+
+
 def public_trip_to_pb(
     public_trip: PublicTrip, session: Session, context: CouchersContext
 ) -> public_trips_pb2.PublicTrip:
@@ -52,6 +63,7 @@ def public_trip_to_pb(
         description=public_trip.description,
         status=publictripstatus2api[public_trip.status],
         created=Timestamp_from_datetime(public_trip.created),
+        same_gender_only=public_trip.same_gender_only,
     )
 
 
@@ -121,6 +133,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             from_date=from_date,
             to_date=to_date,
             description=request.description,
+            same_gender_only=request.same_gender_only,
         )
         session.add(public_trip)
         session.flush()
@@ -143,11 +156,19 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
     def GetPublicTrip(
         self, request: public_trips_pb2.GetPublicTripReq, context: CouchersContext, session: Session
     ) -> public_trips_pb2.PublicTrip:
-        public_trip = session.execute(
+        trip_node_id = session.execute(
+            select(PublicTrip.node_id).where(PublicTrip.id == request.trip_id)
+        ).scalar_one_or_none()
+        viewer_is_moderator = trip_node_id is not None and can_moderate_node(session, context.user_id, trip_node_id)
+
+        statement = (
             where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id)
             .where(PublicTrip.id == request.trip_id)
             .options(selectinload(PublicTrip.node, Node.official_cluster))
-        ).scalar_one_or_none()
+        )
+        if not viewer_is_moderator:
+            statement = statement.where(_same_gender_filter(context))
+        public_trip = session.execute(statement).scalar_one_or_none()
 
         if not public_trip:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "public_trip_not_found")
@@ -164,6 +185,8 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
+        viewer_is_moderator = can_moderate_node(session, context.user_id, node.id)
+
         statement = (
             where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id)
             .where(PublicTrip.node_id == node.id)
@@ -174,6 +197,8 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             .limit(page_size + 1)
             .options(selectinload(PublicTrip.node, Node.official_cluster))
         )
+        if not viewer_is_moderator:
+            statement = statement.where(_same_gender_filter(context))
         public_trips = session.execute(statement).scalars().all()
 
         return public_trips_pb2.ListPublicTripsRes(
@@ -193,10 +218,26 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
             PublicTrip.user_id == request.user_id
         )
         if not is_self:
-            # On other users' profiles show only active, upcoming trips
+            # On other users' profiles show only active, upcoming trips that the viewer is allowed to see.
+            # Check moderation against each distinct node the user has active trips in.
+            active_node_ids = (
+                session.execute(
+                    select(PublicTrip.node_id)
+                    .where(PublicTrip.user_id == request.user_id)
+                    .where(PublicTrip.status == PublicTripStatus.searching_for_host)
+                    .where(PublicTrip.to_date >= today())
+                    .distinct()
+                )
+                .scalars()
+                .all()
+            )
+            viewer_is_moderator = any(can_moderate_node(session, context.user_id, nid) for nid in active_node_ids)
+
             statement = statement.where(PublicTrip.status == PublicTripStatus.searching_for_host).where(
                 PublicTrip.to_date >= today()
             )
+            if not viewer_is_moderator:
+                statement = statement.where(_same_gender_filter(context))
         statement = (
             statement.where(or_(PublicTrip.id <= next_page_id, to_bool(next_page_id == 0)))
             .order_by(PublicTrip.id.desc())
@@ -270,6 +311,9 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
 
             public_trip.from_date = new_from_date
             public_trip.to_date = new_to_date
+
+        if request.HasField("same_gender_only"):
+            public_trip.same_gender_only = request.same_gender_only
 
         if request.HasField("status"):
             new_status = publictripstatus2sql.get(request.status)
