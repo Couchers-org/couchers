@@ -1,4 +1,4 @@
-import { Alert, Container, Grid, Typography } from "@mui/material";
+import { Alert, Box, Container, Grid, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
@@ -9,6 +9,7 @@ import { theme } from "theme";
 
 import dashboardNews from "../../dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";
+import CommunityEvents from "./CommunityEvents";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
 import MyEvents from "./MyEvents";
@@ -54,6 +55,10 @@ export default function Dashboard() {
             <Divider spacing={3} />
 
             <MyEvents />
+
+            <Box sx={{ height: theme.spacing(3) }} />
+
+            <CommunityEvents />
 
             <Divider spacing={3} />
 
