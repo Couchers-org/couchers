@@ -25,6 +25,7 @@ from couchers.models import (
     Discussion,
     Event,
     EventOccurrence,
+    FriendRelationship,
     GroupChat,
     GroupChatSubscription,
     HostRequest,
@@ -771,6 +772,63 @@ class Admin(admin_pb2_grpc.AdminServicer):
         return admin_pb2.GetUserReferencesRes(
             references_from=[_reference_to_pb(ref) for ref in references_from],
             references_to=[_reference_to_pb(ref) for ref in references_to],
+        )
+
+    def GetFriendRequests(
+        self, request: admin_pb2.GetFriendRequestsReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.GetFriendRequestsRes:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        user_info_cache: dict[int, admin_pb2.ChatUserInfo] = {}
+
+        def get_chat_user_info(user_id: int) -> admin_pb2.ChatUserInfo:
+            if user_id not in user_info_cache:
+                u = session.execute(select(User).where(User.id == user_id)).scalar_one()
+                user_info_cache[user_id] = admin_pb2.ChatUserInfo(
+                    user_id=u.id,
+                    username=u.username,
+                    name=u.name,
+                    birthdate=date_to_api(u.birthdate),
+                    gender=u.gender,
+                )
+            return user_info_cache[user_id]
+
+        def friend_request_to_pb(rel: FriendRelationship) -> admin_pb2.AdminFriendRequest:
+            return admin_pb2.AdminFriendRequest(
+                friend_request_id=rel.id,
+                from_user=get_chat_user_info(rel.from_user_id),
+                to_user=get_chat_user_info(rel.to_user_id),
+                status=rel.status.name if rel.status else "",
+                time_sent=Timestamp_from_datetime(rel.time_sent),
+                time_responded=Timestamp_from_datetime(rel.time_responded) if rel.time_responded else None,
+                moderation_visibility=rel.moderation_state.visibility.name,
+            )
+
+        sent = (
+            session.execute(
+                select(FriendRelationship)
+                .where(FriendRelationship.from_user_id == user.id)
+                .order_by(FriendRelationship.id.desc())
+            )
+            .scalars()
+            .all()
+        )
+
+        received = (
+            session.execute(
+                select(FriendRelationship)
+                .where(FriendRelationship.to_user_id == user.id)
+                .order_by(FriendRelationship.id.desc())
+            )
+            .scalars()
+            .all()
+        )
+
+        return admin_pb2.GetFriendRequestsRes(
+            sent=[friend_request_to_pb(rel) for rel in sent],
+            received=[friend_request_to_pb(rel) for rel in received],
         )
 
     def EditDiscussion(
