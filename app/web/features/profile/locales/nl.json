@@ -284,5 +284,44 @@
   },
   "open_profile_new_tab": "Profiel openen in nieuw tabblad",
   "view_in_admin_console": "Gebruiker bekijken in admin-omgeving",
-  "search_indicator": "Het begin van dit gedeelte is zichtbaar in zoekresultaten wanneer andere leden naar je zoeken"
+  "search_indicator": "Het begin van dit gedeelte is zichtbaar in zoekresultaten wanneer andere leden naar je zoeken",
+  "incomplete_profile_haiku": "Leeg profiel dat staart,\ngeheim achter de stilte\nWie ben jij, vreemde?",
+  "hosting_status": {
+    "can_host_description": "Ik wil heel graag mensen bij me laten logeren",
+    "maybe_host_description": "Ik kan misschien wel hosten, afhankelijk van de omstandigheden",
+    "cannot_host_description": "Ik kan op dit moment niet hosten"
+  },
+  "meetup_status": {
+    "wants_to_meetup_description": "Ik heb zin om mensen te ontmoeten",
+    "open_to_meetup_description": "Ik wil misschien wel meeten, afhankelijk van de omstandigheden",
+    "does_not_want_to_meetup_description": "Ik wil liever niet met mensen meeten"
+  },
+  "avatar_photo_info": "<bold>Een foto van jezelf is verplicht, om met mensen in contact te kunnen komen.</bold> Een duidelijke, vriendelijke foto waar op je gezicht te zien is zorgt voor vertrouwen, dat anderen zich ook okay voelen, en vergroot je kansen op een reactie.",
+  "avatar_placeholder_info": "<bold>Klik op de standaard profielfoto om een foto te kunnen uploaden.</bold> Een foto van jezelf is verplicht om contact te maken met anderen. Een duidelijke, vriendelijke foto zorgt voor vertrouwen en dat anderen zich op hun gemak voelen.",
+  "click_to_add_photo": "Klik om een foto toe te voegen",
+  "profile_changes_saved_message": "Profielwijzigingen opgeslagen!",
+  "hosting_preferences_success_message": "Hostingvoorkeuren opgeslagen!",
+  "gallery": {
+    "photo_item_a11y": "Foto",
+    "photo": "Foto",
+    "profile_photo": "Profielfoto",
+    "add_photo": "Foto toevoegen",
+    "remove_photo": "Foto verwijderen",
+    "select_photo": "Foto selecteren",
+    "photo_count": "{{current}} van {{total}}",
+    "empty_title": "Je eerste foto toevoegen",
+    "empty_description": "Klik hier of op de knop hierboven om een foto toe te voegen",
+    "no_photos": "Nog geen foto's",
+    "reorder_success": "Succesvol de fotovolgorde veranderd!",
+    "upload_success": "Foto succesvol geüpload!",
+    "profile_photos_title": "Profielfoto's",
+    "profile_photos_description": "Voeg foto's van jezelf toe zodat anderen je beter kunnen leren kennen. Klikken en slepen om de volgorde te veranderen.",
+    "verification_required_for_more_photos": "Je hebt je fotolimiet bereikt. Voltooi sterke verificatie om meer foto's toe te kunnen voegen.",
+    "get_verified": "Laat je verifiëren",
+    "photo_viewer_aria": "Fotoalbum",
+    "previous_photo": "Vorige foto",
+    "next_photo": "Volgende foto",
+    "close_viewer": "Fotoalbum sluiten",
+    "report_photo": "Foto rapporteren"
+  }
 }
