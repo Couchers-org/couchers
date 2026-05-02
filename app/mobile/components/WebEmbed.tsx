@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Appearance,
+  AppState,
   BackHandler,
   Image,
   Linking,
@@ -45,6 +46,9 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
   // Track the target path we're syncing to (to ignore navigation during sync)
   const syncTargetPathRef = useRef<string | null>(null);
+
+  // Tracks when the app entered the background so we can reload a stale WebView.
+  const backgroundTimeRef = useRef<number | null>(null);
 
   // Custom hooks for image picking and navigation
   const { pickImage } = useImagePicker();
@@ -160,6 +164,25 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       return cleanup;
     }, [path, stripLocale, i18n.language]),
   );
+
+  // Reload WebView if it's been backgrounded for more than 30 minutes.
+  // iOS kills the WKWebView process after extended backgrounding, leaving the
+  // screen gray. onContentProcessDidTerminate handles that iOS-specific event;
+  // this AppState listener covers the general case on both platforms.
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextState) => {
+      if (nextState === "background" || nextState === "inactive") {
+        backgroundTimeRef.current = Date.now();
+      } else if (nextState === "active" && backgroundTimeRef.current !== null) {
+        const elapsed = Date.now() - backgroundTimeRef.current;
+        backgroundTimeRef.current = null;
+        if (elapsed > 30 * 60 * 1000) {
+          webviewRef.current?.reload();
+        }
+      }
+    });
+    return () => subscription.remove();
+  }, []);
 
   // Send result back to web app
   const sendImagePickResult = (result: {
@@ -299,6 +322,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         )}
         injectedJavaScriptObject={{ isNativeEmbed: true }}
         onNavigationStateChange={handleNavigationStateChange}
+        onContentProcessDidTerminate={() => webviewRef.current?.reload()}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
         onOpenWindow={handleOpenWindow}
         onMessage={handleMessage}
