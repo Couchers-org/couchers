@@ -11,7 +11,8 @@
     "tabs": {
       "chats": "Chats",
       "hosting": "Hosten",
-      "surfing": "Surfen"
+      "surfing": "Surfen",
+      "unread": "Ungelesen"
     },
     "title": "Nachrichten"
   },
@@ -107,7 +108,7 @@
     "rejected": "Abgelehnt",
     "cancelled": "Storniert",
     "accepted": "Akzeptiert",
-    "past": "Frühere"
+    "past": "Vergangenheit"
   },
   "chat_input": {
     "label": "Nachricht"
