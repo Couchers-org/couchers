@@ -61,14 +61,16 @@
         "title": "Nový odznak profilu: {{badge_name}}",
         "ios_title": "Nový profilový odznak",
         "body": "Odznak {{badge_name}} byl přidán do tvého profilu."
-      }
+      },
+      "event_description": "Na tvůj účet byl přidán odznak"
     },
     "remove": {
       "push": {
         "title": "Odznak profilu odstraněn",
         "ios_title": "Odznak profilu odstraněn",
         "body": "Odznak {{badge_name}} byl odstraněn z tvého profilu."
-      }
+      },
+      "event_description": "Z tvého účtu byl odebrán odznak"
     }
   },
   "birthdate": {

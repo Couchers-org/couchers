@@ -60,5 +60,13 @@
   "search_input_placeholder": "Vyhledat místo",
   "hero_image_alt": "Horkovzdušné balóny v Kappadokii",
   "hero_image_attribution": "Foto: <1>Mesut Kaya</1> na <3>Unsplash</3>",
-  "events_empty_state": "Aktuálně žádné události. Proč nějakou <0>nevytvořit</0> ✨?"
+  "events_empty_state": "Aktuálně žádné události. Proč nějakou <0>nevytvořit</0> ✨?",
+  "reminder": {
+    "complete_profile": {
+      "button": "Upravit svůj profil"
+    },
+    "strong_verification": {
+      "description": "Ověř svoji identitu pro bezpečnější komunitu"
+    }
+  }
 }

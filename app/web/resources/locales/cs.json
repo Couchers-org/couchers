@@ -319,5 +319,9 @@
   "error_loading_languages": "Nepodařilo se načíst jazykové možnosti",
   "retract": "Stáhnout",
   "not_found_text_2": "Chceš prostě <1>jít domů?</1>",
-  "contribute_title": "Zaregistruj se a zapoj se"
+  "contribute_title": "Zaregistruj se a zapoj se",
+  "copy_button": {
+    "a11y": "Kopírovat",
+    "copied_tooltip": "Zkopírováno do schránky"
+  }
 }
