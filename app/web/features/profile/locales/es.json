@@ -326,5 +326,6 @@
     "profile_photo": "Foto de perfil"
   },
   "click_to_add_photo": "Haz clic para añadir una foto",
-  "avatar_placeholder_info": "<bold>Haz clic en el avatar del marcador de posición para ir a la sección de carga de fotos.</bold> Se requiere una foto tuya para interactuar con la comunidad. Una foto clara y amigable que muestre tu rostro genera confianza y ayuda a que otros se sientan cómodos."
+  "avatar_placeholder_info": "<bold>Haz clic en el avatar del marcador de posición para ir a la sección de carga de fotos.</bold> Se requiere una foto tuya para interactuar con la comunidad. Una foto clara y amigable que muestre tu rostro genera confianza y ayuda a que otros se sientan cómodos.",
+  "do_not_email_error_link": "Actualiza la configuración de correo electrónico para volver a habilitarlo."
 }
