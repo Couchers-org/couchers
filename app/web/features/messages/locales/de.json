@@ -84,7 +84,6 @@
     }
   },
   "group_chats_tab": {
-    "no_chats_message": "Noch keine Gruppenchats",
     "load_more_button_label": "Mehr laden"
   },
   "control_message": {
@@ -167,7 +166,6 @@
     "archived": "Archiviert",
     "archive_button": "Archiv",
     "unarchive_button": "Dearchivieren",
-    "no_archived_chats": "Keine archivierten Chats",
     "no_archived_requests": "Keine archivierten Anfragen",
     "no_archived_messages": "Keine archivierten Nachrichten"
   },

@@ -110,7 +110,6 @@
     }
   },
   "group_chats_tab": {
-    "no_chats_message": "Sin conversaciones grupales",
     "load_more_button_label": "Cargar más"
   },
   "requests_tab": {
@@ -167,7 +166,6 @@
     "archived": "Archivado",
     "archive_button": "Archivar",
     "unarchive_button": "Desarchivar",
-    "no_archived_chats": "No hay chats archivados",
     "no_archived_requests": "No hay solicitudes archivadas",
     "no_archived_messages": "No hay mensajes archivados"
   },

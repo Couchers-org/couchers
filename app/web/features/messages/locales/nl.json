@@ -88,7 +88,6 @@
     }
   },
   "group_chats_tab": {
-    "no_chats_message": "Nog geen groeps-chat",
     "load_more_button_label": "Meer laden"
   },
   "requests_tab": {
@@ -166,7 +165,6 @@
     "archived": "Gearchiveerd",
     "archive_button": "Archief",
     "unarchive_button": "Dearchiveren",
-    "no_archived_chats": "Geen gearchiveerde chats",
     "no_archived_requests": "Geen gearchiveerde verzoeken",
     "no_archived_messages": "Geen gearchiveerde berichten"
   },

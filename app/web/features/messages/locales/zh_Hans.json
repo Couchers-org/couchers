@@ -83,7 +83,6 @@
     }
   },
   "group_chats_tab": {
-    "no_chats_message": "尚无群聊",
     "load_more_button_label": "加载更多"
   },
   "requests_tab": {
