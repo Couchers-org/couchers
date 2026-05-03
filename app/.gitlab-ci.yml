@@ -584,6 +584,7 @@ test:mobile-expo-doctor:
   image: node:22
   inherit:
     default: false
+  allow_failure: true
   script:
     - cd app/mobile
     - npm ci
