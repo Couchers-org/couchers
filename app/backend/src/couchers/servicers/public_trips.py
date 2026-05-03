@@ -5,16 +5,32 @@ import grpc
 from sqlalchemy import ColumnElement, or_, select
 from sqlalchemy.orm import Session, selectinload
 
-from couchers.constants import PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
+from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16, PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
 from couchers.context import CouchersContext
 from couchers.db import can_moderate_node
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
-from couchers.models import Node, User
+from couchers.models import (
+    Conversation,
+    HostRequest,
+    HostRequestStatus,
+    Message,
+    MessageType,
+    ModerationObjectType,
+    Node,
+    RateLimitAction,
+    User,
+)
+from couchers.models.notifications import NotificationTopicAction
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
-from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
+from couchers.moderation.utils import create_moderation
+from couchers.notifications.notify import notify
+from couchers.proto import notification_data_pb2, public_trips_pb2, public_trips_pb2_grpc
+from couchers.rate_limits.check import process_rate_limits_and_check_abort
+from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.servicers.api import user_model_to_pb
-from couchers.sql import to_bool, where_users_column_visible
+from couchers.servicers.requests import _is_host_request_long_enough, host_request_to_pb
+from couchers.sql import to_bool, users_visible, where_users_column_visible
 from couchers.utils import Timestamp_from_datetime, date_to_api, parse_date, today, today_in_timezone
 
 logger = logging.getLogger(__name__)
@@ -339,3 +355,155 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         )
 
         return public_trip_to_pb(public_trip, session, context)
+
+    def OfferToHost(
+        self, request: public_trips_pb2.OfferToHostReq, context: CouchersContext, session: Session
+    ) -> public_trips_pb2.OfferToHostRes:
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if not has_completed_profile(session, user):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_offer_to_host")
+
+        public_trip = session.execute(select(PublicTrip).where(PublicTrip.id == request.trip_id)).scalar_one_or_none()
+        if not public_trip:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "public_trip_not_found")
+
+        if public_trip.user_id == context.user_id:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_offer_self")
+
+        if public_trip.status != PublicTripStatus.searching_for_host:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_not_active")
+
+        # The trip owner becomes the host request recipient (the surfer). Make sure they're visible.
+        surfer = session.execute(
+            select(User).where(users_visible(context, User)).where(User.id == public_trip.user_id)
+        ).scalar_one_or_none()
+        if not surfer:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        # Same-gender restriction (community moderators bypass)
+        if (
+            public_trip.same_gender_only
+            and not can_moderate_node(session, context.user_id, public_trip.node_id)
+            and user.gender != surfer.gender
+        ):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_same_gender_only")
+
+        from_date = parse_date(request.from_date)
+        to_date = parse_date(request.to_date)
+
+        if not from_date or not to_date:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_date")
+
+        # The stay happens at the host's place, so use their timezone for "today".
+        today_local = today_in_timezone(user.timezone)
+
+        if from_date < today_local:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_before_today")
+
+        if from_date >= to_date:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "date_from_after_to")
+
+        # Offered dates must lie within the trip's window (host can shorten, not extend)
+        if from_date < public_trip.from_date or to_date > public_trip.to_date:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_dates_out_of_range")
+
+        if not _is_host_request_long_enough(request.text):
+            context.abort_with_error_code(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "host_request_too_short2",
+                substitutions={"count": HOST_REQUEST_MIN_LENGTH_UTF16},
+            )
+
+        if process_rate_limits_and_check_abort(
+            session=session, user_id=context.user_id, action=RateLimitAction.host_request
+        ):
+            context.abort_with_error_code(
+                grpc.StatusCode.RESOURCE_EXHAUSTED,
+                "host_request_rate_limit2",
+                substitutions={"count": RATE_LIMIT_HOURS},
+            )
+
+        # Prevent duplicate offers from the same host on the same trip
+        existing_offer = session.execute(
+            select(HostRequest)
+            .where(HostRequest.public_trip_id == public_trip.id)
+            .where(HostRequest.initiator_user_id == context.user_id)
+        ).scalar_one_or_none()
+        if existing_offer:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "duplicate_host_request_for_trip")
+
+        conversation = Conversation()
+        session.add(conversation)
+        session.flush()
+
+        session.add(
+            Message(
+                conversation_id=conversation.id,
+                author_id=context.user_id,
+                message_type=MessageType.chat_created,
+            )
+        )
+
+        message = Message(
+            conversation_id=conversation.id,
+            author_id=context.user_id,
+            text=request.text,
+            message_type=MessageType.text,
+        )
+        session.add(message)
+        session.flush()
+
+        moderation_state = create_moderation(
+            session=session,
+            object_type=ModerationObjectType.host_request,
+            object_id=conversation.id,
+            creator_user_id=context.user_id,
+        )
+
+        host_request = HostRequest(
+            conversation_id=conversation.id,
+            initiator_user_id=context.user_id,
+            recipient_user_id=surfer.id,
+            moderation_state_id=moderation_state.id,
+            from_date=from_date,
+            to_date=to_date,
+            status=HostRequestStatus.pending,
+            initiator_last_seen_message_id=message.id,
+            # Hosting location is the offering host's place (initiator), not the surfer's.
+            hosting_city=user.city,
+            hosting_location=user.geom,
+            hosting_radius=user.geom_radius,
+            public_trip_id=public_trip.id,
+        )
+        session.add(host_request)
+        session.flush()
+
+        notify(
+            session,
+            user_id=surfer.id,
+            topic_action=NotificationTopicAction.host_request__offer_to_host,
+            key=str(host_request.conversation_id),
+            data=notification_data_pb2.HostRequestOfferToHost(
+                host_request=host_request_to_pb(host_request, session, context),
+                host=user_model_to_pb(user, session, context),
+                text=request.text,
+            ),
+            moderation_state_id=moderation_state.id,
+        )
+
+        log_event(
+            context,
+            session,
+            "public_trip.offer_to_host_created",
+            {
+                "host_request_id": host_request.conversation_id,
+                "public_trip_id": public_trip.id,
+                "surfer_id": surfer.id,
+                "host_id": user.id,
+                "from_date": str(from_date),
+                "to_date": str(to_date),
+                "nights": (to_date - from_date).days,
+            },
+        )
+
+        return public_trips_pb2.OfferToHostRes(host_request_id=host_request.conversation_id)

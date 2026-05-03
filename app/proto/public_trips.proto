@@ -35,6 +35,12 @@ service PublicTrips {
     // CLOSED at any time, or back to SEARCHING_FOR_HOST as long as the trip is
     // not in the past.
   }
+
+  rpc OfferToHost(OfferToHostReq) returns (OfferToHostRes) {
+    // Offer to host the user who posted a public trip. Creates a HostRequest
+    // with the caller as initiator (the offering host) and the trip's owner as
+    // recipient (the surfer). Offered dates must lie within the trip's window.
+  }
 }
 
 enum PublicTripStatus {
@@ -107,4 +113,15 @@ message UpdatePublicTripReq {
   optional string description = 4;
   optional PublicTripStatus status = 5;
   optional bool same_gender_only = 6;
+}
+
+message OfferToHostReq {
+  int64 trip_id = 1;
+  string from_date = 2; // YYYY-MM-DD; must lie within the trip's window
+  string to_date = 3; // YYYY-MM-DD
+  string text = 4; // first message in the conversation
+}
+
+message OfferToHostRes {
+  int64 host_request_id = 1;
 }

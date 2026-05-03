@@ -17,6 +17,12 @@ message HostRequestCreate {
   string text = 3;
 }
 
+message HostRequestOfferToHost {
+  org.couchers.api.requests.HostRequest host_request = 1;
+  org.couchers.api.core.User host = 2;
+  string text = 3;
+}
+
 message HostRequestAccept {
   org.couchers.api.requests.HostRequest host_request = 1;
   org.couchers.api.core.User host = 2;

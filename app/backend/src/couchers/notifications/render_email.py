@@ -74,6 +74,21 @@ def render_email_notification(
                 },
                 topic_action_unsubscribe_text="new host requests",
             )
+        elif notification.action == "offer_to_host":
+            other = data.host
+            message = f"{other.name} offered to host you"
+            return RenderedEmailNotification(
+                subject=message,
+                preview=message,
+                template_name="host_request__plain",
+                template_args={
+                    "view_link": view_link,
+                    "host_request": data.host_request,
+                    "message": message,
+                    "other": UserTemplateArgs.from_protobuf_user(other),
+                },
+                topic_action_unsubscribe_text="offers to host",
+            )
         elif notification.action == "message":
             other = data.user
             if data.am_host:

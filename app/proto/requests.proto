@@ -55,10 +55,6 @@ message CreateHostRequestReq {
   string from_date = 2;
   string to_date = 3;
   string text = 4;
-  // If set, this host request is being created in response to a public trip.
-  // The role is reversed: the "host" is offering to host the public trip's traveler.
-  // Dates must fall within the public trip's from_date/to_date.
-  optional int64 public_trip_id = 5;
 }
 
 message HostRequest {

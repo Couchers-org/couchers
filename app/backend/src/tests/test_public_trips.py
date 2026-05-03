@@ -5,13 +5,15 @@ import grpc
 import pytest
 from sqlalchemy import select
 
+from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.db import session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, NodeType, User
+from couchers.models import Cluster, ClusterRole, ClusterSubscription, HostRequest, Node, NodeType, User
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
-from couchers.proto import public_trips_pb2
+from couchers.proto import public_trips_pb2, requests_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.db import generate_user
-from tests.fixtures.sessions import public_trips_session
+from tests.fixtures.misc import process_jobs
+from tests.fixtures.sessions import public_trips_session, requests_session
 
 
 @pytest.fixture(autouse=True)
@@ -853,3 +855,273 @@ def test_same_gender_only_update(db):
     with session_scope() as session:
         trip = session.execute(select(PublicTrip).where(PublicTrip.id == trip_id)).scalar_one()
         assert trip.same_gender_only is False
+
+
+# ---------------------------------------------------------------------------
+# OfferToHost
+# ---------------------------------------------------------------------------
+
+
+def _valid_offer_text(text: str = "Happy to host you for your visit!") -> str:
+    """Pads an offer text to satisfy HOST_REQUEST_MIN_LENGTH_UTF16."""
+    utf16_length = len(text.encode("utf-16-le")) // 2
+    if utf16_length >= HOST_REQUEST_MIN_LENGTH_UTF16:
+        return text
+    return text + ("_" * (HOST_REQUEST_MIN_LENGTH_UTF16 - utf16_length))
+
+
+def test_offer_to_host_happy_path(db, moderator):
+    surfer, _surfer_token = generate_user()
+    host, host_token = generate_user(city="Berlin")
+
+    node_id = _make_node()
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_trip_directly(surfer.id, node_id, trip_from, trip_to)
+
+    offer_from = trip_from + timedelta(days=1)
+    offer_to = trip_to - timedelta(days=1)
+
+    with public_trips_session(host_token) as api:
+        res = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
+                from_date=offer_from.isoformat(),
+                to_date=offer_to.isoformat(),
+                text=_valid_offer_text(),
+            )
+        )
+        assert res.host_request_id > 0
+
+    moderator.approve_host_request(res.host_request_id)
+
+    # Hosting location is the host's, not the surfer's; the row is linked to the trip.
+    with session_scope() as session:
+        hr = session.execute(select(HostRequest).where(HostRequest.conversation_id == res.host_request_id)).scalar_one()
+        assert hr.initiator_user_id == host.id
+        assert hr.recipient_user_id == surfer.id
+        assert hr.public_trip_id == trip_id
+        assert hr.hosting_city == "Berlin"
+
+    # GetHostRequest returns reversed surfer/host roles for offers.
+    with requests_session(host_token) as api:
+        hr_pb = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=res.host_request_id))
+        assert hr_pb.surfer_user_id == surfer.id
+        assert hr_pb.host_user_id == host.id
+        assert hr_pb.public_trip_id == trip_id
+        assert hr_pb.hosting_city == "Berlin"
+
+
+def test_offer_to_host_dates_out_of_range(db):
+    surfer, _ = generate_user()
+    _, host_token = generate_user()
+    node_id = _make_node()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_trip_directly(surfer.id, node_id, trip_from, trip_to)
+
+    with public_trips_session(host_token) as api:
+        # from_date before trip starts
+        with pytest.raises(grpc.RpcError) as e:
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
+                    from_date=(trip_from - timedelta(days=1)).isoformat(),
+                    to_date=(trip_from + timedelta(days=1)).isoformat(),
+                    text=_valid_offer_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+        # to_date after trip ends
+        with pytest.raises(grpc.RpcError) as e:
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
+                    from_date=(trip_to - timedelta(days=1)).isoformat(),
+                    to_date=(trip_to + timedelta(days=1)).isoformat(),
+                    text=_valid_offer_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_offer_to_host_self_rejected(db):
+    user, token = generate_user()
+    node_id = _make_node()
+    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=10), today() + timedelta(days=20))
+
+    with public_trips_session(token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
+                    from_date=(today() + timedelta(days=11)).isoformat(),
+                    to_date=(today() + timedelta(days=15)).isoformat(),
+                    text=_valid_offer_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_offer_to_host_closed_trip(db):
+    surfer, _ = generate_user()
+    _, host_token = generate_user()
+    node_id = _make_node()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_trip_directly(surfer.id, node_id, trip_from, trip_to, status=PublicTripStatus.closed)
+
+    with public_trips_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
+                    from_date=(trip_from + timedelta(days=1)).isoformat(),
+                    to_date=(trip_to - timedelta(days=1)).isoformat(),
+                    text=_valid_offer_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_offer_to_host_nonexistent_trip(db):
+    _, host_token = generate_user()
+
+    with public_trips_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=999999,
+                    from_date=(today() + timedelta(days=2)).isoformat(),
+                    to_date=(today() + timedelta(days=3)).isoformat(),
+                    text=_valid_offer_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_offer_to_host_same_gender_only_wrong_gender_rejected(db):
+    surfer, _ = generate_user(gender="Woman")
+    _, host_token = generate_user(gender="Man")
+    node_id = _make_node()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_trip_directly(surfer.id, node_id, trip_from, trip_to, same_gender_only=True)
+
+    with public_trips_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=_valid_offer_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_offer_to_host_same_gender_only_same_gender_allowed(db):
+    surfer, _ = generate_user(gender="Woman")
+    _, host_token = generate_user(gender="Woman")
+    node_id = _make_node()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_trip_directly(surfer.id, node_id, trip_from, trip_to, same_gender_only=True)
+
+    with public_trips_session(host_token) as api:
+        res = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=_valid_offer_text(),
+            )
+        )
+        assert res.host_request_id > 0
+
+
+def test_offer_to_host_same_gender_only_moderator_bypass(db):
+    surfer, _ = generate_user(gender="Woman")
+    host, host_token = generate_user(gender="Man")
+    node_id = _make_node()
+    _make_node_admin(host.id, node_id)
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_trip_directly(surfer.id, node_id, trip_from, trip_to, same_gender_only=True)
+
+    with public_trips_session(host_token) as api:
+        res = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=_valid_offer_text(),
+            )
+        )
+        assert res.host_request_id > 0
+
+
+def test_offer_to_host_duplicate_rejected(db):
+    surfer, _ = generate_user()
+    _, host_token = generate_user()
+    node_id = _make_node()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_trip_directly(surfer.id, node_id, trip_from, trip_to)
+
+    with public_trips_session(host_token) as api:
+        api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
+                from_date=trip_from.isoformat(),
+                to_date=trip_to.isoformat(),
+                text=_valid_offer_text(),
+            )
+        )
+        with pytest.raises(grpc.RpcError) as e:
+            api.OfferToHost(
+                public_trips_pb2.OfferToHostReq(
+                    trip_id=trip_id,
+                    from_date=trip_from.isoformat(),
+                    to_date=trip_to.isoformat(),
+                    text=_valid_offer_text(),
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+
+
+def test_offer_to_host_notification(db, push_collector, moderator):
+    surfer, _ = generate_user()
+    host, host_token = generate_user()
+    node_id = _make_node()
+
+    trip_from = today() + timedelta(days=10)
+    trip_to = today() + timedelta(days=20)
+    trip_id = _create_trip_directly(surfer.id, node_id, trip_from, trip_to)
+
+    with public_trips_session(host_token) as api:
+        res = api.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
+                from_date=(trip_from + timedelta(days=1)).isoformat(),
+                to_date=(trip_to - timedelta(days=1)).isoformat(),
+                text=_valid_offer_text(),
+            )
+        )
+
+    # Moderation gates the notification; approval re-enqueues it, then we drain the job queue.
+    moderator.approve_host_request(res.host_request_id)
+    process_jobs()
+
+    assert push_collector.count_for_user(surfer.id) == 1
+    push = push_collector.pop_for_user(surfer.id, last=True)
+    assert push.topic_action == "host_request:offer_to_host"
+    assert push.content.title == f"{host.name} offered to host you"

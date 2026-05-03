@@ -306,6 +306,16 @@
         "body": "You have new unseen messages from {{user}}."
       }
     },
+    "offer_to_host": {
+      "event_description": "Someone offers to host you for a public trip you posted",
+      "push": {
+        "title": "{{user}} offered to host you",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Offer to Host",
+        "body_one": "{{user}} offered to host you from {{start_date}} for {{count}} day.",
+        "body_other": "{{user}} offered to host you from {{start_date}} for {{count}} days."
+      }
+    },
     "reject": {
       "event_description": "Someone declines your host request",
       "push": {

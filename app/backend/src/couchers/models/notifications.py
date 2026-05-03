@@ -79,6 +79,7 @@ class NotificationTopicAction(enum.Enum):
 
     # host requests
     host_request__create = ("host_request:create", dt_all, False, nd.HostRequestCreate)
+    host_request__offer_to_host = ("host_request:offer_to_host", dt_all, False, nd.HostRequestOfferToHost)
     host_request__accept = ("host_request:accept", dt_all, False, nd.HostRequestAccept)
     host_request__reject = ("host_request:reject", dt_all, False, nd.HostRequestReject)
     host_request__confirm = ("host_request:confirm", dt_all, False, nd.HostRequestConfirm)
