@@ -1,0 +1,27 @@
+{
+  "title": "Mod工具",
+  "banned": "禁止",
+  "deleted": "已刪除",
+  "do_not_email": "不要發送電子郵件",
+  "list_users": {
+    "heading": "新使用者列表",
+    "none_found": "未找到使用者",
+    "load_more": "載入更多"
+  },
+  "actions": {
+    "open_in_console": "在控制台中打開"
+  },
+  "panel": {
+    "heading": "Mod東西",
+    "username": "使用者名稱",
+    "user_id": "使用者 ID",
+    "email": "電子郵件",
+    "birthdate": "出生日期",
+    "has_strong_verification": "具有強大的驗證",
+    "birthdate_verification_status": "出生日期驗證",
+    "gender_verification_status": "性別驗證",
+    "has_passport_sex_gender_exception": "護照性別/性別例外。？",
+    "pending_mod_notes_count": "Pending mod註釋",
+    "acknowledged_mod_notes_count": "Acknowledged 模組註釋"
+  }
+}
