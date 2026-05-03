@@ -85,7 +85,9 @@ export default {
       process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
     permissions: ["POST_NOTIFICATIONS"],
     adaptiveIcon: {
-      foregroundImage: "./assets/images/adaptive_icon_foreground.png",
+      foregroundImage: IS_STAGING
+        ? "./assets/images/adaptive_icon_foreground_staging.png"
+        : "./assets/images/adaptive_icon_foreground.png",
       backgroundColor: "#E47701",
     },
     notification: {

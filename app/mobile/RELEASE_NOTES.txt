@@ -1,1 +1,2 @@
 - Fix issues with bottom tab navigation
+- Address tabs going gray after some time
