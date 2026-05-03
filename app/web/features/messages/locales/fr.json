@@ -131,7 +131,6 @@
     "label": "Envoyer un message"
   },
   "group_chats_tab": {
-    "no_chats_message": "Aucune discussion de groupe pour l'instant",
     "load_more_button_label": "Afficher plus"
   },
   "requests_tab": {

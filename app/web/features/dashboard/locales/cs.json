@@ -14,7 +14,6 @@
   },
   "welcome": "Vítej na Couchers.org!",
   "load_more": "Načíst více",
-  "upcoming_events": "Nadcházející události",
   "profile_summary_edit": "Upravit profil",
   "profile_summary_view": "Zobrazit můj profil",
   "show_map": "Zobrazit mapu",
@@ -46,9 +45,6 @@
   "profile_mobile_summary_view": "Přejít na profil",
   "find_a_host": "Najdi hostitele",
   "become_a_host": "Staň se hostitelem",
-  "attendees_count_one": "{{count}} účastník",
-  "attendees_count_few": "{{count}} účastníci",
-  "attendees_count_other": "{{count}} účastníků",
   "complete_profile_explanation": "Taky tě štve, jak mají jiné platformy prázdné „duchařské\" profily bez jakýchkoliv informací? Prosím, nedělej z nás duchy! 👻👻👻",
   "no_sub_communities": "Žádné podkomunity.",
   "new_pill": "Nové",
@@ -60,5 +56,12 @@
   "search_input_placeholder": "Vyhledat místo",
   "hero_image_alt": "Horkovzdušné balóny v Kappadokii",
   "hero_image_attribution": "Foto: <1>Mesut Kaya</1> na <3>Unsplash</3>",
-  "events_empty_state": "Aktuálně žádné události. Proč nějakou <0>nevytvořit</0> ✨?"
+  "reminder": {
+    "complete_profile": {
+      "button": "Upravit svůj profil"
+    },
+    "strong_verification": {
+      "description": "Ověř svoji identitu pro bezpečnější komunitu"
+    }
+  }
 }

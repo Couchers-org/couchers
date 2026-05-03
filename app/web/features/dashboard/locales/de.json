@@ -33,7 +33,6 @@
   "your_communities_helper_text": "Du wurdest zu allen Communitys hinzugefügt, die sich auf deinen Standort beziehen. Du kannst auch an anderen Orten <1>Communitys durchsuchen</1>.",
   "community_builder_form_text": "Gründen deine eigene lokale Community",
   "your_communities_helper_text2": "Siehst du deine Community nicht? <1>Gründe sie!</1>",
-  "upcoming_events": "Anstehende Events",
   "member_count_one": "{{count}} Mitglied",
   "member_count_other": "{{count}} Mitglieder",
   "profile_summary_edit": "Profil bearbeiten",
@@ -48,9 +47,6 @@
   "communities_welcome_title": "Willkommen bei Communitys",
   "communities_intro": "Um Menschen auf der ganzen Welt dabei zu helfen, Events, Diskussionen und Treffen zu organisieren, haben wir Community-Seiten erstellt, die unten aufgeführt sind. <strong>Du wurdest basierend auf deinem Ort automatisch zu einigen Communitys hinzugefügt, aber du kannst jeder Community beitreten!</strong> Deine Communitys sind auf deinem Dashboard aufgeführt.",
   "community_builder": "Möchtest du Botschafter für deine Community sein und ihr Wachstum unterstützen? Werde ein <1>Community Builder!</1>",
-  "attendees_count_one": "{{count}} Teilnehmende Person",
-  "attendees_count_other": "{{count}} Teilnehmende",
-  "events_empty_state": "Aktuell gibt es keine Events. Warum <0>erstellst</0> du nicht eins ✨?",
   "find_your_community": "Finde eine Community",
   "browse_all_communities": "Alle Communitys durchsuchen",
   "show_all_communities": "Alle Communitys anzeigen",
@@ -58,5 +54,37 @@
   "find_your_community_intro": "Unten kannst du alle Community-Seiten durchsuchen, die bisher existieren. Fehlt dein Land oder deine Stadt? <1>Nutze dieses Formular</1>, um die Community anzufordern!",
   "find_your_community_intro_simplified": "Suche nach deiner Community oder stöbere unten. <1>Deine ist nicht dabei? Fordere sie an!</1>",
   "browse_communities_text": "Klicke auf einen Regionsnamen, um die anderen Communitys innerhalb dieser Region unten anzuzeigen. Klicke auf den Link, um zur Community-Seite dieser Stadt oder Region zu gelangen.",
-  "my_communities_heading": "Meine Communitys"
+  "my_communities_heading": "Meine Communitys",
+  "reminder": {
+    "respond_to_host_request": {
+      "title": "Auf Host-Anfrage antworten",
+      "description": "Vergiss nicht, {{name}} bezüglich des Aufenthalts zu antworten.",
+      "button": "Anfrage anzeigen"
+    },
+    "write_reference": {
+      "title": "Schreibe eine Referenz",
+      "description": "Hinterlasse eine Bewertung für den Aufenthalt von {{name}}",
+      "button": "Referenz schreiben"
+    },
+    "complete_profile": {
+      "title": "Profil vervollständigen",
+      "description": "Fülle den Bereich „Über mich\" aus und laden ein Profilfoto hoch",
+      "button": "Bearbeite dein Profil"
+    },
+    "strong_verification": {
+      "title": "Starke Verifizierung",
+      "description": "Verifiziere deine Identität für eine sicherere Community",
+      "button": "Konto verifizieren"
+    }
+  },
+  "events": {
+    "your_upcoming_header": "Deine kommenden Events",
+    "see_all_link": "Alle anzeigen →",
+    "your_upcoming_empty_message": "Aktuell gibt es keine Events. Warum <0>erstellst</0> du nicht eins ✨?",
+    "community_header": "Events in deinen Communitys",
+    "community_empty_message": "Keine bevorstehenden Events in deinen Communitys.",
+    "location_online_label": "Online",
+    "attendees_count_label_one": "{{count}} Teilnehmende Person",
+    "attendees_count_label_other": "{{count}} Teilnehmende"
+  }
 }

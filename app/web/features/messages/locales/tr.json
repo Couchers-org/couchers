@@ -70,7 +70,6 @@
     "request_duration_other": "{{count}} gece"
   },
   "group_chats_tab": {
-    "no_chats_message": "Henüz grup sohbeti yok",
     "load_more_button_label": "Daha fazla yükle"
   },
   "requests_tab": {
@@ -106,7 +105,6 @@
     "unknown_message_text": "Bilinmeyen kontrol mesajı"
   },
   "archive": {
-    "no_archived_chats": "Arşivlenmiş sohbet yok",
     "archived": "Arşiv",
     "archive_button": "Arşivle",
     "unarchive_button": "Arşivden Çıkar"

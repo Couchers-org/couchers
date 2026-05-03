@@ -168,5 +168,6 @@
     "request_chars_remaining_one": "Napiš ještě alespoň {{count}} znak, aby bylo možné odeslat žádost o ubytování.",
     "request_chars_remaining_few": "Napiš ještě alespoň {{count}} znaky, aby bylo možné odeslat žádost o ubytování.",
     "request_chars_remaining_other": "Napiš ještě alespoň {{count}} znaků, aby bylo možné odeslat žádost o ubytování."
-  }
+  },
+  "do_not_email_error_link": "Uprav si nastavení e-mailů, pro reaktivaci."
 }

@@ -24,7 +24,6 @@
     }
   },
   "group_chats_tab": {
-    "no_chats_message": "Encara no hi ha xats de grup",
     "load_more_button_label": "Carrega'n més"
   },
   "requests_tab": {
@@ -167,7 +166,6 @@
     "archived": "Arxivat",
     "archive_button": "Arxiva",
     "unarchive_button": "Desarxiva",
-    "no_archived_chats": "No hi ha xats arxivats",
     "no_archived_requests": "No hi ha sol·licituds arxivades",
     "no_archived_messages": "No hi ha missatges arxivats"
   },
