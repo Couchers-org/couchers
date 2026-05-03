@@ -36,7 +36,7 @@ export function useIsNativeEmbed(): boolean {
   );
 }
 
-type MessageType = "sendState" | "clearState" | "REQUEST_IMAGE_PICK";
+type MessageType = "sendState" | "clearState" | "REQUEST_IMAGE_PICK" | "WEB_BACK";
 
 function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;
@@ -76,6 +76,10 @@ if (typeof window !== "undefined") {
       // Ignore non-JSON messages
     }
   });
+}
+
+export function sendWebBack() {
+  sendToNative("WEB_BACK", {});
 }
 
 export function requestNativeImagePick(callback: ImagePickCallback) {

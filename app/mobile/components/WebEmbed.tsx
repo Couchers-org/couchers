@@ -224,6 +224,12 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       } else if (payload?.type === "REQUEST_IMAGE_PICK") {
         // Web app requests native image picker (WebView file input crashes on mobile)
         pickImage(sendImagePickResult);
+      } else if (payload?.type === "WEB_BACK") {
+        if (canGoBackRef.current && webviewRef.current) {
+          webviewRef.current.goBack();
+        } else {
+          router.back();
+        }
       }
     } catch (error) {
       // Silently ignore non-JSON messages (expected from browser/WebView internals)

@@ -66,6 +66,7 @@ Wraps the React Native WebView and handles:
   - `COLOR_SCHEME_CHANGE` → sync dark mode
   - `REQUEST_IMAGE_PICK` → use native image picker
   - `MOBILE_NAVIGATE` → trigger web navigation without reload
+  - `WEB_BACK` → web page requests native back navigation (see Common Issues #5)
 
 **Critical setting**: `sharedCookiesEnabled={true}` keeps auth working.
 
@@ -203,7 +204,34 @@ if (lastMobileNavigationRef.current === targetPath) {
 - Ensure web app sends `LOGIN_SUCCESS` / `LOGOUT` messages
 - Confirm session cookie has correct domain/path
 
-### 4. Stale content (wrong version numbers, old data)
+### 4. Back button on detail pages goes to the wrong place
+
+**Problem**: User navigates from the search tab to an event via a notification, then taps the web back button on the event page — it goes to the wrong place instead of returning to search.
+
+**Cause**: The catch-all WebView is a fresh instance with no prior history. `window.history.length` is 1 (or 2 after `MOBILE_NAVIGATE` adds an entry), so `router.back()` goes to another copy of the same page or an unrelated route — not the search tab.
+
+**Solution**: Web detail pages should delegate back navigation to native when running in a WebView. Use `sendWebBack()` from `utils/nativeLink.ts`:
+
+```typescript
+import { sendWebBack, useIsNativeEmbed } from "utils/nativeLink";
+
+const isNativeEmbed = useIsNativeEmbed();
+
+const handleBackClick = () => {
+  if (isNativeEmbed) {
+    sendWebBack(); // Native decides: WebView.goBack() or router.back()
+    return;
+  }
+  // Normal web back logic...
+};
+```
+
+Native handles it correctly in both cases:
+
+- User navigated within the web (history exists) → `WebView.goBack()`
+- User arrived via a notification push (no web history) → `router.back()` returns to the previous native screen
+
+### 5. Stale content (wrong version numbers, old data)
 
 **Problem**: WebView shows outdated content
 

@@ -41,6 +41,7 @@ import {
   timestamp2Date,
 } from "utils/date";
 import dayjs from "utils/dayjs";
+import { sendWebBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
@@ -187,6 +188,7 @@ export default function EventPage({
     i18n: { language: locale },
   } = useTranslation([COMMUNITIES]);
   const router = useRouter();
+  const isNativeEmbed = useIsNativeEmbed();
   const queryClient = useQueryClient();
   const currentUserId = useAuthContext().authState.userId;
   const {
@@ -232,6 +234,10 @@ export default function EventPage({
   const isCreator = currentUserId === event?.creatorUserId;
 
   const handleBackClick = () => {
+    if (isNativeEmbed) {
+      sendWebBack();
+      return;
+    }
     if (window.history.length > 1) {
       router.back();
     } else {

@@ -147,30 +147,13 @@ export function useWebNavigation({
       const targetRoute = getRouteNameForPath(webPathWithoutQuery);
       const currentRoute = getRouteNameForPath(currentPath);
 
-      // Skip navigation if this is from syncing the WebView (prevents fighting with focus effect)
       if (isSyncNavigation) {
         // Clear the sync target now that we've seen the navigation
         syncTargetPathRef.current = null;
-        return;
       }
-
-      // Check if we're navigating from a tab to a catch-all route
-      const isCurrentRouteTab =
-        currentRoute &&
-        ["dashboard", "messages", "events", "communities", "search"].includes(
-          currentRoute,
-        );
-      const isTargetRouteCatchAll =
-        targetRoute === "[...slug]" || targetRoute === "md/[...slug]";
 
       // Update native router to keep tab highlights in sync
       if (targetRoute !== currentRoute && targetRoute) {
-        // Don't switch screens when navigating from a tab to a catch-all route
-        // This keeps the user on the tab, allowing back button to work and preventing flash
-        if (isCurrentRouteTab && isTargetRouteCatchAll) {
-          return;
-        }
-
         if (targetRoute === "[...slug]" || targetRoute === "md/[...slug]") {
           // For catch-all routes, navigate to the appropriate screen
           // Strip locale prefix for mobile router (mobile routes don't use locale prefixes)

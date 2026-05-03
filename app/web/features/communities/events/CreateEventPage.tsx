@@ -19,6 +19,7 @@ import { theme } from "theme";
 import dayjs from "utils/dayjs";
 import stringOrFirstString from "utils/stringOrFirstString";
 
+import { sendWebBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import { communityEventsBaseKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
@@ -33,6 +34,7 @@ const StyledBackButton = styled(HeaderButton)(() => ({
 export default function CreateEventPage() {
   const { t } = useTranslation([GLOBAL, COMMUNITIES, PROFILE]);
   const router = useRouter();
+  const isNativeEmbed = useIsNativeEmbed();
 
   const urlCommunityIdString =
     typeof window !== "undefined"
@@ -141,6 +143,10 @@ export default function CreateEventPage() {
     useAccountInfo();
 
   const handleBackClick = () => {
+    if (isNativeEmbed) {
+      sendWebBack();
+      return;
+    }
     if (window.history.length > 1) {
       router.back();
     } else {
