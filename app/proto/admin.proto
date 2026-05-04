@@ -140,6 +140,8 @@ message UserDetails {
 
   repeated AdminActionLog admin_actions = 18;
   repeated string admin_tags = 19;
+
+  double mod_score = 20;
 }
 
 message GetUserDetailsReq {

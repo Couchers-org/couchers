@@ -146,6 +146,7 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         acknowledged_mod_notes_count=user.mod_notes.where(~ModNote.is_pending).count(),
         admin_actions=action_pbs,
         admin_tags=list(admin_tags),
+        mod_score=user.mod_score,
     )
 
 
