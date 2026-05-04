@@ -120,7 +120,7 @@ describe("useScrollDepth", () => {
   it("logs max scroll depth on unmount when attached to a container", () => {
     // Use a real component so the ref is attached before useEffect runs
     function ScrollComponent() {
-      const scrollRef = useScrollDepth("page.scroll_depth", {
+      const scrollRef = useScrollDepth<HTMLDivElement>("page.scroll_depth", {
         path: "/about",
       });
       return <div ref={scrollRef} data-testid="scroller" />;
@@ -155,7 +155,7 @@ describe("useScrollDepth", () => {
 
   it("tracks maximum scroll depth, not final position", () => {
     function ScrollComponent() {
-      const scrollRef = useScrollDepth("scroll.depth");
+      const scrollRef = useScrollDepth<HTMLDivElement>("scroll.depth");
       return <div ref={scrollRef} data-testid="scroller" />;
     }
 
@@ -198,7 +198,7 @@ describe("useScrollDepth", () => {
 
   it("does not log if no scrolling occurred", () => {
     function ScrollComponent() {
-      const scrollRef = useScrollDepth("scroll.depth");
+      const scrollRef = useScrollDepth<HTMLDivElement>("scroll.depth");
       return <div ref={scrollRef} data-testid="scroller" />;
     }
 

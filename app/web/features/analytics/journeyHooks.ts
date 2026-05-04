@@ -94,7 +94,7 @@ export function useFunnelStep(
  * const scrollRef = useScrollDepth("article.read", { article_id: post.id });
  * return <article ref={scrollRef}>...</article>;
  */
-export function useScrollDepth(
+export function useScrollDepth<T extends HTMLElement = HTMLElement>(
   eventType: string,
   properties: Record<string, unknown> = {},
 ) {
@@ -103,7 +103,7 @@ export function useScrollDepth(
 
   const maxDepthRef = useRef(0);
   const hasLoggedRef = useRef(false);
-  const containerRef = useRef<HTMLElement | null>(null);
+  const containerRef = useRef<T | null>(null);
 
   const logDepth = useCallback(() => {
     if (hasLoggedRef.current) return;
