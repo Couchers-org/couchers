@@ -62,6 +62,19 @@
     },
     "strong_verification": {
       "description": "Ověř svoji identitu pro bezpečnější komunitu"
+    },
+    "respond_to_host_request": {
+      "description": "Nezapomeň odpovědět {{name}} ohledně jejich pobytu.",
+      "button": "Zobrazit požadavek"
+    },
+    "write_reference": {
+      "title": "Napsat referenci"
     }
+  },
+  "events": {
+    "location_online_label": "Online",
+    "attendees_count_label_one": "{{count}} účastník",
+    "attendees_count_label_few": "{{count}} účastníci",
+    "attendees_count_label_other": "{{count}} účastníků"
   }
 }

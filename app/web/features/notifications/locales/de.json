@@ -20,7 +20,11 @@
         "other_notifications": "Weitere Benachrichtigungen"
       },
       "expand_all": "Alle aufklappen",
-      "collapse_all": "Alle einklappen"
+      "collapse_all": "Alle einklappen",
+      "channels": {
+        "email_label": "E-Mail",
+        "push_label": "Push"
+      }
     },
     "push_notifications": {
       "permission_denied": {

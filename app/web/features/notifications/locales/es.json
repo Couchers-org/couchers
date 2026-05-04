@@ -20,7 +20,11 @@
         "other_notifications": "Otras notificaciones"
       },
       "expand_all": "Expandir todo",
-      "collapse_all": "Contraer todo"
+      "collapse_all": "Contraer todo",
+      "channels": {
+        "email_label": "Correo electrónico",
+        "push_label": "Notificaciones push"
+      }
     },
     "push_notifications": {
       "description": "Puedes habilitar las notificaciones push para Couchers.org en tu dispositivo. Estamos trabajando en expandir esta característica.",

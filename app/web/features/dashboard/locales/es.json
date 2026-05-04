@@ -77,5 +77,16 @@
       "description": "Verifica tu identidad para una comunidad más segura",
       "button": "Verifica tu cuenta"
     }
+  },
+  "events": {
+    "your_upcoming_header": "Tus próximos eventos",
+    "see_all_link": "Ver todos →",
+    "your_upcoming_empty_message": "No hay eventos en este momento. ¿Por qué no <0>creas</0> uno ✨?",
+    "community_header": "Eventos en tus comunidades",
+    "community_empty_message": "No hay próximos eventos en tus comunidades.",
+    "location_online_label": "En línea",
+    "attendees_count_label_one": "{{count}} asistente",
+    "attendees_count_label_many": "{{count}} de asistentes",
+    "attendees_count_label_other": "{{count}} asistentes"
   }
 }
