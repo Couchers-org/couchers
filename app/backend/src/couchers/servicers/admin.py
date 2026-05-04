@@ -1075,3 +1075,13 @@ class Admin(admin_pb2_grpc.AdminServicer):
         session.flush()
         log_admin_action(session, context, user, "remove_tag", tag=request.tag)
         return _user_to_details(session, user)
+
+    def SetModScore(
+        self, request: admin_pb2.SetModScoreReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.UserDetails:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        user.mod_score = request.mod_score
+        log_admin_action(session, context, user, "set_mod_score", note=f"mod_score={request.mod_score}")
+        return _user_to_details(session, user)

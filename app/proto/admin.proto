@@ -97,6 +97,8 @@ service Admin {
   rpc AddAdminTagToUser(AddAdminTagToUserReq) returns (UserDetails) {}
 
   rpc RemoveAdminTagFromUser(RemoveAdminTagFromUserReq) returns (UserDetails) {}
+
+  rpc SetModScore(SetModScoreReq) returns (UserDetails) {}
 }
 
 message AdminActionLog {
@@ -525,4 +527,10 @@ message AddAdminTagToUserReq {
 message RemoveAdminTagFromUserReq {
   string user = 1;
   string tag = 2;
+}
+
+message SetModScoreReq {
+  // username, email, or user id
+  string user = 1;
+  double mod_score = 2;
 }
