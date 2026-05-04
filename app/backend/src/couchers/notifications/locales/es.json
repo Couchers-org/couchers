@@ -13,7 +13,7 @@
       "event_description": "Tu cuenta ha sido eliminada",
       "push": {
         "title": "Cuenta eliminada",
-        "ios_title": "Cuenta eliminada"
+        "ios_title": "Cuenta Eliminada"
       }
     },
     "recovered": {

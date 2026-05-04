@@ -8,7 +8,8 @@
     "tabs": {
       "chats": "Conversaciones",
       "hosting": "Hospedar",
-      "surfing": "Ser hospedado"
+      "surfing": "Ser hospedado",
+      "unread": "No leídas"
     }
   },
   "chat_view": {
