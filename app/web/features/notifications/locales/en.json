@@ -27,6 +27,10 @@
         "reference": "References",
         "discussion": "Discussions",
         "reply": "Replies"
+      },
+      "channels": {
+        "email_label": "Email",
+        "push_label": "Push"
       }
     },
     "push_notifications": {
