@@ -257,6 +257,8 @@ class User(Base, kw_only=True):
 
     recommendation_score: Mapped[float] = mapped_column(Float, server_default="0", init=False)
 
+    mod_score: Mapped[float] = mapped_column(Float, server_default="1", init=False)
+
     # Columns for verifying their phone number. State chart:
     #                                       ,-------------------,
     #                                       |    Start          |
