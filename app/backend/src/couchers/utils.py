@@ -19,7 +19,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
 from couchers.config import config
-from couchers.constants import EMAIL_REGEX, PREFERRED_LANGUAGE_COOKIE_EXPIRY
+from couchers.constants import EMAIL_REGEX, PREFERRED_LANGUAGE_COOKIE_EXPIRY, VALID_NAME_REGEX
 from couchers.crypto import (
     create_sofa_id,
     decode_sofa,
@@ -29,7 +29,7 @@ from couchers.crypto import (
 )
 from couchers.proto.internal import internal_pb2
 
-VALID_NAME_PATTERN = regex.compile(r"^[\p{L}\s'-]+$")
+_VALID_NAME_PATTERN = regex.compile(VALID_NAME_REGEX)
 
 if TYPE_CHECKING:
     from couchers.models import Geom
@@ -63,15 +63,13 @@ def is_valid_name(field: str) -> bool:
     Checks that the name satisfies the same rules as the web frontend:
 
     * only letters (any Unicode letter), whitespace, apostrophes, and hyphens
-      (frontend: ``^[\\p{L}\\s'-]+$``)
+    * no leading or trailing whitespace
     * 2-100 characters
     """
-
-    trimmed = field.strip()
-    if len(trimmed) > 100 or len(trimmed) < 2:
+    if len(field) > 100 or len(field) < 2:
         return False
 
-    return VALID_NAME_PATTERN.fullmatch(field) is not None
+    return _VALID_NAME_PATTERN.fullmatch(field) is not None
 
 
 def is_valid_email(field: str) -> bool:

@@ -73,12 +73,17 @@ def test_is_valid_name() -> None:
     assert is_valid_name("Jean-Luc")
     assert is_valid_name("老子")
 
-    # invalid: too short after trimming
+    # invalid: too short
     assert not is_valid_name("a")
     # invalid: only whitespace
     assert not is_valid_name("	")
     assert not is_valid_name("")
     assert not is_valid_name(" ")
+    assert not is_valid_name("  ")
+    # invalid: leading/trailing whitespace
+    assert not is_valid_name(" ab")
+    assert not is_valid_name("ab ")
+    assert not is_valid_name(" ab ")
     # invalid: contains characters outside of letters/whitespace/'/-
     assert not is_valid_name("1")
     # invalid: too long
