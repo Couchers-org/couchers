@@ -28,7 +28,7 @@
     "body": "Your new email address has been verified."
   },
   "gender_changed": {
-    "subject": "Your profile gender was changed",
+    "subject": "Your gender was changed",
     "body": "Your gender on Couchers.org was changed to <b>{{ gender }}</b> by an admin."
   },
   "password_changed": {

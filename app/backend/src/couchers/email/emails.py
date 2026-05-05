@@ -89,6 +89,7 @@ class APIKeyIssuedEmail(EmailBase):
         builder.para("expiry", {"datetime": loc_context.localize_datetime(self.expiry)})
         builder.para("usage_warning")
         builder.para("policy_warning")
+        builder.security_warning_para()
 
     @classmethod
     def dummy_data(cls) -> APIKeyIssuedEmail:
