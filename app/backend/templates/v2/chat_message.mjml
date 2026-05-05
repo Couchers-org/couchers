@@ -20,7 +20,11 @@
 </mj-section>
 <mj-section padding="10px 20px" text-align="left">
   <mj-column background-color="#eee" border-radius="10px" padding="10px 0px">
+    {% if hide_text %}
+    <mj-text><i>{{ "notifications.message_content_hidden"|translate }}</i></mj-text>
+    {% else %}
     <mj-text>{{ text|multiline }}</mj-text>
+    {% endif %}
   </mj-column>
 </mj-section>
 <mj-section padding="0px">

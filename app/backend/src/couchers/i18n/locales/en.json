@@ -294,6 +294,7 @@
     "dear_name": "Dear {{name}},",
     "thank_you": "Thank you!",
     "founders_signature": "Aapeli and Itsi,\nCouchers.org Founders",
+    "message_content_hidden": "Please log in to view this message.",
     "donation_received": {
       "title": "Thank you for your donation to Couchers.org!",
       "thanks_amount": "Thank you so much for your donation of ${{amount}} to Couchers.org.",

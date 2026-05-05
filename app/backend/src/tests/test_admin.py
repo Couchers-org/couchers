@@ -1303,6 +1303,41 @@ def test_search_users_by_admin_note(db):
         assert user2.id not in user_ids
 
 
+def test_SetModScore(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    # default mod_score is 1.0
+    with real_admin_session(super_token) as api:
+        res = api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username))
+    assert res.mod_score == 1.0
+
+    with real_admin_session(super_token) as api:
+        res = api.SetModScore(admin_pb2.SetModScoreReq(user=normal_user.username, mod_score=0.5))
+    assert res.user_id == normal_user.id
+    assert res.mod_score == 0.5
+    assert any(a.action_type == "set_mod_score" and a.note == "mod_score=0.5" for a in res.admin_actions)
+
+    # subsequent read reflects the new value
+    with real_admin_session(super_token) as api:
+        res = api.GetUserDetails(admin_pb2.GetUserDetailsReq(user=normal_user.username))
+    assert res.mod_score == 0.5
+
+    # can be raised back above default
+    with real_admin_session(super_token) as api:
+        res = api.SetModScore(admin_pb2.SetModScoreReq(user=normal_user.username, mod_score=2.5))
+    assert res.mod_score == 2.5
+
+
+def test_SetModScore_user_not_found(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SetModScore(admin_pb2.SetModScoreReq(user="nonexistent-username", mod_score=0.5))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
 # community invite feature tested in test_events.py
 # SendBlogPostNotification tested in test_notifications.py
 # MarkUserNeedsLocationUpdate tested in test_jail.py

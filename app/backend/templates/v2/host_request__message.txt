@@ -10,7 +10,11 @@ Dates: {{ host_request.from_date|date }} to {{ host_request.to_date|date }}.
 
 They wrote the following message:
 
+{% if hide_text %}
+{{ "notifications.message_content_hidden"|translate }}
+{% else %}
 {{ text|quotelines }}
+{% endif %}
 
 
 

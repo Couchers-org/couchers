@@ -8,7 +8,11 @@ You have unseen messages on Couchers.org, here's the latest:
 
 {{ item.message }}.
 
+{% if item.hide_text %}
+{{ "notifications.message_content_hidden"|translate }}
+{% else %}
 {{ item.text|quotelines }}
+{% endif %}
 
 View this message: <{{ item.view_link }}>
 
