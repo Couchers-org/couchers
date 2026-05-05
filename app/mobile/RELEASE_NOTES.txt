@@ -1,2 +1,4 @@
 - Fix issues with bottom tab navigation
 - Address tabs going gray after some time
+- Add back button to user profile on mobile to return to search results
+- Tapping bottom nav should close any open dropdowns like notifications

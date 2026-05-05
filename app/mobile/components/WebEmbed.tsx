@@ -22,6 +22,7 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
 import errorGraphic from "@/resources/404graphic.png";
+import { dispatchEscapeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
@@ -66,6 +67,18 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         retryCountRef.current = 0;
       },
     });
+
+  // Register escape-dispatch callback while this tab is focused so the tab bar
+  // can close open menus (e.g. notifications) on any tab press.
+  useFocusEffect(
+    useCallback(() => {
+      dispatchEscapeRef.current = () => {
+        webviewRef.current?.injectJavaScript(
+          `(document.activeElement || document.body).dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27, bubbles: true, cancelable: true })); true;`,
+        );
+      };
+    }, []),
+  );
 
   // Android hardware back button: go back in WebView if possible.
   useFocusEffect(
@@ -132,14 +145,15 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
       true;
     `);
-  }, [path, stripLocale, i18n.language]);
+  }, [path, stripLocale, i18n.language, currentWebPathRef]);
 
   // Sync WebView when screen comes back into focus (tab switch).
   useFocusEffect(
     useCallback(() => {
-      // On blur: clear focus so web-side menus close via onBlur.
+      // On blur: close open menus and clear focus.
       const cleanup = () => {
         webviewRef.current?.injectJavaScript(`
+          (document.activeElement || document.body).dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27, bubbles: true, cancelable: true }));
           document.activeElement?.blur();
           true;
         `);
@@ -170,7 +184,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       `);
 
       return cleanup;
-    }, [path, stripLocale, i18n.language]),
+    }, [path, stripLocale, i18n.language, currentWebPathRef]),
   );
 
   // Reload WebView if it's been backgrounded for more than 30 minutes.

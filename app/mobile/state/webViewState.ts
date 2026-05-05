@@ -10,3 +10,10 @@ export const globalWebPathRef = { current: "/" };
  * Used to prevent sync loops when mobile router navigates WebView.
  */
 export const lastMobileNavigationRef = { current: null as string | null };
+
+/**
+ * Callback registered by the currently-focused WebEmbed to dispatch an Escape
+ * key into its WebView. Called by the tab bar on any tab press so that open
+ * menus (e.g. notifications) close even when the active tab is re-tapped.
+ */
+export const dispatchEscapeRef = { current: null as (() => void) | null };
