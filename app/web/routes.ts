@@ -47,6 +47,7 @@ export const settingsRoute = "/account-settings";
 export const notificationSettingsRoute = `${settingsRoute}/notifications`;
 export const loginsSettingsRoute = `${settingsRoute}/logins`;
 export const strongVerificationRoute = "/strong-verification";
+export const verifyPostalRoute = "/verify-postal";
 
 export const translateRoute = "/translate";
 

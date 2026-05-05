@@ -329,6 +329,68 @@
     "change_to_different_description": "To change your phone number to a different one, please enter it below.",
     "change_button_text": "Change phone number"
   },
+  "postal_verification": {
+    "title": "Postal verification",
+    "subtitle": "Postal verification confirms that you live at the address you provide. We mail you a postcard with a verification code; once you enter the code, your address is verified.",
+    "status": {
+      "verified": "Your address is <1>verified</1>.",
+      "not_verified": "Your address is <1>not verified</1>.",
+      "pending_address_confirmation": "Please confirm the address below before we send your postcard.",
+      "in_progress": "Your postcard is being prepared and will be sent shortly.",
+      "awaiting_verification": "Your postcard was sent on <1>{{sent_date}}</1>. Allow up to a few weeks for delivery, then enter the code from the postcard below.",
+      "awaiting_verification_no_date": "Your postcard has been sent. Allow up to a few weeks for delivery, then enter the code from the postcard below.",
+      "succeeded": "Verified on <1>{{verified_date}}</1>.",
+      "failed": "Your last attempt failed.",
+      "cancelled": "Your last attempt was cancelled."
+    },
+    "rate_limited": "You can start a new attempt on <1>{{next_attempt_date}}</1>.",
+    "address_form": {
+      "description": "Enter the address where we should send your postcard. We will validate the address before sending.",
+      "address_line_1_label": "Street address",
+      "address_line_2_label": "Apartment, suite, unit (optional)",
+      "city_label": "City",
+      "state_label": "State / province / region (optional)",
+      "postal_code_label": "Postal / ZIP code",
+      "country_code_label": "Country code",
+      "country_code_helper": "Two-letter ISO country code, e.g. US, DE, JP.",
+      "country_code_validation_error": "Please enter a two-letter ISO country code.",
+      "required_error": "This field is required.",
+      "submit_button": "Validate address"
+    },
+    "confirm_address": {
+      "title": "Confirm your address",
+      "address_was_corrected": "We've adjusted the address you entered to a deliverable format. Please review the corrected address below.",
+      "address_was_not_corrected": "Your address looks deliverable. Please review the address below before we send the postcard.",
+      "confirm_button": "Confirm and send postcard",
+      "edit_button": "Edit address"
+    },
+    "code_form": {
+      "description": "Enter the 6-character code from your postcard, or scan the QR code.",
+      "code_label": "Verification code",
+      "wrong_format_error": "The code should be 6 alphanumeric characters.",
+      "incorrect_code": "Incorrect code. {{remaining}} attempts remaining.",
+      "submit_button": "Verify code"
+    },
+    "cancel_button": "Cancel this attempt",
+    "start_button": "Start postal verification",
+    "start_new_button": "Start a new attempt",
+    "confirm_success": "Postcard queued for delivery.",
+    "verify_success": "Your address has been verified.",
+    "cancel_success": "Postal verification attempt cancelled.",
+    "history_title": "Past attempts",
+    "history_status_succeeded": "Verified",
+    "history_status_failed": "Failed",
+    "history_status_cancelled": "Cancelled",
+    "history_status_in_progress": "In progress",
+    "history_status_awaiting_verification": "Awaiting code",
+    "history_status_pending_address_confirmation": "Awaiting confirmation",
+    "complete_page": {
+      "title": "Verify your postcard code",
+      "description": "Enter the code from the postcard you received to verify your address.",
+      "no_active_attempt": "You don't have a postal verification attempt awaiting a code right now. Start one from your account settings.",
+      "back_to_settings": "Back to account settings"
+    }
+  },
   "delete_account": {
     "request": {
       "title": "Delete account",

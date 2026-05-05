@@ -23,6 +23,7 @@ import DeleteAccount from "./deletion/DeleteAccount";
 import ManageDonations from "./donations/ManageDonations";
 import LoginsLink from "./logins/LoginsLink";
 import ChangePhone from "./phone/ChangePhone";
+import PostalVerification from "./postalVerification/PostalVerification";
 import useAccountInfo from "./useAccountInfo";
 import StrongVerification from "./verification/StrongVerification";
 import VolunteerManagement from "./volunteer/VolunteerManagement";
@@ -126,6 +127,9 @@ export default function Settings() {
           </MarginWrapper>
           <MarginWrapper>
             <StrongVerification accountInfo={accountInfo!} />
+          </MarginWrapper>
+          <MarginWrapper>
+            <PostalVerification />
           </MarginWrapper>
           <MarginWrapper>
             <VolunteerManagement accountInfo={accountInfo!} />
