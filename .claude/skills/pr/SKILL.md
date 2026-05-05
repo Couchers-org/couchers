@@ -86,11 +86,11 @@ Read the PR template from `.github/pull_request_template.md` in this repo. Fill 
 
   Be honest. If the user dictated the approach in detail, Design is None or Some. If the user wrote or substantially rewrote the code themselves, Implementation is None or Some. If the user manually tested or you never ran/tested the changes, Review is None or Some. Judge from the actual conversation, not optimistically.
 
-  Score **Amount of iteration** separately on the same scale — this measures total back-and-forth/rework regardless of who drove it:
-  - **None** — one-shot; first attempt accepted as-is.
-  - **Some** — minor refinements or follow-up tweaks.
-  - **Most** — substantial rework or course correction along the way.
-  - **All** — many rounds; repeated redirection or rewriting.
+  Score **Amount of iteration** as **One-shot**, **Light**, **Moderate**, or **Heavy** — this measures total back-and-forth/rework regardless of who drove it:
+  - **One-shot** — first attempt accepted as-is.
+  - **Light** — minor refinements or follow-up tweaks.
+  - **Moderate** — substantial rework or course correction along the way.
+  - **Heavy** — many rounds; repeated redirection or rewriting.
 
 ```bash
 gh pr create --base develop --title "<short title>" --body "$(cat <<'EOF'
