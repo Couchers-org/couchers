@@ -315,6 +315,7 @@ dev = [
     { name = "types-python-dateutil" },
     { name = "types-pyyaml" },
     { name = "types-qrcode" },
+    { name = "types-regex" },
     { name = "types-requests" },
     { name = "types-shapely" },
 ]
@@ -378,6 +379,7 @@ dev = [
     { name = "types-python-dateutil", specifier = ">=2.9.0.20251115" },
     { name = "types-pyyaml", specifier = ">=6.0.12.20250915" },
     { name = "types-qrcode", specifier = ">=8.2.0.20260408" },
+    { name = "types-regex", specifier = ">=2026.4.4.20260408" },
     { name = "types-requests", specifier = ">=2.32.4.20250913" },
     { name = "types-shapely", specifier = ">=2.1.0.20250917" },
 ]
@@ -1756,6 +1758,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/04/46/d1334f341c658adca57e66af7b699fd5dbb801556e78303bfd5146729813/types_qrcode-8.2.0.20260408.tar.gz", hash = "sha256:074478558852fd327728008a08ff1ef2b7bada29f6ec94df5fa91e1f2c1d2df5", size = 15213, upload-time = "2026-04-08T04:36:11.283Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/36/05/d9bab35be450b2c93bb288d5d4fdc849f8a812fb829c4b3c4ae99c4ef473/types_qrcode-8.2.0.20260408-py3-none-any.whl", hash = "sha256:19027b5db4bb9b46731ab91588f6ca5a8c0eeaaf794c3269a4b0643a9611bc25", size = 19864, upload-time = "2026-04-08T04:36:10.194Z" },
+]
+
+[[package]]
+name = "types-regex"
+version = "2026.4.4.20260408"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/92/42/d7c691fc5a8a8ecfba3f23c1c4c087a089af0767610d88c29201193d8f60/types_regex-2026.4.4.20260408.tar.gz", hash = "sha256:86b2975ff11b06e7f538839821510daea2566d9cb18bb8acde47834315409cf9", size = 13182, upload-time = "2026-04-08T04:31:11.887Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e1/92/e109654a804d11d9b60d67c7b29d64b2beac6b2e3209ea075e268e5a1021/types_regex-2026.4.4.20260408-py3-none-any.whl", hash = "sha256:d436bcc409abf9b06747b7e038014afc6d40ef7b72329655c353a1955534068f", size = 11116, upload-time = "2026-04-08T04:31:11.01Z" },
 ]
 
 [[package]]
