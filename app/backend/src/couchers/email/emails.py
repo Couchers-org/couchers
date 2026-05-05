@@ -4,22 +4,17 @@ Defines data models for each email we sent out to users.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime, UTC
 from typing import Self
 
-from markupsafe import Markup
-
 from couchers.email.rendering import (
-    ActionBlock,
     EmailBlock,
-    ParaBlock,
-    QuoteBlock,
-    UserBlock,
-    UserInfo,
+    EmailBlocksBuilder,
     get_emails_i18next,
 )
 from couchers.i18n import LocalizationContext
 from couchers.i18n.i18next import SubstitutionDict
+from couchers.i18n.localize import format_phone_number
 
 
 @dataclass
@@ -40,9 +35,14 @@ class EmailBase(ABC):
         """Gets the line that gets shown as a preview next to the title in users' inboxes."""
         return None
 
-    @abstractmethod
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         """Gets the blocks that form the body of the email."""
+        builder = EmailBlocksBuilder(locale=loc_context.locale, string_key_prefix=self._localize_key_prefix)
+        self._build_body(builder, loc_context)
+        return builder.blocks
+
+    @abstractmethod
+    def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         ...
 
     @classmethod
@@ -56,96 +56,145 @@ class EmailBase(ABC):
     @abstractmethod
     def _localize_key_prefix(self) -> str: ...
 
-    def _text(self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None) -> str:
-        if "." not in key:
-            key = f"{self._localize_key_prefix}.{key}"
+    def _localize(self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None) -> str:
+        key = f"{self._localize_key_prefix}.{key}"
         return get_emails_i18next().localize(key, loc_context.locale, substitutions)
 
-    def _markup(
-        self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None
-    ) -> Markup:
-        if "." not in key:
-            key = f"{self._localize_key_prefix}.{key}"
-        return get_emails_i18next().localize_with_markup(key, loc_context.locale, substitutions)
-
-    # Helpers for creating common blocks
-    def _greeting_line(self, loc_context: LocalizationContext) -> ParaBlock:
-        line = get_emails_i18next().localize("generic.greeting_line", loc_context.locale, {"name": self.user_name})
-        return ParaBlock(text=line)
-
-    def _para(
-        self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None
-    ) -> ParaBlock:
-        return ParaBlock(text=self._markup(loc_context, key, substitutions))
-
-    def _user(
-        self,
-        info: UserInfo,
-        loc_context: LocalizationContext,
-        comment_key: str,
-        substitutions: SubstitutionDict | None = None,
-    ) -> UserBlock:
-        return UserBlock(info=info, comment=self._markup(loc_context, comment_key, substitutions))
-
-    def _quote(self, text: str) -> QuoteBlock:
-        return QuoteBlock(text=text)
-
-    def _action(
-        self, url: str, loc_context: LocalizationContext, text_key: str, substitutions: SubstitutionDict | None = None
-    ) -> ActionBlock:
-        return ActionBlock(text=self._text(loc_context, text_key, substitutions), target_url=url)
+    def _body_builder(self, loc_context: LocalizationContext) -> EmailBlocksBuilder:
+        return EmailBlocksBuilder(locale=loc_context.locale, string_key_prefix=self._localize_key_prefix)
 
 
-@dataclass
-class HostRequestReceived(EmailBase):
-    """Sent to a host to notify them they have received a request from a surfer."""
-
-    surfer: UserInfo
-    from_date: date
-    to_date: date
-    text: str
-    view_url: str
-    quick_decline_url: str
-
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._text(loc_context, "subject", {"name": self.surfer.name})
-
-    def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
-        return [
-            self._greeting_line(loc_context),
-            self._para(loc_context, "event_description", {"name": self.surfer.name}),
-            self._user(
-                self.surfer,
-                loc_context,
-                "requested_dates",
-                {
-                    "from_date": loc_context.localize_date(self.from_date),
-                    "to_date": loc_context.localize_date(self.to_date),
-                },
-            ),
-            self._quote(self.text),
-            self._action(self.view_url, loc_context, "view_request_link"),
-            self._action(self.quick_decline_url, loc_context, "quick_decline_link"),
-        ]
+@dataclass(kw_only=True, slots=True)
+class APIKeyIssuedEmail(EmailBase):
+    """Sent to a user to notify them that their API key was issued."""
+    api_key: str
+    expiry: datetime
 
     @property
     def _localize_key_prefix(self) -> str:
-        return "host_request_received"
+        return "api_key_issued"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject")
+
+    def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.greeting_line(self.user_name)
+        builder.para("header")
+        builder.quote(self.api_key)
+        builder.para("expiry", {"datetime": loc_context.localize_datetime(self.expiry) })
+        builder.para("usage_warning")
+        builder.para("policy_warning")
+        builder.security_warning_line()
+        builder.closing_line()
 
     @classmethod
-    def dummy_data(cls) -> HostRequestReceived:
-        return HostRequestReceived(
+    def dummy_data(cls) -> APIKeyIssuedEmail:
+        return APIKeyIssuedEmail(
             user_name="Alice",
-            surfer=UserInfo(
-                name="Bob",
-                age=42,
-                city="Tokyo",
-                avatar_url="https://example.com/users/bob/avatar.jpg",
-                profile_url="https://example.com/users/bob",
-            ),
-            from_date=date(2000, 1, 1),
-            to_date=date(2000, 1, 2),
-            text="Hello world!",
-            view_url="https://example.com/requests",
-            quick_decline_url="https://example.com/quick-decline",
+            api_key="my_api_key_123",
+            expiry=datetime(2099, 12, 31, 23, 59, 59, tzinfo=UTC)
+        )
+
+@dataclass(kw_only=True, slots=True)
+class BirthdateChangedEmail(EmailBase):
+    """Sent to a user to notify them that their birthdate was changed."""
+    new_birthdate: date
+
+    @property
+    def _localize_key_prefix(self) -> str:
+        return "birthdate_changed"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject")
+
+    def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.greeting_line(self.user_name)
+        builder.para("body", {"new_birthdate": loc_context.localize_date(self.new_birthdate) })
+        builder.security_warning_line()
+        builder.closing_line()
+
+    @classmethod
+    def dummy_data(cls) -> BirthdateChangedEmail:
+        return BirthdateChangedEmail(
+            user_name="Alice",
+            new_birthdate=date(1990, 1, 1),
+        )
+
+@dataclass(kw_only=True, slots=True)
+class EmailAddressChangeEmail(EmailBase):
+    """Sent to a user to notify them that their email address was changed."""
+    new_email: str
+    completed: bool # False = started, True = completed
+
+    @property
+    def _localize_key_prefix(self) -> str:
+        return "email_address_verified" if self.completed else "email_address_change_initiated"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject")
+
+    def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.greeting_line(self.user_name)
+        builder.para("body", {"new_email": self.new_email})
+        builder.security_warning_line()
+        builder.closing_line()
+
+    @classmethod
+    def dummy_data(cls) -> EmailAddressChangeEmail:
+        return EmailAddressChangeEmail(
+            user_name="Alice",
+            new_email="alice@example.com",
+            completed=False,
+        )
+
+@dataclass(kw_only=True, slots=True)
+class GenderChangedEmail(EmailBase):
+    """Sent to a user to notify them that their gender was changed."""
+    new_gender: str
+
+    @property
+    def _localize_key_prefix(self) -> str:
+        return "gender_changed"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject")
+
+    def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.greeting_line(self.user_name)
+        builder.para("body", {"new_gender": self.new_gender})
+        builder.security_warning_line()
+        builder.closing_line()
+
+    @classmethod
+    def dummy_data(cls) -> GenderChangedEmail:
+        return GenderChangedEmail(
+            user_name="Alice",
+            new_gender="Male",
+        )
+
+@dataclass(kw_only=True, slots=True)
+class PhoneNumberChangeEmail(EmailBase):
+    """Sent to a user to notify them that their phone number verification status was changed."""
+    new_phone_number: str
+    completed: bool # False = started, True = completed
+
+    @property
+    def _localize_key_prefix(self) -> str:
+        return "phone_number_verified" if self.completed else "phone_number_verification_started"
+
+    def get_subject_line(self, loc_context: LocalizationContext) -> str:
+        return self._localize(loc_context, "subject")
+
+    def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.greeting_line(self.user_name)
+        builder.para("body", {"new_phone_number": format_phone_number(self.new_phone_number) })
+        builder.security_warning_line()
+        builder.closing_line()
+
+    @classmethod
+    def dummy_data(cls) -> PhoneNumberChangeEmail:
+        return PhoneNumberChangeEmail(
+            user_name="Alice",
+            new_phone_number="+12223334444",
+            completed=False,
         )

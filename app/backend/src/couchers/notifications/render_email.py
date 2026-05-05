@@ -4,9 +4,9 @@ from typing import Any
 
 from couchers import urls
 from couchers.config import config
-from couchers.email.rendering import EmailFooter, UnsubscribeInfo, UnsubscribeLink
+import couchers.email.emails as emails
+from couchers.email.rendering import EmailFooter, UnsubscribeInfo, UnsubscribeLink, render_html_body, render_plaintext_body
 from couchers.i18n import LocalizationContext
-from couchers.i18n.localize import format_phone_number
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import (
     can_unsubscribe_topic_key,
@@ -36,42 +36,77 @@ def render_email_notification(
 ) -> RenderedEmailNotification:
     footer = get_email_footer(user, notification, loc_context)
 
-    # Currently only support custom templated emails,
-    # in the future will also support couchers.email.emails (single generic template).
-    custom_templated = _get_custom_templated_email(notification, loc_context)
+    subject: str
+    body_plaintext: str
+    body_html: str
+    source_data: str | None = None
+    # Progressively migrate to the new email templating system in couchers.email.emails,
+    # which supports localization and uses a single generic html template.
+    if email := _get_generic_templated_email(user.name, notification):
+        subject = email.get_subject_line(loc_context)
+        preview = email.get_preview_line(loc_context)
+        body_blocks = email.get_body_blocks(loc_context)
+        body_plaintext = render_plaintext_body(blocks=body_blocks, footer=footer, loc_context=loc_context)
+        body_html = render_html_body(subject=subject, preview=preview,
+            blocks=body_blocks, footer=footer, loc_context=loc_context)
+    else:
+        # Email is still a custom-templated, nonlocalizable email.
+        custom_templated = _get_custom_templated_email(notification, loc_context)
+        subject = custom_templated.subject
 
-    template_args = {
-        **custom_templated.template_args,
-        "header_subject": custom_templated.subject,
-        "header_preview": custom_templated.preview,
-        "user": user,
-        "time": notification.created,
-        **footer.to_template_args(),
-    }
+        template_args = {
+            **custom_templated.template_args,
+            "header_subject": custom_templated.subject,
+            "header_preview": custom_templated.preview,
+            "user": user,
+            "time": notification.created,
+            **footer.to_template_args(),
+        }
 
-    # Format plaintext template
-    plain_tmplt_body = (template_folder / f"{custom_templated.template_name}.txt").read_text()
-    plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain_tmplt = Jinja2Template(source=plain_tmplt_body + plain_tmplt_footer, html=False)
-    plain = plain_tmplt.render(template_args, loc_context)
+        # Format plaintext template
+        plain_tmplt_body = (template_folder / f"{custom_templated.template_name}.txt").read_text()
+        plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
+        plain_tmplt = Jinja2Template(source=plain_tmplt_body + plain_tmplt_footer, html=False)
+        body_plaintext = plain_tmplt.render(template_args, loc_context)
 
-    # Format html template
-    html_tmplt = Jinja2Template(
-        source=(template_folder / "generated_html" / f"{custom_templated.template_name}.html").read_text(), html=True
-    )
-    html = html_tmplt.render(template_args, loc_context)
+        # Format html template
+        html_tmplt = Jinja2Template(
+            source=(template_folder / "generated_html" / f"{custom_templated.template_name}.html").read_text(), html=True
+        )
+        body_html = html_tmplt.render(template_args, loc_context)
+
+        source_data = config["VERSION"] + f"/{custom_templated.template_name}"
 
     list_unsubscribe_header = get_list_unsubscribe_header(notification)
-    source_data = config["VERSION"] + f"/{custom_templated.template_name}"
-
     return RenderedEmailNotification(
-        subject=custom_templated.subject,
-        body_plaintext=plain,
-        body_html=html,
+        subject=subject,
+        body_plaintext=body_plaintext,
+        body_html=body_html,
         source_data=source_data,
         list_unsubscribe_header=list_unsubscribe_header,
     )
 
+
+def _get_generic_templated_email(user_name: str, notification: Notification) -> emails.EmailBase | None:
+    data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
+    match notification.topic_action:
+        case NotificationTopicAction.api_key__create:
+            return emails.APIKeyIssuedEmail(user_name, api_key=data.api_key, expiry=data.data.expiry)
+        case NotificationTopicAction.birthdate__change:
+            return emails.BirthdateChangedEmail(user_name, new_birthdate=data.birthdate)
+        case NotificationTopicAction.email_address__change:
+            return emails.EmailAddressChangeEmail(user_name, new_email=data.new_email, completed=False)
+        case NotificationTopicAction.email_address__verify:
+            return emails.EmailAddressChangeEmail(user_name, new_email=data.new_email, completed=True)
+        case NotificationTopicAction.gender__change:
+            return emails.GenderChangedEmail(user_name, new_gender=data.new_gender)
+        case NotificationTopicAction.phone_number__change:
+            return emails.PhoneNumberChangeEmail(user_name, new_phone_number=data.new_phone_number, completed=False)
+        case NotificationTopicAction.phone_number__verify:
+            return emails.PhoneNumberChangeEmail(user_name, new_phone_number=data.new_phone_number, completed=True)
+        case _:
+            # Still implemented as a custom templated email
+            return None
 
 @dataclass(kw_only=True)
 class CustomTemplatedEmail:
@@ -213,92 +248,6 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
             template_args={
                 "title": title,
                 "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.email_address__change:
-        title = "An email change was initiated on your account"
-        message = f"An email change to the email <b>{data.new_email}</b> was initiated on your account."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=title,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.email_address__verify:
-        title = "Email change completed"
-        message = "Your new email address has been verified."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.phone_number__change:
-        title = "Phone verification started"
-        message = f"You started phone number verification with the number <b>{format_phone_number(data.phone)}</b>."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.phone_number__verify:
-        title = "Phone successfully verified"
-        message = f"Your phone was successfully verified as <b>{format_phone_number(data.phone)}</b> on Couchers.org."
-        message_plain = f"Your phone was successfully verified as {format_phone_number(data.phone)} on Couchers.org."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message_plain,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.gender__change:
-        title = "Your gender was changed"
-        message = f"Your gender on Couchers.org was changed to <b>{data.gender}</b> by an admin."
-        message_plain = f"Your gender on Couchers.org was changed to {data.gender} by an admin."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message_plain,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.birthdate__change:
-        title = "Your date of birth was changed"
-        birthdate = loc_context.localize_date_from_iso(data.birthdate)
-        message = f"Your date of birth on Couchers.org was changed to <b>{birthdate}</b> by an admin."
-        message_plain = f"Your date of birth on Couchers.org was changed to {birthdate} by an admin."
-        return CustomTemplatedEmail(
-            subject=title,
-            preview=message_plain,
-            template_name="security",
-            template_args={
-                "title": title,
-                "message": message,
-            },
-        )
-    elif notification.topic_action == NotificationTopicAction.api_key__create:
-        return CustomTemplatedEmail(
-            subject="Your API key for Couchers.org",
-            preview="We have issued you an API key as per your request.",
-            template_name="api_key",
-            template_args={
-                "api_key": data.api_key,
-                "expiry": data.expiry,
             },
         )
     elif notification.topic_action.display in ["badge:add", "badge:remove"]:

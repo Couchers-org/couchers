@@ -1,16 +1,46 @@
 {
   "generic": {
-    "greeting_line": "Hi {{name}},"
+    "greeting_line": "Hi {{name}},",
+    "closing_line": "Best,\nThe Couchers.org Team",
+    "security_warning_contact_support": "If you did not initiate this action, please contact us by emailing <a href=\"mailto:support@couchers.org\">support@couchers.org</a> so we can sort this out as soon as possible!"
   },
   "plaintext_formats": {
     "action": "{{text}}: {{url}}",
     "user": "{{name}}, {{age}}, {{city}}"
   },
-  "host_request_received": {
-    "subject": "{{ name }} sent you a host request",
-    "event_description": "{{ name }} sent you a host request.",
-    "requested_dates": "Requested from <b>{{ from_date }}</b> to <b>{{ to_date }}</b>.",
-    "view_request_link": "View host request",
-    "quick_decline_link": "Quick decline (no login needed)"
+  "api_key_issued": {
+    "subject": "Your API key for Couchers.org",
+    "header": "You recently requested an API key for Couchers.org. We've issued you with the following API key:",
+    "expiry": "The key expires on {{ datetime }}.",
+    "usage_warning": "This API key is unique to your account; do not share it with anyone, it gives complete access to your account, and you are reponsible for any actions taken using this API key.",
+    "policy_warning": "Please remember to abide by our Terms of Service, our Community Guidelines, and other policies while using our APIs. All access is logged and analyzed, and we may terminate your access or account if you abuse the service."
+  },
+  "birthdate_changed": {
+    "subject": "Your date of birth was changed",
+    "body": "Your date of birth was changed to <b>{{ new_birthdate }}</b> by an admin."
+  },
+  "email_address_change_initiated": {
+    "subject": "An email change was initiated on your account",
+    "body": "An email change to the email <b>{{ new_email }}</b> was initiated on your account."
+  },
+  "email_address_verified": {
+    "subject": "Email change completed",
+    "body": "Your new email address has been verified."
+  },
+  "gender_changed": {
+    "subject": "Your profile gender was changed",
+    "body": "Your gender on Couchers.org was changed to <b>{{ new_gender }}</b> by an admin."
+  },
+  "password_changed": {
+    "subject": "Your password was changed",
+    "body": "Your login password for Couchers.org was changed."
+  },
+  "phone_number_verification_started": {
+    "subject": "Phone verification started",
+    "body": "You started phone number verification with the number <b>{{ new_phone_number }}</b>."
+  },
+  "phone_number_verified": {
+    "subject": "Phone successfully verified",
+    "body": "Your phone was successfully verified as <b>{{ new_phone_number }}</b>."
   }
 }

@@ -103,7 +103,11 @@ def _format_default(value: Any, filter_context: _FilterContext) -> str:
         case Markup():
             return str(value)
         case _:
-            return escape(str(value)) if filter_context.output_html else str(value)
+            value = str(value)
+            if filter_context.output_html:
+                # Preserve newlines from the plaintext as HTML line breaks.
+                value = escape(value).replace("\n", "<br/>")
+            return value
 
 
 @pass_context
