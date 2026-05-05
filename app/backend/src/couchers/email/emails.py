@@ -4,7 +4,7 @@ Defines data models for each email we sent out to users.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import date, datetime, UTC
+from datetime import UTC, date, datetime
 from enum import Enum
 from typing import Self
 
@@ -43,8 +43,7 @@ class EmailBase(ABC):
         return builder.blocks
 
     @abstractmethod
-    def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        ...
+    def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None: ...
 
     @classmethod
     @abstractmethod
@@ -57,7 +56,9 @@ class EmailBase(ABC):
     @abstractmethod
     def _localize_key_prefix(self) -> str: ...
 
-    def _localize(self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None) -> str:
+    def _localize(
+        self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None
+    ) -> str:
         key = f"{self._localize_key_prefix}.{key}"
         return get_emails_i18next().localize(key, loc_context.locale, substitutions)
 
@@ -68,6 +69,7 @@ class EmailBase(ABC):
 @dataclass(kw_only=True, slots=True)
 class APIKeyIssuedEmail(EmailBase):
     """Sent to a user to notify them that their API key was issued."""
+
     api_key: str
     expiry: datetime
 
@@ -82,7 +84,7 @@ class APIKeyIssuedEmail(EmailBase):
         builder.greeting_line(self.user_name)
         builder.para("header")
         builder.quote(self.api_key)
-        builder.para("expiry", {"datetime": loc_context.localize_datetime(self.expiry) })
+        builder.para("expiry", {"datetime": loc_context.localize_datetime(self.expiry)})
         builder.para("usage_warning")
         builder.para("policy_warning")
         builder.security_warning_line()
@@ -91,14 +93,14 @@ class APIKeyIssuedEmail(EmailBase):
     @classmethod
     def dummy_data(cls) -> APIKeyIssuedEmail:
         return APIKeyIssuedEmail(
-            user_name="Alice",
-            api_key="my_api_key_123",
-            expiry=datetime(2099, 12, 31, 23, 59, 59, tzinfo=UTC)
+            user_name="Alice", api_key="my_api_key_123", expiry=datetime(2099, 12, 31, 23, 59, 59, tzinfo=UTC)
         )
+
 
 @dataclass(kw_only=True, slots=True)
 class BirthdateChangedEmail(EmailBase):
     """Sent to a user to notify them that their birthdate was changed."""
+
     new_birthdate: date
 
     @property
@@ -110,7 +112,7 @@ class BirthdateChangedEmail(EmailBase):
 
     def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.greeting_line(self.user_name)
-        builder.para("body", {"date": loc_context.localize_date(self.new_birthdate) })
+        builder.para("body", {"date": loc_context.localize_date(self.new_birthdate)})
         builder.security_warning_line()
         builder.closing_line()
 
@@ -121,9 +123,11 @@ class BirthdateChangedEmail(EmailBase):
             new_birthdate=date(1990, 1, 1),
         )
 
+
 @dataclass(kw_only=True, slots=True)
 class EmailAddressChangedEmail(EmailBase):
     """Sent to a user to notify them that their email address was changed."""
+
     new_email: str
 
     @property
@@ -141,14 +145,13 @@ class EmailAddressChangedEmail(EmailBase):
 
     @classmethod
     def dummy_data(cls) -> EmailAddressChangedEmail:
-        return EmailAddressChangedEmail(
-            user_name="Alice",
-            new_email="alice@example.com"
-        )
+        return EmailAddressChangedEmail(user_name="Alice", new_email="alice@example.com")
+
 
 @dataclass(kw_only=True, slots=True)
 class GenderChangedEmail(EmailBase):
     """Sent to a user to notify them that their gender was changed."""
+
     new_gender: str
 
     @property
@@ -171,11 +174,13 @@ class GenderChangedEmail(EmailBase):
             new_gender="Male",
         )
 
+
 @dataclass(kw_only=True, slots=True)
 class PhoneNumberChangeEmail(EmailBase):
     """Sent to a user to notify them that their phone number verification status was changed."""
+
     new_phone_number: str
-    completed: bool # False = started, True = completed
+    completed: bool  # False = started, True = completed
 
     @property
     def _localize_key_prefix(self) -> str:
@@ -186,7 +191,7 @@ class PhoneNumberChangeEmail(EmailBase):
 
     def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
         builder.greeting_line(self.user_name)
-        builder.para("body", {"phone_number": format_phone_number(self.new_phone_number) })
+        builder.para("body", {"phone_number": format_phone_number(self.new_phone_number)})
         builder.security_warning_line()
         builder.closing_line()
 
@@ -198,12 +203,14 @@ class PhoneNumberChangeEmail(EmailBase):
             completed=False,
         )
 
+
 class UnparameterizedEmailType(Enum):
     def __init__(self, string_key_prefix: str, security_warning: bool = False):
         self.string_key_prefix = string_key_prefix
         self.security_warning = security_warning
 
     EMAIL_ADDRESS_VERIFIED = ("email_address_verified", True)
+
 
 @dataclass(kw_only=True, slots=True)
 class UnparameterizedEmail(EmailBase):

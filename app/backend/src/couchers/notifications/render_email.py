@@ -3,10 +3,16 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Any
 
+import couchers.email.emails as emails
 from couchers import urls
 from couchers.config import config
-import couchers.email.emails as emails
-from couchers.email.rendering import EmailFooter, UnsubscribeInfo, UnsubscribeLink, render_html_body, render_plaintext_body
+from couchers.email.rendering import (
+    EmailFooter,
+    UnsubscribeInfo,
+    UnsubscribeLink,
+    render_html_body,
+    render_plaintext_body,
+)
 from couchers.i18n import LocalizationContext
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import (
@@ -48,8 +54,9 @@ def render_email_notification(
         preview = email.get_preview_line(loc_context)
         body_blocks = email.get_body_blocks(loc_context)
         body_plaintext = render_plaintext_body(blocks=body_blocks, footer=footer, loc_context=loc_context)
-        body_html = render_html_body(subject=subject, preview=preview,
-            blocks=body_blocks, footer=footer, loc_context=loc_context)
+        body_html = render_html_body(
+            subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
+        )
     else:
         # Email is still a custom-templated, nonlocalizable email.
         custom_templated = _get_custom_templated_email(notification, loc_context)
@@ -72,7 +79,8 @@ def render_email_notification(
 
         # Format html template
         html_tmplt = Jinja2Template(
-            source=(template_folder / "generated_html" / f"{custom_templated.template_name}.html").read_text(), html=True
+            source=(template_folder / "generated_html" / f"{custom_templated.template_name}.html").read_text(),
+            html=True,
         )
         body_html = html_tmplt.render(template_args, loc_context)
 
@@ -108,6 +116,7 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
         case _:
             # Still implemented as a custom templated email
             return None
+
 
 @dataclass(kw_only=True)
 class CustomTemplatedEmail:

@@ -68,6 +68,7 @@ class EmailBlocksBuilder:
     """
     Builder object for constructing a list of EmailBlock's to form the body of an email.
     """
+
     _locale: str
     _string_key_prefix: str
     blocks: list[EmailBlock]
@@ -91,9 +92,7 @@ class EmailBlocksBuilder:
     ) -> Self:
         return self._append(UserBlock(info=info, comment=self._markup(comment_key, substitutions)))
 
-    def action(
-        self, url: str, text_key: str, substitutions: SubstitutionDict | None = None
-    ) -> Self:
+    def action(self, url: str, text_key: str, substitutions: SubstitutionDict | None = None) -> Self:
         return self._append(ActionBlock(text=self._text(text_key, substitutions), target_url=url))
 
     def greeting_line(self, user_name: str) -> Self:
@@ -116,11 +115,10 @@ class EmailBlocksBuilder:
         full_key = f"{self._string_key_prefix}.{key}"
         return get_emails_i18next().localize(full_key, self._locale, substitutions)
 
-    def _markup(
-        self, key: str, substitutions: SubstitutionDict | None = None
-    ) -> Markup:
+    def _markup(self, key: str, substitutions: SubstitutionDict | None = None) -> Markup:
         full_key = f"{self._string_key_prefix}.{key}"
         return get_emails_i18next().localize_with_markup(full_key, self._locale, substitutions)
+
 
 @dataclass(kw_only=True)
 class EmailFooter:
@@ -153,7 +151,7 @@ class UnsubscribeInfo:
             "footer_manage_notifications_link": self.manage_notifications_url,
             "footer_do_not_email_link": self.do_not_email_url,
             "footer_notification_topic_action": self.topic_action_link.text,
-            "footer_notification_topic_action_link": self.topic_action_link.url
+            "footer_notification_topic_action_link": self.topic_action_link.url,
         }
 
         if topic_key_link := self.topic_key_link:
