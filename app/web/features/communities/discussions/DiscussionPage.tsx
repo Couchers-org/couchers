@@ -19,7 +19,7 @@ import { service } from "service";
 import { theme } from "theme";
 import { localizeDateTime, timestamp2Date } from "utils/date";
 
-import { sendWebBack, useIsNativeEmbed } from "../../../utils/nativeLink";
+import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import CommunityBase from "../CommunityBase";
 import CommunityPageSubHeader from "../CommunityPage/CommunityPageSubHeader";
 import PageHeader from "../PageHeader";
@@ -97,10 +97,9 @@ export default function DiscussionPage({
 
   const handleBackClick = () => {
     if (isNativeEmbed) {
-      sendWebBack();
+      sendNativeBack();
       return;
     }
-
     router.back();
   };
 

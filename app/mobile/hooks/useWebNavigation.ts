@@ -36,7 +36,6 @@ export function useWebNavigation({
   const currentWebPathRef = globalWebPathRef;
   const canGoBackRef = useRef(false);
 
-  // Extract locale from web path (e.g., "/de/dashboard" -> "de")
   const extractLocaleFromPath = useCallback(
     (webPath: string): string | null => {
       const match = webPath.match(/^\/([a-z]{2}(-[A-Z][a-z]+)?)\//);
@@ -45,19 +44,14 @@ export function useWebNavigation({
     [],
   );
 
-  // Strip locale prefix from path (e.g., "/de/donate" -> "/donate")
   const stripLocalePrefix = useCallback((webPath: string): string => {
     return webPath.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/");
   }, []);
 
-  // Map web paths to native route names
   const getRouteNameForPath = useCallback(
     (webPath: string): string | null => {
-      // Strip locale prefix if present
       const pathWithoutLocale = stripLocalePrefix(webPath);
 
-      // Main tab routes - match exact paths only (with optional trailing slash or query params)
-      // Don't match deeper nested paths like /messages/chats/123
       if (
         pathWithoutLocale === "/dashboard" ||
         pathWithoutLocale.startsWith("/dashboard?")
@@ -120,22 +114,31 @@ export function useWebNavigation({
       const webPath: string = normalizedUrl.replace(webBaseUrl, "") || "/";
       const webPathWithoutQuery = webPath.split("?")[0];
 
-      // Check if this navigation is from a sync operation (to prevent fighting with focus effect)
+      // Detect whether this navigation was triggered by a MOBILE_NAVIGATE sync.
+      const syncTargetPathOnly =
+        syncTargetPathRef.current?.split("?")[0] ?? null;
       const isSyncNavigation =
-        syncTargetPathRef.current !== null &&
-        webPathWithoutQuery.startsWith(syncTargetPathRef.current);
+        syncTargetPathOnly !== null &&
+        webPathWithoutQuery.startsWith(syncTargetPathOnly);
 
-      // If we're in the middle of a sync operation, don't update currentWebPathRef
-      // or change i18n language - wait for the target URL to load
+      // While a sync is in flight, ignore unrelated navigations.
       if (syncTargetPathRef.current !== null && !isSyncNavigation) {
         return;
       }
 
       currentWebPathRef.current = webPath;
 
-      // Extract locale from URL and sync with mobile app's i18n
+      // Sync native route when WebView navigates to a different page
+      const targetRoute = getRouteNameForPath(webPathWithoutQuery);
+      const currentRoute = getRouteNameForPath(currentPath);
+
+      // Skip language sync for detail routes (e.g. /users/123): no locale prefix
+      // is a false "English" signal that would re-trigger the tab's sync useEffect
+      // and inject MOBILE_NAVIGATE into the detail page still in the WebView.
+      const isDetailRoute =
+        targetRoute === "[...slug]" || targetRoute === "md/[...slug]";
       const webLocale = extractLocaleFromPath(webPathWithoutQuery) || "en";
-      if (webLocale !== i18n.language) {
+      if (!isDetailRoute && webLocale !== i18n.language) {
         i18n.changeLanguage(webLocale).catch((err) => {
           if (__DEV__) {
             console.error("Failed to change mobile app language:", err);
@@ -143,32 +146,23 @@ export function useWebNavigation({
         });
       }
 
-      // Sync native route when WebView navigates to a different page
-      const targetRoute = getRouteNameForPath(webPathWithoutQuery);
-      const currentRoute = getRouteNameForPath(currentPath);
-
       if (isSyncNavigation) {
         // Clear the sync target now that we've seen the navigation
         syncTargetPathRef.current = null;
       }
 
-      // Update native router to keep tab highlights in sync
-      if (targetRoute !== currentRoute && targetRoute) {
-        if (targetRoute === "[...slug]" || targetRoute === "md/[...slug]") {
-          // For catch-all routes, navigate to the appropriate screen
-          // Strip locale prefix for mobile router (mobile routes don't use locale prefixes)
-          const pathForMobileRouter = stripLocalePrefix(webPathWithoutQuery);
-          lastMobileNavigationRef.current = pathForMobileRouter;
-          router.push(pathForMobileRouter as Href);
-        } else {
-          // For main tab routes, use push() to ensure tab highlighting updates correctly
-          const queryString = webPath.includes("?")
-            ? webPath.substring(webPath.indexOf("?"))
-            : "";
-          const targetPath = `/${targetRoute}${queryString}`;
-          lastMobileNavigationRef.current = targetPath;
-          router.push(targetPath as Href);
-        }
+      // Keep tab highlights in sync. Detail routes are excluded so they stay in
+      // the originating tab WebView — goBack() then returns correctly without a
+      // router.back() → dashboard flash.
+      if (targetRoute !== currentRoute && targetRoute && !isDetailRoute) {
+        // navigate() switches the active tab in place; push() would add a root-level
+        // (tabs) stack entry and flash the dashboard before settling on the target tab.
+        const queryString = webPath.includes("?")
+          ? webPath.substring(webPath.indexOf("?"))
+          : "";
+        const targetPath = `/${targetRoute}${queryString}`;
+        lastMobileNavigationRef.current = targetPath;
+        router.navigate(targetPath as Href);
       }
     },
     [
@@ -177,7 +171,6 @@ export function useWebNavigation({
       onRetryCountReset,
       extractLocaleFromPath,
       getRouteNameForPath,
-      stripLocalePrefix,
       router,
       i18n,
     ],

@@ -66,7 +66,7 @@ Wraps the React Native WebView and handles:
   - `COLOR_SCHEME_CHANGE` → sync dark mode
   - `REQUEST_IMAGE_PICK` → use native image picker
   - `MOBILE_NAVIGATE` → trigger web navigation without reload
-  - `WEB_BACK` → web page requests native back navigation (see Common Issues #5)
+  - `NATIVE_BACK` → web requests native back (goBack() or router.back())
 
 **Critical setting**: `sharedCookiesEnabled={true}` keeps auth working.
 
@@ -77,8 +77,8 @@ The "glue" that keeps mobile tabs in sync with web navigation:
 **When web navigates** (user clicks link):
 
 - Detects which page is showing in the WebView
-- Maps web URL to mobile route (`/users/123` → catch-all screen)
-- Updates mobile router so the correct tab highlights
+- Maps web URL to a tab route and calls `router.navigate()` to keep tab highlights in sync
+- Detail pages (profiles, events, etc.) stay in the originating tab's WebView — no native route change. This lets `goBack()` return to the tab page correctly without a router.back() → dashboard flash.
 
 **Key insight**: Must strip locale prefixes before mobile navigation:
 
@@ -206,30 +206,11 @@ if (lastMobileNavigationRef.current === targetPath) {
 
 ### 4. Back button on detail pages goes to the wrong place
 
-**Problem**: User navigates from the search tab to an event via a notification, then taps the web back button on the event page — it goes to the wrong place instead of returning to search.
+**Problem**: User navigates from the search tab to a profile, then taps the back button — it goes to the dashboard instead of returning to search.
 
-**Cause**: The catch-all WebView is a fresh instance with no prior history. `window.history.length` is 1 (or 2 after `MOBILE_NAVIGATE` adds an entry), so `router.back()` goes to another copy of the same page or an unrelated route — not the search tab.
+**Cause**: Detail pages stay in the originating tab's WebView (no native route change). Back button calls `sendNativeBack()` → `NATIVE_BACK` postMessage → `webviewRef.goBack()`, which navigates the WebView back through its browser history. `router.back()` is only the fallback when the WebView has no history (e.g. a deep link opened the `[...slug]` screen directly).
 
-**Solution**: Web detail pages should delegate back navigation to native when running in a WebView. Use `sendWebBack()` from `utils/nativeLink.ts`:
-
-```typescript
-import { sendWebBack, useIsNativeEmbed } from "utils/nativeLink";
-
-const isNativeEmbed = useIsNativeEmbed();
-
-const handleBackClick = () => {
-  if (isNativeEmbed) {
-    sendWebBack(); // Native decides: WebView.goBack() or router.back()
-    return;
-  }
-  // Normal web back logic...
-};
-```
-
-Native handles it correctly in both cases:
-
-- User navigated within the web (history exists) → `WebView.goBack()`
-- User arrived via a notification push (no web history) → `router.back()` returns to the previous native screen
+**Solution**: Detail page back buttons call `sendNativeBack()` (not `router.back()` directly). The native handler in `WebEmbed` calls `webviewRef.goBack()` when `canGoBackRef.current` is true, letting WebView browser history handle the navigation correctly.
 
 ### 5. Stale content (wrong version numbers, old data)
 

@@ -42,26 +42,32 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     useAuthContext();
   const [hasError, setHasError] = useState(false);
   const retryCountRef = useRef(0);
-  const MAX_RETRIES = 2; // Auto-retry up to 2 times for timeout errors
+  const MAX_RETRIES = 2;
 
-  // Track the target path we're syncing to (to ignore navigation during sync)
+  // Tracks the path we're syncing to so handleNavigationStateChange can
+  // distinguish sync-triggered navigations from user-initiated ones.
   const syncTargetPathRef = useRef<string | null>(null);
+
+  // True once the WebView completes its first load. Syncs are skipped until
+  // then because the source URI already loads the correct URL — sending
+  // MOBILE_NAVIGATE before load completes races with user-initiated navigation.
+  const hasLoadedRef = useRef(false);
 
   // Tracks when the app entered the background so we can reload a stale WebView.
   const backgroundTimeRef = useRef<number | null>(null);
 
-  // Custom hooks for image picking and navigation
   const { pickImage } = useImagePicker();
-  const { handleNavigationStateChange, canGoBackRef } = useWebNavigation({
-    webBaseUrl: WEB_BASE_URL,
-    currentPath: path,
-    syncTargetPathRef,
-    onRetryCountReset: () => {
-      retryCountRef.current = 0;
-    },
-  });
+  const { handleNavigationStateChange, canGoBackRef, currentWebPathRef } =
+    useWebNavigation({
+      webBaseUrl: WEB_BASE_URL,
+      currentPath: path,
+      syncTargetPathRef,
+      onRetryCountReset: () => {
+        retryCountRef.current = 0;
+      },
+    });
 
-  // Handle Android hardware back button - go back in WebView if possible
+  // Android hardware back button: go back in WebView if possible.
   useFocusEffect(
     useCallback(() => {
       if (Platform.OS !== "android") {
@@ -71,9 +77,9 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       const onBackPress = () => {
         if (canGoBackRef.current && webviewRef.current) {
           webviewRef.current.goBack();
-          return true; // Prevent default back behavior
+          return true;
         }
-        return false; // Let native navigation handle it
+        return false;
       };
 
       const subscription = BackHandler.addEventListener(
@@ -95,42 +101,43 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     webviewRef.current?.reload();
   };
 
-  // Helper to strip locale prefix from path
   const stripLocale = useCallback(
     (p: string) => p.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/"),
     [],
   );
 
-  // Sync WebView when path prop changes (route navigation)
+  // Sync WebView when path prop changes (tab navigation).
   useEffect(() => {
-    // If there's already a sync in progress, skip this one to avoid conflicts
+    if (!hasLoadedRef.current) {
+      return;
+    }
     if (syncTargetPathRef.current !== null) {
       return;
     }
 
-    // Strip locale for comparison
     const targetRoute = stripLocale(path);
-
-    // Sync WebView, using mobile i18n language as source of truth
-    // This ensures language selection persists across tab switches
     const currentLocale = i18n.language !== "en" ? i18n.language : null;
     const targetPath = currentLocale
       ? `/${currentLocale}${targetRoute}`
       : targetRoute;
 
+    // Skip if already at target — postMessage would be a no-op but setting
+    // syncTargetPathRef would leak and block future navigation tracking.
+    if (currentWebPathRef.current.split("?")[0] === targetPath) {
+      return;
+    }
+
     syncTargetPathRef.current = targetPath;
-    // Use postMessage to trigger client-side Next.js navigation
-    // This is faster (no page reload) and avoids server-side middleware redirects
     webviewRef.current?.injectJavaScript(`
       window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
       true;
     `);
   }, [path, stripLocale, i18n.language]);
 
-  // Sync WebView when screen comes back into focus (tab switch)
+  // Sync WebView when screen comes back into focus (tab switch).
   useFocusEffect(
     useCallback(() => {
-      // Blur cleanup: when leaving this tab, blur the active element so web-side menus close via onBlur
+      // On blur: clear focus so web-side menus close via onBlur.
       const cleanup = () => {
         webviewRef.current?.injectJavaScript(`
           document.activeElement?.blur();
@@ -138,24 +145,25 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         `);
       };
 
-      // If there's already a sync in progress, skip this one to avoid conflicts
+      if (!hasLoadedRef.current) {
+        return cleanup;
+      }
       if (syncTargetPathRef.current !== null) {
         return cleanup;
       }
 
-      // Strip locale for comparison
       const targetRoute = stripLocale(path);
-
-      // Sync WebView, using mobile i18n language as source of truth
-      // This ensures language selection persists across tab switches
       const currentLocale = i18n.language !== "en" ? i18n.language : null;
       const targetPath = currentLocale
         ? `/${currentLocale}${targetRoute}`
         : targetRoute;
 
+      // Skip if already at target — same leak-prevention as the useEffect above.
+      if (currentWebPathRef.current.split("?")[0] === targetPath) {
+        return cleanup;
+      }
+
       syncTargetPathRef.current = targetPath;
-      // Use postMessage to trigger client-side Next.js navigation
-      // This avoids middleware redirects based on stale cookies
       webviewRef.current?.injectJavaScript(`
         window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
         true;
@@ -166,9 +174,8 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   );
 
   // Reload WebView if it's been backgrounded for more than 30 minutes.
-  // iOS kills the WKWebView process after extended backgrounding, leaving the
-  // screen gray. onContentProcessDidTerminate handles that iOS-specific event;
-  // this AppState listener covers the general case on both platforms.
+  // iOS kills the WKWebView process after extended backgrounding (gray screen);
+  // onContentProcessDidTerminate handles that, but this covers both platforms.
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextState) => {
       if (nextState === "background" || nextState === "inactive") {
@@ -184,7 +191,6 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     return () => subscription.remove();
   }, []);
 
-  // Send result back to web app
   const sendImagePickResult = (result: {
     success: boolean;
     imageBase64?: string;
@@ -203,44 +209,37 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       const payload = JSON.parse(event.nativeEvent.data);
 
       if (payload?.type === "LOGIN_SUCCESS") {
-        // Web app says user logged in - update mobile state.
-        // On auth-guarded screens (signup, password-reset), Stack.Protected
-        // automatically transitions to (tabs) when authenticated becomes true.
+        // Stack.Protected auto-transitions to (tabs) when authenticated becomes true.
         setUserId(payload.userId);
         setJailed(payload.jailed || false);
         markAuthenticated();
       } else if (payload?.type === "LOGOUT") {
-        // Web app says user logged out - clear mobile state and navigate to login
         markLoggedOut();
         router.replace("/login" as Href);
       } else if (payload?.type === "COLOR_SCHEME_CHANGE") {
-        // Web app toggled dark mode - sync native UI using React Native's built-in API
         // mode can be "light", "dark", or null (follow system)
-        // Web app toggled dark mode - sync native UI
         const mode = payload.mode;
         if (mode === "light" || mode === "dark" || mode === null) {
           Appearance.setColorScheme(mode);
         }
-      } else if (payload?.type === "REQUEST_IMAGE_PICK") {
-        // Web app requests native image picker (WebView file input crashes on mobile)
-        pickImage(sendImagePickResult);
-      } else if (payload?.type === "WEB_BACK") {
+      } else if (payload?.type === "NATIVE_BACK") {
         if (canGoBackRef.current && webviewRef.current) {
           webviewRef.current.goBack();
         } else {
           router.back();
         }
+      } else if (payload?.type === "REQUEST_IMAGE_PICK") {
+        // WebView file input crashes on mobile; use native picker instead.
+        pickImage(sendImagePickResult);
       }
     } catch (error) {
-      // Silently ignore non-JSON messages (expected from browser/WebView internals)
-      // These are typically not errors - just messages from the WebView itself
+      // Ignore non-JSON messages from browser/WebView internals.
       if (__DEV__) {
         console.debug("WebEmbed: Ignoring non-JSON message", error);
       }
     }
   };
 
-  // Intercept URL requests before they load
   const handleShouldStartLoad = (event: { url: string }): boolean => {
     const { url } = event;
 
@@ -248,7 +247,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       return true;
     }
 
-    // External HTTP/HTTPS URLs (Stripe, etc.): open in device's browser
+    // External URLs (Stripe, etc.): open in device's browser.
     Linking.openURL(url).catch((err) => {
       if (__DEV__) {
         console.error("Failed to open external URL:", err);
@@ -262,14 +261,12 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   }) => {
     const { targetUrl } = syntheticEvent.nativeEvent;
 
-    // Check if link is internal (within our app)
     if (targetUrl.startsWith(WEB_BASE_URL)) {
-      // Internal link: navigate within WebView instead of opening externally
       webviewRef.current?.injectJavaScript(
         `window.location.href = "${targetUrl}"; true;`,
       );
     } else {
-      // External link: open in device's browser (Safari/Chrome)
+      // External link: open in device's browser.
       Linking.openURL(targetUrl).catch((err) => {
         if (__DEV__) {
           console.error("Failed to open external link:", err);
@@ -278,7 +275,6 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     }
   };
 
-  // Show error screen
   if (hasError) {
     return (
       <View style={[styles.container, { backgroundColor }]}>
@@ -314,7 +310,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled
         cacheEnabled={true}
-        cacheMode="LOAD_DEFAULT" // Revalidates on normal loads (prevents stale content), uses cache for back nav (maintains cookies)
+        cacheMode="LOAD_DEFAULT" // Revalidates on normal loads, uses cache for back nav (preserves cookies)
         startInLoadingState
         javaScriptEnabled={true}
         domStorageEnabled={true}
@@ -327,6 +323,9 @@ export default function WebEmbed({ path }: WebEmbedProps) {
           </View>
         )}
         injectedJavaScriptObject={{ isNativeEmbed: true }}
+        onLoad={() => {
+          hasLoadedRef.current = true;
+        }}
         onNavigationStateChange={handleNavigationStateChange}
         onContentProcessDidTerminate={() => webviewRef.current?.reload()}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
@@ -336,7 +335,6 @@ export default function WebEmbed({ path }: WebEmbedProps) {
           const { nativeEvent } = syntheticEvent;
           const isTimeout = nativeEvent.code === -1001;
 
-          // Auto-retry on timeout (server might be cold/slow)
           if (isTimeout && retryCountRef.current < MAX_RETRIES) {
             retryCountRef.current += 1;
             if (__DEV__) {

@@ -41,7 +41,7 @@ import {
   timestamp2Date,
 } from "utils/date";
 import dayjs from "utils/dayjs";
-import { sendWebBack, useIsNativeEmbed } from "utils/nativeLink";
+import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import { eventAttendeesBaseKey, eventKey } from "../../queryKeys";
 import CommentTree from "../discussions/CommentTree";
@@ -235,7 +235,7 @@ export default function EventPage({
 
   const handleBackClick = () => {
     if (isNativeEmbed) {
-      sendWebBack();
+      sendNativeBack();
       return;
     }
     if (window.history.length > 1) {

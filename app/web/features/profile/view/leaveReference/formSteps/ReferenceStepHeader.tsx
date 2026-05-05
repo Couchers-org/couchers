@@ -9,8 +9,6 @@ import { ReferenceType } from "proto/references_pb";
 import { ReferenceStep, referenceTypeRoute, routeToUser } from "routes";
 import { theme } from "theme";
 
-import { sendWebBack, useIsNativeEmbed } from "../../../../../utils/nativeLink";
-
 interface ReferenceStepHeaderProps {
   name?: string;
   referenceType?: string;
@@ -30,7 +28,6 @@ export default function ReferenceStepHeader({
 }: ReferenceStepHeaderProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const router = useRouter();
-  const isNativeEmbed = useIsNativeEmbed();
   const user = useProfileUser();
 
   const isFirstStep =
@@ -43,10 +40,6 @@ export default function ReferenceStepHeader({
     if (isFirstStep && user.username) {
       router.push(routeToUser(user.username));
     } else {
-      if (isNativeEmbed) {
-        sendWebBack();
-        return;
-      }
       router.back();
     }
   };

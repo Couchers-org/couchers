@@ -19,7 +19,7 @@ import { theme } from "theme";
 import dayjs from "utils/dayjs";
 import stringOrFirstString from "utils/stringOrFirstString";
 
-import { sendWebBack, useIsNativeEmbed } from "../../../utils/nativeLink";
+import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import { communityEventsBaseKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
@@ -144,7 +144,7 @@ export default function CreateEventPage() {
 
   const handleBackClick = () => {
     if (isNativeEmbed) {
-      sendWebBack();
+      sendNativeBack();
       return;
     }
     if (window.history.length > 1) {
