@@ -49,6 +49,9 @@ export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
               setIsRequesting={() => {
                 /* TODO: not needed here*/
               }}
+              setIsMessaging={() => {
+                /* TODO: not needed here*/
+              }}
               tab={tab}
             />
             <UserCard
