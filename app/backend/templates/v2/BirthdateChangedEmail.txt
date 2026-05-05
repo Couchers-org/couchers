@@ -1,0 +1,15 @@
+Hi Alice,
+
+Your date of birth was changed to Jan 1, 1990 by an admin.
+
+If you did not initiate this action, please contact us by emailing support@couchers.org so we can sort this out as soon as possible!
+
+Best,
+The Couchers.org Team
+
+---
+
+Edit your notification settings at <https://example.com/manage-notifications>
+Turn off emails for topic-action: <https://example.com/unsubscribe>
+
+Do not email me (disables hosting): <https://example.com/do-not-email>
