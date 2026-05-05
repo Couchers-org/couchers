@@ -139,8 +139,8 @@ const LongEventCard = ({
     dayjs(timestamp2Date(event.startTime!)),
     dayjs(timestamp2Date(event.endTime!)),
     {
-      // TODO(#8064): Should use the event.timezone, but it's currently incorrect.
-      timezone: BROWSER_TIMEZONE,
+      // Offline events show both the address and times that timezone.
+      timezone: event.offlineInformation ? event.timezone : BROWSER_TIMEZONE,
       locale,
       includeDayOfWeek: true,
       includeTime: true,

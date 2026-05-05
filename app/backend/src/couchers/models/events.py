@@ -16,6 +16,7 @@ from sqlalchemy import (
     UniqueConstraint,
     and_,
     func,
+    select,
 )
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -24,6 +25,7 @@ from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.models.base import Base, Geom, communities_seq
+from couchers.models.static import TimezoneArea
 from couchers.utils import get_coordinates
 
 if TYPE_CHECKING:
@@ -134,7 +136,10 @@ class EventOccurrence(Base, kw_only=True):
     # videoconferencing link, etc, must be specified if no geom, otherwise optional
     link: Mapped[str | None] = mapped_column(String, default=None)
 
-    timezone = "Etc/UTC"
+    geom_timezone: Mapped[str | None] = column_property(
+        select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom)).limit(1).scalar_subquery(),
+        deferred=True,
+    )
 
     # time during which the event takes place; this is a range type (instead of separate start+end times) which
     # simplifies database constraints, etc

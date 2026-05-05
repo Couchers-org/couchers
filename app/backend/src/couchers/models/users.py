@@ -115,7 +115,6 @@ class User(Base, kw_only=True):
     # language preference -- defaults to empty string
     ui_language_preference: Mapped[str | None] = mapped_column(String, default=None, server_default="")
 
-    # timezones should always be UTC
     ## location
     # point describing their location. EPSG4326 is the SRS (spatial ref system, = way to describe a point on earth) used
     # by GPS, it has the WGS84 geoid with lat/lon
@@ -134,7 +133,7 @@ class User(Base, kw_only=True):
     )
     regions_lived: Mapped[list[Region]] = relationship(init=False, secondary="regions_lived", order_by="Region.name")
 
-    timezone = column_property(
+    timezone: Mapped[str | None] = column_property(
         select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom)).limit(1).scalar_subquery(),
         deferred=True,
     )

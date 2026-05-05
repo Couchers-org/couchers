@@ -89,7 +89,7 @@ def test_CreateEvent(db, push_collector: PushCollector, moderator: Moderator):
         assert res.creator_user_id == user1.id
         assert to_aware_datetime(res.start_time) == start_time
         assert to_aware_datetime(res.end_time) == end_time
-        # assert res.timezone == "UTC"
+        assert res.timezone == "UTC"
         assert res.start_time_display
         assert res.end_time_display
         assert res.attendance_state == events_pb2.ATTENDANCE_STATE_GOING
