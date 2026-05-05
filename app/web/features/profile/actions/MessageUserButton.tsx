@@ -9,14 +9,16 @@ import { User } from "proto/api_pb";
 import { useState } from "react";
 import { service } from "service";
 
-import { routeToCreateMessage, routeToGroupChat } from "../../../routes";
+import { routeToGroupChat } from "../../../routes";
 
 export default function MessageUserButton({
   user,
   setMutationError,
+  setIsMessaging,
 }: {
   user: User.AsObject;
   setMutationError: (value: string) => void;
+  setIsMessaging: (value: boolean) => void;
 }) {
   const { t } = useTranslation(PROFILE);
   const router = useRouter();
@@ -31,8 +33,8 @@ export default function MessageUserButton({
     },
     onSuccess(data) {
       if (!data) {
-        //no existing thread
-        router.push(routeToCreateMessage(user.username));
+        //no existing thread — open inline form
+        setIsMessaging(true);
       } else {
         //has thread
         router.push(routeToGroupChat(data));

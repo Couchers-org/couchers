@@ -5,6 +5,7 @@ import HtmlMeta from "components/HtmlMeta";
 import Snackbar from "components/Snackbar";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
+import NewMessage from "features/profile/view/NewMessage";
 import Overview from "features/profile/view/Overview";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useTranslation } from "i18n";
@@ -49,13 +50,14 @@ export default function UserPage({
 
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
+  const [isMessaging, setIsMessaging] = useState(false);
 
   useLayoutEffect(() => {
-    if (isRequesting) {
+    if (isRequesting || isMessaging) {
       const requestEl = document.getElementById(REQUEST_ID);
       requestEl?.scrollIntoView();
     }
-  }, [isRequesting]);
+  }, [isRequesting, isMessaging]);
 
   return (
     <>
@@ -69,7 +71,11 @@ export default function UserPage({
       ) : user ? (
         <ProfileUserProvider user={user}>
           <StyledProfileRoot>
-            <Overview setIsRequesting={setIsRequesting} tab={tab} />
+            <Overview
+              setIsRequesting={setIsRequesting}
+              setIsMessaging={setIsMessaging}
+              tab={tab}
+            />
             <UserCard
               tab={tab}
               onTabChange={(newTab) => {
@@ -78,12 +84,17 @@ export default function UserPage({
                 });
               }}
               top={
-                <Collapse in={isRequesting}>
-                  <NewHostRequest
-                    setIsRequesting={setIsRequesting}
-                    setIsRequestSuccess={setIsSuccessRequest}
-                  />
-                </Collapse>
+                <>
+                  <Collapse in={isRequesting}>
+                    <NewHostRequest
+                      setIsRequesting={setIsRequesting}
+                      setIsRequestSuccess={setIsSuccessRequest}
+                    />
+                  </Collapse>
+                  <Collapse in={isMessaging}>
+                    <NewMessage setIsMessaging={setIsMessaging} />
+                  </Collapse>
+                </>
               }
             />
           </StyledProfileRoot>

@@ -63,8 +63,10 @@ function LoggedInUserActions({ tab }: { tab: UserTab }) {
 
 function DefaultActions({
   setIsRequesting,
+  setIsMessaging,
 }: {
   setIsRequesting: (value: boolean) => void;
+  setIsMessaging: (value: boolean) => void;
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
@@ -103,7 +105,11 @@ function DefaultActions({
           : t("profile:actions.request")}
       </Button>
 
-      <MessageUserButton user={user} setMutationError={setMutationError} />
+      <MessageUserButton
+        user={user}
+        setMutationError={setMutationError}
+        setIsMessaging={setIsMessaging}
+      />
       <FriendActions user={user} setMutationError={setMutationError} />
 
       <StyledModButtons>
@@ -122,10 +128,15 @@ function DefaultActions({
 
 interface OverviewProps {
   setIsRequesting: (value: boolean) => void;
+  setIsMessaging: (value: boolean) => void;
   tab: UserTab;
 }
 
-export default function Overview({ setIsRequesting, tab }: OverviewProps) {
+export default function Overview({
+  setIsRequesting,
+  setIsMessaging,
+  tab,
+}: OverviewProps) {
   const currentUserId = useAuthContext().authState.userId;
   const user = useProfileUser();
   const isOwnProfile = user.userId === currentUserId;
@@ -138,7 +149,10 @@ export default function Overview({ setIsRequesting, tab }: OverviewProps) {
         isOwnProfile ? (
           <LoggedInUserActions tab={tab} />
         ) : (
-          <DefaultActions setIsRequesting={setIsRequesting} />
+          <DefaultActions
+            setIsRequesting={setIsRequesting}
+            setIsMessaging={setIsMessaging}
+          />
         )
       }
     />
