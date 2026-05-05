@@ -134,10 +134,6 @@ message Event {
   // the tzdata timezone identifier
   string timezone = 18;
 
-  // the start/end times as localized strings (according to the above timezone)
-  string start_time_display = 19;
-  string end_time_display = 20;
-
   // the user's attendance state
   AttendanceState attendance_state = 21;
   // whether the current user is a subscriber/organizer to the event

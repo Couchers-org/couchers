@@ -32,8 +32,6 @@
     "slug": "weekly-meetup",
     "startTime": { "nanos": 0, "seconds": 1624934247.732 },
     "endTime": { "nanos": 0, "seconds": 1624937847 },
-    "startTimeDisplay": "",
-    "endTimeDisplay": "",
     "title": "Weekly Meetup",
     "timezone": "Europe/Amsterdam"
   },
@@ -68,8 +66,6 @@
     "slug": "planting-season-meetup",
     "startTime": { "nanos": 0, "seconds": 1625000420 },
     "endTime": { "nanos": 0, "seconds": 1625004020 },
-    "startTimeDisplay": "",
-    "endTimeDisplay": "",
     "title": "Planting Season Meetup",
     "timezone": "Europe/Amsterdam"
   },
@@ -106,8 +102,6 @@
     "slug": "cherry-blossom-bike-ride",
     "startTime": { "nanos": 0, "seconds": 1625000420 },
     "endTime": { "nanos": 0, "seconds": 1625018400 },
-    "startTimeDisplay": "",
-    "endTimeDisplay": "",
     "title": "Cherry Blossom Bike Ride around the entire Amsterdam because I like to write long event titles",
     "timezone": "Europe/Amsterdam"
   },
@@ -144,8 +138,6 @@
     "slug": "cherry-blossom-bike-ride",
     "startTime": { "nanos": 0, "seconds": 1625000420 },
     "endTime": { "nanos": 0, "seconds": 1625018400 },
-    "startTimeDisplay": "",
-    "endTimeDisplay": "",
     "title": "A cancelled event",
     "timezone": "Europe/Amsterdam"
   }
