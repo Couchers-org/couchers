@@ -16,6 +16,7 @@ from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import sent_messages_counter
+from couchers.mod_score import should_hide_message_content_in_email
 from couchers.models import (
     Conversation,
     GroupChat,
@@ -216,6 +217,7 @@ def generate_message_notifications(payload: jobs_pb2.GenerateMessageNotification
                     message=msg,
                     text=message.text,
                     group_chat_id=message.conversation_id,
+                    hide_text=should_hide_message_content_in_email(message.author.mod_score),
                 ),
                 moderation_state_id=group_chat.moderation_state_id,
             )

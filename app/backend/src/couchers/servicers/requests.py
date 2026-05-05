@@ -20,6 +20,7 @@ from couchers.metrics import (
     host_requests_sent_counter,
     sent_messages_counter,
 )
+from couchers.mod_score import should_hide_message_content_in_email
 from couchers.models import (
     Conversation,
     HostRequest,
@@ -340,6 +341,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                 host_request=host_request_to_pb(host_request, session, context),
                 surfer=user_model_to_pb(host_request.initiator, session, context),
                 text=request.text,
+                hide_text=should_hide_message_content_in_email(host_request.initiator.mod_score),
             ),
             moderation_state_id=moderation_state.id,
         )
@@ -819,6 +821,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     user=user_model_to_pb(host_request.initiator, session, context),
                     text=request.text,
                     am_host=True,
+                    hide_text=should_hide_message_content_in_email(host_request.initiator.mod_score),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )
@@ -836,6 +839,7 @@ class Requests(requests_pb2_grpc.RequestsServicer):
                     user=user_model_to_pb(host_request.recipient, session, context),
                     text=request.text,
                     am_host=False,
+                    hide_text=should_hide_message_content_in_email(host_request.recipient.mod_score),
                 ),
                 moderation_state_id=host_request.moderation_state_id,
             )

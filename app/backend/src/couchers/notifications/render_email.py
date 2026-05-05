@@ -2,15 +2,11 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
 from couchers import urls
 from couchers.config import config
 from couchers.email.rendering import EmailFooter, UnsubscribeInfo, UnsubscribeLink
 from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
-from couchers.mod_score import should_hide_message_content_in_email
 from couchers.models import Notification, NotificationTopicAction, User
 from couchers.notifications.quick_links import (
     can_unsubscribe_topic_key,
@@ -36,13 +32,13 @@ class RenderedEmailNotification:
 
 
 def render_email_notification(
-    user: User, notification: Notification, loc_context: LocalizationContext, session: Session
+    user: User, notification: Notification, loc_context: LocalizationContext
 ) -> RenderedEmailNotification:
     footer = get_email_footer(user, notification, loc_context)
 
     # Currently only support custom templated emails,
     # in the future will also support couchers.email.emails (single generic template).
-    custom_templated = _get_custom_templated_email(notification, loc_context, session)
+    custom_templated = _get_custom_templated_email(notification, loc_context)
 
     template_args = {
         **custom_templated.template_args,
@@ -89,16 +85,15 @@ class CustomTemplatedEmail:
     template_args: dict[str, Any]
 
 
-def _should_hide_text(session: Session, sender_user_id: int) -> bool:
-    sender_mod_score = session.execute(select(User.mod_score).where(User.id == sender_user_id)).scalar_one_or_none()
-    return sender_mod_score is not None and should_hide_message_content_in_email(sender_mod_score)
+def _maybe_hide_text(text: str, hide_text: bool, loc_context: LocalizationContext) -> str:
+    if hide_text:
+        return loc_context.localize_string("notifications.message_content_hidden")
+    return text
 
 
 # Gets the data necessary to template an email for which we have a custom template,
 # e.g. not yet using couchers.email.emails.
-def _get_custom_templated_email(
-    notification: Notification, loc_context: LocalizationContext, session: Session
-) -> CustomTemplatedEmail:
+def _get_custom_templated_email(notification: Notification, loc_context: LocalizationContext) -> CustomTemplatedEmail:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic == "host_request":
         view_link = urls.host_request(host_request_id=data.host_request.host_request_id)
@@ -131,8 +126,7 @@ def _get_custom_templated_email(
                     "host_request": data.host_request,
                     "message": message,
                     "other": UserTemplateArgs.from_protobuf_user(other),
-                    "text": data.text,
-                    "hide_text": _should_hide_text(session, other.user_id),
+                    "text": _maybe_hide_text(data.text, data.hide_text, loc_context),
                 },
             )
         elif notification.action == "message":
@@ -150,8 +144,7 @@ def _get_custom_templated_email(
                     "host_request": data.host_request,
                     "message": message,
                     "other": UserTemplateArgs.from_protobuf_user(other),
-                    "text": data.text,
-                    "hide_text": _should_hide_text(session, other.user_id),
+                    "text": _maybe_hide_text(data.text, data.hide_text, loc_context),
                 },
             )
         elif notification.action in ["accept", "reject", "confirm", "cancel"]:
@@ -407,8 +400,7 @@ def _get_custom_templated_email(
             template_args={
                 "author": UserTemplateArgs.from_protobuf_user(data.author),
                 "message": data.message,
-                "text": data.text,
-                "hide_text": _should_hide_text(session, data.author.user_id),
+                "text": _maybe_hide_text(data.text, data.hide_text, loc_context),
                 "view_link": urls.chat_link(chat_id=data.group_chat_id),
             },
         )
@@ -422,8 +414,7 @@ def _get_custom_templated_email(
                     {
                         "author": UserTemplateArgs.from_protobuf_user(item.author),
                         "message": item.message,
-                        "text": item.text,
-                        "hide_text": _should_hide_text(session, item.author.user_id),
+                        "text": _maybe_hide_text(item.text, item.hide_text, loc_context),
                         "view_link": urls.chat_link(chat_id=item.group_chat_id),
                     }
                     for item in data.messages

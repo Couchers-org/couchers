@@ -45,7 +45,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     if not config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
         loc_context = dataclasses.replace(loc_context, locale="en")
 
-    rendered = render_email_notification(user, notification, loc_context, session)
+    rendered = render_email_notification(user, notification, loc_context)
 
     queue_email(
         session,

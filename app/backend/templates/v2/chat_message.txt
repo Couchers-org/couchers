@@ -5,11 +5,7 @@ Hi {{ user.name }},
 
 The message is below:
 
-{% if hide_text %}
-{{ "notifications.message_content_hidden"|translate }}
-{% else %}
 {{ text|quotelines }}
-{% endif %}
 
 
 

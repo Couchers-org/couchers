@@ -62,6 +62,7 @@ from couchers.metrics import (
     push_notification_counter,
     strong_verification_completions_counter,
 )
+from couchers.mod_score import should_hide_message_content_in_email
 from couchers.models import (
     AccountDeletionToken,
     ActivenessProbe,
@@ -280,6 +281,7 @@ def send_message_notifications(payload: empty_pb2.Empty) -> None:
                             message=format_title(message, group_chat, count_unseen),
                             text=message.text,
                             group_chat_id=message.conversation_id,
+                            hide_text=should_hide_message_content_in_email(message.author.mod_score),
                         )
                         for group_chat, message, count_unseen in unseen_messages
                     ],
