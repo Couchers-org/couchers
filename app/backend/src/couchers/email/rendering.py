@@ -79,10 +79,10 @@ class EmailBlocksBuilder:
         self._string_key_prefix = string_key_prefix
 
     def para(self, key: str, substitutions: SubstitutionDict | None = None) -> Self:
-        return self._append(ParaBlock(text=self._markup(key, substitutions)))
+        return self.block(ParaBlock(text=self._markup(key, substitutions)))
 
     def quote(self, text: str) -> Self:
-        return self._append(QuoteBlock(text=text))
+        return self.block(QuoteBlock(text=text))
 
     def user(
         self,
@@ -90,24 +90,16 @@ class EmailBlocksBuilder:
         comment_key: str,
         substitutions: SubstitutionDict | None = None,
     ) -> Self:
-        return self._append(UserBlock(info=info, comment=self._markup(comment_key, substitutions)))
+        return self.block(UserBlock(info=info, comment=self._markup(comment_key, substitutions)))
 
     def action(self, url: str, text_key: str, substitutions: SubstitutionDict | None = None) -> Self:
-        return self._append(ActionBlock(text=self._text(text_key, substitutions), target_url=url))
+        return self.block(ActionBlock(text=self._text(text_key, substitutions), target_url=url))
 
-    def greeting_line(self, user_name: str) -> Self:
-        line = get_emails_i18next().localize("generic.greeting_line", self._locale, {"name": user_name})
-        return self._append(ParaBlock(text=line))
-
-    def security_warning_line(self) -> Self:
+    def security_warning_para(self) -> Self:
         line = get_emails_i18next().localize_with_markup("generic.security_warning_contact_support", self._locale)
-        return self._append(ParaBlock(text=line))
+        return self.block(ParaBlock(text=line))
 
-    def closing_line(self) -> Self:
-        line = get_emails_i18next().localize("generic.closing_line", self._locale)
-        return self._append(ParaBlock(text=line))
-
-    def _append(self, block: EmailBlock) -> Self:
+    def block(self, block: EmailBlock) -> Self:
         self.blocks.append(block)
         return self
 

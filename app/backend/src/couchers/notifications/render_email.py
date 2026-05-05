@@ -104,9 +104,9 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
         case NotificationTopicAction.birthdate__change:
             return emails.BirthdateChangedEmail(user_name, new_birthdate=date.fromisoformat(data.birthdate))
         case NotificationTopicAction.email_address__change:
-            return emails.EmailAddressChangedEmail(user_name, new_email=data.new_email, completed=False)
+            return emails.EmailAddressChangedEmail(user_name, new_email=data.new_email)
         case NotificationTopicAction.email_address__verify:
-            return emails.UnparameterizedEmail(user_name, type=emails.UnparameterizedEmailType.EMAIL_ADDRESS_VERIFIED)
+            return emails.EmailAddressVerifiedEmail(user_name)
         case NotificationTopicAction.gender__change:
             return emails.GenderChangedEmail(user_name, new_gender=data.gender)
         case NotificationTopicAction.phone_number__change:

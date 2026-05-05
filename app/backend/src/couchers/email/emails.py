@@ -5,12 +5,12 @@ Defines data models for each email we sent out to users.
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
-from enum import Enum
 from typing import Self
 
 from couchers.email.rendering import (
     EmailBlock,
     EmailBlocksBuilder,
+    ParaBlock,
     get_emails_i18next,
 )
 from couchers.i18n import LocalizationContext
@@ -27,10 +27,13 @@ class EmailBase(ABC):
 
     user_name: str
 
+    @property
     @abstractmethod
+    def _localize_key_prefix(self) -> str: ...
+
     def get_subject_line(self, loc_context: LocalizationContext) -> str:
         """Gets the subject line header of the email."""
-        ...
+        return self._localize(loc_context, "subject")
 
     def get_preview_line(self, loc_context: LocalizationContext) -> str | None:
         """Gets the line that gets shown as a preview next to the title in users' inboxes."""
@@ -38,8 +41,15 @@ class EmailBase(ABC):
 
     def get_body_blocks(self, loc_context: LocalizationContext) -> list[EmailBlock]:
         """Gets the blocks that form the body of the email."""
+
+        # Delegate to _build_body, but wrap with greetings and closing lines common to all emails.
+        i18next = get_emails_i18next()
         builder = EmailBlocksBuilder(locale=loc_context.locale, string_key_prefix=self._localize_key_prefix)
+        builder.block(
+            ParaBlock(text=i18next.localize("generic.greeting_line", loc_context.locale, {"name": self.user_name}))
+        )
         self._build_body(builder, loc_context)
+        builder.block(ParaBlock(text=i18next.localize("generic.closing_line", loc_context.locale)))
         return builder.blocks
 
     @abstractmethod
@@ -52,10 +62,6 @@ class EmailBase(ABC):
         ...
 
     # Helpers for localizing email-specific strings
-    @property
-    @abstractmethod
-    def _localize_key_prefix(self) -> str: ...
-
     def _localize(
         self, loc_context: LocalizationContext, key: str, substitutions: SubstitutionDict | None = None
     ) -> str:
@@ -77,18 +83,12 @@ class APIKeyIssuedEmail(EmailBase):
     def _localize_key_prefix(self) -> str:
         return "api_key_issued"
 
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject")
-
     def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.greeting_line(self.user_name)
         builder.para("header")
         builder.quote(self.api_key)
         builder.para("expiry", {"datetime": loc_context.localize_datetime(self.expiry)})
         builder.para("usage_warning")
         builder.para("policy_warning")
-        builder.security_warning_line()
-        builder.closing_line()
 
     @classmethod
     def dummy_data(cls) -> APIKeyIssuedEmail:
@@ -107,14 +107,9 @@ class BirthdateChangedEmail(EmailBase):
     def _localize_key_prefix(self) -> str:
         return "birthdate_changed"
 
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject")
-
     def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.greeting_line(self.user_name)
         builder.para("body", {"date": loc_context.localize_date(self.new_birthdate)})
-        builder.security_warning_line()
-        builder.closing_line()
+        builder.security_warning_para()
 
     @classmethod
     def dummy_data(cls) -> BirthdateChangedEmail:
@@ -134,18 +129,30 @@ class EmailAddressChangedEmail(EmailBase):
     def _localize_key_prefix(self) -> str:
         return "email_address_change_initiated"
 
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject")
-
     def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.greeting_line(self.user_name)
         builder.para("body", {"email_address": self.new_email})
-        builder.security_warning_line()
-        builder.closing_line()
+        builder.security_warning_para()
 
     @classmethod
     def dummy_data(cls) -> EmailAddressChangedEmail:
         return EmailAddressChangedEmail(user_name="Alice", new_email="alice@example.com")
+
+
+@dataclass(kw_only=True, slots=True)
+class EmailAddressVerifiedEmail(EmailBase):
+    """An email with a subject line and a single paragraph body, without string substitutions."""
+
+    @property
+    def _localize_key_prefix(self) -> str:
+        return "email_address_verified"
+
+    def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
+        builder.para("body")
+        builder.security_warning_para()
+
+    @classmethod
+    def dummy_data(cls) -> EmailAddressVerifiedEmail:
+        return EmailAddressVerifiedEmail(user_name="Alice")
 
 
 @dataclass(kw_only=True, slots=True)
@@ -158,14 +165,9 @@ class GenderChangedEmail(EmailBase):
     def _localize_key_prefix(self) -> str:
         return "gender_changed"
 
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject")
-
     def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.greeting_line(self.user_name)
         builder.para("body", {"gender": self.new_gender})
-        builder.security_warning_line()
-        builder.closing_line()
+        builder.security_warning_para()
 
     @classmethod
     def dummy_data(cls) -> GenderChangedEmail:
@@ -186,14 +188,9 @@ class PhoneNumberChangeEmail(EmailBase):
     def _localize_key_prefix(self) -> str:
         return "phone_number_verified" if self.completed else "phone_number_verification_started"
 
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject")
-
     def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.greeting_line(self.user_name)
         builder.para("body", {"phone_number": format_phone_number(self.new_phone_number)})
-        builder.security_warning_line()
-        builder.closing_line()
+        builder.security_warning_para()
 
     @classmethod
     def dummy_data(cls) -> PhoneNumberChangeEmail:
@@ -202,36 +199,3 @@ class PhoneNumberChangeEmail(EmailBase):
             new_phone_number="+12223334444",
             completed=False,
         )
-
-
-class UnparameterizedEmailType(Enum):
-    def __init__(self, string_key_prefix: str, security_warning: bool = False):
-        self.string_key_prefix = string_key_prefix
-        self.security_warning = security_warning
-
-    EMAIL_ADDRESS_VERIFIED = ("email_address_verified", True)
-
-
-@dataclass(kw_only=True, slots=True)
-class UnparameterizedEmail(EmailBase):
-    """An email with a subject line and a single paragraph body, without string substitutions."""
-
-    type: UnparameterizedEmailType
-
-    @property
-    def _localize_key_prefix(self) -> str:
-        return self.type.string_key_prefix
-
-    def get_subject_line(self, loc_context: LocalizationContext) -> str:
-        return self._localize(loc_context, "subject")
-
-    def _build_body(self, builder: EmailBlocksBuilder, loc_context: LocalizationContext) -> None:
-        builder.greeting_line(self.user_name)
-        builder.para("body")
-        if self.type.security_warning:
-            builder.security_warning_line()
-        builder.closing_line()
-
-    @classmethod
-    def dummy_data(cls) -> UnparameterizedEmail:
-        return UnparameterizedEmail(user_name="Alice", type=UnparameterizedEmailType.EMAIL_ADDRESS_VERIFIED)
