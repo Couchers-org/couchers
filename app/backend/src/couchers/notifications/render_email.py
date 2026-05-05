@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from datetime import date
 from typing import Any
 
 from couchers import urls
@@ -91,19 +92,19 @@ def _get_generic_templated_email(user_name: str, notification: Notification) -> 
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     match notification.topic_action:
         case NotificationTopicAction.api_key__create:
-            return emails.APIKeyIssuedEmail(user_name, api_key=data.api_key, expiry=data.data.expiry)
+            return emails.APIKeyIssuedEmail(user_name, api_key=data.api_key, expiry=data.expiry)
         case NotificationTopicAction.birthdate__change:
-            return emails.BirthdateChangedEmail(user_name, new_birthdate=data.birthdate)
+            return emails.BirthdateChangedEmail(user_name, new_birthdate=date.fromisoformat(data.birthdate))
         case NotificationTopicAction.email_address__change:
-            return emails.EmailAddressChangeEmail(user_name, new_email=data.new_email, completed=False)
+            return emails.EmailAddressChangedEmail(user_name, new_email=data.new_email, completed=False)
         case NotificationTopicAction.email_address__verify:
-            return emails.EmailAddressChangeEmail(user_name, new_email=data.new_email, completed=True)
+            return emails.UnparameterizedEmail(user_name, type=emails.UnparameterizedEmailType.EMAIL_ADDRESS_VERIFIED)
         case NotificationTopicAction.gender__change:
-            return emails.GenderChangedEmail(user_name, new_gender=data.new_gender)
+            return emails.GenderChangedEmail(user_name, new_gender=data.gender)
         case NotificationTopicAction.phone_number__change:
-            return emails.PhoneNumberChangeEmail(user_name, new_phone_number=data.new_phone_number, completed=False)
+            return emails.PhoneNumberChangeEmail(user_name, new_phone_number=data.phone, completed=False)
         case NotificationTopicAction.phone_number__verify:
-            return emails.PhoneNumberChangeEmail(user_name, new_phone_number=data.new_phone_number, completed=True)
+            return emails.PhoneNumberChangeEmail(user_name, new_phone_number=data.phone, completed=True)
         case _:
             # Still implemented as a custom templated email
             return None

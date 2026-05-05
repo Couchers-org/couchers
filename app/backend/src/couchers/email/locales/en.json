@@ -17,11 +17,11 @@
   },
   "birthdate_changed": {
     "subject": "Your date of birth was changed",
-    "body": "Your date of birth was changed to <b>{{ new_birthdate }}</b> by an admin."
+    "body": "Your date of birth was changed to <b>{{ date }}</b> by an admin."
   },
   "email_address_change_initiated": {
     "subject": "An email change was initiated on your account",
-    "body": "An email change to the email <b>{{ new_email }}</b> was initiated on your account."
+    "body": "An email change to the email <b>{{ email_address }}</b> was initiated on your account."
   },
   "email_address_verified": {
     "subject": "Email change completed",
@@ -29,7 +29,7 @@
   },
   "gender_changed": {
     "subject": "Your profile gender was changed",
-    "body": "Your gender on Couchers.org was changed to <b>{{ new_gender }}</b> by an admin."
+    "body": "Your gender on Couchers.org was changed to <b>{{ gender }}</b> by an admin."
   },
   "password_changed": {
     "subject": "Your password was changed",
@@ -37,10 +37,10 @@
   },
   "phone_number_verification_started": {
     "subject": "Phone verification started",
-    "body": "You started phone number verification with the number <b>{{ new_phone_number }}</b>."
+    "body": "You started phone number verification with the number <b>{{ phone_number }}</b>."
   },
   "phone_number_verified": {
     "subject": "Phone successfully verified",
-    "body": "Your phone was successfully verified as <b>{{ new_phone_number }}</b>."
+    "body": "Your phone was successfully verified as <b>{{ phone_number }}</b>."
   }
 }
