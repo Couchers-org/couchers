@@ -16,6 +16,7 @@ from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.queuing import queue_email
+from couchers.proto.internal import jobs_pb2
 from couchers.jobs import handlers
 from couchers.jobs.definitions import Job
 from couchers.jobs.enqueue import queue_job
@@ -78,20 +79,26 @@ def _check_job_counter(job, status, attempt, exception):
 
 def test_email_job(db):
     with session_scope() as session:
-        queue_email(session, "sender_name", "sender_email", "recipient", "subject", "plain", "html")
-
-    def mock_print_dev_email(
-        sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data
-    ):
-        assert sender_name == "sender_name"
-        assert sender_email == "sender_email"
-        assert recipient == "recipient"
-        assert subject == "subject"
-        assert plain == "plain"
-        assert html == "html"
-        return print_dev_email(
-            sender_name, sender_email, recipient, subject, plain, html, list_unsubscribe_header, source_data
+        queue_email(
+            session,
+            jobs_pb2.SendEmailPayload(
+                sender_name="sender_name",
+                sender_email="sender_email",
+                recipient="recipient",
+                subject="subject",
+                plain="plain",
+                html="html",
+            ),
         )
+
+    def mock_print_dev_email(payload):
+        assert payload.sender_name == "sender_name"
+        assert payload.sender_email == "sender_email"
+        assert payload.recipient == "recipient"
+        assert payload.subject == "subject"
+        assert payload.plain == "plain"
+        assert payload.html == "html"
+        return print_dev_email(payload)
 
     with patch("couchers.jobs.handlers.print_dev_email", mock_print_dev_email):
         process_job()
@@ -278,7 +285,17 @@ def test_refresh_materialized_views(db):
 
 def test_service_jobs(db):
     with session_scope() as session:
-        queue_email(session, "sender_name", "sender_email", "recipient", "subject", "plain", "html")
+        queue_email(
+            session,
+            jobs_pb2.SendEmailPayload(
+                sender_name="sender_name",
+                sender_email="sender_email",
+                recipient="recipient",
+                subject="subject",
+                plain="plain",
+                html="html",
+            ),
+        )
 
     # we create this HitSleep exception here, and mock out the normal sleep(1) in the infinite loop to instead raise
     # this. that allows us to conveniently get out of the infinite loop and know we had no more jobs left
