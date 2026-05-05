@@ -71,17 +71,34 @@ Read the PR template from `.github/pull_request_template.md` in this repo. Fill 
 - Fill in the Testing section with what was done or what should be done
 - Include the appropriate checklist(s) — backend, web, or both — based on which areas were changed. Remove checklists that don't apply.
 - Keep the "For maintainers" section as-is
-- Append the following note as the very last line of the PR body, after the "For maintainers" section (separated by a blank line):
+- Append the following two lines as the very last lines of the PR body, after the "For maintainers" section (separated by a blank line):
 
   ```
   _This PR was created with the Couchers PR skill._
+  _Claude usage — Design: <score> · Implementation: <score> · Review: <score>_
+  _Amount of iteration: <score>_
   ```
+
+  Score each Claude usage category as **None**, **Some**, **Most**, or **All** based on Claude's share of the work:
+  - **Design** — deciding *what* to build and the approach (the idea, architecture, API shape, edge cases to handle).
+  - **Implementation** — writing the actual code that landed in the diff.
+  - **Review** — testing, running the code, verifying behavior, debugging, catching issues.
+
+  Be honest. If the user dictated the approach in detail, Design is None or Some. If the user wrote or substantially rewrote the code themselves, Implementation is None or Some. If the user manually tested or you never ran/tested the changes, Review is None or Some. Judge from the actual conversation, not optimistically.
+
+  Score **Amount of iteration** separately on the same scale — this measures total back-and-forth/rework regardless of who drove it:
+  - **None** — one-shot; first attempt accepted as-is.
+  - **Some** — minor refinements or follow-up tweaks.
+  - **Most** — substantial rework or course correction along the way.
+  - **All** — many rounds; repeated redirection or rewriting.
 
 ```bash
 gh pr create --base develop --title "<short title>" --body "$(cat <<'EOF'
 <filled-in PR template>
 
 _This PR was created with the Couchers PR skill._
+_Claude usage — Design: <score> · Implementation: <score> · Review: <score>_
+_Amount of iteration: <score>_
 EOF
 )"
 ```
