@@ -53,7 +53,8 @@ export default function NewMessage({ setIsMessaging }: NewMessageProps) {
     Error,
     MessageFormData
   >({
-    mutationFn: (data) => service.conversations.sendDirectMessage(user.userId, data.text),
+    mutationFn: (data) =>
+      service.conversations.sendDirectMessage(user.userId, data.text),
     onSuccess: (groupChatId) => {
       reset();
       setIsMessaging(false);
