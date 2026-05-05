@@ -13,6 +13,27 @@ const fallbackLng = {
   zh: ["zh-Hans", "en"],
 };
 
+const debugLogging = process.env.NODE_ENV === "development";
+
+if (debugLogging) {
+  // i18next's debug logging at the "log" level is extremely verbose,
+  // including all loaded strings, and drowning out warnings and errors.
+  // Unfortunately i18next doesn't provide a way to filter its debug logs,
+  // so we're left with patching console.log.
+  const originalLog = console.log;
+  console.log = (...args) => {
+    if (
+      args[0] &&
+      typeof args[0] === "string" &&
+      args[0].startsWith("i18next:")
+    ) {
+      // Filter out i18next debug logs
+      return;
+    }
+    originalLog(...args);
+  };
+}
+
 module.exports = {
   i18n: {
     defaultLocale: "en",
@@ -22,11 +43,17 @@ module.exports = {
   fallbackLng,
   defaultNS: "global",
   compatibilityJSON: "v4",
-  debug: process.env.NODE_ENV === "development",
+  debug: debugLogging,
   ns: NAMESPACES,
   returnEmptyString: false,
   serializeConfig: false,
   localePath: (locale, namespace) => {
+    // i18next runs our "en-CORP" through Intl.getCanonicalLocales,
+    // which converts it to "en-Corp". Convert it back to match our file names.
+    if (locale == "en-Corp") {
+      locale = "en-CORP";
+    }
+
     // eslint-disable-next-line
     const path = require("path");
     if (namespace === "global") {
@@ -34,6 +61,10 @@ module.exports = {
         process.cwd(),
         `resources/locales/${locale.replace("-", "_")}.json`,
       );
+    }
+    if (namespace == "mod") {
+      // Localization is not supported for the moderation namespace.
+      locale = "en";
     }
     return path.resolve(
       process.cwd(),
