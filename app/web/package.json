@@ -37,7 +37,7 @@
     "@mui/x-date-pickers": "^8.27.2",
     "@sentry/nextjs": "^10.50.0",
     "@sentry/react": "^10.49.0",
-    "@statsig/react-bindings": "^3.31.2",
+    "@statsig/react-bindings": "^3.33.0",
     "@statsig/session-replay": "^3.33.0",
     "@statsig/web-analytics": "^3.32.0",
     "@stripe/stripe-js": "^8.11.0",

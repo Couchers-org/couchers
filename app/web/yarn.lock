@@ -2219,11 +2219,6 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@statsig/client-core@3.31.2":
-  version "3.31.2"
-  resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.31.2.tgz#556ff33b5194847d6bd5097e5f4a52cde9055887"
-  integrity sha512-Tfa3JC0fJJL0Pd13Le9ZxqZp1QD8XKQ9pyPaBeyhpB6QWzr6qqGusGFaSmmCJXu9ViN672Lgg87/43mANg2LBw==
-
 "@statsig/client-core@3.32.0":
   version "3.32.0"
   resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.32.0.tgz#a75972ee9a09cdd5f94785b72bdbc91f568c1f66"
@@ -2234,13 +2229,6 @@
   resolved "https://registry.yarnpkg.com/@statsig/client-core/-/client-core-3.33.0.tgz#51e83e515de547dafabe158bedcbcab6c13b9e47"
   integrity sha512-i0eiAtFkm7Ny38etC5rJ/fkWiAECgyfK23/KIFk8z8LvPW77QmUXJfNeTqFikEOKAsAGU/pxXmchpo8hn9nWBA==
 
-"@statsig/js-client@3.31.2":
-  version "3.31.2"
-  resolved "https://registry.yarnpkg.com/@statsig/js-client/-/js-client-3.31.2.tgz#1d7321aac86fe08de890422ad0236abf50253b99"
-  integrity sha512-uEIt2Zg0NTgIhg4jaMQYtdttrTDgQRtlk4E8N6cNBcq2i/Igea1DzVYD7RyEV9oiq3InHDOfuuP+p+w5oO+qeA==
-  dependencies:
-    "@statsig/client-core" "3.31.2"
-
 "@statsig/js-client@3.32.0":
   version "3.32.0"
   resolved "https://registry.yarnpkg.com/@statsig/js-client/-/js-client-3.32.0.tgz#ea813043ad5627dcd57b65a221097f536c1b4b94"
@@ -2248,13 +2236,20 @@
   dependencies:
     "@statsig/client-core" "3.32.0"
 
-"@statsig/react-bindings@^3.31.2":
-  version "3.31.2"
-  resolved "https://registry.yarnpkg.com/@statsig/react-bindings/-/react-bindings-3.31.2.tgz#620dfa561366ea0ae56f136eac94c689f236f956"
-  integrity sha512-27QFh5CBr/1keZSI7e7fYkaTESrbrM80wgOoLKeZSZ+xUBvP5kC1+UUzX+exIW62svWSf3lnWta2L1LzOapiXQ==
+"@statsig/js-client@3.33.0":
+  version "3.33.0"
+  resolved "https://registry.yarnpkg.com/@statsig/js-client/-/js-client-3.33.0.tgz#e7d488028a91fdceab4911ac233eac64ca4c9a32"
+  integrity sha512-jwAjyCI0FQSvoviQqdO2u1pchuG88eUT2/EoCtEV4vda4XilzuX3eUBK+J2nhRZB2u8CLNV7PZoONdy/Tls7yQ==
   dependencies:
-    "@statsig/client-core" "3.31.2"
-    "@statsig/js-client" "3.31.2"
+    "@statsig/client-core" "3.33.0"
+
+"@statsig/react-bindings@^3.33.0":
+  version "3.33.0"
+  resolved "https://registry.yarnpkg.com/@statsig/react-bindings/-/react-bindings-3.33.0.tgz#e3f13028658fbf2daf50ad02297f9feb2fe7673f"
+  integrity sha512-Rl69XyeRsTI+5ducUpo6qQS46fpxbSiDHwqnB99r2ba4k+MjuwG3awjTaezFaY2sxR9TZe164R1cTUoxtVkPyA==
+  dependencies:
+    "@statsig/client-core" "3.33.0"
+    "@statsig/js-client" "3.33.0"
 
 "@statsig/session-replay@^3.33.0":
   version "3.33.0"
