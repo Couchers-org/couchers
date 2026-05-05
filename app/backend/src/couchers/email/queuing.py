@@ -30,8 +30,10 @@ def _queue_email(session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
 
     emails_counter.inc()
 
+
 def queue_email(session: Session, payload: jobs_pb2.SendEmailPayload) -> None:
     _queue_email(session, payload)
+
 
 def queue_userless_email(
     session: Session, recipient: str, subject: str, template_name: str, template_args: dict[str, Any]

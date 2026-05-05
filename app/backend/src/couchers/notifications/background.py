@@ -10,7 +10,6 @@ from couchers.config import config
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.email.queuing import queue_email
-from couchers.proto.internal import jobs_pb2
 from couchers.i18n import LocalizationContext
 from couchers.models import (
     Notification,

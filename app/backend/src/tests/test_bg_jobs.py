@@ -16,7 +16,6 @@ from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.queuing import queue_email
-from couchers.proto.internal import jobs_pb2
 from couchers.jobs import handlers
 from couchers.jobs.definitions import Job
 from couchers.jobs.enqueue import queue_job
@@ -54,6 +53,7 @@ from couchers.models import (
     Volunteer,
 )
 from couchers.proto import conversations_pb2, requests_pb2
+from couchers.proto.internal import jobs_pb2
 from couchers.utils import now, today
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_volunteer
 from tests.fixtures.misc import PushCollector, process_jobs
