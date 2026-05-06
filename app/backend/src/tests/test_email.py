@@ -195,7 +195,7 @@ def test_email_patching_fails(db):
     assert friend_relationship is not None
     moderator.approve_friend_request(friend_relationship.id)
 
-    with patch("couchers.email.queuing.queue_email", mock_queue_email):
+    with patch("couchers.email.queuing._queue_email", mock_queue_email):
         with pytest.raises(Exception) as e:
             process_jobs()
 
