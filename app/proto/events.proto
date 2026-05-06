@@ -242,8 +242,8 @@ message UpdateEventReq {
   bool should_notify = 12;
 
   // The start/end times as datetime components, see CreateEventReq
-  string start_datetime_iso8601_no_tz = 13;
-  string end_datetime_iso8601_no_tz = 14;
+  google.protobuf.StringValue start_datetime_iso8601_no_tz = 13;
+  google.protobuf.StringValue end_datetime_iso8601_no_tz = 14;
 }
 
 message GetEventReq {
