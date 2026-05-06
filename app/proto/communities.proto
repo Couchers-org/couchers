@@ -162,6 +162,8 @@ message ListUserCommunitiesReq {
 
   uint32 page_size = 2;
   string page_token = 3;
+  // if true, order results by node type with most local first (sublocality) up to the largest (world) at the end
+  bool order_local_first = 4;
 }
 
 message ListUserCommunitiesRes {

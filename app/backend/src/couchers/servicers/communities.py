@@ -543,27 +543,44 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         self, request: communities_pb2.ListUserCommunitiesReq, context: CouchersContext, session: Session
     ) -> communities_pb2.ListUserCommunitiesRes:
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
-        next_node_id = int(request.page_token) if request.page_token else 0
         user_id = request.user_id or context.user_id
-        nodes = (
-            session.execute(
-                select(Node)
-                .join(Cluster, Cluster.parent_node_id == Node.id)
-                .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
-                .where(ClusterSubscription.user_id == user_id)
-                .where(Cluster.is_official_cluster)
-                .where(Node.id >= next_node_id)
-                .order_by(Node.id)
-                .limit(page_size + 1)
-                .options(selectinload(Node.official_cluster))
-            )
-            .scalars()
-            .all()
+        query = (
+            select(Node)
+            .join(Cluster, Cluster.parent_node_id == Node.id)
+            .join(ClusterSubscription, ClusterSubscription.cluster_id == Cluster.id)
+            .where(ClusterSubscription.user_id == user_id)
+            .where(Cluster.is_official_cluster)
+            .options(selectinload(Node.official_cluster))
         )
+        if request.order_local_first:
+            # NodeType is ordinal: lower values are broader geographic areas, so DESC
+            # produces most local (sublocality) first up to the largest (world) last.
+            if request.page_token:
+                last_type_name, _, last_id_str = request.page_token.partition(":")
+                last_type = NodeType[last_type_name]
+                last_id = int(last_id_str)
+                query = query.where(
+                    or_(
+                        Node.node_type < last_type,
+                        (Node.node_type == last_type) & (Node.id >= last_id),
+                    )
+                )
+            query = query.order_by(Node.node_type.desc(), Node.id).limit(page_size + 1)
+        else:
+            next_node_id = int(request.page_token) if request.page_token else 0
+            query = query.where(Node.id >= next_node_id).order_by(Node.id).limit(page_size + 1)
+
+        nodes = session.execute(query).scalars().all()
+
+        if len(nodes) > page_size:
+            cursor = nodes[-1]
+            next_page_token = f"{cursor.node_type.name}:{cursor.id}" if request.order_local_first else str(cursor.id)
+        else:
+            next_page_token = None
 
         return communities_pb2.ListUserCommunitiesRes(
             communities=communities_to_pb(session, nodes[:page_size], context),
-            next_page_token=str(nodes[-1].id) if len(nodes) > page_size else None,
+            next_page_token=next_page_token,
         )
 
     def ListAllCommunities(

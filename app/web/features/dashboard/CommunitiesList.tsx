@@ -41,7 +41,10 @@ const SkeletonCard = styled("div")(({ theme }) => ({
 
 export default function CommunitiesList({ all = false }: { all?: boolean }) {
   const { t } = useTranslation([DASHBOARD]);
-  const userCommunities = useUserCommunities({ pageSize: 6 });
+  const userCommunities = useUserCommunities({
+    pageSize: 6,
+    orderLocalFirst: true,
+  });
   const allCommunities = useListSubCommunities(0);
   const communities = all ? allCommunities : userCommunities;
 

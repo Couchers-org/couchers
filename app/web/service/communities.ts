@@ -139,10 +139,12 @@ export async function leaveCommunity(communityId: number) {
 export async function listUserCommunities(
   pageToken?: string,
   pageSize?: number,
+  orderLocalFirst?: boolean,
 ) {
   const req = new ListUserCommunitiesReq();
   if (pageSize) req.setPageSize(pageSize);
   if (pageToken) req.setPageToken(pageToken);
+  if (orderLocalFirst) req.setOrderLocalFirst(orderLocalFirst);
   return (await client.communities.listUserCommunities(req)).toObject();
 }
 
