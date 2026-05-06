@@ -172,11 +172,28 @@ message CreateEventReq {
   }
   // must give this if online, otherwise optional as it can be auto-filled from the location
   int64 parent_community_id = 8;
-  // timestamps are in UTC
+
+  // The start/end times as timestamps.
+  // For online events which are timezone-agnostic,
+  // or offline events for which the client knows the timezone.
   google.protobuf.Timestamp start_time = 9;
   google.protobuf.Timestamp end_time = 10;
-  // the tzdata timezone identifier, empty string means tz of creating user
+
+  // The timezone IANA identifier:
+  // - Offline + timestamps: required
+  // - Offline + ISO8601: optional (defaults to value from geolocation)
+  // - Online + timestamps: ignored (online events are timezone-agnostic)
+  // - Online + ISO8601: required (server will convert to timestamp)
   string timezone = 11;
+
+  // The start/end times as datetime components.
+  // For offline events which have a geological location,
+  // the client cannot convert datetime components to a timestamp
+  // because it doesn't know the timezone at that location.
+  // We transmit as ISO8601 (no timezone) and let the server convert to timestamps.
+  // For online events, the client should also provide the timezone field.
+  string start_datetime_iso8601_no_tz = 12;
+  string end_datetime_iso8601_no_tz = 13;
 }
 
 message ScheduleEventReq {
@@ -188,11 +205,17 @@ message ScheduleEventReq {
     OnlineEventInformation online_information = 4;
     OfflineEventInformation offline_information = 5;
   }
-  // timestamps are in UTC
+
+  // The start/end times as timestamps, see CreateEventReq
   google.protobuf.Timestamp start_time = 8;
   google.protobuf.Timestamp end_time = 9;
-  // the tzdata timezone identifier, empty string means tz of creating user
+
+  // The start/end times as timestamps, see CreateEventReq
   string timezone = 10;
+
+  // The start/end times as datetime components, see CreateEventReq
+  string start_datetime_iso8601_no_tz = 11;
+  string end_datetime_iso8601_no_tz = 12;
 }
 
 message UpdateEventReq {
@@ -207,13 +230,20 @@ message UpdateEventReq {
     OnlineEventInformation online_information = 6;
     OfflineEventInformation offline_information = 7;
   }
+
+  // The start/end times as timestamps, see CreateEventReq
   google.protobuf.Timestamp start_time = 9;
   google.protobuf.Timestamp end_time = 10;
-  // the tzdata timezone identifier
+
+  // The timezone IANA identifier, see CreateEventReq
   google.protobuf.StringValue timezone = 11;
 
   // whether to notify all attendees about the change
   bool should_notify = 12;
+
+  // The start/end times as datetime components, see CreateEventReq
+  string start_datetime_iso8601_no_tz = 13;
+  string end_datetime_iso8601_no_tz = 14;
 }
 
 message GetEventReq {
