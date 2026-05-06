@@ -127,8 +127,8 @@ function DefaultActions({
 }
 
 interface OverviewProps {
-  setIsRequesting: (value: boolean) => void;
-  setIsMessaging: (value: boolean) => void;
+  setIsRequesting?: (value: boolean) => void;
+  setIsMessaging?: (value: boolean) => void;
   tab: UserTab;
 }
 
@@ -150,8 +150,8 @@ export default function Overview({
           <LoggedInUserActions tab={tab} />
         ) : (
           <DefaultActions
-            setIsRequesting={setIsRequesting}
-            setIsMessaging={setIsMessaging}
+            setIsRequesting={setIsRequesting ?? (() => {})}
+            setIsMessaging={setIsMessaging ?? (() => {})}
           />
         )
       }

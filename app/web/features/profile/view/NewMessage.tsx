@@ -28,15 +28,11 @@ const StyledSendActions = styled(CardActions)(() => ({
   marginTop: theme.spacing(2),
 }));
 
-interface NewMessageProps {
+export default function NewMessage({
+  setIsMessaging,
+}: {
   setIsMessaging: (value: boolean) => void;
-}
-
-interface MessageFormData {
-  text: string;
-}
-
-export default function NewMessage({ setIsMessaging }: NewMessageProps) {
+}) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
@@ -46,12 +42,12 @@ export default function NewMessage({ setIsMessaging }: NewMessageProps) {
     register,
     reset,
     formState: { errors },
-  } = useForm<MessageFormData>();
+  } = useForm<{ text: string }>();
 
   const { error, mutate, isPending } = useMutation<
     number,
     Error,
-    MessageFormData
+    { text: string }
   >({
     mutationFn: (data) =>
       service.conversations.sendDirectMessage(user.userId, data.text),
