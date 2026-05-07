@@ -234,7 +234,7 @@
     "success": "Solicitação enviada!"
   },
   "message_form": {
-    "hosting_request_hint": "Enviando uma solicitação de hospedagem? <back>Volte</back> e use o botão <request>Solicitar</request> em vez disso."
+    "hosting_request_hint": "Enviando uma solicitação de hospedagem? Use o botão <request>Solicitar</request> em vez disso."
   },
   "reference_filter_label": {
     "friend": "De amigos",

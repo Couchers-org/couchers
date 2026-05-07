@@ -238,7 +238,7 @@
     "success": "Verzoek verzonden!"
   },
   "message_form": {
-    "hosting_request_hint": "Een hosting-verzoek doen? Ga <back>terug</back> en gebruik in plaats daarvan de <request>Verzoek</request> knop."
+    "hosting_request_hint": "Een hosting-verzoek doen? Gebruik in plaats daarvan de <request>Verzoek</request> knop."
   },
   "reference_filter_label": {
     "friend": "Van vrienden",

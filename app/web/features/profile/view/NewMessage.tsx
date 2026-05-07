@@ -102,7 +102,7 @@ export default function NewMessage({
           <Typography variant="body2" sx={{ textAlign: "center" }}>
             <Trans
               i18nKey="profile:message_form.hosting_request_hint"
-              components={{ back: <strong />, request: <strong /> }}
+              components={{ request: <strong /> }}
             />
           </Typography>
         </form>
