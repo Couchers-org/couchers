@@ -32,7 +32,7 @@ class APICall(Base, kw_only=True):
 
     # backend version (normally e.g. develop-31469e3), allows us to figure out which proto definitions were used
     # note that `default` is a python side default, not hardcoded into DB schema
-    version: Mapped[str] = mapped_column(String, default=config["VERSION"])
+    version: Mapped[str] = mapped_column(String, default=config.version)
 
     # approximate time of the call
     time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
@@ -89,7 +89,7 @@ class EventLog(Base, kw_only=True):
     occurred: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     # backend/frontend version
-    version: Mapped[str] = mapped_column(String, default=config["VERSION"])
+    version: Mapped[str] = mapped_column(String, default=config.version)
 
     # sofa, null for background/system events
     sofa: Mapped[str | None] = mapped_column(String, default=None)

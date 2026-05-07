@@ -137,7 +137,7 @@ logger = logging.getLogger(__name__)
 def send_email(payload: jobs_pb2.SendEmailPayload) -> None:
     logger.info(f"Sending email with subject '{payload.subject}' to '{payload.recipient}'")
     # selects a "sender", which either prints the email to the logger or sends it out with SMTP
-    sender = send_smtp_email if config["ENABLE_EMAIL"] else print_dev_email
+    sender = send_smtp_email if config.enable_email else print_dev_email
     # the sender must return a models.Email object that can be added to the database
     email = sender(payload)
     with session_scope() as session:
@@ -613,7 +613,7 @@ def send_host_request_reminders(payload: empty_pb2.Empty) -> None:
 
 
 def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
-    if not config["LISTMONK_ENABLED"]:
+    if not config.listmonk_enabled:
         logger.info("Not adding users to mailing list")
         return
 
@@ -634,12 +634,12 @@ def add_users_to_email_list(payload: empty_pb2.Empty) -> None:
                 continue
 
             r = requests.post(
-                config["LISTMONK_BASE_URL"] + "/api/subscribers",
-                auth=(config["LISTMONK_API_USERNAME"], config["LISTMONK_API_KEY"]),
+                config.listmonk_base_url + "/api/subscribers",
+                auth=(config.listmonk_api_username, config.listmonk_api_key),
                 json={
                     "email": user.email,
                     "name": user.name,
-                    "lists": [config["LISTMONK_LIST_ID"]],
+                    "lists": [config.listmonk_list_id],
                     "preconfirm_subscriptions": True,
                     "attribs": {"couchers_user_id": user.id},
                     "status": "enabled",
@@ -891,7 +891,7 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
         ).scalar_one()
         response = requests.post(
             "https://passportreader.app/api/v1/session.get",
-            auth=(config["IRIS_ID_PUBKEY"], config["IRIS_ID_SECRET"]),
+            auth=(config.iris_id_pubkey, config.iris_id_secret),
             json={"id": verification_attempt.iris_session_id},
             timeout=10,
             verify="/etc/ssl/certs/ca-certificates.crt",
@@ -958,7 +958,7 @@ def finalize_strong_verification(payload: jobs_pb2.FinalizeStrongVerificationPay
 
         verification_attempt.has_full_data = True
         verification_attempt.passport_encrypted_data = asym_encrypt(
-            config["VERIFICATION_DATA_PUBLIC_KEY"], response.text.encode("utf8")
+            config.verification_data_public_key, response.text.encode("utf8")
         )
         verification_attempt.passport_date_of_birth = date.fromisoformat(json_data["date_of_birth"])
         verification_attempt.passport_sex = PassportSex[json_data["sex"].lower()]
@@ -999,7 +999,7 @@ def send_activeness_probes(payload: empty_pb2.Empty) -> None:
     with session_scope() as session:
         ## Step 1: create new activeness probes for those who need it and don't have one (if enabled)
 
-        if config["ACTIVENESS_PROBES_ENABLED"]:
+        if config.activeness_probes_enabled:
             # current activeness probes
             subquery = select(ActivenessProbe.user_id).where(ActivenessProbe.responded == None).subquery()
 
@@ -1305,7 +1305,7 @@ def check_mypostcard_jobs(payload: empty_pb2.Empty) -> None:
     """
     Checks that all MyPostcard jobs from the last week are tied to a postal verification attempt.
     """
-    if not config["ENABLE_POSTAL_VERIFICATION"]:
+    if not config.enable_postal_verification:
         return
 
     with session_scope() as session:
@@ -1492,7 +1492,7 @@ def check_database_consistency(payload: empty_pb2.Empty) -> None:
 
         # Ensure auto-approve deadline isn't being exceeded by a significant margin
         # The auto-approver runs every 15s, so allow 5 minutes grace before alerting
-        deadline_seconds = config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"]
+        deadline_seconds = config.moderation_auto_approve_deadline_seconds
         if deadline_seconds > 0:
             grace_period = timedelta(minutes=5)
             stale_initial_review_items = session.execute(
@@ -1519,12 +1519,12 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
     Dead man's switch: auto-approves unresolved INITIAL_REVIEW items older than the deadline.
     Items explicitly actioned by moderators are left alone.
     """
-    deadline_seconds = config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"]
+    deadline_seconds = config.moderation_auto_approve_deadline_seconds
     if deadline_seconds <= 0:
         return
 
     with session_scope() as session:
-        ctx = make_background_user_context(user_id=config["MODERATION_BOT_USER_ID"])
+        ctx = make_background_user_context(user_id=config.moderation_bot_user_id)
 
         items = (
             Moderation()

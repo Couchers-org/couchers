@@ -112,7 +112,7 @@ def process_job() -> bool:
             # add some info for debugging
             job.failure_info = traceback.format_exc()
 
-            if config["IN_TEST"]:
+            if config.in_test:
                 raise e
 
         # exiting ctx manager commits and releases the row lock

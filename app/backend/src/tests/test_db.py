@@ -110,7 +110,7 @@ def test_get_parent_node_at_location(testing_communities):
 
 def pg_dump() -> str:
     return subprocess.run(
-        ["pg_dump", "-s", config["DATABASE_CONNECTION_STRING"]], stdout=subprocess.PIPE, encoding="ascii", check=True
+        ["pg_dump", "-s", config.database_connection_string], stdout=subprocess.PIPE, encoding="ascii", check=True
     ).stdout
 
 

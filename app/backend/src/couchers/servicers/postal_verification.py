@@ -58,7 +58,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         """
         Step 1: User submits address for validation.
         """
-        if not config["ENABLE_POSTAL_VERIFICATION"]:
+        if not config.enable_postal_verification:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "postal_verification_disabled")
 
         # Check if there's an active attempt

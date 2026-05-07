@@ -33,7 +33,7 @@ def _(testconfig):
 
 def _monkeypatch_postal_verification_config(monkeypatch):
     new_config = config.copy()
-    new_config["ENABLE_POSTAL_VERIFICATION"] = True
+    new_config.enable_postal_verification = True
     monkeypatch.setattr(couchers.servicers.postal_verification, "config", new_config)
 
 

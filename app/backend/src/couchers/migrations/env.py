@@ -19,7 +19,7 @@ registry.register("postgresql", "sqlalchemy.dialects.postgresql.psycopg", "PGDia
 # access to the values within the .ini file in use.
 config: Config = context.config
 
-config.set_main_option("sqlalchemy.url", couchers_config["DATABASE_CONNECTION_STRING"])
+config.set_main_option("sqlalchemy.url", couchers_config.database_connection_string)
 
 
 # Interpret the config file for Python logging.

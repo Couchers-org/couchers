@@ -20,8 +20,8 @@ def test_send_slack_message_disabled():
 
 
 def test_send_slack_message_enabled():
-    config["SLACK_ENABLED"] = True
-    config["SLACK_BOT_TOKEN"] = "xoxb-test-token"
+    config.slack_enabled = True
+    config.slack_bot_token = "xoxb-test-token"
 
     with patch("couchers.slack.requests.post") as mock_post:
         mock_post.return_value.raise_for_status.return_value = None

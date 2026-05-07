@@ -1810,7 +1810,7 @@ def test_auto_approve_moderation_queue_disabled_when_zero(db):
         mock.assert_not_called()
 
         # Ensure deadline is 0 (disabled)
-        config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
+        config.moderation_auto_approve_deadline_seconds = 0
 
         # Run the job
         auto_approve_moderation_queue(empty_pb2.Empty())
@@ -1894,8 +1894,8 @@ def test_auto_approve_moderation_queue_approves_old_items(db, push_collector: Pu
         queue_item.time_created = datetime.now(queue_item.time_created.tzinfo) - timedelta(minutes=2)
 
     # Set deadline to 60 seconds (items older than 60 seconds will be auto-approved)
-    config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 60
-    config["MODERATION_BOT_USER_ID"] = moderator.id
+    config.moderation_auto_approve_deadline_seconds = 60
+    config.moderation_bot_user_id = moderator.id
 
     # Run the job
     auto_approve_moderation_queue(empty_pb2.Empty())
@@ -1968,8 +1968,8 @@ def test_auto_approve_does_not_approve_recent_items(db):
         mock.assert_not_called()
 
     # Set deadline to 1 hour (items older than 1 hour will be auto-approved)
-    config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 3600
-    config["MODERATION_BOT_USER_ID"] = moderator.id
+    config.moderation_auto_approve_deadline_seconds = 3600
+    config.moderation_bot_user_id = moderator.id
 
     # Run the job - the item was just created, so it shouldn't be approved
     with mock_notification_email() as mock:
@@ -2053,8 +2053,8 @@ def test_auto_approve_does_not_approve_already_approved(db):
         log_count_before = len(log_res_before.log_entries)
 
     # Set deadline to 1 second
-    config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 1
-    config["MODERATION_BOT_USER_ID"] = moderator.id
+    config.moderation_auto_approve_deadline_seconds = 1
+    config.moderation_bot_user_id = moderator.id
 
     # Run the job
     auto_approve_moderation_queue(empty_pb2.Empty())
@@ -2117,8 +2117,8 @@ def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
         queue_item.time_created = datetime.now(queue_item.time_created.tzinfo) - timedelta(minutes=10)
 
     # Set deadline to 1 second
-    config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 1
-    config["MODERATION_BOT_USER_ID"] = moderator.id
+    config.moderation_auto_approve_deadline_seconds = 1
+    config.moderation_bot_user_id = moderator.id
 
     # Get log count before
     with real_moderation_session(mod_token) as api:
@@ -2184,8 +2184,8 @@ def test_auto_approve_skips_shadowed_user_authored_items(db):
         ).scalar_one()
         queue_item.time_created = datetime.now(queue_item.time_created.tzinfo) - timedelta(minutes=10)
 
-    config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 60
-    config["MODERATION_BOT_USER_ID"] = moderator.id
+    config.moderation_auto_approve_deadline_seconds = 60
+    config.moderation_bot_user_id = moderator.id
 
     auto_approve_moderation_queue(empty_pb2.Empty())
 

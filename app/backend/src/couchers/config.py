@@ -2,222 +2,217 @@
 A simple config system
 """
 
+import dataclasses
 import os
-from typing import Any
+import typing
+from typing import Literal, Self
 
-CONFIG_T = list[tuple[str, type | list[str]] | tuple[str, type | list[str], str | int]]
 
-# Allowed config options, as tuples (name, type, default).
-# All fields are required
-CONFIG_OPTIONS: CONFIG_T = [
+@dataclasses.dataclass(kw_only=True)
+class Config:
     # Whether we're in dev mode
-    ("DEV", bool),
+    dev: bool
     # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
     # (servicing background jobs). Can also be set to `all` to do all three simultaneously
-    ("ROLE", ["api", "scheduler", "worker", "all"], "all"),
+    role: Literal["api", "scheduler", "worker", "all"] = "all"
     # number of bg worker processes, requires worker or all above
-    ("BACKGROUND_WORKER_COUNT", int, 2),
+    background_worker_count: int = 2
     # Version string
-    ("VERSION", str, "unknown"),
+    version: str = "unknown"
     # Base URL of frontend, e.g. https://couchers.org
-    ("BASE_URL", str),
+    base_url: str
     # URL of the backend, e.g. https://api.couchers.org
-    ("BACKEND_BASE_URL", str),
+    backend_base_url: str
     # URL of the console, e.g. https://console.couchers.org
-    ("CONSOLE_BASE_URL", str),
+    console_base_url: str
     # URL of the merch shop, e.g. https://shop.couchershq.org
-    ("MERCH_SHOP_URL", str),
+    merch_shop_url: str
     # Used to generate a variety of secrets
-    ("SECRET", bytes),
+    secret: bytes
     # Domain that cookies should set as their domain value
-    ("COOKIE_DOMAIN", str),
+    cookie_domain: str
     # SQLAlchemy database connection string
-    ("DATABASE_CONNECTION_STRING", str),
+    database_connection_string: str
     # OpenTelemetry endpoint to send traces to
-    ("OPENTELEMETRY_ENDPOINT", str, ""),
+    opentelemetry_endpoint: str = ""
     # Path to a GeoLite2-City.mmdb file for geocoding IPs in user session info
-    ("GEOLITE2_CITY_MMDB_FILE_LOCATION", str, ""),
-    ("GEOLITE2_ASN_MMDB_FILE_LOCATION", str, ""),
+    geolite2_city_mmdb_file_location: str = ""
+    geolite2_asn_mmdb_file_location: str = ""
     # Whether to try adding dummy data
-    ("ADD_DUMMY_DATA", bool),
+    add_dummy_data: bool
     # Donations
-    ("ENABLE_DONATIONS", bool),
-    ("STRIPE_API_KEY", str),
-    ("STRIPE_WEBHOOK_SECRET", str),
-    ("STRIPE_RECURRING_PRODUCT_ID", str),
+    enable_donations: bool
+    stripe_api_key: str
+    stripe_webhook_secret: str
+    stripe_recurring_product_id: str
     # Strong verification through Iris ID
-    ("ENABLE_STRONG_VERIFICATION", bool),
-    ("IRIS_ID_PUBKEY", str),
-    ("IRIS_ID_SECRET", str),
-    ("VERIFICATION_DATA_PUBLIC_KEY", bytes),
+    enable_strong_verification: bool
+    iris_id_pubkey: str
+    iris_id_secret: str
+    verification_data_public_key: bytes
     # Postal verification
-    ("ENABLE_POSTAL_VERIFICATION", bool),
+    enable_postal_verification: bool
     # MyPostcard API credentials
-    ("MYPOSTCARD_API_KEY", str),
-    ("MYPOSTCARD_USERNAME", str),
-    ("MYPOSTCARD_PASSWORD", str),
-    ("MYPOSTCARD_PRODUCT_CODE", str),
-    ("MYPOSTCARD_CAMPAIGN_ID", str),
+    mypostcard_api_key: str
+    mypostcard_username: str
+    mypostcard_password: str
+    mypostcard_product_code: str
+    mypostcard_campaign_id: str
     # SMS
-    ("ENABLE_SMS", bool),
-    ("SMS_SENDER_ID", str),
+    enable_sms: bool
+    sms_sender_id: str
     # Email
-    ("ENABLE_EMAIL", bool),
+    enable_email: bool
     # Sender name for outgoing notification emails e.g. "Couchers.org"
-    ("NOTIFICATION_EMAIL_SENDER", str),
+    notification_email_sender: str
     # Sender email, e.g. "notify@couchers.org"
-    ("NOTIFICATION_EMAIL_ADDRESS", str),
+    notification_email_address: str
     # An optional prefix for email subject, e.g. [STAGING]
-    ("NOTIFICATION_PREFIX", str, ""),
-    ("ENABLE_NOTIFICATION_TRANSLATIONS", bool),
-    ("ENABLE_EMAIL_ICS_ATTACHMENTS", bool),
+    notification_prefix: str = ""
+    enable_notification_translations: bool
+    enable_email_ics_attachments: bool
     # Address to send emails about reported users
-    ("REPORTS_EMAIL_RECIPIENT", str),
+    reports_email_recipient: str
     # Address to send contributor forms when users sign up/fill the form
-    ("CONTRIBUTOR_FORM_EMAIL_RECIPIENT", str),
+    contributor_form_email_recipient: str
     # Address to moderation notifications
-    ("MODS_EMAIL_RECIPIENT", str),
+    mods_email_recipient: str
     # SMTP settings
-    ("SMTP_HOST", str),
-    ("SMTP_PORT", int),
-    ("SMTP_USERNAME", str),
-    ("SMTP_PASSWORD", str),
+    smtp_host: str
+    smtp_port: int
+    smtp_username: str
+    smtp_password: str
     # Media server
-    ("ENABLE_MEDIA", bool),
-    ("MEDIA_SERVER_SECRET_KEY", bytes),
-    ("MEDIA_SERVER_BEARER_TOKEN", str),
-    ("MEDIA_SERVER_BASE_URL", str),
-    ("MEDIA_SERVER_UPLOAD_BASE_URL", str),
+    enable_media: bool
+    media_server_secret_key: bytes
+    media_server_bearer_token: str
+    media_server_base_url: str
+    media_server_upload_base_url: str
     # Bug reporting tool
-    ("BUG_TOOL_ENABLED", bool),
-    ("BUG_TOOL_GITHUB_REPO", str),
-    ("BUG_TOOL_GITHUB_USERNAME", str),
-    ("BUG_TOOL_GITHUB_TOKEN", str),
+    bug_tool_enabled: bool
+    bug_tool_github_repo: str
+    bug_tool_github_username: str
+    bug_tool_github_token: str
     # Sentry
-    ("SENTRY_ENABLED", bool),
-    ("SENTRY_URL", str),
+    sentry_enabled: bool
+    sentry_url: str
     # Push notifications
-    ("PUSH_NOTIFICATIONS_ENABLED", bool),
-    ("PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY", str),
-    ("PUSH_NOTIFICATIONS_VAPID_SUBJECT", str),
+    push_notifications_enabled: bool
+    push_notifications_vapid_private_key: str
+    push_notifications_vapid_subject: str
     # Whether to initiate new activeness probes
-    ("ACTIVENESS_PROBES_ENABLED", bool),
+    activeness_probes_enabled: bool
     # Listmonk (mailing list)
-    ("LISTMONK_ENABLED", bool),
-    ("LISTMONK_BASE_URL", str),
-    ("LISTMONK_API_USERNAME", str),
-    ("LISTMONK_API_KEY", str),
-    ("LISTMONK_LIST_ID", int),
+    listmonk_enabled: bool
+    listmonk_base_url: str
+    listmonk_api_username: str
+    listmonk_api_key: str
+    listmonk_list_id: int
     # Google recaptcha antibot
-    ("RECAPTHCA_ENABLED", bool),
-    ("RECAPTHCA_PROJECT_ID", str),
-    ("RECAPTHCA_API_KEY", str),
-    ("RECAPTHCA_SITE_KEY", str),
+    recapthca_enabled: bool
+    recapthca_project_id: str
+    recapthca_api_key: str
+    recapthca_site_key: str
     # Whether we're in test
-    ("IN_TEST", bool, "0"),
+    in_test: bool = False
     # Experimentation (feature flags via Statsig)
-    ("EXPERIMENTATION_ENABLED", bool, "0"),
+    experimentation_enabled: bool = False
     # When enabled, all feature gates return True (useful for development/testing)
-    ("EXPERIMENTATION_PASS_ALL_GATES", bool, "0"),
+    experimentation_pass_all_gates: bool = False
     # Statsig SDK configuration
-    ("STATSIG_SERVER_SECRET_KEY", str, ""),
-    ("STATSIG_ENVIRONMENT", str, "development"),
+    statsig_server_secret_key: str = ""
+    statsig_environment: str = "development"
     # Moderation auto-approval deadline in seconds (0 to disable auto-approval)
-    ("MODERATION_AUTO_APPROVE_DEADLINE_SECONDS", int),
+    moderation_auto_approve_deadline_seconds: int
     # User ID of the bot user for automated moderation actions
-    ("MODERATION_BOT_USER_ID", int),
+    moderation_bot_user_id: int
     # Enable development APIs (e.g., SendDevPushNotification)
-    ("ENABLE_DEV_APIS", bool),
+    enable_dev_apis: bool
     # Slack notifications
-    ("SLACK_ENABLED", bool),
-    ("SLACK_BOT_TOKEN", str),
-    ("SLACK_DONATIONS_CHANNEL", str),
-    ("SLACK_MERCH_CHANNEL", str),
-]
+    slack_enabled: bool
+    slack_bot_token: str
+    slack_donations_channel: str
+    slack_merch_channel: str
+
+    def copy(self) -> Self:
+        return dataclasses.replace(self)
+
+    def set_from(self, other: Config) -> None:
+        for field in dataclasses.fields(other):
+            setattr(self, field.name, getattr(other, field.name))
 
 
-def check_config(cfg: dict[str, Any]) -> None:
-    for name, *_ in CONFIG_OPTIONS:
-        if name not in cfg:
-            raise ValueError(f"Required config value {name} not set")
-
-    if not cfg["DEV"]:
+def check_config(cfg: Config) -> None:
+    if not cfg.dev:
         # checks for prod
-        if "https" not in cfg["BASE_URL"]:
+        if "https" not in cfg.base_url:
             raise Exception("Production site must be over HTTPS")
-        if not cfg["ENABLE_EMAIL"]:
+        if not cfg.enable_email:
             raise Exception("Production site must have email enabled")
-        if not cfg["ENABLE_SMS"]:
+        if not cfg.enable_sms:
             raise Exception("Production site must have SMS enabled")
-        if cfg["IN_TEST"]:
+        if cfg.in_test:
             raise Exception("IN_TEST while not DEV")
 
-    if cfg["ENABLE_DONATIONS"]:
-        if not cfg["STRIPE_API_KEY"] or not cfg["STRIPE_WEBHOOK_SECRET"] or not cfg["STRIPE_RECURRING_PRODUCT_ID"]:
+    if cfg.enable_donations:
+        if not cfg.stripe_api_key or not cfg.stripe_webhook_secret or not cfg.stripe_recurring_product_id:
             raise Exception("No Stripe API key/recurring donation ID but donations enabled")
 
-    if cfg["ENABLE_STRONG_VERIFICATION"]:
-        if not cfg["IRIS_ID_PUBKEY"] or not cfg["IRIS_ID_SECRET"] or not cfg["VERIFICATION_DATA_PUBLIC_KEY"]:
+    if cfg.enable_strong_verification:
+        if not cfg.iris_id_pubkey or not cfg.iris_id_secret or not cfg.verification_data_public_key:
             raise Exception("No Iris ID pubkey/secret or verification data pubkey but strong verification enabled")
 
-    if cfg["ENABLE_POSTAL_VERIFICATION"]:
+    if cfg.enable_postal_verification:
         if (
-            not cfg["MYPOSTCARD_API_KEY"]
-            or not cfg["MYPOSTCARD_USERNAME"]
-            or not cfg["MYPOSTCARD_PASSWORD"]
-            or not cfg["MYPOSTCARD_PRODUCT_CODE"]
-            or not cfg["MYPOSTCARD_CAMPAIGN_ID"]
+            not cfg.mypostcard_api_key
+            or not cfg.mypostcard_username
+            or not cfg.mypostcard_password
+            or not cfg.mypostcard_product_code
+            or not cfg.mypostcard_campaign_id
         ):
             raise Exception("MyPostcard API credentials not configured but postal verification enabled")
 
-    if cfg["EXPERIMENTATION_ENABLED"]:
-        if not cfg["STATSIG_SERVER_SECRET_KEY"]:
+    if cfg.experimentation_enabled:
+        if not cfg.statsig_server_secret_key:
             raise Exception("No Statsig server secret key but experimentation enabled")
 
 
-def make_config() -> dict[str, Any]:
-    cfg = {}
+def make_config() -> Config:
+    type_hints = typing.get_type_hints(Config)
+    kwargs: dict[str, object] = {}
 
-    for config_option in CONFIG_OPTIONS:
-        if len(config_option) == 2:
-            name, type_ = config_option
-            optional = False
-        elif len(config_option) == 3:
-            name, type_, default_value = config_option
-            optional = True
+    for field in dataclasses.fields(Config):
+        env_name = field.name.upper()
+        field_type = type_hints[field.name]
+        has_default = field.default is not dataclasses.MISSING
+
+        raw = os.getenv(env_name)
+        if not raw:
+            if not has_default:
+                raise ValueError(f"Required config value {env_name} not set")
+            kwargs[field.name] = field.default
+            continue
+
+        origin = typing.get_origin(field_type)
+        if origin is Literal:
+            allowed = typing.get_args(field_type)
+            if raw not in allowed:
+                raise ValueError(f"Invalid value for {env_name}, need one of {', '.join(allowed)}")
+            kwargs[field.name] = raw
+        elif field_type is bool:
+            if raw not in ("0", "1"):
+                raise ValueError(f'Invalid bool for {env_name}, need "0" or "1"')
+            kwargs[field.name] = raw == "1"
+        elif field_type is bytes:
+            kwargs[field.name] = bytes.fromhex(raw)
+        elif field_type is int:
+            kwargs[field.name] = int(raw)
+        elif field_type is str:
+            kwargs[field.name] = raw
         else:
-            raise ValueError("Invalid CONFIG_OPTIONS")
+            raise ValueError(f"Unknown type {field_type} for {env_name}")
 
-        value: str | int | bytes | None = os.getenv(name)
-
-        if not value:
-            if not optional:
-                # config value not set - will cause a KeyError when trying
-                # to access it.
-                continue
-            else:
-                value = default_value
-
-        if type_ is bool:
-            # 1 is true, 0 is false, everything else is illegal
-            if value not in ["0", "1"]:
-                raise ValueError(f'Invalid bool for {name}, need "0" or "1"')
-            value = value == "1"
-        elif type_ is bytes:
-            # decode from hex
-            if not isinstance(value, str):
-                raise RuntimeError(type(value))
-            value = bytes.fromhex(value)
-        elif isinstance(type_, list):
-            # list of allowed string values
-            if value not in type_:
-                raise ValueError(f"Invalid value for {name}, need one of {', '.join(type_)}")
-        else:
-            value = type_(value)
-
-        cfg[name] = value
-
-    return cfg
+    return Config(**kwargs)  # type: ignore[arg-type]
 
 
 config = make_config()

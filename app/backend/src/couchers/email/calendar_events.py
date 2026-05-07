@@ -106,5 +106,5 @@ def ics_to_attachment(ics: str, filename: str) -> EmailAttachment:
 
 
 def get_host_request_event_uid(host_request_id: int) -> str:
-    uid_domain = Address(addr_spec=config["NOTIFICATION_EMAIL_ADDRESS"]).domain
+    uid_domain = Address(addr_spec=config.notification_email_address).domain
     return f"host_request.{host_request_id}@{uid_domain}"

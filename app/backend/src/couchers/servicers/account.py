@@ -424,7 +424,7 @@ class Account(account_pb2_grpc.AccountServicer):
     def InitiateStrongVerification(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.InitiateStrongVerificationRes:
-        if not config["ENABLE_STRONG_VERIFICATION"]:
+        if not config.enable_strong_verification:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "strong_verification_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -452,9 +452,9 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         response = requests.post(
             "https://passportreader.app/api/v1/session.create",
-            auth=(config["IRIS_ID_PUBKEY"], config["IRIS_ID_SECRET"]),
+            auth=(config.iris_id_pubkey, config.iris_id_secret),
             json={
-                "callback_url": f"{config['BACKEND_BASE_URL']}/iris/webhook",
+                "callback_url": f"{config.backend_base_url}/iris/webhook",
                 "face_verification": False,
                 "passport_only": True,
                 "reference": reference,

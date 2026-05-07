@@ -51,13 +51,13 @@ def log_unhandled_exception(
 def common_init() -> None:
     sys.excepthook = log_unhandled_exception
 
-    if config["SENTRY_ENABLED"]:
+    if config.sentry_enabled:
         # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
         sentry_sdk.init(
-            config["SENTRY_URL"],
+            config.sentry_url,
             traces_sample_rate=0.0,
-            environment=config["COOKIE_DOMAIN"],
-            release=config["VERSION"],
+            environment=config.cookie_domain,
+            release=config.version,
             # The global excepthook picks up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
             disabled_integrations=[
                 excepthook.ExcepthookIntegration(),
@@ -81,16 +81,16 @@ def main() -> None:
 
     get_main_i18next()  # Force eager loading of translations
 
-    if config["ADD_DUMMY_DATA"]:
+    if config.add_dummy_data:
         add_dummy_data()
 
     logger.info("Starting")
 
-    if config["ROLE"] in ["scheduler", "all"]:
+    if config.role in ["scheduler", "all"]:
         start_jobs_scheduler()
 
-    if config["ROLE"] in ["worker", "all"]:
-        for _ in range(config["BACKGROUND_WORKER_COUNT"]):
+    if config.role in ["worker", "all"]:
+        for _ in range(config.background_worker_count):
             start_jobs_worker()
 
     setup_tracing()
@@ -101,7 +101,7 @@ def main() -> None:
     # Worker processes initialize their own instance in _run_forever().
     setup_experimentation()
 
-    if config["ROLE"] in ["api", "all"]:
+    if config.role in ["api", "all"]:
         server = create_main_server(port=1751)
         server.start()
         media_server = create_media_server(port=1753)

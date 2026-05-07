@@ -207,8 +207,8 @@ def test_phone_uniqueness(monkeypatch):
 
 def test_send_sms(db, monkeypatch):
     new_config = config.copy()
-    new_config["ENABLE_SMS"] = True
-    new_config["SMS_SENDER_ID"] = "CouchersOrg"
+    new_config.enable_sms = True
+    new_config.sms_sender_id = "CouchersOrg"
     monkeypatch.setattr(couchers.phone.sms, "config", new_config)
 
     msg_id = random_hex()
@@ -239,7 +239,7 @@ def test_send_sms(db, monkeypatch):
 
 
 def test_send_sms_disabled(db):
-    assert not config["ENABLE_SMS"]
+    assert not config.enable_sms
     assert couchers.phone.sms.send_sms("+46701740605", "Testing SMS message") == "SMS not enabled."
 
 

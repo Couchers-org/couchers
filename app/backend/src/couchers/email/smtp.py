@@ -68,13 +68,13 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
                 attachment.data, maintype=mime_maintype, subtype=mime_subtype, filename=attachment.filename
             )
 
-    with smtplib.SMTP(config["SMTP_HOST"], config["SMTP_PORT"]) as server:
+    with smtplib.SMTP(config.smtp_host, config.smtp_port) as server:
         server.ehlo()
-        if not config["DEV"]:
+        if not config.dev:
             server.starttls()
             # stmplib docs recommend calling ehlo() before and after starttls()
             server.ehlo()
-            server.login(config["SMTP_USERNAME"], config["SMTP_PASSWORD"])
+            server.login(config.smtp_username, config.smtp_password)
         server.sendmail(payload.sender_email, payload.recipient, msg.as_string())
 
     return Email(

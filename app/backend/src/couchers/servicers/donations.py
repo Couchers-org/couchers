@@ -30,7 +30,7 @@ def _create_stripe_customer(session: Session, user: User) -> None:
         email=user.email,
         # metadata allows us to store arbitrary metadata for ourselves
         metadata={"user_id": user.id},  # type: ignore[dict-item]
-        api_key=config["STRIPE_API_KEY"],
+        api_key=config.stripe_api_key,
     )
     user.stripe_customer_id = customer.id
     # commit since we only ever want one stripe customer id per user, so if the rest of this api call fails, this will still be saved in the db
@@ -41,7 +41,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
     def InitiateDonation(
         self, request: donations_pb2.InitiateDonationReq, context: CouchersContext, session: Session
     ) -> donations_pb2.InitiateDonationRes:
-        if not config["ENABLE_DONATIONS"]:
+        if not config.enable_donations:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -55,7 +55,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
 
         if request.recurring:
             item = {
-                "price": config["STRIPE_RECURRING_PRODUCT_ID"],
+                "price": config.stripe_recurring_product_id,
                 "quantity": request.amount,
             }
         else:
@@ -81,7 +81,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
             payment_method_types=["card"],
             mode="subscription" if request.recurring else "payment",
             line_items=[item],  # type: ignore[list-item]
-            api_key=config["STRIPE_API_KEY"],
+            api_key=config.stripe_api_key,
         )
 
         session.add(
@@ -108,7 +108,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
     def GetDonationPortalLink(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> donations_pb2.GetDonationPortalLinkRes:
-        if not config["ENABLE_DONATIONS"]:
+        if not config.enable_donations:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "donations_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -119,7 +119,7 @@ class Donations(donations_pb2_grpc.DonationsServicer):
         stripe_session = stripe.billing_portal.Session.create(
             customer=not_none(user.stripe_customer_id),
             return_url=urls.donation_url(),
-            api_key=config["STRIPE_API_KEY"],
+            api_key=config.stripe_api_key,
         )
 
         return donations_pb2.GetDonationPortalLinkRes(stripe_portal_url=stripe_session.url)
@@ -135,8 +135,8 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         event = stripe.Webhook.construct_event(  # type: ignore[no-untyped-call]
             payload=request.data,
             sig_header=context.headers.get("stripe-signature"),
-            secret=config["STRIPE_WEBHOOK_SECRET"],
-            api_key=config["STRIPE_API_KEY"],
+            secret=config.stripe_webhook_secret,
+            api_key=config.stripe_api_key,
         )
         data = event["data"]
         event_type = event["type"]
@@ -148,7 +148,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
         logger.info(f"Got signed Stripe webhook, {event_type=}, {event_id=}")
 
         if event_type == "charge.succeeded":
-            if metadata.get("site_url") == config["MERCH_SHOP_URL"]:
+            if metadata.get("site_url") == config.merch_shop_url:
                 # merch shop. look up this email and give them the swagster badge
                 customer_email = metadata["customer_email"]
                 amount = int(data_object["amount"]) // 100
@@ -161,7 +161,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                     customer_info = customer_email
                 try:
                     send_slack_message(
-                        config["SLACK_MERCH_CHANNEL"],
+                        config.slack_merch_channel,
                         f"Merch purchase: ${amount} from {customer_info}",
                     )
                 except Exception as e:
@@ -202,7 +202,7 @@ class Stripe(stripe_pb2_grpc.StripeServicer):
                 user_link = urls.user_link(username=user.username)
                 try:
                     send_slack_message(
-                        config["SLACK_DONATIONS_CHANNEL"],
+                        config.slack_donations_channel,
                         f"Donation received: ${amount} ({donation_type}) from <{user_link}|{user.name}>",
                     )
                 except Exception as e:

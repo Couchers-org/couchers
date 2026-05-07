@@ -60,7 +60,7 @@ def render_email_notification(
         body_html = render_html_body(
             subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
         )
-        source_data = f"notification; topic-action={notification.topic_action}; version={config['VERSION']}"
+        source_data = f"notification; topic-action={notification.topic_action}; version={config.version}"
     else:
         # Email is still a custom-templated, nonlocalizable email.
         custom_templated = _get_custom_templated_email(notification, loc_context)
@@ -88,10 +88,10 @@ def render_email_notification(
         )
         body_html = html_tmplt.render(template_args, loc_context)
 
-        source_data = config["VERSION"] + f"/{custom_templated.template_name}"
+        source_data = config.version + f"/{custom_templated.template_name}"
 
     list_unsubscribe_header = get_list_unsubscribe_header(notification)
-    if config.get("ENABLE_EMAIL_ICS_ATTACHMENTS"):
+    if config.enable_email_ics_attachments:
         attachment = get_ics_attachment(notification, loc_context)
     else:
         attachment = None

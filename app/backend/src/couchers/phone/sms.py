@@ -32,12 +32,12 @@ def send_sms(number: str, message: str) -> str:
 
     assert len(message) <= 140, "Message too long"
 
-    if not config["ENABLE_SMS"]:
+    if not config.enable_sms:
         logger.info(f"SMS not enabled, need to send to {number}: {message}")
         return "SMS not enabled."
 
     sns = boto3.client("sns")
-    sender_id = config["SMS_SENDER_ID"]
+    sender_id = config.sms_sender_id
 
     response = sns.publish(
         PhoneNumber=number,

@@ -45,7 +45,7 @@ def test_bugs(db):
                 "title": "subject",
                 "body": (
                     "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
-                    + config["VERSION"]
+                    + config.version
                     + "\nFrontend version: frontend_version\nUser Agent: user_agent\nScreen resolution: 1920x1080\nPage: page\nUser: <not logged in>"
                 ),
                 "labels": ["bug tool", "bug: triage needed"],
@@ -60,7 +60,7 @@ def test_bugs(db):
             return _PostReturn()
 
         new_config = config.copy()
-        new_config["BUG_TOOL_ENABLED"] = True
+        new_config.bug_tool_enabled = True
 
         with patch("couchers.servicers.bugs.config", new_config):
             with patch("couchers.servicers.bugs.requests.post", dud_post):
@@ -92,7 +92,7 @@ def test_bugs_with_user(db):
                 "title": "subject",
                 "body": (
                     "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
-                    + config["VERSION"]
+                    + config.version
                     + "\nFrontend version: frontend_version\nUser Agent: user_agent\nScreen resolution: 390x844\nPage: page\nUser: [@testing_user](http://localhost:3000/user/testing_user) (1)"
                 ),
                 "labels": ["bug tool", "bug: triage needed"],
@@ -107,7 +107,7 @@ def test_bugs_with_user(db):
             return _PostReturn()
 
         new_config = config.copy()
-        new_config["BUG_TOOL_ENABLED"] = True
+        new_config.bug_tool_enabled = True
 
         with patch("couchers.servicers.bugs.config", new_config):
             with patch("couchers.servicers.bugs.requests.post", dud_post):
@@ -137,7 +137,7 @@ def test_bugs_fails_on_network_error(db):
             return _PostReturn()
 
         new_config = config.copy()
-        new_config["BUG_TOOL_ENABLED"] = True
+        new_config.bug_tool_enabled = True
 
         with patch("couchers.servicers.bugs.config", new_config):
             with patch("couchers.servicers.bugs.requests.post", dud_post):

@@ -91,7 +91,7 @@ def send_content_report_email(session: Session, content_report: ContentReport) -
     logger.info("Sending content report email")
     queue_system_email(
         session,
-        config["REPORTS_EMAIL_RECIPIENT"],
+        config.reports_email_recipient,
         "content_report",
         template_args={"report": content_report},
     )
@@ -102,7 +102,7 @@ def maybe_send_reference_report_email(session: Session, reference: Reference) ->
         logger.info("Sending reference report email")
         queue_system_email(
             session,
-            config["REPORTS_EMAIL_RECIPIENT"],
+            config.reports_email_recipient,
             "reference_report",
             template_args={"reference": reference},
         )
@@ -121,7 +121,7 @@ def send_rate_limit_violation_report_email(
     user = session.get_one(User, rate_limit_violation.user_id)
     queue_system_email(
         session,
-        config["REPORTS_EMAIL_RECIPIENT"],
+        config.reports_email_recipient,
         "rate_limit_violation_report",
         template_args={
             "user": user,
@@ -140,7 +140,7 @@ def send_duplicate_strong_verification_email(
     logger.info("Sending duplicate SV email")
     queue_system_email(
         session,
-        config["REPORTS_EMAIL_RECIPIENT"],
+        config.reports_email_recipient,
         "duplicate_strong_verification_report",
         template_args={
             "new_user": new_attempt.user,
@@ -155,7 +155,7 @@ def maybe_send_contributor_form_email(session: Session, form: ContributorForm) -
     if form.should_notify:
         queue_system_email(
             session,
-            config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"],
+            config.contributor_form_email_recipient,
             "contributor_form",
             template_args={"form": form},
         )
@@ -164,7 +164,7 @@ def maybe_send_contributor_form_email(session: Session, form: ContributorForm) -
 def send_event_community_invite_request_email(session: Session, request: EventCommunityInviteRequest) -> None:
     queue_system_email(
         session,
-        config["MODS_EMAIL_RECIPIENT"],
+        config.mods_email_recipient,
         "event_community_invite_request",
         template_args={
             "event_link": urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
@@ -178,7 +178,7 @@ def send_account_deletion_report_email(session: Session, reason: AccountDeletion
     logger.info("Sending account deletion report email")
     queue_system_email(
         session,
-        config["REPORTS_EMAIL_RECIPIENT"],
+        config.reports_email_recipient,
         "account_deletion_report",
         template_args={
             "reason": reason,

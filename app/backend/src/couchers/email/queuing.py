@@ -70,13 +70,13 @@ def queue_userless_email(
     queue_email(
         session,
         jobs_pb2.SendEmailPayload(
-            sender_name=config["NOTIFICATION_EMAIL_SENDER"],
-            sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
+            sender_name=config.notification_email_sender,
+            sender_email=config.notification_email_address,
             recipient=recipient,
-            subject=config["NOTIFICATION_PREFIX"] + subject,
+            subject=config.notification_prefix + subject,
             plain=plain,
             html=html,
-            source_data=config["VERSION"] + f"/{template_name}",
+            source_data=config.version + f"/{template_name}",
         ),
     )
 
@@ -97,10 +97,10 @@ def queue_system_email(session: Session, recipient: str, template_name: str, tem
     queue_email(
         session,
         jobs_pb2.SendEmailPayload(
-            sender_name=config["NOTIFICATION_EMAIL_SENDER"],
-            sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
+            sender_name=config.notification_email_sender,
+            sender_email=config.notification_email_address,
             recipient=recipient,
-            subject=config["NOTIFICATION_PREFIX"] + frontmatter["subject"],
+            subject=config.notification_prefix + frontmatter["subject"],
             plain=plain,
             source_data=template_name,
         ),

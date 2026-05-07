@@ -244,10 +244,10 @@ def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool
     # tell the browser when to stop sending the cookie
     cookie["expires"] = http_date(expiry)
     # restrict to our domain, note if there's no domain, it won't include subdomains
-    cookie["domain"] = config["COOKIE_DOMAIN"]
+    cookie["domain"] = config.cookie_domain
     # path so that it's accessible for all API requests, otherwise defaults to something like /org.couchers.auth/
     cookie["path"] = "/"
-    if config["DEV"]:
+    if config.dev:
         # send only on requests from first-party domains
         cookie["samesite"] = "Strict"
     else:

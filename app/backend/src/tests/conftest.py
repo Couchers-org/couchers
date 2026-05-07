@@ -34,7 +34,7 @@ def postgres_engine() -> Generator[Engine]:
     """
     SQLAlchemy engine connected to "postgres" database.
     """
-    dsn = config["DATABASE_CONNECTION_STRING"]
+    dsn = config.database_connection_string
     if not dsn.endswith("/testdb"):
         raise RuntimeError(f"DATABASE_CONNECTION_STRING must point to /testdb, but was {dsn}")
 
@@ -58,7 +58,7 @@ def testdb_engine() -> Generator[Engine]:
     """
     SQLAlchemy engine connected to "testdb" database.
     """
-    dsn = config["DATABASE_CONNECTION_STRING"]
+    dsn = config.database_connection_string
     with autocommit_engine(dsn) as engine:
         yield engine
 
@@ -149,111 +149,108 @@ def db_class(setup_testdb: None, testdb_conn: Connection) -> None:
 @pytest.fixture(scope="class")
 def testconfig():
     prevconfig = config.copy()
-    config.clear()
-    config.update(prevconfig)
 
-    config["IN_TEST"] = True
+    config.in_test = True
 
-    config["DEV"] = True
-    config["SECRET"] = bytes.fromhex("448697d3886aec65830a1ea1497cdf804981e0c260d2f812cf2787c4ed1a262b")
-    config["VERSION"] = "testing_version"
-    config["BASE_URL"] = "http://localhost:3000"
-    config["BACKEND_BASE_URL"] = "http://localhost:8888"
-    config["CONSOLE_BASE_URL"] = "http://localhost:8888"
-    config["COOKIE_DOMAIN"] = "localhost"
+    config.dev = True
+    config.secret = bytes.fromhex("448697d3886aec65830a1ea1497cdf804981e0c260d2f812cf2787c4ed1a262b")
+    config.version = "testing_version"
+    config.base_url = "http://localhost:3000"
+    config.backend_base_url = "http://localhost:8888"
+    config.console_base_url = "http://localhost:8888"
+    config.cookie_domain = "localhost"
 
-    config["ENABLE_SMS"] = False
-    config["SMS_SENDER_ID"] = "invalid"
+    config.enable_sms = False
+    config.sms_sender_id = "invalid"
 
-    config["ENABLE_EMAIL"] = False
-    config["NOTIFICATION_EMAIL_SENDER"] = "Couchers.org"
-    config["NOTIFICATION_EMAIL_ADDRESS"] = "notify@couchers.org.invalid"
-    config["NOTIFICATION_PREFIX"] = "[TEST] "
-    config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
-    config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
-    config["MODS_EMAIL_RECIPIENT"] = "mods@couchers.org.invalid"
-    config["ENABLE_EMAIL_ICS_ATTACHMENTS"] = True
+    config.enable_email = False
+    config.notification_email_sender = "Couchers.org"
+    config.notification_email_address = "notify@couchers.org.invalid"
+    config.notification_prefix = "[TEST] "
+    config.reports_email_recipient = "reports@couchers.org.invalid"
+    config.contributor_form_email_recipient = "forms@couchers.org.invalid"
+    config.mods_email_recipient = "mods@couchers.org.invalid"
+    config.enable_email_ics_attachments = True
 
-    config["ENABLE_DONATIONS"] = False
-    config["STRIPE_API_KEY"] = ""
-    config["STRIPE_WEBHOOK_SECRET"] = ""
-    config["STRIPE_RECURRING_PRODUCT_ID"] = ""
+    config.enable_donations = False
+    config.stripe_api_key = ""
+    config.stripe_webhook_secret = ""
+    config.stripe_recurring_product_id = ""
 
-    config["ENABLE_STRONG_VERIFICATION"] = False
-    config["IRIS_ID_PUBKEY"] = ""
-    config["IRIS_ID_SECRET"] = ""
+    config.enable_strong_verification = False
+    config.iris_id_pubkey = ""
+    config.iris_id_secret = ""
     # corresponds to private key e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272
-    config["VERIFICATION_DATA_PUBLIC_KEY"] = bytes.fromhex(
+    config.verification_data_public_key = bytes.fromhex(
         "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
     )
 
-    config["ENABLE_POSTAL_VERIFICATION"] = False
-    config["MYPOSTCARD_API_KEY"] = "test-api-key"
-    config["MYPOSTCARD_USERNAME"] = "test-username"
-    config["MYPOSTCARD_PASSWORD"] = "test-password"
-    config["MYPOSTCARD_PRODUCT_CODE"] = "J9GCU"
-    config["MYPOSTCARD_CAMPAIGN_ID"] = "295"
+    config.enable_postal_verification = False
+    config.mypostcard_api_key = "test-api-key"
+    config.mypostcard_username = "test-username"
+    config.mypostcard_password = "test-password"
+    config.mypostcard_product_code = "J9GCU"
+    config.mypostcard_campaign_id = "295"
 
-    config["SMTP_HOST"] = "localhost"
-    config["SMTP_PORT"] = 587
-    config["SMTP_USERNAME"] = "username"
-    config["SMTP_PASSWORD"] = "password"
+    config.smtp_host = "localhost"
+    config.smtp_port = 587
+    config.smtp_username = "username"
+    config.smtp_password = "password"
 
-    config["ENABLE_MEDIA"] = True
-    config["MEDIA_SERVER_SECRET_KEY"] = bytes.fromhex(
+    config.enable_media = True
+    config.media_server_secret_key = bytes.fromhex(
         "91e29bbacc74fa7e23c5d5f34cca5015cb896e338a620003de94a502a461f4bc"
     )
-    config["MEDIA_SERVER_BEARER_TOKEN"] = "c02d383897d3b82774ced09c9e17802164c37e7e105d8927553697bf4550e91e"
-    config["MEDIA_SERVER_BASE_URL"] = "http://localhost:5001"
-    config["MEDIA_SERVER_UPLOAD_BASE_URL"] = "http://localhost:5001"
+    config.media_server_bearer_token = "c02d383897d3b82774ced09c9e17802164c37e7e105d8927553697bf4550e91e"
+    config.media_server_base_url = "http://localhost:5001"
+    config.media_server_upload_base_url = "http://localhost:5001"
 
-    config["BUG_TOOL_ENABLED"] = False
-    config["BUG_TOOL_GITHUB_REPO"] = "org/repo"
-    config["BUG_TOOL_GITHUB_USERNAME"] = "user"
-    config["BUG_TOOL_GITHUB_TOKEN"] = "token"
+    config.bug_tool_enabled = False
+    config.bug_tool_github_repo = "org/repo"
+    config.bug_tool_github_username = "user"
+    config.bug_tool_github_token = "token"
 
-    config["LISTMONK_ENABLED"] = False
-    config["LISTMONK_BASE_URL"] = "https://localhost"
-    config["LISTMONK_API_USERNAME"] = "..."
-    config["LISTMONK_API_KEY"] = "..."
-    config["LISTMONK_LIST_ID"] = 3
+    config.listmonk_enabled = False
+    config.listmonk_base_url = "https://localhost"
+    config.listmonk_api_username = "..."
+    config.listmonk_api_key = "..."
+    config.listmonk_list_id = 3
 
-    config["PUSH_NOTIFICATIONS_ENABLED"] = True
-    config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"] = "uI1DCR4G1AdlmMlPfRLemMxrz9f3h4kvjfnI8K9WsVI"
-    config["PUSH_NOTIFICATIONS_VAPID_SUBJECT"] = "mailto:testing@couchers.org.invalid"
+    config.push_notifications_enabled = True
+    config.push_notifications_vapid_private_key = "uI1DCR4G1AdlmMlPfRLemMxrz9f3h4kvjfnI8K9WsVI"
+    config.push_notifications_vapid_subject = "mailto:testing@couchers.org.invalid"
 
-    config["ACTIVENESS_PROBES_ENABLED"] = True
+    config.activeness_probes_enabled = True
 
-    config["RECAPTHCA_ENABLED"] = False
-    config["RECAPTHCA_PROJECT_ID"] = "..."
-    config["RECAPTHCA_API_KEY"] = "..."
-    config["RECAPTHCA_SITE_KEY"] = "..."
+    config.recapthca_enabled = False
+    config.recapthca_project_id = "..."
+    config.recapthca_api_key = "..."
+    config.recapthca_site_key = "..."
 
-    config["EXPERIMENTATION_ENABLED"] = False
-    config["EXPERIMENTATION_PASS_ALL_GATES"] = True
-    config["STATSIG_SERVER_SECRET_KEY"] = ""
-    config["STATSIG_ENVIRONMENT"] = "testing"
+    config.experimentation_enabled = False
+    config.experimentation_pass_all_gates = True
+    config.statsig_server_secret_key = ""
+    config.statsig_environment = "testing"
 
     # Moderation auto-approval deadline - 0 disables, set in tests that need it
-    config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
+    config.moderation_auto_approve_deadline_seconds = 0
     # Bot user ID for automated moderation - will be set to a real user in tests that need it
-    config["MODERATION_BOT_USER_ID"] = 1
+    config.moderation_bot_user_id = 1
 
     # Dev APIs disabled by default in tests
-    config["ENABLE_DEV_APIS"] = False
+    config.enable_dev_apis = False
 
     # Slack notifications disabled by default in tests
-    config["SLACK_ENABLED"] = False
-    config["SLACK_BOT_TOKEN"] = ""
-    config["SLACK_DONATIONS_CHANNEL"] = ""
-    config["SLACK_MERCH_CHANNEL"] = ""
+    config.slack_enabled = False
+    config.slack_bot_token = ""
+    config.slack_donations_channel = ""
+    config.slack_merch_channel = ""
 
-    config["ENABLE_NOTIFICATION_TRANSLATIONS"] = False
+    config.enable_notification_translations = False
 
     yield None
 
-    config.clear()
-    config.update(prevconfig)
+    config.set_from(prevconfig)
 
 
 @pytest.fixture

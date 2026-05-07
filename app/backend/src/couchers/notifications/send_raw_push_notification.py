@@ -100,8 +100,8 @@ def _send_web_push(
         not_none(sub.endpoint),
         not_none(sub.auth_key),
         not_none(sub.p256dh_key),
-        config["PUSH_NOTIFICATIONS_VAPID_SUBJECT"],
-        config["PUSH_NOTIFICATIONS_VAPID_PRIVATE_KEY"],
+        config.push_notifications_vapid_subject,
+        config.push_notifications_vapid_private_key,
         ttl=payload.ttl,
     )
 
@@ -194,7 +194,7 @@ def _send_expo(
 
 
 def send_raw_push_notification_v2(payload: jobs_pb2.SendRawPushNotificationPayloadV2) -> None:
-    if not config["PUSH_NOTIFICATIONS_ENABLED"]:
+    if not config.push_notifications_enabled:
         logger.info("Not sending push notification: push notifications disabled")
         return
 

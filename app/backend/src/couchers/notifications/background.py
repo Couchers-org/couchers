@@ -42,7 +42,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         return
 
     loc_context = LocalizationContext.from_user(user)
-    if not config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
+    if not config.enable_notification_translations:
         loc_context = dataclasses.replace(loc_context, locale="en")
 
     rendered = render_email_notification(user, notification, loc_context)
@@ -50,10 +50,10 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     queue_email(
         session,
         jobs_pb2.SendEmailPayload(
-            sender_name=config["NOTIFICATION_EMAIL_SENDER"],
-            sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
+            sender_name=config.notification_email_sender,
+            sender_email=config.notification_email_address,
             recipient=user.email,
-            subject=config["NOTIFICATION_PREFIX"] + rendered.subject,
+            subject=config.notification_prefix + rendered.subject,
             plain=rendered.body_plaintext,
             html=rendered.body_html,
             source_data=rendered.source_data,

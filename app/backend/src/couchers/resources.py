@@ -160,7 +160,7 @@ def copy_resources_to_database(session: Session) -> None:
     timezone_areas_file = resources_folder / "timezone_areas.sql"
 
     if not timezone_areas_file.exists():
-        if not config["DEV"]:
+        if not config.dev:
             raise Exception("Missing timezone_areas.sql and not running in dev")
 
         timezone_areas_file = resources_folder / "timezone_areas.sql-fake"

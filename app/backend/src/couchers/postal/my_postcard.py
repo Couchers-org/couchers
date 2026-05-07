@@ -66,9 +66,9 @@ def _generate_back_left_side_png(verification_code: str) -> bytes:
 
 def _credentials() -> dict[str, str]:
     return {
-        "api_key": config["MYPOSTCARD_API_KEY"],
-        "username": config["MYPOSTCARD_USERNAME"],
-        "password": config["MYPOSTCARD_PASSWORD"],
+        "api_key": config.mypostcard_api_key,
+        "username": config.mypostcard_username,
+        "password": config.mypostcard_password,
     }
 
 
@@ -107,12 +107,12 @@ def _place_order(
     response = requests.post(
         f"{API_BASE}/place_order",
         data={
-            "api_key": config["MYPOSTCARD_API_KEY"],
+            "api_key": config.mypostcard_api_key,
             "auth_token": auth_token,
-            "product_code": config["MYPOSTCARD_PRODUCT_CODE"],
+            "product_code": config.mypostcard_product_code,
             "image_type": "png",
             "job_data": json.dumps(job_data),
-            "campaign_id": config["MYPOSTCARD_CAMPAIGN_ID"],
+            "campaign_id": config.mypostcard_campaign_id,
         },
         files={
             "photo": ("postcard.png", front_page, "image/png"),

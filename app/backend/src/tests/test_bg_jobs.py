@@ -428,7 +428,7 @@ def test_job_retry(db):
 
     # if IN_TEST is true, then the bg worker will raise on exceptions
     new_config = config.copy()
-    new_config["IN_TEST"] = False
+    new_config.in_test = False
 
     with patch("couchers.jobs.worker.config", new_config), patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         process_job()
@@ -1218,11 +1218,11 @@ def test_send_host_request_reminders(db, moderator):
 
 def test_add_users_to_email_list(db):
     new_config = config.copy()
-    new_config["LISTMONK_ENABLED"] = True
-    new_config["LISTMONK_BASE_URL"] = "https://example.com"
-    new_config["LISTMONK_API_USERNAME"] = "test_user"
-    new_config["LISTMONK_API_KEY"] = "dummy_api_key"
-    new_config["LISTMONK_LIST_ID"] = 6
+    new_config.listmonk_enabled = True
+    new_config.listmonk_base_url = "https://example.com"
+    new_config.listmonk_api_username = "test_user"
+    new_config.listmonk_api_key = "dummy_api_key"
+    new_config.listmonk_list_id = 6
 
     with patch("couchers.jobs.handlers.config", new_config):
         with patch("couchers.jobs.handlers.requests.post") as mock:

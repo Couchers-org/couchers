@@ -337,9 +337,9 @@ def test_email_prefix_config(db, monkeypatch):
     assert e.subject == "[TEST] Thank you for your donation to Couchers.org!"
 
     new_config = config.copy()
-    new_config["NOTIFICATION_EMAIL_SENDER"] = "TestCo"
-    new_config["NOTIFICATION_EMAIL_ADDRESS"] = "testco@testing.co.invalid"
-    new_config["NOTIFICATION_PREFIX"] = ""
+    new_config.notification_email_sender = "TestCo"
+    new_config.notification_email_address = "testco@testing.co.invalid"
+    new_config.notification_prefix = ""
 
     monkeypatch.setattr(couchers.notifications.background, "config", new_config)
 
@@ -367,7 +367,7 @@ def test_send_donation_email(db, monkeypatch):
     user, _ = generate_user(name="Testy von Test", email="testing@couchers.org.invalid")
 
     new_config = config.copy()
-    new_config["ENABLE_EMAIL"] = True
+    new_config.enable_email = True
 
     monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
 

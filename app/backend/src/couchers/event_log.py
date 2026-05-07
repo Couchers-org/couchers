@@ -43,7 +43,7 @@ def log_event(
             event_type=event_type,
             user_id=user_id,
             sofa=context._sofa,
-            version=config["VERSION"],
+            version=config.version,
             properties=properties,
             value=value,
             source=EventSource.backend,

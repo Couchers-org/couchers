@@ -944,7 +944,7 @@ class API(api_pb2_grpc.APIServicer):
         ).SerializeToString()
 
         data = b64encode(req)
-        sig = b64encode(generate_hash_signature(req, config["MEDIA_SERVER_SECRET_KEY"]))
+        sig = b64encode(generate_hash_signature(req, config.media_server_secret_key))
 
         path = "upload?" + urlencode({"data": data, "sig": sig})
 

@@ -127,7 +127,7 @@ def get_secret(name: str) -> bytes:
     """
     Derives a secret key from the root secret using a key derivation function
     """
-    return generate_hash_signature(name.encode("utf8"), config["SECRET"])
+    return generate_hash_signature(name.encode("utf8"), config.secret)
 
 
 UNSUBSCRIBE_KEY_NAME = "unsubscribe"

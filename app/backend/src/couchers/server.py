@@ -121,7 +121,7 @@ def create_media_server(port: int, threads: int = 8) -> grpc.Server:
     media_server = grpc.server(
         futures.ThreadPoolExecutor(threads),
         interceptors=[
-            get_media_auth_interceptor(config["MEDIA_SERVER_BEARER_TOKEN"]),
+            get_media_auth_interceptor(config.media_server_bearer_token),
         ],
     )
     media_server.add_insecure_port(f"[::]:{port}")
