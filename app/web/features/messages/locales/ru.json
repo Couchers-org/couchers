@@ -123,8 +123,7 @@
     "friends_input_label": "Друзья",
     "title_label": "Заголовок",
     "create_button": "Создать чат",
-    "back_button": "Назад",
-    "hosting_request_hint": "Отправляете запрос на хостинг? Вернитесь <back>Назад</back> и используйте кнопку <request>Запрос</request>."
+    "back_button": "Назад"
   },
   "leave_chat_dialog": {
     "message": "Вы уверены, что хотите покинуть этот чат?",

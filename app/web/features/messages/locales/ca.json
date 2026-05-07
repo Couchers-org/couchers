@@ -8,8 +8,7 @@
     "user_load_error_message": "(Error en carregar l'usuari)",
     "friends_input_label": "Amics",
     "create_button": "Crea el xat",
-    "back_button": "Enrere",
-    "hosting_request_hint": "Envies una sol·licitud d'allotjament? Torna <back>Enrere</back> i fes servir el botó <request>Sol·licita</request>."
+    "back_button": "Enrere"
   },
   "chat_input": {
     "label": "Missatge"

@@ -5,7 +5,7 @@ import Button from "components/Button";
 import TextField from "components/TextField";
 import { useProfileUser } from "features/profile/hooks/useProfileUser";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
-import { useTranslation } from "i18n";
+import { Trans, useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
@@ -99,6 +99,12 @@ export default function NewMessage({
               {t("global:send")}
             </Button>
           </StyledSendActions>
+          <Typography variant="body2" sx={{ textAlign: "center" }}>
+            <Trans
+              i18nKey="profile:message_form.hosting_request_hint"
+              components={{ back: <strong />, request: <strong /> }}
+            />
+          </Typography>
         </form>
       )}
     </>

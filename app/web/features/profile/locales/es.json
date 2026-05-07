@@ -200,6 +200,9 @@
     "request_chars_remaining_many": "Por favor, escribe al menos {{count}} de caracteres más para enviar una solicitud de hospedaje.",
     "request_chars_remaining_other": "Por favor, escribe al menos {{count}} carácteres más para enviar una solicitud de hospedaje."
   },
+  "message_form": {
+    "hosting_request_hint": "¿Enviando una solicitud de alojamiento? Vuelve <back>Atrás</back> y usa el botón <request>Solicitar</request> en su lugar."
+  },
   "my_connections": "Mis contactos",
   "active": "Activo",
   "sleeping_arrangement": {

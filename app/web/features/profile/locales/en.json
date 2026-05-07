@@ -237,6 +237,7 @@
     "message": "Message",
     "message_description": "Write your message...",
     "message_empty": "Please write a message.",
+    "hosting_request_hint": "Sending a hosting request? Go <back>Back</back> and use the <request>Request</request> button instead.",
     "success": "Message sent!"
   },
   "reference_filter_label": {
