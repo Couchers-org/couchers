@@ -52,8 +52,7 @@
     "user_load_error_message": "(Error de carga de usuario)",
     "title_label": "Título",
     "create_button": "Crear chat",
-    "back_button": "Atrás",
-    "hosting_request_hint": "¿Enviando una solicitud de alojamiento? Vuelve <back>Atrás</back> y usa el botón <request>Solicitar</request> en su lugar."
+    "back_button": "Atrás"
   },
   "chat_input": {
     "label": "Mensaje"

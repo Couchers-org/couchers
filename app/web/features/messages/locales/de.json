@@ -57,8 +57,7 @@
     "friends_input_label": "Freunde",
     "title_label": "Titel",
     "create_button": "Chat erstellen",
-    "back_button": "Zurück",
-    "hosting_request_hint": "Möchtest du eine Host-Anfrage senden? Gehe <back>Zurück</back> und benutze stattdessen den <request>Anfragen</request>-Button."
+    "back_button": "Zurück"
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {

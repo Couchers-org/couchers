@@ -45,12 +45,7 @@ export default function ProfilePage({ tab = "about" }: { tab?: UserTab }) {
       ) : user ? (
         <ProfileUserProvider user={user}>
           <StyledWrapper>
-            <Overview
-              setIsRequesting={() => {
-                /* TODO: not needed here*/
-              }}
-              tab={tab}
-            />
+            <Overview tab={tab} />
             <UserCard
               tab={tab}
               onTabChange={(newTab) => {

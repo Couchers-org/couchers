@@ -17,6 +17,7 @@ import {
   MarkLastSeenGroupChatReq,
   MuteGroupChatReq,
   RemoveGroupChatAdminReq,
+  SendDirectMessageReq,
   SendMessageReq,
   SetGroupChatArchiveStatusReq,
 } from "proto/conversations_pb";
@@ -82,6 +83,17 @@ export async function sendMessage(groupChatId: number, text: string) {
   req.setGroupChatId(groupChatId);
   req.setText(text);
   return await client.conversations.sendMessage(req);
+}
+
+export async function sendDirectMessage(
+  recipientUserId: number,
+  text: string,
+): Promise<number> {
+  const req = new SendDirectMessageReq();
+  req.setRecipientUserId(recipientUserId);
+  req.setText(text);
+  const response = await client.conversations.sendDirectMessage(req);
+  return response.getGroupChatId();
 }
 
 export function leaveGroupChat(groupChatId: number) {

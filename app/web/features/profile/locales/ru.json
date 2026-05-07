@@ -177,6 +177,9 @@
     "request_chars_remaining_few": "Пожалуйста, напишите ещё как минимум {{count}} символа, чтобы отправить запрос хосту.",
     "request_chars_remaining_many": "Пожалуйста, напишите ещё как минимум {{count}} символов, чтобы отправить запрос хосту."
   },
+  "message_form": {
+    "hosting_request_hint": "Отправляете запрос на хостинг? Используйте кнопку <request>Запрос</request>."
+  },
   "open_profile_new_tab": "Открыть профиль в новой вкладке",
   "see_more_references": "Показать ещё отзывы",
   "write_reference": "Написать отзыв",

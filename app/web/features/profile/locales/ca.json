@@ -233,6 +233,9 @@
     "request_chars_remaining_other": "Escriu almenys {{count}} caràcters més per enviar una sol·licitud d'allotjament.",
     "success": "Sol·licitud enviada!"
   },
+  "message_form": {
+    "hosting_request_hint": "Envies una sol·licitud d'allotjament? Fes servir el botó <request>Sol·licita</request>."
+  },
   "reference_filter_label": {
     "friend": "D'amics",
     "hosted": "D'amfitrions",

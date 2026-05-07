@@ -232,6 +232,14 @@
     "request_chars_remaining_other": "Please write at least {{count}} more characters to send a host request.",
     "success": "Request sent!"
   },
+  "message_form": {
+    "send_message": "Send {{name}} a message",
+    "message": "Message",
+    "message_description": "Write your message...",
+    "message_empty": "Please write a message.",
+    "hosting_request_hint": "Sending a hosting request? Use the <request>Request</request> button instead.",
+    "success": "Message sent!"
+  },
   "reference_filter_label": {
     "friend": "From friends",
     "hosted": "From hosts",
