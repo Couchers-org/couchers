@@ -534,10 +534,20 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
     def SetUserContentVisibility(
         self, request: moderation_pb2.SetUserContentVisibilityReq, context: CouchersContext, session: Session
     ) -> moderation_pb2.SetUserContentVisibilityRes:
-        """Bulk-set visibility on every UMS-governed object authored by the given user."""
+        """Bulk-set visibility on every UMS-governed object authored by the given user.
+
+        If from_visibility is non-empty, only states currently at one of those visibilities are swept.
+        """
         new_visibility = moderationvisibility2sql[request.visibility]
         if new_visibility is None:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "visibility_must_be_specified")
+
+        from_visibilities: set[ModerationVisibility] = set()
+        for v in request.from_visibility:
+            mapped = moderationvisibility2sql[v]
+            if mapped is None:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "visibility_must_be_specified")
+            from_visibilities.add(mapped)
 
         user = session.execute(select(User).where(User.id == request.user_id)).scalar_one_or_none()
         if not user:
@@ -556,6 +566,8 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
         updated_count = 0
         for moderation_state in states:
+            if from_visibilities and moderation_state.visibility not in from_visibilities:
+                continue
             if moderation_state.visibility == new_visibility:
                 continue
 

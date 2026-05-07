@@ -2846,6 +2846,166 @@ def test_SetUserContentVisibility_user_not_found(db):
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
+def test_SetUserContentVisibility_from_visibility_filter(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(surfer_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    with real_moderation_session(super_token) as api:
+        api.SetUserContentVisibility(
+            moderation_pb2.SetUserContentVisibilityReq(
+                user_id=surfer.id,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            )
+        )
+
+    with real_moderation_session(super_token) as api:
+        res = api.SetUserContentVisibility(
+            moderation_pb2.SetUserContentVisibilityReq(
+                user_id=surfer.id,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                from_visibility=[moderation_pb2.MODERATION_VISIBILITY_SHADOWED],
+            )
+        )
+    assert res.updated_count == 0
+
+    with session_scope() as session:
+        state = _get_moderation_state(session, ModerationObjectType.host_request, hr_id)
+        assert state.visibility == ModerationVisibility.visible
+
+    with real_moderation_session(super_token) as api:
+        res = api.SetUserContentVisibility(
+            moderation_pb2.SetUserContentVisibilityReq(
+                user_id=surfer.id,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_SHADOWED,
+                from_visibility=[moderation_pb2.MODERATION_VISIBILITY_VISIBLE],
+            )
+        )
+    assert res.updated_count == 1
+
+    with session_scope() as session:
+        state = _get_moderation_state(session, ModerationObjectType.host_request, hr_id)
+        assert state.visibility == ModerationVisibility.shadowed
+
+
+def test_SetUserContentVisibility_from_visibility_multi(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host1, _ = generate_user()
+    host2, _ = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(surfer_token) as api:
+        hr1_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host1.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+        hr2_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host2.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    with session_scope() as session:
+        state1_id = _get_moderation_state(session, ModerationObjectType.host_request, hr1_id).id
+
+    with real_moderation_session(super_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state1_id,
+                action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            )
+        )
+
+    with real_moderation_session(super_token) as api:
+        res = api.SetUserContentVisibility(
+            moderation_pb2.SetUserContentVisibilityReq(
+                user_id=surfer.id,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                from_visibility=[
+                    moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                    moderation_pb2.MODERATION_VISIBILITY_SHADOWED,
+                ],
+            )
+        )
+    assert res.updated_count == 2
+
+    with session_scope() as session:
+        state1 = _get_moderation_state(session, ModerationObjectType.host_request, hr1_id)
+        state2 = _get_moderation_state(session, ModerationObjectType.host_request, hr2_id)
+        assert state1.visibility == ModerationVisibility.hidden
+        assert state2.visibility == ModerationVisibility.hidden
+
+
+def test_SetUserContentVisibility_from_visibility_empty_is_any(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(surfer_token) as api:
+        hr_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    with real_moderation_session(super_token) as api:
+        res = api.SetUserContentVisibility(
+            moderation_pb2.SetUserContentVisibilityReq(
+                user_id=surfer.id,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                from_visibility=[],
+            )
+        )
+    assert res.updated_count == 1
+
+    with session_scope() as session:
+        state = _get_moderation_state(session, ModerationObjectType.host_request, hr_id)
+        assert state.visibility == ModerationVisibility.hidden
+
+
+def test_SetUserContentVisibility_from_visibility_unspecified_rejected(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    target, _ = generate_user()
+
+    with real_moderation_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SetUserContentVisibility(
+                moderation_pb2.SetUserContentVisibilityReq(
+                    user_id=target.id,
+                    visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                    from_visibility=[moderation_pb2.MODERATION_VISIBILITY_UNSPECIFIED],
+                )
+            )
+    assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
 def test_ListModerationStates_empty(db):
     super_user, super_token = generate_user(is_superuser=True)
 
