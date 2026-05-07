@@ -31,7 +31,7 @@ class RenderedEmailNotification:
     body_html: str | None
     source_data: str | None
     list_unsubscribe_header: str | None
-    attachments: list[api_pb2.EmailAttachment] = field(default_factory=list)
+    attachments: list[EmailAttachment] = field(default_factory=list)
 
 
 def render_email_notification(
