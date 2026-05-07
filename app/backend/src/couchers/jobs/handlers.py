@@ -139,16 +139,7 @@ def send_email(payload: jobs_pb2.SendEmailPayload) -> None:
     # selects a "sender", which either prints the email to the logger or sends it out with SMTP
     sender = send_smtp_email if config["ENABLE_EMAIL"] else print_dev_email
     # the sender must return a models.Email object that can be added to the database
-    email = sender(
-        sender_name=payload.sender_name,
-        sender_email=payload.sender_email,
-        recipient=payload.recipient,
-        subject=payload.subject,
-        plain=payload.plain,
-        html=payload.html,
-        list_unsubscribe_header=payload.list_unsubscribe_header,
-        source_data=payload.source_data,
-    )
+    email = sender(payload)
     with session_scope() as session:
         session.add(email)
 
