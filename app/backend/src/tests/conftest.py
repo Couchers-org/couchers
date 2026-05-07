@@ -172,6 +172,7 @@ def testconfig():
     config["REPORTS_EMAIL_RECIPIENT"] = "reports@couchers.org.invalid"
     config["CONTRIBUTOR_FORM_EMAIL_RECIPIENT"] = "forms@couchers.org.invalid"
     config["MODS_EMAIL_RECIPIENT"] = "mods@couchers.org.invalid"
+    config["ENABLE_EMAIL_ICS_ATTACHMENTS"] = True
 
     config["ENABLE_DONATIONS"] = False
     config["STRIPE_API_KEY"] = ""

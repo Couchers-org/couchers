@@ -771,24 +771,19 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
 
 
 def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailAttachment | None:
+    data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic_action == NotificationTopicAction.host_request__accept:
-        data = notification_data_pb2.HostRequestAccept.FromString(notification.data)
-        attachment = create_host_request_attachment(
+        return create_host_request_attachment(
             data.host_request, other_name=data.host.name, hosting=False, loc_context=loc_context
         )
-        return attachment
     elif notification.topic_action == NotificationTopicAction.host_request__confirm:
-        data = notification_data_pb2.HostRequestConfirm.FromString(notification.data)
-        attachment = create_host_request_attachment(
+        return create_host_request_attachment(
             data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
         )
-        return attachment
     elif notification.topic_action == NotificationTopicAction.host_request__cancel:
-        data = notification_data_pb2.HostRequestCancel.FromString(notification.data)
-        attachment = create_host_request_cancellation_attachment(
+        return create_host_request_cancellation_attachment(
             data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
         )
-        return attachment
     else:
         return None
 

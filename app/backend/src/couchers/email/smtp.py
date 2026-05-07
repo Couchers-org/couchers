@@ -45,12 +45,12 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
     if updated_html:
         # for any png files in attachment_imgs/, goes through and replaces instances of the filename with attachment
         used_attachments = []
-        for attachment in (template_base / "attachment_imgs").glob("*.png"):
-            attachment_html_path = str(attachment.relative_to(template_base))
+        for attachment_full_path in (template_base / "attachment_imgs").glob("*.png"):
+            attachment_html_path = str(attachment_full_path.relative_to(template_base))
             if attachment_html_path not in updated_html:
                 continue
             # it's used in this template, so attach and replace it
-            data = attachment.read_bytes()
+            data = attachment_full_path.read_bytes()
             cid, wcid = make_cid(payload.sender_email)
             updated_html = updated_html.replace(attachment_html_path, f"cid:{wcid}")
             used_attachments.append((cid, "image", "png", data))

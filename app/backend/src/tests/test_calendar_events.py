@@ -62,16 +62,16 @@ def test_host_request_attachments(db, moderator):
     host, host_token = generate_user(complete_profile=True)
     surfer, surfer_token = generate_user(complete_profile=True)
 
-    today_plus_2 = today() + timedelta(days=2)
-    today_plus_3 = today() + timedelta(days=3)
+    from_date = today() + timedelta(days=2)
+    to_date = today() + timedelta(days=3)
 
     # Send the host request, no calendar attachment yet
     with requests_session(surfer_token) as api:
         hr_id = api.CreateHostRequest(
             requests_pb2.CreateHostRequestReq(
                 host_user_id=host.id,
-                from_date=today_plus_2.isoformat(),
-                to_date=today_plus_3.isoformat(),
+                from_date=from_date.isoformat(),
+                to_date=to_date.isoformat(),
                 text=valid_request_text("can i stay plz"),
             )
         ).host_request_id
@@ -81,6 +81,7 @@ def test_host_request_attachments(db, moderator):
 
     mock.assert_called_once()
     e = email_fields(mock)
+    assert "request" in e.subject and surfer.name in e.subject
     assert not e.attachments
 
     # Host accepts, surfer gets a calendar attachment
@@ -94,9 +95,14 @@ def test_host_request_attachments(db, moderator):
                 )
             )
 
-    ics_event = _get_email_ics_attachment_calendar_event(mock)
+    e = email_fields(mock)
+    assert "accept" in e.subject and host.name in e.subject
+    ics_event = _get_email_ics_attachment_calendar_event(e)
     assert not ics_event.status
-    assert ics_event.name == f"Hosting {surfer.name}"
+    assert ics_event.begin.date() == from_date
+    assert ics_event.end.date() == (to_date + timedelta(days=1))
+    assert ics_event.name == f"Surfing with {host.name}"
+    assert ics_event.location == host.city
 
     # Surfer confirms, hosts gets a calendar attachment
     with requests_session(surfer_token) as api:
@@ -104,14 +110,16 @@ def test_host_request_attachments(db, moderator):
             api.RespondHostRequest(
                 requests_pb2.RespondHostRequestReq(
                     host_request_id=hr_id,
-                    status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRM,
+                    status=conversations_pb2.HOST_REQUEST_STATUS_CONFIRMED,
                     text="Confirming host request",
                 )
             )
 
-    ics_event = _get_email_ics_attachment_calendar_event(mock)
+    e = email_fields(mock)
+    assert "confirm" in e.subject and surfer.name in e.subject
+    ics_event = _get_email_ics_attachment_calendar_event(e)
     assert not ics_event.status
-    assert ics_event.name == f"Surfing with {host.name}"
+    assert ics_event.name == f"Hosting {surfer.name}"
 
     # Host cancels, surfer gets a calendar attachment
     with requests_session(surfer_token) as api:
@@ -124,15 +132,16 @@ def test_host_request_attachments(db, moderator):
                 )
             )
 
-    ics_event = _get_email_ics_attachment_calendar_event(mock)
+    e = email_fields(mock)
+    assert "cancel" in e.subject and surfer.name in e.subject
+    ics_event = _get_email_ics_attachment_calendar_event(e)
     assert ics_event.status == "CANCELLED"
 
 
-def _get_email_ics_attachment_calendar_event(mock) -> ics.Event:
-    e = email_fields(mock)
+def _get_email_ics_attachment_calendar_event(e) -> ics.Event:
     assert len(e.attachments or []) == 1
     ics_attachment = e.attachments[0]
     assert ics_attachment.filename.endswith(".ics")
     ics_calendar = ics.Calendar(ics_attachment.data.decode("utf-8"))
     assert len(ics_calendar.events) == 1
-    return ics_calendar.events[0]
+    return next(iter(ics_calendar.events))

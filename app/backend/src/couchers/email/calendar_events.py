@@ -1,7 +1,8 @@
 from email.headerregistry import Address
+from typing import cast
 
-from ics import Calendar, Event
-from ics.grammar.parse import ContentLine
+from ics import Calendar, Event  # type: ignore[import-untyped]
+from ics.grammar.parse import ContentLine  # type: ignore[import-untyped]
 
 from couchers import urls
 from couchers.config import config
@@ -15,17 +16,14 @@ def create_host_request_attachment(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> EmailAttachment:
     ics = create_host_request_ics(host_request, other_name, hosting, loc_context)
-    return create_ics_attachment(ics)
+    return ics_to_attachment(ics)
 
 
 def create_host_request_ics(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> str:
-    calendar = Calendar()
-    # PRODID is mandatory and generally follows "-//[Organization]//[Product Name]//[Language]"
-    calendar.creator = f"-//Couchers.org//Couchers//{loc_context.locale.upper()}"
-    calendar.events.add(create_host_request_event(host_request, other_name, hosting, loc_context))
-    return calendar.serialize()
+    event = create_host_request_event(host_request, other_name, hosting, loc_context)
+    return event_to_ics(event, loc_context)
 
 
 def create_host_request_event(
@@ -62,27 +60,34 @@ def create_host_request_cancellation_attachment(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> EmailAttachment:
     ics = create_host_request_cancellation_ics(host_request, other_name, hosting, loc_context)
-    return create_ics_attachment(ics)
+    return ics_to_attachment(ics)
 
 
 def create_host_request_cancellation_ics(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> str:
-    calendar = Calendar()
-    calendar.method = "CANCEL"
-
     event = create_host_request_event(host_request, other_name, hosting, loc_context)
     event.name = get_emails_i18next().localize(
         "calendar_events.title_cancelled", loc_context.locale, {"title": event.name}
     )
     event.status = "CANCELLED"
+
+    # Cancellation is sequenced after creation (which defaults to sequence number 0)
     event.extra.append(ContentLine(name="SEQUENCE", value="1"))
 
+    return event_to_ics(event, loc_context)
+
+
+def event_to_ics(event: Event, loc_context: LocalizationContext) -> str:
+    # PRODID is mandatory and generally follows "-//[Organization]//[Product Name]//[Language]"
+    calendar = Calendar(creator=f"-//Couchers.org//Couchers//{loc_context.locale.upper()}")
+    if event.status == "CANCELLED":
+        calendar.method = "CANCEL"
     calendar.events.add(event)
-    return calendar.serialize()
+    return cast(str, calendar.serialize())
 
 
-def create_ics_attachment(ics: str) -> EmailAttachment:
+def ics_to_attachment(ics: str) -> EmailAttachment:
     return EmailAttachment(
         filename="host_request.ics",
         mime_type="text/calendar",
