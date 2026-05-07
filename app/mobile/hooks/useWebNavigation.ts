@@ -150,18 +150,22 @@ export function useWebNavigation({
         syncTargetPathRef.current = null;
       }
 
-      // Keep tab highlights in sync. Detail routes are excluded so they stay in
-      // the originating tab WebView — goBack() then returns correctly without a
-      // router.back() → dashboard flash.
-      if (targetRoute !== currentRoute && targetRoute && !isDetailRoute) {
-        // navigate() switches the active tab in place; push() would add a root-level
-        // (tabs) stack entry and flash the dashboard before settling on the target tab.
-        const queryString = webPath.includes("?")
-          ? webPath.substring(webPath.indexOf("?"))
-          : "";
-        const targetPath = `/${targetRoute}${queryString}`;
-        lastMobileNavigationRef.current = targetPath;
-        router.navigate(targetPath as Href);
+      if (targetRoute !== currentRoute && targetRoute) {
+        if (isDetailRoute) {
+          // Navigate to [..slug] so no tab is highlighted while on a detail page.
+          const detailPath = stripLocalePrefix(webPathWithoutQuery);
+          lastMobileNavigationRef.current = detailPath;
+          router.navigate(detailPath as Href);
+        } else {
+          // navigate() switches the active tab in place; push() would add a root-level
+          // (tabs) stack entry and flash the dashboard before settling on the target tab.
+          const queryString = webPath.includes("?")
+            ? webPath.substring(webPath.indexOf("?"))
+            : "";
+          const targetPath = `/${targetRoute}${queryString}`;
+          lastMobileNavigationRef.current = targetPath;
+          router.navigate(targetPath as Href);
+        }
       }
     },
     [

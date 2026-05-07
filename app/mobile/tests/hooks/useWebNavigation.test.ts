@@ -93,9 +93,8 @@ describe("useWebNavigation", () => {
       expect(mockRouter.navigate).toHaveBeenCalledWith("/communities");
     });
 
-    it("does not trigger native navigation when WebView navigates to a detail page", () => {
-      // Detail pages (profiles, events, etc.) stay in the originating tab WebView
-      // so goBack() can return correctly without a router.back() → dashboard flash.
+    it("navigates to the detail path when WebView navigates to a detail page", () => {
+      // Detail pages navigate to [..slug] so no tab is highlighted.
       const syncTargetPathRef = { current: null };
       const { result } = renderHook(() =>
         useWebNavigation({
@@ -109,8 +108,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/user/123`, false),
       );
 
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
-      expect(mockRouter.push).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/user/123");
     });
 
     it("triggers native navigation from catch-all to tab route", () => {
@@ -148,8 +146,8 @@ describe("useWebNavigation", () => {
       expect(mockRouter.push).not.toHaveBeenCalled();
     });
 
-    it("does not trigger native navigation for sub-routes of tabs", () => {
-      // Sub-routes like /messages/123 are detail pages — they stay in the tab WebView.
+    it("navigates to the detail path for sub-routes of tabs", () => {
+      // Sub-routes like /messages/123 are detail pages — they navigate to [..slug].
       const syncTargetPathRef = { current: null };
       const { result } = renderHook(() =>
         useWebNavigation({
@@ -163,8 +161,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/messages/123`, false),
       );
 
-      expect(mockRouter.navigate).not.toHaveBeenCalled();
-      expect(mockRouter.push).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/messages/123");
     });
 
     it("strips hash fragments from URL when navigating to main tabs", () => {
@@ -213,15 +210,15 @@ describe("useWebNavigation", () => {
   describe("tab mapping", () => {
     const testCases = [
       { webPath: "/dashboard", expectedPath: null }, // same route, no navigation
-      { webPath: "/dashboard/settings", expectedPath: null }, // detail route, stays in tab WebView
+      { webPath: "/dashboard/settings", expectedPath: "/dashboard/settings" }, // detail → [..slug]
       { webPath: "/messages", expectedPath: "/messages" },
-      { webPath: "/messages/123", expectedPath: null }, // detail route
+      { webPath: "/messages/123", expectedPath: "/messages/123" }, // detail → [..slug]
       { webPath: "/search", expectedPath: "/search" },
       { webPath: "/search?query=test", expectedPath: "/search?query=test" },
       { webPath: "/communities", expectedPath: "/communities" },
-      { webPath: "/communities/456", expectedPath: null }, // detail route
+      { webPath: "/communities/456", expectedPath: "/communities/456" }, // detail → [..slug]
       { webPath: "/events", expectedPath: "/events" },
-      { webPath: "/user/789", expectedPath: null }, // detail route
+      { webPath: "/user/789", expectedPath: "/user/789" }, // detail → [..slug]
     ];
 
     testCases.forEach(({ webPath, expectedPath }) => {

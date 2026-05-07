@@ -78,7 +78,7 @@ The "glue" that keeps mobile tabs in sync with web navigation:
 
 - Detects which page is showing in the WebView
 - Maps web URL to a tab route and calls `router.navigate()` to keep tab highlights in sync
-- Detail pages (profiles, events, etc.) stay in the originating tab's WebView — no native route change. This lets `goBack()` return to the tab page correctly without a router.back() → dashboard flash.
+- Detail pages (profiles, events, etc.) navigate to `[...slug]` so no tab is highlighted; named-tab WebEmbeds sync back to their root when they regain focus
 
 **Key insight**: Must strip locale prefixes before mobile navigation:
 
@@ -214,12 +214,6 @@ if (lastMobileNavigationRef.current === targetPath) {
 **Problem**: User navigates from the search tab to a profile, then taps the back button — it goes to the dashboard instead of returning to search.
 
 **Solution**: Detail page back buttons call `sendNativeBack()` (not `router.back()` directly). The native handler in `WebEmbed` calls `webviewRef.goBack()` when `canGoBackRef.current` is true, letting WebView browser history handle the navigation correctly. When the WebView has no history, the fallback sends `MOBILE_NAVIGATE` back to the tab's root path — not `router.back()`, which would exit the `(tabs)` group.
-
-### 5. Switching away from a tab resets a detail page
-
-**Problem**: User opens a profile from the search tab, switches to another tab and back — the profile is replaced with search results.
-
-**Solution**: Both sync effects in `WebEmbed` skip `MOBILE_NAVIGATE` when the WebView is currently on a detail page (any path that isn't a known tab root like `/dashboard`, `/search`, etc.). Detail page navigation is preserved across tab switches; the in-WebView back button returns the user to the tab root.
 
 ### 5. Stale content (wrong version numbers, old data)
 

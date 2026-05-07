@@ -141,19 +141,16 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       return;
     }
 
-    // Don't sync away from a detail page the user navigated to within this tab
-    // (e.g. a user profile opened from search). Syncing would discard their
-    // browsing position; they can use the in-WebView back button to return.
-    const currentBase = stripLocale(currentWebPathRef.current.split("?")[0]);
-    if (
-      ![
-        "/dashboard",
-        "/messages",
-        "/search",
-        "/communities",
-        "/events",
-      ].includes(currentBase)
-    ) {
+    // [..slug] WebEmbed: don't sync back to the original detail path — the user
+    // may have navigated further within the page.
+    const tabRoots = [
+      "/dashboard",
+      "/messages",
+      "/search",
+      "/communities",
+      "/events",
+    ];
+    if (!tabRoots.includes(stripLocale(path))) {
       return;
     }
 
@@ -194,17 +191,16 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         return cleanup;
       }
 
-      // Don't sync away from a detail page — same reasoning as the useEffect above.
-      const currentBase = stripLocale(currentWebPathRef.current.split("?")[0]);
-      if (
-        ![
-          "/dashboard",
-          "/messages",
-          "/search",
-          "/communities",
-          "/events",
-        ].includes(currentBase)
-      ) {
+      // [..slug] WebEmbed: don't sync back to the original detail path.
+      const tabRoots = [
+        "/dashboard",
+        "/messages",
+        "/search",
+        "/communities",
+        "/events",
+      ];
+
+      if (!tabRoots.includes(stripLocale(path))) {
         return cleanup;
       }
 
