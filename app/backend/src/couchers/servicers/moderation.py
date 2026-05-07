@@ -542,12 +542,9 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         if new_visibility is None:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "visibility_must_be_specified")
 
-        from_visibilities: set[ModerationVisibility] = set()
-        for v in request.from_visibility:
-            mapped = moderationvisibility2sql[v]
-            if mapped is None:
-                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "visibility_must_be_specified")
-            from_visibilities.add(mapped)
+        from_visibilities = {moderationvisibility2sql[v] for v in request.from_visibility}
+        if None in from_visibilities:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "visibility_must_be_specified")
 
         user = session.execute(select(User).where(User.id == request.user_id)).scalar_one_or_none()
         if not user:
