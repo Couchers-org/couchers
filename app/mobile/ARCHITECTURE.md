@@ -91,8 +91,11 @@ The "glue" that keeps mobile tabs in sync with web navigation:
 
 Shared refs across all WebView instances:
 
-- `globalWebPathRef` - current WebView location
 - `lastMobileNavigationRef` - prevents infinite sync loops
+- `lastLoginTimeRef` - timestamp of last `LOGIN_SUCCESS`; used by the LOGOUT handler to ignore false-alarm logouts during iOS cookie sync (see Auth Sync below)
+- `dispatchEscapeRef` - lets the tab bar close open menus on any tab press
+
+Each `WebEmbed` instance also has its own **per-instance** `currentWebPathRef` (inside `useWebNavigation`) that tracks that tab's current URL independently. This is intentional — a shared global ref caused cross-tab contamination where one tab's navigation would corrupt another tab's sync checks.
 
 **Note**: You may occasionally see a brief flash when navigating from tabs to non-tab pages. This happens because each screen has its own WebView instance that needs to mount. It's a known trade-off of the multi-WebView approach—the alternative (single WebView) would break tab state preservation.
 
@@ -112,8 +115,10 @@ Auth state exists in three places that must stay in sync:
 
 - `sharedCookiesEnabled` means WebView and native app share cookies
 - Web app sends `postMessage` when auth changes
-- Mobile app updates its auth state and navigates accordingly
-- `Stack.Protected` guards ensure users can't access tabs when logged out
+- Mobile app updates its auth state; `Stack.Protected` handles navigation to/from login
+- On login, `waitForSessionSync` polls `getAuthState` until the session cookie syncs from `WKHTTPCookieStore` to `NSHTTPCookieStorage` (iOS only; this sync gets progressively slower after each login/logout cycle)
+- On logout, WebEmbed ignores `LOGOUT` messages within 5s of the last login (`lastLoginTimeRef`) and re-checks `getAuthState` before calling `markLoggedOut` — both guard against false-alarm logouts caused by the cookie sync race
+- `markLoggedOut` is idempotent (guarded by `isAuthenticatedRef`) so concurrent calls from multiple tab WebViews are safe
 
 ## Routing Architecture
 
@@ -208,9 +213,13 @@ if (lastMobileNavigationRef.current === targetPath) {
 
 **Problem**: User navigates from the search tab to a profile, then taps the back button — it goes to the dashboard instead of returning to search.
 
-**Cause**: Detail pages stay in the originating tab's WebView (no native route change). Back button calls `sendNativeBack()` → `NATIVE_BACK` postMessage → `webviewRef.goBack()`, which navigates the WebView back through its browser history. `router.back()` is only the fallback when the WebView has no history (e.g. a deep link opened the `[...slug]` screen directly).
+**Solution**: Detail page back buttons call `sendNativeBack()` (not `router.back()` directly). The native handler in `WebEmbed` calls `webviewRef.goBack()` when `canGoBackRef.current` is true, letting WebView browser history handle the navigation correctly. When the WebView has no history, the fallback sends `MOBILE_NAVIGATE` back to the tab's root path — not `router.back()`, which would exit the `(tabs)` group.
 
-**Solution**: Detail page back buttons call `sendNativeBack()` (not `router.back()` directly). The native handler in `WebEmbed` calls `webviewRef.goBack()` when `canGoBackRef.current` is true, letting WebView browser history handle the navigation correctly.
+### 5. Switching away from a tab resets a detail page
+
+**Problem**: User opens a profile from the search tab, switches to another tab and back — the profile is replaced with search results.
+
+**Solution**: Both sync effects in `WebEmbed` skip `MOBILE_NAVIGATE` when the WebView is currently on a detail page (any path that isn't a known tab root like `/dashboard`, `/search`, etc.). Detail page navigation is preserved across tab switches; the in-WebView back button returns the user to the tab root.
 
 ### 5. Stale content (wrong version numbers, old data)
 

@@ -3,10 +3,7 @@ import { useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { WebViewNavigation } from "react-native-webview";
 
-import {
-  globalWebPathRef,
-  lastMobileNavigationRef,
-} from "@/state/webViewState";
+import { lastMobileNavigationRef } from "@/state/webViewState";
 
 interface UseWebNavigationOptions {
   webBaseUrl: string;
@@ -32,8 +29,10 @@ export function useWebNavigation({
 }: UseWebNavigationOptions): UseWebNavigationReturn {
   const router = useRouter();
   const { i18n } = useTranslation();
-  // Use global ref so it's shared across all WebEmbed instances
-  const currentWebPathRef = globalWebPathRef;
+  // Per-instance ref so each tab tracks its own WebView path independently.
+  // Seed with currentPath so the initial "already at target" check fires correctly
+  // and the detail-page guard doesn't block the first sync.
+  const currentWebPathRef = useRef(currentPath);
   const canGoBackRef = useRef(false);
 
   const extractLocaleFromPath = useCallback(

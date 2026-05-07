@@ -9,8 +9,31 @@ import { WebView } from "react-native-webview";
 import { useAuthContext } from "@/features/auth/AuthContext";
 import { loginRoute } from "@/routes";
 import client from "@/service/client";
+import { lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
+
+// Polls getAuthState until the session cookie has synced from WKHTTPCookieStore
+// to NSHTTPCookieStorage. New WebViews (sharedCookiesEnabled) read from
+// NSHTTPCookieStorage, so success here means the dashboard tab will have the cookie.
+// iOS's sync is progressively slower after each login/logout cycle, so we use
+// 10 attempts. If all fail we proceed anyway — WebEmbed's LOGOUT grace period
+// handles any false-alarm logouts from tab WebViews that load before the sync.
+async function waitForSessionSync(
+  attempts = 10,
+  delayMs = 300,
+): Promise<boolean> {
+  for (let i = 0; i < attempts; i++) {
+    if (i > 0) await new Promise((r) => setTimeout(r, delayMs));
+    try {
+      const res = await client.auth.getAuthState(new Empty());
+      if (res.toObject().loggedIn) return true;
+    } catch {
+      // network hiccup — keep retrying
+    }
+  }
+  return false;
+}
 
 export default function LoginScreen() {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
@@ -21,22 +44,13 @@ export default function LoginScreen() {
   const [webViewKey, setWebViewKey] = useState<number>(0);
 
   // Prevent Android back button from navigating away from login screen
-  // This fixes security bypass where users could press back to access authenticated screens
-  // Using useFocusEffect ensures the handler is only active when this screen is focused
-  // (best practice per React Navigation docs)
   useFocusEffect(
     useCallback(() => {
-      const onBackPress = () => {
-        // Return true to prevent default back behavior (navigating to previous screen)
-        // Users must authenticate to proceed - they can't go back to authenticated screens
-        return true;
-      };
-
+      const onBackPress = () => true;
       const subscription = BackHandler.addEventListener(
         "hardwareBackPress",
         onBackPress,
       );
-
       return () => subscription.remove();
     }, []),
   );
@@ -51,24 +65,20 @@ export default function LoginScreen() {
       const data = JSON.parse(event.nativeEvent.data);
 
       if (data.type === "LOGIN_SUCCESS") {
-        // Verify auth via the native HTTP client before navigating.
-        // The native client uses the shared cookie store — a successful
-        // call confirms the cookie has synced and new WebViews will have it.
-        const response = await client.auth.getAuthState(new Empty());
-        const authState = response.toObject();
-        if (authState.loggedIn && authState.authRes) {
-          setUserId(authState.authRes.userId);
-          setJailed(authState.authRes.jailed);
-          markAuthenticated();
-          router.replace("/(tabs)/dashboard" as Href);
-        }
+        setUserId(data.userId);
+        setJailed(data.jailed || false);
+        await waitForSessionSync();
+        // Proceed regardless of sync result. If the cookie hasn't synced to
+        // NSHTTPCookieStorage yet, WebEmbed's LOGOUT grace period will catch
+        // any false-alarm LOGOUT messages from tab WebViews.
+        lastLoginTimeRef.current = Date.now();
+        markAuthenticated();
+        router.replace("/(tabs)/dashboard" as Href);
       } else if (data.type === "LOGOUT") {
         // Clear mobile auth state and reset the WebView to drop history
         await markLoggedOut();
         setWebViewKey((k: number): number => k + 1);
       } else if (data.type === "COLOR_SCHEME_CHANGE") {
-        // Web app toggled dark mode - sync native UI
-        // mode can be "light", "dark", or null (follow system)
         const mode = data.mode;
         if (mode === "light" || mode === "dark" || mode === null) {
           Appearance.setColorScheme(mode);

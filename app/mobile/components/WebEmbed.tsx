@@ -1,4 +1,5 @@
-import { Href, useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect } from "expo-router";
+import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -22,7 +23,8 @@ import { useAuthContext } from "@/features/auth/AuthContext";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useWebNavigation } from "@/hooks/useWebNavigation";
 import errorGraphic from "@/resources/404graphic.png";
-import { dispatchEscapeRef } from "@/state/webViewState";
+import client from "@/service/client";
+import { dispatchEscapeRef, lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
 import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
@@ -37,7 +39,6 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const webviewRef = useRef<WebView>(null);
-  const router = useRouter();
   const { t, i18n } = useTranslation();
   const { markLoggedOut, setUserId, setJailed, markAuthenticated } =
     useAuthContext();
@@ -67,6 +68,11 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         retryCountRef.current = 0;
       },
     });
+
+  const stripLocale = useCallback(
+    (p: string) => p.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/"),
+    [],
+  );
 
   // Register escape-dispatch callback while this tab is focused so the tab bar
   // can close open menus (e.g. notifications) on any tab press.
@@ -114,11 +120,6 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     webviewRef.current?.reload();
   };
 
-  const stripLocale = useCallback(
-    (p: string) => p.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/"),
-    [],
-  );
-
   // Sync WebView when path prop changes (tab navigation).
   useEffect(() => {
     if (!hasLoadedRef.current) {
@@ -137,6 +138,22 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     // Skip if already at target — postMessage would be a no-op but setting
     // syncTargetPathRef would leak and block future navigation tracking.
     if (currentWebPathRef.current.split("?")[0] === targetPath) {
+      return;
+    }
+
+    // Don't sync away from a detail page the user navigated to within this tab
+    // (e.g. a user profile opened from search). Syncing would discard their
+    // browsing position; they can use the in-WebView back button to return.
+    const currentBase = stripLocale(currentWebPathRef.current.split("?")[0]);
+    if (
+      ![
+        "/dashboard",
+        "/messages",
+        "/search",
+        "/communities",
+        "/events",
+      ].includes(currentBase)
+    ) {
       return;
     }
 
@@ -174,6 +191,20 @@ export default function WebEmbed({ path }: WebEmbedProps) {
 
       // Skip if already at target — same leak-prevention as the useEffect above.
       if (currentWebPathRef.current.split("?")[0] === targetPath) {
+        return cleanup;
+      }
+
+      // Don't sync away from a detail page — same reasoning as the useEffect above.
+      const currentBase = stripLocale(currentWebPathRef.current.split("?")[0]);
+      if (
+        ![
+          "/dashboard",
+          "/messages",
+          "/search",
+          "/communities",
+          "/events",
+        ].includes(currentBase)
+      ) {
         return cleanup;
       }
 
@@ -218,18 +249,40 @@ export default function WebEmbed({ path }: WebEmbedProps) {
     `);
   };
 
-  const handleMessage = (event: WebViewMessageEvent) => {
+  const handleMessage = async (event: WebViewMessageEvent) => {
     try {
       const payload = JSON.parse(event.nativeEvent.data);
 
       if (payload?.type === "LOGIN_SUCCESS") {
-        // Stack.Protected auto-transitions to (tabs) when authenticated becomes true.
         setUserId(payload.userId);
         setJailed(payload.jailed || false);
         markAuthenticated();
       } else if (payload?.type === "LOGOUT") {
+        // Grace period: if LOGOUT fires within 5s of the last LOGIN_SUCCESS, it is
+        // likely a cookie-sync false alarm — NSHTTPCookieStorage hasn't received
+        // the new session cookie from WKHTTPCookieStore yet. Reload the WebView
+        // so it retries with the (now-synced) cookie instead of logging out.
+        const msSinceLogin = Date.now() - lastLoginTimeRef.current;
+        if (msSinceLogin < 5000) {
+          // Within grace period after login: likely a cookie-sync false alarm.
+          // NSHTTPCookieStorage hasn't received the new session cookie from
+          // WKHTTPCookieStore yet. Reload so the WebView retries with the cookie.
+          webviewRef.current?.reload();
+          return;
+        }
+        try {
+          const res = await client.auth.getAuthState(new Empty());
+          if (res.toObject().loggedIn) {
+            // Session still valid — false LOGOUT from cookie sync race; reload WebView
+            webviewRef.current?.reload();
+            return;
+          }
+        } catch {
+          // Can't verify — fall through to logout
+        }
+        // markLoggedOut is idempotent — safe if multiple tabs call it concurrently.
+        // Stack.Protected navigates to login when authenticated becomes false.
         markLoggedOut();
-        router.replace("/login" as Href);
       } else if (payload?.type === "COLOR_SCHEME_CHANGE") {
         // mode can be "light", "dark", or null (follow system)
         const mode = payload.mode;
@@ -240,7 +293,13 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         if (canGoBackRef.current && webviewRef.current) {
           webviewRef.current.goBack();
         } else {
-          router.back();
+          // Navigate the WebView back to this tab's root — don't call router.back()
+          // which would exit the (tabs) group since detail routes are no longer
+          // pushed to the native stack.
+          webviewRef.current?.injectJavaScript(`
+            window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path })}, "*");
+            true;
+          `);
         }
       } else if (payload?.type === "REQUEST_IMAGE_PICK") {
         // WebView file input crashes on mobile; use native picker instead.
