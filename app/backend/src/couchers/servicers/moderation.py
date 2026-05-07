@@ -542,7 +542,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         if new_visibility is None:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "visibility_must_be_specified")
 
-        from_visibilities = {moderationvisibility2sql[v] for v in request.from_visibility}
+        from_visibilities = {moderationvisibility2sql.get(v) for v in request.from_visibility}
         if None in from_visibilities:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "visibility_must_be_specified")
 
