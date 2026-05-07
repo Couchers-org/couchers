@@ -112,7 +112,6 @@ message AdminActionLog {
   string note = 6;   // optional note/details
   string tag = 7;    // for tag-related actions
   AdminActionLevel level = 8;
-  // populated by ListAdminActions; empty when this message is embedded in UserDetails (target is implicit)
   int64 target_user_id = 9;
   string target_username = 10;
 }
