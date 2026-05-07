@@ -99,6 +99,8 @@ service Admin {
   rpc RemoveAdminTagFromUser(RemoveAdminTagFromUserReq) returns (UserDetails) {}
 
   rpc SetModScore(SetModScoreReq) returns (UserDetails) {}
+
+  rpc ListAdminActions(ListAdminActionsReq) returns (ListAdminActionsRes) {}
 }
 
 message AdminActionLog {
@@ -110,6 +112,8 @@ message AdminActionLog {
   string note = 6;   // optional note/details
   string tag = 7;    // for tag-related actions
   AdminActionLevel level = 8;
+  int64 target_user_id = 9;
+  string target_username = 10;
 }
 
 message AdminTagInfo {
@@ -533,4 +537,19 @@ message SetModScoreReq {
   // username, email, or user id
   string user = 1;
   double mod_score = 2;
+}
+
+message ListAdminActionsReq {
+  // Filter to actions performed by this admin (optional)
+  int64 admin_user_id = 1;
+  // Filter to actions targeting this user (optional)
+  int64 target_user_id = 2;
+
+  uint32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListAdminActionsRes {
+  repeated AdminActionLog admin_actions = 1;
+  string next_page_token = 2;
 }

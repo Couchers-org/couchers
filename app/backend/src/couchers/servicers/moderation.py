@@ -605,3 +605,46 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         )
 
         return moderation_pb2.SetUserContentVisibilityRes(updated_count=updated_count)
+
+    def ListModerationStates(
+        self, request: moderation_pb2.ListModerationStatesReq, context: CouchersContext, session: Session
+    ) -> moderation_pb2.ListModerationStatesRes:
+        """Chronological, paginated list of ModerationState rows. Optional author_user_id filter."""
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+
+        statement = select(ModerationState)
+
+        if request.page_token:
+            page_token_id = int(request.page_token)
+            if request.newest_first:
+                statement = statement.where(ModerationState.id < page_token_id)
+            else:
+                statement = statement.where(ModerationState.id > page_token_id)
+
+        if request.author_user_id:
+            author_exists_clauses = []
+            for model in moderationobjecttype2model.values():
+                author_col = getattr(model, model.__moderation_author_column__)
+                author_exists_clauses.append(
+                    exists().where(
+                        and_(
+                            model.moderation_state_id == ModerationState.id,
+                            author_col == request.author_user_id,
+                        )
+                    )
+                )
+            statement = statement.where(or_(*author_exists_clauses))
+
+        if request.newest_first:
+            statement = statement.order_by(ModerationState.created.desc(), ModerationState.id.desc())
+        else:
+            statement = statement.order_by(ModerationState.created.asc(), ModerationState.id.asc())
+
+        states = session.execute(statement.limit(page_size + 1)).scalars().all()
+
+        state_pbs = [moderation_state_to_pb(state, session) for state in states[:page_size]]
+
+        return moderation_pb2.ListModerationStatesRes(
+            moderation_states=state_pbs,
+            next_page_token=str(states[page_size - 1].id) if len(states) > page_size else None,
+        )

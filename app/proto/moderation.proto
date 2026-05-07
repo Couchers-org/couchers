@@ -22,6 +22,8 @@ service Moderation {
   rpc UnflagContent(UnflagContentReq) returns (UnflagContentRes) {}
 
   rpc SetUserContentVisibility(SetUserContentVisibilityReq) returns (SetUserContentVisibilityRes) {}
+
+  rpc ListModerationStates(ListModerationStatesReq) returns (ListModerationStatesRes) {}
 }
 
 
@@ -179,4 +181,19 @@ message SetUserContentVisibilityReq {
 
 message SetUserContentVisibilityRes {
   int64 updated_count = 1;  // number of ModerationState rows whose visibility changed
+}
+
+message ListModerationStatesReq {
+  // Filter to states authored by this user (optional)
+  int64 author_user_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+  // Order by newest first (default: false = oldest first)
+  bool newest_first = 4;
+}
+
+message ListModerationStatesRes {
+  repeated ModerationStateInfo moderation_states = 1;
+  string next_page_token = 2;
 }

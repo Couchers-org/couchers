@@ -2844,3 +2844,66 @@ def test_SetUserContentVisibility_user_not_found(db):
                 )
             )
     assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_ListModerationStates_empty(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_moderation_session(super_token) as api:
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq())
+    assert len(res.moderation_states) == 0
+    assert res.next_page_token == ""
+
+
+def test_ListModerationStates_returns_states_chronologically(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    state1_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    state2_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    state3_id = create_test_host_request_with_moderation(surfer_token, host.id)
+
+    with real_moderation_session(super_token) as api:
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq())
+        assert [s.moderation_state_id for s in res.moderation_states] == [state1_id, state2_id, state3_id]
+
+        res_newest = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(newest_first=True))
+        assert [s.moderation_state_id for s in res_newest.moderation_states] == [state3_id, state2_id, state1_id]
+
+
+def test_ListModerationStates_filter_by_author(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer1, surfer1_token = generate_user()
+    surfer2, surfer2_token = generate_user()
+    host, _ = generate_user()
+
+    state1_id = create_test_host_request_with_moderation(surfer1_token, host.id)
+    state2_id = create_test_host_request_with_moderation(surfer2_token, host.id)
+    state3_id = create_test_host_request_with_moderation(surfer1_token, host.id)
+
+    with real_moderation_session(super_token) as api:
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer1.id))
+        assert {s.moderation_state_id for s in res.moderation_states} == {state1_id, state3_id}
+
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer2.id))
+        assert [s.moderation_state_id for s in res.moderation_states] == [state2_id]
+
+
+def test_ListModerationStates_pagination(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    state_ids = [create_test_host_request_with_moderation(surfer_token, host.id) for _ in range(3)]
+
+    with real_moderation_session(super_token) as api:
+        res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(page_size=2))
+        assert [s.moderation_state_id for s in res.moderation_states] == state_ids[:2]
+        assert res.next_page_token != ""
+
+        res2 = api.ListModerationStates(
+            moderation_pb2.ListModerationStatesReq(page_size=2, page_token=res.next_page_token)
+        )
+        assert [s.moderation_state_id for s in res2.moderation_states] == [state_ids[2]]
+        assert res2.next_page_token == ""
