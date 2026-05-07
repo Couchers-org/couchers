@@ -14,6 +14,13 @@ message SendEmailPayload {
   string list_unsubscribe_header = 7;
   // source data as to where this email came from
   string source_data = 8;
+  repeated EmailAttachment attachments = 9;
+}
+
+message EmailAttachment {
+  string filename = 1;
+  string mime_type = 2; // Both the type and subtype, e.g. "application/pdf"
+  bytes data = 3;
 }
 
 message HandleNotificationPayload {

@@ -61,6 +61,13 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
             payloads = cast(list[MIMEPart], msg.get_payload())
             payloads[1].add_related(data, mime_type, mime_subtype, cid=cid)
 
+    if payload.attachments:
+        for attachment in payload.attachments:
+            mime_maintype, mime_subtype = attachment.mime_type.split("/")
+            msg.add_attachment(
+                attachment.data, maintype=mime_maintype, subtype=mime_subtype, filename=attachment.filename
+            )
+
     with smtplib.SMTP(config["SMTP_HOST"], config["SMTP_PORT"]) as server:
         server.ehlo()
         if not config["DEV"]:
