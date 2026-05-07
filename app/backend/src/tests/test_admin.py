@@ -1303,6 +1303,84 @@ def test_search_users_by_admin_note(db):
         assert user2.id not in user_ids
 
 
+def test_ListAdminActions_empty(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as api:
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq())
+    assert len(res.admin_actions) == 0
+    assert res.next_page_token == ""
+
+
+def test_ListAdminActions_returns_newest_first_with_target_info(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="first note"))
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user2.username, admin_note="second note"))
+        api.BanUser(admin_pb2.BanUserReq(user=user1.username, admin_note="ban reason"))
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq())
+
+    assert len(res.admin_actions) == 3
+    # Newest first
+    assert res.admin_actions[0].action_type == "ban"
+    assert res.admin_actions[0].target_user_id == user1.id
+    assert res.admin_actions[0].target_username == user1.username
+    assert res.admin_actions[0].admin_user_id == super_user.id
+    assert res.admin_actions[0].admin_username == super_user.username
+    assert res.admin_actions[1].action_type == "note"
+    assert res.admin_actions[1].target_user_id == user2.id
+    assert res.admin_actions[2].action_type == "note"
+    assert res.admin_actions[2].target_user_id == user1.id
+
+
+def test_ListAdminActions_filter_by_admin_and_target(db):
+    super1, super1_token = generate_user(is_superuser=True)
+    super2, super2_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with real_admin_session(super1_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="from super1 to user1"))
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user2.username, admin_note="from super1 to user2"))
+    with real_admin_session(super2_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="from super2 to user1"))
+
+    with real_admin_session(super1_token) as api:
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(admin_user_id=super1.id))
+        assert {a.note for a in res.admin_actions} == {"from super1 to user1", "from super1 to user2"}
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(target_user_id=user1.id))
+        assert {a.note for a in res.admin_actions} == {"from super1 to user1", "from super2 to user1"}
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(admin_user_id=super1.id, target_user_id=user1.id))
+        assert [a.note for a in res.admin_actions] == ["from super1 to user1"]
+
+
+def test_ListAdminActions_pagination(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        for i in range(3):
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user.username, admin_note=f"note {i}"))
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(page_size=2))
+        assert len(res.admin_actions) == 2
+        assert res.next_page_token != ""
+        first_page_notes = [a.note for a in res.admin_actions]
+
+        res2 = api.ListAdminActions(admin_pb2.ListAdminActionsReq(page_size=2, page_token=res.next_page_token))
+        assert len(res2.admin_actions) == 1
+        assert res2.next_page_token == ""
+
+    all_notes = first_page_notes + [a.note for a in res2.admin_actions]
+    assert set(all_notes) == {"note 0", "note 1", "note 2"}
+
+
 # community invite feature tested in test_events.py
 # SendBlogPostNotification tested in test_notifications.py
 # MarkUserNeedsLocationUpdate tested in test_jail.py

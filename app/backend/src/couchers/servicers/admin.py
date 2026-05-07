@@ -4,7 +4,7 @@ from datetime import timedelta
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, aliased, selectinload
 from sqlalchemy.sql import and_, func, or_
 from user_agents import parse as user_agents_parse
 
@@ -114,6 +114,8 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
                 level=adminactionlevel2api[action.level],
                 note=action.note or "",
                 tag=action.tag or "",
+                target_user_id=action.target_user_id,
+                target_username=user.username,
             )
         )
 
@@ -1085,3 +1087,49 @@ class Admin(admin_pb2_grpc.AdminServicer):
         user.mod_score = request.mod_score
         log_admin_action(session, context, user, "set_mod_score", note=f"mod_score={request.mod_score}")
         return _user_to_details(session, user)
+
+    def ListAdminActions(
+        self, request: admin_pb2.ListAdminActionsReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.ListAdminActionsRes:
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+
+        admin_user = aliased(User)
+        target_user = aliased(User)
+
+        statement = (
+            select(AdminAction, admin_user.username, target_user.username)
+            .join(admin_user, AdminAction.admin_user_id == admin_user.id)
+            .join(target_user, AdminAction.target_user_id == target_user.id)
+        )
+
+        if request.admin_user_id:
+            statement = statement.where(AdminAction.admin_user_id == request.admin_user_id)
+        if request.target_user_id:
+            statement = statement.where(AdminAction.target_user_id == request.target_user_id)
+        if request.page_token:
+            statement = statement.where(AdminAction.id < int(request.page_token))
+
+        statement = statement.order_by(AdminAction.id.desc()).limit(page_size + 1)
+
+        rows = session.execute(statement).all()
+
+        action_pbs = [
+            admin_pb2.AdminActionLog(
+                admin_action_id=action.id,
+                created=Timestamp_from_datetime(action.created),
+                admin_user_id=action.admin_user_id,
+                admin_username=admin_username,
+                action_type=action.action_type,
+                level=adminactionlevel2api[action.level],
+                note=action.note or "",
+                tag=action.tag or "",
+                target_user_id=action.target_user_id,
+                target_username=target_username,
+            )
+            for action, admin_username, target_username in rows[:page_size]
+        ]
+
+        return admin_pb2.ListAdminActionsRes(
+            admin_actions=action_pbs,
+            next_page_token=str(rows[page_size - 1][0].id) if len(rows) > page_size else None,
+        )
