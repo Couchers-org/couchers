@@ -4,6 +4,22 @@
 
 The Couchers mobile app is a **React Native shell that wraps the Next.js web app in WebViews**. This lets us reuse 95%+ of our codebase while providing native features like push notifications and tab navigation. The main complexity is keeping the mobile tab navigation in sync with the web app's internal navigation.
 
+## What I would do differently now that I've made this app (Nicole note)
+
+For any future dev volunteers reading this, the major trade off I made in this app was using webviews to wrap the web app vs. making it fully native.
+
+We originally chose #1 as we have such limited developer capacity and didn't want to have to maintain another app.
+
+However, now that I've learned a lot from this process - managing the routing and authentication state (and combo between them) between the mobile app (react native) and the web app led to a lot of questionable code I'm not proud of to sync the state between web and mobile ;-).
+
+For now we are pushing it just get a working version out, but it needs to be improved going forward so I consider this a big chunk of tech debt.
+
+Once the app is out, the goal is to take an iterative approach to refactoring into being fully native one screen at a time.
+
+TL;DR All the hacks needed to maintain state between web and mobile with webviews took just as much time as it likely would have taken to make this app fully native to start.
+
+Lesson learned!
+
 ## Architecture
 
 ```
@@ -49,7 +65,7 @@ The Couchers mobile app is a **React Native shell that wraps the Next.js web app
 ### ⚠️ Trade-offs
 
 - **Memory overhead**: Each tab has its own WebView (~50-100MB each)
-- **Brief visual flash**: Sometimes visible when navigating to non-tab pages (due to switching WebView instances)
+- **Brief visual flash**: Sometimes visible when first loading a detail page (new WebView instance mounting); the return flash when navigating back to a tab is avoided by pre-navigating the tab's WebView to its root while the detail screen is shown
 - **Sync complexity**: Two navigation systems must stay coordinated
 - **Not "truly native"**: Won't feel as smooth as a pure native app
 
@@ -94,10 +110,11 @@ Shared refs across all WebView instances:
 - `lastMobileNavigationRef` - prevents infinite sync loops
 - `lastLoginTimeRef` - timestamp of last `LOGIN_SUCCESS`; used by the LOGOUT handler to ignore false-alarm logouts during iOS cookie sync (see Auth Sync below)
 - `dispatchEscapeRef` - lets the tab bar close open menus on any tab press
+- `detailRouteOriginRef` - the tab path that most recently triggered a detail-page navigation; read by `[...slug]` to navigate back to the correct tab when the user taps back with no WebView history
 
 Each `WebEmbed` instance also has its own **per-instance** `currentWebPathRef` (inside `useWebNavigation`) that tracks that tab's current URL independently. This is intentional — a shared global ref caused cross-tab contamination where one tab's navigation would corrupt another tab's sync checks.
 
-**Note**: You may occasionally see a brief flash when navigating from tabs to non-tab pages. This happens because each screen has its own WebView instance that needs to mount. It's a known trade-off of the multi-WebView approach—the alternative (single WebView) would break tab state preservation.
+**Note**: You may occasionally see a brief flash when first navigating to a detail page, since `[...slug]` mounts a fresh WebView. The return flash (detail → tab) is avoided by pre-navigating the tab's WebView back to its root while the detail screen is open.
 
 ### isNativeEmbed
 
@@ -213,7 +230,7 @@ if (lastMobileNavigationRef.current === targetPath) {
 
 **Problem**: User navigates from the search tab to a profile, then taps the back button — it goes to the dashboard instead of returning to search.
 
-**Solution**: Detail page back buttons call `sendNativeBack()` (not `router.back()` directly). The native handler in `WebEmbed` calls `webviewRef.goBack()` when `canGoBackRef.current` is true, letting WebView browser history handle the navigation correctly. When the WebView has no history, the fallback sends `MOBILE_NAVIGATE` back to the tab's root path — not `router.back()`, which would exit the `(tabs)` group.
+**Solution**: `[...slug].tsx` uses `key={path}` on `WebEmbed` so each detail page gets a fresh WebView (no stale history from the previous detail page). Back buttons call `sendNativeBack()` in the web app; the native handler in `WebEmbed` calls `webviewRef.goBack()` when the WebView has history. When it has no history (fresh WebView), `onNativeBackFallback` reads `detailRouteOriginRef` — which was set to the originating tab when the detail navigation fired — and calls `router.navigate(origin)` to return to the correct tab.
 
 ### 5. Stale content (wrong version numbers, old data)
 

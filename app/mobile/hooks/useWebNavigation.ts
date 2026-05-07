@@ -3,13 +3,17 @@ import { useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { WebViewNavigation } from "react-native-webview";
 
-import { lastMobileNavigationRef } from "@/state/webViewState";
+import {
+  detailRouteOriginRef,
+  lastMobileNavigationRef,
+} from "@/state/webViewState";
 
 interface UseWebNavigationOptions {
   webBaseUrl: string;
   currentPath: string;
   syncTargetPathRef: React.RefObject<string | null>;
   onRetryCountReset?: () => void;
+  onDetailNavigation?: () => void;
 }
 
 interface UseWebNavigationReturn {
@@ -26,6 +30,7 @@ export function useWebNavigation({
   currentPath,
   syncTargetPathRef,
   onRetryCountReset,
+  onDetailNavigation,
 }: UseWebNavigationOptions): UseWebNavigationReturn {
   const router = useRouter();
   const { i18n } = useTranslation();
@@ -34,6 +39,8 @@ export function useWebNavigation({
   // and the detail-page guard doesn't block the first sync.
   const currentWebPathRef = useRef(currentPath);
   const canGoBackRef = useRef(false);
+  // iOS WKWebView fires a stale event for the old detail URL after a sync; skip it.
+  const skipNextDetailRef = useRef<string | null>(null);
 
   const extractLocaleFromPath = useCallback(
     (webPath: string): string | null => {
@@ -120,11 +127,32 @@ export function useWebNavigation({
         syncTargetPathOnly !== null &&
         webPathWithoutQuery.startsWith(syncTargetPathOnly);
 
+      // Skip if the URL hasn't changed — prevents re-triggering navigation when
+      // WKWebView replays its current URL on tab focus or after a sync completes.
+      // Still clear an in-flight sync if this event confirms we're at the target.
+      if (webPath === currentWebPathRef.current) {
+        if (isSyncNavigation) {
+          syncTargetPathRef.current = null;
+        }
+        return;
+      }
+
+      // Skip the stale iOS WKWebView replay of a detail URL after a sync.
+      if (skipNextDetailRef.current !== null) {
+        const shouldSkip = webPathWithoutQuery === skipNextDetailRef.current;
+        skipNextDetailRef.current = null;
+        if (shouldSkip) {
+          return;
+        }
+      }
+
       // While a sync is in flight, ignore unrelated navigations.
       if (syncTargetPathRef.current !== null && !isSyncNavigation) {
         return;
       }
 
+      const previousWebPathWithoutQuery =
+        currentWebPathRef.current.split("?")[0];
       currentWebPathRef.current = webPath;
 
       // Sync native route when WebView navigates to a different page
@@ -146,16 +174,24 @@ export function useWebNavigation({
       }
 
       if (isSyncNavigation) {
-        // Clear the sync target now that we've seen the navigation
         syncTargetPathRef.current = null;
+        // Record the previous detail path so the stale iOS replay event is skipped.
+        const previousRoute = getRouteNameForPath(previousWebPathWithoutQuery);
+        if (previousRoute === "[...slug]" || previousRoute === "md/[...slug]") {
+          skipNextDetailRef.current = previousWebPathWithoutQuery;
+        }
       }
 
       if (targetRoute !== currentRoute && targetRoute) {
         if (isDetailRoute) {
           // Navigate to [..slug] so no tab is highlighted while on a detail page.
           const detailPath = stripLocalePrefix(webPathWithoutQuery);
+          detailRouteOriginRef.current = currentPath;
           lastMobileNavigationRef.current = detailPath;
           router.navigate(detailPath as Href);
+          // Set skip ref now so the stale iOS replay after onDetailNavigation's MOBILE_NAVIGATE is caught.
+          skipNextDetailRef.current = webPathWithoutQuery;
+          onDetailNavigation?.();
         } else {
           // navigate() switches the active tab in place; push() would add a root-level
           // (tabs) stack entry and flash the dashboard before settling on the target tab.
@@ -172,6 +208,7 @@ export function useWebNavigation({
       webBaseUrl,
       currentPath,
       onRetryCountReset,
+      onDetailNavigation,
       extractLocaleFromPath,
       getRouteNameForPath,
       router,

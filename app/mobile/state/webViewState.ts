@@ -5,6 +5,13 @@
 export const lastMobileNavigationRef = { current: null as string | null };
 
 /**
+ * The tab path (e.g. "/search?location=...") that most recently triggered a
+ * navigation to a [..slug] detail route. Read by the detail WebEmbed to
+ * navigate back to the originating tab when the WebView has no history.
+ */
+export const detailRouteOriginRef = { current: null as string | null };
+
+/**
  * Callback registered by the currently-focused WebEmbed to dispatch an Escape
  * key into its WebView. Called by the tab bar on any tab press so that open
  * menus (e.g. notifications) close even when the active tab is re-tapped.

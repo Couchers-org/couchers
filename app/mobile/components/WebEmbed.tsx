@@ -31,9 +31,13 @@ import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
 type WebEmbedProps = {
   path: string;
+  onNativeBackFallback?: () => void;
 };
 
-export default function WebEmbed({ path }: WebEmbedProps) {
+export default function WebEmbed({
+  path,
+  onNativeBackFallback,
+}: WebEmbedProps) {
   const WEB_BASE_URL = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
   const insets = useSafeAreaInsets();
@@ -59,6 +63,12 @@ export default function WebEmbed({ path }: WebEmbedProps) {
   const backgroundTimeRef = useRef<number | null>(null);
 
   const { pickImage } = useImagePicker();
+
+  const stripLocale = useCallback(
+    (p: string) => p.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/"),
+    [],
+  );
+
   const { handleNavigationStateChange, canGoBackRef, currentWebPathRef } =
     useWebNavigation({
       webBaseUrl: WEB_BASE_URL,
@@ -67,12 +77,29 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       onRetryCountReset: () => {
         retryCountRef.current = 0;
       },
+      onDetailNavigation: useCallback(() => {
+        // Pre-navigate to the tab root in the background so returning shows no flash.
+        const tabRoots = [
+          "/dashboard",
+          "/messages",
+          "/search",
+          "/communities",
+          "/events",
+        ];
+        const targetRoute = stripLocale(path);
+        if (!tabRoots.includes(targetRoute.split("?")[0])) {
+          return;
+        }
+        const currentLocale = i18n.language !== "en" ? i18n.language : null;
+        const targetPath = currentLocale
+          ? `/${currentLocale}${targetRoute}`
+          : targetRoute;
+        webviewRef.current?.injectJavaScript(`
+          window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
+          true;
+        `);
+      }, [path, stripLocale, i18n.language]),
     });
-
-  const stripLocale = useCallback(
-    (p: string) => p.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/"),
-    [],
-  );
 
   // Register escape-dispatch callback while this tab is focused so the tab bar
   // can close open menus (e.g. notifications) on any tab press.
@@ -150,7 +177,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       "/communities",
       "/events",
     ];
-    if (!tabRoots.includes(stripLocale(path))) {
+    if (!tabRoots.includes(stripLocale(path).split("?")[0])) {
       return;
     }
 
@@ -200,7 +227,7 @@ export default function WebEmbed({ path }: WebEmbedProps) {
         "/events",
       ];
 
-      if (!tabRoots.includes(stripLocale(path))) {
+      if (!tabRoots.includes(stripLocale(path).split("?")[0])) {
         return cleanup;
       }
 
@@ -288,6 +315,9 @@ export default function WebEmbed({ path }: WebEmbedProps) {
       } else if (payload?.type === "NATIVE_BACK") {
         if (canGoBackRef.current && webviewRef.current) {
           webviewRef.current.goBack();
+        } else if (onNativeBackFallback) {
+          // Detail page with no WebView history: navigate back to the originating tab.
+          onNativeBackFallback();
         } else {
           // Navigate the WebView back to this tab's root — don't call router.back()
           // which would exit the (tabs) group since detail routes are no longer
