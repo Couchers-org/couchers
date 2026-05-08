@@ -1,5 +1,5 @@
-# Weblate PRs must be merged using the merge strategy, otherwise we run into conflicts.
-# Enabling automerge at PR creation time helps ensure we merge correctly.
+# Sets Weblate PRs to automerge using the merge strategy,
+# which avoids later running into Weblate merge conflicts.
 name: Automerge Weblate PRs
 
 on:
