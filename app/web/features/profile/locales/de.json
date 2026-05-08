@@ -218,7 +218,12 @@
     "request_chars_remaining_other": "Bitte schreibe mindestens noch {{count}} Zeichen, um eine Host-Anfrage zu senden."
   },
   "message_form": {
-    "hosting_request_hint": "Möchtest du eine Host-Anfrage senden? Benutze stattdessen den <request>Anfragen</request>-Button."
+    "hosting_request_hint": "Sendest du eine Host-Anfrage? Verwende stattdessen den <request>Anfragen</request>-Button.",
+    "send_message": "Sende {{name}} eine Nachricht",
+    "message": "Nachricht",
+    "message_description": "Schreibe deine Nachricht...",
+    "message_empty": "Bitte schreib eine Nachricht.",
+    "success": "Nachricht gesendet!"
   },
   "response_rate_text_some": "Manchmal",
   "reference_filter_label": {
