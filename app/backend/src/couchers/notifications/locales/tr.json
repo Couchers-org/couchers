@@ -187,15 +187,31 @@
   },
   "gender": {
     "change": {
-      "event_description": "Profilinizde gösterilen cinsiyet değiştirildi"
+      "event_description": "Profilinizde gösterilen cinsiyet değiştirildi",
+      "push": {
+        "ios_title": "Cinsiyet Değiştirildi",
+        "body": "Bir yönetici cinsiyetinizi {{gender}} olarak değiştirdi."
+      }
     }
   },
   "host_request": {
     "accept": {
-      "event_description": "Birisi ev sahipliği isteğini kabul edince"
+      "event_description": "Birisi ev sahipliği isteğini kabul edince",
+      "push": {
+        "title": "{{user}} ev sahipliği isteğinizi kabul etti",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Ev Sahipliği İsteği Kabul Edildi",
+        "body": "{{user}}, {{date}} için ev sahipliği isteğinizi kabul etti."
+      }
     },
     "confirm": {
-      "event_description": "Birisi ev sahipliği isteğini onayladığında"
+      "event_description": "Birisi ev sahipliği isteğini onayladığında",
+      "push": {
+        "title": "{{user}}, ev sahibi isteklerini onayladı",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Ev Sahipliği İsteği Onaylandı",
+        "body": "{{user}}, {{date}} için kendi ev sahipliği isteğini onayladı."
+      }
     },
     "create": {
       "event_description": "Birisi sana bir ev sahipliği isteği yollayınca"
@@ -211,6 +227,15 @@
     },
     "reminder": {
       "event_description": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz"
+    },
+    "cancel": {
+      "event_description": "Birisi ev sahipliği isteğini iptal ettiğinde",
+      "push": {
+        "title": "{{user}} ev sahipliği isteğini iptal etti",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Ev Sahipliği İsteği İptal Edildi",
+        "body": "{{user}}, {{date}} için ev sahipliği isteğini iptal etti."
+      }
     }
   },
   "phone_number": {
@@ -235,6 +260,13 @@
   "thread": {
     "reply": {
       "event_description": "Birisi yorumuna cevap verdiğinde"
+    }
+  },
+  "general": {
+    "new_blog_post": {
+      "push": {
+        "ios_subtitle": "{{title}}"
+      }
     }
   }
 }
