@@ -41,7 +41,7 @@ export default function SignupFormContent({
         const data = await response.json();
         setSignupInfo(data);
       } catch (error) {
-        console.error("Error fetching signup info:", error);
+        console.warn("Error fetching signup info:", error);
       }
     };
 

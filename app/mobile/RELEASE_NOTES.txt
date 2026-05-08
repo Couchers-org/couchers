@@ -1,4 +1,5 @@
-- Fix issues with bottom tab navigation
-- Address tabs going gray after some time
-- Add back button to user profile on mobile to return to search results
-- Tapping bottom nav should close any open dropdowns like notifications
+Bug fixes and improvements:
+- Navigation tabs are more reliable and no longer go gray after some time
+- Added a back button when viewing profiles from search results
+- Tapping a tab now closes open menus like notifications
+- Links in the sign-up form now open in your browser instead of inside the app

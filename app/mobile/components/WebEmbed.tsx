@@ -360,12 +360,11 @@ export default function WebEmbed({
   }) => {
     const { targetUrl } = syntheticEvent.nativeEvent;
 
-    if (targetUrl.startsWith(WEB_BASE_URL)) {
+    if (shouldLoadInWebView(targetUrl, WEB_BASE_URL)) {
       webviewRef.current?.injectJavaScript(
         `window.location.href = "${targetUrl}"; true;`,
       );
     } else {
-      // External link: open in device's browser.
       Linking.openURL(targetUrl).catch((err) => {
         if (__DEV__) {
           console.error("Failed to open external link:", err);
@@ -425,7 +424,26 @@ export default function WebEmbed({
         onLoad={() => {
           hasLoadedRef.current = true;
         }}
-        onNavigationStateChange={handleNavigationStateChange}
+        onNavigationStateChange={(navState) => {
+          // SPA navigation (history.pushState) bypasses onShouldStartLoadWithRequest,
+          // so catch URLs that should open in the device browser here instead.
+          if (!navState.loading && navState.url) {
+            const url = navState.url.split("#")[0];
+            if (
+              url.startsWith(WEB_BASE_URL) &&
+              !shouldLoadInWebView(url, WEB_BASE_URL)
+            ) {
+              Linking.openURL(url).catch((err) => {
+                if (__DEV__) {
+                  console.error("Failed to open external URL:", err);
+                }
+              });
+              webviewRef.current?.injectJavaScript("history.back(); true;");
+              return;
+            }
+          }
+          handleNavigationStateChange(navState);
+        }}
         onContentProcessDidTerminate={() => webviewRef.current?.reload()}
         onShouldStartLoadWithRequest={handleShouldStartLoad}
         onOpenWindow={handleOpenWindow}

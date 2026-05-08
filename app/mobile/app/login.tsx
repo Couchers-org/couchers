@@ -2,7 +2,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Href, useRouter } from "expo-router";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import { useCallback, useState } from "react";
-import { Appearance, BackHandler, useColorScheme } from "react-native";
+import { Appearance, BackHandler, Linking, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 
@@ -12,6 +12,7 @@ import client from "@/service/client";
 import { lastLoginTimeRef } from "@/state/webViewState";
 import { theme } from "@/theme";
 import { applicationNameForUserAgent } from "@/utils/userAgent";
+import { shouldLoadInWebView } from "@/utils/webViewUrlUtils";
 
 // Polls getAuthState until the session cookie has synced from WKHTTPCookieStore
 // to NSHTTPCookieStorage. New WebViews (sharedCookiesEnabled) read from
@@ -100,6 +101,19 @@ export default function LoginScreen() {
         applicationNameForUserAgent={applicationNameForUserAgent}
         sharedCookiesEnabled
         onMessage={handleMessage}
+        onShouldStartLoadWithRequest={(event) => {
+          if (shouldLoadInWebView(event.url, WEB_BASE_URL)) {
+            return true;
+          }
+          Linking.openURL(event.url).catch(() => {});
+          return false;
+        }}
+        onOpenWindow={(syntheticEvent) => {
+          const { targetUrl } = syntheticEvent.nativeEvent;
+          if (!shouldLoadInWebView(targetUrl, WEB_BASE_URL)) {
+            Linking.openURL(targetUrl).catch(() => {});
+          }
+        }}
       />
     </SafeAreaView>
   );
