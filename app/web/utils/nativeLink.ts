@@ -36,7 +36,11 @@ export function useIsNativeEmbed(): boolean {
   );
 }
 
-type MessageType = "sendState" | "clearState" | "REQUEST_IMAGE_PICK" | "NATIVE_BACK";
+type MessageType =
+  | "sendState"
+  | "clearState"
+  | "REQUEST_IMAGE_PICK"
+  | "NATIVE_BACK";
 
 function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;

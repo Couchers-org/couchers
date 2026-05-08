@@ -20,7 +20,6 @@ import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
-import { useIsNativeEmbed } from "utils/nativeLink";
 import {
   ParkingDetails,
   SleepingArrangement,
@@ -31,6 +30,7 @@ import { Controller, useForm, UseFormReturn } from "react-hook-form";
 import { HostingPreferenceData } from "service";
 import { theme } from "theme";
 import { useUnsavedChangesWarning } from "utils/hooks";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 
