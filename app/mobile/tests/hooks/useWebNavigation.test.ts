@@ -303,6 +303,82 @@ describe("useWebNavigation", () => {
     });
   });
 
+  describe("prepareGoBack", () => {
+    it("is returned from the hook", () => {
+      const syncTargetPathRef = { current: null };
+      const { result } = renderHook(() =>
+        useWebNavigation({
+          webBaseUrl: mockWebBaseUrl,
+          currentPath: "/search",
+          syncTargetPathRef,
+        }),
+      );
+
+      expect(typeof result.current.prepareGoBack).toBe("function");
+    });
+
+    it("prevents a stale detail URL event from re-triggering navigation after goBack", () => {
+      const syncTargetPathRef = { current: null };
+      const { result } = renderHook(() =>
+        useWebNavigation({
+          webBaseUrl: mockWebBaseUrl,
+          currentPath: "/search",
+          syncTargetPathRef,
+        }),
+      );
+
+      // Navigate to detail page — fires native navigation
+      result.current.handleNavigationStateChange(
+        createNavState(`${mockWebBaseUrl}/user/123`, false),
+      );
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/user/123");
+      mockRouter.navigate.mockClear();
+
+      // prepareGoBack called just before goBack()
+      result.current.prepareGoBack();
+
+      // Stale iOS event fires for the detail URL (before back navigation completes)
+      result.current.handleNavigationStateChange(
+        createNavState(`${mockWebBaseUrl}/user/123`, false),
+      );
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+
+      // Actual back navigation completes — WebView arrives at search results
+      result.current.handleNavigationStateChange(
+        createNavState(`${mockWebBaseUrl}/search?page=3&location=xyz`, false),
+      );
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+      expect(result.current.currentWebPathRef.current).toBe(
+        "/search?page=3&location=xyz",
+      );
+    });
+
+    it("preserves locale prefix in skipNextDetailRef so the stale event path matches", () => {
+      const syncTargetPathRef = { current: null };
+      const { result } = renderHook(() =>
+        useWebNavigation({
+          webBaseUrl: mockWebBaseUrl,
+          currentPath: "/search",
+          syncTargetPathRef,
+        }),
+      );
+
+      // Navigate to locale-prefixed detail page
+      result.current.handleNavigationStateChange(
+        createNavState(`${mockWebBaseUrl}/en/user/123`, false),
+      );
+      mockRouter.navigate.mockClear();
+
+      result.current.prepareGoBack();
+
+      // Stale event fires with locale-prefixed path — must be caught
+      result.current.handleNavigationStateChange(
+        createNavState(`${mockWebBaseUrl}/en/user/123`, false),
+      );
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+  });
+
   describe("canGoBack tracking", () => {
     it("updates canGoBackRef when navigation state changes", () => {
       const syncTargetPathRef = { current: null };

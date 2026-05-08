@@ -69,37 +69,19 @@ export default function WebEmbed({
     [],
   );
 
-  const { handleNavigationStateChange, canGoBackRef, currentWebPathRef } =
-    useWebNavigation({
-      webBaseUrl: WEB_BASE_URL,
-      currentPath: path,
-      syncTargetPathRef,
-      onRetryCountReset: () => {
-        retryCountRef.current = 0;
-      },
-      onDetailNavigation: useCallback(() => {
-        // Pre-navigate to the tab root in the background so returning shows no flash.
-        const tabRoots = [
-          "/dashboard",
-          "/messages",
-          "/search",
-          "/communities",
-          "/events",
-        ];
-        const targetRoute = stripLocale(path);
-        if (!tabRoots.includes(targetRoute.split("?")[0])) {
-          return;
-        }
-        const currentLocale = i18n.language !== "en" ? i18n.language : null;
-        const targetPath = currentLocale
-          ? `/${currentLocale}${targetRoute}`
-          : targetRoute;
-        webviewRef.current?.injectJavaScript(`
-          window.postMessage(${JSON.stringify({ type: "MOBILE_NAVIGATE", path: targetPath })}, "*");
-          true;
-        `);
-      }, [path, stripLocale, i18n.language]),
-    });
+  const {
+    handleNavigationStateChange,
+    canGoBackRef,
+    currentWebPathRef,
+    prepareGoBack,
+  } = useWebNavigation({
+    webBaseUrl: WEB_BASE_URL,
+    currentPath: path,
+    syncTargetPathRef,
+    onRetryCountReset: () => {
+      retryCountRef.current = 0;
+    },
+  });
 
   // Register escape-dispatch callback while this tab is focused so the tab bar
   // can close open menus (e.g. notifications) on any tab press.
@@ -207,6 +189,31 @@ export default function WebEmbed({
         return cleanup;
       }
 
+      const tabRoots = [
+        "/dashboard",
+        "/messages",
+        "/search",
+        "/communities",
+        "/events",
+      ];
+
+      // If the WebView is on a detail page (e.g. /user/username) and we have
+      // WebView history to go back through, use native back navigation so the
+      // browser's bfcache restores the exact search state (page number, scroll
+      // position) rather than remounting the page from scratch.
+      const strippedCurrentPath = stripLocale(currentWebPathRef.current).split(
+        "?",
+      )[0];
+      if (
+        !tabRoots.includes(strippedCurrentPath) &&
+        canGoBackRef.current &&
+        tabRoots.includes(stripLocale(path).split("?")[0])
+      ) {
+        prepareGoBack();
+        webviewRef.current?.goBack();
+        return cleanup;
+      }
+
       const targetRoute = stripLocale(path);
       const currentLocale = i18n.language !== "en" ? i18n.language : null;
       const targetPath = currentLocale
@@ -219,14 +226,6 @@ export default function WebEmbed({
       }
 
       // [..slug] WebEmbed: don't sync back to the original detail path.
-      const tabRoots = [
-        "/dashboard",
-        "/messages",
-        "/search",
-        "/communities",
-        "/events",
-      ];
-
       if (!tabRoots.includes(stripLocale(path).split("?")[0])) {
         return cleanup;
       }
@@ -238,7 +237,14 @@ export default function WebEmbed({
       `);
 
       return cleanup;
-    }, [path, stripLocale, i18n.language, currentWebPathRef]),
+    }, [
+      path,
+      stripLocale,
+      i18n.language,
+      currentWebPathRef,
+      canGoBackRef,
+      prepareGoBack,
+    ]),
   );
 
   // Reload WebView if it's been backgrounded for more than 30 minutes.

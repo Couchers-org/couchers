@@ -13,13 +13,13 @@ interface UseWebNavigationOptions {
   currentPath: string;
   syncTargetPathRef: React.RefObject<string | null>;
   onRetryCountReset?: () => void;
-  onDetailNavigation?: () => void;
 }
 
 interface UseWebNavigationReturn {
   handleNavigationStateChange: (navState: WebViewNavigation) => void;
   canGoBackRef: React.RefObject<boolean>;
   currentWebPathRef: React.RefObject<string>;
+  prepareGoBack: () => void;
 }
 
 /**
@@ -30,7 +30,6 @@ export function useWebNavigation({
   currentPath,
   syncTargetPathRef,
   onRetryCountReset,
-  onDetailNavigation,
 }: UseWebNavigationOptions): UseWebNavigationReturn {
   const router = useRouter();
   const { i18n } = useTranslation();
@@ -189,9 +188,9 @@ export function useWebNavigation({
           detailRouteOriginRef.current = currentPath;
           lastMobileNavigationRef.current = detailPath;
           router.navigate(detailPath as Href);
-          // Set skip ref now so the stale iOS replay after onDetailNavigation's MOBILE_NAVIGATE is caught.
+          // Prime skipNextDetailRef so the stale iOS WKWebView replay event fired
+          // after goBack() (in useFocusEffect) is silently dropped.
           skipNextDetailRef.current = webPathWithoutQuery;
-          onDetailNavigation?.();
         } else {
           // navigate() switches the active tab in place; push() would add a root-level
           // (tabs) stack entry and flash the dashboard before settling on the target tab.
@@ -208,7 +207,6 @@ export function useWebNavigation({
       webBaseUrl,
       currentPath,
       onRetryCountReset,
-      onDetailNavigation,
       extractLocaleFromPath,
       getRouteNameForPath,
       router,
@@ -216,9 +214,20 @@ export function useWebNavigation({
     ],
   );
 
+  // Call this immediately before webviewRef.goBack() when returning from a detail
+  // route. It re-primes skipNextDetailRef so that any stale iOS WKWebView event
+  // fired after the back navigation is silently dropped instead of re-triggering
+  // a detail route navigation. Must NOT strip the locale prefix — the check in
+  // handleNavigationStateChange compares against webPathWithoutQuery which still
+  // has it.
+  const prepareGoBack = useCallback(() => {
+    skipNextDetailRef.current = currentWebPathRef.current.split("?")[0];
+  }, []);
+
   return {
     handleNavigationStateChange,
     canGoBackRef,
     currentWebPathRef,
+    prepareGoBack,
   };
 }
