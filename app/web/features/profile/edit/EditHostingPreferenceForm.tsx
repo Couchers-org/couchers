@@ -20,6 +20,7 @@ import ProfileMarkdownInput from "features/profile/ProfileMarkdownInput";
 import ProfileTextInput from "features/profile/ProfileTextInput";
 import { useTranslation } from "i18n";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
+import { useIsNativeEmbed } from "utils/nativeLink";
 import {
   ParkingDetails,
   SleepingArrangement,
@@ -111,27 +112,36 @@ const CheckboxItem = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1),
 }));
 
-const StickySaveBar = styled(Box)(({ theme }) => ({
-  position: "fixed",
-  bottom: 0,
-  left: 0,
-  right: 0,
-  backgroundColor: "var(--mui-palette-background-paper)",
-  borderTop: `1px solid var(--mui-palette-grey-200)`,
-  boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
-  padding: theme.spacing(1.5, 3),
-  zIndex: 1200,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: theme.spacing(2),
+const StickySaveBar = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "$isNativeEmbed",
+})<{ $isNativeEmbed?: boolean }>(({ theme, $isNativeEmbed }) => {
+  const bottomNavHeight = $isNativeEmbed ? 0 : 55;
+  const safePadding = $isNativeEmbed
+    ? theme.spacing(1)
+    : `calc(${theme.spacing(1)} + env(safe-area-inset-bottom, 0px))`;
 
-  [theme.breakpoints.down("md")]: {
-    bottom: 56,
-    padding: theme.spacing(1, 2, 2, 2),
-    paddingBottom: `calc(${theme.spacing(2)} + env(safe-area-inset-bottom, 0px))`,
-  },
-}));
+  return {
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "var(--mui-palette-background-paper)",
+    borderTop: `1px solid var(--mui-palette-grey-200)`,
+    boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.1)",
+    padding: theme.spacing(1.5, 3),
+    zIndex: 1200,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: theme.spacing(2),
+
+    [theme.breakpoints.down("md")]: {
+      bottom: bottomNavHeight,
+      padding: theme.spacing(1),
+      paddingBottom: safePadding,
+    },
+  };
+});
 
 const SaveButton = styled(Button)(({ theme }) => ({
   minWidth: 200,
@@ -195,11 +205,11 @@ const KeyBullet = styled(Box)(({ theme }) => ({
   flexShrink: 0,
 }));
 
-const KeyText = styled(Typography)(({ theme }) => ({
+const KeyText = styled(Typography)({
   fontSize: "0.875rem",
   color: "var(--mui-palette-text-secondary)",
   lineHeight: 1.4,
-}));
+});
 
 function HostingPreferenceCheckbox({
   className,
@@ -226,6 +236,7 @@ export default function HostingPreferenceForm({
   user: HostingPreferenceData;
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
+  const isNativeEmbed = useIsNativeEmbed();
 
   const {
     updateHostingPreferences,
@@ -697,7 +708,7 @@ export default function HostingPreferenceForm({
         <BottomSpacer />
 
         {formState.isDirty && (
-          <StickySaveBar>
+          <StickySaveBar $isNativeEmbed={isNativeEmbed}>
             <SaveButton
               type="submit"
               variant="contained"
