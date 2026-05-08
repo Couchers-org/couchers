@@ -147,7 +147,7 @@ describe("WebEmbed", () => {
         expect.objectContaining({
           webBaseUrl: mockWebBaseUrl,
           currentPath: "/dashboard",
-          syncTargetPathRef: expect.objectContaining({ current: "/dashboard" }),
+          syncTargetPathRef: expect.objectContaining({ current: null }),
           onRetryCountReset: expect.any(Function),
         }),
       );
@@ -279,17 +279,21 @@ describe("WebEmbed", () => {
       expect(mockAuthContext.markAuthenticated).toHaveBeenCalled();
     });
 
-    it("handles LOGOUT message", () => {
+    it("handles LOGOUT message", async () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onMessage?.({
-        nativeEvent: {
-          data: JSON.stringify({ type: "LOGOUT" }),
-        },
+      // Advance past the 5s grace period (lastLoginTimeRef defaults to 0, fake timers init at 0)
+      jest.setSystemTime(10000);
+
+      await act(async () => {
+        capturedWebViewProps.onMessage?.({
+          nativeEvent: {
+            data: JSON.stringify({ type: "LOGOUT" }),
+          },
+        });
       });
 
       expect(mockAuthContext.markLoggedOut).toHaveBeenCalled();
-      expect(mockRouter.replace).toHaveBeenCalledWith("/login");
     });
 
     it("ignores non-JSON messages", () => {

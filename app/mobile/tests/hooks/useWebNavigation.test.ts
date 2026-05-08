@@ -6,7 +6,6 @@ import { useWebNavigation } from "@/hooks/useWebNavigation";
 
 const mockWebBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL!;
 
-// Helper to create WebViewNavigation object with all required properties
 const createNavState = (
   url: string,
   loading: boolean,
@@ -57,7 +56,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/messages`, false),
       );
 
-      expect(mockRouter.push).toHaveBeenCalledWith("/messages");
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/messages");
     });
 
     it("navigates to search tab when WebView navigates to /search", () => {
@@ -74,7 +73,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/search`, false),
       );
 
-      expect(mockRouter.push).toHaveBeenCalledWith("/search");
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
     });
 
     it("navigates to communities tab when WebView navigates to /communities", () => {
@@ -91,10 +90,11 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/communities`, false),
       );
 
-      expect(mockRouter.push).toHaveBeenCalledWith("/communities");
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/communities");
     });
 
-    it("does not switch native screen when navigating from tab to catch-all route", () => {
+    it("navigates to the detail path when WebView navigates to a detail page", () => {
+      // Detail pages navigate to [..slug] so no tab is highlighted.
       const syncTargetPathRef = { current: null };
       const { result } = renderHook(() =>
         useWebNavigation({
@@ -108,8 +108,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/user/123`, false),
       );
 
-      // WebView handles the navigation internally; native router stays on tab
-      expect(mockRouter.push).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/user/123");
     });
 
     it("triggers native navigation from catch-all to tab route", () => {
@@ -126,7 +125,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/dashboard`, false),
       );
 
-      expect(mockRouter.push).toHaveBeenCalledWith("/dashboard");
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/dashboard");
     });
 
     it("does not navigate when URL is still loading", () => {
@@ -143,10 +142,12 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/messages`, true),
       );
 
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
       expect(mockRouter.push).not.toHaveBeenCalled();
     });
 
-    it("does not switch native screen for detail pages when on a tab", () => {
+    it("navigates to the detail path for sub-routes of tabs", () => {
+      // Sub-routes like /messages/123 are detail pages — they navigate to [..slug].
       const syncTargetPathRef = { current: null };
       const { result } = renderHook(() =>
         useWebNavigation({
@@ -160,8 +161,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/messages/123`, false),
       );
 
-      // WebView handles sub-route navigation; native router stays on messages tab
-      expect(mockRouter.push).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/messages/123");
     });
 
     it("strips hash fragments from URL when navigating to main tabs", () => {
@@ -178,7 +178,7 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/search#10/40.7127/-74.006`, false),
       );
 
-      expect(mockRouter.push).toHaveBeenCalledWith("/search");
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/search");
     });
 
     it("does not trigger navigation for query parameter changes on same route", () => {
@@ -195,60 +195,34 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/user/username?tab=about`, false),
       );
 
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
       expect(mockRouter.push).not.toHaveBeenCalled();
 
       result.current.handleNavigationStateChange(
         createNavState(`${mockWebBaseUrl}/user/username?tab=home`, false),
       );
 
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
       expect(mockRouter.push).not.toHaveBeenCalled();
     });
   });
 
   describe("tab mapping", () => {
     const testCases = [
-      { webPath: "/dashboard", expectedTab: "dashboard", expectedPath: null },
-      {
-        webPath: "/dashboard/settings",
-        expectedTab: null,
-        expectedPath: null, // From dashboard tab to catch-all: stays on tab
-      },
-      {
-        webPath: "/messages",
-        expectedTab: "messages",
-        expectedPath: "/messages",
-      },
-      {
-        webPath: "/messages/123",
-        expectedTab: null,
-        expectedPath: null, // From dashboard tab to catch-all: stays on tab
-      },
-      { webPath: "/search", expectedTab: "search", expectedPath: "/search" },
-      {
-        webPath: "/search?query=test",
-        expectedTab: "search",
-        expectedPath: "/search?query=test",
-      },
-      {
-        webPath: "/communities",
-        expectedTab: "communities",
-        expectedPath: "/communities",
-      },
-      {
-        webPath: "/communities/456",
-        expectedTab: null,
-        expectedPath: null, // From dashboard tab to catch-all: stays on tab
-      },
-      { webPath: "/events", expectedTab: "events", expectedPath: "/events" },
-      {
-        webPath: "/user/789",
-        expectedTab: null,
-        expectedPath: null, // From dashboard tab to catch-all: stays on tab
-      },
+      { webPath: "/dashboard", expectedPath: null }, // same route, no navigation
+      { webPath: "/dashboard/settings", expectedPath: "/dashboard/settings" }, // detail → [..slug]
+      { webPath: "/messages", expectedPath: "/messages" },
+      { webPath: "/messages/123", expectedPath: "/messages/123" }, // detail → [..slug]
+      { webPath: "/search", expectedPath: "/search" },
+      { webPath: "/search?query=test", expectedPath: "/search?query=test" },
+      { webPath: "/communities", expectedPath: "/communities" },
+      { webPath: "/communities/456", expectedPath: "/communities/456" }, // detail → [..slug]
+      { webPath: "/events", expectedPath: "/events" },
+      { webPath: "/user/789", expectedPath: "/user/789" }, // detail → [..slug]
     ];
 
-    testCases.forEach(({ webPath, expectedTab, expectedPath }) => {
-      it(`maps ${webPath} to tab: ${expectedTab}`, () => {
+    testCases.forEach(({ webPath, expectedPath }) => {
+      it(`maps ${webPath} correctly`, () => {
         const syncTargetPathRef = { current: null };
         const { result } = renderHook(() =>
           useWebNavigation({
@@ -258,21 +232,16 @@ describe("useWebNavigation", () => {
           }),
         );
 
-        mockRouter.push.mockClear();
+        mockRouter.navigate.mockClear();
 
         result.current.handleNavigationStateChange(
           createNavState(`${mockWebBaseUrl}${webPath}`, false),
         );
 
-        if (expectedTab === "dashboard") {
-          // Same tab - no navigation
-          expect(mockRouter.push).not.toHaveBeenCalled();
-        } else if (expectedPath) {
-          // Different route - navigate (main tabs or catch-all)
-          expect(mockRouter.push).toHaveBeenCalledWith(expectedPath);
+        if (expectedPath) {
+          expect(mockRouter.navigate).toHaveBeenCalledWith(expectedPath);
         } else {
-          // Sub-route of same tab - no navigation
-          expect(mockRouter.push).not.toHaveBeenCalled();
+          expect(mockRouter.navigate).not.toHaveBeenCalled();
         }
       });
     });
@@ -293,15 +262,16 @@ describe("useWebNavigation", () => {
         createNavState(`${mockWebBaseUrl}/messages`, false),
       );
 
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
       expect(mockRouter.push).not.toHaveBeenCalled();
     });
 
-    it("clears sync target when sync navigation completes", () => {
+    it("clears sync target when sync navigation completes on same route", () => {
       const syncTargetPathRef = { current: "/dashboard" };
       const { result } = renderHook(() =>
         useWebNavigation({
           webBaseUrl: mockWebBaseUrl,
-          currentPath: "/messages",
+          currentPath: "/dashboard",
           syncTargetPathRef,
         }),
       );
@@ -311,7 +281,25 @@ describe("useWebNavigation", () => {
       );
 
       expect(syncTargetPathRef.current).toBeNull();
-      expect(mockRouter.push).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+
+    it("clears sync target and navigates when sync navigation reaches a different route", () => {
+      const syncTargetPathRef = { current: "/messages" };
+      const { result } = renderHook(() =>
+        useWebNavigation({
+          webBaseUrl: mockWebBaseUrl,
+          currentPath: "/dashboard",
+          syncTargetPathRef,
+        }),
+      );
+
+      result.current.handleNavigationStateChange(
+        createNavState(`${mockWebBaseUrl}/messages`, false),
+      );
+
+      expect(syncTargetPathRef.current).toBeNull();
+      expect(mockRouter.navigate).toHaveBeenCalledWith("/messages");
     });
   });
 

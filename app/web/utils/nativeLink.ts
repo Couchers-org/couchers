@@ -36,13 +36,21 @@ export function useIsNativeEmbed(): boolean {
   );
 }
 
-type MessageType = "sendState" | "clearState" | "REQUEST_IMAGE_PICK";
+type MessageType =
+  | "sendState"
+  | "clearState"
+  | "REQUEST_IMAGE_PICK"
+  | "NATIVE_BACK";
 
 function sendToNative(type: MessageType, data: unknown) {
   if (!isNativeEmbed()) return;
   getReactNativeWebView()!.postMessage(
     JSON.stringify({ type: type, data: data }),
   );
+}
+
+export function sendNativeBack() {
+  sendToNative("NATIVE_BACK", {});
 }
 
 export function sendState<T>(key: string, value: T) {
