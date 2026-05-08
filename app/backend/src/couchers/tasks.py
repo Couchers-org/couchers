@@ -169,7 +169,7 @@ def send_event_community_invite_request_email(session: Session, request: EventCo
         template_args={
             "event_link": urls.event_link(occurrence_id=request.occurrence.id, slug=request.occurrence.event.slug),
             "user_link": urls.user_link(username=request.user.username),
-            "view_link": urls.console_link(page="admin/community-invites"),
+            "view_link": urls.console_link(page="tools/community-invites"),
         },
     )
 
