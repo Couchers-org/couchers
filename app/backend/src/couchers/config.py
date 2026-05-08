@@ -6,7 +6,8 @@ import dataclasses
 import os
 import typing
 from collections.abc import Mapping
-from typing import Any, ClassVar, Literal, Self, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self
+
 
 class ConfigMetaclass(type):
     _current: Config | None = None
@@ -21,6 +22,7 @@ class ConfigMetaclass(type):
     @current.setter
     def current(cls, value: Config | None) -> None:
         cls._current = value
+
 
 @dataclasses.dataclass(kw_only=True)
 class Config(metaclass=ConfigMetaclass):

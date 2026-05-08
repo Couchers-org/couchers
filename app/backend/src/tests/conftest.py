@@ -22,11 +22,11 @@ from tests.fixtures.db import (  # noqa: E402
 )
 from tests.fixtures.misc import Moderator, PushCollector  # noqa: E402
 
-
 # Default for running with a database from docker-compose.test.yml.
 database_connection_string = os.environ.get(
     "DATABASE_CONNECTION_STRING",
-    "postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/testdb")
+    "postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@localhost:6544/testdb",
+)
 
 
 @pytest.fixture(scope="session")

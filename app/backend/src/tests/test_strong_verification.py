@@ -238,7 +238,9 @@ def config_enable_strong_verification():
     Config.current.enable_strong_verification = True
     Config.current.iris_id_pubkey = "dummy_pubkey"
     Config.current.iris_id_secret = "dummy_secret"
-    Config.current.verification_data_public_key = bytes.fromhex("dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f")
+    Config.current.verification_data_public_key = bytes.fromhex(
+        "dd740a2b2a35bf05041a28257ea439b30f76f056f3698000b71e6470cd82275f"
+    )
 
     private_key = bytes.fromhex("e6c2fbf3756b387bc09a458a7b85935718ef3eb1c2777ef41d335c9f6c0ab272")
 
