@@ -5,7 +5,7 @@ from email.utils import make_msgid
 from pathlib import Path
 from typing import cast
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.crypto import EMAIL_SOURCE_DATA_KEY_NAME, random_hex, simple_hash_signature
 from couchers.models import Email
 from couchers.proto.internal import jobs_pb2
@@ -21,7 +21,7 @@ def make_cid(sender_email: str) -> tuple[str, str]:
 
 def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
     """
-    Sends out the email through SMTP, settings from config.
+    Sends out the email through SMTP, settings from Config.current.
 
     Returns a models.Email object that can be straight away added to the database.
     """
@@ -68,13 +68,13 @@ def send_smtp_email(payload: jobs_pb2.SendEmailPayload) -> Email:
                 attachment.data, maintype=mime_maintype, subtype=mime_subtype, filename=attachment.filename
             )
 
-    with smtplib.SMTP(config.smtp_host, config.smtp_port) as server:
+    with smtplib.SMTP(Config.current.smtp_host, Config.current.smtp_port) as server:
         server.ehlo()
-        if not config.dev:
+        if not Config.current.dev:
             server.starttls()
             # stmplib docs recommend calling ehlo() before and after starttls()
             server.ehlo()
-            server.login(config.smtp_username, config.smtp_password)
+            server.login(Config.current.smtp_username, Config.current.smtp_password)
         server.sendmail(payload.sender_email, payload.recipient, msg.as_string())
 
     return Email(

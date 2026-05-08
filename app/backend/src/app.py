@@ -17,7 +17,7 @@ import sentry_sdk
 from sentry_sdk.integrations import excepthook
 from sqlalchemy.sql import text
 
-from couchers.config import check_config, config
+from couchers.config import Config
 from couchers.db import apply_migrations, session_scope
 from couchers.experimentation import setup_experimentation
 from couchers.i18n.localize import get_main_i18next
@@ -27,7 +27,7 @@ from couchers.server import create_main_server, create_media_server
 from couchers.tracing import setup_tracing
 from dummy_data import add_dummy_data
 
-check_config(config)
+Config.current = Config.from_env()
 
 logging.basicConfig(
     format="[%(process)5d:%(thread)20d] %(asctime)s: %(name)s:%(lineno)d: %(message)s", level=logging.INFO
@@ -51,13 +51,13 @@ def log_unhandled_exception(
 def common_init() -> None:
     sys.excepthook = log_unhandled_exception
 
-    if config.sentry_enabled:
+    if Config.current.sentry_enabled:
         # Sends exception tracebacks to Sentry, a cloud service for collecting exceptions
         sentry_sdk.init(
-            config.sentry_url,
+            Config.current.sentry_url,
             traces_sample_rate=0.0,
-            environment=config.cookie_domain,
-            release=config.version,
+            environment=Config.current.cookie_domain,
+            release=Config.current.version,
             # The global excepthook picks up already handled gRPC errors (e.g. grpc.StatusCode.NOT_FOUND)
             disabled_integrations=[
                 excepthook.ExcepthookIntegration(),
@@ -81,16 +81,16 @@ def main() -> None:
 
     get_main_i18next()  # Force eager loading of translations
 
-    if config.add_dummy_data:
+    if Config.current.add_dummy_data:
         add_dummy_data()
 
     logger.info("Starting")
 
-    if config.role in ["scheduler", "all"]:
+    if Config.current.role in ["scheduler", "all"]:
         start_jobs_scheduler()
 
-    if config.role in ["worker", "all"]:
-        for _ in range(config.background_worker_count):
+    if Config.current.role in ["worker", "all"]:
+        for _ in range(Config.current.background_worker_count):
             start_jobs_worker()
 
     setup_tracing()
@@ -101,7 +101,7 @@ def main() -> None:
     # Worker processes initialize their own instance in _run_forever().
     setup_experimentation()
 
-    if config.role in ["api", "all"]:
+    if Config.current.role in ["api", "all"]:
         server = create_main_server(port=1751)
         server.start()
         media_server = create_media_server(port=1753)

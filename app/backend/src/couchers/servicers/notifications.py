@@ -8,7 +8,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import or_
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import CouchersContext
 from couchers.i18n import LocalizationContext
@@ -43,7 +43,7 @@ MAX_PAGINATION_LENGTH = 100
 
 @functools.cache
 def get_vapid_public_key() -> str:
-    return get_vapid_public_key_from_private_key(config.push_notifications_vapid_private_key)
+    return get_vapid_public_key_from_private_key(Config.current.push_notifications_vapid_private_key)
 
 
 def notification_to_pb(user: User, notification: Notification) -> notifications_pb2.Notification:
@@ -159,7 +159,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
     def GetVapidPublicKey(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> notifications_pb2.GetVapidPublicKeyRes:
-        if not config.push_notifications_enabled:
+        if not Config.current.push_notifications_enabled:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         return notifications_pb2.GetVapidPublicKeyRes(vapid_public_key=get_vapid_public_key())
@@ -170,7 +170,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         context: CouchersContext,
         session: Session,
     ) -> empty_pb2.Empty:
-        if not config.push_notifications_enabled:
+        if not Config.current.push_notifications_enabled:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         data = json.loads(request.full_subscription_json)
@@ -205,7 +205,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
     def SendTestPushNotification(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        if not config.push_notifications_enabled:
+        if not Config.current.push_notifications_enabled:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         push_to_user(
@@ -227,7 +227,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         context: CouchersContext,
         session: Session,
     ) -> empty_pb2.Empty:
-        if not config.push_notifications_enabled:
+        if not Config.current.push_notifications_enabled:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         # Check for existing subscription with this token
@@ -272,7 +272,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
     def SendTestMobilePushNotification(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        if not config.push_notifications_enabled:
+        if not Config.current.push_notifications_enabled:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         push_to_user(
@@ -291,10 +291,10 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
     def SendDevPushNotification(
         self, request: notifications_pb2.SendDevPushNotificationReq, context: CouchersContext, session: Session
     ) -> empty_pb2.Empty:
-        if not config.enable_dev_apis:
+        if not Config.current.enable_dev_apis:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "dev_apis_disabled")
 
-        if not config.push_notifications_enabled:
+        if not Config.current.push_notifications_enabled:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         push_to_user(
@@ -320,10 +320,10 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         context: CouchersContext,
         session: Session,
     ) -> empty_pb2.Empty:
-        if not config.enable_dev_apis:
+        if not Config.current.enable_dev_apis:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "dev_apis_disabled")
 
-        if not config.push_notifications_enabled:
+        if not Config.current.push_notifications_enabled:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()

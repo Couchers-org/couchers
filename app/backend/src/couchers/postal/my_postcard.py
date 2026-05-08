@@ -9,7 +9,7 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 
 from couchers import urls
-from couchers.config import config
+from couchers.config import Config
 from couchers.resources import (
     get_postcard_back_left_template,
     get_postcard_font,
@@ -66,9 +66,9 @@ def _generate_back_left_side_png(verification_code: str) -> bytes:
 
 def _credentials() -> dict[str, str]:
     return {
-        "api_key": config.mypostcard_api_key,
-        "username": config.mypostcard_username,
-        "password": config.mypostcard_password,
+        "api_key": Config.current.mypostcard_api_key,
+        "username": Config.current.mypostcard_username,
+        "password": Config.current.mypostcard_password,
     }
 
 
@@ -107,12 +107,12 @@ def _place_order(
     response = requests.post(
         f"{API_BASE}/place_order",
         data={
-            "api_key": config.mypostcard_api_key,
+            "api_key": Config.current.mypostcard_api_key,
             "auth_token": auth_token,
-            "product_code": config.mypostcard_product_code,
+            "product_code": Config.current.mypostcard_product_code,
             "image_type": "png",
             "job_data": json.dumps(job_data),
-            "campaign_id": config.mypostcard_campaign_id,
+            "campaign_id": Config.current.mypostcard_campaign_id,
         },
         files={
             "photo": ("postcard.png", front_page, "image/png"),

@@ -5,9 +5,7 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 from sqlalchemy import func, select, update
 
-import couchers.email
-import couchers.jobs.handlers
-from couchers.config import config
+from couchers.config import Config
 from couchers.crypto import b64decode, random_hex, urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.models import (
@@ -314,7 +312,7 @@ def test_do_not_email_non_security_unsublink(db):
     assert "/quick-link?payload=" in e.html
 
 
-def test_email_prefix_config(db, monkeypatch):
+def test_email_prefix_config(db):
     user, _ = generate_user()
 
     with mock_notification_email() as mock:
@@ -336,12 +334,9 @@ def test_email_prefix_config(db, monkeypatch):
     assert e.sender_email == "notify@couchers.org.invalid"
     assert e.subject == "[TEST] Thank you for your donation to Couchers.org!"
 
-    new_config = config.copy()
-    new_config.notification_email_sender = "TestCo"
-    new_config.notification_email_address = "testco@testing.co.invalid"
-    new_config.notification_prefix = ""
-
-    monkeypatch.setattr(couchers.notifications.background, "config", new_config)
+    Config.current.notification_email_sender = "TestCo"
+    Config.current.notification_email_address = "testco@testing.co.invalid"
+    Config.current.notification_prefix = ""
 
     with mock_notification_email() as mock:
         with session_scope() as session:
@@ -363,13 +358,10 @@ def test_email_prefix_config(db, monkeypatch):
     assert e.subject == "Thank you for your donation to Couchers.org!"
 
 
-def test_send_donation_email(db, monkeypatch):
+def test_send_donation_email(db):
     user, _ = generate_user(name="Testy von Test", email="testing@couchers.org.invalid")
 
-    new_config = config.copy()
-    new_config.enable_email = True
-
-    monkeypatch.setattr(couchers.jobs.handlers, "config", new_config)
+    Config.current.enable_email = True
 
     with session_scope() as session:
         notify(

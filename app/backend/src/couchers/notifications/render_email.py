@@ -5,7 +5,7 @@ from typing import Any
 
 import couchers.email.emails as emails
 from couchers import urls
-from couchers.config import config
+from couchers.config import Config
 from couchers.email.calendar_events import create_host_request_attachment, create_host_request_cancellation_attachment
 from couchers.email.rendering import (
     EmailFooter,
@@ -60,7 +60,7 @@ def render_email_notification(
         body_html = render_html_body(
             subject=subject, preview=preview, blocks=body_blocks, footer=footer, loc_context=loc_context
         )
-        source_data = f"notification; topic-action={notification.topic_action}; version={config.version}"
+        source_data = f"notification; topic-action={notification.topic_action}; version={Config.current.version}"
     else:
         # Email is still a custom-templated, nonlocalizable email.
         custom_templated = _get_custom_templated_email(notification, loc_context)
@@ -88,10 +88,10 @@ def render_email_notification(
         )
         body_html = html_tmplt.render(template_args, loc_context)
 
-        source_data = config.version + f"/{custom_templated.template_name}"
+        source_data = Config.current.version + f"/{custom_templated.template_name}"
 
     list_unsubscribe_header = get_list_unsubscribe_header(notification)
-    if config.enable_email_ics_attachments:
+    if Config.current.enable_email_ics_attachments:
         attachment = get_ics_attachment(notification, loc_context)
     else:
         attachment = None

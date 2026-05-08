@@ -2,19 +2,19 @@ import logging
 
 import requests
 
-from couchers.config import config
+from couchers.config import Config
 
 logger = logging.getLogger(__name__)
 
 
 def send_slack_message(channel: str, markdown: str) -> None:
-    if not config.slack_enabled:
+    if not Config.current.slack_enabled:
         logger.info(f"Slack disabled, would have sent to {channel}: {markdown}")
         return
 
     response = requests.post(
         "https://slack.com/api/chat.postMessage",
-        headers={"Authorization": f"Bearer {config.slack_bot_token}"},
+        headers={"Authorization": f"Bearer {Config.current.slack_bot_token}"},
         json={"channel": channel, "markdown_text": markdown},
         timeout=10,
     )

@@ -5,11 +5,25 @@ A simple config system
 import dataclasses
 import os
 import typing
-from typing import Literal, Self
+from collections.abc import Mapping
+from typing import Any, ClassVar, Literal, Self, TYPE_CHECKING
 
+class ConfigMetaclass(type):
+    _current: Config | None = None
+
+    @property
+    def current(cls) -> Config:
+        """Gets the current application-global Config object, raising an exception if not yet set."""
+        if cls._current is None:
+            raise Exception("No global configuration set.")
+        return cls._current
+
+    @current.setter
+    def current(cls, value: Config | None) -> None:
+        cls._current = value
 
 @dataclasses.dataclass(kw_only=True)
-class Config:
+class Config(metaclass=ConfigMetaclass):
     # Whether we're in dev mode
     dev: bool
     # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
@@ -134,85 +148,96 @@ class Config:
     slack_donations_channel: str
     slack_merch_channel: str
 
+    if TYPE_CHECKING:
+        # The metaclass implements the "current" class property,
+        # but mypy doesn't understand that, so give it a hint.
+        current: ClassVar[Config]
+
+    def __post_init__(self) -> None:
+        self.check()
+
     def copy(self) -> Self:
         return dataclasses.replace(self)
+
+    def with_changes(self, **changes: Any) -> Config:
+        return dataclasses.replace(self, **changes)
 
     def set_from(self, other: Config) -> None:
         for field in dataclasses.fields(other):
             setattr(self, field.name, getattr(other, field.name))
 
+    def check(self) -> None:
+        if not self.dev:
+            # checks for prod
+            if "https" not in self.base_url:
+                raise Exception("Production site must be over HTTPS")
+            if not self.enable_email:
+                raise Exception("Production site must have email enabled")
+            if not self.enable_sms:
+                raise Exception("Production site must have SMS enabled")
+            if self.in_test:
+                raise Exception("IN_TEST while not DEV")
 
-def check_config(cfg: Config) -> None:
-    if not cfg.dev:
-        # checks for prod
-        if "https" not in cfg.base_url:
-            raise Exception("Production site must be over HTTPS")
-        if not cfg.enable_email:
-            raise Exception("Production site must have email enabled")
-        if not cfg.enable_sms:
-            raise Exception("Production site must have SMS enabled")
-        if cfg.in_test:
-            raise Exception("IN_TEST while not DEV")
+        if self.enable_donations:
+            if not self.stripe_api_key or not self.stripe_webhook_secret or not self.stripe_recurring_product_id:
+                raise Exception("No Stripe API key/recurring donation ID but donations enabled")
 
-    if cfg.enable_donations:
-        if not cfg.stripe_api_key or not cfg.stripe_webhook_secret or not cfg.stripe_recurring_product_id:
-            raise Exception("No Stripe API key/recurring donation ID but donations enabled")
+        if self.enable_strong_verification:
+            if not self.iris_id_pubkey or not self.iris_id_secret or not self.verification_data_public_key:
+                raise Exception("No Iris ID pubkey/secret or verification data pubkey but strong verification enabled")
 
-    if cfg.enable_strong_verification:
-        if not cfg.iris_id_pubkey or not cfg.iris_id_secret or not cfg.verification_data_public_key:
-            raise Exception("No Iris ID pubkey/secret or verification data pubkey but strong verification enabled")
+        if self.enable_postal_verification:
+            if (
+                not self.mypostcard_api_key
+                or not self.mypostcard_username
+                or not self.mypostcard_password
+                or not self.mypostcard_product_code
+                or not self.mypostcard_campaign_id
+            ):
+                raise Exception("MyPostcard API credentials not configured but postal verification enabled")
 
-    if cfg.enable_postal_verification:
-        if (
-            not cfg.mypostcard_api_key
-            or not cfg.mypostcard_username
-            or not cfg.mypostcard_password
-            or not cfg.mypostcard_product_code
-            or not cfg.mypostcard_campaign_id
-        ):
-            raise Exception("MyPostcard API credentials not configured but postal verification enabled")
+        if self.experimentation_enabled:
+            if not self.statsig_server_secret_key:
+                raise Exception("No Statsig server secret key but experimentation enabled")
 
-    if cfg.experimentation_enabled:
-        if not cfg.statsig_server_secret_key:
-            raise Exception("No Statsig server secret key but experimentation enabled")
+    @staticmethod
+    def from_env() -> Config:
+        return Config.from_env_dict(os.environ)
 
+    @staticmethod
+    def from_env_dict(env: Mapping[str, Any]) -> Config:
+        type_hints = typing.get_type_hints(Config)
+        kwargs: dict[str, object] = {}
 
-def make_config() -> Config:
-    type_hints = typing.get_type_hints(Config)
-    kwargs: dict[str, object] = {}
+        for field in dataclasses.fields(Config):
+            env_name = field.name.upper()
+            field_type = type_hints[field.name]
+            has_default = field.default is not dataclasses.MISSING
 
-    for field in dataclasses.fields(Config):
-        env_name = field.name.upper()
-        field_type = type_hints[field.name]
-        has_default = field.default is not dataclasses.MISSING
+            raw = env.get(env_name)
+            if not raw:
+                if not has_default:
+                    raise ValueError(f"Required config value {env_name} not set")
+                kwargs[field.name] = field.default
+                continue
 
-        raw = os.getenv(env_name)
-        if not raw:
-            if not has_default:
-                raise ValueError(f"Required config value {env_name} not set")
-            kwargs[field.name] = field.default
-            continue
+            origin = typing.get_origin(field_type)
+            if origin is Literal:
+                allowed = typing.get_args(field_type)
+                if raw not in allowed:
+                    raise ValueError(f"Invalid value for {env_name}, need one of {', '.join(allowed)}")
+                kwargs[field.name] = raw
+            elif field_type is bool:
+                if raw not in ("0", "1"):
+                    raise ValueError(f'Invalid bool for {env_name}, need "0" or "1"')
+                kwargs[field.name] = raw == "1"
+            elif field_type is bytes:
+                kwargs[field.name] = bytes.fromhex(raw)
+            elif field_type is int:
+                kwargs[field.name] = int(raw)
+            elif field_type is str:
+                kwargs[field.name] = raw
+            else:
+                raise ValueError(f"Unknown type {field_type} for {env_name}")
 
-        origin = typing.get_origin(field_type)
-        if origin is Literal:
-            allowed = typing.get_args(field_type)
-            if raw not in allowed:
-                raise ValueError(f"Invalid value for {env_name}, need one of {', '.join(allowed)}")
-            kwargs[field.name] = raw
-        elif field_type is bool:
-            if raw not in ("0", "1"):
-                raise ValueError(f'Invalid bool for {env_name}, need "0" or "1"')
-            kwargs[field.name] = raw == "1"
-        elif field_type is bytes:
-            kwargs[field.name] = bytes.fromhex(raw)
-        elif field_type is int:
-            kwargs[field.name] = int(raw)
-        elif field_type is str:
-            kwargs[field.name] = raw
-        else:
-            raise ValueError(f"Unknown type {field_type} for {env_name}")
-
-    return Config(**kwargs)  # type: ignore[arg-type]
-
-
-config = make_config()
+        return Config(**kwargs)  # type: ignore[arg-type]

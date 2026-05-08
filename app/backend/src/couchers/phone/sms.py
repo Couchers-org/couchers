@@ -5,7 +5,7 @@ import boto3
 import luhn
 
 from couchers import crypto
-from couchers.config import config
+from couchers.config import Config
 from couchers.db import session_scope
 from couchers.models import SMS
 
@@ -32,12 +32,12 @@ def send_sms(number: str, message: str) -> str:
 
     assert len(message) <= 140, "Message too long"
 
-    if not config.enable_sms:
+    if not Config.current.enable_sms:
         logger.info(f"SMS not enabled, need to send to {number}: {message}")
         return "SMS not enabled."
 
     sns = boto3.client("sns")
-    sender_id = config.sms_sender_id
+    sender_id = Config.current.sms_sender_id
 
     response = sns.publish(
         PhoneNumber=number,

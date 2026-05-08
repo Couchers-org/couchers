@@ -4,18 +4,18 @@ from ipaddress import IPv4Network, IPv6Network
 import geoip2.database
 from geoip2.errors import AddressNotFoundError
 
-from couchers.config import config
+from couchers.config import Config
 
 logger = logging.getLogger(__name__)
 
 
 def geoip_approximate_location(ip_address: str | None) -> str | None:
-    if config.geolite2_city_mmdb_file_location == "":
+    if Config.current.geolite2_city_mmdb_file_location == "":
         return None
     if ip_address is None:
         return None
     try:
-        with geoip2.database.Reader(config.geolite2_city_mmdb_file_location) as reader:
+        with geoip2.database.Reader(Config.current.geolite2_city_mmdb_file_location) as reader:
             response = reader.city(ip_address)
             city = response.city.name
             country = response.country.name
@@ -28,12 +28,12 @@ def geoip_approximate_location(ip_address: str | None) -> str | None:
 
 
 def geoip_asn(ip_address: str | None) -> tuple[int, str, IPv4Network | IPv6Network] | None:
-    if config.geolite2_asn_mmdb_file_location == "":
+    if Config.current.geolite2_asn_mmdb_file_location == "":
         return None
     if ip_address is None:
         return None
     try:
-        with geoip2.database.Reader(config.geolite2_asn_mmdb_file_location) as reader:
+        with geoip2.database.Reader(Config.current.geolite2_asn_mmdb_file_location) as reader:
             response = reader.asn(ip_address)
             asn_number = response.autonomous_system_number
             asn_org = response.autonomous_system_organization

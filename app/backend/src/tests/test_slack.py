@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.slack import send_slack_message
 
 
@@ -20,8 +20,8 @@ def test_send_slack_message_disabled():
 
 
 def test_send_slack_message_enabled():
-    config.slack_enabled = True
-    config.slack_bot_token = "xoxb-test-token"
+    Config.current.slack_enabled = True
+    Config.current.slack_bot_token = "xoxb-test-token"
 
     with patch("couchers.slack.requests.post") as mock_post:
         mock_post.return_value.raise_for_status.return_value = None

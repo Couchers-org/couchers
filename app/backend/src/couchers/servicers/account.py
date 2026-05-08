@@ -12,7 +12,7 @@ from sqlalchemy.sql import exists, func, update
 from user_agents import parse as user_agents_parse
 
 from couchers import urls
-from couchers.config import config
+from couchers.config import Config
 from couchers.constants import DONATION_DRIVE_START, PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.context import CouchersContext
 from couchers.crypto import (
@@ -424,7 +424,7 @@ class Account(account_pb2_grpc.AccountServicer):
     def InitiateStrongVerification(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
     ) -> account_pb2.InitiateStrongVerificationRes:
-        if not config.enable_strong_verification:
+        if not Config.current.enable_strong_verification:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "strong_verification_disabled")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
@@ -452,9 +452,9 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         response = requests.post(
             "https://passportreader.app/api/v1/session.create",
-            auth=(config.iris_id_pubkey, config.iris_id_secret),
+            auth=(Config.current.iris_id_pubkey, Config.current.iris_id_secret),
             json={
-                "callback_url": f"{config.backend_base_url}/iris/webhook",
+                "callback_url": f"{Config.current.backend_base_url}/iris/webhook",
                 "face_verification": False,
                 "passport_only": True,
                 "reference": reference,

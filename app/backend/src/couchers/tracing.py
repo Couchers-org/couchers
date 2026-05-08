@@ -7,12 +7,12 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.db import _get_base_engine
 
 
 def setup_tracing() -> None:
-    if config.opentelemetry_endpoint != "":
+    if Config.current.opentelemetry_endpoint != "":
         ThreadingInstrumentor().instrument()
 
         grpc_server_instrumentor = GrpcInstrumentorServer()  # type: ignore[no-untyped-call]
@@ -21,7 +21,7 @@ def setup_tracing() -> None:
 
         tracer = TracerProvider(resource=Resource(attributes={"service.name": "backend"}))
         tracer.add_span_processor(
-            BatchSpanProcessor(OTLPSpanExporter(endpoint=config.opentelemetry_endpoint, insecure=True))
+            BatchSpanProcessor(OTLPSpanExporter(endpoint=Config.current.opentelemetry_endpoint, insecure=True))
         )
 
         trace.set_tracer_provider(tracer)

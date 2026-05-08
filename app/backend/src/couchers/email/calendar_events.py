@@ -5,7 +5,7 @@ from ics import Calendar, Event  # type: ignore[import-untyped]
 from ics.grammar.parse import ContentLine  # type: ignore[import-untyped]
 
 from couchers import urls
-from couchers.config import config
+from couchers.config import Config
 from couchers.email.rendering import get_emails_i18next
 from couchers.i18n import LocalizationContext
 from couchers.proto.internal.jobs_pb2 import EmailAttachment
@@ -106,5 +106,5 @@ def ics_to_attachment(ics: str, filename: str) -> EmailAttachment:
 
 
 def get_host_request_event_uid(host_request_id: int) -> str:
-    uid_domain = Address(addr_spec=config.notification_email_address).domain
+    uid_domain = Address(addr_spec=Config.current.notification_email_address).domain
     return f"host_request.{host_request_id}@{uid_domain}"

@@ -10,7 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.sql import delete, func
 
 import couchers.jobs.worker
-from couchers.config import config
+from couchers.config import Config
 from couchers.constants import HOST_REQUEST_MAX_REMINDERS, HOST_REQUEST_REMINDER_INTERVAL
 from couchers.crypto import urlsafe_secure_token
 from couchers.db import session_scope
@@ -427,10 +427,9 @@ def test_job_retry(db):
     create_prometheus_server(port=8000)
 
     # if IN_TEST is true, then the bg worker will raise on exceptions
-    new_config = config.copy()
-    new_config.in_test = False
+    Config.current.in_test = False
 
-    with patch("couchers.jobs.worker.config", new_config), patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
+    with patch("couchers.jobs.worker.JOBS", MOCK_JOBS):
         process_job()
         with session_scope() as session:
             assert (
@@ -1217,64 +1216,62 @@ def test_send_host_request_reminders(db, moderator):
 
 
 def test_add_users_to_email_list(db):
-    new_config = config.copy()
-    new_config.listmonk_enabled = True
-    new_config.listmonk_base_url = "https://example.com"
-    new_config.listmonk_api_username = "test_user"
-    new_config.listmonk_api_key = "dummy_api_key"
-    new_config.listmonk_list_id = 6
+    Config.current.listmonk_enabled = True
+    Config.current.listmonk_base_url = "https://example.com"
+    Config.current.listmonk_api_username = "test_user"
+    Config.current.listmonk_api_key = "dummy_api_key"
+    Config.current.listmonk_list_id = 6
 
-    with patch("couchers.jobs.handlers.config", new_config):
-        with patch("couchers.jobs.handlers.requests.post") as mock:
-            add_users_to_email_list(empty_pb2.Empty())
-        mock.assert_not_called()
+    with patch("couchers.jobs.handlers.requests.post") as mock:
+        add_users_to_email_list(empty_pb2.Empty())
+    mock.assert_not_called()
 
-        generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1", id=15)
-        generate_user(in_sync_with_newsletter=True, email="testing2@couchers.invalid", name="Tester2")
-        generate_user(in_sync_with_newsletter=False, email="testing3@couchers.invalid", name="Tester3 von test", id=17)
-        generate_user(
-            in_sync_with_newsletter=False, email="testing4@couchers.invalid", name="Tester4", opt_out_of_newsletter=True
-        )
+    generate_user(in_sync_with_newsletter=False, email="testing1@couchers.invalid", name="Tester1", id=15)
+    generate_user(in_sync_with_newsletter=True, email="testing2@couchers.invalid", name="Tester2")
+    generate_user(in_sync_with_newsletter=False, email="testing3@couchers.invalid", name="Tester3 von test", id=17)
+    generate_user(
+        in_sync_with_newsletter=False, email="testing4@couchers.invalid", name="Tester4", opt_out_of_newsletter=True
+    )
 
-        with patch("couchers.jobs.handlers.requests.post") as mock:
-            ret = mock.return_value
-            ret.status_code = 200
-            add_users_to_email_list(empty_pb2.Empty())
-        mock.assert_has_calls(
-            [
-                call(
-                    "https://example.com/api/subscribers",
-                    auth=("test_user", "dummy_api_key"),
-                    json={
-                        "email": "testing1@couchers.invalid",
-                        "name": "Tester1",
-                        "lists": [6],
-                        "preconfirm_subscriptions": True,
-                        "attribs": {"couchers_user_id": 15},
-                        "status": "enabled",
-                    },
-                    timeout=10,
-                ),
-                call(
-                    "https://example.com/api/subscribers",
-                    auth=("test_user", "dummy_api_key"),
-                    json={
-                        "email": "testing3@couchers.invalid",
-                        "name": "Tester3 von test",
-                        "lists": [6],
-                        "preconfirm_subscriptions": True,
-                        "attribs": {"couchers_user_id": 17},
-                        "status": "enabled",
-                    },
-                    timeout=10,
-                ),
-            ],
-            any_order=True,
-        )
+    with patch("couchers.jobs.handlers.requests.post") as mock:
+        ret = mock.return_value
+        ret.status_code = 200
+        add_users_to_email_list(empty_pb2.Empty())
+    mock.assert_has_calls(
+        [
+            call(
+                "https://example.com/api/subscribers",
+                auth=("test_user", "dummy_api_key"),
+                json={
+                    "email": "testing1@couchers.invalid",
+                    "name": "Tester1",
+                    "lists": [6],
+                    "preconfirm_subscriptions": True,
+                    "attribs": {"couchers_user_id": 15},
+                    "status": "enabled",
+                },
+                timeout=10,
+            ),
+            call(
+                "https://example.com/api/subscribers",
+                auth=("test_user", "dummy_api_key"),
+                json={
+                    "email": "testing3@couchers.invalid",
+                    "name": "Tester3 von test",
+                    "lists": [6],
+                    "preconfirm_subscriptions": True,
+                    "attribs": {"couchers_user_id": 17},
+                    "status": "enabled",
+                },
+                timeout=10,
+            ),
+        ],
+        any_order=True,
+    )
 
-        with patch("couchers.jobs.handlers.requests.post") as mock:
-            add_users_to_email_list(empty_pb2.Empty())
-        mock.assert_not_called()
+    with patch("couchers.jobs.handlers.requests.post") as mock:
+        add_users_to_email_list(empty_pb2.Empty())
+    mock.assert_not_called()
 
 
 def test_update_recommendation_scores(db):

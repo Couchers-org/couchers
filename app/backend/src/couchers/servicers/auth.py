@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import delete, func, or_
 
 from couchers import urls
-from couchers.config import config
+from couchers.config import Config
 from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.context import CouchersContext
 from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
@@ -708,7 +708,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         return auth_pb2.UnsubscribeRes(response=respond_quick_link(request, context, session))
 
     def AntiBot(self, request: auth_pb2.AntiBotReq, context: CouchersContext, session: Session) -> auth_pb2.AntiBotRes:
-        if not config.recapthca_enabled:
+        if not Config.current.recapthca_enabled:
             return auth_pb2.AntiBotRes()
 
         ip_address = cast(str | None, context.headers.get("x-couchers-real-ip"))
@@ -716,11 +716,11 @@ class Auth(auth_pb2_grpc.AuthServicer):
         user_id = context.user_id if context.is_logged_in() else None
 
         resp = requests.post(
-            f"https://recaptchaenterprise.googleapis.com/v1/projects/{config.recapthca_project_id}/assessments?key={config.recapthca_api_key}",
+            f"https://recaptchaenterprise.googleapis.com/v1/projects/{Config.current.recapthca_project_id}/assessments?key={Config.current.recapthca_api_key}",
             json={
                 "event": {
                     "token": request.token,
-                    "siteKey": config.recapthca_site_key,
+                    "siteKey": Config.current.recapthca_site_key,
                     "userAgent": user_agent,
                     "userIpAddress": ip_address,
                     "expectedAction": request.action,
@@ -756,7 +756,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
     def AntiBotPolicy(
         self, request: auth_pb2.AntiBotPolicyReq, context: CouchersContext, session: Session
     ) -> auth_pb2.AntiBotPolicyRes:
-        if config.recapthca_enabled:
+        if Config.current.recapthca_enabled:
             if context.is_logged_in():
                 user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
                 if now() - user.last_antibot > ANTIBOT_FREQ:

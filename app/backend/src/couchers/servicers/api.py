@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import and_, delete, exists, func, intersect, or_, union
 
 from couchers import urls
-from couchers.config import config
+from couchers.config import Config
 from couchers.constants import GHOST_USERNAME
 from couchers.context import CouchersContext
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
@@ -944,7 +944,7 @@ class API(api_pb2_grpc.APIServicer):
         ).SerializeToString()
 
         data = b64encode(req)
-        sig = b64encode(generate_hash_signature(req, config.media_server_secret_key))
+        sig = b64encode(generate_hash_signature(req, Config.current.media_server_secret_key))
 
         path = "upload?" + urlencode({"data": data, "sig": sig})
 

@@ -8,7 +8,7 @@ from os import getpid
 from threading import get_ident
 
 from alembic import command
-from alembic.config import Config
+from alembic.config import Config as AlembicConfig
 from geoalchemy2 import WKBElement
 from opentelemetry import trace
 from sqlalchemy import Engine, Row, Subquery, create_engine, select, text, true
@@ -17,7 +17,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import and_, func, literal, or_
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.constants import SERVER_THREADS, WORKER_THREADS
 from couchers.context import CouchersContext
 from couchers.models import (
@@ -47,7 +47,7 @@ def apply_migrations() -> None:
     cwd = os.getcwd()
     try:
         os.chdir(alembic_dir)
-        alembic_cfg = Config("alembic.ini")
+        alembic_cfg = AlembicConfig("alembic.ini")
         # alembic screws up logging config by default, this tells it not to screw it up if being run at startup like this
         alembic_cfg.set_main_option("dont_mess_up_logging", "False")
         command.upgrade(alembic_cfg, "head")
@@ -58,7 +58,7 @@ def apply_migrations() -> None:
 @functools.cache
 def _get_base_engine() -> Engine:
     return create_engine(
-        config.database_connection_string,
+        Config.current.database_connection_string,
         # checks that the connections in the pool are alive before using them, which avoids the "server closed the
         # connection unexpectedly" errors
         pool_pre_ping=True,

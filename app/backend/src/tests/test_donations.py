@@ -5,8 +5,7 @@ import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 
-import couchers.servicers.donations
-from couchers.config import config
+from couchers.config import Config
 from couchers.db import session_scope
 from couchers.jobs.handlers import update_badges
 from couchers.models import DonationInitiation, DonationType, Invoice, InvoiceType, User, UserBadge
@@ -21,19 +20,16 @@ def _(testconfig):
     pass
 
 
-def test_one_time_donation_flow(db, monkeypatch):
+def test_one_time_donation_flow(db):
     user, token = generate_user()
     user_email = user.email
     user_id = user.id
 
-    new_config = config.copy()
-    new_config.enable_donations = True
-    new_config.stripe_api_key = "dummy_api_key"
-    new_config.stripe_webhook_secret = "dummy_webhook_secret"
-    new_config.stripe_recurring_product_id = "price_1KIbmbIfR5z29g5kFWPEUnC6"
-    new_config.merch_shop_url = "https://shop.couchershq.org"
-
-    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+    Config.current.enable_donations = True
+    Config.current.stripe_api_key = "dummy_api_key"
+    Config.current.stripe_webhook_secret = "dummy_webhook_secret"
+    Config.current.stripe_recurring_product_id = "price_1KIbmbIfR5z29g5kFWPEUnC6"
+    Config.current.merch_shop_url = "https://shop.couchershq.org"
 
     ## User first makes a req to Donations.InitiateDonation
     with donations_session(token) as donations:
@@ -126,19 +122,16 @@ def test_one_time_donation_flow(db, monkeypatch):
         )
 
 
-def test_recurring_donation_flow(db, monkeypatch):
+def test_recurring_donation_flow(db):
     user, token = generate_user()
     user_email = user.email
     user_id = user.id
 
-    new_config = config.copy()
-    new_config.enable_donations = True
-    new_config.stripe_api_key = "dummy_api_key"
-    new_config.stripe_webhook_secret = "dummy_webhook_secret"
-    new_config.stripe_recurring_product_id = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
-    new_config.merch_shop_url = "https://shop.couchershq.org"
-
-    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+    Config.current.enable_donations = True
+    Config.current.stripe_api_key = "dummy_api_key"
+    Config.current.stripe_webhook_secret = "dummy_webhook_secret"
+    Config.current.stripe_recurring_product_id = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
+    Config.current.merch_shop_url = "https://shop.couchershq.org"
 
     ## User first makes a req to Donations.InitiateDonation
     with donations_session(token) as donations:
@@ -251,16 +244,13 @@ def test_recurring_donation_flow(db, monkeypatch):
         )
 
 
-def test_customer_portal_url(db, monkeypatch):
+def test_customer_portal_url(db):
     user, token = generate_user()
     user_email = user.email
     user_id = user.id
 
-    new_config = config.copy()
-    new_config.enable_donations = True
-    new_config.stripe_api_key = "dummy_api_key"
-
-    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+    Config.current.enable_donations = True
+    Config.current.stripe_api_key = "dummy_api_key"
 
     ## User first makes a req to Donations.InitiateDonation
     with donations_session(token) as donations:
@@ -281,16 +271,13 @@ def test_customer_portal_url(db, monkeypatch):
         )
 
 
-def test_merch_invoice_flow(db, monkeypatch):
+def test_merch_invoice_flow(db):
     """Test that external shop purchases (e.g., from merch shop) grant swagster badge but don't update last_donated"""
     user, token = generate_user(email="test@couchers.org.invalid", last_donated=None)
 
-    new_config = config.copy()
-    new_config.stripe_api_key = "dummy_api_key"
-    new_config.stripe_webhook_secret = "dummy_webhook_secret"
-    new_config.merch_shop_url = "https://shop.couchershq.org"
-
-    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+    Config.current.stripe_api_key = "dummy_api_key"
+    Config.current.stripe_webhook_secret = "dummy_webhook_secret"
+    Config.current.merch_shop_url = "https://shop.couchershq.org"
 
     ## Stripe sends a charge.succeeded webhook for a merch purchase
     fire_stripe_event("evt_merch_charge_succeeded")
@@ -306,16 +293,13 @@ def test_merch_invoice_flow(db, monkeypatch):
         assert badge is not None
 
 
-def test_merch_invoice_flow_nonexistent_user(db, monkeypatch):
+def test_merch_invoice_flow_nonexistent_user(db):
     """Test that external shop purchases for non-existent users don't error and don't grant badges"""
     user, _ = generate_user(last_donated=None)
 
-    new_config = config.copy()
-    new_config.stripe_api_key = "dummy_api_key"
-    new_config.stripe_webhook_secret = "dummy_webhook_secret"
-    new_config.merch_shop_url = "https://shop.couchershq.org"
-
-    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+    Config.current.stripe_api_key = "dummy_api_key"
+    Config.current.stripe_webhook_secret = "dummy_webhook_secret"
+    Config.current.merch_shop_url = "https://shop.couchershq.org"
 
     ## Stripe sends a charge.succeeded webhook for a merch purchase with a non-matching email
     fire_stripe_event("evt_merch_charge_succeeded")
@@ -329,60 +313,51 @@ def test_merch_invoice_flow_nonexistent_user(db, monkeypatch):
         assert len(badge_count) == 0
 
 
-def test_slack_notification_on_merch_purchase(db, monkeypatch):
+def test_slack_notification_on_merch_purchase(db):
     """Test that a Slack notification is sent when a merch purchase is made by a known user."""
     user, _ = generate_user(email="test@couchers.org.invalid", last_donated=None)
 
-    new_config = config.copy()
-    new_config.stripe_api_key = "dummy_api_key"
-    new_config.stripe_webhook_secret = "dummy_webhook_secret"
-    new_config.merch_shop_url = "https://shop.couchershq.org"
-
-    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+    Config.current.stripe_api_key = "dummy_api_key"
+    Config.current.stripe_webhook_secret = "dummy_webhook_secret"
+    Config.current.merch_shop_url = "https://shop.couchershq.org"
 
     with patch("couchers.servicers.donations.send_slack_message") as mock_slack:
         fire_stripe_event("evt_merch_charge_succeeded")
         mock_slack.assert_called_once()
         call_args = mock_slack.call_args[0]
-        assert call_args[0] == (config.slack_merch_channel or "merch")
+        assert call_args[0] == (Config.current.slack_merch_channel or "merch")
         assert "$50" in call_args[1]
         assert "Merch purchase" in call_args[1]
         assert user.name in call_args[1]
 
 
-def test_slack_notification_on_merch_purchase_unknown_user(db, monkeypatch):
+def test_slack_notification_on_merch_purchase_unknown_user(db):
     """Test that a Slack notification is sent with email when merch purchase is by an unknown user."""
     generate_user(last_donated=None)
 
-    new_config = config.copy()
-    new_config.stripe_api_key = "dummy_api_key"
-    new_config.stripe_webhook_secret = "dummy_webhook_secret"
-    new_config.merch_shop_url = "https://shop.couchershq.org"
-
-    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+    Config.current.stripe_api_key = "dummy_api_key"
+    Config.current.stripe_webhook_secret = "dummy_webhook_secret"
+    Config.current.merch_shop_url = "https://shop.couchershq.org"
 
     with patch("couchers.servicers.donations.send_slack_message") as mock_slack:
         fire_stripe_event("evt_merch_charge_succeeded")
         mock_slack.assert_called_once()
         call_args = mock_slack.call_args[0]
-        assert call_args[0] == (config.slack_merch_channel or "merch")
+        assert call_args[0] == (Config.current.slack_merch_channel or "merch")
         assert "$50" in call_args[1]
         assert "Merch purchase" in call_args[1]
         assert "test@couchers.org.invalid" in call_args[1]
 
 
-def test_slack_notification_on_one_time_donation(db, monkeypatch):
+def test_slack_notification_on_one_time_donation(db):
     """Test that a Slack notification is sent when a one-time donation is received."""
     user, token = generate_user()
 
-    new_config = config.copy()
-    new_config.enable_donations = True
-    new_config.stripe_api_key = "dummy_api_key"
-    new_config.stripe_webhook_secret = "dummy_webhook_secret"
-    new_config.stripe_recurring_product_id = "price_1KIbmbIfR5z29g5kFWPEUnC6"
-    new_config.merch_shop_url = "https://shop.couchershq.org"
-
-    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+    Config.current.enable_donations = True
+    Config.current.stripe_api_key = "dummy_api_key"
+    Config.current.stripe_webhook_secret = "dummy_webhook_secret"
+    Config.current.stripe_recurring_product_id = "price_1KIbmbIfR5z29g5kFWPEUnC6"
+    Config.current.merch_shop_url = "https://shop.couchershq.org"
 
     # Initiate a one-time donation
     with donations_session(token) as donations:
@@ -402,18 +377,15 @@ def test_slack_notification_on_one_time_donation(db, monkeypatch):
         assert user.name in call_args
 
 
-def test_slack_notification_on_recurring_donation(db, monkeypatch):
+def test_slack_notification_on_recurring_donation(db):
     """Test that a Slack notification is sent when a recurring donation is received."""
     user, token = generate_user()
 
-    new_config = config.copy()
-    new_config.enable_donations = True
-    new_config.stripe_api_key = "dummy_api_key"
-    new_config.stripe_webhook_secret = "dummy_webhook_secret"
-    new_config.stripe_recurring_product_id = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
-    new_config.merch_shop_url = "https://shop.couchershq.org"
-
-    monkeypatch.setattr(couchers.servicers.donations, "config", new_config)
+    Config.current.enable_donations = True
+    Config.current.stripe_api_key = "dummy_api_key"
+    Config.current.stripe_webhook_secret = "dummy_webhook_secret"
+    Config.current.stripe_recurring_product_id = "price_1IRoHdE5kUmYuPWz9tX8UpRv"
+    Config.current.merch_shop_url = "https://shop.couchershq.org"
 
     # Initiate a recurring donation
     with donations_session(token) as donations:

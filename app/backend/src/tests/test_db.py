@@ -10,7 +10,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.sql import func
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.db import _get_base_engine, apply_migrations, get_parent_node_at_location, session_scope
 from couchers.jobs.handlers import DatabaseInconsistencyError, check_database_consistency
 from couchers.models import User
@@ -110,7 +110,10 @@ def test_get_parent_node_at_location(testing_communities):
 
 def pg_dump() -> str:
     return subprocess.run(
-        ["pg_dump", "-s", config.database_connection_string], stdout=subprocess.PIPE, encoding="ascii", check=True
+        ["pg_dump", "-s", Config.current.database_connection_string],
+        stdout=subprocess.PIPE,
+        encoding="ascii",
+        check=True,
     ).stdout
 
 

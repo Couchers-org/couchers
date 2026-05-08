@@ -4,23 +4,24 @@ from pathlib import Path
 from typing import Any
 
 from alembic import context
-from alembic.config import Config
+from alembic.config import Config as AlembicConfig
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy.dialects import registry
 from sqlalchemy.schema import MetaData
 
 from couchers import models
-from couchers.config import config as couchers_config
+from couchers.config import Config
 
 # Register psycopg (psycopg3) as the default driver for postgresql:// URLs
 registry.register("postgresql", "sqlalchemy.dialects.postgresql.psycopg", "PGDialect_psycopg")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config: Config = context.config
+config: AlembicConfig = context.config
 
-config.set_main_option("sqlalchemy.url", couchers_config.database_connection_string)
+config.set_main_option("sqlalchemy.url", Config.current.database_connection_string)
 
+Config.current = Config.from_env()
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

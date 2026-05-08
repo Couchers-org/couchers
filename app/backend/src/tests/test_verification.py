@@ -6,7 +6,7 @@ from google.protobuf import empty_pb2
 from sqlalchemy import select, update
 
 import couchers.phone.sms
-from couchers.config import config
+from couchers.config import Config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models import SMS, User
@@ -206,10 +206,8 @@ def test_phone_uniqueness(monkeypatch):
 
 
 def test_send_sms(db, monkeypatch):
-    new_config = config.copy()
-    new_config.enable_sms = True
-    new_config.sms_sender_id = "CouchersOrg"
-    monkeypatch.setattr(couchers.phone.sms, "config", new_config)
+    Config.current.enable_sms = True
+    Config.current.sms_sender_id = "CouchersOrg"
 
     msg_id = random_hex()
 
@@ -239,7 +237,7 @@ def test_send_sms(db, monkeypatch):
 
 
 def test_send_sms_disabled(db):
-    assert not config.enable_sms
+    assert not Config.current.enable_sms
     assert couchers.phone.sms.send_sms("+46701740605", "Testing SMS message") == "SMS not enabled."
 
 

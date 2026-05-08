@@ -2,7 +2,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.context import CouchersContext
 from couchers.models.logging import EventLog, EventSource
 
@@ -43,7 +43,7 @@ def log_event(
             event_type=event_type,
             user_id=user_id,
             sofa=context._sofa,
-            version=config.version,
+            version=Config.current.version,
             properties=properties,
             value=value,
             source=EventSource.backend,

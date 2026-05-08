@@ -6,7 +6,7 @@ import pytest
 from google.protobuf import empty_pb2
 from sqlalchemy import exists, select
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.db import session_scope
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import send_activeness_probes
@@ -90,28 +90,26 @@ def test_activeness_probes_happy_path_active(db, push_collector: PushCollector):
 
 
 def test_activeness_probes_disabled(db, push_collector: PushCollector):
-    new_config = config.copy()
-    new_config.activeness_probes_enabled = False
+    Config.current.activeness_probes_enabled = False
 
-    with patch("couchers.jobs.handlers.config", new_config):
-        user, token = generate_user(
-            hosting_status=HostingStatus.can_host,
-            meetup_status=MeetupStatus.wants_to_meetup,
-            last_active=now() - timedelta(days=335),
-        )
+    user, token = generate_user(
+        hosting_status=HostingStatus.can_host,
+        meetup_status=MeetupStatus.wants_to_meetup,
+        last_active=now() - timedelta(days=335),
+    )
 
-        with session_scope() as session:
-            queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
+    with session_scope() as session:
+        queue_job(session, job=send_activeness_probes, payload=empty_pb2.Empty())
 
-        process_jobs()
+    process_jobs()
 
-        with real_jail_session(token) as jail:
-            res = jail.JailInfo(empty_pb2.Empty())
-            assert not res.has_pending_activeness_probe
-            assert not res.jailed
+    with real_jail_session(token) as jail:
+        res = jail.JailInfo(empty_pb2.Empty())
+        assert not res.has_pending_activeness_probe
+        assert not res.jailed
 
-        with session_scope() as session:
-            assert not session.execute(select(exists(ActivenessProbe))).scalar_one()
+    with session_scope() as session:
+        assert not session.execute(select(exists(ActivenessProbe))).scalar_one()
 
 
 def test_activeness_probes_expiry(db, push_collector: PushCollector):

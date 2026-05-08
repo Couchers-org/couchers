@@ -6,7 +6,7 @@ import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
 from sqlalchemy import select
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.crypto import random_hex
 from couchers.db import session_scope
 from couchers.models.logging import EventLog, EventSource
@@ -45,7 +45,7 @@ def test_bugs(db):
                 "title": "subject",
                 "body": (
                     "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
-                    + config.version
+                    + Config.current.version
                     + "\nFrontend version: frontend_version\nUser Agent: user_agent\nScreen resolution: 1920x1080\nPage: page\nUser: <not logged in>"
                 ),
                 "labels": ["bug tool", "bug: triage needed"],
@@ -59,22 +59,20 @@ def test_bugs(db):
 
             return _PostReturn()
 
-        new_config = config.copy()
-        new_config.bug_tool_enabled = True
+        Config.current.bug_tool_enabled = True
 
-        with patch("couchers.servicers.bugs.config", new_config):
-            with patch("couchers.servicers.bugs.requests.post", dud_post):
-                res = bugs.ReportBug(
-                    bugs_pb2.ReportBugReq(
-                        subject="subject",
-                        description="description",
-                        results="results",
-                        frontend_version="frontend_version",
-                        user_agent="user_agent",
-                        screen_resolution=bugs_pb2.ScreenResolution(width=1920, height=1080),
-                        page="page",
-                    )
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            res = bugs.ReportBug(
+                bugs_pb2.ReportBugReq(
+                    subject="subject",
+                    description="description",
+                    results="results",
+                    frontend_version="frontend_version",
+                    user_agent="user_agent",
+                    screen_resolution=bugs_pb2.ScreenResolution(width=1920, height=1080),
+                    page="page",
                 )
+            )
 
     assert res.bug_id == "#11"
     assert res.bug_url == "https://github.com/org/repo/issues/11"
@@ -92,7 +90,7 @@ def test_bugs_with_user(db):
                 "title": "subject",
                 "body": (
                     "Subject: subject\nDescription:\ndescription\n\nResults:\nresults\n\nBackend version: "
-                    + config.version
+                    + Config.current.version
                     + "\nFrontend version: frontend_version\nUser Agent: user_agent\nScreen resolution: 390x844\nPage: page\nUser: [@testing_user](http://localhost:3000/user/testing_user) (1)"
                 ),
                 "labels": ["bug tool", "bug: triage needed"],
@@ -106,22 +104,20 @@ def test_bugs_with_user(db):
 
             return _PostReturn()
 
-        new_config = config.copy()
-        new_config.bug_tool_enabled = True
+        Config.current.bug_tool_enabled = True
 
-        with patch("couchers.servicers.bugs.config", new_config):
-            with patch("couchers.servicers.bugs.requests.post", dud_post):
-                res = bugs.ReportBug(
-                    bugs_pb2.ReportBugReq(
-                        subject="subject",
-                        description="description",
-                        results="results",
-                        frontend_version="frontend_version",
-                        user_agent="user_agent",
-                        screen_resolution=bugs_pb2.ScreenResolution(width=390, height=844),
-                        page="page",
-                    )
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            res = bugs.ReportBug(
+                bugs_pb2.ReportBugReq(
+                    subject="subject",
+                    description="description",
+                    results="results",
+                    frontend_version="frontend_version",
+                    user_agent="user_agent",
+                    screen_resolution=bugs_pb2.ScreenResolution(width=390, height=844),
+                    page="page",
                 )
+            )
 
     assert res.bug_id == "#11"
     assert res.bug_url == "https://github.com/org/repo/issues/11"
@@ -136,23 +132,21 @@ def test_bugs_fails_on_network_error(db):
 
             return _PostReturn()
 
-        new_config = config.copy()
-        new_config.bug_tool_enabled = True
+        Config.current.bug_tool_enabled = True
 
-        with patch("couchers.servicers.bugs.config", new_config):
-            with patch("couchers.servicers.bugs.requests.post", dud_post):
-                with pytest.raises(grpc.RpcError) as e:
-                    res = bugs.ReportBug(
-                        bugs_pb2.ReportBugReq(
-                            subject="subject",
-                            description="description",
-                            results="results",
-                            frontend_version="frontend_version",
-                            user_agent="user_agent",
-                            page="page",
-                        )
+        with patch("couchers.servicers.bugs.requests.post", dud_post):
+            with pytest.raises(grpc.RpcError) as e:
+                res = bugs.ReportBug(
+                    bugs_pb2.ReportBugReq(
+                        subject="subject",
+                        description="description",
+                        results="results",
+                        frontend_version="frontend_version",
+                        user_agent="user_agent",
+                        page="page",
                     )
-                assert e.value.code() == grpc.StatusCode.INTERNAL
+                )
+            assert e.value.code() == grpc.StatusCode.INTERNAL
 
 
 def test_version():

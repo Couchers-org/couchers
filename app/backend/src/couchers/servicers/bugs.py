@@ -1,7 +1,6 @@
 import json
 import time
 from datetime import UTC, datetime
-from typing import cast
 
 import grpc
 import requests
@@ -11,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from couchers import urls
-from couchers.config import config
+from couchers.config import Config
 from couchers.constants import STABLE_THRESHOLD_SECONDS
 from couchers.context import CouchersContext
 from couchers.descriptor_pool import get_descriptors_pb
@@ -25,7 +24,7 @@ _start_time = time.monotonic()
 
 class Bugs(bugs_pb2_grpc.BugsServicer):
     def _version(self) -> str:
-        return config.version
+        return Config.current.version
 
     def Version(self, request: empty_pb2.Empty, context: CouchersContext, session: Session) -> bugs_pb2.VersionInfo:
         return bugs_pb2.VersionInfo(version=self._version())
@@ -33,11 +32,11 @@ class Bugs(bugs_pb2_grpc.BugsServicer):
     def ReportBug(
         self, request: bugs_pb2.ReportBugReq, context: CouchersContext, session: Session
     ) -> bugs_pb2.ReportBugRes:
-        if not config.bug_tool_enabled:
+        if not Config.current.bug_tool_enabled:
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "bug_tool_disabled")
 
-        repo = config.bug_tool_github_repo
-        auth = (config.bug_tool_github_username, config.bug_tool_github_token)
+        repo = Config.current.bug_tool_github_repo
+        auth = (Config.current.bug_tool_github_username, Config.current.bug_tool_github_token)
 
         if context.is_logged_in():
             username = session.execute(select(User.username).where(User.id == context.user_id)).scalar_one()

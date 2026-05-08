@@ -4,7 +4,7 @@ from typing import Any
 import yaml
 from sqlalchemy.orm.session import Session
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.i18n import LocalizationContext
 from couchers.jobs.enqueue import queue_job
 from couchers.metrics import emails_counter
@@ -70,13 +70,13 @@ def queue_userless_email(
     queue_email(
         session,
         jobs_pb2.SendEmailPayload(
-            sender_name=config.notification_email_sender,
-            sender_email=config.notification_email_address,
+            sender_name=Config.current.notification_email_sender,
+            sender_email=Config.current.notification_email_address,
             recipient=recipient,
-            subject=config.notification_prefix + subject,
+            subject=Config.current.notification_prefix + subject,
             plain=plain,
             html=html,
-            source_data=config.version + f"/{template_name}",
+            source_data=Config.current.version + f"/{template_name}",
         ),
     )
 
@@ -97,10 +97,10 @@ def queue_system_email(session: Session, recipient: str, template_name: str, tem
     queue_email(
         session,
         jobs_pb2.SendEmailPayload(
-            sender_name=config.notification_email_sender,
-            sender_email=config.notification_email_address,
+            sender_name=Config.current.notification_email_sender,
+            sender_email=Config.current.notification_email_address,
             recipient=recipient,
-            subject=config.notification_prefix + frontmatter["subject"],
+            subject=Config.current.notification_prefix + frontmatter["subject"],
             plain=plain,
             source_data=template_name,
         ),

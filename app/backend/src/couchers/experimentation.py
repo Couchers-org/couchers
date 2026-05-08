@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING
 
 from statsig_python_core import Statsig, StatsigOptions, StatsigUser
 
-from couchers.config import config
+from couchers.config import Config
 
 if TYPE_CHECKING:
     from couchers.context import CouchersContext
@@ -60,7 +60,7 @@ def setup_experimentation() -> None:
         logger.debug("Experimentation already initialized in this process, skipping")
         return
 
-    if not config.experimentation_enabled:
+    if not Config.current.experimentation_enabled:
         logger.info("Experimentation is disabled, skipping initialization")
         _initialized = True
         return
@@ -68,10 +68,10 @@ def setup_experimentation() -> None:
     logger.info("Initializing experimentation framework")
 
     options = StatsigOptions()
-    options.environment = config.statsig_environment
+    options.environment = Config.current.statsig_environment
 
     # Create the shared instance for global access
-    statsig = Statsig.new_shared(config.statsig_server_secret_key, options)
+    statsig = Statsig.new_shared(Config.current.statsig_server_secret_key, options)
 
     # initialize() starts internal threads - this MUST happen after forking
     statsig.initialize().wait()
@@ -92,7 +92,7 @@ def _shutdown_experimentation() -> None:
     Shutdown the experimentation framework, flushing any pending events.
     Called automatically via atexit when the process exits.
     """
-    if not config.experimentation_enabled:
+    if not Config.current.experimentation_enabled:
         return
 
     if Statsig.has_shared_instance():
@@ -108,7 +108,7 @@ def _check_initialized() -> None:
     Raises:
         ExperimentationNotInitializedError: If experimentation is enabled but not initialized.
     """
-    if config.experimentation_enabled and not _initialized:
+    if Config.current.experimentation_enabled and not _initialized:
         raise ExperimentationNotInitializedError(
             "Experimentation is not initialized - call setup_experimentation() first"
         )
@@ -142,9 +142,9 @@ def check_gate(context: CouchersContext, gate_name: str) -> bool:
         ExperimentationNotInitializedError: If experimentation is enabled but not initialized.
     """
     _check_initialized()
-    if config.experimentation_pass_all_gates:
+    if Config.current.experimentation_pass_all_gates:
         return True
-    if not config.experimentation_enabled:
+    if not Config.current.experimentation_enabled:
         return False
     return Statsig.shared().check_gate(_get_statsig_user(context), gate_name)
 
@@ -165,7 +165,7 @@ def get_experiment(context: CouchersContext, experiment_name: str) -> dict[str, 
         ExperimentationNotInitializedError: If experimentation is enabled but not initialized.
     """
     _check_initialized()
-    if not config.experimentation_enabled:
+    if not Config.current.experimentation_enabled:
         return {}
     # TODO: remove type: ignore when upstream fixes types, see https://github.com/statsig-io/statsig-server-core/issues/36
     experiment = Statsig.shared().get_experiment(_get_statsig_user(context), experiment_name)  # type: ignore[attr-defined]
@@ -188,7 +188,7 @@ def get_dynamic_config(context: CouchersContext, config_name: str) -> dict[str, 
         ExperimentationNotInitializedError: If experimentation is enabled but not initialized.
     """
     _check_initialized()
-    if not config.experimentation_enabled:
+    if not Config.current.experimentation_enabled:
         return {}
     # TODO: remove type: ignore when upstream fixes types, see https://github.com/statsig-io/statsig-server-core/issues/36
     dynamic_config = Statsig.shared().get_dynamic_config(_get_statsig_user(context), config_name)  # type: ignore[attr-defined]
@@ -214,7 +214,7 @@ def log_event(
         ExperimentationNotInitializedError: If experimentation is enabled but not initialized.
     """
     _check_initialized()
-    if not config.experimentation_enabled:
+    if not Config.current.experimentation_enabled:
         return
     Statsig.shared().log_event(
         user=_get_statsig_user(context),

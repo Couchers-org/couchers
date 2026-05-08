@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from sqlalchemy import select
 from sqlalchemy.sql import func
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.db import session_scope
 from couchers.metrics import push_notification_counter
 from couchers.models import (
@@ -100,8 +100,8 @@ def _send_web_push(
         not_none(sub.endpoint),
         not_none(sub.auth_key),
         not_none(sub.p256dh_key),
-        config.push_notifications_vapid_subject,
-        config.push_notifications_vapid_private_key,
+        Config.current.push_notifications_vapid_subject,
+        Config.current.push_notifications_vapid_private_key,
         ttl=payload.ttl,
     )
 
@@ -194,7 +194,7 @@ def _send_expo(
 
 
 def send_raw_push_notification_v2(payload: jobs_pb2.SendRawPushNotificationPayloadV2) -> None:
-    if not config.push_notifications_enabled:
+    if not Config.current.push_notifications_enabled:
         logger.info("Not sending push notification: push notifications disabled")
         return
 

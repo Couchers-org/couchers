@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from couchers import urls
-from couchers.config import config
+from couchers.config import Config
 from couchers.jobs.enqueue import queue_job
 from couchers.models import PushNotificationSubscription
 from couchers.notifications.send_raw_push_notification import send_raw_push_notification_v2
@@ -116,7 +116,7 @@ def push_to_subscription(
     ttl: int = 0,
 ) -> None:
     # TODO(#7617): Support iOS-style title/subtitles
-    title = config.notification_prefix + content.title[: PushNotificationContent.MAX_TITLE_LENGTH]
+    title = Config.current.notification_prefix + content.title[: PushNotificationContent.MAX_TITLE_LENGTH]
     body = content.body[: PushNotificationContent.MAX_BODY_LENGTH]
     icon_url = content.icon_url or urls.icon_url()
     action_url = content.action_url or ""

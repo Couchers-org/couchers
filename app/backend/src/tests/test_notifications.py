@@ -10,7 +10,7 @@ import pytest
 from google.protobuf import empty_pb2, timestamp_pb2
 from sqlalchemy import select, update
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.constants import DATETIME_INFINITY
 from couchers.context import make_background_user_context
 from couchers.crypto import b64decode
@@ -1069,7 +1069,7 @@ def test_SendDevPushNotification_success(db, push_collector: PushCollector):
     user, token = generate_user()
 
     # Enable dev APIs for this test
-    config.enable_dev_apis = True
+    Config.current.enable_dev_apis = True
 
     with notifications_session(token) as notifications:
         notifications.SendDevPushNotification(
@@ -1097,7 +1097,7 @@ def test_SendDevPushNotification_minimal(db, push_collector: PushCollector):
     """Test SendDevPushNotification with minimal parameters."""
     user, token = generate_user()
 
-    config.enable_dev_apis = True
+    Config.current.enable_dev_apis = True
 
     with notifications_session(token) as notifications:
         notifications.SendDevPushNotification(
@@ -1118,7 +1118,7 @@ def test_SendDevPushNotification_disabled(db, push_collector: PushCollector):
     user, token = generate_user()
 
     # Ensure dev APIs are disabled (default in tests)
-    config.enable_dev_apis = False
+    Config.current.enable_dev_apis = False
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1138,8 +1138,8 @@ def test_SendDevPushNotification_push_notifications_disabled(db, push_collector:
     """Test SendDevPushNotification fails when push notifications are disabled."""
     user, token = generate_user()
 
-    config.enable_dev_apis = True
-    config.push_notifications_enabled = False
+    Config.current.enable_dev_apis = True
+    Config.current.push_notifications_enabled = False
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1243,7 +1243,7 @@ def test_DebugRedeliverPushNotification_success(db, push_collector: PushCollecto
     """Test DebugRedeliverPushNotification redelivers an existing notification."""
     user, token = generate_user()
 
-    config.enable_dev_apis = True
+    Config.current.enable_dev_apis = True
 
     # Create a notification for the user
     with session_scope() as session:
@@ -1286,7 +1286,7 @@ def test_DebugRedeliverPushNotification_not_found(db, push_collector: PushCollec
     """Test DebugRedeliverPushNotification fails when notification doesn't exist."""
     user, token = generate_user()
 
-    config.enable_dev_apis = True
+    Config.current.enable_dev_apis = True
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1304,7 +1304,7 @@ def test_DebugRedeliverPushNotification_wrong_user(db, push_collector: PushColle
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
-    config.enable_dev_apis = True
+    Config.current.enable_dev_apis = True
 
     # Create a notification for user1
     with session_scope() as session:
@@ -1343,7 +1343,7 @@ def test_DebugRedeliverPushNotification_disabled(db, push_collector: PushCollect
     """Test DebugRedeliverPushNotification fails when ENABLE_DEV_APIS is disabled."""
     user, token = generate_user()
 
-    config.enable_dev_apis = False
+    Config.current.enable_dev_apis = False
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:
@@ -1360,8 +1360,8 @@ def test_DebugRedeliverPushNotification_push_notifications_disabled(db, push_col
     """Test DebugRedeliverPushNotification fails when push notifications are disabled."""
     user, token = generate_user()
 
-    config.enable_dev_apis = True
-    config.push_notifications_enabled = False
+    Config.current.enable_dev_apis = True
+    Config.current.push_notifications_enabled = False
 
     with notifications_session(token) as notifications:
         with pytest.raises(grpc.RpcError) as e:

@@ -13,7 +13,7 @@ from nacl.exceptions import InvalidkeyError
 from nacl.public import PrivateKey, PublicKey, SealedBox
 from nacl.utils import random as random_bytes
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.proto.internal import internal_pb2
 
 
@@ -127,7 +127,7 @@ def get_secret(name: str) -> bytes:
     """
     Derives a secret key from the root secret using a key derivation function
     """
-    return generate_hash_signature(name.encode("utf8"), config.secret)
+    return generate_hash_signature(name.encode("utf8"), Config.current.secret)
 
 
 UNSUBSCRIBE_KEY_NAME = "unsubscribe"

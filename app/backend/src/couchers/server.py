@@ -2,7 +2,7 @@ from concurrent import futures
 
 import grpc
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.constants import SERVER_THREADS
 from couchers.interceptors import (
     CouchersMiddlewareInterceptor,
@@ -121,7 +121,7 @@ def create_media_server(port: int, threads: int = 8) -> grpc.Server:
     media_server = grpc.server(
         futures.ThreadPoolExecutor(threads),
         interceptors=[
-            get_media_auth_interceptor(config.media_server_bearer_token),
+            get_media_auth_interceptor(Config.current.media_server_bearer_token),
         ],
     )
     media_server.add_insecure_port(f"[::]:{port}")

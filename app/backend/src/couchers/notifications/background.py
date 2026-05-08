@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, func
 
-from couchers.config import config
+from couchers.config import Config
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.email.queuing import queue_email
@@ -42,7 +42,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
         return
 
     loc_context = LocalizationContext.from_user(user)
-    if not config.enable_notification_translations:
+    if not Config.current.enable_notification_translations:
         loc_context = dataclasses.replace(loc_context, locale="en")
 
     rendered = render_email_notification(user, notification, loc_context)
@@ -50,10 +50,10 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     queue_email(
         session,
         jobs_pb2.SendEmailPayload(
-            sender_name=config.notification_email_sender,
-            sender_email=config.notification_email_address,
+            sender_name=Config.current.notification_email_sender,
+            sender_email=Config.current.notification_email_address,
             recipient=user.email,
-            subject=config.notification_prefix + rendered.subject,
+            subject=Config.current.notification_prefix + rendered.subject,
             plain=rendered.body_plaintext,
             html=rendered.body_html,
             source_data=rendered.source_data,
