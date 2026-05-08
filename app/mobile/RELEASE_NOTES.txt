@@ -1,6 +1,2 @@
 Bug fixes and improvements:
-- Navigation tabs are more reliable and no longer go gray after some time
-- Added a back button when viewing profiles from search results
-- Tapping a tab now closes open menus like notifications
-- Links in the sign-up form now open in your browser instead of inside the app
-- Fixed the "Save changes" bar on the My Home editing page floating above the bottom tabs
+- Going back from a profile in search results now restores your previous page and scroll position

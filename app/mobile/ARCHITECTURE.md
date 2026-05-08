@@ -65,7 +65,7 @@ Lesson learned!
 ### ⚠️ Trade-offs
 
 - **Memory overhead**: Each tab has its own WebView (~50-100MB each)
-- **Brief visual flash**: Sometimes visible when first loading a detail page (new WebView instance mounting); the return flash when navigating back to a tab is avoided by pre-navigating the tab's WebView to its root while the detail screen is shown
+- **Brief visual flash**: Sometimes visible when first loading a detail page (new WebView instance mounting)
 - **Sync complexity**: Two navigation systems must stay coordinated
 - **Not "truly native"**: Won't feel as smooth as a pure native app
 
@@ -94,7 +94,7 @@ The "glue" that keeps mobile tabs in sync with web navigation:
 
 - Detects which page is showing in the WebView
 - Maps web URL to a tab route and calls `router.navigate()` to keep tab highlights in sync
-- Detail pages (profiles, events, etc.) navigate to `[...slug]` so no tab is highlighted; named-tab WebEmbeds sync back to their root when they regain focus
+- Detail pages (profiles, events, etc.) navigate to `[...slug]` so no tab is highlighted; when the tab regains focus it calls `prepareGoBack()` + `webviewRef.goBack()` — the browser's bfcache restores the exact previous page state (scroll position, pagination) rather than remounting from scratch
 
 **Key insight**: Must strip locale prefixes before mobile navigation:
 
@@ -114,7 +114,7 @@ Shared refs across all WebView instances:
 
 Each `WebEmbed` instance also has its own **per-instance** `currentWebPathRef` (inside `useWebNavigation`) that tracks that tab's current URL independently. This is intentional — a shared global ref caused cross-tab contamination where one tab's navigation would corrupt another tab's sync checks.
 
-**Note**: You may occasionally see a brief flash when first navigating to a detail page, since `[...slug]` mounts a fresh WebView. The return flash (detail → tab) is avoided by pre-navigating the tab's WebView back to its root while the detail screen is open.
+**Note**: You may occasionally see a brief flash when first navigating to a detail page, since `[...slug]` mounts a fresh WebView. On return, the tab's WebView uses native back navigation (`goBack()`) so the bfcache restores the previous page state exactly — including pagination and scroll position.
 
 ### isNativeEmbed
 
