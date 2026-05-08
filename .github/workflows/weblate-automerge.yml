@@ -1,0 +1,28 @@
+# Sets Weblate PRs to automerge using the merge strategy,
+# which avoids later running into Weblate merge conflicts.
+name: Automerge Weblate PRs
+
+on:
+  pull_request:
+    types: [opened]
+    branches: [develop]
+
+jobs:
+  automerge:
+    name: Mark Weblate PRs as automerge
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.pull_request.user.login == 'CouchersBot' &&
+      github.head_ref == 'web/translations'
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Enable automerge
+        run: gh pr merge --auto --merge "${{ github.event.pull_request.number }}"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
