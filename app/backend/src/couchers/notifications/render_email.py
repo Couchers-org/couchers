@@ -773,6 +773,8 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
 def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailAttachment | None:
     data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
     if notification.topic_action == NotificationTopicAction.host_request__accept:
+        # Caveat: The surfer technically still hasn't confirmed, but when they do they don't receive an email,
+        # so the accept notification is our last opportunity to provide them with a calendar event.
         return create_host_request_attachment(
             data.host_request, other_name=data.host.name, hosting=False, loc_context=loc_context
         )
@@ -781,6 +783,8 @@ def get_ics_attachment(notification: Notification, loc_context: LocalizationCont
             data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
         )
     elif notification.topic_action == NotificationTopicAction.host_request__cancel:
+        # Caveat: only the party getting cancelled receives this notification,
+        # we have no opportunity to provide the cancelling party with a cancelled ics attachment.
         return create_host_request_cancellation_attachment(
             data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
         )
