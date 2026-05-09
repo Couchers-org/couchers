@@ -14,7 +14,6 @@
       "push": {
         "title": "帳戶已刪除",
         "ios_title": "帳戶已刪除",
-        "body_one": "您可以在 {{count}} 天內透過我們寄給您的連結恢復帳戶。",
         "body_other": "您可以在 {{count}} 天內透過我們寄給您的連結恢復帳戶。"
       }
     },
@@ -90,9 +89,7 @@
     "missed_messages": {
       "event_description": "您錯過了聊天中的訊息",
       "push": {
-        "title_one": "{{count}} 則未讀訊息",
         "title_other": "{{count}} 則未讀訊息",
-        "ios_title_one": "{{count}} 則未讀訊息",
         "ios_title_other": "{{count}} 則未讀訊息",
         "body": "您有新的未讀訊息。"
       }
@@ -290,7 +287,6 @@
         "title": "來自 {{user}} 的新接待請求",
         "ios_title": "{{user}}",
         "ios_subtitle": "新接待請求",
-        "body_one": "{{user}} 想從 {{start_date}} 起住宿 {{count}} 天。",
         "body_other": "{{user}} 想從 {{start_date}} 起住宿 {{count}} 天。"
       }
     },
@@ -440,7 +436,6 @@
         "title": "為 {{user}} 撰寫您的評語",
         "ios_title": "撰寫您的評語",
         "ios_subtitle": "{{user}}",
-        "body_one": "您還有 {{count}} 天時間為 {{user}} 撰寫評語。",
         "body_other": "您還有 {{count}} 天時間為 {{user}} 撰寫評語。"
       }
     },
