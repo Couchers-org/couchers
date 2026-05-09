@@ -179,7 +179,7 @@ def _get_content(
     icon_url = _avatar_url_or_default(icon_user) if icon_user else None
 
     return PushNotificationContent(
-        title=title, ios_title=title, ios_subtitle=ios_subtitle, body=body, icon_url=icon_url, action_url=action_url
+        title=title, ios_title=ios_title, ios_subtitle=ios_subtitle, body=body, icon_url=icon_url, action_url=action_url
     )
 
 
