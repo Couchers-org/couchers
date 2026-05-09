@@ -201,7 +201,12 @@
     "request_chars_remaining_other": "Por favor, escribe al menos {{count}} carácteres más para enviar una solicitud de hospedaje."
   },
   "message_form": {
-    "hosting_request_hint": "¿Enviando una solicitud de alojamiento? Usa el botón <request>Solicitar</request> en su lugar."
+    "hosting_request_hint": "¿Estas enviando una solicitud de alojamiento? Usa el botón <request>Solicitar</request> en su lugar.",
+    "send_message": "Envia un mensaje a {{name}}",
+    "message": "Mensaje",
+    "message_description": "Escribe tu mensaje...",
+    "message_empty": "Por favor, escribe un mensaje.",
+    "success": "¡Mensaje enviado!"
   },
   "my_connections": "Mis contactos",
   "active": "Activo",

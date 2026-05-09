@@ -35,7 +35,7 @@
     "cant_request_self": "No puedes solicitar alojamiento a ti mismo.",
     "cant_unaccept_community_guidelines": "No puedes revocar la aceptación de las Normas de la Comunidad.",
     "cant_unaccept_tos": "No puedes revocar la aceptación de los Términos del Servicio.",
-    "cant_unsee_messages": "No puedes desvisualizar los mensajes.",
+    "cant_unsee_messages": "No puedes ocultar los mensajes.",
     "cant_unsub_topic": "Lo sentimos, no puedes desuscribirte de este tema ahora mismo.",
     "cant_write_reference_for_request": "No puedes escribir una reseña para esa solicitud de alojamiento, o no fue encontrada.",
     "chat_not_found": "No se encontró esta conversación.",
@@ -126,7 +126,8 @@
     "group_not_found": "Grupo no encontrado.",
     "invalid_started_volunteering_date": "Fecha de inicio de voluntariado inválida.",
     "invalid_stopped_volunteering_date": "Fecha de fin de voluntariado inválida.",
-    "invalid_email": "Correo electrónico inválido."
+    "invalid_email": "Correo electrónico inválido.",
+    "cannot_reinstate_and_set_stopped_date": "No se puede reincorporar a un voluntario y establecer una fecha de baja al mismo tiempo."
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",
