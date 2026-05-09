@@ -12,7 +12,8 @@
     "tabs": {
       "chats": "Chats",
       "hosting": "Hosten",
-      "surfing": "Surfen"
+      "surfing": "Surfen",
+      "unread": "Ongelezen"
     },
     "title": "Berichten"
   },

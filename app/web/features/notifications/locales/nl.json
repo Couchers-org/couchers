@@ -27,7 +27,11 @@
         "reply": "Reacties"
       },
       "collapse_all": "Alles inklappen",
-      "description": "Al je wijzigingen worden automatisch opgeslagen. Houd er rekening mee dat je nog wel belangrijke meldingen over je account en andere content kunt ontvangen, los van je notificatievoorkeuren."
+      "description": "Al je wijzigingen worden automatisch opgeslagen. Houd er rekening mee dat je nog wel belangrijke meldingen over je account en andere content kunt ontvangen, los van je notificatievoorkeuren.",
+      "channels": {
+        "email_label": "E-mail",
+        "push_label": "Push"
+      }
     },
     "push_notifications": {
       "title": "Pushberichten",

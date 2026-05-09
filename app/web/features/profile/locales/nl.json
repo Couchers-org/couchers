@@ -238,7 +238,12 @@
     "success": "Verzoek verzonden!"
   },
   "message_form": {
-    "hosting_request_hint": "Een hosting-verzoek doen? Gebruik in plaats daarvan de <request>Verzoek</request> knop."
+    "hosting_request_hint": "Een hosting-verzoek doen? Gebruik in plaats daarvan de <request>Verzoek</request>-knop.",
+    "send_message": "Stuur {{name}} een bericht",
+    "message": "Bericht",
+    "message_description": "Schrijf je bericht...",
+    "message_empty": "Schrijf alsjeblieft een bericht.",
+    "success": "Bericht verzonden!"
   },
   "reference_filter_label": {
     "friend": "Van vrienden",
@@ -275,7 +280,7 @@
   "response_time_text_almost_all": "Meestal in {{p33}} tot {{p66}}",
   "unsaved_changes_warning": "Je hebt je wijzigingen niet opgeslagen. Weet je zeker dat je deze pagina wilt verlaten?",
   "profile_tag_input": {
-    "header_text": "Druk op 'Enter' om ons\n<support_link>een e-mail</support_link> te sturen om iets toe te voegen",
+    "header_text": "Druk op 'Enter' om toe te voegen\n<support_link>Stuur een e-mail</support_link> om iets toe te voegen",
     "remove_button_a11y_text": "{{tag}} weghalen"
   },
   "badges": {
@@ -326,5 +331,6 @@
     "next_photo": "Volgende foto",
     "close_viewer": "Fotoalbum sluiten",
     "report_photo": "Foto rapporteren"
-  }
+  },
+  "do_not_email_error_link": "Update je instellingen voor e-mail om dit weer aan te zetten."
 }
