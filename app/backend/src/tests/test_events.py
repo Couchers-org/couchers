@@ -2223,8 +2223,16 @@ def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
 
     process_jobs()
 
-    assert push_collector.pop_for_user(user1.id, last=True).content.title == f"{user2.name} • Dummy Title"
-    assert push_collector.pop_for_user(user2.id, last=True).content.title == f"{user3.name} • Dummy Title"
+    push = push_collector.pop_for_user(user1.id, last=True)
+    assert push.topic_action == NotificationTopicAction.event__comment.display
+    assert push.content.title == f"{user2.name} • Dummy Title"
+    assert push.content.ios_title == user2.name
+    assert push.content.ios_subtitle == "Commented on Dummy Title"
+    assert push.content.body == "hi"
+
+    push = push_collector.pop_for_user(user2.id, last=True)
+    assert push.content.title == f"{user3.name} • Dummy Title"
+
     assert push_collector.count_for_user(user4_id) == 0
 
 
