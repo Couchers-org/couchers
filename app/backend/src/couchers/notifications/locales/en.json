@@ -290,8 +290,8 @@
         "title": "New host request from {{user}}",
         "ios_title": "{{user}}",
         "ios_subtitle": "New Host Request",
-        "body2_one": "{{user}} wants to stay from {{start_date}} for {{count}} night.",
-        "body2_other": "{{user}} wants to stay from {{start_date}} for {{count}} nights."
+        "body_one": "{{user}} wants to stay from {{start_date}} for {{count}} night.",
+        "body_other": "{{user}} wants to stay from {{start_date}} for {{count}} nights."
       }
     },
     "message": {

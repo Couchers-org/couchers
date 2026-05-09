@@ -151,7 +151,6 @@ def _get_content(
     ios_title: str | None = None,
     ios_subtitle: str | None = None,
     body: str | None = None,
-    body_key: str | None = None,
     substitutions: dict[str, str | int] | None = None,
     icon_user: api_pb2.User | None = None,
     action_url: str | None = None,
@@ -175,7 +174,7 @@ def _get_content(
             # Not all notifications have subtitles
             pass
     if body is None:
-        body = _get_string(string_group, body_key or "body", loc_context, substitutions)
+        body = _get_string(string_group, "body", loc_context, substitutions)
 
     icon_url = _avatar_url_or_default(icon_user) if icon_user else None
 
@@ -514,7 +513,6 @@ def _render_host_request__create(
     return _get_content(
         NotificationTopicAction.host_request__create,
         loc_context,
-        body_key="body2",
         substitutions={
             "user": data.surfer.name,
             "start_date": loc_context.localize_date_from_iso(data.host_request.from_date),
