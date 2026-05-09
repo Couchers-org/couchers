@@ -2224,7 +2224,7 @@ def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
     process_jobs()
 
     push = push_collector.pop_for_user(user1.id, last=True)
-    assert push.topic_action == NotificationTopicAction.event__comment
+    assert push.topic_action == NotificationTopicAction.event__comment.display
     assert push.content.title == f"{user2.name} • Dummy Title"
     assert push.content.ios_title == user2.name
     assert push.content.ios_subtitle == "Dummy Title"

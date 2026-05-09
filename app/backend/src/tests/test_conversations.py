@@ -20,7 +20,7 @@ from couchers.proto import api_pb2, conversations_pb2, notification_data_pb2, no
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.utils import Duration_from_timedelta, now, to_aware_datetime
 from tests.fixtures.db import generate_user, make_friends, make_user_block, make_user_invisible
-from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
+from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email, process_jobs
 from tests.fixtures.sessions import api_session, conversations_session, notifications_session
 
 
@@ -723,16 +723,17 @@ def test_send_direct_message(db, moderator, push_collector: PushCollector):
 
         c1.SendDirectMessage(conversations_pb2.SendDirectMessageReq(recipient_user_id=user2.id, text=message2))
 
+    process_jobs()
+
     push = push_collector.pop_for_user(user2.id, last=False)
-    assert push.topic_action == NotificationTopicAction.chat__message
+    assert push.topic_action == NotificationTopicAction.chat__message.display
     assert push.content.title == user1.name
     assert push.content.body == message1
 
     push = push_collector.pop_for_user(user2.id, last=True)
-    assert push.topic_action == NotificationTopicAction.chat__message
+    assert push.topic_action == NotificationTopicAction.chat__message.display
     assert push.content.title == user1.name
     assert push.content.body == message2
-
 
     with conversations_session(token2) as c2:
         # Fetch the chat by ID returned from SendDirectMessage
