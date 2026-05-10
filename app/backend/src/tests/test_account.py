@@ -17,6 +17,8 @@ from couchers.models import (
     BackgroundJob,
     InviteCode,
     PhotoGalleryItem,
+    ReminderDismissal,
+    ReminderType,
     Upload,
     User,
 )
@@ -1105,6 +1107,174 @@ def test_reminders(db, moderator):
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id
         assert reminders[1].respond_to_host_request_reminder.host_request_id == host_request3_id
         assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+
+def test_DismissReminder_complete_profile(db):
+    user, token = generate_user(complete_profile=False)
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with account_session(token) as account:
+        kinds = [r.WhichOneof("reminder") for r in account.GetReminders(empty_pb2.Empty()).reminders]
+        assert "complete_profile_reminder" in kinds
+
+        account.DismissReminder(
+            account_pb2.DismissReminderReq(reminder_type=account_pb2.REMINDER_TYPE_COMPLETE_PROFILE)
+        )
+
+        kinds = [r.WhichOneof("reminder") for r in account.GetReminders(empty_pb2.Empty()).reminders]
+        assert "complete_profile_reminder" not in kinds
+
+
+def test_DismissReminder_global_cooldown(db):
+    user, token = generate_user(complete_profile=False)
+
+    with account_session(token) as account:
+        account.DismissReminder(
+            account_pb2.DismissReminderReq(reminder_type=account_pb2.REMINDER_TYPE_COMPLETE_PROFILE)
+        )
+        kinds = [r.WhichOneof("reminder") for r in account.GetReminders(empty_pb2.Empty()).reminders]
+        assert "complete_profile_reminder" not in kinds
+
+    # Push the dismissal past the 90-day cooldown.
+    with session_scope() as session:
+        session.execute(
+            update(ReminderDismissal)
+            .where(ReminderDismissal.user_id == user.id)
+            .values(dismissed_at=now() - timedelta(days=91))
+        )
+
+    with account_session(token) as account:
+        kinds = [r.WhichOneof("reminder") for r in account.GetReminders(empty_pb2.Empty()).reminders]
+        assert "complete_profile_reminder" in kinds
+
+
+def test_DismissReminder_redismiss_refreshes_cooldown(db):
+    user, token = generate_user(complete_profile=False)
+
+    with account_session(token) as account:
+        account.DismissReminder(
+            account_pb2.DismissReminderReq(reminder_type=account_pb2.REMINDER_TYPE_COMPLETE_PROFILE)
+        )
+
+    # Simulate 30 days passing.
+    with session_scope() as session:
+        session.execute(
+            update(ReminderDismissal)
+            .where(ReminderDismissal.user_id == user.id)
+            .values(dismissed_at=now() - timedelta(days=30))
+        )
+
+    with account_session(token) as account:
+        # Re-dismiss: should refresh dismissed_at to roughly now.
+        account.DismissReminder(
+            account_pb2.DismissReminderReq(reminder_type=account_pb2.REMINDER_TYPE_COMPLETE_PROFILE)
+        )
+
+    with session_scope() as session:
+        dismissed_at = session.execute(
+            select(ReminderDismissal.dismissed_at).where(ReminderDismissal.user_id == user.id)
+        ).scalar_one()
+        # Should be within the last few seconds, not 30 days ago.
+        assert (now() - dismissed_at) < timedelta(minutes=1)
+
+
+def test_DismissReminder_host_request(db, moderator):
+    host, host_token = generate_user(complete_profile=True)
+    surfer1, surfer1_token = generate_user(complete_profile=True)
+    surfer2, surfer2_token = generate_user(complete_profile=True)
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+    with requests_session(surfer1_token) as api:
+        hr1_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test 1"),
+            )
+        ).host_request_id
+    moderator.approve_host_request(hr1_id)
+    with requests_session(surfer2_token) as api:
+        hr2_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text("Test 2"),
+            )
+        ).host_request_id
+    moderator.approve_host_request(hr2_id)
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+
+    with account_session(host_token) as account:
+        # Dismissing one host request reminder leaves the other untouched.
+        account.DismissReminder(
+            account_pb2.DismissReminderReq(
+                reminder_type=account_pb2.REMINDER_TYPE_RESPOND_TO_HOST_REQUEST,
+                host_request_id=hr1_id,
+            )
+        )
+
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        host_request_reminders = [
+            r for r in reminders if r.WhichOneof("reminder") == "respond_to_host_request_reminder"
+        ]
+        assert len(host_request_reminders) == 1
+        assert host_request_reminders[0].respond_to_host_request_reminder.host_request_id == hr2_id
+
+
+def test_DismissReminder_validation(db):
+    user, token = generate_user(complete_profile=False)
+
+    with account_session(token) as account:
+        # Global type with host_request_id set.
+        with pytest.raises(grpc.RpcError) as e:
+            account.DismissReminder(
+                account_pb2.DismissReminderReq(
+                    reminder_type=account_pb2.REMINDER_TYPE_COMPLETE_PROFILE,
+                    host_request_id=42,
+                )
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "host_request_id must not be set for this reminder type."
+
+        # Entity type without host_request_id.
+        with pytest.raises(grpc.RpcError) as e:
+            account.DismissReminder(
+                account_pb2.DismissReminderReq(reminder_type=account_pb2.REMINDER_TYPE_RESPOND_TO_HOST_REQUEST)
+            )
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "host_request_id is required for this reminder type."
+
+        # Unspecified.
+        with pytest.raises(grpc.RpcError) as e:
+            account.DismissReminder(account_pb2.DismissReminderReq(reminder_type=account_pb2.REMINDER_TYPE_UNSPECIFIED))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert e.value.details() == "Invalid reminder type."
+
+
+def test_DismissReminder_idempotent(db):
+    user, token = generate_user(complete_profile=False)
+
+    with account_session(token) as account:
+        account.DismissReminder(
+            account_pb2.DismissReminderReq(reminder_type=account_pb2.REMINDER_TYPE_COMPLETE_PROFILE)
+        )
+        # Re-dismissing should not raise.
+        account.DismissReminder(
+            account_pb2.DismissReminderReq(reminder_type=account_pb2.REMINDER_TYPE_COMPLETE_PROFILE)
+        )
+
+    with session_scope() as session:
+        rows = session.execute(
+            select(ReminderDismissal).where(
+                ReminderDismissal.user_id == user.id,
+                ReminderDismissal.reminder_type == ReminderType.complete_profile,
+            )
+        ).all()
+        assert len(rows) == 1
 
 
 def test_volunteer_stuff(db):

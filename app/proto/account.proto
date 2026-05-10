@@ -112,6 +112,12 @@ service Account {
     // Reminders to be shown on dashboard for things the user should do
   }
 
+  rpc DismissReminder(DismissReminderReq) returns (google.protobuf.Empty) {
+    // Dismisses a dashboard reminder. Global reminders (profile/verification) are
+    // hidden for a cooldown period; entity reminders are dismissed permanently for
+    // that host_request_id.
+  }
+
   rpc GetMyVolunteerInfo(google.protobuf.Empty) returns (GetMyVolunteerInfoRes) {
     // Returns info about the current user's volunteer status if they are volunteer
   }
@@ -334,6 +340,21 @@ message Reminder {
 message GetRemindersRes {
   // items are returned in order from most important to least important and should be displayed as such
   repeated Reminder reminders = 1;
+}
+
+enum ReminderType {
+  REMINDER_TYPE_UNSPECIFIED = 0;
+  REMINDER_TYPE_COMPLETE_PROFILE = 1;
+  REMINDER_TYPE_COMPLETE_VERIFICATION = 2;
+  REMINDER_TYPE_RESPOND_TO_HOST_REQUEST = 3;
+  REMINDER_TYPE_WRITE_REFERENCE = 4;
+}
+
+message DismissReminderReq {
+  ReminderType reminder_type = 1;
+  // Required for RESPOND_TO_HOST_REQUEST and WRITE_REFERENCE; must be unset
+  // for COMPLETE_PROFILE and COMPLETE_VERIFICATION.
+  optional int64 host_request_id = 2;
 }
 
 message GetMyVolunteerInfoRes {

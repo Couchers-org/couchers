@@ -49,6 +49,8 @@ from couchers.models import (
     InviteCode,
     ModNote,
     ProfilePublicVisibility,
+    ReminderDismissal,
+    ReminderType,
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
     StrongVerificationCallbackEvent,
@@ -119,6 +121,19 @@ profilepublicitysetting2api = {
 }
 
 MAX_PAGINATION_LENGTH = 50
+
+# How long a dismissal of a global reminder (complete profile / verification) hides the reminder.
+REMINDER_DISMISSAL_COOLDOWN = timedelta(days=90)
+
+remindertype2sql = {
+    account_pb2.REMINDER_TYPE_COMPLETE_PROFILE: ReminderType.complete_profile,
+    account_pb2.REMINDER_TYPE_COMPLETE_VERIFICATION: ReminderType.complete_verification,
+    account_pb2.REMINDER_TYPE_RESPOND_TO_HOST_REQUEST: ReminderType.respond_to_host_request,
+    account_pb2.REMINDER_TYPE_WRITE_REFERENCE: ReminderType.write_reference,
+}
+
+GLOBAL_REMINDER_TYPES = {ReminderType.complete_profile, ReminderType.complete_verification}
+ENTITY_REMINDER_TYPES = {ReminderType.respond_to_host_request, ReminderType.write_reference}
 
 
 def mod_note_to_pb(note: ModNote) -> account_pb2.ModNote:
@@ -739,6 +754,28 @@ class Account(account_pb2_grpc.AccountServicer):
     ) -> account_pb2.GetRemindersRes:
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
+        # Global reminders are hidden until the cooldown lapses; entity reminders are hidden permanently.
+        dismissed_globals = set(
+            session.execute(
+                select(ReminderDismissal.reminder_type).where(
+                    ReminderDismissal.user_id == context.user_id,
+                    ReminderDismissal.host_request_id.is_(None),
+                    ReminderDismissal.dismissed_at > func.now() - REMINDER_DISMISSAL_COOLDOWN,
+                )
+            )
+            .scalars()
+            .all()
+        )
+        dismissed_host_request_ids = {
+            (rtype, hr_id)
+            for rtype, hr_id in session.execute(
+                select(ReminderDismissal.reminder_type, ReminderDismissal.host_request_id).where(
+                    ReminderDismissal.user_id == context.user_id,
+                    ReminderDismissal.host_request_id.is_not(None),
+                )
+            ).all()
+        }
+
         # responding to reqs comes first in desc order of when they were received
         query = select(HostRequest.conversation_id, LiteUser).join(
             LiteUser, LiteUser.id == HostRequest.initiator_user_id
@@ -759,6 +796,7 @@ class Account(account_pb2_grpc.AccountServicer):
                 )
             )
             for host_request_id, lite_user in pending_host_requests
+            if (ReminderType.respond_to_host_request, host_request_id) not in dismissed_host_request_ids
         ]
 
         # references come second, in order of deadline, desc
@@ -771,12 +809,50 @@ class Account(account_pb2_grpc.AccountServicer):
                 )
             )
             for host_request_id, reference_type, _, lite_user in get_pending_references_to_write(session, context)
+            if (ReminderType.write_reference, host_request_id) not in dismissed_host_request_ids
         ]
 
-        if not has_completed_profile(session, user):
+        if not has_completed_profile(session, user) and ReminderType.complete_profile not in dismissed_globals:
             reminders.append(account_pb2.Reminder(complete_profile_reminder=account_pb2.CompleteProfileReminder()))
 
         return account_pb2.GetRemindersRes(reminders=reminders)
+
+    def DismissReminder(
+        self, request: account_pb2.DismissReminderReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        rtype = remindertype2sql.get(request.reminder_type)
+        if rtype is None:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_reminder_type")
+
+        has_hr = request.HasField("host_request_id")
+        if rtype in GLOBAL_REMINDER_TYPES:
+            if has_hr:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "host_request_id_not_allowed")
+            hr_id = None
+        else:
+            if not has_hr:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "host_request_id_required")
+            hr_id = request.host_request_id
+
+        existing = session.execute(
+            select(ReminderDismissal).where(
+                ReminderDismissal.user_id == context.user_id,
+                ReminderDismissal.reminder_type == rtype,
+                (
+                    ReminderDismissal.host_request_id.is_(None)
+                    if hr_id is None
+                    else ReminderDismissal.host_request_id == hr_id
+                ),
+            )
+        ).scalar_one_or_none()
+
+        if existing is None:
+            session.add(ReminderDismissal(user_id=context.user_id, reminder_type=rtype, host_request_id=hr_id))
+        else:
+            # Re-dismissing refreshes the cooldown for global types; harmless no-op for entity types.
+            existing.dismissed_at = func.now()
+
+        return empty_pb2.Empty()
 
     def GetMyVolunteerInfo(
         self, request: empty_pb2.Empty, context: CouchersContext, session: Session
