@@ -13,12 +13,17 @@ from couchers.proto import blocking_pb2, blocking_pb2_grpc
 
 def is_not_visible(session: Session, user1_id: int | None, user2_id: int | None) -> bool:
     """
-    Check if users are not visible to each other (due to block or because either account is deleted/banned).
+    Check if users are not visible to each other (due to block or because either account is deleted/banned/shadowed).
     """
     hidden_users = select(User.id).where(or_(User.id == user1_id, User.id == user2_id)).where(not_(User.is_visible))
+    shadowed_target = select(User.id).where(User.id == user2_id).where(User.shadowed_at.is_not(None))
+    if user1_id is not None:
+        shadowed_target = shadowed_target.where(User.id != user1_id)
     # if either user_id is empty, just check if either user is hidden (as they can't block each other)
     if not user1_id or not user2_id:
-        return session.execute(select(union(hidden_users).subquery()).limit(1)).one_or_none() is not None
+        return (
+            session.execute(select(union(hidden_users, shadowed_target).subquery()).limit(1)).one_or_none() is not None
+        )
     else:
         blocked_users = (
             select(UserBlock.blocked_user_id)
@@ -32,7 +37,7 @@ def is_not_visible(session: Session, user1_id: int | None, user2_id: int | None)
         )
         return (
             session.execute(
-                select(union(blocked_users, blocking_users, hidden_users).subquery()).limit(1)
+                select(union(blocked_users, blocking_users, hidden_users, shadowed_target).subquery()).limit(1)
             ).one_or_none()
             is not None
         )
