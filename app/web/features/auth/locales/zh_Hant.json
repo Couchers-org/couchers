@@ -1,4 +1,4 @@
-﻿{
+{
   "change_email_form": {
     "title": "更改電子郵件",
     "current_email_message": "您目前的電子郵件地址是 <1>{{email}}</1>。",
