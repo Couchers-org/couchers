@@ -194,8 +194,6 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         start_time=Timestamp_from_datetime(occurrence.start_time),
         end_time=Timestamp_from_datetime(occurrence.end_time),
         timezone=occurrence.timezone,
-        start_time_display=str(occurrence.start_time),
-        end_time_display=str(occurrence.end_time),
         attendance_state=attendancestate2api[attendance_state],
         organizer=event.organizers.where(EventOrganizer.user_id == context.user_id).one_or_none() is not None,
         subscriber=event.subscribers.where(EventSubscription.user_id == context.user_id).one_or_none() is not None,
