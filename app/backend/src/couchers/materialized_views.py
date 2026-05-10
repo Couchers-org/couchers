@@ -1,7 +1,7 @@
 import logging
 import typing
 from collections.abc import Sequence
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 from google.protobuf import empty_pb2
@@ -184,6 +184,7 @@ def make_lite_users_selectable(create: bool = False) -> Select[Any]:
             geom_column.label("geom"),
             User.geom_radius.label("radius"),
             User.is_visible.label("is_visible"),
+            User.shadowed_at.label("shadowed_at"),
             Upload.filename.label("avatar_filename"),
             has_completed_profile_expression().label("has_completed_profile"),
             User.has_completed_my_home.label("has_completed_my_home"),
@@ -241,6 +242,7 @@ class LiteUser(MatViewBase):
     geom: Mapped[Geom]
     radius: Mapped[float]
     is_visible: Mapped[bool]
+    shadowed_at: Mapped[datetime | None]
     avatar_filename: Mapped[str]
     has_completed_profile: Mapped[bool]
     has_completed_my_home: Mapped[bool]

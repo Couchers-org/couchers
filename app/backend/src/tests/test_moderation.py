@@ -26,6 +26,7 @@ from couchers.models import (
     ModerationState,
     ModerationTrigger,
     ModerationVisibility,
+    User,
 )
 from couchers.moderation.utils import create_moderation
 from couchers.proto import api_pb2, conversations_pb2, events_pb2, moderation_pb2, notifications_pb2, requests_pb2
@@ -2146,6 +2147,68 @@ def test_auto_approve_does_not_approve_moderator_shadowed_items(db):
         with pytest.raises(grpc.RpcError) as e:
             api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
+def test_auto_approve_skips_shadowed_user_authored_items(db):
+    """Auto-approval must not promote content authored by a currently-shadowed user."""
+    moderator, mod_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, host_token = generate_user()
+
+    today_plus_2 = (today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (today() + timedelta(days=3)).isoformat()
+
+    with requests_session(surfer_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+
+    # Shadow the surfer after the host request was created
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == surfer.id)).scalar_one().shadowed_at = now()
+
+    # Backdate the queue item to make it eligible for auto-approval
+    with session_scope() as session:
+        host_request = session.execute(
+            select(HostRequest).where(HostRequest.conversation_id == host_request_id)
+        ).scalar_one()
+        queue_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == host_request.moderation_state_id)
+            .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+        ).scalar_one()
+        queue_item.time_created = datetime.now(queue_item.time_created.tzinfo) - timedelta(minutes=10)
+
+    config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 60
+    config["MODERATION_BOT_USER_ID"] = moderator.id
+
+    auto_approve_moderation_queue(empty_pb2.Empty())
+
+    # State should remain SHADOWED — the auto-approve job must skip shadowed-user content
+    with real_moderation_session(mod_token) as api:
+        state_res = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST,
+                object_id=host_request_id,
+            )
+        )
+        assert state_res.moderation_state.visibility == moderation_pb2.MODERATION_VISIBILITY_SHADOWED
+
+    # Host still cannot see the request
+    with requests_session(host_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+    # But the (shadowed) author can still see their own request
+    with requests_session(surfer_token) as api:
+        res = api.GetHostRequest(requests_pb2.GetHostRequestReq(host_request_id=host_request_id))
+        assert res.host_request_id == host_request_id
 
 
 # ============================================================================

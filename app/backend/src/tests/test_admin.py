@@ -21,7 +21,15 @@ from couchers.models import (
     UserActivity,
     UserSession,
 )
-from couchers.proto import account_pb2, admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
+from couchers.proto import (
+    account_pb2,
+    admin_pb2,
+    auth_pb2,
+    events_pb2,
+    references_pb2,
+    reporting_pb2,
+    requests_pb2,
+)
 from couchers.utils import Timestamp_from_datetime, now, parse_date
 from tests.fixtures.db import add_users_to_new_moderation_list, generate_user, make_friends
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
@@ -32,8 +40,10 @@ from tests.fixtures.sessions import (
     real_admin_session,
     references_session,
     reporting_session,
+    requests_session,
 )
 from tests.test_communities import create_community
+from tests.test_requests import valid_request_text
 
 
 @pytest.fixture(autouse=True)
@@ -207,6 +217,77 @@ def test_UnbanUser(db):
     assert len(res.admin_actions) == 1
     assert res.admin_actions[0].action_type == "unban"
     assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+
+
+def test_ShadowUser(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    admin_note = "Spammer"
+
+    # Create a host request from `surfer` and approve its moderation state to VISIBLE so we can verify the cascade
+    today_plus_2 = (date.today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (date.today() + timedelta(days=3)).isoformat()
+    with requests_session(surfer_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.host_request)
+            .where(ModerationState.object_id == host_request_id)
+        ).scalar_one()
+        state.visibility = ModerationVisibility.visible
+
+    with real_admin_session(super_token) as api:
+        res = api.ShadowUser(admin_pb2.ShadowUserReq(user=surfer.username, admin_note=admin_note))
+    assert res.user_id == surfer.id
+    assert res.shadowed
+    assert not res.banned
+    assert not res.deleted
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "shadow"
+    assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+    assert res.admin_actions[0].note == admin_note
+
+    # The previously-visible host request is now shadowed
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.host_request)
+            .where(ModerationState.object_id == host_request_id)
+        ).scalar_one()
+        assert state.visibility == ModerationVisibility.shadowed
+
+
+def test_UnshadowUser(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == normal_user.id)).scalar_one().shadowed_at = now()
+
+    with real_admin_session(super_token) as api:
+        res = api.UnshadowUser(admin_pb2.UnshadowUserReq(user=normal_user.username, admin_note="rehabilitated"))
+    assert not res.shadowed
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "unshadow"
+    assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+
+
+def test_ShadowUser_blank_note(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ShadowUser(admin_pb2.ShadowUserReq(user=normal_user.username, admin_note="  \t  "))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_AddAdminNote(db):

@@ -112,7 +112,7 @@ from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.events import (
     event_to_pb,
 )
-from couchers.servicers.moderation import Moderation
+from couchers.servicers.moderation import Moderation, moderation_state_ids_authored_by_shadowed_users
 from couchers.servicers.requests import host_request_to_pb
 from couchers.sql import (
     users_visible_to_each_other,
@@ -1544,8 +1544,16 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
         if not items:
             return
 
-        logger.info(f"Auto-approving {len(items)} moderation queue items")
-        for item in items:
+        # Skip items whose author is shadowed; their content stays in shadowed state indefinitely
+        shadowed_state_ids = moderation_state_ids_authored_by_shadowed_users(
+            session, [item.moderation_state_id for item in items]
+        )
+        approvable = [item for item in items if item.moderation_state_id not in shadowed_state_ids]
+        if not approvable:
+            return
+
+        logger.info(f"Auto-approving {len(approvable)} moderation queue items")
+        for item in approvable:
             Moderation().ModerateContent(
                 request=moderation_pb2.ModerateContentReq(
                     moderation_state_id=item.moderation_state_id,
@@ -1556,4 +1564,4 @@ def auto_approve_moderation_queue(payload: empty_pb2.Empty) -> None:
                 context=ctx,
                 session=session,
             )
-        moderation_auto_approved_counter.inc(len(items))
+        moderation_auto_approved_counter.inc(len(approvable))

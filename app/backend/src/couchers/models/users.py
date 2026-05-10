@@ -185,6 +185,7 @@ class User(Base, kw_only=True):
 
     banned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    shadowed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
     is_editor: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
@@ -511,6 +512,15 @@ class User(Base, kw_only=True):
     @classmethod
     def _is_visible_expression(cls) -> ColumnElement[bool]:
         return and_(cls.banned_at.is_(None), cls.deleted_at.is_(None))
+
+    @hybrid_property
+    def is_shadowed(self) -> bool:
+        return self.shadowed_at is not None
+
+    @is_shadowed.inplace.expression
+    @classmethod
+    def _is_shadowed_expression(cls) -> ColumnElement[bool]:
+        return cls.shadowed_at.is_not(None)
 
     @property
     def coordinates(self) -> tuple[float, float]:
