@@ -408,6 +408,8 @@ class Reference(Base, kw_only=True):
     """
 
     __tablename__ = "references"
+    __moderation_author_column__ = "from_user_id"
+    __moderation_object_type__ = ModerationObjectType.reference
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
     # timezone should always be UTC
@@ -417,6 +419,8 @@ class Reference(Base, kw_only=True):
     to_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     reference_type: Mapped[ReferenceType] = mapped_column(Enum(ReferenceType))
+
+    moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
 
     host_request_id: Mapped[int | None] = mapped_column(ForeignKey("host_requests.id"), default=None)
 
@@ -433,6 +437,7 @@ class Reference(Base, kw_only=True):
     to_user: Mapped[User] = relationship(init=False, backref="references_to", foreign_keys="Reference.to_user_id")
 
     host_request: Mapped[HostRequest | None] = relationship(init=False, backref="references")
+    moderation_state: Mapped[ModerationState] = relationship(init=False)
 
     __table_args__ = (
         # Rating must be between 0 and 1, inclusive

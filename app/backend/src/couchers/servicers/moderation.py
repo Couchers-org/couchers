@@ -33,6 +33,7 @@ from couchers.models import (
     ModerationVisibility,
     Notification,
     NotificationDelivery,
+    Reference,
     Reply,
     User,
     get_moderated_models,
@@ -107,6 +108,7 @@ moderationobjecttype2api = {
     ModerationObjectType.comment: moderation_pb2.MODERATION_OBJECT_TYPE_COMMENT,
     ModerationObjectType.reply: moderation_pb2.MODERATION_OBJECT_TYPE_REPLY,
     ModerationObjectType.discussion: moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION,
+    ModerationObjectType.reference: moderation_pb2.MODERATION_OBJECT_TYPE_REFERENCE,
 }
 
 moderationobjecttype2sql = {
@@ -118,6 +120,7 @@ moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_COMMENT: ModerationObjectType.comment,
     moderation_pb2.MODERATION_OBJECT_TYPE_REPLY: ModerationObjectType.reply,
     moderation_pb2.MODERATION_OBJECT_TYPE_DISCUSSION: ModerationObjectType.discussion,
+    moderation_pb2.MODERATION_OBJECT_TYPE_REFERENCE: ModerationObjectType.reference,
 }
 
 
@@ -261,6 +264,10 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
             select(Discussion.creator_user_id, Discussion.title, Discussion.content).where(Discussion.id == object_id)
         ).one()
         content = f"{title}\n\n{body}"
+    elif object_type == ModerationObjectType.reference:
+        author_user_id, content = session.execute(
+            select(Reference.from_user_id, Reference.text).where(Reference.id == object_id)
+        ).one()
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
 

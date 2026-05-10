@@ -718,7 +718,8 @@ def test_EditReferenceText(db):
         assert modified_reference.text == test_new_text
 
 
-def test_DeleteReference(db):
+def test_DeleteReference_deprecated(db):
+    """DeleteReference is deprecated; admins should hide via UMS instead."""
     super_user, super_token = generate_user(is_superuser=True)
 
     user1, user1_token = generate_user()
@@ -732,20 +733,15 @@ def test_DeleteReference(db):
             )
         )
 
-    with references_session(user1_token) as api:
-        assert api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
-
     with real_admin_session(super_token) as admin_api:
-        admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=reference.reference_id))
+        with pytest.raises(grpc.RpcError) as e:
+            admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=reference.reference_id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
-    with references_session(user1_token) as api:
-        assert not api.ListReferences(references_pb2.ListReferencesReq(from_user_id=user1.id)).references
-
+    # The reference is unchanged on disk.
     with session_scope() as session:
-        modified_reference = session.execute(
-            select(Reference).where(Reference.id == reference.reference_id)
-        ).scalar_one()
-        assert modified_reference.is_deleted
+        ref_row = session.execute(select(Reference).where(Reference.id == reference.reference_id)).scalar_one()
+        assert not ref_row.is_deleted
 
 
 def test_GetUserReferences(db):
@@ -794,11 +790,7 @@ def test_GetUserReferences(db):
             )
         )
 
-    # Delete ref3
-    with real_admin_session(super_token) as admin_api:
-        admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=ref3.reference_id))
-
-    # Test GetUserReferences for user1
+    # Test GetUserReferences for user1 (admin view shows everything regardless of UMS state).
     with real_admin_session(super_token) as admin_api:
         res = admin_api.GetUserReferences(admin_pb2.GetUserReferencesReq(user=user1.username))
 
@@ -810,11 +802,10 @@ def test_GetUserReferences(db):
         assert res.references_from[0].text == "Reference from user1 to user2"
         assert res.references_from[0].is_deleted is False
 
-        # user1 received 2 references (including the deleted one)
+        # user1 received 2 references
         assert len(res.references_to) == 2
         # Ordered by id descending, so ref3 comes first
         assert res.references_to[0].reference_id == ref3.reference_id
-        assert res.references_to[0].is_deleted is True
         assert res.references_to[0].was_appropriate is False
 
         assert res.references_to[1].reference_id == ref2.reference_id

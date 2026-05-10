@@ -17,8 +17,9 @@ from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import are_friends
 from couchers.event_log import log_event
 from couchers.materialized_views import LiteUser
-from couchers.models import HostRequest, Reference, ReferenceType, User
+from couchers.models import HostRequest, ModerationObjectType, Reference, ReferenceType, User
 from couchers.models.notifications import NotificationTopicAction
+from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import notification_data_pb2, references_pb2, references_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
@@ -179,6 +180,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         to_users = aliased(User)
         from_users = aliased(User)
         statement = select(Reference).where(Reference.is_deleted == False)
+        statement = where_moderated_content_visible(statement, context, Reference, is_list_operation=True)
         if request.from_user_id:
             # join the to_users, because only interested if the recipient is visible
             statement = (
@@ -271,16 +273,31 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         reference_text = request.text.strip()
 
-        reference = Reference(
-            from_user_id=context.user_id,
-            to_user_id=request.to_user_id,
-            reference_type=ReferenceType.friend,
-            text=reference_text,
-            private_text=request.private_text.strip(),
-            rating=request.rating,
-            was_appropriate=request.was_appropriate,
+        reference: Reference | None = None
+
+        def create_object(moderation_state_id: int) -> int:
+            nonlocal reference
+            reference = Reference(
+                from_user_id=context.user_id,
+                to_user_id=request.to_user_id,
+                reference_type=ReferenceType.friend,
+                text=reference_text,
+                private_text=request.private_text.strip(),
+                rating=request.rating,
+                was_appropriate=request.was_appropriate,
+                moderation_state_id=moderation_state_id,
+            )
+            session.add(reference)
+            session.flush()
+            return reference.id
+
+        create_moderation(
+            session=session,
+            object_type=ModerationObjectType.reference,
+            object_id=create_object,
+            creator_user_id=context.user_id,
         )
-        session.add(reference)
+        assert reference is not None
         session.commit()
 
         # send the recipient of the reference a reminder
@@ -293,6 +310,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 from_user=user_model_to_pb(user, session, make_background_user_context(user_id=request.to_user_id)),
                 text=reference_text,
             ),
+            moderation_state_id=reference.moderation_state_id,
         )
 
         # possibly send out an alert to the mod team if the reference was bad
@@ -333,18 +351,32 @@ class References(references_pb2_grpc.ReferencesServicer):
             to_user_id = host_request.initiator_user_id
             assert context.user_id == host_request.recipient_user_id
 
-        reference = Reference(
-            from_user_id=context.user_id,
-            to_user_id=to_user_id,
-            host_request_id=host_request.conversation_id,
-            text=reference_text,
-            private_text=request.private_text.strip(),
-            rating=request.rating,
-            was_appropriate=request.was_appropriate,
-            reference_type=reference_type,
-        )
+        reference: Reference | None = None
 
-        session.add(reference)
+        def create_object(moderation_state_id: int) -> int:
+            nonlocal reference
+            reference = Reference(
+                from_user_id=context.user_id,
+                to_user_id=to_user_id,
+                host_request_id=host_request.conversation_id,
+                text=reference_text,
+                private_text=request.private_text.strip(),
+                rating=request.rating,
+                was_appropriate=request.was_appropriate,
+                reference_type=reference_type,
+                moderation_state_id=moderation_state_id,
+            )
+            session.add(reference)
+            session.flush()
+            return reference.id
+
+        create_moderation(
+            session=session,
+            object_type=ModerationObjectType.reference,
+            object_id=create_object,
+            creator_user_id=context.user_id,
+        )
+        assert reference is not None
         session.commit()
 
         other_reference = session.execute(
@@ -369,6 +401,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 from_user=user_model_to_pb(user, session, make_background_user_context(user_id=reference.to_user_id)),
                 text=reference_text if other_reference is not None else None,
             ),
+            moderation_state_id=reference.moderation_state_id,
         )
 
         # possibly send out an alert to the mod team if the reference was bad
