@@ -67,8 +67,8 @@
   },
   "reminder": {
     "respond_to_host_request": {
-      "title": "Respond to host request",
-      "description": "Don't forget to respond to {{name}} about their stay.",
+      "title": "Respond to {{name}}",
+      "description": "Don't forget to respond to the host request by {{name}}.",
       "button": "View request"
     },
     "write_reference": {

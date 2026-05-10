@@ -25,7 +25,11 @@ describe("ReminderItem", () => {
     );
 
     expect(
-      screen.getByText(t("dashboard:reminder.respond_to_host_request.title")),
+      screen.getByText(
+        t("dashboard:reminder.respond_to_host_request.title", {
+          name: surferUser.name,
+        }),
+      ),
     ).toBeVisible();
     expect(
       screen.getByText(

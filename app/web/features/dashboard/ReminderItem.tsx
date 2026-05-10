@@ -1,4 +1,4 @@
-import { Box, Typography, useColorScheme } from "@mui/material";
+import { alpha, Box, Typography } from "@mui/material";
 import { useMediaQuery } from "@mui/system";
 import Button from "components/Button";
 import { useTranslation } from "i18n";
@@ -21,12 +21,8 @@ export default function ReminderItem({
   reminder: Reminder.AsObject;
 }) {
   const { t } = useTranslation([DASHBOARD]);
-  const { mode, systemMode } = useColorScheme();
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-  const resolvedMode = mode === "system" ? systemMode : mode;
-  const isDark = resolvedMode === "dark";
 
   let title: string;
   let description: string;
@@ -35,10 +31,9 @@ export default function ReminderItem({
 
   if (reminder.respondToHostRequestReminder) {
     const { hostRequestId, surferUser } = reminder.respondToHostRequestReminder;
-    title = t("reminder.respond_to_host_request.title");
-    description = t("reminder.respond_to_host_request.description", {
-      name: surferUser?.name ?? "",
-    });
+    const name = surferUser?.name ?? "";
+    title = t("reminder.respond_to_host_request.title", { name });
+    description = t("reminder.respond_to_host_request.description", { name });
     buttonText = t("reminder.respond_to_host_request.button");
     href = routeToHostRequest(hostRequestId);
   } else if (reminder.writeReferenceReminder?.otherUser) {
@@ -71,7 +66,7 @@ export default function ReminderItem({
   return (
     <Box
       sx={(theme) => ({
-        backgroundColor: isDark ? "#716317" : "#fff5e4",
+        backgroundColor: alpha(theme.palette.secondary.main, 0.08),
         padding: isMobile ? "20px" : "24px",
         display: "flex",
         flexDirection: "column",
