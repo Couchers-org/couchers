@@ -1,1 +1,343 @@
-{}
+﻿{
+  "accept": "接受",
+  "create": "建立",
+  "continue": "繼續",
+  "retract": "撤回",
+  "close": "關閉",
+  "create_account": "建立帳戶",
+  "expand": "擴展",
+  "login": "登入",
+  "sign_up": "註冊",
+  "join_us": "加入我們",
+  "terms_of_service": "服務條款",
+  "required": "必填",
+  "back": "返回",
+  "couchers": "Couchers.org",
+  "legal_name": "Couchers, Inc.",
+  "update": "更新",
+  "learn_more": "瞭解更多",
+  "cancel": "取消",
+  "load_more": "載入更多",
+  "copy_button": {
+    "a11y": "Copy",
+    "copied_tooltip": "複製到剪貼板"
+  },
+  "thanks": "謝謝！",
+  "donation_banner": {
+    "message": "Couchers.org 靠善意運行——就像沙發衝浪本身一樣。這個假期，請幫助我們保持這種狀態。我們正在籌集 {{goal}} 以支付運行 Couchers.org 的費用。",
+    "button": "立即捐贈",
+    "progress_label": "捐贈進度"
+  },
+  "community_standing": "社群聲望",
+  "community_standing_description": "根據參考資料和社群參與度等各種因素計算得出。",
+  "verification_score": "驗證分數",
+  "verification_score_description": "根據其他會員提供的驗證與佐證計算。",
+  "edit": "編輯",
+  "save": "儲存",
+  "save_changes": "儲存變更",
+  "send": "發送",
+  "submit": "提交",
+  "confirm": "確認",
+  "image_input": {
+    "select_button_a11y": "選擇圖像",
+    "read_file_error_message": "無法讀取文件"
+  },
+  "read_more": "閱讀更多",
+  "next": "下一頁",
+  "previous": "上一頁",
+  "mod": "審核",
+  "cookie_message": "我們使用 Cookie 來確保您在本站獲得最佳使用體驗。如果您繼續使用本網站，即表示您同意這項做法。您可以進一步閱讀我們的<1>服務條款</1>。",
+  "hosting_status": {
+    "can_host": "可以託管",
+    "maybe": "可以託管",
+    "cant_host": "不能託管",
+    "unspecified_info": "沒有說"
+  },
+  "language_preference": {
+    "current_preferred_language": "您的首選語言目前是<lang>{{language}}</lang>。",
+    "form_title": "語言",
+    "help_translate": "協助把 Couchers 翻譯成您的語言。",
+    "error_loading_languages": "無法載入語言選項，請稍後再試。",
+    "translation_progress": {
+      "title": "翻譯進度",
+      "description": "查看我們的翻譯在不同語言中的完整性。幫助我們讓世界各地更多的人使用 Couchers！",
+      "help_translate": "幫助將 Couchers 翻譯成您的語言",
+      "loading": "正在載入翻譯進度...",
+      "error_loading": "無法載入翻譯進度",
+      "no_data": "目前沒有可用的翻譯資料",
+      "complete": "已完成",
+      "almost_there": "快完成了",
+      "midway": "進行到一半",
+      "early_stage": "早期階段",
+      "just_started": "剛剛開始",
+      "info_text": "完成度 50% 到 80% 的語言會在語言選單中以灰色顯示。低於 50% 的語言預設會隱藏；低於 20% 的語言只會在翻譯進度頁中顯示。",
+      "view_progress": "查看翻譯進度"
+    },
+    "show_all_languages": "在語言選擇器中顯示所有語言",
+    "show_all_languages_description": "啟用後，語言選單會顯示所有語言，不論翻譯完成度如何。這個選項主要用於測試仍在翻譯中的語言。"
+  },
+  "meetup_status": {
+    "wants_to_meetup": "想見面",
+    "open_to_meetup": "願意見面",
+    "does_not_want_to_meetup": "不想見面",
+    "unspecified_info": "沒說"
+  },
+  "report": {
+    "label": "報告問題",
+    "bug": {
+      "button_label": "報告技術問題",
+      "warning_message": "請注意，這些資訊以及診斷資訊（包括您所在的頁面、您使用的瀏覽器以及您的使用者名稱）將被儲存到公開的錯誤列表中。",
+      "title_label": "報告標題",
+      "problem_label": "您做了什麼操作來觸發該錯誤？",
+      "problem_helper": "問題的簡要描述以及如何重現",
+      "expect_label": "發生了什麼？應該發生什麼？",
+      "expect_helper": "您期望發生的情況的簡要描述",
+      "success_message2": "感謝您報告該錯誤並使Couchers變得更好，已向開發人員發送了一份報告！ Bug ID 為 <id/>。"
+    },
+    "content": {
+      "button_label": "報告不當內容或行為",
+      "success_message": "感謝您的檢舉，讓 Couchers 對每個人都更友善。"
+    },
+    "flag": {
+      "block_user": "封鎖 {{username}}",
+      "block_user_explainer": "來自此人的訊息與請求將會被封鎖，而對方也無法查看您的個人資料、活動和評論。對方不會收到您已封鎖他們的通知。",
+      "button_aria_label": "檢舉內容或使用者",
+      "profile_button_aria_label": "檢舉內容或封鎖使用者",
+      "explainer": "機密地向安全與信任團隊發送報告。",
+      "title": "檢舉內容或使用者",
+      "profile_title": "檢舉或封鎖",
+      "reason_label": "檢舉原因",
+      "reason_required": "需要原因。",
+      "description_required": "描述為必填項。",
+      "description_label": "描述問題",
+      "description_helper": "請告訴我們您報告此問題的原因。",
+      "success": "感謝您的檢舉，讓 Couchers 對每個人都更友善。",
+      "reason": {
+        "dating": "調情／約會應用程式行為或類似行為",
+        "external": "平台外事件",
+        "harassment": "騷擾、欺凌、仇恨言論或非法行為內容",
+        "guidelines_breach": "違反規則或政策（收費、裸體、共用床等）",
+        "safety": "安全問題（對自己或他人）",
+        "scam": "詐騙、虛假或誤導性資訊",
+        "spam": "與沙發衝浪無關的垃圾郵件或促銷內容",
+        "sexualized": "色情內容或行為",
+        "other": "其他（請說明）"
+      }
+    }
+  },
+  "not_found_text_1": "我們找不到您請求的 URL 或資源",
+  "not_found_text_2": "您只想<1>回家嗎？</1>",
+  "not_found_alt": "404 錯誤：找不到資源",
+  "change_time": "更改時間",
+  "html_meta": {
+    "title_suffix": " | Couchers.org",
+    "default_title": "Couchers.org",
+    "default_description": "分享您的世界，發現他們的世界。真實的本地體驗，建立在信任和真正的聯繫之上，而不是交易。"
+  },
+  "error": {
+    "fatal_message": "這不應該發生。請聯繫我們並告訴我們您正在採取哪些措施來幫助我們防止將來出現此錯誤。",
+    "unknown": "未知錯誤",
+    "fallback": {
+      "title": "Ooops...這是一個未知錯誤",
+      "subtitle": "請使用“報告問題”按鈕並告訴我們您正在做什麼，以幫助我們防止將來出現此錯誤。",
+      "refresh_page_button_label": "重新整理頁面",
+      "home_page_link_label": "轉到主頁"
+    }
+  },
+  "components": {
+    "datepicker": {
+      "change_date": "更改日期"
+    },
+    "edit_location_map": {
+      "display_location_label": "顯示位置",
+      "search_location_label": "搜尋位置",
+      "display_location_not_empty": "請填寫顯示地址",
+      "invalid_coordinate": "缺少座標，請使用上面的地圖選擇一個位置",
+      "location_accuracy": "位置準確度",
+      "location_publicly_visible": "這將是公開可見的",
+      "location_warn": "拖曳下方的圓圈，向其他人顯示您住處的大致範圍。請確保您的住處不在圓圈正中央，這樣別人才不會知道確切位置。",
+      "map_is_blank": "缺少座標，請先使用上方地圖搜尋位置",
+      "radius_text2_one": "{{count}}米",
+      "radius_text2_other": "{{count}}米",
+      "no_location_results_text": "找不到結果，請嘗試只搜尋城市名稱。",
+      "press_enter_to_search": "按 Enter 鍵搜尋"
+    }
+  },
+  "nav": {
+    "account_settings": "帳戶設定",
+    "about": "關於",
+    "badges": "徽章",
+    "blog": "部落格",
+    "community": "社群",
+    "communities": "社群",
+    "dashboard": "儀表板",
+    "donate": "捐贈",
+    "events": "活動",
+    "faq": "FAQ",
+    "help_center": "幫助中心",
+    "roadmap_updates": "路線圖和更新",
+    "help": "幫助",
+    "home": "首頁",
+    "log_out": "登出",
+    "map_search": "地圖搜尋",
+    "mission": "使命和價值觀",
+    "messages": "訊息",
+    "newsletter": "電子報",
+    "notifications": "通知",
+    "our_plan": "我們的計劃",
+    "our_team": "我們的團隊",
+    "profile": "個人資料",
+    "show_all_events": "顯示所有活動",
+    "volunteer": "志願者",
+    "legal_more": "法律及更多",
+    "contact_us": "聯繫我們",
+    "built_with": "開源",
+    "landing_page": "首頁",
+    "invite_members": "邀請會員",
+    "merch_shop": "商品商店",
+    "switch_to_light_mode": "切換到淺色模式",
+    "switch_to_dark_mode": "切換到深色模式"
+  },
+  "invites": {
+    "title": "邀請",
+    "instructions": "建立邀請連結與朋友和社群分享。停用您不再使用的代碼。",
+    "no_codes_message": "尚無邀請代碼",
+    "created_datetime": "已建立：{{datetime}}",
+    "disabled_datetime": "已禁用：{{datetime}}",
+    "number_of_uses_one": "使用：{{count}}已完成註冊",
+    "number_of_uses_other": "使用：{{count}}已完成註冊",
+    "disable_link": "停用",
+    "banner": {
+      "invited_you": "{{name}}邀請您加入Couchers！"
+    },
+    "error": {
+      "fetch_invite_info": "無法獲取邀請碼詳細資訊"
+    }
+  },
+  "contribute_title": "投稿",
+  "reply": "回覆",
+  "yes": "是",
+  "no": "否",
+  "ok": "OK",
+  "beta": "Beta",
+  "relative_time": {
+    "less_than_a_minute_ago": "< 1 分鐘前",
+    "less_than_one_hour_ago": "不到一小時前"
+  },
+  "location_autocomplete": {
+    "more_specific": "請選擇更具體的地點",
+    "search_location_hint": "按 Enter 或點擊搜尋圖示來選擇位置",
+    "search_location_button": "搜尋位置",
+    "select_location_hint": "按 Enter 或點擊搜尋圖示，然後從列表中選擇位置"
+  },
+  "strong_verification": {
+    "helper_text": "該使用者已使用生物識別護照驗證其身份"
+  },
+  "footer": {
+    "non_profit_note": "Couchers.org 是美國 501(c)(3) 非營利免稅組織 Couchers, Inc. 的一個項目。",
+    "version_info": " 版本 <2>{{version}}</2>，最後更新 <5>{{updated_ago}}</5>。"
+  },
+  "what_is_cs": {
+    "title": " 什麼是沙發衝浪？",
+    "description_1": "沙發衝浪指的是有些會員會在平台上表示自己願意接待到訪其城市的旅人，讓其他旅人可以向他們提出住宿請求。",
+    "description_2": "這就像在另一個城市有朋友要去拜訪他們，但到達那裡後你是第一次見到朋友！",
+    "get_involved_title": "我在 Couchers.org 上可以做什麼？",
+    "timeline_title": "沙發衝浪的快速歷史",
+    "timeline": {
+      "early_2000s_year": "Early 2000s",
+      "early_2000s_text": "在線沙發衝浪運動誕生：與當地人在一起，分享文化。",
+      "2010s_year": "2010s",
+      "2010s_text": "社群和活動蓬勃發展；參考建立信任——世界開始感覺像一個友好的鄰居。",
+      "2020_year": "2020",
+      "2020_text": "一個主要平台以營利為目的； Couchers.org 作為非盈利、社群運營的替代方案推出。",
+      "today_year": "Today",
+      "today_text": "Couchers.org 開創了新的篇章：現代、更安全、非盈利的沙發衝浪 — 由社群打造併為社群服務。"
+    },
+    "actions": {
+      "host": " 接待一位來訪您城市的旅行者",
+      "surf": "旅行時與當地人一起衝浪",
+      "attend_events": "與當地人和旅行者一起參加活動",
+      "find_people": "在您的城市中尋找志同道合的人並見面",
+      "join_discussions": "加入當地社群或開始討論"
+    },
+    "why_people_title": "為什麼人們喜歡沙發衝浪",
+    "why_people_points": {
+      "travelers": "<bold>對於旅行者</bold>：超越遊客的更深入、更人性化的體驗Trails",
+      "hosts": "<bold>對於房東</bold>：結識來自世界各地的人們並分享您的城市",
+      "everyone": "<bold>對於所有人</bold>：社群、文化和聯繫 - 而不是交易"
+    },
+    "tip_label": "TIP",
+    "tip_text": "新來的嗎？參加當地活動，感受社群 - 低承諾，高聯繫。",
+    "compare_title": "Couchers.org 相比如何？",
+    "table": {
+      "header_couchers": "Couchers.org",
+      "header_hostel": "Hostel",
+      "header_hotel": "酒店",
+      "people_first": "以人為本的非營利組織",
+      "cost_to_stay": "住宿費用",
+      "free_to_stay": "免費入住",
+      "dollar": "$",
+      "dollars_range": "$$–$$$",
+      "stay_with_locals": "與當地人同住",
+      "professionally_managed": "專業管理的入住",
+      "meetups_communities": "聚會和當地社群",
+      "cultural_exchange": "文化交流焦點",
+      "non_transactional": "非交易社群模式",
+      "no_investor_pressure": "無投資者壓力",
+      "social_expectation": "鼓勵與主人共度時光"
+    },
+    "bottom_cta_title": "準備好嘗試沙發衝浪了嗎？",
+    "bottom_cta_subtitle": "加入 Couchers.org，成為建立在熱情好客和聯繫之上的全球社群的一部分。",
+    "join_couchers": "加入 Couchers.org",
+    "is_it_safe": {
+      "title": " 沙發衝浪有多安全？",
+      "description_1": "雖然所有旅行和與陌生人的互動都存在一定風險，但沙發衝浪比許多人最初想象的要安全得多。",
+      "description_2": "我們的社群建立在成員之間的信任之上，通過入住後的參考建立。我們的積極審核團隊認真對待每一份報告，並努力反擊那些不遵守我們的<指南>社群準則</指南>的不良行為者。",
+      "description_3": "此外，Couchers 平台還包括各種形式的驗證（例如使用生物識別護照的強驗證）等工具，這些工具增加了額外的安全級別。重要的是要始終準備好替代計劃，以防事情沒有按預期進行，並相信你的直覺！"
+    }
+  },
+  "team": {
+    "title": "團隊",
+    "description": "我們是熱情的沙發衝浪者和技術精湛的專業人士，致力於建立一個改進的、更安全的、更具包容性的平台。我們正在構建這個平台來支持和可持續發展沙發衝浪社群，同時與世界分享其價值觀。如果您分享我們的觀點並希望做出貢獻，我們很樂意聽取您的意見。",
+    "join_the_team": "加入團隊",
+    "join_our_team": "加入我們的團隊",
+    "have_skills_contribute": "有您想要貢獻的技能嗎？",
+    "fill_form_description": "Couchers.org 是一個社群驅動的項目，由像您這樣的人為了全球沙發衝浪社群的利益而開發。如果您有興趣加入這一激動人心的計劃，請點擊下面的按鈕並填寫簡短的表格。",
+    "past_members": "P過去的成員",
+    "board_member": "董事會成員"
+  },
+  "blog": {
+    "byline_with_author": "由<1/>撰寫。發佈於 {{date}}.",
+    "byline_without_author": " 發佈於 {{date}}.",
+    "cta_message": "想幫忙撰寫我們的部落格或成為志工嗎？<1>註冊</1>後告訴我們。志工與<3>捐款</3>讓 Couchers.org 得以持續運作！"
+  },
+  "error_loading_languages": "無法載入語言選項",
+  "language_names": {
+    "ca": "加泰羅尼亞語",
+    "cs": "捷克語",
+    "de": "德語",
+    "en": "英語",
+    "en-CORP": "美國（企業）",
+    "es": "西班牙語（西班牙）",
+    "es-419": "西班牙語",
+    "fr": "法語（法國）",
+    "fr-CA": "法語（加拿大）",
+    "he": "希伯來語",
+    "hi": "印地語",
+    "it": "意大利語",
+    "ja": "日語",
+    "nb-NO": "挪威語（博克馬爾語）",
+    "nl": "荷蘭語",
+    "pl": "波蘭語",
+    "pt": "葡萄牙語（葡萄牙）",
+    "pt-BR": "葡萄牙語（巴西）",
+    "ru": "俄語",
+    "sv": "瑞典語",
+    "tr": "土耳其語",
+    "uk": "烏克蘭語",
+    "zh-Hans": "中文（簡體）",
+    "zh-Hant": "中文（繁體）",
+    "hu": "匈牙利語"
+  }
+}
+

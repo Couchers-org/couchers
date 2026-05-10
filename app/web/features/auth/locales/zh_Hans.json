@@ -4,7 +4,9 @@
     "current_email_message": "您当前的邮箱地址是：<2>{{email}}</2>。",
     "success_message": "您的邮箱更改申请已提交。请查阅邮箱，完成更改。",
     "current_password": "当前密码",
-    "new_email": "新邮箱地址"
+    "new_email": "新邮箱地址",
+    "hide_current_password": "隐藏当前密码",
+    "show_current_password": "显示当前密码"
   },
   "do_not_email": {
     "title": "请勿向我发送邮件",
@@ -34,7 +36,13 @@
     "user_logged_error": "如果您已登录，则无法重置密码。您可以在设置中更改密码，或登出后重置密码。",
     "token_error": "处理密码重置令牌时出错，请重试。",
     "reset_password_success": "您的密码已成功更改！",
-    "reset_password_error": "重置密码时出错：{{message}}"
+    "reset_password_error": "重置密码时出错：{{message}}",
+    "hide_old_password": "隐藏旧密码",
+    "show_old_password": "显示旧密码",
+    "hide_new_password": "隐藏新密码",
+    "show_new_password": "显示新密码",
+    "hide_confirm_password": "隐藏确认密码",
+    "show_confirm_password": "显示确认密码"
   },
   "reset_password_form": {
     "enter_email": "输入您的用户名或邮箱地址",
@@ -48,7 +56,9 @@
       "username_field_label": "电子邮件/用户名",
       "password_field_label": "密码",
       "remember_me": "记住我",
-      "forgot_password": "忘记密码？"
+      "forgot_password": "忘记密码？",
+      "show_password": "显示密码",
+      "hide_password": "隐藏密码"
     }
   },
   "basic_sign_up_form": {
@@ -61,7 +71,8 @@
       "field_label": "用户名",
       "required_error": "输入您的用户名",
       "username_taken_error": "用户名已被占用。",
-      "validation_error": "用户名只可以用英文字母开头，之后跟随英文字母、数字或下划线_。"
+      "validation_error": "用户名只可以用英文字母开头，之后跟随英文字母、数字或下划线_。",
+      "helper_text": "这是您的唯一登录 ID，而不是您的显示名称。"
     },
     "password": {
       "field_label": "密码",
@@ -95,7 +106,10 @@
   "basic_form": {
     "name": {
       "field_label": "您的名字",
-      "required_error": "此文本框不能为空。"
+      "required_error": "此文本框不能为空。",
+      "invalid_characters_error": "名称只能包含字母、空格、连字符和撇号",
+      "min_length_error": "名称必须至少包含 2 个字符",
+      "max_length_error": "名称必须不超过 100 个字符"
     },
     "email": {
       "field_label": "邮箱",
@@ -173,6 +187,17 @@
       "title": "用户名",
       "description": "您的用户名是<1>{{username}}</1>。",
       "explanation": "您在创建账户时设置的用户名。"
+    },
+    "appearance_section": {
+      "title": "外观",
+      "current_mode": "您当前的模式：",
+      "click_to_change": "单击下面的按钮可在浅色，深色和系统模式之间循环。",
+      "change_mode": "更改外观模式",
+      "modes": {
+        "light": "浅色模式",
+        "dark": "深色模式",
+        "system": "系统模式（跟随您的设备）"
+      }
     }
   },
   "feature_preview": {
@@ -239,7 +264,32 @@
         "description": "芯片的位置因国家而异。您可能需要尝试不同的页面。以下是一些位置示例："
       },
       "step8": "当您看到进度百分比增加和加载动画时,说明正在成功处理",
-      "step4": "如果出现提示，请打开应用并再次扫描二维码"
+      "step4": "如果出现提示，请打开应用并再次扫描二维码",
+      "scanning_tips": {
+        "heading": "成功进行NFC扫描的提示",
+        "description": "NFC扫描是最棘手的部分。这些提示可显着提高您的机会：",
+        "remove_case": "<strong>取下手机壳</strong> - 即使很薄的手机壳也会阻挡 NFC 信号",
+        "hold_still": "<strong>将手机完全静止</strong>至少 5 秒 - 过早移动是失败的最常见原因",
+        "flat_surface": "<strong>将护照放在平坦的表面上</strong> - 不要将其拿在手中",
+        "nfc_location": "<strong>找到手机的 NFC 天线</strong> - 它通常位于手机背面的顶部中心附近。如果无法连接，请尝试不同的位置",
+        "no_metal": "<strong>避免金属表面</strong> - 不要将护照放在金属桌子或笔记本电脑上",
+        "retry": "如果扫描失败，请重试 - 通常需要 2-3 次尝试才能正确定位"
+      },
+      "before_you_start": {
+        "heading": "开始之前",
+        "nfc_check": "您的手机必须具有<strong>NFC 功能</strong> - 大多数现代手机都具备。 NFC 通常默认处于开启状态，但在某些较旧的手机上，您可能需要在手机设置中启用它。",
+        "passport_check": "您的护照必须是<strong>生物识别护照</strong> - 查找封面上的金色芯片符号。没有此符号的旧护照将无法使用。",
+        "remove_case": "<strong>开始前请取下手机壳</strong> - 即使很薄的手机壳也会阻挡 NFC 信号并导致扫描失败。",
+        "passport_symbol_alt": "生物识别护照符号"
+      },
+      "didnt_work": {
+        "heading": "有问题吗？",
+        "tip1": "在较旧的 Android 手机上，确保在手机设置中启用 NFC（大多数现代手机默认情况下已启用）",
+        "tip2": "尝试护照的不同页面 — 芯片位置因国家/地区而异",
+        "tip3": "如果使用 Android，请确保安装了 IRIS ID 应用程序（不是浏览器版本）",
+        "tip4": "一些较旧的护照或护照卡没有 NFC 芯片，因此无法使用",
+        "contact": "如果如果您仍然遇到问题，请<1>告诉我们</1>，我们会提供帮助。"
+      }
     }
   },
   "change_phone": {
@@ -301,5 +351,59 @@
     },
     "title": "个人资料可见性",
     "choose": "选择哪些信息对未登录用户可见"
+  },
+  "motivations_form": {
+    "header": "您会看到什么躺椅？",
+    "surfing": "冲浪",
+    "surfing_description": "我正在计划旅行并寻找主持人",
+    "hosting": "托管",
+    "hosting_description": "我想在我的城市接待和欢迎旅行者",
+    "events": "活动",
+    "events_description": "我想参加活动并与社区见面",
+    "community_organizing": "社区组织",
+    "community_organizing_description": "我想在平台上组织活动和活动",
+    "something_else": "其他",
+    "something_else_description": "我正在探索或尚未决定"
+  },
+  "volunteer_management": {
+    "title": "志愿者管理",
+    "description": "如果您的角色或日期不正确，请告知我们。",
+    "card_preview_label": "您的团队页面列表",
+    "not_a_volunteer_message": "根据我们的记录，您不是当前或过去的志愿者。如果不正确，请填写<1>此表单</1>告知我们。",
+    "current_volunteer": "自 {{startDate}} 起志愿服务。",
+    "past_volunteer": " 从 {{startDate}} 到 {{endDate}} 志愿服务。",
+    "shown_on_team_page_current": " 在团队页面上显示为当前团队成员。",
+    "shown_on_team_page_past": " 在团队页面上显示为过去的成员志愿者.",
+    "not_shown_on_team_page": "在团队页面中隐藏。",
+    "update_success": "您的志愿者信息已更新。",
+    "form": {
+      "title": "更新您的志愿者信息",
+      "override_name_label": "在团队页面上使用不同的名称（而不是“{{profileName}}”）",
+      "display_name_label": "显示名称",
+      "override_location_label": "在团队页面上使用其他位置（而不是“{{profileLocation}}”）",
+      "display_location_label": "显示位置",
+      "show_on_team_page_label": "在团队页面上显示",
+      "link_type_label": "链接类型",
+      "link_type_couchers": "Couchers个人资料",
+      "link_type_email": "电子邮件",
+      "link_type_linkedin": "LinkedIn",
+      "link_type_website": "网站",
+      "link_text_label": "链接值",
+      "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
+      "link_text_email_placeholder": "your@email.com",
+      "link_text_website_placeholder": "https://your-website.com",
+      "link_text_linkedin_helper": "您的个人资料 URL 中的用户名（例如 linkedin.com/in/jane-doe-a1b2c3）",
+      "link_text_email_helper": "您的电子邮件地址",
+      "link_text_website_helper": "的文本链接显示",
+      "link_text_required": "请输入链接的值",
+      "link_text_email_invalid": "请输入有效的电子邮件地址",
+      "link_text_linkedin_invalid": "请输入有效的LinkedIn用户名（仅限字母、数字和连字符）",
+      "link_url_label": "链接URL",
+      "link_url_placeholder": "https://your-website.com",
+      "link_url_helper": "链接应指向的完整URL",
+      "link_url_required": "请输入网站的 URL",
+      "link_url_invalid": "请输入以 http:// 或 https://",
+      "save_button": " 开头的有效 URL 保存更改"
+    }
   }
 }

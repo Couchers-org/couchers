@@ -1,1 +1,65 @@
-{}
+{
+  "notification_settings": {
+    "title": "通知設定",
+    "go_to_button": "管理通知設定",
+    "edit_preferences": {
+      "title": "通知設定",
+      "description": "您在下方所做的任何變更都會自動儲存。請注意，您仍可能會收到與帳戶和內容相關的重要通知，這些通知不受您的通知偏好設定影響。",
+      "list_heading": "您可能會收到的通知",
+      "error_loading": "載入通知設定時出錯",
+      "list_items": {
+        "account_security": "帳戶安全",
+        "account_settings": "帳戶設定",
+        "chat": "訊息",
+        "event": "活動",
+        "friend_request": "好友請求",
+        "host_request": "接待請求",
+        "reference": "評語",
+        "discussion": "討論",
+        "reply": "回覆",
+        "other_notifications": "其他通知"
+      },
+      "expand_all": "全部展開",
+      "collapse_all": "全部摺疊"
+    },
+    "push_notifications": {
+      "title": "推送通知",
+      "description": "您可以在設備上為Couchers.org啟用推送通知。我們正在擴展此功能。",
+      "allow_push": "點擊瀏覽器彈出的“允許”按鈕以啟用推送通知。",
+      "enabled_message": "您當前已<1>啟用</1>推送通知。",
+      "disabled_message": "您當前已<1>禁用</1>推送通知。",
+      "error_generic": "訂閱推送通知時出錯",
+      "error_unsupported": "此瀏覽器不支持推送通知或服務工作線程。",
+      "permission_denied": {
+        "platform_settings_description": "啟用瀏覽器通知後仍有問題？您可能需要調整設備的通知權限設定。",
+        "instructions": {
+          "chrome": "您已封鎖通知。請在瀏覽器設定中啟用通知。在Chrome中，點擊URL欄中的鎖圖標，然後調整“通知”設定。",
+          "firefox": "您已封鎖通知。請在瀏覽器設定中啟用通知。在Firefox中，進入設定 > 隱私與安全 > 權限 > 通知，修改相關網站權限。",
+          "safari": "您已封鎖通知。請在Safari的偏好設定 > 網站 > 通知中調整權限。",
+          "generic": "您已封鎖通知。請在瀏覽器設定中啟用通知。",
+          "macos": "在 macOS 中，前往 系統設定 > 通知，並修改應用的權限。",
+          "windows": "在 Windows 中，前往 設定 > 系統 > 通知和操作，調整應用或網站的權限。",
+          "linux": {
+            "gnome": "在 GNOME 中，前往 設定 > 通知，調整應用的權限。"
+          },
+          "mobile": {
+            "browser": "在您的移動瀏覽器設定中，調整此網站的通知權限。",
+            "os": "在您的移動設備通知設定中，調整權限以允許通知。"
+          }
+        }
+      },
+      "error_not_granted": "您未授權發送推送通知。"
+    }
+  },
+  "push_notification_banner": {
+    "message": "不要錯過請求、回覆或訊息；我們可以向您發送推送通知嗎？",
+    "confirm": "好的！"
+  },
+  "unread": "未讀",
+  "mark_unread": "標記為未讀",
+  "mark_all_read": "全部標記為已讀",
+  "no_new_notifications": "沒有新通知",
+  "all": "全部",
+  "error_loading": "載入通知時發生錯誤",
+  "error_updating_notifications": "更新通知時出錯"
+}

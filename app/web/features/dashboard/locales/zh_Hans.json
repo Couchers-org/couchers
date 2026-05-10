@@ -28,6 +28,7 @@
   "your_communities_helper_text": "根据您的位置，您已被添加到所有社区。您也可以随时 <1>浏览其他位置的社区</1>。",
   "your_communities_helper_text2": "没有看到您的社区？ <1>启动一个！</1>",
   "community_builder_form_text": "创建您自己的本地社区",
+  "my_communities_heading": "我的社区",
   "profile_summary_edit": "编辑个人资料",
   "profile_summary_view": "查看我的个人资料",
   "profile_mobile_summary_view": "前往个人资料",
@@ -51,5 +52,39 @@
   "hide_all_communities": "隐藏所有社区",
   "all_communities_intro": "以下是目前已存在的所有社区页面。<strong>点击社区名称可查看其下的其他社区。</strong>",
   "community_missing": "您的国家或城市不在列表中吗？请使用<1>此表格</1>进行申请！",
-  "browse_communities_text": "点击区域名称可在下方查看该区域内的其他社区。点击链接可进入该城市或区域的社区页面。"
+  "browse_communities_text": "点击区域名称可在下方查看该区域内的其他社区。点击链接可进入该城市或区域的社区页面。",
+  "member_count_one": "{{count}} 位成员",
+  "member_count_other": "{{count}} 位成员",
+  "events": {
+    "your_upcoming_header": "您即将参加的活动",
+    "see_all_link": "查看全部 →",
+    "your_upcoming_empty_message": "目前没有活动。何不<0>创建</0>一个✨？",
+    "community_header": "您所在社区的活动",
+    "community_empty_message": "您所在的社区目前没有即将开始的活动。",
+    "location_online_label": "线上",
+    "attendees_count_label_one": "{{count}} 位参与者",
+    "attendees_count_label_other": "{{count}} 位参与者"
+  },
+  "reminder": {
+    "respond_to_host_request": {
+      "title": "回复留宿请求",
+      "description": "别忘了回复 {{name}} 关于他们住宿请求的消息。",
+      "button": "查看请求"
+    },
+    "write_reference": {
+      "title": "写评语",
+      "description": "为 {{name}} 的住宿经历留下评语",
+      "button": "写评语"
+    },
+    "complete_profile": {
+      "title": "完善您的个人资料",
+      "description": "填写“我是谁”部分并上传头像",
+      "button": "编辑个人资料"
+    },
+    "strong_verification": {
+      "title": "强身份验证",
+      "description": "验证您的身份，打造更安全的社区",
+      "button": "验证您的账号"
+    }
+  }
 }
