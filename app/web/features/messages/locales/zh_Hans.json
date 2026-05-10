@@ -1,5 +1,8 @@
 {
   "mark_all_read_button_text": "全部标记为已读",
+  "mark_all_read_button_text_chats": "将所有聊天标记为已读",
+  "mark_all_read_button_text_hosting": "将所有留宿请求标记为已读",
+  "mark_all_read_button_text_surfing": "将所有沙发请求标记为已读",
   "request_closed_message": "此沙发主请求已关闭。如需继续聊天，请发送普通消息给对方。",
   "write_reference_button_text": "编写评语",
   "close_request_dialog_title": "您要结束聊天吗？",
@@ -12,10 +15,18 @@
   "messages_page": {
     "title": "消息",
     "tabs": {
+      "unread": "未读",
       "chats": "聊天",
       "hosting": "留宿",
       "surfing": "找沙发主"
     }
+  },
+  "archive": {
+    "archived": "已归档",
+    "archive_button": "归档",
+    "unarchive_button": "取消归档",
+    "no_archived_requests": "没有已归档的请求",
+    "no_archived_messages": "没有已归档的消息"
   },
   "chat_view": {
     "invalid_id_error": "无效的聊天ID。",
@@ -68,7 +79,11 @@
     "group_title": "创建群聊",
     "no_friends_found_message": "无法找到任何好友",
     "user_load_error_message": "（用户加载错误）",
-    "friends_input_label": "好友"
+    "friends_input_label": "好友",
+    "title_label": "标题",
+    "create_button": "创建聊天",
+    "back_button": "返回",
+    "hosting_request_hint": "要发送留宿请求吗？请<back>返回</back>并改用<request>请求</request>按钮。"
   },
   "chat_input": {
     "label": "消息"
@@ -88,6 +103,13 @@
   "requests_tab": {
     "no_requests_message": "尚无请求",
     "load_more_button_label": "加载更多"
+  },
+  "all_messages_tab": {
+    "no_messages": "还没有消息",
+    "load_more": "加载更多",
+    "filter": {
+      "all": "全部"
+    }
   },
   "invite_dialog": {
     "title": "邀请加入群聊",
@@ -112,6 +134,12 @@
     "user_left_chat_text": "{{user}} 离开了聊天",
     "admin_assignment_text": "{{user}} 将 {{target_user}} 设为了管理员",
     "admin_removal_text": "{{user}} 移除了 {{target_user}} 的管理员身份",
+    "host_request_status_changed": {
+      "accepted": "{{user}} 已接受该请求",
+      "cancelled": "{{user}} 已取消该请求",
+      "confirmed": "{{user}} 已确认该请求",
+      "rejected": "{{user}} 已拒绝该请求"
+    },
     "unknown_message_text": "未知控制消息"
   },
   "host_request_status": {
@@ -142,7 +170,9 @@
     "error_message": "无效的留宿请求ID",
     "back_button_a11y_label": "返回",
     "title_for_host": "来自{{user}} 的请求 - {{status}}",
-    "title_for_surfer": "向 {{user}} 发出的请求 - {{status}}"
+    "title_for_surfer": "向 {{user}} 发出的请求 - {{status}}",
+    "request_duration_one": "{{count}} 晚",
+    "request_duration_other": "{{count}} 晚"
   },
   "past_request_help_text": "该请求已过期，你仍可发送消息，但无法进行其他修改。",
   "unknown_user": "未知用户"

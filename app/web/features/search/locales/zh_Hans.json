@@ -74,6 +74,8 @@
   "search_result": {
     "no_user_result_message": "未找到用户。请尝试移除部分筛选条件以查看更多结果。",
     "missing_about_description": "{{name}} 还没有介绍自己",
+    "people_range_message_one": "{{currentRange}} / {{count}} 人",
+    "people_range_message_other": "{{currentRange}} / {{count}} 人",
     "include_empty_profiles_button": "显示所有用户资料",
     "few_results_suggestion": "默认情况下，空白和“无法接待”的个人资料会被隐藏。"
   },

@@ -32,6 +32,7 @@ from couchers.models import (
     LanguageAbility,
     Message,
     ModerationUserList,
+    ModerationVisibility,
     ModNote,
     Reference,
     Reply,
@@ -49,6 +50,7 @@ from couchers.resources import get_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
 from couchers.servicers.events import generate_event_delete_notifications
+from couchers.servicers.moderation import bulk_set_user_content_visibility
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import to_bool, username_or_email_or_id
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
@@ -140,6 +142,7 @@ def _user_to_details(session: Session, user: User) -> admin_pb2.UserDetails:
         birthdate=date_to_api(user.birthdate),
         banned=user.banned_at is not None,
         deleted=user.deleted_at is not None,
+        shadowed=user.shadowed_at is not None,
         do_not_email=user.do_not_email,
         badges=[badge.badge_id for badge in user.badges],
         **get_strong_verification_fields(session, user),
@@ -244,6 +247,8 @@ class Admin(admin_pb2_grpc.AdminServicer):
             statement = statement.where((User.deleted_at != None) == request.is_deleted.value)
         if request.HasField("is_banned"):
             statement = statement.where((User.banned_at != None) == request.is_banned.value)
+        if request.HasField("is_shadowed"):
+            statement = statement.where((User.shadowed_at != None) == request.is_shadowed.value)
         if request.HasField("has_avatar"):
             statement = statement.where(has_avatar_photo_expression(User) == request.has_avatar.value)
         if request.admin_tags:
@@ -410,6 +415,39 @@ class Admin(admin_pb2_grpc.AdminServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
         log_admin_action(session, context, user, "unban", note=request.admin_note, level=AdminActionLevel.high)
         user.banned_at = None
+        return _user_to_details(session, user)
+
+    def ShadowUser(
+        self, request: admin_pb2.ShadowUserReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.UserDetails:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        if not request.admin_note.strip():
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+        log_admin_action(session, context, user, "shadow", note=request.admin_note, level=AdminActionLevel.high)
+        user.shadowed_at = now()
+        # Bulk-shadow all UMS-governed content authored by this user so existing visible content is hidden too
+        bulk_set_user_content_visibility(
+            session=session,
+            user=user,
+            new_visibility=ModerationVisibility.shadowed,
+            moderator_user_id=context.user_id,
+            reason=f"User {user.id} shadowed: {request.admin_note}",
+        )
+        return _user_to_details(session, user)
+
+    def UnshadowUser(
+        self, request: admin_pb2.UnshadowUserReq, context: CouchersContext, session: Session
+    ) -> admin_pb2.UserDetails:
+        user = session.execute(select(User).where(username_or_email_or_id(request.user))).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+        if not request.admin_note.strip():
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin_note_cant_be_empty")
+        log_admin_action(session, context, user, "unshadow", note=request.admin_note, level=AdminActionLevel.high)
+        user.shadowed_at = None
+        # Existing UMS content remains where moderators left it; admins can manually re-approve as appropriate
         return _user_to_details(session, user)
 
     def AddAdminNote(

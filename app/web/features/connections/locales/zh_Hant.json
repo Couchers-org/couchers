@@ -1,1 +1,34 @@
-{}
+{
+  "add_friend": "加為好友",
+  "my_connections": "我的聯繫人",
+  "friends": "好友",
+  "friend_list_title": "你的好友",
+  "friend_requests": "好友請求",
+  "friend_requests_sent": "你發送的好友請求",
+  "no_friends": "沒有好友",
+  "no_friend_requests": "沒有待處理的好友請求",
+  "no_friend_requests_sent": "沒有待處理的好友請求",
+  "pending": "待處理",
+  "block_user_confirmation_dialog": {
+    "confirm": "封鎖",
+    "title": "您確定要封鎖{{name}}嗎？",
+    "message": "此人的訊息和請求將被封鎖，你的個人資料、活動和評論對該人將不可見。對方不會收到你已封鎖他們的通知。"
+  },
+  "remove_friend": "移除好友",
+  "remove_friend_confirmation_dialog": {
+    "title": "移除好友",
+    "message": "您確定要移除{{name}}嗎？此操作無法撤銷。",
+    "confirm": "移除"
+  },
+  "blocked_list_title": "已封鎖的使用者",
+  "block_user": "封鎖使用者",
+  "accept": "接受",
+  "no_blocked_users": "沒有已封鎖的使用者",
+  "unblock_user": "解除封鎖",
+  "unblock_user_confirmation_dialog": {
+    "confirm": "取消封鎖",
+    "message": "取消封鎖後,對方將可以查看您的資料並向您發送請求。如果您之前是好友關係,對方會重新出現在您的好友列表中。對方不會收到通知。",
+    "title": "您確定要取消封鎖 {{name}} 嗎?"
+  },
+  "decline": "拒絕"
+}
