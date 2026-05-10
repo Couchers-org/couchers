@@ -191,6 +191,10 @@ def test_is_not_visible(db):
     mixed_deleted, _ = generate_user()
     mixed_banned, _ = generate_user()
 
+    # Users for shadow tests
+    shadowed_user, _ = generate_user()
+    visible_for_shadowed, _ = generate_user()
+
     with session_scope() as session:
         # Test 1: Two normal visible users - should be visible to each other
         assert not is_not_visible(session, normal_user1.id, normal_user2.id)
@@ -286,3 +290,15 @@ def test_is_not_visible(db):
         # Additional edge case: Check that normal users are still visible to each other after all the above
         assert not is_not_visible(session, normal_user1.id, normal_user2.id)
         assert not is_not_visible(session, normal_user1.id, extra_user1.id)
+
+        # Test 15: Shadowed target is hidden from other users and from anonymous viewers,
+        # but visible to themselves
+        shadowed_user_db = session.get_one(User, shadowed_user.id)
+        shadowed_user_db.shadowed_at = now()
+        session.commit()
+        assert is_not_visible(session, visible_for_shadowed.id, shadowed_user.id)
+        assert is_not_visible(session, None, shadowed_user.id)
+        assert not is_not_visible(session, shadowed_user.id, shadowed_user.id)
+        # Shadowed viewer can still see other (visible) users
+        assert not is_not_visible(session, shadowed_user.id, visible_for_shadowed.id)
+        assert not is_not_visible(session, shadowed_user.id, None)
