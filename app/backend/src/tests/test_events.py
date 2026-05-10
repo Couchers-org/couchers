@@ -12,12 +12,14 @@ from couchers.jobs.handlers import send_event_reminders
 from couchers.models import (
     BackgroundJob,
     BackgroundJobState,
+    Comment,
     EventOccurrence,
     ModerationState,
     ModerationVisibility,
     Notification,
     NotificationDelivery,
     NotificationTopicAction,
+    Reply,
     Upload,
 )
 from couchers.proto import editor_pb2, events_pb2, threads_pb2
@@ -2174,6 +2176,8 @@ def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
     with threads_session(token2) as api:
         reply_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=event.thread.thread_id, content="hi")).thread_id
 
+    moderator.approve_thread_post(reply_id)
+
     with events_session(token3) as api:
         res = api.GetEvent(events_pb2.GetEventReq(event_id=event.event_id))
         assert res.thread.num_responses == 1
@@ -2187,7 +2191,11 @@ def test_event_threads(db, push_collector: PushCollector, moderator: Moderator):
         assert ret.replies[0].author_user_id == user2.id
         assert ret.replies[0].num_replies == 0
 
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=reply_id, content="what a silly comment"))
+        nested_reply_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=reply_id, content="what a silly comment")
+        ).thread_id
+
+    moderator.approve_thread_post(nested_reply_id)
 
     process_jobs()
 
@@ -3119,7 +3127,7 @@ def test_ListEventOccurrences_does_not_leak_other_events(db, moderator: Moderato
 
 
 def test_event_comment_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
-    """Event comment notifications should carry the event's moderation_state_id for deferral."""
+    """Event comment notifications should carry the comment's moderation_state_id for deferral."""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
 
@@ -3158,22 +3166,25 @@ def test_event_comment_notification_has_moderation_state(db, push_collector: Pus
 
     # User2 posts a top-level comment on the event thread
     with threads_session(token2) as api:
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="Hello event!"))
+        comment_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=thread_id, content="Hello event!")
+        ).thread_id
 
     process_jobs()
 
-    # The comment notification for user1 should have moderation_state_id set
+    # The comment notification for user1 should be gated on the comment's own moderation_state_id
+    comment_db_id = comment_thread_id // 10
     with session_scope() as session:
-        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
+        comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
 
         notifications = session.execute(select(Notification).where(Notification.user_id == user1.id)).scalars().all()
         comment_notifs = [n for n in notifications if n.topic_action.action == "comment"]
         assert len(comment_notifs) == 1
-        assert comment_notifs[0].moderation_state_id == occurrence.moderation_state_id
+        assert comment_notifs[0].moderation_state_id == comment.moderation_state_id
 
 
 def test_event_thread_reply_notification_has_moderation_state(db, push_collector: PushCollector, moderator: Moderator):
-    """Event thread reply notifications should carry the event's moderation_state_id for deferral."""
+    """Event thread reply notifications should carry the reply's moderation_state_id for deferral."""
     user1, token1 = generate_user()
     user2, token2 = generate_user()
     user3, token3 = generate_user()
@@ -3219,15 +3230,18 @@ def test_event_thread_reply_notification_has_moderation_state(db, push_collector
 
     # User3 replies to user2's comment (depth=2 reply)
     with threads_session(token3) as api:
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="Nested reply"))
+        nested_reply_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="Nested reply")
+        ).thread_id
 
     process_jobs()
 
-    # The nested reply notification for user2 should have moderation_state_id set
+    # The nested reply notification for user2 should be gated on the reply's own moderation_state_id
+    nested_reply_db_id = nested_reply_thread_id // 10
     with session_scope() as session:
-        occurrence = session.execute(select(EventOccurrence).where(EventOccurrence.id == event_id)).scalar_one()
+        nested_reply = session.execute(select(Reply).where(Reply.id == nested_reply_db_id)).scalar_one()
 
         notifications = session.execute(select(Notification).where(Notification.user_id == user2.id)).scalars().all()
         reply_notifs = [n for n in notifications if n.topic_action.action == "reply"]
         assert len(reply_notifs) == 1
-        assert reply_notifs[0].moderation_state_id == occurrence.moderation_state_id
+        assert reply_notifs[0].moderation_state_id == nested_reply.moderation_state_id

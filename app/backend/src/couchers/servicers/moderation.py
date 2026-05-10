@@ -16,6 +16,7 @@ from couchers.metrics import (
 )
 from couchers.models import (
     AdminActionLevel,
+    Comment,
     Event,
     EventOccurrence,
     FriendRelationship,
@@ -32,6 +33,7 @@ from couchers.models import (
     ModerationVisibility,
     Notification,
     NotificationDelivery,
+    Reply,
     User,
 )
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
@@ -104,6 +106,8 @@ moderationobjecttype2api = {
     ModerationObjectType.group_chat: moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT,
     ModerationObjectType.friend_request: moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST,
     ModerationObjectType.event_occurrence: moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE,
+    ModerationObjectType.comment: moderation_pb2.MODERATION_OBJECT_TYPE_COMMENT,
+    ModerationObjectType.reply: moderation_pb2.MODERATION_OBJECT_TYPE_REPLY,
 }
 
 moderationobjecttype2sql = {
@@ -112,6 +116,8 @@ moderationobjecttype2sql = {
     moderation_pb2.MODERATION_OBJECT_TYPE_GROUP_CHAT: ModerationObjectType.group_chat,
     moderation_pb2.MODERATION_OBJECT_TYPE_FRIEND_REQUEST: ModerationObjectType.friend_request,
     moderation_pb2.MODERATION_OBJECT_TYPE_EVENT_OCCURRENCE: ModerationObjectType.event_occurrence,
+    moderation_pb2.MODERATION_OBJECT_TYPE_COMMENT: ModerationObjectType.comment,
+    moderation_pb2.MODERATION_OBJECT_TYPE_REPLY: ModerationObjectType.reply,
 }
 
 # Mapping from ModerationObjectType to the SQLAlchemy model class
@@ -120,6 +126,8 @@ moderationobjecttype2model: dict[ModerationObjectType, _ModeratedContent] = {
     ModerationObjectType.group_chat: GroupChat,
     ModerationObjectType.friend_request: FriendRelationship,
     ModerationObjectType.event_occurrence: EventOccurrence,
+    ModerationObjectType.comment: Comment,
+    ModerationObjectType.reply: Reply,
 }
 
 
@@ -251,6 +259,14 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
             .where(EventOccurrence.id == object_id)
         ).one()
         content = f"{title}\n\n{description}"
+    elif object_type == ModerationObjectType.comment:
+        author_user_id, content = session.execute(
+            select(Comment.author_user_id, Comment.content).where(Comment.id == object_id)
+        ).one()
+    elif object_type == ModerationObjectType.reply:
+        author_user_id, content = session.execute(
+            select(Reply.author_user_id, Reply.content).where(Reply.id == object_id)
+        ).one()
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
 

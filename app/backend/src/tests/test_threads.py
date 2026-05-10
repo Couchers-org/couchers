@@ -3,13 +3,22 @@ import textwrap
 
 import grpc
 import pytest
+from sqlalchemy import select
 
 from couchers.db import session_scope
-from couchers.models import Thread
-from couchers.proto import threads_pb2
+from couchers.models import (
+    Comment,
+    ModerationObjectType,
+    ModerationQueueItem,
+    ModerationState,
+    ModerationVisibility,
+    Reply,
+    Thread,
+)
+from couchers.proto import moderation_pb2, threads_pb2
 from couchers.servicers.threads import pack_thread_id
 from tests.fixtures.db import generate_user
-from tests.fixtures.sessions import threads_session
+from tests.fixtures.sessions import real_moderation_session, threads_session
 
 
 @pytest.fixture(autouse=True)
@@ -143,3 +152,213 @@ def test_threads_pagination(db):
     with threads_session(token1) as api:
         comment_id = pagination_test(api, PARENT_THREAD_ID)
         pagination_test(api, comment_id)
+
+
+def _make_thread_and_comment(token, content="hello"):
+    """Helper: create a Thread, post a top-level Comment via the API, return (parent_thread_id, comment_thread_id)."""
+    with session_scope() as session:
+        thread = Thread()
+        session.add(thread)
+        session.flush()
+        parent_thread_id = pack_thread_id(database_id=thread.id, depth=0)
+
+    with threads_session(token) as api:
+        comment_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=parent_thread_id, content=content)
+        ).thread_id
+
+    return parent_thread_id, comment_thread_id
+
+
+def test_comment_creates_moderation_state(db):
+    """Posting a comment creates a ModerationState (shadowed) and an initial-review queue item."""
+    user, token = generate_user()
+    _, comment_thread_id = _make_thread_and_comment(token)
+    comment_db_id = comment_thread_id // 10
+
+    with session_scope() as session:
+        comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
+
+        state = session.execute(
+            select(ModerationState).where(ModerationState.id == comment.moderation_state_id)
+        ).scalar_one()
+        assert state.object_type == ModerationObjectType.comment
+        assert state.object_id == comment.id
+        assert state.visibility == ModerationVisibility.shadowed
+
+        queue_item = session.execute(
+            select(ModerationQueueItem).where(ModerationQueueItem.moderation_state_id == state.id)
+        ).scalar_one()
+        assert queue_item.resolved_by_log_id is None
+
+
+def test_reply_creates_moderation_state(db):
+    """Posting a reply to a comment creates its own ModerationState."""
+    user, token = generate_user()
+    _, comment_thread_id = _make_thread_and_comment(token)
+
+    with threads_session(token) as api:
+        reply_thread_id = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply text")
+        ).thread_id
+    reply_db_id = reply_thread_id // 10
+
+    with session_scope() as session:
+        reply = session.execute(select(Reply).where(Reply.id == reply_db_id)).scalar_one()
+
+        state = session.execute(
+            select(ModerationState).where(ModerationState.id == reply.moderation_state_id)
+        ).scalar_one()
+        assert state.object_type == ModerationObjectType.reply
+        assert state.object_id == reply.id
+        assert state.visibility == ModerationVisibility.shadowed
+
+
+def test_shadowed_comment_visible_to_author_only(db):
+    """A shadowed comment is visible to its author but not to other users."""
+    author, author_token = generate_user()
+    other, other_token = generate_user()
+
+    parent_thread_id, _ = _make_thread_and_comment(author_token, content="secret")
+
+    # Author sees their own shadowed comment
+    with threads_session(author_token) as api:
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id))
+        assert len(ret.replies) == 1
+        assert ret.replies[0].content == "secret"
+
+    # Other user does not see the shadowed comment
+    with threads_session(other_token) as api:
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id))
+        assert len(ret.replies) == 0
+
+
+def test_shadowed_reply_visible_to_author_only(db):
+    """A shadowed reply is visible to its author but not to other users."""
+    author, author_token = generate_user()
+    other, other_token = generate_user()
+
+    _, comment_thread_id = _make_thread_and_comment(author_token, content="hi")
+    # Approve the comment so the parent comment is visible to others (otherwise they can't see the comment context anyway)
+    comment_db_id = comment_thread_id // 10
+    with session_scope() as session:
+        comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
+        state = session.execute(
+            select(ModerationState).where(ModerationState.id == comment.moderation_state_id)
+        ).scalar_one()
+        state.visibility = ModerationVisibility.visible
+
+    with threads_session(author_token) as api:
+        api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="my reply"))
+
+    # Author sees their own shadowed reply
+    with threads_session(author_token) as api:
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=comment_thread_id))
+        assert len(ret.replies) == 1
+        assert ret.replies[0].content == "my reply"
+
+    # Other user does not see the shadowed reply
+    with threads_session(other_token) as api:
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=comment_thread_id))
+        assert len(ret.replies) == 0
+
+
+def test_admin_can_approve_comment(db):
+    """A moderator can approve a comment via ModerateContent and make it visible to other users."""
+    author, author_token = generate_user()
+    other, other_token = generate_user()
+    _moderator, moderator_token = generate_user(is_superuser=True)
+
+    parent_thread_id, comment_thread_id = _make_thread_and_comment(author_token, content="approved comment")
+    comment_db_id = comment_thread_id // 10
+
+    with session_scope() as session:
+        comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
+        state_id = comment.moderation_state_id
+
+    # Other user can't see it yet
+    with threads_session(other_token) as api:
+        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
+
+    # Moderator approves
+    with real_moderation_session(moderator_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                reason="Looks good",
+            )
+        )
+
+    # Now other user sees it
+    with threads_session(other_token) as api:
+        ret = api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id))
+        assert len(ret.replies) == 1
+        assert ret.replies[0].content == "approved comment"
+
+
+def test_admin_can_hide_comment(db):
+    """A moderator can hide an approved comment, removing it from non-author views."""
+    author, author_token = generate_user()
+    other, other_token = generate_user()
+    _moderator, moderator_token = generate_user(is_superuser=True)
+
+    parent_thread_id, comment_thread_id = _make_thread_and_comment(author_token, content="bad comment")
+    comment_db_id = comment_thread_id // 10
+
+    with session_scope() as session:
+        comment = session.execute(select(Comment).where(Comment.id == comment_db_id)).scalar_one()
+        state_id = comment.moderation_state_id
+        # Pretend the comment was previously approved
+        state = session.execute(select(ModerationState).where(ModerationState.id == state_id)).scalar_one()
+        state.visibility = ModerationVisibility.visible
+
+    # Other user sees it
+    with threads_session(other_token) as api:
+        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 1
+
+    # Moderator hides it
+    with real_moderation_session(moderator_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_id,
+                action=moderation_pb2.MODERATION_ACTION_HIDE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                reason="Inappropriate",
+            )
+        )
+
+    # Other user no longer sees it
+    with threads_session(other_token) as api:
+        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
+    # Author also no longer sees it (hidden, not shadowed)
+    with threads_session(author_token) as api:
+        assert len(api.GetThread(threads_pb2.GetThreadReq(thread_id=parent_thread_id)).replies) == 0
+
+
+def test_total_num_responses_excludes_shadowed(db):
+    """total_num_responses should count only publicly visible (visible/unlisted) content."""
+    from couchers.servicers.threads import total_num_responses  # noqa: PLC0415
+
+    author, author_token = generate_user()
+    parent_thread_id, _ = _make_thread_and_comment(author_token, content="one")
+
+    parent_db_id, _ = divmod(parent_thread_id, 10)
+
+    # Initially shadowed → count is 0
+    with session_scope() as session:
+        assert total_num_responses(session, parent_db_id) == 0
+
+    # Approve to visible → count is 1
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState).where(
+                ModerationState.object_type == ModerationObjectType.comment,
+                ModerationState.object_id == session.execute(select(Comment.id)).scalar_one(),
+            )
+        ).scalar_one()
+        state.visibility = ModerationVisibility.visible
+
+    with session_scope() as session:
+        assert total_num_responses(session, parent_db_id) == 1

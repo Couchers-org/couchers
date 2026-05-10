@@ -6,6 +6,7 @@ from sqlalchemy.sql import Select, exists, union
 
 from couchers.context import CouchersContext
 from couchers.models import (
+    Comment,
     EventOccurrence,
     FriendRelationship,
     GroupChat,
@@ -13,6 +14,7 @@ from couchers.models import (
     ModerationObjectType,
     ModerationState,
     ModerationVisibility,
+    Reply,
     SignupFlow,
     User,
     UserBlock,
@@ -24,7 +26,7 @@ if TYPE_CHECKING:
 
     type _UserLike = type[User | LiteUser | SignupFlow]
     type _User = type[User | LiteUser]
-    type _ModeratedContent = type[HostRequest | GroupChat | FriendRelationship | EventOccurrence]
+    type _ModeratedContent = type[HostRequest | GroupChat | FriendRelationship | EventOccurrence | Comment | Reply]
 
 
 def username_or_email(value: str, table: _UserLike = User) -> ColumnElement[bool]:
@@ -252,6 +254,24 @@ def moderation_state_column_visible(
                             select(EventOccurrence.id).where(
                                 EventOccurrence.id == aliased_mod_state.object_id,
                                 EventOccurrence.creator_user_id == context.user_id,
+                            )
+                        ),
+                    ),
+                    and_(
+                        aliased_mod_state.object_type == ModerationObjectType.comment,
+                        exists(
+                            select(Comment.id).where(
+                                Comment.id == aliased_mod_state.object_id,
+                                Comment.author_user_id == context.user_id,
+                            )
+                        ),
+                    ),
+                    and_(
+                        aliased_mod_state.object_type == ModerationObjectType.reply,
+                        exists(
+                            select(Reply.id).where(
+                                Reply.id == aliased_mod_state.object_id,
+                                Reply.author_user_id == context.user_id,
                             )
                         ),
                     ),

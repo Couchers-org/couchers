@@ -5,7 +5,7 @@ from couchers.db import session_scope
 from couchers.proto import discussions_pb2, notifications_pb2, threads_pb2
 from couchers.utils import now, to_aware_datetime
 from tests.fixtures.db import generate_user
-from tests.fixtures.misc import PushCollector, process_jobs
+from tests.fixtures.misc import Moderator, PushCollector, process_jobs
 from tests.fixtures.sessions import discussions_session, notifications_session, threads_session
 from tests.test_communities import create_community, create_group
 
@@ -144,7 +144,7 @@ def test_create_and_get_discussion(db, push_collector: PushCollector):
         assert res.owner_group_id == group_id
 
 
-def test_discussion_notifications_regression(db, push_collector: PushCollector):
+def test_discussion_notifications_regression(db, push_collector: PushCollector, moderator: Moderator):
     generate_user()
     user, token = generate_user()
     user2, token2 = generate_user()
@@ -181,12 +181,19 @@ def test_discussion_notifications_regression(db, push_collector: PushCollector):
 
     with threads_session(token2) as api:
         comment_thread_id = api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content="comment")).thread_id
+    moderator.approve_thread_post(comment_thread_id)
 
     with threads_session(token3) as api:
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to comment"))
+        reply_thread_id_a = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to comment")
+        ).thread_id
+    moderator.approve_thread_post(reply_thread_id_a)
 
     with threads_session(token) as api:
-        api.PostReply(threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to reply to comment"))
+        reply_thread_id_b = api.PostReply(
+            threads_pb2.PostReplyReq(thread_id=comment_thread_id, content="reply to reply to comment")
+        ).thread_id
+    moderator.approve_thread_post(reply_thread_id_b)
 
     process_jobs()
 
