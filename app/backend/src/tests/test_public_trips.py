@@ -7,7 +7,17 @@ from sqlalchemy import select
 
 from couchers.constants import HOST_REQUEST_MIN_LENGTH_UTF16
 from couchers.db import session_scope
-from couchers.models import Cluster, ClusterRole, ClusterSubscription, Node, NodeType, User
+from couchers.models import (
+    Cluster,
+    ClusterRole,
+    ClusterSubscription,
+    ModerationObjectType,
+    ModerationState,
+    ModerationVisibility,
+    Node,
+    NodeType,
+    User,
+)
 from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2, requests_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_multi, today
@@ -72,8 +82,16 @@ def _create_trip_directly(
     description: str = "Looking for a host!",
     status=None,
     same_gender_only: bool = False,
+    visibility: ModerationVisibility = ModerationVisibility.visible,
 ) -> int:
     with session_scope() as session:
+        moderation_state = ModerationState(
+            object_type=ModerationObjectType.public_trip,
+            object_id=0,  # placeholder, set after PublicTrip flush
+            visibility=visibility,
+        )
+        session.add(moderation_state)
+        session.flush()
         trip = PublicTrip(
             user_id=user_id,
             node_id=node_id,
@@ -82,9 +100,11 @@ def _create_trip_directly(
             description=description,
             status=status or PublicTripStatus.searching_for_host,
             same_gender_only=same_gender_only,
+            moderation_state_id=moderation_state.id,
         )
         session.add(trip)
         session.flush()
+        moderation_state.object_id = trip.id
         return trip.id
 
 
@@ -1026,3 +1046,121 @@ def test_viewer_host_request_id_reflects_viewers_own_offer(db):
         res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
         trip = next(t for t in res.public_trips if t.trip_id == trip_id)
         assert trip.viewer_host_request_id == 0
+
+
+def test_create_public_trip_creates_shadowed_moderation_state(db):
+    user, token = generate_user()
+    node_id = _make_node()
+
+    with public_trips_session(token) as api:
+        res = api.CreatePublicTrip(
+            public_trips_pb2.CreatePublicTripReq(
+                community_id=node_id,
+                from_date=(today() + timedelta(days=5)).isoformat(),
+                to_date=(today() + timedelta(days=10)).isoformat(),
+                description=VALID_DESCRIPTION,
+            )
+        )
+
+    with session_scope() as session:
+        trip = session.execute(select(PublicTrip).where(PublicTrip.id == res.trip_id)).scalar_one()
+        state = session.execute(
+            select(ModerationState).where(ModerationState.id == trip.moderation_state_id)
+        ).scalar_one()
+        assert state.object_type == ModerationObjectType.public_trip
+        assert state.object_id == trip.id
+        assert state.visibility == ModerationVisibility.shadowed
+
+
+def test_shadowed_public_trip_visible_to_author_hidden_from_others(db):
+    traveler, traveler_token = generate_user()
+    _, viewer_token = generate_user()
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(
+        traveler.id,
+        node_id,
+        today() + timedelta(days=5),
+        today() + timedelta(days=10),
+        visibility=ModerationVisibility.shadowed,
+    )
+
+    # Author can fetch their own shadowed trip
+    with public_trips_session(traveler_token) as api:
+        res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
+        assert res.trip_id == trip_id
+
+    # Author sees their shadowed trip in their own listing
+    with public_trips_session(traveler_token) as api:
+        res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert any(t.trip_id == trip_id for t in res.public_trips)
+
+    # Other viewers can't see it
+    with public_trips_session(viewer_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+        list_res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert not any(t.trip_id == trip_id for t in list_res.public_trips)
+
+        by_user_res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert not any(t.trip_id == trip_id for t in by_user_res.public_trips)
+
+
+def test_hidden_public_trip_invisible_to_everyone(db):
+    traveler, traveler_token = generate_user()
+    _, viewer_token = generate_user()
+    node_id = _make_node()
+
+    trip_id = _create_trip_directly(
+        traveler.id,
+        node_id,
+        today() + timedelta(days=5),
+        today() + timedelta(days=10),
+        visibility=ModerationVisibility.hidden,
+    )
+
+    # Even author can't read a hidden trip via the public API
+    with public_trips_session(traveler_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=trip_id))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+        by_user_res = api.ListPublicTripsByUser(public_trips_pb2.ListPublicTripsByUserReq(user_id=traveler.id))
+        assert not any(t.trip_id == trip_id for t in by_user_res.public_trips)
+
+    with public_trips_session(viewer_token) as api:
+        list_res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert not any(t.trip_id == trip_id for t in list_res.public_trips)
+
+
+def test_moderator_approval_makes_public_trip_visible(db, moderator):
+    user, token = generate_user()
+    _, viewer_token = generate_user()
+    node_id = _make_node()
+
+    with public_trips_session(token) as api:
+        res = api.CreatePublicTrip(
+            public_trips_pb2.CreatePublicTripReq(
+                community_id=node_id,
+                from_date=(today() + timedelta(days=5)).isoformat(),
+                to_date=(today() + timedelta(days=10)).isoformat(),
+                description=VALID_DESCRIPTION,
+            )
+        )
+
+    # Before approval (shadowed): hidden from other users
+    with public_trips_session(viewer_token) as api:
+        list_res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert not any(t.trip_id == res.trip_id for t in list_res.public_trips)
+
+    moderator.approve_public_trip(res.trip_id)
+
+    # After approval: visible to everyone
+    with public_trips_session(viewer_token) as api:
+        list_res = api.ListPublicTrips(public_trips_pb2.ListPublicTripsReq(community_id=node_id))
+        assert any(t.trip_id == res.trip_id for t in list_res.public_trips)
+
+        get_res = api.GetPublicTrip(public_trips_pb2.GetPublicTripReq(trip_id=res.trip_id))
+        assert get_res.trip_id == res.trip_id

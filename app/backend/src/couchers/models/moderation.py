@@ -74,6 +74,7 @@ class ModerationObjectType(enum.Enum):
     reply = enum.auto()
     discussion = enum.auto()
     reference = enum.auto()
+    public_trip = enum.auto()
 
 
 class ModerationState(Base, kw_only=True):
