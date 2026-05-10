@@ -4,6 +4,7 @@ package org.couchers.moderation;
 
 import "google/protobuf/timestamp.proto";
 
+import "admin.proto";
 import "annotations.proto";
 
 service Moderation {
@@ -74,6 +75,7 @@ message ModerationStateInfo {
   google.protobuf.Timestamp updated = 6;
   int64 author_user_id = 7;
   string content = 8;
+  org.couchers.admin.UserDetails author = 9;
 }
 
 message ModerationQueueItemInfo {

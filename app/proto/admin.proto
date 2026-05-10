@@ -41,6 +41,10 @@ service Admin {
 
   rpc UnbanUser(UnbanUserReq) returns (UserDetails) {}
 
+  rpc ShadowUser(ShadowUserReq) returns (UserDetails) {}
+
+  rpc UnshadowUser(UnshadowUserReq) returns (UserDetails) {}
+
   rpc AddAdminNote(AddAdminNoteReq) returns (UserDetails) {}
 
   rpc GetContentReport(GetContentReportReq) returns (GetContentReportRes) {}
@@ -130,6 +134,7 @@ message UserDetails {
   string birthdate = 7;
   bool banned = 5;
   bool deleted = 6;
+  bool shadowed = 21;
   bool do_not_email = 15;
   repeated string badges = 8;
 
@@ -177,6 +182,7 @@ message SearchUsersReq {
   repeated string language_codes = 17;
   google.protobuf.BoolValue is_deleted = 18;
   google.protobuf.BoolValue is_banned = 19;
+  google.protobuf.BoolValue is_shadowed = 22;
   google.protobuf.BoolValue has_avatar = 20;
   repeated string admin_tags = 21;
 
@@ -224,6 +230,18 @@ message BanUserReq {
 }
 
 message UnbanUserReq {
+  // username, email, or user id
+  string user = 1;
+  string admin_note = 2;
+}
+
+message ShadowUserReq {
+  // username, email, or user id
+  string user = 1;
+  string admin_note = 2;
+}
+
+message UnshadowUserReq {
   // username, email, or user id
   string user = 1;
   string admin_note = 2;

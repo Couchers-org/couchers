@@ -186,6 +186,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 .where(
                     to_users.banned_at.is_(None)
                 )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
+                .where(or_(to_users.shadowed_at.is_(None), to_users.id == context.user_id))
                 .where(Reference.from_user_id == request.from_user_id)
             )
         if request.to_user_id:
@@ -195,6 +196,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 .where(
                     from_users.banned_at.is_(None)
                 )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
+                .where(or_(from_users.shadowed_at.is_(None), from_users.id == context.user_id))
                 .where(Reference.to_user_id == request.to_user_id)
             )
         if len(request.reference_type_filter) > 0:
