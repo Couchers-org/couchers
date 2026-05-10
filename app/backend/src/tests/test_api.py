@@ -1054,6 +1054,21 @@ def test_cant_friend_request_already_friends(db):
         assert e.value.details() == "You are already friends with or have sent a friend request to that user."
 
 
+def test_cant_friend_request_incomplete_profile(db):
+    user1, token1 = generate_user(complete_profile=False)
+    user2, token2 = generate_user(complete_profile=True)
+
+    with api_session(token1) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user2.id))
+        assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
+        assert e.value.details() == "You have to complete your profile before you can send a friend request."
+
+    # the other direction should still work
+    with api_session(token2) as api:
+        api.SendFriendRequest(api_pb2.SendFriendRequestReq(user_id=user1.id))
+
+
 def test_excessive_friend_requests_are_reported(db):
     """Test that excessive friend requests are first reported in a warning email and finally lead blocking of further requests."""
     user, token = generate_user()
