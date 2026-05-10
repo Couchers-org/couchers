@@ -204,7 +204,7 @@ def event_to_pb(session: Session, occurrence: EventOccurrence, context: Couchers
         owner_user_id=event.owner_user_id,
         owner_community_id=owner_community_id,
         owner_group_id=owner_group_id,
-        thread=thread_to_pb(session, event.thread_id),
+        thread=thread_to_pb(session, context, event.thread_id),
         can_edit=can_edit,
         can_moderate=can_moderate,
     )

@@ -338,19 +338,19 @@ def test_admin_can_hide_comment(db):
 
 
 def test_total_num_responses_excludes_shadowed(db):
-    """total_num_responses should count only publicly visible (visible/unlisted) content."""
+    from couchers.context import make_background_user_context  # noqa: PLC0415
     from couchers.servicers.threads import total_num_responses  # noqa: PLC0415
 
     author, author_token = generate_user()
+    viewer, _ = generate_user()
     parent_thread_id, _ = _make_thread_and_comment(author_token, content="one")
+    viewer_context = make_background_user_context(user_id=viewer.id)
 
     parent_db_id, _ = divmod(parent_thread_id, 10)
 
-    # Initially shadowed → count is 0
     with session_scope() as session:
-        assert total_num_responses(session, parent_db_id) == 0
+        assert total_num_responses(session, viewer_context, parent_db_id) == 0
 
-    # Approve to visible → count is 1
     with session_scope() as session:
         state = session.execute(
             select(ModerationState).where(
@@ -361,4 +361,4 @@ def test_total_num_responses_excludes_shadowed(db):
         state.visibility = ModerationVisibility.visible
 
     with session_scope() as session:
-        assert total_num_responses(session, parent_db_id) == 1
+        assert total_num_responses(session, viewer_context, parent_db_id) == 1

@@ -15,8 +15,6 @@ from couchers.models import (
     Event,
     EventOccurrence,
     ModerationObjectType,
-    ModerationState,
-    ModerationVisibility,
     Reply,
     Thread,
     User,
@@ -47,37 +45,29 @@ def unpack_thread_id(thread_id: int) -> tuple[int, int]:
     return divmod(thread_id, 10)
 
 
-_PUBLIC_VISIBILITIES = (ModerationVisibility.visible, ModerationVisibility.unlisted)
-
-
-def total_num_responses(session: Session, database_id: int) -> int:
-    """Return the total number of publicly visible comments and replies to the thread.
-
-    Counts only visible + unlisted content; shadowed content owned by the viewing
-    author is intentionally excluded from this aggregate count.
-    """
-    comments = (
-        select(func.count())
-        .select_from(Comment)
-        .join(ModerationState, ModerationState.id == Comment.moderation_state_id)
-        .where(Comment.thread_id == database_id)
-        .where(ModerationState.visibility.in_(_PUBLIC_VISIBILITIES))
+def total_num_responses(session: Session, context: CouchersContext, database_id: int) -> int:
+    comments = where_moderated_content_visible(
+        select(func.count()).select_from(Comment).where(Comment.thread_id == database_id),
+        context,
+        Comment,
+        is_list_operation=True,
     )
-    replies = (
+    replies = where_moderated_content_visible(
         select(func.count())
         .select_from(Reply)
         .join(Comment, Comment.id == Reply.comment_id)
-        .join(ModerationState, ModerationState.id == Reply.moderation_state_id)
-        .where(Comment.thread_id == database_id)
-        .where(ModerationState.visibility.in_(_PUBLIC_VISIBILITIES))
+        .where(Comment.thread_id == database_id),
+        context,
+        Reply,
+        is_list_operation=True,
     )
     return session.execute(comments).scalar_one() + session.execute(replies).scalar_one()
 
 
-def thread_to_pb(session: Session, database_id: int) -> threads_pb2.Thread:
+def thread_to_pb(session: Session, context: CouchersContext, database_id: int) -> threads_pb2.Thread:
     return threads_pb2.Thread(
         thread_id=pack_thread_id(database_id, 0),
-        num_responses=total_num_responses(session, database_id),
+        num_responses=total_num_responses(session, context, database_id),
     )
 
 

@@ -36,49 +36,70 @@ def upgrade() -> None:
     op.add_column("comments", sa.Column("moderation_state_id", sa.BigInteger(), nullable=True))
     op.add_column("replies", sa.Column("moderation_state_id", sa.BigInteger(), nullable=True))
 
-    # Backfill: for every existing comment, create a ModerationState (visible) and a 'create'
-    # ModerationLog entry attributed to the author. Existing content was visible before this
-    # migration, so we keep it visible — only new content (created via create_moderation) starts
-    # shadowed. We intentionally do NOT enqueue ModerationQueueItem rows for historical content
-    # to avoid flooding the moderation queue.
+    # Backfill moderation states for existing comments (using the < 2000000 ID range reserved for backfills)
     op.execute("""
-        WITH new_states AS (
-            INSERT INTO moderation_states (id, object_type, object_id, visibility)
-            SELECT nextval('moderation_seq'), 'comment', id, 'visible'
-            FROM comments
-            ORDER BY id
-            RETURNING id, object_id
-        )
-        UPDATE comments
-        SET moderation_state_id = new_states.id
-        FROM new_states
-        WHERE comments.id = new_states.object_id
+        INSERT INTO moderation_states (id, object_type, object_id, visibility)
+        SELECT
+            (SELECT COALESCE(MAX(id), 0) FROM moderation_states WHERE id < 2000000) + ROW_NUMBER() OVER (ORDER BY id),
+            'comment',
+            id,
+            'visible'
+        FROM comments
     """)
     op.execute("""
         INSERT INTO moderation_log (id, moderation_state_id, action, moderator_user_id, new_visibility, reason)
-        SELECT nextval('moderation_seq'), c.moderation_state_id, 'create', c.author_user_id, 'visible',
-               'Migration: existing comment'
-        FROM comments c
+        SELECT
+            (SELECT GREATEST(
+                COALESCE((SELECT MAX(id) FROM moderation_states WHERE id < 2000000), 0),
+                COALESCE((SELECT MAX(id) FROM moderation_log WHERE id < 2000000), 0)
+            )) + ROW_NUMBER() OVER (ORDER BY c.id),
+            ms.id,
+            'create',
+            c.author_user_id,
+            'visible',
+            'Migration: existing comment'
+        FROM moderation_states ms
+        JOIN comments c ON ms.object_id = c.id AND ms.object_type = 'comment'
+    """)
+    op.execute("""
+        UPDATE comments
+        SET moderation_state_id = moderation_states.id
+        FROM moderation_states
+        WHERE moderation_states.object_type = 'comment'
+        AND moderation_states.object_id = comments.id
     """)
 
+    # Backfill moderation states for existing replies (using the < 2000000 ID range reserved for backfills)
     op.execute("""
-        WITH new_states AS (
-            INSERT INTO moderation_states (id, object_type, object_id, visibility)
-            SELECT nextval('moderation_seq'), 'reply', id, 'visible'
-            FROM replies
-            ORDER BY id
-            RETURNING id, object_id
-        )
-        UPDATE replies
-        SET moderation_state_id = new_states.id
-        FROM new_states
-        WHERE replies.id = new_states.object_id
+        INSERT INTO moderation_states (id, object_type, object_id, visibility)
+        SELECT
+            (SELECT COALESCE(MAX(id), 0) FROM moderation_states WHERE id < 2000000) + ROW_NUMBER() OVER (ORDER BY id),
+            'reply',
+            id,
+            'visible'
+        FROM replies
     """)
     op.execute("""
         INSERT INTO moderation_log (id, moderation_state_id, action, moderator_user_id, new_visibility, reason)
-        SELECT nextval('moderation_seq'), r.moderation_state_id, 'create', r.author_user_id, 'visible',
-               'Migration: existing reply'
-        FROM replies r
+        SELECT
+            (SELECT GREATEST(
+                COALESCE((SELECT MAX(id) FROM moderation_states WHERE id < 2000000), 0),
+                COALESCE((SELECT MAX(id) FROM moderation_log WHERE id < 2000000), 0)
+            )) + ROW_NUMBER() OVER (ORDER BY r.id),
+            ms.id,
+            'create',
+            r.author_user_id,
+            'visible',
+            'Migration: existing reply'
+        FROM moderation_states ms
+        JOIN replies r ON ms.object_id = r.id AND ms.object_type = 'reply'
+    """)
+    op.execute("""
+        UPDATE replies
+        SET moderation_state_id = moderation_states.id
+        FROM moderation_states
+        WHERE moderation_states.object_type = 'reply'
+        AND moderation_states.object_id = replies.id
     """)
 
     # Now enforce NOT NULL and add the index + FK constraints.
