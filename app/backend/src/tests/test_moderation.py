@@ -146,7 +146,7 @@ def test_add_to_moderation_queue(db):
         assert res.queue_item.moderation_state_id == state_id
         assert res.queue_item.trigger == moderation_pb2.MODERATION_TRIGGER_USER_FLAG
         assert res.queue_item.reason == "Admin manually flagged for additional review"
-        assert res.queue_item.moderation_state.author_user_id == user1.id
+        assert res.queue_item.moderation_state.author.user_id == user1.id
         assert res.queue_item.is_resolved == False
 
 
@@ -1185,13 +1185,13 @@ def test_GetModerationQueue_filter_by_author(db):
     with real_moderation_session(super_token) as api:
         res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(item_author_user_id=user1.id))
         assert len(res.queue_items) == 2
-        assert all(item.moderation_state.author_user_id == user1.id for item in res.queue_items)
+        assert all(item.moderation_state.author.user_id == user1.id for item in res.queue_items)
 
     # Filter by user2 (should get 1)
     with real_moderation_session(super_token) as api:
         res = api.GetModerationQueue(moderation_pb2.GetModerationQueueReq(item_author_user_id=user2.id))
         assert len(res.queue_items) == 1
-        assert res.queue_items[0].moderation_state.author_user_id == user2.id
+        assert res.queue_items[0].moderation_state.author.user_id == user2.id
         assert res.queue_items[0].moderation_state_id == state3_id
 
     # Filter by non-existent user (should get 0)

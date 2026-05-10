@@ -185,27 +185,6 @@ def bulk_set_user_content_visibility(
     return updated_count
 
 
-def moderation_state_ids_authored_by_shadowed_users(session: Session, moderation_state_ids: list[int]) -> set[int]:
-    """Return the subset of moderation_state_ids whose author user is currently shadowed."""
-    if not moderation_state_ids:
-        return set()
-    result: set[int] = set()
-    for model in moderationobjecttype2model.values():
-        author_col = getattr(model, model.__moderation_author_column__)
-        ids = (
-            session.execute(
-                select(model.moderation_state_id)
-                .join(User, User.id == author_col)
-                .where(User.shadowed_at.is_not(None))
-                .where(model.moderation_state_id.in_(moderation_state_ids))
-            )
-            .scalars()
-            .all()
-        )
-        result.update(ids)
-    return result
-
-
 def _enqueue_pending_notifications(session: Session, moderation_state_id: int) -> None:
     """Re-queue any pending notifications linked to the given moderation state whose deliveries were suppressed."""
     pending_notifications = (
@@ -275,6 +254,11 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
 
+    # Import here to avoid circular dependency
+    from couchers.servicers.admin import _user_to_details  # noqa: PLC0415
+
+    author = session.execute(select(User).where(User.id == author_user_id)).scalar_one()
+
     state_pb = moderation_pb2.ModerationStateInfo(
         moderation_state_id=state.id,
         object_type=moderationobjecttype2api[state.object_type],
@@ -283,6 +267,7 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
         created=Timestamp_from_datetime(state.created),
         updated=Timestamp_from_datetime(state.updated),
         author_user_id=author_user_id,
+        author=_user_to_details(session, author),
         content=content or "",
     )
 
