@@ -182,9 +182,9 @@ message SearchUsersReq {
   repeated string language_codes = 17;
   google.protobuf.BoolValue is_deleted = 18;
   google.protobuf.BoolValue is_banned = 19;
+  google.protobuf.BoolValue is_shadowed = 22;
   google.protobuf.BoolValue has_avatar = 20;
   repeated string admin_tags = 21;
-  google.protobuf.BoolValue is_shadowed = 22;
 
   uint32 page_size = 1;
   string page_token = 2;
