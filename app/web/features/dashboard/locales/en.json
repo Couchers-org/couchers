@@ -12,6 +12,7 @@
     "actions": {
       "send_request": "send a request",
       "send_message": "send a message",
+      "send_friend_request": "send a friend request",
       "create_event": "create an event"
     },
     "edit_profile_button": "Edit your profile now",

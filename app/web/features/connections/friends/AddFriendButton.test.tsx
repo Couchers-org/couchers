@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import React, { useState } from "react";
 import { service } from "service";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
+import { MockedService } from "test/utils";
 
 import AddFriendButton from "./AddFriendButton";
 
@@ -13,6 +14,32 @@ const { t } = i18n;
 const sendFriendRequestMock = service.api.sendFriendRequest as jest.Mock<
   ReturnType<typeof service.api.sendFriendRequest>
 >;
+
+const getAccountInfoMock = service.account.getAccountInfo as MockedService<
+  typeof service.account.getAccountInfo
+>;
+
+const accountInfo = {
+  username: "tester",
+  email: "email@couchers.org",
+  profileComplete: true,
+  phone: "+46701740605",
+  phoneVerified: true,
+  timezone: "Australia/Broken_Hill",
+  hasStrongVerification: false,
+  birthdateVerificationStatus: 1,
+  genderVerificationStatus: 3,
+  doNotEmail: false,
+  hasDonated: false,
+  isSuperuser: false,
+  uiLanguagePreference: "",
+  profilePublicVisibility: 1,
+  isVolunteer: false,
+  myHomeComplete: false,
+  shouldShowDonationBanner: false,
+};
+
+const incompleteAccountInfo = { ...accountInfo, profileComplete: false };
 
 function TestComponent() {
   const [mutationError, setMutationError] = useState("");
@@ -30,6 +57,10 @@ afterEach(() => {
 });
 
 describe("AddFriendButton", () => {
+  beforeEach(() => {
+    getAccountInfoMock.mockResolvedValue(accountInfo);
+  });
+
   it("renders the button correctly", () => {
     render(<TestComponent />, { wrapper });
     expect(
@@ -44,25 +75,27 @@ describe("AddFriendButton", () => {
     sendFriendRequestMock.mockImplementation(() => new Promise(() => void 0));
     render(<TestComponent />, { wrapper });
 
+    const button = screen.getByRole("button", {
+      name: t("connections:add_friend"),
+    });
+    await waitFor(() => expect(button).toBeEnabled());
+
     const user = userEvent.setup();
-    await user.click(
-      screen.getByRole("button", {
-        name: t("connections:add_friend"),
-      }),
-    );
+    await user.click(button);
     expect(await screen.findByRole("progressbar")).toBeVisible();
   });
 
   it("sets no error if the add friend action succeeded", async () => {
     sendFriendRequestMock.mockResolvedValue(new Empty());
     render(<TestComponent />, { wrapper });
-    const user = userEvent.setup();
 
-    await user.click(
-      screen.getByRole("button", {
-        name: t("connections:add_friend"),
-      }),
-    );
+    const button = screen.getByRole("button", {
+      name: t("connections:add_friend"),
+    });
+    await waitFor(() => expect(button).toBeEnabled());
+
+    const user = userEvent.setup();
+    await user.click(button);
 
     expect(await screen.findByText(/Success/)).toBeInTheDocument();
   });
@@ -74,15 +107,36 @@ describe("AddFriendButton", () => {
     );
     render(<TestComponent />, { wrapper });
 
-    const user = userEvent.setup();
+    const button = screen.getByRole("button", {
+      name: t("connections:add_friend"),
+    });
+    await waitFor(() => expect(button).toBeEnabled());
 
-    await user.click(
-      screen.getByRole("button", {
-        name: t("connections:add_friend"),
-      }),
-    );
+    const user = userEvent.setup();
+    await user.click(button);
+
     expect(
       await screen.findByText("Failed to add funny dog"),
     ).toBeInTheDocument();
+  });
+
+  it("pops up incomplete profile note if profile is incomplete", async () => {
+    getAccountInfoMock.mockResolvedValue(incompleteAccountInfo);
+    render(<TestComponent />, { wrapper });
+
+    const button = screen.getByRole("button", {
+      name: t("connections:add_friend"),
+    });
+    await waitFor(() => expect(button).toBeEnabled());
+
+    const user = userEvent.setup();
+    await user.click(button);
+
+    expect(
+      await screen.findByLabelText(
+        t("dashboard:complete_profile_dialog.title"),
+      ),
+    ).toBeVisible();
+    expect(sendFriendRequestMock).not.toHaveBeenCalled();
   });
 });
