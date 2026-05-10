@@ -2334,13 +2334,18 @@
   dependencies:
     tslib "^2.8.0"
 
-"@tanstack/query-async-storage-persister@^5.95.1":
-  version "5.95.1"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.95.1.tgz#e0ecf0afcb200b3ea27b713944e0cb7594405138"
-  integrity sha512-seo3KTc/rR83al89gCCeLH1dbaYNx8b5bXNgojvbNuaq0iPbg9U6i/c+EodnYFAgRASlE5brnM0ZKmUMWy57nw==
+"@tanstack/query-async-storage-persister@^5.100.9":
+  version "5.100.9"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.100.9.tgz#567bcac18141d65a83783af170cd9b6549271255"
+  integrity sha512-KTWqpXIAwuR1bSIxfOnoRr7hOMxfrtLk9kxSuDfOu4sSBEFqHp9+aDp8Ig6YdHxCclNI86SizPnmKmSqNxcJxg==
   dependencies:
-    "@tanstack/query-core" "5.95.1"
-    "@tanstack/query-persist-client-core" "5.95.1"
+    "@tanstack/query-core" "5.100.9"
+    "@tanstack/query-persist-client-core" "5.100.9"
+
+"@tanstack/query-core@5.100.9":
+  version "5.100.9"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.100.9.tgz#dcf44ef25cf42a4da229bcab1d8d33e80a740a99"
+  integrity sha512-SJSFw1S8+kQ0+knv/XGfrbocWoAlT7vDKsSImtLx3ZPQmEcR46hkDjLSvynSy25N8Ms4tIEini1FuBd5k7IscQ==
 
 "@tanstack/query-core@5.95.1":
   version "5.95.1"
@@ -2351,6 +2356,13 @@
   version "5.95.1"
   resolved "https://registry.yarnpkg.com/@tanstack/query-devtools/-/query-devtools-5.95.1.tgz#f097f9ed7a010d205ad112735a1af47555b0ddc1"
   integrity sha512-YkKrHSp2qLw9wTRr2XufvkAZzernq9/ZlDU2C5euzWGydxd1w9PMvP4D8mIItmROYjhrAkj0VeLQIPkMj0LRxg==
+
+"@tanstack/query-persist-client-core@5.100.9":
+  version "5.100.9"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-persist-client-core/-/query-persist-client-core-5.100.9.tgz#0ad716ef15630c74a89af11fc446d868bcee27ce"
+  integrity sha512-sCPZZp3D9sOeqcA4SDxjUIm4wVq8PwHebH4ouFZetwjT4xvGjT/cLBQ4Sst+BFcFuk745pCPkf3T4MFliLHECQ==
+  dependencies:
+    "@tanstack/query-core" "5.100.9"
 
 "@tanstack/query-persist-client-core@5.95.1":
   version "5.95.1"
