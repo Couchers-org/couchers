@@ -31,7 +31,7 @@
     "age_verification_mismatch": "用户提供的出生日期与验证的出生日期不符",
     "gender_verification_verified": "此用户已验证其性别",
     "gender_verification_mismatch": "用户提供的性别与验证的性别不符",
-    "photos_section": "Photos"
+    "photos_section": "照片"
   },
   "section_tabs_a11y_label": "用户详情的标签",
   "home_info_headings": {
@@ -213,6 +213,14 @@
     "success": "请求已发送！",
     "request_chars_remaining_one": "请至少再写 {{count}} 个字符以发送接待请求。",
     "request_chars_remaining_other": "请再写至少 {{count}} 个字符以发送接待请求。"
+  },
+  "message_form": {
+    "send_message": "给{{name}}发送消息",
+    "message": "消息",
+    "message_description": "写下你的消息...",
+    "message_empty": "请写一条消息。",
+    "hosting_request_hint": "要发送接待请求吗？请改用<request>请求</request>按钮。",
+    "success": "消息已发送！"
   },
   "reference_filter_label": {
     "friend": "来自朋友",

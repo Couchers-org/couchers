@@ -31,7 +31,7 @@
     "age_verification_mismatch": "使用者提供的出生日期與驗證的出生日期不符",
     "gender_verification_verified": "此使用者已驗證其性別",
     "gender_verification_mismatch": "使用者提供的性別與驗證的性別不符",
-    "photos_section": "Photos"
+    "photos_section": "照片"
   },
   "section_tabs_a11y_label": "使用者詳情的標籤",
   "home_info_headings": {
@@ -213,6 +213,14 @@
     "success": "請求已發送！",
     "request_chars_remaining_one": "請至少再寫 {{count}} 個字元，才能送出接待請求。",
     "request_chars_remaining_other": "請至少再寫 {{count}} 個字元，才能送出接待請求。"
+  },
+  "message_form": {
+    "send_message": "傳送訊息給{{name}}",
+    "message": "訊息",
+    "message_description": "寫下你的訊息...",
+    "message_empty": "請寫一則訊息。",
+    "hosting_request_hint": "想傳送接待請求嗎？請改用<request>請求</request>按鈕。",
+    "success": "訊息已傳送！"
   },
   "reference_filter_label": {
     "friend": "來自朋友",
