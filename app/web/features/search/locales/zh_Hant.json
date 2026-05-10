@@ -24,7 +24,7 @@
       "last_active_field_label": "最後活躍",
       "hosting_status_field_label": "接待狀態",
       "age": {
-        "field_label": "沙發主年齡",
+        "field_label": "接待者年齡",
         "min_age": "最低年齡",
         "max_age": "最大年齡"
       },

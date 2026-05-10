@@ -1,8 +1,8 @@
 {
   "mark_all_read_button_text": "全部標記為已讀",
   "mark_all_read_button_text_chats": "將所有聊天標記為已讀",
-  "mark_all_read_button_text_hosting": "將所有留宿請求標記為已讀",
-  "mark_all_read_button_text_surfing": "將所有沙發請求標記為已讀",
+  "mark_all_read_button_text_hosting": "將所有接待請求標記為已讀",
+  "mark_all_read_button_text_surfing": "將所有沙發衝浪請求標記為已讀",
   "write_reference_button_text": "撰寫評語",
   "close_request_button_text": "拒絕",
   "confirm_request_button_text": "確認",
@@ -13,8 +13,8 @@
     "tabs": {
       "unread": "未讀",
       "chats": "聊天",
-      "hosting": "留宿",
-      "surfing": "找沙發主"
+      "hosting": "接待",
+      "surfing": "沙發衝浪"
     }
   },
   "archive": {
@@ -162,10 +162,11 @@
     "expired": "此請求已過期"
   },
   "host_request_view": {
-    "error_message": "無效的留宿請求ID",
+    "error_message": "無效的接待請求ID",
     "back_button_a11y_label": "返回",
     "title_for_host": "來自{{user}} 的請求 - {{status}}",
     "title_for_surfer": "向 {{user}} 發出的請求 - {{status}}",
+    "request_duration_one": "{{count}} 晚",
     "request_duration_other": "{{count}} 晚"
   },
   "past_request_help_text": "此請求已過期，您仍可傳送訊息，但無法再進行其他修改。",

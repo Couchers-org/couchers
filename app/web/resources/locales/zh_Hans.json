@@ -6,7 +6,7 @@
   "close": "关闭",
   "create_account": "创建账户",
   "expand": "扩展",
-  "login": "登陆",
+  "login": "登录",
   "sign_up": "注册",
   "join_us": "加入我们",
   "terms_of_service": "服务条款",
@@ -48,9 +48,9 @@
   "mod": "审核",
   "cookie_message": "我们使用cookie以确保在我们的网站上为您提供最佳体验。如果您继续使用本网站，我们将假设您对此感到满意。您可以详细了解我们的<1>服务条款</1>。",
   "hosting_status": {
-    "can_host": "可以托管",
-    "maybe": "可以托管",
-    "cant_host": "不能托管",
+    "can_host": "可以接待",
+    "maybe": "可能可以接待",
+    "cant_host": "无法接待",
     "unspecified_info": "没有说"
   },
   "language_preference": {
@@ -192,7 +192,7 @@
     "legal_more": "法律及更多",
     "contact_us": "联系我们",
     "built_with": "开源",
-    "landing_page": "登陆页面",
+    "landing_page": "登录页面",
     "invite_members": "邀请会员",
     "merch_shop": "商品商店",
     "switch_to_light_mode": "切换到浅色模式",
@@ -239,31 +239,31 @@
   },
   "what_is_cs": {
     "title": " 什么是沙发冲浪？",
-    "description_1": " 沙发冲浪是一些会员提出的概念（称为主机）在平台上发帖，表示他们愿意接待其他正在访问其城市的会员（称为冲浪者）。",
+    "description_1": " 沙发冲浪是指一些会员（称为接待者）在平台上发帖，表示他们愿意接待到访其城市的其他会员（称为沙发客）。",
     "description_2": "这就像在另一个城市有朋友要去拜访他们，但到达那里后你是第一次见到朋友！",
     "get_involved_title": "我在 Couchers.org 上可以做什么？",
     "timeline_title": "沙发冲浪的快速历史",
     "timeline": {
-      "early_2000s_year": "Early 2000s",
+      "early_2000s_year": "2000年代初",
       "early_2000s_text": "在线沙发冲浪运动诞生：与当地人在一起，分享文化。",
-      "2010s_year": "2010s",
+      "2010s_year": "2010年代",
       "2010s_text": "社区和活动蓬勃发展；参考建立信任——世界开始感觉像一个友好的邻居。",
-      "2020_year": "2020",
+      "2020_year": "2020年",
       "2020_text": "一个主要平台以营利为目的； Couchers.org 作为非盈利、社区运营的替代方案推出。",
-      "today_year": "Today",
+      "today_year": "今天",
       "today_text": "Couchers.org 开创了新的篇章：现代、更安全、非盈利的沙发冲浪 — 由社区打造并为社区服务。"
     },
     "actions": {
       "host": " 接待一位来访您城市的旅行者",
-      "surf": "旅行时与当地人一起冲浪",
+      "surf": "旅行时与当地人一起沙发冲浪",
       "attend_events": "与当地人和旅行者一起参加活动",
       "find_people": "在您的城市中寻找志同道合的人并见面",
       "join_discussions": "加入当地社区或开始讨论"
     },
     "why_people_title": "为什么人们喜欢沙发冲浪",
     "why_people_points": {
-      "travelers": "<bold>对于旅行者</bold>：超越游客的更深入、更人性化的体验Trails",
-      "hosts": "<bold>对于房东</bold>：结识来自世界各地的人们并分享您的城市",
+      "travelers": "<bold>对于旅行者</bold>：超越游客路线的更深入、更有人情味的体验",
+      "hosts": "<bold>对于接待者</bold>：结识来自世界各地的人们并分享您的城市",
       "everyone": "<bold>对于所有人</bold>：社区、文化和联系 - 而不是交易"
     },
     "tip_label": "TIP",
@@ -284,7 +284,7 @@
       "cultural_exchange": "文化交流焦点",
       "non_transactional": "非交易社区模式",
       "no_investor_pressure": "无投资者压力",
-      "social_expectation": "鼓励与主人共度时光"
+      "social_expectation": "鼓励与接待者共度时光"
     },
     "bottom_cta_title": "准备好尝试沙发冲浪了吗？",
     "bottom_cta_subtitle": "加入 Couchers.org，成为建立在热情好客和联系之上的全球社区的一部分。",
@@ -298,12 +298,12 @@
   },
   "team": {
     "title": "团队",
-    "description": "我们是热情的沙发冲浪者和技术精湛的专业人士，致力于创建一个改进的、更安全的、更具包容性的平台。我们正在构建这个平台来支持和可持续发展沙发冲浪社区，同时与世界分享其价值观。如果您分享我们的观点并希望做出贡献，我们很乐意听取您的意见。",
+    "description": "我们是热情的沙发客和技术精湛的专业人士，致力于创建一个改进的、更安全的、更具包容性的平台。我们正在构建这个平台来支持和可持续发展沙发冲浪社区，同时与世界分享其价值观。如果您分享我们的观点并希望做出贡献，我们很乐意听取您的意见。",
     "join_the_team": "加入团队",
     "join_our_team": "加入我们的团队",
     "have_skills_contribute": "有您想要贡献的技能吗？",
     "fill_form_description": "Couchers.org 是一个社区驱动的项目，由像您这样的人为了全球沙发冲浪社区的利益而开发。如果您有兴趣加入这一激动人心的计划，请单击下面的按钮并填写简短的表格。",
-    "past_members": "P过去的成员",
+    "past_members": "过去的成员",
     "board_member": "董事会成员"
   },
   "blog": {

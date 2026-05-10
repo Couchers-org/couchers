@@ -18,7 +18,7 @@
       "no_emails_enable_text": "停用郵件通知",
       "no_emails_disable_text": "重新開啟郵件通知"
     },
-    "caveat": "啟用此設定後，您的帳戶將不再接收留宿請求，但仍會收到安全相關郵件（例如重設密碼）。您也可能仍會收到電子報，可透過電子報頁尾的連結取消訂閱。"
+    "caveat": "啟用此設定後，您的帳戶將不再接收接待請求，但仍會收到安全相關郵件（例如重設密碼）。您也可能仍會收到電子報，可透過電子報頁尾的連結取消訂閱。"
   },
   "change_email_confirmation": {
     "change_in_progress": "正在更改電子郵件…",
@@ -151,7 +151,7 @@
     },
     "activeness_probe": {
       "title": "你現在還願意接待沙發客嗎？",
-      "description": "我們注意到您已經有一段時間沒有登入，想確認您是否仍願意接待旅行者。",
+      "description": "我們注意到您已經有一段時間沒有登入，想確認您是否仍願意接待沙發客。",
       "still_hosting": "我還是想接待！",
       "not_hosting": "我不能再接待了。",
       "note": "我們會根據您的選擇更新您的資料！"
@@ -353,10 +353,10 @@
     "choose": "選擇哪些資訊對未登入使用者可見"
   },
   "motivations_form": {
-    "header": "您會看到什麼躺椅？",
-    "surfing": "衝浪",
-    "surfing_description": "我正在計劃旅行並尋找主持人",
-    "hosting": "託管",
+    "header": "您為什麼來Couchers？",
+    "surfing": "沙發衝浪",
+    "surfing_description": "我正在計劃旅行並尋找接待者",
+    "hosting": "接待",
     "hosting_description": "我想在我的城市接待和歡迎旅行者",
     "events": "活動",
     "events_description": "我想參加活動並與社群見面",
@@ -407,4 +407,3 @@
     }
   }
 }
-

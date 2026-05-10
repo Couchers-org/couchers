@@ -20,8 +20,8 @@
   "profile_summary_edit": "編輯個人資料",
   "profile_summary_view": "查看我的個人資料",
   "profile_mobile_summary_view": "前往個人資料",
-  "find_a_host": "尋找沙發主",
-  "become_a_host": "成為沙發主",
+  "find_a_host": "尋找接待者",
+  "become_a_host": "成為接待者",
   "browse_communities": "瀏覽社群",
   "search_input_label": "您要去哪裡？",
   "search_input_placeholder": "搜尋位置",
@@ -51,8 +51,8 @@
   },
   "reminder": {
     "respond_to_host_request": {
-      "title": "回覆留宿請求",
-      "description": "別忘了回覆 {{name}} 關於他們住宿請求的訊息。",
+      "title": "回覆接待請求",
+      "description": "別忘了回覆 {{name}} 關於他們接待請求的訊息。",
       "button": "查看請求"
     },
     "write_reference": {

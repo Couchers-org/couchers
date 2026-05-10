@@ -151,7 +151,7 @@
     },
     "activeness_probe": {
       "title": "你现在还愿意接待沙发客吗？",
-      "description": "我们注意到您有一段时间没有登录了，想确认您是否仍然愿意接待旅行者。",
+      "description": "我们注意到您有一段时间没有登录了，想确认您是否仍然愿意接待沙发客。",
       "still_hosting": "我还是想接待！",
       "not_hosting": "我不能再接待了。",
       "note": "我们会根据您的选择更新您的资料！"
@@ -353,10 +353,10 @@
     "choose": "选择哪些信息对未登录用户可见"
   },
   "motivations_form": {
-    "header": "您会看到什么躺椅？",
-    "surfing": "冲浪",
-    "surfing_description": "我正在计划旅行并寻找主持人",
-    "hosting": "托管",
+    "header": "您为什么来Couchers？",
+    "surfing": "沙发冲浪",
+    "surfing_description": "我正在计划旅行并寻找接待者",
+    "hosting": "接待",
     "hosting_description": "我想在我的城市接待和欢迎旅行者",
     "events": "活动",
     "events_description": "我想参加活动并与社区见面",

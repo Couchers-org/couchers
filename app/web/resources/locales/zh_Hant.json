@@ -1,4 +1,4 @@
-﻿{
+{
   "accept": "接受",
   "create": "建立",
   "continue": "繼續",
@@ -48,9 +48,9 @@
   "mod": "審核",
   "cookie_message": "我們使用 Cookie 來確保您在本站獲得最佳使用體驗。如果您繼續使用本網站，即表示您同意這項做法。您可以進一步閱讀我們的<1>服務條款</1>。",
   "hosting_status": {
-    "can_host": "可以託管",
-    "maybe": "可以託管",
-    "cant_host": "不能託管",
+    "can_host": "可以接待",
+    "maybe": "可能可以接待",
+    "cant_host": "無法接待",
     "unspecified_info": "沒有說"
   },
   "language_preference": {
@@ -239,31 +239,31 @@
   },
   "what_is_cs": {
     "title": " 什麼是沙發衝浪？",
-    "description_1": "沙發衝浪指的是有些會員會在平台上表示自己願意接待到訪其城市的旅人，讓其他旅人可以向他們提出住宿請求。",
+    "description_1": "沙發衝浪指的是有些會員（稱為接待者）會在平台上表示自己願意接待到訪其城市的其他會員（稱為沙發客）。",
     "description_2": "這就像在另一個城市有朋友要去拜訪他們，但到達那裡後你是第一次見到朋友！",
     "get_involved_title": "我在 Couchers.org 上可以做什麼？",
     "timeline_title": "沙發衝浪的快速歷史",
     "timeline": {
-      "early_2000s_year": "Early 2000s",
+      "early_2000s_year": "2000年代初",
       "early_2000s_text": "在線沙發衝浪運動誕生：與當地人在一起，分享文化。",
-      "2010s_year": "2010s",
+      "2010s_year": "2010年代",
       "2010s_text": "社群和活動蓬勃發展；參考建立信任——世界開始感覺像一個友好的鄰居。",
-      "2020_year": "2020",
+      "2020_year": "2020年",
       "2020_text": "一個主要平台以營利為目的； Couchers.org 作為非盈利、社群運營的替代方案推出。",
-      "today_year": "Today",
+      "today_year": "今日",
       "today_text": "Couchers.org 開創了新的篇章：現代、更安全、非盈利的沙發衝浪 — 由社群打造併為社群服務。"
     },
     "actions": {
       "host": " 接待一位來訪您城市的旅行者",
-      "surf": "旅行時與當地人一起衝浪",
+      "surf": "旅行時與當地人一起沙發衝浪",
       "attend_events": "與當地人和旅行者一起參加活動",
       "find_people": "在您的城市中尋找志同道合的人並見面",
       "join_discussions": "加入當地社群或開始討論"
     },
     "why_people_title": "為什麼人們喜歡沙發衝浪",
     "why_people_points": {
-      "travelers": "<bold>對於旅行者</bold>：超越遊客的更深入、更人性化的體驗Trails",
-      "hosts": "<bold>對於房東</bold>：結識來自世界各地的人們並分享您的城市",
+      "travelers": "<bold>對於旅行者</bold>：超越遊客路線的更深入、更有人情味的體驗",
+      "hosts": "<bold>對於接待者</bold>：結識來自世界各地的人們並分享您的城市",
       "everyone": "<bold>對於所有人</bold>：社群、文化和聯繫 - 而不是交易"
     },
     "tip_label": "TIP",
@@ -284,7 +284,7 @@
       "cultural_exchange": "文化交流焦點",
       "non_transactional": "非交易社群模式",
       "no_investor_pressure": "無投資者壓力",
-      "social_expectation": "鼓勵與主人共度時光"
+      "social_expectation": "鼓勵與接待者共度時光"
     },
     "bottom_cta_title": "準備好嘗試沙發衝浪了嗎？",
     "bottom_cta_subtitle": "加入 Couchers.org，成為建立在熱情好客和聯繫之上的全球社群的一部分。",
@@ -298,12 +298,12 @@
   },
   "team": {
     "title": "團隊",
-    "description": "我們是熱情的沙發衝浪者和技術精湛的專業人士，致力於建立一個改進的、更安全的、更具包容性的平台。我們正在構建這個平台來支持和可持續發展沙發衝浪社群，同時與世界分享其價值觀。如果您分享我們的觀點並希望做出貢獻，我們很樂意聽取您的意見。",
+    "description": "我們是熱情的沙發客和技術精湛的專業人士，致力於建立一個改進的、更安全的、更具包容性的平台。我們正在構建這個平台來支持和可持續發展沙發衝浪社群，同時與世界分享其價值觀。如果您分享我們的觀點並希望做出貢獻，我們很樂意聽取您的意見。",
     "join_the_team": "加入團隊",
     "join_our_team": "加入我們的團隊",
     "have_skills_contribute": "有您想要貢獻的技能嗎？",
     "fill_form_description": "Couchers.org 是一個社群驅動的項目，由像您這樣的人為了全球沙發衝浪社群的利益而開發。如果您有興趣加入這一激動人心的計劃，請點擊下面的按鈕並填寫簡短的表格。",
-    "past_members": "P過去的成員",
+    "past_members": "過去的成員",
     "board_member": "董事會成員"
   },
   "blog": {
@@ -339,4 +339,3 @@
     "hu": "匈牙利語"
   }
 }
-

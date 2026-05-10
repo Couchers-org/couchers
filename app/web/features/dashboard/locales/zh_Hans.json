@@ -20,8 +20,8 @@
   "profile_summary_edit": "编辑个人资料",
   "profile_summary_view": "查看我的个人资料",
   "profile_mobile_summary_view": "前往个人资料",
-  "find_a_host": "寻找沙发主",
-  "become_a_host": "成为沙发主",
+  "find_a_host": "寻找接待者",
+  "become_a_host": "成为接待者",
   "browse_communities": "浏览社区",
   "search_input_label": "您要去哪里？",
   "search_input_placeholder": "搜索位置",
@@ -51,8 +51,8 @@
   },
   "reminder": {
     "respond_to_host_request": {
-      "title": "回复留宿请求",
-      "description": "别忘了回复 {{name}} 关于他们住宿请求的消息。",
+      "title": "回复接待请求",
+      "description": "别忘了回复 {{name}} 关于他们接待请求的消息。",
       "button": "查看请求"
     },
     "write_reference": {

@@ -24,7 +24,7 @@
       "last_active_field_label": "最后活跃",
       "hosting_status_field_label": "接待状态",
       "age": {
-        "field_label": "沙发主年龄",
+        "field_label": "接待者年龄",
         "min_age": "最低年龄",
         "max_age": "最大年龄"
       },
