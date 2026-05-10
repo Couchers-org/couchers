@@ -738,11 +738,6 @@ def test_DeleteReference_deprecated(db):
             admin_api.DeleteReference(admin_pb2.DeleteReferenceReq(reference_id=reference.reference_id))
         assert e.value.code() == grpc.StatusCode.FAILED_PRECONDITION
 
-    # The reference is unchanged on disk.
-    with session_scope() as session:
-        ref_row = session.execute(select(Reference).where(Reference.id == reference.reference_id)).scalar_one()
-        assert not ref_row.is_deleted
-
 
 def test_GetUserReferences(db):
     super_user, super_token = generate_user(is_superuser=True)
@@ -800,7 +795,6 @@ def test_GetUserReferences(db):
         assert res.references_from[0].from_user_id == user1.id
         assert res.references_from[0].to_user_id == user2.id
         assert res.references_from[0].text == "Reference from user1 to user2"
-        assert res.references_from[0].is_deleted is False
 
         # user1 received 2 references
         assert len(res.references_to) == 2
@@ -811,7 +805,6 @@ def test_GetUserReferences(db):
         assert res.references_to[1].reference_id == ref2.reference_id
         assert res.references_to[1].private_text == "Private note"
         assert res.references_to[1].rating == 0.8
-        assert res.references_to[1].is_deleted is False
 
 
 def test_GetUserReferences_not_found(db):

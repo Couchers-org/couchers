@@ -185,7 +185,6 @@ def _reference_to_pb(reference: Reference) -> admin_pb2.AdminReference:
         host_request_id=reference.host_request_id or 0,
         rating=reference.rating,
         was_appropriate=reference.was_appropriate,
-        is_deleted=reference.is_deleted,
     )
 
 

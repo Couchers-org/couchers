@@ -84,8 +84,25 @@ def upgrade() -> None:
         ["id"],
     )
 
+    # The legacy `is_deleted` flag is now subsumed by UMS visibility (deleted rows were
+    # backfilled to 'hidden' above). Drop the column.
+    op.drop_column("references", "is_deleted")
+
 
 def downgrade() -> None:
+    # Restore the is_deleted column from the moderation visibility before tearing down UMS state.
+    op.add_column(
+        "references",
+        sa.Column("is_deleted", sa.Boolean(), nullable=False, server_default=sa.false()),
+    )
+    op.execute("""
+        UPDATE "references"
+        SET is_deleted = TRUE
+        FROM moderation_states
+        WHERE moderation_states.id = "references".moderation_state_id
+        AND moderation_states.visibility = 'hidden'
+    """)
+
     op.drop_constraint(op.f("fk_references_moderation_state_id_moderation_states"), "references", type_="foreignkey")
     op.drop_index(op.f("ix_references_moderation_state_id"), table_name="references")
     op.drop_column("references", "moderation_state_id")

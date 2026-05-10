@@ -431,8 +431,6 @@ class Reference(Base, kw_only=True):
     rating: Mapped[float] = mapped_column(Float)
     was_appropriate: Mapped[bool] = mapped_column(Boolean)
 
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, server_default=expression.false())
-
     from_user: Mapped[User] = relationship(init=False, backref="references_from", foreign_keys="Reference.from_user_id")
     to_user: Mapped[User] = relationship(init=False, backref="references_to", foreign_keys="Reference.to_user_id")
 
