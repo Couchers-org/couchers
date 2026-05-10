@@ -67,8 +67,6 @@ export default function ReminderItem({
     <Box
       sx={(theme) => ({
         backgroundColor: alpha(theme.palette.secondary.main, 0.08),
-        border: `1px solid ${alpha(theme.palette.secondary.main, 0.25)}`,
-        borderRadius: "12px",
         padding: isMobile ? "20px" : "24px",
         display: "flex",
         flexDirection: "column",
