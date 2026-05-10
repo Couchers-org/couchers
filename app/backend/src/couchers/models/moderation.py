@@ -68,6 +68,7 @@ class ModerationObjectType(enum.Enum):
     event_occurrence = enum.auto()
     comment = enum.auto()
     reply = enum.auto()
+    discussion = enum.auto()
 
 
 class ModerationState(Base, kw_only=True):

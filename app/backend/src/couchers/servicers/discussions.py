@@ -8,14 +8,16 @@ from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import can_moderate_node, session_scope
 from couchers.event_log import log_event
 from couchers.jobs.enqueue import queue_job
-from couchers.models import Cluster, Discussion, Thread, User
+from couchers.models import Cluster, Discussion, ModerationObjectType, Thread, User
 from couchers.models.notifications import NotificationTopicAction
+from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
 from couchers.proto import discussions_pb2, discussions_pb2_grpc, notification_data_pb2
 from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
+from couchers.sql import where_moderated_content_visible
 from couchers.utils import Timestamp_from_datetime
 
 logger = logging.getLogger(__name__)
@@ -68,6 +70,7 @@ def generate_create_discussion_notifications(payload: jobs_pb2.GenerateCreateDis
                     author=user_model_to_pb(discussion.creator_user, session, context),
                     discussion=discussion_to_pb(session, discussion, context),
                 ),
+                moderation_state_id=discussion.moderation_state_id,
             )
 
 
@@ -103,15 +106,29 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         session.add(thread)
         session.flush()
 
-        discussion = Discussion(
-            title=request.title,
-            content=request.content,
+        discussion: Discussion | None = None
+
+        def create_object(moderation_state_id: int) -> int:
+            nonlocal discussion
+            discussion = Discussion(
+                title=request.title,
+                content=request.content,
+                creator_user_id=context.user_id,
+                owner_cluster_id=cluster.id,
+                thread_id=thread.id,
+                moderation_state_id=moderation_state_id,
+            )
+            session.add(discussion)
+            session.flush()
+            return discussion.id
+
+        create_moderation(
+            session=session,
+            object_type=ModerationObjectType.discussion,
+            object_id=create_object,
             creator_user_id=context.user_id,
-            owner_cluster_id=cluster.id,
-            thread_id=thread.id,
         )
-        session.add(discussion)
-        session.flush()
+        assert discussion is not None
 
         log_event(
             context,
@@ -139,7 +156,11 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
         self, request: discussions_pb2.GetDiscussionReq, context: CouchersContext, session: Session
     ) -> discussions_pb2.Discussion:
         discussion = session.execute(
-            select(Discussion).where(Discussion.id == request.discussion_id)
+            where_moderated_content_visible(
+                select(Discussion).where(Discussion.id == request.discussion_id),
+                context,
+                Discussion,
+            )
         ).scalar_one_or_none()
         if not discussion:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
