@@ -179,8 +179,7 @@ class References(references_pb2_grpc.ReferencesServicer):
 
         to_users = aliased(User)
         from_users = aliased(User)
-        statement = select(Reference).where(Reference.is_deleted == False)
-        statement = where_moderated_content_visible(statement, context, Reference, is_list_operation=True)
+        statement = where_moderated_content_visible(select(Reference), context, Reference, is_list_operation=True)
         if request.from_user_id:
             # join the to_users, because only interested if the recipient is visible
             statement = (

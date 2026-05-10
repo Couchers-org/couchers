@@ -32,6 +32,8 @@ from couchers.models import (
     MeetupStatus,
     Message,
     ModerationObjectType,
+    ModerationState,
+    ModerationVisibility,
     Notification,
     NotificationDeliveryType,
     ParkingDetails,
@@ -1014,8 +1016,9 @@ def response_rate_to_pb(response_rate: UserResponseRate | None) -> dict[str, goo
 def get_num_references(session: Session, user_ids: Iterable[int]) -> dict[int, int]:
     query = (
         select(Reference.to_user_id, func.count(Reference.id))
+        .join(ModerationState, ModerationState.id == Reference.moderation_state_id)
+        .where(ModerationState.visibility == ModerationVisibility.visible)
         .where(Reference.to_user_id.in_(user_ids))
-        .where(Reference.is_deleted == False)
         .join(User, User.id == Reference.from_user_id)
         .where(User.is_visible)
         .group_by(Reference.to_user_id)
