@@ -30,7 +30,7 @@ from couchers.event_log import log_event
 from couchers.experimentation import check_gate
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.geoip import geoip_approximate_location
-from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
+from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import finalize_strong_verification
 from couchers.materialized_views import LiteUser
@@ -775,11 +775,6 @@ class Account(account_pb2_grpc.AccountServicer):
 
         if not has_completed_profile(session, user):
             reminders.append(account_pb2.Reminder(complete_profile_reminder=account_pb2.CompleteProfileReminder()))
-
-        if not has_strong_verification(session, user):
-            reminders.append(
-                account_pb2.Reminder(complete_verification_reminder=account_pb2.CompleteVerificationReminder())
-            )
 
         return account_pb2.GetRemindersRes(reminders=reminders)
 

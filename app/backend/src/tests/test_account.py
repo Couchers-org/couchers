@@ -997,7 +997,6 @@ def test_ListInviteCodes(db):
 
 
 def test_reminders(db, moderator):
-    # the strong verification reminder's absence is tested in test_strong_verification.py
     # reference writing reminders tested in test_AvailableWriteReferences_and_ListPendingReferencesToWrite
     # we use LiteUser, so remember to refresh materialized views
     user, token = generate_user(complete_profile=False)
@@ -1007,13 +1006,10 @@ def test_reminders(db, moderator):
 
     refresh_materialized_views_rapid(empty_pb2.Empty())
     with account_session(complete_token) as account:
-        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
-            "complete_verification_reminder"
-        ]
+        assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == []
     with account_session(token) as account:
         assert [reminder.WhichOneof("reminder") for reminder in account.GetReminders(empty_pb2.Empty()).reminders] == [
             "complete_profile_reminder",
-            "complete_verification_reminder",
         ]
 
     today_plus_2 = (today() + timedelta(days=2)).isoformat()
@@ -1034,7 +1030,6 @@ def test_reminders(db, moderator):
         assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
             "respond_to_host_request_reminder",
             "complete_profile_reminder",
-            "complete_verification_reminder",
         ]
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
@@ -1057,7 +1052,6 @@ def test_reminders(db, moderator):
             "respond_to_host_request_reminder",
             "respond_to_host_request_reminder",
             "complete_profile_reminder",
-            "complete_verification_reminder",
         ]
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
@@ -1083,7 +1077,6 @@ def test_reminders(db, moderator):
             "respond_to_host_request_reminder",
             "respond_to_host_request_reminder",
             "complete_profile_reminder",
-            "complete_verification_reminder",
         ]
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request1_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
@@ -1107,7 +1100,6 @@ def test_reminders(db, moderator):
             "respond_to_host_request_reminder",
             "respond_to_host_request_reminder",
             "complete_profile_reminder",
-            "complete_verification_reminder",
         ]
         assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request2_id
         assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user2.id

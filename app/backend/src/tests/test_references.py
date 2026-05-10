@@ -1140,7 +1140,6 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db, moderator
             "write_reference_reminder",
             "write_reference_reminder",
             "write_reference_reminder",
-            "complete_verification_reminder",
         ]
         assert reminders[0].write_reference_reminder.host_request_id == hr3
         assert reminders[0].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_HOSTED
