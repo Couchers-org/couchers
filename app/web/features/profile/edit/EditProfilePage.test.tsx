@@ -186,8 +186,6 @@ describe("Edit profile", () => {
 
     const user = userEvent.setup();
 
-    await screen.findByText(t("profile:heading.about_me"));
-
     const aboutMeInput = await screen.findByTestId("aboutMe-input");
 
     await user.clear(aboutMeInput);
