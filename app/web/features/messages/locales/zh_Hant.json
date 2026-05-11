@@ -82,8 +82,7 @@
     "friends_input_label": "好友",
     "title_label": "標題",
     "create_button": "建立聊天",
-    "back_button": "返回",
-    "hosting_request_hint": "想傳送留宿請求嗎？請先<back>返回</back>，再改用<request>提出請求</request>按鈕。"
+    "back_button": "返回"
   },
   "chat_input": {
     "label": "訊息"
@@ -171,7 +170,6 @@
     "back_button_a11y_label": "返回",
     "title_for_host": "來自{{user}} 的請求 - {{status}}",
     "title_for_surfer": "向 {{user}} 發出的請求 - {{status}}",
-    "request_duration_one": "{{count}} 晚",
     "request_duration_other": "{{count}} 晚"
   },
   "past_request_help_text": "此請求已過期，您仍可傳送訊息，但無法再進行其他修改。",
