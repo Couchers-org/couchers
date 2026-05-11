@@ -16,14 +16,13 @@ import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { DonationBanner } from "features/donations/DonationBanner";
-import { PushNotificationBanner } from "features/notifications/PushNotificationBanner";
 import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
 import { TFunction } from "i18next";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
-import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CouchersLogo from "resources/CouchersLogo";
 import {
   blogRoute,
@@ -279,41 +278,16 @@ export default function Navigation() {
 
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   const { data: pingData } = useNotifications();
   const { authState } = useAuthContext();
-
+  const isAuthenticated = isMounted && authState.authenticated;
   const isNativeEmbed = useIsNativeEmbed();
 
   const { t } = useTranslation(GLOBAL);
 
-  const navRef = useRef<HTMLDivElement>(null);
-
-  // Update CSS custom property with actual Navigation height
-  // useLayoutEffect runs synchronously before browser paint to prevent flickering
-  useLayoutEffect(() => {
-    const updateNavHeight = () => {
-      if (navRef.current) {
-        const height = navRef.current.offsetHeight;
-        document.documentElement.style.setProperty(
-          "--nav-height",
-          `${height}px`,
-        );
-      }
-    };
-
-    updateNavHeight();
-
-    // Use ResizeObserver to update when banners appear/disappear
-    const resizeObserver = new ResizeObserver(updateNavHeight);
-    if (navRef.current) {
-      resizeObserver.observe(navRef.current);
-    }
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [authState.authenticated, isNativeEmbed]);
+  useEffect(() => setIsMounted(true), []);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -326,7 +300,7 @@ export default function Navigation() {
   const drawerItems = (
     <div>
       <List>
-        {(authState.authenticated ? loggedInDrawerMenu : loggedOutDrawerMenu)(
+        {(isAuthenticated ? loggedInDrawerMenu : loggedOutDrawerMenu)(
           t,
           pingData,
         ).map(({ name, route, notificationCount, externalLink }) => (
@@ -364,10 +338,10 @@ export default function Navigation() {
   );
 
   return (
-    <StyledAppBar position="sticky" color="inherit" ref={navRef}>
+    <StyledAppBar position="sticky" color="inherit">
       <StyledToolbar>
         <StyledNav sx={{ marginLeft: 2 }}>
-          {isMobile && !authState.authenticated && (
+          {isMobile && !isAuthenticated && (
             <>
               <IconButton
                 aria-label="open drawer"
@@ -406,12 +380,12 @@ export default function Navigation() {
             </>
           )}
           <Box sx={{ display: "inline-flex", alignItems: "center" }}>
-            <CouchersLogo isLoggedIn={authState.authenticated} />
+            <CouchersLogo isLoggedIn={isAuthenticated} />
           </Box>
 
           {!isMobile && (
             <StyledFlexbox>
-              {(authState.authenticated ? loggedInNavMenu : loggedOutNavMenu)(
+              {(isAuthenticated ? loggedInNavMenu : loggedOutNavMenu)(
                 t,
                 pingData,
               ).map(({ name, route, notificationCount, externalLink }) =>
@@ -439,7 +413,7 @@ export default function Navigation() {
             {isNativeEmbed && <ReportButton />}
             <DarkModeToggle />
           </Box>
-          {authState.authenticated ? (
+          {isAuthenticated ? (
             <>
               <LoggedInMenu
                 menuOpen={menuOpen}
@@ -488,12 +462,9 @@ export default function Navigation() {
         </StyledMenuContainer>
       </StyledToolbar>
       <GlobalMessage />
-      {!isNativeEmbed && authState.authenticated && <DonationBanner />}
-      {!isNativeEmbed && authState.authenticated && <PushNotificationBanner />}
+      {!isNativeEmbed && isAuthenticated && <DonationBanner />}
       {/* Bottom navigation for mobile browsers only (not native app) when logged in */}
-      {isMobile && !isNativeEmbed && authState.authenticated && (
-        <BottomNavigation />
-      )}
+      {isMobile && !isNativeEmbed && isAuthenticated && <BottomNavigation />}
     </StyledAppBar>
   );
 }
