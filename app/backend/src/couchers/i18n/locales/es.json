@@ -106,7 +106,7 @@
     "host_request_not_found": "No se pudo encontrar esa solicitud de hospedaje.",
     "hosting_status_required": "El estado de alojamiento es obligatorio.",
     "do_not_email_cannot_host": "No puedes habilitar el alojamiento si no tienes activados los correos electrónicos en tu configuración.",
-    "do_not_email_cannot_meet": "No puedes habilitar los encuentros si no tienes activados los correos electrónicos en tu configuración.",
+    "do_not_email_cannot_meet": "No puedes habilitar los encuentros mientras tengas los correos electrónicos desactivados la configuración.",
     "donation_too_small": "No podemos aceptar donaciones inferiores a 2$, ¡lo sentimos!",
     "donations_disabled": "Las donaciones están actualmente deshabilitadas.",
     "event_cant_cancel_old_event": "No puedes cancelar un evento que tenga más de 1 día de antigüedad.",
@@ -127,7 +127,12 @@
     "invalid_started_volunteering_date": "Fecha de inicio de voluntariado inválida.",
     "invalid_stopped_volunteering_date": "Fecha de fin de voluntariado inválida.",
     "invalid_email": "Correo electrónico inválido.",
-    "cannot_reinstate_and_set_stopped_date": "No se puede reincorporar a un voluntario y establecer una fecha de baja al mismo tiempo."
+    "cannot_reinstate_and_set_stopped_date": "No se puede reincorporar a un voluntario y establecer una fecha de baja al mismo tiempo.",
+    "chat_initiation_rate_limit2_one": "Has enviado mensajes a muchos usuarios en la última {{count}} hora. Para evitar el spam, no puedes contactar con más usuarios por el momento.",
+    "chat_initiation_rate_limit2_many": "Has enviado mensajes a muchos usuarios en el último {{count}} de horas. Para evitar el spam, no puedes contactar con más usuarios por el momento.",
+    "chat_initiation_rate_limit2_other": "Has enviado mensajes a muchos usuarios en las últimas {{count}} horas. Para evitar el spam, no puedes contactar con más usuarios por el momento.",
+    "dev_apis_disabled": "Las API de desarrollo no están habilitadas en este servidor.",
+    "event_community_invite_not_found": "No se pudo encontrar esa invitación de la comunidad al evento."
   },
   "badges": {
     "volunteer_name": "Voluntario en activo",
