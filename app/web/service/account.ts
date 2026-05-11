@@ -13,6 +13,7 @@ import {
   DeleteAccountReq,
   DisableInviteCodeReq,
   FillContributorFormReq,
+  ImportFromCouchsurfingComReq,
   ListActiveSessionsReq,
   LogOutOtherSessionsReq,
   LogOutSessionReq,
@@ -221,5 +222,16 @@ export async function disableInviteCode(code: string) {
 
 export async function listInviteCodes() {
   const res = await client.account.listInviteCodes(new Empty());
+  return res.toObject();
+}
+
+export async function importFromCouchsurfingCom(
+  jsonData: string,
+  overwriteExisting: boolean,
+) {
+  const req = new ImportFromCouchsurfingComReq();
+  req.setCouchsurfingcomJson(jsonData);
+  req.setOverwriteExisting(overwriteExisting);
+  const res = await client.account.importFromCouchsurfingCom(req);
   return res.toObject();
 }

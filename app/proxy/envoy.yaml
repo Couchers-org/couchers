@@ -55,6 +55,7 @@ static_resources:
                   # react
                   - exact: http://127.0.0.1:3000
                   - exact: http://localhost:3000
+                  - exact: http://localhost:3001
                   # for vercel previews
                   - suffix: -couchers-org.vercel.app
                   - suffix: vercel.couchershq.org

@@ -30,7 +30,7 @@ import ProfileTextInput from "features/profile/ProfileTextInput";
 import useCurrentUser from "features/userQueries/useCurrentUser";
 import { StatusCode } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
-import { AUTH, GLOBAL, PROFILE } from "i18n/namespaces";
+import { AUTH, DASHBOARD, GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { HostingStatus, LanguageAbility, MeetupStatus } from "proto/api_pb";
 import React, { FormEvent, useEffect, useRef, useState } from "react";
@@ -253,7 +253,7 @@ const StyledRadioGroup = styled(RadioGroup)(() => ({
 }));
 
 export default function EditProfileForm() {
-  const { t } = useTranslation([GLOBAL, AUTH, PROFILE]);
+  const { t } = useTranslation([GLOBAL, AUTH, PROFILE, DASHBOARD]);
   const router = useRouter();
   const isNativeEmbed = useIsNativeEmbed();
   const {
@@ -272,7 +272,17 @@ export default function EditProfileForm() {
   const [showIncompleteProfileDialog, setShowIncompleteProfileDialog] =
     useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [showCsImportSuccess, setShowCsImportSuccess] = useState(false);
   const galleryEditorRef = useRef<HTMLDivElement>(null);
+
+  // Check for CS import success query param
+  useEffect(() => {
+    if (router.query.csImportSuccess === "1") {
+      setShowCsImportSuccess(true);
+      // Remove query param from URL
+      router.replace(router.pathname, undefined, { shallow: true });
+    }
+  }, [router]);
 
   const {
     control,
@@ -1049,6 +1059,15 @@ export default function EditProfileForm() {
                 onClose={() => setShowSuccessToast(false)}
               >
                 {t("profile:profile_changes_saved_message")}
+              </Snackbar>
+            )}
+
+            {showCsImportSuccess && (
+              <Snackbar
+                severity="success"
+                onClose={() => setShowCsImportSuccess(false)}
+              >
+                {t("dashboard:couchsurfingcom_import.import_success")}
               </Snackbar>
             )}
 

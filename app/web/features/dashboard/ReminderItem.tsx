@@ -15,11 +15,15 @@ import {
 
 import { theme } from "../../theme";
 
+interface ReminderItemProps {
+  reminder: Reminder.AsObject;
+  onImportFromCS?: () => void;
+}
+
 export default function ReminderItem({
   reminder,
-}: {
-  reminder: Reminder.AsObject;
-}) {
+  onImportFromCS,
+}: ReminderItemProps) {
   const { t } = useTranslation([DASHBOARD]);
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -107,6 +111,21 @@ export default function ReminderItem({
       >
         {buttonText}
       </Button>
+      {onImportFromCS && (
+        <Button
+          onClick={onImportFromCS}
+          fullWidth
+          variant="outlined"
+          size={isMobile ? "small" : "medium"}
+          sx={{
+            fontWeight: 700,
+            borderRadius: "8px",
+            marginTop: 1,
+          }}
+        >
+          {t("dashboard:couchsurfingcom_import.button_text")}
+        </Button>
+      )}
     </Box>
   );
 }
