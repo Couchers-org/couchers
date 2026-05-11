@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   clearState as nativeLinkClearState,
   sendState,
@@ -10,13 +10,32 @@ export function usePersistedState<T>(
   key: string,
   defaultValue: T,
   storage: StorageType = "localStorage",
-): [T | undefined, (value: T) => void, () => void] {
-  // in ssr, window doesn't exist, just use default
-  const saved =
-    typeof window !== "undefined" ? window[storage].getItem(key) : null;
-  const [_state, _setState] = useState<T | undefined>(
-    saved !== null ? JSON.parse(saved) : defaultValue,
-  );
+): [T | undefined, (value: T) => void, () => void, boolean] {
+  // For sessionStorage: read synchronously (no SSR concern, data is per-tab)
+  // For localStorage: defer to useEffect to avoid hydration mismatch
+  const getInitialValue = (): T | undefined => {
+    if (typeof window === "undefined") return defaultValue;
+    if (storage === "sessionStorage") {
+      const saved = window.sessionStorage.getItem(key);
+      return saved !== null ? JSON.parse(saved) : defaultValue;
+    }
+    return defaultValue;
+  };
+
+  const [_state, _setState] = useState<T | undefined>(getInitialValue);
+  const [isHydrated, setIsHydrated] = useState(storage === "sessionStorage");
+
+  useEffect(() => {
+    // For localStorage: sync state from storage after hydration
+    if (storage === "localStorage") {
+      const saved = window.localStorage.getItem(key);
+      if (saved !== null) {
+        _setState(JSON.parse(saved));
+      }
+      setIsHydrated(true);
+    }
+  }, [key, storage]);
+
   const setState = useCallback(
     (value: T) => {
       if (value === undefined) {
@@ -34,7 +53,7 @@ export function usePersistedState<T>(
     nativeLinkClearState(key);
     _setState(undefined);
   }, [key, storage]);
-  return [_state, setState, clearState];
+  return [_state, setState, clearState, isHydrated];
 }
 
 export function clearStorage() {
