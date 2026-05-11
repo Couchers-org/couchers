@@ -1,4 +1,12 @@
 {
+  "couchsurfingcom_import": {
+    "errors": {
+      "json_too_large": "The uploaded file is too large. Please ensure it is less than 20MB.",
+      "invalid_json": "The uploaded file is not valid JSON.",
+      "invalid_format": "The uploaded file does not match the expected Couchsurfing™ export format.",
+      "user_not_found": "User not found."
+    }
+  },
   "errors": {
     "account_not_found": "An account with that username or email was not found.",
     "account_suspended": "Your account is suspended.",

@@ -27,7 +27,7 @@ services:
       service: proxy
     # Tell it how to find the local backend
     extra_hosts:
-      backend: ${BACKEND_HOST:-172.17.0.1}
+      - "backend:host-gateway"
   # Not extending, because we want to build image locally, so that it buids the correct
   # image on Macs. Dockerhub has images only for x86, and they are very slow on ARM Macs.
   postgres:
@@ -37,7 +37,7 @@ services:
     command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
     # to also log all queries, add: , "-c", "log_statement=all"
     volumes:
-      - "./data/postgres/pgdata:/var/lib/postgresql/data"
+      - "./data/postgres/pgdata:/var/lib/postgresql"
     restart: unless-stopped
     ports:
       - 6545:6545

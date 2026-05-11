@@ -119,6 +119,10 @@ service Account {
   rpc UpdateMyVolunteerInfo(UpdateMyVolunteerInfoReq) returns (GetMyVolunteerInfoRes) {
     // Updates the current user's volunteer status if they are volunteer
   }
+
+  rpc ImportFromCouchsurfingCom(ImportFromCouchsurfingComReq) returns (ImportFromCouchsurfingComRes) {
+    // Import user profile data from a couchsurfing.com JSON export
+  }
 }
 
 message GetAccountInfoRes {
@@ -162,6 +166,9 @@ message GetAccountInfoRes {
   bool is_volunteer = 18;
 
   bool should_show_donation_banner = 20;
+
+  // whether the user has already imported their profile from couchsurfing.com
+  bool has_imported_from_couchsurfing_com = 21;
 }
 
 message ChangePasswordV2Req {
@@ -370,4 +377,20 @@ message UpdateMyVolunteerInfoReq {
   google.protobuf.StringValue link_text = 5;
   // the URL the link should take you to
   google.protobuf.StringValue link_url = 6;
+}
+
+message ImportFromCouchsurfingComReq {
+  // JSON data from couchsurfing.com export
+  string couchsurfingcom_json = 1;
+  // Whether to overwrite existing profile fields
+  bool overwrite_existing = 2;
+}
+
+message ImportFromCouchsurfingComRes {
+  // Whether the import was successful
+  bool success = 1;
+  // Localized errors encountered (fatal issues)
+  repeated string errors = 2;
+  // List of field names that were updated (empty if nothing imported)
+  repeated string fields_updated = 3;
 }
