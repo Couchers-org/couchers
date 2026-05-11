@@ -35,7 +35,6 @@ from couchers.jobs.handlers import (
 )
 from couchers.jobs.worker import _run_job_and_schedule, process_job, run_scheduler, service_jobs
 from couchers.materialized_views import refresh_materialized_views
-from couchers.metrics import create_prometheus_server
 from couchers.models import (
     AccountDeletionToken,
     BackgroundJob,
@@ -71,8 +70,8 @@ def _(testconfig):
     pass
 
 
-def _check_job_counter(job, status, attempt, exception):
-    metrics_string = requests.get("http://localhost:8000").text
+def _check_job_counter(port, job, status, attempt, exception):
+    metrics_string = requests.get(f"http://localhost:{port}").text
     string_to_check = f'attempt="{attempt}",exception="{exception}",job="{job}",status="{status}"'
     assert string_to_check in metrics_string
 
@@ -336,7 +335,7 @@ def test_scheduler(db, monkeypatch):
     def send_message_notifications(payload: empty_pb2.Empty):
         return
 
-    MOCK_JOBS = {
+    mock_jobs = {
         "purge_login_tokens": Job(purge_login_tokens, timedelta(seconds=7)),
         "send_message_notifications": Job(send_message_notifications, timedelta(seconds=11)),
     }
@@ -363,7 +362,7 @@ def test_scheduler(db, monkeypatch):
         _run_job_and_schedule(sched, job, frequency)
 
     monkeypatch.setattr(couchers.jobs.worker, "_run_job_and_schedule", mock_run_job_and_schedule)
-    monkeypatch.setattr(couchers.jobs.worker, "JOBS", MOCK_JOBS)
+    monkeypatch.setattr(couchers.jobs.worker, "JOBS", mock_jobs)
     monkeypatch.setattr(couchers.jobs.worker, "monotonic", mock_monotonic)
     monkeypatch.setattr(couchers.jobs.worker, "sleep", mock_sleep)
 
@@ -410,7 +409,7 @@ def test_scheduler(db, monkeypatch):
         )
 
 
-def test_job_retry(db):
+def test_job_retry(db, prometheus_server):
     called_count = 0
 
     def mock_job(payload: empty_pb2.Empty) -> None:
@@ -424,7 +423,6 @@ def test_job_retry(db):
     MOCK_JOBS: dict[str, Job[Any]] = {
         "mock_job": Job(mock_job),
     }
-    create_prometheus_server(port=8000)
 
     # if IN_TEST is true, then the bg worker will raise on exceptions
     new_config = config.copy()
@@ -476,8 +474,9 @@ def test_job_retry(db):
             == 0
         )
 
-    _check_job_counter("mock_job", "error", "4", "Exception")
-    _check_job_counter("mock_job", "failed", "5", "Exception")
+    port = prometheus_server.server_address[1]
+    _check_job_counter(port, "mock_job", "error", "4", "Exception")
+    _check_job_counter(port, "mock_job", "failed", "5", "Exception")
 
 
 def test_no_jobs_no_problem(db):

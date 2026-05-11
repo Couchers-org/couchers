@@ -19,6 +19,7 @@ if "DATABASE_CONNECTION_STRING" not in os.environ:  # pragma: no cover
     )
 
 from couchers.config import config  # noqa: E402
+from couchers.metrics import create_prometheus_server  # noqa: E402
 from couchers.models import Base  # noqa: E402
 from tests.fixtures.db import (  # noqa: E402
     autocommit_engine,
@@ -295,3 +296,8 @@ def moderator():
     """
     user, token = generate_user(is_superuser=True)
     yield Moderator(user, token)
+
+
+@pytest.fixture(scope="session")
+def prometheus_server():
+    return create_prometheus_server(port=0)

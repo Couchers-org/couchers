@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, date, datetime, timedelta
 from unittest.mock import patch
 
@@ -1259,3 +1260,67 @@ def test_volunteer_stuff(db):
         assert v.link_type == "email"
         assert v.link_text == "tester@vontester.com.invalid"
         assert v.link_url == "mailto:tester@vontester.com.invalid"
+
+
+def test_ImportFromCouchsurfing_success(db):
+    """Test successful import of Couchsurfing.com data via API endpoint."""
+    user, token = generate_user()
+
+    couchsurfingcom_data = {
+        "user_data": {
+            "profile": {
+                "first_name": "Jane",
+                "last_name": "Smith",
+                "gender": "female",
+                "occupation": "Photographer",
+                "about_me": "I love traveling and meeting new people!",
+                "interests": "Photography, hiking, cooking",
+                "languages": {
+                    "fluent": ["eng", "fra"],
+                    "learning": ["deu"],
+                },
+            },
+            "couch": {
+                "max_guests": 2,
+                "wheelchair_accessible": True,
+                "smoking_ok": False,
+            },
+        },
+    }
+
+    with account_session(token) as account:
+        res = account.ImportFromCouchsurfingCom(
+            account_pb2.ImportFromCouchsurfingComReq(
+                couchsurfingcom_json=json.dumps(couchsurfingcom_data),
+                overwrite_existing=True,
+            )
+        )
+
+        assert res.success
+        assert len(res.errors) == 0
+
+    # Verify the data was actually saved
+    with session_scope() as session:
+        updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
+        assert updated_user.name == "Jane Smith"
+        assert updated_user.gender == "Woman"
+        assert updated_user.occupation == "Photographer"
+        assert updated_user.about_me == "I love traveling and meeting new people!"
+        assert updated_user.max_guests == 2
+
+
+def test_ImportFromCouchsurfing_invalid_json(db):
+    """Test error handling for invalid JSON in Couchsurfing.com import."""
+    user, token = generate_user()
+
+    with account_session(token) as account:
+        res = account.ImportFromCouchsurfingCom(
+            account_pb2.ImportFromCouchsurfingComReq(
+                couchsurfingcom_json="this is not valid json {",
+                overwrite_existing=False,
+            )
+        )
+
+        assert not res.success
+        assert len(res.errors) == 1
+        assert "not valid JSON" in res.errors[0]

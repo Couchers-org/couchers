@@ -15,6 +15,7 @@ from couchers import urls
 from couchers.config import config
 from couchers.constants import DONATION_DRIVE_START, PHONE_REVERIFICATION_INTERVAL, SMS_CODE_ATTEMPTS, SMS_CODE_LIFETIME
 from couchers.context import CouchersContext
+from couchers.couchsurfingcom_import import import_couchsurfingcom_json
 from couchers.crypto import (
     b64decode,
     b64encode,
@@ -190,6 +191,7 @@ class Account(account_pb2_grpc.AccountServicer):
             profile_public_visibility=profilepublicitysetting2api[user.public_visibility],
             is_volunteer=volunteer is not None,
             should_show_donation_banner=should_show_donation_banner,
+            has_imported_from_couchsurfing_com=user.has_imported_from_couchsurfing_com,
             **get_strong_verification_fields(session, user),
         )
 
@@ -841,6 +843,34 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return _volunteer_info_to_pb(volunteer, user.username)
 
+    def ImportFromCouchsurfingCom(
+        self, request: account_pb2.ImportFromCouchsurfingComReq, context: CouchersContext, session: Session
+    ) -> account_pb2.ImportFromCouchsurfingComRes:
+        result = import_couchsurfingcom_json(
+            session,
+            context.user_id,
+            request.couchsurfingcom_json,
+            context.localization,
+            overwrite_existing=request.overwrite_existing,
+        )
+
+        session.commit()
+
+        logger.info(
+            "Couchsurfing.com import for user %s: success=%s, fields_updated=%s, warnings=%s, errors=%s",
+            context.user_id,
+            result.success,
+            result.fields_updated,
+            result.warnings,
+            result.errors,
+        )
+
+        return account_pb2.ImportFromCouchsurfingComRes(
+            success=result.success,
+            errors=result.errors,
+            fields_updated=result.fields_updated,
+        )
+
 
 class Iris(iris_pb2_grpc.IrisServicer):
     def Webhook(
@@ -856,8 +886,8 @@ class Iris(iris_pb2_grpc.IrisServicer):
 
         verification_attempt = session.execute(
             select(StrongVerificationAttempt)
-            .where(StrongVerificationAttempt.user_id == reference_payload.user_id)
-            .where(StrongVerificationAttempt.verification_attempt_token == reference_payload.verification_attempt_token)
+            .where(StrongVerificationAttempt.user_id == user_id)
+            .where(StrongVerificationAttempt.verification_attempt_token == verification_attempt_token)
             .where(StrongVerificationAttempt.iris_session_id == json_data["session_id"])
         ).scalar_one()
         iris_status = json_data["session_state"]

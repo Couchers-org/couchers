@@ -47,6 +47,7 @@ from couchers.utils import get_coordinates, last_active_coarsen, now
 if TYPE_CHECKING:
     from couchers.models import UserBadge
     from couchers.models.admin import UserAdminTag
+    from couchers.models.couchsurfingcom_import import CouchsurfingComImportAttempt
     from couchers.models.public_trips import PublicTrip
     from couchers.models.rest import InviteCode, ModerationUserList
     from couchers.models.uploads import PhotoGallery
@@ -322,6 +323,11 @@ class User(Base, kw_only=True):
     # whether mods have marked this user has having to update their location
     needs_to_update_location: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
+    # whether this user has successfully imported their profile from couchsurfing.com
+    has_imported_from_couchsurfing_com: Mapped[bool] = mapped_column(
+        Boolean, server_default=expression.false(), init=False
+    )
+
     last_antibot: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("to_timestamp(0)"), init=False
     )
@@ -361,6 +367,10 @@ class User(Base, kw_only=True):
     )
 
     public_trips: Mapped[list[PublicTrip]] = relationship(init=False, back_populates="user")
+
+    couchsurfingcom_import_attempts: Mapped[list[CouchsurfingComImportAttempt]] = relationship(
+        init=False, back_populates="user"
+    )
 
     __table_args__ = (
         # Verified phone numbers should be unique

@@ -42,6 +42,7 @@ dependencies = [
     "ua-parser>=1.0.1",
     "user-agents>=2.2.0",
     "statsig-python-core>=0.8.0",
+    "cattrs>=26.1.0",
 ]
 
 [project.scripts]
