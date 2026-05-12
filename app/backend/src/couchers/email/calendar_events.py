@@ -11,7 +11,6 @@ from couchers.i18n import LocalizationContext
 from couchers.proto.internal.jobs_pb2 import EmailAttachment
 from couchers.proto.requests_pb2 import HostRequest
 
-
 HOST_REQUEST_ICS_FILENAME = "host_request.ics"
 
 
