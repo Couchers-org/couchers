@@ -80,6 +80,7 @@ class PhotoGallery(Base, kw_only=True):
     owner_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
     owner_user: Mapped[User] = relationship(init=False, foreign_keys=[owner_user_id], back_populates="galleries")
     photos: Mapped[list[PhotoGalleryItem]] = relationship(
