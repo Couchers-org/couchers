@@ -58,8 +58,8 @@
   "my_communities_heading": "Mis Comunidades",
   "reminder": {
     "respond_to_host_request": {
-      "title": "Responder a la solicitud de hospedaje",
-      "description": "No olvides responder a {{name}} sobre su estancia.",
+      "title": "Responder a {{name}}",
+      "description": "No olvides responder a la solicitud de hospedaje de {{name}}.",
       "button": "Ver solicitud"
     },
     "write_reference": {
