@@ -289,6 +289,14 @@ export default function Navigation() {
 
   const navRef = useRef<HTMLDivElement>(null);
 
+  const shouldShowLanguagePickerSelect = useMemo(() => {
+    if (!isMobile) return true;
+
+    if (isMobile && authState.authenticated) return false;
+
+    return true;
+  }, [authState.authenticated, isMobile]);
+
   // Update CSS custom property with actual Navigation height
   // useLayoutEffect runs synchronously before browser paint to prevent flickering
   useLayoutEffect(() => {
@@ -457,7 +465,7 @@ export default function Navigation() {
                 gap: 2,
               }}
             >
-              {!isMobile && <LanguagePickerSelect />}
+              {shouldShowLanguagePickerSelect && <LanguagePickerSelect />}
               {!isLoginPage && (
                 <Button
                   variant="outlined"
