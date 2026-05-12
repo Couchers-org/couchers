@@ -57,8 +57,8 @@
   "my_communities_heading": "Mijn communities",
   "reminder": {
     "respond_to_host_request": {
-      "title": "Reageren op hostverzoeken",
-      "description": "Vergeet niet te reageren op {{name}} over hun verblijf.",
+      "title": "Reageer op {{name}}",
+      "description": "Vergeet niet te reageren op het hostingverzoek van {{name}}.",
       "button": "Verzoek bekijken"
     },
     "write_reference": {
