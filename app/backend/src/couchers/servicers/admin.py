@@ -50,8 +50,8 @@ from couchers.resources import get_badge_dict
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.auth import create_session
 from couchers.servicers.events import generate_event_delete_notifications
-from couchers.servicers.notifications import disable_push_notifications_for_user
 from couchers.servicers.moderation import bulk_set_user_content_visibility
+from couchers.servicers.notifications import disable_push_notifications_for_user
 from couchers.servicers.threads import unpack_thread_id
 from couchers.sql import to_bool, username_or_email_or_id
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date, to_aware_datetime
