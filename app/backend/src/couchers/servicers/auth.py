@@ -45,6 +45,7 @@ from couchers.notifications.quick_links import respond_quick_link
 from couchers.proto import auth_pb2, auth_pb2_grpc, notification_data_pb2
 from couchers.servicers.account import abort_on_invalid_password, contributeoption2sql
 from couchers.servicers.api import hostingstatus2sql
+from couchers.servicers.notifications import disable_push_notifications_for_user
 from couchers.sql import username_or_email
 from couchers.tasks import (
     enforce_community_memberships_for_user,
@@ -640,6 +641,7 @@ class Auth(auth_pb2_grpc.AuthServicer):
         session.execute(delete(AccountDeletionToken).where(AccountDeletionToken.user_id == user.id))
 
         user.deleted_at = now()
+        disable_push_notifications_for_user(user.id, session)
         user.undelete_until = now() + timedelta(days=UNDELETE_DAYS)
         user.undelete_token = urlsafe_secure_token()
 

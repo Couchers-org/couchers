@@ -550,6 +550,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
         user.deleted_at = now()
+        disable_push_notifications_for_user(user.id, session)
         log_admin_action(session, context, user, "delete_user", level=AdminActionLevel.high)
         return _user_to_details(session, user)
 
