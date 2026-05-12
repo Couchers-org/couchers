@@ -1106,6 +1106,38 @@ def test_reminders(db, moderator):
         assert reminders[1].respond_to_host_request_reminder.host_request_id == host_request3_id
         assert reminders[1].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
 
+    # host replies to req2 with a message: reminder should clear even though it's still pending
+    with requests_session(token) as api:
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request2_id, text="Let me think about it")
+        )
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with account_session(token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "respond_to_host_request_reminder",
+            "complete_profile_reminder",
+        ]
+        assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request3_id
+        assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
+    # surfer sending a message should not clear the reminder
+    with requests_session(req_user_token1) as api:
+        api.SendHostRequestMessage(
+            requests_pb2.SendHostRequestMessageReq(host_request_id=host_request3_id, text="Any update?")
+        )
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    with account_session(token) as account:
+        reminders = account.GetReminders(empty_pb2.Empty()).reminders
+        assert [reminder.WhichOneof("reminder") for reminder in reminders] == [
+            "respond_to_host_request_reminder",
+            "complete_profile_reminder",
+        ]
+        assert reminders[0].respond_to_host_request_reminder.host_request_id == host_request3_id
+        assert reminders[0].respond_to_host_request_reminder.surfer_user.user_id == req_user1.id
+
 
 def test_volunteer_stuff(db):
     # taken from couchers/app/backend/resources/badges.json
