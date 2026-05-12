@@ -82,14 +82,14 @@ def create_host_request(
 
     host_request = HostRequest(
         conversation_id=conversation.id,
-        surfer_user_id=surfer_user_id,
-        host_user_id=host_user_id,
+        initiator_user_id=surfer_user_id,
+        recipient_user_id=host_user_id,
         from_date=from_date,
         to_date=to_date,
         status=status,
-        surfer_last_seen_message_id=msg2.id,
-        host_reason_didnt_meetup=host_reason_didnt_meetup,
-        surfer_reason_didnt_meetup=surfer_reason_didnt_meetup,
+        initiator_last_seen_message_id=msg2.id,
+        recipient_reason_didnt_meetup=host_reason_didnt_meetup,
+        initiator_reason_didnt_meetup=surfer_reason_didnt_meetup,
         hosting_city="Test City",
         hosting_location=create_coordinate(0, 0),
         hosting_radius=10,
@@ -142,8 +142,8 @@ def create_host_request_by_date(
 
     host_request = HostRequest(
         conversation_id=conversation.id,
-        surfer_user_id=surfer_user_id,
-        host_user_id=host_user_id,
+        initiator_user_id=surfer_user_id,
+        recipient_user_id=host_user_id,
         from_date=from_date,
         to_date=to_date,
         status=status,
@@ -152,7 +152,7 @@ def create_host_request_by_date(
         hosting_radius=10,
         moderation_state_id=moderation_state.id,
     )
-    host_request.host_sent_request_reminders = host_sent_request_reminders
+    host_request.recipient_sent_request_reminders = host_sent_request_reminders
     host_request.last_sent_request_reminder_time = last_sent_request_reminder_time
 
     session.add(host_request)
@@ -185,14 +185,14 @@ def create_host_reference(
         select(HostRequest).where(HostRequest.conversation_id == actual_host_request_id)
     ).scalar_one()
 
-    if host_request.surfer_user_id == from_user_id:
+    if host_request.initiator_user_id == from_user_id:
         reference_type = ReferenceType.surfed
-        to_user_id = host_request.host_user_id
-        assert from_user_id == host_request.surfer_user_id
+        to_user_id = host_request.recipient_user_id
+        assert from_user_id == host_request.initiator_user_id
     else:
         reference_type = ReferenceType.hosted
-        to_user_id = host_request.surfer_user_id
-        assert from_user_id == host_request.host_user_id
+        to_user_id = host_request.initiator_user_id
+        assert from_user_id == host_request.recipient_user_id
 
     reference = Reference(
         from_user_id=from_user_id,
@@ -1140,7 +1140,6 @@ def test_AvailableWriteReferences_and_ListPendingReferencesToWrite(db, moderator
             "write_reference_reminder",
             "write_reference_reminder",
             "write_reference_reminder",
-            "complete_verification_reminder",
         ]
         assert reminders[0].write_reference_reminder.host_request_id == hr3
         assert reminders[0].write_reference_reminder.reference_type == references_pb2.REFERENCE_TYPE_HOSTED

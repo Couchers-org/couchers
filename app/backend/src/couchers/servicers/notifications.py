@@ -24,6 +24,7 @@ from couchers.models import (
 )
 from couchers.notifications.push import PushNotificationContent, push_to_subscription, push_to_user
 from couchers.notifications.render_push import render_adhoc_push_notification, render_push_notification
+from couchers.notifications.send_raw_push_notification import is_known_invalid_endpoint
 from couchers.notifications.settings import (
     PreferenceNotUserEditableError,
     get_topic_actions_by_delivery_type,
@@ -81,7 +82,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         return notifications_pb2.GetNotificationSettingsRes(
             do_not_email_enabled=user.do_not_email,
-            groups=get_user_setting_groups(user.id),
+            groups=get_user_setting_groups(user.id, context.localization),
         )
 
     def SetNotificationSettings(
@@ -108,7 +109,7 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
                 )
         return notifications_pb2.GetNotificationSettingsRes(
             do_not_email_enabled=user.do_not_email,
-            groups=get_user_setting_groups(user.id),
+            groups=get_user_setting_groups(user.id, context.localization),
         )
 
     def ListNotifications(
@@ -186,6 +187,9 @@ class Notifications(notifications_pb2_grpc.NotificationsServicer):
             context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "push_notifications_disabled")
 
         data = json.loads(request.full_subscription_json)
+        if is_known_invalid_endpoint(data["endpoint"]):
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_endpoint")
+
         subscription = PushNotificationSubscription(
             user_id=context.user_id,
             platform=PushNotificationPlatform.web_push,

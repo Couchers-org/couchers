@@ -14,14 +14,13 @@
   },
   "welcome": "Vítej na Couchers.org!",
   "load_more": "Načíst více",
-  "upcoming_events": "Nadcházející události",
   "profile_summary_edit": "Upravit profil",
   "profile_summary_view": "Zobrazit můj profil",
   "show_map": "Zobrazit mapu",
   "please_complete_profile": "Dokonči prosím svůj profil a ujisti se, že se zobrazuje ve vyhledávání:",
   "fill_in_who_i_am": "1. Vyplň sekci \"Kdo jsem\" několika větami o sobě",
   "upload_photo": "2. Nahraj fotografii (kliknutím na avatar na stránce úprav)",
-  "edit_profile_button_text": "Upravit profil",
+  "edit_profile_button_text": "Upravit svůj profil",
   "your_communities_heading": "Tvé komunity",
   "all_communities_heading": "Všechny komunity",
   "no_community": "Momentálně nejsi v žádné komunitě.",
@@ -38,12 +37,44 @@
   "all_communities_section": "Všechny komunity",
   "find_your_community_intro": "Níže můžeš vyhledávat nebo procházet všechny komunitní stránky, které dosud existují. Chybí tvá země nebo město? <1>Použij tento formulář</1> k jejich přidání!",
   "landing_text": "Pracujeme na nových <1>funkcí</1> jako jsou události, místní průvodci, moderování a setkání. Oceňujeme tvou trpělivost a <3>podporu</3>, zatímco je vyvíjíme.",
-  "find_your_community": "Najďi svou komunitu",
+  "find_your_community": "Najďi komunitu",
   "communities_intro": "Abychom lidem po celém světě pomohli organizovat akce, diskutovat a setkávat se na místní úrovni, vytvořili jsme komunitní stránky, které jsou uvedeny níže. <strong>Na základě tvé polohy jsme tě automaticky přidali do některých komunit, ale můžeš se připojit k jakékoli jiné komunitě!</strong> Tvé komunity jsou uvedeny na hlavním panelu.",
   "browse_communities_text": "Klikni na název regionu, pro zobrazení dalších komunit v ní níže. Klikni na odkaz a přejdi tak na stránku komunity daného města nebo regionu.",
   "all_communities_intro": "Níže si můžeš prohlédnout všechny komunitní stránky, které dosud existují. <strong>Klikni na název komunity a zobrazí se ti další komunity v rámci této skupiny.</strong>",
   "community_missing": "Chybí tvá země nebo město? Použij <1>tento formulář</1> k jeho přidání!",
   "profile_mobile_summary_view": "Přejít na profil",
   "find_a_host": "Najdi hostitele",
-  "become_a_host": "Staň se hostitelem"
+  "become_a_host": "Staň se hostitelem",
+  "complete_profile_explanation": "Taky tě štve, jak mají jiné platformy prázdné „duchařské\" profily bez jakýchkoliv informací? Prosím, nedělej z nás duchy! 👻👻👻",
+  "no_sub_communities": "Žádné podkomunity.",
+  "new_pill": "Nové",
+  "my_communities_heading": "Moje komunity",
+  "member_count_one": "{{count}} člen",
+  "member_count_few": "{{count}} členové",
+  "member_count_other": "{{count}} členů",
+  "search_input_label": "Kam se chystáš?",
+  "search_input_placeholder": "Vyhledat místo",
+  "hero_image_alt": "Horkovzdušné balóny v Kappadokii",
+  "hero_image_attribution": "Foto: <1>Mesut Kaya</1> na <3>Unsplash</3>",
+  "reminder": {
+    "complete_profile": {
+      "button": "Upravit svůj profil"
+    },
+    "strong_verification": {
+      "description": "Ověř svoji identitu pro bezpečnější komunitu"
+    },
+    "respond_to_host_request": {
+      "description": "Nezapomeň odpovědět {{name}} ohledně jejich pobytu.",
+      "button": "Zobrazit požadavek"
+    },
+    "write_reference": {
+      "title": "Napsat referenci"
+    }
+  },
+  "events": {
+    "location_online_label": "Online",
+    "attendees_count_label_one": "{{count}} účastník",
+    "attendees_count_label_few": "{{count}} účastníci",
+    "attendees_count_label_other": "{{count}} účastníků"
+  }
 }

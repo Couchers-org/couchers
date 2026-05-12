@@ -16,12 +16,12 @@
       "no_emails_disable_text": "Emailleri geri aç",
       "no_emails_enable_text": "Bana email yollama"
     },
-    "caveat": "Bu ayarı açınca, hesabın ev sahipliği isteklerini kabul etmeyecek. Güvenlik emaillerini (Şifreni sıfırlamak gibi) almaya devam edeceksin. Zaten alıyorsan haber bültenimizi almaya devam edebilirsin, bülteni istemiyorsan bültenin altındaki abonelikten çıkmak için olan linke tıklayabilirsin.",
     "title": "Bana email yollama",
     "status": {
       "no_emails_enabled_message": "Hesabın için emailler şu anda <1>kapalı</1>.",
       "no_emails_disabled_message": "Emailler şuanda hesabın için <1>açık</1>."
-    }
+    },
+    "caveat": "Bu ayarı açınca, hesabın ev sahipliği isteklerini kabul etmeyecek. Güvenlik emaillerini (Şifreni sıfırlamak gibi) almaya devam edeceksin. Zaten alıyorsan haber bültenimizi almaya devam edebilirsin, bülteni istemiyorsan bültenin altındaki abonelikten çıkmak için olan linke tıklayabilirsin."
   },
   "change_password_form": {
     "password_changed_success": "Yeni şifreniz konuldu ve emailinize bir bildirim yollandı.",
@@ -36,15 +36,10 @@
     "subtitle": "Giriş şifreni bu form ile sıfırla.",
     "confirm_password": "Şifreyi onayla"
   },
-  "jail_set_password_form": {
-    "title": "Bir şifre oluştur",
-    "explanation": "Hesabınız için daha önce bir şifre koymamışsınız. Lütfen devam etmek için bir şifre oluşturun."
-  },
   "login_page": {
     "no_account_prompt": "Daha hesabınız yok mu? <2> Bize katıl</2>",
     "form": {
       "username_field_label": "Email/Kullanıcı Adı",
-      "no_password_login_prompt": "Emailini giriş yapmak için bir email için kontrol et!:)",
       "remember_me": "Beni hatırla",
       "password_field_label": "Şifre",
       "forgot_password": "Şifrenizi mi unuttunuz?"
@@ -74,7 +69,6 @@
   "basic_form": {
     "name": {
       "field_label": "İsim",
-      "empty_error": "Lütfen adınızı yazın",
       "required_error": "Bu alan boş bırakılamaz."
     },
     "email": {
@@ -96,5 +90,18 @@
   },
   "motivations_form": {
     "header": "Seni Couchers'a ne getirdi?"
+  },
+  "jail": {
+    "location_section": {
+      "title": "Lütfen konumunuzu güncelleyin",
+      "submit_button": {
+        "active_text": "Kaydet",
+        "inactive_text": "Teşekkürler!"
+      },
+      "resubmit_button_text": "Yeniden gönder"
+    },
+    "mod_note_section": {
+      "title": "Moderatörlerden bir not aldınız"
+    }
   }
 }

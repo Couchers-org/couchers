@@ -2,8 +2,6 @@
   "language_preference": {
     "form_title": "Idioma",
     "help_translate": "Ayuda a traducir Couchers a tu idioma.",
-    "select_language": "Selecciona un idioma",
-    "success_message": "Tu cambio ha sido guardado.",
     "translation_progress": {
       "description": "Comprueba cuán avanzadas están nuestras traducciones en diferentes idiomas. ¡Ayúdanos a hacer que Couchers sea accesible para más personas en todo el mundo!",
       "info_text": "💡 Los idiomas con un 50-80% de completitud aparecen atenuados en el selector de idiomas. Los idiomas con menos del 50% de completitud están ocultos en el selector de idiomas. Para motivar a los colaboradores, los idiomas con menos del 20% se muestran en este sitio.",
@@ -15,10 +13,8 @@
       "no_data": "No hay datos de traducción disponibles",
       "complete": "Completo",
       "almost_there": "Casi está",
-      "in_progress": "En progreso",
       "early_stage": "Etapa temprana",
       "just_started": "Recién empezado",
-      "complete_percent": "{{percent}}% completo",
       "view_progress": "Ver progreso de traducción"
     },
     "error_loading_languages": "No se pudieron cargar las opciones de idioma. Por favor inténtalo de nuevo más tarde.",
@@ -36,7 +32,6 @@
   "join_us": "Unirse",
   "back": "Volver",
   "learn_more": "Saber más",
-  "created": "Creado",
   "login": "Iniciar sesión",
   "sign_up": "Regístrate",
   "legal_name": "Couchers, Inc.",
@@ -46,7 +41,6 @@
     "progress_label": "Progreso de las donaciones"
   },
   "thanks": "¡Gracias!",
-  "error_loading_invite_codes": "No se pudieron obtener los detalles del código de invitación",
   "community_standing_description": "Calculado a partir de varios factores como referencias y participación en la comunidad.",
   "verification_score": "Puntuación de verificación",
   "community_standing": "Prestigio comunitario",
@@ -64,7 +58,6 @@
   "read_more": "Leer más",
   "next": "Siguiente",
   "hosting_status": {
-    "any": "Cualquiera",
     "unspecified_info": "No lo especificó",
     "maybe": "Tal vez podría alojar",
     "cant_host": "No puede alojar",
@@ -92,9 +85,7 @@
       "explainer": "Envia confidencialmente una denuncia al equipo de Seguridad y Confianza.",
       "profile_button_aria_label": "Denunciar contenido o bloquear a un usuario",
       "reason_label": "Motivo de la denuncia",
-      "reason_helper": "¿Por qué estás denunciando este contenido?",
       "description_required": "Se requiere una descripción.",
-      "profile_reason_required": "Por favor complete la descripción o el bloque",
       "description_label": "Describa el problema",
       "success": "¡Gracias por tu denuncia y por hacer de Couchers una plataforma mejor para todos!",
       "block_user": "Bloquear a {{username}}",
@@ -104,32 +95,23 @@
       "button_label": "Informar de un problema técnico",
       "title_label": "Título del informe",
       "warning_message": "Por favor tenga en cuenta que esta información, así como la información de diagnóstico incluyendo en qué página se encuentra, qué navegador está utilizando, y su nombre de usuario, se guardará en una lista pública de errores.",
-      "title_helper": "Breve descripción del error",
       "problem_label": "¿Qué hiciste para activar el error?",
       "problem_helper": "Breve descripción del problema y cómo reproducirlo",
       "expect_label": "¿Qué pasó? ¿Qué debería haber pasado?",
       "expect_helper": "Breve descripción de lo que esperaba que sucediera en su lugar",
       "success_message2": "¡Gracias por informar de ese error y mejorar Couchers, se ha enviado un informe a los desarrolladores! El ID del error es <id/>."
     },
-    "title": "Informar de un problema",
     "content": {
       "button_label": "Denunciar contenido o comportamiento inapropiado",
-      "dialog_message": "Estamos trabajando en herramientas de denuncia y moderación robustas. Mientras tanto, por favor envíenos un correo electrónico a la dirección que aparece a continuación. Incluye detalles como el usuario correspondiente, qué fue lo inapropiado, y dónde lo observaste.",
       "success_message": "¡Gracias por tu denuncia y por hacer de Couchers una plataforma mejor para todos!"
     }
   },
   "continue": "Continuar",
   "required": "Requerido",
-  "disable": "Desactivar",
-  "disabled": "Desactivado",
-  "uses": "Usos",
-  "no_invite_codes": "Aún no hay códigos de invitación",
   "verification_score_description": "Calculado a partir de recomendaciones de otros usuarios",
   "edit": "Editar",
   "save": "Guardar",
   "submit": "Enviar",
-  "copy": "Copiar",
-  "copied": "Copiado al portapapeles",
   "previous": "Anterior",
   "save_changes": "Guardar cambios",
   "send": "Enviar",
@@ -139,14 +121,11 @@
   "not_found_text_1": "No pudimos encontrar la URL o el recurso que ha solicitado",
   "not_found_alt": "Error 404: Recurso no encontrado",
   "nav": {
-    "mission": "Misión y Valores",
+    "mission": "Misión y valores",
     "badges": "Insignias",
     "faq": "Preguntas frecuentes",
-    "feature_preview": "Previsualización de características",
-    "forum": "Foro",
-    "github": "GitHub",
     "help_center": "Centro de ayuda",
-    "roadmap_updates": "Hoja de ruta y Actualizaciones",
+    "roadmap_updates": "Hoja de ruta y actualizaciones",
     "help": "Ayuda",
     "log_out": "Cerrar sesión",
     "map_search": "Buscar",
@@ -159,13 +138,12 @@
     "messages": "Mensajes",
     "newsletter": "Boletín",
     "notifications": "Notificaciones",
-    "our_plan": "Nuestro Plan",
+    "our_plan": "Nuestro plan",
     "blog": "Blog",
     "account_settings": "Ajustes de la cuenta",
-    "our_team": "Nuestro Equipo",
+    "our_team": "Nuestro equipo",
     "profile": "Perfil",
     "show_all_events": "Mostrar todos los eventos",
-    "the_team": "El Equipo",
     "volunteer": "Voluntariado",
     "legal_more": "Legal y más",
     "contact_us": "Contáctanos",
@@ -174,7 +152,8 @@
     "invite_members": "Invitar a miembros",
     "merch_shop": "Tienda de merchandising",
     "switch_to_light_mode": "Cambiar a modo claro",
-    "switch_to_dark_mode": "Cambiar a modo oscuro"
+    "switch_to_dark_mode": "Cambiar a modo oscuro",
+    "home": "Inicio"
   },
   "ok": "De acuerdo",
   "relative_time": {
@@ -196,7 +175,6 @@
     "title": "¿Qué es couch surfing?",
     "description_2": "Es como tener un amigo en otra ciudad e ir a visitarlo, ¡pero conoces al amigo por primera vez cuando llegas allí!",
     "get_involved_title": "¿Qué puedo hacer en Couchers.org?",
-    "get_started": "Comenzar",
     "timeline_title": "Una breve historia del \"couch surfing\"",
     "actions": {
       "host": "Aloja a un viajero que visita tu ciudad",
@@ -257,52 +235,32 @@
   "beta": "Beta",
   "no": "No",
   "invites": {
-    "create": "Crear invitación",
-    "disable": "Desactivar",
-    "share_link": "Copiar enlace para compartir",
     "instructions": "Crea un enlace de invitación para compartir con amigos y la comunidad. Desactiva los códigos que ya no uses.",
-    "uses_suffix": "registros completados",
     "banner": {
-      "invited_you": "¡{{name}} te ha invitado a unirte a Couchers!",
-      "inviter_fallback": "¡{{username}} te ha invitado a unirte a Couchers!"
+      "invited_you": "¡{{name}} te ha invitado a unirte a Couchers!"
     },
     "error": {
       "fetch_invite_info": "No se han podido obtener los detalles del código de invitación"
     },
-    "title": "Invitar a miembros"
+    "title": "Invitar a miembros",
+    "no_codes_message": "Aún no hay códigos de invitación",
+    "created_datetime": "Creado: {{datetime}}",
+    "disabled_datetime": "Desactivado: {{datetime}}",
+    "number_of_uses_one": "Usos: {{count}} registro completado",
+    "number_of_uses_many": "Usos: {{count}} de registros completados",
+    "number_of_uses_other": "Usos: {{count}} registros completados",
+    "disable_link": "Desactivar"
   },
   "contribute_title": "Regístrate para contribuir",
   "reply": "Responder",
   "yes": "Sí",
   "team": {
-    "ui_ux_designer": "Diseñador UI/UX",
-    "translations_lead": "Líder de traducciones",
-    "current_members": "Miembros actuales",
     "past_members": "Miembros anteriores",
-    "board_member": "Miembro de la Junta",
-    "co_founder_president": "Co-fundador, Presidente y Presidente del Consejo",
-    "co_founder": "Co-fundador",
-    "secretary": "Secretario",
-    "treasurer": "Tesorero",
-    "community_coordinator": "Coordinador de la Comunidad",
-    "volunteer_settings": {
-      "show_on_team_page": {
-        "disabled_message": "Actualmente tu perfil está oculto en la página del equipo",
-        "title": "Mostrar mi perfil de voluntario en la página del equipo",
-        "enabled_message": "Actualmente tu perfil es visible en la página del equipo"
-      }
-    },
+    "board_member": "Miembro de la junta",
     "have_skills_contribute": "¿Tienes habilidades que quieras aportar?",
     "fill_form_description": "Couchers.org es un proyecto impulsado por la comunidad, desarrollado por personas como tú para el beneficio de la comunidad global de couch surfing. Si estás interesado en unirte a esta emocionante iniciativa, haz clic en el botón inferior y completa el breve formulario.",
-    "developer": "Desarrollador",
-    "frontend_developer": "Desarrollador Frontend",
-    "lead_frontend_developer": "Desarrollador Frontend Principal",
-    "backend_developer": "Desarrollador Backend",
-    "lead_backend_developer": "Desarrollador Backend Principal",
-    "full_stack_backend_developer": "Desarrollador Full Stack",
     "description": "Somos couch surfers apasionados y profesionales capacitados comprometidos con la creación de una plataforma mejorada, más segura e inclusiva. Estamos construyendo esta plataforma para apoyar y hacer crecer de manera sostenible la comunidad de couch surfing, compartiendo sus valores con el mundo. Si compartes el sentimiento y quieres contribuir, nos encataría saber de ti.",
-    "tap_press_to_flip": "Toca / pulsa para girar",
-    "title": "El Equipo",
+    "title": "El equipo",
     "join_the_team": "Únete al equipo",
     "join_our_team": "Únete a nuestro equipo"
   },
@@ -322,8 +280,8 @@
     "pt-BR": "Portugués (Brasil)",
     "ru": "Ruso",
     "tr": "Turco",
-    "zh-Hans": "Chino (Simplificado)",
-    "zh-Hant": "Chino (Tradicional)",
+    "zh-Hans": "Chino (simplificado)",
+    "zh-Hant": "Chino (tradicional)",
     "hu": "Húngaro",
     "ca": "Catalán",
     "cs": "Checo",
@@ -342,11 +300,12 @@
       "invalid_coordinate": "Faltan las coordenadas, por favor selecciona una ubicación en el mapa de arriba",
       "location_accuracy": "Precisión de la ubicación",
       "map_is_blank": "Faltan las coordenadas, comienza buscando una ubicación con el mapa de arriba",
-      "radius_text": "{{radius}} metros",
       "no_location_results_text": "Sin resultados. Intenta buscar solo la ciudad.",
       "display_location_not_empty": "Por favor introduce una dirección para mostrar",
-      "no_map_support": "Tu dispositivo no soporta el mapa. Por favor asegúrate de que WebGL2 está habilitado o prueba otro dispositivo/navegador. ¡Sentimos las molestias!",
-      "press_enter_to_search": "Pulsa enter para buscar"
+      "press_enter_to_search": "Pulsa enter para buscar",
+      "radius_text2_one": "{{count}} metro",
+      "radius_text2_many": "{{count}} de metros",
+      "radius_text2_other": "{{count}} metros"
     },
     "datepicker": {
       "change_date": "Cambiar fecha"
@@ -369,5 +328,17 @@
     "default_title": "Couchers.org",
     "default_description": "Comparte tu mundo, descubre el de otros. Experiencias locales auténticas, construidas en la confianza y la conexión genuina, no en las transacciones."
   },
-  "invited_you": "¡{{name}} te ha invitado a unirte a Couchers!"
+  "image_input": {
+    "select_button_a11y": "Selecciona una imagen",
+    "read_file_error_message": "No se pudo leer el fichero"
+  },
+  "blog": {
+    "byline_with_author": "Escrito por <1/>. Publicado el {{date}}.",
+    "byline_without_author": "Publicado el {{date}}.",
+    "cta_message": "¿Quieres ayudar a escribir nuestro blog o ser voluntario? <1>Regístrate</1> y cuéntanos. ¡Los voluntarios y las <3>donaciones</3> son lo que hacen posible Couchers.org!"
+  },
+  "copy_button": {
+    "a11y": "Copiar",
+    "copied_tooltip": "Copiado al portapapeles"
+  }
 }

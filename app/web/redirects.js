@@ -176,5 +176,11 @@ module.exports = {
       destination: "https://shop.couchershq.org",
       permanent: false,
     },
+    {
+      source: "/translator-guide",
+      destination:
+        "https://docs.google.com/document/d/1SQgp3-FvpewJFAPkJ65LruVB9dCPQzyyWjvLTUtszw4",
+      permanent: false,
+    },
   ],
 };

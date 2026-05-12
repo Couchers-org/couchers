@@ -12,6 +12,7 @@ from alembic.config import Config
 from geoalchemy2 import WKBElement
 from opentelemetry import trace
 from sqlalchemy import Engine, Row, Subquery, create_engine, select, text, true
+from sqlalchemy.dialects import registry
 from sqlalchemy.orm.session import Session
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.sql import and_, func, literal, or_
@@ -31,6 +32,10 @@ from couchers.models import (
     User,
 )
 from couchers.sql import where_users_column_visible
+
+# Register psycopg (psycopg3) as the default driver for postgresql:// URLs
+# This must happen before any engine is created
+registry.register("postgresql", "sqlalchemy.dialects.postgresql.psycopg", "PGDialect_psycopg")
 
 logger = logging.getLogger(__name__)
 

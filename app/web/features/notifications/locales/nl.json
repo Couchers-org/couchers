@@ -8,98 +8,11 @@
   "no_new_notifications": "Geen nieuwe notificaties",
   "notification_settings": {
     "title": "Instellingen notificaties",
-    "edit_in_console": "Je kan je instellingen voor notificaties <2>op deze pagina</2> aanpassen. We zullen het binnenkort hierheen verplaatsen.",
     "go_to_button": "Notificatie-instellingen beheren",
     "edit_preferences": {
       "title": "Notificatie-instellingen",
       "expand_all": "Alles uitklappen",
       "error_loading": "Error bij het laden van notificatie-instellingen",
-      "item_descriptions": {
-        "host_request": {
-          "reminder": "Je hebt nog niet gereageerd op een hostingverzoek",
-          "create": "Iemand heeft je een hostingverzoek gestuurd",
-          "missed_messages": "Je hebt berichten gemist bij een hostingverzoek",
-          "accept": "Iemand heeft je hostingverzoek geaccepteerd",
-          "confirm": "Iemand heeft zijn hostingverzoek bevestigd",
-          "reject": "Iemand heeft je hostingverzoek afgewezen",
-          "cancel": "Iemand heeft zijn hostingverzoek geannuleerd",
-          "message": "Iemand heeft een bericht gestuurd bij een hostingverzoek"
-        },
-        "chat": {
-          "message": "Iemand heeft je een bericht gestuurd",
-          "missed_messages": "Je hebt berichten in een chat gemist"
-        },
-        "general": {
-          "new_blog_post": "Er is een nieuwe blog"
-        },
-        "reference": {
-          "reminder_surfed": "Herinnering om een referentie te schrijven over iemand die jou gehost heeft",
-          "receive_hosted": "Je krijgt een referentie van iemand die je gehost heeft",
-          "receive_surfed": "Je krijgt een referentie van iemand die jij gehost hebt",
-          "receive_friend": "Je hebt een referentie gekregen van een vriend",
-          "reminder_hosted": "Herinnering om een referentie te schrijven van iemand die jij gehost hebt"
-        },
-        "event": {
-          "delete": "Een event waar jij heen zou gaan is verwijderd",
-          "reminder": "Herinnering: een event waar je naartoe gaat, gaat bijna beginnen",
-          "create_approved": "Een event dat is goedgekeurd door de moderators is aangemaakt in jouw community",
-          "create_any": "Een gebruiker maakt een event aan in jouw community (niet gecontroleerd door een admin)",
-          "update": "Een event waar jij heen gaat is bijgewerkt",
-          "cancel": "Een event waar jij heen zou gaan is geannuleerd",
-          "invite_organizer": "Iemand nodigt je uit om samen een event te organiseren",
-          "comment": " Een gebruiker reageert op een event waar je naartoe gaat"
-        },
-        "onboarding": {
-          "reminder": "Vergeet niet na het aanmelden om je profiel verder in te vullen"
-        },
-        "friend_request": {
-          "create": "Iemand heeft je een vriendschapsverzoek gestuurd",
-          "accept": "Iemand heeft je vriendschapsverzoek geaccepteerd"
-        },
-        "badge": {
-          "add": "Er is een badge aan je account toegevoegd",
-          "remove": "Een badge is van je account verwijderd"
-        },
-        "donation": {
-          "received": "Je donatie is ontvangen"
-        },
-        "password": {
-          "change": "Je wachtwoord is aangepast"
-        },
-        "password_reset": {
-          "start": "Wachtwoordreset is begonnen",
-          "complete": "Wachtwoord is gereset"
-        },
-        "email_address": {
-          "change": "E-mailwijziging is gestart",
-          "verify": "Je nieuwe e-mailadres is geverifieerd"
-        },
-        "account_deletion": {
-          "start": "Je bent begonnen met het verwijderen van je account",
-          "complete": "Je account is verwijderd",
-          "recovered": "Je account is hersteld (en niet meer verwijderd)"
-        },
-        "api_key": {
-          "create": "Er is een API-sleutel aangemaakt voor je account"
-        },
-        "phone_number": {
-          "change": "Je telefoonnummer is gewijzigd",
-          "verify": "Je telefoonnummer is geverifieerd"
-        },
-        "birthdate": {
-          "change": "Je geboortedatum is gewijzigd"
-        },
-        "gender": {
-          "change": "Je gender op je profiel is aangepast"
-        },
-        "discussion": {
-          "comment": "Iemand reageert op een discussie die je volgt",
-          "create": "Iemand heeft een discussie gestart in een community waar je lid van bent"
-        },
-        "thread": {
-          "reply": "Iemand reageert op jouw comment"
-        }
-      },
       "list_heading": "Notificaties die je kunt krijgen",
       "list_items": {
         "account_settings": "Account-instellingen",
@@ -114,7 +27,11 @@
         "reply": "Reacties"
       },
       "collapse_all": "Alles inklappen",
-      "description": "Al je wijzigingen worden automatisch opgeslagen. Houd er rekening mee dat je nog wel belangrijke meldingen over je account en andere content kunt ontvangen, los van je notificatievoorkeuren."
+      "description": "Al je wijzigingen worden automatisch opgeslagen. Houd er rekening mee dat je nog wel belangrijke meldingen over je account en andere content kunt ontvangen, los van je notificatievoorkeuren.",
+      "channels": {
+        "email_label": "E-mail",
+        "push_label": "Push"
+      }
     },
     "push_notifications": {
       "title": "Pushberichten",
@@ -132,8 +49,7 @@
           "macos": "In macOS ga je naar Systeeminstellingen > Meldingen om toestemming te geven.",
           "windows": "In Windows ga je naar Instellingen > Systeem > Meldingen om toestemming te geven.",
           "linux": {
-            "gnome": "In GNOME ga je naar Instellingen > Meldingen om toestemming te geven.",
-            "kde": "In KDE ga je naar Systeeminstellingen > Notificaties om toestemming te geven."
+            "gnome": "In GNOME ga je naar Instellingen > Meldingen om toestemming te geven."
           },
           "mobile": {
             "os": "Zet in de instellingen van je mobiel de notificaties aan.",

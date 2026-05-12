@@ -1,7 +1,7 @@
 """Implement UMS for friend reqs
 
-Revision ID: 8191f466c673
-Revises: 5c0e25460ac2
+Revision ID: 0129
+Revises: 0128
 Create Date: 2025-12-23 10:51:21.670999
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "8191f466c673"
-down_revision = "5c0e25460ac2"
+revision = "0129"
+down_revision = "0128"
 branch_labels = None
 depends_on = None
 

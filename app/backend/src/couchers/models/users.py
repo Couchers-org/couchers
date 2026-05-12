@@ -21,16 +21,17 @@ from sqlalchemy import (
     and_,
     func,
     or_,
+    select,
     text,
 )
 from sqlalchemy import LargeBinary as Binary
-from sqlalchemy import select as sa_select
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import DynamicMapped, Mapped, column_property, mapped_column, relationship
 from sqlalchemy.sql import expression
 from sqlalchemy.sql.elements import ColumnElement
 
 from couchers.constants import (
+    COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
     EMAIL_REGEX,
     GUIDELINES_VERSION,
     PHONE_VERIFICATION_LIFETIME,
@@ -134,7 +135,7 @@ class User(Base, kw_only=True):
     regions_lived: Mapped[list[Region]] = relationship(init=False, secondary="regions_lived", order_by="Region.name")
 
     timezone = column_property(
-        sa_select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom)).limit(1).scalar_subquery(),
+        select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, geom)).limit(1).scalar_subquery(),
         deferred=True,
     )
 
@@ -184,6 +185,7 @@ class User(Base, kw_only=True):
 
     banned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    shadowed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
     is_editor: Mapped[bool] = mapped_column(Boolean, server_default=expression.false(), init=False)
 
@@ -255,6 +257,8 @@ class User(Base, kw_only=True):
     new_email_token_expiry: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     recommendation_score: Mapped[float] = mapped_column(Float, server_default="0", init=False)
+
+    mod_score: Mapped[float] = mapped_column(Float, server_default="1", init=False)
 
     # Columns for verifying their phone number. State chart:
     #                                       ,-------------------,
@@ -391,6 +395,16 @@ class User(Base, kw_only=True):
             postgresql_using="hash",
             postgresql_where=and_(banned_at.is_(None), deleted_at.is_(None)),
         ),
+        Index(
+            "ix_users_visible_with_about_me",
+            id,
+            postgresql_where=and_(
+                banned_at.is_(None),
+                deleted_at.is_(None),
+                profile_gallery_id.isnot(None),
+                func.coalesce(func.character_length(about_me), 0) >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
+            ),
+        ),
         # There are two possible states for new_email_token, new_email_token_created, and new_email_token_expiry
         CheckConstraint(
             "(new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL) OR \
@@ -498,6 +512,15 @@ class User(Base, kw_only=True):
     @classmethod
     def _is_visible_expression(cls) -> ColumnElement[bool]:
         return and_(cls.banned_at.is_(None), cls.deleted_at.is_(None))
+
+    @hybrid_property
+    def is_shadowed(self) -> bool:
+        return self.shadowed_at is not None
+
+    @is_shadowed.inplace.expression
+    @classmethod
+    def _is_shadowed_expression(cls) -> ColumnElement[bool]:
+        return cls.shadowed_at.is_not(None)
 
     @property
     def coordinates(self) -> tuple[float, float]:

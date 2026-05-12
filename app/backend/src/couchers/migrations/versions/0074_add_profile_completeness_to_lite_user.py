@@ -1,7 +1,7 @@
 """Add profile completeness to lite user
 
-Revision ID: 6db90129a4da
-Revises: 83201c4b8bf3
+Revision ID: 0074
+Revises: 0073
 Create Date: 2024-10-25 05:50:13.015936
 
 """
@@ -9,8 +9,8 @@ Create Date: 2024-10-25 05:50:13.015936
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "6db90129a4da"
-down_revision = "83201c4b8bf3"
+revision = "0074"
+down_revision = "0073"
 branch_labels = None
 depends_on = None
 

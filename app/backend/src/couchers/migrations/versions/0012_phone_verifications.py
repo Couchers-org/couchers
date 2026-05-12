@@ -1,7 +1,7 @@
 """Phone verifications
 
-Revision ID: 80d30951919d
-Revises: 128252798bc4
+Revision ID: 0012
+Revises: 0011
 Create Date: 2021-05-30 22:13:30.713179
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "80d30951919d"
-down_revision = "128252798bc4"
+revision = "0012"
+down_revision = "0011"
 branch_labels = None
 depends_on = None
 

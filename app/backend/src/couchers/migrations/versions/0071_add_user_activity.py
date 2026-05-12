@@ -1,7 +1,7 @@
 """Add user activity
 
-Revision ID: 999cf4ffb47a
-Revises: bc7b6ebf50ea
+Revision ID: 0071
+Revises: 0070
 Create Date: 2024-09-24 21:18:41.438200
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "999cf4ffb47a"
-down_revision = "bc7b6ebf50ea"
+revision = "0071"
+down_revision = "0070"
 branch_labels = None
 depends_on = None
 

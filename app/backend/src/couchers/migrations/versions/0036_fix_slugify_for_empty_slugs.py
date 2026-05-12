@@ -1,7 +1,7 @@
 """Fix slugify for empty slugs
 
-Revision ID: a0d1c7fdfe5b
-Revises: 2630bc1387d1
+Revision ID: 0036
+Revises: 0035
 Create Date: 2022-01-25 13:38:57.268462
 
 """
@@ -9,8 +9,8 @@ Create Date: 2022-01-25 13:38:57.268462
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "a0d1c7fdfe5b"
-down_revision = "2630bc1387d1"
+revision = "0036"
+down_revision = "0035"
 branch_labels = None
 depends_on = None
 

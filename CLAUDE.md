@@ -10,9 +10,9 @@ This is a monorepo for Couchers.org, a non-profit couch surfing platform. Users 
 
 ## Repository Structure
 
-- `/app/backend` - Python backend (gRPC, SQLAlchemy, PostgreSQL/PostGIS)
+- `/app/backend` - Python backend (gRPC, SQLAlchemy, PostgreSQL/PostGIS). See `/app/backend/readme.md` for more details
 - `/app/web` - Next.js web frontend
-- `/app/mobile` - React Native Expo mobile app
+- `/app/mobile` - React Native Expo mobile app (uses `npm`, not `yarn`). See `/app/mobile/README.md` for setup instructions
 - `/app/proto` - Protocol buffer definitions shared across services
 - `/docs` - Documentation
 
@@ -44,7 +44,7 @@ make mypy
 - gRPC for API (defined in `/app/proto`)
 - Background jobs in `couchers/jobs/handlers.py`
 - Notifications system in `couchers/notifications/`
-- Always run `make format` after changes
+- Always run `make format` and `make mypy` after modifying backend code
 - NEVER try-catch an exception and silently throw it away or just log it. By and large you don't need to wrap code in try-catch blocks, we already handle exceptions
 - Use `enum.auto()` for all enums (except in the rare case that they are inherently ordinal and we use that order in business logic)
 - Put relationships and constraints at the end of models
@@ -54,18 +54,38 @@ make mypy
 - Imports always occur at the top of the file. The two exceptions are when this is required during type checking or in tests that really require inline imports
 - Do not use `session.get(...)`. Use `session.execute(select(...))` instead
 - For URLs, use `from couchers import urls` and then `urls.whatever()`
-- Always import `from couchers.sql import couchers_select as select` instead of something else
 - Avoid inline imports whenever possible
 - To filter out invisible users (deleted/banned/blocked), use the helper functions from `couchers.sql`: `where(users_visible(context))` when User is already joined, `where(users_column_visible(context, column))` when you have a user_id column, or `where(users_visible_to_each_other(user1, user2))` for mutual visibility. Never use `User.is_visible` directly in queries
 
 ### Web (TypeScript/React)
 - Uses `nvm` for node version management
-- Uses `yarn` (not npm)
-- Import aliases: use `components/` not `../../../components/`
-- No `any` types
-- Use StyledLink or next/link for routing
-- Type definitions should always go at the top of the file below the imports.
+- Uses `yarn` (not npm) - run dev server with `yarn start` (not Docker)
+- Run linting with `yarn lint` and auto-fix with `yarn lint:fix`
+- Run tests with `yarn test`
+- Run linting AND formatting with `yarn format`
+- Import aliases: use `components/` not `../../../components/`, `routes` not `../../../routes`
+- Import multiple MUI icons together: `import { Favorite, Star, Public } from "@mui/icons-material"` instead of separate imports
+- No `any` types - explicitly type mock mutations (e.g., `UseMutationResult<...>`)
+- Use StyledLink or next/link for routing - NOT MUI `Link`
+- Type definitions should always go at the top of the file below the imports
 - **IMPORTANT**: When using Material-UI components (Button, Chip, MenuItem, etc.) with the `href` prop for internal navigation, ALWAYS use `component={Link}` instead of `component="a"` to preserve locale prefixes. Import Link from `next/link`
+- Remove extra unnecessary style declarations - don't repeat anything that's already a default of MUI or the theme
+- Use theme-defined colors instead of ad-hoc gray backgrounds; use default MUI hover styles instead of custom dark-grey-on-hover
+- Prefer modern 2025 design patterns for UI components
+- Add Tanstack `queryKeys` to `app/web/features/queryKeys.ts` if they are used in more than one place
+- Use `slotProps` rather than `InputLabelProps` for MUI (`InputLabelProps` is deprecated)
+
+### Web Dark Mode
+- **Always use CSS variables for theme colors** to ensure dark mode compatibility:
+  - `var(--mui-palette-primary-main)` instead of `theme.palette.primary.main` in styled components
+  - `var(--mui-palette-text-primary)` for text colors
+  - `var(--mui-palette-background-paper)` / `var(--mui-palette-background-default)` for backgrounds
+  - `var(--mui-palette-divider)` for borders/dividers
+  - `var(--mui-palette-grey-XXX)` for grey shades (e.g., grey-50, grey-200, grey-300)
+  - `var(--mui-palette-action-hover)` for hover states
+- **Exception**: Use `theme.palette.*` values when passing colors to functions like `alpha()` that require actual color values, not CSS variables
+- For styled components, only add `({ theme })` parameter when you need `theme.spacing()`, `theme.breakpoints`, or functions like `alpha()`
+- Test all components in both light and dark mode to ensure proper color contrast and visibility
 
 ### Proto Files
 - Located in `/app/proto`
@@ -73,8 +93,11 @@ make mypy
 - Internal job payloads in `/app/backend/proto/internal/jobs.proto`
 
 ### Localization
-- Do not hard-code English text strings, store them in the appropriate locale files (`features/*/locales/en.json`)
+- Never hardcode English text - always use the `t()` function or `<Trans>` component for user-facing text
+- Store all English strings in the appropriate locale files (`features/*/locales/en.json`)
 - When adding strings to an `en.json` file, refer to `/docs/localization.md` for string key and text guidance
+- Use the `<Trans>` component for text with embedded components (like links). Make sure components in the translation JSON match the `components` prop exactly
+- For dates and times on the web frontend, never use `Date.toLocaleDateString()` or `Intl.DateTimeFormat` directly - use the helpers in `app/web/utils/date.ts` (`localizeDateTime`, `localizeDateTimeRange`, `localizeYearMonth`, `timeAgo`). Pass the user's current language via `useTranslation()`'s `i18n.language`, not the browser locale
 
 ## Testing
 
@@ -86,9 +109,15 @@ make mypy
 - Background jobs don't run automatically in tests - use `process_job()` to manually execute queued jobs
 
 ### Web Tests
-- Use fixture data from `test/fixtures/` when available
-- Query by label (`getByLabelText`) for accessibility
-- Use `findByText` for async elements
+- Use fixture data from `test/fixtures/` (e.g., `hostRequest.json`, `messages.json`, `groupChat.json`) when available, instead of creating mock data inline
+- Query elements by label (`getByLabelText`) for accessibility. When there's ambiguity (e.g., both a label and aria-label), use the `selector` option: `getByLabelText(label, { selector: "textarea" })`
+- For text split by child elements (e.g., links inside text), use a function matcher:
+  ```typescript
+  screen.getByText((content, element) => {
+    return element?.textContent === "Full text including embedded link text";
+  })
+  ```
+- Use `await screen.findByText()` when waiting for elements after loading states, instead of `getByText()` after `waitForElementToBeRemoved()`
 - Tests should assert correct behavior (TDD-style), not mirror bugs. Fix the code if needed, and follow existing test patterns in the repo.
 
 ### Mobile Tests (React Native)
@@ -119,7 +148,7 @@ uv run --project .claude/tools ci-job-log <job-id> --full
 - PostgreSQL with PostGIS extension
 - Migrations in `/app/backend/src/couchers/migrations/versions/`
 - Migrations use ordinal numbering (`0001_`, `0002_`, ...) and must be linear (no branches). New migrations automatically get the next ordinal as their revision ID via `env.py`
-- When creating migrations manually, always use a real source of randomness for any hex values (e.g. `secrets.token_hex()`) and the real current time for timestamps - never fabricate or hardcode these values
+- Always add a `downgrade()` to migrations when possible and relevant
 - Models in `/app/backend/src/couchers/models/`
 
 ## Pull Requests

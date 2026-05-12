@@ -16,20 +16,16 @@
   "messages_page": {
     "title": "Messages",
     "tabs": {
-      "aria_label": "Tabs for different message types",
+      "unread": "Unread",
       "chats": "Chats",
       "hosting": "Hosting",
-      "surfing": "Surfing",
-      "archived": "Archived"
+      "surfing": "Surfing"
     }
   },
   "archive": {
     "archived": "Archived",
     "archive_button": "Archive",
     "unarchive_button": "Unarchive",
-    "show_archived": "Show archived",
-    "show_active": "Show active",
-    "no_archived_chats": "No archived chats",
     "no_archived_requests": "No archived requests",
     "no_archived_messages": "No archived messages"
   },
@@ -82,14 +78,12 @@
   "create_chat": {
     "dm_title": "Create a new chat",
     "group_title": "Create group chat",
-    "group_title_field_label": "Title",
     "no_friends_found_message": "Couldn't find any friends",
     "user_load_error_message": "(User load error)",
     "friends_input_label": "Friends",
     "title_label": "Title",
     "create_button": "Create chat",
-    "back_button": "Back",
-    "hosting_request_hint": "Sending a hosting request? Go <back>Back</back> and use the <request>Request</request> button instead."
+    "back_button": "Back"
   },
   "chat_input": {
     "label": "Message"
@@ -104,7 +98,6 @@
     }
   },
   "group_chats_tab": {
-    "no_chats_message": "No group chats yet",
     "load_more_button_label": "Load more"
   },
   "requests_tab": {

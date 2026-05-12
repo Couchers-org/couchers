@@ -1,4 +1,34 @@
 {
   "accept": "Přijmout",
-  "my_connections": "Moje kontakty"
+  "my_connections": "Moje kontakty",
+  "add_friend": "Přidat přítele",
+  "decline": "Odmítnout",
+  "blocked_list_title": "Zablokovaní uživatelé",
+  "block_user": "Zablokovat uživatele",
+  "block_user_confirmation_dialog": {
+    "title": "Opravdu chceš zablokovat uživatele {{name}}?",
+    "message": "Zprávy a žádosti od této osoby budou blokovány a tvůj profil, události i komentáře nebudou pro tohoto člověka viditelné. O zablokování se nedozví.",
+    "confirm": "Blokovat"
+  },
+  "friends": "Přátelé",
+  "friend_list_title": "Tvoji přátelé",
+  "friend_requests": "Žádosti o přátelství",
+  "friend_requests_sent": "Odeslané žádosti o přátelství",
+  "no_blocked_users": "Žádní blokovaní uživatelé",
+  "no_friends": "Žádní přátelé nejsou k dispozici",
+  "no_friend_requests": "Žádné čekající žádosti o přátelství",
+  "no_friend_requests_sent": "Žádné čekající žádosti o přátelství",
+  "pending": "Čeká na vyřízení",
+  "remove_friend": "Odebrat přítele",
+  "remove_friend_confirmation_dialog": {
+    "title": "Odebrat přítele",
+    "message": "Opravdu chceš odebrat {{name}}? Tuto akci nelze vrátit zpět.",
+    "confirm": "Odebrat"
+  },
+  "unblock_user": "Odblokovat uživatele",
+  "unblock_user_confirmation_dialog": {
+    "title": "Opravdu chceš odblokovat uživatele {{name}}?",
+    "message": "Po odblokování uvidí tvůj profil a budou ti moct posílat žádosti. Pokud jste byli dříve přátelé, znovu se objeví v seznamu přátel. O odblokování se nedozví.",
+    "confirm": "Odblokovat"
+  }
 }

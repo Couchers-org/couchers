@@ -15,6 +15,7 @@ from couchers.metrics import (
     observe_moderation_visibility_transition,
 )
 from couchers.models import (
+    AdminActionLevel,
     Event,
     EventOccurrence,
     FriendRelationship,
@@ -31,6 +32,7 @@ from couchers.models import (
     ModerationVisibility,
     Notification,
     NotificationDelivery,
+    User,
 )
 from couchers.proto import moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
@@ -83,6 +85,7 @@ moderationaction2api = {
     ModerationAction.hide: moderation_pb2.MODERATION_ACTION_HIDE,
     ModerationAction.flag: moderation_pb2.MODERATION_ACTION_FLAG,
     ModerationAction.unflag: moderation_pb2.MODERATION_ACTION_UNFLAG,
+    ModerationAction.bulk_set_visibility: moderation_pb2.MODERATION_ACTION_BULK_SET_VISIBILITY,
 }
 
 moderationaction2sql = {
@@ -92,6 +95,7 @@ moderationaction2sql = {
     moderation_pb2.MODERATION_ACTION_HIDE: ModerationAction.hide,
     moderation_pb2.MODERATION_ACTION_FLAG: ModerationAction.flag,
     moderation_pb2.MODERATION_ACTION_UNFLAG: ModerationAction.unflag,
+    moderation_pb2.MODERATION_ACTION_BULK_SET_VISIBILITY: ModerationAction.bulk_set_visibility,
 }
 
 moderationobjecttype2api = {
@@ -119,6 +123,91 @@ moderationobjecttype2model: dict[ModerationObjectType, _ModeratedContent] = {
 }
 
 
+def bulk_set_user_content_visibility(
+    session: Session,
+    user: User,
+    new_visibility: ModerationVisibility,
+    moderator_user_id: int,
+    from_visibilities: set[ModerationVisibility] | None = None,
+    reason: str | None = None,
+) -> int:
+    """Set visibility on every UMS-governed object authored by the user. Returns count of updated states."""
+    final_reason = reason or f"Bulk visibility update for user {user.id} to {new_visibility.name}"
+
+    author_exists_clauses = []
+    for model in moderationobjecttype2model.values():
+        author_col = getattr(model, model.__moderation_author_column__)
+        author_exists_clauses.append(
+            exists().where(and_(model.moderation_state_id == ModerationState.id, author_col == user.id))
+        )
+
+    states = session.execute(select(ModerationState).where(or_(*author_exists_clauses))).scalars().all()
+
+    updated_count = 0
+    for moderation_state in states:
+        if from_visibilities and moderation_state.visibility not in from_visibilities:
+            continue
+        if moderation_state.visibility == new_visibility:
+            continue
+
+        old_visibility = moderation_state.visibility
+        moderation_state.visibility = new_visibility
+        moderation_state.updated = now()
+
+        log_entry = ModerationLog(
+            moderation_state_id=moderation_state.id,
+            action=ModerationAction.bulk_set_visibility,
+            moderator_user_id=moderator_user_id,
+            new_visibility=new_visibility,
+            reason=final_reason,
+        )
+        session.add(log_entry)
+        session.flush()
+
+        queue_item = session.execute(
+            select(ModerationQueueItem)
+            .where(ModerationQueueItem.moderation_state_id == moderation_state.id)
+            .where(ModerationQueueItem.resolved_by_log_id.is_(None))
+            .order_by(ModerationQueueItem.time_created.desc())
+        ).scalar_one_or_none()
+        if queue_item:
+            queue_item.resolved_by_log_id = log_entry.id
+            session.flush()
+
+        observe_moderation_action(ModerationAction.bulk_set_visibility, moderation_state.object_type)
+        observe_moderation_visibility_transition(old_visibility, new_visibility, moderation_state.object_type)
+
+        if new_visibility in (ModerationVisibility.visible, ModerationVisibility.unlisted):
+            _enqueue_pending_notifications(session, moderation_state.id)
+
+        updated_count += 1
+
+    return updated_count
+
+
+def _enqueue_pending_notifications(session: Session, moderation_state_id: int) -> None:
+    """Re-queue any pending notifications linked to the given moderation state whose deliveries were suppressed."""
+    pending_notifications = (
+        session.execute(
+            select(Notification)
+            .where(Notification.moderation_state_id == moderation_state_id)
+            .where(not_(exists().where(NotificationDelivery.notification_id == Notification.id)))
+        )
+        .scalars()
+        .all()
+    )
+
+    # Import here to avoid circular dependency
+    from couchers.notifications.background import handle_notification  # noqa: PLC0415
+
+    for notification in pending_notifications:
+        queue_job(
+            session,
+            job=handle_notification,
+            payload=jobs_pb2.HandleNotificationPayload(notification_id=notification.id),
+        )
+
+
 def moderation_state_to_pb(state: ModerationState, session: Session) -> moderation_pb2.ModerationStateInfo:
     """Convert ModerationState model to proto message"""
     object_type = state.object_type
@@ -127,7 +216,7 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
     # Get the author user ID and content based on object type
     if object_type == ModerationObjectType.host_request:
         author_user_id = session.execute(
-            select(HostRequest.surfer_user_id).where(HostRequest.conversation_id == object_id)
+            select(HostRequest.initiator_user_id).where(HostRequest.conversation_id == object_id)
         ).scalar_one()
         # Get the first text message for this conversation
         content = session.execute(
@@ -165,6 +254,11 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
     else:
         raise ValueError(f"Unsupported moderation object type: {object_type}")
 
+    # Import here to avoid circular dependency
+    from couchers.servicers.admin import _user_to_details  # noqa: PLC0415
+
+    author = session.execute(select(User).where(User.id == author_user_id)).scalar_one()
+
     state_pb = moderation_pb2.ModerationStateInfo(
         moderation_state_id=state.id,
         object_type=moderationobjecttype2api[state.object_type],
@@ -173,6 +267,7 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
         created=Timestamp_from_datetime(state.created),
         updated=Timestamp_from_datetime(state.updated),
         author_user_id=author_user_id,
+        author=_user_to_details(session, author),
         content=content or "",
     )
 
@@ -405,25 +500,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
         # If visibility becomes VISIBLE or UNLISTED, trigger pending notifications
         if new_visibility in (ModerationVisibility.visible, ModerationVisibility.unlisted):
-            pending_notifications = (
-                session.execute(
-                    select(Notification)
-                    .where(Notification.moderation_state_id == moderation_state.id)
-                    .where(not_(exists().where(NotificationDelivery.notification_id == Notification.id)))
-                )
-                .scalars()
-                .all()
-            )
-
-            # Import here to avoid circular dependency
-            from couchers.notifications.background import handle_notification
-
-            for notification in pending_notifications:
-                queue_job(
-                    session,
-                    job=handle_notification,
-                    payload=jobs_pb2.HandleNotificationPayload(notification_id=notification.id),
-                )
+            _enqueue_pending_notifications(session, moderation_state.id)
 
         return moderation_pb2.ModerateContentRes(
             moderation_state=moderation_state_to_pb(moderation_state, session),
@@ -520,4 +597,93 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
         return moderation_pb2.UnflagContentRes(
             moderation_state=moderation_state_to_pb(moderation_state, session),
+        )
+
+    def SetUserContentVisibility(
+        self, request: moderation_pb2.SetUserContentVisibilityReq, context: CouchersContext, session: Session
+    ) -> moderation_pb2.SetUserContentVisibilityRes:
+        """Bulk-set visibility on every UMS-governed object authored by the given user.
+
+        If from_visibility is non-empty, only states currently at one of those visibilities are swept.
+        """
+        new_visibility = moderationvisibility2sql[request.visibility]
+        if new_visibility is None:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "visibility_must_be_specified")
+
+        raw_from_visibilities = {moderationvisibility2sql.get(v) for v in request.from_visibility}
+        if None in raw_from_visibilities:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "visibility_must_be_specified")
+        from_visibilities: set[ModerationVisibility] | None = {
+            v for v in raw_from_visibilities if v is not None
+        } or None
+
+        user = session.execute(select(User).where(User.id == request.user_id)).scalar_one_or_none()
+        if not user:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
+
+        updated_count = bulk_set_user_content_visibility(
+            session=session,
+            user=user,
+            new_visibility=new_visibility,
+            moderator_user_id=context.user_id,
+            from_visibilities=from_visibilities,
+            reason=request.reason or None,
+        )
+
+        # Import here to avoid circular dependency
+        from couchers.servicers.admin import log_admin_action  # noqa: PLC0415
+
+        log_admin_action(
+            session,
+            context,
+            user,
+            "set_user_content_visibility",
+            note=request.reason or None,
+            tag=new_visibility.name,
+            level=AdminActionLevel.high,
+        )
+
+        return moderation_pb2.SetUserContentVisibilityRes(updated_count=updated_count)
+
+    def ListModerationStates(
+        self, request: moderation_pb2.ListModerationStatesReq, context: CouchersContext, session: Session
+    ) -> moderation_pb2.ListModerationStatesRes:
+        """Chronological, paginated list of ModerationState rows. Optional author_user_id filter."""
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+
+        statement = select(ModerationState)
+
+        if request.page_token:
+            page_token_id = int(request.page_token)
+            if request.newest_first:
+                statement = statement.where(ModerationState.id < page_token_id)
+            else:
+                statement = statement.where(ModerationState.id > page_token_id)
+
+        if request.author_user_id:
+            author_exists_clauses = []
+            for model in moderationobjecttype2model.values():
+                author_col = getattr(model, model.__moderation_author_column__)
+                author_exists_clauses.append(
+                    exists().where(
+                        and_(
+                            model.moderation_state_id == ModerationState.id,
+                            author_col == request.author_user_id,
+                        )
+                    )
+                )
+            statement = statement.where(or_(*author_exists_clauses))
+
+        if request.newest_first:
+            statement = statement.order_by(ModerationState.created.desc(), ModerationState.id.desc())
+        else:
+            statement = statement.order_by(ModerationState.created.asc(), ModerationState.id.asc())
+
+        states = session.execute(statement.limit(page_size + 1)).scalars().all()
+
+        state_pbs = [moderation_state_to_pb(state, session) for state in states[:page_size]]
+
+        return moderation_pb2.ListModerationStatesRes(
+            moderation_states=state_pbs,
+            next_page_token=str(states[page_size - 1].id) if len(states) > page_size else None,
         )

@@ -9,10 +9,8 @@
   "heading": {
     "home": "Mon logement",
     "hometown": "Grandi.e à/en",
-    "hosting_status": "Statut d'acceuil",
     "about_me": "À propos de moi",
     "age_gender": "Âge / Genre",
-    "community_standing": "Réputation communautaire",
     "edit": "Modifier",
     "edit_profile": "Rédiger mon profil",
     "education": "Éducation",
@@ -22,7 +20,6 @@
     "age_verification_verified": "Ce membre a vérifié sa date de naissance",
     "gender_verification_mismatch": "Le genre fourni par le membre ne correspond pas au genre vérifié",
     "joined": "Membre depuis",
-    "languages_conversational": "Converse en",
     "languages_fluent": "Maîtrise bien ces langues",
     "last_active": "Dernière activité",
     "local_time": "Heure locale",
@@ -112,7 +109,6 @@
   "home_info_headings": {
     "host_smoking": "fume chez soi",
     "house_rules": "Règles d'hébergement",
-    "housemates": "Colocataires",
     "housemate_details": "Détails des colocataires",
     "kid_details": "Détails des enfants",
     "last_minute": "Accepter les demandes d'hébergement de dernière minute",
@@ -131,13 +127,11 @@
     "pet_details": "Détails des animaux de compagnie",
     "sleeping_arrangement": "Situation du sommeil",
     "space": "Intimité de la situation du sommeil",
-    "transportation": "Transport, Parking et Accessibilité",
     "wheelchair": "Accessible en fauteuil roulant",
     "other_info": "Informations supplémentaires",
     "household_details": "Détails de l'habitation",
     "household_habits": "Habitudes domestiques",
     "hosting_preferences_subtitle": "Informez vos invités de ce que vous êtes à l'aise",
-    "parking_heading": "Parking",
     "about_home_subtitle": "Décrivez votre logement à vos invités et à quoi ils peuvent s'attendre",
     "household_details_subtitle": "Partagez plus de détails à propos de votre logement",
     "general_subtitle": "Détails supplémentaires à propos de votre logement et du quartier",
@@ -146,7 +140,6 @@
   },
   "edit_profile_headings": {
     "regions_lived": "Régions où j'ai habité",
-    "gender": "Genre",
     "languages_spoken": "Langues que je maîtrise",
     "meetup_status": "Statut de se réunir",
     "hosting_status": "Statut d'acceuil",
@@ -227,15 +220,11 @@
     "arrival_date": "Date d'arrivée prévue",
     "request_description": "Partagez vos projets pour la visite et expliquez pourquoi vous demandez à séjourner chez cet hôte en particulier",
     "request_description_empty": "Veuillez rédiger une demande d'hébergement",
-    "overnight_stay": "Préférence de passer la nuit",
     "departure_date": "Date de départ prévue",
     "departure_date_empty": "Veuillez spécifier une date de départ prévue",
     "guide_link_help_text": "<0>Lisez notre guide</0> sur la façon de rédiger une demande d'hébergement qui augmentera la chance d'être acceptée.",
-    "meetup_only": "Préférence de se réunir uniquement",
     "request": "Demander d'hébergement",
-    "stay_type_a11y_text": "type de séjour",
     "success": "Votre demande d'hébergement a été envoyée !",
-    "guest_count": "Nombre d'invités",
     "arrival_date_empty": "Veuillez spécifier une date d'arrivée prévue"
   },
   "reference_badge_label": {
@@ -270,8 +259,7 @@
   "unsaved_changes_warning": "Vous n'avez pas enregistré vos modifications. Êtes-vous sûr.e de vouloir quitter la page ?",
   "references_filter_a11y_label": "Afficher les références : ",
   "profile_tag_input": {
-    "remove_button_a11y_text": "Enlever {{tag}}",
-    "header_text": "Tapez sur la touche « Entrée » pour ajouter\n<support_link>Contactez-nous</support_link> pour ajouter une entrée"
+    "remove_button_a11y_text": "Enlever {{tag}}"
   },
   "badges": {
     "no_people": "Il n'y a personne qui possède ce badge.",
@@ -317,8 +305,6 @@
     "empty_title": "Ajouter votre première photo",
     "empty_description": "Cliquer ici ou sur le bouton ci-dessus pour télécharger une photo",
     "no_photos": "Pas encore de photos",
-    "remove_photo_error": "Échec de la suppression de la photo. Veuillez réessayer.",
-    "move_photo_error": "Échec du réarrangement des photos. Veuillez réessayer.",
     "reorder_success": "Photos réorganisées avec succès !",
     "profile_photos_title": "Photos de profil",
     "verification_required_for_more_photos": "Vous avez atteint la limite de vos photos. Effectuez une vérification renforcée pour ajouter plus de photos.",
@@ -327,11 +313,9 @@
     "previous_photo": "Photo précédente",
     "next_photo": "Photo suivante",
     "close_viewer": "Fermer la galerie de photos",
-    "uploading": "Télécharge...",
     "photo_item_a11y": "Photo",
     "upload_success": "Photo téléchargée avec succès !",
     "select_photo": "Sélectionner une photo",
-    "add_photo_error": "Échec de l'ajout de la photo. Veuillez réessayer.",
     "profile_photos_description": "Ajouter des photos de vous pour aider les autres à mieux vous connaître. Faites glisser et déposez pour réorganiser.",
     "report_photo": "Signaler cette photo"
   }

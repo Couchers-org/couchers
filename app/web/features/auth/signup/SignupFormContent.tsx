@@ -41,7 +41,7 @@ export default function SignupFormContent({
         const data = await response.json();
         setSignupInfo(data);
       } catch (error) {
-        console.error("Error fetching signup info:", error);
+        console.warn("Error fetching signup info:", error);
       }
     };
 
@@ -61,13 +61,12 @@ export default function SignupFormContent({
           <Trans
             i18nKey={
               isNativeEmbed
-                ? "landing:signup_description_no_link"
-                : "landing:signup_description"
+                ? "landing:signup_description_no_link2"
+                : "landing:signup_description2"
             }
             values={{
-              user_count: signupInfo?.userCount
-                ? Number(signupInfo.userCount).toLocaleString()
-                : "65k+",
+              // Number(...) returns NaN on bad input, and || treats it as false
+              count: Number(signupInfo?.userCount) || 65000,
             }}
             components={
               isNativeEmbed

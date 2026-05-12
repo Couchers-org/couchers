@@ -1,18 +1,19 @@
-import { Alert, Container, Grid, Typography } from "@mui/material";
+import { Alert, Box, Container, Grid, Typography } from "@mui/material";
 import Divider from "components/Divider";
 import HtmlMeta from "components/HtmlMeta";
 import PageTitle from "components/PageTitle";
 import StyledLink from "components/StyledLink";
-import DashboardBanners from "features/dashboard/DashboardBanners";
 import { useTranslation } from "i18n";
 import { DASHBOARD, GLOBAL } from "i18n/namespaces";
 import { theme } from "theme";
 
 import dashboardNews from "../../dashboardNews.json";
 import CommunitiesSection from "./CommunitiesSection";
+import CommunityEvents from "./CommunityEvents";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
 import MyEvents from "./MyEvents";
+import ReminderCarousel from "./ReminderCarousel";
 
 export default function Dashboard() {
   const { t } = useTranslation([GLOBAL, DASHBOARD]);
@@ -49,11 +50,15 @@ export default function Dashboard() {
               </Typography>
             </Alert>
 
-            <DashboardBanners />
+            <ReminderCarousel />
 
             <Divider spacing={3} />
 
             <MyEvents />
+
+            <Box sx={{ height: theme.spacing(3) }} />
+
+            <CommunityEvents />
 
             <Divider spacing={3} />
 

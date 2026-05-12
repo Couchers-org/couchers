@@ -4,7 +4,9 @@
     "current_email_message": "Je e-mailadres is nu <1>{{email}}</1>.",
     "success_message": "De wijziging van je e-mailadres is ontvangen. Check je e-mail om de wijziging definitief te maken.",
     "new_email": "Nieuw e-mailadres",
-    "current_password": "Huidig wachtwoord"
+    "current_password": "Huidig wachtwoord",
+    "hide_current_password": "Huidig wachtwoord verbergen",
+    "show_current_password": "Huidig wachtwoord weergeven"
   },
   "do_not_email": {
     "status": {
@@ -15,7 +17,8 @@
       "no_emails_enable_text": "Stuur mij geen e-mails",
       "no_emails_disable_text": "E-mails weer aanzetten"
     },
-    "title": "Stuur mij geen e-mails"
+    "title": "Stuur mij geen e-mails",
+    "caveat": "Door deze instelling in te schakelen, wordt je account zo ingesteld dat je geen hostverzoeken meer accepteert. Je krijgt nog wel beveiligingsmails, zoals bijvoorbeeld een mail als je je wachtwoord opnieuw wilt instellen. Afmelden voor de nieuwsbrief gaat op een andere manier: klik daarvoor in de link onderaan in de nieuwsbrief."
   },
   "change_email_confirmation": {
     "error_message": "Foutmelding bij het veranderen van je e-mailadres: {{message}}",
@@ -31,7 +34,15 @@
     "new_password": "Nieuw wachtwoord",
     "password_mismatch_error": "De wachtwoorden komen niet overeen.",
     "reset_password_error": "Error bij het resetten van je wachtwoord: {{message}}",
-    "reset_password_success": "Je wachtwoord is succesvol gewijzigd!"
+    "reset_password_success": "Je wachtwoord is succesvol gewijzigd!",
+    "user_logged_error": "Je kan je wachtwoord niet resetten als je bent ingelogd. Je kan je wachtwoord wijzigen in de instellingen of uitloggen om het te resetten.",
+    "token_error": "Er is iets niet goed gegaan bij het verwerken van het token voor het herstellen van je wachtwoord. Probeer de link uit de e-mail opnieuw te openen.",
+    "hide_old_password": "Oud wachtwoord verbergen",
+    "show_old_password": "Oud wachtwoord weergeven",
+    "hide_new_password": "Nieuw wachtwoord verbergen",
+    "show_new_password": "Nieuw wachtwoord weergeven",
+    "hide_confirm_password": "Wachtwoordbevestiging verbergen",
+    "show_confirm_password": "Wachtwoordbevestiging weergeven"
   },
   "login_page": {
     "form": {
@@ -39,7 +50,8 @@
       "forgot_password": "Wachtwoord vergeten?",
       "username_field_label": "E-mail/gebruikersnaam",
       "password_field_label": "wachtwoord",
-      "no_password_login_prompt": "Check je e-mail voor een link om in te loggen! :)"
+      "show_password": "Wachtwoord weergeven",
+      "hide_password": "Wachtwoord verbergen"
     },
     "title": "Inloggen",
     "header": "Welkom terug!",
@@ -47,8 +59,7 @@
   },
   "basic_sign_up_form": {
     "existing_user_prompt": "Heb je al een account? <2>Inloggen</2>",
-    "sign_up_agreement_explainer": "Door verder te gaan, ga je akkoord met onze <2>Servicevoorwaarden</2>, inclusief ons beleid voor cookies, e-mail en gegevensverwerking.",
-    "header": "Laten we beginnen!"
+    "sign_up_agreement_explainer": "Door verder te gaan, ga je akkoord met onze <2>Servicevoorwaarden</2>, inclusief ons beleid voor cookies, e-mail en gegevensverwerking."
   },
   "account_form": {
     "header": "Jouw account details",
@@ -56,7 +67,8 @@
       "field_label": "Gebruikersnaam",
       "required_error": "Vul je gebruikersnaam in",
       "username_taken_error": "Deze gebruikersnaam is al in gebruik.",
-      "validation_error": "Een gebruikersnaam kan alleen nummers, letters en _ (underscore) bevatten. Zorg dat je gebruikersnaam begint met een letter."
+      "validation_error": "Een gebruikersnaam kan alleen nummers, letters en _ (underscore) bevatten. Zorg dat je gebruikersnaam begint met een letter.",
+      "helper_text": "Dit is je unieke aanmeld-ID, niet de naam die iedereen kan zien."
     },
     "password": {
       "validation_error": "Een wachtwoord heeft tussen de 8 en 256 karakters en mag niet makkelijk te raden zijn.",
@@ -84,11 +96,8 @@
       "woman": "Vrouw"
     },
     "tos_accept_label": "Ik accepteer de servicevoorwaarden.",
-    "tos_prompt": "Lees en accepteer de <1></1> om door te gaan."
-  },
-  "jail_set_password_form": {
-    "title": "Bedenk een wachtwoord",
-    "explanation": "Je hebt nog geen wachtwoord ingesteld voor je account. Bedenk er nu een om door te gaan."
+    "tos_prompt": "Lees en accepteer de <1></1> om door te gaan.",
+    "opt_in_newsletter": "Schrijf je in voor de nieuwsbrief met community-updates die we zo nu en dan sturen."
   },
   "reset_password_form": {
     "enter_email": "Gebruikersnaam of e-mailadres invullen",
@@ -97,8 +106,10 @@
   "basic_form": {
     "name": {
       "field_label": "Naam",
-      "empty_error": "Vul je naam in",
-      "required_error": "Dit veld kan niet leeg zijn."
+      "required_error": "Dit veld mag niet leeg zijn",
+      "invalid_characters_error": "Naam mag alleen letters, spaties, koppeltekens en apostroffen bevatten",
+      "min_length_error": "Naam moet minimaal 2 tekens bevatten",
+      "max_length_error": "Naam mag niet langer zijn dan 100 tekens"
     },
     "email": {
       "field_label": "E-mailadres",
@@ -122,6 +133,58 @@
     "description": "Onderstaande doornemen om verder te gaan.",
     "terms_of_service_section": {
       "description": "We hebben onze servicevoorwaarden veranderd, om verder te gaan moet je ze goed doorlezen en accepteren.<1></1>."
+    },
+    "location_section": {
+      "title": "Werk je locatie bij",
+      "explanation": "Het lijkt erop dat je coördinaten niet kloppen. Werk je locatie bij om door te gaan.",
+      "submit_button": {
+        "active_text": "Opslaan",
+        "inactive_text": "Thanks!"
+      },
+      "resubmit_button_text": "Opnieuw insturen"
+    },
+    "mod_note_section": {
+      "title": "Je hebt een bericht ontvangen van onze moderators",
+      "description": "Onze moderators hebben je een bericht gestuurd. Lees het goed door en bevestig dat je het hebt gelezen én hebt begrepen, voordat je verder gaat.",
+      "note_title": "Bericht van moderator ontvangen op {{time}}:",
+      "acknowledge": "Bevestig bericht"
+    },
+    "activeness_probe": {
+      "title": "Sta je nog steeds open voor het hosten van surfers?",
+      "description": "We hebben gemerkt dat je al een tijdje niet hebt ingelogd en wilden vragen of je nog steeds openstaat om surfers te hosten.",
+      "still_hosting": "Ik wil nog steeds hosten!",
+      "not_hosting": "Ik kan helaas niet meer hosten.",
+      "note": "We zullen je profiel hierop aanpassen!"
+    }
+  },
+  "motivations_form": {
+    "header": "Wat brengt je naar Couchers?",
+    "surfing": "Surfen",
+    "surfing_description": "Ik ben een reis aan het plannen en zoek een host",
+    "hosting": "Hosten",
+    "hosting_description": "Ik wil graag reizigers in mijn stad hosten en welkom heten",
+    "events": "Events",
+    "events_description": "Ik wil graag deelnemen aan events en de community ontmoeten",
+    "community_organizing": "Community organiseren",
+    "community_organizing_description": "Ik wil events en activiteiten organiseren op het platform",
+    "something_else": "Iets anders",
+    "something_else_description": "Ik ben gewoon aan het rondkijken of heb nog niet bedacht wat ik wil"
+  },
+  "logged_out_message": "Je bent uitgelogd.",
+  "sign_up_completed_title": "Bedankt voor je aanmelding!",
+  "sign_up_need_verification_title": "Nog één ding: bevestig je e-mailadres.",
+  "sign_up_resend_verification_email_help": "Geen mail ontvangen? Klik <2>hier om de verificatielink opnieuw te verzenden</2>.",
+  "sign_up_resend_verification_done": "Yes! We hebben je nog een keer gemaild.",
+  "sign_up_completed_prompt": "We hebben een bericht met een verificatielink naar je e-mailadres gestuurd. Klik op de link in de mail om je account te activeren.",
+  "sign_up_confirmed_prompt": "Klaar! Als je niet automatisch wordt doorgestuurd, probeer dan zelf in te loggen.",
+  "unhandled_sign_up_state": "Error:",
+  "login_prompt": "Klik hier om in te loggen",
+  "about_us": "Over ons",
+  "reset_password": "Wachtwoord opnieuw instellen",
+  "account_settings_page": {
+    "title": "Account-instellingen",
+    "gender_section": {
+      "title": "Gender wijzigen"
     }
   }
 }

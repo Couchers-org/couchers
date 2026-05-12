@@ -22,11 +22,36 @@ interface EventAttendeesProps {
   event: Event.AsObject;
 }
 
+const PAGE_SIZE = 9;
+
 export default function EventAttendees({ event }: EventAttendeesProps) {
-  const { attendeesIds, error, hasNextPage } = useEventAttendees({
-    eventId: event.eventId,
-    type: "summary",
-  });
+  const { data, error, hasNextPage, fetchNextPage, isLoading } =
+    useEventAttendees({
+      eventId: event.eventId,
+      type: "summary",
+      pageSize: PAGE_SIZE,
+    });
+
+  const [pageIndex, setPageIndex] = useState(0);
+  const currentPage = data?.pages?.[pageIndex];
+
+  const pagesLength = data?.pages.length ?? 0;
+
+  const handlePreviousPageClick = () => {
+    setPageIndex((current) => Math.max(current - 1, 0));
+  };
+
+  const handleNextPageClick = async () => {
+    if (pageIndex < pagesLength - 1) {
+      setPageIndex((current) => current + 1);
+      return;
+    }
+
+    if (hasNextPage) {
+      await fetchNextPage();
+      setPageIndex((current) => current + 1);
+    }
+  };
 
   const { organizerIds } = useEventOrganizers({
     eventId: event.eventId,
@@ -95,7 +120,7 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
           setUserToPromote(user);
           setIsCoOrganizerDialogOpen(true);
         },
-        label: t("communities:make_co_organizer:title"),
+        label: t("communities:make_co_organizer.title"),
       },
     ];
   };
@@ -107,8 +132,16 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         error={error}
         hasNextPage={hasNextPage}
         onSeeAllClick={() => setIsDialogOpen(true)}
-        userIds={attendeesIds}
+        userIds={currentPage?.attendeeUserIdsList}
         title={t("communities:attendees")}
+        layout="grid"
+        isLoading={isLoading}
+        pagination={{
+          pageIndex: pageIndex,
+          currentPage: currentPage,
+          handlePreviousPageClick: handlePreviousPageClick,
+          handleNextPageClick: handleNextPageClick,
+        }}
         getUserMenuItems={
           isCoOrganizedByCurrentUser ? getUserMenuItems : undefined
         }

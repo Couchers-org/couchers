@@ -1,3 +1,16 @@
+const { execSync } = require("child_process");
+
+// Capture git hash at build time (8 chars)
+const getGitHash = () => {
+  try {
+    return execSync("git rev-parse --short=8 HEAD", {
+      encoding: "utf-8",
+    }).trim();
+  } catch {
+    return "unknown";
+  }
+};
+
 // Determine app variant from environment variable
 const APP_VARIANT = process.env.APP_VARIANT || "production";
 const IS_STAGING = APP_VARIANT === "staging";
@@ -48,7 +61,7 @@ const getIosIcon = () => {
 export default {
   name: getAppName(),
   slug: "mobile",
-  version: "1.1.13",
+  version: "1.1.18",
   orientation: "portrait",
   icon: getIcon(),
   scheme: getAppScheme(),
@@ -72,7 +85,9 @@ export default {
       process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
     permissions: ["POST_NOTIFICATIONS"],
     adaptiveIcon: {
-      foregroundImage: "./assets/images/adaptive_icon_foreground.png",
+      foregroundImage: IS_STAGING
+        ? "./assets/images/adaptive_icon_foreground_staging.png"
+        : "./assets/images/adaptive_icon_foreground.png",
       backgroundColor: "#E47701",
     },
     notification: {
@@ -162,6 +177,7 @@ export default {
     eas: {
       projectId: "fb4fc9aa-d8b2-45a5-82aa-be05e99b0413",
     },
+    gitHash: getGitHash(),
   },
   owner: "couchers-org",
 };

@@ -4,10 +4,11 @@
     "title_label": "Títol",
     "dm_title": "Crea un xat nou",
     "group_title": "Crea un xat de grup",
-    "group_title_field_label": "Títol",
-    "no_friends_found_message": "No s'han pogut trobar amics",
-    "user_load_error_message": "(Error de càrrega de l'usuari)",
-    "friends_input_label": "Amics"
+    "no_friends_found_message": "No s'ha trobat cap amic",
+    "user_load_error_message": "(Error en carregar l'usuari)",
+    "friends_input_label": "Amics",
+    "create_button": "Crea el xat",
+    "back_button": "Enrere"
   },
   "chat_input": {
     "label": "Missatge"
@@ -15,14 +16,13 @@
   "group_chat_settings_dialog": {
     "title": "Configuració del xat de grup",
     "chat_title": {
-      "field_label": "Títol de la conversa"
+      "field_label": "Títol del xat"
     },
     "only_admins_invite": {
       "field_label": "Només els administradors poden convidar altres persones al xat"
     }
   },
   "group_chats_tab": {
-    "no_chats_message": "Encara no hi ha cap xat de grup",
     "load_more_button_label": "Carrega'n més"
   },
   "requests_tab": {
@@ -33,34 +33,40 @@
     "selected": {
       "field_label": "Amics",
       "no_options_text": "Ningú a qui convidar",
-      "option_load_error_text": "(Error de càrrega de l'usuari)"
+      "option_load_error_text": "(Error en carregar l'usuari)"
     },
     "invite_button_label": "Convida",
-    "title": "Convida a xatejar"
+    "title": "Convida al xat"
   },
   "leave_chat_dialog": {
-    "title": "Sortir del xat?",
-    "message": "Estàs segur que vols sortir d’aquest xat?"
+    "title": "Abandonar el xat?",
+    "message": "Estàs segur que vols abandonar aquest xat?"
   },
   "members_dialog": {
     "title": "Membres del xat"
   },
   "control_message": {
-    "created_chat_text": "{{user}} ha creat la conversa",
-    "edited_chat_text": "{{user}} ha editat la conversa",
-    "user_left_chat_text": "{{user}} ha sortit del xat",
+    "created_chat_text": "{{user}} ha creat el xat",
+    "edited_chat_text": "{{user}} ha editat el xat",
+    "user_left_chat_text": "{{user}} ha abandonat el xat",
     "admin_assignment_text": "{{user}} ha fet {{target_user}} administrador",
     "admin_removal_text": "{{user}} ha eliminat {{target_user}} com a administrador",
     "unknown_message_text": "Missatge de control desconegut",
-    "invite_user_text": "{{user}} ha convidat {{target_user}}"
+    "invite_user_text": "{{user}} ha convidat {{target_user}}",
+    "host_request_status_changed": {
+      "accepted": "{{user}} ha acceptat la sol·licitud",
+      "cancelled": "{{user}} ha cancel·lat la sol·licitud",
+      "confirmed": "{{user}} ha confirmat la sol·licitud",
+      "rejected": "{{user}} ha declinat la sol·licitud"
+    }
   },
   "host_request_status": {
-    "accepted": "Acceptat",
-    "cancelled": "Cancel·lat",
-    "confirmed": "Confirmat",
-    "past": "Passat",
+    "accepted": "Acceptada",
+    "cancelled": "Cancel·lada",
+    "confirmed": "Confirmada",
+    "past": "Passada",
     "pending": "Pendent",
-    "rejected": "Rebutjat"
+    "rejected": "Declinada"
   },
   "host_request_item": {
     "expired": "Aquesta sol·licitud ha caducat",
@@ -69,36 +75,35 @@
       "accepted": "Has acceptat aquesta sol·licitud",
       "cancelled": "Has cancel·lat aquesta sol·licitud",
       "confirmed": "Has confirmat aquesta sol·licitud",
-      "rejected": "Has rebutjat aquesta sol·licitud"
+      "rejected": "Has declinat aquesta sol·licitud"
     },
     "surfer_status": {
       "accepted": "La teva sol·licitud ha estat acceptada",
       "cancelled": "La teva sol·licitud ha estat cancel·lada",
       "confirmed": "La teva sol·licitud ha estat confirmada",
-      "rejected": "La teva sol·licitud ha estat rebutjada"
+      "rejected": "La teva sol·licitud ha estat declinada"
     }
   },
   "host_request_view": {
-    "error_message": "ID de sol·licitud d'amfitrió no vàlid",
+    "error_message": "ID de sol·licitud d'allotjament no vàlid",
     "back_button_a11y_label": "Enrere",
     "title_for_host": "Sol·licitud de {{user}} - {{status}}",
     "request_duration_one": "{{count}} nit",
-    "request_duration_many": "",
+    "request_duration_many": "{{count}} de nits",
     "request_duration_other": "{{count}} nits",
     "title_for_surfer": "Sol·licitud a {{user}} - {{status}}"
   },
   "write_reference_button_text": "Escriu una referència",
-  "close_request_dialog_title": "Ja has acabat d'enviar missatges?",
-  "close_request_dialog_host": "Si us plau, assegura't d'haver acabat de xatejar abans de rebutjar la seva sol·licitud.",
-  "close_request_dialog_surfer": "Si us plau, assegura't d'haver acabat de xatejar abans de cancel·lar la teva sol·licitud.",
-  "close_request_button_text": "Rebutja",
+  "close_request_dialog_title": "Has acabat de comunicar-te?",
+  "close_request_dialog_host": "Assegura't d'haver acabat de xatejar abans de declinar la sol·licitud.",
+  "close_request_dialog_surfer": "Assegura't d'haver acabat de xatejar abans de cancel·lar la sol·licitud.",
+  "close_request_button_text": "Declina",
   "confirm_request_button_text": "Confirma",
   "host_pending_request_help_text": "<0>Coses a tenir en compte</0> abans de respondre.",
-  "past_request_help_text": "Aquesta sol·licitud és passada, encara pots enviar missatges però no la pots modificar.",
+  "past_request_help_text": "Aquesta sol·licitud és del passat; pots continuar enviant missatges però no pots modificar-la d'altra manera.",
   "messages_page": {
     "title": "Missatges",
     "tabs": {
-      "aria_label": "Pestanyes per a diferents tipus de missatges",
       "chats": "Xats",
       "hosting": "Allotjament",
       "surfing": "Surfing"
@@ -115,34 +120,34 @@
       "a11y_label": "Silenciat"
     },
     "actions_menu": {
-      "a11y_label": "Mostra més accions de xat",
+      "a11y_label": "Mostra més accions del xat",
       "items": {
-        "invite_members": "Convida a xatejar",
+        "invite_members": "Convida al xat",
         "show_all_members": "Membres del xat",
         "manage_admins": "Gestiona els administradors del xat",
         "chat_settings": "Configuració del xat",
-        "leave_chat": "Surt del xat"
+        "leave_chat": "Abandona el xat"
       }
     },
     "mute": {
       "button_label": "Silencia el xat",
-      "unmute_button_label": "Activa el so del xat",
-      "dialog_title": "Durant quant de temps vols silenciar?",
+      "unmute_button_label": "Activa el xat",
+      "dialog_title": "Quant de temps vols silenciar?",
       "1_hour_label": "1 hora",
       "8_hours_label": "8 hores",
       "1_day_label": "1 dia",
       "1_week_label": "1 setmana",
       "1_month_label": "1 mes",
-      "forever_label": "Fins que desactivi el silenci"
+      "forever_label": "Fins que ho activi"
     }
   },
   "admins_dialog": {
     "step_down_confirmation_dialog": {
-      "title": "Vols deixar de ser administrador?",
-      "message": "Estàs segur que vols deixar de ser administrador d’aquest xat de grup? No podràs tornar a ser administrador a menys que un altre administrador t’hi afegeixi."
+      "title": "Abandonar el rol d'administrador?",
+      "message": "Estàs segur que vols deixar de ser administrador d'aquest xat de grup? No podràs tornar a ser administrador tret que un altre administrador t'hi afegeixi."
     },
     "remove_admin": {
-      "title": "Elimina l'administrador",
+      "title": "Elimina administrador",
       "action_a11y_label": "Elimina com a administrador"
     },
     "add_admin": {
@@ -150,7 +155,24 @@
       "action_a11y_label": "Afegeix com a administrador"
     }
   },
-  "mark_all_read_button_text": "Marca-ho tot com a llegit",
+  "mark_all_read_button_text": "Marca tot com a llegit",
   "request_closed_message": "Aquesta sol·licitud d'allotjament està tancada. Per continuar xatejant, envia un missatge normal a l'altra persona.",
-  "surfer_declined_request_help_text": "<0>Llegeix la nostra guia</0> sobre com escriure una sol·licitud que sigui acceptada."
+  "surfer_declined_request_help_text": "<0>Llegeix la nostra guia</0> sobre com escriure una sol·licitud que sigui acceptada.",
+  "mark_all_read_button_text_chats": "Marca tots els xats com a llegits",
+  "mark_all_read_button_text_hosting": "Marca totes les sol·licituds d'allotjament com a llegides",
+  "mark_all_read_button_text_surfing": "Marca totes les sol·licituds de surfista com a llegides",
+  "archive": {
+    "archived": "Arxivat",
+    "archive_button": "Arxiva",
+    "unarchive_button": "Desarxiva",
+    "no_archived_requests": "No hi ha sol·licituds arxivades",
+    "no_archived_messages": "No hi ha missatges arxivats"
+  },
+  "all_messages_tab": {
+    "no_messages": "Encara no hi ha missatges",
+    "load_more": "Carrega'n més",
+    "filter": {
+      "all": "Tots"
+    }
+  }
 }

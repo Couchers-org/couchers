@@ -1,43 +1,26 @@
-import { useMutation } from "@tanstack/react-query";
 import Button from "components/Button";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import useAccountInfo from "features/auth/useAccountInfo";
+import useMessageUser from "features/profile/hooks/useMessageUser";
 import { useTranslation } from "i18n";
 import { PROFILE } from "i18n/namespaces";
-import { useRouter } from "next/router";
 import { User } from "proto/api_pb";
 import { useState } from "react";
-import { service } from "service";
-
-import { routeToCreateMessage, routeToGroupChat } from "../../../routes";
 
 export default function MessageUserButton({
   user,
   setMutationError,
+  setIsMessaging,
 }: {
   user: User.AsObject;
   setMutationError: (value: string) => void;
+  setIsMessaging: (value: boolean) => void;
 }) {
   const { t } = useTranslation(PROFILE);
-  const router = useRouter();
-  const { mutate, isPending } = useMutation<number | false, Error>({
-    mutationFn: () => service.conversations.getDirectMessage(user.userId),
-
-    onMutate() {
-      setMutationError("");
-    },
-    onError(e) {
-      setMutationError(e.message);
-    },
-    onSuccess(data) {
-      if (!data) {
-        //no existing thread
-        router.push(routeToCreateMessage(user.username));
-      } else {
-        //has thread
-        router.push(routeToGroupChat(data));
-      }
-    },
+  const { mutate, isPending } = useMessageUser({
+    userId: user.userId,
+    setMutationError,
+    setIsMessaging,
   });
 
   const [showCantMessageDialog, setShowCantMessageDialog] =

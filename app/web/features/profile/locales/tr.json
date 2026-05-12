@@ -9,7 +9,6 @@
   "heading": {
     "about_me": "Benim hakkımda",
     "age_gender": "Yaş / Cinsiyet",
-    "community_standing": "Topluluk İtibarı",
     "edit": "Düzenle",
     "edit_profile": "Profili düzenle",
     "education": "Eğitim",
@@ -30,9 +29,7 @@
     "map_section": "Yolculuk haritası",
     "age_verification_verified": "Bu kullanıcı doğum tarihini doğruladı",
     "hometown": "Büyüdüğü yer",
-    "hosting_status": "Ev sahipliği durumu",
     "joined": "Kanepe sörfüne başlama tarihi",
-    "languages_conversational": "Dillerde konuşabiliyor",
     "gender_verification_mismatch": "Doğrulanan cinsiyet ile kullanıcının verdiği cinsiyet uyuşmamakta"
   },
   "active": "Aktif",
@@ -63,16 +60,13 @@
     "host_drinking": "Evde içki içer",
     "hosting_preferences": "Ev Sahipliği Tercihleri",
     "house_rules": "Ev kuralları",
-    "housemates": "Ev arkadaşları",
     "housemate_details": "Ev arkadaşı detayları",
     "last_minute": "Son dakika istekleri kabul eder",
     "local_area": "Yerel bölge bilgisi",
     "max_guests": "Maksimum misafir sayısı",
     "my_home": "Evim",
     "parking": "Otopark mevcut",
-    "transportation": "Ulaşım, Otopark, Erişilebilirlik",
     "other_info": "Ek bilgiler",
-    "parking_heading": "Otopark",
     "household_details": "Ev Halkı Detayları",
     "household_members": "Ev Halkının Üyeleri",
     "household_habits": "Ev Halkının Alışkanlıkları",
@@ -92,7 +86,6 @@
   "edit_profile_headings": {
     "regions_visited": "Ziyaret Ettiğim Bölgeler",
     "regions_lived": "Yaşamış Olduğum Bölgeler",
-    "gender": "Cinsiyet",
     "languages_spoken": "Akıcı şekilde konuştuğum diller",
     "meetup_status": "Buluşma durumu",
     "hosting_status": "Ev sahipliği durumu",
@@ -103,5 +96,13 @@
     "basic_information": "Temel Bilgiler",
     "name": "İsim"
   },
-  "edit_profile_helper_text": "Nereden başlayağına karar vermek için ilham mı arıyorsun? <2>Harika bir profil yaratmak üzerine olan rehberimize bak</2>."
+  "edit_profile_helper_text": "Nereden başlayağına karar vermek için ilham mı arıyorsun? <2>Harika bir profil yaratmak üzerine olan rehberimize bak</2>.",
+  "smoking_location": {
+    "yes": "Evet"
+  },
+  "edit_profile_name_required": "İsim gerekli",
+  "edit_home_questions": {
+    "accept_drinking": "İnsanların içki içmesiyle sorunum yok",
+    "accept_pets": "Evcil hayvanı olan kişilere ev sahipliği yapar"
+  }
 }

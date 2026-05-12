@@ -51,7 +51,8 @@ default:
 
     # All jobs that use this must have full git history to correctly set the version number.
     if [ "$GIT_DEPTH" == "0" ]; then
-        export DISPLAY_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.$(git rev-list --count "origin/$RELEASE_BRANCH")"; else echo "${base_ver}-$SLUG"; fi)
+        export COMMIT_NUMBER=$(git rev-list --count "origin/$RELEASE_BRANCH")
+        export DISPLAY_VERSION=$(base_ver=$(cat app/version); if [ "$CI_COMMIT_BRANCH" == "$RELEASE_BRANCH" ]; then echo "${base_ver}.${COMMIT_NUMBER}"; else echo "${base_ver}-$SLUG"; fi)
         echo $DISPLAY_VERSION
     fi
 
@@ -109,6 +110,21 @@ protos:
   artifacts:
     paths:
       - app/
+
+build:deploy-manifest:
+  needs: ["protos"]
+  stage: build
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - sh app/deployment/build_manifest.sh app/backend/src/couchers/migrations/versions/ artifacts/deploy-info
+    - mkdir -p artifacts/deploy-info/protos
+    - cp app/proto/gen/descriptors.pb "artifacts/deploy-info/protos/${SLUG}.pb"
+  artifacts:
+    paths:
+      - artifacts/deploy-info
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
 build:proxy:
   needs: ["protos"]
@@ -206,7 +222,7 @@ build:web:
   script:
     - - *common_functions
     # Add "--load" so that the image is saved locally for "docker create"
-    - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production -f app/web/Dockerfile.prod --load
+    - build "$WEB_TAG" "$WEB_RELEASE_TAG" "web" "$SLUG" --build-arg environment=production --build-arg pipeline_id=$CI_PIPELINE_ID -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
@@ -234,7 +250,7 @@ build:web-next:
   script:
     - *common_functions
     # Add "--load" so that the image is saved locally for "docker create"
-    - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next -f app/web/Dockerfile.prod --load
+    - build "$WEB_NEXT_TAG" "$WEB_NEXT_RELEASE_TAG" "web" "$SLUG-next" --build-arg environment=next --build-arg pipeline_id=$CI_PIPELINE_ID -f app/web/Dockerfile.prod --load
     # creates a new docker container (docker create returns the container name), and copies the static folder to the host
     - mkdir -p artifacts && docker cp $(docker create $WEB_NEXT_TAG):/app/.next/static/ static
     - ./app/web/generate_static_manifest.sh static > static/manifest.txt
@@ -279,7 +295,7 @@ test:backend:
     # no docker login
     default: false
   services:
-    - name: postgis/postgis:17-3.5
+    - name: postgis/postgis:18-3.6
       alias: postgres
       command: [
         "postgres",
@@ -304,12 +320,15 @@ test:backend:
     - cp /app/junit.xml $CI_PROJECT_DIR/junit-$CI_NODE_INDEX.xml
     - cp /app/.coverage.$CI_NODE_INDEX $CI_PROJECT_DIR/
     - cp /app/.test_durations.$CI_NODE_INDEX $CI_PROJECT_DIR/
+    - mkdir -p $CI_PROJECT_DIR/artifacts/test_artifacts
+    - cp /app/test_artifacts/* $CI_PROJECT_DIR/artifacts/test_artifacts/ 2>/dev/null || true
   artifacts:
     reports:
       junit: junit-$CI_NODE_INDEX.xml
     paths:
       - .coverage.$CI_NODE_INDEX
       - .test_durations.$CI_NODE_INDEX
+      - artifacts/test_artifacts
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
@@ -329,7 +348,7 @@ test:backend-migrations:
     # no docker login
     default: false
   services:
-    - name: postgis/postgis:17-3.5
+    - name: postgis/postgis:18-3.6
       alias: postgres
       command: [
         "postgres",
@@ -440,25 +459,24 @@ test:media:
 test:web:
   needs: ["build:web-dev"]
   stage: test
+  parallel: 3
   image: $WEB_DEV_TAG
   inherit:
     # no docker login
     default: false
+  variables:
+    NEXT_PUBLIC_API_BASE_URL: "http://localhost:8888"
+    TZ: "UTC"
   script:
-    - cd /app && yarn test-ci
+    - cd /app && yarn jest --runInBand --coverage --coverageDirectory=coverage-$CI_NODE_INDEX --reporters="default" --reporters="jest-junit" --shard=$CI_NODE_INDEX/$CI_NODE_TOTAL
   after_script:
-    - cp /app/junit.xml $CI_PROJECT_DIR/
-    - cp /app/coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
-    - mkdir -p $CI_PROJECT_DIR/artifacts/lcov-report && cp -a /app/coverage/lcov-report $CI_PROJECT_DIR/artifacts/
-  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+    - cp /app/junit.xml $CI_PROJECT_DIR/junit-$CI_NODE_INDEX.xml
+    - mkdir -p $CI_PROJECT_DIR/coverage-$CI_NODE_INDEX && cp -a /app/coverage-$CI_NODE_INDEX/. $CI_PROJECT_DIR/coverage-$CI_NODE_INDEX/
   artifacts:
     reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: cobertura-coverage.xml
-      junit: junit.xml
+      junit: junit-$CI_NODE_INDEX.xml
     paths:
-      - artifacts/lcov-report
+      - coverage-$CI_NODE_INDEX
   rules:
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
@@ -560,6 +578,25 @@ test:mobile-typecheck:
       changes:
         - app/mobile/**/*
 
+test:mobile-expo-doctor:
+  needs: ["protos"]
+  stage: test
+  image: node:22
+  inherit:
+    default: false
+  allow_failure: true
+  script:
+    - cd app/mobile
+    - npm ci
+    - npm run build:protos
+    - npx expo-doctor
+  rules:
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_MOBILE == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/mobile/package.json
+        - app/mobile/package-lock.json
+
 test:proxy:
   needs: ["build:proxy"]
   stage: test
@@ -647,6 +684,8 @@ preview:backend-coverage:
 
 preview:backend:
   needs:
+    - job: test:backend
+      artifacts: true
     - job: test:backend-migrations
       artifacts: true
     - job: preview:backend-coverage
@@ -683,9 +722,16 @@ preview:backend:
     - aws s3 rm s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts/schema_dumps s3://$AWS_PREVIEW_BUCKET/schema/$CI_COMMIT_REF_SLUG/ --recursive
     - echo "Done, schema dumps available at https://$CI_COMMIT_SHORT_SHA--schema.$PREVIEW_DOMAIN/schema.sql and https://$CI_COMMIT_REF_SLUG--schema.$PREVIEW_DOMAIN/schema.sql"
+    # Upload postcard samples
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_SHORT_SHA/ --recursive
+    - aws s3 cp artifacts/test_artifacts s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_SHORT_SHA/ --recursive 2>/dev/null || true
+    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_REF_SLUG/ --recursive
+    - aws s3 cp artifacts/test_artifacts s3://$AWS_PREVIEW_BUCKET/test-artifacts/$CI_COMMIT_REF_SLUG/ --recursive 2>/dev/null || true
+    - echo "Done, test artifacts available at https://$CI_COMMIT_SHORT_SHA--test-artifacts.$PREVIEW_DOMAIN/ and https://$CI_COMMIT_REF_SLUG--test-artifacts.$PREVIEW_DOMAIN/"
   artifacts:
     paths:
       - artifacts/schema_dumps
+      - artifacts/test_artifacts
   rules:
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
@@ -693,8 +739,49 @@ preview:backend:
         - app/proto/**/*
         - app/backend/**/*
 
+preview:web-coverage:
+  needs:
+    - job: test:web
+      artifacts: true
+    - job: build:web-dev
+      artifacts: false
+  stage: preview
+  image: $WEB_DEV_TAG
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - cd /app
+    # Install nyc for merging coverage
+    - npm install -g nyc
+    # Merge coverage JSON files from all parallel workers
+    - mkdir -p merged-coverage
+    - nyc merge $CI_PROJECT_DIR/coverage-1 merged-coverage/coverage-1.json || true
+    - nyc merge $CI_PROJECT_DIR/coverage-2 merged-coverage/coverage-2.json || true
+    - nyc merge $CI_PROJECT_DIR/coverage-3 merged-coverage/coverage-3.json || true
+    # Generate combined reports
+    - nyc merge merged-coverage .nyc_output/coverage.json
+    - nyc report --reporter=text --reporter=cobertura --reporter=lcov --report-dir=coverage
+    # Move lcov-report to artifacts location
+    - mkdir -p $CI_PROJECT_DIR/artifacts && mv coverage/lcov-report $CI_PROJECT_DIR/artifacts/
+    - cp coverage/cobertura-coverage.xml $CI_PROJECT_DIR/
+  coverage: '/^All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura-coverage.xml
+    paths:
+      - artifacts/lcov-report
+  rules:
+    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
+    - if: ($BUILD_WEB == "true") && ($DO_CHECKS == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
+      changes:
+        - app/proto/**/*
+        - app/web/**/*
+
 preview:wcov:
-  needs: ["test:web"]
+  needs: ["preview:web-coverage"]
   stage: preview
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   inherit:
@@ -721,13 +808,9 @@ preview:web:
     # no docker login
     default: false
   script:
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-static/$CI_COMMIT_REF_SLUG/ --recursive
-    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-static/$CI_COMMIT_SHORT_SHA/static.tar.gz --website-redirect-location https://$CI_COMMIT_SHORT_SHA--web-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
-    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-static/$CI_COMMIT_REF_SLUG/static.tar.gz --website-redirect-location https://$CI_COMMIT_REF_SLUG--web-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
-    - echo "Done, web-static available at https://$CI_COMMIT_SHORT_SHA--web-static.$PREVIEW_DOMAIN/static.tar.gz and https://$CI_COMMIT_REF_SLUG--web-static.$PREVIEW_DOMAIN/static.tar.gz"
+    - echo "Done, web-static available at https://$CI_COMMIT_SHORT_SHA--web-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz and https://$CI_COMMIT_REF_SLUG--web-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz"
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
@@ -742,13 +825,9 @@ preview:web-next:
     # no docker login
     default: false
   script:
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_SHORT_SHA/ --recursive
     - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_SHORT_SHA/ --recursive
-    - aws s3 rm s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_REF_SLUG/ --recursive
     - aws s3 cp artifacts s3://$AWS_PREVIEW_BUCKET/web-next-static/$CI_COMMIT_REF_SLUG/ --recursive
-    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-next-static/$CI_COMMIT_SHORT_SHA/static.tar.gz --website-redirect-location https://$CI_COMMIT_SHORT_SHA--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
-    - aws s3api put-object --bucket $AWS_PREVIEW_BUCKET --key web-next-static/$CI_COMMIT_REF_SLUG/static.tar.gz --website-redirect-location https://$CI_COMMIT_REF_SLUG--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz
-    - echo "Done, web-static available at https://$CI_COMMIT_SHORT_SHA--web-next-static.$PREVIEW_DOMAIN/static.tar.gz and https://$CI_COMMIT_REF_SLUG--web-next-static.$PREVIEW_DOMAIN/static.tar.gz"
+    - echo "Done, web-next-static available at https://$CI_COMMIT_SHORT_SHA--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz and https://$CI_COMMIT_REF_SLUG--web-next-static.$PREVIEW_DOMAIN/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz"
   rules:
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH == $RELEASE_BRANCH)
     - if: ($BUILD_WEB == "true") && ($CI_COMMIT_BRANCH != $RELEASE_BRANCH)
@@ -827,6 +906,8 @@ wait:before-release:
       optional: true
     - job: build:nginx-next
       artifacts: false
+    - job: build:deploy-manifest
+      artifacts: false
     - job: test:backend
       artifacts: false
       optional: true
@@ -846,6 +927,9 @@ wait:before-release:
       artifacts: false
       optional: true
     - job: test:web
+      artifacts: false
+      optional: true
+    - job: preview:web-coverage
       artifacts: false
       optional: true
     - job: test:web-prettier
@@ -955,6 +1039,37 @@ release:nginx-next:
   rules:
     - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
 
+deploy:deploy-info:
+  needs:
+    - job: build:deploy-manifest
+    - job: release:proxy
+      artifacts: false
+    - job: release:nginx
+      artifacts: false
+    - job: release:prometheus
+      artifacts: false
+    - job: release:backend
+      artifacts: false
+    - job: release:media
+      artifacts: false
+    - job: release:web
+      artifacts: false
+      optional: true
+    - job: release:web-next
+      artifacts: false
+      optional: true
+    - job: release:nginx-next
+      artifacts: false
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  inherit:
+    # no docker login
+    default: false
+  script:
+    - aws s3 cp artifacts/deploy-info/ "s3://$AWS_DEPLOY_BUCKET/" --recursive
+  rules:
+    - if: $CI_COMMIT_BRANCH == $RELEASE_BRANCH
+
 deploy:staging:
   needs: ["release:web-next", "release:backend"]
   stage: deploy
@@ -976,7 +1091,7 @@ deploy:staging:
     # Deploy
     - echo "Git hash is ${rev}"
     - echo "Deploying staging..."
-    - web_next_static="https://${rev}--web-next-static.preview.couchershq.org/static.tar.gz"
+    - web_next_static="https://${rev}--web-next-static.preview.couchershq.org/static-$CI_PIPELINE_ID-$CI_COMMIT_SHA.tar.gz"
     - wget -q ${web_next_static} -O next-static.tar.gz
     - mkdir -p next/
     - tar xf next-static.tar.gz --directory next/

@@ -10,6 +10,7 @@ from couchers.models import (
     FriendRelationship,
     GroupChat,
     HostRequest,
+    ModerationObjectType,
     ModerationState,
     ModerationVisibility,
     SignupFlow,
@@ -39,7 +40,7 @@ def username_or_id(value: str, table: _UserLike = User) -> ColumnElement[bool]:
     if is_valid_username(value):
         return table.username == value
     elif is_valid_user_id(value):
-        return table.id == value
+        return table.id == int(value)
     # no fields match, this will return no rows
     return false()
 
@@ -51,19 +52,25 @@ def username_or_email_or_id(value: str) -> ColumnElement[bool]:
     elif is_valid_email(value):
         return User.email == value
     elif is_valid_user_id(value):
-        return User.id == value
+        return User.id == int(value)
     # no fields match, this will return no rows
     return false()
 
 
+def _shadow_clause(context: CouchersContext, table: _User) -> ColumnElement[bool]:
+    if context.is_logged_in():
+        return or_(table.shadowed_at.is_(None), table.id == context.user_id)
+    return table.shadowed_at.is_(None)
+
+
 def users_visible(context: CouchersContext, table: _User = User) -> ColumnElement[bool]:
     """
-    Filters out users that should not be visible: blocked, deleted, or banned
+    Filters out users that should not be visible: blocked, deleted, banned, or shadowed (to others).
 
     Filters the given table, assuming it's already joined/selected from
     """
     hidden_users = _relevant_user_blocks(context.user_id)
-    return and_(table.is_visible, ~table.id.in_(hidden_users))
+    return and_(table.is_visible, _shadow_clause(context, table), ~table.id.in_(hidden_users))
 
 
 def where_users_column_visible[T: tuple[Any, ...]](
@@ -77,30 +84,28 @@ def where_users_column_visible[T: tuple[Any, ...]](
     return (
         query.join(aliased_user, aliased_user.id == column)
         .where(aliased_user.is_visible)
+        .where(_shadow_clause(context, aliased_user))
         .where(~aliased_user.id.in_(hidden_users))
     )
 
 
-def users_visible_to_each_other(user1: _User, user2: _User) -> ColumnElement[bool]:
+def users_visible_to_each_other(*, self_user: _User, other_user: _User) -> ColumnElement[bool]:
     """
-    Filters to ensure two users are mutually visible to each other.
-
-    Checks that:
-    - Both users are visible (not deleted/banned)
-    - Neither user has blocked the other (bidirectional check)
+    Filters to ensure other_user is visible to self_user, and that they haven't blocked each other.
 
     Use this when both User tables are already joined/selected in the query.
     """
     return and_(
-        user1.is_visible,
-        user2.is_visible,
+        self_user.is_visible,
+        other_user.is_visible,
+        other_user.shadowed_at.is_(None),
         ~exists(
             select(1)
             .select_from(UserBlock)
             .where(
                 or_(
-                    and_(UserBlock.blocking_user_id == user1.id, UserBlock.blocked_user_id == user2.id),
-                    and_(UserBlock.blocking_user_id == user2.id, UserBlock.blocked_user_id == user1.id),
+                    and_(UserBlock.blocking_user_id == self_user.id, UserBlock.blocked_user_id == other_user.id),
+                    and_(UserBlock.blocking_user_id == other_user.id, UserBlock.blocked_user_id == self_user.id),
                 )
             )
         ),
@@ -108,33 +113,31 @@ def users_visible_to_each_other(user1: _User, user2: _User) -> ColumnElement[boo
 
 
 def where_user_columns_visible_to_each_other[T: tuple[Any, ...]](
-    query: Select[T], column1: InstrumentedAttribute[int], column2: InstrumentedAttribute[int]
+    query: Select[T], *, self_column: InstrumentedAttribute[int], other_column: InstrumentedAttribute[int]
 ) -> Select[T]:
     """
-    Filters to ensure two users are mutually visible to each other.
+    Filters to ensure the user in other_column is visible to the user in self_column, and that they
+    haven't blocked each other.
 
-    Checks that:
-    - Both users are visible (not deleted/banned)
-    - Neither user has blocked the other (bidirectional check)
-
-    Use this when you have two user_id columns that haven't been joined yet.
-    This will join both User tables and apply the visibility checks.
+    Use this when you have two user_id columns that haven't been joined yet. This will join both
+    User tables and apply the visibility checks.
     """
-    user1 = aliased(User)
-    user2 = aliased(User)
+    self_user = aliased(User)
+    other_user = aliased(User)
     return (
-        query.join(user1, user1.id == column1)
-        .join(user2, user2.id == column2)
-        .where(user1.is_visible)
-        .where(user2.is_visible)
+        query.join(self_user, self_user.id == self_column)
+        .join(other_user, other_user.id == other_column)
+        .where(self_user.is_visible)
+        .where(other_user.is_visible)
+        .where(other_user.shadowed_at.is_(None))
         .where(
             ~exists(
                 select(1)
                 .select_from(UserBlock)
                 .where(
                     or_(
-                        and_(UserBlock.blocking_user_id == user1.id, UserBlock.blocked_user_id == user2.id),
-                        and_(UserBlock.blocking_user_id == user2.id, UserBlock.blocked_user_id == user1.id),
+                        and_(UserBlock.blocking_user_id == self_user.id, UserBlock.blocked_user_id == other_user.id),
+                        and_(UserBlock.blocking_user_id == other_user.id, UserBlock.blocked_user_id == self_user.id),
                     )
                 )
             )
@@ -203,35 +206,72 @@ def moderation_state_column_visible(
 
     The condition evaluates to True when:
     - The column is NULL (non-moderated content), OR
-    - The linked content (HostRequest/GroupChat) is visible per where_moderated_content_visible
-
-    TODO: if you use this with a non-null column, check what's going on
+    - The linked moderation state has visibility 'visible' or 'unlisted', OR
+    - The linked moderation state has visibility 'shadowed' and the current user is the author
     """
-    hr_visible = exists(
-        where_moderated_content_visible(
-            select(HostRequest).where(HostRequest.moderation_state_id == column), context, HostRequest
-        )
+    aliased_mod_state = aliased(ModerationState)
+
+    # For 'shadowed' content, check if the user is the author by looking up the content table
+    # using object_type and object_id on the moderation_state row
+    shadowed_conditions: list[ColumnElement[bool]] = []
+    if context.is_logged_in():
+        shadowed_conditions = [
+            and_(
+                aliased_mod_state.visibility == ModerationVisibility.shadowed,
+                or_(
+                    and_(
+                        aliased_mod_state.object_type == ModerationObjectType.host_request,
+                        exists(
+                            select(HostRequest.conversation_id).where(
+                                HostRequest.conversation_id == aliased_mod_state.object_id,
+                                HostRequest.initiator_user_id == context.user_id,
+                            )
+                        ),
+                    ),
+                    and_(
+                        aliased_mod_state.object_type == ModerationObjectType.group_chat,
+                        exists(
+                            select(GroupChat.conversation_id).where(
+                                GroupChat.conversation_id == aliased_mod_state.object_id,
+                                GroupChat.creator_id == context.user_id,
+                            )
+                        ),
+                    ),
+                    and_(
+                        aliased_mod_state.object_type == ModerationObjectType.friend_request,
+                        exists(
+                            select(FriendRelationship.id).where(
+                                FriendRelationship.id == aliased_mod_state.object_id,
+                                FriendRelationship.from_user_id == context.user_id,
+                            )
+                        ),
+                    ),
+                    and_(
+                        aliased_mod_state.object_type == ModerationObjectType.event_occurrence,
+                        exists(
+                            select(EventOccurrence.id).where(
+                                EventOccurrence.id == aliased_mod_state.object_id,
+                                EventOccurrence.creator_user_id == context.user_id,
+                            )
+                        ),
+                    ),
+                ),
+            )
+        ]
+
+    return or_(
+        column.is_(None),
+        exists(
+            select(aliased_mod_state.id).where(
+                aliased_mod_state.id == column,
+                or_(
+                    aliased_mod_state.visibility == ModerationVisibility.visible,
+                    aliased_mod_state.visibility == ModerationVisibility.unlisted,
+                    *shadowed_conditions,
+                ),
+            )
+        ),
     )
-    gc_visible = exists(
-        where_moderated_content_visible(
-            select(GroupChat).where(GroupChat.moderation_state_id == column), context, GroupChat
-        )
-    )
-    fr_visible = exists(
-        where_moderated_content_visible(
-            select(FriendRelationship).where(FriendRelationship.moderation_state_id == column),
-            context,
-            FriendRelationship,
-        )
-    )
-    eo_visible = exists(
-        where_moderated_content_visible(
-            select(EventOccurrence).where(EventOccurrence.moderation_state_id == column),
-            context,
-            EventOccurrence,
-        )
-    )
-    return or_(column.is_(None), hr_visible, gc_visible, fr_visible, eo_visible)
 
 
 def _relevant_user_blocks(user_id: int) -> Select[tuple[int]]:

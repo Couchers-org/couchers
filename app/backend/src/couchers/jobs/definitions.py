@@ -7,6 +7,7 @@ from couchers.jobs.handlers import (
     auto_approve_moderation_queue,
     check_database_consistency,
     check_expo_push_receipts,
+    check_mypostcard_jobs,
     enforce_community_membership,
     finalize_strong_verification,
     purge_account_deletion_tokens,
@@ -99,6 +100,7 @@ _JOBS_LIST = [
     Job(check_expo_push_receipts, schedule=timedelta(minutes=5)),
     Job(send_postal_verification_postcard),
     Job(check_database_consistency, schedule=timedelta(hours=24)),
+    Job(check_mypostcard_jobs, schedule=timedelta(hours=24)),
     Job(auto_approve_moderation_queue, schedule=timedelta(seconds=15)),
 ]
 

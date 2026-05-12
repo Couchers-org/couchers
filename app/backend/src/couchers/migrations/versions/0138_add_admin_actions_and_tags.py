@@ -1,7 +1,7 @@
 """Add admin_actions and tags tables
 
 Revision ID: 0138
-Revises: 8eab3434914d
+Revises: 0137
 Create Date: 2026-02-21 12:00:00.000000
 
 """
@@ -13,7 +13,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "0138"
-down_revision = "8eab3434914d"
+down_revision = "0137"
 branch_labels = None
 depends_on = None
 

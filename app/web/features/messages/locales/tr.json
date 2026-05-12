@@ -13,11 +13,9 @@
   "messages_page": {
     "title": "Mesajlar",
     "tabs": {
-      "aria_label": "Farklı mesaj türleri için sekmeler",
       "chats": "Sohbetler",
       "hosting": "Ev Sahipliği",
-      "surfing": "Sörfler",
-      "archived": "Arşiv"
+      "surfing": "Sörfler"
     }
   },
   "chat_view": {
@@ -61,7 +59,6 @@
     }
   },
   "create_chat": {
-    "group_title_field_label": "Başlık",
     "dm_title": "Yeni bir sohbet oluştur",
     "group_title": "Grup sohbeti oluştur"
   },
@@ -73,7 +70,6 @@
     "request_duration_other": "{{count}} gece"
   },
   "group_chats_tab": {
-    "no_chats_message": "Henüz grup sohbeti yok",
     "load_more_button_label": "Daha fazla yükle"
   },
   "requests_tab": {
@@ -105,6 +101,19 @@
     "title": "Sohbet Üyeleri"
   },
   "control_message": {
-    "created_chat_text": "{{user}} sohbeti oluşturdu"
+    "created_chat_text": "{{user}} sohbeti oluşturdu",
+    "unknown_message_text": "Bilinmeyen kontrol mesajı"
+  },
+  "archive": {
+    "archived": "Arşiv",
+    "archive_button": "Arşivle",
+    "unarchive_button": "Arşivden Çıkar"
+  },
+  "host_request_status": {
+    "rejected": "Reddedildi"
+  },
+  "host_request_item": {
+    "expired": "Bu isteğin süresi doldu",
+    "pending": "Bu istek hala bekliyor"
   }
 }

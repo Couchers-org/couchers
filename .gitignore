@@ -10,6 +10,8 @@
 pyrightconfig.json
 
 /private/
-.claude/*
-!.claude/tools/
-!.claude/tools/**
+**/.claude/*
+!/.claude/tools/
+!/.claude/tools/**
+!/.claude/skills/
+!/.claude/skills/**

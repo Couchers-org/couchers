@@ -2,7 +2,6 @@
   "request_closed_message": "Este pedido de hospedagem está fechado ou passado. Para continuar a conversar, envia uma mensagem normal à outra pessoa.",
   "mark_all_read_button_text": "Marcar todos como lidos",
   "create_chat": {
-    "group_title_field_label": "Título",
     "no_friends_found_message": "Não foi possível encontrar nenhum amigo",
     "dm_title": "Criar nova conversa",
     "group_title": "Criar nova conversa de grupo",
@@ -93,7 +92,6 @@
     "unknown_message_text": "Mensagem de controlo desconhecida"
   },
   "group_chats_tab": {
-    "no_chats_message": "Sem conversas de grupo",
     "load_more_button_label": "Carregar mais"
   },
   "requests_tab": {
@@ -138,7 +136,6 @@
   "messages_page": {
     "title": "Mensagens",
     "tabs": {
-      "aria_label": "Separadores para diferentes tipos de mensagens",
       "chats": "Conversas",
       "hosting": "A hospedar",
       "surfing": "A surfar"

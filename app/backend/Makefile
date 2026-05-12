@@ -1,7 +1,7 @@
 # Makefile for the backend of the application
 # Run 'make [command]' in app/backend to execute the specified command
 
-UV_VERSION=0.9.21
+UV_VERSION=0.10.9
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 PROTO_IMAGE=registry.gitlab.com/couchers/grpc
 
@@ -31,6 +31,13 @@ fmt: format
 mypy:
 	uv run mypy src
 
+# Generate a new database migration by comparing models to an empty database
+# Usage:
+# make revision                     → generates migration with default message
+# make revision m='Add users table' → generates migration with custom message
+revision:
+	uv run --with 'docker' python revision.py $(if $(m),-m '$(m)',)
+
 # Downgrade the local database to the previous migration. Good if you ran a migration on a branch and will run the backend on another branch after.
 # Usage:
 # make downgrade
@@ -55,7 +62,8 @@ setup-db:
 	docker compose $(COMPOSE_FILES) exec postgres_tests psql -U postgres -c \
 		"CREATE EXTENSION IF NOT EXISTS postgis; \
 		 CREATE EXTENSION IF NOT EXISTS pg_trgm; \
-		 CREATE EXTENSION IF NOT EXISTS btree_gist"
+		 CREATE EXTENSION IF NOT EXISTS btree_gist; \
+		 CREATE EXTENSION IF NOT EXISTS pg_stat_statements"
 
 teardown-db:
 	docker compose -f ../docker-compose.test.yml down
@@ -67,6 +75,25 @@ teardown-db:
 # make test file=test_file.py::TestClass::test_method → runs a specific test
 test:
 	uv run pytest $(if $(file),src/tests/$(file),src/tests)
+
+
+# Run backend tests in Docker
+# Usage:
+# make docker-test                    → runs all tests
+# make docker-test file=test_file.py → runs tests in a specific file
+docker-test:
+	$(eval COMPOSE_FILES := -f ../docker-compose.test.yml $(if $(filter Darwin,$(shell uname -s)),-f ../docker-compose.testmac.yml))
+	docker compose $(COMPOSE_FILES) up -d --wait postgres_tests
+	docker compose $(COMPOSE_FILES) run --rm --build \
+		-v $(ROOT_DIR):/app \
+		-v /app/.venv \
+		-e DATABASE_CONNECTION_STRING=postgresql://postgres:06b3890acd2c235c41be0bbfe22f1b386a04bf02eedf8c977486355616be2aa1@postgres_tests:6544/testdb \
+		--no-deps \
+		backend_test_runner \
+		pytest $(if $(file),src/tests/$(file),src/tests) --disable-warnings
+
+teardown-docker-test:
+	docker compose -f ../docker-compose.test.yml down
 
 
 run-deps:

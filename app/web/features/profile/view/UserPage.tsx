@@ -1,17 +1,21 @@
 import { Collapse, styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
+import { BackIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
+import NewMessage from "features/profile/view/NewMessage";
 import Overview from "features/profile/view/Overview";
 import useUserByUsername from "features/userQueries/useUserByUsername";
 import { useTranslation } from "i18n";
-import { PROFILE } from "i18n/namespaces";
+import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useLayoutEffect, useState } from "react";
 import { routeToUser, UserTab } from "routes";
+import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import UserCard from "./UserCard";
 
@@ -35,6 +39,13 @@ export const StyledProfileRoot = styled("div")(({ theme }) => ({
   },
 }));
 
+const StyledBackButton = styled(HeaderButton)(() => ({
+  position: "fixed",
+  top: "calc(var(--nav-height, 56px) + 1rem)",
+  left: "2rem",
+  zIndex: 10,
+}));
+
 export default function UserPage({
   username,
   tab = "about",
@@ -42,24 +53,34 @@ export default function UserPage({
   username: string;
   tab?: UserTab;
 }) {
-  const { t } = useTranslation(PROFILE);
+  const { t } = useTranslation([PROFILE, GLOBAL]);
   const router = useRouter();
+  const isNativeEmbed = useIsNativeEmbed();
 
   const { data: user, isLoading, error } = useUserByUsername(username, true);
 
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
+  const [isMessaging, setIsMessaging] = useState(false);
 
   useLayoutEffect(() => {
-    if (isRequesting) {
+    if (isRequesting || isMessaging) {
       const requestEl = document.getElementById(REQUEST_ID);
       requestEl?.scrollIntoView();
     }
-  }, [isRequesting]);
+  }, [isRequesting, isMessaging]);
 
   return (
     <>
       <HtmlMeta title={user?.name} />
+      {isNativeEmbed && (
+        <StyledBackButton
+          onClick={() => sendNativeBack()}
+          aria-label={t("global:back")}
+        >
+          <BackIcon />
+        </StyledBackButton>
+      )}
       {isSuccessRequest && (
         <Snackbar severity="success">{t("request_form.success")}</Snackbar>
       )}
@@ -69,7 +90,11 @@ export default function UserPage({
       ) : user ? (
         <ProfileUserProvider user={user}>
           <StyledProfileRoot>
-            <Overview setIsRequesting={setIsRequesting} tab={tab} />
+            <Overview
+              setIsRequesting={setIsRequesting}
+              setIsMessaging={setIsMessaging}
+              tab={tab}
+            />
             <UserCard
               tab={tab}
               onTabChange={(newTab) => {
@@ -78,12 +103,17 @@ export default function UserPage({
                 });
               }}
               top={
-                <Collapse in={isRequesting}>
-                  <NewHostRequest
-                    setIsRequesting={setIsRequesting}
-                    setIsRequestSuccess={setIsSuccessRequest}
-                  />
-                </Collapse>
+                <>
+                  <Collapse in={isRequesting}>
+                    <NewHostRequest
+                      setIsRequesting={setIsRequesting}
+                      setIsRequestSuccess={setIsSuccessRequest}
+                    />
+                  </Collapse>
+                  <Collapse in={isMessaging}>
+                    <NewMessage setIsMessaging={setIsMessaging} />
+                  </Collapse>
+                </>
               }
             />
           </StyledProfileRoot>

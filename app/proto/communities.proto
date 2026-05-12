@@ -105,6 +105,10 @@ service Communities {
   rpc ListAllCommunities(ListAllCommunitiesReq) returns (ListAllCommunitiesRes) {
     // Gets a list of all communities, ordered hierarchically
   }
+
+  rpc ListRecentCommunities(ListRecentCommunitiesReq) returns (ListRecentCommunitiesRes) {
+    // Gets the most recently created communities across the whole tree, ordered newest-first
+  }
 }
 
 message Community {
@@ -126,8 +130,11 @@ message Community {
   uint32 admin_count = 11;
   uint32 nearby_user_count = 12;
   bool can_moderate = 13;
-  bool discussions_enabled = 14;
-  bool events_enabled = 15;
+  // Toggles the "small community" feature set: discussions, events, and public trips. These are
+  // grouped into a single flag because they're disabled together on large communities.
+  bool small_community_features_enabled = 14;
+  reserved 15;
+  reserved "events_enabled";
   NodeType node_type = 16;
 }
 
@@ -314,5 +321,14 @@ message ListAllCommunitiesReq {
 }
 
 message ListAllCommunitiesRes {
+  repeated CommunitySummary communities = 1;
+}
+
+message ListRecentCommunitiesReq {
+  // number of communities to return; server caps this to a sensible maximum
+  uint32 page_size = 1;
+}
+
+message ListRecentCommunitiesRes {
   repeated CommunitySummary communities = 1;
 }

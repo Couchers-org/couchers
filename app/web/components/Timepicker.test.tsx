@@ -1,6 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
+import i18n from "test/i18n";
 import { Dayjs } from "utils/dayjs";
 
 import wrapper from "../test/hookWrapper";
@@ -35,12 +36,13 @@ const Form = ({ setTime }: { setTime: (time: Dayjs | null) => void }) => {
 };
 
 describe("Timepicker", () => {
-  afterEach(() => {
+  afterEach(async () => {
     jest.resetAllMocks();
+    await act(() => i18n.changeLanguage("en"));
   });
 
-  it("accepts 24-hour time in 24-hour locale (de-DE)", async () => {
-    jest.spyOn(navigator, "language", "get").mockReturnValue("de-DE");
+  it("accepts 24-hour time in 24-hour locale (de)", async () => {
+    i18n.changeLanguage("de");
     let time: Dayjs | null = null;
     render(<Form setTime={(t) => (time = t)} />, { wrapper });
 
@@ -58,8 +60,8 @@ describe("Timepicker", () => {
     expect(time!.minute()).toBe(59);
   });
 
-  it("accepts 12-hour time in 12-hour locale (en-US)", async () => {
-    jest.spyOn(navigator, "language", "get").mockReturnValue("en-US");
+  it("accepts 12-hour time in 12-hour locale (en)", async () => {
+    i18n.changeLanguage("en");
     let time: Dayjs | null = null;
     render(<Form setTime={(t) => (time = t)} />, { wrapper });
 
@@ -77,8 +79,8 @@ describe("Timepicker", () => {
     expect(time!.minute()).toBe(0);
   });
 
-  it("accepts 1:37 PM in 12-hour locale (en-US)", async () => {
-    jest.spyOn(navigator, "language", "get").mockReturnValue("en-US");
+  it("accepts 1:37 PM in 12-hour locale (en)", async () => {
+    i18n.changeLanguage("en");
     let time: Dayjs | null = null;
     render(<Form setTime={(t) => (time = t)} />, { wrapper });
 
@@ -96,8 +98,8 @@ describe("Timepicker", () => {
     expect(time!.minute()).toBe(37);
   });
 
-  it("accepts 13:37 in 24-hour locale (fr-FR)", async () => {
-    jest.spyOn(navigator, "language", "get").mockReturnValue("fr-FR");
+  it("accepts 13:37 in 24-hour locale (fr)", async () => {
+    i18n.changeLanguage("fr");
     let time: Dayjs | null = null;
     render(<Form setTime={(t) => (time = t)} />, { wrapper });
 

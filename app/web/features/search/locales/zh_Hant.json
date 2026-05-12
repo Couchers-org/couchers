@@ -1,1 +1,93 @@
-{}
+{
+  "any": "任何",
+  "filter_dialog": {
+    "desktop_title": "篩選",
+    "mobile_title": "搜尋"
+  },
+  "last_active_options": {
+    "last_week": "上週",
+    "last_month": "上個月",
+    "last_3_months": "過去三個月",
+    "last_6_months": "過去六個月",
+    "last_year": "過去一年"
+  },
+  "form": {
+    "location_field_label": "附近位置",
+    "keywords": {
+      "field_label": "名稱、關鍵字或使用者名稱",
+      "clear_field_action_a11y_label": "清除搜尋",
+      "search_this_keyword_a11y_label": "搜尋此關鍵字"
+    },
+    "by_location_filter_label": "按位置",
+    "by_keyword_filter_label": "按關鍵字或名稱",
+    "host_filters": {
+      "last_active_field_label": "最後活躍",
+      "hosting_status_field_label": "接待狀態",
+      "age": {
+        "field_label": "沙發主年齡",
+        "min_age": "最低年齡",
+        "max_age": "最大年齡"
+      },
+      "meetup_status_field_label": "見面狀態"
+    },
+    "accommodation_filters": {
+      "title": "住宿篩選",
+      "guests_field_label": "客人數",
+      "sleeping_arrangement_label": "睡眠安排",
+      "sleeping_arrangement_filters": {
+        "shared_room": {
+          "label": "共享房間",
+          "description": " 例如：共用臥室但有自己的睡眠空間"
+        },
+        "private": {
+          "label": "私人空間",
+          "description": " 例如：單獨房間或類似設施"
+        },
+        "common": {
+          "label": "公共休息區域",
+          "description": " 例如：客廳的沙發"
+        }
+      }
+    },
+    "empty_profile_filters": {
+      "title": "顯示空白檔案"
+    },
+    "submit_button_label": "應用",
+    "general_filters": {
+      "accepts_last_minute_requests": "接受臨時請求",
+      "has_strong_verification": "強身份驗證成功",
+      "has_references": "有評語",
+      "same_gender_only_helper_text": "這個篩選功能僅開放給已完成強身分驗證的使用者。",
+      "same_gender_only": "僅顯示同性",
+      "get_strong_verification": "點此完成強身份驗證(免費)。"
+    },
+    "rules": {
+      "title": "規則",
+      "alcohol_allowed": "允許飲酒",
+      "kids_allowed": "允許兒童",
+      "pets_allowed": "允許攜帶寵物",
+      "smokes_at_home": "家中是否吸菸"
+    },
+    "search_filters": "搜尋篩選條件",
+    "clear_filters": "清除所有篩選條件"
+  },
+  "search_result": {
+    "no_user_result_message": "找不到符合條件的使用者。請嘗試移除部分篩選條件以查看更多結果。",
+    "missing_about_description": "{{name}} 還沒有介紹自己",
+    "people_range_message_one": "{{currentRange}} / {{count}} 人",
+    "people_range_message_other": "{{currentRange}} / {{count}} 人",
+    "include_empty_profiles_button": "顯示所有使用者資料",
+    "few_results_suggestion": "預設情況下，空白資料和「無法接待」的個人資料會被隱藏。"
+  },
+  "error_loading_users": "載入使用者時發生錯誤",
+  "views": {
+    "choose_map_view": "選擇地圖視圖",
+    "list": "列表",
+    "map_and_list": "地圖和列表"
+  },
+  "location": "位置",
+  "keyword": "關鍵字",
+  "search_this_area": "搜尋此區域",
+  "zoom_in_to_select_user": "放大以選取使用者",
+  "choose_search_criteria": "輸入地點或使用篩選條件搜尋。"
+}

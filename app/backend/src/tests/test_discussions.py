@@ -91,6 +91,8 @@ def test_create_and_get_discussion(db, push_collector: PushCollector):
 
     push = push_collector.pop_for_user(user2_id, last=True)
     assert push.content.title == "New discussion: dummy title"
+    assert push.content.ios_title == "New Discussion"
+    assert push.content.ios_subtitle == "dummy title"
     assert push.content.body == f"{user.name} started the discussion in Testing Community."
 
     with discussions_session(token) as api:

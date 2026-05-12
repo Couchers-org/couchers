@@ -16,9 +16,10 @@ import { dashboardRoute, eventsRoute, routeToEvent } from "routes";
 import { service } from "service";
 import type { CreateEventInput } from "service/events";
 import { theme } from "theme";
-import dayjs, { TIME_FORMAT } from "utils/dayjs";
+import dayjs from "utils/dayjs";
 import stringOrFirstString from "utils/stringOrFirstString";
 
+import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import { communityEventsBaseKey } from "../../queryKeys";
 import EventForm, { CreateEventVariables } from "./EventForm";
 import { useEvent } from "./hooks";
@@ -33,6 +34,7 @@ const StyledBackButton = styled(HeaderButton)(() => ({
 export default function CreateEventPage() {
   const { t } = useTranslation([GLOBAL, COMMUNITIES, PROFILE]);
   const router = useRouter();
+  const isNativeEmbed = useIsNativeEmbed();
 
   const urlCommunityIdString =
     typeof window !== "undefined"
@@ -71,8 +73,8 @@ export default function CreateEventPage() {
   >({
     mutationFn: (data) => {
       let createEventInput: CreateEventInput;
-      const startTime = dayjs(data.startTime, TIME_FORMAT);
-      const endTime = dayjs(data.endTime, TIME_FORMAT);
+      const startTime = dayjs(data.startTime);
+      const endTime = dayjs(data.endTime);
       const finalStartDate = data.startDate
         .startOf("day")
         .add(startTime.get("hour"), "hour")
@@ -141,6 +143,10 @@ export default function CreateEventPage() {
     useAccountInfo();
 
   const handleBackClick = () => {
+    if (isNativeEmbed) {
+      sendNativeBack();
+      return;
+    }
     if (window.history.length > 1) {
       router.back();
     } else {

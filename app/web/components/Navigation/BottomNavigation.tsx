@@ -11,7 +11,6 @@ import {
   PersonIcon,
   SearchIcon,
 } from "components/Icons";
-import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useTranslation } from "next-i18next";
@@ -23,11 +22,10 @@ import {
   messagesRoute,
   searchRoute,
 } from "routes";
-import { theme } from "theme";
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
+const StyledPaper = styled(Paper)(() => ({
   position: "fixed",
-  bottom: 0,
+  bottom: "var(--cookie-banner-height, 0px)",
   left: 0,
   right: 0,
   zIndex: 1100,
@@ -52,12 +50,6 @@ const StyledBottomNavigation = styled(MuiBottomNavigation)(({ theme }) => ({
 export default function BottomNavigation() {
   const router = useRouter();
   const { t } = useTranslation(GLOBAL);
-  const { data: pingData } = useNotifications();
-
-  const totalMessageCount =
-    (pingData?.unseenMessageCount ?? 0) +
-    (pingData?.unseenReceivedHostRequestCount ?? 0) +
-    (pingData?.unseenSentHostRequestCount ?? 0);
 
   // Strip locale prefix from pathname to determine current route
   const currentRoute = useMemo(() => {
@@ -90,34 +82,7 @@ export default function BottomNavigation() {
         <BottomNavigationAction
           label={t("nav.messages")}
           value={messagesRoute}
-          icon={
-            totalMessageCount > 0 ? (
-              <div style={{ position: "relative" }}>
-                <ChatBubbleIcon />
-                <div
-                  style={{
-                    position: "absolute",
-                    top: -4,
-                    right: -4,
-                    backgroundColor: theme.palette.primary.main,
-                    color: theme.palette.primary.contrastText,
-                    borderRadius: "50%",
-                    minWidth: 16,
-                    height: 16,
-                    fontSize: "10px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: 600,
-                  }}
-                >
-                  {totalMessageCount > 9 ? "9+" : totalMessageCount}
-                </div>
-              </div>
-            ) : (
-              <ChatBubbleIcon />
-            )
-          }
+          icon={<ChatBubbleIcon />}
           onClick={() => handleNavigation(messagesRoute)}
         />
         <BottomNavigationAction

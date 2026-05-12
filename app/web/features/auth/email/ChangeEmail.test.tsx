@@ -168,4 +168,73 @@ describe("ChangeEmail", () => {
       screen.queryByText(/Your email change has been received/i),
     ).not.toBeInTheDocument();
   });
+
+  describe("password visibility toggle", () => {
+    beforeEach(async () => {
+      getAccountInfoMock.mockResolvedValue(accountInfo);
+      await render(<ChangeEmail {...accountInfo} />, { wrapper });
+    });
+
+    it("toggles password visibility when clicking the button", async () => {
+      const user = userEvent.setup();
+      const passwordField = await screen.findByLabelText(
+        t("auth:change_email_form.current_password"),
+      );
+
+      // Initially password should be hidden
+      expect(passwordField).toHaveAttribute("type", "password");
+
+      const showButton = screen.getByLabelText(
+        t("auth:change_email_form.show_current_password"),
+      );
+
+      expect(showButton).toHaveAttribute(
+        "aria-label",
+        t("auth:change_email_form.show_current_password"),
+      );
+
+      await user.click(showButton);
+
+      await waitFor(() => {
+        expect(passwordField).toHaveAttribute("type", "text");
+      });
+
+      expect(showButton).toHaveAttribute(
+        "aria-label",
+        t("auth:change_email_form.hide_current_password"),
+      );
+
+      const hideButton = screen.getByLabelText(
+        t("auth:change_email_form.hide_current_password"),
+      );
+      await user.click(hideButton);
+
+      // Password should be hidden again
+      await waitFor(() => {
+        expect(passwordField).toHaveAttribute("type", "password");
+      });
+    });
+
+    it("allows typing visible text in the password field when toggled", async () => {
+      const user = userEvent.setup();
+      const passwordField = await screen.findByLabelText(
+        t("auth:change_email_form.current_password"),
+      );
+
+      await user.type(passwordField, "mypassword");
+      expect(passwordField).toHaveValue("mypassword");
+      expect(passwordField).toHaveAttribute("type", "password");
+
+      const showButton = screen.getByLabelText(
+        t("auth:change_email_form.show_current_password"),
+      );
+      await user.click(showButton);
+
+      // Verify text is still there and type is now text
+      await waitFor(() => {
+        expect(passwordField).toHaveValue("mypassword");
+        expect(passwordField).toHaveAttribute("type", "text");
+      });
+    });
+  });
 });

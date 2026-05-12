@@ -6,7 +6,7 @@ requires-python = "==3.14.*"
 dependencies = [
     "alembic>=1.17.1",
     "babel>=2.18.0",
-    "boto3>=1.39.3",
+    "boto3>=1.43.1",
     "cachetools>=6.2.1",
     "cryptography>=46.0.3",
     "geoalchemy2>=0.18.0",
@@ -21,17 +21,18 @@ dependencies = [
     "opentelemetry-instrumentation-grpc>=0.50b0",
     "opentelemetry-instrumentation-sqlalchemy>=0.50b0",
     "opentelemetry-instrumentation-threading>=0.50b0",
-    "opentelemetry-sdk>=1.29.0",
+    "opentelemetry-sdk>=1.41.1",
+    "Pillow>=11.0.0",
     "phonenumbers>=9.0.4",
-    "prometheus-client>=0.23.1",
+    "prometheus-client>=0.25.0",
     "protobuf>=6.33.1",
-    "psycopg2-binary>=2.9.10",
+    "psycopg[binary]>=3.2.0",
     "py-vapid>=1.9.2",
     "pynacl>=1.5.0",
+    "qrcode>=8.0",
     "python-dateutil>=2.9.0.post0",
-    "pytz>=2025.2",
     "pyyaml>=6.0.3",
-    "requests>=2.32.5",
+    "requests>=2.33.1",
     "sentry-sdk>=2.43.0",
     "Shapely>=2.1.1",
     "sqlalchemy>=2.0.43",
@@ -54,15 +55,14 @@ dev = [
     "mypy>=1.18.2",
     "types-grpcio>=1.0.0.20251009",
     "types-protobuf>=6.32.1.20251105",
-    "types-pytz>=2025.2.0.20250809",
     "types-shapely>=2.1.0.20250917",
     "types-requests>=2.32.4.20250913",
     "types-pyyaml>=6.0.12.20250915",
     "types-boto3>=1.40.69",
     "types-cachetools",
-    "types-psycopg2",
     "types-python-dateutil>=2.9.0.20251115",
     "pytest-split>=0.11.0",
+    "types-qrcode>=8.2.0.20260408",
 ]
 
 
@@ -76,15 +76,17 @@ exclude = [
 
 [tool.ruff.lint]
 select = [
-    "E",   # pycodestyle
-    "F",   # pyflakes
-    "UP",  # pyupgrade
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "A",   # flake8-builtins
-    "I",   # isort
+    "E",       # pycodestyle
+    "F",       # pyflakes
+    "UP",      # pyupgrade
+    "B",       # flake8-bugbear
+    "C4",      # flake8-comprehensions
+    "A",       # flake8-builtins
+    "I",       # isort
+    "PLC0415", # import-outside-toplevel
 ]
 ignore = [
+    "A003",   # SQLAlchemy model columns like `id` and `type` legitimately shadow builtins
     "A005",   # Our `email` module shadows stdlib email
     "B007",   # Loop control variable not used within loop body
     "B905",   # `zip()` without an explicit `strict=` parameter
@@ -158,6 +160,8 @@ branch = true
 [tool.coverage.report]
 exclude_also = [
     "def __repr__",
+    "pass",
+    "...",
     "raise AssertionError",
     "raise NotImplementedError",
     "if __name__ == .__main__.:",

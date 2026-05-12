@@ -17,8 +17,9 @@ import { useRouter } from "next/router";
 import { Discussion } from "proto/discussions_pb";
 import { service } from "service";
 import { theme } from "theme";
-import { dateFormatter, timestamp2Date } from "utils/date";
+import { localizeDateTime, timestamp2Date } from "utils/date";
 
+import { sendNativeBack, useIsNativeEmbed } from "../../../utils/nativeLink";
 import CommunityBase from "../CommunityBase";
 import CommunityPageSubHeader from "../CommunityPage/CommunityPageSubHeader";
 import PageHeader from "../PageHeader";
@@ -79,6 +80,7 @@ export default function DiscussionPage({
     i18n: { language: locale },
   } = useTranslation([GLOBAL, COMMUNITIES]);
   const router = useRouter();
+  const isNativeEmbed = useIsNativeEmbed();
 
   const {
     data: discussion,
@@ -92,6 +94,14 @@ export default function DiscussionPage({
   const { data: discussionCreator, isLoading: isCreatorLoading } = useLiteUser(
     discussion?.creatorUserId,
   );
+
+  const handleBackClick = () => {
+    if (isNativeEmbed) {
+      sendNativeBack();
+      return;
+    }
+    router.back();
+  };
 
   return (
     <>
@@ -114,7 +124,7 @@ export default function DiscussionPage({
                 <StyledDiscussionBodyWrapper>
                   <StyledDiscussionHeader>
                     <HeaderButton
-                      onClick={() => router.back()}
+                      onClick={handleBackClick}
                       aria-label={t("communities:previous_page")}
                     >
                       <BackIcon />
@@ -140,8 +150,12 @@ export default function DiscussionPage({
                       ) : (
                         <Typography variant="body2">
                           {t("communities:discussion_creation_date", {
-                            dateOnly: dateFormatter(locale).format(
+                            dateOnly: localizeDateTime(
                               timestamp2Date(discussion.created!),
+                              {
+                                locale,
+                                includeTime: false,
+                              },
                             ),
                           })}
                         </Typography>

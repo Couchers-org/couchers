@@ -8,7 +8,7 @@ import requests
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func, update
+from sqlalchemy.sql import exists, func, update
 from user_agents import parse as user_agents_parse
 
 from couchers import urls
@@ -30,7 +30,7 @@ from couchers.event_log import log_event
 from couchers.experimentation import check_gate
 from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.geoip import geoip_approximate_location
-from couchers.helpers.strong_verification import get_strong_verification_fields, has_strong_verification
+from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import finalize_strong_verification
 from couchers.materialized_views import LiteUser
@@ -47,6 +47,7 @@ from couchers.models import (
     HostRequest,
     HostRequestStatus,
     InviteCode,
+    Message,
     ModNote,
     ProfilePublicVisibility,
     StrongVerificationAttempt,
@@ -740,13 +741,19 @@ class Account(account_pb2_grpc.AccountServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         # responding to reqs comes first in desc order of when they were received
-        query = select(HostRequest.conversation_id, LiteUser).join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
-        query = where_users_column_visible(query, context, HostRequest.surfer_user_id)
+        host_has_sent_message = select(1).where(
+            Message.conversation_id == HostRequest.conversation_id, Message.author_id == HostRequest.recipient_user_id
+        )
+        query = select(HostRequest.conversation_id, LiteUser).join(
+            LiteUser, LiteUser.id == HostRequest.initiator_user_id
+        )
+        query = where_users_column_visible(query, context, HostRequest.initiator_user_id)
         query = where_moderated_content_visible(query, context, HostRequest, is_list_operation=True)
         pending_host_requests = session.execute(
-            query.where(HostRequest.host_user_id == context.user_id)
+            query.where(HostRequest.recipient_user_id == context.user_id)
             .where(HostRequest.status == HostRequestStatus.pending)
             .where(HostRequest.start_time > func.now())
+            .where(~exists(host_has_sent_message))
             .order_by(HostRequest.conversation_id.asc())
         ).all()
         reminders = [
@@ -773,11 +780,6 @@ class Account(account_pb2_grpc.AccountServicer):
 
         if not has_completed_profile(session, user):
             reminders.append(account_pb2.Reminder(complete_profile_reminder=account_pb2.CompleteProfileReminder()))
-
-        if not has_strong_verification(session, user):
-            reminders.append(
-                account_pb2.Reminder(complete_verification_reminder=account_pb2.CompleteVerificationReminder())
-            )
 
         return account_pb2.GetRemindersRes(reminders=reminders)
 

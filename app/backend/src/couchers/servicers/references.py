@@ -64,11 +64,13 @@ def get_host_req_and_check_can_write_ref(
     Returns the host req and `surfed`, a boolean of if the user was the surfer or not
     """
     query = select(HostRequest)
-    query = where_users_column_visible(query, context, HostRequest.surfer_user_id)
-    query = where_users_column_visible(query, context, HostRequest.host_user_id)
+    query = where_users_column_visible(query, context, HostRequest.initiator_user_id)
+    query = where_users_column_visible(query, context, HostRequest.recipient_user_id)
     query = where_moderated_content_visible(query, context, HostRequest, is_list_operation=False)
     query = query.where(HostRequest.conversation_id == host_request_id)
-    query = query.where(or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id))
+    query = query.where(
+        or_(HostRequest.initiator_user_id == context.user_id, HostRequest.recipient_user_id == context.user_id)
+    )
     host_request = session.execute(query).scalar_one_or_none()
 
     if not host_request:
@@ -84,12 +86,12 @@ def get_host_req_and_check_can_write_ref(
     ).scalar_one_or_none():
         context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "reference_already_given")
 
-    surfed = host_request.surfer_user_id == context.user_id
+    surfed = host_request.initiator_user_id == context.user_id
 
     if surfed:
-        my_reason = host_request.surfer_reason_didnt_meetup
+        my_reason = host_request.initiator_reason_didnt_meetup
     else:
-        my_reason = host_request.host_reason_didnt_meetup
+        my_reason = host_request.recipient_reason_didnt_meetup
 
     if my_reason != None:
         context.abort_with_error_code(
@@ -122,14 +124,14 @@ def get_pending_references_to_write(
                 Reference.from_user_id == context.user_id,
             ),
         )
-        .join(LiteUser, LiteUser.id == HostRequest.host_user_id)
+        .join(LiteUser, LiteUser.id == HostRequest.recipient_user_id)
     )
-    q1 = where_users_column_visible(q1, context, HostRequest.host_user_id)
+    q1 = where_users_column_visible(q1, context, HostRequest.recipient_user_id)
     q1 = where_moderated_content_visible(q1, context, HostRequest, is_list_operation=True)
     q1 = q1.where(Reference.id == None)
     q1 = q1.where(HostRequest.can_write_reference)
-    q1 = q1.where(HostRequest.surfer_user_id == context.user_id)
-    q1 = q1.where(HostRequest.surfer_reason_didnt_meetup == None)
+    q1 = q1.where(HostRequest.initiator_user_id == context.user_id)
+    q1 = q1.where(HostRequest.initiator_reason_didnt_meetup == None)
 
     q2 = (
         select(literal(False), HostRequest, LiteUser)
@@ -140,14 +142,14 @@ def get_pending_references_to_write(
                 Reference.from_user_id == context.user_id,
             ),
         )
-        .join(LiteUser, LiteUser.id == HostRequest.surfer_user_id)
+        .join(LiteUser, LiteUser.id == HostRequest.initiator_user_id)
     )
-    q2 = where_users_column_visible(q2, context, HostRequest.surfer_user_id)
+    q2 = where_users_column_visible(q2, context, HostRequest.initiator_user_id)
     q2 = where_moderated_content_visible(q2, context, HostRequest, is_list_operation=True)
     q2 = q2.where(Reference.id == None)
     q2 = q2.where(HostRequest.can_write_reference)
-    q2 = q2.where(HostRequest.host_user_id == context.user_id)
-    q2 = q2.where(HostRequest.host_reason_didnt_meetup == None)
+    q2 = q2.where(HostRequest.recipient_user_id == context.user_id)
+    q2 = q2.where(HostRequest.recipient_reason_didnt_meetup == None)
 
     union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
     query = select(union.c[0].label("surfed"), aliased(HostRequest, union), aliased(LiteUser, union))
@@ -184,6 +186,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 .where(
                     to_users.banned_at.is_(None)
                 )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
+                .where(or_(to_users.shadowed_at.is_(None), to_users.id == context.user_id))
                 .where(Reference.from_user_id == request.from_user_id)
             )
         if request.to_user_id:
@@ -193,6 +196,7 @@ class References(references_pb2_grpc.ReferencesServicer):
                 .where(
                     from_users.banned_at.is_(None)
                 )  # instead of where_users_visible; if user is deleted or blocked, reference still visible
+                .where(or_(from_users.shadowed_at.is_(None), from_users.id == context.user_id))
                 .where(Reference.to_user_id == request.to_user_id)
             )
         if len(request.reference_type_filter) > 0:
@@ -321,13 +325,13 @@ class References(references_pb2_grpc.ReferencesServicer):
         if surfed:
             # we requested to surf with someone
             reference_type = ReferenceType.surfed
-            to_user_id = host_request.host_user_id
-            assert context.user_id == host_request.surfer_user_id
+            to_user_id = host_request.recipient_user_id
+            assert context.user_id == host_request.initiator_user_id
         else:
             # we hosted someone
             reference_type = ReferenceType.hosted
-            to_user_id = host_request.surfer_user_id
-            assert context.user_id == host_request.host_user_id
+            to_user_id = host_request.initiator_user_id
+            assert context.user_id == host_request.recipient_user_id
 
         reference = Reference(
             from_user_id=context.user_id,
@@ -393,9 +397,9 @@ class References(references_pb2_grpc.ReferencesServicer):
         reason = request.reason_didnt_meetup.strip()
 
         if surfed:
-            host_request.surfer_reason_didnt_meetup = reason
+            host_request.initiator_reason_didnt_meetup = reason
         else:
-            host_request.host_reason_didnt_meetup = reason
+            host_request.recipient_reason_didnt_meetup = reason
 
         return empty_pb2.Empty()
 
@@ -431,9 +435,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             )
             .where(Reference.id == None)
             .where(HostRequest.can_write_reference)
-            .where(HostRequest.surfer_user_id == context.user_id)
-            .where(HostRequest.host_user_id == request.to_user_id)
-            .where(HostRequest.surfer_reason_didnt_meetup == None)
+            .where(HostRequest.initiator_user_id == context.user_id)
+            .where(HostRequest.recipient_user_id == request.to_user_id)
+            .where(HostRequest.initiator_reason_didnt_meetup == None)
         )
 
         q2 = (
@@ -447,9 +451,9 @@ class References(references_pb2_grpc.ReferencesServicer):
             )
             .where(Reference.id == None)
             .where(HostRequest.can_write_reference)
-            .where(HostRequest.surfer_user_id == request.to_user_id)
-            .where(HostRequest.host_user_id == context.user_id)
-            .where(HostRequest.host_reason_didnt_meetup == None)
+            .where(HostRequest.initiator_user_id == request.to_user_id)
+            .where(HostRequest.recipient_user_id == context.user_id)
+            .where(HostRequest.recipient_reason_didnt_meetup == None)
         )
 
         union = union_all(q1, q2).order_by(HostRequest.end_time_to_write_reference.asc()).subquery()
@@ -501,7 +505,7 @@ class References(references_pb2_grpc.ReferencesServicer):
         query = where_moderated_content_visible(query, context, HostRequest, is_list_operation=False)
         query = query.where(HostRequest.conversation_id == request.host_request_id)
         query = query.where(
-            or_(HostRequest.surfer_user_id == context.user_id, HostRequest.host_user_id == context.user_id)
+            or_(HostRequest.initiator_user_id == context.user_id, HostRequest.recipient_user_id == context.user_id)
         )
         host_request = session.execute(query).scalar_one_or_none()
 
@@ -516,9 +520,9 @@ class References(references_pb2_grpc.ReferencesServicer):
 
             # Block only if current user indicated didn't meet up
             didnt_stay = (
-                (host_request.surfer_reason_didnt_meetup is not None)
-                if host_request.surfer_user_id == context.user_id
-                else (host_request.host_reason_didnt_meetup is not None)
+                (host_request.initiator_reason_didnt_meetup is not None)
+                if host_request.initiator_user_id == context.user_id
+                else (host_request.recipient_reason_didnt_meetup is not None)
             )
 
             # You can write only if: host_request allows it, you didn't already give one, and you didn't indicate didn't meet up

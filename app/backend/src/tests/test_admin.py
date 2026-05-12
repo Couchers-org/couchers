@@ -10,12 +10,26 @@ from couchers.models import (
     AccountDeletionToken,
     ContentReport,
     EventOccurrence,
+    FriendRelationship,
+    FriendStatus,
+    ModerationObjectType,
+    ModerationState,
     ModerationUserList,
+    ModerationVisibility,
     Reference,
     User,
+    UserActivity,
     UserSession,
 )
-from couchers.proto import account_pb2, admin_pb2, auth_pb2, events_pb2, references_pb2, reporting_pb2
+from couchers.proto import (
+    account_pb2,
+    admin_pb2,
+    auth_pb2,
+    events_pb2,
+    references_pb2,
+    reporting_pb2,
+    requests_pb2,
+)
 from couchers.utils import Timestamp_from_datetime, now, parse_date
 from tests.fixtures.db import add_users_to_new_moderation_list, generate_user, make_friends
 from tests.fixtures.misc import PushCollector, email_fields, mock_notification_email
@@ -26,8 +40,10 @@ from tests.fixtures.sessions import (
     real_admin_session,
     references_session,
     reporting_session,
+    requests_session,
 )
 from tests.test_communities import create_community
+from tests.test_requests import valid_request_text
 
 
 @pytest.fixture(autouse=True)
@@ -201,6 +217,77 @@ def test_UnbanUser(db):
     assert len(res.admin_actions) == 1
     assert res.admin_actions[0].action_type == "unban"
     assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+
+
+def test_ShadowUser(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+    admin_note = "Spammer"
+
+    # Create a host request from `surfer` and approve its moderation state to VISIBLE so we can verify the cascade
+    today_plus_2 = (date.today() + timedelta(days=2)).isoformat()
+    today_plus_3 = (date.today() + timedelta(days=3)).isoformat()
+    with requests_session(surfer_token) as api:
+        host_request_id = api.CreateHostRequest(
+            requests_pb2.CreateHostRequestReq(
+                host_user_id=host.id,
+                from_date=today_plus_2,
+                to_date=today_plus_3,
+                text=valid_request_text(),
+            )
+        ).host_request_id
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.host_request)
+            .where(ModerationState.object_id == host_request_id)
+        ).scalar_one()
+        state.visibility = ModerationVisibility.visible
+
+    with real_admin_session(super_token) as api:
+        res = api.ShadowUser(admin_pb2.ShadowUserReq(user=surfer.username, admin_note=admin_note))
+    assert res.user_id == surfer.id
+    assert res.shadowed
+    assert not res.banned
+    assert not res.deleted
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "shadow"
+    assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+    assert res.admin_actions[0].note == admin_note
+
+    # The previously-visible host request is now shadowed
+    with session_scope() as session:
+        state = session.execute(
+            select(ModerationState)
+            .where(ModerationState.object_type == ModerationObjectType.host_request)
+            .where(ModerationState.object_id == host_request_id)
+        ).scalar_one()
+        assert state.visibility == ModerationVisibility.shadowed
+
+
+def test_UnshadowUser(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+    with session_scope() as session:
+        session.execute(select(User).where(User.id == normal_user.id)).scalar_one().shadowed_at = now()
+
+    with real_admin_session(super_token) as api:
+        res = api.UnshadowUser(admin_pb2.UnshadowUserReq(user=normal_user.username, admin_note="rehabilitated"))
+    assert not res.shadowed
+    assert len(res.admin_actions) == 1
+    assert res.admin_actions[0].action_type == "unshadow"
+    assert res.admin_actions[0].level == admin_pb2.ADMIN_ACTION_LEVEL_HIGH
+
+
+def test_ShadowUser_blank_note(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        with pytest.raises(grpc.RpcError) as e:
+            api.ShadowUser(admin_pb2.ShadowUserReq(user=normal_user.username, admin_note="  \t  "))
+        assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
 
 
 def test_AddAdminNote(db):
@@ -694,6 +781,75 @@ def test_GetUserReferences_not_found(db):
         assert e.value.code() == grpc.StatusCode.NOT_FOUND
 
 
+def test_GetFriendRequests(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+    user3, _ = generate_user()
+    user4, _ = generate_user()
+
+    # Create a mix of friend requests directly so we control the state
+    def _add_friend_request(from_user_id, to_user_id, status, visibility, time_responded=None):
+        with session_scope() as session:
+            mod_state = ModerationState(
+                object_type=ModerationObjectType.friend_request,
+                object_id=0,
+                visibility=visibility,
+            )
+            session.add(mod_state)
+            session.flush()
+            rel = FriendRelationship(
+                from_user_id=from_user_id,
+                to_user_id=to_user_id,
+                status=status,
+                moderation_state_id=mod_state.id,
+                time_responded=time_responded,
+            )
+            session.add(rel)
+            session.flush()
+            mod_state.object_id = rel.id
+
+    # user1 -> user2: pending, shadowed
+    _add_friend_request(user1.id, user2.id, FriendStatus.pending, ModerationVisibility.shadowed)
+    # user1 -> user3: accepted, visible
+    _add_friend_request(user1.id, user3.id, FriendStatus.accepted, ModerationVisibility.visible, time_responded=now())
+    # user4 -> user1: rejected, visible
+    _add_friend_request(user4.id, user1.id, FriendStatus.rejected, ModerationVisibility.visible, time_responded=now())
+
+    with real_admin_session(super_token) as admin_api:
+        res = admin_api.GetFriendRequests(admin_pb2.GetFriendRequestsReq(user=user1.username))
+
+    # user1 sent two: to user2 (pending) and to user3 (accepted), ordered by id desc
+    assert len(res.sent) == 2
+    assert res.sent[0].from_user.user_id == user1.id
+    assert res.sent[0].to_user.user_id == user3.id
+    assert res.sent[0].status == "accepted"
+    assert res.sent[0].HasField("time_responded")
+    assert res.sent[0].moderation_visibility == "visible"
+
+    assert res.sent[1].from_user.user_id == user1.id
+    assert res.sent[1].to_user.user_id == user2.id
+    assert res.sent[1].status == "pending"
+    assert not res.sent[1].HasField("time_responded")
+    assert res.sent[1].moderation_visibility == "shadowed"
+
+    # user1 received one: from user4 (rejected)
+    assert len(res.received) == 1
+    assert res.received[0].from_user.user_id == user4.id
+    assert res.received[0].to_user.user_id == user1.id
+    assert res.received[0].status == "rejected"
+
+
+def test_GetFriendRequests_not_found(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as admin_api:
+        with pytest.raises(grpc.RpcError) as e:
+            admin_api.GetFriendRequests(admin_pb2.GetFriendRequestsReq(user="nonexistent"))
+        assert e.value.code() == grpc.StatusCode.NOT_FOUND
+
+
 def test_AddUsersToModerationUserList(db):
     super_user, super_token = generate_user(is_superuser=True)
     user1, _ = generate_user()
@@ -736,8 +892,8 @@ def test_AddUsersToModerationUserList(db):
             listRes = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user2.username))
             assert len(listRes.moderation_lists) == 1
             assert listRes.moderation_lists[0].moderation_list_id == res.moderation_list_id
-            assert len(listRes.moderation_lists[0].member_ids) == 3
-            assert {user1.id, user2.id, user3.id}.issubset(listRes.moderation_lists[0].member_ids)
+            assert len(listRes.moderation_lists[0].members) == 3
+            assert {user1.id, user2.id, user3.id}.issubset({m.user_id for m in listRes.moderation_lists[0].members})
 
             # Test user can be in multiple moderation lists
             listRes3 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user1.username))
@@ -759,8 +915,8 @@ def test_AddUsersToModerationUserList(db):
             listRes2 = api.ListModerationUserLists(admin_pb2.ListModerationUserListsReq(user=user5.username))
             assert len(listRes2.moderation_lists) == 1
             assert listRes2.moderation_lists[0].moderation_list_id == moderation_list_id
-            assert len(listRes2.moderation_lists[0].member_ids) == 3
-            assert {user1.id, user4.id, user5.id}.issubset(listRes2.moderation_lists[0].member_ids)
+            assert len(listRes2.moderation_lists[0].members) == 3
+            assert {user1.id, user4.id, user5.id}.issubset({m.user_id for m in listRes2.moderation_lists[0].members})
 
 
 def test_RemoveUserFromModerationUserList(db):
@@ -850,6 +1006,63 @@ def test_admin_delete_account_url(db, push_collector: PushCollector):
     e = email_fields(mock)
 
 
+def test_AccessStats(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    normal_user, normal_token = generate_user()
+
+    # Insert UserActivity rows: a couple inside the default 90-day window, one well
+    # outside it, and one with NULL ip_address / user_agent. The INET column is
+    # returned by psycopg3 as an IPv4Address/IPv6Address object, which used to
+    # crash the proto string assignment.
+    in_window_1 = now() - timedelta(days=1)
+    in_window_2 = now() - timedelta(days=10)
+    out_of_window = now() - timedelta(days=200)
+    with session_scope() as session:
+        session.add(
+            UserActivity(
+                user_id=normal_user.id, period=in_window_1, ip_address="1.2.3.4", user_agent="ua-a", api_calls=5
+            )
+        )
+        session.add(
+            UserActivity(
+                user_id=normal_user.id, period=in_window_2, ip_address="2001:db8::1", user_agent="ua-b", api_calls=3
+            )
+        )
+        session.add(
+            UserActivity(
+                user_id=normal_user.id, period=out_of_window, ip_address="9.9.9.9", user_agent="ua-old", api_calls=99
+            )
+        )
+        session.add(UserActivity(user_id=normal_user.id, period=in_window_1, api_calls=1))
+
+    with real_admin_session(super_token) as api:
+        res = api.AccessStats(admin_pb2.AccessStatsReq(user=normal_user.username))
+
+    by_ip = {s.ip_address: s for s in res.stats}
+    assert "1.2.3.4" in by_ip
+    assert by_ip["1.2.3.4"].api_call_count == 5
+    assert by_ip["1.2.3.4"].user_agent == "ua-a"
+    assert "2001:db8::1" in by_ip
+    assert by_ip["2001:db8::1"].api_call_count == 3
+    # NULL ip_address row produces an empty-string ip_address in the proto
+    assert "" in by_ip
+    assert by_ip[""].api_call_count == 1
+    # out-of-window row is excluded by the 90-day default
+    assert "9.9.9.9" not in by_ip
+
+    # explicit end_time should bound the upper end of the window (regression: was >=)
+    with real_admin_session(super_token) as api:
+        res = api.AccessStats(
+            admin_pb2.AccessStatsReq(
+                user=normal_user.username,
+                start_time=Timestamp_from_datetime(now() - timedelta(days=5)),
+                end_time=Timestamp_from_datetime(now()),
+            )
+        )
+    ips = {s.ip_address for s in res.stats}
+    assert ips == {"1.2.3.4", ""}
+
+
 def test_SetLastDonated(db):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, normal_token = generate_user(last_donated=None)
@@ -925,16 +1138,58 @@ def test_admin_actions_on_mutations(db, push_collector: PushCollector):
     super_user, super_token = generate_user(is_superuser=True)
     normal_user, _ = generate_user()
 
+    original_gender = normal_user.gender
+    original_birthdate = normal_user.birthdate
+
     with real_admin_session(super_token) as api:
         # ChangeUserGender
         res = api.ChangeUserGender(admin_pb2.ChangeUserGenderReq(user=normal_user.username, gender="Machine"))
-        assert any(a.action_type == "change_gender" for a in res.admin_actions)
+        assert any(
+            a.action_type == "change_gender" and a.note == f"Changed from '{original_gender}' to 'Machine'"
+            for a in res.admin_actions
+        )
 
         # ChangeUserBirthdate
         res = api.ChangeUserBirthdate(
             admin_pb2.ChangeUserBirthdateReq(user=normal_user.username, birthdate="1990-01-01")
         )
-        assert any(a.action_type == "change_birthdate" for a in res.admin_actions)
+        assert any(
+            a.action_type == "change_birthdate" and a.note == f"Changed from {original_birthdate} to 1990-01-01"
+            for a in res.admin_actions
+        )
+
+        # SetPassportSexGenderException
+        res = api.SetPassportSexGenderException(
+            admin_pb2.SetPassportSexGenderExceptionReq(user=normal_user.username, passport_sex_gender_exception=True)
+        )
+        assert any(
+            a.action_type == "set_passport_sex_gender_exception" and a.note == "Changed from False to True"
+            for a in res.admin_actions
+        )
+
+        # SendModNote with notify
+        res = api.SendModNote(
+            admin_pb2.SendModNoteReq(
+                user=normal_user.username, content="Please update your profile", internal_id="test1"
+            )
+        )
+        assert any(
+            a.action_type == "send_mod_note" and a.note == "Notify user: Yes\n\nPlease update your profile"
+            for a in res.admin_actions
+        )
+
+        # SendModNote with do_not_notify
+        res = api.SendModNote(
+            admin_pb2.SendModNoteReq(
+                user=normal_user.username,
+                content="Silent note",
+                internal_id="test2",
+                do_not_notify=True,
+            )
+        )
+        assert any(
+            a.action_type == "send_mod_note" and a.note == "Notify user: No\n\nSilent note" for a in res.admin_actions
+        )
 
         # DeleteUser
         res = api.DeleteUser(admin_pb2.DeleteUserReq(user=normal_user.username))
@@ -949,7 +1204,10 @@ def test_admin_actions_on_mutations(db, push_collector: PushCollector):
 
         # MarkUserNeedsLocationUpdate
         res = api.MarkUserNeedsLocationUpdate(admin_pb2.MarkUserNeedsLocationUpdateReq(user=normal_user.username))
-        assert any(a.action_type == "mark_needs_location_update" for a in res.admin_actions)
+        assert any(
+            a.action_type == "mark_needs_location_update" and a.note == "Marked user as needing location update"
+            for a in res.admin_actions
+        )
 
         # SetLastDonated
         res = api.SetLastDonated(
@@ -1124,6 +1382,84 @@ def test_search_users_by_admin_note(db):
         user_ids = {u.user_id for u in res.users}
         assert user1.id in user_ids
         assert user2.id not in user_ids
+
+
+def test_ListAdminActions_empty(db):
+    super_user, super_token = generate_user(is_superuser=True)
+
+    with real_admin_session(super_token) as api:
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq())
+    assert len(res.admin_actions) == 0
+    assert res.next_page_token == ""
+
+
+def test_ListAdminActions_returns_newest_first_with_target_info(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="first note"))
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user2.username, admin_note="second note"))
+        api.BanUser(admin_pb2.BanUserReq(user=user1.username, admin_note="ban reason"))
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq())
+
+    assert len(res.admin_actions) == 3
+    # Newest first
+    assert res.admin_actions[0].action_type == "ban"
+    assert res.admin_actions[0].target_user_id == user1.id
+    assert res.admin_actions[0].target_username == user1.username
+    assert res.admin_actions[0].admin_user_id == super_user.id
+    assert res.admin_actions[0].admin_username == super_user.username
+    assert res.admin_actions[1].action_type == "note"
+    assert res.admin_actions[1].target_user_id == user2.id
+    assert res.admin_actions[2].action_type == "note"
+    assert res.admin_actions[2].target_user_id == user1.id
+
+
+def test_ListAdminActions_filter_by_admin_and_target(db):
+    super1, super1_token = generate_user(is_superuser=True)
+    super2, super2_token = generate_user(is_superuser=True)
+    user1, _ = generate_user()
+    user2, _ = generate_user()
+
+    with real_admin_session(super1_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="from super1 to user1"))
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user2.username, admin_note="from super1 to user2"))
+    with real_admin_session(super2_token) as api:
+        api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user1.username, admin_note="from super2 to user1"))
+
+    with real_admin_session(super1_token) as api:
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(admin_user_id=super1.id))
+        assert {a.note for a in res.admin_actions} == {"from super1 to user1", "from super1 to user2"}
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(target_user_id=user1.id))
+        assert {a.note for a in res.admin_actions} == {"from super1 to user1", "from super2 to user1"}
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(admin_user_id=super1.id, target_user_id=user1.id))
+        assert [a.note for a in res.admin_actions] == ["from super1 to user1"]
+
+
+def test_ListAdminActions_pagination(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    user, _ = generate_user()
+
+    with real_admin_session(super_token) as api:
+        for i in range(3):
+            api.AddAdminNote(admin_pb2.AddAdminNoteReq(user=user.username, admin_note=f"note {i}"))
+
+        res = api.ListAdminActions(admin_pb2.ListAdminActionsReq(page_size=2))
+        assert len(res.admin_actions) == 2
+        assert res.next_page_token != ""
+        first_page_notes = [a.note for a in res.admin_actions]
+
+        res2 = api.ListAdminActions(admin_pb2.ListAdminActionsReq(page_size=2, page_token=res.next_page_token))
+        assert len(res2.admin_actions) == 1
+        assert res2.next_page_token == ""
+
+    all_notes = first_page_notes + [a.note for a in res2.admin_actions]
+    assert set(all_notes) == {"note 0", "note 1", "note 2"}
 
 
 # community invite feature tested in test_events.py

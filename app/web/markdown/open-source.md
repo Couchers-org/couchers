@@ -1,10 +1,11 @@
 ---
 title: Open Source & Sponsors
+description: We want to give a huge shout out to the awesome open-source
+  projects & technologies we build on, as well as thank the companies that
+  sponsor us!
 crumb: Open Source & Sponsors
 type: general
-description: We want to give a huge shout out to the awesome open-source projects & technologies we build on, as well as thank the companies that sponsor us!
 ---
-
 The driving force of Couchers is the global [volunteer team](/team), and they are the stars of the show.
 
 That said, Couchers is an open-source project and we are very heavy users of open-source technologies ourselves. We want to give a huge shout out to the folks who have built the tools and technologies that make Couchers possible! We are also supported by some great companies that help us build and operate Couchers, whether it is because we are a non-profit or an open-source project.
@@ -27,12 +28,14 @@ We'd like to thank the amazing folks who built these core technologies, without 
 * The [Wiki.js](https://js.wiki/) project that powers our wiki
 * The [Chatwoot](https://www.chatwoot.com/) open source support platform project that powers all our Support systems
 * The [Listmonk](https://listmonk.app/) self-hosted newsletter and mailing list manager we use for our newsletters
+* T﻿he [WooCommerce](https://woocommerce.com/) ﻿self-hosted ecommerce platform that powers our merchandise shop
 
 ## Company Sponsorships
 
 We are grateful to the following companies that generously provide us with free services, whether specifically due to our non-profit/open-source nature or as part of their general support:
 
 * [Amazon Web Services (AWS)](https://aws.amazon.com/): Couchers operates entirely in the cloud, with hosting costs partially offset by the generous [non-profit credit program](https://aws.amazon.com/government-education/nonprofits/nonprofit-credit-program/) by AWS!
+* [Microsoft](https://www.microsoft.com/en-us/nonprofits/azure) provides us with free credits for Azure to pay for some of our cloud expenses
 * [GitHub](https://github.com) hosts [all our code](https://github.com/Couchers-org/couchers) and is where we build Couchers ([come help out by the way](https://couchers.org/volunteer))
 * [GitLab](https://about.gitlab.com/) sponsors [us](https://gitlab.com/couchers/couchers) a [very generous](https://about.gitlab.com/solutions/open-source/) CI/CD allowance, allowing us to ship better software quicker!
 * [Google](https://www.google.com/) sponsors us free email & drive
@@ -41,6 +44,7 @@ We are grateful to the following companies that generously provide us with free 
 * [Stripe](https://stripe.com/) gives us a discount on processing fees
 * [Maxmind](https://www.maxmind.com/en/home) gives us access to free GeoIP data
 * [Slack](https://slack.com/) sponsors our Slack workspace with a free Pro Plan where core volunteers collaborate
+* [Anthropic](https://www.anthropic.com/news/claude-for-nonprofits) gives us discounted access to Claude tools
 * [Zulip](https://zulip.com/) sponsors our Zulip workspace with a free Standard Plan where Community Builders collaborate
 
 ## Past Company Sponsorships

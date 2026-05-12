@@ -1,7 +1,7 @@
 """Remove shared space sleeping arrangement
 
-Revision ID: e6205511239b
-Revises: 9b738767992c
+Revision ID: 0083
+Revises: 0082
 Create Date: 2025-02-28 21:36:29.300576
 
 """
@@ -9,8 +9,8 @@ Create Date: 2025-02-28 21:36:29.300576
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "e6205511239b"
-down_revision = "9b738767992c"
+revision = "0083"
+down_revision = "0082"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,6 @@
 {
   "notification_settings": {
     "title": "通知设置",
-    "edit_in_console": "您可以在<2>此页面</2>更改通知设置。我们将很快将此功能迁移至这里。",
     "go_to_button": "管理通知设置",
     "edit_preferences": {
       "title": "通知设置",
@@ -19,92 +18,6 @@
         "discussion": "讨论",
         "reply": "回复",
         "other_notifications": "其他通知"
-      },
-      "item_descriptions": {
-        "host_request": {
-          "create": "有人向您发送接待请求",
-          "accept": "有人接受了您的接待请求",
-          "confirm": "有人确认了他们的接待请求",
-          "reject": "有人拒绝了您的接待请求",
-          "cancel": "有人取消了他们的接待请求",
-          "message": "有人在接待请求中发送了消息",
-          "missed_messages": "您错过了接待请求中的消息",
-          "reminder": "您还没有回复待处理的接待请求"
-        },
-        "chat": {
-          "message": "有人向您发送了消息",
-          "missed_messages": "您错过了聊天中的消息"
-        },
-        "reference": {
-          "receive_hosted": "您收到了一位接待您的人的评语",
-          "receive_surfed": "您收到了一位您接待过的人的评语",
-          "receive_friend": "您收到了一位朋友的评语",
-          "reminder_hosted": "提醒您给曾接待过您的人成写评语",
-          "reminder_surfed": "提醒您给曾与您共同旅行过的人写评语"
-        },
-        "friend_request": {
-          "create": "有人向您发送了好友请求",
-          "accept": "有人接受了您的好友请求"
-        },
-        "event": {
-          "create_approved": "您的社区中创建了一个管理员批准的活动",
-          "create_any": "用户在您的社区中创建了任何活动（未经管理员审核）",
-          "update": "您参加的活动已更新",
-          "cancel": "您参加的活动已取消",
-          "delete": "您参加的活动已删除",
-          "invite_organizer": "有人邀请您共同组织一个活动",
-          "reminder": "提醒: 您参加的活动即将开始",
-          "comment": " 一位用户对你即将参加的活动进行了评论"
-        },
-        "onboarding": {
-          "reminder": "注册后提醒您完善个人资料"
-        },
-        "badge": {
-          "add": "您的账户添加了一个徽章",
-          "remove": "您的账户移除了一个徽章"
-        },
-        "donation": {
-          "received": "您的捐赠已收到"
-        },
-        "password": {
-          "change": "您的密码已更改"
-        },
-        "password_reset": {
-          "start": "密码重置已启动",
-          "complete": "密码重置已完成"
-        },
-        "email_address": {
-          "change": "电子邮件更改已启动",
-          "verify": "您的新电子邮件已验证"
-        },
-        "account_deletion": {
-          "start": "您已启动账户删除",
-          "complete": "您的账户已删除",
-          "recovered": "您的账户已恢复（未删除）"
-        },
-        "api_key": {
-          "create": "为您的账户创建了API密钥"
-        },
-        "phone_number": {
-          "change": "您的电话号码已更改",
-          "verify": "您的电话号码已验证"
-        },
-        "birthdate": {
-          "change": "您的出生日期已更改"
-        },
-        "gender": {
-          "change": "您的个人资料中显示的性别已更改"
-        },
-        "discussion": {
-          "comment": "有人在你关注的讨论中发表评论",
-          "create": "有人在您所在的社区发起了新讨论"
-        },
-        "thread": {
-          "reply": "有人回复了你的评论"
-        },
-        "general": {
-          "new_blog_post": "一篇新博客文章已发布"
-        }
       },
       "expand_all": "全部展开",
       "collapse_all": "全部折叠"
@@ -127,8 +40,7 @@
           "macos": "在 macOS 中，前往 系统设置 > 通知，并修改应用的权限。",
           "windows": "在 Windows 中，前往 设置 > 系统 > 通知和操作，调整应用或网站的权限。",
           "linux": {
-            "gnome": "在 GNOME 中，前往 设置 > 通知，调整应用的权限。",
-            "kde": "在 KDE 中，前往 系统设置 > 通知，修改权限。"
+            "gnome": "在 GNOME 中，前往 设置 > 通知，调整应用的权限。"
           },
           "mobile": {
             "browser": "在您的移动浏览器设置中，调整此网站的通知权限。",

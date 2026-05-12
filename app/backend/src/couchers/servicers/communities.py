@@ -5,7 +5,7 @@ from datetime import timedelta
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import delete, func, or_
 
 from couchers.constants import COMMUNITIES_SEARCH_FUZZY_SIMILARITY_THRESHOLD
@@ -121,8 +121,7 @@ def communities_to_pb(
             admin_count=admin_counts.get(official_cluster.id, 1),
             main_page=page_to_pb(session, official_cluster.main_page, context),
             can_moderate=can_moderate,
-            discussions_enabled=official_cluster.discussions_enabled,
-            events_enabled=official_cluster.events_enabled,
+            small_community_features_enabled=official_cluster.small_community_features_enabled,
             node_type=nodetype2api[node.node_type],
         )
         for node, official_cluster, can_moderate in zip(nodes, official_clusters, can_moderates)
@@ -137,7 +136,9 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
     def GetCommunity(
         self, request: communities_pb2.GetCommunityReq, context: CouchersContext, session: Session
     ) -> communities_pb2.Community:
-        node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
+        node = session.execute(
+            select(Node).where(Node.id == request.community_id).options(selectinload(Node.official_cluster))
+        ).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
 
@@ -157,6 +158,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .order_by(Cluster.name)
                 .limit(page_size + 1)
                 .offset(offset)
+                .options(selectinload(Node.official_cluster))
             )
             .scalars()
             .all()
@@ -186,9 +188,33 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             .limit(page_size)
         )
 
-        rows = session.execute(query).scalars().all()
+        rows = session.execute(query.options(selectinload(Node.official_cluster))).scalars().all()
 
         return communities_pb2.SearchCommunitiesRes(communities=communities_to_pb(session, rows, context))
+
+    def ListRecentCommunities(
+        self, request: communities_pb2.ListRecentCommunitiesReq, context: CouchersContext, session: Session
+    ) -> communities_pb2.ListRecentCommunitiesRes:
+        page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
+        rows = session.execute(
+            select(Node, Cluster)
+            .join(Cluster, Cluster.parent_node_id == Node.id)
+            .where(Cluster.is_official_cluster)
+            .order_by(Node.created.desc(), Node.id.desc())
+            .limit(page_size)
+        ).all()
+        return communities_pb2.ListRecentCommunitiesRes(
+            communities=[
+                communities_pb2.CommunitySummary(
+                    community_id=node.id,
+                    name=cluster.name,
+                    slug=cluster.slug,
+                    created=Timestamp_from_datetime(node.created),
+                    node_type=nodetype2api[node.node_type],
+                )
+                for node, cluster in rows
+            ],
+        )
 
     def ListGroups(
         self, request: communities_pb2.ListGroupsReq, context: CouchersContext, session: Session
@@ -398,7 +424,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
-        if not node.official_cluster.events_enabled:
+        if not node.official_cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "events_not_enabled")
 
         if not request.include_parents:
@@ -443,7 +469,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
         node = session.execute(select(Node).where(Node.id == request.community_id)).scalar_one_or_none()
         if not node:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
-        if not node.official_cluster.discussions_enabled:
+        if not node.official_cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussions_not_enabled")
         discussions = (
             node.official_cluster.owned_discussions.where(
@@ -529,6 +555,7 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
                 .where(Node.id >= next_node_id)
                 .order_by(Node.id)
                 .limit(page_size + 1)
+                .options(selectinload(Node.official_cluster))
             )
             .scalars()
             .all()

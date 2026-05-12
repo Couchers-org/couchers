@@ -9,9 +9,6 @@
     "donate": "Spenden",
     "events": "Events",
     "faq": "FAQ",
-    "feature_preview": "Feature-Vorschau",
-    "forum": "Forum",
-    "github": "GitHub",
     "help_center": "Hilfezentrum",
     "roadmap_updates": "Roadmap & Updates",
     "help": "Hilfezentrum",
@@ -24,7 +21,6 @@
     "our_team": "Unser Team",
     "profile": "Profil",
     "show_all_events": "Alle Events anzeigen",
-    "the_team": "Das Team",
     "volunteer": "Helfen",
     "legal_more": "Rechtliches & Mehr",
     "contact_us": "Kontakt",
@@ -49,30 +45,8 @@
     "have_skills_contribute": "Hast du Fähigkeiten, mit denen du beitragen möchtest?",
     "fill_form_description": "Couchers.org ist ein community-basiertes Projekt, das von Menschen wie dir zum Nutzen der globalen Couchsurfer-Community entwickelt wurde. Wenn du Interesse hast, an dieser spannenden Initiative teilzunehmen, klicke bitte auf den untenstehenden Button und fülle das kurze Formular aus.",
     "description": "Wir sind leidenschaftliche Couchsurfer und erfahrene Fachleute, die sich dafür einsetzen, eine verbesserte, sicherere und inklusivere Plattform zu schaffen. Wir bauen diese Plattform, um die Couchsurfer-Community zu unterstützen und nachhaltig wachsen zu lassen, während wir ihre Werte mit der Welt teilen. Wenn du unsere Überzeugungen teilst und mitwirken möchtest, freuen wir uns, von dir zu hören.",
-    "current_members": "Aktuelle Mitglieder",
     "past_members": "Ehemalige Mitglieder",
-    "board_member": "Vorstandsmitglied",
-    "co_founder_president": "Mitbegründer, Präsident & Vorsitzender",
-    "co_founder": "Mitbegründer",
-    "secretary": "Sekretär",
-    "treasurer": "Kassenführer",
-    "developer": "Entwickler",
-    "frontend_developer": "Frontend-Entwickler",
-    "lead_frontend_developer": "Leitende Frontend-Entwicklerin",
-    "backend_developer": "Backend-Entwickler",
-    "lead_backend_developer": "Leitender Backend-Entwickler",
-    "full_stack_backend_developer": "Full-Stack-Entwickler",
-    "translations_lead": "Übersetzungsleiter",
-    "community_coordinator": "Community-Koordinator",
-    "volunteer_settings": {
-      "show_on_team_page": {
-        "enabled_message": "Dein Profil ist derzeit auf der Teamseite sichtbar",
-        "title": "Mein Freiwilligenprofil auf der Teamseite anzeigen",
-        "disabled_message": "Dein Profil ist derzeit auf der Teamseite ausgeblendet"
-      }
-    },
-    "ui_ux_designer": "UI/UX-Designer",
-    "tap_press_to_flip": "tippen / drücken zum Drehen"
+    "board_member": "Vorstandsmitglied"
   },
   "retract": "Zurückziehen",
   "couchers": "Couchers.org",
@@ -91,7 +65,6 @@
   "next": "Weiter",
   "mod": "Moderation",
   "hosting_status": {
-    "any": "Alle",
     "can_host": "Kann hosten",
     "maybe": "Kann vielleicht hosten",
     "cant_host": "Kann nicht hosten",
@@ -100,8 +73,6 @@
   "language_preference": {
     "form_title": "Sprache",
     "help_translate": "Hilf dabei Couchers in deine Sprache zu übersetzen.",
-    "select_language": "Sprache auswählen",
-    "success_message": "Deine Änderung wurde gespeichert.",
     "translation_progress": {
       "description": "Siehe, wie vollständig unsere Übersetzungen in verschiedenen Sprachen sind. Hilf uns, Couchers für mehr Menschen weltweit zugänglich zu machen!",
       "info_text": "💡 Sprachen die 50–80% übersetzt sind, werden im Sprachauswahlmenü ausgegraut angezeigt. Sprachen, die weniger als 50% übersetzt sind, werden im Sprachauswahlmenü ausgeblendet. Um Mitwirkende zu ermutigen, werden Sprachen die weniger als 20% übersetzt sind auf dieser Seite angezeigt.",
@@ -111,10 +82,8 @@
       "error_loading": "Das Laden des Übersetzungsfortschritts ist fehlgeschlagen",
       "no_data": "Keine Übersetzungsdaten verfügbar",
       "complete": "Vollständig",
-      "almost_there": "Fast da",
-      "in_progress": "In Bearbeitung",
+      "almost_there": "Fast geschafft",
       "early_stage": "Frühes Stadium",
-      "complete_percent": "{{percent}}% fertig",
       "view_progress": "Übersetzungsfortschritt anzeigen",
       "midway": "Auf halbem Weg",
       "just_started": "Gerade angefangen"
@@ -134,7 +103,6 @@
     "label": "Ein Problem melden",
     "bug": {
       "title_label": "Report Titel",
-      "title_helper": "Kurze Beschreibung des Fehlers",
       "problem_label": "Was hast du getan, um den Fehler auszulösen?",
       "problem_helper": "Kurze Beschreibung des Problems und wie es reproduziert werden kann",
       "expect_label": "Was ist passiert? Was hätte passieren sollen?",
@@ -145,15 +113,13 @@
     },
     "content": {
       "button_label": "Unangemessene Inhalte oder Verhaltensweisen melden",
-      "success_message": "Vielen Dank für deinen Bericht und dafür, dass du Couchers zu einer besseren Plattform für alle machst!",
-      "dialog_message": "Wir arbeiten an robusten Melde- und Moderationstools. In der Zwischenzeit sende uns bitte eine E-Mail an die unten angegebene Adresse. Gib Details wie den betreffenden Nutzer, was unangemessen war und wo du es gesehen hast, an."
+      "success_message": "Vielen Dank für deinen Bericht und dafür, dass du Couchers zu einer besseren Plattform für alle machst!"
     },
     "flag": {
       "button_aria_label": "Inhalt oder einen Nutzer melden",
       "explainer": "Vertraulich einen Bericht an das Safety & Trust-Team senden.",
       "title": "Inhalt oder einen Nutzer melden",
       "reason_label": "Grund für die Meldung",
-      "reason_helper": "Warum meldest du diesen Inhalt?",
       "reason_required": "Ein Grund ist erforderlich.",
       "description_label": "Beschreibe das Problem",
       "description_helper": "Bitte teile uns mit, warum du dies meldest.",
@@ -172,11 +138,9 @@
       "block_user": "{{username}} blockieren",
       "profile_button_aria_label": "Inhalt melden oder Nutzer blockieren",
       "profile_title": "Melden oder blockieren",
-      "profile_reason_required": "Bitte fülle die Beschreibung aus oder blockiere die Person",
       "block_user_explainer": "Nachrichten und Anfragen von dieser Person werden blockiert, und dein Profil, deine Events und Kommentare sind für diese Person nicht sichtbar. Die Person wird nicht darüber informiert, dass du sie blockiert hast.",
       "description_required": "Eine Beschreibung ist erforderlich."
-    },
-    "title": "Ein Problem melden"
+    }
   },
   "previous": "Vorherige",
   "not_found_text_2": "Willst du einfach nur <1>zum Dashboard gehen?</1>",
@@ -209,11 +173,11 @@
       "location_publicly_visible": "Dies wird öffentlich sichtbar sein",
       "location_warn": "Klicke und ziehe den Kreis auf der Karte unten, um den ungefähren Ort deines Zuhauses zu zeigen. Achte darauf, dass dein Zuhause nicht im Mittelpunkt des Kreises liegt, damit niemand den genauen Ort kennt.",
       "map_is_blank": "Fehlende Koordinaten, beginne mit der Suche nach einem Ort auf der obigen Karte",
-      "radius_text": "{{radius}} Meter",
       "no_location_results_text": "Keine Ergebnisse. Versuche, nur nach der Stadt zu suchen.",
-      "no_map_support": "Dein Gerät unterstützt die Karte nicht. Bitte stelle sicher, dass WebGL2 aktiviert ist, oder versuche es mit einem anderen Gerät oder Browser. Entschuldige die Unannehmlichkeiten!",
       "press_enter_to_search": "Drücke die Eingabetaste, um zu suchen",
-      "display_location_not_empty": "Bitte gib eine Anzeigeadresse ein"
+      "display_location_not_empty": "Bitte gib eine Anzeigeadresse ein",
+      "radius_text2_one": "{{count}} Meter",
+      "radius_text2_other": "{{count}} Meter"
     }
   },
   "reply": "Antwort",
@@ -280,30 +244,22 @@
   },
   "back": "Zurück",
   "save_changes": "Änderungen speichern",
-  "created": "Erstellt",
-  "invited_you": "{{name}} hat dich eingeladen, Couchers beizutreten!",
-  "disable": "Deaktivieren",
   "invites": {
-    "create": "Einladung erstellen",
     "instructions": "Erstelle einen Einladungslink, um ihn mit Freunden und der Community zu teilen. Deaktiviere Codes, die du nicht mehr verwendest.",
     "title": "Mitglieder einladen",
-    "disable": "Deaktivieren",
-    "share_link": "Link kopieren",
-    "uses_suffix": "abgeschlossene Anmeldungen",
     "banner": {
-      "invited_you": "{{name}} hat dich eingeladen, Couchers beizutreten!",
-      "inviter_fallback": "{{username}} hat dich eingeladen, Couchers beizutreten!"
+      "invited_you": "{{name}} hat dich eingeladen, Couchers beizutreten!"
     },
     "error": {
       "fetch_invite_info": "Details des Einladungscodes konnten nicht abgerufen werden"
-    }
+    },
+    "no_codes_message": "Noch keine Einladungscodes",
+    "created_datetime": "Erstellt: {{datetime}}",
+    "disabled_datetime": "Deaktiviert: {{datetime}}",
+    "number_of_uses_one": "Verwendet: {{count}} abgeschlossene Anmeldung",
+    "number_of_uses_other": "Verwendet: {{count}} abgeschlossene Anmeldungen",
+    "disable_link": "Deaktivieren"
   },
-  "no_invite_codes": "Noch keine Einladungscodes",
-  "disabled": "Deaktiviert",
-  "uses": "Verwendungen",
-  "error_loading_invite_codes": "Details des Einladungscodes konnten nicht abgerufen werden",
-  "copy": "Kopieren",
-  "copied": "In die Zwischenablage kopiert",
   "what_is_cs": {
     "get_involved_title": "Was kann ich auf Couchers.org machen?",
     "title": "Was ist Couchsurfing?",
@@ -352,7 +308,6 @@
     "tip_text": "Neu hier? Besuche ein lokales Event, um ein Gefühl für die Community zu bekommen — wenig Verpflichtung, viel Verbindung.",
     "bottom_cta_subtitle": "Tritt Couchers.org bei und werde Teil einer weltweiten Community, die auf Gastfreundschaft und Verbundenheit basiert.",
     "description_2": "Es ist, als hätte man einen Freund in einer anderen Stadt und besucht ihn, aber man trifft den Freund zum ersten Mal, wenn man dort ankommt!",
-    "get_started": "Loslegen",
     "timeline_title": "Eine kurze Geschichte des Couchsurfings",
     "bottom_cta_title": "Bereit, Couchsurfing auszuprobieren?",
     "actions": {
@@ -378,7 +333,10 @@
   },
   "image_input": {
     "select_button_a11y": "Wähle ein Bild aus",
-    "replace_image_tooltip": "Klicke um das Bild zu ändern",
     "read_file_error_message": "Die Datei konnte nicht gelesen werden"
+  },
+  "copy_button": {
+    "a11y": "Kopieren",
+    "copied_tooltip": "In die Zwischenablage kopiert"
   }
 }

@@ -41,6 +41,10 @@ service Admin {
 
   rpc UnbanUser(UnbanUserReq) returns (UserDetails) {}
 
+  rpc ShadowUser(ShadowUserReq) returns (UserDetails) {}
+
+  rpc UnshadowUser(UnshadowUserReq) returns (UserDetails) {}
+
   rpc AddAdminNote(AddAdminNoteReq) returns (UserDetails) {}
 
   rpc GetContentReport(GetContentReportReq) returns (GetContentReportRes) {}
@@ -72,6 +76,8 @@ service Admin {
 
   rpc GetUserReferences(GetUserReferencesReq) returns (GetUserReferencesRes) {}
 
+  rpc GetFriendRequests(GetFriendRequestsReq) returns (GetFriendRequestsRes) {}
+
   rpc EditDiscussion(EditDiscussionReq) returns (google.protobuf.Empty) {}
 
   rpc EditReply(EditReplyReq) returns (google.protobuf.Empty) {}
@@ -95,6 +101,10 @@ service Admin {
   rpc AddAdminTagToUser(AddAdminTagToUserReq) returns (UserDetails) {}
 
   rpc RemoveAdminTagFromUser(RemoveAdminTagFromUserReq) returns (UserDetails) {}
+
+  rpc SetModScore(SetModScoreReq) returns (UserDetails) {}
+
+  rpc ListAdminActions(ListAdminActionsReq) returns (ListAdminActionsRes) {}
 }
 
 message AdminActionLog {
@@ -106,6 +116,8 @@ message AdminActionLog {
   string note = 6;   // optional note/details
   string tag = 7;    // for tag-related actions
   AdminActionLevel level = 8;
+  int64 target_user_id = 9;
+  string target_username = 10;
 }
 
 message AdminTagInfo {
@@ -122,6 +134,7 @@ message UserDetails {
   string birthdate = 7;
   bool banned = 5;
   bool deleted = 6;
+  bool shadowed = 21;
   bool do_not_email = 15;
   repeated string badges = 8;
 
@@ -138,6 +151,8 @@ message UserDetails {
 
   repeated AdminActionLog admin_actions = 18;
   repeated string admin_tags = 19;
+
+  double mod_score = 20;
 }
 
 message GetUserDetailsReq {
@@ -167,6 +182,7 @@ message SearchUsersReq {
   repeated string language_codes = 17;
   google.protobuf.BoolValue is_deleted = 18;
   google.protobuf.BoolValue is_banned = 19;
+  google.protobuf.BoolValue is_shadowed = 22;
   google.protobuf.BoolValue has_avatar = 20;
   repeated string admin_tags = 21;
 
@@ -214,6 +230,18 @@ message BanUserReq {
 }
 
 message UnbanUserReq {
+  // username, email, or user id
+  string user = 1;
+  string admin_note = 2;
+}
+
+message ShadowUserReq {
+  // username, email, or user id
+  string user = 1;
+  string admin_note = 2;
+}
+
+message UnshadowUserReq {
   // username, email, or user id
   string user = 1;
   string admin_note = 2;
@@ -394,6 +422,28 @@ message GetUserReferencesRes {
   repeated AdminReference references_to = 2;
 }
 
+message GetFriendRequestsReq {
+  // username, email, or user id
+  string user = 1;
+}
+
+message AdminFriendRequest {
+  int64 friend_request_id = 1;
+  ChatUserInfo from_user = 2;
+  ChatUserInfo to_user = 3;
+  string status = 4; // "pending", "accepted", "rejected", "cancelled"
+  google.protobuf.Timestamp time_sent = 5;
+  google.protobuf.Timestamp time_responded = 6;
+  string moderation_visibility = 7; // "hidden", "shadowed", "unlisted", "visible"
+}
+
+message GetFriendRequestsRes {
+  // Friend requests sent by the user
+  repeated AdminFriendRequest sent = 1;
+  // Friend requests received by the user
+  repeated AdminFriendRequest received = 2;
+}
+
 message EditDiscussionReq {
   int64 discussion_id = 1;
   string new_title = 2;
@@ -418,7 +468,9 @@ message ListModerationUserListsReq {
 
 message ModerationList {
   int64 moderation_list_id = 1;
-  repeated int64 member_ids = 2;
+  reserved 2;
+  reserved "member_ids";
+  repeated UserDetails members = 3;
 }
 
 message ListModerationUserListsRes {
@@ -497,4 +549,25 @@ message AddAdminTagToUserReq {
 message RemoveAdminTagFromUserReq {
   string user = 1;
   string tag = 2;
+}
+
+message SetModScoreReq {
+  // username, email, or user id
+  string user = 1;
+  double mod_score = 2;
+}
+
+message ListAdminActionsReq {
+  // Filter to actions performed by this admin (optional)
+  int64 admin_user_id = 1;
+  // Filter to actions targeting this user (optional)
+  int64 target_user_id = 2;
+
+  uint32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListAdminActionsRes {
+  repeated AdminActionLog admin_actions = 1;
+  string next_page_token = 2;
 }

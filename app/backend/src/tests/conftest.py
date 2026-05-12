@@ -96,6 +96,7 @@ def setup_testdb(postgres_conn: Connection, testdb_engine: Engine) -> None:
                 "CREATE EXTENSION IF NOT EXISTS postgis;"
                 "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
                 "CREATE EXTENSION IF NOT EXISTS btree_gist;"
+                "CREATE EXTENSION IF NOT EXISTS pg_stat_statements;"
             )
         )
 
@@ -186,6 +187,11 @@ def testconfig():
     )
 
     config["ENABLE_POSTAL_VERIFICATION"] = False
+    config["MYPOSTCARD_API_KEY"] = "test-api-key"
+    config["MYPOSTCARD_USERNAME"] = "test-username"
+    config["MYPOSTCARD_PASSWORD"] = "test-password"
+    config["MYPOSTCARD_PRODUCT_CODE"] = "J9GCU"
+    config["MYPOSTCARD_CAMPAIGN_ID"] = "295"
 
     config["SMTP_HOST"] = "localhost"
     config["SMTP_PORT"] = 587

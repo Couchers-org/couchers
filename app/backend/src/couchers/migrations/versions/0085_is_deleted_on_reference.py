@@ -1,7 +1,7 @@
 """is_deleted on reference
 
-Revision ID: 20842baa0c53
-Revises: 33944292a259
+Revision ID: 0085
+Revises: 0084
 Create Date: 2025-03-12 21:16:53.707189
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "20842baa0c53"
-down_revision = "33944292a259"
+revision = "0085"
+down_revision = "0084"
 branch_labels = None
 depends_on = None
 

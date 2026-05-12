@@ -121,7 +121,7 @@
   "unknown_user": "Unbekannte Person",
   "end_date_error": "Das Enddatum des Events muss nach dem Startdatum liegen.",
   "upload_helper_text": "Klick hier, um ein Bild hochzuladen",
-  "past": "Frühere",
+  "past": "Vergangenheit",
   "upcoming": "Zukünftige",
   "your_events": "Deine Events",
   "created_by_me": "Von mir erstellt",
@@ -149,5 +149,7 @@
   "search_communities_placeholder": "Suche nach Stadt- oder Ländernamen...",
   "event_title_label": "Titel",
   "discussion_creation_date": "Erstellt am {{dateOnly}}",
-  "duplicate_event": "Event duplizieren"
+  "duplicate_event": "Event duplizieren",
+  "copy_link": "Link kopieren",
+  "copy_link_success": "Link in die Zwischenablage kopiert"
 }

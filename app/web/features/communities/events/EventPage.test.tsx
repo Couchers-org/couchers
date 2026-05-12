@@ -209,16 +209,24 @@ describe("Event page", () => {
     getEventMock.mockResolvedValue({ ...firstEvent, canEdit: true });
     renderEventPage();
 
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
     expect(
-      await screen.findByRole("button", { name: t("communities:edit_event") }),
+      await screen.findByRole("menuitem", {
+        name: t("communities:edit_event"),
+      }),
     ).toBeVisible();
   });
 
   it("does not show the 'edit event' button if the user does not have edit permission", async () => {
     renderEventPage();
 
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
     expect(
-      await screen.queryByRole("button", { name: t("communities:edit_event") }),
+      screen.queryByRole("menuitem", { name: t("communities:edit_event") }),
     ).not.toBeInTheDocument();
   });
 
@@ -227,8 +235,11 @@ describe("Event page", () => {
     getEventMock.mockResolvedValue({ ...firstEvent, creatorUserId: 1 });
     renderEventPage();
 
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
     expect(
-      await screen.findByRole("button", {
+      await screen.findByRole("menuitem", {
         name: t("communities:duplicate_event"),
       }),
     ).toBeVisible();
@@ -239,16 +250,17 @@ describe("Event page", () => {
     getEventMock.mockResolvedValue({ ...firstEvent, creatorUserId: 2 });
     renderEventPage();
 
-    await screen.findByRole("heading", { name: firstEvent.title });
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
 
     expect(
-      screen.queryByRole("button", {
+      screen.queryByRole("menuitem", {
         name: t("communities:duplicate_event"),
       }),
     ).not.toBeInTheDocument();
   });
 
-  it("disables the 'duplicate event' button for cancelled events", async () => {
+  it("hides the 'duplicate event' item for cancelled events", async () => {
     getEventMock.mockResolvedValue({
       ...firstEvent,
       creatorUserId: 1,
@@ -256,11 +268,14 @@ describe("Event page", () => {
     });
     renderEventPage();
 
-    const duplicateButton = await screen.findByRole("button", {
-      name: t("communities:duplicate_event"),
-    });
-    expect(duplicateButton).toBeDisabled();
-    expect(duplicateButton).toHaveAttribute("tabIndex", "-1");
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    expect(
+      screen.queryByRole("menuitem", {
+        name: t("communities:duplicate_event"),
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it("allows duplicating past events", async () => {
@@ -272,11 +287,14 @@ describe("Event page", () => {
     getEventMock.mockResolvedValue(pastEvent);
     renderEventPage();
 
-    const duplicateButton = await screen.findByRole("button", {
-      name: t("communities:duplicate_event"),
-    });
-    expect(duplicateButton).toBeEnabled();
-    expect(duplicateButton).not.toHaveAttribute("tabIndex", "-1");
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    expect(
+      await screen.findByRole("menuitem", {
+        name: t("communities:duplicate_event"),
+      }),
+    ).toBeVisible();
   });
 
   it("navigates to create event page with duplicate query param when clicked", async () => {
@@ -285,11 +303,13 @@ describe("Event page", () => {
     renderEventPage();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
 
-    const duplicateButton = await screen.findByRole("button", {
-      name: t("communities:duplicate_event"),
-    });
-    await user.click(duplicateButton);
+    await user.click(
+      await screen.findByRole("menuitem", {
+        name: t("communities:duplicate_event"),
+      }),
+    );
 
     await waitFor(() =>
       expect(mockRouter.push).toHaveBeenCalledWith(
@@ -302,15 +322,14 @@ describe("Event page", () => {
     getEventMock.mockResolvedValue({ ...firstEvent, creatorUserId: 1 });
     renderEventPage();
 
-    const duplicateButton = await screen.findByRole("button", {
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(await screen.findByTestId("event-page-more-options"));
+
+    const duplicateItem = await screen.findByRole("menuitem", {
       name: t("communities:duplicate_event"),
     });
-    expect(duplicateButton).toHaveAttribute(
-      "aria-label",
-      t("communities:duplicate_event"),
-    );
-    expect(duplicateButton).toHaveAttribute("tabIndex", "0");
-    expect(duplicateButton).not.toBeDisabled();
+    expect(duplicateItem).toBeVisible();
+    expect(duplicateItem).not.toHaveAttribute("aria-disabled", "true");
   });
 
   it("shows the not found page if the user tries to find an event with an invalid ID in the URL", async () => {

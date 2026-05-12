@@ -6,6 +6,7 @@ from google.protobuf import empty_pb2, wrappers_pb2
 from sqlalchemy import func, select, update
 
 from couchers.db import session_scope
+from couchers.helpers.badges import user_add_badge
 from couchers.jobs.handlers import update_badges
 from couchers.materialized_views import refresh_materialized_views_rapid
 from couchers.models import (
@@ -17,7 +18,9 @@ from couchers.models import (
     ModerationVisibility,
     RateLimitAction,
     User,
+    UserBadge,
 )
+from couchers.models.notifications import Notification
 from couchers.proto import admin_pb2, api_pb2, blocking_pb2, jail_pb2, notifications_pb2
 from couchers.rate_limits.definitions import RATE_LIMIT_DEFINITIONS, RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict
@@ -1555,11 +1558,47 @@ def test_badges(db):
         assert res2.user_ids == [2]
 
 
+def test_user_add_badge_is_idempotent(db):
+    """Test that adding a badge a user already has is a no-op and doesn't send a duplicate notification."""
+    user, _ = generate_user()
+
+    with session_scope() as session:
+        user_add_badge(session, user.id, "volunteer")
+
+    # one badge row, one notification
+    with session_scope() as session:
+        badge_count = session.execute(
+            select(func.count())
+            .select_from(UserBadge)
+            .where(UserBadge.user_id == user.id, UserBadge.badge_id == "volunteer")
+        ).scalar()
+        assert badge_count == 1
+        notification_count = session.execute(
+            select(func.count()).select_from(Notification).where(Notification.user_id == user.id)
+        ).scalar()
+        assert notification_count == 1
+
+    # add the same badge again
+    with session_scope() as session:
+        user_add_badge(session, user.id, "volunteer")
+
+    # still one badge row, no new notification
+    with session_scope() as session:
+        badge_count = session.execute(
+            select(func.count())
+            .select_from(UserBadge)
+            .where(UserBadge.user_id == user.id, UserBadge.badge_id == "volunteer")
+        ).scalar()
+        assert badge_count == 1
+        notification_count = session.execute(
+            select(func.count()).select_from(Notification).where(Notification.user_id == user.id)
+        ).scalar()
+        assert notification_count == 1
+
+
 @pytest.mark.parametrize("flag", ["deleted_at", "banned_at"])
 def test_ListBadgeUsers_excludes_ghost_users(db, flag):
     """Test that ListBadgeUsers does not return deleted/banned users."""
-    from couchers.helpers.badges import user_add_badge
-
     user1, token1 = generate_user()
     user2, _ = generate_user()
     user3, _ = generate_user()

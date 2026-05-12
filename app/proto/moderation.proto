@@ -4,6 +4,7 @@ package org.couchers.moderation;
 
 import "google/protobuf/timestamp.proto";
 
+import "admin.proto";
 import "annotations.proto";
 
 service Moderation {
@@ -20,6 +21,10 @@ service Moderation {
   rpc FlagContentForReview(FlagContentForReviewReq) returns (FlagContentForReviewRes) {}
 
   rpc UnflagContent(UnflagContentReq) returns (UnflagContentRes) {}
+
+  rpc SetUserContentVisibility(SetUserContentVisibilityReq) returns (SetUserContentVisibilityRes) {}
+
+  rpc ListModerationStates(ListModerationStatesReq) returns (ListModerationStatesRes) {}
 }
 
 
@@ -50,6 +55,7 @@ enum ModerationAction {
   MODERATION_ACTION_HIDE = 3;
   MODERATION_ACTION_FLAG = 4;
   MODERATION_ACTION_UNFLAG = 5;
+  MODERATION_ACTION_BULK_SET_VISIBILITY = 6;
 }
 
 enum ModerationObjectType {
@@ -69,6 +75,7 @@ message ModerationStateInfo {
   google.protobuf.Timestamp updated = 6;
   int64 author_user_id = 7;
   string content = 8;
+  org.couchers.admin.UserDetails author = 9;
 }
 
 message ModerationQueueItemInfo {
@@ -166,4 +173,31 @@ message UnflagContentReq {
 
 message UnflagContentRes {
   ModerationStateInfo moderation_state = 1;
+}
+
+message SetUserContentVisibilityReq {
+  int64 user_id = 1;
+  ModerationVisibility visibility = 2;  // must be set
+  string reason = 3;  // optional; free-form admin note recorded in ModerationLog
+  // If non-empty, only sweep states currently at one of these visibilities. Empty = any visibility (default).
+  repeated ModerationVisibility from_visibility = 4;
+}
+
+message SetUserContentVisibilityRes {
+  int64 updated_count = 1;  // number of ModerationState rows whose visibility changed
+}
+
+message ListModerationStatesReq {
+  // Filter to states authored by this user (optional)
+  int64 author_user_id = 1;
+
+  uint32 page_size = 2;
+  string page_token = 3;
+  // Order by newest first (default: false = oldest first)
+  bool newest_first = 4;
+}
+
+message ListModerationStatesRes {
+  repeated ModerationStateInfo moderation_states = 1;
+  string next_page_token = 2;
 }

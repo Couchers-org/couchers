@@ -4,7 +4,9 @@
     "current_email_message": "Your email address is currently <1>{{email}}</1>.",
     "success_message": "Your email change has been received. Check your new email to complete the change.",
     "current_password": "Current password",
-    "new_email": "New email"
+    "new_email": "New email",
+    "hide_current_password": "Hide current password",
+    "show_current_password": "Show current password"
   },
   "do_not_email": {
     "title": "Do not email me",
@@ -34,11 +36,13 @@
     "user_logged_error": "You cannot reset your password if you are logged in. You can change your password in settings or log out to reset it.",
     "token_error": "There was an error processing the password reset token, please try opening the link from the email again.",
     "reset_password_success": "Your password has been changed successfully!",
-    "reset_password_error": "Error resetting password: {{message}}"
-  },
-  "jail_set_password_form": {
-    "title": "Set a password",
-    "explanation": "You have not previously set a password for your account. Please create one now to continue."
+    "reset_password_error": "Error resetting password: {{message}}",
+    "hide_old_password": "Hide old password",
+    "show_old_password": "Show old password",
+    "hide_new_password": "Hide new password",
+    "show_new_password": "Show new password",
+    "hide_confirm_password": "Hide password confirmation",
+    "show_confirm_password": "Show password confirmation"
   },
   "reset_password_form": {
     "enter_email": "Enter your username/email",
@@ -51,7 +55,6 @@
     "form": {
       "username_field_label": "Email/Username",
       "password_field_label": "Password",
-      "no_password_login_prompt": "Check your email for a link to log in! :)",
       "remember_me": "Remember me",
       "forgot_password": "Forgot password?",
       "show_password": "Show password",
@@ -59,7 +62,6 @@
     }
   },
   "basic_sign_up_form": {
-    "header": "Let's get started!",
     "existing_user_prompt": "Already have an account? <2>Log in</2>",
     "sign_up_agreement_explainer": "By continuing, you agree to our <2>Terms of Service</2>, including our cookie, email, and data handling policies."
   },
@@ -85,7 +87,6 @@
       "not_real_date_error": "Please enter a real birthdate"
     },
     "hosting_status": {
-      "any": "Any",
       "field_label": "Hosting status",
       "can_host": "Can host",
       "maybe": "May host",
@@ -105,8 +106,10 @@
   "basic_form": {
     "name": {
       "field_label": "Name",
-      "empty_error": "Please enter your name",
-      "required_error": "This field can't be empty."
+      "required_error": "This field can't be empty",
+      "invalid_characters_error": "Name can only contain letters, spaces, hyphens, and apostrophes",
+      "min_length_error": "Name must be at least 2 characters",
+      "max_length_error": "Name must be no more than 100 characters"
     },
     "email": {
       "field_label": "Email",
@@ -241,10 +244,6 @@
       "disabled_message": "You <1>are not currently</1> verified with Strong Verification."
     },
     "start_button": "Start Strong Verification",
-    "begin_button": "Complete Strong Verification with Iris ID",
-    "information_text1": "You will need a <strong>biometric passport</strong> (other types of identification will not work) and an NFC-capable Apple iPhone or Android phone.",
-    "information_text2": "By clicking the button below, you will be taken to the Iris ID website to complete the passport verification process.",
-    "information_text3": "You can read more about how we and Iris ID process and store your data in our <2>Terms of Service</2>. As per the Iris ID <5>Privacy policy</5>, they will delete your personal information within 24 hours. You can request that this Strong Verification data (except issuing country, expiry date, and the last three digits of the document number) be deleted from our servers at any time with the click of a button.",
     "complete_title": "We are processing your Strong Verification attempt",
     "complete_message1": "Your passport is being validated. You will receive an email with the results within a few minutes.",
     "complete_message2": "Strong Verification expires when your passport expires, and you will need to complete verification again on the new passport.",
@@ -268,7 +267,7 @@
       "step4": "If prompted, open the app and scan the QR code again",
       "step5": "Select <strong>Passport</strong> (ID cards not supported)",
       "step6": "Take a clear photo of the passport page with numbers at the bottom",
-      "step7": "Hold your phone against the passport page with the NFC chip (see tips below)",
+      "step7": "Hold your phone against the passport page with the NFC chip and <strong>keep completely still for at least 5 seconds</strong> — moving too early is the most common cause of failure",
       "step8": "You'll know it's successful when you see increasing percentages and a loader",
       "download_app_store": "Download on the App Store",
       "download_google_play": "Get it on Google Play",
@@ -278,6 +277,31 @@
         "us_germany_mexico": "<strong>Brazil, US, Germany (2016), Indonesia, Mexico:</strong> Back page",
         "finland_germany_new": "<strong>Finland, Germany (2017+), Russia:</strong> Picture page",
         "australia": "<strong>Australia:</strong> Middle page (marked with symbol + \"chip name\")"
+      },
+      "scanning_tips": {
+        "heading": "Tips for Successful NFC Scanning",
+        "description": "The NFC scan is the trickiest part. These tips significantly improve your chances:",
+        "remove_case": "<strong>Remove your phone case</strong> — even thin cases can block the NFC signal",
+        "hold_still": "<strong>Hold your phone completely still</strong> for at least 5 seconds — moving too early is the most common cause of failure",
+        "flat_surface": "<strong>Place your passport on a flat surface</strong> — don't hold it in your hand",
+        "nfc_location": "<strong>Find your phone's NFC antenna</strong> — it's usually near the top-center on the back of the phone. Try different positions if it doesn't connect",
+        "no_metal": "<strong>Avoid metal surfaces</strong> — don't place your passport on a metal table or laptop",
+        "retry": "If the scan fails, try again — it often takes 2-3 attempts to get the positioning right"
+      },
+      "before_you_start": {
+        "heading": "Before You Start",
+        "nfc_check": "Your phone must have <strong>NFC capability</strong> — most modern phones do. NFC is usually on by default, but on some older phones, you may need to enable it in your phone's settings.",
+        "passport_check": "Your passport must be a <strong>biometric passport</strong> — look for the gold chip symbol on the cover. Older passports without this symbol won't work.",
+        "remove_case": "<strong>Remove your phone case before starting</strong> — even thin cases can block the NFC signal and cause the scan to fail.",
+        "passport_symbol_alt": "Biometric passport symbol"
+      },
+      "didnt_work": {
+        "heading": "Having Trouble?",
+        "tip1": "On older Android phones, make sure NFC is enabled in your phone's settings (most modern phones have it on by default)",
+        "tip2": "Try a different page of your passport — the chip location varies by country",
+        "tip3": "If using Android, make sure you have the IRIS ID app installed (not the browser version)",
+        "tip4": "Some older passports or passport cards don't have NFC chips and won't work",
+        "contact": "If you're still having trouble, <1>let us know</1> and we'll help."
       }
     }
   },

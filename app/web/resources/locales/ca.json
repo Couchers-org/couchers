@@ -1,5 +1,344 @@
 {
   "accept": "Accepta",
   "load_more": "Carrega'n més",
-  "cancel": "Cancel·la"
+  "cancel": "Cancel·la",
+  "back": "Enrere",
+  "close": "Tanca",
+  "create_account": "Crea un compte",
+  "expand": "Expandeix",
+  "retract": "Replega",
+  "couchers": "Couchers.org",
+  "learn_more": "Més informació",
+  "legal_name": "Couchers, Inc.",
+  "login": "Inicia sessió",
+  "sign_up": "Registra't",
+  "join_us": "Uneix-t'hi",
+  "update": "Actualitza",
+  "create": "Crea",
+  "terms_of_service": "Condicions del servei",
+  "required": "Obligatori",
+  "continue": "Continua",
+  "copy_button": {
+    "a11y": "Copia",
+    "copied_tooltip": "Copiat al porta-retalls"
+  },
+  "thanks": "Gràcies!",
+  "donation_banner": {
+    "message": "Couchers.org funciona gràcies a la generositat — igual que el couch surfing. Aquest període de festes, ajuda'ns a mantenir-ho així. Estem recaptant {{goal}} per cobrir les despeses de funcionament de Couchers.org.",
+    "button": "Dona ara",
+    "progress_label": "Progrés de les donacions"
+  },
+  "community_standing": "Reputació a la comunitat",
+  "community_standing_description": "Calculada a partir de diversos factors com les referències i la participació a la comunitat.",
+  "verification_score": "Puntuació de verificació",
+  "verification_score_description": "Calculada a partir dels avals d'altres usuaris",
+  "edit": "Edita",
+  "save": "Desa",
+  "save_changes": "Desa els canvis",
+  "send": "Envia",
+  "submit": "Envia",
+  "confirm": "Confirma",
+  "image_input": {
+    "select_button_a11y": "Selecciona una imatge",
+    "read_file_error_message": "No s'ha pogut llegir el fitxer"
+  },
+  "read_more": "Llegeix-ne més",
+  "next": "Següent",
+  "previous": "Anterior",
+  "mod": "Moderació",
+  "cookie_message": "Fem servir galetes per garantir-te la millor experiència al nostre lloc web. Si continues usant aquest lloc, assumirem que n'estàs content. Pots llegir més a les nostres <1>Condicions del servei</1>.",
+  "hosting_status": {
+    "can_host": "Pot allotjar",
+    "maybe": "Podria allotjar",
+    "cant_host": "No pot allotjar",
+    "unspecified_info": "No especificat"
+  },
+  "language_preference": {
+    "current_preferred_language": "El teu idioma preferit és <lang>{{language}}</lang>.",
+    "form_title": "Idioma",
+    "help_translate": "Ajuda a traduir Couchers al teu idioma.",
+    "error_loading_languages": "No s'han pogut carregar les opcions d'idioma. Torna-ho a provar més tard.",
+    "translation_progress": {
+      "title": "Progrés de la traducció",
+      "description": "Mira com de completes són les nostres traduccions en diferents idiomes. Ajuda'ns a fer Couchers accessible a més persones arreu del món!",
+      "help_translate": "Ajuda a traduir Couchers al teu idioma",
+      "loading": "Carregant el progrés de la traducció...",
+      "error_loading": "No s'ha pogut carregar el progrés de la traducció",
+      "no_data": "No hi ha dades de traducció disponibles",
+      "complete": "Completa",
+      "almost_there": "Gairebé acabada",
+      "midway": "A mig camí",
+      "early_stage": "Fase inicial",
+      "just_started": "Acabada de començar",
+      "info_text": "💡 Els idiomes amb un 50-80% de completesa apareixen en gris al selector d'idiomes. Els idiomes amb menys del 50% estan amagats del selector. Per animar els col·laboradors, els idiomes per sota del 20% es mostren en aquest lloc.",
+      "view_progress": "Visualitza el progrés de la traducció"
+    },
+    "show_all_languages": "Mostra tots els idiomes al selector d'idiomes",
+    "show_all_languages_description": "Quan s'activa, el selector d'idiomes mostrarà tots els idiomes independentment del percentatge de traducció. Això només es mostra en entorns de prova per ajudar a provar idiomes en curs."
+  },
+  "meetup_status": {
+    "wants_to_meetup": "Vol quedar",
+    "open_to_meetup": "Obert a quedar",
+    "does_not_want_to_meetup": "No pot quedar",
+    "unspecified_info": "No especificat"
+  },
+  "report": {
+    "label": "Reporta un problema",
+    "bug": {
+      "button_label": "Reporta un problema tècnic",
+      "warning_message": "Tingues en compte que aquesta informació, juntament amb dades de diagnòstic com la pàgina en la qual ets, el navegador que fas servir i el teu nom d'usuari, es desarà en una llista pública d'errors.",
+      "title_label": "Títol de l'informe",
+      "problem_label": "Què has fet per provocar l'error?",
+      "problem_helper": "Breu descripció del problema i com reproduir-lo",
+      "expect_label": "Què ha passat? Què hauria d'haver passat?",
+      "expect_helper": "Breu descripció del que esperaves que passés",
+      "success_message2": "Gràcies per reportar aquest error i millorar Couchers, s'ha enviat un informe als desenvolupadors! L'ID de l'error és <id/>."
+    },
+    "content": {
+      "button_label": "Reporta contingut o comportament inapropiat",
+      "success_message": "Gràcies pel teu informe i per ajudar a fer de Couchers una plataforma millor per a tothom!"
+    },
+    "flag": {
+      "block_user": "Bloqueja {{username}}",
+      "block_user_explainer": "Els missatges i sol·licituds d'aquesta persona quedaran bloquejats, i el teu perfil, esdeveniments i comentaris no li seran visibles. No se l'informarà que l'has bloquejat.",
+      "button_aria_label": "Reporta contingut o un usuari",
+      "profile_button_aria_label": "Reporta contingut o bloqueja un usuari",
+      "explainer": "Envia un informe de manera confidencial a l'equip de Seguretat i Confiança.",
+      "title": "Reporta contingut o un usuari",
+      "profile_title": "Reporta o bloqueja",
+      "reason_label": "Motiu de la notificació",
+      "reason_required": "El motiu és obligatori.",
+      "description_required": "La descripció és obligatòria.",
+      "description_label": "Descriu el problema",
+      "description_helper": "Explica'ns per què reportes això.",
+      "success": "Gràcies pel teu informe i per ajudar a fer de Couchers una plataforma millor per a tothom!",
+      "reason": {
+        "dating": "Comportament de flirteig / app de cites o similar",
+        "external": "Incident fora de la plataforma",
+        "harassment": "Assetjament, bullying, discurs d'odi o contingut il·legal",
+        "guidelines_breach": "Violació de normes o polítiques (cobrar diners, nudisme, llits compartits, etc.)",
+        "safety": "Problema de seguretat (per a tu o per a d'altres)",
+        "scam": "Estafa, fals o informació enganyosa",
+        "spam": "Correu brossa o contingut promocional no relacionat amb el couch surfing",
+        "sexualized": "Contingut o comportament sexualitzat",
+        "other": "Altre (especifica-ho a sota)"
+      }
+    }
+  },
+  "not_found_text_1": "No hem trobat l'URL o el recurs que has demanat",
+  "not_found_text_2": "Vols <1>tornar a l'inici?</1>",
+  "not_found_alt": "Error 404: Recurs no trobat",
+  "change_time": "Canvia l'hora",
+  "html_meta": {
+    "title_suffix": " | Couchers.org",
+    "default_title": "Couchers.org",
+    "default_description": "Comparteix el teu món, descobreix el dels altres. Experiències locals autèntiques, construïdes sobre la confiança i la connexió genuïna — no transaccions."
+  },
+  "error": {
+    "fatal_message": "Això no hauria d'haver passat. Posa't en contacte amb nosaltres i explica'ns què feies per ajudar-nos a evitar aquest error en el futur.",
+    "unknown": "Error desconegut",
+    "fallback": {
+      "title": "Vaja... és un error desconegut",
+      "subtitle": "Fes servir el botó 'Reporta un problema' i explica'ns què feies per ajudar-nos a evitar aquest error en el futur.",
+      "refresh_page_button_label": "Refresca la pàgina",
+      "home_page_link_label": "Ves a la pàgina d'inici"
+    }
+  },
+  "components": {
+    "datepicker": {
+      "change_date": "Canvia la data"
+    },
+    "edit_location_map": {
+      "display_location_label": "Ubicació que es mostra",
+      "search_location_label": "Cerca una ubicació",
+      "display_location_not_empty": "Omple una adreça de visualització",
+      "invalid_coordinate": "Coordenades que falten, selecciona una ubicació amb el mapa de dalt",
+      "location_accuracy": "Precisió de la ubicació",
+      "location_publicly_visible": "Això serà visible públicament",
+      "location_warn": "Fes clic i arrossega el cercle de sota per mostrar als altres la ubicació aproximada de casa teva. Assegura't que la teva llar no estigui al centre del cercle, per tal que les persones no sàpiguen la ubicació exacta.",
+      "map_is_blank": "Coordenades que falten, comença cercant una ubicació amb el mapa de dalt",
+      "radius_text2_one": "{{count}} metre",
+      "radius_text2_many": "{{count}} de metres",
+      "radius_text2_other": "{{count}} metres",
+      "no_location_results_text": "Sense resultats. Prova de cercar només la ciutat.",
+      "press_enter_to_search": "Prem Retorn per cercar"
+    }
+  },
+  "nav": {
+    "account_settings": "Configuració del compte",
+    "about": "Sobre nosaltres",
+    "badges": "Insígnies",
+    "blog": "Blog",
+    "community": "Comunitat",
+    "communities": "Comunitats",
+    "dashboard": "Tauler",
+    "donate": "Dona",
+    "events": "Esdeveniments",
+    "faq": "PMF",
+    "help_center": "Centre d'ajuda",
+    "roadmap_updates": "Full de ruta i novetats",
+    "help": "Ajuda",
+    "home": "Inici",
+    "log_out": "Tanca sessió",
+    "map_search": "Cerca",
+    "mission": "Missió i valors",
+    "messages": "Missatges",
+    "newsletter": "Butlletí",
+    "notifications": "Notificacions",
+    "our_plan": "El nostre pla",
+    "our_team": "El nostre equip",
+    "profile": "Perfil",
+    "show_all_events": "Mostra tots els esdeveniments",
+    "volunteer": "Fes-te voluntari",
+    "legal_more": "Legal i més",
+    "contact_us": "Contacta'ns",
+    "built_with": "Codi obert",
+    "landing_page": "Pàgina d'inici",
+    "invite_members": "Convida membres",
+    "merch_shop": "Botiga de marxandatge",
+    "switch_to_light_mode": "Canvia al mode clar",
+    "switch_to_dark_mode": "Canvia al mode fosc"
+  },
+  "invites": {
+    "title": "Convida membres",
+    "instructions": "Crea un enllaç d'invitació per compartir amb amics i la comunitat. Desactiva els codis que ja no facis servir.",
+    "no_codes_message": "Encara no hi ha codis d'invitació",
+    "created_datetime": "Creat: {{datetime}}",
+    "disabled_datetime": "Desactivat: {{datetime}}",
+    "number_of_uses_one": "Usos: {{count}} registre completat",
+    "number_of_uses_many": "Usos: {{count}} de registres completats",
+    "number_of_uses_other": "Usos: {{count}} registres completats",
+    "disable_link": "Desactiva",
+    "banner": {
+      "invited_you": "{{name}} t'ha convidat a unir-te a Couchers!"
+    },
+    "error": {
+      "fetch_invite_info": "No s'han pogut obtenir els detalls del codi d'invitació"
+    }
+  },
+  "contribute_title": "Registra't per contribuir",
+  "reply": "Respon",
+  "yes": "Sí",
+  "no": "No",
+  "ok": "D'acord",
+  "beta": "Beta",
+  "relative_time": {
+    "less_than_a_minute_ago": "< 1 minut",
+    "less_than_one_hour_ago": "Fa menys d'una hora"
+  },
+  "location_autocomplete": {
+    "more_specific": "Escull un lloc més específic",
+    "search_location_hint": "Prem Retorn o fes clic a la icona de cerca per escollir una ubicació",
+    "search_location_button": "Cerca la ubicació",
+    "select_location_hint": "Prem Retorn o fes clic a la icona de cerca i selecciona una ubicació de la llista"
+  },
+  "strong_verification": {
+    "helper_text": "Aquest usuari ha verificat la seva identitat amb un passaport biomètric"
+  },
+  "footer": {
+    "non_profit_note": "Couchers.org és un projecte de Couchers, Inc., una organització sense ànim de lucre i exempta d'impostos 501(c)(3) dels EUA.",
+    "version_info": "Versió <2>{{version}}</2>, darrera actualització <5>{{updated_ago}}</5>."
+  },
+  "what_is_cs": {
+    "title": "Què és el couch surfing?",
+    "description_1": "El couch surfing és un concepte en el qual alguns membres (anomenats amfitrions) publiquen a la plataforma que estan disposats a allotjar altres membres (anomenats surfistes) que visiten la seva ciutat.",
+    "description_2": "És com tenir un amic en una altra ciutat i anar a visitar-lo, però el coneixes per primera vegada quan hi arribes!",
+    "get_involved_title": "Què puc fer a Couchers.org?",
+    "timeline_title": "Una breu història del couch surfing",
+    "timeline": {
+      "early_2000s_year": "Principis dels 2000",
+      "early_2000s_text": "Neix el moviment de couch surfing en línia: allotja't amb locals, comparteix cultura.",
+      "2010s_year": "Anys 2010",
+      "2010s_text": "Floreixen comunitats i esdeveniments; les referències construeixen confiança — el món comença a semblar un barri amic.",
+      "2020_year": "2020",
+      "2020_text": "Una gran plataforma es privatitza; Couchers.org es llança com a alternativa sense ànim de lucre i gestionada per la comunitat.",
+      "today_year": "Avui",
+      "today_text": "Couchers.org construeix el proper capítol: couch surfing modern, més segur i sense ànim de lucre — creat per i per a la comunitat."
+    },
+    "actions": {
+      "host": "Allotja un viatger que visita la teva ciutat",
+      "surf": "Allotja't amb un local mentre viatges",
+      "attend_events": "Assisteix a esdeveniments amb locals i viatgers",
+      "find_people": "Troba persones afins a la teva ciutat i quedeu",
+      "join_discussions": "Uneix-te a debats o inicia'n a la teva comunitat local"
+    },
+    "why_people_title": "Per què la gent estima el couch surfing",
+    "why_people_points": {
+      "travelers": "<bold>Per als viatgers</bold>: experiències més profundes i humanes més enllà dels circuits turístics",
+      "hosts": "<bold>Per als amfitrions</bold>: coneix gent de tot el món i comparteix la teva ciutat",
+      "everyone": "<bold>Per a tothom</bold>: comunitat, cultura i connexió — no transaccions"
+    },
+    "tip_label": "CONSELL",
+    "tip_text": "Ets nou aquí? Assisteix a un esdeveniment local per conèixer la comunitat — poca pressió, molta connexió.",
+    "compare_title": "Com es compara Couchers.org?",
+    "table": {
+      "header_couchers": "Couchers.org",
+      "header_hostel": "Alberg",
+      "header_hotel": "Hotel",
+      "people_first": "Organització sense ànim de lucre centrada en les persones",
+      "cost_to_stay": "Cost de l'allotjament",
+      "free_to_stay": "Allotjament gratuït",
+      "dollar": "$",
+      "dollars_range": "$$–$$$",
+      "stay_with_locals": "Allotja't amb locals",
+      "professionally_managed": "Allotjament gestionat professionalment",
+      "meetups_communities": "Quedades i comunitats locals",
+      "cultural_exchange": "Orientat a l'intercanvi cultural",
+      "non_transactional": "Model comunitari no transaccional",
+      "no_investor_pressure": "Sense pressió d'inversors",
+      "social_expectation": "Es recomana passar temps amb l'amfitrió"
+    },
+    "bottom_cta_title": "Preparat per provar el couch surfing?",
+    "bottom_cta_subtitle": "Uneix-te a Couchers.org i forma part d'una comunitat global construïda sobre l'hospitalitat i la connexió.",
+    "join_couchers": "Uneix-te a Couchers.org",
+    "is_it_safe": {
+      "title": "Com de segur és el couch surfing?",
+      "description_1": "Tot i que viatjar i interactuar amb desconeguts comporta algun risc, el couch surfing és molt més segur del que molta gent imagina inicialment.",
+      "description_2": "La nostra comunitat es basa en la confiança entre membres, establerta a través de referències després de les estades. El nostre equip de moderació actiu pren seriosament cada informe i combat diligentment els actors maliciosos que no respecten les nostres <guidelines>Normes de la comunitat</guidelines>.",
+      "description_3": "A més, la plataforma Couchers inclou eines com diverses formes de verificació (com la Verificació forta amb passaport biomètric) que afegeixen un nivell addicional de seguretat. És important tenir sempre un pla alternatiu per si les coses no van com s'esperava, i confiar en els teus instints!"
+    }
+  },
+  "team": {
+    "title": "L'equip",
+    "description": "Som surfistes apassionats i professionals qualificats compromesos a crear una plataforma millorada, més segura i més inclusiva. Estem construint aquesta plataforma per donar suport i fer créixer de manera sostenible la comunitat de couch surfing mentre compartim els seus valors amb el món. Si comparteixes els nostres sentiments i vols contribuir, ens encantaria saber de tu.",
+    "join_the_team": "Uneix-te a l'equip",
+    "join_our_team": "Uneix-te al nostre equip",
+    "have_skills_contribute": "Tens habilitats que vols aportar?",
+    "fill_form_description": "Couchers.org és un projecte impulsat per la comunitat, desenvolupat per persones com tu en benefici de la comunitat global de couch surfing. Si t'interessa unir-te a aquesta emocionant iniciativa, fes clic al botó de sota i omple el breu formulari.",
+    "past_members": "Membres anteriors",
+    "board_member": "Membre del consell"
+  },
+  "blog": {
+    "byline_with_author": "Escrit per <1/>. Publicat el {{date}}.",
+    "byline_without_author": "Publicat el {{date}}.",
+    "cta_message": "Vols ajudar a escriure el nostre blog o ser voluntari? <1>Registra't</1> i fes-nos-ho saber. Els voluntaris i les <3>donacions</3> són el que fa possible Couchers.org!"
+  },
+  "error_loading_languages": "No s'han pogut carregar les opcions d'idioma",
+  "language_names": {
+    "ca": "Català",
+    "cs": "Txec",
+    "de": "Alemany",
+    "en": "Anglès",
+    "en-CORP": "Anglès americà (corporatiu)",
+    "es": "Espanyol (Espanya)",
+    "es-419": "Espanyol",
+    "fr": "Francès (França)",
+    "fr-CA": "Francès (Canadà)",
+    "he": "Hebreu",
+    "hi": "Hindi",
+    "it": "Italià",
+    "ja": "Japonès",
+    "nb-NO": "Noruec (Bokmål)",
+    "nl": "Neerlandès",
+    "pl": "Polonès",
+    "pt": "Portuguès (Portugal)",
+    "pt-BR": "Portuguès (Brasil)",
+    "ru": "Rus",
+    "sv": "Suec",
+    "tr": "Turc",
+    "uk": "Ucraïnès",
+    "zh-Hans": "Xinès (simplificat)",
+    "zh-Hant": "Xinès (tradicional)",
+    "hu": "Hongarès"
+  }
 }

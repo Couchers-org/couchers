@@ -12,5 +12,11 @@
     "authorUserId": 3,
     "text": { "text": "In 2 hours?" },
     "time": { "seconds": 1577900000, "nanos": 0 }
-  }
+  },
+  "hostingCity": "Berlin",
+  "hostingLat": 52.52,
+  "hostingLng": 13.405,
+  "hostingRadius": 500,
+  "needHostRequestFeedback": false,
+  "isArchived": false
 }

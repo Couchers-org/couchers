@@ -1,7 +1,7 @@
 """add_superuser_column
 
-Revision ID: 1c7784767710
-Revises: 45e7e0254963
+Revision ID: 0018
+Revises: 0017
 Create Date: 2021-06-16 15:20:23.475561
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "1c7784767710"
-down_revision = "45e7e0254963"
+revision = "0018"
+down_revision = "0017"
 branch_labels = None
 depends_on = None
 

@@ -1,292 +1,503 @@
 {
-  "push": {
-    "account_deletion__start": {
-      "title": "Exclusão de conta solicitada",
-      "ios_title": "Exclusão de conta solicitada",
-      "body": "Use o link que enviamos por e-mail para você para confirmar."
-    },
-    "account_deletion__complete": {
-      "title": "Conta excluída",
-      "ios_title": "Conta excluída",
-      "body_one": "Você pode restaurá-la em {{count}} dia usando o link que enviamos para você por e-mail.",
-      "body_many": "Você pode restaurá-la em {{count}} dias usando o link que enviamos para você por e-mail.",
-      "body_other": "Você pode restaurá-la em {{count}} dias usando o link que enviamos para você por e-mail."
-    },
-    "adhoc__push_enabled": {
-      "ios_title": "Notificações por push ativadas",
-      "body": "Agora você receberá notificações neste dispositivo.",
-      "title": "Notificações por push ativadas"
-    },
-    "account_deletion__recovered": {
-      "title": "Conta restaurada",
-      "ios_title": "Conta restaurada",
-      "body": "Bem-vindo de volta!"
-    },
-    "activeness__probe": {
-      "title": "Ainda pode hospedar?",
-      "ios_title": "Ainda pode hospedar?",
-      "body": "Faça login para confirmar seu status de hospedagem."
-    },
-    "api_key__create": {
-      "title": "Chave de API criada",
-      "ios_title": "Chave de API criada",
-      "body": "Os detalhes foram enviados para você por e-mail."
-    },
-    "badge__add": {
-      "title": "Nova insígnia de perfil: {{badge_name}}",
-      "ios_title": "Nova insígnia de perfil",
-      "body": "A insígnia {{badge_name}} foi adicionada ao seu perfil."
-    },
-    "birthdate__change": {
-      "body": "Um administrador alterou sua data de nascimento para {{birthdate}}.",
-      "title": "Data de nascimento alterada",
-      "ios_title": "Data de nascimento alterada"
-    },
-    "chat__missed_messages": {
-      "title_one": "{{count}} mensagem perdida",
-      "title_many": "{{count}} mensagens perdidas",
-      "title_other": "{{count}} mensagens perdidas",
-      "ios_title_one": "{{count}} mensagem perdida",
-      "ios_title_many": "{{count}} mensagens perdidas",
-      "ios_title_other": "{{count}} mensagens perdidas",
-      "body": "Você tem novas mensagens não visualizadas."
-    },
-    "donation__received": {
-      "title": "Doação recebida",
-      "ios_title": "Doação recebida",
-      "body": "Agradecemos muito por sua doação de {{amount_with_currency}}!"
-    },
-    "event__create_approved": {
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} convidou você para o evento em {{date_and_time}}.",
-      "ios_title": "Novo evento",
-      "title": "Novo evento: {{title}}"
-    },
-    "event__update": {
-      "title": "Evento atualizado: {{title}}",
-      "ios_title": "Evento atualizado",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} atualizou o evento."
-    },
-    "event__invite_organizer": {
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} Adicionou você como co-organizador do evento.",
-      "title": "Evento atualizado: {{title}}",
-      "ios_title": "Evento atualizado"
-    },
-    "event__comment": {
-      "ios_title": "{{user}}",
-      "title": "{{user}} • {{title}}",
-      "ios_subtitle": "Comentou em {{title}}"
-    },
-    "event__reminder": {
-      "title": "Próximo evento: {{title}}",
-      "ios_title": "Próximo evento",
-      "ios_subtitle": "{{title}}",
-      "body": "O evento inicia em {{date_and_time}}."
-    },
-    "event__cancel": {
-      "title": "Evento cancelado: {{title}}",
-      "ios_title": "Evento cancelado",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} cancelou o evento."
-    },
-    "event__delete": {
-      "title": "Evento excluído: {{title}}",
-      "ios_title": "Evento excluído",
-      "ios_subtitle": "{{title}}",
-      "body": "Um moderador excluiu o evento."
-    },
-    "friend_request__create": {
-      "title": "Solicitação de amizade de {{from_user}}",
-      "ios_title": "{{from_user}}",
-      "body": "{{from_user}} quer ser seu amigo.",
-      "ios_subtitle": "Solicitação de amizade"
-    },
-    "friend_request__accept": {
-      "title": "{{friend}} aceitou sua solicitação de amizade",
-      "ios_title": "{{friend}}",
-      "ios_subtitle": "Aceitou sua solicitação de amizade",
-      "body": "Agora você e {{friend}} são amigos."
-    },
-    "gender__change": {
-      "title": "Gênero alterado",
-      "ios_title": "Gênero alterado",
-      "body": "Um administrador alterou seu gênero para {{gender}}."
-    },
-    "general__new_blog_post": {
-      "title": "Novo post no blog: {{title}}",
-      "ios_title": "Novo post no blog",
-      "ios_subtitle": "{{title}}"
-    },
-    "host_request__create": {
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Nova solicitação de hospedagem",
-      "title": "Nova solicitação de hospedagem de {{user}}",
-      "body_one": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dia.",
-      "body_many": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dias.",
-      "body_other": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dias."
-    },
-    "host_request__missed_messages": {
-      "title": "Novas mensagens de {{user}}",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Mensagens perdidas",
-      "body": "Você tem novas mensagens não visualizadas de {{user}}."
-    },
-    "host_request__reminder": {
-      "title": "Solicitação pendente de {{user}}",
-      "ios_title": "Solicitação de hospedagem pendente",
-      "ios_subtitle": "{{user}}",
-      "body": "{{user}} está esperando sua resposta. Aceite ou recuse a solicitação."
-    },
-    "host_request__accept": {
-      "title": "{{user}} aceitou sua solicitação de hospedagem",
-      "ios_title": "{{user}}",
-      "body": "{{user}} aceitou sua solicitação de hospedagem para {{date}}.",
-      "ios_subtitle": "Solicitação de hospedagem aceita"
-    },
-    "host_request__reject": {
-      "title": "{{user}} recusou sua solicitação de hospedagem",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Solicitação de hospedagem recusada",
-      "body": "{{user}} recusou sua solicitação de hospedagem para {{date}}."
-    },
-    "host_request__cancel": {
-      "title": "{{user}} cancelou a solicitação de hospedagem",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Solicitação de hospedagem cancelada",
-      "body": "{{user}} cancelou a solicitação de hospedagem para {{date}}."
-    },
-    "host_request__confirm": {
-      "title": "{{user}} confirmou a solicitação de hospedagem",
-      "ios_subtitle": "Solicitação de hospedagem confirmada",
-      "ios_title": "{{user}}",
-      "body": "{{user}} confirmou a solicitação de hospedagem para {{date}}."
-    },
-    "badge__remove": {
-      "title": "Insígnia de perfil removida",
-      "ios_title": "Insígnia de perfil removida",
-      "body": "A insígnia {{badge_name}} foi removida do seu perfil."
-    },
-    "discussion__create": {
-      "title": "Nova discussão: {{title}}",
-      "ios_title": "Nova discussão",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} iniciou a discussão em {{group_or_community}}."
-    },
-    "discussion__comment": {
-      "title": "{{user}} • {{title}}"
-    },
-    "email_address__change": {
-      "title": "Alteração de e-mail solicitada",
-      "ios_title": "Alteração de e-mail solicitada",
-      "body": "Use o link que enviamos para {{email}} para confirmar seu novo endereço."
-    },
-    "email_address__verify": {
-      "title": "E-mail verificado",
-      "ios_title": "E-mail verificado",
-      "body": "Seu novo endereço de e-mail foi verificado."
-    },
-    "event__create_any": {
-      "title": "Novo evento: {{title}}",
-      "ios_title": "Novo evento",
-      "ios_subtitle": "{{title}}",
-      "body": "{{user}} criou o evento em {{date_and_time}}."
-    },
-    "modnote__create": {
-      "body": "Você recebeu uma mensagem do moderador. Leia e aceite para continuar a usar a plataforma.",
-      "title": "Nova mensagem do moderador",
-      "ios_title": "Nova mensagem do moderador"
-    },
-    "postal_verification__failed": {
-      "ios_title": "Falha na verificação do código postal",
-      "body_code_expired": "Seu código de verificação expirou. Os códigos são válidos por 90 dias após o envio do cartão-postal. Você pode solicitar um novo cartão-postal.",
-      "body_too_many_attempts": "Muitas tentativas com código incorreto. Você pode solicitar um novo cartão-postal.",
-      "body_generic": "Sua tentativa de verificação de código postal falhou. Você pode solicitar um novo cartão-postal.",
-      "title": "Falha na verificação de código postal"
-    },
-    "phone_number__change": {
-      "body": "Você iniciou a verificação do seu número de telefone com o número {{phone_number}}.",
-      "title": "Verificação de telefone iniciada",
-      "ios_title": "Verificação de telefone iniciada"
-    },
-    "password_reset__start": {
-      "ios_title": "Redefinição de senha solicitada",
-      "title": "Redefinição de senha solicitada",
-      "body": "Use o link que enviamos por e-mail para concluir."
-    },
-    "postal_verification__postcard_sent": {
-      "body": "Seu cartão-postal está a caminho para {{city}}, {{country}}. Ele chegará entre 1 e 3 semanas.",
-      "title": "Verificação de código postal iniciada",
-      "ios_title": "Verificação de código postal iniciada"
-    },
-    "onboarding__reminder": {
-      "first": {
-        "title": "Bem-vindo ao Couchers!",
-        "ios_title": "Bem-vindo ao Couchers!",
-        "body": "Complete seu perfil com uma foto e um breve texto sobre você."
-      },
-      "subsequent": {
-        "title": "Lembre-se de completar seu perfil",
-        "ios_title": "Lembrete de perfil",
-        "body": "Complete seu perfil com uma foto e um breve texto sobre você."
+  "_adhoc": {
+    "push_enabled": {
+      "push": {
+        "ios_title": "Notificações por push ativadas",
+        "body": "Agora você receberá notificações neste dispositivo.",
+        "title": "Notificações por push ativadas"
+      }
+    }
+  },
+  "account_deletion": {
+    "complete": {
+      "event_description": "Sua conta foi excluída",
+      "push": {
+        "title": "Conta excluída",
+        "ios_title": "Conta excluída",
+        "body_one": "Você pode restaurá-la em {{count}} dia usando o link que enviamos para você por e-mail.",
+        "body_many": "Você pode restaurá-la em {{count}} dias usando o link que enviamos para você por e-mail.",
+        "body_other": "Você pode restaurá-la em {{count}} dias usando o link que enviamos para você por e-mail."
       }
     },
-    "password__change": {
-      "title": "Senha alterada",
-      "ios_title": "Senha alterada",
-      "body": "Sua senha foi alterada."
+    "recovered": {
+      "event_description": "Sua conta foi recuperada (exclusão revertida)",
+      "push": {
+        "title": "Conta restaurada",
+        "ios_title": "Conta restaurada",
+        "body": "Bem-vindo de volta!"
+      }
     },
-    "password_reset__complete": {
-      "title": "Redefinição de senha",
-      "ios_title": "Redefinição de senha",
-      "body": "Sua senha foi redefinida com sucesso."
+    "start": {
+      "event_description": "Você inicia a exclusão da conta",
+      "push": {
+        "title": "Exclusão de conta solicitada",
+        "ios_title": "Exclusão de conta solicitada",
+        "body": "Use o link que enviamos por e-mail para você para confirmar."
+      }
+    }
+  },
+  "activeness": {
+    "probe": {
+      "event_description": "Você aceita hóspedes, mas não faz login há um tempo",
+      "push": {
+        "title": "Ainda pode hospedar?",
+        "ios_title": "Ainda pode hospedar?",
+        "body": "Faça login para confirmar seu status de hospedagem."
+      }
+    }
+  },
+  "api_key": {
+    "create": {
+      "event_description": "Uma chave de API foi criada para sua conta",
+      "push": {
+        "title": "Chave de API criada",
+        "ios_title": "Chave de API criada",
+        "body": "Os detalhes foram enviados para você por e-mail."
+      }
+    }
+  },
+  "badge": {
+    "add": {
+      "event_description": "Uma insígnia é adicionada à sua conta",
+      "push": {
+        "title": "Nova insígnia de perfil: {{badge_name}}",
+        "ios_title": "Nova insígnia de perfil",
+        "body": "A insígnia {{badge_name}} foi adicionada ao seu perfil."
+      }
     },
-    "reference__receive_friend": {
-      "title": "Nova referência de amigo de {{user}}",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Nova referência de amigo"
+    "remove": {
+      "event_description": "Uma insígnia foi removida da sua conta",
+      "push": {
+        "title": "Insígnia de perfil removida",
+        "ios_title": "Insígnia de perfil removida",
+        "body": "A insígnia {{badge_name}} foi removida do seu perfil."
+      }
+    }
+  },
+  "birthdate": {
+    "change": {
+      "event_description": "Sua data de nascimento foi alterada",
+      "push": {
+        "body": "Um administrador alterou sua data de nascimento para {{birthdate}}.",
+        "title": "Data de nascimento alterada",
+        "ios_title": "Data de nascimento alterada"
+      }
+    }
+  },
+  "chat": {
+    "message": {
+      "event_description": "Alguém envia uma mensagem para você"
     },
-    "phone_number__verify": {
-      "title": "Verificação de telefone concluída",
-      "body": "Seu número de telefone foi verificado com sucesso como {{phone_number}}.",
-      "ios_title": "Verificação de telefone concluída"
+    "missed_messages": {
+      "event_description": "Mensagens pendentes em uma conversa",
+      "push": {
+        "title_one": "{{count}} mensagem perdida",
+        "title_many": "{{count}} mensagens perdidas",
+        "title_other": "{{count}} mensagens perdidas",
+        "ios_title_one": "{{count}} mensagem perdida",
+        "ios_title_many": "{{count}} mensagens perdidas",
+        "ios_title_other": "{{count}} mensagens perdidas",
+        "body": "Você tem novas mensagens não visualizadas."
+      }
+    }
+  },
+  "discussion": {
+    "comment": {
+      "event_description": "Alguém comenta em uma discussão que você está seguindo",
+      "push": {
+        "title": "{{user}} • {{title}}"
+      }
     },
-    "postal_verification__success": {
-      "title": "Verificação de código postal concluída",
-      "ios_title": "Verificação de código postal concluída",
-      "body": "Seu endereço agora está verificado."
+    "create": {
+      "event_description": "Alguém cria uma discussão em uma comunidade da qual você faz parte",
+      "push": {
+        "title": "Nova discussão: {{title}}",
+        "ios_title": "Nova discussão",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} iniciou a discussão em {{group_or_community}}."
+      }
+    }
+  },
+  "donation": {
+    "received": {
+      "event_description": "Sua doação foi recebida",
+      "push": {
+        "title": "Doação recebida",
+        "ios_title": "Doação recebida",
+        "body": "Agradecemos muito por sua doação de {{amount_with_currency}}!"
+      }
+    }
+  },
+  "email_address": {
+    "change": {
+      "event_description": "A alteração de e-mail foi iniciada",
+      "push": {
+        "title": "Alteração de e-mail solicitada",
+        "ios_title": "Alteração de e-mail solicitada",
+        "body": "Use o link que enviamos para {{email}} para confirmar seu novo endereço."
+      }
     },
-    "reference__receive": {
-      "title": "Nova referência de {{user}}",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "Nova referência",
-      "body_must_write_yours": "{{user}} deixou uma referência para você. Agora é a sua vez de escrever a sua!"
+    "verify": {
+      "event_description": "Se novo e-mail foi verificado",
+      "push": {
+        "title": "E-mail verificado",
+        "ios_title": "E-mail verificado",
+        "body": "Seu novo endereço de e-mail foi verificado."
+      }
+    }
+  },
+  "event": {
+    "cancel": {
+      "event_description": "Um evento do qual você vai participar é cancelado",
+      "push": {
+        "title": "Evento cancelado: {{title}}",
+        "ios_title": "Evento cancelado",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} cancelou o evento."
+      }
     },
-    "reference__reminder": {
-      "title": "Escreva sua referência para {{user}}",
-      "ios_title": "Escreva sua referência",
-      "ios_subtitle": "{{user}}",
-      "body_one": "Você ainda tem {{count}} dia para escrever uma referência para {{user}}.",
-      "body_many": "Você ainda tem {{count}} dias para escrever uma referência para {{user}}.",
-      "body_other": "Você ainda tem {{count}} dias para escrever uma referência para {{user}}."
+    "comment": {
+      "event_description": " Um usuário comenta em um evento que você irá participar",
+      "push": {
+        "ios_title": "{{user}}",
+        "title": "{{user}} • {{title}}",
+        "ios_subtitle": "Comentou em {{title}}"
+      }
     },
-    "thread__reply": {
-      "title": "{{user}} • {{title}}",
-      "ios_title": "{{user}}",
-      "ios_subtitle": "{{title}}"
+    "create_any": {
+      "event_description": "Um usuário cria um evento em sua comunidade (não verificado por um administrador)",
+      "push": {
+        "title": "Novo evento: {{title}}",
+        "ios_title": "Novo evento",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} criou o evento em {{date_and_time}}."
+      }
     },
-    "verification__sv_success": {
-      "title": "Verificação forte concluída",
-      "ios_title": "Verificação forte concluída",
-      "body": "Você foi verificado com a verificação forte."
+    "create_approved": {
+      "event_description": "Um evento aprovado pelos moderadores é criado em sua comunidade",
+      "push": {
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} convidou você para o evento em {{date_and_time}}.",
+        "ios_title": "Novo evento",
+        "title": "Novo evento: {{title}}"
+      }
     },
-    "verification__sv_fail": {
-      "title": "Falha na verificação forte",
-      "ios_title": "Falha na verificação forte",
-      "body_wrong_birthdate_gender": "A data de nascimento ou gênero do seu perfil não corresponde à data de nascimento ou sexo no seu passaporte. Entre em contato com a equipe de suporte para atualizar sua data de nascimento ou gênero, ou se o sexo no seu passaporte não corresponde à sua identidade de gênero.",
-      "body_not_a_passport": "Você usou um documento que não é um passaporte. Você só pode usar um passaporte para a verificação forte.",
-      "body_duplicate": "Você usou um passaporte que já foi usado para a verificação. Use outro passaporte."
+    "delete": {
+      "event_description": "Um evento do qual você vai participar é excluído",
+      "push": {
+        "title": "Evento excluído: {{title}}",
+        "ios_title": "Evento excluído",
+        "ios_subtitle": "{{title}}",
+        "body": "Um moderador excluiu o evento."
+      }
+    },
+    "invite_organizer": {
+      "event_description": "Alguém convida você para ser co-organizador de um evento",
+      "push": {
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} Adicionou você como co-organizador do evento.",
+        "title": "Evento atualizado: {{title}}",
+        "ios_title": "Evento atualizado"
+      }
+    },
+    "reminder": {
+      "event_description": "Lembrete de que um evento ao qual você vai está prestes a acontecer",
+      "push": {
+        "title": "Próximo evento: {{title}}",
+        "ios_title": "Próximo evento",
+        "ios_subtitle": "{{title}}",
+        "body": "O evento inicia em {{date_and_time}}."
+      }
+    },
+    "update": {
+      "event_description": "Um evento do qual você vai participar é atualizado",
+      "push": {
+        "title": "Evento atualizado: {{title}}",
+        "ios_title": "Evento atualizado",
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}} atualizou o evento."
+      }
+    }
+  },
+  "friend_request": {
+    "accept": {
+      "event_description": "Alguém aceita sua solicitação de amizade",
+      "push": {
+        "title": "{{friend}} aceitou sua solicitação de amizade",
+        "ios_title": "{{friend}}",
+        "ios_subtitle": "Aceitou sua solicitação de amizade",
+        "body": "Agora você e {{friend}} são amigos."
+      }
+    },
+    "create": {
+      "event_description": "Alguém envia uma solicitação de amizade para você",
+      "push": {
+        "title": "Solicitação de amizade de {{from_user}}",
+        "ios_title": "{{from_user}}",
+        "body": "{{from_user}} quer ser seu amigo.",
+        "ios_subtitle": "Solicitação de amizade"
+      }
+    }
+  },
+  "gender": {
+    "change": {
+      "event_description": "O sexo exibido no seu perfil foi alterado",
+      "push": {
+        "title": "Gênero alterado",
+        "ios_title": "Gênero alterado",
+        "body": "Um administrador alterou seu gênero para {{gender}}."
+      }
+    }
+  },
+  "general": {
+    "new_blog_post": {
+      "event_description": "Um nova postagem foi publicada no blog",
+      "push": {
+        "title": "Novo post no blog: {{title}}",
+        "ios_title": "Novo post no blog",
+        "ios_subtitle": "{{title}}"
+      }
+    }
+  },
+  "host_request": {
+    "accept": {
+      "event_description": "Alguém aceita sua solicitação de hospedagem",
+      "push": {
+        "title": "{{user}} aceitou sua solicitação de hospedagem",
+        "ios_title": "{{user}}",
+        "body": "{{user}} aceitou sua solicitação de hospedagem para {{date}}.",
+        "ios_subtitle": "Solicitação de hospedagem aceita"
+      }
+    },
+    "cancel": {
+      "event_description": "Alguém cancela sua solicitação de hospedagem",
+      "push": {
+        "title": "{{user}} cancelou a solicitação de hospedagem",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Solicitação de hospedagem cancelada",
+        "body": "{{user}} cancelou a solicitação de hospedagem para {{date}}."
+      }
+    },
+    "confirm": {
+      "event_description": "Alguém confirma a solicitação de hospedagem recebida",
+      "push": {
+        "title": "{{user}} confirmou a solicitação de hospedagem",
+        "ios_subtitle": "Solicitação de hospedagem confirmada",
+        "ios_title": "{{user}}",
+        "body": "{{user}} confirmou a solicitação de hospedagem para {{date}}."
+      }
+    },
+    "create": {
+      "event_description": "Alguém envia uma solicitação de hospedagem para você",
+      "push": {
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nova solicitação de hospedagem",
+        "title": "Nova solicitação de hospedagem de {{user}}",
+        "body_one": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dia.",
+        "body_many": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dias.",
+        "body_other": "{{user}} quer se hospedar a partir de {{start_date}} por {{count}} dias."
+      }
+    },
+    "message": {
+      "event_description": "Alguém envia uma mensagem em uma solicitação de hospedagem"
+    },
+    "missed_messages": {
+      "event_description": "Você tem mensagens pendentes em uma solicitação de hospedagem",
+      "push": {
+        "title": "Novas mensagens de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Mensagens perdidas",
+        "body": "Você tem novas mensagens não visualizadas de {{user}}."
+      }
+    },
+    "reject": {
+      "event_description": "Alguém recusa sua solicitação de hospedagem",
+      "push": {
+        "title": "{{user}} recusou sua solicitação de hospedagem",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Solicitação de hospedagem recusada",
+        "body": "{{user}} recusou sua solicitação de hospedagem para {{date}}."
+      }
+    },
+    "reminder": {
+      "event_description": "Você não respondeu a uma solicitação pendente de hospedagem",
+      "push": {
+        "title": "Solicitação pendente de {{user}}",
+        "ios_title": "Solicitação de hospedagem pendente",
+        "ios_subtitle": "{{user}}",
+        "body": "{{user}} está esperando sua resposta. Aceite ou recuse a solicitação."
+      }
+    }
+  },
+  "modnote": {
+    "create": {
+      "event_description": "Um moderador envia uma mensagem",
+      "push": {
+        "body": "Você recebeu uma mensagem do moderador. Leia e aceite para continuar a usar a plataforma.",
+        "title": "Nova mensagem do moderador",
+        "ios_title": "Nova mensagem do moderador"
+      }
+    }
+  },
+  "onboarding": {
+    "reminder": {
+      "event_description": "Lembrete para completar seu perfil após se registrar",
+      "push": {
+        "first": {
+          "title": "Bem-vindo ao Couchers!",
+          "ios_title": "Bem-vindo ao Couchers!",
+          "body": "Complete seu perfil com uma foto e um breve texto sobre você."
+        },
+        "subsequent": {
+          "title": "Lembre-se de completar seu perfil",
+          "ios_title": "Lembrete de perfil",
+          "body": "Complete seu perfil com uma foto e um breve texto sobre você."
+        }
+      }
+    }
+  },
+  "password": {
+    "change": {
+      "event_description": "Sua senha foi alterada",
+      "push": {
+        "title": "Senha alterada",
+        "ios_title": "Senha alterada",
+        "body": "Sua senha foi alterada."
+      }
+    }
+  },
+  "password_reset": {
+    "complete": {
+      "event_description": "A redefinição de senha foi concluída",
+      "push": {
+        "title": "Redefinição de senha",
+        "ios_title": "Redefinição de senha",
+        "body": "Sua senha foi redefinida com sucesso."
+      }
+    },
+    "start": {
+      "event_description": "A redefinição de senha foi iniciada",
+      "push": {
+        "ios_title": "Redefinição de senha solicitada",
+        "title": "Redefinição de senha solicitada",
+        "body": "Use o link que enviamos por e-mail para concluir."
+      }
+    }
+  },
+  "phone_number": {
+    "change": {
+      "event_description": "Seu número de telefone foi alterado",
+      "push": {
+        "body": "Você iniciou a verificação do seu número de telefone com o número {{phone_number}}.",
+        "title": "Verificação de telefone iniciada",
+        "ios_title": "Verificação de telefone iniciada"
+      }
+    },
+    "verify": {
+      "event_description": "Seu número de telefone foi verificado",
+      "push": {
+        "title": "Verificação de telefone concluída",
+        "body": "Seu número de telefone foi verificado com sucesso como {{phone_number}}.",
+        "ios_title": "Verificação de telefone concluída"
+      }
+    }
+  },
+  "postal_verification": {
+    "failed": {
+      "event_description": "Sua verificação por correio falhou",
+      "push": {
+        "ios_title": "Falha na verificação do código postal",
+        "body_code_expired": "Seu código de verificação expirou. Os códigos são válidos por 90 dias após o envio do cartão-postal. Você pode solicitar um novo cartão-postal.",
+        "body_too_many_attempts": "Muitas tentativas com código incorreto. Você pode solicitar um novo cartão-postal.",
+        "body_generic": "Sua tentativa de verificação de código postal falhou. Você pode solicitar um novo cartão-postal.",
+        "title": "Falha na verificação de código postal"
+      }
+    },
+    "postcard_sent": {
+      "event_description": "Seu cartão-postal de verificação foi enviado",
+      "push": {
+        "body": "Seu cartão-postal está a caminho para {{city}}, {{country}}. Ele chegará entre 1 e 3 semanas.",
+        "title": "Verificação de código postal iniciada",
+        "ios_title": "Verificação de código postal iniciada"
+      }
+    },
+    "success": {
+      "event_description": "Sua verificação por correio funcionou",
+      "push": {
+        "title": "Verificação de código postal concluída",
+        "ios_title": "Verificação de código postal concluída",
+        "body": "Seu endereço agora está verificado."
+      }
+    }
+  },
+  "reference": {
+    "_receive_any": {
+      "push": {
+        "title": "Nova referência de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nova referência",
+        "body_must_write_yours": "{{user}} deixou uma referência para você. Agora é a sua vez de escrever a sua!"
+      }
+    },
+    "_reminder_any": {
+      "push": {
+        "title": "Escreva sua referência para {{user}}",
+        "ios_title": "Escreva sua referência",
+        "ios_subtitle": "{{user}}",
+        "body_one": "Você ainda tem {{count}} dia para escrever uma referência para {{user}}.",
+        "body_many": "Você ainda tem {{count}} dias para escrever uma referência para {{user}}.",
+        "body_other": "Você ainda tem {{count}} dias para escrever uma referência para {{user}}."
+      }
+    },
+    "receive_friend": {
+      "event_description": "Você recebeu uma referência de um amigo",
+      "push": {
+        "title": "Nova referência de amigo de {{user}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Nova referência de amigo"
+      }
+    },
+    "receive_hosted": {
+      "event_description": "Você recebe uma referência de alguém que te hospedou"
+    },
+    "receive_surfed": {
+      "event_description": "Você recebe uma referência de alguém que hospedou"
+    },
+    "reminder_hosted": {
+      "event_description": "Lembrete para escrever uma referência para alguém que você hospedou"
+    },
+    "reminder_surfed": {
+      "event_description": "Lembrete para escrever uma referência para alguém com quem você se hospedou"
+    }
+  },
+  "thread": {
+    "reply": {
+      "event_description": "Alguém responde o seu comentário",
+      "push": {
+        "title": "{{user}} • {{title}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{title}}"
+      }
+    }
+  },
+  "verification": {
+    "sv_fail": {
+      "event_description": "Sua verificação forte falhou",
+      "push": {
+        "title": "Falha na verificação forte",
+        "ios_title": "Falha na verificação forte",
+        "body_wrong_birthdate_gender": "A data de nascimento ou gênero do seu perfil não corresponde à data de nascimento ou sexo no seu passaporte. Entre em contato com a equipe de suporte para atualizar sua data de nascimento ou gênero, ou se o sexo no seu passaporte não corresponde à sua identidade de gênero.",
+        "body_not_a_passport": "Você usou um documento que não é um passaporte. Você só pode usar um passaporte para a verificação forte.",
+        "body_duplicate": "Você usou um passaporte que já foi usado para a verificação. Use outro passaporte."
+      }
+    },
+    "sv_success": {
+      "event_description": "Sua verificação forte funcionou",
+      "push": {
+        "title": "Verificação forte concluída",
+        "ios_title": "Verificação forte concluída",
+        "body": "Você foi verificado com a verificação forte."
+      }
     }
   }
 }

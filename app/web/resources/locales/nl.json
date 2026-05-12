@@ -9,7 +9,7 @@
   "login": "Inloggen",
   "sign_up": "Aanmelden",
   "nav": {
-    "account_settings": "Accountinstellingen",
+    "account_settings": "Account-instellingen",
     "about": "Over",
     "blog": "Blog",
     "community": "Community",
@@ -19,12 +19,9 @@
     "communities": "Communities",
     "events": "Events",
     "faq": "FAQ",
-    "feature_preview": "Feature preview",
-    "forum": "Forum",
     "log_out": "Uitloggen",
     "dashboard": "Dashboard",
     "donate": "Doneren",
-    "github": "GitHub",
     "help_center": "Helpdesk",
     "messages": "Berichten",
     "invite_members": "Leden uitnodigen",
@@ -42,9 +39,9 @@
     "our_team": "Ons team",
     "profile": "Profiel",
     "show_all_events": "Alle events weergeven",
-    "the_team": "Het team",
     "volunteer": "Helpen",
-    "legal_more": "Juridisch & meer"
+    "legal_more": "Juridisch & meer",
+    "home": "Home"
   },
   "components": {
     "edit_location_map": {
@@ -54,12 +51,12 @@
       "location_publicly_visible": "Dit zal voor iedereen zichtbaar zijn",
       "display_location_not_empty": "Vul een weergave-adres in",
       "location_accuracy": "Locatienauwkeurigheid",
-      "radius_text": "{{radius}} meter",
       "no_location_results_text": "Geen resultaten. Probeer alleen op de stad te zoeken.",
       "location_warn": "Klik en sleep de cirkel hieronder om mensen de globale locatie van je huis te laten zien. Zorg ervoor dat je huis niet in het midden van de cirkel staat, zodat mensen de exacte locatie niet weten.",
       "map_is_blank": "Coördinaten ontbreken, begin met het zoeken naar een locatie op bovenstaande kaart",
       "invalid_coordinate": "Coördinaten ontbreken, selecteer een locatie op bovenstaande kaart",
-      "no_map_support": "Je apparaat ondersteunt onze kaart niet. Zorg ervoor dat WebGL2 is ingeschakeld, of probeer een ander apparaat of een andere browser. Sorry voor het ongemak!"
+      "radius_text2_one": "{{count}} meter",
+      "radius_text2_other": "{{count}} meter"
     },
     "datepicker": {
       "change_date": "Datum aanpassen"
@@ -72,7 +69,6 @@
   "previous": "Vorige",
   "mod": "Moderator",
   "hosting_status": {
-    "any": "Elke",
     "can_host": "Kan hosten",
     "maybe": "Kan misschien hosten",
     "cant_host": "Kan niet hosten",
@@ -81,8 +77,6 @@
   "language_preference": {
     "form_title": "Taal",
     "help_translate": "Help bij het vertalen van Couchers.",
-    "success_message": "Jouw wijziging is opgeslagen.",
-    "select_language": "Taal uitkiezen",
     "error_loading_languages": "Taalopties konden niet worden geladen. Probeer het later nog eens.",
     "translation_progress": {
       "title": "Voortgang vertaling",
@@ -92,9 +86,7 @@
       "no_data": "Geen informatie over de vertalingen beschikbaar",
       "just_started": "Net begonnen",
       "early_stage": "In de beginfase",
-      "in_progress": "Wordt aan gewerkt",
       "view_progress": "Bekijk voortgang vertalingen",
-      "complete_percent": "{{percent}}% afgerond",
       "midway": "Halverwege",
       "complete": "Afgerond",
       "almost_there": "Bijna klaar",
@@ -103,9 +95,9 @@
     },
     "current_preferred_language": "De taal van jouw voorkeur is op dit moment <lang>{{language}}</lang>.",
     "show_all_languages": "Alle talen laten zien in de taalkiezer",
-    "show_all_languages_description": "Als je dit inschakelt, laat de de taalkiezer alle talen zien, ook als ze nog niet helemaal klaar zijn. Dit kan alleen op onze staging website, om te helpen bij het testen van talen die nog in ontwikkeling zijn."
+    "show_all_languages_description": "Als je dit inschakelt, laat de taalkiezer alle talen zien, ook als ze nog niet helemaal klaar zijn. Dit kan alleen op onze staging website, om te helpen bij het testen van talen die nog in ontwikkeling zijn."
   },
-  "create": "maken",
+  "create": "Plannen",
   "terms_of_service": "Servicevoorwaarden",
   "required": "Verplicht",
   "accept": "Accepteren",
@@ -120,17 +112,10 @@
   "send": "Verzenden",
   "save_changes": "Wijzigingen opslaan",
   "cancel": "Annuleren",
-  "created": "gemaakt",
-  "disable": "Uitschakelen",
-  "disabled": "Uitgeschakeld",
-  "no_invite_codes": "Nog geen invite codes",
   "submit": "Sturen",
   "confirm": "Bevestigen",
-  "copy": "Kopiëren",
-  "copied": "Gekopieerd",
   "update": "updaten",
   "expand": "Uitklappen",
-  "uses": "Gebruikt",
   "learn_more": "Meer informatie",
   "donation_banner": {
     "message": "Couchers.org draait op vriendelijkheid, net zoals couchsurfing zelf. In aanloop naar de feestdagen kan je ons helpen dat zo te houden. We proberen {{goal}} in te zamelen om de kosten van Couchers.org te dekken.",
@@ -145,11 +130,9 @@
   },
   "report": {
     "label": "Een probleem doorgeven",
-    "title": "Een probleem doorgeven",
     "bug": {
       "button_label": "Een technisch probleem doorgeven",
       "title_label": "Titel van melding",
-      "title_helper": "Korte omschrijving van de bug",
       "problem_label": "Wat was je aan het doen toen je deze bug kreeg?",
       "problem_helper": "Korte beschrijving van het probleem en hoe dit te reproduceren is",
       "expect_label": "Wat gebeurde er? Wat had er moeten gebeuren?",
@@ -159,8 +142,7 @@
     },
     "content": {
       "button_label": "Ongepast gedrag of ongepaste content melden",
-      "success_message": "Bedankt voor je melding en voor het beter maken van Couchers voor iedereen!",
-      "dialog_message": "We werken op dit moment aan goede meldings- en moderatietools. In de tussentijd kan je een e-mail sturen naar onderstaand adres. Voeg details toe zoals om welke gebruiker het gaat, wat er ongepast was en waar je het hebt gezien."
+      "success_message": "Bedankt voor je melding en voor het beter maken van Couchers voor iedereen!"
     },
     "flag": {
       "block_user": "Blokkeer {{username}}",
@@ -171,10 +153,8 @@
       "title": "Rapporteer content of een gebruiker",
       "profile_title": "Rapporteren of blokkeren",
       "reason_label": "Reden voor de melding",
-      "reason_helper": "Waarom meld je deze content?",
       "reason_required": "Een reden geven is verplicht.",
       "description_required": "Een beschrijving is verplicht.",
-      "profile_reason_required": "Vul de beschrijving in of blokkeer de gebruiker",
       "description_label": "Beschrijf het probleem",
       "description_helper": "Vertel ons waarom je dit wilt melden.",
       "success": "Bedankt voor je melding en het verbeteren van Couchers voor iedereen!",
@@ -191,7 +171,6 @@
       }
     }
   },
-  "error_loading_invite_codes": "Kon details van de invite code niet laden",
   "not_found_text_2": "Wil je gewoon <1>naar je Dashboard gaan?</1>",
   "not_found_alt": "404-fout: Bron niet gevonden",
   "change_time": "Tijd aanpassen",
@@ -200,7 +179,6 @@
     "default_title": "Couchers.org",
     "default_description": "Deel jouw wereld, ontdek die van een ander. Authentieke lokale ervaringen, op basis van vertrouwen en echte verbindingen - niet op transacties."
   },
-  "invited_you": "{{name}} heeft jou uitgenodigd om lid te worden van Couchers!",
   "error": {
     "unknown": "Onbekende fout",
     "fallback": {
@@ -213,19 +191,20 @@
   },
   "not_found_text_1": "We konden de door jou opgevraagde URL of bron niet vinden",
   "invites": {
-    "share_link": "Link kopiëren",
-    "uses_suffix": "voltooide aanmeldingen",
     "banner": {
-      "invited_you": "{{name}} heeft je uitgenodigd om lid te worden van Couchers!",
-      "inviter_fallback": "{{username}} heeft je uitgenodigd om lid te worden van Couchers!"
+      "invited_you": "{{name}} heeft je uitgenodigd om lid te worden van Couchers!"
     },
-    "disable": "Uitzetten",
     "instructions": "Maak een uitnodigingslink om met vrienden en de community te delen. Schakel de uitnodigingen uit die je niet meer gebruikt.",
     "title": "Leden uitnodigen",
-    "create": "Uitnodiging maken",
     "error": {
       "fetch_invite_info": "Kon details van de invite code niet laden"
-    }
+    },
+    "number_of_uses_one": "Gebruikt: {{count}} volledige aanmelding",
+    "number_of_uses_other": "Gebruikt: {{count}} volledige aanmeldingen",
+    "no_codes_message": "Nog geen invite codes",
+    "created_datetime": "Aangemaakt: {{datetime}}",
+    "disabled_datetime": "Uitgeschakeld: {{datetime}}",
+    "disable_link": "Uitzetten"
   },
   "contribute_title": "Meld je aan om mee te doen",
   "reply": "Beantwoorden",
@@ -255,7 +234,6 @@
     "description_1": "Couchsurfing is een concept waarbij sommige leden (die noemen we hosts) op het platform aangeven dat ze openstaan om andere leden (die noemen we surfers) die hun stad bezoeken te ontvangen.",
     "description_2": "Het is alsof je op bezoek gaat bij een vriend in een andere stad, maar je ontmoet de vriend voor het eerst zodra je aankomt!",
     "get_involved_title": "Wat kan ik doen op Couchers.org?",
-    "get_started": "Aan de slag",
     "timeline_title": "Een korte geschiedenis van couchsurfing",
     "timeline": {
       "early_2000s_year": "Begin jaren 2000",
@@ -304,7 +282,61 @@
     "bottom_cta_subtitle": "Word gratis lid van Couchers.org en maak deel uit van een wereldwijde community gebouwd op gastvrijheid en verbinding.",
     "join_couchers": "Word lid van Couchers.org",
     "is_it_safe": {
-      "title": "Hoe veilig is couchsurfen?"
+      "title": "Hoe veilig is couchsurfen?",
+      "description_1": "Contact hebben en reizen met mensen die je eigenlijk niet kent is nooit helemaal zonder risico, maar couchsurfen is een stuk veiliger dan veel mensen denken.",
+      "description_2": "Onze community is gebaseerd op vertrouwen tussen leden, en opgebouwd door referenties na het hosten of couchsurfen. Ons actieve moderatieteam neemt elke melding serieus en treed hard op tegen mensen die zich niet aan onze <guidelines>Communityrichtlijnen</guidelines> houden.",
+      "description_3": "Daarnaast bevat het Couchers-platform tools, zoals verschillende vormen van verificatie (zoals sterke verificatie met een biometrisch paspoort), die voor nog meer veiligheid zorgen. Het is belangrijk om altijd een alternatief plan te hebben, voor het geval iets niet gaat zoals verwacht, en om op je onderbuikgevoel te vertrouwen!"
     }
+  },
+  "copy_button": {
+    "a11y": "Kopiëren",
+    "copied_tooltip": "Gekopieerd naar klembord"
+  },
+  "image_input": {
+    "select_button_a11y": "Kies een afbeelding",
+    "read_file_error_message": "Kon bestand niet lezen"
+  },
+  "team": {
+    "title": "Het team",
+    "description": "Wij zijn enthousiaste couchsurfers en ervaren professionals die zich inzetten voor het creëren van een verbeterd, veiliger en inclusiever platform. We maken dit platform om de couchsurfing-community te ondersteunen en duurzaam te laten groeien, terwijl we onze waarden met de wereld delen. Als je onze visie deelt en mee wilt doen, dan horen we dat graag.",
+    "join_the_team": "Kom in ons team",
+    "join_our_team": "Sluit je bij ons aan",
+    "have_skills_contribute": "Heb je vaardigheden die je wilt inzetten?",
+    "fill_form_description": "Couchers.org is een door de community gedreven project, ontwikkeld door mensen zoals jij, speciaal voor de wereldwijde couchsurfing-community. Als je interesse hebt om mee te doen aan ons spannende project, klik dan op onderstaande knop en vul het korte formulier in.",
+    "past_members": "Oude leden",
+    "board_member": "Bestuurslid"
+  },
+  "blog": {
+    "byline_with_author": "Geschreven door <1/>. Gepubliceerd op {{date}}.",
+    "byline_without_author": "Gepubliceerd op {{date}}.",
+    "cta_message": "Wil je helpen bij het schrijven van blogs of ander vrijwilligerswerk doen? <1>Meld je aan</1> en laat het ons weten. Vrijwilligers en <3>donaties</3> maken Couchers.org mogelijk!"
+  },
+  "error_loading_languages": "Taalopties laden mislukt",
+  "language_names": {
+    "ca": "Catalaans",
+    "cs": "Tsjechisch",
+    "de": "Duits",
+    "en": "Engels",
+    "en-CORP": "Amerikaans (zakelijk)",
+    "es": "Spaans (Spanje)",
+    "es-419": "Spaans",
+    "fr": "Frans (Frankrijk)",
+    "fr-CA": "Frans (Canada)",
+    "he": "Hebreeuws",
+    "hi": "Hindi",
+    "it": "Italiaans",
+    "ja": "Japans",
+    "nb-NO": "Noors (Bokmål)",
+    "nl": "Nederlands",
+    "pl": "Pools",
+    "pt": "Portugees (Portugal)",
+    "pt-BR": "Portugees (Brazilië)",
+    "ru": "Russisch",
+    "sv": "Zweeds",
+    "tr": "Turks",
+    "uk": "Oekraïens",
+    "zh-Hans": "Chinees (vereenvoudigd)",
+    "zh-Hant": "Chinees (traditioneel)",
+    "hu": "Hongaars"
   }
 }

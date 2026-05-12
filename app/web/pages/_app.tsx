@@ -14,6 +14,7 @@ import ErrorBoundary from "components/ErrorBoundary";
 import HtmlMeta from "components/HtmlMeta";
 import NativeColorSchemeSync from "components/NativeColorSchemeSync";
 import NativeMobileNavigationHandler from "components/NativeMobileNavigationHandler";
+import { AnalyticsProvider } from "features/analytics";
 import AuthProvider from "features/auth/AuthProvider";
 import { ReactQueryClientProvider } from "features/reactQueryClient";
 import StatsigProvider from "features/statsig/StatsigProvider";
@@ -78,18 +79,20 @@ function MyApp(props: AppWithLayoutProps) {
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <ThemeProvider theme={theme}>
             <ErrorBoundary isFatal>
-              <ReactQueryClientProvider>
-                <AuthProvider>
-                  <StatsigProvider>
-                    <CssBaseline />
-                    <NativeColorSchemeSync />
-                    <NativeMobileNavigationHandler />
-                    <EnvironmentBanner />
-                    <HtmlMeta />
-                    {getLayout(<Component {...pageProps} />)}
-                  </StatsigProvider>
-                </AuthProvider>
-              </ReactQueryClientProvider>
+              <AnalyticsProvider>
+                <ReactQueryClientProvider>
+                  <AuthProvider>
+                    <StatsigProvider>
+                      <CssBaseline />
+                      <NativeColorSchemeSync />
+                      <NativeMobileNavigationHandler />
+                      <EnvironmentBanner />
+                      <HtmlMeta />
+                      {getLayout(<Component {...pageProps} />)}
+                    </StatsigProvider>
+                  </AuthProvider>
+                </ReactQueryClientProvider>
+              </AnalyticsProvider>
             </ErrorBoundary>
           </ThemeProvider>
         </LocalizationProvider>

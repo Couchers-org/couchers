@@ -34,7 +34,6 @@
       "remember_me": "Lembrar-se de mim",
       "username_field_label": "E-mail/Nome de usuário",
       "password_field_label": "Senha",
-      "no_password_login_prompt": "Verifique no seu e-mail o link para entrar! :)",
       "forgot_password": "Esqueceu a senha?",
       "hide_password": "Ocultar senha",
       "show_password": "Mostrar senha"
@@ -43,7 +42,6 @@
     "header": "Bem-vindo de volta!"
   },
   "basic_sign_up_form": {
-    "header": "Vamos começar!",
     "existing_user_prompt": "Já tem uma conta? <2>Entre!</2>",
     "sign_up_agreement_explainer": "Ao continuar, você concorda com nossos <2> Termos de Serviço</2>, incluindo nossas políticas de gestão de cookies, email e dados."
   },
@@ -81,20 +79,17 @@
       "can_host": "Pode hospedar",
       "cant_host": "Não pode hospedar",
       "maybe": "Talvez possa hospedar",
-      "field_label": "Estado de anfitrião",
-      "any": "Sem preferência"
+      "field_label": "Estado de anfitrião"
     },
     "opt_in_newsletter": "Inscreva-se em nossa newsletter periódica sobre atualizações da comunidade."
   },
-  "jail_set_password_form": {
-    "title": "Definir uma senha",
-    "explanation": "Você ainda não definiu uma senha para sua conta. Crie uma agora para continuar."
-  },
   "basic_form": {
     "name": {
-      "empty_error": "Digite seu nome",
       "field_label": "Nome",
-      "required_error": "Este campo não pode estar em branco."
+      "required_error": "Este campo não pode estar em branco",
+      "invalid_characters_error": "O nome pode conter apenas letras, espaços, hífens e apóstrofes",
+      "min_length_error": "O nome deve ter pelo menos 2 caracteres",
+      "max_length_error": "O nome não deve ter mais que 100 caracteres"
     },
     "email": {
       "field_label": "E-mail",
@@ -183,7 +178,7 @@
       "checkbox_label": "OK, entendi",
       "required_error": "Todas as caixas de verificação são obrigatórias"
     },
-    "header": "Orientações da Comunidade"
+    "header": "Diretrizes da Comunidade"
   },
   "unhandled_sign_up_state": "Erro: estado de fluxo de registo não tratado.",
   "login_prompt": "Clique aqui para entrar",
@@ -240,11 +235,11 @@
       "no_emails_disabled_message": "Agora os e-mails estão <1>habilitados</1> para você.",
       "no_emails_enabled_message": "Agora os e-mails estão <1>desabilitados</1> para sua conta."
     },
-    "caveat": "Ao habilitar esta configuração, sua conta será configurada para não aceitar solicitações de hospedagem. Você continuará recebendo e-mails de segurança (como redefinição de senha). Você ainda pode receber a newsletter. Para cancelar a assinatura, use o link no rodapé da newsletter.",
     "action_button": {
       "no_emails_enable_text": "Não me envie e-mails",
       "no_emails_disable_text": "Habilitar e-mails novamente"
-    }
+    },
+    "caveat": "Ao habilitar esta configuração, sua conta será configurada para não aceitar solicitações de hospedagem. Você continuará recebendo e-mails de segurança (como redefinição de senha). Você ainda pode receber a newsletter. Para cancelar a assinatura, use o link no rodapé da newsletter."
   },
   "active_logins": {
     "settings_page_text": "Veja onde você está conectado ou desconectado de outras sessões",
@@ -260,14 +255,10 @@
     "settings_page_link": "Gerenciar logins atuais"
   },
   "strong_verification": {
-    "begin_button": "Concluir Autenticação Forte com Iris ID",
     "delete_information": "Você pode excluir seus dados de Autenticação Forte (exceto país expedidor, data de validade e últimos três dígitos do número do documento) dos nossos servidores a qualquer momento.",
-    "information_text1": "Você precisará de um <strong>passaporte biométrico</strong> (outros tipos de identidade não funcionarão) e um dispositivo Apple iPhone ou Android compatível com NFC.",
-    "information_text3": "Você pode ler mais sobre como nós e o Iris ID processamos e armazenamos seus dados nos nossos <2>Termos de Serviço</2>. Segundo a <5>Política de Privacidade</5> do Iris ID, eles excluirão suas informações pessoais em até 24 horas. Você pode solicitar que os dados dessa Autenticação Forte (exceto país expedidor, data validade e os últimos três dígitos do número do documento) sejam excluídos de nossos servidores a qualquer momento com um clique.",
     "title": "Autenticação Forte",
     "subtitle": "A Autenticação Forte é uma funcionalidade de segurança adicional que permite que você verifique sua data de nascimento e sexo usando seu passaporte biométrico.",
     "start_button": "Iniciar Autenticação Forte",
-    "information_text2": "Ao clicar no botão abaixo, você será redirecionado para o website do Iris ID para concluir o processo de verificação de passaporte.",
     "status": {
       "disabled_message": "Você <1>não foi</1> verificado com Autenticação Forte.",
       "enabled_message": "Você <1>foi</1> verificado com Autenticação Forte."

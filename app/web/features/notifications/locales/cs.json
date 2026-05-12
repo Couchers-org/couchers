@@ -1,7 +1,6 @@
 {
   "notification_settings": {
     "title": "Nastavení upozornění",
-    "edit_in_console": "Nastavení oznámení můžeš změnit <2>na této stránce</2>. Brzy ho přesuneme sem.",
     "go_to_button": "Spravovat nastavení oznámení",
     "edit_preferences": {
       "title": "Nastavení oznámení",
@@ -19,26 +18,12 @@
         "discussion": "Diskuze",
         "reply": "Odpovědi"
       },
-      "item_descriptions": {
-        "host_request": {
-          "cancel": "Někdo zruší žádost o ubytování",
-          "reject": "Někdo odmítne tvou žádost o ubytování",
-          "confirm": "Někdo potvrdí žádost o ubytování",
-          "accept": "Někdo přijme tvou žádost o ubytování",
-          "message": "Někdo ti pošle zprávu v žádosti o ubytování",
-          "create": "Někdo ti zašle žádost o ubytování",
-          "missed_messages": "Utekla ti zpráva v žádosti o ubytování"
-        },
-        "chat": {
-          "missed_messages": "Utekly ti zprávy v chatu",
-          "message": "Někdo ti pošle zprávu"
-        },
-        "general": {
-          "new_blog_post": "Byl zveřejněn nový blogový příspěvek"
-        }
-      },
       "collapse_all": "Sbalit vše",
       "expand_all": "Rozbalit vše"
+    },
+    "push_notifications": {
+      "title": "Push notifikace",
+      "description": "Push notifikace pro Couchers.org můžeš zapnout na svém zařízení. Pracujeme na rozšíření této funkce."
     }
   },
   "all": "Vše",

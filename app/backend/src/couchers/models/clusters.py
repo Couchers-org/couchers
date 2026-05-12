@@ -14,6 +14,7 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
     func,
+    select,
     text,
 )
 from sqlalchemy.orm import (
@@ -27,6 +28,7 @@ from sqlalchemy.orm import (
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base, Geom, communities_seq
+from couchers.models.static import TimezoneArea
 from couchers.utils import get_coordinates
 
 if TYPE_CHECKING:
@@ -68,6 +70,14 @@ class Node(Base, kw_only=True):
     geom: Mapped[Geom] = deferred(mapped_column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False))
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
 
+    timezone = column_property(
+        select(TimezoneArea.tzid)
+        .where(func.ST_Contains(TimezoneArea.geom, func.ST_PointOnSurface(geom)))
+        .limit(1)
+        .scalar_subquery(),
+        deferred=True,
+    )
+
     parent_node: Mapped[Node] = relationship(init=False, back_populates="child_nodes", remote_side="Node.id")
     child_nodes: Mapped[list[Node]] = relationship(init=False)
     child_clusters: Mapped[list[Cluster]] = relationship(
@@ -105,8 +115,11 @@ class Cluster(Base, kw_only=True):
 
     is_official_cluster: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    discussions_enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default=expression.true())
-    events_enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default=expression.true())
+    # Toggles the "small community" feature set: discussions, events, and public trips. These are
+    # grouped into a single flag because they're disabled together on large communities.
+    small_community_features_enabled: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default=expression.true()
+    )
 
     slug: Mapped[str] = column_property(func.slugify(name))
 

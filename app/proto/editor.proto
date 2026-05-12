@@ -3,10 +3,12 @@ syntax = "proto3";
 package org.couchers.editor;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
 import "annotations.proto";
 import "communities.proto";
+import "postal_verification.proto";
 
 service Editor {
   option (auth_level) = AUTH_LEVEL_EDITOR;
@@ -26,6 +28,10 @@ service Editor {
   rpc UpdateVolunteer(UpdateVolunteerReq) returns (Volunteer) {}
 
   rpc ListVolunteers(ListVolunteersReq) returns (ListVolunteersRes) {}
+
+  rpc ListPostcards(ListPostcardsReq) returns (ListPostcardsRes) {}
+
+  rpc DownloadPostcardPdf(DownloadPostcardPdfReq) returns (DownloadPostcardPdfRes) {}
 }
 
 message CreateCommunityReq {
@@ -98,6 +104,8 @@ message UpdateVolunteerReq {
   google.protobuf.StringValue started_volunteering = 4;
   google.protobuf.StringValue stopped_volunteering = 5;
   google.protobuf.BoolValue show_on_team_page = 6;
+  // if true, clears stopped_volunteering (reinstates a former volunteer as current); cannot be combined with setting stopped_volunteering
+  bool reinstate_volunteer = 7;
 }
 
 message ListVolunteersReq {
@@ -136,4 +144,34 @@ message Volunteer {
 
 message ListVolunteersRes {
   repeated Volunteer volunteers = 1;
+}
+
+message ListPostcardsReq {
+  uint32 page_size = 1;
+  string page_token = 2;
+}
+
+message PostcardInfo {
+  int64 postal_verification_attempt_id = 1;
+  int64 user_id = 2;
+  string username = 3;
+  string name = 4;
+  org.couchers.api.postal_verification.PostalVerificationStatus status = 5;
+  org.couchers.api.postal_verification.PostalAddress address = 6;
+  google.protobuf.Timestamp created = 7;
+  google.protobuf.Timestamp postcard_sent_at = 8;
+  google.protobuf.Timestamp verified_at = 9;
+}
+
+message ListPostcardsRes {
+  repeated PostcardInfo postcards = 1;
+  string next_page_token = 2;
+}
+
+message DownloadPostcardPdfReq {
+  int64 postal_verification_attempt_id = 1;
+}
+
+message DownloadPostcardPdfRes {
+  bytes pdf = 1;
 }

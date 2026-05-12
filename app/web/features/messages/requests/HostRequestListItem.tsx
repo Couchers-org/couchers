@@ -17,6 +17,7 @@ import { useAuthContext } from "features/auth/AuthProvider";
 import HostRequestStatusIcon from "features/messages/requests/HostRequestStatusIcon";
 import {
   controlMessage,
+  hasUnreadMessages,
   isControlMessage,
   messageTargetId,
 } from "features/messages/utils";
@@ -30,6 +31,7 @@ import { HostRequest } from "proto/requests_pb";
 import React, { useState } from "react";
 import { service } from "service";
 import { theme } from "theme";
+import { localizeDateTimeRange, UTC_TIMEZONE } from "utils/date";
 import dayjs from "utils/dayjs";
 import { firstName } from "utils/names";
 
@@ -99,15 +101,17 @@ export default function HostRequestListItem({
   className,
   isArchived = false,
 }: HostRequestListItemProps) {
-  const { t } = useTranslation(MESSAGES);
+  const {
+    t,
+    i18n: { language: locale },
+  } = useTranslation(MESSAGES);
   const { authState } = useAuthContext();
   const isHost = authState.userId === hostRequest.hostUserId;
   const { data: currentUser } = useCurrentUser();
   const { data: otherUser, isLoading: isOtherUserLoading } = useLiteUser(
     isHost ? hostRequest.surferUserId : hostRequest.hostUserId,
   );
-  const isUnread =
-    hostRequest.lastSeenMessageId !== hostRequest.latestMessage?.messageId;
+  const isUnread = hasUnreadMessages(hostRequest);
   //define the latest message author's name and
   //control message target to use in short message preview
   const authorName =
@@ -136,7 +140,7 @@ export default function HostRequestListItem({
         }`
     : "";
 
-  const isPast = dayjs(hostRequest?.toDate).isBefore(dayjs().format("L"));
+  const isPast = dayjs(hostRequest?.toDate).isBefore(dayjs(), "day");
 
   const queryClient = useQueryClient();
 
@@ -191,7 +195,12 @@ export default function HostRequestListItem({
     <StyledListItemContainer>
       <ListItem
         className={className}
-        sx={{ color: isPast ? "grey.500" : "text.primary", paddingRight: 7 }}
+        sx={{
+          color: isPast
+            ? "var(--mui-palette-grey-500)"
+            : "var(--mui-palette-text-primary)",
+          paddingRight: 7,
+        }}
       >
         <ListItemAvatar>
           <Avatar user={otherUser} isProfileLink={false} />
@@ -200,7 +209,14 @@ export default function HostRequestListItem({
           sx={{ paddingRight: 5 }}
           disableTypography
           primary={
-            <Typography variant="h2">
+            <Typography
+              variant="h2"
+              sx={
+                isPast && isUnread
+                  ? { color: "var(--mui-palette-text-primary)" }
+                  : undefined
+              }
+            >
               {!otherUser ? <Skeleton width={100} /> : otherUser.name}
             </Typography>
           }
@@ -220,9 +236,17 @@ export default function HostRequestListItem({
               </StyledHostStatusContainer>
               <StyledDateAndBadgeContainer>
                 <Typography component="div" display="inline" variant="h3">
-                  {`${dayjs(hostRequest.fromDate).format("LL")} - ${dayjs(
-                    hostRequest.toDate,
-                  ).format("LL")}`}
+                  {localizeDateTimeRange(
+                    // Host request are plain dates (no time),
+                    // just make sure to parse and format them in the same timezone.
+                    dayjs.tz(hostRequest.fromDate, UTC_TIMEZONE),
+                    dayjs.tz(hostRequest.toDate, UTC_TIMEZONE),
+                    {
+                      timezone: UTC_TIMEZONE,
+                      locale,
+                      includeTime: false,
+                    },
+                  )}
                 </Typography>
                 <RequestTypeChip
                   label={
@@ -236,7 +260,12 @@ export default function HostRequestListItem({
               </StyledDateAndBadgeContainer>
               <TextBody
                 noWrap
-                sx={{ fontWeight: isUnread ? "bold" : "normal" }}
+                sx={{
+                  fontWeight: isUnread ? "bold" : "normal",
+                  ...(isPast && isUnread
+                    ? { color: "var(--mui-palette-text-primary)" }
+                    : {}),
+                }}
               >
                 {isOtherUserLoading ? (
                   <Skeleton width={100} />

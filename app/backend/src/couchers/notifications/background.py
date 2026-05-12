@@ -6,7 +6,6 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, func
 
-from couchers import urls
 from couchers.config import config
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
@@ -19,19 +18,12 @@ from couchers.models import (
     User,
 )
 from couchers.notifications.push import push_to_user
-from couchers.notifications.quick_links import (
-    generate_do_not_email,
-    generate_unsub_topic_action,
-    generate_unsub_topic_key,
-)
-from couchers.notifications.render_email import get_list_unsubscribe_header, render_email_notification
+from couchers.notifications.render_email import render_email_notification
 from couchers.notifications.render_push import render_push_notification
 from couchers.notifications.settings import get_preference
 from couchers.notifications.utils import can_notify_deleted_user
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import moderation_state_column_visible
-from couchers.templating import Jinja2Template, template_folder
-from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
@@ -53,56 +45,20 @@ def _send_email_notification(session: Session, user: User, notification: Notific
     if not config["ENABLE_NOTIFICATION_TRANSLATIONS"]:
         loc_context = dataclasses.replace(loc_context, locale="en")
 
-    rendered = render_email_notification(notification, loc_context)
+    rendered = render_email_notification(user, notification, loc_context)
 
-    template_args = {
-        **rendered.template_args,
-        "header_subject": rendered.subject,
-        "header_preview": rendered.preview,
-        "user": user,
-        "time": notification.created,
-        "footer_timezone_name": loc_context.localized_timezone,
-        "footer_copyright_year": now().year,
-    }
-
-    if notification.topic_action.is_critical:
-        template_args["footer_email_is_critical"] = True
-    else:
-        template_args["footer_email_is_critical"] = False
-        template_args["footer_manage_notifications_link"] = urls.notification_settings_link()
-        template_args["footer_do_not_email_link"] = generate_do_not_email(user)
-
-        if rendered.topic_action_unsubscribe_text:
-            template_args["footer_notification_topic_action"] = rendered.topic_action_unsubscribe_text
-            template_args["footer_notification_topic_action_link"] = generate_unsub_topic_action(notification)
-
-        if rendered.topic_key_unsubscribe_text:
-            template_args["footer_notification_topic_key"] = rendered.topic_key_unsubscribe_text
-            template_args["footer_notification_topic_key_link"] = generate_unsub_topic_key(notification)
-
-    # Format plaintext template
-    plain_tmplt_body = (template_folder / f"{rendered.template_name}.txt").read_text()
-    plain_tmplt_footer = (template_folder / "_footer.txt").read_text()
-    plain_tmplt = Jinja2Template(source=plain_tmplt_body + plain_tmplt_footer, html=False)
-    plain = plain_tmplt.render(template_args, loc_context)
-
-    # Format html template
-    html_tmplt = Jinja2Template(
-        source=(template_folder / "generated_html" / f"{rendered.template_name}.html").read_text(), html=True
-    )
-    html = html_tmplt.render(template_args, loc_context)
-
-    list_unsubscribe_header = get_list_unsubscribe_header(notification)
     queue_email(
         session,
-        sender_name=config["NOTIFICATION_EMAIL_SENDER"],
-        sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
-        recipient=user.email,
-        subject=config["NOTIFICATION_PREFIX"] + rendered.subject,
-        plain=plain,
-        html=html,
-        source_data=config["VERSION"] + f"/{rendered.template_name}",
-        list_unsubscribe_header=list_unsubscribe_header,
+        jobs_pb2.SendEmailPayload(
+            sender_name=config["NOTIFICATION_EMAIL_SENDER"],
+            sender_email=config["NOTIFICATION_EMAIL_ADDRESS"],
+            recipient=user.email,
+            subject=config["NOTIFICATION_PREFIX"] + rendered.subject,
+            plain=rendered.body_plaintext,
+            html=rendered.body_html,
+            source_data=rendered.source_data,
+            list_unsubscribe_header=rendered.list_unsubscribe_header,
+        ),
     )
 
 
@@ -123,8 +79,9 @@ def _send_push_notification(session: Session, user: User, notification: Notifica
 
 def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
     with session_scope() as session:
+        # Select and lock the row.
         notification = session.execute(
-            select(Notification).where(Notification.id == payload.notification_id)
+            select(Notification).where(Notification.id == payload.notification_id).with_for_update()
         ).scalar_one()
 
         # Check moderation visibility if this notification is linked to moderated content

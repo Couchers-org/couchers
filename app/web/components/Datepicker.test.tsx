@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { useTranslation } from "i18n";
 import { useForm } from "react-hook-form";
@@ -45,9 +45,10 @@ describe("DatePicker", () => {
     jest.setSystemTime(new Date("2021-03-20 00:00"));
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     jest.resetAllMocks();
     jest.clearAllTimers();
+    await act(() => i18n.changeLanguage("en"));
   });
 
   it("should submit with proper date for clicking", async () => {
@@ -149,9 +150,8 @@ describe("DatePicker", () => {
     expect(date?.format("YYYY-MM-DD")).toBe("2021-03-20");
   });
 
-  it("typing should work in en-GB", async () => {
-    const langMock = jest.spyOn(navigator, "language", "get");
-    langMock.mockReturnValue("en-GB");
+  it("typing should work in de's DD.MM.YYYY format", async () => {
+    i18n.changeLanguage("de");
 
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
@@ -172,9 +172,8 @@ describe("DatePicker", () => {
     expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
   });
 
-  it("typing should work in en-US", async () => {
-    const langMock = jest.spyOn(navigator, "language", "get");
-    langMock.mockReturnValue("en-US");
+  it("typing should work in en's MM/DD/YYYY format", async () => {
+    i18n.changeLanguage("en");
 
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });
@@ -195,32 +194,8 @@ describe("DatePicker", () => {
     expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
   });
 
-  it("typing should work in or-IN", async () => {
-    const langMock = jest.spyOn(navigator, "language", "get");
-    langMock.mockReturnValue("or-IN");
-
-    let date: Dayjs | undefined = undefined;
-    render(<Form setDate={(d) => (date = d)} />, { wrapper });
-
-    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-
-    const group = await screen.findByRole("group", { name: /Date field/i });
-    await user.click(group);
-
-    // Clear the field and type the full date
-    await user.keyboard("{Control>}a{/Control}");
-    await user.keyboard("21032021");
-
-    await user.click(screen.getByRole("button", { name: t("global:submit") }));
-
-    const expectedDate = "2021-03-21";
-    expect(date).toBeDefined();
-    expect(date!.format("YYYY-MM-DD")).toEqual(expectedDate);
-  });
-
-  it("typing should work in zh-TW", async () => {
-    const langMock = jest.spyOn(navigator, "language", "get");
-    langMock.mockReturnValue("zh-TW");
+  it("typing should work in zh-Hant's YYYY/MM/DD format", async () => {
+    i18n.changeLanguage("zh-Hant");
 
     let date: Dayjs | undefined = undefined;
     render(<Form setDate={(d) => (date = d)} />, { wrapper });

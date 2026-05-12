@@ -57,8 +57,9 @@ def thread_to_pb(session: Session, database_id: int) -> threads_pb2.Thread:
 
 
 def generate_reply_notifications(payload: jobs_pb2.GenerateReplyNotificationsPayload) -> None:
-    from couchers.servicers.discussions import discussion_to_pb
-    from couchers.servicers.events import event_to_pb
+    # Import here to avoid circular dependency
+    from couchers.servicers.discussions import discussion_to_pb  # noqa: PLC0415
+    from couchers.servicers.events import event_to_pb  # noqa: PLC0415
 
     with session_scope() as session:
         database_id, depth = unpack_thread_id(payload.thread_id)
@@ -221,13 +222,17 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
             res = session.execute(
-                select(Comment, func.count(Reply.id))
-                .outerjoin(Reply, Reply.comment_id == Comment.id)
-                .where(Comment.thread_id == database_id)
-                .where(Comment.id < page_start)
-                .group_by(Comment.id)
-                .order_by(Comment.created.desc())
-                .limit(page_size + 1)
+                where_users_column_visible(
+                    select(Comment, func.count(Reply.id))
+                    .outerjoin(Reply, Reply.comment_id == Comment.id)
+                    .where(Comment.thread_id == database_id)
+                    .where(Comment.id < page_start)
+                    .group_by(Comment.id)
+                    .order_by(Comment.created.desc())
+                    .limit(page_size + 1),
+                    context,
+                    Comment.author_user_id,
+                )
             ).all()
             replies = [
                 threads_pb2.Reply(
@@ -246,11 +251,15 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
 
             res = (
                 session.execute(  # type: ignore[assignment]
-                    select(Reply)
-                    .where(Reply.comment_id == database_id)
-                    .where(Reply.id < page_start)
-                    .order_by(Reply.created.desc())
-                    .limit(page_size + 1)
+                    where_users_column_visible(
+                        select(Reply)
+                        .where(Reply.comment_id == database_id)
+                        .where(Reply.id < page_start)
+                        .order_by(Reply.created.desc())
+                        .limit(page_size + 1),
+                        context,
+                        Reply.author_user_id,
+                    )
                 )
                 .scalars()
                 .all()

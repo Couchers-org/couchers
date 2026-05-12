@@ -1,7 +1,7 @@
 {
   "change_email_form": {
     "title": "Canvia el correu electrònic",
-    "success_message": "Hem rebut la teva sol·licitud de canvi de correu electrònic. Revisa el teu nou correu per completar el canvi.",
+    "success_message": "S'ha sol·licitat el canvi de correu electrònic. Comprova el teu nou correu per completar el canvi.",
     "current_email_message": "La teva adreça de correu electrònic actual és <1>{{email}}</1>.",
     "current_password": "Contrasenya actual",
     "new_email": "Nou correu electrònic"
@@ -9,33 +9,34 @@
   "basic_form": {
     "email": {
       "required_error": "El correu electrònic no pot estar buit.",
-      "empty_error": "Si us plau, introdueix un correu electrònic vàlid",
+      "empty_error": "Introdueix una adreça de correu electrònic vàlida",
       "field_label": "Correu electrònic"
     },
     "name": {
       "field_label": "Nom",
-      "empty_error": "Si us plau, introdueix el teu nom",
-      "required_error": "Aquest camp no pot estar buit."
+      "required_error": "Aquest camp no pot estar buit",
+      "invalid_characters_error": "El nom només pot contenir lletres, espais, guions i apòstrofs",
+      "min_length_error": "El nom ha de tenir com a mínim 2 caràcters",
+      "max_length_error": "El nom ha de tenir com a màxim 100 caràcters"
     }
   },
   "location": {
     "field_label": "La teva ubicació",
-    "validation_error": "Si us plau, selecciona una ubicació vàlida."
+    "validation_error": "Selecciona una ubicació vàlida."
   },
   "community_guidelines_form": {
     "header": "Normes de la comunitat",
     "guideline": {
-      "checkbox_label": "Entesos",
-      "required_error": "Totes les caselles han de ser marcades"
+      "checkbox_label": "D'acord, entès",
+      "required_error": "Cal marcar totes les caselles"
     }
   },
   "login_page": {
-    "no_account_prompt": "Encara no tens compte? <2>Registra’t</2>",
+    "no_account_prompt": "Encara no tens compte? <2>Uneix-t'hi</2>",
     "form": {
       "remember_me": "Recorda'm",
-      "username_field_label": "Correu electrònic/Nom d'usuari",
+      "username_field_label": "Correu electrònic / Nom d'usuari",
       "password_field_label": "Contrasenya",
-      "no_password_login_prompt": "Revisa el teu correu electrònic per un enllaç per iniciar sessió! :)",
       "forgot_password": "Has oblidat la contrasenya?",
       "show_password": "Mostra la contrasenya",
       "hide_password": "Amaga la contrasenya"
@@ -45,103 +46,102 @@
   },
   "jail": {
     "title": "Cal més informació",
-    "description": "Si us plau, comprova el següent per continuar.",
+    "description": "Comprova el següent per continuar.",
     "terms_of_service_section": {
-      "description": "Hem actualitzat les nostres Condicions de Servei. Per continuar, si us plau, llegeix i accepta els nous <1></1>."
+      "description": "Hem actualitzat les Condicions del servei. Per continuar, llegeix i accepta les noves <1></1>."
     },
     "location_section": {
-      "title": "Si us plau, actualitza la teva ubicació",
+      "title": "Actualitza la teva ubicació",
       "submit_button": {
         "active_text": "Desa",
         "inactive_text": "Gràcies!"
       },
-      "resubmit_button_text": "Reenvia",
-      "explanation": "Sembla que les teves coordenades no són correctes. Si us plau, actualitza la teva ubicació per continuar."
+      "resubmit_button_text": "Torna a enviar",
+      "explanation": "Sembla que les teves coordenades no eren correctes. Actualitza la teva ubicació per continuar."
     },
     "activeness_probe": {
-      "description": "Hem observat que fa un temps que no inicies sessió i volíem saber si encara estàs disponible per allotjar surfers.",
-      "title": "Encara estàs disponible per allotjar surfers?",
+      "description": "Hem observat que fa temps que no inicies sessió i volíem comprovar si encara estàs obert a allotjar surfistes.",
+      "title": "Encara estàs obert a allotjar surfistes?",
       "still_hosting": "Encara vull allotjar!",
       "not_hosting": "Ja no puc allotjar.",
-      "note": "Actualitzarem el teu perfil perquè reflecteixi aquesta elecció!"
+      "note": "Actualitzarem el teu perfil perquè coincideixi amb aquesta elecció!"
     },
     "mod_note_section": {
-      "description": "Els moderadors t’han enviat la següent nota. Si us plau, llegeix-la amb atenció i confirma que l’has llegida i entesa abans de continuar.",
-      "title": "Has rebut un avís dels moderadors",
-      "note_title": "Nota dels moderadors rebuda el {{time}}:",
-      "acknowledge": "Confirma la lectura de la nota"
+      "description": "Els moderadors t'han enviat la nota següent. Llegeix-la atentament i confirma que l'has llegit i comprès abans de continuar.",
+      "title": "Has rebut una nota dels moderadors",
+      "note_title": "Nota del moderador rebuda el {{time}}:",
+      "acknowledge": "Confirma la nota"
     }
   },
   "change_password_form": {
-    "user_logged_error": "No pots restablir la contrasenya si estàs connectat. Pots canviar la contrasenya a la configuració o tancar sessió per restablir-la.",
+    "user_logged_error": "No pots restablir la contrasenya si has iniciat sessió. Pots canviar la contrasenya a la configuració o tancar sessió per restablir-la.",
     "title": "Canvia la contrasenya",
-    "subtitle": "Fes servir aquest formulari per restablir la contrasenya d’accés.",
+    "subtitle": "Fes servir aquest formulari per restablir la teva contrasenya d'accés.",
     "confirm_password": "Confirma la contrasenya",
-    "password_changed_success": "S’ha establert la teva nova contrasenya i s’ha enviat una notificació al teu correu electrònic.",
+    "password_changed_success": "S'ha establert la teva nova contrasenya i s'ha enviat una notificació al teu correu electrònic.",
     "old_password": "Contrasenya antiga",
     "new_password": "Nova contrasenya",
     "password_mismatch_error": "Les contrasenyes no coincideixen.",
-    "token_error": "Hi ha hagut un error en processar el token per restablir la contrasenya. Si us plau, prova d’obrir de nou l’enllaç del correu electrònic.",
-    "reset_password_success": "La teva contrasenya s’ha canviat correctament!",
-    "reset_password_error": "Error canviant la contrasenya: {{message}}"
+    "token_error": "S'ha produït un error en processar el token de restabliment de contrasenya. Prova d'obrir l'enllaç del correu electrònic de nou.",
+    "reset_password_success": "La teva contrasenya s'ha canviat correctament!",
+    "reset_password_error": "Error en restablir la contrasenya: {{message}}"
   },
-  "sign_up_resend_verification_email_help": "No has rebut el correu electrònic? Fes clic <2>aquí per reenviar l’enllaç de verificació</2>.",
+  "sign_up_resend_verification_email_help": "No has rebut el correu? Fes clic <2>aquí per tornar a enviar l'enllaç de verificació</2>.",
   "account_form": {
     "birthday": {
-      "not_real_date_error": "Si us plau, introdueix una data de naixement real",
-      "field_label": "Aniversari",
+      "not_real_date_error": "Introdueix una data de naixement real",
+      "field_label": "Data de naixement",
       "required_error": "Introdueix la teva data de naixement",
-      "validation_error": "Ha de ser una data vàlida anterior a l'actual.",
-      "too_young_error": "Has de tenir mínim 18 anys per utilitzar Couchers"
+      "validation_error": "Ha de ser una data vàlida en el passat.",
+      "too_young_error": "Has de tenir almenys 18 anys per usar Couchers"
     },
-    "header": "Detalls del teu compte",
+    "header": "Les dades del teu compte",
     "username": {
       "field_label": "Nom d'usuari",
       "required_error": "Introdueix el teu nom d'usuari",
-      "username_taken_error": "Aquest nom d'usuari ja existeix.",
-      "validation_error": "El nom d’usuari només pot contenir números o _, i ha de començar amb una lletra.",
-      "helper_text": "Aquest és el teu identificador d'inici de sessió únic, no el teu nom visible."
+      "username_taken_error": "Aquest nom d'usuari ja està en ús.",
+      "validation_error": "El nom d'usuari només pot tenir xifres o _, i ha de començar amb una lletra.",
+      "helper_text": "Aquest és el teu ID d'accés únic, no el teu nom visible."
     },
     "password": {
       "field_label": "Contrasenya",
       "required_error": "Introdueix una contrasenya",
-      "validation_error": "La contrasenya ha de tenir entre 8 i 256 caràcters i no pot ser massa comuna."
+      "validation_error": "La contrasenya ha de tenir entre 8 i 256 caràcters i no ser extremadament comuna."
     },
     "hosting_status": {
       "field_label": "Estat d'allotjament",
       "can_host": "Pot allotjar",
       "maybe": "Podria allotjar",
-      "cant_host": "No pot allotjar",
-      "any": "Qualsevol"
+      "cant_host": "No pot allotjar"
     },
     "gender": {
-      "field_label": "M'identifico com…",
-      "required_error": "Si us plau, selecciona la teva identitat de gènere",
+      "field_label": "M'identifico com a…",
+      "required_error": "Selecciona la teva identitat de gènere",
       "man": "Home",
       "non_binary": "No binari",
       "woman": "Dona"
     },
     "opt_in_newsletter": "Subscriu-te al nostre butlletí ocasional sobre novetats de la comunitat.",
-    "tos_prompt": "Per continuar, si us plau, llegeix i accepta els <1></1>.",
-    "tos_accept_label": "Accepto les Condicions de Servei."
+    "tos_prompt": "Per continuar, llegeix i accepta la <1></1>.",
+    "tos_accept_label": "Accepto les Condicions del servei."
   },
   "feature_preview": {
-    "explanation": "Aquesta pàgina et permet provar funcionalitats que encara estan en desenvolupament abans que estiguin llestes per tothom.",
-    "disclaimer": "Tingues en compte que aquestes funcionalitats són experimentals. Pot ser que no funcionin com s'espera i que canviïn ràpidament a mesura que les desenvolupem. No dubtis a donar-nos la teva opinió utilitzant el botó \"Informa d'un problema\" per comunicar qualsevol error!",
-    "title": "Previsualització de la funcionalitat",
+    "explanation": "Aquesta pàgina et permet provar funcions que encara estan en desenvolupament abans que estiguin preparades per a tothom.",
+    "disclaimer": "Tingues en compte que aquestes funcions són experimentals. Pot ser que no funcionin com s'esperava i que canviïn ràpidament mentre les desenvolupem. No dubtis a donar la teva opinió fent servir el botó 'Reporta un problema' per informar de qualsevol error!",
+    "title": "Previsualització de funcions",
     "no_previews": {
-      "title": "Actualment no hi ha cap funcionalitat en vista prèvia",
-      "explanation": "Actualment no hi ha cap funcionalitat activa en previsualització, torna-ho a comprovar més endavant!"
+      "title": "Cap funció en previsualització ara mateix",
+      "explanation": "Ara mateix no hi ha funcions actives en previsualització. Torna a comprovar-ho més tard!"
     }
   },
   "active_logins": {
-    "description": "Aquesta pàgina mostra les sessions actives; pots tancar-ne qualsevol fent clic al botó que hi ha al costat, o bé desplaçant-te fins a la part inferior i fent clic al botó per tancar totes les sessions excepte aquesta.",
+    "description": "Aquesta pàgina mostra els inicis de sessió actius. Pots tancar sessió de qualsevol d'ells fent clic al botó que hi ha al costat, o desplaçant-te fins al final i fent clic al botó per tancar sessió de totes les sessions menys aquesta.",
     "heading": "Inicis de sessió actuals",
-    "settings_page_text": "Consulta on has iniciat sessió i tanca la sessió d'altres dispositius",
-    "settings_page_link": "Gestiona les sessions actuals",
-    "login_header": "Sessió iniciada el {{login_datetime}}",
+    "settings_page_text": "Mira on has iniciat sessió i tanca sessió d'altres dispositius",
+    "settings_page_link": "Gestiona els inicis de sessió actuals",
+    "login_header": "Inici de sessió el {{login_datetime}}",
     "location": "A prop de <2>{{approximate_location}}</2>",
-    "last_activity": "Última activitat <2>{{last_activity_ago}}</2>",
+    "last_activity": "Darrera activitat <2>{{last_activity_ago}}</2>",
     "expiry": "Caduca el <1>{{expiry_datetime}}</1>",
     "current_session": "Aquesta és la teva sessió actual.",
     "log_out_of_session": "Tanca aquesta sessió",
@@ -149,213 +149,228 @@
   },
   "account_settings_page": {
     "gender_section": {
-      "explanation": "Els administradors estaran encantats de canviar la teva etiqueta de gènere. Si us plau, contacta amb support@couchers.org!",
+      "explanation": "Els administradors estaran encantats de canviar la teva etiqueta de gènere. Posa't en contacte amb support@couchers.org!",
       "title": "Canvia el gènere"
     },
     "timezone_section": {
-      "description": "El teu fus horari és <1>{{timezone}}</1>. Segons això, la teva hora local és aproximadament <4>{{time}}</4>.",
-      "title": "Fus horari i localització",
-      "explanation": "Aquesta hora i fus horari es determinen segons la ubicació de casa teva. Si no és correcte, informa d’un error."
+      "description": "La teva zona horària és <1>{{timezone}}</1>. Basant-nos en això, la teva hora local és aproximadament <4>{{time}}</4>.",
+      "title": "Zona horària i localització",
+      "explanation": "Aquesta hora i zona horària es determinen basant-se en la teva ubicació. Reporta un error si és incorrecte."
     },
     "title": "Configuració del compte",
     "birth_date_section": {
       "title": "Canvia la data de naixement",
-      "explanation": "Els administradors estaran encantats de canviar la teva data de naixement. Si us plau, contacta amb support@couchers.org!"
+      "explanation": "Els administradors estaran encantats de canviar la teva data de naixement. Posa't en contacte amb support@couchers.org!"
     },
     "username_section": {
       "title": "Nom d'usuari",
       "description": "El teu nom d'usuari és <1>{{username}}</1>.",
-      "explanation": "El teu nom d'usuari es defineix quan crees el teu compte."
+      "explanation": "El teu nom d'usuari s'estableix quan crees el teu compte."
+    },
+    "appearance_section": {
+      "title": "Aparença",
+      "current_mode": "El teu mode actual:",
+      "click_to_change": "Fes clic al botó de sota per alternar entre els modes Clar, Fosc i del Sistema.",
+      "change_mode": "Canvia el mode d'aparença",
+      "modes": {
+        "light": "Mode clar",
+        "dark": "Mode fosc",
+        "system": "Mode del sistema (segueix el teu dispositiu)"
+      }
     }
   },
   "strong_verification": {
-    "learn_more": "Més informació sobre la Verificació Forta <a>aquí</a>.",
-    "subtitle": "La Verificació Forta és una funcionalitat de seguretat addicional que et permet verificar la teva data de naixement i gènere utilitzant el teu passaport biomètric.",
-    "title": "Verificació Forta",
+    "learn_more": "Més informació sobre la Verificació forta <a>aquí</a>.",
+    "title": "Verificació forta",
+    "subtitle": "La Verificació forta és una funció de seguretat addicional que et permet verificar la teva data de naixement i gènere amb el teu passaport biomètric.",
     "status": {
-      "disabled_message": "Actualment <1>no estàs verificat</1> amb Verificació Forta.",
-      "enabled_message": "Actualment <1>estàs verificat</1> amb Verificació Forta."
+      "disabled_message": "<1>No tens</1> la Verificació forta activa.",
+      "enabled_message": "<1>Tens</1> la Verificació forta activa."
     },
-    "start_button": "Inicia Verificació Forta",
-    "begin_button": "Completa la Verificació Forta amb Iris ID",
-    "information_text1": "Necessitaràs un <strong>passaport biomètric</strong> (altres tipus d’identificació no funcionaran) i un telèfon Apple iPhone o Android amb NFC.",
-    "information_text2": "En fer clic al botó següent, se't redirigirà al lloc web d'Iris ID per completar el procés de verificació del passaport.",
-    "information_text3": "Pots llegir més sobre com nosaltres i Iris ID processem i emmagatzemem les teves dades a les nostres <2>Condicions de Servei</2>. Segons la <5>Política de Privacitat</5> d'Iris ID, eliminaran la teva informació personal en un termini de 24 hores. Pots sol·licitar que aquestes dades de Verificació Forta (excepte el país emissor, la data de caducitat i els tres últims dígits del número del document) s'eliminin dels nostres servidors en qualsevol moment amb un sol clic.",
-    "complete_title": "Estem processant el teu intent de Verificació Forta",
-    "complete_message1": "El teu passaport s’està validant. Rebràs un correu electrònic amb els resultats en pocs minuts.",
-    "complete_message2": "La Verificació Forta caduca quan caduca el teu passaport, i hauràs de completar la verificació de nou amb el nou passaport.",
-    "delete_data_title": "Elimina les teves dades de passaport de Verificació Forta",
-    "delete_information": "Pots eliminar les teves dades de Verificació Forta (excepte el país emissor, la data de caducitat i els tres últims dígits del número del document) dels nostres servidors en qualsevol moment.",
-    "delete_information_text2": "Si elimines les teves dades, no podràs utilitzar el mateix passaport per a la Verificació Forta una altra vegada.",
+    "start_button": "Inicia la Verificació forta",
+    "complete_title": "Estem processant el teu intent de Verificació forta",
+    "complete_message1": "El teu passaport s'està validant. Rebràs un correu electrònic amb els resultats en uns minuts.",
+    "complete_message2": "La Verificació forta caduca quan caduca el teu passaport i hauràs de completar la verificació de nou amb el passaport nou.",
+    "delete_data_title": "Elimina les dades del teu passaport de Verificació forta",
+    "delete_information": "Pots eliminar les teves dades de Verificació forta (excepte el país d'emissió, la data de caducitat i els tres últims dígits del número del document) dels nostres servidors en qualsevol moment.",
+    "delete_information_text2": "Si elimines les teves dades, no pots tornar a usar el mateix passaport per a la Verificació forta.",
     "delete_my_data_button": "Elimina les meves dades",
-    "delete_button": "Suprimeix les meves dades de Verificació Forta",
+    "delete_button": "Elimina les meves dades de Verificació forta",
     "delete_success": "Les dades del teu passaport han estat eliminades.",
-    "donation_title": "Gràcies per verificar la teva identitat: estàs ajudant a fer que Couchers.org sigui més segur per a tothom.",
-    "donation_message1": "La verificació és gratuïta per a tu, però per a nosaltres té un cost. Com a organització sense ànim de lucre gestionada per voluntaris, depenem de les donacions per cobrir despeses com mantenir els nostres servidors en funcionament, la verificació i les eines per als voluntaris i els creadors de comunitat.",
+    "donation_title": "Gràcies per verificar-te — estàs ajudant a fer Couchers.org més segur per a tothom.",
+    "donation_message1": "La verificació és gratuïta per a tu, però té un cost per a nosaltres. Com a organització sense ànim de lucre gestionada per voluntaris, depenem de les donacions per cobrir despeses com el manteniment dels nostres servidors, la verificació i les eines per a voluntaris i impulsors de comunitat.",
     "donation_message2": "Si pots, considera fer una donació per ajudar a mantenir i fer créixer Couchers.org.",
-    "donate_button": "Fes una donació per donar suport a Couchers.org",
+    "donate_button": "Dona per donar suport a Couchers.org",
     "instructions": {
       "step1": "Descarrega l'aplicació <strong>Iris ID</strong>",
-      "step1_apple_note": "<strong>Usuaris d'Apple:</strong> Podeu ometre la descàrrega i utilitzar el vostre navegador. Només cal que feu clic a \"Obre\" quan se us demani.",
+      "step1_apple_note": "<strong>Usuaris d'Apple:</strong> pots saltar-te la descàrrega i usar el navegador. Simplement fes clic a \"Obre\" quan se't demani.",
       "step3": "Escaneja el codi QR amb el teu telèfon",
-      "step4": "Si se't demana, obre l'aplicació i torna a escanejar el codi QR",
-      "download_app_store": "Descarrega-ho a l'App Store",
+      "step4": "Si se't demana, obre l'aplicació i escaneja el codi QR de nou",
+      "download_app_store": "Descarrega a l'App Store",
       "chip_location": {
-        "finland_germany_new": "<strong>Finlàndia, Alemanya (2017+), Rússia:</strong> Pàgina d’imatge",
-        "australia": "<strong>Austràlia:</strong> Pàgina central (marcada amb el símbol + \"nom del xip\")",
-        "heading": "Trobar el xip NFC del teu passaport",
-        "description": "La ubicació del xip varia segons el país. Potser hauràs de provar diferents pàgines. Aquí tens alguns exemples de localitzacions:",
-        "us_germany_mexico": "<strong>Brasil, EUA, Alemanya (2016), Indonèsia, Mèxic:</strong> Pàgina del darrere"
+        "finland_germany_new": "<strong>Finlàndia, Alemanya (2017+), Rússia:</strong> pàgina de la foto",
+        "australia": "<strong>Austràlia:</strong> pàgina central (marcada amb el símbol + \"nom del xip\")",
+        "heading": "Troba el xip NFC del teu passaport",
+        "description": "La ubicació del xip varia segons el país. Pot ser que hagis de provar pàgines diferents. Aquí tens alguns exemples:",
+        "us_germany_mexico": "<strong>Brasil, EUA, Alemanya (2016), Indonèsia, Mèxic:</strong> pàgina posterior"
       },
-      "title": "Com completar la verificació forta",
-      "warning": "Important: El pas de lectura del xip del passaport pot ser complicat, llegeix totes les instruccions primer!",
-      "step2": "Fes clic a <strong>\"Inicia la verificació forta\"</strong> a continuació (s'obrirà en una pestanya nova)",
+      "title": "Com completar la Verificació forta",
+      "warning": "Important: el pas d'escaneig del xip del passaport pot ser complicat — llegeix totes les instruccions primer!",
+      "step2": "Fes clic a <strong>\"Inicia la Verificació forta\"</strong> a sota (s'obre en una pestanya nova)",
       "step7": "Mantingues el telèfon contra la pàgina del passaport amb el xip NFC (consulta els consells a continuació)",
-      "step8": "Sabràs que té èxit quan vegis un percentatge creixent i un carregador",
+      "step8": "Sabràs que ha tingut èxit quan vegis percentatges creixents i un indicador de càrrega",
       "step6": "Fes una foto clara de la pàgina del passaport amb els números a la part inferior",
-      "download_google_play": "Descarrega-ho a Google Play",
-      "step5": "Seleccioneu <strong>Passaport</strong> (targetes d'identitat no admeses)"
+      "download_google_play": "Obtén-lo a Google Play",
+      "step5": "Selecciona <strong>Passaport</strong> (els DNI no són compatibles)"
     }
   },
   "do_not_email": {
-    "caveat": "En habilitar aquesta opció, el teu compte deixarà d’acceptar sol·licituds com a amfitrió. Continuaràs rebent correus de seguretat (com els per restablir la contrasenya). També podràs rebre el butlletí informatiu, del qual et podràs donar de baixa mitjançant l’enllaç que hi ha al peu del correu.",
-    "title": "No vull rebre correus electrònics",
+    "title": "No m'enviïs correus",
     "status": {
-      "no_emails_enabled_message": "Els correus electrònics estan actualment <1>desactivats</1> pel teu compte.",
-      "no_emails_disabled_message": "Els correus electrònics estan actualment <1>activats</1> pel teu compte."
+      "no_emails_enabled_message": "Els correus electrònics estan <1>desactivats</1> per al teu compte.",
+      "no_emails_disabled_message": "Els correus electrònics estan <1>activats</1> per al teu compte."
     },
     "action_button": {
-      "no_emails_enable_text": "No vull rebre correus electrònics",
-      "no_emails_disable_text": "Reactiva els correus electrònics"
-    }
-  },
-  "jail_set_password_form": {
-    "explanation": "No has establert una contrasenya prèviament pel teu compte. Si us plau, crea’n una ara per continuar.",
-    "title": "Estableix una contrasenya"
+      "no_emails_enable_text": "No m'enviïs correus",
+      "no_emails_disable_text": "Torna a activar els correus"
+    },
+    "caveat": "En activar aquest paràmetre, el teu compte es configurarà per no acceptar sol·licituds d'allotjament. Continuaràs rebent correus de seguretat (com els de restabliment de contrasenya). Podries continuar rebent el butlletí; pots donar-te de baixa fent servir l'enllaç al peu del butlletí."
   },
   "reset_password": "Restableix la contrasenya",
   "change_email_confirmation": {
-    "change_in_progress": "Canvi de correu electrònic en procés…",
-    "error_message": "Error canviant el correu electrònic: {{message}}",
+    "change_in_progress": "Canvi de correu electrònic en curs…",
+    "error_message": "Error en canviar el correu electrònic: {{message}}",
     "success_message": "El teu correu electrònic s'ha canviat correctament!"
   },
   "reset_password_form": {
-    "enter_email": "Introdueix el teu nom d’usuari o correu electrònic",
-    "success_message": "S'ha enviat un enllaç per restablir la contrasenya al correu electrònic associat a aquest compte, si existeix i està actiu. Tingues en compte que el correu pot acabar de vegades a la carpeta de correu brossa."
+    "enter_email": "Introdueix el teu nom d'usuari/correu electrònic",
+    "success_message": "S'ha enviat un enllaç per restablir la contrasenya al correu electrònic associat a aquest compte, si existeix i és actiu. Tingues en compte que de vegades el correu pot acabar a la carpeta de correu brossa."
   },
   "basic_sign_up_form": {
-    "header": "Comencem!",
     "existing_user_prompt": "Ja tens un compte? <2>Inicia sessió</2>",
-    "sign_up_agreement_explainer": "Continuant, acceptes les nostres <2>Condicions de Servei</2>, incloses les polítiques de cookies, correu electrònic i gestió de dades."
+    "sign_up_agreement_explainer": "En continuar, acceptes les nostres <2>Condicions del servei</2>, incloses les polítiques de galetes, correu electrònic i tractament de dades."
   },
-  "logged_out_message": "S’ha tancat la teva sessió.",
+  "logged_out_message": "Has tancat sessió.",
   "sign_up_completed_title": "Gràcies per registrar-te!",
-  "sign_up_need_verification_title": "Ja quasi està, una cosa més!",
-  "sign_up_resend_verification_done": "Fet! T’hem enviat un altre correu electrònic.",
-  "sign_up_completed_prompt": "Hem enviat un correu electrònic amb un enllaç de verificació a la teva adreça de correu electrònic. Si us plau, fes clic a l’enllaç per activar el teu compte.",
-  "sign_up_confirmed_prompt": "Ja has acabat! Si no ets redirigit, intenta iniciar sessió.",
+  "sign_up_need_verification_title": "Una darrera cosa: confirma el teu correu electrònic.",
+  "sign_up_resend_verification_done": "Fet! T'hem enviat un altre correu electrònic.",
+  "sign_up_completed_prompt": "T'hem enviat un correu electrònic amb un enllaç de verificació. Fes clic a l'enllaç per activar el teu compte.",
+  "sign_up_confirmed_prompt": "Ja ho tens! Si no ets redirigit, prova d'iniciar sessió.",
   "login_prompt": "Fes clic aquí per iniciar sessió",
   "about_us": "Sobre nosaltres",
   "change_phone": {
     "wrong_code": "El codi és incorrecte.",
-    "verify_button_text": "Verifica número de telèfon",
+    "verify_button_text": "Verifica el número de telèfon",
     "remove_button_text": "Elimina el número de telèfon actual",
     "remove_success": "Telèfon eliminat.",
-    "change_button_text": "Canvia número de telèfon",
+    "change_button_text": "Canvia el número de telèfon",
     "title": "Número de telèfon",
     "no_phone_description": "No has afegit cap número de telèfon al teu compte. Per afegir-ne un, introdueix-lo a continuació. El verificarem amb un missatge de text.",
     "code_label": "Codi de verificació",
     "verify_success": "Telèfon verificat.",
     "remove_phone_description": "El teu número de telèfon actual és <2>{{phone}}</2>. Pots eliminar el teu número de telèfon a continuació.",
-    "change_to_different_description": "Per canviar el teu número de telèfon per un de diferent, introdueix-lo a continuació.",
-    "need_to_donate": "Has de <2>fer una donació</2> abans de poder completar la verificació del telèfon.",
+    "change_to_different_description": "Per canviar el número de telèfon per un altre, introdueix-lo a continuació.",
+    "need_to_donate": "Has de <2>fer una donació</2> abans de poder completar la verificació telefònica.",
     "phone_label": "El teu número de telèfon",
-    "add_button_text": "Afegeix número de telèfon",
+    "add_button_text": "Afegeix el número de telèfon",
     "add_success": "Telèfon afegit.",
-    "phone_not_verified_description": "T’hem enviat un codi a <2>{{phone}}</2>. Per verificar el teu número, introdueix el codi a continuació:"
+    "phone_not_verified_description": "T'hem enviat un codi a <2>{{phone}}</2>. Per verificar el número, introdueix el codi a continuació:"
   },
   "delete_account": {
     "request": {
-      "title": "Elimina compte",
-      "description": "Per eliminar el teu compte, segueix els passos següents. T'enviarem un correu electrònic de confirmació.",
-      "reason_explanation": "Si us plau, ajuda'ns a millorar la plataforma explicant-nos per què has decidit eliminar el teu compte.",
-      "confirm_username_explanation": "El teu nom d'usuari és <1>{{ username }}</1>, si us plau, escriu-lo a continuació per confirmar l'eliminació del compte.",
+      "title": "Elimina el compte",
+      "description": "Per eliminar el teu compte, segueix els passos a continuació. T'enviarem un correu de confirmació.",
+      "reason_explanation": "Ajuda'ns a millorar la plataforma explicant-nos per què has decidit eliminar el teu compte.",
+      "confirm_username_explanation": "El teu nom d'usuari és <1>{{ username }}</1>; escriu-lo a continuació per confirmar l'eliminació del compte.",
       "confirm_username_label": "Confirmació del nom d'usuari",
       "username_mismatch": "El nom d'usuari no coincideix.",
-      "reason_label": "Motiu per eliminar el compte",
-      "success_message": "S'ha iniciat la eliminació del compte. Per completar la eliminació del compte, si us plau confirma-ho mitjançant el correu electrònic que t'hem enviat."
+      "reason_label": "Motiu de l'eliminació del compte",
+      "success_message": "S'ha iniciat l'eliminació del compte. Per completar-la, confirma-la a través del correu electrònic que t'hem enviat."
     },
     "recover": {
-      "success": "El teu compte ha estat recuperat, ja pots tornar a iniciar sessió. Estem molt contents de tenir-te de nou amb nosaltres!",
+      "success": "El teu compte s'ha recuperat; pots tornar a iniciar sessió. Ens alegra tenir-te de tornada!",
       "title": "Recupera el teu compte de Couchers.org",
       "error_message": "No s'ha pogut recuperar el compte: {{message}}",
       "button_text": "Recupera el teu compte"
     },
     "confirm": {
-      "account_deleted": "Compte eliminat. Gràcies per utilitzar Couchers.org!",
-      "title": "Confirma la eliminació del compte",
+      "account_deleted": "Compte eliminat. Gràcies per usar Couchers.org!",
+      "title": "Confirma l'eliminació del compte",
       "error_message": "No s'ha pogut confirmar l'eliminació del compte: {{message}}",
-      "button_text": "Confirma la eliminació del compte"
+      "button_text": "Confirma l'eliminació del compte"
     },
-    "missing_token": "Error: missing token"
+    "missing_token": "Error: token que falta"
   },
   "profile_visibility": {
     "visiblility_options": {
-      "limited": "<1>Limitat</1>: mostra el meu nom, ubicació, estat d'allotjament/trobada, insígnies, nombre de referències i quant de temps fa que sóc a Coucher",
+      "limited": "<1>Limitat</1>: mostra el meu nom, ubicació, estat d'allotjament/trobada, insígnies, nombre de referències i quant de temps fa que sóc a Couchers",
       "nothing": "<1>Res</1>: amaga'm completament",
-      "map_only": "<1>Només mapa</1>: mostra una localització aleatòria i anònima al mapa sense cap altra informació",
+      "map_only": "<1>Només el mapa</1>: mostra un pin de mapa aleatori i anònim sense cap altra informació",
       "most": "<1>La majoria</1>: mostra la secció completa \"Sobre mi\" excepte \"Informació addicional\"",
       "full_profile": "<1>Perfil complet</1>: mostra el meu perfil complet (excepte les referències)"
     },
     "title": "Visibilitat del perfil",
-    "choose": "Tria quina informació serà visible per als usuaris que no hagin iniciat sessió"
+    "choose": "Tria quina informació serà visible per als usuaris que no han iniciat sessió"
   },
   "quick_links": {
     "button_text": "Confirma l'acció",
     "error_message": "Error: {{message}}",
-    "missing_payload_or_sig": "URL invàlida",
-    "title": "Acció ràpida amb el correu electrònic"
+    "missing_payload_or_sig": "URL no vàlida",
+    "title": "Acció ràpida per correu electrònic"
   },
-  "unhandled_sign_up_state": "Error: unhandled signup flow state.",
+  "unhandled_sign_up_state": "Error: estat del flux de registre no gestionat.",
   "volunteer_management": {
-    "title": "Gestió de voluntariat",
+    "title": "Gestió del voluntariat",
     "current_volunteer": "Voluntari des de {{startDate}}.",
-    "shown_on_team_page_past": "Mostrat a la pàgina de l'equip com a antic voluntari.",
-    "not_shown_on_team_page": "Amagat de la pàgina de l'equip.",
+    "shown_on_team_page_past": "Apareix a la pàgina de l'equip com a voluntari anterior.",
+    "not_shown_on_team_page": "Ocult de la pàgina de l'equip.",
     "form": {
-      "link_url_label": "Enllaç URL",
-      "link_url_helper": "L'URL complet al qual hauria d'apuntar l'enllaç",
-      "link_url_required": "Si us plau, introdueix una URL per al lloc web",
-      "link_url_invalid": "Si us plau, introdueix una URL vàlida que comenci per http:// o https://",
+      "link_url_label": "URL de l'enllaç",
+      "link_url_helper": "L'URL complet al qual ha d'apuntar l'enllaç",
+      "link_url_required": "Introdueix una URL per al lloc web",
+      "link_url_invalid": "Introdueix una URL vàlida que comenci per http:// o https://",
       "save_button": "Desa els canvis",
       "display_name_label": "Nom visible",
-      "override_location_label": "Utilitza una ubicació diferent a la pàgina de l’equip (en comptes de \"{{profileLocation}}\")",
+      "override_location_label": "Usa una ubicació diferent a la pàgina de l'equip (en lloc de \"{{profileLocation}}\")",
       "title": "Actualitza la teva informació de voluntari",
-      "override_name_label": "Utilitza un nom diferent a la pàgina de l’equip (en comptes de \"{{profileName}}\")",
+      "override_name_label": "Usa un nom diferent a la pàgina de l'equip (en lloc de \"{{profileName}}\")",
       "link_text_website_helper": "El text que es mostrarà per a l'enllaç",
-      "link_text_required": "Si us plau, introdueix un valor per a l'enllaç",
-      "link_text_email_invalid": "Si us plau, introdueix un correu electrònic vàlid",
-      "link_text_linkedin_invalid": "Si us plau, introdueix un nom d'usuari de LinkedIn vàlid (només lletres, números i guions)",
-      "display_location_label": "Mostra la ubicació",
+      "link_text_required": "Introdueix un valor per a l'enllaç",
+      "link_text_email_invalid": "Introdueix una adreça de correu electrònic vàlida",
+      "link_text_linkedin_invalid": "Introdueix un nom d'usuari de LinkedIn vàlid (només lletres, números i guions)",
+      "display_location_label": "Ubicació visible",
       "show_on_team_page_label": "Mostra'm a la pàgina de l'equip",
       "link_type_label": "Tipus d'enllaç",
-      "link_type_couchers": "Perfil de couchers",
+      "link_type_couchers": "Perfil de Couchers",
       "link_type_email": "Correu electrònic",
       "link_type_linkedin": "LinkedIn",
       "link_type_website": "Lloc web",
       "link_text_label": "Valor de l'enllaç",
       "link_text_linkedin_placeholder": "jane-doe-a1b2c3",
-      "link_text_email_placeholder": "elteu@email.com",
-      "link_text_website_placeholder": "https://la-teva-web.com",
-      "link_text_linkedin_helper": "El nom d'usuari de l'URL del teu perfil (per exemple, linkedin.com/in/jane-doe-a1b2c3)",
+      "link_text_email_placeholder": "el-teu@correu.com",
+      "link_text_website_placeholder": "https://el-teu-lloc-web.com",
+      "link_text_linkedin_helper": "El nom d'usuari de l'URL del teu perfil (p. ex. linkedin.com/in/jane-doe-a1b2c3)",
       "link_text_email_helper": "La teva adreça de correu electrònic",
-      "link_url_placeholder": "https://la-teva-web.com"
+      "link_url_placeholder": "https://el-teu-lloc-web.com"
     },
-    "card_preview_label": "Llistat de la pàgina del vostre equip",
-    "description": "Si el vostre càrrec o les dates són incorrectes, feu-nos-ho saber.",
-    "shown_on_team_page_current": "Mostrat a la pàgina de l'equip com a membre actual.",
+    "card_preview_label": "La teva entrada a la pàgina de l'equip",
+    "description": "Si el teu rol o les dates són incorrectes, fes-nos-ho saber.",
+    "shown_on_team_page_current": "Apareix a la pàgina de l'equip com a membre actual.",
     "past_volunteer": "Voluntari de {{startDate}} a {{endDate}}.",
-    "not_a_volunteer_message": "Segons els nostres registres, no ets un voluntari actual ni passat. Si això és incorrecte, fes-nos-ho saber omplint <1>aquest formulari</1>.",
+    "not_a_volunteer_message": "Segons els nostres registres, no ets un voluntari actual o anterior. Si això és incorrecte, fes-nos-ho saber omplint <1>aquest formulari</1>.",
     "update_success": "La teva informació de voluntari s'ha actualitzat."
+  },
+  "motivations_form": {
+    "header": "Què et porta a Couchers?",
+    "surfing": "Surfing",
+    "surfing_description": "Estic planificant un viatge i busco amfitrió",
+    "hosting": "Allotjament",
+    "hosting_description": "M'agradaria allotjar i donar la benvinguda a viatgers a la meva ciutat",
+    "events": "Esdeveniments",
+    "events_description": "M'agradaria participar en esdeveniments i conèixer la comunitat",
+    "community_organizing": "Organització de la comunitat",
+    "community_organizing_description": "Vull organitzar esdeveniments i activitats a la plataforma",
+    "something_else": "Alguna altra cosa",
+    "something_else_description": "Estic explorant o encara no m'he decidit"
   }
 }

@@ -8,12 +8,24 @@
   },
   "errors": {
     "failed_to_load": "No s'ha pogut carregar",
-    "check_connection": "Comprova la teva connexió a internet i torna-ho a intentar.",
-    "try_again": "Torna-ho a provar"
+    "check_connection": "Comprova la connexió a Internet i torna-ho a provar.",
+    "try_again": "Torna-ho a provar",
+    "camera_permission_denied": "Cal el permís de la càmera per fer fotos.",
+    "camera_permission_required": "Cal el permís de la càmera",
+    "camera_permission_explanation": "Aquesta aplicació necessita accés a la càmera per fer fotos. Concedeix el permís quan se't demani.",
+    "camera_permission_denied_permanently": "S'ha denegat l'accés a la càmera. Per fer fotos, has d'activar el permís de la càmera a la Configuració del dispositiu."
   },
   "not_found": {
     "title": "Vaja!",
     "message": "Aquesta pantalla no existeix.",
     "go_home": "Ves a la pantalla d'inici!"
+  },
+  "common": {
+    "cancel": "Cancel·la",
+    "add_photo": "Afegeix foto",
+    "choose_photo_source": "Tria d'on vols obtenir la foto",
+    "take_photo": "Fes una foto",
+    "choose_from_library": "Tria de la biblioteca",
+    "open_settings": "Obre la configuració"
   }
 }

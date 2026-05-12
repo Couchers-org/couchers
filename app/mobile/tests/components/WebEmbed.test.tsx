@@ -40,6 +40,7 @@ const mockWebViewRef = {
 let capturedWebViewProps: {
   source?: { uri: string };
   allowsBackForwardNavigationGestures?: boolean;
+  onLoad?: () => void;
   onNavigationStateChange?: (navState: {
     url: string;
     loading: boolean;
@@ -97,6 +98,7 @@ describe("WebEmbed", () => {
   // Mock return values for hooks
   const mockPickImage = jest.fn();
   const mockHandleNavigationStateChange = jest.fn();
+  const mockPrepareGoBack = jest.fn();
   const mockCanGoBackRef = { current: false };
   const mockCurrentWebPathRef = { current: "/dashboard" };
 
@@ -130,6 +132,7 @@ describe("WebEmbed", () => {
       handleNavigationStateChange: mockHandleNavigationStateChange,
       canGoBackRef: mockCanGoBackRef,
       currentWebPathRef: mockCurrentWebPathRef,
+      prepareGoBack: mockPrepareGoBack,
     });
   });
 
@@ -279,17 +282,21 @@ describe("WebEmbed", () => {
       expect(mockAuthContext.markAuthenticated).toHaveBeenCalled();
     });
 
-    it("handles LOGOUT message", () => {
+    it("handles LOGOUT message", async () => {
       render(<WebEmbed path="/dashboard" />);
 
-      capturedWebViewProps.onMessage?.({
-        nativeEvent: {
-          data: JSON.stringify({ type: "LOGOUT" }),
-        },
+      // Advance past the 5s grace period (lastLoginTimeRef defaults to 0, fake timers init at 0)
+      jest.setSystemTime(10000);
+
+      await act(async () => {
+        capturedWebViewProps.onMessage?.({
+          nativeEvent: {
+            data: JSON.stringify({ type: "LOGOUT" }),
+          },
+        });
       });
 
       expect(mockAuthContext.markLoggedOut).toHaveBeenCalled();
-      expect(mockRouter.replace).toHaveBeenCalledWith("/login");
     });
 
     it("ignores non-JSON messages", () => {
@@ -374,6 +381,64 @@ describe("WebEmbed", () => {
       expect(openURLSpy).toHaveBeenCalledWith("https://example.com/external");
 
       openURLSpy.mockRestore();
+    });
+  });
+
+  describe("focus sync: returning from detail page", () => {
+    it("calls prepareGoBack and goBack when refocused on a detail URL with history", () => {
+      mockCurrentWebPathRef.current = "/user/username";
+      mockCanGoBackRef.current = true;
+
+      const { rerender } = render(<WebEmbed path="/search" />);
+
+      // Simulate WebView finishing its initial load
+      act(() => {
+        capturedWebViewProps.onLoad?.();
+      });
+
+      // Simulate tab regaining focus (useFocusEffect fires again after load)
+      rerender(<WebEmbed path="/search" />);
+
+      expect(mockPrepareGoBack).toHaveBeenCalled();
+      expect(mockWebViewRef.goBack).toHaveBeenCalled();
+      expect(mockWebViewRef.injectJavaScript).not.toHaveBeenCalledWith(
+        expect.stringContaining("MOBILE_NAVIGATE"),
+      );
+    });
+
+    it("falls back to MOBILE_NAVIGATE when WebView has no history to go back through", () => {
+      mockCurrentWebPathRef.current = "/user/username";
+      mockCanGoBackRef.current = false;
+
+      const { rerender } = render(<WebEmbed path="/search" />);
+
+      act(() => {
+        capturedWebViewProps.onLoad?.();
+      });
+
+      rerender(<WebEmbed path="/search" />);
+
+      expect(mockPrepareGoBack).not.toHaveBeenCalled();
+      expect(mockWebViewRef.goBack).not.toHaveBeenCalled();
+      expect(mockWebViewRef.injectJavaScript).toHaveBeenCalledWith(
+        expect.stringContaining("MOBILE_NAVIGATE"),
+      );
+    });
+
+    it("does not call goBack when the WebView is already on the correct tab root", () => {
+      mockCurrentWebPathRef.current = "/search";
+      mockCanGoBackRef.current = true;
+
+      const { rerender } = render(<WebEmbed path="/search" />);
+
+      act(() => {
+        capturedWebViewProps.onLoad?.();
+      });
+
+      rerender(<WebEmbed path="/search" />);
+
+      expect(mockPrepareGoBack).not.toHaveBeenCalled();
+      expect(mockWebViewRef.goBack).not.toHaveBeenCalled();
     });
   });
 

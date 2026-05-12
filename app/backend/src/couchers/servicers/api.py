@@ -7,8 +7,8 @@ import google.protobuf.message
 import grpc
 from google.protobuf import empty_pb2
 from sqlalchemy import select
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import and_, delete, distinct, func, intersect, or_, union
+from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.sql import and_, delete, exists, func, intersect, or_, union
 
 from couchers import urls
 from couchers.config import config
@@ -53,7 +53,13 @@ from couchers.rate_limits.check import process_rate_limits_and_check_abort
 from couchers.rate_limits.definitions import RATE_LIMIT_HOURS
 from couchers.resources import get_badge_dict, language_is_allowed, region_is_allowed
 from couchers.servicers.blocking import is_not_visible
-from couchers.sql import username_or_id, users_visible, where_moderated_content_visible, where_users_column_visible
+from couchers.sql import (
+    moderation_state_column_visible,
+    username_or_id,
+    users_visible,
+    where_moderated_content_visible,
+    where_users_column_visible,
+)
 from couchers.utils import (
     Duration_from_timedelta,
     Timestamp_from_datetime,
@@ -170,42 +176,54 @@ fluency2api = {
 class API(api_pb2_grpc.APIServicer):
     def Ping(self, request: api_pb2.PingReq, context: CouchersContext, session: Session) -> api_pb2.PingRes:
         # auth ought to make sure the user exists
-        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        user = session.execute(
+            select(User)
+            .where(User.id == context.user_id)
+            .options(
+                selectinload(User.regions_visited),
+                selectinload(User.regions_lived),
+                selectinload(User.language_abilities),
+            )
+        ).scalar_one()
 
-        sent_reqs_query = select(HostRequest.conversation_id, HostRequest.surfer_last_seen_message_id).where(
-            HostRequest.surfer_user_id == context.user_id
+        sent_reqs_query = select(HostRequest.conversation_id, HostRequest.initiator_last_seen_message_id).where(
+            HostRequest.initiator_user_id == context.user_id
         )
-        sent_reqs_query = where_users_column_visible(sent_reqs_query, context, HostRequest.host_user_id)
+        sent_reqs_query = where_users_column_visible(sent_reqs_query, context, HostRequest.recipient_user_id)
         sent_reqs_query = where_moderated_content_visible(sent_reqs_query, context, HostRequest, is_list_operation=True)
         sent_reqs_last_seen_message_ids = sent_reqs_query.subquery()
 
         unseen_sent_host_request_count = session.execute(
-            select(func.count(distinct(sent_reqs_last_seen_message_ids.c.conversation_id)))
-            .join(
-                Message,
-                Message.conversation_id == sent_reqs_last_seen_message_ids.c.conversation_id,
+            select(func.count())
+            .select_from(sent_reqs_last_seen_message_ids)
+            .where(
+                exists(
+                    select(1)
+                    .where(Message.conversation_id == sent_reqs_last_seen_message_ids.c.conversation_id)
+                    .where(Message.id > sent_reqs_last_seen_message_ids.c.initiator_last_seen_message_id)
+                )
             )
-            .where(sent_reqs_last_seen_message_ids.c.surfer_last_seen_message_id < Message.id)
-            .where(Message.id != None)
         ).scalar_one()
 
-        received_reqs_query = select(HostRequest.conversation_id, HostRequest.host_last_seen_message_id).where(
-            HostRequest.host_user_id == context.user_id
+        received_reqs_query = select(HostRequest.conversation_id, HostRequest.recipient_last_seen_message_id).where(
+            HostRequest.recipient_user_id == context.user_id
         )
-        received_reqs_query = where_users_column_visible(received_reqs_query, context, HostRequest.surfer_user_id)
+        received_reqs_query = where_users_column_visible(received_reqs_query, context, HostRequest.initiator_user_id)
         received_reqs_query = where_moderated_content_visible(
             received_reqs_query, context, HostRequest, is_list_operation=True
         )
         received_reqs_last_seen_message_ids = received_reqs_query.subquery()
 
         unseen_received_host_request_count = session.execute(
-            select(func.count(distinct(received_reqs_last_seen_message_ids.c.conversation_id)))
-            .join(
-                Message,
-                Message.conversation_id == received_reqs_last_seen_message_ids.c.conversation_id,
+            select(func.count())
+            .select_from(received_reqs_last_seen_message_ids)
+            .where(
+                exists(
+                    select(1)
+                    .where(Message.conversation_id == received_reqs_last_seen_message_ids.c.conversation_id)
+                    .where(Message.id > received_reqs_last_seen_message_ids.c.recipient_last_seen_message_id)
+                )
             )
-            .where(received_reqs_last_seen_message_ids.c.host_last_seen_message_id < Message.id)
-            .where(Message.id != None)
         ).scalar_one()
 
         unseen_message_query = (
@@ -248,6 +266,7 @@ class API(api_pb2_grpc.APIServicer):
                     get_topic_actions_by_delivery_type(session, user.id, NotificationDeliveryType.push)
                 )
             )
+            .where(moderation_state_column_visible(context, Notification.moderation_state_id))
         ).scalar_one()
 
         return api_pb2.PingRes(
@@ -260,7 +279,15 @@ class API(api_pb2_grpc.APIServicer):
         )
 
     def GetUser(self, request: api_pb2.GetUserReq, context: CouchersContext, session: Session) -> api_pb2.User:
-        user = session.execute(select(User).where(username_or_id(request.user))).scalar_one_or_none()
+        user = session.execute(
+            select(User)
+            .where(username_or_id(request.user))
+            .options(
+                selectinload(User.regions_visited),
+                selectinload(User.regions_lived),
+                selectinload(User.language_abilities),
+            )
+        ).scalar_one_or_none()
 
         if not user:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "user_not_found")
@@ -286,7 +313,7 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "requested_too_many_users")
 
         usernames = {u for u in request.users if is_valid_username(u)}
-        ids = {u for u in request.users if is_valid_user_id(u)}
+        ids = {int(u) for u in request.users if is_valid_user_id(u)}
 
         # decomposed where_username_or_id...
         users = (
@@ -734,8 +761,8 @@ class API(api_pb2_grpc.APIServicer):
         ):
             context.abort_with_error_code(
                 grpc.StatusCode.RESOURCE_EXHAUSTED,
-                "friend_request_rate_limit",
-                substitutions={"hours": str(RATE_LIMIT_HOURS)},
+                "friend_request_rate_limit2",
+                substitutions={"count": RATE_LIMIT_HOURS},
             )
 
         # TODO: Race condition where we can create two friend reqs, needs db constraint! See comment in table

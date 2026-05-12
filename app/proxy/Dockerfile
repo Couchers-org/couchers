@@ -1,4 +1,4 @@
-FROM envoyproxy/envoy:v1.37-latest
+FROM envoyproxy/envoy:v1.38-latest
 
 COPY ./envoy.yaml /etc/envoy/envoy.yaml
 COPY ./descriptors.pb /etc/envoy/descriptors.pb
@@ -15,4 +15,4 @@ ENV COMMIT_SHA=$commit_sha
 ARG commit_timestamp
 ENV COMMIT_TIMESTAMP=$commit_timestamp
 
-CMD /usr/local/bin/envoy -c /etc/envoy/envoy.yaml
+CMD ["/usr/local/bin/envoy", "-c", "/etc/envoy/envoy.yaml"]

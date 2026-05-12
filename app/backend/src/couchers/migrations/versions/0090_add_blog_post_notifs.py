@@ -1,7 +1,7 @@
 """Add blog post notifs
 
-Revision ID: 07ecff50fe93
-Revises: a0d344cfb455
+Revision ID: 0090
+Revises: 0089
 Create Date: 2025-05-18 16:32:03.569192
 
 """
@@ -9,8 +9,8 @@ Create Date: 2025-05-18 16:32:03.569192
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "07ecff50fe93"
-down_revision = "a0d344cfb455"
+revision = "0090"
+down_revision = "0089"
 branch_labels = None
 depends_on = None
 

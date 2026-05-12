@@ -1,7 +1,7 @@
 """Fix datetime timezone
 
-Revision ID: f40be9aecae7
-Revises: e3815ef8b1e3
+Revision ID: 0103
+Revises: 0102
 Create Date: 2025-07-26 13:59:11.384539
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = "f40be9aecae7"
-down_revision = "e3815ef8b1e3"
+revision = "0103"
+down_revision = "0102"
 branch_labels = None
 depends_on = None
 

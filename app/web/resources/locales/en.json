@@ -12,16 +12,14 @@
   "join_us": "Join us",
   "update": "Update",
   "create": "Create",
-  "created": "Created",
   "terms_of_service": "Terms of Service",
   "required": "Required",
   "accept": "Accept",
   "continue": "Continue",
-  "disable": "Disable",
-  "disabled": "Disabled",
-  "uses": "Uses",
-  "no_invite_codes": "No invite codes yet",
-  "error_loading_invite_codes": "Couldn't get invite code details",
+  "copy_button": {
+    "a11y": "Copy",
+    "copied_tooltip": "Copied to clipboard"
+  },
   "thanks": "Thanks!",
   "donation_banner": {
     "message": "Couchers.org runs on kindness — just like couch surfing itself. This holiday season, help us keep it that way. We are raising {{goal}} to cover the cost of running Couchers.org.",
@@ -39,11 +37,8 @@
   "cancel": "Cancel",
   "submit": "Submit",
   "confirm": "Confirm",
-  "copy": "Copy",
-  "copied": "Copied to clipboard",
   "image_input": {
     "select_button_a11y": "Select an image",
-    "replace_image_tooltip": "Click to replace image",
     "read_file_error_message": "Couldn't read file"
   },
   "load_more": "Load more",
@@ -53,7 +48,6 @@
   "mod": "Moderation",
   "cookie_message": "We use cookies to ensure that we give you the best experience on our website. If you continue to use this site, we will assume that you are happy with it. You can read more about our <1>Terms of Service</1>.",
   "hosting_status": {
-    "any": "Any",
     "can_host": "Can host",
     "maybe": "May host",
     "cant_host": "Can't host",
@@ -63,8 +57,6 @@
     "current_preferred_language": "Your preferred language is currently <lang>{{language}}</lang>.",
     "form_title": "Language",
     "help_translate": "Help translate Couchers into your language.",
-    "select_language": "Select language",
-    "success_message": "Your change has been saved.",
     "error_loading_languages": "Failed to load language options. Please try again later.",
     "translation_progress": {
       "title": "Translation Progress",
@@ -76,10 +68,8 @@
       "complete": "Complete",
       "almost_there": "Almost There",
       "midway": "Midway",
-      "in_progress": "In Progress",
       "early_stage": "Early Stage",
       "just_started": "Just Started",
-      "complete_percent": "{{percent}}% complete",
       "info_text": "💡 Languages with 50-80% completion appear greyed out in the language picker. Languages with less than 50% completion are hidden from the language picker. To encourage contributors, languages below 20% are shown on this site.",
       "view_progress": "View translation progress"
     },
@@ -94,12 +84,10 @@
   },
   "report": {
     "label": "Report a problem",
-    "title": "Report a problem",
     "bug": {
       "button_label": "Report a technical problem",
       "warning_message": "Please note that this information, as well as diagnostic information including which page you are on, what browser you are using, and your username will be saved to a public list of bugs.",
       "title_label": "Report title",
-      "title_helper": "Brief description of the bug",
       "problem_label": "What did you do to trigger the bug?",
       "problem_helper": "Brief description of the problem and how to reproduce it",
       "expect_label": "What happened? What should have happened?",
@@ -108,7 +96,6 @@
     },
     "content": {
       "button_label": "Report inappropriate content or behaviour",
-      "dialog_message": "We are working on robust reporting and moderation tools. In the meantime, please send us an email to the below address. Include details such as the relevant user, what was inappropriate, and where you saw it.",
       "success_message": "Thank you for your report and making Couchers a better platform for everybody!"
     },
     "flag": {
@@ -120,10 +107,8 @@
       "title": "Report content or a user",
       "profile_title": "Report or Block",
       "reason_label": "Reason for reporting",
-      "reason_helper": "Why are you reporting this content?",
       "reason_required": "Reason is required.",
       "description_required": "Description is required.",
-      "profile_reason_required": "Please fill out description or block",
       "description_label": "Describe the issue",
       "description_helper": "Please tell us why you are reporting this.",
       "success": "Thank you for your report and making Couchers a better platform for everybody!",
@@ -149,7 +134,6 @@
     "default_title": "Couchers.org",
     "default_description": "Share your world, discover theirs. Authentic local experiences, built on trust and genuine connection—not transactions."
   },
-  "invited_you": "{{name}} invited you to join Couchers!",
   "error": {
     "fatal_message": "This shouldn't have happened. Please contact us and tell us what you were doing to help us prevent this error in the future.",
     "unknown": "Unknown error",
@@ -173,9 +157,9 @@
       "location_publicly_visible": "This will be publicly visible",
       "location_warn": "Click and drag the circle below to show people the approximate location of your home. Make sure your home is not at the center of the circle, so people will not know the exact location.",
       "map_is_blank": "Missing coordinates, start by searching for a location with the map above",
-      "radius_text": "{{radius}} meters",
+      "radius_text2_one": "{{count}} meter",
+      "radius_text2_other": "{{count}} meters",
       "no_location_results_text": "No results. Try searching for just the city.",
-      "no_map_support": "Your device doesn't support the map. Please make sure WebGL2 is enabled or try a different device/browser. Sorry for the trouble!",
       "press_enter_to_search": "Press enter to search"
     }
   },
@@ -190,9 +174,6 @@
     "donate": "Donate",
     "events": "Events",
     "faq": "FAQ",
-    "feature_preview": "Feature Preview",
-    "forum": "Forum",
-    "github": "GitHub",
     "help_center": "Help Center",
     "roadmap_updates": "Roadmap & Updates",
     "help": "Help",
@@ -207,7 +188,6 @@
     "our_team": "Our Team",
     "profile": "Profile",
     "show_all_events": "Show all events",
-    "the_team": "The Team",
     "volunteer": "Volunteer",
     "legal_more": "Legal & More",
     "contact_us": "Contact Us",
@@ -220,14 +200,15 @@
   },
   "invites": {
     "title": "Invite members",
-    "create": "Create invite",
-    "disable": "Disable",
-    "share_link": "Copy share link",
     "instructions": "Create an invite link to share with friends and community. Disable codes you no longer use.",
-    "uses_suffix": "completed signups",
+    "no_codes_message": "No invite codes yet",
+    "created_datetime": "Created: {{datetime}}",
+    "disabled_datetime": "Disabled: {{datetime}}",
+    "number_of_uses_one": "Uses: {{count}} completed signup",
+    "number_of_uses_other": "Uses: {{count}} completed signups",
+    "disable_link": "Disable",
     "banner": {
-      "invited_you": "{{name}} invited you to join Couchers!",
-      "inviter_fallback": "{{username}} invited you to join Couchers!"
+      "invited_you": "{{name}} invited you to join Couchers!"
     },
     "error": {
       "fetch_invite_info": "Couldn't get invite code details"
@@ -261,7 +242,6 @@
     "description_1": "Couch surfing is a concept where some members (called hosts) post on the platform, stating they are open to hosting other members (called surfers) who are visiting their city.",
     "description_2": "It’s like having a friend in another city and going to visit them, but you meet the friend for the first time once you get there!",
     "get_involved_title": "What can I do on Couchers.org?",
-    "get_started": "Get started",
     "timeline_title": "A quick history of couch surfing",
     "timeline": {
       "early_2000s_year": "Early 2000s",
@@ -323,30 +303,8 @@
     "join_our_team": "Join our team",
     "have_skills_contribute": "Have skills you want to contribute?",
     "fill_form_description": "Couchers.org is a community-driven project, developed by people like you for the benefit of the global couch surfing community. If you’re interested in joining this exciting initiative, please click the button below and complete the brief form.",
-    "current_members": "Current Members",
     "past_members": "Past Members",
-    "board_member": "Board Member",
-    "co_founder_president": "Co-founder, President & Chairman",
-    "co_founder": "Co-Founder",
-    "secretary": "Secretary",
-    "treasurer": "Treasurer",
-    "community_coordinator": "Community Coordinator",
-    "developer": "Developer",
-    "frontend_developer": "Frontend Developer",
-    "lead_frontend_developer": "Lead Frontend Developer",
-    "backend_developer": "Backend Developer",
-    "lead_backend_developer": "Lead Backend Developer",
-    "full_stack_backend_developer": "Full Stack Developer",
-    "ui_ux_designer": "UI/UX Designer",
-    "translations_lead": "Translations Lead",
-    "volunteer_settings": {
-      "show_on_team_page": {
-        "title": "Show my volunteer profile on the team page",
-        "enabled_message": "Your profile is currently visible on the team page",
-        "disabled_message": "Your profile is currently hidden from the team page"
-      }
-    },
-    "tap_press_to_flip": "Tap / press to flip"
+    "board_member": "Board Member"
   },
   "blog": {
     "byline_with_author": "Written by <1/>. Published on {{date}}.",
