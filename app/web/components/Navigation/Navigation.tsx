@@ -290,8 +290,6 @@ export default function Navigation() {
   const navRef = useRef<HTMLDivElement>(null);
 
   const shouldShowLanguagePickerSelect = useMemo(() => {
-    if (!isMobile) return true;
-
     if (isMobile && authState.authenticated) return false;
 
     return true;
