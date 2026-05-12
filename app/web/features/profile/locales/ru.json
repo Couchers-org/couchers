@@ -218,7 +218,6 @@
   "references_filter_a11y_label": "Показать отзывы: ",
   "report_reason": "Причина",
   "profile_tag_input": {
-    "header_text": "Нажмите «Enter», чтобы добавить \n<support_link>Напишите нам на электронную почту</support_link>, чтобы добавить запись",
     "remove_button_a11y_text": "Удалить {{tag}}"
   },
   "meetup_status": {

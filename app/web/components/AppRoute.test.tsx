@@ -3,14 +3,26 @@ import useAuthStore from "features/auth/useAuthStore";
 import React from "react";
 import wrapper from "test/hookWrapper";
 
-import Navigation from "./Navigation";
+import { appGetLayout } from "./AppRoute";
 
 jest.mock("features/auth/useAuthStore");
+jest.mock("components/Navigation", () => ({
+  __esModule: true,
+  default: () => null,
+}));
+jest.mock("components/Footer", () => ({
+  __esModule: true,
+  default: () => null,
+}));
+jest.mock("components/CookieBanner", () => ({
+  __esModule: true,
+  default: () => null,
+}));
 
-jest.mock("features/donations/DonationBanner", () => ({
-  DonationBanner: () => (
-    <div role="status" aria-label="Donation banner">
-      Donation banner
+jest.mock("features/notifications/PushNotificationBanner", () => ({
+  PushNotificationBanner: () => (
+    <div role="status" aria-label="Push notification banner">
+      Push notification banner
     </div>
   ),
 }));
@@ -19,12 +31,12 @@ const mockUseAuthStore = useAuthStore as jest.MockedFunction<
   typeof useAuthStore
 >;
 
-describe("Navigation", () => {
+describe("AppRoute", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("renders the donation banner when the user is authenticated", async () => {
+  it("renders the push notification banner when the user is authenticated", async () => {
     mockUseAuthStore.mockReturnValue({
       authState: {
         authenticated: true,
@@ -45,15 +57,16 @@ describe("Navigation", () => {
       },
     });
 
-    render(<Navigation />, { wrapper });
+    render(appGetLayout({ isPrivate: false })(<div>content</div>), { wrapper });
 
-    // Wait for component to mount and banners to appear
     await waitFor(() => {
-      expect(screen.getByLabelText("Donation banner")).toBeInTheDocument();
+      expect(
+        screen.getByLabelText("Push notification banner"),
+      ).toBeInTheDocument();
     });
   });
 
-  it("does not render the donation banner when the user is not authenticated", () => {
+  it("does not render the push notification banner when the user is not authenticated", () => {
     mockUseAuthStore.mockReturnValue({
       authState: {
         authenticated: false,
@@ -74,8 +87,10 @@ describe("Navigation", () => {
       },
     });
 
-    render(<Navigation />, { wrapper });
+    render(appGetLayout({ isPrivate: false })(<div>content</div>), { wrapper });
 
-    expect(screen.queryByLabelText("Donation banner")).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Push notification banner"),
+    ).not.toBeInTheDocument();
   });
 });

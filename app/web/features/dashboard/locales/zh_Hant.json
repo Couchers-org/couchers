@@ -53,7 +53,6 @@
   "all_communities_intro": "以下是目前已存在的所有社群頁面。<strong>點擊社群名稱即可查看其底下的其他社群。</strong>",
   "community_missing": "您的國家或城市不在列表中嗎？請使用<1>此表格</1>進行申請！",
   "browse_communities_text": "點擊區域名稱即可在下方查看該區域內的其他社群。點擊連結可進入該城市或區域的社群頁面。",
-  "member_count_one": "{{count}} 位成員",
   "member_count_other": "{{count}} 位成員",
   "events": {
     "your_upcoming_header": "您即將參加的活動",
@@ -62,7 +61,6 @@
     "community_header": "您所在社群的活動",
     "community_empty_message": "您所在的社群目前沒有即將開始的活動。",
     "location_online_label": "線上",
-    "attendees_count_label_one": "{{count}} 位參與者",
     "attendees_count_label_other": "{{count}} 位參與者"
   },
   "reminder": {
@@ -88,4 +86,3 @@
     }
   }
 }
-

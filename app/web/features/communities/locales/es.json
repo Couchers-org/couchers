@@ -150,5 +150,7 @@
   "search_communities_helper": "Seleccionar una comunidad para ir a su página",
   "discussion_creation_date": "Creado el {{dateOnly}}",
   "duplicate_event": "Evento duplicado",
-  "event_title_label": "Título"
+  "event_title_label": "Título",
+  "copy_link": "Copiar enlace",
+  "copy_link_success": "Enlace copiado al portapapeles"
 }

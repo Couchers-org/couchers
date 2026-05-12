@@ -70,7 +70,7 @@ export default function LandingPage() {
         <Box
           sx={{
             position: "fixed",
-            bottom: 0,
+            bottom: "var(--cookie-banner-height, 0px)",
             left: 0,
             right: 0,
             backgroundColor: "var(--mui-palette-background-paper)",
