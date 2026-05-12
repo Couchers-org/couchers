@@ -12,11 +12,14 @@ from couchers.proto.internal.jobs_pb2 import EmailAttachment
 from couchers.proto.requests_pb2 import HostRequest
 
 
+HOST_REQUEST_ICS_FILENAME = "host_request.ics"
+
+
 def create_host_request_attachment(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> EmailAttachment:
     ics = create_host_request_ics(host_request, other_name, hosting, loc_context)
-    return ics_to_attachment(ics)
+    return ics_to_attachment(ics, HOST_REQUEST_ICS_FILENAME)
 
 
 def create_host_request_ics(
@@ -43,9 +46,11 @@ def create_host_request_event(
             "calendar_events.host_requests.title_surfer", loc_context.locale, {"name": other_name}
         )
 
+    # Our to_date is inclusive, iCalendar's DTEND is exclusive (for full-day events)
+    # make_all_day will adjust the end date by one day accordingly.
     event.begin = host_request.from_date
     event.end = host_request.to_date
-    event.make_all_day()  # Shifts the end date by one day
+    event.make_all_day()
 
     event.location = host_request.hosting_city
     event.url = urls.host_request(host_request_id=str(host_request.host_request_id))
@@ -60,7 +65,7 @@ def create_host_request_cancellation_attachment(
     host_request: HostRequest, other_name: str, hosting: bool, loc_context: LocalizationContext
 ) -> EmailAttachment:
     ics = create_host_request_cancellation_ics(host_request, other_name, hosting, loc_context)
-    return ics_to_attachment(ics)
+    return ics_to_attachment(ics, HOST_REQUEST_ICS_FILENAME)
 
 
 def create_host_request_cancellation_ics(
@@ -87,9 +92,9 @@ def event_to_ics(event: Event, loc_context: LocalizationContext) -> str:
     return cast(str, calendar.serialize())
 
 
-def ics_to_attachment(ics: str) -> EmailAttachment:
+def ics_to_attachment(ics: str, filename: str) -> EmailAttachment:
     return EmailAttachment(
-        filename="host_request.ics",
+        filename=filename,
         mime_type="text/calendar",
         data=ics.encode("utf-8"),
     )
