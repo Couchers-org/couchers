@@ -149,5 +149,7 @@
   "search_communities": "Zoek en bezoek een community",
   "search_communities_placeholder": "Zoek op stad of land...",
   "search_communities_helper": "Klik op een community om naar de pagina te gaan",
-  "no_results_found_with_link": "Geen communities gevonden. <0>Doe een verzoek voor een nieuwe community!</0>"
+  "no_results_found_with_link": "Geen communities gevonden. <0>Doe een verzoek voor een nieuwe community!</0>",
+  "copy_link": "Kopieer link",
+  "copy_link_success": "Link gekopieerd naar klembord"
 }

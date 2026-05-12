@@ -20,14 +20,6 @@ jest.mock("features/donations/DonationBanner", () => ({
   ),
 }));
 
-jest.mock("features/notifications/PushNotificationBanner", () => ({
-  PushNotificationBanner: () => (
-    <div role="status" aria-label="Push notification banner">
-      Push notification banner
-    </div>
-  ),
-}));
-
 const mockUseAuthStore = useAuthStore as jest.MockedFunction<
   typeof useAuthStore
 >;
@@ -66,37 +58,6 @@ describe("Navigation", () => {
     });
   });
 
-  it("renders the push notification banner when the user is authenticated", async () => {
-    mockUseAuthStore.mockReturnValue({
-      authState: {
-        authenticated: true,
-        error: null,
-        jailed: false,
-        loading: false,
-        userId: 1,
-        flowState: null,
-      },
-      authActions: {
-        authError: jest.fn(),
-        clearError: jest.fn(),
-        firstLogin: jest.fn(),
-        logout: jest.fn(),
-        passwordLogin: jest.fn(),
-        updateJailStatus: jest.fn(),
-        updateSignupState: jest.fn(),
-      },
-    });
-
-    render(<Navigation />, { wrapper });
-
-    // Wait for component to mount and banners to appear
-    await waitFor(() => {
-      expect(
-        screen.getByLabelText("Push notification banner"),
-      ).toBeInTheDocument();
-    });
-  });
-
   it("does not render the donation banner when the user is not authenticated", () => {
     mockUseAuthStore.mockReturnValue({
       authState: {
@@ -122,8 +83,13 @@ describe("Navigation", () => {
 
     expect(screen.queryByLabelText("Donation banner")).not.toBeInTheDocument();
   });
+});
 
-  it("does not render the push notification banner when the user is not authenticated", () => {
+it("renders the language picker on mobile when the user is logged out", () => {
+  const originalMatchMedia = window.matchMedia;
+  window.matchMedia = createMatchMedia(800);
+
+  try {
     mockUseAuthStore.mockReturnValue({
       authState: {
         authenticated: false,
@@ -146,74 +112,41 @@ describe("Navigation", () => {
 
     render(<Navigation />, { wrapper });
 
-    expect(
-      screen.queryByLabelText("Push notification banner"),
-    ).not.toBeInTheDocument();
-  });
+    expect(screen.getByTestId("language-picker")).toBeInTheDocument();
+  } finally {
+    window.matchMedia = originalMatchMedia;
+  }
+});
 
-  it("renders the language picker on mobile when the user is logged out", () => {
-    const originalMatchMedia = window.matchMedia;
-    window.matchMedia = createMatchMedia(800);
+it("does not render the language picker on mobile when the user is authenticated", () => {
+  const originalMatchMedia = window.matchMedia;
+  window.matchMedia = createMatchMedia(800);
 
-    try {
-      mockUseAuthStore.mockReturnValue({
-        authState: {
-          authenticated: false,
-          error: null,
-          jailed: false,
-          loading: false,
-          userId: null,
-          flowState: null,
-        },
-        authActions: {
-          authError: jest.fn(),
-          clearError: jest.fn(),
-          firstLogin: jest.fn(),
-          logout: jest.fn(),
-          passwordLogin: jest.fn(),
-          updateJailStatus: jest.fn(),
-          updateSignupState: jest.fn(),
-        },
-      });
+  try {
+    mockUseAuthStore.mockReturnValue({
+      authState: {
+        authenticated: true,
+        error: null,
+        jailed: false,
+        loading: false,
+        userId: 1,
+        flowState: null,
+      },
+      authActions: {
+        authError: jest.fn(),
+        clearError: jest.fn(),
+        firstLogin: jest.fn(),
+        logout: jest.fn(),
+        passwordLogin: jest.fn(),
+        updateJailStatus: jest.fn(),
+        updateSignupState: jest.fn(),
+      },
+    });
 
-      render(<Navigation />, { wrapper });
+    render(<Navigation />, { wrapper });
 
-      expect(screen.getByTestId("language-picker")).toBeInTheDocument();
-    } finally {
-      window.matchMedia = originalMatchMedia;
-    }
-  });
-
-  it("does not render the language picker on mobile when the user is authenticated", () => {
-    const originalMatchMedia = window.matchMedia;
-    window.matchMedia = createMatchMedia(800);
-
-    try {
-      mockUseAuthStore.mockReturnValue({
-        authState: {
-          authenticated: true,
-          error: null,
-          jailed: false,
-          loading: false,
-          userId: 1,
-          flowState: null,
-        },
-        authActions: {
-          authError: jest.fn(),
-          clearError: jest.fn(),
-          firstLogin: jest.fn(),
-          logout: jest.fn(),
-          passwordLogin: jest.fn(),
-          updateJailStatus: jest.fn(),
-          updateSignupState: jest.fn(),
-        },
-      });
-
-      render(<Navigation />, { wrapper });
-
-      expect(screen.queryByTestId("language-picker")).not.toBeInTheDocument();
-    } finally {
-      window.matchMedia = originalMatchMedia;
-    }
-  });
+    expect(screen.queryByTestId("language-picker")).not.toBeInTheDocument();
+  } finally {
+    window.matchMedia = originalMatchMedia;
+  }
 });

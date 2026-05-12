@@ -287,8 +287,8 @@
     "create": {
       "event_description": "Jemand sendet dir eine Host-anfrage",
       "push": {
-        "body_one": "{{user}} möchte ab {{start_date}} für {{count}} Tag bleiben.",
-        "body_other": "{{user}} möchte ab {{start_date}} für {{count}} Tage bleiben.",
+        "body_one": "{{user}} möchte ab {{start_date}} für {{count}} Nacht bleiben.",
+        "body_other": "{{user}} möchte ab {{start_date}} für {{count}} Nächte bleiben.",
         "title": "Neue Host-Anfrage von {{user}}",
         "ios_title": "{{user}}",
         "ios_subtitle": "Neue Host-Anfrage"

@@ -35,8 +35,7 @@
   },
   "my_connections": "Meine Kontakte",
   "profile_tag_input": {
-    "remove_button_a11y_text": "{{tag}} entfernen",
-    "header_text": "Drück zum Hinzufügen die Eingabetaste\n<support_link>Sende uns eine E-Mail</support_link>, um einen Eintrag hinzuzufügen"
+    "remove_button_a11y_text": "{{tag}} entfernen"
   },
   "view_in_admin_console": "Benutzer in Admin-Panel ansehen",
   "helper_text": {

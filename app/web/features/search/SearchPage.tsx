@@ -51,6 +51,7 @@ const SearchPageContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   height: "100%",
+  position: "relative",
 
   [theme.breakpoints.down("md")]: {
     display: "grid",

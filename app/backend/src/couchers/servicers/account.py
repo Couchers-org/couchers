@@ -8,7 +8,7 @@ import requests
 from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func, update
+from sqlalchemy.sql import exists, func, update
 from user_agents import parse as user_agents_parse
 
 from couchers import urls
@@ -47,6 +47,7 @@ from couchers.models import (
     HostRequest,
     HostRequestStatus,
     InviteCode,
+    Message,
     ModNote,
     ProfilePublicVisibility,
     StrongVerificationAttempt,
@@ -740,6 +741,9 @@ class Account(account_pb2_grpc.AccountServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         # responding to reqs comes first in desc order of when they were received
+        host_has_sent_message = select(1).where(
+            Message.conversation_id == HostRequest.conversation_id, Message.author_id == HostRequest.recipient_user_id
+        )
         query = select(HostRequest.conversation_id, LiteUser).join(
             LiteUser, LiteUser.id == HostRequest.initiator_user_id
         )
@@ -749,6 +753,7 @@ class Account(account_pb2_grpc.AccountServicer):
             query.where(HostRequest.recipient_user_id == context.user_id)
             .where(HostRequest.status == HostRequestStatus.pending)
             .where(HostRequest.start_time > func.now())
+            .where(~exists(host_has_sent_message))
             .order_by(HostRequest.conversation_id.asc())
         ).all()
         reminders = [
