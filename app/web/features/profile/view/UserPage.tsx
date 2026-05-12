@@ -44,6 +44,7 @@ const StyledBackButton = styled(HeaderButton)(() => ({
   top: "calc(var(--nav-height, 56px) + 1rem)",
   left: "2rem",
   zIndex: 10,
+  backgroundColor: "var(--mui-palette-background-paper)",
 }));
 
 export default function UserPage({

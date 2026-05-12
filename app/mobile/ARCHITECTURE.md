@@ -116,6 +116,10 @@ Each `WebEmbed` instance also has its own **per-instance** `currentWebPathRef` (
 
 **Note**: You may occasionally see a brief flash when first navigating to a detail page, since `[...slug]` mounts a fresh WebView. On return, the tab's WebView uses native back navigation (`goBack()`) so the bfcache restores the previous page state exactly — including pagination and scroll position.
 
+### ProfileSheet
+
+Tapping a user avatar or name opens their profile in a bottom sheet (MUI Drawer) instead of navigating away, preserving the current page behind it. Only shown when `isNativeEmbed` is true. Key files: `features/profile/ProfileSheet.tsx`, `ProfileSheetContext.tsx`, `components/ProfileLink/ProfileLink.tsx`.
+
 ### isNativeEmbed
 
 The web app detects when it's running in the mobile app via `window.isNativeEmbed` (set by WebEmbed). Use the `useIsNativeEmbed()` hook to conditionally hide features that don't make sense in mobile, like "open in new tab" icons or external link behavior.

@@ -1,2 +1,2 @@
 Bug fixes and improvements:
-- Going back from a profile in search results now restores your previous page and scroll position
+- Tapping a user avatar or name now opens their profile in a bottom sheet overlay, preserving your current page (search results, messages, etc.) behind it

@@ -146,7 +146,7 @@ export default function WebEmbed({
 
     // Skip if already at target — postMessage would be a no-op but setting
     // syncTargetPathRef would leak and block future navigation tracking.
-    if (currentWebPathRef.current.split("?")[0] === targetPath) {
+    if (currentWebPathRef.current === targetPath) {
       return;
     }
 
@@ -221,7 +221,7 @@ export default function WebEmbed({
         : targetRoute;
 
       // Skip if already at target — same leak-prevention as the useEffect above.
-      if (currentWebPathRef.current.split("?")[0] === targetPath) {
+      if (currentWebPathRef.current === targetPath) {
         return cleanup;
       }
 
