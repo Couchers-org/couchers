@@ -172,7 +172,9 @@ describe("WebEmbed", () => {
 
       rerender(<WebEmbed path="/search" />);
       // source.uri is frozen at mount (initialUri ref) — navigation syncs via MOBILE_NAVIGATE
-      expect(capturedWebViewProps.source?.uri).toBe(`${mockWebBaseUrl}/messages`);
+      expect(capturedWebViewProps.source?.uri).toBe(
+        `${mockWebBaseUrl}/messages`,
+      );
       expect(useWebNavigation).toHaveBeenCalledWith(
         expect.objectContaining({
           currentPath: "/search",
