@@ -4,7 +4,7 @@ from datetime import timedelta
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import delete, func, or_
 
@@ -18,6 +18,7 @@ from couchers.models import (
     Cluster,
     ClusterRole,
     ClusterSubscription,
+    Comment,
     Discussion,
     Event,
     EventOccurrence,
@@ -471,9 +472,11 @@ class Communities(communities_pb2_grpc.CommunitiesServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         if not node.official_cluster.small_community_features_enabled:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussions_not_enabled")
+        has_comments = exists().where((Comment.thread_id == Discussion.thread_id) & (Comment.deleted == None))
         query = (
             select(Discussion)
             .where(Discussion.owner_cluster_id == node.official_cluster.id)
+            .where((Discussion.deleted == None) | has_comments)
             .where(or_(Discussion.id <= next_page_id, to_bool(next_page_id == 0)))
         )
         query = where_moderated_content_visible(query, context, Discussion, is_list_operation=True)

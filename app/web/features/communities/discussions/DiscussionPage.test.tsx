@@ -83,6 +83,8 @@ function getThreadAfterSuccessfulComment({
             numReplies: 0,
             threadId: 999,
             createdTime: { seconds: 1577960000, nanos: 0 },
+            deleted: false,
+            canEdit: false,
           },
           ...res.repliesList,
         ],

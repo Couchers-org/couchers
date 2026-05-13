@@ -1,3 +1,4 @@
+import { DeleteOutlined, EditOutlined } from "@mui/icons-material";
 import {
   Card,
   CircularProgress,
@@ -5,20 +6,28 @@ import {
   styled,
   Typography,
 } from "@mui/material";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import Markdown from "components/Markdown";
+import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
 import FlagButton from "features/FlagButton";
 import CopyOnClick from "features/mod/CopyOnClick";
 import ModVisibleComponent from "features/mod/ModVisibleComponent";
+import { discussionKey, threadKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
+import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { Reply } from "proto/threads_pb";
 import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { service } from "service";
 import { theme } from "theme";
-import { timestamp2Date } from "utils/date";
+import { localizeDateTime, timestamp2Date } from "utils/date";
 import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 import { timeAgo } from "utils/timeAgo";
 
@@ -88,19 +97,53 @@ const StyledLoadEarlierRepliesButton = styled(Button)(() => ({
   alignSelf: "center",
 }));
 
+const StyledActionsContainer = styled("div")(() => ({
+  alignItems: "flex-end",
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(0.5),
+  gridArea: "replyButton",
+}));
+
+const StyledEditForm = styled("form")(() => ({
+  "& > * + *": {
+    marginBlockStart: theme.spacing(2),
+  },
+}));
+
+const StyledEditButtons = styled("div")(() => ({
+  display: "flex",
+  gap: theme.spacing(1),
+  justifyContent: "flex-end",
+}));
+
 export const COMMENT_TEST_ID = "comment";
 export const REFETCH_LOADING_TEST_ID = "refetching";
 
 interface CommentProps {
   comment: Reply.AsObject;
   topLevel?: boolean;
+  parentThreadId: number;
+  discussionId?: number;
 }
 
-export default function Comment({ topLevel = false, comment }: CommentProps) {
+interface EditCommentData {
+  content: string;
+}
+
+export default function Comment({
+  topLevel = false,
+  comment,
+  parentThreadId,
+  discussionId,
+}: CommentProps) {
   const {
     t,
     i18n: { language: locale },
   } = useTranslation([GLOBAL, COMMUNITIES]);
+
+  const queryClient = useQueryClient();
+
   const { data: user, isLoading: isUserLoading } = useLiteUser(
     comment.authorUserId,
   );
@@ -117,7 +160,11 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
   const showLoadMoreButton = topLevel && hasNextPage;
 
   const [showCommentForm, setShowCommentForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [ellipsisMenuAnchorEl, setEllipsisMenuAnchorEl] =
+    useState<Element | null>(null);
   const commentFormRef = useRef<HTMLFormElement>(null);
+  const resetInputRef: MarkdownInputProps["resetInputRef"] = useRef(null);
 
   useEffect(() => {
     if (showCommentForm && commentFormRef.current) {
@@ -128,49 +175,200 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
     }
   }, [showCommentForm]);
 
-  const replyDate = timestamp2Date(comment.createdTime!);
-  const postedTime = timeAgo({ since: replyDate, t, locale });
+  const { control, handleSubmit, reset } = useForm<EditCommentData>({
+    mode: "onBlur",
+    values: { content: comment.content },
+  });
+
+  const {
+    mutate: updateReply,
+    error: updateError,
+    isPending: isUpdating,
+  } = useMutation<Reply.AsObject, RpcError, EditCommentData>({
+    mutationFn: ({ content }) =>
+      service.threads.updateReply(comment.threadId, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: threadKey(parentThreadId) });
+      if (discussionId) {
+        queryClient.invalidateQueries({
+          queryKey: discussionKey(discussionId),
+        });
+      }
+      setIsEditing(false);
+    },
+  });
+
+  const { mutate: deleteReply, isPending: isDeleting } = useMutation<
+    void,
+    RpcError
+  >({
+    mutationFn: () => service.threads.deleteReply(comment.threadId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: threadKey(parentThreadId) });
+      if (discussionId) {
+        queryClient.invalidateQueries({
+          queryKey: discussionKey(discussionId),
+        });
+      }
+    },
+  });
+
+  const handleCancelEdit = () => {
+    reset();
+    setIsEditing(false);
+  };
+
+  const replyDate = comment.createdTime
+    ? timestamp2Date(comment.createdTime)
+    : undefined;
+  const postedTime = replyDate ? timeAgo({ since: replyDate, t, locale }) : "";
+
+  const isNonProd = process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod";
+
+  const ellipsisMenuItems: EllipsisMenuItem[] =
+    isNonProd && comment.canEdit
+      ? [
+          {
+            icon: EditOutlined,
+            label: t("communities:edit_comment"),
+            onClick: () => setIsEditing(true),
+            id: "edit-comment",
+          },
+          {
+            icon: DeleteOutlined,
+            label: t("communities:delete_comment"),
+            onClick: () => deleteReply(),
+            id: "delete-comment",
+          },
+        ]
+      : [];
+
+  if (isDeleting) {
+    return null;
+  }
 
   return (
     <>
       <StyledCommentContainer data-testid={COMMENT_TEST_ID}>
-        <StyledButtonsContainer>
-          <StyledAvatar user={user} />
-          <FlagButton
-            contentRef={`comment/${comment.threadId}`}
-            authorUser={comment.authorUserId}
-          />
-        </StyledButtonsContainer>
-        <StyledCommentContent>
-          {isUserLoading ? (
-            <Skeleton />
-          ) : (
-            <Typography variant="body2">
-              {t("communities:by_creator", {
-                name: user?.name ?? t("communities:unknown_user"),
-              })}
-              {` • ${postedTime}`}
-              <ModVisibleComponent>
-                {" "}
-                •{" "}
-                <code>
-                  threadId:
-                  <CopyOnClick text={comment.threadId.toString()} />
-                </code>
-              </ModVisibleComponent>
-            </Typography>
-          )}
-          {isUserLoading ? <Skeleton /> : <Markdown source={comment.content} />}
-        </StyledCommentContent>
-        {topLevel && (
-          <StyledReplyButton
-            onClick={() => {
-              setShowCommentForm(true);
-            }}
-          >
-            {t("global:reply")}
-          </StyledReplyButton>
+        {!comment.deleted && (
+          <StyledButtonsContainer>
+            <StyledAvatar user={user} />
+            <FlagButton
+              contentRef={`comment/${comment.threadId}`}
+              authorUser={comment.authorUserId}
+            />
+          </StyledButtonsContainer>
         )}
+        <StyledCommentContent
+          sx={comment.deleted ? { gridColumn: "1 / -1" } : undefined}
+        >
+          {comment.deleted ? (
+            <Typography
+              variant="body2"
+              sx={{
+                color: "var(--mui-palette-text-secondary)",
+                fontStyle: "italic",
+              }}
+            >
+              {t("communities:comment_deleted")}
+            </Typography>
+          ) : (
+            <>
+              {isUserLoading ? (
+                <Skeleton />
+              ) : (
+                <Typography variant="body2">
+                  {t("communities:by_creator", {
+                    name: user?.name ?? t("communities:unknown_user"),
+                  })}
+                  {postedTime && ` • ${postedTime}`}
+                  {comment.lastEdited && (
+                    <>
+                      {" "}
+                      {"•"}{" "}
+                      {t("communities:comment_edited_date", {
+                        dateOnly: localizeDateTime(
+                          timestamp2Date(comment.lastEdited),
+                          { locale, includeTime: false },
+                        ),
+                      })}
+                    </>
+                  )}
+                  <ModVisibleComponent>
+                    {" "}
+                    •{" "}
+                    <code>
+                      threadId:
+                      <CopyOnClick text={comment.threadId.toString()} />
+                    </code>
+                  </ModVisibleComponent>
+                </Typography>
+              )}
+              {isEditing ? (
+                <StyledEditForm
+                  onSubmit={handleSubmit((data) => updateReply(data))}
+                >
+                  {updateError && (
+                    <Alert severity="error">{updateError.message}</Alert>
+                  )}
+                  <span
+                    style={{
+                      height: 1,
+                      overflow: "hidden",
+                      position: "absolute",
+                      width: 1,
+                    }}
+                    id={`comment-${comment.threadId}-edit-label`}
+                  >
+                    {t("communities:write_comment_a11y_label")}
+                  </span>
+                  <MarkdownInput
+                    control={control}
+                    defaultValue={comment.content}
+                    id={`comment-${comment.threadId}-edit`}
+                    labelId={`comment-${comment.threadId}-edit-label`}
+                    name="content"
+                    required={t("communities:fill_out_comment")}
+                    resetInputRef={resetInputRef}
+                  />
+                  <StyledEditButtons>
+                    <Button variant="outlined" onClick={handleCancelEdit}>
+                      {t("global:cancel")}
+                    </Button>
+                    <Button loading={isUpdating} type="submit">
+                      {t("global:save")}
+                    </Button>
+                  </StyledEditButtons>
+                </StyledEditForm>
+              ) : isUserLoading ? (
+                <Skeleton />
+              ) : (
+                <Markdown source={comment.content} />
+              )}
+            </>
+          )}
+        </StyledCommentContent>
+        {(topLevel || ellipsisMenuItems.length > 0) &&
+          !isEditing &&
+          !comment.deleted && (
+            <StyledActionsContainer>
+              {ellipsisMenuItems.length > 0 && (
+                <EllipsisMenu
+                  idName={`comment-${comment.threadId}`}
+                  isMenuOpen={Boolean(ellipsisMenuAnchorEl)}
+                  menuAnchorEl={ellipsisMenuAnchorEl}
+                  onMenuOpen={(e) => setEllipsisMenuAnchorEl(e.currentTarget)}
+                  onMenuClose={() => setEllipsisMenuAnchorEl(null)}
+                  items={ellipsisMenuItems}
+                />
+              )}
+              {topLevel && (
+                <StyledReplyButton onClick={() => setShowCommentForm(true)}>
+                  {t("global:reply")}
+                </StyledReplyButton>
+              )}
+            </StyledActionsContainer>
+          )}
       </StyledCommentContainer>
       {isCommentsLoading ? (
         <CenteredSpinner />
@@ -193,7 +391,13 @@ export default function Comment({ topLevel = false, comment }: CommentProps) {
                 .flatMap((page) => page.repliesList)
                 .reverse()
                 .map((reply) => {
-                  return <Comment key={reply.threadId} comment={reply} />;
+                  return (
+                    <Comment
+                      key={reply.threadId}
+                      comment={reply}
+                      parentThreadId={comment.threadId}
+                    />
+                  );
                 })}
             </>
           )}

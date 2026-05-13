@@ -2,7 +2,8 @@ import logging
 
 import grpc
 import sqlalchemy.exc
-from sqlalchemy import select
+from google.protobuf import empty_pb2
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
@@ -27,7 +28,7 @@ from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.sql import where_moderated_content_visible, where_users_column_visible
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, now
 
 logger = logging.getLogger(__name__)
 
@@ -47,9 +48,15 @@ def unpack_thread_id(thread_id: int) -> tuple[int, int]:
 
 
 def total_num_responses(session: Session, context: CouchersContext, database_id: int) -> int:
+    """Return the total number of visible, non-deleted comments and replies to the thread with
+    database id database_id.
+    """
     comments = where_moderated_content_visible(
         where_users_column_visible(
-            select(func.count()).select_from(Comment).where(Comment.thread_id == database_id),
+            select(func.count())
+            .select_from(Comment)
+            .where(Comment.thread_id == database_id)
+            .where(Comment.deleted == None),
             context,
             Comment.author_user_id,
         ),
@@ -62,7 +69,8 @@ def total_num_responses(session: Session, context: CouchersContext, database_id:
             select(func.count())
             .select_from(Reply)
             .join(Comment, Comment.id == Reply.comment_id)
-            .where(Comment.thread_id == database_id),
+            .where(Comment.thread_id == database_id)
+            .where(Reply.deleted == None),
             context,
             Reply.author_user_id,
         ),
@@ -247,10 +255,13 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             if not session.execute(select(Thread).where(Thread.id == database_id)).scalar_one_or_none():
                 context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
 
+            has_replies = exists().where((Reply.comment_id == Comment.id) & (Reply.deleted == None)).correlate(Comment)
             visible_reply_count = (
                 where_moderated_content_visible(
                     where_users_column_visible(
-                        select(func.count(Reply.id)).where(Reply.comment_id == Comment.id),
+                        select(func.count(Reply.id))
+                        .where(Reply.comment_id == Comment.id)
+                        .where(Reply.deleted == None),
                         context,
                         Reply.author_user_id,
                     ),
@@ -267,6 +278,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     where_users_column_visible(
                         select(Comment, visible_reply_count)
                         .where(Comment.thread_id == database_id)
+                        .where((Comment.deleted == None) | has_replies)
                         .where(Comment.id < page_start)
                         .order_by(Comment.created.desc())
                         .limit(page_size + 1),
@@ -281,10 +293,15 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
             replies = [
                 threads_pb2.Reply(
                     thread_id=pack_thread_id(r.id, 1),
-                    content=r.content,
-                    author_user_id=r.author_user_id,
-                    created_time=Timestamp_from_datetime(r.created),
+                    deleted=r.deleted is not None,
+                    content=r.content if r.deleted is None else "",
+                    author_user_id=r.author_user_id if r.deleted is None else 0,
+                    created_time=Timestamp_from_datetime(r.created) if r.deleted is None else None,
                     num_replies=n,
+                    can_edit=(context.user_id == r.author_user_id) if r.deleted is None else False,
+                    last_edited=Timestamp_from_datetime(r.last_edited)
+                    if (r.last_edited and r.deleted is None)
+                    else None,
                 )
                 for r, n in res[:page_size]
             ]
@@ -309,6 +326,7 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                         where_users_column_visible(
                             select(Reply)
                             .where(Reply.comment_id == database_id)
+                            .where(Reply.deleted == None)
                             .where(Reply.id < page_start)
                             .order_by(Reply.created.desc())
                             .limit(page_size + 1),
@@ -330,6 +348,8 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
                     author_user_id=r.author_user_id,
                     created_time=Timestamp_from_datetime(r.created),
                     num_replies=0,
+                    can_edit=(context.user_id == r.author_user_id),
+                    last_edited=Timestamp_from_datetime(r.last_edited) if r.last_edited else None,
                 )
                 for r in res[:page_size]
             ]
@@ -401,3 +421,64 @@ class Threads(threads_pb2_grpc.ThreadsServicer):
         )
 
         return threads_pb2.PostReplyRes(thread_id=thread_id)
+
+    def UpdateReply(
+        self, request: threads_pb2.UpdateReplyReq, context: CouchersContext, session: Session
+    ) -> threads_pb2.Reply:
+        content = request.content.strip()
+        if not content:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_comment")
+
+        database_id, depth = unpack_thread_id(request.thread_id)
+        if depth == 1:
+            obj: Comment | Reply | None = session.execute(
+                select(Comment).where(Comment.id == database_id)
+            ).scalar_one_or_none()
+        elif depth == 2:
+            obj = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one_or_none()
+        else:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
+
+        if not obj:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
+        if obj.deleted is not None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "reply_deleted")
+        if obj.author_user_id != context.user_id:
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "reply_edit_permission_denied")
+
+        obj.content = content
+        obj.last_edited = now()
+
+        return threads_pb2.Reply(
+            thread_id=request.thread_id,
+            content=obj.content,
+            author_user_id=obj.author_user_id,
+            created_time=Timestamp_from_datetime(obj.created),
+            num_replies=0,
+            can_edit=True,
+            last_edited=Timestamp_from_datetime(obj.last_edited),
+        )
+
+    def DeleteReply(
+        self, request: threads_pb2.DeleteReplyReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        database_id, depth = unpack_thread_id(request.thread_id)
+        if depth == 1:
+            obj: Comment | Reply | None = session.execute(
+                select(Comment).where(Comment.id == database_id)
+            ).scalar_one_or_none()
+        elif depth == 2:
+            obj = session.execute(select(Reply).where(Reply.id == database_id)).scalar_one_or_none()
+        else:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
+
+        if not obj:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "thread_not_found")
+        if obj.deleted is not None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "reply_deleted")
+        if obj.author_user_id != context.user_id:
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "reply_delete_permission_denied")
+
+        obj.deleted = now()
+
+        return empty_pb2.Empty()

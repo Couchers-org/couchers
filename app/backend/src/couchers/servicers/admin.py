@@ -987,6 +987,17 @@ class Admin(admin_pb2_grpc.AdminServicer):
             discussion.content = request.new_content.strip()
         return empty_pb2.Empty()
 
+    def DeleteDiscussion(
+        self, request: admin_pb2.AdminDeleteDiscussionReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        discussion = session.execute(
+            select(Discussion).where(Discussion.id == request.discussion_id)
+        ).scalar_one_or_none()
+        if not discussion:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
+        discussion.deleted = now()
+        return empty_pb2.Empty()
+
     def EditReply(self, request: admin_pb2.EditReplyReq, context: CouchersContext, session: Session) -> empty_pb2.Empty:
         database_id, depth = unpack_thread_id(request.reply_id)
         if depth == 1:

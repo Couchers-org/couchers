@@ -1,6 +1,7 @@
 import logging
 
 import grpc
+from google.protobuf import empty_pb2
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -18,7 +19,7 @@ from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
 from couchers.sql import where_moderated_content_visible
-from couchers.utils import Timestamp_from_datetime
+from couchers.utils import Timestamp_from_datetime, now
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,17 @@ def discussion_to_pb(session: Session, discussion: Discussion, context: Couchers
         owner_community_id = discussion.owner_cluster.parent_node_id
     else:
         owner_group_id = discussion.owner_cluster.id
+
+    if discussion.deleted is not None:
+        return discussions_pb2.Discussion(
+            discussion_id=discussion.id,
+            slug=discussion.slug,
+            deleted=True,
+            owner_community_id=owner_community_id,
+            owner_group_id=owner_group_id,
+            owner_title=discussion.owner_cluster.name,
+            thread=thread_to_pb(session, context, discussion.thread_id),
+        )
 
     can_moderate = can_moderate_node(session, context.user_id, discussion.owner_cluster.parent_node_id)
 
@@ -47,6 +59,8 @@ def discussion_to_pb(session: Session, discussion: Discussion, context: Couchers
         content=discussion.content,
         thread=thread_to_pb(session, context, discussion.thread_id),
         can_moderate=can_moderate,
+        can_edit=(context.user_id == discussion.creator_user_id),
+        last_edited=Timestamp_from_datetime(discussion.last_edited) if discussion.last_edited else None,
     )
 
 
@@ -200,3 +214,70 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
             discussions=[discussion_to_pb(session, d, context) for d in discussions[:page_size]],
             next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
         )
+
+    def UpdateDiscussion(
+        self, request: discussions_pb2.UpdateDiscussionReq, context: CouchersContext, session: Session
+    ) -> discussions_pb2.Discussion:
+        discussion = session.execute(
+            select(Discussion).where(Discussion.id == request.discussion_id)
+        ).scalar_one_or_none()
+        if not discussion:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
+        if discussion.deleted is not None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussion_deleted")
+        if context.user_id != discussion.creator_user_id:
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "discussion_edit_permission_denied")
+
+        if request.HasField("title"):
+            new_title = request.title.value.strip()
+            if not new_title:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_title")
+            discussion.title = new_title
+
+        if request.HasField("content"):
+            new_content = request.content.value.strip()
+            if not new_content:
+                context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_discussion_content")
+            discussion.content = new_content
+
+        discussion.last_edited = now()
+
+        log_event(
+            context,
+            session,
+            "discussion.updated",
+            {
+                "discussion_id": discussion.id,
+            },
+        )
+
+        return discussion_to_pb(session, discussion, context)
+
+    def DeleteDiscussion(
+        self, request: discussions_pb2.DeleteDiscussionReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        discussion = session.execute(
+            select(Discussion).where(Discussion.id == request.discussion_id)
+        ).scalar_one_or_none()
+        if not discussion:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
+        if discussion.deleted is not None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "discussion_deleted")
+
+        is_creator = context.user_id == discussion.creator_user_id
+        is_moderator = can_moderate_node(session, context.user_id, discussion.owner_cluster.parent_node_id)
+        if not is_creator and not is_moderator:
+            context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "discussion_delete_permission_denied")
+
+        discussion.deleted = now()
+
+        log_event(
+            context,
+            session,
+            "discussion.deleted",
+            {
+                "discussion_id": discussion.id,
+            },
+        )
+
+        return empty_pb2.Empty()

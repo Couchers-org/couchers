@@ -29,6 +29,8 @@ class Discussion(Base, kw_only=True):
     thread_id: Mapped[int] = mapped_column(ForeignKey("threads.id"), unique=True)
     moderation_state_id: Mapped[int] = mapped_column(ForeignKey("moderation_states.id"), index=True)
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    last_edited: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     creator_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     owner_cluster_id: Mapped[int] = mapped_column(ForeignKey("clusters.id"), index=True)
@@ -96,6 +98,7 @@ class Comment(Base, kw_only=True):
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    last_edited: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     thread: Mapped[Thread] = relationship(init=False, backref="comments")
 
@@ -117,6 +120,7 @@ class Reply(Base, kw_only=True):
     content: Mapped[str] = mapped_column(String)  # CommonMark without images
     created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
     deleted: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    last_edited: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     comment: Mapped[Comment] = relationship(init=False, backref="replies")
 

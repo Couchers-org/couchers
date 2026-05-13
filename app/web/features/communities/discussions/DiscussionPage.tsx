@@ -1,13 +1,18 @@
+import { DeleteOutlined, EditOutlined } from "@mui/icons-material";
 import { Skeleton, styled, Typography } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
+import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
+import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
 import { BackIcon } from "components/Icons";
 import Markdown from "components/Markdown";
+import MarkdownInput from "components/MarkdownInput";
 import PageTitle from "components/PageTitle";
+import TextField from "components/TextField";
 import { discussionKey } from "features/queryKeys";
 import { useLiteUser } from "features/userQueries/useLiteUsers";
 import { RpcError } from "grpc-web";
@@ -15,6 +20,8 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { Discussion } from "proto/discussions_pb";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { service } from "service";
 import { theme } from "theme";
 import { localizeDateTime, timestamp2Date } from "utils/date";
@@ -24,13 +31,14 @@ import CommunityBase from "../CommunityBase";
 import CommunityPageSubHeader from "../CommunityPage/CommunityPageSubHeader";
 import PageHeader from "../PageHeader";
 import CommentTree from "./CommentTree";
+import DeleteDiscussionDialog from "./DeleteDiscussionDialog";
+
+interface EditDiscussionFormData {
+  title: string;
+  content: string;
+}
 
 const StyledPageHeader = styled(PageHeader)(() => ({
-  alignItems: "center",
-  display: "flex",
-}));
-
-const StyledDiscussionHeader = styled("div")(() => ({
   alignItems: "center",
   display: "flex",
 }));
@@ -39,23 +47,21 @@ const StyledDiscussionBodyWrapper = styled("div")(() => ({
   paddingBlockEnd: theme.spacing(5),
 }));
 
-const StyledDiscussionTitle = styled(PageTitle)(() => ({
-  marginInlineStart: theme.spacing(2),
+const StyledTitleRow = styled("div")(() => ({
+  alignItems: "center",
+  display: "flex",
+  justifyContent: "space-between",
+  marginBlock: theme.spacing(1),
 }));
 
 const StyledDiscussionContent = styled(Markdown)(() => ({
   marginBlockEnd: theme.spacing(3),
 }));
 
-const StyledCreatorContainer = styled("div")(() => ({
-  creatorContainer: {
-    "& > * + *": {
-      marginInlineStart: theme.spacing(2),
-    },
-    alignItems: "center",
-    display: "flex",
-    marginBlockEnd: theme.spacing(3),
-  },
+const StyledCreatorRow = styled("div")(({ theme }) => ({
+  alignItems: "center",
+  display: "flex",
+  gap: theme.spacing(2),
 }));
 
 const StyledAvatar = styled(Avatar)(() => ({
@@ -66,6 +72,23 @@ const StyledAvatar = styled(Avatar)(() => ({
 const StyledCreatorDetailsContainer = styled("div")(() => ({
   display: "flex",
   flexDirection: "column",
+}));
+
+const StyledDeletedMessage = styled(Typography)(() => ({
+  color: "var(--mui-palette-text-secondary)",
+  fontStyle: "italic",
+}));
+
+const StyledEditForm = styled("form")(() => ({
+  "& > * + *": {
+    marginBlockStart: theme.spacing(3),
+  },
+}));
+
+const StyledActionButtons = styled("div")(() => ({
+  display: "flex",
+  gap: theme.spacing(1),
+  justifyContent: "flex-end",
 }));
 
 export const CREATOR_TEST_ID = "creator";
@@ -81,6 +104,14 @@ export default function DiscussionPage({
   } = useTranslation([GLOBAL, COMMUNITIES]);
   const router = useRouter();
   const isNativeEmbed = useIsNativeEmbed();
+  const queryClient = useQueryClient();
+
+  const [ellipsisMenuAnchorEl, setEllipsisMenuAnchorEl] =
+    useState<Element | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const isEllipsisMenuOpen = Boolean(ellipsisMenuAnchorEl);
 
   const {
     data: discussion,
@@ -92,8 +123,29 @@ export default function DiscussionPage({
   });
 
   const { data: discussionCreator, isLoading: isCreatorLoading } = useLiteUser(
-    discussion?.creatorUserId,
+    discussion?.deleted ? undefined : discussion?.creatorUserId,
   );
+
+  const { control, handleSubmit, register, reset } =
+    useForm<EditDiscussionFormData>({
+      mode: "onBlur",
+      values: discussion
+        ? { title: discussion.title, content: discussion.content }
+        : undefined,
+    });
+
+  const {
+    mutate: updateDiscussion,
+    error: updateError,
+    isPending: isUpdating,
+  } = useMutation<Discussion.AsObject, RpcError, EditDiscussionFormData>({
+    mutationFn: ({ title, content }) =>
+      service.discussions.updateDiscussion(discussionId, title, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: discussionKey(discussionId) });
+      setIsEditing(false);
+    },
+  });
 
   const handleBackClick = () => {
     if (isNativeEmbed) {
@@ -102,6 +154,39 @@ export default function DiscussionPage({
     }
     router.back();
   };
+
+  const handleCancelEdit = () => {
+    reset();
+    setIsEditing(false);
+  };
+
+  const isNonProd = process.env.NEXT_PUBLIC_COUCHERS_ENV !== "prod";
+
+  const ellipsisMenuItems: EllipsisMenuItem[] = isNonProd
+    ? [
+        ...(discussion?.canEdit && !discussion.deleted
+          ? ([
+              {
+                icon: EditOutlined,
+                label: t("communities:edit_discussion"),
+                onClick: () => setIsEditing(true),
+                id: "edit-discussion",
+              },
+            ] as EllipsisMenuItem[])
+          : []),
+        ...((discussion?.canEdit || discussion?.canModerate) &&
+        !discussion?.deleted
+          ? ([
+              {
+                icon: DeleteOutlined,
+                label: t("communities:delete_discussion"),
+                onClick: () => setDeleteDialogOpen(true),
+                id: "delete-discussion",
+              },
+            ] as EllipsisMenuItem[])
+          : []),
+      ]
+    : [];
 
   return (
     <>
@@ -122,51 +207,130 @@ export default function DiscussionPage({
                   tab="discussions"
                 />
                 <StyledDiscussionBodyWrapper>
-                  <StyledDiscussionHeader>
-                    <HeaderButton
-                      onClick={handleBackClick}
-                      aria-label={t("communities:previous_page")}
-                    >
-                      <BackIcon />
-                    </HeaderButton>
-                    <StyledDiscussionTitle>
-                      {discussion.title}
-                    </StyledDiscussionTitle>
-                  </StyledDiscussionHeader>
-                  <StyledDiscussionContent source={discussion.content} />
-                  <StyledCreatorContainer data-testid={CREATOR_TEST_ID}>
-                    <StyledAvatar user={discussionCreator} />
-                    <StyledCreatorDetailsContainer>
-                      {isCreatorLoading ? (
-                        <Skeleton width={100} />
-                      ) : (
-                        <Typography variant="body1">
-                          {discussionCreator?.name ??
-                            t("communities:unknown_user")}
+                  <HeaderButton
+                    onClick={handleBackClick}
+                    aria-label={t("communities:previous_page")}
+                  >
+                    <BackIcon />
+                  </HeaderButton>
+                  <StyledTitleRow>
+                    <PageTitle>
+                      {discussion.deleted
+                        ? t("communities:discussion_deleted")
+                        : discussion.title}
+                    </PageTitle>
+                    {ellipsisMenuItems.length > 0 && !isEditing && (
+                      <EllipsisMenu
+                        idName="discussion-page"
+                        isMenuOpen={isEllipsisMenuOpen}
+                        menuAnchorEl={ellipsisMenuAnchorEl}
+                        onMenuOpen={(e) =>
+                          setEllipsisMenuAnchorEl(e.currentTarget)
+                        }
+                        onMenuClose={() => setEllipsisMenuAnchorEl(null)}
+                        items={ellipsisMenuItems}
+                      />
+                    )}
+                  </StyledTitleRow>
+                  <div>
+                    {discussion.deleted ? (
+                      <StyledDeletedMessage variant="body1">
+                        {t("communities:discussion_deleted")}
+                      </StyledDeletedMessage>
+                    ) : isEditing ? (
+                      <StyledEditForm
+                        onSubmit={handleSubmit((data) =>
+                          updateDiscussion(data),
+                        )}
+                      >
+                        {updateError && (
+                          <Alert severity="error">{updateError.message}</Alert>
+                        )}
+                        <TextField
+                          id="title"
+                          {...register("title", { required: true })}
+                          fullWidth
+                          label={t("communities:new_discussion_title")}
+                        />
+                        <Typography id="content-label" variant="h3">
+                          {t("communities:new_discussion_topic")}
                         </Typography>
-                      )}
-                      {isCreatorLoading ? (
-                        <Skeleton width={100} />
-                      ) : (
-                        <Typography variant="body2">
-                          {t("communities:discussion_creation_date", {
-                            dateOnly: localizeDateTime(
-                              timestamp2Date(discussion.created!),
-                              {
-                                locale,
-                                includeTime: false,
-                              },
-                            ),
-                          })}
-                        </Typography>
-                      )}
-                    </StyledCreatorDetailsContainer>
-                  </StyledCreatorContainer>
+                        <MarkdownInput
+                          control={control}
+                          defaultValue={discussion.content}
+                          id="content"
+                          labelId="content-label"
+                          name="content"
+                        />
+                        <StyledActionButtons>
+                          <Button variant="outlined" onClick={handleCancelEdit}>
+                            {t("global:cancel")}
+                          </Button>
+                          <Button loading={isUpdating} type="submit">
+                            {t("global:save")}
+                          </Button>
+                        </StyledActionButtons>
+                      </StyledEditForm>
+                    ) : (
+                      <>
+                        <StyledDiscussionContent source={discussion.content} />
+                        <StyledCreatorRow data-testid={CREATOR_TEST_ID}>
+                          <StyledAvatar user={discussionCreator} />
+                          <StyledCreatorDetailsContainer>
+                            {isCreatorLoading ? (
+                              <Skeleton width={100} />
+                            ) : (
+                              <Typography variant="body1">
+                                {discussionCreator?.name ??
+                                  t("communities:unknown_user")}
+                              </Typography>
+                            )}
+                            {isCreatorLoading ? (
+                              <Skeleton width={100} />
+                            ) : (
+                              <Typography variant="body2">
+                                {t("communities:discussion_creation_date", {
+                                  dateOnly: localizeDateTime(
+                                    timestamp2Date(discussion.created!),
+                                    {
+                                      locale,
+                                      includeTime: false,
+                                    },
+                                  ),
+                                })}
+                              </Typography>
+                            )}
+                            {discussion.lastEdited && (
+                              <Typography variant="body2">
+                                {t("communities:discussion_edited_date", {
+                                  dateOnly: localizeDateTime(
+                                    timestamp2Date(discussion.lastEdited),
+                                    {
+                                      locale,
+                                      includeTime: false,
+                                    },
+                                  ),
+                                })}
+                              </Typography>
+                            )}
+                          </StyledCreatorDetailsContainer>
+                        </StyledCreatorRow>
+                      </>
+                    )}
+                  </div>
                   <Typography variant="h2">
                     {t("communities:comments")}
                   </Typography>
-                  <CommentTree threadId={discussion.thread!.threadId} />
+                  <CommentTree
+                    threadId={discussion.thread!.threadId}
+                    discussionId={discussionId}
+                  />
                 </StyledDiscussionBodyWrapper>
+                <DeleteDiscussionDialog
+                  discussionId={discussionId}
+                  open={deleteDialogOpen}
+                  onClose={() => setDeleteDialogOpen(false)}
+                />
               </>
             )}
           </CommunityBase>
