@@ -171,7 +171,8 @@ describe("WebEmbed", () => {
       (useWebNavigation as jest.Mock).mockClear();
 
       rerender(<WebEmbed path="/search" />);
-      expect(capturedWebViewProps.source?.uri).toBe(`${mockWebBaseUrl}/search`);
+      // source.uri is frozen at mount (initialUri ref) — navigation syncs via MOBILE_NAVIGATE
+      expect(capturedWebViewProps.source?.uri).toBe(`${mockWebBaseUrl}/messages`);
       expect(useWebNavigation).toHaveBeenCalledWith(
         expect.objectContaining({
           currentPath: "/search",
