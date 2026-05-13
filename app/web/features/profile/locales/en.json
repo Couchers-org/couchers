@@ -105,6 +105,11 @@
     "travel_experience_subtitle": "Share your travel experiences and connections",
     "location_subtitle": "Approximate location of your home"
   },
+  "edit_profile_defaults": {
+    "about_me_markdown": "# Current mission\n\ne.g. I want to meet people and learn...\n\n# Why I use Couchers.org\n\ne.g. I think couch surfing should be free...\n\n# My favorite travel story\n\ne.g. One time I...\n",
+    "hobbies_markdown": "# Art\n<br>\ne.g. Painting, ...\n<br>\n# Books\n<br>\neg. The Cat in the Hat, ...\n<br>\n# Movies\n<br>\ne.g. David Attenborough documentaries, ...\n<br>\n# Music\n<br>\ne.g. The Wiggles, ...\n<br>\n",
+    "about_home_markdown": "# What I can share with guests\n<br>\ne.g. I can share...\n<br>\n"
+  },
   "edit_profile_name_required": "Name required",
   "edit_home_questions": {
     "accept_drinking": "Okay with people drinking",

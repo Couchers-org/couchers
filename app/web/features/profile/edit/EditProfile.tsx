@@ -46,11 +46,7 @@ import {
 } from "utils/hooks";
 import { useIsNativeEmbed } from "utils/nativeLink";
 
-import {
-  ABOUT_ME_MIN_LENGTH,
-  DEFAULT_ABOUT_ME_HEADINGS,
-  DEFAULT_HOBBIES_HEADINGS,
-} from "./constants";
+import { ABOUT_ME_MIN_LENGTH } from "./constants";
 import StatusCardGroup from "./StatusCard";
 
 export type EditProfileFormValues = Omit<
@@ -313,7 +309,9 @@ export default function EditProfileForm() {
             .map((region) => regions[region] || "")
             .filter(Boolean),
           aboutMe: user.aboutMe,
-          thingsILike: user.thingsILike || DEFAULT_HOBBIES_HEADINGS,
+          thingsILike:
+            user.thingsILike ||
+            t("profile:edit_profile_defaults.hobbies_markdown"),
           additionalInformation: user.additionalInformation,
           location: {
             city: user.city,
@@ -339,7 +337,7 @@ export default function EditProfileForm() {
           regionsVisited: [],
           regionsLived: [],
           aboutMe: "",
-          thingsILike: DEFAULT_HOBBIES_HEADINGS,
+          thingsILike: t("profile:edit_profile_defaults.hobbies_markdown"),
           additionalInformation: "",
           location: {
             city: user?.city || "",
@@ -415,7 +413,9 @@ export default function EditProfileForm() {
                 fluency: LanguageAbility.Fluency.FLUENCY_FLUENT,
               })),
             },
-            thingsILike: DEFAULT_HOBBIES_HEADINGS.includes(data.thingsILike)
+            thingsILike: t(
+              "profile:edit_profile_defaults.hobbies_markdown",
+            ).includes(data.thingsILike)
               ? ""
               : data.thingsILike,
           },
@@ -930,7 +930,9 @@ export default function EditProfileForm() {
                   id="aboutMe"
                   label={t("profile:heading.about_me")}
                   name="aboutMe"
-                  placeholder={DEFAULT_ABOUT_ME_HEADINGS}
+                  placeholder={t(
+                    "profile:edit_profile_defaults.about_me_markdown",
+                  )}
                   defaultValue={user.aboutMe}
                   control={control}
                   warning={aboutMeField.length < ABOUT_ME_MIN_LENGTH}
@@ -971,7 +973,10 @@ export default function EditProfileForm() {
                   id="thingsILike"
                   label={t("profile:heading.hobbies_section")}
                   name="thingsILike"
-                  defaultValue={user.thingsILike || DEFAULT_HOBBIES_HEADINGS}
+                  defaultValue={
+                    user.thingsILike ||
+                    t("profile:edit_profile_defaults.hobbies_markdown")
+                  }
                   control={control}
                 />
               </FieldGroup>

@@ -1,5 +1,7 @@
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import useCurrentUser from "features/userQueries/useCurrentUser";
+import { useTranslation } from "i18n";
+import { PROFILE } from "i18n/namespaces";
 import React from "react";
 
 import {
@@ -9,10 +11,10 @@ import {
   User,
 } from "../../../proto/api_pb";
 import { HostingPreferenceData } from "../../../service/user";
-import { DEFAULT_ABOUT_HOME_HEADINGS } from "./constants";
 import EditHostingPreferenceForm from "./EditHostingPreferenceForm";
 
 export default function EditHostingPreference() {
+  const { t } = useTranslation([PROFILE]);
   const { data: user } = useCurrentUser();
 
   if (user) {
@@ -26,7 +28,9 @@ export default function EditHostingPreference() {
       maxGuests: user.maxGuests?.value ?? 1,
       smokingAllowed:
         user.smokingAllowed || SmokingLocation.SMOKING_LOCATION_UNKNOWN,
-      aboutPlace: user.aboutPlace || DEFAULT_ABOUT_HOME_HEADINGS,
+      aboutPlace:
+        user.aboutPlace ||
+        t("profile:edit_profile_defaults.about_home_markdown"),
       sleepingArrangement:
         user.sleepingArrangement ||
         SleepingArrangement.SLEEPING_ARRANGEMENT_UNKNOWN,
