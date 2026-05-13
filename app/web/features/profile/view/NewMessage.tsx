@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { routeToGroupChat } from "routes";
 import { service } from "service";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 const StyledTitle = styled(Typography)(() => ({
   marginTop: theme.spacing(1),
@@ -30,12 +31,15 @@ const StyledSendActions = styled(CardActions)(() => ({
 
 export default function NewMessage({
   setIsMessaging,
+  setIsMessageSuccess,
 }: {
   setIsMessaging: (value: boolean) => void;
+  setIsMessageSuccess?: (value: boolean) => void;
 }) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
   const router = useRouter();
+  const isNativeEmbed = useIsNativeEmbed();
 
   const {
     handleSubmit,
@@ -54,7 +58,11 @@ export default function NewMessage({
     onSuccess: (groupChatId) => {
       reset();
       setIsMessaging(false);
-      router.push(routeToGroupChat(groupChatId));
+      if (isNativeEmbed) {
+        setIsMessageSuccess?.(true);
+      } else {
+        router.push(routeToGroupChat(groupChatId));
+      }
     },
   });
 

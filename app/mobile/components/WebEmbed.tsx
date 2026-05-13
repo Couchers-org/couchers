@@ -54,6 +54,17 @@ export default function WebEmbed({
   // distinguish sync-triggered navigations from user-initiated ones.
   const syncTargetPathRef = useRef<string | null>(null);
 
+  // Compute the initial URI once at mount using the current locale so the
+  // WebView loads the correct language directly, without relying on the
+  // NEXT_LOCALE cookie being synced to the HTTP request in time (Android).
+  // Strip any existing locale prefix from path first (e.g. [...slug] can
+  // receive locale-prefixed paths like /pt-BR/messages from history).
+  const initialUri = useRef(
+    WEB_BASE_URL +
+      (i18n.language !== "en" ? `/${i18n.language}` : "") +
+      path.replace(/^\/[a-z]{2,3}(-[A-Za-z0-9]+)?\//, "/"),
+  ).current;
+
   // True once the WebView completes its first load. Syncs are skipped until
   // then because the source URI already loads the correct URL — sending
   // MOBILE_NAVIGATE before load completes races with user-initiated navigation.
@@ -65,7 +76,7 @@ export default function WebEmbed({
   const { pickImage } = useImagePicker();
 
   const stripLocale = useCallback(
-    (p: string) => p.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/"),
+    (p: string) => p.replace(/^\/[a-z]{2,3}(-[A-Za-z0-9]+)?\//, "/"),
     [],
   );
 
@@ -146,7 +157,7 @@ export default function WebEmbed({
 
     // Skip if already at target — postMessage would be a no-op but setting
     // syncTargetPathRef would leak and block future navigation tracking.
-    if (currentWebPathRef.current.split("?")[0] === targetPath) {
+    if (currentWebPathRef.current === targetPath) {
       return;
     }
 
@@ -221,7 +232,7 @@ export default function WebEmbed({
         : targetRoute;
 
       // Skip if already at target — same leak-prevention as the useEffect above.
-      if (currentWebPathRef.current.split("?")[0] === targetPath) {
+      if (currentWebPathRef.current === targetPath) {
         return cleanup;
       }
 
@@ -333,6 +344,22 @@ export default function WebEmbed({
             true;
           `);
         }
+      } else if (payload?.type === "LANGUAGE_CHANGE") {
+        const locale = payload.data?.locale as string | undefined;
+        if (locale) {
+          i18n.changeLanguage(locale).catch((err) => {
+            if (__DEV__) {
+              console.error("Failed to change language:", err);
+            }
+          });
+          // Pre-arm syncTargetPathRef so the i18n.language useEffect doesn't send
+          // a redundant MOBILE_NAVIGATE — the web page is already navigating.
+          if (syncTargetPathRef.current === null) {
+            const targetRoute = stripLocale(path);
+            syncTargetPathRef.current =
+              locale !== "en" ? `/${locale}${targetRoute}` : targetRoute;
+          }
+        }
       } else if (payload?.type === "REQUEST_IMAGE_PICK") {
         // WebView file input crashes on mobile; use native picker instead.
         pickImage(sendImagePickResult);
@@ -409,7 +436,7 @@ export default function WebEmbed({
       <WebView
         ref={webviewRef}
         style={[styles.webview, { backgroundColor }]}
-        source={{ uri: WEB_BASE_URL + path }}
+        source={{ uri: initialUri }}
         applicationNameForUserAgent={applicationNameForUserAgent}
         allowsBackForwardNavigationGestures // iOS swipe back/forward
         sharedCookiesEnabled

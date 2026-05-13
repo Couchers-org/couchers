@@ -1,2 +1,5 @@
 Bug fixes and improvements:
-- Going back from a profile in search results now restores your previous page and scroll position
+- Tapping a user avatar or name opens their profile in a bottom sheet to save your place
+- Language changes now apply immediately across all tabs
+- Samsung specific fixes for some interaction issues
+- Fixed community info edit page on mobile

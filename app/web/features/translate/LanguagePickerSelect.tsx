@@ -26,6 +26,7 @@ import { useState } from "react";
 import { translateRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
+import { sendLanguageChange } from "utils/nativeLink";
 
 import { ALMOST_DONE_CUTOFF } from "./constants";
 import { useShowAllLanguages } from "./useShowAllLanguages";
@@ -96,6 +97,10 @@ export default function LanguagePickerSelect({
     }
 
     setIsChangingLanguage(true);
+
+    // Notify native app immediately so the tab bar labels update without waiting
+    // for onNavigationStateChange to fire (which has a slight delay on Android).
+    sendLanguageChange(newLocale);
 
     // Set cookie client-side immediately for both authenticated and logged-out users
     // This ensures the middleware sees the updated locale before navigation

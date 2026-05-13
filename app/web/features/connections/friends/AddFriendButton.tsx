@@ -6,7 +6,7 @@ import { doAntibot } from "features/antibot/antibot";
 import useAccountInfo from "features/auth/useAccountInfo";
 import { userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { CONNECTIONS } from "i18n/namespaces";
+import { PROFILE } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { User } from "proto/api_pb";
 import React, { useState } from "react";
@@ -24,7 +24,7 @@ export default function AddFriendButton({
   userId,
 }: AddFriendButtonProps) {
   const queryClient = useQueryClient();
-  const { t } = useTranslation([CONNECTIONS]);
+  const { t } = useTranslation([PROFILE]);
   const [showCantFriendDialog, setShowCantFriendDialog] =
     useState<boolean>(false);
 
@@ -93,7 +93,7 @@ export default function AddFriendButton({
         loading={isPending}
         disabled={isAccountInfoLoading}
       >
-        {t("connections:add_friend")}
+        {t("profile:actions.add_friend")}
       </Button>
     </>
   );

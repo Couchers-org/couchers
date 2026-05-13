@@ -83,6 +83,7 @@ Wraps the React Native WebView and handles:
   - `REQUEST_IMAGE_PICK` → use native image picker
   - `MOBILE_NAVIGATE` → trigger web navigation without reload
   - `NATIVE_BACK` → web requests native back (goBack() or router.back())
+  - `LANGUAGE_CHANGE` → web notifies native immediately when language picker is used, so tab bar labels update without waiting for `onNavigationStateChange`
 
 **Critical setting**: `sharedCookiesEnabled={true}` keeps auth working.
 
@@ -115,6 +116,10 @@ Shared refs across all WebView instances:
 Each `WebEmbed` instance also has its own **per-instance** `currentWebPathRef` (inside `useWebNavigation`) that tracks that tab's current URL independently. This is intentional — a shared global ref caused cross-tab contamination where one tab's navigation would corrupt another tab's sync checks.
 
 **Note**: You may occasionally see a brief flash when first navigating to a detail page, since `[...slug]` mounts a fresh WebView. On return, the tab's WebView uses native back navigation (`goBack()`) so the bfcache restores the previous page state exactly — including pagination and scroll position.
+
+### ProfileSheet
+
+Tapping a user avatar or name opens their profile in a bottom sheet (MUI Drawer) instead of navigating away, preserving the current page behind it. Only shown when `isNativeEmbed` is true. Key files: `features/profile/ProfileSheet.tsx`, `ProfileSheetContext.tsx`, `components/ProfileLink/ProfileLink.tsx`.
 
 ### isNativeEmbed
 
