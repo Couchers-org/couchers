@@ -138,13 +138,15 @@ export default function GroupChatHeaderBar({
 
   return (
     <>
-      <HeaderButton
-        onClick={handleBack}
-        aria-label={t("messages:chat_view.back_button.a11y_label")}
-        size={isMobile ? "small" : "medium"}
-      >
-        <BackIcon fontSize={isMobile ? "small" : "medium"} />
-      </HeaderButton>
+      {!isNativeEmbed && (
+        <HeaderButton
+          onClick={handleBack}
+          aria-label={t("messages:chat_view.back_button.a11y_label")}
+          size={isMobile ? "small" : "medium"}
+        >
+          <BackIcon fontSize={isMobile ? "small" : "medium"} />
+        </HeaderButton>
+      )}
       {groupChat?.isDm ? (
         <StyledTitleBox>
           {isNativeEmbed ? (

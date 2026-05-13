@@ -1,7 +1,8 @@
-import { Close } from "@mui/icons-material";
+import { ArrowBack, Close } from "@mui/icons-material";
 import { Collapse, Drawer, IconButton, styled } from "@mui/material";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import Snackbar from "components/Snackbar";
+import GroupChatView from "features/messages/groupchats/GroupChatView";
 import NewHostRequest from "features/profile/view/NewHostRequest";
 import NewMessage from "features/profile/view/NewMessage";
 import Overview from "features/profile/view/Overview";
@@ -21,7 +22,7 @@ const StyledDrawer = styled(Drawer)({
   "& .MuiDrawer-paper": {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    maxHeight: "90vh",
+    height: "90vh",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
@@ -47,7 +48,12 @@ const REQUEST_ID = "request";
 
 export default function ProfileSheet() {
   const isNativeEmbed = useIsNativeEmbed();
-  const { openProfileUserId, closeProfileSheet } = useProfileSheet();
+  const {
+    openProfileUserId,
+    closeProfileSheet,
+    openGroupChatId,
+    closeGroupChat,
+  } = useProfileSheet();
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const router = useRouter();
   const { data: user, isLoading } = useUser(openProfileUserId ?? undefined);
@@ -56,12 +62,14 @@ export default function ProfileSheet() {
   const [isRequesting, setIsRequesting] = useState(false);
   const [isSuccessRequest, setIsSuccessRequest] = useState(false);
   const [isMessaging, setIsMessaging] = useState(false);
+  const [isSuccessMessage, setIsSuccessMessage] = useState(false);
 
   useEffect(() => {
     setTab("about");
     setIsRequesting(false);
     setIsSuccessRequest(false);
     setIsMessaging(false);
+    setIsSuccessMessage(false);
   }, [openProfileUserId]);
 
   useEffect(() => {
@@ -86,47 +94,59 @@ export default function ProfileSheet() {
     >
       <SheetHeader>
         <IconButton
-          onClick={closeProfileSheet}
-          aria-label={t("global:close")}
+          onClick={openGroupChatId ? closeGroupChat : closeProfileSheet}
+          aria-label={openGroupChatId ? t("global:back") : t("global:close")}
           size="small"
         >
-          <Close />
+          {openGroupChatId ? <ArrowBack /> : <Close />}
         </IconButton>
       </SheetHeader>
-      <ScrollContent ref={scrollRef}>
-        {isSuccessRequest && (
-          <Snackbar severity="success">
-            {t("profile:request_form.success")}
-          </Snackbar>
-        )}
-        {isLoading && <CenteredSpinner />}
-        {user && (
-          <ProfileUserProvider user={user}>
-            <Overview
-              setIsRequesting={setIsRequesting}
-              setIsMessaging={setIsMessaging}
-              tab={tab}
-            />
-            <UserCard
-              tab={tab}
-              onTabChange={setTab}
-              top={
-                <>
-                  <Collapse in={isRequesting}>
-                    <NewHostRequest
-                      setIsRequesting={setIsRequesting}
-                      setIsRequestSuccess={setIsSuccessRequest}
-                    />
-                  </Collapse>
-                  <Collapse in={isMessaging}>
-                    <NewMessage setIsMessaging={setIsMessaging} />
-                  </Collapse>
-                </>
-              }
-            />
-          </ProfileUserProvider>
-        )}
-      </ScrollContent>
+      {openGroupChatId ? (
+        <GroupChatView chatId={openGroupChatId} embedded />
+      ) : (
+        <ScrollContent ref={scrollRef}>
+          {isSuccessRequest && (
+            <Snackbar severity="success">
+              {t("profile:request_form.success")}
+            </Snackbar>
+          )}
+          {isSuccessMessage && (
+            <Snackbar severity="success">
+              {t("profile:message_form.success")}
+            </Snackbar>
+          )}
+          {isLoading && <CenteredSpinner />}
+          {user && (
+            <ProfileUserProvider user={user}>
+              <Overview
+                setIsRequesting={setIsRequesting}
+                setIsMessaging={setIsMessaging}
+                tab={tab}
+              />
+              <UserCard
+                tab={tab}
+                onTabChange={setTab}
+                top={
+                  <>
+                    <Collapse in={isRequesting}>
+                      <NewHostRequest
+                        setIsRequesting={setIsRequesting}
+                        setIsRequestSuccess={setIsSuccessRequest}
+                      />
+                    </Collapse>
+                    <Collapse in={isMessaging}>
+                      <NewMessage
+                        setIsMessaging={setIsMessaging}
+                        setIsMessageSuccess={setIsSuccessMessage}
+                      />
+                    </Collapse>
+                  </>
+                }
+              />
+            </ProfileUserProvider>
+          )}
+        </ScrollContent>
+      )}
     </StyledDrawer>
   );
 }
