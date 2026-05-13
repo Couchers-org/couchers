@@ -22,6 +22,11 @@ export function shouldLoadInWebView(url: string, webBaseUrl: string): boolean {
     return true;
   }
 
+  // External protocol URLs that the OS should handle, not the WebView
+  if (url.startsWith("mailto:") || url.startsWith("tel:")) {
+    return false;
+  }
+
   // Special browser URLs (about:blank, data:, blob:, javascript:)
   if (!url.startsWith("http://") && !url.startsWith("https://")) {
     return true;

@@ -101,9 +101,7 @@ describe("useMessageUser", () => {
     );
 
     result.current.mutate();
-    await waitFor(() =>
-      expect(mockSetIsMessaging).toHaveBeenCalledWith(true),
-    );
+    await waitFor(() => expect(mockSetIsMessaging).toHaveBeenCalledWith(true));
     expect(mockOpenGroupChat).not.toHaveBeenCalled();
     expect(mockPush).not.toHaveBeenCalled();
   });

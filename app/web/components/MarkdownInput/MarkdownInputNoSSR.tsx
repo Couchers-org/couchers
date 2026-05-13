@@ -165,7 +165,9 @@ export default function MarkdownInput({
       resetInputRef.current = fieldRef.current.reset.bind(fieldRef.current);
     }
 
-    const editBox = document.querySelector(`#${id} [contenteditable=true]`);
+    const editBox = document.querySelector(
+      `#${id} [contenteditable=true]`,
+    ) as HTMLElement | null;
     if (editBox) {
       editBox.setAttribute("aria-labelledby", labelId);
       editBox.setAttribute("aria-multiline", "true");
@@ -176,7 +178,13 @@ export default function MarkdownInput({
       );
     }
 
+    // Samsung/Android WebView: after blur, tapping a contenteditable again
+    // doesn't reconnect the IME (keyboard). Explicit focus() on touchstart fixes it.
+    const handleTouchStart = () => editBox?.focus();
+    editBox?.addEventListener("touchstart", handleTouchStart);
+
     return () => {
+      editBox?.removeEventListener("touchstart", handleTouchStart);
       // Save current content before destroying the editor
       if (fieldRef.current) {
         currentContent.current = (

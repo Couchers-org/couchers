@@ -86,7 +86,7 @@ export default function SignupFormContent({
             By continuing, you agree to our{" "}
             <StyledLink
               href={tosRoute}
-              target="_blank"
+              target={isNativeEmbed ? undefined : "_blank"}
               variant="caption"
               sx={{ fontWeight: 700 }}
             >

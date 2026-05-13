@@ -65,10 +65,7 @@ describe("ProfileLink", () => {
 
   it("renders a link on native when userId is not provided", () => {
     (useIsNativeEmbed as jest.Mock).mockReturnValue(true);
-    render(
-      <ProfileLink username="testuser">Test</ProfileLink>,
-      { wrapper },
-    );
+    render(<ProfileLink username="testuser">Test</ProfileLink>, { wrapper });
     expect(screen.getByRole("link")).toBeInTheDocument();
   });
 });
