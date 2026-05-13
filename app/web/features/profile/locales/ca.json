@@ -271,7 +271,6 @@
   "response_time_text_almost_all": "Normalment en {{p33}} a {{p66}}",
   "unsaved_changes_warning": "No has desat els canvis. Estàs segur que vols deixar la pàgina?",
   "profile_tag_input": {
-    "header_text": "Prem 'Retorn' per afegir\n<support_link>Envia'ns un correu</support_link> per afegir una entrada",
     "remove_button_a11y_text": "Elimina {{tag}}"
   },
   "view_in_admin_console": "Visualitza l'usuari a la consola d'administració",

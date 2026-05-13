@@ -58,6 +58,7 @@ def _send_email_notification(session: Session, user: User, notification: Notific
             html=rendered.body_html,
             source_data=rendered.source_data,
             list_unsubscribe_header=rendered.list_unsubscribe_header,
+            attachments=rendered.attachments,
         ),
     )
 

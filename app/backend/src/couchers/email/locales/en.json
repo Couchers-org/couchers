@@ -2,6 +2,13 @@
   "generic": {
     "greeting_line": "Hi {{name}},"
   },
+  "calendar_events": {
+    "title_cancelled": "Cancelled: {{ title }}",
+    "host_requests": {
+      "title_host": "Hosting {{ name }}",
+      "title_surfer": "Surfing with {{ name }}"
+    }
+  },
   "plaintext_formats": {
     "action": "{{text}}: {{url}}",
     "user": "{{name}}, {{age}}, {{city}}"
