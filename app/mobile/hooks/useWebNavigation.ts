@@ -43,14 +43,14 @@ export function useWebNavigation({
 
   const extractLocaleFromPath = useCallback(
     (webPath: string): string | null => {
-      const match = webPath.match(/^\/([a-z]{2}(-[A-Z][a-z]+)?)\//);
+      const match = webPath.match(/^\/([a-z]{2,3}(-[A-Za-z0-9]+)?)\//);
       return match ? match[1] : null;
     },
     [],
   );
 
   const stripLocalePrefix = useCallback((webPath: string): string => {
-    return webPath.replace(/^\/[a-z]{2}(-[A-Z][a-z]+)?\//, "/");
+    return webPath.replace(/^\/[a-z]{2,3}(-[A-Za-z0-9]+)?\//, "/");
   }, []);
 
   const getRouteNameForPath = useCallback(

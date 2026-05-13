@@ -83,6 +83,7 @@ Wraps the React Native WebView and handles:
   - `REQUEST_IMAGE_PICK` → use native image picker
   - `MOBILE_NAVIGATE` → trigger web navigation without reload
   - `NATIVE_BACK` → web requests native back (goBack() or router.back())
+  - `LANGUAGE_CHANGE` → web notifies native immediately when language picker is used, so tab bar labels update without waiting for `onNavigationStateChange`
 
 **Critical setting**: `sharedCookiesEnabled={true}` keeps auth working.
 

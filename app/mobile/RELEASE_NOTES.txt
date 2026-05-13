@@ -1,3 +1,4 @@
 Bug fixes and improvements:
 - Tapping a user avatar or name now opens their profile in a bottom sheet overlay, preserving your current page (search results, messages, etc.) behind it
+- Changing language now updates the tab bar immediately and loads new tabs in the correct language
 - Samsung specific fixes for some interaction issues
