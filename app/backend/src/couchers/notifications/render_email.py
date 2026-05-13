@@ -1,9 +1,10 @@
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from couchers import urls
 from couchers.config import config
+from couchers.email.calendar_events import create_host_request_attachment, create_host_request_cancellation_attachment
 from couchers.email.rendering import EmailFooter, UnsubscribeInfo, UnsubscribeLink
 from couchers.i18n import LocalizationContext
 from couchers.i18n.localize import format_phone_number
@@ -16,6 +17,7 @@ from couchers.notifications.quick_links import (
     generate_unsub_topic_key,
 )
 from couchers.proto import api_pb2, notification_data_pb2
+from couchers.proto.internal.jobs_pb2 import EmailAttachment
 from couchers.templating import Jinja2Template, template_folder
 from couchers.utils import now, to_aware_datetime
 
@@ -29,6 +31,7 @@ class RenderedEmailNotification:
     body_html: str | None
     source_data: str | None
     list_unsubscribe_header: str | None
+    attachments: list[EmailAttachment] = field(default_factory=list)
 
 
 def render_email_notification(
@@ -64,12 +67,18 @@ def render_email_notification(
     list_unsubscribe_header = get_list_unsubscribe_header(notification)
     source_data = config["VERSION"] + f"/{custom_templated.template_name}"
 
+    if config.get("ENABLE_EMAIL_ICS_ATTACHMENTS"):
+        attachment = get_ics_attachment(notification, loc_context)
+    else:
+        attachment = None
+
     return RenderedEmailNotification(
         subject=custom_templated.subject,
         body_plaintext=plain,
         body_html=html,
         source_data=source_data,
         list_unsubscribe_header=list_unsubscribe_header,
+        attachments=[attachment] if attachment else [],
     )
 
 
@@ -759,6 +768,28 @@ def _get_custom_templated_email(notification: Notification, loc_context: Localiz
         )
 
     raise NotImplementedError(f"Unknown topic-action: {notification.topic}:{notification.action}")
+
+
+def get_ics_attachment(notification: Notification, loc_context: LocalizationContext) -> EmailAttachment | None:
+    data = notification.topic_action.data_type.FromString(notification.data)  # type: ignore[attr-defined]
+    if notification.topic_action == NotificationTopicAction.host_request__accept:
+        # Caveat: The surfer technically still hasn't confirmed, but when they do they don't receive an email,
+        # so the accept notification is our last opportunity to provide them with a calendar event.
+        return create_host_request_attachment(
+            data.host_request, other_name=data.host.name, hosting=False, loc_context=loc_context
+        )
+    elif notification.topic_action == NotificationTopicAction.host_request__confirm:
+        return create_host_request_attachment(
+            data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
+        )
+    elif notification.topic_action == NotificationTopicAction.host_request__cancel:
+        # Caveat: only the party getting cancelled receives this notification,
+        # we have no opportunity to provide the cancelling party with a cancelled ics attachment.
+        return create_host_request_cancellation_attachment(
+            data.host_request, other_name=data.surfer.name, hosting=True, loc_context=loc_context
+        )
+    else:
+        return None
 
 
 def get_list_unsubscribe_header(notification: Notification) -> str | None:

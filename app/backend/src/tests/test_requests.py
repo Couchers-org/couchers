@@ -1354,6 +1354,7 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
     assert "http://localhost:5001/img/thumbnail/" in e.html
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
+    assert not e.attachments
 
     assert push_collector.pop_for_user(host.id, last=True).content.title == f"New host request from {surfer.name}"
 
@@ -1382,6 +1383,7 @@ def test_request_notifications(db, push_collector: PushCollector, moderator):
     assert "http://localhost:5001/img/thumbnail/" in e.html
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.plain
     assert f"http://localhost:3000/messages/request/{hr_id}" in e.html
+    assert len(e.attachments or []) == 1
 
     assert push_collector.pop_for_user(surfer.id, last=True).content.title == f"{host.name} accepted your host request"
 
