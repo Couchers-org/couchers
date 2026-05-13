@@ -16,7 +16,11 @@ import { howToCompleteProfileUrl, routeToEditProfile } from "routes";
 interface ProfileIncompleteDialogProps {
   open: boolean;
   onClose: () => void;
-  attempted_action: "create_event" | "send_message" | "send_request";
+  attempted_action:
+    | "create_event"
+    | "send_message"
+    | "send_request"
+    | "send_friend_request";
 }
 
 export default function ProfileIncompleteDialog({
