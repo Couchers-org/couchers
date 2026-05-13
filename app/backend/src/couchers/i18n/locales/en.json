@@ -97,6 +97,7 @@
     "hosting_status_required": "Hosting status is required.",
     "incomplete_profile_create_event": "You have to complete your profile before you can create an event.",
     "incomplete_profile_create_public_trip": "You have to complete your profile before you can create a public trip.",
+    "incomplete_profile_send_friend_request": "You have to complete your profile before you can send a friend request.",
     "incomplete_profile_send_message": "You have to complete your profile before you can send a message.",
     "incomplete_profile_send_request": "You have to complete your profile before you can send a request.",
     "insecure_password": "The password is insecure. Please use one that is not easily guessable.",
