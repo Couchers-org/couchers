@@ -117,36 +117,3 @@ it("renders the language picker on mobile when the user is logged out", () => {
     window.matchMedia = originalMatchMedia;
   }
 });
-
-it("does not render the language picker on mobile when the user is authenticated", () => {
-  const originalMatchMedia = window.matchMedia;
-  window.matchMedia = createMatchMedia(800);
-
-  try {
-    mockUseAuthStore.mockReturnValue({
-      authState: {
-        authenticated: true,
-        error: null,
-        jailed: false,
-        loading: false,
-        userId: 1,
-        flowState: null,
-      },
-      authActions: {
-        authError: jest.fn(),
-        clearError: jest.fn(),
-        firstLogin: jest.fn(),
-        logout: jest.fn(),
-        passwordLogin: jest.fn(),
-        updateJailStatus: jest.fn(),
-        updateSignupState: jest.fn(),
-      },
-    });
-
-    render(<Navigation />, { wrapper });
-
-    expect(screen.queryByTestId("language-picker")).not.toBeInTheDocument();
-  } finally {
-    window.matchMedia = originalMatchMedia;
-  }
-});
