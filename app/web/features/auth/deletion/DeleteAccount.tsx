@@ -84,7 +84,7 @@ export default function DeleteAccount({
           </Alert>
         )}
         <StyledForm onSubmit={onSubmit}>
-          <Typography variant="subtitle1">
+          <Typography variant="subtitle1" sx={{ paddingBottom: 2 }}>
             <Trans
               t={t}
               i18nKey="auth:delete_account.request.confirm_username_explanation"
@@ -101,7 +101,10 @@ export default function DeleteAccount({
             label={t("auth:delete_account.request.confirm_username_label")}
             fullWidth={!isMdOrWider}
           />
-          <Typography variant="subtitle1">
+          <Typography
+            variant="subtitle1"
+            sx={{ paddingTop: 2, paddingBottom: 2 }}
+          >
             {t("auth:delete_account.request.reason_explanation")}
           </Typography>
           <TextField

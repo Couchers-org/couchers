@@ -211,6 +211,6 @@ export const config = {
      * - robots.txt, sitemap.xml (SEO files)
      * - Files with common static extensions
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|img/|logo.*\\.png|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|img/|logo.*\\.png|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|json)$).*)",
   ],
 };

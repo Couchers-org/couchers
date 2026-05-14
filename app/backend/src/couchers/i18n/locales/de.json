@@ -246,7 +246,8 @@
     "public_trip_user_mismatch": "Der Empfänger der Host-Anfrage stimmt nicht mit dem Reisenden des öffentlichen Trips überein.",
     "public_trips_not_enabled": "Öffentliche Trips sind in dieser Community nicht aktiviert.",
     "duplicate_host_request_for_trip": "Du hast bereits angeboten, diesen Trip zu hosten.",
-    "public_trip_same_gender_only": "Dieser Trip akzeptiert nur Angebote von Personen des gleichen Geschlechts."
+    "public_trip_same_gender_only": "Dieser Trip akzeptiert nur Angebote von Personen des gleichen Geschlechts.",
+    "incomplete_profile_send_friend_request": "Du musst dein Profil vervollständigen, bevor du eine Freundschafts-Anfrage senden kannst."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",

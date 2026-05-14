@@ -14,8 +14,8 @@
       "push": {
         "title": "Hesap silindi",
         "ios_title": "Hesap Silindi",
-        "body_one": "Size yolladığımız link ile {{count}} gün içinde bu işlemi geri alabilirsiniz.",
-        "body_other": "Size yolladığımız link ile {{count}} gün içinde bu işlemi geri alabilirsiniz."
+        "body_one": "Size gönderdiğimiz link ile {{count}} gün içinde bu işlemi geri alabilirsiniz.",
+        "body_other": "Size gönderdiğimiz link ile {{count}} gün içinde bu işlemi geri alabilirsiniz."
       }
     },
     "recovered": {
@@ -206,7 +206,8 @@
       "push": {
         "title": "{{from_user}}'dan arkadaşlık isteği",
         "ios_subtitle": "Arkadaşlık İsteği",
-        "body": "{{from_user}} arkadaşın olmak istiyor."
+        "body": "{{from_user}} arkadaşın olmak istiyor.",
+        "ios_title": "{{from_user}}"
       }
     }
   },
@@ -215,7 +216,8 @@
       "event_description": "Profilinizde gösterilen cinsiyet değiştirildi",
       "push": {
         "ios_title": "Cinsiyet Değiştirildi",
-        "body": "Bir yönetici cinsiyetinizi {{gender}} olarak değiştirdi."
+        "body": "Bir yönetici cinsiyetinizi {{gender}} olarak değiştirdi.",
+        "title": "Cinsiyet değiştirildi"
       }
     }
   },
@@ -239,16 +241,33 @@
       }
     },
     "create": {
-      "event_description": "Birisi sana bir ev sahipliği isteği yollayınca"
+      "event_description": "Birisi sana bir ev sahipliği isteği gönderince",
+      "push": {
+        "title": "{{user}}'dan yeni ev sahipliği isteği",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Yeni Ev Sahipliği İsteği",
+        "body_one": "{{user}}, {{start_date}} tarihinden itibaren {{count}} gece kalmak istiyor.",
+        "body_other": "{{user}}, {{start_date}} tarihinden itibaren {{count}} gece kalmak istiyor."
+      }
     },
     "message": {
-      "event_description": "Birisi ev sahipliği isteğinde mesaj yolladığında"
+      "event_description": "Birisi ev sahipliği isteğinde mesaj gönderdiğinde"
     },
     "missed_messages": {
-      "event_description": "Bir ev sahipliği isteğinde mesaj kaçırdığında"
+      "event_description": "Bir ev sahipliği isteğinde mesaj kaçırdığında",
+      "push": {
+        "title": "{{user}}'dan yeni mesajlar",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "Okunmamış Mesajlar",
+        "body": "{{user}} kişisinden yeni okunmamış mesajların var."
+      }
     },
     "reject": {
-      "event_description": "Birisi ev sahipliği isteğini reddettiğinde"
+      "event_description": "Birisi ev sahipliği isteğini reddettiğinde",
+      "push": {
+        "title": "{{user}} ev sahipliği isteğini reddetti",
+        "ios_title": "{{user}}"
+      }
     },
     "reminder": {
       "event_description": "Bekleyen bir ev sahibi isteğine henüz yanıt vermediniz",
