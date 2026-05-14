@@ -21,7 +21,8 @@
     "actions": {
       "create_event": "crear un evento",
       "send_message": "enviar un mensaje",
-      "send_request": "enviar una solicitud"
+      "send_request": "enviar una solicitud",
+      "send_friend_request": "enviar una solicitud de amistad"
     },
     "edit_profile_button": "Edita tu perfil ahora",
     "cancel_button": "Ahora no",
