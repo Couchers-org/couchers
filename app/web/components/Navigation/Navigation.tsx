@@ -304,7 +304,14 @@ export default function Navigation() {
   };
 
   const drawerItems = (
-    <div>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        justifyContent: "space-between",
+      }}
+    >
       <List>
         {(isAuthenticated ? loggedInDrawerMenu : loggedOutDrawerMenu)(
           t,
@@ -335,7 +342,11 @@ export default function Navigation() {
           </ListItem>
         ))}
       </List>
-    </div>
+
+      <Box sx={{ marginX: "auto", marginBottom: theme.spacing(2) }}>
+        <LanguagePickerSelect />
+      </Box>
+    </Box>
   );
 
   const loggedInMenuItems = useMemo(
