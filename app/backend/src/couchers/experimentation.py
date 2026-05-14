@@ -45,6 +45,8 @@ def setup_experimentation() -> None:
     gb = GrowthBook(
         api_host=config["GROWTHBOOK_API_HOST"],
         client_key=config["GROWTHBOOK_CLIENT_KEY"],
+        http_connect_timeout=1,
+        http_read_timeout=2,
     )
     gb.load_features()
     test_gate_result = gb.is_on("test_growthbook_integration")
@@ -72,6 +74,8 @@ def _get_growthbook(context: CouchersContext) -> GrowthBook:
             api_host=config["GROWTHBOOK_API_HOST"],
             client_key=config["GROWTHBOOK_CLIENT_KEY"],
             attributes={"id": str(context.user_id)},
+            http_connect_timeout=1,
+            http_read_timeout=2,
         )
         gb.load_features()
         context._growthbook = gb  # type: ignore[attr-defined]
