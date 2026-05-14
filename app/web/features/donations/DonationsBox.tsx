@@ -13,7 +13,7 @@ import { useMutation } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Button from "components/Button";
 import StyledLink from "components/StyledLink";
-import { useExperiment } from "experimentation";
+import { useFeatureValue } from "experimentation";
 import {
   DONATIONS_BOX_CURRENCY,
   DONATIONS_BOX_VALUES,
@@ -218,9 +218,8 @@ interface DonationFormData {
 export default function DonationsBox() {
   const { t } = useTranslation(DONATIONS);
 
-  const donationAmounts = useExperiment<number[]>(
+  const donationAmounts = useFeatureValue<number[]>(
     "donation_amounts",
-    "default_amounts",
     DONATIONS_BOX_VALUES,
   );
 
