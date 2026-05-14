@@ -84,7 +84,6 @@ export default function DeleteAccount({
           </Alert>
         )}
         <StyledForm onSubmit={onSubmit}>
-          {/* add padding bottom only */}
           <Typography variant="subtitle1" sx={{ paddingBottom: 2 }}>
             <Trans
               t={t}
