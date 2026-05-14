@@ -12,6 +12,7 @@ import CommunitiesSection from "./CommunitiesSection";
 import CommunityEvents from "./CommunityEvents";
 import DashboardUserProfileSummary from "./DashboardUserProfileSummary";
 import Hero from "./Hero";
+import MyCommunitiesDiscussions from "./MyCommunitiesDiscussions";
 import MyEvents from "./MyEvents";
 import ReminderCarousel from "./ReminderCarousel";
 
@@ -60,7 +61,11 @@ export default function Dashboard() {
 
             <CommunityEvents />
 
-            <Divider spacing={3} />
+            <Box sx={{ height: theme.spacing(3) }} />
+
+            <MyCommunitiesDiscussions />
+
+            <Box sx={{ height: theme.spacing(3) }} />
 
             <CommunitiesSection />
           </Grid>
