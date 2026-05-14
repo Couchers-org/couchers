@@ -16,7 +16,7 @@
   "community_standing": "Topluluk İtibarı",
   "community_standing_description": "Referanslar ve topluluk aktivistesi gibi birçok faktörle hesaplanmaktadır.",
   "verification_score": "Doğrulama Puanı",
-  "send": "Yolla",
+  "send": "gönder",
   "cancel": "İptal et",
   "confirm": "Onayla",
   "read_more": "Daha fazla oku",
@@ -267,7 +267,8 @@
     "uk": "Ukraynaca",
     "zh-Hans": "Basitleştirilmiş Çince",
     "zh-Hant": "Geleneksel Çince",
-    "hu": "Macarca"
+    "hu": "Macarca",
+    "cs": "Çekçe"
   },
   "copy_button": {
     "a11y": "Kopyala",

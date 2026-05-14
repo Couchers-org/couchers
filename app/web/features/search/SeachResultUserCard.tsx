@@ -2,6 +2,7 @@ import { styled, Tooltip, Typography } from "@mui/material";
 import { FlexboxProps, useMediaQuery } from "@mui/system";
 import Avatar from "components/Avatar";
 import { OpenInNewIcon } from "components/Icons";
+import ProfileLink from "components/ProfileLink/ProfileLink";
 import StyledLink from "components/StyledLink";
 import { ResponseRateText } from "features/profile/view/userLabels";
 import { useTranslation } from "i18n";
@@ -173,13 +174,12 @@ const SearchResultUserCard = ({
         <FlexColumn>
           <FlexRow justifyContent="space-between" alignItems="center">
             <FlexRow alignItems="center">
-              <StyledLink
+              <ProfileLink
+                userId={user.userId}
+                username={user.username}
                 aria-label={t("profile:open_profile_new_tab")}
-                href={routeToUser(user.username)}
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{ fontSize: "1.1rem", overflow: "hidden" }}
-                onClick={(e) => e.stopPropagation()}
+                openInNewTab
+                style={{ fontSize: "1.1rem", overflow: "hidden" }}
               >
                 <Typography
                   variant="h2"
@@ -192,7 +192,7 @@ const SearchResultUserCard = ({
                 >
                   {user.name}
                 </Typography>
-              </StyledLink>
+              </ProfileLink>
             </FlexRow>
             {!isNativeEmbed && (
               <StyledLink

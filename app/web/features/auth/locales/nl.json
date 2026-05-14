@@ -185,6 +185,116 @@
     "title": "Account-instellingen",
     "gender_section": {
       "title": "Gender wijzigen"
+    },
+    "birth_date_section": {
+      "title": "Geboortedatum wijzigen",
+      "explanation": "Onze admins kunnen je helpen bij het veranderen van je geboortedatum. Mail daarvoor naar support@couchers.org!"
+    },
+    "timezone_section": {
+      "title": "Tijdzone en lokalisatie",
+      "description": "Je tijdzone is <1>{{timezone}}</1>. Gebaseerd hierop, is de tijd bij jou nu ongeveer <4>{{time}}</4>.",
+      "explanation": "Deze tijd en tijdzone zijn gebaseerd op de locatie van jouw huis. Klopt dit niet? Geef dan deze bug door."
+    },
+    "username_section": {
+      "title": "Gebruikersnaam",
+      "description": "Jouw gebruikersnaam is <1>{{username}}</1>."
+    },
+    "appearance_section": {
+      "modes": {
+        "system": "Donkere modus (volgt de instellingen van je apparaat)"
+      }
+    }
+  },
+  "feature_preview": {
+    "title": "Preview functies",
+    "explanation": "Op deze pagina kan je functies uitproberen die nog in ontwikkeling zijn, voordat ze voor iedereen beschikbaar worden.",
+    "disclaimer": "Onthoud wel dat deze functies nog niet helemaal af zijn. Het kan zijn dat ze nog niet helemaal doen wat ze moeten doen. Ook kunnen er zomaar dingen veranderen, omdat het nog in ontwikkeling is. Jouw feedback helpt hierbij! Klik op de knop \"Een probleem doorgeven\" helemaal onderaan de pagina om bugs door te geven.",
+    "no_previews": {
+      "title": "Op dit moment zijn er geen functies om uit te proberen",
+      "explanation": "Op dit moment zijn er geen functies in de preview, probeer het later nog eens!"
+    }
+  },
+  "active_logins": {
+    "heading": "Huidige sessies",
+    "settings_page_text": "Bekijk waar je allemaal bent ingelogd en log uit van andere sessies",
+    "settings_page_link": "Alle sessies beheren",
+    "description": "Je ziet hieronder je huidige sessies. Je kan per sessie uitloggen door op de knop te klikken. Of scroll naar beneden en klik op de knop om overal (behalve bij deze sessie) in een keer uit te loggen.",
+    "login_header": "Ingelogd op {{login_datetime}}",
+    "location": "In de buurt van <2>{{approximate_location}}</2>",
+    "last_activity": "Laatste activiteit <2>{{last_activity_ago}}</2>",
+    "expiry": "Wordt uitgelogd op <1>{{expiry_datetime}}</1>",
+    "current_session": "Dit is je huidige sessie.",
+    "log_out_of_session": "Deze sessie uitloggen",
+    "log_out_of_all_session": "Log alle andere sessies uit"
+  },
+  "strong_verification": {
+    "learn_more": "Leer <a>hier</a> meer over Sterke verificatie.",
+    "title": "Sterke verificatie",
+    "subtitle": "Sterke verificatie is een functie voor extra veiligheid. Je kan er je geboortedatum en gender mee bevestigen door middel van je biometrische paspoort.",
+    "status": {
+      "enabled_message": "Je <1>bent op dit moment</1> geverifieerd met Sterke verificatie.",
+      "disabled_message": "Je <1>bent op dit moment niet</1> geverifieerd met Sterke verificatie."
+    },
+    "start_button": "Begin Sterke verificatie",
+    "complete_title": "We verwerken nu je verzoek tot Sterke verificatie",
+    "complete_message1": "Je paspoort wordt gecontroleerd. Je krijgt binnen een paar minuten een e-mail met het resultaat.",
+    "complete_message2": "Sterke verificatie loopt af als je paspoort verloopt. Zodra je een nieuw paspoort hebt, moet je opnieuw verifiëren.",
+    "delete_data_title": "Verwijder de paspoortgegevens van je Sterke verificatie",
+    "delete_information": "Je kan de gegevens van je Sterke verificatie (behalve het land van uitgifte, verloopdatum, en de laatste drie tekens van je documentnummer) op elk moment van onze server laten verwijderen.",
+    "delete_information_text2": "Als je je data laat verwijderen, kan je niet hetzelfde paspoort opnieuw gebruiken voor een Sterke verificatie.",
+    "delete_my_data_button": "Verwijder mijn data",
+    "delete_button": "Verwijder de data van mijn Sterke verificatie",
+    "delete_success": "Je paspoortgegevens zijn verwijderd.",
+    "donation_title": "Bedankt voor je verificatie. Samen maken we Couchers.org nog veiliger voor iedereen.",
+    "donation_message1": "Verificatie is gratis voor jou, maar het kost wel geld. Omdat wij een stichting zijn die helemaal door vrijwilligers wordt gedraaid, zijn we afhankelijk van donaties voor onze servers, de verificatie en andere benodigdheden.",
+    "donation_message2": "Als je kunt, zou het heel tof zijn als je iets wilt doneren. Zo kunnen we samen Couchers.org laten groeien en bloeien.",
+    "donate_button": "Doneer ook om Couchers.org te helpen",
+    "instructions": {
+      "title": "Zo regel je de Sterke verificatie",
+      "warning": "Belangrijk: Het scannen van je paspoortchip kan wat lastig zijn, lees daarom alle instructies goed door!",
+      "step1": "Download de <strong>Iris ID</strong> app",
+      "step1_apple_note": "<strong>Apple gebruikers:</strong> Je kan de download overslaan en het gewoon in je browser doen. Klik op \"Openen\" zodra het kan.",
+      "step2": "Klik <strong>\"Begin Sterke verificatie\"</strong> hieronder (opent in een nieuw tabblad)",
+      "step3": "Scan de QR-code met je telefoon",
+      "step4": "Zodra het kan, open de app en scan de QR-code opnieuw",
+      "step5": "Selecteer <strong>Paspoort</strong> (identiteitsbewijs werkt niet)",
+      "step6": "Maak een duidelijke foto van de paspoortpagina met de nummers onderaan",
+      "step7": "Houd je telefoon tegen de paspoortpagina met daarin de NFC-chip en <strong>houd hem minstens vijf seconden helemaal stil</strong>. Als je te snel je telefoon weer weghaalt, gaat het helaas mis",
+      "step8": "Je weet dat het werkt als je een laadbalk ziet en een stijgend percentage",
+      "download_app_store": "Download in de App Store",
+      "download_google_play": "Download bij Google Play",
+      "chip_location": {
+        "heading": "Zo vind je de NFC-chip in je paspoort",
+        "description": "Waar de chip zit, verschilt per paspoort en land. Soms moet je meerdere pagina's proberen. Hier zijn wat voorbeelden van plekken:",
+        "us_germany_mexico": "<strong>Brazilië, Verenigde Staten, Duitsland (2016), Indonesië, Mexico:</strong> Achterkant",
+        "finland_germany_new": "<strong>Finland, Duitsland (2017+), Rusland:</strong> Fotopagina",
+        "australia": "<strong>Australië:</strong> Middelste pagina (gemarkeerd met symbool + \"chipnaam\")"
+      },
+      "scanning_tips": {
+        "heading": "Tips voor het succesvol scannen met NFC",
+        "description": "De NFC-scan is het moeilijkste deel. Deze tips vergroten je kansen op succes:",
+        "remove_case": "<strong>Haal het hoesje van je mobiel.</strong> Ook dunne hoesjes kunnen helaas het signaal blokkeren",
+        "hold_still": "<strong>Houd je telefoon helemaal stil</strong> voor minstens vijf seconden. Te snel bewegen is hoe het vaak verkeerd gaat",
+        "flat_surface": "<strong>Plaats je paspoort op een plat oppervlak</strong>, houd hem niet in je hand",
+        "nfc_location": "<strong>Zoek de NFC-antenne van je telefoon</strong>, meestal zit die bovenaan, in het midden van de achterkant van je mobiel. Probeer verschillende plekken als het niet werkt",
+        "no_metal": "<strong>Vermijd metalen oppervlaktes</strong>, leg je paspoort niet op een metalen tafel of op je laptop",
+        "retry": "Als het scannen mislukt, probeer het dan nog een keer. Soms duurt het wel een paar keer voor je de juiste positie te pakken hebt"
+      },
+      "before_you_start": {
+        "heading": "Voor je begint",
+        "nfc_check": "Je telefoon moet een <strong>NFC-functie</strong> hebben, zoals de meeste nieuwere mobiels hebben. NFC staat meestal aan, maar soms moet je hem handmatig aanzetten in de instellingen van je telefoon.",
+        "passport_check": "Je paspoort moet een <strong>biometrisch paspoort</strong> zijn. Er staat dan een gouden chip-symbool op de voorkant. Als je een ouder paspoort zonder dit symbool hebt, dan lukt het helaas niet.",
+        "remove_case": "<strong>Verwijder je telefoonhoesje voor je begint</strong>, ook een dun hoesje kan het signaal blokkeren en dan werkt het helaas niet.",
+        "passport_symbol_alt": "Biometrisch paspoort-symbool"
+      },
+      "didnt_work": {
+        "heading": "Lukt het niet?",
+        "tip1": "Check vooral bij oudere Androids of NFC wel aanstaat. Kijk hiervoor in de instellingen van je mobiel (vaak staat het bij nieuwere telefoons automatisch aan)",
+        "tip2": "Probeer een andere pagina van je paspoort. De plek van de chip kan per land verschillen",
+        "tip3": "Heb je Android? Vergeet dan niet de Iris ID-app te downloaden (en niet de browser te gebruiken)",
+        "tip4": "Sommige oudere paspoorten hebben geen NFC-chip en doen het daarom niet",
+        "contact": "Lukt het nu nog steeds niet? <1>Laat het ons weten</1> en we helpen je graag."
+      }
     }
   }
 }

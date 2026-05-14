@@ -16,6 +16,7 @@ from couchers.constants import GHOST_USERNAME
 from couchers.context import CouchersContext
 from couchers.crypto import b64encode, generate_hash_signature, random_hex
 from couchers.event_log import log_event
+from couchers.helpers.completed_profile import has_completed_profile
 from couchers.helpers.strong_verification import get_strong_verification_fields
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
@@ -722,6 +723,9 @@ class API(api_pb2_grpc.APIServicer):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "cant_friend_self")
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if not has_completed_profile(session, user):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_send_friend_request")
+
         to_user = session.execute(
             select(User).where(users_visible(context)).where(User.id == request.user_id)
         ).scalar_one_or_none()

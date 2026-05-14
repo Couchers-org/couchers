@@ -1,7 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
+import { useProfileSheet } from "features/profile/ProfileSheetContext";
 import { useRouter } from "next/router";
 import { routeToGroupChat } from "routes";
 import { service } from "service";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 interface UseMessageUserParams {
   userId: number;
@@ -15,6 +17,9 @@ export default function useMessageUser({
   setIsMessaging,
 }: UseMessageUserParams) {
   const router = useRouter();
+  const isNativeEmbed = useIsNativeEmbed();
+  const { openGroupChat } = useProfileSheet();
+
   return useMutation<number | false, Error>({
     mutationFn: () => service.conversations.getDirectMessage(userId),
     onMutate() {
@@ -25,10 +30,11 @@ export default function useMessageUser({
     },
     onSuccess(groupChatId) {
       if (!groupChatId) {
-        // no existing thread — open inline form
+        // no existing thread — open inline compose form
         setIsMessaging(true);
+      } else if (isNativeEmbed) {
+        openGroupChat(groupChatId);
       } else {
-        // has thread
         router.push(routeToGroupChat(groupChatId));
       }
     },

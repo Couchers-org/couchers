@@ -1,9 +1,7 @@
 import { Collapse, styled } from "@mui/material";
 import Alert from "components/Alert";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
-import HeaderButton from "components/HeaderButton";
 import HtmlMeta from "components/HtmlMeta";
-import { BackIcon } from "components/Icons";
 import Snackbar from "components/Snackbar";
 import { ProfileUserProvider } from "features/profile/hooks/useProfileUser";
 import NewHostRequest from "features/profile/view/NewHostRequest";
@@ -15,7 +13,6 @@ import { GLOBAL, PROFILE } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import { useLayoutEffect, useState } from "react";
 import { routeToUser, UserTab } from "routes";
-import { sendNativeBack, useIsNativeEmbed } from "utils/nativeLink";
 
 import UserCard from "./UserCard";
 
@@ -39,13 +36,6 @@ export const StyledProfileRoot = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledBackButton = styled(HeaderButton)(() => ({
-  position: "fixed",
-  top: "calc(var(--nav-height, 56px) + 1rem)",
-  left: "2rem",
-  zIndex: 10,
-}));
-
 export default function UserPage({
   username,
   tab = "about",
@@ -55,7 +45,6 @@ export default function UserPage({
 }) {
   const { t } = useTranslation([PROFILE, GLOBAL]);
   const router = useRouter();
-  const isNativeEmbed = useIsNativeEmbed();
 
   const { data: user, isLoading, error } = useUserByUsername(username, true);
 
@@ -73,14 +62,6 @@ export default function UserPage({
   return (
     <>
       <HtmlMeta title={user?.name} />
-      {isNativeEmbed && (
-        <StyledBackButton
-          onClick={() => sendNativeBack()}
-          aria-label={t("global:back")}
-        >
-          <BackIcon />
-        </StyledBackButton>
-      )}
       {isSuccessRequest && (
         <Snackbar severity="success">{t("request_form.success")}</Snackbar>
       )}

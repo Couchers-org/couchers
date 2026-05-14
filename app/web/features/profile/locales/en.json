@@ -2,6 +2,7 @@
   "active": "Active",
   "do_not_email_error_link": "Update your email settings to re-enable this.",
   "actions": {
+    "add_friend": "Add friend",
     "back_to_dashboard": "Back to dashboard",
     "message_label": "Message",
     "accept_friend_label": "Accept",

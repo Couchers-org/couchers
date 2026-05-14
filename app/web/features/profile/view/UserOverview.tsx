@@ -90,6 +90,7 @@ type UserOverviewProps = {
   showHostAndMeetAvailability: boolean;
   actions?: React.ReactNode;
   isOwnProfile?: boolean;
+  isAvatarProfileLink?: boolean;
 };
 
 // @todo: move this into /components and decouple it from features/profile because it's used
@@ -98,6 +99,7 @@ export default function UserOverview({
   showHostAndMeetAvailability,
   actions,
   isOwnProfile = false,
+  isAvatarProfileLink = true,
 }: UserOverviewProps) {
   const { t } = useTranslation([GLOBAL, PROFILE]);
   const user = useProfileUser();
@@ -114,7 +116,12 @@ export default function UserOverview({
         </Tooltip>
       ) : (
         <StyledAvatarContainer>
-          <Avatar user={user} highRes grow />
+          <Avatar
+            user={user}
+            highRes
+            grow
+            isProfileLink={isAvatarProfileLink}
+          />
         </StyledAvatarContainer>
       )}
 

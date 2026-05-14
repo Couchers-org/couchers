@@ -2,7 +2,13 @@ import { appGetLayout } from "components/AppRoute";
 import SearchPageComponent from "features/search/SearchPage";
 import { MapSearchProvider } from "features/search/state/mapSearchContext";
 import { Coordinates } from "features/search/utils/constants";
-import { GLOBAL, NOTIFICATIONS, PROFILE, SEARCH } from "i18n/namespaces";
+import {
+  GLOBAL,
+  MESSAGES,
+  NOTIFICATIONS,
+  PROFILE,
+  SEARCH,
+} from "i18n/namespaces";
 import { translationStaticProps } from "i18n/server-side-translations";
 import { GetStaticProps } from "next";
 import { useRouter } from "next/router";
@@ -13,6 +19,7 @@ export const getStaticProps: GetStaticProps = translationStaticProps([
   SEARCH,
   PROFILE,
   NOTIFICATIONS,
+  MESSAGES,
 ]);
 
 export default function SearchPage() {

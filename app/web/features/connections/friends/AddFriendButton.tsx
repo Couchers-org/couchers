@@ -1,13 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import { PersonAddIcon } from "components/Icons";
+import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import { doAntibot } from "features/antibot/antibot";
+import useAccountInfo from "features/auth/useAccountInfo";
 import { userKey } from "features/queryKeys";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
-import { CONNECTIONS } from "i18n/namespaces";
+import { PROFILE } from "i18n/namespaces";
 import { useTranslation } from "next-i18next";
 import { User } from "proto/api_pb";
-import React from "react";
+import React, { useState } from "react";
 import { service } from "service";
 
 import { SetMutationError } from ".";
@@ -22,7 +24,13 @@ export default function AddFriendButton({
   userId,
 }: AddFriendButtonProps) {
   const queryClient = useQueryClient();
-  const { t } = useTranslation([CONNECTIONS]);
+  const { t } = useTranslation([PROFILE]);
+  const [showCantFriendDialog, setShowCantFriendDialog] =
+    useState<boolean>(false);
+
+  const { data: accountInfo, isLoading: isAccountInfoLoading } =
+    useAccountInfo();
+
   const { isPending, mutate: sendFriendRequest } = useMutation<
     Empty,
     Error,
@@ -64,15 +72,29 @@ export default function AddFriendButton({
     },
   });
 
+  const onClick = () => {
+    if (!accountInfo?.profileComplete) {
+      setShowCantFriendDialog(true);
+    } else {
+      sendFriendRequest({ setMutationError, userId });
+    }
+  };
+
   return (
-    <Button
-      startIcon={<PersonAddIcon />}
-      onClick={() => {
-        sendFriendRequest({ setMutationError, userId });
-      }}
-      loading={isPending}
-    >
-      {t("connections:add_friend")}
-    </Button>
+    <>
+      <ProfileIncompleteDialog
+        open={showCantFriendDialog}
+        onClose={() => setShowCantFriendDialog(false)}
+        attempted_action="send_friend_request"
+      />
+      <Button
+        startIcon={<PersonAddIcon />}
+        onClick={onClick}
+        loading={isPending}
+        disabled={isAccountInfoLoading}
+      >
+        {t("profile:actions.add_friend")}
+      </Button>
+    </>
   );
 }

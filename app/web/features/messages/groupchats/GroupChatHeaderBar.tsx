@@ -11,6 +11,7 @@ import HeaderButton from "components/HeaderButton";
 import { BackIcon, MuteIcon, OverflowMenuIcon } from "components/Icons";
 import Menu, { MenuItem } from "components/Menu";
 import PageTitle from "components/PageTitle";
+import ProfileLink from "components/ProfileLink/ProfileLink";
 import AdminsDialog from "features/messages/groupchats/AdminsDialog";
 import GroupChatSettingsDialog from "features/messages/groupchats/GroupChatSettingsDialog";
 import InviteDialog from "features/messages/groupchats/InviteDialog";
@@ -23,11 +24,13 @@ import { useTranslation } from "i18n";
 import { GLOBAL, MESSAGES } from "i18n/namespaces";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { LiteUser } from "proto/api_pb";
 import { GroupChat } from "proto/conversations_pb";
 import { useRef, useState } from "react";
 import { groupChatsRoute, messagesRoute, routeToUser } from "routes";
 import { service } from "service";
 import { theme } from "theme";
+import { useIsNativeEmbed } from "utils/nativeLink";
 
 import { groupChatKey, groupChatsListKey } from "../../queryKeys";
 
@@ -59,7 +62,13 @@ export default function GroupChatHeaderBar({
   const queryClient = useQueryClient();
   const { t } = useTranslation([GLOBAL, MESSAGES]);
   const username = getDmUsername(groupChatMembersQuery, currentUserId);
+  const dmUserId = (
+    Array.from(groupChatMembersQuery.data?.values() ?? []) as Array<
+      LiteUser.AsObject | undefined
+    >
+  ).find((user) => user?.userId !== currentUserId)?.userId;
 
+  const isNativeEmbed = useIsNativeEmbed();
   const isChatAdmin = groupChat?.adminUserIdsList.includes(currentUserId);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -129,26 +138,42 @@ export default function GroupChatHeaderBar({
 
   return (
     <>
-      <HeaderButton
-        onClick={handleBack}
-        aria-label={t("messages:chat_view.back_button.a11y_label")}
-        size={isMobile ? "small" : "medium"}
-      >
-        <BackIcon fontSize={isMobile ? "small" : "medium"} />
-      </HeaderButton>
+      {!isNativeEmbed && (
+        <HeaderButton
+          onClick={handleBack}
+          aria-label={t("messages:chat_view.back_button.a11y_label")}
+          size={isMobile ? "small" : "medium"}
+        >
+          <BackIcon fontSize={isMobile ? "small" : "medium"} />
+        </HeaderButton>
+      )}
       {groupChat?.isDm ? (
         <StyledTitleBox>
-          <Link href={username ? routeToUser(username) : ""}>
-            <PageTitle
-              sx={{
-                [theme.breakpoints.down("sm")]: {
-                  fontSize: "0.9rem",
-                },
-              }}
-            >
-              {title || <Skeleton width={100} />}
-            </PageTitle>
-          </Link>
+          {isNativeEmbed ? (
+            <ProfileLink userId={dmUserId} username={username ?? ""}>
+              <PageTitle
+                sx={{
+                  [theme.breakpoints.down("sm")]: {
+                    fontSize: "0.9rem",
+                  },
+                }}
+              >
+                {title || <Skeleton width={100} />}
+              </PageTitle>
+            </ProfileLink>
+          ) : (
+            <Link href={username ? routeToUser(username) : ""}>
+              <PageTitle
+                sx={{
+                  [theme.breakpoints.down("sm")]: {
+                    fontSize: "0.9rem",
+                  },
+                }}
+              >
+                {title || <Skeleton width={100} />}
+              </PageTitle>
+            </Link>
+          )}
           {unmuteMutation.isPending ? (
             <CircularProgress size="1.5rem" />
           ) : (
