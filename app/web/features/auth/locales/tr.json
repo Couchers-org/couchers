@@ -14,9 +14,9 @@
   "do_not_email": {
     "action_button": {
       "no_emails_disable_text": "Emailleri geri aç",
-      "no_emails_enable_text": "Bana email yollama"
+      "no_emails_enable_text": "Bana email gönderme"
     },
-    "title": "Bana email yollama",
+    "title": "Bana email gönderme",
     "status": {
       "no_emails_enabled_message": "Hesabın için emailler şu anda <1>kapalı</1>.",
       "no_emails_disabled_message": "Emailler şuanda hesabın için <1>açık</1>."
@@ -24,7 +24,7 @@
     "caveat": "Bu ayarı açınca, hesabın ev sahipliği isteklerini kabul etmeyecek. Güvenlik emaillerini (Şifreni sıfırlamak gibi) almaya devam edeceksin. Zaten alıyorsan haber bültenimizi almaya devam edebilirsin, bülteni istemiyorsan bültenin altındaki abonelikten çıkmak için olan linke tıklayabilirsin."
   },
   "change_password_form": {
-    "password_changed_success": "Yeni şifreniz konuldu ve emailinize bir bildirim yollandı.",
+    "password_changed_success": "Yeni şifreniz konuldu ve emailinize bir bildirim gönderildi.",
     "old_password": "Eski şifre",
     "new_password": "Yeni şifre",
     "reset_password_success": "Şifren başarılı bir şekilde değiştirildi!",
