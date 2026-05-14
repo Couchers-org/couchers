@@ -63,22 +63,27 @@ const MOCK_DISCUSSIONS: Pick<
     },
     thread: { threadId: 3, numResponses: 15 },
   },
+  {
+    discussionId: 4,
+    slug: "best-cafes-to-work-from",
+    title: "Best cafes to work from?",
+    content:
+      "Moving to the city next month and looking for good spots with reliable wifi and great coffee. Any recommendations from locals?",
+    ownerTitle: "Vienna",
+    created: {
+      seconds: Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 7,
+      nanos: 0,
+    },
+    thread: { threadId: 4, numResponses: 9 },
+  },
 ];
-const MOCK_NEXT_PAGE_TOKEN: string | undefined = undefined;
+const PAGE_SIZE = 3;
 
 const SectionHeader = styled("div")({
   display: "flex",
-  alignItems: "baseline",
+  alignItems: "center",
   justifyContent: "space-between",
   marginBottom: "8px",
-});
-
-const PaginationRow = styled("div")({
-  display: "flex",
-  justifyContent: "flex-end",
-  alignItems: "center",
-  marginTop: "4px",
-  gap: "4px",
 });
 
 export default function MyCommunitiesDiscussions() {
@@ -90,17 +95,20 @@ export default function MyCommunitiesDiscussions() {
   const [pageToken, setPageToken] = useState<string | undefined>(undefined);
   const [history, setHistory] = useState<(string | undefined)[]>([]);
 
-  // TODO: replace these with real query results
+  // TODO: replace with real query results — use pageToken to drive the API call,
+  // get nextPageToken from the response, and remove the mock slicing below.
   const isLoading = false;
-  const discussions = MOCK_DISCUSSIONS;
-  const nextPageToken: string | undefined = MOCK_NEXT_PAGE_TOKEN;
-
+  const currentPage = history.length;
+  const discussions = MOCK_DISCUSSIONS.slice(
+    currentPage * PAGE_SIZE,
+    (currentPage + 1) * PAGE_SIZE,
+  );
+  const hasNext = (currentPage + 1) * PAGE_SIZE < MOCK_DISCUSSIONS.length;
   const hasPrev = history.length > 0;
-  const hasNext = !!nextPageToken;
 
   const goNext = () => {
     setHistory((h) => [...h, pageToken]);
-    setPageToken(nextPageToken);
+    setPageToken(String(currentPage + 1));
   };
 
   const goPrev = () => {
@@ -118,6 +126,26 @@ export default function MyCommunitiesDiscussions() {
         <Typography variant="h2">
           {t("dashboard:discussions.community_header")}
         </Typography>
+        <div>
+          <IconButton
+            size="small"
+            onClick={goPrev}
+            disabled={!hasPrev}
+            color={hasPrev ? "primary" : "default"}
+            aria-label={t("dashboard:discussions.prev_page_label")}
+          >
+            <ArrowBack fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={goNext}
+            disabled={!hasNext}
+            color={hasNext ? "primary" : "default"}
+            aria-label={t("dashboard:discussions.next_page_label")}
+          >
+            <ArrowForward fontSize="small" />
+          </IconButton>
+        </div>
       </SectionHeader>
       {isLoading ? (
         <DiscussionListContainer>
@@ -126,33 +154,11 @@ export default function MyCommunitiesDiscussions() {
           ))}
         </DiscussionListContainer>
       ) : discussions.length > 0 ? (
-        <>
-          <DiscussionListContainer>
-            {discussions.map((d) => (
-              <DiscussionListRow key={d.discussionId} discussion={d} />
-            ))}
-          </DiscussionListContainer>
-          {(hasPrev || hasNext) && (
-            <PaginationRow>
-              <IconButton
-                size="small"
-                onClick={goPrev}
-                disabled={!hasPrev}
-                aria-label={t("dashboard:discussions.prev_page_label")}
-              >
-                <ArrowBack fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={goNext}
-                disabled={!hasNext}
-                aria-label={t("dashboard:discussions.next_page_label")}
-              >
-                <ArrowForward fontSize="small" />
-              </IconButton>
-            </PaginationRow>
-          )}
-        </>
+        <DiscussionListContainer>
+          {discussions.map((d) => (
+            <DiscussionListRow key={d.discussionId} discussion={d} />
+          ))}
+        </DiscussionListContainer>
       ) : (
         <TextBody>
           {t("dashboard:discussions.community_empty_message")}
