@@ -1,14 +1,23 @@
 import logging
 
 import grpc
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import can_moderate_node, session_scope
 from couchers.event_log import log_event
 from couchers.jobs.enqueue import queue_job
-from couchers.models import Cluster, Discussion, ModerationObjectType, Thread, User
+from couchers.models import (
+    Cluster,
+    ClusterSubscription,
+    Discussion,
+    ModerationObjectType,
+    Node,
+    NodeType,
+    Thread,
+    User,
+)
 from couchers.models.notifications import NotificationTopicAction
 from couchers.moderation.utils import create_moderation
 from couchers.notifications.notify import notify
@@ -17,7 +26,7 @@ from couchers.proto.internal import jobs_pb2
 from couchers.servicers.api import user_model_to_pb
 from couchers.servicers.blocking import is_not_visible
 from couchers.servicers.threads import thread_to_pb
-from couchers.sql import where_moderated_content_visible
+from couchers.sql import to_bool, where_moderated_content_visible
 from couchers.utils import Timestamp_from_datetime
 
 logger = logging.getLogger(__name__)
@@ -166,3 +175,40 @@ class Discussions(discussions_pb2_grpc.DiscussionsServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "discussion_not_found")
 
         return discussion_to_pb(session, discussion, context)
+
+    def ListMyCommunitiesDiscussions(
+        self, request: discussions_pb2.ListMyCommunitiesDiscussionsReq, context: CouchersContext, session: Session
+    ) -> discussions_pb2.ListMyCommunitiesDiscussionsRes:
+        MAX_PAGE_SIZE = 25
+        page_size = min(MAX_PAGE_SIZE, request.page_size or MAX_PAGE_SIZE)
+        next_page_id = int(request.page_token) if request.page_token else 0
+
+        my_cluster_ids = (
+            session.execute(
+                select(ClusterSubscription.cluster_id)
+                .join(Cluster, Cluster.id == ClusterSubscription.cluster_id)
+                .join(Node, Node.id == Cluster.parent_node_id)
+                .where(ClusterSubscription.user_id == context.user_id)
+                .where(Cluster.is_official_cluster)
+                .where(Node.node_type > NodeType.macroregion)
+            )
+            .scalars()
+            .all()
+        )
+
+        discussions = (
+            session.execute(
+                select(Discussion)
+                .where(Discussion.owner_cluster_id.in_(my_cluster_ids))
+                .where(or_(Discussion.id <= next_page_id, to_bool(next_page_id == 0)))
+                .order_by(Discussion.id.desc())
+                .limit(page_size + 1)
+            )
+            .scalars()
+            .all()
+        )
+
+        return discussions_pb2.ListMyCommunitiesDiscussionsRes(
+            discussions=[discussion_to_pb(session, d, context) for d in discussions[:page_size]],
+            next_page_token=str(discussions[-1].id) if len(discussions) > page_size else None,
+        )
