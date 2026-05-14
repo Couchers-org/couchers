@@ -36,6 +36,7 @@ def setup_experimentation() -> None:
         return
 
     if not config["EXPERIMENTATION_ENABLED"]:
+        logger.info("Experimentation is disabled, skipping initialization")
         _initialized = True
         return
 
@@ -89,3 +90,17 @@ def check_gate(context: CouchersContext, gate_name: str) -> bool:
     if not config["EXPERIMENTATION_ENABLED"]:
         return False
     return _get_growthbook(context).is_on(gate_name)
+
+
+def get_feature_value[T](context: CouchersContext, feature_name: str, default: T) -> T:
+    """
+    Get the value of a feature for the user in this context.
+
+    Use this for non-boolean features: strings, numbers, dicts, experiment variations,
+    dynamic configs - anything other than a simple on/off gate. The default's type
+    determines the return type and is returned verbatim when experimentation is disabled.
+    """
+    _check_initialized()
+    if not config["EXPERIMENTATION_ENABLED"]:
+        return default
+    return _get_growthbook(context).get_feature_value(feature_name, default)  # type: ignore[no-any-return]
