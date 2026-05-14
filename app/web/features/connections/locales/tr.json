@@ -12,7 +12,7 @@
   "friends": "Arkadaşlar",
   "friend_list_title": "Arkadaşların",
   "friend_requests": "Arkadaş istekleri",
-  "friend_requests_sent": "Yolladığın arkadaşlık istekleri",
+  "friend_requests_sent": "Gönderdiğin arkadaşlık istekleri",
   "no_blocked_users": "Engelli kullanıcı yok",
   "remove_friend_confirmation_dialog": {
     "title": "Arkadaşı çıkar",
@@ -22,7 +22,7 @@
   "unblock_user_confirmation_dialog": {
     "confirm": "Engeli kaldır",
     "title": "{{name}}'nın engelini kaldırmak istediğine emin misin?",
-    "message": "Engeli kaldırmak onların senin profilini görmesine ve sana istek yollamalarına izin verecek. Eğer daha önceden arkadaş idiyseniz, arkadaş listene geri dönecekler. Onlara haber verilmeyecek."
+    "message": "Engeli kaldırmak onların senin profilini görmesine ve sana istek göndermelerine izin verecek. Eğer daha önceden arkadaştıysanız, arkadaş listene geri dönecekler. Onlara haber verilmeyecek."
   },
   "unblock_user": "Kullanıcının engelini kaldır",
   "no_friend_requests": "Bekleyen arkadaş isteği yok",
