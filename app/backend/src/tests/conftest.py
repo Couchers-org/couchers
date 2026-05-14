@@ -231,8 +231,8 @@ def testconfig():
 
     config["EXPERIMENTATION_ENABLED"] = False
     config["EXPERIMENTATION_PASS_ALL_GATES"] = True
-    config["STATSIG_SERVER_SECRET_KEY"] = ""
-    config["STATSIG_ENVIRONMENT"] = "testing"
+    config["GROWTHBOOK_API_HOST"] = "https://cdn.growthbook.io"
+    config["GROWTHBOOK_CLIENT_KEY"] = ""
 
     # Moderation auto-approval deadline - 0 disables, set in tests that need it
     config["MODERATION_AUTO_APPROVE_DEADLINE_SECONDS"] = 0
