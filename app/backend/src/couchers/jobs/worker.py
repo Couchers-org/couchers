@@ -176,7 +176,7 @@ def _run_forever(func: Callable[[], None]) -> None:
     # don't survive fork() and must be initialized fresh in each child process
     db_post_fork()
     setup_tracing()
-    setup_experimentation()  # Must be initialized after fork - see couchers/experimentation.py
+    setup_experimentation()
 
     while True:
         try:
