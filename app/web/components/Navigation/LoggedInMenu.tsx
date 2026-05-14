@@ -291,11 +291,9 @@ export default function LoggedInMenu({
 
   return (
     <>
-      {!isMobile && (
-        <Box sx={{ marginRight: theme.spacing(1) }}>
-          <LanguagePickerSelect />
-        </Box>
-      )}
+      <Box sx={{ marginRight: theme.spacing(1) }}>
+        <LanguagePickerSelect />
+      </Box>
       <Tooltip title={t("global:nav.notifications")}>
         <NotificationMenuItemWrapper>
           <NotificationBadge count={notificationCount}>

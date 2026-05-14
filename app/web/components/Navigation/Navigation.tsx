@@ -288,9 +288,11 @@ export default function Navigation() {
   const { t } = useTranslation(GLOBAL);
 
   const shouldShowLanguagePickerSelect = useMemo(() => {
-    if (isMobile && authState.authenticated) return false;
+    if (!isMobile) return true;
 
-    return true;
+    if (isMobile && authState.authenticated) return true;
+
+    return false;
   }, [authState.authenticated, isMobile]);
 
   useEffect(() => setIsMounted(true), []);
