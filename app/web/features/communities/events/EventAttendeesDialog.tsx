@@ -10,6 +10,7 @@ import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 
 import { useEventAttendees } from "./hooks";
+import UsersCountTag from "./UsersCountTag";
 
 const ATTENDEES_DIALOG_LABEL_ID = "attendees";
 
@@ -17,12 +18,14 @@ interface EventAttendeesDialogProps {
   eventId: number;
   open: boolean;
   onClose(): void;
+  attendeeCount: number;
 }
 
 export default function EventAttendeesDialog({
   eventId,
   onClose,
   open,
+  attendeeCount,
 }: EventAttendeesDialogProps) {
   const { t } = useTranslation([COMMUNITIES]);
   const {
@@ -45,6 +48,7 @@ export default function EventAttendeesDialog({
     >
       <DialogTitle id={ATTENDEES_DIALOG_LABEL_ID}>
         {t("communities:attendees")}
+        <UsersCountTag>{attendeeCount}</UsersCountTag>
       </DialogTitle>
       <DialogContent>
         <UsersList error={error} userIds={attendeesIds} />

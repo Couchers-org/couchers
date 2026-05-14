@@ -10,6 +10,8 @@ import { LiteUser } from "proto/api_pb";
 import { ListEventAttendeesRes } from "proto/events_pb";
 import { theme } from "theme";
 
+import UsersCountTag from "./UsersCountTag";
+
 const StyledWrapper = styled(Card)(() => ({
   padding: theme.spacing(2),
 }));
@@ -25,6 +27,12 @@ const PaginationWrapper = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
 }));
+
+const StyledTitleContainer = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  gap: "0.25rem",
+});
 
 export interface EventUsersProps {
   emptyState: string;
@@ -44,6 +52,7 @@ export interface EventUsersProps {
   getUserMenuItems?: (
     user: LiteUser.AsObject,
   ) => EllipsisMenuItem[] | undefined;
+  attendeeCount: number;
 }
 
 export default function EventUsers({
@@ -57,12 +66,20 @@ export default function EventUsers({
   isLoading,
   pagination,
   getUserMenuItems,
+  attendeeCount,
 }: EventUsersProps) {
   const { t } = useTranslation([COMMUNITIES]);
 
   return (
     <StyledWrapper>
-      <Typography variant="h2">{title}</Typography>
+      <Typography variant="h2">
+        <StyledTitleContainer>
+          <Typography variant="h2" component="span">
+            {title}
+          </Typography>
+          <UsersCountTag>{attendeeCount?.toString()}</UsersCountTag>
+        </StyledTitleContainer>
+      </Typography>
       <UsersList
         error={error}
         userIds={userIds}

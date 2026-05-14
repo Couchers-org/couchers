@@ -1,4 +1,4 @@
-import { ChevronRight, Group, Place, Schedule } from "@mui/icons-material";
+import { ChevronRight, Place, Schedule } from "@mui/icons-material";
 import { Skeleton, styled } from "@mui/material";
 import { useTranslation } from "i18n";
 import { DASHBOARD } from "i18n/namespaces";
@@ -11,6 +11,8 @@ import {
   localizeMonthAbbreviation,
   timestamp2Date,
 } from "utils/date";
+
+import UsersCountTag from "../communities/events/UsersCountTag";
 
 export const EventListContainer = styled("div")({
   border: "1px solid var(--mui-palette-grey-300)",
@@ -111,18 +113,6 @@ const MetaText = styled("span")({
   whiteSpace: "nowrap",
 });
 
-const AttendeeTag = styled("span")({
-  display: "inline-flex",
-  alignItems: "center",
-  gap: "3px",
-  color: "var(--mui-palette-text-secondary)",
-  fontSize: "11px",
-  fontWeight: 600,
-  padding: "2px 8px",
-  flexShrink: 0,
-  whiteSpace: "nowrap",
-});
-
 const SkeletonRow = styled("div")({
   display: "flex",
   alignItems: "center",
@@ -188,12 +178,11 @@ export default function EventListRow({ event }: EventListRowProps) {
       <ContentWrapper>
         <TitleRow>
           <RowTitle>{event.title}</RowTitle>
-          <AttendeeTag>
-            <Group sx={{ fontSize: "11px" }} />
+          <UsersCountTag>
             {t("dashboard:events.attendees_count_label", {
               count: attendeeCount,
             })}
-          </AttendeeTag>
+          </UsersCountTag>
           <ChevronRight
             sx={{
               fontSize: "16px",
