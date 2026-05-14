@@ -16,6 +16,7 @@ import { service } from "service";
 
 import EventAttendeesDialog from "./EventAttendeesDialog";
 import EventUsers from "./EventUsers";
+import { getAttendeeCount } from "./helpers";
 import { useEventAttendees, useEventOrganizers } from "./hooks";
 
 interface EventAttendeesProps {
@@ -36,6 +37,8 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
   const currentPage = data?.pages?.[pageIndex];
 
   const pagesLength = data?.pages.length ?? 0;
+
+  const attendeeCount = getAttendeeCount(event);
 
   const handlePreviousPageClick = () => {
     setPageIndex((current) => Math.max(current - 1, 0));
@@ -145,11 +148,13 @@ export default function EventAttendees({ event }: EventAttendeesProps) {
         getUserMenuItems={
           isCoOrganizedByCurrentUser ? getUserMenuItems : undefined
         }
+        attendeeCount={attendeeCount}
       />
       <EventAttendeesDialog
         eventId={event.eventId}
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
+        attendeeCount={attendeeCount}
       />
       <MakeCoOrganizerDialog
         username={userToPromote?.name ?? ""}
