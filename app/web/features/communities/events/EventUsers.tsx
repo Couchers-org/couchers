@@ -52,7 +52,7 @@ export interface EventUsersProps {
   getUserMenuItems?: (
     user: LiteUser.AsObject,
   ) => EllipsisMenuItem[] | undefined;
-  attendeeCount: number;
+  attendeeCount?: number;
 }
 
 export default function EventUsers({
@@ -77,7 +77,9 @@ export default function EventUsers({
           <Typography variant="h2" component="span">
             {title}
           </Typography>
-          <UsersCountTag>{attendeeCount?.toString()}</UsersCountTag>
+          {attendeeCount && (
+            <UsersCountTag>{attendeeCount?.toString()}</UsersCountTag>
+          )}
         </StyledTitleContainer>
       </Typography>
       <UsersList
