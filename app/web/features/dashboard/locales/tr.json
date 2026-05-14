@@ -2,9 +2,9 @@
   "complete_profile_dialog": {
     "title": "Neredeyse vardın: devam etmek için lütfen profilini tamamla!",
     "actions": {
-      "send_message": "Bir mesaj yolla",
+      "send_message": "Bir mesaj gönder",
       "create_event": "bir etkinlik oluştur",
-      "send_request": "Bir istek yolla"
+      "send_request": "Bir istek gönder"
     },
     "edit_profile_button": "Profilini şimdi düzenle",
     "description_2": "Bu, güvenilir bir topluluk kurmamıza ve spamı azaltmamıza yardım ediyor. Daha fazla bilgi için, <2>lütfen bu destek sayfasına bak</2>. Yardımın için teşekkürler!",
