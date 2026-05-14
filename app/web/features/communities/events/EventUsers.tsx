@@ -72,16 +72,14 @@ export default function EventUsers({
 
   return (
     <StyledWrapper>
-      <Typography variant="h2">
-        <StyledTitleContainer>
-          <Typography variant="h2" component="span">
-            {title}
-          </Typography>
-          {attendeeCount && (
-            <UsersCountTag>{attendeeCount?.toString()}</UsersCountTag>
-          )}
-        </StyledTitleContainer>
-      </Typography>
+      <StyledTitleContainer>
+        <Typography variant="h2" component="span" role="heading">
+          {title}
+        </Typography>
+        {attendeeCount && (
+          <UsersCountTag>{attendeeCount?.toString()}</UsersCountTag>
+        )}
+      </StyledTitleContainer>
       <UsersList
         error={error}
         userIds={userIds}
