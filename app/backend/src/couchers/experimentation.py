@@ -4,10 +4,13 @@ Experimentation framework for feature flags and experiments.
 Uses GrowthBook under the hood, but abstracts the implementation details.
 """
 
+import json
 import logging
+import threading
 from typing import TYPE_CHECKING, Any
 
-from growthbook import GrowthBook, feature_repo
+import urllib3
+from growthbook import GrowthBook
 from growthbook.common_types import Experiment, Result
 from sqlalchemy.dialects.postgresql import insert
 
@@ -20,21 +23,66 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+_REFRESH_INTERVAL_SECONDS = 60
+_HTTP_CONNECT_TIMEOUT_SECONDS = 1
+_HTTP_READ_TIMEOUT_SECONDS = 2
+
 _initialized = False
+_state: dict[str, Any] = {"features": {}, "savedGroups": {}}
+_state_lock = threading.Lock()
+_refresh_stop = threading.Event()
+_refresh_thread: threading.Thread | None = None
 
 
 class ExperimentationNotInitializedError(Exception):
     """Raised when experimentation functions are called before initialization."""
 
 
+def _fetch_features() -> dict[str, Any] | None:
+    """Fetch the GrowthBook feature payload over HTTP. Returns None on failure."""
+    api_host = config["GROWTHBOOK_API_HOST"].rstrip("/")
+    client_key = config["GROWTHBOOK_CLIENT_KEY"]
+    url = f"{api_host}/api/features/{client_key}"
+    try:
+        http = urllib3.PoolManager(
+            timeout=urllib3.Timeout(connect=_HTTP_CONNECT_TIMEOUT_SECONDS, read=_HTTP_READ_TIMEOUT_SECONDS)
+        )
+        r = http.request("GET", url, headers={"Accept-Encoding": "gzip, deflate"})
+        if r.status >= 400:
+            logger.warning("GrowthBook fetch returned status %d", r.status)
+            return None
+        return json.loads(r.data.decode("utf-8"))  # type: ignore[no-any-return]
+    except Exception:
+        logger.exception("GrowthBook fetch failed")
+        return None
+
+
+def _apply_response(response: dict[str, Any]) -> None:
+    """Atomically replace the current snapshot with a freshly fetched response."""
+    with _state_lock:
+        _state["features"] = response.get("features", {})
+        _state["savedGroups"] = response.get("savedGroups", {})
+
+
+def _refresh_loop() -> None:
+    while not _refresh_stop.wait(_REFRESH_INTERVAL_SECONDS):
+        response = _fetch_features()
+        if response is not None:
+            _apply_response(response)
+            logger.debug("GrowthBook features refreshed")
+        # On failure, keep last-known-good state and try again next tick.
+
+
 def setup_experimentation() -> None:
     """
     Initialize the experimentation framework.
 
-    Safe to call multiple times - subsequent calls are no-ops. Pre-warms the
-    shared feature_repo cache so the first request doesn't pay the API fetch.
+    Safe to call multiple times - subsequent calls are no-ops. Fetches the
+    feature payload once synchronously, then starts a background thread that
+    refreshes every minute. Request threads only ever read the in-memory
+    snapshot - they never block on the GrowthBook CDN.
     """
-    global _initialized
+    global _initialized, _refresh_thread
 
     if _initialized:
         return
@@ -46,17 +94,17 @@ def setup_experimentation() -> None:
 
     logger.info("Initializing experimentation framework")
 
-    # These settings get baked into feature_repo's PoolManager on first HTTP
-    # call, so configure them before any fetches happen.
-    feature_repo.http_connect_timeout = 1
-    feature_repo.http_read_timeout = 2
+    response = _fetch_features()
+    if response is not None:
+        _apply_response(response)
 
-    response = feature_repo.load_features(config["GROWTHBOOK_API_HOST"], config["GROWTHBOOK_CLIENT_KEY"])
-    features = response.get("features", {}) if response else {}
-    saved_groups = response.get("savedGroups", {}) if response else {}
-
-    smoke_gb = GrowthBook(features=features, savedGroups=saved_groups)
+    with _state_lock:
+        smoke_gb = GrowthBook(features=_state["features"], savedGroups=_state["savedGroups"])
     test_gate_result = smoke_gb.is_on("test_growthbook_integration")
+
+    _refresh_stop.clear()
+    _refresh_thread = threading.Thread(target=_refresh_loop, name="growthbook-refresh", daemon=True)
+    _refresh_thread.start()
 
     _initialized = True
     logger.info(f"Experimentation integration test: gate 'test_growthbook_integration' = {test_gate_result}")
@@ -100,17 +148,15 @@ def _get_growthbook(context: CouchersContext) -> GrowthBook:
     """
     Get or create a cached GrowthBook instance for the given context.
 
-    Features are fetched via the process-wide feature_repo cache (one HTTP
-    fetch per cache TTL, shared across all users) and handed to the per-request
-    instance directly. We deliberately construct without `client_key` so
-    GrowthBook.__init__ doesn't register a bound callback on feature_repo's
-    callback list - those callbacks would pin every per-request instance for
-    the lifetime of the worker.
+    Reads the in-memory feature snapshot maintained by the background refresh
+    thread - never does HTTP from the request path. Constructing without
+    `client_key` keeps the GrowthBook a pure evaluator: no callback
+    registration on the library's process-wide singleton.
     """
     if not hasattr(context, "_growthbook"):
-        response = feature_repo.load_features(config["GROWTHBOOK_API_HOST"], config["GROWTHBOOK_CLIENT_KEY"])
-        features = response.get("features", {}) if response else {}
-        saved_groups = response.get("savedGroups", {}) if response else {}
+        with _state_lock:
+            features = _state["features"]
+            saved_groups = _state["savedGroups"]
 
         user_id = context.user_id
 
