@@ -27,6 +27,6 @@ If you like the app, please do leave us a good review on Google Play or in the A
 
 You can also share our social media posts about the release on [Instagram](https://www.instagram.com/p/DYWyHBzDSjo/), [Facebook](https://www.facebook.com/Couchers.org/posts/pfbid029MZtEtiYD4BaUTAkCPbero3HZwX1mtBBNbG4M9H7ETH5camyNUPVucFNMS4d81vml) or [TikTok](https://www.tiktok.com/@couchersorg).
 
-Let's make this the best couch surfing platform out there together. Thank you for being part of the Couchers.org community ❤️.
+Let's work together to make this the best couch surfing platform! Thank you for being part of the Couchers.org community ❤️.
 
 See you on Couchers.org!
