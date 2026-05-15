@@ -7,6 +7,8 @@
     "admin_blog_title_too_long": "The blog post title is too long.",
     "admin_cannot_edit_badge": "Admins cannot edit that badge.",
     "admin_note_cant_be_empty": "The admin note cannot be empty.",
+    "admin_note_data_must_be_valid_json": "The admin note data must be valid JSON.",
+    "admin_note_requires_exactly_one_of_note_or_data": "Provide exactly one of admin_note or data.",
     "already_admin": "That user is already an admin.",
     "already_have_dm": "You already have a direct message chat with this user.",
     "already_in_chat": "That user is already in the chat.",
