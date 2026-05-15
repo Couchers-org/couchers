@@ -19,7 +19,7 @@ We have the news you’ve been waiting for: the Couchers.org mobile app is out t
 * [Android App on Google Play store](https://play.google.com/store/apps/details?id=org.couchers.android)
 * [iOS App on Apple App Store](https://apps.apple.com/us/app/couchers-org/id6623776751)
 
-We heard you. Many people don’t travel with their laptops and a mobile app was sorely needed. Our volunteer [Nicole](https://couchers.org/user/unsettleddown) has been working on the Couchers mobile app since July 2025 and is excited to finally share it with the general public!
+We heard you. Many people don’t travel with their laptops and a mobile app was sorely needed. The Couchers.org app project, led by our volunteer [Nicole](https://couchers.org/user/unsettleddown) (GitHub: [nabramow](https://github.com/nabramow)), has been ongoing since July 2025, and is excited to finally share it with the general public!
 
 The app has gone through maaaaany rounds of internal testing thanks to our lovely volunteers and two rounds of public beta testing by a group of over 1000 active Couchers. We believe we have caught the major bugs. That said, if you find any issues please report it via the red button in the top navigation bar and provide steps in English on how we can replicate the issue.
 
