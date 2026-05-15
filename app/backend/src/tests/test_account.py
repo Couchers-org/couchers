@@ -282,7 +282,7 @@ def test_ChangePasswordV2_normal_wrong_password(db, fast_passwords):
         with pytest.raises(grpc.RpcError) as e:
             account.ChangePasswordV2(
                 account_pb2.ChangePasswordV2Req(
-                    old_password="wrong password",
+                    old_password="Wrong password",
                     new_password=new_password,
                 )
             )
@@ -319,7 +319,7 @@ def test_ChangeEmailV2_wrong_password(db, fast_passwords):
         with pytest.raises(grpc.RpcError) as e:
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
-                    password="wrong password",
+                    password="Wrong password",
                     new_email=new_email,
                 )
             )
@@ -346,7 +346,7 @@ def test_ChangeEmailV2_wrong_email(db, fast_passwords):
         with pytest.raises(grpc.RpcError) as e:
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
-                    password="wrong password",
+                    password="Wrong password",
                     new_email=new_email,
                 )
             )
