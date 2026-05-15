@@ -1,0 +1,26 @@
+---
+is_blog_post: true
+title: Couchers.org app officially released on iOS and Android!
+slug: mobile-app-release
+description: "It's Couchers.org mobile app release day! Find us on iOS and Android app stores"
+date: 2026/05/16
+author: Nicole
+author_username: unsettleddown
+---
+
+We have the news you’ve been waiting for, the Couchers.org mobile app is out today for iOS and Android! You can find it by searching "Couchers.org" in the Apple App and Google Play stores.
+
+* [Android App on Google Play store](https://play.google.com/store/apps/details?id=org.couchers.android)
+* [iOS App on Apple App Store](https://apps.apple.com/us/app/couchers-org/id6623776751)
+
+We heard you. Many people don’t travel with their laptops and a mobile app was sorely needed. Our volunteer [Nicole](https://couchers.org/user/unsettleddown) has been working on the Couchers mobile app since July 2025 and is excited to finally share it with the general public!
+
+The app has gone through maaaaany rounds of internal testing thanks to our lovely volunteers and two rounds of public beta testing by a group of over 1000 active Couchers. We believe we have caught the major bugs. That said, if you find any issues please report it via the red button in the top navigation bar and provide steps in English on how we can replicate the issue. We will try to fix it as soon as we’re able.
+
+If you like the app, please do leave us a good review on Google Play or in the Apple App Store, it’s a low effort way that helps spread the word about Couchers and helps us grow this community.
+
+You can also share our social media posts about the release on [Instagram](https://www.instagram.com/p/DYWyHBzDSjo/), [Facebook](https://www.facebook.com/Couchers.org/posts/pfbid029MZtEtiYD4BaUTAkCPbero3HZwX1mtBBNbG4M9H7ETH5camyNUPVucFNMS4d81vml) or [TikTok](https://www.tiktok.com/@couchersorg).
+
+Let's make this the best couch surfing platform out there together. Thank you for being part of the Couchers.org community ❤️.
+
+See you on Couchers.org!
