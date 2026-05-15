@@ -6,9 +6,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from couchers.context import CouchersContext, make_background_user_context, make_logged_out_context
+from couchers.context import CouchersContext, make_background_user_context
 from couchers.db import session_scope
-from couchers.i18n import LocalizationContext
 from couchers.jobs.enqueue import queue_job
 from couchers.models import (
     Comment,
@@ -48,14 +47,7 @@ def unpack_thread_id(thread_id: int) -> tuple[int, int]:
     return divmod(thread_id, 10)
 
 
-def _viewing_context(viewing_user_id: int | None) -> CouchersContext:
-    if viewing_user_id is not None:
-        return make_background_user_context(user_id=viewing_user_id)
-    return make_logged_out_context(LocalizationContext.en_utc())
-
-
-def total_num_responses(session: Session, viewing_user_id: int | None, database_id: int) -> int:
-    context = _viewing_context(viewing_user_id)
+def total_num_responses(session: Session, context: CouchersContext, database_id: int) -> int:
     comments = where_moderated_content_visible(
         select(func.count()).select_from(Comment).where(Comment.thread_id == database_id),
         context,
@@ -74,10 +66,10 @@ def total_num_responses(session: Session, viewing_user_id: int | None, database_
     return session.execute(comments).scalar_one() + session.execute(replies).scalar_one()
 
 
-def thread_to_pb(session: Session, viewing_user_id: int | None, database_id: int) -> threads_pb2.Thread:
+def thread_to_pb(session: Session, context: CouchersContext, database_id: int) -> threads_pb2.Thread:
     return threads_pb2.Thread(
         thread_id=pack_thread_id(database_id, 0),
-        num_responses=total_num_responses(session, viewing_user_id, database_id),
+        num_responses=total_num_responses(session, context, database_id),
     )
 
 
