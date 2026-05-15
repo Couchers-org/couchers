@@ -204,7 +204,7 @@ class Account(account_pb2_grpc.AccountServicer):
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
         if not verify_password(user.hashed_password, request.old_password):
-            # Wrong username/email or password
+            # wrong password
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_password")
 
         abort_on_invalid_password(request.new_password, context)
@@ -238,7 +238,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         # check password first
         if not verify_password(user.hashed_password, request.password):
-            # Wrong username/email or password
+            # wrong password
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "invalid_password")
 
         # not a valid email

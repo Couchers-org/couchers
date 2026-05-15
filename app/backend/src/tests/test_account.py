@@ -282,12 +282,12 @@ def test_ChangePasswordV2_normal_wrong_password(db, fast_passwords):
         with pytest.raises(grpc.RpcError) as e:
             account.ChangePasswordV2(
                 account_pb2.ChangePasswordV2Req(
-                    old_password="Wrong username/email or password",
+                    old_password="wrong password",
                     new_password=new_password,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Wrong username/email or password."
+        assert e.value.details() == "wrong password."
 
     with session_scope() as session:
         updated_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
@@ -319,12 +319,12 @@ def test_ChangeEmailV2_wrong_password(db, fast_passwords):
         with pytest.raises(grpc.RpcError) as e:
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
-                    password="Wrong username/email or password",
+                    password="wrong password",
                     new_email=new_email,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Wrong username/email or password."
+        assert e.value.details() == "wrong password."
 
     with session_scope() as session:
         assert (
@@ -346,12 +346,12 @@ def test_ChangeEmailV2_wrong_email(db, fast_passwords):
         with pytest.raises(grpc.RpcError) as e:
             account.ChangeEmailV2(
                 account_pb2.ChangeEmailV2Req(
-                    password="Wrong username/email or password",
+                    password="wrong password",
                     new_email=new_email,
                 )
             )
         assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-        assert e.value.details() == "Wrong username/email or password."
+        assert e.value.details() == "wrong password."
 
     with session_scope() as session:
         assert (
