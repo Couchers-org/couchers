@@ -362,3 +362,19 @@ def test_total_num_responses_excludes_shadowed(db):
 
     with session_scope() as session:
         assert total_num_responses(session, viewer_context, parent_db_id) == 1
+
+
+def test_total_num_responses_includes_own_shadowed(db):
+    """The count uses the viewer's context so authors see their own shadowed content in the total,
+    matching what GetThread shows them in the list."""
+    from couchers.context import make_background_user_context  # noqa: PLC0415
+    from couchers.servicers.threads import total_num_responses  # noqa: PLC0415
+
+    author, author_token = generate_user()
+    parent_thread_id, _ = _make_thread_and_comment(author_token, content="one")
+    author_context = make_background_user_context(user_id=author.id)
+
+    parent_db_id, _ = divmod(parent_thread_id, 10)
+
+    with session_scope() as session:
+        assert total_num_responses(session, author_context, parent_db_id) == 1
